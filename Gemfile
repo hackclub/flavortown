@@ -49,6 +49,12 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Bullet gem to catch N+1
+  gem "bullet"
+
+  # Rack Mini Profiler gem for performance monitoring
+  gem "rack-mini-profiler"
 end
 
 group :development do
@@ -61,3 +67,5 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "pundit", "~> 2.5"
