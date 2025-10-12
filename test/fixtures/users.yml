@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# == Schema Information
+#
+# Table name: users
+#
+#  id             :integer          not null, primary key
+#  display_name   :string
+#  email          :string
+#  projects_count :integer
+#  votes_count    :integer
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#
+one:
+  email: MyString
+  display_name: MyString
+  projects_count: 1
+  votes_count: 1
+
+two:
+  email: MyString
+  display_name: MyString
+  projects_count: 1
+  votes_count: 1
