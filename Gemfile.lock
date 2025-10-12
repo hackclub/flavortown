@@ -79,6 +79,8 @@ GEM
     annotaterb (4.19.0)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
+    argon2-kdf (0.3.1)
+      fiddle
     ast (2.4.3)
     base64 (0.3.0)
     bcrypt_pbkdf (1.1.1)
@@ -92,6 +94,9 @@ GEM
       smart_properties
     bigdecimal (3.3.1)
     bindex (0.8.1)
+    blind_index (2.7.0)
+      activesupport (>= 7.1)
+      argon2-kdf (>= 0.2)
     bootsnap (1.18.6)
       msgpack (~> 1.2)
     brakeman (7.1.0)
@@ -130,6 +135,7 @@ GEM
     erubi (1.13.1)
     et-orbi (1.3.0)
       tzinfo
+    fiddle (1.1.8)
     fugit (1.11.2)
       et-orbi (~> 1, >= 1.2.11)
       raabro (~> 1.4)
@@ -401,6 +407,7 @@ PLATFORMS
 DEPENDENCIES
   aasm
   annotaterb
+  blind_index
   bootsnap
   brakeman
   bullet
