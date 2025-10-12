@@ -34,3 +34,4 @@
 /config/master.key
 
 /tmp/*
+/config/credentials/development.key
