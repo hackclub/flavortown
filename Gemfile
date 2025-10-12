@@ -55,6 +55,9 @@ group :development, :test do
 
   # Rack Mini Profiler gem for performance monitoring
   gem "rack-mini-profiler"
+
+  # Annoate for annotating, ig.
+  gem "annotaterb"
 end
 
 group :development do
