@@ -35,3 +35,6 @@
 
 /tmp/*
 /config/credentials/development.key
+
+# mac os be like
+.DS_Store
