@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_12_163753) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_12_170739) do
   create_table "user_identities", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "provider"
@@ -36,6 +36,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_12_163753) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+# Could not dump table "versions" because of following StandardError
+#   Unknown type 'uuid' for column 'id'
+
 
   add_foreign_key "user_identities", "users"
 end

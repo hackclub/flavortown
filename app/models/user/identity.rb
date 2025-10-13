@@ -29,6 +29,7 @@ class User::Identity < ApplicationRecord
     belongs_to :user
     has_encrypted :access_token, :refresh_token
     blind_index :access_token, :refresh_token, slow: true
+    has_paper_trail only: [ :id, :user_id, :uid, :provider ]
 
     PROVIDERS = %w[slack hackatime idv].freeze
 

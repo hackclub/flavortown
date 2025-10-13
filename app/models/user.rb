@@ -14,6 +14,7 @@
 #  updated_at     :datetime         not null
 #
 class User < ApplicationRecord
+  has_paper_trail ignore: [ :projects_count, :votes_count ]
   has_many :identities, class_name: "User::Identity", dependent: :destroy
 
   # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
