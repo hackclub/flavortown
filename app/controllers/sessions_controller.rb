@@ -5,7 +5,7 @@ class SessionsController < ApplicationController
     uid = auth.uid
     info = auth.info
     cred = auth.credentials
-    
+
     # provider is a symbol. do not change it to string... equality will fail otherwise
 
     if provider == :slack && current_user.blank?
