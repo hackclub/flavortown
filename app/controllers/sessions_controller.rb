@@ -16,6 +16,7 @@ class SessionsController < ApplicationController
 
       user = identity.user
       unless user
+        # info.name is overwritten once the callback runs. We're setting something for now...
         user = User.create!(display_name: info.name, email: info.email)
       end
 
