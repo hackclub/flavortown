@@ -2,7 +2,7 @@
 #
 # Table name: user_identities
 #
-#  id                       :integer          not null, primary key
+#  id                       :bigint           not null, primary key
 #  access_token_bidx        :string
 #  access_token_ciphertext  :text
 #  provider                 :string
@@ -23,7 +23,7 @@
 #
 # Foreign Keys
 #
-#  user_id  (user_id => users.id)
+#  fk_rails_...  (user_id => users.id)
 #
 class User::Identity < ApplicationRecord
     belongs_to :user
