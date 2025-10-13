@@ -16,6 +16,13 @@ class Role < ApplicationRecord
     validates :name, :description, presence: true
     validates :name, uniqueness: true
 
+    # if you need to add or edit roles, update config/roles.yml
+    # For a fresh db, run: bin/rails db:seed (or db:setup)
+    # For an prod/exisiting db,
+    #   manually create the new roles via the Rails console, but make sure to add it to config/roles.yml for the team. 🫡
+
+    # TODO: setup policy pundit
+
     private
 
     def normalize!
