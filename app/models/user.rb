@@ -13,6 +13,8 @@
 class User < ApplicationRecord
   has_paper_trail ignore: [ :projects_count, :votes_count ]
   has_many :identities, class_name: "User::Identity", dependent: :destroy
+  has_many :role_assignments, class_name: "User::RoleAssignment", dependent: :destroy
+  has_many :roles, through: :role_assignments
 
   # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
 

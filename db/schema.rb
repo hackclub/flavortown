@@ -10,9 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_13_141808) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_13_182221) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "roles", force: :cascade do |t|
+    t.string "name"
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "user_identities", force: :cascade do |t|
     t.integer "user_id", null: false
@@ -29,6 +36,25 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_13_141808) do
     t.index ["refresh_token_bidx"], name: "index_user_identities_on_refresh_token_bidx"
     t.index ["user_id", "provider"], name: "index_user_identities_on_user_id_and_provider", unique: true
     t.index ["user_id"], name: "index_user_identities_on_user_id"
+  end
+
+  create_table "user_role_assignments", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "role_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["role_id"], name: "index_user_role_assignments_on_role_id"
+    t.index ["user_id", "role_id"], name: "index_user_role_assignments_on_user_id_and_role_id", unique: true
+    t.index ["user_id"], name: "index_user_role_assignments_on_user_id"
+  end
+
+  create_table "user_roles", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "role_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["role_id"], name: "index_user_roles_on_role_id"
+    t.index ["user_id"], name: "index_user_roles_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -52,4 +78,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_13_141808) do
   end
 
   add_foreign_key "user_identities", "users"
+  add_foreign_key "user_role_assignments", "roles"
+  add_foreign_key "user_role_assignments", "users"
+  add_foreign_key "user_roles", "roles"
+  add_foreign_key "user_roles", "users"
 end
