@@ -129,7 +129,7 @@ GEM
     ed25519 (1.4.0)
     email_validator (2.2.4)
       activemodel
-    erb (5.0.2)
+    erb (5.1.1)
     erb_lint (0.9.0)
       activesupport
       better_html (>= 2.0.1)
@@ -277,7 +277,7 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.5.9)
-    pp (0.6.2)
+    pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
     prism (1.5.1)
@@ -295,7 +295,7 @@ GEM
       activesupport (>= 3.0.0)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.2.1)
+    rack (3.2.3)
     rack-mini-profiler (4.0.1)
       rack (>= 1.2.0)
     rack-oauth2 (2.2.1)
@@ -348,9 +348,10 @@ GEM
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.3.0)
-    rdoc (6.14.2)
+    rdoc (6.15.0)
       erb
       psych (>= 4.0.0)
+      tsort
     regexp_parser (2.11.3)
     reline (0.6.2)
       io-console (~> 0.5)
@@ -407,7 +408,7 @@ GEM
       activejob (>= 7.2)
       activerecord (>= 7.2)
       railties (>= 7.2)
-    solid_cache (1.0.7)
+    solid_cache (1.0.8)
       activejob (>= 7.2)
       activerecord (>= 7.2)
       railties (>= 7.2)
