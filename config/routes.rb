@@ -14,5 +14,12 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   get "logout", to: "sessions#destroy"
 
+  # Projects
+
+  resources :projects, except: :index, shallow: true do
+    resources :memberships, only: [ :create, :destroy ], module: :project
+  end
+
+  # Landing
   root "landing#index"
 end
