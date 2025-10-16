@@ -1,0 +1,29 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# == Schema Information
+#
+# Table name: projects
+#
+#  id                :bigint           not null, primary key
+#  demo_url          :text
+#  description       :text
+#  memberships_count :integer          default(0), not null
+#  readme_url        :text
+#  repo_url          :text
+#  title             :string           not null
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#
+one:
+  title: MyString
+  description: MyText
+  repo_url: MyText
+  demo_url: MyText
+  readme_url: MyText
+
+two:
+  title: MyString
+  description: MyText
+  repo_url: MyText
+  demo_url: MyText
+  readme_url: MyText
