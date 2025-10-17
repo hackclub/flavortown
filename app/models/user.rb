@@ -27,6 +27,16 @@ class User < ApplicationRecord
   def self.find_by_provider(provider, uid)
     joins(:identities).find_by(user_identities: { provider:, uid: })
   end
+  def can_use_blazer
+    return true
+  end
+  
+  def can_use_flipper
+    return true 
+  end
 
+  def can_use_admin_endpoints
+      true # hardcoding cuz im not a ruby perms master
+  end
   private_class_method :find_by_provider
 end

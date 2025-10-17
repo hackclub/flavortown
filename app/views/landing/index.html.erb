@@ -1,6 +1,9 @@
 <h1>wsp chat!</h1>
 <p>Please sign in:</p>
-
+<% if @current_user %>
+<p> hello comrade  <%= @current_user.display_name %> </p>
+<% end %>
 <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
   <button type="submit">Sign in with Slack</button>
 <% end %>
+ 
