@@ -466,6 +466,15 @@ GEM
       attr_required (>= 0.0.5)
       faraday (~> 2.0)
       faraday-follow_redirects
+    tailwindcss-rails (4.3.0)
+      railties (>= 7.0.0)
+      tailwindcss-ruby (~> 4.0)
+    tailwindcss-ruby (4.1.13)
+    tailwindcss-ruby (4.1.13-aarch64-linux-gnu)
+    tailwindcss-ruby (4.1.13-aarch64-linux-musl)
+    tailwindcss-ruby (4.1.13-arm64-darwin)
+    tailwindcss-ruby (4.1.13-x86_64-linux-gnu)
+    tailwindcss-ruby (4.1.13-x86_64-linux-musl)
     thor (1.4.0)
     thruster (0.1.15)
     thruster (0.1.15-aarch64-linux)
@@ -553,6 +562,8 @@ DEPENDENCIES
   solid_cache
   solid_queue
   stimulus-rails
+  tailwindcss-rails (~> 4.3)
+  tailwindcss-ruby (~> 4.1)
   thruster
   turbo-rails
   tzinfo-data

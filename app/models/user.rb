@@ -18,20 +18,24 @@ class User < ApplicationRecord
   has_many :projects, through: :memberships
   has_many :roles, through: :role_assignments
 
-  # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
+  class << self
+    # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
+    def find_by_slack(uid)     = find_by_provider("slack", uid)
+    def find_by_hackatime(uid) = find_by_provider("hackatime", uid)
+    def find_by_idv(uid)       = find_by_provider("idv", uid)
 
-  def self.find_by_slack(uid)     = find_by_provider("slack", uid)
-  def self.find_by_hackatime(uid) = find_by_provider("hackatime", uid)
-  def self.find_by_idv(uid)       = find_by_provider("idv", uid)
+    private
 
-  def self.find_by_provider(provider, uid)
-    joins(:identities).find_by(user_identities: { provider:, uid: })
+    def find_by_provider(provider, uid)
+      joins(:identities).find_by(user_identities: { provider:, uid: })
+    end
   end
-  def is_admin?
-    roles.exists?(name: "admin")
+
+  def admin?
+    roles.exists?(name: [ "admin", "super_admin" ])
   end
-  def is_fraud_dept?
-    roles.exists?(name: "fraud_dept")
+
+  def super_admin?
+    roles.exists?(name: "super_admin")
   end
-  private_class_method :find_by_provider
 end

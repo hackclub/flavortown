@@ -87,3 +87,7 @@ gem "flipper"
 gem "flipper-active_record"
 gem "flipper-ui"
 gem "flipper-active_support_cache_store"
+
+gem "tailwindcss-ruby", "~> 4.1"
+
+gem "tailwindcss-rails", "~> 4.3"

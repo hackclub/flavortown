@@ -39,5 +39,13 @@ Rails.application.routes.draw do
   
     resources :users, shallow: true
   end
+
+  # Projects
+
+  resources :projects, except: :index, shallow: true do
+    resources :memberships, only: [ :create, :destroy ], module: :project
+  end
+
+  # Landing
   root "landing#index"
 end
