@@ -28,17 +28,17 @@ class User < ApplicationRecord
     joins(:identities).find_by(user_identities: { provider:, uid: })
   end
   def is_admin
-    roles.exists?(name:"admin")
+    roles.exists?(name: "admin")
   end
   def is_fraud_dept
-    roles.exists?(name:"fraud_dept")
+    roles.exists?(name: "fraud_dept")
   end
   def can_use_blazer
-    return is_admin() 
+    is_admin()
   end
-  
+
   def can_use_flipper
-    return is_admin()
+    is_admin()
   end
 
   def can_use_admin_endpoints
