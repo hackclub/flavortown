@@ -8,7 +8,7 @@ hey admin
 
 <hr />
 <h2> Dashboards </h2>
-<% if @current_user&.can_use_blazer %>
+<% if policy(:admin).blazer? %>
   <%= render "admin/shared/button",
              text: "Blazer",
              path: '/admin/blazer',
@@ -16,7 +16,7 @@ hey admin
              data_attrs: { confirm: "Are you sure?" } %>
 <% end %>
 
-<% if @current_user&.can_use_flipper %>
+<% if policy(:admin).flipper? %>
   <%= render "admin/shared/button",
              text: "Flipper",
              path: '/admin/flipper',

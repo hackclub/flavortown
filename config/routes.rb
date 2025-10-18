@@ -24,20 +24,19 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   get "logout", to: "sessions#destroy"
   # admin shallow routing
-  namespace :admin, constraints: AdminConstraint do
+  namespace :admin do
     root to: "application#index"
+  
     mount Blazer::Engine, at: "blazer", constraints: ->(request) {
-      user_id = request.session[:user_id]
-      user = User.find_by(id: user_id)
-      user&.can_use_blazer
+      user = User.find_by(id: request.session[:user_id])
+      user && AdminPolicy.new(user, :admin).blazer?
     }
-
+  
     mount Flipper::UI.app(Flipper), at: "flipper", constraints: ->(request) {
-      user_id = request.session[:user_id]
-      user = User.find_by(id: user_id)
-      user&.can_use_flipper
+      user = User.find_by(id: request.session[:user_id])
+      user && AdminPolicy.new(user, :admin).flipper?
     }
-
+  
     resources :users, shallow: true
   end
   root "landing#index"
