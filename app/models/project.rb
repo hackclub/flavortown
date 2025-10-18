@@ -26,7 +26,7 @@ class Project < ApplicationRecord
         attachable.variant :card,
                            resize_to_fill: [ 1600, 900 ],
                            format: :webp,
-                           preprocess: true,
+                           preprocessed: true,
                            saver: { strip: true, quality: 75 }
 
         #   attachable.variant :not_sure,
@@ -38,7 +38,7 @@ class Project < ApplicationRecord
         attachable.variant :thumb,
                            resize_to_fill: [ 400, 210 ],
                            format: :webp,
-                           preprocess: true,
+                           preprocessed: true,
                            saver: { strip: true, quality: 75 }
     end
 
