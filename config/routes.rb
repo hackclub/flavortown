@@ -31,13 +31,13 @@ Rails.application.routes.draw do
       user = User.find_by(id: user_id)
       user&.can_use_blazer
     }
-    
+
     mount Flipper::UI.app(Flipper), at: "flipper", constraints: ->(request) {
       user_id = request.session[:user_id]
       user = User.find_by(id: user_id)
       user&.can_use_flipper
     }
-  
+
     resources :users, shallow: true
   end
   root "landing#index"

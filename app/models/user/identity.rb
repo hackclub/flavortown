@@ -65,5 +65,4 @@ class User::Identity < ApplicationRecord
             Rails.logger.warn("Slack users.info callback failed for uid=#{uid}: #{e.class}: #{e.message}")
         end
     end
-  
 end
