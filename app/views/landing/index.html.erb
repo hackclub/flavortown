@@ -1,9 +1,17 @@
 <h1>wsp chat!</h1>
 <p>Please sign in:</p>
 <% if @current_user %>
-<p> hello comrade  <%= @current_user.display_name %> </p>
+<p> hello comrade  
+<% if @is_admin %>
+<%= link_to admin_root_path do %>
+  <span style="border: 3px dotted orange;"><%= @current_user.display_name %></span>
 <% end %>
-<%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
+<% else %>
+<span>non powerful <%= @current_user.display_name %>  </span>
+<% end %>
+</p>
+<% end %>
+<%= form_tag "/auth/slack", method: :post, data: {turbo: false}, disabled: @current_user do %>
   <button type="submit">Sign in with Slack</button>
 <% end %>
  

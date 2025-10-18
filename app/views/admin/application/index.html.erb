@@ -1,0 +1,27 @@
+<div style="padding: 50px;">
+<h1> 
+hey admin
+</h1>
+
+<h2>Tasks</h2>
+
+
+<hr />
+<h2> Dashboards </h2>
+<% if @current_user&.can_use_blazer %>
+  <%= render "admin/shared/button",
+             text: "Blazer",
+             path: '/admin/blazer',
+             extra_class: "btn-primary",
+             data_attrs: { confirm: "Are you sure?" } %>
+<% end %>
+
+<% if @current_user&.can_use_flipper %>
+  <%= render "admin/shared/button",
+             text: "Flipper",
+             path: '/admin/flipper',
+             extra_class: "btn-primary",
+             data_attrs: { confirm: "Are you sure?" } %>
+<% end %>
+
+</div>

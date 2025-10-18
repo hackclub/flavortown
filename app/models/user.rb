@@ -27,16 +27,22 @@ class User < ApplicationRecord
   def self.find_by_provider(provider, uid)
     joins(:identities).find_by(user_identities: { provider:, uid: })
   end
+  def is_admin
+    roles.exists?(name:"admin")
+  end
+  def is_fraud_dept
+    roles.exists?(name:"fraud_dept")
+  end
   def can_use_blazer
-    return true
+    return is_admin() 
   end
   
   def can_use_flipper
-    return true 
+    return is_admin()
   end
 
   def can_use_admin_endpoints
-      true # hardcoding cuz im not a ruby perms master
+      is_admin() || is_fraud_dept()
   end
   private_class_method :find_by_provider
 end
