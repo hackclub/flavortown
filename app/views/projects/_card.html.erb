@@ -1,8 +1,8 @@
 <%= tag.div id: dom_id(project) do %>
-    <div class="bg-card-brown rounded-3xl border-16 border-card-brown-border overflow-hidden drop-shadow-xl">
+    <div class="bg-card-brown rounded-3xl border-12 border-card-brown-border overflow-hidden drop-shadow-xl p-3">
         <!-- Project Banner -->
         <% if project.banner.attached? %>
-            <div class="aspect-video bg-gray-100">
+            <div class="aspect-video bg-gray-100 rounded-md">
                 <%= link_to project_path(project) do %>
                     <%= image_tag project.banner.variant(:card), 
                         alt: "#{project.title} banner",
@@ -12,7 +12,7 @@
         <% else %>
             <!-- no banner -->
             <%# replace this  %>
-            <div class="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+            <div class="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center rounded-md">
                 <%= link_to project_path(project), class: "w-full h-full flex items-center justify-center" do %>
                     <div class="text-center text-gray-400">
                         <p class="text-xs">No banner</p>
@@ -20,7 +20,7 @@
                 <% end %>
             </div>
         <% end %>
-        <div class="p-6">
+        <div class="mt-2 p-2">
             <!-- Title -->
             <h3 class="text-2xl text-[#F8E8D1] mb-2">
                 <%= link_to project.title, project_path(project) %>
@@ -29,10 +29,71 @@
             <!-- Descp -->
             <%# TODO: add continue/read more https://apidock.com/rails/ActionView/Helpers/TextHelper/truncate %>
             <% if project.description.present? %>
-                <p class="text-sm text-card-brown-text mb-4 line-clamp-3">
+                <p class="text-lg text-card-brown-secondary mb-4 line-clamp-3">
                     <%= truncate(project.description, length: 120) %>
                 </p>
             <% end %>
+
+            <div class="flex gap-4 text-card-brown-text-tertiary">
+                <div class="relative">
+                    <svg width="121.6" height="38.4" viewBox="0 0 152 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g filter="url(#filter0_d_187_795)">
+                            <path d="M10 3H25.9207C27.7411 3 29.4899 3.70919 30.7962 4.97714L35.5981 9.63824C36.9044 10.9062 38.6532 11.6154 40.4737 11.6154H142C145.866 11.6154 149 14.7494 149 18.6154V38C149 41.866 145.866 45 142 45H10C6.13401 45 3 41.866 3 38V10C3 6.13401 6.134 3 10 3Z" fill="#D7B594"/>
+                        </g>
+                        <defs>
+                            <filter id="filter0_d_187_795" x="0" y="0" width="152" height="48" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="1"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_187_795"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_187_795" result="shape"/>
+                            </filter>
+                        </defs>
+                    </svg>
+
+                    <div class="absolute left-0 top-0 w-full h-full flex">
+                        <div class="ml-2 my-auto">
+                            <svg width="20" height="25" viewBox="0 0 25 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M2.875 0.500002C2.17881 0.500002 1.51113 0.776563 1.01884 1.26885C0.526562 1.76113 0.25 2.42881 0.25 3.125V25.875C0.25 26.5712 0.526562 27.2389 1.01884 27.7312C1.51113 28.2234 2.17881 28.5 2.875 28.5H22.125C22.8212 28.5 23.4889 28.2234 23.9812 27.7312C24.4734 27.2389 24.75 26.5712 24.75 25.875V10.3368C24.7494 9.64079 24.4724 8.97356 23.98 8.48175L16.77 1.26825C16.5259 1.02433 16.2361 0.830919 15.9172 0.699094C15.5983 0.56727 15.2566 0.499615 14.9115 0.500002H2.875ZM6.8125 15.375C6.4644 15.375 6.13056 15.5133 5.88442 15.7594C5.63828 16.0056 5.5 16.3394 5.5 16.6875C5.5 17.0356 5.63828 17.3694 5.88442 17.6156C6.13056 17.8617 6.4644 18 6.8125 18H18.1875C18.5356 18 18.8694 17.8617 19.1156 17.6156C19.3617 17.3694 19.5 17.0356 19.5 16.6875C19.5 16.3394 19.3617 16.0056 19.1156 15.7594C18.8694 15.5133 18.5356 15.375 18.1875 15.375H6.8125ZM6.8125 20.625C6.4644 20.625 6.13056 20.7633 5.88442 21.0094C5.63828 21.2556 5.5 21.5894 5.5 21.9375C5.5 22.2856 5.63828 22.6194 5.88442 22.8656C6.13056 23.1117 6.4644 23.25 6.8125 23.25H18.1875C18.5356 23.25 18.8694 23.1117 19.1156 22.8656C19.3617 22.6194 19.5 22.2856 19.5 21.9375C19.5 21.5894 19.3617 21.2556 19.1156 21.0094C18.8694 20.7633 18.5356 20.625 18.1875 20.625H6.8125Z" fill="#AD7757"/>
+                            </svg>
+                        </div>
+
+                        <p class="mt-2.75 ml-2">15 devlogs</p>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <svg width="151.2" height="38.4" viewBox="0 0 189 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g filter="url(#filter0_d_187_799)">
+                            <path d="M22.0527 3.61613L23.8795 3.49699C28.8371 3.17367 33.7727 4.39857 38.0039 7.00232L43.8126 10.5769C44.9159 11.2558 46.1859 11.6152 47.4813 11.6152H179.001C182.867 11.6152 186.001 14.7493 186.001 18.6153L186.001 37.9999C186.001 41.8658 182.867 44.9998 179.001 44.9998H23.2079C18.8571 44.9998 14.6265 43.5719 11.1656 40.9353C7.8095 38.3784 5.35431 34.8197 4.15557 30.7744L3.8467 29.7321C2.6454 25.6782 2.73528 21.3509 4.10387 17.3503C6.76593 9.56887 13.8459 4.15135 22.0527 3.61613Z" fill="#D7B594"/>
+                        </g>
+
+                        <defs>
+                            <filter id="filter0_d_187_799" x="0.00683594" y="0.446289" width="188.994" height="47.5537" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="1"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_187_799"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_187_799" result="shape"/>
+                            </filter>
+                        </defs>
+                    </svg>
+
+                    <div class="absolute left-0 top-0 w-full h-full flex">
+                        <div class="my-auto ml-2">
+                            <svg width="25" height="25" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M15 30C18.9782 30 22.7936 28.4196 25.6066 25.6066C28.4196 22.7936 30 18.9782 30 15C30 11.0218 28.4196 7.20644 25.6066 4.3934C22.7936 1.58035 18.9782 0 15 0C11.0218 0 7.20644 1.58035 4.3934 4.3934C1.58035 7.20644 0 11.0218 0 15C0 18.9782 1.58035 22.7936 4.3934 25.6066C7.20644 28.4196 11.0218 30 15 30ZM16.4062 5.625C16.4062 5.25204 16.2581 4.89435 15.9944 4.63063C15.7306 4.36691 15.373 4.21875 15 4.21875C14.627 4.21875 14.2694 4.36691 14.0056 4.63063C13.7419 4.89435 13.5938 5.25204 13.5938 5.625V15C13.5938 15.7762 14.2238 16.4062 15 16.4062H22.5C22.873 16.4062 23.2306 16.2581 23.4944 15.9944C23.7581 15.7306 23.9062 15.373 23.9062 15C23.9062 14.627 23.7581 14.2694 23.4944 14.0056C23.2306 13.7419 22.873 13.5938 22.5 13.5938H16.4062V5.625Z" fill="#AD7757"/>
+                            </svg>
+                        </div>
+
+                        <p class="mt-2.75 ml-2">23h 15m</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 <% end %>

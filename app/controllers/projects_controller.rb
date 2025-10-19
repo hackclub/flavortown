@@ -1,6 +1,7 @@
 class ProjectsController < ApplicationController
   before_action :set_project_minimal, only: [ :edit, :update, :destroy ]
   before_action :set_project, only: [ :show ]
+  before_action :authenticate_user!
 
   def index
     @projects = current_user.projects.with_attached_banner

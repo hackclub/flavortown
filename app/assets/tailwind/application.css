@@ -9,7 +9,9 @@
 @theme {
     --color-card-brown: hsl(8, 30%, 36%);
     --color-card-brown-border: hsl(23, 34%, 51%);
-    --color-card-brown-text: #F8E8D1 ;
+    --color-card-brown-text: #F8E8D1;
+    --color-card-brown-secondary: #D7B594;
+    --color-card-brown-text-tertiary: #7A4841;
 
     --font-jua: "Jua", "sans-serif";
 }
