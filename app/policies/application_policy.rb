@@ -50,4 +50,10 @@ class ApplicationPolicy
 
     attr_reader :user, :scope
   end
+
+  private
+
+  def logged_in?
+    user.present?
+  end
 end

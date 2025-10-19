@@ -46,6 +46,12 @@ GEM
       erubi (~> 1.11)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
+    active_storage_validations (3.0.2)
+      activejob (>= 6.1.4)
+      activemodel (>= 6.1.4)
+      activestorage (>= 6.1.4)
+      activesupport (>= 6.1.4)
+      marcel (>= 1.0.3)
     activejob (8.0.3)
       activesupport (= 8.0.3)
       globalid (>= 0.3.6)
@@ -153,6 +159,13 @@ GEM
       multipart-post (~> 2.0)
     faraday-net_http (3.4.1)
       net-http (>= 0.5.0)
+    ffi (1.17.2-aarch64-linux-gnu)
+    ffi (1.17.2-aarch64-linux-musl)
+    ffi (1.17.2-arm-linux-gnu)
+    ffi (1.17.2-arm-linux-musl)
+    ffi (1.17.2-arm64-darwin)
+    ffi (1.17.2-x86_64-linux-gnu)
+    ffi (1.17.2-x86_64-linux-musl)
     fiddle (1.1.8)
     fugit (1.11.2)
       et-orbi (~> 1, >= 1.2.11)
@@ -164,6 +177,9 @@ GEM
     hashie (5.0.0)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
+    image_processing (1.14.0)
+      mini_magick (>= 4.9.5, < 6)
+      ruby-vips (>= 2.0.17, < 3)
     importmap-rails (2.2.2)
       actionpack (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -209,6 +225,8 @@ GEM
       net-smtp
     marcel (1.1.0)
     matrix (0.4.3)
+    mini_magick (5.3.1)
+      logger
     mini_mime (1.1.5)
     minitest (5.26.0)
     msgpack (1.8.0)
@@ -392,6 +410,9 @@ GEM
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
     ruby-progressbar (1.13.0)
+    ruby-vips (2.2.5)
+      ffi (~> 1.12)
+      logger
     rubyzip (3.1.1)
     securerandom (0.4.1)
     selenium-webdriver (4.35.0)
@@ -439,6 +460,15 @@ GEM
       attr_required (>= 0.0.5)
       faraday (~> 2.0)
       faraday-follow_redirects
+    tailwindcss-rails (4.3.0)
+      railties (>= 7.0.0)
+      tailwindcss-ruby (~> 4.0)
+    tailwindcss-ruby (4.1.13)
+    tailwindcss-ruby (4.1.13-aarch64-linux-gnu)
+    tailwindcss-ruby (4.1.13-aarch64-linux-musl)
+    tailwindcss-ruby (4.1.13-arm64-darwin)
+    tailwindcss-ruby (4.1.13-x86_64-linux-gnu)
+    tailwindcss-ruby (4.1.13-x86_64-linux-musl)
     thor (1.4.0)
     thruster (0.1.15)
     thruster (0.1.15-aarch64-linux)
@@ -492,6 +522,7 @@ PLATFORMS
 
 DEPENDENCIES
   aasm
+  active_storage_validations
   annotaterb
   blind_index
   bootsnap
@@ -500,6 +531,7 @@ DEPENDENCIES
   capybara
   debug
   erb_lint
+  image_processing (~> 1.2)
   importmap-rails
   jbuilder
   kamal
@@ -522,6 +554,8 @@ DEPENDENCIES
   solid_cache
   solid_queue
   stimulus-rails
+  tailwindcss-rails (~> 4.3)
+  tailwindcss-ruby (~> 4.1)
   thruster
   turbo-rails
   tzinfo-data
