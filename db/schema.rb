@@ -72,7 +72,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_081642) do
   end
 
   create_table "user_identities", force: :cascade do |t|
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.string "provider"
     t.string "uid"
     t.datetime "created_at", null: false
@@ -96,15 +96,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_081642) do
     t.index ["role_id"], name: "index_user_role_assignments_on_role_id"
     t.index ["user_id", "role_id"], name: "index_user_role_assignments_on_user_id_and_role_id", unique: true
     t.index ["user_id"], name: "index_user_role_assignments_on_user_id"
-  end
-
-  create_table "user_roles", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "role_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["role_id"], name: "index_user_roles_on_role_id"
-    t.index ["user_id"], name: "index_user_roles_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -134,6 +125,4 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_081642) do
   add_foreign_key "user_identities", "users"
   add_foreign_key "user_role_assignments", "roles"
   add_foreign_key "user_role_assignments", "users"
-  add_foreign_key "user_roles", "roles"
-  add_foreign_key "user_roles", "users"
 end
