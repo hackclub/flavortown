@@ -131,6 +131,9 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     dotenv (3.1.8)
+    dotenv-rails (3.1.8)
+      dotenv (= 3.1.8)
+      railties (>= 6.1)
     drb (2.2.3)
     ed25519 (1.4.0)
     email_validator (2.2.4)
@@ -530,6 +533,7 @@ DEPENDENCIES
   bullet
   capybara
   debug
+  dotenv-rails
   erb_lint
   image_processing (~> 1.2)
   importmap-rails

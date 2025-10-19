@@ -58,6 +58,9 @@ group :development, :test do
 
   # Annoate for annotating, ig.
   gem "annotaterb"
+
+  # Load .env
+  gem "dotenv-rails"
 end
 
 group :development do
