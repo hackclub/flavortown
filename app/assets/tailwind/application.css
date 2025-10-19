@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+@font-face {
+    font-family: "Jua";
+    font-weight: regular;
+    src: url("Jua-Regular.ttf") format(truetype);
+  }
+
+@theme {
+    --color-card-brown: hsl(8, 30%, 36%);
+    --color-card-brown-border: hsl(23, 34%, 51%);
+    --color-card-brown-text: #F8E8D1 ;
+
+    --font-jua: "Jua", "sans-serif";
+}
