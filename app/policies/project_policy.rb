@@ -1,4 +1,8 @@
 class ProjectPolicy < ApplicationPolicy
+    def index?
+        logged_in?
+    end
+
     def show?
         true
     end
@@ -27,6 +31,6 @@ class ProjectPolicy < ApplicationPolicy
 
     def owns?
         return false unless user && record
-        user.membership.exists?(project: record, role: "owner")
+        user.memberships.exists?(project: record, role: "owner")
     end
 end

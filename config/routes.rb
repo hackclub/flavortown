@@ -42,7 +42,7 @@ Rails.application.routes.draw do
 
   # Projects
 
-  resources :projects, except: :index, shallow: true do
+  resources :projects, shallow: true do
     resources :memberships, only: [ :create, :destroy ], module: :project
   end
 

@@ -1,0 +1,38 @@
+<%= tag.div id: dom_id(project) do %>
+    <div class="bg-card-brown rounded-3xl border-16 border-card-brown-border overflow-hidden drop-shadow-xl">
+        <!-- Project Banner -->
+        <% if project.banner.attached? %>
+            <div class="aspect-video bg-gray-100">
+                <%= link_to project_path(project) do %>
+                    <%= image_tag project.banner.variant(:card), 
+                        alt: "#{project.title} banner",
+                        class: "w-full h-full object-cover" %>
+                <% end %>
+            </div>
+        <% else %>
+            <!-- no banner -->
+            <%# replace this  %>
+            <div class="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                <%= link_to project_path(project), class: "w-full h-full flex items-center justify-center" do %>
+                    <div class="text-center text-gray-400">
+                        <p class="text-xs">No banner</p>
+                    </div>
+                <% end %>
+            </div>
+        <% end %>
+        <div class="p-6">
+            <!-- Title -->
+            <h3 class="text-2xl text-[#F8E8D1] mb-2">
+                <%= link_to project.title, project_path(project) %>
+            </h3>
+
+            <!-- Descp -->
+            <%# TODO: add continue/read more https://apidock.com/rails/ActionView/Helpers/TextHelper/truncate %>
+            <% if project.description.present? %>
+                <p class="text-sm text-card-brown-text mb-4 line-clamp-3">
+                    <%= truncate(project.description, length: 120) %>
+                </p>
+            <% end %>
+        </div>
+    </div>
+<% end %>
