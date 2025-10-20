@@ -46,5 +46,6 @@ class Project < ApplicationRecord
     validates :description, length: { maximum: 1_000 }, allow_blank: true
     validates :banner,
               content_type: [ "image/jpeg", "image/png", "image/webp", "image/heic", "image/heif" ],
-              size: { less_than: 10.megabytes, message: "is too large (max 10 MB)" }
+              size: { less_than: 10.megabytes, message: "is too large (max 10 MB)" },
+              processable_file: true
 end
