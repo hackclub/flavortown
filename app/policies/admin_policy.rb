@@ -6,9 +6,14 @@ class AdminPolicy < ApplicationPolicy
     def flipper?
       user.try(:admin?)
     end
-  
+    def users?
+      user&.admin? || user&.fraud_dept?
+    end
+    def projects?
+      user&.admin? || user&.fraud_dept?
+    end
     def access_admin_endpoints?
-      user.try(:admin?) || user.try(:fraud_dept)
+      user&.admin? || user&.fraud_dept?
     end
   end
   

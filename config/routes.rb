@@ -36,8 +36,8 @@ Rails.application.routes.draw do
       user = User.find_by(id: request.session[:user_id])
       user && AdminPolicy.new(user, :admin).flipper?
     }
-  
-    resources :users, shallow: true
+    resources :users, only: [:index], shallow: true
+    resources :projects, only: [:index], shallow: true
   end
 
   # Projects
