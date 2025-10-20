@@ -89,4 +89,4 @@ gem "tailwindcss-rails", "~> 4.3"
 
 gem "active_storage_validations"
 
-gem 'inline_svg'
+gem "inline_svg"

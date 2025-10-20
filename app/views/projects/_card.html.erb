@@ -1,10 +1,10 @@
 <%= tag.div id: dom_id(project) do %>
-    <div class="bg-card-brown rounded-3xl border-12 border-card-brown-border overflow-hidden drop-shadow-xl p-3">
+    <div class="relative bg-card-brown rounded-3xl border-12 border-card-brown-border overflow-hidden drop-shadow-xl p-3">
         <!-- Project Banner -->
         <% if project.banner.attached? %>
             <div class="aspect-video bg-gray-100 rounded-md">
                 <%= link_to project_path(project) do %>
-                    <%= image_tag project.banner.variant(:card), 
+                    <%= image_tag project.banner.variant(:card),
                         alt: "#{project.title} banner",
                         class: "w-full h-full object-cover" %>
                 <% end %>
@@ -43,7 +43,7 @@
                             <%= inline_svg_tag "doc_icon.svg" %>
                         </div>
 
-                        <p class="mt-2.75 ml-2">15 devlogs</p>
+                        <p class="mt-2.75 ml-2">99 devlogs</p>
                     </div>
                 </div>
 
@@ -55,10 +55,19 @@
                             <%= inline_svg_tag "clock_icon.svg" %>
                         </div>
 
-                        <p class="mt-2.75 ml-2">23h 15m</p>
+                        <p class="mt-2.75 ml-2">10h 30m</p>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- bg icons -->
+        <%= inline_svg_tag "star.svg", class: "absolute top-[-16px] left-[-16px] size-16 opacity-15 z-[-1]" %>
+        <%= inline_svg_tag "star.svg", class: "absolute top-[-8px] right-[-24px] size-16 opacity-15 z-[-1]" %>
+        <%= inline_svg_tag "star.svg", class: "absolute bottom-16 left-[-24px] size-16 opacity-15 z-[-1]" %>
+        <%= inline_svg_tag "star.svg", class: "absolute bottom-36 right-10 size-16 opacity-15 z-[-1]" %>
+        <%= inline_svg_tag "toque.svg", class: "absolute bottom-18 right-42 size-16 opacity-10 z-[-1]" %>
+        <%= inline_svg_tag "pan.svg", class: "absolute bottom-2 right-0 size-16 opacity-10 z-[-1]" %>
+        <%= inline_svg_tag "rolling_pin.svg", class: "absolute bottom-[-16px] left-16 size-16 opacity-10 z-[-1]" %>
     </div>
 <% end %>
