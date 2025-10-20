@@ -13,6 +13,9 @@
 #  updated_at        :datetime         not null
 #
 class Project < ApplicationRecord
+    # TODO: reflect the allowed content types in the html accept
+    ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
+
     has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
     has_many :users, through: :memberships
 
@@ -45,7 +48,7 @@ class Project < ApplicationRecord
     validates :title, presence: true, length: { maximum: 120 }
     validates :description, length: { maximum: 1_000 }, allow_blank: true
     validates :banner,
-              content_type: [ "image/jpeg", "image/png", "image/webp", "image/heic", "image/heif" ],
+              content_type: ACCEPTED_CONTENT_TYPES,
               size: { less_than: 10.megabytes, message: "is too large (max 10 MB)" },
               processable_file: true
 end
