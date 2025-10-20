@@ -50,5 +50,6 @@ class Project < ApplicationRecord
     validates :banner,
               content_type: ACCEPTED_CONTENT_TYPES,
               size: { less_than: 10.megabytes, message: "is too large (max 10 MB)" },
+              spoofing_protection: true,
               processable_file: true
 end
