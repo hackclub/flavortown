@@ -4,7 +4,7 @@ class ProjectsController < ApplicationController
 
   def index
     @projects = current_user.projects.with_attached_banner
-    
+
     authorize Project
   end
 
