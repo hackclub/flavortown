@@ -4,7 +4,7 @@ module Admin
     include Pundit
 
     # Rescue all Pundit authorization errors
-    rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized  
+    rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
     # Optional before_action to enforce admin/fraud dept on all admin controllers
     before_action :authenticate_admin
@@ -26,6 +26,6 @@ module Admin
     def user_not_authorized
       flash[:alert] = "You are not authorized to perform this action."
       redirect_to(request.referrer || root_path)
-    end  
+    end
   end
 end

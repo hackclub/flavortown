@@ -26,18 +26,18 @@ Rails.application.routes.draw do
   # admin shallow routing
   namespace :admin do
     root to: "application#index"
-  
+
     mount Blazer::Engine, at: "blazer", constraints: ->(request) {
       user = User.find_by(id: request.session[:user_id])
       user && AdminPolicy.new(user, :admin).blazer?
     }
-  
+
     mount Flipper::UI.app(Flipper), at: "flipper", constraints: ->(request) {
       user = User.find_by(id: request.session[:user_id])
       user && AdminPolicy.new(user, :admin).flipper?
     }
-    resources :users, only: [:index], shallow: true
-    resources :projects, only: [:index], shallow: true
+    resources :users, only: [ :index ], shallow: true
+    resources :projects, only: [ :index ], shallow: true
   end
 
   # Projects
