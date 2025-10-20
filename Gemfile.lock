@@ -184,6 +184,9 @@ GEM
       actionpack (>= 6.0.0)
       activesupport (>= 6.0.0)
       railties (>= 6.0.0)
+    inline_svg (1.10.0)
+      activesupport (>= 3.0)
+      nokogiri (>= 1.6)
     io-console (0.8.1)
     irb (1.15.2)
       pp (>= 0.6.0)
@@ -533,6 +536,7 @@ DEPENDENCIES
   erb_lint
   image_processing (~> 1.2)
   importmap-rails
+  inline_svg
   jbuilder
   kamal
   lockbox
