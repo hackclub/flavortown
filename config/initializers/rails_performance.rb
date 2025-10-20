@@ -1,7 +1,7 @@
 if defined?(RailsPerformance)
   RailsPerformance.setup do |config|
     # Redis configuration
-    config.redis = Redis.new(url: ENV["REDIS_URL"].presence || "redis://127.0.0.1:6379/0")
+    config.redis = Redis.new(url: ENV["RAILS_PERFORMANCE_REDIS_URL"].presence)
 
     # All data we collect
     config.duration = 6.hours
@@ -16,7 +16,7 @@ if defined?(RailsPerformance)
     config.slow_requests_threshold = 500 # ms
 
     config.debug = false # currently not used>
-    config.enabled = true
+    config.enabled = ENV["RAILS_PERFORMANCE_REDIS_URL"].present?
 
     # default path where to mount gem
     config.mount_at = "/rails/performance"
