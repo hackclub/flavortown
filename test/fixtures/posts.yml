@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# == Schema Information
+#
+# Table name: posts
+#
+#  id            :bigint           not null, primary key
+#  postable_type :string
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  postable_id   :string
+#
+one:
+  postable_type: MyString
+  postable_id: MyString
+
+two:
+  postable_type: MyString
+  postable_id: MyString

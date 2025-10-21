@@ -4,7 +4,7 @@
         <% if project.banner.attached? %>
             <div class="aspect-video bg-gray-100">
                 <%= link_to project_path(project) do %>
-                    <%= image_tag project.banner.variant(:card), 
+                    <%= image_tag project.banner.variant(:card),
                         alt: "#{project.title} banner",
                         class: "w-full h-full object-cover" %>
                 <% end %>
