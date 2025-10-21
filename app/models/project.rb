@@ -48,8 +48,7 @@ class Project < ApplicationRecord
     validates :title, presence: true, length: { maximum: 120 }
     validates :description, length: { maximum: 1_000 }, allow_blank: true
     validates :banner,
-              content_type: ACCEPTED_CONTENT_TYPES,
+              content_type: { in: ACCEPTED_CONTENT_TYPES, spoofing_protection: true },
               size: { less_than: 10.megabytes, message: "is too large (max 10 MB)" },
-              spoofing_protection: true,
               processable_file: true
 end
