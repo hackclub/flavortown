@@ -1,16 +1,327 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50">
-  <div class="max-w-md w-full space-y-8 p-8">
-    <div class="text-center">
-      <h1 class="text-4xl font-bold text-gray-900 mb-2">wsp chat!</h1>
-      <p class="text-lg text-gray-600 mb-8">Please sign in:</p>
+<div class="min-h-screen bg-landing-bg-1 relative">
+  <div class="absolute -top-14 left-10">
+    <%= inline_svg_tag "landing/section-1/flag-orpheus-top.svg", class: "w-64 h-64" %>
+  </div>
+
+  <div class="absolute top-0 right-0 p-8">
+    <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
+      <button type="submit" class="px-6 text-xl py-2 rounded-xl text-white bg-[#A4383F] border-8 border-[#CF5A66]">
+        Sign In!
+      </button>
+    <% end %>
+  </div>
+
+  <div class="flex min-h-screen">
+    <!-- Left section – probably logo -->
+    <div class="w-1/2 flex items-center justify-center p-8">
+      <h1 class="text-6xl ">flavortown logo</h1>
     </div>
 
-    <div class="text-center">
-      <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
-        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-          Sign in with Slack
-        </button>
-      <% end %>
+    <div class="w-1/2 flex items-center justify-center p-8">
+      <div class="space-y-3">
+        <div>
+        </div>
+
+        <div class="relative">
+          <%= inline_svg_tag "icons/mail.svg", class: "absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-[#BE4D54]" %>
+          <input type="email" placeholder="Enter your email..." class="w-full pl-14 pr-4 py-3 bg-white placeholder-[#BE4D54] text-xl rounded-lg border-4 border-[#CF5A66]">
+        </div>
+
+        <div class="flex justify-center">
+          <button class="px-6 py-3 text-xl rounded-xl text-white bg-[#A4383F] border-8 border-[#CF5A66]">
+            Sign up and get free stickers!
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 2  -->
+<div class="min-h-screen relative flex flex-col" style="background-image: url('<%= asset_path('landing/section-2/bg-2.png') %>'); background-size: cover; background-position: center;">
+  <!-- Title -->
+  <div class="flex justify-center pt-8 md:pt-12 lg:pt-16 pb-2 md:pb-3 lg:pb-4">
+    <div class="relative">
+      <%= image_tag "landing/section-2/title.png", alt: "How this works", class: "h-16 md:h-20 2xl:h-28" %>
+      <h2 class="absolute inset-0 flex items-center justify-center text-[#F8E8D1] text-2xl md:text-3xl 2xl:text-5xl text-center">How this works</h2>
+    </div>
+  </div>
+
+  <!-- Thee col container -->
+  <div class="flex-1 flex flex-col md:flex-row w-full">
+
+    <!-- Step 1 - Pink/Red Section -->
+    <div class="flex-1 flex items-center justify-center px-4 md:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
+      <div class="flex flex-col items-center max-w-sm md:max-w-md lg:max-w-xl w-full">
+        <!-- Ribbon at top -->
+        <div class="relative z-20 mb-[-1.5rem] md:mb-[-2rem] lg:mb-[-2.5rem]">
+          <%= image_tag "landing/section-2/step-1-ribbon.png", alt: "Step 1", class: "h-12 md:h-16 lg:h-20" %>
+          <div class="absolute inset-0 flex items-center justify-center text-[#F8E8D1] text-lg md:text-xl lg:text-2xl">Step 1</div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="bg-[#F8E8D1] rounded-2xl md:rounded-3xl px-6 md:px-8 lg:px-10 pt-10 md:pt-12 lg:pt-16 pb-6 md:pb-8 lg:pb-10 w-full relative overflow-hidden">
+          <!-- Card Background Pattern -->
+          <div class="absolute inset-0 opacity-100 rounded-3xl">
+            <%= image_tag "landing/section-2/step-1-card-bg.png", alt: "", class: "w-full h-full object-cover" %>
+          </div>
+
+          <!-- Sketch Image -->
+          <div class="relative mb-0 w-full aspect-square z-10 rounded-2xl md:rounded-3xl overflow-hidden">
+            <%= image_tag "landing/section-2/step-1-img.png", alt: "", class: "w-full h-full object-cover p-4 md:p-5 lg:p-6" %>
+          </div>
+
+          <!-- Title Box with Text Overlay -->
+          <div class="relative mb-4 md:mb-6 lg:mb-8 z-20 -mt-4 md:-mt-6 lg:-mt-8 -mx-4 md:-mx-6 lg:-mx-8">
+            <%= image_tag "landing/section-2/step-1-title.png", alt: "", class: "w-full h-auto" %>
+            <h3 class="absolute inset-0 flex items-center justify-center text-[#F8E8D1] text-xl md:text-2xl lg:text-3xl text-center leading-tight px-4 md:px-5 lg:px-6">Cook a real tasty project!</h3>
+          </div>
+
+          <!-- Description Box -->
+          <div class="px-6 md:px-8 lg:px-10 py-4 md:py-5 lg:py-6 relative z-10">
+            <p class="text-[#8B2E2E] text-base md:text-lg lg:text-xl xl:text-2xl text-center leading-snug">A website, game, hardware, anything to show off your skills</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 - Green Section -->
+    <div class="flex-1 flex items-center justify-center px-4 md:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
+      <div class="flex flex-col items-center max-w-sm md:max-w-md lg:max-w-xl w-full">
+        <!-- Ribbon at top -->
+        <div class="relative z-20 mb-[-1.5rem] md:mb-[-2rem] lg:mb-[-2.5rem]">
+          <%= image_tag "landing/section-2/step-2-ribbon.png", alt: "Step 2", class: "h-12 md:h-16 lg:h-20" %>
+          <div class="absolute inset-0 flex items-center justify-center text-[#F8E8D1] text-lg md:text-xl lg:text-2xl">Step 2</div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="bg-[#F8E8D1] rounded-2xl md:rounded-3xl px-6 md:px-8 lg:px-10 pt-10 md:pt-12 lg:pt-16 pb-6 md:pb-8 lg:pb-10 w-full relative overflow-hidden">
+          <!-- Card Background Pattern -->
+          <div class="absolute inset-0 opacity-100 rounded-3xl">
+            <%= image_tag "landing/section-2/step-2-card-bg.png", alt: "", class: "w-full h-full object-cover" %>
+          </div>
+
+          <!-- Sketch Image -->
+          <div class="relative mb-0 w-full aspect-square z-10 rounded-2xl md:rounded-3xl overflow-hidden">
+            <%= image_tag "landing/section-2/step-2-img.png", alt: "", class: "w-full h-full object-cover p-4 md:p-5 lg:p-6" %>
+          </div>
+
+          <!-- Title Box with Text Overlay -->
+          <div class="relative mb-4 md:mb-6 lg:mb-8 z-20 -mt-4 md:-mt-6 lg:-mt-8 -mx-4 md:-mx-6 lg:-mx-8">
+            <%= image_tag "landing/section-2/step-2-title.png", alt: "", class: "w-full h-auto" %>
+            <h3 class="absolute inset-0 flex items-center justify-center text-[#F8E8D1] text-xl md:text-2xl lg:text-3xl text-center leading-tight px-4 md:px-5 lg:px-6">Rate your fellow hackers!</h3>
+          </div>
+
+          <!-- Description Box -->
+          <div class="px-6 md:px-8 lg:px-10 py-4 md:py-5 lg:py-6 relative z-10">
+            <p class="text-[#4A6B2E] text-base md:text-lg lg:text-xl xl:text-2xl text-center leading-snug">Rate projects and receive a rating on your own</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 - Blue Section -->
+    <div class="flex-1 flex items-center justify-center px-4 md:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
+      <div class="flex flex-col items-center max-w-sm md:max-w-md lg:max-w-xl w-full">
+        <!-- Ribbon at top -->
+        <div class="relative z-20 mb-[-1.5rem] md:mb-[-2rem] lg:mb-[-2.5rem]">
+          <%= image_tag "landing/section-2/step-3-ribbon.png", alt: "Step 3", class: "h-12 md:h-16 lg:h-20" %>
+          <div class="absolute inset-0 flex items-center justify-center text-[#F8E8D1] text-lg md:text-xl lg:text-2xl">Step 3</div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="bg-[#F8E8D1] rounded-2xl md:rounded-3xl px-6 md:px-8 lg:px-10 pt-10 md:pt-12 lg:pt-16 pb-6 md:pb-8 lg:pb-10 w-full relative overflow-hidden">
+          <!-- Card Background Pattern -->
+          <div class="absolute inset-0 opacity-100 rounded-3xl">
+            <%= image_tag "landing/section-2/step-3-card-bg.png", alt: "", class: "w-full h-full object-cover" %>
+          </div>
+
+          <!-- Sketch Image -->
+          <div class="relative mb-0 w-full aspect-square z-10 rounded-2xl md:rounded-3xl overflow-hidden">
+            <%= image_tag "landing/section-2/step-3-img.png", alt: "", class: "w-full h-full object-cover p-4 md:p-5 lg:p-6" %>
+          </div>
+
+          <!-- Title Box with Text Overlay -->
+          <div class="relative mb-4 md:mb-6 lg:mb-8 z-20 -mt-4 md:-mt-6 lg:-mt-8 -mx-4 md:-mx-6 lg:-mx-8">
+            <%= image_tag "landing/section-2/step-3-title.png", alt: "", class: "w-full h-auto" %>
+            <h3 class="absolute inset-0 flex items-center justify-center text-[#F8E8D1] text-xl md:text-2xl lg:text-3xl text-center leading-tight px-4 md:px-5 lg:px-6">Win prizes!</h3>
+          </div>
+
+          <!-- Description Box -->
+          <div class="px-6 md:px-8 lg:px-10 py-4 md:py-5 lg:py-6 relative z-10">
+            <p class="text-[#2E5B8B] text-base md:text-lg lg:text-xl xl:text-2xl text-center leading-snug">Win prizes that you can use to cook your next incredible feast</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Section 3  -->
+<div class="min-h-screen relative flex flex-col pb-12 md:pb-16 lg:pb-20" style="background-image: url('<%= asset_path('landing/section-3/bg.png') %>'); background-size: cover; background-position: center;">
+  <!-- Title -->
+  <div class="flex justify-center pt-8 md:pt-12 lg:pt-16 pb-6 md:pb-8 lg:pb-12">
+    <div class="relative">
+      <%= image_tag "landing/section-3/title.png", alt: "What Past Participants Say", class: "h-16 md:h-20 2xl:h-28" %>
+      <h2 class="absolute inset-0 flex items-center justify-center text-[#F8E8D1] text-2xl md:text-3xl 2xl:text-5xl text-center">What Past Participants Say</h2>
+    </div>
+  </div>
+
+  <!-- Testimonials Grid -->
+  <div class="flex-1 flex items-center justify-center px-4 md:px-8 lg:px-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10 max-w-7xl w-full">
+
+      <!-- Testimonial Card 1 - Blue (India) -->
+      <div class="flex flex-col">
+        <div class="bg-card-brown rounded-3xl overflow-hidden border-12 border-card-brown-border shadow-2xl flex flex-col h-full">
+          <!-- Image Container -->
+          <div class="aspect-video overflow-hidden">
+            <%= image_tag "landing/section-3/cards/image 57.png", alt: "", class: "w-full h-full object-cover" %>
+          </div>
+
+          <!-- Text Content -->
+          <div class="flex-1 flex flex-col p-4 md:p-5 lg:p-6">
+            <p class="text-[#F8E8D1] text-sm md:text-base lg:text-lg leading-relaxed flex-1">
+              I found a community of teens working on incredible projects, which helped me out of my comfort zone, from just software to even hardware and automation.
+            </p>
+          </div>
+
+          <!-- Blue Ribbon -->
+          <div class="relative -mt-2">
+            <%= image_tag "landing/section-3/blue-ribbon.png", alt: "", class: "w-full h-auto" %>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <p class="text-[#F8E8D1] text-xs md:text-sm lg:text-base text-center px-4">17 year old Hack Clubber from India</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial Card 2 - Green (Egypt) -->
+      <div class="flex flex-col">
+        <div class="bg-card-brown rounded-3xl overflow-hidden border-12 border-card-brown-border shadow-2xl flex flex-col h-full">
+          <!-- Image Container -->
+          <div class="aspect-video overflow-hidden">
+            <%= image_tag "landing/section-3/cards/image 57.png", alt: "", class: "w-full h-full object-cover" %>
+          </div>
+
+          <!-- Text Content -->
+          <div class="flex-1 flex flex-col p-4 md:p-5 lg:p-6">
+            <p class="text-[#F8E8D1] text-sm md:text-base lg:text-lg leading-relaxed flex-1">
+              One of the best events I've ever joined ... I met amazing people and finally found motivation ... huge thanks to everyone who made High Seas such a special experience!
+            </p>
+          </div>
+
+          <!-- Green Ribbon -->
+          <div class="relative -mt-2">
+            <%= image_tag "landing/section-3/green-ribbon.png", alt: "", class: "w-full h-auto" %>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <p class="text-[#F8E8D1] text-xs md:text-sm lg:text-base text-center px-4">17 year old Hack Clubber from Egypt</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial Card 3 - Red (Hungary) -->
+      <div class="flex flex-col">
+        <div class="bg-card-brown rounded-3xl overflow-hidden border-12 border-card-brown-border shadow-2xl flex flex-col h-full">
+          <!-- Image Container -->
+          <div class="aspect-video overflow-hidden">
+            <%= image_tag "landing/section-3/cards/image 57.png", alt: "", class: "w-full h-full object-cover" %>
+          </div>
+
+          <!-- Text Content -->
+          <div class="flex-1 flex flex-col p-4 md:p-5 lg:p-6">
+            <p class="text-[#F8E8D1] text-sm md:text-base lg:text-lg leading-relaxed flex-1">
+              I've never learned so much in such a short time ... It helped me through a difficult period in my life, teaching me discipline, dedication, and giving me a sense of purpose
+            </p>
+          </div>
+
+          <!-- Red Ribbon -->
+          <div class="relative -mt-2">
+            <%= image_tag "landing/section-3/red-ribbon.png", alt: "", class: "w-full h-auto" %>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <p class="text-[#F8E8D1] text-xs md:text-sm lg:text-base text-center px-4">17 year old Hack Clubber from Hungary</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial Card 4 - Blue (India) - Duplicate -->
+      <div class="flex flex-col">
+        <div class="bg-card-brown rounded-3xl overflow-hidden border-12 border-card-brown-border shadow-2xl flex flex-col h-full">
+          <!-- Image Container -->
+          <div class="aspect-video overflow-hidden">
+            <%= image_tag "landing/section-3/cards/image 57.png", alt: "", class: "w-full h-full object-cover" %>
+          </div>
+
+          <!-- Text Content -->
+          <div class="flex-1 flex flex-col p-4 md:p-5 lg:p-6">
+            <p class="text-[#F8E8D1] text-sm md:text-base lg:text-lg leading-relaxed flex-1">
+              I found a community of teens working on incredible projects, which helped me out of my comfort zone, from just software to even hardware and automation.
+            </p>
+          </div>
+
+          <!-- Blue Ribbon -->
+          <div class="relative -mt-2">
+            <%= image_tag "landing/section-3/blue-ribbon.png", alt: "", class: "w-full h-auto" %>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <p class="text-[#F8E8D1] text-xs md:text-sm lg:text-base text-center px-4">17 year old Hack Clubber from India</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial Card 5 - Green (Egypt) - Duplicate -->
+      <div class="flex flex-col">
+        <div class="bg-card-brown rounded-3xl overflow-hidden border-12 border-card-brown-border shadow-2xl flex flex-col h-full">
+          <!-- Image Container -->
+          <div class="aspect-video overflow-hidden">
+            <%= image_tag "landing/section-3/cards/image 57.png", alt: "", class: "w-full h-full object-cover" %>
+          </div>
+
+          <!-- Text Content -->
+          <div class="flex-1 flex flex-col p-4 md:p-5 lg:p-6">
+            <p class="text-[#F8E8D1] text-sm md:text-base lg:text-lg leading-relaxed flex-1">
+              One of the best events I've ever joined ... I met amazing people and finally found motivation ... huge thanks to everyone who made High Seas such a special experience!
+            </p>
+          </div>
+
+          <!-- Green Ribbon -->
+          <div class="relative -mt-2">
+            <%= image_tag "landing/section-3/green-ribbon.png", alt: "", class: "w-full h-auto" %>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <p class="text-[#F8E8D1] text-xs md:text-sm lg:text-base text-center px-4">17 year old Hack Clubber from Egypt</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial Card 6 - Red (Hungary) - Duplicate -->
+      <div class="flex flex-col">
+        <div class="bg-card-brown rounded-3xl overflow-hidden border-12 border-card-brown-border shadow-2xl flex flex-col h-full">
+          <!-- Image Container -->
+          <div class="aspect-video overflow-hidden">
+            <%= image_tag "landing/section-3/cards/image 57.png", alt: "", class: "w-full h-full object-cover" %>
+          </div>
+
+          <!-- Text Content -->
+          <div class="flex-1 flex flex-col p-4 md:p-5 lg:p-6">
+            <p class="text-card-brown-text text-sm md:text-base lg:text-lg leading-relaxed flex-1">
+              I've never learned so much in such a short time ... It helped me through a difficult period in my life, teaching me discipline, dedication, and giving me a sense of purpose
+            </p>
+          </div>
+
+          <!-- Red Ribbon -->
+          <div class="relative -mt-2">
+            <%= image_tag "landing/section-3/red-ribbon.png", alt: "", class: "w-full h-auto" %>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <p class="text-[#F8E8D1] text-xs md:text-sm lg:text-base text-center px-4">17 year old Hack Clubber from Hungary</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
