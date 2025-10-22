@@ -58,6 +58,9 @@ group :development, :test do
 
   # Annoate for annotating, ig.
   gem "annotaterb"
+
+  # Load .env
+  gem "dotenv-rails"
 end
 
 group :development do
@@ -88,3 +91,5 @@ gem "tailwindcss-ruby", "~> 4.1"
 gem "tailwindcss-rails", "~> 4.3"
 
 gem "active_storage_validations"
+gem "commonmarker"
+gem "inline_svg"
