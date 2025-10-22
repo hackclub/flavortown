@@ -81,7 +81,7 @@ jobs:
       - name: Run tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/flavortown_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/flavortown_test
           # REDIS_URL: redis://localhost:6379/0
         run: bin/rails db:test:prepare test test:system
 
