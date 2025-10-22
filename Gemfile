@@ -88,3 +88,5 @@ gem "slack-ruby-client"
 gem "active_storage_validations"
 gem "commonmarker"
 gem "inline_svg"
+
+gem "dartsass-rails", "~> 0.5.1"
