@@ -87,10 +87,14 @@
     background-size: 100% auto;
     background-position: center top;
 
+    z-index: 100;
     position: absolute;
     top: 32px;
-    
-    width: 80%;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    width: 26rem;
     min-height: 88px;
     align-items: center;
     justify-content: center;
@@ -102,24 +106,9 @@
     }
 
     @media (max-width: 600px) {
+        width:20rem;
         min-height: 68px;
         font-size: 2em;
-    }
-}
-
-.landing-section-2--title-left {
-    display: none;
-
-    @media (max-width: 900px) {
-        display: flex;
-    }
-}
-
-.landing-section-2--title-center {
-    display: flex;
-
-    @media (max-width: 900px) {
-        display: none;
     }
 }
 
