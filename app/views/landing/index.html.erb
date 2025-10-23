@@ -1,0 +1,12 @@
+<div class="landing-section">
+  <%= inline_svg_tag "landing/section-1/flag-orpheus-top.svg", class: "orph-flag" %>
+
+  <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
+    <button class="login-btn btn-striped-red">
+      <div>
+        <%= image_tag "mask/enter.png", width: 18, height: 18, style: "filter: invert(1);" %>
+        Sign in!
+      </div>
+    </button>
+  <% end %>
+</div>
