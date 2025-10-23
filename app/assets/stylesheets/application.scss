@@ -1,9 +1,75 @@
 // Sassy
 
-.landing-section {
+.landing-section-1 {
     min-height: 100vh;
     position: relative;
     background-color: #F8E8D1;
+    display: flex;
+}
+
+.landing-section-1--right {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    margin: auto 15% auto auto;
+    @media (max-width: 900px) {
+        margin: auto;
+    }
+
+    img {
+        width: 400px;
+
+        @media (max-width: 600px) {
+            width: 300px;
+        }
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+
+        align-items: center;
+
+        button {
+            margin-top: 8px;
+        }
+    }
+}
+
+.input-red {
+    background-color: #BE4D54;
+    border-radius: 10px;
+    padding: 8px;
+    width: 95%;
+
+    div {
+        background-color: white;
+        color: #BE4D54;
+
+        border-radius: 5px;
+        box-shadow: inset 0px 0px 2px 1px rgba(0, 0, 0, 0.25);
+        display: flex;
+
+        svg {
+            width: 42px;
+            padding: 8px 12px;
+
+            fill: #BE4D54;
+            opacity: 75%;
+        }
+
+        input {
+            width: 100%;
+            opacity: 75%;
+            margin-top: 1px; // just to align the text better vertically
+        }
+
+        input:hover, input:focus {
+            cursor: text;
+            outline: none;
+        }
+    }
 }
 
 .orph-flag {
@@ -39,6 +105,10 @@
         display: flex;
         align-items: center;
         gap: 10px;
+
+        img {
+            filter: invert(1);
+        }
     }
 }
 

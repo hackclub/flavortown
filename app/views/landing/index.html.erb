@@ -1,12 +1,31 @@
-<div class="landing-section">
+<div class="landing-section-1">
   <%= inline_svg_tag "landing/section-1/flag-orpheus-top.svg", class: "orph-flag" %>
 
   <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
     <button class="login-btn btn-striped-red">
       <div>
-        <%= image_tag "mask/enter.png", width: 18, height: 18, style: "filter: invert(1);" %>
+        <%= image_tag "mask/enter.png", width: 18, height: 18 %>
         Sign in!
       </div>
     </button>
   <% end %>
-</div>
+
+  <div class="landing-section-1--right">
+    <%= image_tag "landing/section-1/drawing.png" %>
+
+    <%= form_tag do %>
+      <div class="input-red">
+        <div>
+          <%= inline_svg_tag "icons/mail.svg" %>
+          <input type="email" placeholder="Enter your email..." />
+        </div>
+      </div>
+
+      <button class="btn-striped-red">
+        <div>
+          Sign up and get free stickers
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>  
