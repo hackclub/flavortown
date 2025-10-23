@@ -22,7 +22,7 @@
     }
 
     img {
-        width: 400px;
+        width: 450px;
 
         @media (max-width: 600px) {
             width: 350px;
@@ -202,6 +202,7 @@
     border-radius: 10px;
     padding: 8px;
     width: 95%;
+    font-size: 1.2em;
 
     div {
         background-color: white;
@@ -212,8 +213,8 @@
         display: flex;
 
         svg {
-            width: 42px;
-            padding: 8px 12px;
+            width: 64px;
+            padding: 12px 16px;
 
             fill: #BE4D54;
             opacity: 75%;
@@ -222,7 +223,7 @@
         input {
             width: 100%;
             opacity: 75%;
-            margin-top: 1px; // just to align the text better vertically
+            margin-top: 3px; // just to align the text better vertically
         }
 
         input:hover, input:focus {
@@ -236,6 +237,10 @@
     position: absolute;
     top: 0;
     left: 1.5em;
+}
+
+button {
+    font-size: 1.2em;
 }
 
 .login-btn {
@@ -264,7 +269,7 @@
         
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
 
         img {
             filter: invert(1);
