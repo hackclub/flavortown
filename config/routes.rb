@@ -1,3 +1,13 @@
+class AdminConstraint
+  def self.matches?(request)
+    return false unless request.session[:user_id]
+
+    user = User.find_by(id: request.session[:user_id])
+    return false unless user
+    user&.can_use_admin_endpoints
+  end
+end
+
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -13,6 +23,22 @@ Rails.application.routes.draw do
   get "auth/:provider/callback", to: "sessions#create"
   get "/auth/failure", to: "sessions#failure"
   get "logout", to: "sessions#destroy"
+  # admin shallow routing
+  namespace :admin do
+    root to: "application#index"
+
+    mount Blazer::Engine, at: "blazer", constraints: ->(request) {
+      user = User.find_by(id: request.session[:user_id])
+      user && AdminPolicy.new(user, :admin).blazer?
+    }
+
+    mount Flipper::UI.app(Flipper), at: "flipper", constraints: ->(request) {
+      user = User.find_by(id: request.session[:user_id])
+      user && AdminPolicy.new(user, :admin).flipper?
+    }
+    resources :users, only: [ :index ], shallow: true
+    resources :projects, only: [ :index ], shallow: true
+  end
 
   # Projects
 

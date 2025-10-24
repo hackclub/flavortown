@@ -38,4 +38,7 @@ class User < ApplicationRecord
   def super_admin?
     roles.exists?(name: "super_admin")
   end
+  def fraud_dept?
+    roles.exists?(name: "fraud_dept")
+  end
 end
