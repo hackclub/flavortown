@@ -1,0 +1,88 @@
+.footer {
+  // Layout and positioning
+  padding: 4rem 2rem;
+  background-color: #E7D5B3; // Brown background to match theme
+  text-align: center;
+  font-family: "Jua", sans-serif;
+  
+  // Content styling
+  color: #4D2B32; // Light cream text
+  
+  // Child elements
+  > * {
+    margin: 0 auto;
+    margin-bottom: 1.5em;
+    padding: 1.5em;
+    border-radius: 1em;
+    background-color: #F8E8D1;
+  }
+
+  .hack-club-info {
+    max-width: 48em;
+    border: 0.5em solid #D7B594;
+    
+    h2 {
+      margin-bottom: 1em;
+      font-size: 2.5rem;
+    }
+    
+    p {
+      margin-bottom: 1em;
+    }
+    
+    a {
+      color: #CF5A66;
+      
+      &:hover {
+        color: #A4383F;
+      }
+    }
+  }
+  
+  .team-info {
+    max-width: 32em;
+    padding: 0;
+    border: 0.5em solid #9D6B58;
+    overflow: visible;
+    position: relative;
+    
+    .card-band {
+      background-color: #7A4841;
+      padding: 1em;
+      color: #F8E8D1;
+      margin: -0.5em -1.5em 0 -1.5em;
+      border-radius: 1em;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      
+      h5 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+    }
+    
+    > div:not(.card-band):not(.footer-links) {
+      background-color: #F8E8D1;
+      padding: 3em 2em;
+      position: relative;
+      min-height: 8em;
+    }
+    
+    .footer-links {
+      background-color: #9D6B58;
+      padding: 1em 2em;
+      display: flex;
+      justify-content: center;
+      gap: 3em;
+      
+      a {
+        color: #4D2B32;
+        text-decoration: none;
+        font-size: 1.1rem;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
