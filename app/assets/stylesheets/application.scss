@@ -1,4 +1,6 @@
-// Sassy
+// ============================================================================
+// Landing Page
+// ============================================================================
 
 .landing-section-1, .landing-section-2 {
     min-height: 100vh;
@@ -11,40 +13,7 @@
     }
 }
 
-.landing-section-3 {
-    background-image: url("landing/section-3/bg.png");
-    background-repeat: no-repeat;
-    background-size: cover;
-
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    h2 {
-        background-image: url("landing/section-3/title.png");
-        background-repeat: no-repeat;
-        background-size: 100% auto;
-        background-position: center top;
-
-        width: 48rem;
-        min-height: 118px;
-
-        margin-top: 32px;
-        font-size: 3em;
-        color: white;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        @media (max-width: 600px) {
-            font-size: 1.5em;
-            width: 22rem;
-            min-height: 55px;
-        }
-    }
-}
+// Landing Section 1
 
 .landing-section-1--right {
     display: flex;
@@ -76,6 +45,8 @@
         }
     }
 }
+
+// Landing Section 2
 
 .landing-section-2--part {
     width: 100%;
@@ -146,6 +117,7 @@
     }
 }
 
+// Landing Section 2 - Step Cards
 
 .landing-section-2--step-card {
     background-color: #F8E8D1;
@@ -175,6 +147,29 @@
         }
     }
 }
+
+.landing-section-2--step-card-1 {
+    background-image: url("landing/section-2/step-1-card-bg.png");
+    color: #A4383F;
+}
+
+.landing-section-2--step-card-2 {
+    background-image: url("landing/section-2/step-2-card-bg.png");
+    color: #468232;
+}
+
+.landing-section-2--step-card-3 {
+    background-image: url("landing/section-2/step-3-card-bg.png");
+    color: #3C5E8B;
+}
+
+.landing-section-2--step-card--img {
+    width: 90%;
+    margin-top: 2em;
+    position: relative;
+}
+
+// Landing Section 2 - Step Card Ribbons
 
 .landing-section-2--step-card--ribbon {
     background-repeat: no-repeat;
@@ -214,26 +209,7 @@
     background-image: url("landing/section-2/step-3-ribbon.png");
 }
 
-.landing-section-2--step-card-1 {
-    background-image: url("landing/section-2/step-1-card-bg.png");
-    color: #A4383F;
-}
-
-.landing-section-2--step-card-2 {
-    background-image: url("landing/section-2/step-2-card-bg.png");
-    color: #468232;
-}
-
-.landing-section-2--step-card-3 {
-    background-image: url("landing/section-2/step-3-card-bg.png");
-    color: #3C5E8B;
-}
-
-.landing-section-2--step-card--img {
-    width: 90%;
-    margin-top: 2em;
-    position: relative;
-}
+// Landing Section 2 - Step Card Titles
 
 .landing-section-2--step-card--title {
     margin-top: -36px;
@@ -270,73 +246,49 @@
     background-image: url("landing/section-2/step-3-title.png");
 }
 
-.landing-section-3--testimonials--title {
-    background-repeat: no-repeat;
-    background-size: 100% auto;
+// Landing Section 3
+
+.landing-section-3 {
+    background-image: url("landing/section-3/bg.png");
+    background-size: cover;
     background-position: center top;
-    transform: translateX(calc(-15% + 12px));
-
-    width: 130%;
-    min-height: 48px;
-    margin-top: auto;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1em;
 
     @media (max-width: 600px) {
-        min-height: 54px;
+        background-size: auto 30%;
+        background-position: center center;
     }
-}
 
-.landing-section-3--testimonials--title-blue {
-    background-image: url("landing/section-3/blue-ribbon.png");
-}
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-.landing-section-3--testimonials--title-green {
-    background-image: url("landing/section-3/green-ribbon.png");
-}
+    h2 {
+        background-image: url("landing/section-3/title.png");
+        background-repeat: no-repeat;
+        background-size: 100% auto;
+        background-position: center top;
 
-.landing-section-3--testimonials--title-red {
-    background-image: url("landing/section-3/red-ribbon.png");
-}
+        width: 48rem;
+        min-height: 118px;
 
-.input-red {
-    background-color: #BE4D54;
-    border-radius: 10px;
-    padding: 8px;
-    width: 95%;
-    font-size: 1.2em;
+        margin-top: 32px;
+        font-size: 3em;
+        color: white;
 
-    div {
-        background-color: white;
-        color: #BE4D54;
-
-        border-radius: 5px;
-        box-shadow: inset 0px 0px 2px 1px rgba(0, 0, 0, 0.25);
         display: flex;
+        align-items: center;
+        justify-content: center;
 
-        svg {
-            width: 60px;
-            padding: 8px 16px;
-
-            fill: #BE4D54;
-            opacity: 75%;
-        }
-
-        input {
-            width: 100%;
-            opacity: 75%;
-            margin-top: 3px; // just to align the text better vertically
-        }
-
-        input:hover, input:focus {
-            cursor: text;
-            outline: none;
+        @media (max-width: 600px) {
+            font-size: 1.5em;
+            width: 22rem;
+            min-height: 55px;
         }
     }
 }
+
+// Landing Section 3 - Testimonials
 
 .landing-section-3--testimonials {
     display: grid;
@@ -385,14 +337,88 @@
     }
 }
 
-.orph-flag {
-    position: absolute;
-    top: 0;
-    left: 1.5em;
+.landing-section-3--testimonials--title {
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    background-position: center top;
+    transform: translateX(calc(-15% + 12px));
+
+    width: 130%;
+    min-height: 48px;
+    margin-top: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+
+    @media (max-width: 600px) {
+        min-height: 54px;
+    }
 }
+
+.landing-section-3--testimonials--title-blue {
+    background-image: url("landing/section-3/blue-ribbon.png");
+}
+
+.landing-section-3--testimonials--title-green {
+    background-image: url("landing/section-3/green-ribbon.png");
+}
+
+.landing-section-3--testimonials--title-red {
+    background-image: url("landing/section-3/red-ribbon.png");
+}
+
+// ============================================================================
+// Inputs
+// ============================================================================
+
+.input-red {
+    background-color: #BE4D54;
+    border-radius: 10px;
+    padding: 8px;
+    width: 95%;
+    font-size: 1.2em;
+
+    div {
+        background-color: white;
+        color: #BE4D54;
+
+        border-radius: 5px;
+        box-shadow: inset 0px 0px 2px 1px rgba(0, 0, 0, 0.25);
+        display: flex;
+
+        svg {
+            width: 60px;
+            padding: 8px 16px;
+
+            fill: #BE4D54;
+            opacity: 75%;
+        }
+
+        input {
+            width: 100%;
+            opacity: 75%;
+            margin-top: 3px; // just to align the text better vertically
+        }
+
+        input:hover, input:focus {
+            cursor: text;
+            outline: none;
+        }
+    }
+}
+
+// ============================================================================
+// Buttons
+// ============================================================================
 
 button {
     font-size: 1.2em;
+}
+
+button:hover {
+    cursor: pointer;
 }
 
 .login-btn {
@@ -429,8 +455,14 @@ button {
     }
 }
 
-button:hover {
-    cursor: pointer;
+// ============================================================================
+// Various Stuff
+// ============================================================================
+
+.orph-flag {
+    position: absolute;
+    top: 0;
+    left: 1.5em;
 }
 
 svg {
