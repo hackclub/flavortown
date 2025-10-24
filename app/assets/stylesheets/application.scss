@@ -143,8 +143,22 @@
 
     width: 75%;
     height: 50%;
+    min-height: 24em;
 
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    p {
+        margin: auto 16px auto 16px;
+        text-align: center;
+        font-size: 1.3em;
+
+        @media (max-width: 600px) {
+            font-size: 1em;
+        }
+    }
 }
 
 .landing-section-2--step-card--ribbon {
@@ -187,14 +201,59 @@
 
 .landing-section-2--step-card-1 {
     background-image: url("landing/section-2/step-1-card-bg.png");
+    color: #A4383F;
 }
 
 .landing-section-2--step-card-2 {
     background-image: url("landing/section-2/step-2-card-bg.png");
+    color: #468232;
 }
 
 .landing-section-2--step-card-3 {
     background-image: url("landing/section-2/step-3-card-bg.png");
+    color: #3C5E8B;
+}
+
+.landing-section-2--step-card--img {
+    width: 90%;
+    margin-top: 2em;
+    position: relative;
+}
+
+.landing-section-2--step-card--title {
+    margin-top: -36px;
+    width: 120%;
+    min-height: 72px;
+    z-index: 100;
+
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    background-position: center top -2px;
+
+    color: white;
+    font-size: 1.8em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (max-width: 600px) {
+        width: 110%;
+        margin-top: -28px;
+        min-height: 56px;
+        font-size: 1.4em;
+    }
+}
+
+.landing-section-2--step-card-1--title {
+    background-image: url("landing/section-2/step-1-title.png");
+}
+
+.landing-section-2--step-card-2--title {
+    background-image: url("landing/section-2/step-2-title.png");
+}
+
+.landing-section-2--step-card-3--title {
+    background-image: url("landing/section-2/step-3-title.png");
 }
 
 .input-red {
