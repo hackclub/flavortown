@@ -1,6 +1,6 @@
 // Sassy
 
-.landing-section {
+.landing-section-1, .landing-section-2 {
     min-height: 100vh;
     position: relative;
     background-color: #F8E8D1;
@@ -8,6 +8,41 @@
 
     @media (max-width: 900px) {
         flex-direction: column;
+    }
+}
+
+.landing-section-3 {
+    background-image: url("landing/section-3/bg.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    h2 {
+        background-image: url("landing/section-3/title.png");
+        background-repeat: no-repeat;
+        background-size: 100% auto;
+        background-position: center top;
+
+        width: 48rem;
+        min-height: 118px;
+
+        margin-top: 32px;
+        font-size: 3em;
+        color: white;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        @media (max-width: 600px) {
+            font-size: 1.5em;
+            width: 22rem;
+            min-height: 55px;
+        }
     }
 }
 
@@ -202,7 +237,7 @@
 
 .landing-section-2--step-card--title {
     margin-top: -36px;
-    width: 120%;
+    width: 110%;
     min-height: 72px;
     z-index: 100;
 
@@ -217,7 +252,6 @@
     justify-content: center;
 
     @media (max-width: 600px) {
-        width: 110%;
         margin-top: -28px;
         min-height: 56px;
         font-size: 1.4em;
@@ -234,6 +268,38 @@
 
 .landing-section-2--step-card-3--title {
     background-image: url("landing/section-2/step-3-title.png");
+}
+
+.landing-section-3--testimonials--title {
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    background-position: center top;
+    transform: translateX(calc(-15% + 12px));
+
+    width: 130%;
+    min-height: 48px;
+    margin-top: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+
+    @media (max-width: 600px) {
+        min-height: 54px;
+    }
+}
+
+.landing-section-3--testimonials--title-blue {
+    background-image: url("landing/section-3/blue-ribbon.png");
+}
+
+.landing-section-3--testimonials--title-green {
+    background-image: url("landing/section-3/green-ribbon.png");
+}
+
+.landing-section-3--testimonials--title-red {
+    background-image: url("landing/section-3/red-ribbon.png");
 }
 
 .input-red {
@@ -268,6 +334,53 @@
         input:hover, input:focus {
             cursor: text;
             outline: none;
+        }
+    }
+}
+
+.landing-section-3--testimonials {
+    display: grid;
+    justify-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    row-gap: 24px;
+    column-gap: 48px;
+
+    width: 60%;
+    margin-top: 16px;
+
+    @media (max-width: 600px) {
+        width: 90%;
+    }
+
+    > div {
+        background: #AC7757;
+        box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.25);
+        border-radius: 30px;
+
+        height: 400px;
+        max-width: 300px;
+        padding: 12px;
+
+        div {
+            background: #784740;
+            box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.25);
+            border-radius: 20px;
+
+            height: 100%;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+
+            img {
+                border-radius: 20px;
+            }
+
+            color: white;
+
+            p {
+                margin-top: 8px;
+                padding: 0 8px 0 8px;
+            }
         }
     }
 }
