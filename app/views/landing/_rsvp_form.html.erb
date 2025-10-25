@@ -1,0 +1,33 @@
+<div id="rsvp-form-section" class="space-y-3">
+  <% if defined?(success_message) && success_message %>
+    <div class="text-center p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+      <%= success_message %>
+      
+      <%= dev_tool do %>
+        <div class="mt-3">
+          <%= link_to "Open your letter opener", "/letter_opener", target: "_blank", class: "text-blue-600 hover:text-blue-800 underline text-sm" %>
+        </div>
+      <% end %>
+    </div>
+  <% elsif defined?(error_message) && error_message %>
+    <div class="text-center p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg mb-3">
+      <%= error_message %>
+    </div>
+  <% end %>
+
+  <% unless defined?(success_message) && success_message %>
+    <%= form_with model: rsvp || Rsvp.new, url: rsvps_path, local: false, class: "space-y-3" do |form| %>
+      <div>
+      </div>
+
+      <div class="relative">
+        <%= inline_svg_tag "icons/mail.svg", class: "absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-[#BE4D54]" %>
+        <%= form.email_field :email, placeholder: "Enter your email...", class: "w-full pl-14 pr-4 py-3 bg-white placeholder-[#BE4D54] text-xl rounded-lg border-4 border-[#CF5A66]", required: true %>
+      </div>
+
+      <div class="flex justify-center">
+        <%= form.submit "Sign up and get free stickers!", class: "px-6 py-3 text-xl rounded-xl text-white bg-[#A4383F] border-8 border-[#CF5A66] cursor-pointer" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

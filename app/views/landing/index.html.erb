@@ -18,21 +18,7 @@
     </div>
 
     <div class="w-1/2 flex items-center justify-center p-8">
-      <div class="space-y-3">
-        <div>
-        </div>
-
-        <div class="relative">
-          <%= inline_svg_tag "icons/mail.svg", class: "absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-[#BE4D54]" %>
-          <input type="email" placeholder="Enter your email..." class="w-full pl-14 pr-4 py-3 bg-white placeholder-[#BE4D54] text-xl rounded-lg border-4 border-[#CF5A66]">
-        </div>
-
-        <div class="flex justify-center">
-          <button class="px-6 py-3 text-xl rounded-xl text-white bg-[#A4383F] border-8 border-[#CF5A66]">
-            Sign up and get free stickers!
-          </button>
-        </div>
-      </div>
+      <%= render "rsvp_form", rsvp: Rsvp.new %>
     </div>
   </div>
 </div>
