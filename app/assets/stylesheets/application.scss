@@ -57,6 +57,37 @@
     }
 }
 
+.rsvp-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.rsvp-form--success, .rsvp-form--error {
+    width: 90%;
+    align-self: center;
+    text-align: center;
+
+    padding: 8px 0;
+    border-radius: 10px;
+    color: white;
+    box-shadow: var(--shadow);
+
+    font-size: 1.2em;
+
+    @media (max-width: 600px) {
+        font-size: 1em;
+    }
+}
+
+.rsvp-form--success {
+    background-color: #75A743;
+}
+
+.rsvp-form--error {
+    background-color: var(--color-red);
+    margin-bottom: 16px;
+}
+
 .landing-section-2--part {
     width: 100%;
     display: flex;
@@ -504,6 +535,10 @@ button {
         img {
             filter: invert(1);
         }
+    }
+
+    &:hover {
+        cursor: pointer;
     }
 }
 
