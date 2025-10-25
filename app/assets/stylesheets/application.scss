@@ -370,6 +370,46 @@
     background-image: url("landing/section-3/red-ribbon.png");
 }
 
+// Landing Section 5
+
+.landing-section-5 {
+    min-height: 100vh;
+
+    background-color: #E8C170;
+    background-image: url("landing/section-5/bg.svg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    h2 {
+        background-image: url("landing/section-3/title.png");
+        background-repeat: no-repeat;
+        background-size: 100% auto;
+        background-position: center top;
+
+        width: 52rem;
+        min-height: 124px;
+
+        margin-top: 48px;
+        font-size: 3em;
+        color: white;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        @media (max-width: 600px) {
+            font-size: 1.4em;
+            width: 24rem;
+            min-height: 56px;
+        }
+    }
+}
+
 // ============================================================================
 // Inputs
 // ============================================================================
