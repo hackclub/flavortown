@@ -23,8 +23,14 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   get "logout", to: "sessions#destroy"
 
-  # Projects
+  # Project Ideas
+  resources :project_ideas, only: [] do
+    collection do
+      post :random
+    end
+  end
 
+  # Projects
   resources :projects, shallow: true do
     resources :memberships, only: [ :create, :destroy ], module: :project
   end
