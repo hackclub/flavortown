@@ -10,13 +10,18 @@
 class Rsvp < ApplicationRecord
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   before_validation :downcase_email
-  after_create :send_welcome_email
+  after_create :send_signup_confirmation_email
   after_create :set_event_in_loops
   
   private
 
-  def send_welcome_email
-    RsvpMailer.welcome_email(self).deliver_later
+  def send_signup_confirmation_email
+    mail = RsvpMailer.signup_confirmation(email)
+    if Rails.env.production?
+      mail.deliver_later
+    else
+      mail.deliver_now
+    end
   end
   
   def set_event_in_loops
