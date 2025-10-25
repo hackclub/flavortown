@@ -1,0 +1,18 @@
+<div class="project-idea-generator bg-[#F8E8D1] rounded-3xl p-8 max-w-4xl mx-auto">
+  <div class="text-center mb-8">
+    <h3 class="text-3xl md:text-4xl text-[#8B2E2E] mb-4">Need inspiration?</h3>
+    <p class="text-lg text-[#8B2E2E]">Hit the button below to get a random project idea!</p>
+  </div>
+  
+  <div class="text-center mb-6">
+    <%= form_with url: random_project_ideas_path, method: :post, data: { turbo_frame: "project-idea-content" } do |form| %>
+      <%= form.submit "🎲 Generate Project Idea", class: "px-8 py-4 text-xl rounded-xl text-white bg-[#A4383F] border-8 border-[#CF5A66] hover:bg-[#8B2E2E] transition-colors cursor-pointer" %>
+    <% end %>
+  </div>
+  
+  <%= turbo_frame_tag "project-idea-content" do %>
+    <div class="text-center text-[#8B2E2E] text-lg opacity-60">
+      Click the button above to generate a random project idea!
+    </div>
+  <% end %>
+</div>

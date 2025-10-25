@@ -1,0 +1,24 @@
+.projects {
+  background-color: #E8C170;
+  background-image: url('landing/tiles.svg');
+  background-repeat: repeat;
+
+  padding: 4rem 2rem;
+  text-align: center;
+  font-family: "Jua", sans-serif;
+  color: #4D2B32;
+
+  .projects-info {
+    max-width: 32em;
+    margin: 0 auto;
+    padding: 1.5em;
+    border-radius: 1em;
+    background-color: #F8E8D1;
+    border: 0.5em solid #D7B594;
+    
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+  }
+}

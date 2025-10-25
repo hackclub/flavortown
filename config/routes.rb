@@ -49,8 +49,14 @@ Rails.application.routes.draw do
     resources :projects, only: [ :index ], shallow: true
   end
 
-  # Projects
+  # Project Ideas
+  resources :project_ideas, only: [] do
+    collection do
+      post :random
+    end
+  end
 
+  # Projects
   resources :projects, shallow: true do
     resources :memberships, only: [ :create, :destroy ], module: :project
   end
