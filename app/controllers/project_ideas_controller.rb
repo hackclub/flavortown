@@ -1,11 +1,11 @@
 class ProjectIdeasController < ApplicationController
   def random
-    @idea = FlavortextService.project_ideas("example_projects")
+    load_message = FlavortextService.project_ideas("loading_messages")
+    @project_idea = OpenaiProjectIdeasService.generate
 
-    if turbo_frame_request?
-      render turbo_stream: turbo_stream.replace("project-idea-content", partial: "project_ideas/idea_card", locals: { idea: @idea })
-    else
-      render json: { idea: @idea }
-    end
+    render json: { 
+      idea: @project_idea.content,
+      load_message: load_message
+    }
   end
 end
