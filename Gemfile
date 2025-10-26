@@ -90,3 +90,4 @@ gem "commonmarker"
 gem "inline_svg"
 
 gem "dartsass-rails", "~> 0.5.1"
+gem "slocks"

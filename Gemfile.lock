@@ -478,6 +478,9 @@ GEM
       gli
       hashie
       logger
+    slocks (0.1.0)
+      actionview (>= 6.0)
+      activesupport (>= 6.0)
     smart_properties (1.17.0)
     solid_cable (3.0.12)
       actioncable (>= 7.2)
@@ -595,6 +598,7 @@ DEPENDENCIES
   rubocop-rails-omakase
   selenium-webdriver
   slack-ruby-client
+  slocks
   solid_cable
   solid_cache
   solid_queue
