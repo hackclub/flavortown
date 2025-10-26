@@ -6,10 +6,10 @@ class OpenaiProjectIdeasService
   def generate
     prompt = build_prompt
     
-    # If OPENAI_API_KEY isn't set, return the prompt as the project idea
+    # If OPENAI_API_KEY isn't set
     unless ENV['OPENAI_API_KEY'].present?
       return ProjectIdea.create!(
-        content: prompt,
+        content: "Failed to generate an project idea :(",
         prompt: prompt,
         model: "prompt_fallback"
       )
