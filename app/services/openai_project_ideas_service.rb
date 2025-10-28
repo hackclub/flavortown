@@ -9,7 +9,7 @@ class OpenaiProjectIdeasService
     # If OPENAI_API_KEY isn't set
     unless ENV["OPENAI_API_KEY"].present?
       return ProjectIdea.create!(
-        content: "Failed to generate an project idea :(",
+        content: flavor("error"),
         prompt: prompt,
         model: "prompt_fallback"
       )

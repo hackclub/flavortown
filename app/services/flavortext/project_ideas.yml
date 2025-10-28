@@ -12,6 +12,12 @@ greetings:
   - hey there! looking for something tasty?
   - hey hey! what are ya craving today?
 
+error:
+  - uuuuuuuhhhhh... sorry, i got nothin
+  - want some naan, cause i got nothin
+  - sorry, i forgor
+  - yeah... i got nothin. my bad
+
 weird_internet_accounts:
   - ao3
   - deviantart
