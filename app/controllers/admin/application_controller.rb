@@ -1,7 +1,7 @@
 # app/controllers/admin/application_controller.rb
 module Admin
   class ApplicationController < ::ApplicationController
-    include Pundit
+    include Pundit::Authorization
 
     # Rescue all Pundit authorization errors
     rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
