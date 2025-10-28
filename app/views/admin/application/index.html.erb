@@ -2,22 +2,22 @@
   <h1>Hey Admin</h1>
 
   <h2>Tasks</h2>
-  <% if policy(:admin).users?  %>
+  <% if policy(:admin).users? %>
     <%= render "admin/shared/button",
                text: "Users",
                path: "/admin/users",
-               extra_class: "btn-primary"%>
+               extra_class: "btn-primary" %>
   <% end %>
 
-  <% if policy(:admin).projects?   %>
+  <% if policy(:admin).projects? %>
   <%= render "admin/shared/button",
              text: "Projects",
              path: "/admin/projects",
              extra_class: "btn-primary" %>
 <% end %>
-<br />
-<br />
-  <hr />
+<br>
+<br>
+  <hr>
 
   <h2>Dashboards</h2>
 

@@ -4,6 +4,7 @@
   <%= form_with url: admin_users_path, method: :get, local: true, class: "mb-6 flex gap-2" do %>
     <%= text_field_tag :query, params[:query],
       placeholder: "Search users by name or email...",
+      autocomplete: "off",
       class: "border border-gray-300 rounded-md px-3 py-2 w-64 bg-gray-900 text-white placeholder-gray-500" %>
 
     <%= submit_tag "Search",
@@ -28,10 +29,13 @@
             <td class="py-2 px-3"><%= user.display_name %></td>
             <td class="py-2 px-3"><%= user.email %></td>
             <td class="py-2 px-3"><%= user.roles.pluck(:name).join(", ") %></td>
-            <td class="py-2 px-3"><%= render "admin/shared/button",
-            text: "Vie",
-            path: "/admin/users/"+user.id.to_s,      extra_class: "btn-primary",
-            data_attrs: { confirm: "Are you sure?" } %></td> 
+            <td class="py-2 px-3">
+              <%= render "admin/shared/button",
+                         text: "View",
+                         path: "/admin/users/#{user.id}",
+                         extra_class: "btn-primary",
+                         data_attrs: { confirm: "Are you sure?" } %>
+            </td>
           </tr>
         <% end %>
       </tbody>
@@ -40,23 +44,25 @@
     <p class="text-gray-400 mt-4">No users found.</p>
   <% end %>
   <div class="mt-6 flex justify-center gap-2">
-  <% if @page > 1 %>
-    <%= link_to "Previous", admin_users_path(page: @page - 1, query: params[:query]),
-                class: "px-3 py-1 rounded-md bg-purple-800 text-white hover:bg-purple-900" %>
-  <% end %>
+    <% if @page > 1 %>
+      <%= link_to "Previous", admin_users_path(page: @page - 1, query: params[:query]),
+                  class: "px-3 py-1 rounded-md bg-purple-800 text-white hover:bg-purple-900" %>
+    <% end %>
 
-  <% (1..@total_pages).each do |p| %>
-    <%= link_to p, admin_users_path(page: p, query: params[:query]),
-                class: "px-3 py-1 rounded-md #{'bg-purple-900 text-white' if p == @page} hover:bg-purple-700" %>
-  <% end %>
+    <% (1..@total_pages).each do |p| %>
+      <%= link_to p, admin_users_path(page: p, query: params[:query]),
+                  class: "px-3 py-1 rounded-md #{'bg-purple-900 text-white' if p == @page} hover:bg-purple-700" %>
+    <% end %>
 
-  <% if @page < @total_pages %>
-    <%= link_to "Next", admin_users_path(page: @page + 1, query: params[:query]),
-                class: "px-3 py-1 rounded-md bg-purple-800 text-white hover:bg-purple-900" %>
-  <% end %>
-</div>
-<%= render "admin/shared/button",
-text: "Go back",
-path: "/admin",     extra_class: "btn-primary",
-data_attrs: { confirm: "Are you sure?" } %>
+    <% if @page < @total_pages %>
+      <%= link_to "Next", admin_users_path(page: @page + 1, query: params[:query]),
+                  class: "px-3 py-1 rounded-md bg-purple-800 text-white hover:bg-purple-900" %>
+    <% end %>
+  </div>
+
+  <%= render "admin/shared/button",
+             text: "Go back",
+             path: "/admin",
+             extra_class: "btn-primary",
+             data_attrs: { confirm: "Are you sure?" } %>
 </div>
