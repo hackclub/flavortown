@@ -111,7 +111,7 @@ GEM
     brakeman (7.1.0)
       racc
     builder (3.3.0)
-    bullet (8.0.8)
+    bullet (8.1.0)
       activesupport (>= 3.0.0)
       uniform_notifier (~> 1.11)
     capybara (3.40.0)
@@ -149,7 +149,7 @@ GEM
     ed25519 (1.4.0)
     email_validator (2.2.4)
       activemodel
-    erb (5.1.1)
+    erb (5.1.3)
     erb_lint (0.9.0)
       activesupport
       better_html (>= 2.0.1)
@@ -227,7 +227,7 @@ GEM
     jbuilder (2.14.1)
       actionview (>= 7.0.0)
       activesupport (>= 7.0.0)
-    json (2.15.1)
+    json (2.15.2)
     json-jwt (1.17.0)
       activesupport (>= 4.2)
       aes_key_wrap
@@ -235,7 +235,7 @@ GEM
       bindata
       faraday (~> 2.0)
       faraday-follow_redirects
-    kamal (2.8.1)
+    kamal (2.8.2)
       activesupport (>= 7.0)
       base64 (~> 0.2)
       bcrypt_pbkdf (~> 1.0)
@@ -264,7 +264,8 @@ GEM
     loofah (2.24.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
-    mail (2.8.1)
+    mail (2.9.0)
+      logger
       mini_mime (>= 0.1.1)
       net-imap
       net-pop
@@ -333,14 +334,19 @@ GEM
       validate_url
       webfinger (~> 2.0)
     ostruct (0.6.3)
-    paper_trail (16.0.0)
-      activerecord (>= 6.1)
+    paper_trail (17.0.0)
+      activerecord (>= 7.1)
       request_store (~> 1.4)
     parallel (1.27.0)
-    parser (3.3.9.0)
+    parser (3.3.10.0)
       ast (~> 2.4.1)
       racc
-    pg (1.5.9)
+    pg (1.6.2)
+    pg (1.6.2-aarch64-linux)
+    pg (1.6.2-aarch64-linux-musl)
+    pg (1.6.2-arm64-darwin)
+    pg (1.6.2-x86_64-linux)
+    pg (1.6.2-x86_64-linux-musl)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -457,7 +463,7 @@ GEM
     ruby-vips (2.2.5)
       ffi (~> 1.12)
       logger
-    rubyzip (3.2.0)
+    rubyzip (3.2.1)
     sass-embedded (1.93.2-aarch64-linux-gnu)
       google-protobuf (~> 4.31)
     sass-embedded (1.93.2-aarch64-linux-musl)
@@ -473,7 +479,7 @@ GEM
     sass-embedded (1.93.2-x86_64-linux-musl)
       google-protobuf (~> 4.31)
     securerandom (0.4.1)
-    selenium-webdriver (4.37.0)
+    selenium-webdriver (4.38.0)
       base64 (~> 0.2)
       logger (~> 1.4)
       rexml (~> 3.2, >= 3.2.5)
@@ -562,9 +568,10 @@ PLATFORMS
   aarch64-linux-gnu
   aarch64-linux-musl
   arm-linux-gnu
+  arm-linux-gnueabihf
   arm-linux-musl
+  arm-linux-musleabihf
   arm64-darwin-24
-  arm64-darwin-25
   x86_64-linux
   x86_64-linux-gnu
   x86_64-linux-musl
@@ -615,4 +622,4 @@ DEPENDENCIES
   web-console
 
 BUNDLED WITH
-   2.6.9
+   2.7.2
