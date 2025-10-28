@@ -1,0 +1,42 @@
+<div style="padding: 50px; background-color: #121212; color: white; min-height: 100vh;">
+  <h1>Hey Admin</h1>
+
+  <h2>Tasks</h2>
+  <% if policy(:admin).users?  %>
+    <%= render "admin/shared/button",
+               text: "Users",
+               path: "/admin/users",
+               extra_class: "btn-primary"%>
+  <% end %>
+
+  <% if policy(:admin).projects?   %>
+  <%= render "admin/shared/button",
+             text: "Projects",
+             path: "/admin/projects",
+             extra_class: "btn-primary" %>
+<% end %>
+<br />
+<br />
+  <hr />
+
+  <h2>Dashboards</h2>
+
+  <% if policy(:admin).blazer? %>
+    <%= render "admin/shared/button",
+               text: "Blazer",
+               path: "/admin/blazer",
+               extra_class: "btn-primary" %>
+  <% end %>
+
+  <% if policy(:admin).flipper? %>
+    <%= render "admin/shared/button",
+               text: "Flipper",
+               path: "/admin/flipper",
+               extra_class: "btn-primary" %>
+  <% end %>
+  <%# todo: replace slack id #%>
+  <%= render "admin/shared/button",
+               text: "Help bot",
+               path: "https://app.slack.com/client/T0266FRGM/D092Q3PQB7X",
+               extra_class: "btn-primary" %>
+</div>
