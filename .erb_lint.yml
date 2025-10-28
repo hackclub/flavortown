@@ -1,0 +1,20 @@
+---
+exclude:
+  - 'vendor/**/*.erb'
+  - 'vendor/**/*.html.erb'
+
+linters:
+  ErbSafety:
+    enabled: true
+  NoJavaScriptTagHelper:
+    enabled: true
+  NoStatements:
+    enabled: true
+  RequireInputAutocomplete:
+    enabled: true
+  RightTrim:
+    enabled: true
+  SelfClosingTag:
+    enabled: true
+  TrailingNewline:
+    enabled: true
