@@ -1,0 +1,34 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bin/rails server -b 0.0.0.0
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    environment:
+      - RAILS_ENV=development
+      - DATABASE_URL=postgres://postgres:flavortown123@db:5432/flavortown_development
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=flavortown123
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    volumes:
+      - flavortown_postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=flavortown123
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=flavortown_development
+    ports:
+      - "5432:5432"
+
+volumes:
+  flavortown_postgres_data:
+  bundle_cache:
