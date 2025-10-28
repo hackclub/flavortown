@@ -11,10 +11,6 @@ services:
       - bundle_cache:/usr/local/bundle
     environment:
       - RAILS_ENV=development
-      - DATABASE_URL=postgres://postgres:flavortown123@db:5432/flavortown_development
-      - POSTGRES_HOST=db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=flavortown123
     depends_on:
       - db
 
