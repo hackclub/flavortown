@@ -118,6 +118,7 @@ GEM
       msgpack (~> 1.2)
     brakeman (7.1.0)
       racc
+    browser (6.2.0)
     builder (3.3.0)
     bullet (8.1.0)
       activesupport (>= 3.0.0)
@@ -432,6 +433,10 @@ GEM
     rails-html-sanitizer (1.6.2)
       loofah (~> 2.21)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
+    rails_performance (1.5.2)
+      browser
+      railties
+      redis
     railties (8.1.0)
       actionpack (= 8.1.0)
       activesupport (= 8.1.0)
@@ -450,6 +455,10 @@ GEM
       erb
       psych (>= 4.0.0)
       tsort
+    redis (5.4.1)
+      redis-client (>= 0.22.0)
+    redis-client (0.26.1)
+      connection_pool
     regexp_parser (2.11.3)
     reline (0.6.2)
       io-console (~> 0.5)
@@ -563,7 +572,7 @@ GEM
     thruster (0.1.16-x86_64-linux)
     timeout (0.4.3)
     tsort (0.2.0)
-    turbo-rails (2.0.19)
+    turbo-rails (2.0.20)
       actionpack (>= 7.1.0)
       railties (>= 7.1.0)
     tzinfo (2.0.6)
@@ -645,6 +654,7 @@ DEPENDENCIES
   pundit (~> 2.5)
   rack-mini-profiler
   rails (~> 8.1.0)
+  rails_performance
   rubocop
   rubocop-rails-omakase
   selenium-webdriver

@@ -95,6 +95,9 @@ gem "flipper-active_record"
 gem "flipper-ui"
 gem "flipper-active_support_cache_store"
 gem "active_storage_validations"
+
+gem "rails_performance"
+
 gem "commonmarker"
 gem "inline_svg"
 
