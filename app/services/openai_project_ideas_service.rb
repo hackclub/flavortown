@@ -5,29 +5,29 @@ class OpenaiProjectIdeasService
 
   def generate
     prompt = build_prompt
-    
+
     # If OPENAI_API_KEY isn't set
-    unless ENV['OPENAI_API_KEY'].present?
+    unless ENV["OPENAI_API_KEY"].present?
       return ProjectIdea.create!(
         content: "Failed to generate an project idea :(",
         prompt: prompt,
         model: "prompt_fallback"
       )
     end
-    
+
     idea_content = OpenaiApiService.call(prompt)
-    
+
     # Run formatting prompt before saving
     formatting_prompt = flavor("prompts.formatting", text: idea_content)
 
     formatted_idea_content = GrokApiService.call(formatting_prompt)
-    
+
     project_idea = ProjectIdea.create!(
       content: formatted_idea_content,
       prompt: prompt,
       model: "gpt-4o-mini"
     )
-    
+
     project_idea
   end
 
@@ -45,7 +45,7 @@ class OpenaiProjectIdeasService
     [
       "you could build a",
       "what if you built a",
-      "how about a", 
+      "how about a",
       "you could make a",
       "as a dino, i think you should build a",
       "picture this:",

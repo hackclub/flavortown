@@ -3,7 +3,7 @@ class SetRsvpInLoopsJob < ApplicationJob
 
   def perform(email)
     result = LoopsService.set_event(email, "FlavortownRsvpAt")
-    
+
     if result[:error]
       Rails.logger.error "Failed to set RSVP event in Loops for #{email}: #{result[:error]}"
     else

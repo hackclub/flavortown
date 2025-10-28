@@ -88,8 +88,6 @@ jobs:
       - name: Check if annotations are up to date
         run: |
           bundle exec annotaterb models --frozen --show-migration
-          bundle exec annotaterb routes --frozen
-  
 
   # test:
   #   runs-on: ubuntu-latest

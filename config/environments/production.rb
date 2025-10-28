@@ -63,11 +63,11 @@ Rails.application.configure do
   # Configure Loops SMTP for transactional emails
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address:         'smtp.loops.so',
+    address:         "smtp.loops.so",
     port:            587,
-    user_name:       'loops',
-    password:        ENV['LOOPS_API_KEY'],
-    authentication:  'plain',
+    user_name:       "loops",
+    password:        ENV["LOOPS_API_KEY"],
+    authentication:  "plain",
     enable_starttls: true
   }
 

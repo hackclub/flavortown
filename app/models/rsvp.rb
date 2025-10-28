@@ -12,7 +12,7 @@ class Rsvp < ApplicationRecord
   before_validation :downcase_email
   after_create :send_signup_confirmation_email
   after_create :set_event_in_loops
-  
+
   private
 
   def send_signup_confirmation_email
@@ -23,11 +23,11 @@ class Rsvp < ApplicationRecord
       mail.deliver_now
     end
   end
-  
+
   def set_event_in_loops
     SetRsvpInLoopsJob.perform_later(self.email)
   end
-  
+
   def downcase_email
     self.email = email.downcase if email.present?
   end

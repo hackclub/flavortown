@@ -1,7 +1,7 @@
 class RsvpsController < ApplicationController
   def create
     @rsvp = Rsvp.new(email: params[:rsvp][:email].downcase.strip)
-    
+
     respond_to do |format|
       if @rsvp.save
         @success_message = "We just sent an email - check your inbox!"

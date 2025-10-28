@@ -1,11 +1,11 @@
 module ApplicationHelper
-  def admin_tool &block
+  def admin_tool(&block)
     if current_user&.admin?
       capture(&block)
     end
   end
-  
-  def dev_tool &block
+
+  def dev_tool(&block)
     if Rails.env.development?
       capture(&block)
     end
