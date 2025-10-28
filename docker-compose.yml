@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: bin/rails server -b 0.0.0.0
+    command: bin/dev
     ports:
       - "3000:3000"
     volumes:
