@@ -3,7 +3,7 @@
 
 <script>
   let nextLoadingMessage = "<%= FlavortextService.project_ideas('loading_messages') %>"
-  
+
   const shopIcons = {
     think: 'https://cloud-cyo3pqn0f-hack-club-bot.vercel.app/1thinking_rac.png',
     freaking: 'https://cloud-iz667ljca-hack-club-bot.vercel.app/0freaking.png',
@@ -24,7 +24,7 @@
     thumbs: 'https://cloud-r04a8za6c-hack-club-bot.vercel.app/1001.png',
     fluster: 'https://cloud-3wb98dblo-hack-club-bot.vercel.app/0untitled_artwork.gif',
   }
-  
+
   // Background music setup
   const backgroundMusic = new Howl({
     src: ['https://hc-cdn.hel1.your-objectstorage.com/s/v3/97c311247fdb3be24c1c0f22b7ef81ae51a4b188_overcooked___penne_for_your_thoughts_gameplay_version___mbjwvpv9unm__audio.mp4'],
@@ -32,7 +32,7 @@
     rate: 0.5,
     volume: 0.1
   })
-  
+
   const playMusic = async () => {
     backgroundMusic.fade(0, 1, 1000);
     backgroundMusic.play()
@@ -41,7 +41,7 @@
       await new Promise(r => setTimeout(r, 200))
     }
   }
-  
+
   const spinDownMusic = async () => {
     backgroundMusic.fade(1, 0.5, 5000);
     while (backgroundMusic.rate() > 0.5) {
@@ -49,7 +49,7 @@
       await new Promise(r => setTimeout(r, 500))
     }
   }
-  
+
   // Thinking sound
   const thinkingSound = new Howl({
     src: ['https://raw.githubusercontent.com/maxwofford/shopkeepers/main/audio/bell.wav'],
@@ -71,10 +71,10 @@
       <div id="shopkeeper-speech">
         <em>penne for your thoughts?</em>
       </div>
-      
+
       <div id="shopkeeper-bakery">
         <%= image_tag "landing/section-5/bakery/back.png" %>
-        <img id="shopkeeper-image" src="" class="idle" style="position: absolute; right: 64px; top: 40%;" />
+        <img id="shopkeeper-image" src="" class="idle" style="position: absolute; right: 64px; top: 40%;">
         <%= image_tag "landing/section-5/bakery/front.png", style: "position: absolute; top: 0; left: 0;" %>
       </div>
     </div>
@@ -208,7 +208,7 @@
     animation: idle 2s infinite alternate;
     filter: contrast(60%);
   }
-  
+
   #shopkeeper-image.talking {
     animation: talking 0.5s infinite alternate;
   }
