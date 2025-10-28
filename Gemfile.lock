@@ -437,9 +437,6 @@ GEM
       browser
       railties
       redis
-    railties (8.0.3)
-      actionpack (= 8.0.3)
-      activesupport (= 8.0.3)
     railties (8.1.0)
       actionpack (= 8.1.0)
       activesupport (= 8.1.0)
@@ -575,7 +572,7 @@ GEM
     thruster (0.1.16-x86_64-linux)
     timeout (0.4.3)
     tsort (0.2.0)
-    turbo-rails (2.0.19)
+    turbo-rails (2.0.20)
       actionpack (>= 7.1.0)
       railties (>= 7.1.0)
     tzinfo (2.0.6)
@@ -630,7 +627,6 @@ DEPENDENCIES
   brakeman
   bullet
   capybara
-  csv
   commonmarker
   dartsass-rails (~> 0.5.1)
   debug
@@ -657,9 +653,8 @@ DEPENDENCIES
   puma (>= 5.0)
   pundit (~> 2.5)
   rack-mini-profiler
-  rails (~> 8.0.2, >= 8.0.2.1)
-  rails_performance
   rails (~> 8.1.0)
+  rails_performance
   rubocop
   rubocop-rails-omakase
   selenium-webdriver

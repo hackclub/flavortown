@@ -97,8 +97,6 @@ gem "flipper-active_support_cache_store"
 gem "active_storage_validations"
 
 gem "rails_performance"
-gem "dotenv-rails"
-gem "csv"
 
 gem "commonmarker"
 gem "inline_svg"
