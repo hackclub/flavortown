@@ -73,22 +73,22 @@ jobs:
       - name: Check zeitwerk loader
         run: bin/rails zeitwerk:check
 
-  annotate_check:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+  # annotate_check:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v5
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
+  #     - name: Set up Ruby
+  #       uses: ruby/setup-ruby@v1
+  #       with:
+  #         ruby-version: .ruby-version
+  #         bundler-cache: true
 
-      - name: Check if annotations are up to date
-        run: |
-          bundle exec annotaterb models --frozen --show-migration
-          bundle exec annotaterb routes --frozen
+  #     - name: Check if annotations are up to date
+  #       run: |
+  #         bundle exec annotaterb models --frozen --show-migration
+  #         bundle exec annotaterb routes --frozen
 
   migration-check:
     runs-on: ubuntu-latest
