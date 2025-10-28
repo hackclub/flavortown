@@ -1,0 +1,231 @@
+<script src="/howler.js"></script>
+<script src="/yapping.js"></script>
+
+<script>
+  let nextLoadingMessage = "<%= FlavortextService.project_ideas('loading_messages') %>"
+  
+  const shopIcons = {
+    think: 'https://cloud-cyo3pqn0f-hack-club-bot.vercel.app/1thinking_rac.png',
+    freaking: 'https://cloud-iz667ljca-hack-club-bot.vercel.app/0freaking.png',
+    ded: 'https://cloud-iz667ljca-hack-club-bot.vercel.app/1ded.png',
+    info: 'https://cloud-iz667ljca-hack-club-bot.vercel.app/2info.png',
+    peefest: 'https://cloud-iz667ljca-hack-club-bot.vercel.app/3pf.png',
+    threat: 'https://cloud-iz667ljca-hack-club-bot.vercel.app/4threatened.png',
+    reading: 'https://cloud-iz667ljca-hack-club-bot.vercel.app/5reading_2.png',
+    reading2: 'https://cloud-iz667ljca-hack-club-bot.vercel.app/6reading.png',
+    search: 'https://cloud-iz667ljca-hack-club-bot.vercel.app/8searching_2.png',
+    search2: 'https://cloud-iz667ljca-hack-club-bot.vercel.app/9searching.png',
+    question: 'https://cloud-nfmmdwony-hack-club-bot.vercel.app/0000.png',
+    cute: 'https://cloud-nfmmdwony-hack-club-bot.vercel.app/3003.png',
+    tinfoil: 'https://cloud-nfmmdwony-hack-club-bot.vercel.app/4004.png',
+    holding_ears: 'https://cloud-nfmmdwony-hack-club-bot.vercel.app/4004.png',
+    not_amused: 'https://cloud-nfmmdwony-hack-club-bot.vercel.app/4004.png',
+    woah: 'https://cloud-e9zuzn0u0-hack-club-bot.vercel.app/3003.png',
+    thumbs: 'https://cloud-r04a8za6c-hack-club-bot.vercel.app/1001.png',
+    fluster: 'https://cloud-3wb98dblo-hack-club-bot.vercel.app/0untitled_artwork.gif',
+  }
+  
+  // Background music setup
+  const backgroundMusic = new Howl({
+    src: ['https://hc-cdn.hel1.your-objectstorage.com/s/v3/97c311247fdb3be24c1c0f22b7ef81ae51a4b188_overcooked___penne_for_your_thoughts_gameplay_version___mbjwvpv9unm__audio.mp4'],
+    loop: true,
+    rate: 0.5,
+    volume: 0.1
+  })
+  
+  const playMusic = async () => {
+    backgroundMusic.fade(0, 1, 1000);
+    backgroundMusic.play()
+    while (backgroundMusic.rate() < 1) {
+      backgroundMusic.rate(backgroundMusic.rate() + 0.05)
+      await new Promise(r => setTimeout(r, 200))
+    }
+  }
+  
+  const spinDownMusic = async () => {
+    backgroundMusic.fade(1, 0.5, 5000);
+    while (backgroundMusic.rate() > 0.5) {
+      backgroundMusic.rate(backgroundMusic.rate() - 0.05)
+      await new Promise(r => setTimeout(r, 500))
+    }
+  }
+  
+  // Thinking sound
+  const thinkingSound = new Howl({
+    src: ['https://raw.githubusercontent.com/maxwofford/shopkeepers/main/audio/bell.wav'],
+    volume: 0.3
+  })
+</script>
+
+<div class="project-idea-generator">
+  <div>
+    <h3>Not sure what to make?</h3>
+
+    <%= form_with url: random_project_ideas_path, method: :post, id: "new_project_idea_form", data: { turbo: false } do |form| %>
+      <%= form.button(type: "submit", id: "shopkeeper-submit", class: "btn-striped-red") do %>
+        <div>🎲 Generate Project Idea</div>
+      <% end %>
+    <% end %>
+
+    <div id="shopkeeper-bar">
+      <div id="shopkeeper-speech">
+        <em>penne for your thoughts?</em>
+      </div>
+      
+      <div id="shopkeeper-bakery">
+        <%= image_tag "landing/section-5/bakery/back.png" %>
+        <img id="shopkeeper-image" src="" class="idle" style="position: absolute; right: 64px; top: 40%;" />
+        <%= image_tag "landing/section-5/bakery/front.png", style: "position: absolute; top: 0; left: 0;" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // handling submissions
+  document.getElementById("new_project_idea_form").addEventListener("submit", async function(event) {
+    event.preventDefault();
+    document.querySelector("#shopkeeper-submit").disabled = true;
+    document.getElementById("shopkeeper-speech").innerHTML = nextLoadingMessage;
+    shopkeeperLook("think")
+    const response = await fetch(this.action, {
+      method: "POST",
+      headers: {
+        "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").getAttribute("content"),
+        "Accept": "text/vnd.turbo-stream.html"
+      },
+      body: new FormData(this)
+    })
+    const data = await response.json()
+    await shopkeeperInteraction(data.idea)
+    nextLoadingMessage = data.load_message
+    document.querySelector("#shopkeeper-submit").disabled = false;
+  });
+
+  // settings
+  if (!window.initialShopkeeperSpeed) {
+    window.initialShopkeeperSpeed = 4.0
+  }
+  if (!window.shopkeeperSpeed) {
+    window.shopkeeperSpeed = initialShopkeeperSpeed
+  }
+  if (!window.isShopkeeperActive) {
+    window.isShopkeeperActive = false
+  }
+
+  // interactions & specific tool calls
+  async function shopkeeperInteraction(msg) {
+    await setShopkeeperSpeed(null)
+    await shopkeeperSay(null, null, true)
+    for (const line of msg.split('|')) {
+      if (line.startsWith('speed:')) {
+        await setShopkeeperSpeed(line.split(':')[1])
+      } else if (line.startsWith('icon:')) {
+        await shopkeeperSay(line.split(':')[1], null, false)
+      } else if (line.startsWith('pause:')) {
+        const pauseDuration = parseInt(line.split(':')[1]) || 0
+        await new Promise(resolve => setTimeout(resolve, Math.min(pauseDuration, 2000)))
+      } else {
+        await shopkeeperSay(null, line, false)
+      }
+    }
+  }
+
+  function setShopkeeperSpeed(setSpeed) {
+    if (setSpeed && setSpeed != "default") {
+      shopkeeperSpeed = setSpeed
+    } else {
+      shopkeeperSpeed = initialShopkeeperSpeed
+    }
+  }
+
+  async function shopkeeperSay(expression, text, clearText = true, overrideRate = shopkeeperSpeed) {
+    if (clearText) {
+      shopkeeperEl.speech.innerHTML = ""
+    }
+    if (expression) {
+      shopkeeperLook(expression)
+    }
+    if (text) {
+      shopkeeperActive()
+      await new Promise(resolveCallback => {
+        yap(text, {
+          rate: overrideRate || shopkeeperSpeed,
+          letterCallback: async ({ letter, sound }) => {
+            shopkeeperEl.speech.innerHTML += letter;
+          },
+          endCallback: () => {
+            resolveCallback()
+            shopkeeperIdle()
+          }
+        })
+      })
+    }
+  }
+
+  // dom animations
+  const shopkeeperEl = {
+    image: document.getElementById('shopkeeper-image'),
+    speech: document.getElementById('shopkeeper-speech')
+  }
+  async function shopkeeperLook(image) {
+    shopkeeperEl.image.src = shopIcons[image] || image
+  }
+  shopkeeperLook('think')
+  async function shopkeeperIdle() {
+    shopkeeperEl.image.classList.add('idle')
+    shopkeeperEl.image.classList.remove('talking')
+    // unlock new interactions
+    isShopkeeperActive = false
+  }
+  async function shopkeeperActive() {
+    // update animations
+    shopkeeperEl.image.classList.add('talking')
+    shopkeeperEl.image.classList.remove('idle')
+    // lock new interactions
+    isShopkeeperActive = true
+  }
+</script>
+
+<style>
+  #shopkeeper-image {
+    min-width: 100px;
+    width: 100px;
+    margin: 0 auto;
+  }
+
+  #shopkeeper-submit {
+    margin: 0 auto;
+    display: block;
+  }
+
+  #shopkeeper-bar {
+    max-width: 24em;
+    text-align: center;
+  }
+
+  #shopkeeper-image.idle {
+    animation: idle 2s infinite alternate;
+    filter: contrast(60%);
+  }
+  
+  #shopkeeper-image.talking {
+    animation: talking 0.5s infinite alternate;
+  }
+
+  @keyframes idle {
+    from {
+      transform: translateY(0%);
+    } to {
+      transform: translateY(2%);
+    }
+  }
+
+  @keyframes talking {
+    from {
+      transform: scale(1.01, 0.99) translateY(2%);
+    } to {
+      transform: scale(0.99, 1.01) translateY(0%);
+    }
+  }
+</style>
