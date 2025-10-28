@@ -6,3 +6,6 @@
 - get `config/credentials/development.key` from somewhere
 - `bin/rails db:migrate`
 - `bin/dev`
+
+don't have a postgres server installed? use `docker-compose up` to start the
+whole stack with a built-in postgres server
