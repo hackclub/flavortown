@@ -2,7 +2,7 @@
 <script src="/yapping.js"></script>
 
 <script>
-  let nextLoadingMessage = "<%= FlavortextService.project_ideas('loading_messages') %>"
+  let nextLoadingMessage = <%= FlavortextService.project_ideas('loading_messages').to_json.html_safe %>
 
   const shopIcons = {
     think: 'https://cloud-cyo3pqn0f-hack-club-bot.vercel.app/1thinking_rac.png',
