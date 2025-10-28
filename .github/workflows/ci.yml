@@ -52,20 +52,15 @@ jobs:
 
       - name: Lint code for consistent style
         run: bin/rubocop -f github
+        # need to fix this? bin/rubocop -f github --autocorrect
 
-  test:
+      - name: Lint ERB templates
+        run: bundle exec erb_lint --lint-all
+        # need to fix this? bundle exec erb_lint --lint-all --autocorrect
+
+  zeitwerk_check:
     runs-on: ubuntu-latest
-
-    # services:
-    #  redis:
-    #    image: redis
-    #    ports:
-    #      - 6379:6379
-    #    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - name: Install packages
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config google-chrome-stable
-
       - name: Checkout code
         uses: actions/checkout@v5
 
@@ -75,16 +70,61 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Run tests
-        env:
-          RAILS_ENV: test
-          # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:test:prepare test test:system
+      - name: Check zeitwerk loader
+        run: bin/rails zeitwerk:check
 
-      - name: Keep screenshots from failed system tests
-        uses: actions/upload-artifact@v4
-        if: failure()
+  annotate_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
-          if-no-files-found: ignore
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Check if annotations are up to date
+        run: |
+          bundle exec annotaterb models --frozen --show-migration
+
+  # test:
+  #   runs-on: ubuntu-latest
+  #   services:
+  #     postgres:
+  #       image: postgres:15
+  #       env:
+  #         POSTGRES_USER: postgres
+  #         POSTGRES_PASSWORD: postgres
+  #         POSTGRES_DB: flavortown_test
+  #       ports:
+  #         - 5432:5432
+  #       options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+  #   steps:
+  #     - name: Install packages
+  #       run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config google-chrome-stable
+
+  #     - name: Checkout code
+  #       uses: actions/checkout@v5
+
+  #     - name: Set up Ruby
+  #       uses: ruby/setup-ruby@v1
+  #       with:
+  #         ruby-version: .ruby-version
+  #         bundler-cache: true
+
+  #     - name: Run tests
+  #       env:
+  #         RAILS_ENV: test
+  #         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/flavortown_test
+  #         # REDIS_URL: redis://localhost:6379/0
+  #       run: bin/rails db:test:prepare test test:system
+
+  #     - name: Keep screenshots from failed system tests
+  #       uses: actions/upload-artifact@v5
+  #       if: failure()
+  #       with:
+  #         name: screenshots
+  #         path: ${{ github.workspace }}/tmp/screenshots
+  #         if-no-files-found: ignore

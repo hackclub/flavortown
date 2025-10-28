@@ -1,4 +1,4 @@
-Super_Admin: Can do everything an admin can, minus assigning other users admin
+Super_Admin: Can do everything an admin can, and also can assign other users admin
 Admin: Can do everything except assign or remove admin
 Fraud_Dept: Can issue negative payouts, cancel grants & shop orders, but not reject or ban users; access to Blazer; access to read-only admin User w/o PII
 Project_Certifier: Approve/reject if project work meets Shipwright standards

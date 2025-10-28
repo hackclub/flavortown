@@ -11,7 +11,7 @@
 #  uid                      :string
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
-#  user_id                  :integer          not null
+#  user_id                  :bigint           not null
 #
 # Indexes
 #
@@ -40,7 +40,6 @@ class User::Identity < ApplicationRecord
 
     # Slack OpenID does not send display_name in the response. Therefore, we have to manually get it using users.info method. https://docs.slack.dev/authentication/sign-in-with-slack/#response
     after_create :set_display_name, if: -> { provider == "slack" }
-
     private
 
     def set_display_name

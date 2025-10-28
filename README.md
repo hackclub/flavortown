@@ -1,25 +1,11 @@
-# README
+# flavortown
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## non-exhaustive list of setup steps 
+- create `.env`
+    - `DATABASE_URL=postgres://postgres:pass@localhost:5432/postgres`
+- get `config/credentials/development.key` from somewhere
+- `bin/rails db:migrate`
+- `bin/dev`
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-# battlemage
+don't have a postgres server installed? use `docker-compose up` to start the
+whole stack with a built-in postgres server

@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.0.2", ">= 8.0.2.1"
+gem "rails", "~> 8.1.0"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use postgresql as the database for Active Record
@@ -58,11 +58,18 @@ group :development, :test do
 
   # Annoate for annotating, ig.
   gem "annotaterb"
+
+  # Load .env
+  gem "dotenv-rails"
 end
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+
+  # Preview email in development [https://github.com/ryanb/letter_opener]
+  gem "letter_opener"
+  gem "letter_opener_web"
 end
 
 group :test do
@@ -82,13 +89,19 @@ gem "omniauth"
 gem "omniauth-rails_csrf_protection"
 gem "omniauth_openid_connect"
 gem "slack-ruby-client"
-
-gem "tailwindcss-ruby", "~> 4.1"
-
-gem "tailwindcss-rails", "~> 4.3"
-
+gem "blazer"
+gem "flipper"
+gem "flipper-active_record"
+gem "flipper-ui"
+gem "flipper-active_support_cache_store"
 gem "active_storage_validations"
 
 gem "rails_performance"
 gem "dotenv-rails"
 gem "csv"
+
+gem "commonmarker"
+gem "inline_svg"
+
+gem "dartsass-rails", "~> 0.5.1"
+gem "slocks"

@@ -1,0 +1,183 @@
+---
+example_projects:
+  - "What if you cook up a recipe recommendation app"
+  - "Make a game about a baking competition!"
+
+greetings:
+  - how can i help ya?
+  - wadya wanna buy?
+  - what are ya in the mood for?
+  - welcome to flavortown! what can i get ya started with?
+  - what can i do for ya?
+  - hey there! looking for something tasty?
+  - hey hey! what are ya craving today?
+
+weird_internet_accounts:
+  - ao3
+  - deviantart
+  - some tumblog
+  - a digg account
+
+restaurant_positions:
+  - chef
+  - sous chef
+  - line cook
+  - dishwasher
+  - service staff
+  - waiters
+
+loading_messages:
+  - preheating two braincells
+  - two braincells rubbing together
+  - head empty, no pots
+  - ponderosourus
+  - contemplatosaurus
+  - thinking up some <%= %w[spicy bland savory sweet bitter sour].sample %> thoughts
+  - coming up with a soup-er idea
+  - simmering her brain (it's not fully marinated yet)
+  - really picking out the last crumbs of inspiration
+  - finds an idea before throwing it out- it had a weird smell
+  - tossing a word salad
+  - thinking about some esoteric rabbithole
+  - trying to recall some recipe idea on <%= t("weird_internet_accounts") %>
+  - mumbling something about the <%= t("restaurant_positions") %>
+  - consulting the <%= t("restaurant_positions") %> for advice
+  - blending ideas
+  - blending up braincells
+  - baking up some ideas
+  - getting baked
+  - marinating in half-baked ideas
+  - half-baking a concept
+  - reticulating spline sauce
+  - repeatedly opening and closing the source
+  - forgetting what you asked her about
+  - simmering in creative juices
+  - realizing the creative juices needs more salt
+  - plating some plausible project ideas
+  - knocking it up a notch
+  - adding a pinch of poor-taste
+  - adding a pinch of poor design
+  - attempting to write her thoughts down on a napkin
+
+random_things:
+  interfaces:
+    - voice
+    - runes/glyphs
+    - talking
+    - hand gestures
+  themes:
+    - combination/merging
+    - sacrifice
+    - time manipulation
+    - dreams
+    - transformation
+    - chemistry
+    - light and shadow
+  animals:
+    - raccoon
+    - dinosaur
+    - llama
+    - octopus
+    - rat
+    - crow
+    # - a pet rock
+  types_of_games:
+    - platformer
+    - idle clicker
+    - rhythm game
+    - visual novel
+    - roguelike
+    - infinite runner
+    - point and click adventure
+    - hidden object game
+  types_of_apps:
+    - userscript
+    - browser extension
+    - desktop app
+    - desktop pet
+  array:
+    - xylophone
+    - lava lamp
+    - cars
+    - an ipad
+    - fridge
+    - a toaster
+    - leftovers
+    - <%= t "random_things.animals" %>
+    - a game with the theme "<%= t "random_things.themes" %>"
+    - <%= t "random_things.interfaces" %> as a user interface
+    - <%= t "random_things.types_of_games" %>
+    - <%= t "random_things.types_of_apps" %>
+banned_things:
+  array:
+    - social media
+    - chat bot
+    - ai
+    - a pet rock
+    - a disco ball
+    - a quote generator
+    - soufflé
+    - dance move generator
+    - cocktails
+
+message_starters:
+  - you could build a
+  - you could cook up a
+  - what if you lock in and make a
+  - I once had a chef tell me about a
+  - ahhhh, how about a
+  - ah, what if you made a
+  - how about a
+  - you could make a
+  - as a <%= %w[dino chef].sample %>, i think you should build a
+  - "picture this:"
+  - oh, oh, oh! a
+  - i've always dreamed of making a
+  - i dare you to make a
+prompts:
+  project_idea: >
+    <%= "You are also dressed up as a chef, but that doesn't influence what you want to build- you just speak like a french fine-dining chef." if rand > 0.8 %>
+    Please propose a funky simple software project that will take under <%= rand(3..12) %> hours to complete in 1 quick sentence.
+    Don't do hardware projects, only software.
+    Keep it at less than 15 words.
+    The funkier, stupidier, and sillier your ideas the better, but they should still make sense.
+    Think out of the box, and do not propose ideas that do nothing but generate text, like a joke or dance move generator.
+    Random sound effect generators are boring, do not suggest them.
+    Be very creative, do not suggest projects that are too simple.
+    Don't suggest anything too offensive or inappropriate such as slurs.
+    Do not under any circumstances mention 'whimsical'.
+    Your response must start with "<%= t "message_starters" %>".
+    While you should be creative, don't just generate complete nonsense– think of what the project would actually be before throwing together words.
+    <% if rand > 0.1 %>
+      Avoid using these concepts in your idea: (<%= t("banned_things")["array"].join(", ") %>).
+    <% end %>
+    <% if rand > 0.8 %>
+      Additionally, here are a handful of random things you can choose to include. Only include them if they are relevant to the project idea: <%= @random_things %>.
+    <% end %>
+  formatting: >
+    You are helping me mark up a video game character's dialogue script.
+    Do not edit the actual words, but use the following tools listed.
+    Tools are delimited by pipe characters (|).
+    For example, "Oooooh, if it isn't my favorite customer!" could be marked up as "icon:cute|speed:slow|oh.o.o.o.o|pause:350|speed:info|if it isn't|icon:smile| my favorite customer!"
+    The speed tool changes the rate of speech and pitch "speed:slow", "speed:fast", "speed:default".
+    The icon tool changes the character's face or animation. You can only use the following icons (for example, "|icon:cute|")
+    - freaking (surprised / freaking out)
+    - threat (looking angry, threatening)
+    - reading (with glasses, reading a book)
+    - reading2 (alternative reading expression)
+    - question (looking confused)
+    - question2
+    - cute (cute, with fingers in a 👉👈 expression)
+    - ded (playing dead)
+    - info (an informative look)
+    - peefest (crying with a thumbs up- used for irony or blursed things)
+    - not_amused (looking annoyed)
+    - fluster (blushing, embarassed)
+    The timing tool is a markup for pauses in speech. For example "pause:1000" adds a 1 second pause. Pauses can only be 1 second at most and should be used sparingly to prevent speech from taking too long.
+    Lastly, dots can be used for elongated sounds. For example, "oh.o.o.o.o" indicates the word "oh" should be drawn out. This does not need a pipe character.
+    Keep in mind, tools get called exactly where they show in the text– for example, if you put |icon:cute| in the middle of a sentence, it will only be applied at that point going forward (reading left to right). Putting an icon at the very end of the sentence will not apply it to any words.
+    Keep your text natural- for example "icon:think|Hmmm,|icon:question|i wonder how this tastes?" is more natural than "icon:think|Hmmm,i wonder how this tastes?|icon:question".
+    Calling without a tool call is invalid and will create a broken response. You can't do something like "hello|question|world", it needs to be "hello|icon:question|world".
+    Don't miss indentation or spacing. "hello world" => "hello|icon:info| world"
+
+    Here is the dialogue to format. Reply with the formatted response only, no explaination or other yapping: <%= @text %>
