@@ -133,10 +133,10 @@ body {
     transform: translateX(-50%);
     display: flex;
     width: 26rem;
-    min-height: 88px;
+    height: fit-content;
     align-items: center;
     justify-content: center;
-    font-size: 2.5em;
+    font-size: 2em;
 
     h2 {
         text-align: center;
@@ -145,7 +145,6 @@ body {
 
     @media (max-width: 600px) {
         width: 20rem;
-        min-height: 68px;
         font-size: 2em;
     }
 }
@@ -155,7 +154,7 @@ body {
     border-radius: 16px;
     box-shadow: var(--shadow);
     width: 75%;
-    height: 50%;
+    height: fit-content;
     min-height: 24em;
     position: relative;
     display: flex;
@@ -163,13 +162,18 @@ body {
     align-items: center;
 
     p {
-        margin: auto 16px;
+        margin: 16px;
         text-align: center;
         font-size: 1.3em;
 
         @media (max-width: 600px) {
             font-size: 1em;
         }
+    }
+
+    img {
+        width: 90%;
+        margin-top: 2em;
     }
 }
 
@@ -188,12 +192,6 @@ body {
     color: #3C5E8B;
 }
 
-.landing-section-2--step-card--img {
-    width: 90%;
-    margin-top: 2em;
-    position: relative;
-}
-
 .landing-section-2--step-card--ribbon {
     background: no-repeat center top / 100% auto;
     position: absolute;
@@ -201,7 +199,6 @@ body {
     left: 50%;
     transform: translateX(-50%);
     width: 10em;
-    min-height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -210,7 +207,6 @@ body {
     
     @media (max-width: 600px) {
         top: -21px;
-        min-height: 40px;
         font-size: 1em;
     }
 }
@@ -228,13 +224,14 @@ body {
 }
 
 .landing-section-2--step-card--title {
-    margin-top: -36px;
+    margin: -36px 0 0 0;
+    
     width: 110%;
     min-height: 72px;
     z-index: 100;
     background: no-repeat center top -2px / 100% auto;
     color: white;
-    font-size: 1.8em;
+    font-size: 1.5em;
     display: flex;
     align-items: center;
     justify-content: center;
