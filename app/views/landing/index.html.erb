@@ -5,16 +5,18 @@
 <div class="section section-1">
   <%= inline_svg_tag "landing/section-1/flag-orpheus-top.svg", class: "orph-flag" %>
 
-  <!--
-  <%= form_tag "/auth/slack", method: :post, data: {turbo: false}, class: "login-form" do %>
-    <button class="btn-striped-red">
-      <div>
-        <%= image_tag "mask/enter.png", width: 20, height: 20 %>
-        Sign in!
-      </div>
-    </button>
-  <% end %>
-  -->
+  <div class="landing-section-1--login">
+    <%= dev_tool do %>
+      <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
+        <button class="login-btn btn-striped-red">
+          <div>
+            <%= image_tag "mask/enter.png", width: 20, height: 20 %>
+            Sign in!
+          </div>
+        </button>
+      <% end %>
+    <% end %>
+  </div>
 
   <div class="hero">
     <!-- TODO: som-style hero image? -->
