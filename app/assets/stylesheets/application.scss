@@ -16,8 +16,15 @@
     --color-teal: #A4DDDB;
     --shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.25);
     --shadow-inset: inset 0px 0px 2px 1px rgba(0, 0, 0, 0.25);
+}
 
+* {
     font-family: "Jua", sans-serif;
+}
+
+body {
+    padding: 0;
+    margin: 0;
 }
 
 .landing-section-1, .landing-section-2 {
@@ -121,25 +128,27 @@
     background: url("landing/section-2/title.svg") no-repeat center top / 100% auto;
     z-index: 100;
     position: absolute;
-    top: 32px;
+    top: 24px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     width: 26rem;
     min-height: 88px;
+    height: fit-content;
     align-items: center;
     justify-content: center;
-    font-size: 2.5em;
+    font-size: 1.8em;
 
     h2 {
         text-align: center;
         color: white;   
+        margin: 0;
     }
 
     @media (max-width: 600px) {
         width: 20rem;
         min-height: 68px;
-        font-size: 2em;
+        font-size: 1.2em;
     }
 }
 
@@ -148,7 +157,7 @@
     border-radius: 16px;
     box-shadow: var(--shadow);
     width: 75%;
-    height: 50%;
+    height: fit-content;
     min-height: 24em;
     position: relative;
     display: flex;
@@ -156,13 +165,18 @@
     align-items: center;
 
     p {
-        margin: auto 16px;
+        margin: 16px;
         text-align: center;
         font-size: 1.3em;
 
         @media (max-width: 600px) {
             font-size: 1em;
         }
+    }
+
+    img {
+        width: 90%;
+        margin-top: 2em;
     }
 }
 
@@ -181,29 +195,27 @@
     color: #3C5E8B;
 }
 
-.landing-section-2--step-card--img {
-    width: 90%;
-    margin-top: 2em;
-    position: relative;
-}
-
 .landing-section-2--step-card--ribbon {
     background: no-repeat center top / 100% auto;
     position: absolute;
-    top: -25px;
+    top: -21px;
     left: 50%;
     transform: translateX(-50%);
     width: 10em;
-    min-height: 48px;
+    min-height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1.2em;
-    
+
+    h2 {
+        margin: 0;
+        font-size: 1.2em;
+        font-weight: normal;
+    }
+
     @media (max-width: 600px) {
         top: -21px;
-        min-height: 40px;
         font-size: 1em;
     }
 }
@@ -221,16 +233,17 @@
 }
 
 .landing-section-2--step-card--title {
-    margin-top: -36px;
+    margin: -36px 0 0 0;
+    
     width: 110%;
-    min-height: 72px;
+    min-height: 54px;
     z-index: 100;
     background: no-repeat center top -2px / 100% auto;
     color: white;
-    font-size: 1.8em;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.5em;
 
     @media (max-width: 600px) {
         margin-top: -28px;
@@ -267,7 +280,7 @@
         background: url("landing/section-3/title.png") no-repeat center top / 100% auto;
         width: 48rem;
         min-height: 118px;
-        margin-top: 32px;
+        margin: 32px 0 0 0;
         font-size: 3em;
         color: white;
         display: flex;
@@ -287,9 +300,9 @@
     justify-items: center;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     row-gap: 24px;
-    column-gap: 48px;
+    column-gap: 32px;
     width: 60%;
-    margin-top: 16px;
+    margin: 16px 0;
 
     @media (max-width: 600px) {
         width: 90%;
@@ -300,15 +313,14 @@
         background: var(--color-brown-light);
         box-shadow: var(--shadow);
         border-radius: 30px;
-        height: 400px;
-        max-width: 300px;
+        max-height: 350px;
+        max-width: 250px;
         padding: 12px;
 
         div {
             background: var(--color-brown-darker);
             box-shadow: var(--shadow);
             border-radius: 20px;
-            height: 100%;
             padding: 10px;
             display: flex;
             flex-direction: column;
@@ -331,7 +343,7 @@
     transform: translateX(calc(-15% + 12px));
     width: 130%;
     min-height: 48px;
-    margin-top: auto;
+    margin: auto 0 0 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -402,7 +414,7 @@
     > div {
         color: var(--color-cream);
         background-color: #BE772B;
-        background-image: linear-gradient(180deg, #BE772B 30%, #DE9E41 30%);
+        background-image: linear-gradient(180deg, #BE772B 25%, #DE9E41 25%);
         
         box-shadow: var(--shadow-inset);
         border-radius: 10px;
@@ -415,7 +427,8 @@
 
         h3 {
             font-size: 1.8em;
-            margin-bottom: 2px; // just a little extra margin cuz i feel like it looks nice
+            margin-top: 0;
+            margin-bottom: 4px; // just a little extra margin cuz i feel like it looks nice
 
             @media (max-width: 600px) {
                 font-size: 1.6em;
@@ -442,6 +455,10 @@
                 width: 95%; 
                 margin-top: -8px;
                 align-self: center;
+
+                img {
+                    width: 100%;
+                }
             }
         }
     }
@@ -481,7 +498,7 @@
 
         h2 {
             text-align: center;
-            margin-bottom: 16px;
+            margin: 16px 0px;
             font-size: 2em;
             color: var(--color-brown-dark);
         }
@@ -489,6 +506,10 @@
         p {
             color: var(--color-brown);
             font-size: 1.2em;
+        }
+
+        a {
+            color: var(--color-brown);
         }
     }
 }
@@ -514,6 +535,7 @@
         background-color: var(--color-brown);
         border-radius: 10px;
         padding: 8px 0;
+        margin: 0;
 
         @media (max-width: 600px) {
             width: 120%;
@@ -537,7 +559,10 @@
     display: flex;
     gap: 32px;
     justify-content: center;
-    color: var(--color-brown-dark);
+
+    a {
+        color: var(--color-brown-dark);
+    }
 }
 
 .input-red {
@@ -545,17 +570,15 @@
     border-radius: 10px;
     padding: 8px;
     width: 95%;
-    font-size: 1.2em;
 
     div {
         background-color: white;
-        color: var(--color-red);
         border-radius: 5px;
         box-shadow: var(--shadow-inset);
         display: flex;
 
         svg {
-            width: 60px;
+            width: 30px;
             padding: 8px 16px;
             fill: var(--color-red);
             opacity: 75%;
@@ -565,7 +588,15 @@
             width: 100%;
             opacity: 75%;
             margin-top: 3px;
+            font-size: 1.2em;
+            color: var(--color-red);
+            
+            &::placeholder {
+                color: var(--color-red);
+                opacity: 75%;
+            }
 
+            border: none;
             &:hover, &:focus {
                 cursor: text;
                 outline: none;
@@ -592,10 +623,11 @@ button {
     padding: 10px;
     border-radius: 10px;
     background: var(--color-red) url("striped-red-btn-bg.svg") no-repeat calc(50% - 2px) 50% / cover;
+    border: none;
 
     div {
-        background: var(--color-red-dark);
         color: white;
+        background: var(--color-red-dark);
         box-shadow: var(--shadow);
         border-radius: 5px;
         padding: 4px 25px;
@@ -605,6 +637,13 @@ button {
 
         img {
             filter: invert(1);
+        }
+
+        input {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1em;
         }
     }
 
@@ -629,6 +668,7 @@ svg {
 }
 
 a {
+    text-decoration: none;
     position: relative;
     display: inline-block;
     z-index: 0;
