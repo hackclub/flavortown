@@ -182,8 +182,7 @@
 
     h2 {
         margin: 0;
-        font-size: 1.2em;
-        font-weight: normal;
+        font-size: 1em;
     }
 
     @media (max-width: 600px) {
@@ -208,7 +207,7 @@
     margin: -36px 0 0 0;
     
     width: 110%;
-    min-height: 54px;
+    min-height: 64px;
     z-index: 100;
     background: no-repeat center top -2px / 100% auto;
     color: white;
@@ -219,7 +218,7 @@
 
     @media (max-width: 600px) {
         margin-top: -28px;
-        min-height: 56px;
+        min-height: 50px;
         font-size: 1.4em;
     }
 }
@@ -272,7 +271,7 @@
     justify-items: center;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     row-gap: 24px;
-    column-gap: 32px;
+    column-gap: 48px;
     width: 60%;
     margin: 16px 0;
 
