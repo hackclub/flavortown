@@ -1,0 +1,34 @@
+:root {
+    --color-admin: #ff9100;
+    --color-dev: #52d831;
+}
+
+// border overlay
+// body {
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   right: 0;
+//   bottom: 0;
+//   pointer-events: none;
+//   z-index: 9999;
+//   border: 5px dashed var(--color-admin);
+//   box-sizing: border-box;
+// }
+
+.tools-do {
+  border-radius: 5px;
+  border: 3px dashed;
+  display: inline-block;
+  padding: 4px;
+}
+
+.admin.tools-do {
+  border-color: var(--color-admin);
+  background-color: color-mix(in srgb, var(--color-admin) 20%, transparent);
+}
+
+.dev.tools-do {
+  border-color: var(--color-dev);
+  background-color: color-mix(in srgb, var(--color-dev) 20%, transparent);
+}
