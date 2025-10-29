@@ -1,4 +1,8 @@
-<div class="landing-section-1">
+<%= content_for :stylesheets do %>
+  <%= stylesheet_link_tag "landing", "data-turbo-track": "reload" %>
+<% end %>
+
+<div class="section-1">
   <%= inline_svg_tag "landing/section-1/flag-orpheus-top.svg", class: "orph-flag" %>
 
   <!--
@@ -12,69 +16,69 @@
   <% end %>
   -->
 
-  <div class="landing-section-1--right">
+  <div class="section-1--right">
     <%= image_tag "landing/section-1/drawing.png" %>
     <%= render "rsvp_form", rsvp: Rsvp.new %>
   </div>
 </div>
 
-<div class="landing-section-2" style="gap: 16px;">
-  <div class="landing-section-2--title">
+<div class="section-2" style="gap: 16px;">
+  <div class="section-2--title">
     <h2>How this works</h2>
   </div>
 
-  <div class="landing-section-2--part landing-section-2--left">
-    <div class="landing-section-2--step-card landing-section-2--step-card-1">
-        <div class="landing-section-2--step-card--ribbon landing-section-2--step-card-1--ribbon">
+  <div class="section-2--part section-2--left">
+    <div class="section-2--step-card section-2--step-card-1">
+        <div class="section-2--step-card--ribbon section-2--step-card-1--ribbon">
           <h2>Step 1</h2>
         </div>
 
         <%= image_tag "landing/section-2/step-1-img.png" %>
 
-        <h3 class="landing-section-2--step-card-1--title landing-section-2--step-card--title">Cook a real tasty project!</h3>
+        <h3 class="section-2--step-card-1--title section-2--step-card--title">Cook a real tasty project!</h3>
 
         <p>A website, game, hardware, anything to show off your skills</p>
     </div>
   </div>
 
-  <div class="landing-section-2--part landing-section-2--center">
-    <div class="landing-section-2--step-card landing-section-2--step-card-2">
-        <div class="landing-section-2--step-card--ribbon landing-section-2--step-card-2--ribbon">
+  <div class="section-2--part section-2--center">
+    <div class="section-2--step-card section-2--step-card-2">
+        <div class="section-2--step-card--ribbon section-2--step-card-2--ribbon">
           <h2>Step 2</h2>
         </div>
 
         <%= image_tag "landing/section-2/step-2-img.png" %>
 
-        <h3 class="landing-section-2--step-card-2--title landing-section-2--step-card--title">Rate your fellow hackers!</h3>
+        <h3 class="section-2--step-card-2--title section-2--step-card--title">Rate your fellow hackers!</h3>
 
         <p>Rate projects and receive a rating on your own</p>
     </div>
   </div>
 
-  <div class="landing-section-2--part landing-section-2--right">
-    <div class="landing-section-2--step-card landing-section-2--step-card-3">
-        <div class="landing-section-2--step-card--ribbon landing-section-2--step-card-3--ribbon">
+  <div class="section-2--part section-2--right">
+    <div class="section-2--step-card section-2--step-card-3">
+        <div class="section-2--step-card--ribbon section-2--step-card-3--ribbon">
           <h2>Step 3</h2>
         </div>
 
         <%= image_tag "landing/section-2/step-3-img.png" %>
 
-        <h3 class="landing-section-2--step-card-3--title landing-section-2--step-card--title">Win prizes!</h3>
+        <h3 class="section-2--step-card-3--title section-2--step-card--title">Win prizes!</h3>
 
         <p>Win prizes that you can use to cook your next incredible feast</p>
     </div>
   </div>
 </div>
 
-<div class="landing-section-3">
+<div class="section-3">
   <h2>What past chefs say</h2>
 
-  <div class="landing-section-3--testimonials">
+  <div class="section-3--testimonials">
     <div>
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="landing-section-3--testimonials--title landing-section-3--testimonials--title-blue">5 year old Hack Clubber from Mars</h3>
+        <h3 class="section-3--testimonials--title section-3--testimonials--title-blue">5 year old Hack Clubber from Mars</h3>
       </div>
     </div>
 
@@ -82,7 +86,7 @@
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="landing-section-3--testimonials--title landing-section-3--testimonials--title-green">5 year old Hack Clubber from Mars</h3>
+        <h3 class="section-3--testimonials--title section-3--testimonials--title-green">5 year old Hack Clubber from Mars</h3>
       </div>
     </div>
 
@@ -90,7 +94,7 @@
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="landing-section-3--testimonials--title landing-section-3--testimonials--title-red">5 year old Hack Clubber from Mars</h3>
+        <h3 class="section-3--testimonials--title section-3--testimonials--title-red">5 year old Hack Clubber from Mars</h3>
       </div>
     </div>
 
@@ -98,7 +102,7 @@
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="landing-section-3--testimonials--title landing-section-3--testimonials--title-blue">5 year old Hack Clubber from Mars</h3>
+        <h3 class="section-3--testimonials--title section-3--testimonials--title-blue">5 year old Hack Clubber from Mars</h3>
       </div>
     </div>
 
@@ -106,7 +110,7 @@
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="landing-section-3--testimonials--title landing-section-3--testimonials--title-green">5 year old Hack Clubber from Mars</h3>
+        <h3 class="section-3--testimonials--title section-3--testimonials--title-green">5 year old Hack Clubber from Mars</h3>
       </div>
     </div>
 
@@ -114,7 +118,7 @@
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="landing-section-3--testimonials--title landing-section-3--testimonials--title-red">5 year old Hack Clubber from Mars</h3>
+        <h3 class="section-3--testimonials--title section-3--testimonials--title-red">5 year old Hack Clubber from Mars</h3>
       </div>
     </div>
   </div>
@@ -122,13 +126,13 @@
 
 <!-- todo: section 4 -->
 
-<div class="landing-section-5">
+<div class="section-5">
   <h2>What will you cook this winter?</h2>
   <%= render "landing/projects/project_idea_generator" %>
 </div>
 
-<div class="landing-section-6">
-  <div class="landing-section-6--about">
+<div class="section-6">
+  <div class="section-6--about">
     <div>
       <h2>About Hack Club</h2>
 
@@ -142,14 +146,14 @@
     </div>
   </div>
 
-  <div class="landing-section-6--credits">
+  <div class="section-6--credits">
     <h3>Flavortown is built with &lt;3 by Hack Clubbers around the world.</h3>
 
-    <div class="landing-section-6--credits--people">
+    <div class="section-6--credits--people">
 
     </div>
 
-    <div class="landing-section-6--credits--links">
+    <div class="section-6--credits--links">
       <a href="https://hackclub.com" target="_blank">Hack Club</a>
       <a href="https://hackclub.com/clubs/" target="_blank">Clubs</a>
       <a href="https://hackathons.hackclub.com" target="_blank">Hackathons</a>
