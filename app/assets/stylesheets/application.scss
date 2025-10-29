@@ -485,7 +485,7 @@ body {
 
         h2 {
             text-align: center;
-            margin-bottom: 16px;
+            margin: 16px 0px;
             font-size: 2em;
             color: var(--color-brown-dark);
         }
@@ -493,6 +493,10 @@ body {
         p {
             color: var(--color-brown);
             font-size: 1.2em;
+        }
+
+        a {
+            color: var(--color-brown);
         }
     }
 }
@@ -518,6 +522,7 @@ body {
         background-color: var(--color-brown);
         border-radius: 10px;
         padding: 8px 0;
+        margin: 0;
 
         @media (max-width: 600px) {
             width: 120%;
@@ -541,7 +546,10 @@ body {
     display: flex;
     gap: 32px;
     justify-content: center;
-    color: var(--color-brown-dark);
+
+    a {
+        color: var(--color-brown-dark);
+    }
 }
 
 .input-red {
@@ -646,6 +654,7 @@ svg {
 }
 
 a {
+    text-decoration: none;
     position: relative;
     display: inline-block;
     z-index: 0;
