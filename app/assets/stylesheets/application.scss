@@ -552,17 +552,15 @@ body {
     border-radius: 10px;
     padding: 8px;
     width: 95%;
-    font-size: 1.2em;
 
     div {
         background-color: white;
-        color: var(--color-red);
         border-radius: 5px;
         box-shadow: var(--shadow-inset);
         display: flex;
 
         svg {
-            width: 60px;
+            width: 30px;
             padding: 8px 16px;
             fill: var(--color-red);
             opacity: 75%;
@@ -572,7 +570,13 @@ body {
             width: 100%;
             opacity: 75%;
             margin-top: 3px;
-            font-size: 1em;
+            font-size: 1.2em;
+            color: var(--color-red);
+            
+            &::placeholder {
+                color: var(--color-red);
+                opacity: 75%;
+            }
 
             border: none;
             &:hover, &:focus {
