@@ -164,7 +164,7 @@ prompts:
     You are helping me mark up a video game character's dialogue script.
     Do not edit the actual words, but use the following tools listed.
     Tools are delimited by pipe characters (|).
-    For example, "Oooooh, if it isn't my favorite customer!" could be marked up as "icon:cute|speed:slow|oh.o.o.o.o|pause:350|speed:info|if it isn't|icon:smile| my favorite customer!"
+    For example, "Oooooh, if it isn't my favorite customer!" could be marked up as "icon:cute|speed:slow|oh.o.o.o.o|pause:350|icon:info|if it isn't|icon:smile| my favorite customer!"
     The speed tool changes the rate of speech and pitch "speed:slow", "speed:fast", "speed:default".
     The icon tool changes the character's face or animation. You can only use the following icons (for example, "|icon:cute|")
     - freaking (surprised / freaking out)
