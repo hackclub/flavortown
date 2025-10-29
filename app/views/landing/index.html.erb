@@ -2,12 +2,12 @@
   <%= stylesheet_link_tag "landing", "data-turbo-track": "reload" %>
 <% end %>
 
-<div class="section-1">
+<div class="section section-1">
   <%= inline_svg_tag "landing/section-1/flag-orpheus-top.svg", class: "orph-flag" %>
 
   <!--
-  <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
-    <button class="login-btn btn-striped-red" disabled>
+  <%= form_tag "/auth/slack", method: :post, data: {turbo: false}, class: "login-form" do %>
+    <button class="btn-striped-red">
       <div>
         <%= image_tag "mask/enter.png", width: 20, height: 20 %>
         Sign in!
@@ -16,7 +16,11 @@
   <% end %>
   -->
 
-  <div class="section-1--right">
+  <div class="hero">
+    <!-- TODO: som-style hero image? -->
+  </div>
+
+  <div class="rsvp-container">
     <%= image_tag "landing/section-1/drawing.png" %>
     <%= render "rsvp_form", rsvp: Rsvp.new %>
   </div>
