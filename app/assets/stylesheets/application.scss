@@ -406,7 +406,7 @@ body {
     > div {
         color: var(--color-cream);
         background-color: #BE772B;
-        background-image: linear-gradient(180deg, #BE772B 30%, #DE9E41 30%);
+        background-image: linear-gradient(180deg, #BE772B 25%, #DE9E41 25%);
         
         box-shadow: var(--shadow-inset);
         border-radius: 10px;
@@ -419,7 +419,8 @@ body {
 
         h3 {
             font-size: 1.8em;
-            margin-bottom: 2px; // just a little extra margin cuz i feel like it looks nice
+            margin-top: 0;
+            margin-bottom: 4px; // just a little extra margin cuz i feel like it looks nice
 
             @media (max-width: 600px) {
                 font-size: 1.6em;
@@ -446,6 +447,10 @@ body {
                 width: 95%; 
                 margin-top: -8px;
                 align-self: center;
+
+                img {
+                    width: 100%;
+                }
             }
         }
     }
@@ -613,6 +618,7 @@ button {
     border: none;
 
     div {
+        color: white;
         background: var(--color-red-dark);
         box-shadow: var(--shadow);
         border-radius: 5px;
