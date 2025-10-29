@@ -271,7 +271,7 @@ body {
         background: url("landing/section-3/title.png") no-repeat center top / 100% auto;
         width: 48rem;
         min-height: 118px;
-        margin-top: 32px;
+        margin: 32px 0 0 0;
         font-size: 3em;
         color: white;
         display: flex;
@@ -291,9 +291,9 @@ body {
     justify-items: center;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     row-gap: 24px;
-    column-gap: 48px;
+    column-gap: 32px;
     width: 60%;
-    margin-top: 16px;
+    margin: 16px 0;
 
     @media (max-width: 600px) {
         width: 90%;
@@ -304,15 +304,14 @@ body {
         background: var(--color-brown-light);
         box-shadow: var(--shadow);
         border-radius: 30px;
-        height: 400px;
-        max-width: 300px;
+        max-height: 350px;
+        max-width: 250px;
         padding: 12px;
 
         div {
             background: var(--color-brown-darker);
             box-shadow: var(--shadow);
             border-radius: 20px;
-            height: 100%;
             padding: 10px;
             display: flex;
             flex-direction: column;
@@ -335,7 +334,7 @@ body {
     transform: translateX(calc(-15% + 12px));
     width: 130%;
     min-height: 48px;
-    margin-top: auto;
+    margin: auto 0 0 0;
     display: flex;
     align-items: center;
     justify-content: center;
