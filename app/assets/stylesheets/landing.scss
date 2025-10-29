@@ -71,6 +71,18 @@ input {
     }
 }
 
+.ribbon {
+    background-position: center top;
+    background-size: 100%;
+    background-repeat: no-repeat;
+
+    color: white;
+
+    &.ribbon-title {
+        padding: 0.5em 2em;
+    }
+}
+
 .login-form {
     position: absolute;
     right: 16px;
@@ -145,183 +157,130 @@ input {
 
     @media (max-width: 1200px) {
         flex-direction: column;
-        gap: 2rem
+        gap: 2rem;
     }
 }
 
-.landing-section-2 {
-    min-height: 100vh;
-    position: relative;
-    background-color: var(--color-cream);
-    display: flex;
+.section-2 {
+    .title-overlay {
+        position: absolute;
+        top: 2rem;
+        width: 100%;
+        z-index: 1;
 
-    @media (max-width: 900px) {
-        flex-direction: column;
-    }
-}
+        display: flex;
+        justify-content: center;
 
-.landing-section-2--part {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    box-shadow: var(--shadow);
-
-    @media (max-width: 900px) {
-        height: 77vh;
-    }
-}
-
-.section-2--left {
-    background: var(--color-pink) url("landing/section-2/texture_1.png") no-repeat center / cover;
-}
-
-.section-2--center {
-    background: var(--color-lime) url("landing/section-2/texture_2.png") no-repeat center / cover;
-}
-
-.section-2--right {
-    background: var(--color-teal) url("landing/section-2/texture_3.png") no-repeat center / cover;
-}
-
-.section-2--title {
-    background: url("landing/section-2/title.svg") no-repeat center top / 100% auto;
-    z-index: 100;
-    position: absolute;
-    top: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    width: 26rem;
-    min-height: 88px;
-    height: fit-content;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8em;
-
-    h2 {
-        text-align: center;
-        color: white;   
-        margin: 0;
-    }
-
-    @media (max-width: 600px) {
-        width: 20rem;
-        min-height: 68px;
-        font-size: 1.2em;
-    }
-}
-
-.section-2--step-card {
-    background: var(--color-cream) no-repeat center / cover;
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    width: 75%;
-    height: fit-content;
-    min-height: 24em;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    p {
-        margin: 16px;
-        text-align: center;
-        font-size: 1.3em;
-
-        @media (max-width: 600px) {
-            font-size: 1em;
+        .title {
+            background-image: url("landing/section-2/title.svg");
+            font-size: 3rem;
         }
     }
 
-    img {
-        width: 90%;
-        margin-top: 2em;
+    .step {
+        flex: 1;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+
+
+        .step-card {
+            width: 75%;
+            border-radius: 1rem;
+
+            background: var(--color-cream) no-repeat center / cover;
+            box-shadow: var(--shadow);
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            .step-count {
+                transform: translateY(-50%);
+                font-size: 1.5rem;
+
+                padding: 0.5em 3em;
+            }
+
+            .title {
+                background: no-repeat center top / 100% auto;
+                color: white;
+
+                width: 120%;
+                transform: translateY(-25%);
+
+                padding: 1.75rem 0;
+
+                font-size: 1.75rem;
+                text-align: center;
+            }
+
+            img {
+                width: 80%;
+            }
+
+            p {
+                margin: 0;
+                padding: 1rem 1.5rem;
+                font-size: 1.25rem;
+                text-align: center;
+            }
+        }
+
+        // TODO there's probably some way to use sass to generate this but i'm not sure
+        &.left {
+            background: var(--color-pink) url("landing/section-2/texture_1.png") no-repeat center / cover;
+
+            .step-count {
+                background-image: url("landing/section-2/step-1-ribbon.png");
+            }
+
+            .step-card {
+                background-image: url("landing/section-2/step-1-card-bg.png");
+                color: var(--color-red-dark);
+            }
+
+            .title {
+                background-image: url("landing/section-2/step-1-title.png");
+            }
+        }
+        &.center {
+            background: var(--color-lime) url("landing/section-2/texture_2.png") no-repeat center / cover;
+
+            .step-count {
+                background-image: url("landing/section-2/step-2-ribbon.png");
+            }
+
+            .step-card {
+                background-image: url("landing/section-2/step-2-card-bg.png");
+                color: #468232; // TODO do not hardcode!
+            }
+
+            .title {
+                background-image: url("landing/section-2/step-2-title.png");
+            }
+        }
+        &.right {
+            background: var(--color-teal) url("landing/section-2/texture_3.png") no-repeat center / cover;
+
+            .step-count {
+                background-image: url("landing/section-2/step-3-ribbon.png");
+            }
+
+            .step-card {
+                background-image: url("landing/section-2/step-3-card-bg.png");
+                color: #3C5E8B; // TODO do not hardcode!
+            }
+
+            .title {
+                background-image: url("landing/section-2/step-3-title.png");
+            }
+        }
     }
-}
 
-.section-2--step-card-1 {
-    background-image: url("landing/section-2/step-1-card-bg.png");
-    color: var(--color-red-dark);
-}
-
-.section-2--step-card-2 {
-    background-image: url("landing/section-2/step-2-card-bg.png");
-    color: #468232;
-}
-
-.section-2--step-card-3 {
-    background-image: url("landing/section-2/step-3-card-bg.png");
-    color: #3C5E8B;
-}
-
-.section-2--step-card--ribbon {
-    background: no-repeat center top / 100% auto;
-    position: absolute;
-    top: -21px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 10em;
-    min-height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-
-    h2 {
-        margin: 0;
-        font-size: 1em;
-    }
-
-    @media (max-width: 600px) {
-        top: -21px;
-        font-size: 1em;
-    }
-}
-
-.section-2--step-card-1--ribbon {
-    background-image: url("landing/section-2/step-1-ribbon.png");
-}
-
-.section-2--step-card-2--ribbon {
-    background-image: url("landing/section-2/step-2-ribbon.png");
-}
-
-.section-2--step-card-3--ribbon {
-    background-image: url("landing/section-2/step-3-ribbon.png");
-}
-
-.section-2--step-card--title {
-    margin: -36px 0 0 0;
-    
-    width: 110%;
-    min-height: 64px;
-    z-index: 100;
-    background: no-repeat center top -2px / 100% auto;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5em;
-
-    @media (max-width: 600px) {
-        margin-top: -28px;
-        min-height: 50px;
-        font-size: 1.4em;
-    }
-}
-
-.section-2--step-card-1--title {
-    background-image: url("landing/section-2/step-1-title.png");
-}
-
-.section-2--step-card-2--title {
-    background-image: url("landing/section-2/step-2-title.png");
-}
-
-.section-2--step-card-3--title {
-    background-image: url("landing/section-2/step-3-title.png");
+    // height 77vh at 900px?
 }
 
 .section-3 {
