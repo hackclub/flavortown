@@ -5,7 +5,6 @@
 <div class="section section-1">
   <%= inline_svg_tag "landing/section-1/flag-orpheus-top.svg", class: "orph-flag" %>
 
-  <!--
   <%= form_tag "/auth/slack", method: :post, data: {turbo: false}, class: "login-form" do %>
     <button class="btn-striped-red">
       <div>
@@ -14,7 +13,6 @@
       </div>
     </button>
   <% end %>
-  -->
 
   <div class="hero">
     <!-- TODO: som-style hero image? -->
@@ -71,55 +69,55 @@
   </div>
 </div>
 
-<div class="section-3">
-  <h2>What past chefs say</h2>
+<div class="section section-3">
+  <div class="ribbon ribbon-title title">What past chefs say</div>
 
-  <div class="section-3--testimonials">
-    <div>
+  <div class="testimonials">
+    <div class="testimonial blue">
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="section-3--testimonials--title section-3--testimonials--title-blue">5 year old Hack Clubber from Mars</h3>
+        <div class="title">5 year old Hack Clubber from Mars</div>
       </div>
     </div>
 
-    <div>
+    <div class="testimonial green">
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="section-3--testimonials--title section-3--testimonials--title-green">5 year old Hack Clubber from Mars</h3>
+        <div class="title">5 year old Hack Clubber from Mars</div>
       </div>
     </div>
 
-    <div>
+    <div class="testimonial red">
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="section-3--testimonials--title section-3--testimonials--title-red">5 year old Hack Clubber from Mars</h3>
+        <div class="title">5 year old Hack Clubber from Mars</div>
       </div>
     </div>
 
-    <div>
+    <div class="testimonial blue">
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="section-3--testimonials--title section-3--testimonials--title-blue">5 year old Hack Clubber from Mars</h3>
+        <div class="title">5 year old Hack Clubber from Mars</div>
       </div>
     </div>
 
-    <div>
+    <div class="testimonial green">
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="section-3--testimonials--title section-3--testimonials--title-green">5 year old Hack Clubber from Mars</h3>
+        <div class="title">5 year old Hack Clubber from Mars</div>
       </div>
     </div>
 
-    <div>
+    <div class="testimonial red">
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="section-3--testimonials--title section-3--testimonials--title-red">5 year old Hack Clubber from Mars</h3>
+        <div class="title">5 year old Hack Clubber from Mars</div>
       </div>
     </div>
   </div>
