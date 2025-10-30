@@ -2,12 +2,12 @@
   <%= stylesheet_link_tag "landing", "data-turbo-track": "reload" %>
 <% end %>
 
-<div class="section-1">
+<div class="section section-1">
   <%= inline_svg_tag "landing/section-1/flag-orpheus-top.svg", class: "orph-flag" %>
 
   <!--
-  <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
-    <button class="login-btn btn-striped-red" disabled>
+  <%= form_tag "/auth/slack", method: :post, data: {turbo: false}, class: "login-form" do %>
+    <button class="btn-striped-red">
       <div>
         <%= image_tag "mask/enter.png", width: 20, height: 20 %>
         Sign in!
@@ -16,109 +16,110 @@
   <% end %>
   -->
 
-  <div class="section-1--right">
+  <div class="hero">
+    <!-- TODO: som-style hero image? -->
+  </div>
+
+  <div class="rsvp-container">
     <%= image_tag "landing/section-1/drawing.png" %>
     <%= render "rsvp_form", rsvp: Rsvp.new %>
   </div>
 </div>
 
-<div class="section-2" style="gap: 16px;">
-  <div class="section-2--title">
-    <h2>How this works</h2>
+<div class="section section-2">
+  <div class="title-overlay">
+    <div class="ribbon ribbon-title title">How this works</div>
   </div>
 
-  <div class="section-2--part section-2--left">
-    <div class="section-2--step-card section-2--step-card-1">
-        <div class="section-2--step-card--ribbon section-2--step-card-1--ribbon">
-          <h2>Step 1</h2>
+  <div class="step left">
+    <div class="step-card">
+        <div class="ribbon step-count">Step 1</div>
+
+        <div class="hero">
+          <%= image_tag "landing/section-2/step-1-img.png" %>
+          <div class="title">Cook a real tasty project!</div>
         </div>
-
-        <%= image_tag "landing/section-2/step-1-img.png" %>
-
-        <h3 class="section-2--step-card-1--title section-2--step-card--title">Cook a real tasty project!</h3>
 
         <p>A website, game, hardware, anything to show off your skills</p>
     </div>
   </div>
 
-  <div class="section-2--part section-2--center">
-    <div class="section-2--step-card section-2--step-card-2">
-        <div class="section-2--step-card--ribbon section-2--step-card-2--ribbon">
-          <h2>Step 2</h2>
+  <div class="step center">
+    <div class="step-card">
+        <div class="ribbon step-count">Step 2</div>
+
+        <div class="hero">
+          <%= image_tag "landing/section-2/step-2-img.png" %>
+          <div class="title">Rate your fellow hackers!</div>
         </div>
-
-        <%= image_tag "landing/section-2/step-2-img.png" %>
-
-        <h3 class="section-2--step-card-2--title section-2--step-card--title">Rate your fellow hackers!</h3>
 
         <p>Rate projects and receive a rating on your own</p>
     </div>
   </div>
 
-  <div class="section-2--part section-2--right">
-    <div class="section-2--step-card section-2--step-card-3">
-        <div class="section-2--step-card--ribbon section-2--step-card-3--ribbon">
-          <h2>Step 3</h2>
+  <div class="step right">
+    <div class="step-card">
+        <div class="ribbon step-count">Step 3</div>
+
+        <div class="hero">
+          <%= image_tag "landing/section-2/step-3-img.png" %>
+          <div class="title">Win prizes!</div>
         </div>
-
-        <%= image_tag "landing/section-2/step-3-img.png" %>
-
-        <h3 class="section-2--step-card-3--title section-2--step-card--title">Win prizes!</h3>
 
         <p>Win prizes that you can use to cook your next incredible feast</p>
     </div>
   </div>
 </div>
 
-<div class="section-3">
-  <h2>What past chefs say</h2>
+<div class="section section-3">
+  <div class="ribbon ribbon-title title">What past chefs say</div>
 
-  <div class="section-3--testimonials">
-    <div>
+  <div class="testimonials">
+    <div class="testimonial blue">
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="section-3--testimonials--title section-3--testimonials--title-blue">5 year old Hack Clubber from Mars</h3>
+        <div class="title">5 year old Hack Clubber from Mars</div>
       </div>
     </div>
 
-    <div>
+    <div class="testimonial green">
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="section-3--testimonials--title section-3--testimonials--title-green">5 year old Hack Clubber from Mars</h3>
+        <div class="title">5 year old Hack Clubber from Mars</div>
       </div>
     </div>
 
-    <div>
+    <div class="testimonial red">
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="section-3--testimonials--title section-3--testimonials--title-red">5 year old Hack Clubber from Mars</h3>
+        <div class="title">5 year old Hack Clubber from Mars</div>
       </div>
     </div>
 
-    <div>
+    <div class="testimonial blue">
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="section-3--testimonials--title section-3--testimonials--title-blue">5 year old Hack Clubber from Mars</h3>
+        <div class="title">5 year old Hack Clubber from Mars</div>
       </div>
     </div>
 
-    <div>
+    <div class="testimonial green">
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="section-3--testimonials--title section-3--testimonials--title-green">5 year old Hack Clubber from Mars</h3>
+        <div class="title">5 year old Hack Clubber from Mars</div>
       </div>
     </div>
 
-    <div>
+    <div class="testimonial red">
       <div>
         <%= image_tag "landing/section-3/cards/card-1.png" %>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis velit et suscipit bibendum. </p>
-        <h3 class="section-3--testimonials--title section-3--testimonials--title-red">5 year old Hack Clubber from Mars</h3>
+        <div class="title">5 year old Hack Clubber from Mars</div>
       </div>
     </div>
   </div>
@@ -126,13 +127,13 @@
 
 <!-- todo: section 4 -->
 
-<div class="section-5">
-  <h2>What will you cook this winter?</h2>
+<div class="section section-5">
+  <div class="ribbon ribbon-title title">What will you cook this winter?</div>
   <%= render "landing/projects/project_idea_generator" %>
 </div>
 
-<div class="section-6">
-  <div class="section-6--about">
+<div class="section section-6">
+  <div class="about">
     <div>
       <h2>About Hack Club</h2>
 
@@ -140,20 +141,18 @@
         <a href="https://hackclub.com" target="_blank">Hack Club</a> is a nonprofit supporting a global network of over 60,000 teenagers. We believe the best way to learn is by building, so we provide community, resources, and funding to help teens create. We've run programs like <a href="https://highseas.hackclub.com" target="_blank">High Seas</a>, a global coding challenge where over 5,000 teens logged over 130,000 hours of coding and we shipped out 11,112 prizes to 119 countries; <a href="https://juice.hackclub.com" target="_blank">Juice</a>, a two-month game jam where 100 teens created their own video games; <a href="https://trail.hackclub.com" target="_blank">The Trail</a>, a seven-day hike along the Pacific Crest Trail where 30 teens build their own technical hiking equipment.
       </p>
 
-      <br>
-
       <p>At Hack Club, students aren't just learning, they're shipping.</p>
     </div>
   </div>
 
-  <div class="section-6--credits">
+  <div class="credits">
     <h3>Flavortown is built with &lt;3 by Hack Clubbers around the world.</h3>
 
-    <div class="section-6--credits--people">
+    <div class="people">
 
     </div>
 
-    <div class="section-6--credits--links">
+    <div class="links">
       <a href="https://hackclub.com" target="_blank">Hack Club</a>
       <a href="https://hackclub.com/clubs/" target="_blank">Clubs</a>
       <a href="https://hackathons.hackclub.com" target="_blank">Hackathons</a>
