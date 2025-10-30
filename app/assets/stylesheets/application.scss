@@ -19,9 +19,16 @@
     --shadow-inset: inset 0px 0px 2px 1px rgba(0, 0, 0, 0.25);
 }
 
+@font-face {
+    font-family: 'Jua';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("Jua-Regular.ttf") format('truetype');
+}
+
 * {
     font-family: "Jua", sans-serif;
-
     box-sizing: border-box;
 }
 
