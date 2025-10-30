@@ -342,6 +342,10 @@ input {
         grid-template-columns: repeat(auto-fill, 24rem);
         gap: 1.5rem 3rem;
 
+        @media (max-width: 600px) {
+            width: 90%;
+        }
+
         .testimonial {
             background: var(--color-brown-light);
             box-shadow: var(--shadow);
@@ -407,30 +411,25 @@ input {
 }
 
 .section-5 {
-    min-height: 100vh;
     background: var(--color-gold);
-
-    display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 2rem;
+    padding: 2rem 0;
     
-    h2 {
-        background: url("landing/section-3/title.png") no-repeat center top / 100% auto;
-        color: white;
+    .title {
+        background-image: url("landing/section-3/title.png");
 
-        width: 52rem;
-        min-height: 124px;
-        margin-top: 48px;
-        font-size: 3em;
+        font-size: 3rem;
+
+        padding: 0.6em 1.5em;
         
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @media (max-width: 850px) {
+            font-size: 2rem;
+        }
 
         @media (max-width: 600px) {
-            font-size: 1.4em;
-            width: 24rem;
-            min-height: 56px;
+            font-size: 1.5rem;
         }
     }
 }
@@ -505,100 +504,98 @@ input {
 }
 
 .section-6 {
-    min-height: 100vh;
     background-color: var(--color-tan-light);
-    display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-.section-6--about {
-    background-color: var(--color-tan);
-    box-shadow: var(--shadow);
-    border-radius: 16px;
-    padding: 10px;
-    width: 60%;
-    
-    margin: 64px 0 32px 0;
-
-    @media (max-width: 600px) {
-        width: 90%;
-    }
-
-    div {
-        background: var(--color-cream) url("landing/section-6/about-bg.png") center / cover;
-        box-shadow: var(--shadow-inset);
-        border-radius: 10px;
-        padding: 16px 32px 32px 32px;
-
-        @media (max-width: 600px) {
-            background-size: 250% auto;
-            background-position: center top;
-        }
-
-        h2 {
-            text-align: center;
-            margin: 16px 0px;
-            font-size: 2em;
-            color: var(--color-brown-dark);
-        }
-
-        p {
-            color: var(--color-brown);
-            font-size: 1.2em;
-        }
-
-        a {
-            color: var(--color-brown);
-        }
-    }
-}
-
-.section-6--credits {
-    background-color: var(--color-brown-light);
-    margin: auto 0 32px 0;
-    padding: 8px 16px;
-    border-radius: 10px;
-    box-shadow: var(--shadow);
-    width: 40%;
-
-    @media (max-width: 600px) {
-        width: 80%;
-    }
-
-    h3 {
-        color: var(--color-cream);
-        font-size: 1.2em;
-        text-align: center;
-        width: 110%;
-        transform: translateX(calc(-5% + 4px));
-        background-color: var(--color-brown);
-        border-radius: 10px;
-        padding: 8px 0;
-        margin: 0;
-
-        @media (max-width: 600px) {
-            width: 120%;
-            transform: translateX(calc(-10% + 8px));
-            font-size: 1em;
-        }
-    }
-}
-
-.section-6--credits--people {
-    background: var(--color-cream) url("landing/section-6/people-bg.png") center / cover;
-    box-shadow: var(--shadow-inset);
-    border-radius: 10px;
-    padding: 16px;
-    margin-top: -16px;
-    height: 8em;
-}
-
-.section-6--credits--links {
-    margin-top: 8px;
-    display: flex;
-    gap: 32px;
     justify-content: center;
+
+    gap: 4rem;
+
+    .about {
+        background-color: var(--color-tan);
+        box-shadow: var(--shadow);
+        border-radius: 1rem;
+        padding: 0.5rem;
+        width: 60%;
+        
+        @media (max-width: 600px) {
+            width: 90%;
+        }
+
+        div {
+            background: var(--color-cream) url("landing/section-6/about-bg.png") center / cover;
+            box-shadow: var(--shadow-inset);
+            border-radius: 10px;
+            padding: 2rem;
+
+            @media (max-width: 600px) {
+                background-size: 250% auto;
+                background-position: center top;
+            }
+
+            h2 {
+                text-align: center;
+                font-size: 2rem;
+                color: var(--color-brown-dark);
+            }
+
+            p {
+                color: var(--color-brown);
+                font-size: 1.2rem;
+                margin: 1.5rem 0;
+            }
+
+            a {
+                color: var(--color-brown);
+            }
+        }
+    }
+
+    .credits {
+        background-color: var(--color-brown-light);
+        padding: 8px 16px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        width: 40%;
+
+        @media (max-width: 600px) {
+            width: 80%;
+        }
+
+        h3 {
+            color: var(--color-cream);
+            font-size: 1.2em;
+            text-align: center;
+            width: 110%;
+            transform: translateX(calc(-5% + 4px));
+            background-color: var(--color-brown);
+            border-radius: 0.4rem;
+            padding: 0.5rem 0;
+            margin: 0;
+
+            @media (max-width: 600px) {
+                width: 120%;
+                transform: translateX(calc(-10% + 8px));
+                font-size: 1em;
+            }
+        }
+
+        .people {
+            background: var(--color-cream) url("landing/section-6/people-bg.png") center / cover;
+            box-shadow: var(--shadow-inset);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: -1rem;
+            height: 8rem;
+        }
+
+        .links {
+            margin-top: 8px;
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+        }
+    }
 }
 
 button {
@@ -613,9 +610,7 @@ button {
     position: absolute;
     top: 0;
     left: 1.5em;
-}
 
-svg {
     width: 180px;
     height: auto;
 
