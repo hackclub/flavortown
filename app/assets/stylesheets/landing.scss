@@ -24,12 +24,13 @@ input {
 
         display: flex;
         padding: 0.5rem;
-        gap: 1rem;
+        gap: 0.5rem;
 
         svg {
-            width: 3rem;
+            width: 2rem;
             fill: var(--color-red);
             opacity: 75%;
+            padding: 4px;
         }
 
         input {
@@ -42,6 +43,12 @@ input {
             }
         }
     }
+}
+
+.login-btn {
+    position: absolute;
+    right: 16px;
+    top: 16px;
 }
 
 .btn-striped-red {
@@ -246,6 +253,7 @@ input {
                         var(--title-edge) 80.1%,
                         var(--title-edge) 100%
                     );
+                    
                     color: white;
                     border-radius: 1.25rem;
                     box-shadow: var(--shadow);
@@ -254,7 +262,7 @@ input {
                     left: -5%;
                     bottom: 0;
                     width: 110%;
-                    aspect-ratio: 16 / 3;
+                    aspect-ratio: 16 / 2.5;
 
                     font-size: 2rem;
 
@@ -271,7 +279,7 @@ input {
 
             p {
                 margin: 0;
-                padding: 0.5rem 1.5rem 1.5rem 1.5rem;
+                padding: 1.5rem;
                 font-size: 1.5rem;
                 text-align: center;
             }
@@ -339,7 +347,7 @@ input {
         display: grid;
         justify-content: center;
         justify-items: center;
-        grid-template-columns: repeat(auto-fill, 24rem);
+        grid-template-columns: repeat(auto-fill, 18rem);
         gap: 1.5rem 3rem;
 
         @media (max-width: 600px) {
@@ -352,15 +360,18 @@ input {
             border-radius: 2rem;
             padding: 0.75rem;
 
+            width: 18rem;
+            height: 26rem;
+
             > div {
                 background: var(--color-brown-darker);
                 box-shadow: var(--shadow);
                 border-radius: 1.25rem;
 
-                padding: 1rem;
+                padding: 0.8rem;
                 height: 100%;
 
-                font-size: 1.5rem;
+                font-size: 1rem;
 
                 position: relative;
 
@@ -369,12 +380,16 @@ input {
                     margin: 0.5rem 0 4rem 0;
                 }
 
+                img {
+                    width: 100%;
+                }
+
                 .title {
-                    width: 110%;
+                    width: 120%;
 
                     position: absolute;
                     bottom: 1rem;
-                    left: -5%;
+                    left: -10%;
 
                     background: linear-gradient(52deg,
                         var(--title-edge) 0%,
@@ -384,6 +399,7 @@ input {
                         var(--title-edge) 75.1%,
                         var(--title-edge) 100%
                     );
+                    
                     color: white;
                     aspect-ratio: 25 / 3;
 
@@ -391,6 +407,10 @@ input {
                     align-items: center;
                     justify-content: center;
                     border-radius: 0.75rem;
+
+                    @media (max-width: 600px) {
+                        font-size: 1rem;
+                    }
                 }
             }
 
@@ -507,15 +527,13 @@ input {
     background-color: var(--color-tan-light);
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-
-    gap: 4rem;
 
     .about {
         background-color: var(--color-tan);
         box-shadow: var(--shadow);
         border-radius: 1rem;
         padding: 0.5rem;
+        margin: 48px 0 16px 0;
         width: 60%;
         
         @media (max-width: 600px) {
@@ -544,16 +562,13 @@ input {
                 font-size: 1.2rem;
                 margin: 1.5rem 0;
             }
-
-            a {
-                color: var(--color-brown);
-            }
         }
     }
 
     .credits {
         background-color: var(--color-brown-light);
         padding: 8px 16px;
+        margin: auto 0 16px 0;
         border-radius: 10px;
         box-shadow: var(--shadow);
         width: 40%;
@@ -565,6 +580,7 @@ input {
         h3 {
             color: var(--color-cream);
             font-size: 1.2em;
+            font-weight: normal;
             text-align: center;
             width: 110%;
             transform: translateX(calc(-5% + 4px));
