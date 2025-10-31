@@ -298,6 +298,7 @@ input {
             --title-middle: #BE4D54; // TODO do not hardcode!
             --card-color: var(--color-red-dark);
         }
+
         &.center {
             background: var(--color-lime) url("landing/section-2/texture_2.png") no-repeat center / cover;
             --ribbon-url: url("landing/section-2/step-2-ribbon.png");
@@ -306,6 +307,7 @@ input {
             --title-middle: #75A743; // TODO do not hardcode!
             --card-color: #468232; // TODO do not hardcode!
         }
+        
         &.right {
             background: var(--color-teal) url("landing/section-2/texture_3.png") no-repeat center / cover;
             --ribbon-url: url("landing/section-2/step-3-ribbon.png");
