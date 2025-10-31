@@ -2,6 +2,11 @@
 <script src="/yapping.js"></script>
 
 <script>
+  let sounds = {
+    squeak: new Howl({
+      src: ["https://hc-cdn.hel1.your-objectstorage.com/s/v3/ff2d5691f663fc471761f4407856a26291926baf_squeak_audio.mp4"],
+    })
+  }
   let nextLoadingMessage = <%= FlavortextService.project_ideas('loading_messages').to_json.html_safe %>
 
   const shopIcons = {
@@ -75,13 +80,18 @@
       <div id="shopkeeper-bakery">
         <%= image_tag "landing/section-5/bakery/back.png" %>
         <img id="shopkeeper-image" src="" class="idle" style="position: absolute; right: 64px; top: 40%; width: 30%;">
-        <%= image_tag "landing/section-5/bakery/front.png", style: "position: absolute; top: 0; left: 0;" %>
+        <%= image_tag "landing/section-5/bakery/front.png", style: "position: absolute; top: 0; left: 0; pointer-events: none;" %>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+  // handle shopkeeper click
+  document.getElementById("shopkeeper-image").addEventListener("mousedown", async function () {
+    sounds.squeak.play();
+  })
+
   // handling submissions
   document.getElementById("new_project_idea_form").addEventListener("submit", async function(event) {
     event.preventDefault();
@@ -205,12 +215,12 @@
   }
 
   #shopkeeper-image.idle {
-    animation: idle 2s infinite alternate;
+    animation: idle 1.5s infinite alternate;
     filter: contrast(60%);
   }
 
   #shopkeeper-image.talking {
-    animation: talking 0.5s infinite alternate;
+    animation: talking 0.15s infinite alternate;
   }
 
   @keyframes idle {
@@ -227,5 +237,22 @@
     } to {
       transform: scale(0.99, 1.01) translateY(0%);
     }
+  }
+
+  /* Click effect */
+  #shopkeeper-image {
+    transition: transform 200ms ease;
+    transform-origin: bottom center;
+    cursor: pointer;
+  }
+  #shopkeeper-image:hover, #shopkeeper-image:active {
+    animation: none;
+    animation-play-state: paused;
+  }
+  #shopkeeper-image:hover {
+    transform: scale(1.15) !important;
+  }
+  #shopkeeper-image:active {
+    transform: scale(1.25, 0.80) !important;
   }
 </style>
