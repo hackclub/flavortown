@@ -1,65 +1,59 @@
-# <p>hi this is where the carousel im borrwing from som (https://github.com/hackclub/summer-of-making/blob/main/app/views/landing/index.html.erb#L169-L233) will be </p>
- <div class="max-w-9xl mx-auto mb-12 md:mt-25 md:px-0 rotate-0 md:-rotate-2">
-    <div class="mx-auto max-w-7xl w-full relative">
-      <div class="relative">
-        <div class="parchment-texture"></div>
+<div style="background:url(\"landing/carousel/bg.svg\")">
+<div class="carousel-container">
+  <div class="inner-container">
+    <div class="content-wrapper">
+      <div class="parchment-texture"></div>
 
-        <h2 class="text-4xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center -mt-4 mb-3 md:mb-4 text-som-dark relative font-['DynaPuff',sans-serif]">
-          Amazing Prizes
-        </h2>
-        <p class="font-['Fredoka',sans-serif] font-normal text-center text-sm sm:text-lg md:text-2xl lg:text-2xl mx-0 lg:mx-0 mb-6 md:mb-12 text-[#8B4513] opacity-90">
-          This isn't some contest with just a few winners.<br class="block lg:hidden"> If you build stuff, you get stuff, guaranteed!
-        </p>
+      <h2>Amazing Prizes</h2>
+      <p class="subtitle">
+       Prizes to power up your next project!
+      </p>
 
-        <div class="relative mx-2 md:mx-15 sm:mx-10 z-20 rotate-0 md:-rotate-3" data-controller="carousel" data-carousel-row-value="1">
-          <div class="carousel-track flex gap-4 md:gap-10 sm:gap-6 w-full overflow-hidden items-center" data-carousel-target="container">
-            <% @prizes.each_with_index do |prize, index| %>
-              <div class="carousel-slide flex-none w-40 md:w-44 sm:w-36" style="transform: <%= random_carousel_transform %>; animation-delay: <%= (index * 0.5) %>s;">
-                <div class="parchment-prize-card p-3 md:p-3 sm:p-2 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-105" style="animation-delay: <%= (index * 0.3) %>s;">
-                  <div class="parchment-texture"></div>
-                    <div class="parchment-prize-image w-full h-full flex items-center justify-center mb-2 rounded-xl">
-                    <% if prize[:image_url].present? %>
-                      <img src="<%= prize[:image_url] %>" alt="<%= prize[:name] %>" class="w-full h-full object-cover rounded-xl" loading="lazy">
-                    <% else %>
-                      <%= image_tag "clubhuman.png", alt: "Prize", class: "w-full h-full object-cover rounded-xl" %>
-                    <% end %>
-                  </div>
-                  <h3 class="parchment-prize-name font-['Fredoka'] font-semibold text-base md:text-base sm:text-sm leading-tight m-0">
-                    <%= prize[:name] %>
-                  </h3>
-                  <p class="parchment-prize-time text-xs mt-1">
-                    <%= prize[:hours_estimated] >= 500 ? ">500 hours" : "~#{prize[:hours_estimated]} #{"hour".pluralize(prize[:hours_estimated])}" %>
-                  </p>
+      <div class="carousel-row row-1" data-controller="carousel" data-carousel-row-value="1">
+        <div class="carousel-track" data-carousel-target="container">
+          <% (@prizes + @prizes).each_with_index do |prize, index| %>
+            <div class="carousel-slide" style="transform: <%= random_carousel_transform %>; animation-delay: <%= (index * 0.5) %>s;">
+              <div class="parchment-prize-card" style="animation-delay: <%= (index * 0.3) %>s;">
+                <div class="parchment-texture"></div>
+                <div class="parchment-prize-image">
+                  <% if prize[:image_url].present? %>
+                    <img src="<%= prize[:image_url] %>" alt="<%= prize[:name] %>" loading="lazy">
+                  <% else %>
+                    <%= image_tag "clubhuman.png", alt: "Prize" %>
+                  <% end %>
                 </div>
+                <h3 class="parchment-prize-name"><%= prize[:name] %></h3>
+                <p class="parchment-prize-time">
+                  <%= prize[:hours_estimated] >= 500 ? ">500 hours" : "~#{prize[:hours_estimated]} #{"hour".pluralize(prize[:hours_estimated])}" %>
+                </p>
               </div>
-            <% end %>
-          </div>
+            </div>
+          <% end %>
         </div>
+      </div>
 
-        <div class="relative mt-12 md:mt-25 mx-2 md:mx-15 sm:mx-10 z-20 rotate-0 md:rotate-2" data-controller="carousel" data-carousel-row-value="2">
-          <div class="carousel-track-rev flex gap-2 md:gap-4 sm:gap-2 w-full overflow-hidden items-center" data-carousel-target="container">
-            <% @prizes.each_with_index do |prize, index| %>
-              <div class="carousel-slide flex-none w-40 md:w-44 sm:w-36" style="transform: <%= random_carousel_transform %>; animation-delay: <%= (index * 0.4) %>s;">
-                <div class="parchment-prize-card p-3 md:p-3 sm:p-2 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-105" style="animation-delay: <%= (index * 0.4) %>s;">
-                  <div class="parchment-prize-image w-full h-full flex items-center justify-center mb-2 rounded-xl">
-                    <% if prize[:image_url].present? %>
-                      <img src="<%= prize[:image_url] %>" alt="<%= prize[:name] %>" class="w-full h-full object-cover rounded-xl" loading="lazy">
-                    <% else %>
-                      <%= image_tag "clubhuman.png", alt: "Prize", class: "w-full h-full object-cover rounded-xl" %>
-                    <% end %>
-                  </div>
-                  <h3 class="parchment-prize-name font-['Fredoka'] font-semibold text-base md:text-base sm:text-sm leading-tight m-0">
-                    <%= prize[:name] %>
-                  </h3>
-                  <p class="parchment-prize-time text-xs mt-1">
-                    <%= prize[:hours_estimated] >= 500 ? ">500 hours" : "~#{prize[:hours_estimated]} #{"hour".pluralize(prize[:hours_estimated])}" %>
-                  </p>
+      <div class="carousel-row row-2" data-controller="carousel" data-carousel-row-value="2">
+        <div class="carousel-track-rev" data-carousel-target="container">
+          <% (@prizes + @prizes).each_with_index do |prize, index| %>
+            <div class="carousel-slide" style="transform: <%= random_carousel_transform %>; animation-delay: <%= (index * 0.4) %>s;">
+              <div class="parchment-prize-card" style="animation-delay: <%= (index * 0.4) %>s;">
+                <div class="parchment-prize-image">
+                  <% if prize[:image_url].present? %>
+                    <img src="<%= prize[:image_url] %>" alt="<%= prize[:name] %>" loading="lazy">
+                  <% else %>
+                    <%= image_tag "clubhuman.png", alt: "Prize" %>
+                  <% end %>
                 </div>
+                <h3 class="parchment-prize-name"><%= prize[:name] %></h3>
+                <p class="parchment-prize-time">
+                  <%= prize[:hours_estimated] >= 500 ? ">500 hours" : "~#{prize[:hours_estimated]} #{"hour".pluralize(prize[:hours_estimated])}" %>
+                </p>
               </div>
-            <% end %>
-          </div>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
   </div>
+</div>
 </div>

@@ -1,0 +1,248 @@
+.carousel-container {
+  width: 100%;
+  margin: 0;
+  background: url("landing/carousel/bg.svg") center / cover;
+  padding: 2rem 0;
+  overflow: hidden;
+
+  @media (min-width: 768px) {
+    padding: 3rem 0;
+  }
+
+  .inner-container {
+    margin: 0 auto;
+    max-width: 80rem;
+    width: 100%;
+    position: relative;
+  }
+
+  .content-wrapper {
+    position: relative;
+  }
+
+  .parchment-texture {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+
+  h2 {
+    font-family: 'DynaPuff', sans-serif;
+    font-weight: bold;
+    text-align: center;
+    margin-top: -1rem;
+    margin-bottom: 0.75rem;
+    position: relative;
+    font-size: 2.25rem;
+
+    @media (min-width: 640px) {
+      font-size: 2.25rem;
+    }
+
+    @media (min-width: 768px) {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 3.75rem;
+    }
+  }
+
+  p.subtitle {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: normal;
+    text-align: center;
+    margin: 0 0 1.5rem;
+    color: #8B4513;
+    opacity: 0.9;
+    font-size: 0.875rem;
+
+    @media (min-width: 640px) {
+      font-size: 1.125rem;
+    }
+
+    @media (min-width: 768px) {
+      font-size: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 1.5rem;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    br {
+      display: block;
+
+      @media (min-width: 1024px) {
+        display: none;
+      }
+    }
+  }
+
+  .carousel-row {
+    position: relative;
+    z-index: 20;
+    transform: rotate(0deg);
+    margin: 0 0.5rem;
+
+    @media (min-width: 640px) {
+      margin: 0 2.5rem;
+    }
+
+    @media (min-width: 768px) {
+      margin: 0 3.75rem;
+    }
+
+    &.row-1 {
+      @media (min-width: 768px) {
+        transform: rotate(-3deg);
+      }
+    }
+
+    &.row-2 {
+      margin-top: 3rem;
+
+      @media (min-width: 768px) {
+        margin-top: 6.25rem;
+        transform: rotate(2deg);
+      }
+    }
+  }
+
+  .carousel-track,
+  .carousel-track-rev {
+    display: flex;
+    gap: 1rem;
+    width: max-content;
+    align-items: center;
+
+    @media (min-width: 640px) {
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      gap: 2.5rem;
+    }
+  }
+
+  .carousel-track {
+    animation: scroll-left 60s linear infinite;
+  }
+
+  .carousel-track-rev {
+    gap: 0.5rem;
+    animation: scroll-right 60s linear infinite;
+
+    @media (min-width: 640px) {
+      gap: 0.5rem;
+    }
+
+    @media (min-width: 768px) {
+      gap: 1rem;
+    }
+  }
+
+  @keyframes scroll-left {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes scroll-right {
+    0% {
+      transform: translateX(-50%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  .carousel-slide {
+    flex: none;
+    width: 10rem;
+
+    @media (min-width: 640px) {
+      width: 9rem;
+    }
+
+    @media (min-width: 768px) {
+      width: 11rem;
+    }
+  }
+
+  .parchment-prize-card {
+    padding: 0.75rem;
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+
+    @media (min-width: 640px) {
+      padding: 0.5rem;
+    }
+
+    @media (min-width: 768px) {
+      padding: 0.75rem;
+    }
+
+    &:hover {
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: translateY(-0.5rem) scale(1.05);
+    }
+
+    .parchment-texture {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+  }
+
+  .parchment-prize-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    border-radius: 0.75rem;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 0.75rem;
+    }
+  }
+
+  .parchment-prize-name {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.25;
+    margin: 0;
+
+    @media (min-width: 640px) {
+      font-size: 0.875rem;
+    }
+
+    @media (min-width: 768px) {
+      font-size: 1rem;
+    }
+  }
+
+  .parchment-prize-time {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+}

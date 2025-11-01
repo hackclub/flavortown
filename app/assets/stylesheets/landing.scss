@@ -1,3 +1,5 @@
+@import "landing__carousel";
+
 input {
     background: none;
     color: inherit;
@@ -314,7 +316,7 @@ input {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 2rem;
+    // gap: 2rem;
     padding: 2rem 0;
 
     > .title {
