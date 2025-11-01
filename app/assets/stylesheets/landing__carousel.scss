@@ -1,7 +1,14 @@
+:root {
+    --slide-bg: #EBEDE9;
+    --slides-bg-1: #DE9E41;
+    --slides-bg-2: #A8CA58;
+    --slides-bg-3: #73BED3;
+}
 .carousel-container {
   width: 100%;
   margin: 0;
-  background: url("landing/carousel/bg.svg") center / cover;
+  background:var(--color-cream) url("landing/carousel/bg.svg") ;
+//   background:var(--color-cream) url("landing/carousel/bg.svg") center / cover;
   padding: 2rem 0;
   overflow: hidden;
 
@@ -90,6 +97,7 @@
     z-index: 20;
     transform: rotate(0deg);
     margin: 0 0.5rem;
+    padding: 2rem 0;
 
     @media (min-width: 640px) {
       margin: 0 2.5rem;
@@ -106,11 +114,11 @@
     }
 
     &.row-2 {
-      margin-top: 3rem;
+      margin-top: 1rem;
 
       @media (min-width: 768px) {
-        margin-top: 6.25rem;
-        transform: rotate(2deg);
+        margin-top: 3.25rem;
+        transform: rotate(-6deg);
       }
     }
   }
@@ -121,7 +129,9 @@
     gap: 1rem;
     width: max-content;
     align-items: center;
-
+    // background: red;
+    padding: 20px;
+    
     @media (min-width: 640px) {
       gap: 1.5rem;
     }
@@ -169,7 +179,12 @@
   .carousel-slide {
     flex: none;
     width: 10rem;
-
+    position: relative;
+    // padding: .5rem;
+    border-radius: 30px;
+    background: #EBEDE9;
+    border-radius: 0.5rem;
+    
     @media (min-width: 640px) {
       width: 9rem;
     }
@@ -244,5 +259,25 @@
   .parchment-prize-time {
     font-size: 0.75rem;
     margin-top: 0.25rem;
+  }
+
+  .carousel-header {
+    background: var(--color-red)  center / cover;
+    color: var(--color-cream);
+    border-radius: 30px;
+    max-width: 1000px;
+    width: 90%;
+    margin: 0 auto 2rem;
+    padding: 1rem 2rem;
+    padding-bottom: .3rem;
+    text-align: center;
+    h2 {
+    border-radius: 15px;
+        font-size: 64px;
+        background: var(--color-red-dark) url('landing/carousel/title_overlay.png');
+    }
+    p {
+        font-size: 38px;
+    }
   }
 }
