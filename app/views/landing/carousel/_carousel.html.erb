@@ -34,10 +34,10 @@
       </div>
 
       <div class="carousel-row row-2" data-controller="carousel" data-carousel-row-value="2">
-        <div class="carousel-track-rev" style="background: var(--slides-bg-2)" data-carousel-target="container">
-          <% (@prizes.select { |p| p[:hours_estimated].between?(10, 30) } * 10).each_with_index do |prize, index|  %>
-            <div class="carousel-slide" style="animation-delay: <%= (index * 0.4) %>s;">
-              <div class="parchment-prize-card" style="animation-delay: <%= (index * 0.4) %>s;">
+        <div class="carousel-track" style="background: var(--slides-bg-2)" data-carousel-target="container">
+          <% (@prizes.select { |p| p[:hours_estimated].between?(10, 30) } * 5).each_with_index do |prize, index|  %>
+            <div class="carousel-slide" style="animation-delay: <%= (index * 0.5) %>s;">
+              <div class="parchment-prize-card" style="animation-delay: <%= (index * 0.3) %>s;">
                 <div class="parchment-prize-image">
                   <% if prize[:image_url].present? %>
                     <img src="<%= prize[:image_url] %>" alt="<%= prize[:name] %>" loading="lazy">

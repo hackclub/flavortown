@@ -9,11 +9,11 @@
   margin: 0;
   background:var(--color-cream) url("landing/carousel/bg.svg") ;
 //   background:var(--color-cream) url("landing/carousel/bg.svg") center / cover;
-  padding: 2rem 0 1rem 0;
+  padding: 2rem 0 0 0;
   overflow: hidden;
 
   @media (min-width: 768px) {
-    padding: 3rem 0 1rem 0;
+    padding: 3rem 0 0 0;
   }
 
   .inner-container {
@@ -145,11 +145,29 @@
 
   .carousel-track {
     animation: scroll-left 120s linear infinite;
+
+    &:hover {
+      animation-play-state: paused;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+      transform: translateX(-20rem);
+    }
   }
 
   .carousel-track-rev {
     gap: 0.5rem;
     animation: scroll-right 120s linear infinite;
+
+    &:hover {
+      animation-play-state: paused;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+      transform: translateX(-20rem);
+    }
 
     @media (min-width: 640px) {
       gap: 0.5rem;
@@ -180,7 +198,7 @@
 
   .carousel-slide {
     flex: none;
-    width: 15rem;
+    width: 20rem;
     position: relative;
     // padding: .5rem;
     border-radius: 30px;
@@ -188,11 +206,11 @@
     border-radius: 0.5rem;
     
     @media (min-width: 640px) {
-      width: 17rem;
+      width: 22rem;
     }
 
     @media (min-width: 768px) {
-      width: 19rem;
+      width: 25rem;
     }
   }
 
