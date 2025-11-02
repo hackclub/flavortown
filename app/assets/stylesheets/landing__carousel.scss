@@ -9,11 +9,11 @@
   margin: 0;
   background:var(--color-cream) url("landing/carousel/bg.svg") ;
 //   background:var(--color-cream) url("landing/carousel/bg.svg") center / cover;
-  padding: 2rem 0 0 0;
+  padding: 2rem 0 1rem 0;
   overflow: hidden;
 
   @media (min-width: 768px) {
-    padding: 3rem 0 0 0;
+    padding: 3rem 0 1rem 0;
   }
 
   .inner-container {
@@ -97,9 +97,8 @@
   .carousel-row {
     position: relative;
     z-index: 20;
-    transform: rotate(0deg);
     margin: 0;
-    padding: 1rem 0;
+    padding: 0.5rem 0;
 
     @media (min-width: 640px) {
       margin: 0 2.5rem;
@@ -109,18 +108,19 @@
       margin: 0 3.75rem;
     }
 
-    &.row-1 {
-      @media (min-width: 768px) {
-        transform: rotate(-3deg);
-      }
-    }
-
     &.row-2 {
       margin-top: 1rem;
 
       @media (min-width: 768px) {
-        margin-top: 3.25rem;
-        transform: rotate(-6deg);
+        margin-top: 2rem;
+      }
+    }
+
+    &.row-3 {
+      margin-top: 1rem;
+
+      @media (min-width: 768px) {
+        margin-top: 2rem;
       }
     }
   }
@@ -144,12 +144,12 @@
   }
 
   .carousel-track {
-    animation: scroll-left 60s linear infinite;
+    animation: scroll-left 120s linear infinite;
   }
 
   .carousel-track-rev {
     gap: 0.5rem;
-    animation: scroll-right 60s linear infinite;
+    animation: scroll-right 120s linear infinite;
 
     @media (min-width: 640px) {
       gap: 0.5rem;
@@ -180,7 +180,7 @@
 
   .carousel-slide {
     flex: none;
-    width: 10rem;
+    width: 15rem;
     position: relative;
     // padding: .5rem;
     border-radius: 30px;
@@ -188,11 +188,11 @@
     border-radius: 0.5rem;
     
     @media (min-width: 640px) {
-      width: 9rem;
+      width: 17rem;
     }
 
     @media (min-width: 768px) {
-      width: 11rem;
+      width: 19rem;
     }
   }
 
@@ -227,17 +227,17 @@
 
   .parchment-prize-image {
     width: 100%;
-    height: 100%;
+    height: 12rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 0.5rem;
+    margin: 0 auto 0.5rem;
     border-radius: 0.75rem;
 
     img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       border-radius: 0.75rem;
     }
   }
