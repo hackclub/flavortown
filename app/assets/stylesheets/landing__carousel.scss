@@ -9,11 +9,11 @@
   margin: 0;
   background:var(--color-cream) url("landing/carousel/bg.svg") ;
 //   background:var(--color-cream) url("landing/carousel/bg.svg") center / cover;
-  padding: 2rem 0;
+  padding: 2rem 0 0 0;
   overflow: hidden;
 
   @media (min-width: 768px) {
-    padding: 3rem 0;
+    padding: 3rem 0 0 0;
   }
 
   .inner-container {
@@ -21,6 +21,8 @@
     max-width: 80rem;
     width: 100%;
     position: relative;
+    transform: scale(0.7);
+    transform-origin: top center;
   }
 
   .content-wrapper {
@@ -96,8 +98,8 @@
     position: relative;
     z-index: 20;
     transform: rotate(0deg);
-    margin: 0 0.5rem;
-    padding: 2rem 0;
+    margin: 0;
+    padding: 1rem 0;
 
     @media (min-width: 640px) {
       margin: 0 2.5rem;
