@@ -7,6 +7,15 @@
     }
 }
 
+@keyframes scrolling-reverse {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
 input {
     background: none;
     color: inherit;
@@ -617,6 +626,10 @@ input {
             --carousel-title: #4F8FBA; // TODO do not hardcode
             --carousel-bar: #A4DDDB; // TODO do not hardcode
             --align-title: flex-end;
+        }
+
+        &.twenty-hour .showcase > .items {
+            animation: scrolling-reverse var(--showcase-scroll-time) linear infinite;
         }
     }
 }
