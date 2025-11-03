@@ -458,6 +458,16 @@ input {
 
             padding: 0.5rem 0;
         }
+
+        @media (max-width: 800px) {
+            font-size: 1.25rem;
+
+            aspect-ratio: 11 / 3;
+
+            > div {
+                font-size: 1.75rem;
+            }
+        }
     }
 
     .showcase-container {
@@ -494,6 +504,12 @@ input {
 
                     padding: 0.25rem 3rem;
                     border-radius: 0.5rem;
+                }
+
+                @media (max-width: 800px) {
+                    margin: 0;
+                    align-self: center;
+                    font-size: 1.5rem;
                 }
             }
         }
@@ -534,7 +550,7 @@ input {
                         background: var(--color-tan-light) url("landing/section-4/img-overlay.svg") center center / cover;
                         box-shadow: var(--shadow);
                         border-radius: 0.5rem;
-                        padding: 0.5rem;
+                        padding: 0.25rem;
                         flex: 1;
 
                         img {
@@ -553,6 +569,19 @@ input {
 
                         .name {
                             font-size: 1.25rem;
+                        }
+                    }
+
+                    @media (max-width: 800px) {
+                        flex: 0 0 10rem;
+                        aspect-ratio: 13 / 14;
+
+                        .description {
+                            font-size: 0.8rem;
+                            
+                            .name {
+                                font-size: 1rem;
+                            }
                         }
                     }
                 }
