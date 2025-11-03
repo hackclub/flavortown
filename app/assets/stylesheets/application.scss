@@ -44,7 +44,7 @@ a {
     text-decoration: none;
     z-index: 0;
 
-    &::after {
+    &:not(.no-underline)::after {
         background: var(--color-brown-hover);
         border-radius: 999px;
         bottom: 10%;
@@ -59,8 +59,8 @@ a {
         z-index: -1;
     }
 
-    &:hover::after,
-    &:focus::after {
+    &:not(.no-underline):hover::after,
+    &:not(.no-underline):focus::after {
         background: var(--color-brown-hover-focus);
     }
 }

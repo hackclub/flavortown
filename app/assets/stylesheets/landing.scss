@@ -525,12 +525,13 @@ input {
         h3 {
             color: var(--color-cream);
             font-weight: normal;
+            text-align: center;
             font-size: 1.8em;
             margin: 16px 0;
 
             @media (max-width: 600px) {
                 font-size: 1.5em;
-                margin: 0;
+                margin: 0 0 16px 0;
             }
         }
 
@@ -538,17 +539,17 @@ input {
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-wrap: wrap;
             gap: 32px;
-            width: 80%;
+            width: 90%;
             height: 60%;
 
             @media (max-width: 600px) {
+                width: 100%;
                 flex-direction: column;
             }
 
             .project {
-                height: 120px;
+                height: 140px;
 
                 flex-grow: 1;
                 padding: 12px;
@@ -569,6 +570,36 @@ input {
                         var(--title-edge) 77%,
                         var(--title-edge) 100%
                     );
+
+                    .details {
+                        height: 100%;
+                        width: 60%;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: end;
+
+                        p {
+                            color: var(--color-cream);
+                            text-wrap: wrap;
+                            font-size: .8em;
+                            margin: 0 0 8px 0;
+                        }
+
+                        a {
+                            color: var(--color-cream);
+                            box-shadow: var(--shadow);
+                            padding: 4px 12px;
+                            font-size: .9em;
+                            border-radius: 8px;
+                            display: inline-flex;
+                            align-items: center;
+
+                            svg {
+                                margin-right: 4px;
+                                width: 12px;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -578,6 +609,10 @@ input {
                 > div {
                     --title-middle: #8954AC;
                     --title-edge: #824FA5;
+
+                    a {
+                        background-color: #5D3682;
+                    }
                 }
             }
 
@@ -587,6 +622,10 @@ input {
                 > div {
                     --title-middle: #4F8FBA;
                     --title-edge: #4C87B2;
+
+                    a  {
+                        background-color: #3C5E8B;
+                    }
                 }
             }
         }
