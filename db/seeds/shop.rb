@@ -20,7 +20,7 @@ end
 parse_bool = ->(v) {
   return nil if v.nil? || v == ''
   s = v.to_s.strip.downcase
-  ['t', 'true', '1', 'yes'].include?(s)
+  [ 't', 'true', '1', 'yes' ].include?(s)
 }
 
 parse_int = ->(v) {

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # borrowed code from the summer of making
 module Shop
   module Regionalizable

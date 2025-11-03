@@ -1,14 +1,14 @@
 class ShopItem < ApplicationRecord
  include Shop::Regionalizable
-#   scope :black_market, -> { where(requires_black_market: true) }
-#   scope :not_black_market, -> { where(requires_black_market: [ false, nil ]) }
+  #   scope :black_market, -> { where(requires_black_market: true) }
+  #   scope :not_black_market, -> { where(requires_black_market: [ false, nil ]) }
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
-#   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
+  #   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
   scope :enabled, -> { where(enabled: true) }
-  
+
   has_one_attached :image
   has_many :shop_orders
-  
+
   def is_free?
     self.ticket_cost.zero?
   end
@@ -34,7 +34,7 @@ class ShopItem < ApplicationRecord
     return nil unless limited? && stock.present?
     # ordered_quantity = shop_orders.worth_counting.sum(:quantity)
     # stock - ordered_quantity
-    return nil
+    nil
   end
 
   def out_of_stock?
