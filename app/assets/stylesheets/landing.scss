@@ -96,7 +96,7 @@ input {
 }
 
 .section-1 {
-    background: url("landing/section-1/long-image.png") var(--color-cream);
+    background: url("landing/section-1/long-image.png") var(--color-cream) center / cover;
     align-items: center;
     justify-content: center;
 
