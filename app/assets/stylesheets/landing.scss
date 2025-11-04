@@ -41,6 +41,11 @@ input {
                 cursor: text;
                 outline: none;
             }
+
+            &::placeholder {
+                color: var(--color-red-dark);
+                opacity: 75%;
+            }
         }
     }
 }
@@ -248,10 +253,10 @@ input {
                 .title {
                     background: linear-gradient(-52deg,
                         var(--title-edge) 0%,
-                        var(--title-edge) 20%,
+                        var(--title-edge) 19.9%,
                         var(--title-middle) 20%,
                         var(--title-middle) 80%,
-                        var(--title-edge) 80%,
+                        var(--title-edge) 80.1%,
                         var(--title-edge) 100%
                     );
                     
@@ -397,10 +402,10 @@ input {
 
                     background: linear-gradient(52deg,
                         var(--title-edge) 0%,
-                        var(--title-edge) 20%,
+                        var(--title-edge) 19.9%,
                         var(--title-middle) 20%,
                         var(--title-middle) 75%,
-                        var(--title-edge) 75%,
+                        var(--title-edge) 75.1%,
                         var(--title-edge) 100%
                     );
                     
@@ -564,10 +569,10 @@ input {
 
                     background: linear-gradient(-50deg,
                         var(--title-edge) 0%,
-                        var(--title-edge) 22%,
+                        var(--title-edge) 21.9%,
                         var(--title-middle) 22%,
                         var(--title-middle) 77%,
-                        var(--title-edge) 77%,
+                        var(--title-edge) 77.1%,
                         var(--title-edge) 100%
                     );
 
