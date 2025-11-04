@@ -1,0 +1,7 @@
+# copied from som
+shared:
+  tickets_per_dollar: 5.0
+  dollars_per_mean_hour: 2.0
+  min_quality_multiplier: 1.0
+  mean_quality_multiplier: 10.0
+  max_quality_multiplier: 20.0

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_25_191005) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_01_060323) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -177,6 +177,45 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_25_191005) do
     t.datetime "created_at", null: false
     t.string "email", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "shop_items", force: :cascade do |t|
+    t.jsonb "agh_contents"
+    t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.string "description"
+    t.boolean "enabled"
+    t.boolean "enabled_au"
+    t.boolean "enabled_ca"
+    t.boolean "enabled_eu"
+    t.boolean "enabled_in"
+    t.boolean "enabled_us"
+    t.boolean "enabled_xx"
+    t.integer "hacker_score"
+    t.string "hcb_category_lock"
+    t.string "hcb_keyword_lock"
+    t.string "hcb_merchant_lock"
+    t.text "hcb_preauthorization_instructions"
+    t.string "internal_description"
+    t.boolean "limited"
+    t.integer "max_qty"
+    t.string "name"
+    t.boolean "one_per_person_ever"
+    t.decimal "price_offset_au"
+    t.decimal "price_offset_ca"
+    t.decimal "price_offset_eu"
+    t.decimal "price_offset_in"
+    t.decimal "price_offset_us"
+    t.decimal "price_offset_xx"
+    t.integer "sale_percentage"
+    t.boolean "show_in_carousel"
+    t.integer "site_action"
+    t.boolean "special"
+    t.integer "stock"
+    t.decimal "ticket_cost"
+    t.string "type"
+    t.date "unlock_on"
+    t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.decimal "usd_cost"
   end
 
   create_table "user_identities", force: :cascade do |t|

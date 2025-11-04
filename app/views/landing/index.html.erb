@@ -7,13 +7,11 @@
 
   <div class="landing-section-1--login">
     <%= dev_tool do %>
-      <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
-        <button class="login-btn btn-striped-red">
-          <div>
-            <%= image_tag "mask/enter.png", width: 20, height: 20 %>
-            Sign in!
-          </div>
-        </button>
+      <%= button_to "/auth/slack", method: :post, data: {turbo: false}, class: "login-btn btn-striped-red" do %>
+        <div>
+          <%= image_tag "mask/enter.png", width: 20, height: 20 %>
+          Sign in!
+        </div>
       <% end %>
     <% end %>
   </div>
@@ -127,7 +125,30 @@
   </div>
 </div>
 
-<!-- todo: section 4 -->
+<div class="section section-4">
+  <div class="title">
+    <div>Amazing Prizes</div>
+    Prizes to power up your next project!
+  </div>
+
+  <%= render partial: "landing/carousel/showcase", locals: {
+    showcase_items: @prizes.select { |p| p[:hours_estimated].between?(4, 9) },
+    class_name: "five-hour",
+    title: "5 hour prizes"
+  } %>
+
+  <%= render partial: "landing/carousel/showcase", locals: {
+    showcase_items: @prizes.select { |p| p[:hours_estimated].between?(10, 30) },
+    class_name: "twenty-hour",
+    title: "20 hour prizes"
+  } %>
+
+  <%= render partial: "landing/carousel/showcase", locals: {
+    showcase_items: @prizes.select { |p| p[:hours_estimated] > 80 },
+    class_name: "hundred-hour",
+    title: "100 hour prizes"
+  } %>
+</div>
 
 <div class="section section-5">
   <div class="ribbon ribbon-title title">What will you cook this winter?</div>
