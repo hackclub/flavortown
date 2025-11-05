@@ -1,7 +1,7 @@
 <h1>admin view!</h1>
 
 <h2>tasks</h2>
-<div class="grid">
+<div class="button-grid">
   <% if policy(:admin).users? %>
     <%= link_to "Users", "/admin/users", class: "btn-primary" %>
   <% end %>
@@ -12,7 +12,7 @@
 </div>
 
 <h2>dashboards</h2>
-<div class="grid">
+<div class="button-grid">
   <% if policy(:admin).blazer? %>
     <%= link_to "Blazer", "/admin/blazer", class: "btn-primary" %>
   <% end %>
