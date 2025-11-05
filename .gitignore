@@ -42,3 +42,4 @@
 !/app/assets/builds/.keep
 
 /config/credentials/production.key
+db/seeds/shop_items.csv

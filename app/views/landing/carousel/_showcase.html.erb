@@ -1,0 +1,18 @@
+<div class="showcase-container <%= class_name %>" style="--showcase-scroll-time: <%= showcase_items.count * 2 %>s;">
+  <div class="showcase-title">
+    <div>
+      <div>
+        <%= title %>
+      </div>
+    </div>
+  </div>
+  <div class="showcase">
+    <div class="items">
+      <%= render partial: "landing/carousel/slide", collection: showcase_items, as: :prize %>
+    </div>
+    <div class="items" aria-hidden="true">
+      <%= render partial: "landing/carousel/slide", collection: showcase_items, as: :prize %>
+    </div>
+    <div class="bar"></div>
+  </div>
+</div>
