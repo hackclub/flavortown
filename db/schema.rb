@@ -133,7 +133,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_01_060323) do
     t.datetime "created_at", null: false
     t.string "postable_id"
     t.string "postable_type"
+    t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["project_id"], name: "index_posts_on_project_id"
+    t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
   create_table "project_ideas", force: :cascade do |t|
@@ -245,6 +249,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_01_060323) do
     t.index ["user_id"], name: "index_user_role_assignments_on_user_id"
   end
 
+  create_table "user_roles", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "role_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["role_id"], name: "index_user_roles_on_role_id"
+    t.index ["user_id"], name: "index_user_roles_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "display_name"
@@ -267,9 +280,13 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_01_060323) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "posts", "projects"
+  add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
   add_foreign_key "user_identities", "users"
   add_foreign_key "user_role_assignments", "roles"
   add_foreign_key "user_role_assignments", "users"
+  add_foreign_key "user_roles", "roles"
+  add_foreign_key "user_roles", "users"
 end

@@ -92,7 +92,7 @@ production:
 
   queue:
     <<: *default
-    url: <%= ENV['DATABASE_URL'] %>
+    url: <%= ENV['SOLID_DATABASE_URL'] %>
     migrations_paths: db/queue_migrate
 
   cable:
