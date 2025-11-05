@@ -1,66 +1,53 @@
-<div style="padding: 50px; background-color: #121212; color: white; min-height: 100vh;">
-  <h1 class="text-2xl font-bold mb-4">Project Search</h1>
+<h1>Project Search</h1>
 
-  <%= form_with url: admin_projects_path, method: :get, local: true, class: "mb-6 flex gap-2" do %>
-    <%= text_field_tag :query, params[:query],
-      placeholder: "Search projects by title or other meta info...",
-      autocomplete: "off",
-      class: "border border-gray-300 rounded-md px-3 py-2 w-64 bg-gray-900 text-white placeholder-gray-500" %>
+<%= form_with url: admin_projects_path, method: :get, local: true do %>
+  <%= text_field_tag :query, params[:query],
+    placeholder: "Search projects by title or other meta info...",
+    autocomplete: "off",
+    class: "input-primary" %>
 
-    <%= submit_tag "Search",
-      class: "bg-purple-800 hover:bg-purple-900 text-white font-medium rounded-md px-4 py-2 transition duration-150 ease-in-out" %>
-  <% end %>
+  <%= submit_tag "Search", class: "btn-primary slim" %>
+<% end %>
 
-  <% if @projects.any? %>
-    <table class="min-w-full bg-gray-800 border border-gray-700 rounded-md text-left text-sm">
-      <thead class="bg-gray-700 text-gray-200">
+<% if @projects.any? %>
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @projects.each do |project| %>
         <tr>
-          <th class="py-2 px-3">ID</th>
-          <th class="py-2 px-3">Name</th>
-          <th class="py-2 px-3">description</th>
-          <th class="py-2 px-3">Actions</th>
+          <td><%= project.id %></td>
+          <td><%= project.title %></td>
+          <td><%= project.description %></td>
+          <td>
+            <%= link_to "View", "/admin/projects/#{project.id}", class: "btn-primary slim" %>
+          </td>
         </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-700">
-        <% @projects.each do |project| %>
-          <tr>
-            <td class="py-2 px-3"><%= project.id %></td>
-            <td class="py-2 px-3"><%= project.title %></td>
-            <td class="py-2 px-3"><%= project.description %></td>
-            <td class="py-2 px-3">
-              <%= render "admin/shared/button",
-                         text: "View",
-                         path: "/admin/projects/#{project.id}",
-                         extra_class: "btn-primary",
-                         data_attrs: { confirm: "Are you sure?" } %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  <% else %>
-    <p class="text-gray-400 mt-4">No projects found.</p>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No projects found.</p>
+<% end %>
+
+<div class="pagination">
+  <% if @page > 1 %>
+    <%= link_to "Previous", admin_projects_path(page: @page - 1, query: params[:query]) %>
   <% end %>
-  <div class="mt-6 flex justify-center gap-2">
-    <% if @page > 1 %>
-      <%= link_to "Previous", admin_projects_path(page: @page - 1, query: params[:query]),
-                  class: "px-3 py-1 rounded-md bg-purple-800 text-white hover:bg-purple-900" %>
-    <% end %>
 
-    <% (1..@total_pages).each do |p| %>
-      <%= link_to p, admin_projects_path(page: p, query: params[:query]),
-                  class: "px-3 py-1 rounded-md #{'bg-purple-900 text-white' if p == @page} hover:bg-purple-700" %>
-    <% end %>
+  <% (1..@total_pages).each do |p| %>
+    <%= link_to p, admin_projects_path(page: p, query: params[:query]) %>
+  <% end %>
 
-    <% if @page < @total_pages %>
-      <%= link_to "Next", admin_projects_path(page: @page + 1, query: params[:query]),
-                  class: "px-3 py-1 rounded-md bg-purple-800 text-white hover:bg-purple-900" %>
-    <% end %>
-  </div>
-
-  <%= render "admin/shared/button",
-             text: "Go back",
-             path: "/admin",
-             extra_class: "btn-primary",
-             data_attrs: { confirm: "Are you sure?" } %>
+  <% if @page < @total_pages %>
+    <%= link_to "Next", admin_projects_path(page: @page + 1, query: params[:query]) %>
+  <% end %>
 </div>
+
+<%= link_to "Go back", "/admin", class: "btn-primary" %>

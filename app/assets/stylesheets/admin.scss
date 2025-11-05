@@ -1,0 +1,101 @@
+body {
+    background: var(--color-cream);
+    // TODO color
+    padding: 2rem;
+}
+
+.form-basic {
+    margin: 1em 0;
+}
+
+.table-data {
+    width: 100%;
+
+    thead {
+        background: var(--color-tan);
+    }
+    th {
+        &:first-child { border-radius: 0.5em 0 0 0; }
+        &:last-child { border-radius: 0 0.5em 0 0; }
+    }
+
+    tbody tr {
+        background: var(--color-tan-light);
+    }
+
+    th, td {
+        padding: 0.25rem 0.75rem;
+    }
+}
+
+.pagination {
+    margin: 0.5rem 0;
+
+    display: flex;
+    justify-content: center;
+
+    a {
+        background: var(--color-tan);
+        color: black; // TODO color
+        padding: 0.25em 0.5em;
+        border-radius: 0.25em;
+
+        &::hover {
+            box-shadow: var(--shadow);
+        }
+
+        &::after {
+            content: unset;
+        }
+    }
+}
+
+.input-primary {
+    background: var(--color-tan);
+    border: 2px solid var(--color-brown);
+    color: black;
+
+    font-size: 1rem;
+    padding: 0.25em;
+    border-radius: 0.5em;
+
+
+    &::placeholder {
+        color: #444; // TODO color
+    }
+}
+
+.btn-primary {
+    display: inline-flex;
+    justify-content: center;
+    gap: 0.5em;
+    padding: 1em 2em;
+
+    background: var(--color-brown);
+    color: white; // TODO color
+    border: none;
+    border-radius: 0.5em;
+
+    transition: background 0.1s;
+
+    font-size: 1rem;
+
+    &::after {
+        content: unset;
+    }
+
+    &:hover {
+        background: var(--color-brown-light);
+        box-shadow: var(--shadow);
+    }
+
+    &.slim {
+        padding: 0.25em 0.5em;
+    }
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1rem;
+}
