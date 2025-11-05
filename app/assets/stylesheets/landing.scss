@@ -804,7 +804,6 @@ input {
 
                     .details {
                         height: 100%;
-                        width: 60%;
                         display: flex;
                         flex-direction: column;
                         justify-content: end;
@@ -860,6 +859,7 @@ input {
                     }
 
                     .image {
+                        width: 104px; // TODO: fix, 1 hour spent trying to avoid this, ITS NOT FUCKING WORKING ILL JUST HARDCODE THIS SHIT
                         background-color: #A96BC8;
                     }
                 }
@@ -877,6 +877,7 @@ input {
                     }
 
                     .image {
+                        width: 100px; // TODO: fix, i need help, please
                         background-color: #73BED3;
                     }
                 }
