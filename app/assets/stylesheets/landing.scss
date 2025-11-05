@@ -42,12 +42,13 @@ input {
 
         display: flex;
         padding: 0.5rem;
-        gap: 1rem;
+        gap: 0.5rem;
 
         svg {
-            width: 3rem;
+            width: 2rem;
             fill: var(--color-red);
             opacity: 75%;
+            padding: 4px;
         }
 
         input {
@@ -58,8 +59,19 @@ input {
                 cursor: text;
                 outline: none;
             }
+
+            &::placeholder {
+                color: var(--color-red-dark);
+                opacity: 75%;
+            }
         }
     }
+}
+
+.login-btn {
+    position: absolute;
+    right: 16px;
+    top: 16px;
 }
 
 .btn-striped-red {
@@ -196,6 +208,7 @@ input {
         .title {
             background-image: url("landing/section-2/title.svg");
             font-size: 3rem;
+            color: var(--color-cream);
         }
     }
 
@@ -258,12 +271,13 @@ input {
                 .title {
                     background: linear-gradient(-52deg,
                         var(--title-edge) 0%,
-                        var(--title-edge) 20%,
-                        var(--title-middle) 20.1%,
+                        var(--title-edge) 19.9%,
+                        var(--title-middle) 20%,
                         var(--title-middle) 80%,
                         var(--title-edge) 80.1%,
                         var(--title-edge) 100%
                     );
+                    
                     color: white;
                     border-radius: 1.25rem;
                     box-shadow: var(--shadow);
@@ -272,7 +286,7 @@ input {
                     left: -5%;
                     bottom: 0;
                     width: 110%;
-                    aspect-ratio: 16 / 3;
+                    aspect-ratio: 16 / 2.5;
 
                     font-size: 2rem;
 
@@ -284,12 +298,14 @@ input {
                 img {
                     width: 80%;
                     padding-bottom: 10%;
+                    border-radius: 12px;
+                    box-shadow: var(--shadow);
                 }
             }
 
             p {
                 margin: 0;
-                padding: 0.5rem 1.5rem 1.5rem 1.5rem;
+                padding: 1.5rem;
                 font-size: 1.5rem;
                 text-align: center;
             }
@@ -308,6 +324,7 @@ input {
             --title-middle: #BE4D54; // TODO do not hardcode!
             --card-color: var(--color-red-dark);
         }
+
         &.center {
             background: var(--color-lime) url("landing/section-2/texture_2.png") no-repeat center / cover;
             --ribbon-url: url("landing/section-2/step-2-ribbon.png");
@@ -316,6 +333,7 @@ input {
             --title-middle: #75A743; // TODO do not hardcode!
             --card-color: #468232; // TODO do not hardcode!
         }
+        
         &.right {
             background: var(--color-teal) url("landing/section-2/texture_3.png") no-repeat center / cover;
             --ribbon-url: url("landing/section-2/step-3-ribbon.png");
@@ -338,6 +356,7 @@ input {
     > .title {
         background-image: url("landing/section-3/title.png");
         font-size: 3rem;
+        color: var(--color-cream);
 
         padding: 0.5em 3em;
 
@@ -357,7 +376,7 @@ input {
         display: grid;
         justify-content: center;
         justify-items: center;
-        grid-template-columns: repeat(auto-fill, 24rem);
+        grid-template-columns: repeat(auto-fill, 18rem);
         gap: 1.5rem 3rem;
 
         @media (max-width: 600px) {
@@ -370,45 +389,57 @@ input {
             border-radius: 2rem;
             padding: 0.75rem;
 
+            width: 18rem;
+            height: 26rem;
+
             > div {
                 background: var(--color-brown-darker);
                 box-shadow: var(--shadow);
                 border-radius: 1.25rem;
 
-                padding: 1rem;
+                padding: 0.8rem;
                 height: 100%;
 
-                font-size: 1.5rem;
+                font-size: 1.2rem;
 
                 position: relative;
 
                 p {
-                    color: white;
+                    color: var(--color-cream);
                     margin: 0.5rem 0 4rem 0;
                 }
 
+                img {
+                    width: 100%;
+                }
+
                 .title {
-                    width: 110%;
+                    width: 120%;
 
                     position: absolute;
                     bottom: 1rem;
-                    left: -5%;
+                    left: -10%;
 
                     background: linear-gradient(52deg,
                         var(--title-edge) 0%,
-                        var(--title-edge) 20%,
-                        var(--title-middle) 20.1%,
+                        var(--title-edge) 19.9%,
+                        var(--title-middle) 20%,
                         var(--title-middle) 75%,
                         var(--title-edge) 75.1%,
                         var(--title-edge) 100%
                     );
+                    
                     color: white;
-                    aspect-ratio: 25 / 3;
+                    aspect-ratio: 25 / 4;
 
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     border-radius: 0.75rem;
+
+                    @media (max-width: 600px) {
+                        font-size: 1rem;
+                    }
                 }
             }
 
@@ -641,11 +672,10 @@ input {
     gap: 2rem;
     padding: 2rem 0;
     
-    .title {
+    > .title {
         background-image: url("landing/section-3/title.png");
-
+        color: var(--color-cream);
         font-size: 3rem;
-
         padding: 0.6em 1.5em;
         
         @media (max-width: 850px) {
@@ -654,6 +684,221 @@ input {
 
         @media (max-width: 600px) {
             font-size: 1.5rem;
+        }
+    }
+
+    .content {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+
+        @media (max-width: 900px) {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+}
+
+.inspiration {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    height: auto;
+
+    @media (max-width: 900px) {
+        width: 80%;
+    }
+
+    .title {
+        width: 95%;
+        height: 40%;
+        background-color: var(--color-brown);
+        border-radius: 16px 16px 0 0;
+        box-shadow: var(--shadow);
+        padding: 1rem 1rem 0 1rem;
+
+        .inner {
+            height: 100%;
+            background-color: var(--color-cream);
+            border-radius: 10px 10px 0 0;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+
+            h3 {
+                color: var(--color-brown-dark);
+                font-size: 1.5em;
+                font-weight: normal;
+                margin: 0;
+            }
+
+            p {
+                color: var(--color-brown);
+                font-size: 1.2em;
+                margin: 0.5rem 0 0 0;
+            }
+        }
+    }
+
+    .projects {
+        width: 100%;
+        height: 100%;
+        
+        background-color: var(--color-brown);
+        background-image: url("landing/section-5/projects/bg.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        padding: 1rem;
+        margin-top: -8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        h3 {
+            color: var(--color-cream);
+            font-weight: normal;
+            text-align: center;
+            font-size: 1.8em;
+            margin: 16px 0;
+
+            @media (max-width: 600px) {
+                font-size: 1.5em;
+                margin: 0 0 16px 0;
+            }
+        }
+
+        .list {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            width: 90%;
+            height: 60%;
+
+            @media (max-width: 600px) {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .project {
+                height: 140px;
+                position: relative;
+
+                flex-grow: 1;
+                padding: 12px;
+                border-radius: 16px;
+                box-shadow: var(--shadow);
+
+                > svg {
+                    position: absolute;
+                    top: -24px;
+                    left: -24px;
+                    width: 160px;
+                    height: auto;
+                }
+
+                > div {
+                    width: 100%;
+                    height: 100%;
+                    padding: 8px;
+                    border-radius: 8px;
+                    box-shadow: var(--shadow);
+                    display: flex;
+
+                    background: linear-gradient(-50deg,
+                        var(--title-edge) 0%,
+                        var(--title-edge) 21.9%,
+                        var(--title-middle) 22%,
+                        var(--title-middle) 77%,
+                        var(--title-edge) 77.1%,
+                        var(--title-edge) 100%
+                    );
+
+                    .details {
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: end;
+
+                        p {
+                            color: var(--color-cream);
+                            text-wrap: wrap;
+                            font-size: .8em;
+                            margin: 0 0 8px 0;
+                        }
+
+                        a {
+                            color: var(--color-cream);
+                            box-shadow: var(--shadow);
+                            padding: 4px 10px;
+                            font-size: .9em;
+                            border-radius: 8px;
+                            display: inline-flex;
+                            align-items: center;
+
+                            svg {
+                                margin-right: 4px;
+                                width: 12px;
+                            }
+                        }
+                    }
+
+                    .image {
+                        margin-left: auto;
+                        rotate: 5deg;
+                        border-radius: 8px;
+                        box-shadow: var(--shadow);
+
+                        img {
+                            height: 100%;
+                            width: auto;
+                            border-radius: 8px;
+                            rotate: -5deg;
+                        }
+                    }
+                }
+            }
+
+            .project-purple {
+                background-color: #A96BC8;
+
+                > div {
+                    --title-middle: #8954AC;
+                    --title-edge: #824FA5;
+
+                    a {
+                        background-color: #5D3682;
+                    }
+
+                    .image {
+                        width: 104px; // TODO: fix, 1 hour spent trying to avoid this, ITS NOT FUCKING WORKING ILL JUST HARDCODE THIS SHIT
+                        background-color: #A96BC8;
+                    }
+                }
+            }
+
+            .project-blue {
+                background-color: #73BED3;
+
+                > div {
+                    --title-middle: #4F8FBA;
+                    --title-edge: #4C87B2;
+
+                    a  {
+                        background-color: #3C5E8B;
+                    }
+
+                    .image {
+                        width: 100px; // TODO: fix, i need help, please
+                        background-color: #73BED3;
+                    }
+                }
+            }
         }
     }
 }
@@ -666,8 +911,6 @@ input {
     box-shadow: var(--shadow);
     text-align: center;
 
-    margin-top: 32px;
-
     width: 25%;
 
     @media (max-width: 900px) {
@@ -677,9 +920,9 @@ input {
     > div {
         color: var(--color-cream);
         background-color: #BE772B;
-        background-image: linear-gradient(180deg, #BE772B 25%, #DE9E41 25%);
+        background-image: linear-gradient(180deg, #BE772B 20%, #DE9E41 20%);
         
-        box-shadow: var(--shadow-inset);
+        box-shadow: var(--shadow);
         border-radius: 10px;
         padding: 16px;
         height: 100%;
@@ -690,16 +933,21 @@ input {
 
         h3 {
             font-size: 1.8em;
-            margin-top: 0;
-            margin-bottom: 4px; // just a little extra margin cuz i feel like it looks nice
+            margin: 0;
 
             @media (max-width: 600px) {
                 font-size: 1.6em;
             }
         }
 
+        p {
+            color: var(--color-brown-dark);
+            font-size: 1.2em;
+            margin-top: 0;
+        }
+
         #shopkeeper-bar {
-            margin-top: 16px;
+            margin: 16px 0;
             height: auto;
             display: flex;
             flex-direction: column;
@@ -731,15 +979,13 @@ input {
     background-color: var(--color-tan-light);
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-
-    gap: 4rem;
 
     .about {
         background-color: var(--color-tan);
         box-shadow: var(--shadow);
         border-radius: 1rem;
-        padding: 0.5rem;
+        padding: 0.8rem;
+        margin: 48px 0 16px 0;
         width: 60%;
         
         @media (max-width: 600px) {
@@ -748,7 +994,7 @@ input {
 
         div {
             background: var(--color-cream) url("landing/section-6/about-bg.png") center / cover;
-            box-shadow: var(--shadow-inset);
+            box-shadow: var(--shadow);
             border-radius: 10px;
             padding: 2rem;
 
@@ -768,16 +1014,13 @@ input {
                 font-size: 1.2rem;
                 margin: 1.5rem 0;
             }
-
-            a {
-                color: var(--color-brown);
-            }
         }
     }
 
     .credits {
         background-color: var(--color-brown-light);
         padding: 8px 16px;
+        margin: auto 0 16px 0;
         border-radius: 10px;
         box-shadow: var(--shadow);
         width: 40%;
@@ -789,6 +1032,7 @@ input {
         h3 {
             color: var(--color-cream);
             font-size: 1.2em;
+            font-weight: normal;
             text-align: center;
             width: 110%;
             transform: translateX(calc(-5% + 4px));
@@ -806,7 +1050,7 @@ input {
 
         .people {
             background: var(--color-cream) url("landing/section-6/people-bg.png") center / cover;
-            box-shadow: var(--shadow-inset);
+            box-shadow: var(--shadow);
             border-radius: 0.5rem;
             padding: 1rem;
             margin-top: -1rem;

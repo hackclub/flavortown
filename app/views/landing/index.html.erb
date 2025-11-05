@@ -5,13 +5,15 @@
 <div class="section section-1">
   <%= inline_svg_tag "landing/section-1/flag-orpheus-top.svg", class: "orph-flag" %>
 
-  <div class="landing-section-1--login">
+  <div class="login-btn">
     <%= dev_tool do %>
-      <%= button_to "/auth/slack", method: :post, data: {turbo: false}, class: "login-btn btn-striped-red" do %>
-        <div>
-          <%= image_tag "mask/enter.png", width: 20, height: 20 %>
-          Sign in!
-        </div>
+      <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
+        <button class="btn-striped-red">
+          <div>
+            <%= image_tag "mask/enter.png", width: 20, height: 20 %>
+            Sign in!
+          </div>
+        </button>
       <% end %>
     <% end %>
   </div>
@@ -152,7 +154,75 @@
 
 <div class="section section-5">
   <div class="ribbon ribbon-title title">What will you cook this winter?</div>
-  <%= render "landing/projects/project_idea_generator" %>
+
+  <div class="content">
+    <div class="inspiration">
+      <div class="title">
+        <div class="inner">
+          <h3>Build whatever you want!</h3>
+          <p>Any technical project counts. You could build an AR game, pixel art display, drawing robot, and more.</p>
+        </div>
+      </div>
+
+      <div class="projects">
+        <h3>Check out these projects for inspirations:</h3>
+
+        <div class="list">
+          <div class="project project-purple">
+            <%= inline_svg_tag "landing/section-5/projects/project-1-ribbon.svg" %>
+
+            <div>
+              <div class="details">
+                <p>A website to get a boarding pass based on your spotify listening history!</p>
+
+                <div class="links">
+                  <a href="https://example.com" target="_blank" class="no-underline">
+                    <%= inline_svg_tag "icons/globe.svg" %>
+                    DEMO
+                  </a>
+                  <a href="https://example.com" target="_blank" class="no-underline">
+                    <%= inline_svg_tag "icons/code.svg" %>
+                    REPO
+                  </a>
+                </div>
+              </div>
+
+              <div class="image">
+                <%= image_tag "landing/section-5/projects/project-1.png" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="project project-blue">
+            <%= inline_svg_tag "landing/section-5/projects/project-2-ribbon.svg" %>
+
+            <div>
+              <div class="details">
+                <p>A site that lets you mirror multiple Wakatime instances if the server is offline.</p>
+
+                <div class="links">
+                  <a href="https://example.com" target="_blank" class="no-underline">
+                    <%= inline_svg_tag "icons/globe.svg" %>
+                    DEMO
+                  </a>
+                  <a href="https://example.com" target="_blank" class="no-underline">
+                    <%= inline_svg_tag "icons/code.svg" %>
+                    REPO
+                  </a>
+                </div>
+              </div>
+
+              <div class="image">
+                <%= image_tag "landing/section-5/projects/project-2.png" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%= render "landing/projects/project_idea_generator" %>
+  </div>
 </div>
 
 <div class="section section-6">

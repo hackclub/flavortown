@@ -1,23 +1,17 @@
 .projects {
-  background-color: #E8C170;
-  background-image: url('landing/tiles.svg');
-  background-repeat: repeat;
+    background-color: var(--color-gold);
+    background-image: url('landing/projects/background.png');
+    background-repeat: no-repeat;
+    color: var(--color-brown-dark);
+    padding: 40px 20px;
+    text-align: center;
 
-  padding: 4rem 2rem;
-  text-align: center;
-  color: #4D2B32;
-
-  .projects-info {
-    max-width: 32em;
-    margin: 0 auto;
-    padding: 1.5em;
-    border-radius: 1em;
-    background-color: #F8E8D1;
-    border: 0.5em solid #D7B594;
-    
-    h2 {
-      margin: 0;
-      font-size: 1.5rem;
+    .container {
+        background-color: var(--color-cream);
+        border: 2px solid var(--color-tan);
+        border-radius: 10px;
+        margin: 0 auto;
+        max-width: 800px;
+        padding: 30px;
     }
-  }
 }
