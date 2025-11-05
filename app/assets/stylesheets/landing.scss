@@ -562,10 +562,12 @@ input {
                 box-shadow: var(--shadow);
 
                 > div {
+                    width: 100%;
                     height: 100%;
                     padding: 8px;
                     border-radius: 8px;
                     box-shadow: var(--shadow);
+                    display: flex;
 
                     background: linear-gradient(-50deg,
                         var(--title-edge) 0%,
@@ -605,6 +607,20 @@ input {
                             }
                         }
                     }
+
+                    .image {
+                        margin-left: auto;
+                        rotate: 5deg;
+                        border-radius: 8px;
+                        box-shadow: var(--shadow);
+
+                        img {
+                            height: 100%;
+                            width: auto;
+                            border-radius: 8px;
+                            rotate: -5deg;
+                        }
+                    }
                 }
             }
 
@@ -618,6 +634,10 @@ input {
                     a {
                         background-color: #5D3682;
                     }
+
+                    .image {
+                        background-color: #A96BC8;
+                    }
                 }
             }
 
@@ -630,6 +650,10 @@ input {
 
                     a  {
                         background-color: #3C5E8B;
+                    }
+
+                    .image {
+                        background-color: #73BED3;
                     }
                 }
             }
