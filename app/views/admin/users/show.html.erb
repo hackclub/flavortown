@@ -1,0 +1,33 @@
+<h1>User #<%= @user.id %>, <%= @user.display_name %></h1>
+
+<div class="flex">
+  <div class="card">
+    <h2>basic info</h2>
+
+    <div class="info-rows">
+      <div><b>Name:</b> <%= @user.display_name %></div>
+      <div><b>Roles:</b> <%= @user.roles.pluck(:name).join(", ") %></div>
+      <div><b>Projects:</b> <%= @user.projects.count %></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>identities</h2>
+    <div class="info-rows">
+      <% @user.identities.each do |identity| %>
+        <div>
+          <b><%= identity.provider %>:</b>
+          <%= identity.uid %>
+
+          <% if identity.provider == "slack" %>
+            <%= link_to "go to slack", "https://hackclub.slack.com/team/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
+          <% end %>
+
+          <% if identity.provider == "hackatime" %>
+            <%= link_to "go to billy", "#{Rails.application.config.billy_url}?u=#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
+            <%= link_to "go to joe", "#{Rails.application.config.joe_url}profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
