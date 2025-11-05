@@ -785,11 +785,20 @@ input {
 
             .project {
                 height: 140px;
+                position: relative;
 
                 flex-grow: 1;
                 padding: 12px;
                 border-radius: 16px;
                 box-shadow: var(--shadow);
+
+                > svg {
+                    position: absolute;
+                    top: -24px;
+                    left: -24px;
+                    width: 160px;
+                    height: auto;
+                }
 
                 > div {
                     width: 100%;
