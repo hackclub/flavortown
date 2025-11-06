@@ -1,0 +1,32 @@
+<h1>Users with Roles</h1>
+
+<% if @users.any? %>
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role(s)</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td><%= user.id %></td>
+          <td><%= user.display_name %></td>
+          <td><%= user.email %></td>
+          <td><%= user.roles.pluck(:name).join(", ") %></td>
+          <td>
+            <%= link_to "View", "/admin/users/#{user.id}", class: "btn-primary slim" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No users with roles found.</p>
+<% end %>
+
+<%= link_to "Go back", "/admin", class: "btn-primary" %>

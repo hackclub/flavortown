@@ -45,8 +45,21 @@ Rails.application.routes.draw do
       user = User.find_by(id: request.session[:user_id])
       user && AdminPolicy.new(user, :admin).flipper?
     }
-    resources :users, only: [ :index, :show ], shallow: true
+
+    mount MissionControl::Jobs::Engine, at: "jobs", constraints: ->(request) {
+      user = User.find_by(id: request.session[:user_id])
+      user && AdminPolicy.new(user, :admin).access_admin_endpoints?
+    }
+
+    resources :users, only: [ :index, :show ], shallow: true do
+      member do
+        post :promote_role
+        post :demote_role
+      end
+    end
     resources :projects, only: [ :index ], shallow: true
+    get "user-perms", to: "users#user_perms"
+    get "manage-shop", to: "shop#index"
   end
 
   # Project Ideas

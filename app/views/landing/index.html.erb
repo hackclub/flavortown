@@ -14,6 +14,11 @@
         </div>
       </button>
     <% end %>
+    <% if current_user&.admin? %>
+      <%= link_to "/admin", class: "btn-striped-red is_admin" do %>
+        <div>Admin</div>
+      <% end %>
+    <% end %>
   </div>
 
   <div class="hero">

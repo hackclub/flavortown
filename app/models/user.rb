@@ -41,4 +41,10 @@ class User < ApplicationRecord
   def fraud_dept?
     roles.exists?(name: "fraud_dept")
   end
+
+  def highest_role
+    role_hierarchy = [ "super_admin", "admin", "fraud_dept", "project_certifier", "ysws_reviewer", "fulfillment_person" ]
+    role_names = roles.pluck(:name).map(&:downcase)
+    role_hierarchy.find { |role| role_names.include?(role) }&.titleize || "User"
+  end
 end
