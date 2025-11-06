@@ -19,4 +19,11 @@ class AdminPolicy < ApplicationPolicy
     def user_promotion_perms?
       user&.admin?
     end
+    def jobs?
+      user&.admin?
+    end
+
+    def manage_shop?
+      user&.admin?
+    end
 end

@@ -1,0 +1,31 @@
+<h1>Manage Shop</h1>
+
+<%= link_to "New Product", "/admin/shop_items/new", class: "btn-primary" %>
+
+<h2>Last 20 Items</h2>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Ticket Cost</th>
+      <th>USD Cost</th>
+      <th>Enabled</th>
+      <th>Created</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @shop_items.each do |item| %>
+      <tr>
+        <td><%= item.id %></td>
+        <td><%= item.name %></td>
+        <td><%= item.type %></td>
+        <td><%= item.ticket_cost %></td>
+        <td><%= item.usd_cost %></td>
+        <td><%= item.enabled ? "✓" : "✗" %></td>
+        <td><%= item.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

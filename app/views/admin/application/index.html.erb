@@ -1,4 +1,4 @@
-<h1>admin view!</h1>
+<h1 style="<%= 'border: 3px solid green; padding: 10px;' if Flipper.enabled?(:admin_green, current_user) %>">Hello there <%= current_user.highest_role %>!</h1>
 
 <h2>tasks</h2>
 <div class="button-grid">
@@ -8,6 +8,9 @@
 
   <% if policy(:admin).projects? %>
     <%= link_to "Projects", "/admin/projects", class: "btn-primary" %>
+  <% end %>
+  <% if policy(:admin).manage_shop? %>
+    <%= link_to "Manage shop", "/admin/manage-shop", class: "btn-primary" %>
   <% end %>
 </div>
 
@@ -23,6 +26,8 @@
   <% if policy(:admin).user_promotion_perms? %>
   <%= link_to "Manage users", "/admin/user-perms", class: "btn-primary" %>
 <% end %>
-
+<% if policy(:admin).jobs? %>
+<%= link_to "Job queue", "/admin/jobs", class: "btn-primary" %>
+<% end %>
   <%= link_to "Help bot", "slack://app?team=T0266FRGM&id=A09NP19R7FX&tab=home", class: "btn-primary" %>
 </div>

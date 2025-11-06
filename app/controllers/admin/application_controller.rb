@@ -9,7 +9,7 @@ module Admin
     rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
     # Optional before_action to enforce admin/fraud dept on all admin controllers
-    before_action :authenticate_admin
+    before_action :authenticate_admin, unless: :mission_control_jobs?
 
     # Shared admin dashboard logic
     def index
@@ -22,6 +22,10 @@ module Admin
     # Use this to protect all admin endpoints
     def authenticate_admin
       authorize :admin, :access_admin_endpoints?  # calls AdminPolicy#access_admin_endpoints?
+    end
+
+    def mission_control_jobs?
+      request.path.start_with?("/admin/jobs")
     end
 
     # Handles unauthorized access
