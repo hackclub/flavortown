@@ -1,0 +1,22 @@
+// This is for Flash
+
+.alert {
+    padding: var(--space-m);
+    margin: var(--space-m);
+    border-radius: var(--border-radius);
+    border: 1px solid;
+    
+    &.alert-success {
+      background-color: hsla(105, 44%, 35%, 0.15);
+      border-color: var(--color-green-400);
+      color: var(--color-green-500);
+    }
+    
+    &.alert-error {
+      background-color: hsla(356, 49%, 43%, 0.15);
+      border-color: var(--color-red-400);
+      color: var(--color-red-500);
+    }
+  }
+  
+  
