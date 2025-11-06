@@ -23,5 +23,7 @@ module Battlemage
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    MissionControl::Jobs.base_controller_class = "Admin::ApplicationController"
   end
 end

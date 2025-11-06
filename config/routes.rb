@@ -45,6 +45,9 @@ Rails.application.routes.draw do
       user = User.find_by(id: request.session[:user_id])
       user && AdminPolicy.new(user, :admin).flipper?
     }
+
+    mount MissionControl::Jobs::Engine, at: "jobs"
+
     resources :users, only: [ :index, :show ], shallow: true do
       member do
         post :promote_role
