@@ -74,33 +74,6 @@ input {
     top: 16px;
 }
 
-.btn-striped-red {
-    padding: 0.625rem;
-    border: none;
-    border-radius: 0.5rem;
-    background: var(--color-red-400) url("striped-red-btn-bg.svg") no-repeat calc(50% - 2px) 50% / cover;
-    font-family: inherit;
-
-    div {
-        background: var(--color-red-500);
-        color: white;
-        box-shadow: var(--shadow);
-        border-radius: 5px;
-        padding: 4px 25px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-
-        img {
-            filter: invert(1);
-        }
-    }
-
-    &:hover {
-        cursor: pointer;
-    }
-}
-
 .ribbon {
     background-position: center top;
     background-size: 100%;
@@ -161,7 +134,7 @@ input {
                 flex-direction: column;
                 gap: 0.5rem;
 
-                .btn-striped-red {
+                .btn--striped {
                     align-self: center;
                 }
             }
