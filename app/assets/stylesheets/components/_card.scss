@@ -61,6 +61,7 @@
       line-height: var(--line-height-body);
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -107,5 +108,92 @@
   
       // Support for icon fonts or emoji
       font-size: 1rem;
+    }
+  }
+
+  // Project Card Styles
+  .project-card {
+    background: var(--color-tan-400);
+    border-radius: 1.5rem; // rounded-3xl
+    border: 16px solid var(--color-brown-500); // border-16 border-card-brown-border
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+                0 10px 10px -5px rgba(0, 0, 0, 0.04); // drop-shadow-xl
+
+    .project-card-banner {
+      aspect-ratio: 16 / 9;
+      background: hsl(0, 0%, 95%); // bg-gray-100
+
+      a {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .project-card-banner-placeholder {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(to bottom right, 
+        hsl(0, 0%, 95%), // from-gray-100
+        hsl(0, 0%, 90%)); // to-gray-200
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      a {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .banner-placeholder-text {
+        text-align: center;
+        color: hsl(0, 0%, 65%); // text-gray-400
+        font-size: var(--font-size-xs); // text-xs
+
+        p {
+          margin: 0;
+        }
+      }
+    }
+
+    .project-card-content {
+      padding: var(--space-l); // p-6
+
+      .project-card-title {
+        font-size: var(--font-size-xxl); // text-2xl
+        color: #F8E8D1; // text-[#F8E8D1]
+        margin-bottom: var(--space-xs); // mb-2
+        margin-top: 0;
+
+        a {
+          color: inherit;
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+
+      .project-card-description {
+        font-size: var(--font-size-s); // text-sm
+        color: var(--color-text-body); // text-card-brown-text
+        margin-bottom: var(--space-m); // mb-4
+        margin-top: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 3; // line-clamp-3
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
     }
   }
