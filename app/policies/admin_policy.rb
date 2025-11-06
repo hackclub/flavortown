@@ -15,7 +15,7 @@ class AdminPolicy < ApplicationPolicy
     def access_admin_endpoints?
       user&.admin? || user&.fraud_dept?
     end
-    
+
     def user_promotion_perms?
       user&.admin?
     end
