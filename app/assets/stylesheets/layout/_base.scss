@@ -1,0 +1,53 @@
+// Base Layout Styles
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-family-jua);
+}
+
+body {
+    margin: 0;
+    color: var(--color-text-body);
+    background-color: var(--color-bg);
+}
+
+main {
+    min-height: 100vh;
+    // padding: var(--space-l);
+}
+
+body.signed-in main {
+    margin-left: 280px; //space for sidebar
+}
+
+// Link styles
+a {
+    color: var(--color-brown-700);
+    display: inline-block;
+    position: relative;
+    text-decoration: none;
+    z-index: 0;
+
+    &:not(.no-underline)::after {
+        background: var(--color-brown-hover);
+        border-radius: 999px;
+        bottom: 10%;
+        content: '';
+        height: 10px;
+        left: 0;
+        position: absolute;
+        right: 0;
+        transform: translateX(-4px);
+        transition: background .3s ease;
+        width: calc(100% + 8px);
+        z-index: -1;
+    }
+
+    &:not(.no-underline):hover::after,
+    &:not(.no-underline):focus::after {
+        background: var(--color-brown-hover-focus);
+    }
+}
+  

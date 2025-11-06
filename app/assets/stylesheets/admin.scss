@@ -1,5 +1,5 @@
 body {
-    background: var(--color-cream);
+    background: var(--color-bg);
     // TODO color
     padding: 2rem;
 }
@@ -12,7 +12,7 @@ body {
     width: 100%;
 
     thead {
-        background: var(--color-tan);
+        background: var(--color-tan-400);
     }
     th {
         &:first-child { border-radius: 0.5em 0 0 0; }
@@ -20,7 +20,7 @@ body {
     }
 
     tbody tr {
-        background: var(--color-tan-light);
+        background: var(--color-tan-300);
     }
 
     th, td {
@@ -35,7 +35,7 @@ body {
     justify-content: center;
 
     a {
-        background: var(--color-tan);
+        background: var(--color-tan-400);
         color: black; // TODO color
         padding: 0.25em 0.5em;
         border-radius: 0.25em;
@@ -51,8 +51,8 @@ body {
 }
 
 .input-primary {
-    background: var(--color-tan);
-    border: 2px solid var(--color-brown);
+    background: var(--color-tan-400);
+    border: 2px solid var(--color-brown-500);
     color: black;
 
     font-size: 1rem;
@@ -71,7 +71,7 @@ body {
     gap: 0.5em;
     padding: 1em 2em;
 
-    background: var(--color-brown);
+    background: var(--color-brown-500);
     color: white; // TODO color
     border: none;
     border-radius: 0.5em;
@@ -85,7 +85,7 @@ body {
     }
 
     &:hover {
-        background: var(--color-brown-light);
+        background: var(--color-brown-400);
         box-shadow: var(--shadow);
     }
 
@@ -110,7 +110,7 @@ body {
 }
 
 .card {
-    background: var(--color-tan-light);
+    background: var(--color-tan-300);
     border-radius: 0.5rem;
     padding: 1rem;
 

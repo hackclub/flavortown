@@ -1,0 +1,81 @@
+:root {
+    // Fonts
+    --font-family-jua: 'Jua', cursive;
+    --font-family-sans: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  
+    // Classical line heights
+    --line-height-headers: 1.1;
+    --line-height-body:    1.5;
+  
+    // Font Sizes
+    --font-size-xs: 0.75rem;   // 12px
+    --font-size-s: 0.875rem;   // 14px
+    --font-size-m: 1rem;       // 16px
+    --font-size-l: 1.125rem;   // 18px
+    --font-size-xl: 1.25rem;   // 20px
+    --font-size-xxl: 1.5rem;   // 24px
+    --font-size-xxxl: 2rem;    // 32px
+    --font-size-xxxxl: 2.5rem; // 40px
+  
+    // Colors
+    --color-text-header: hsl(7, 54%, 15%);
+    --color-text-body:   hsl(7, 40%, 25%);
+    --color-text-muted:  hsl(7, 14%, 37%);
+    
+    // Theme colors - Flavortown
+    --color-bg:   hsl(35, 74%, 90%);
+
+    // Red
+    --color-red-500:   hsl(356, 49%, 43%);
+    --color-red-400:   hsl(356, 47%, 52%);
+    
+    // Green
+    --color-green-500: hsl(105, 44%, 35%);
+    --color-green-400: hsl(90, 43%, 46%);
+    
+    // Blue
+    --color-blue-500:  hsl(214, 40%, 39%);
+    --color-blue-400:  hsl(204, 44%, 52%);
+    
+    // Yellow/Gold
+    --color-yellow-500: hsl(31, 63%, 46%);
+    --color-yellow-400: hsl(40, 72%, 67%);
+    
+    // Brown
+    --color-brown-700: hsl(348, 28%, 24%);
+    --color-brown-600: hsl(8, 30%, 36%);
+    --color-brown-500: hsl(7, 30%, 37%);
+    --color-brown-400: hsl(23, 34%, 51%);
+    
+    // Tan
+    --color-tan-400: hsl(30, 46%, 71%);
+    --color-tan-300: hsl(39, 52%, 80%);
+    
+    // Accent colors
+    --color-lime-400: hsl(70, 40%, 68%);
+    --color-pink-400: hsl(12, 66%, 81%);
+    --color-teal-400: hsl(178, 46%, 75%);
+    
+    // Utility colors
+    --color-brown-hover: hsla(7, 30%, 37%, 0.3);
+    --color-brown-hover-focus: hsla(7, 30%, 37%, 0.45);
+    
+    // Shadows
+    --shadow: 0px 0px 2px 1px hsla(0, 0%, 0%, 0.25);
+    --shadow-inset: inset 0px 0px 2px 1px hsla(0, 0%, 0%, 0.25);
+
+    // Border radius
+    --border-radius: 0.6rem; // 16px
+
+    // Classical and robust spacing system
+    --space-xxxs: 0.25rem; // 4px
+    --space-xxs: 0.375rem; // 6px
+    --space-xs: 0.5rem;    // 8px
+    --space-s: 0.75rem;    // 12px
+    --space-m: 1rem;       // 16px
+    --space-l: 1.5rem;     // 24px
+    --space-xl: 2rem;      // 32px
+    --space-xxl: 2.5rem;   // 40px
+    --space-xxxl: 3rem;    // 48px
+    --space-xxxxl: 4rem;   // 64px
+  }

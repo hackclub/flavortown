@@ -1,66 +1,19 @@
+// Utilities
 @use 'utils';
 
-:root {
-    --color-brown: #7A4841;
-    --color-brown-dark: #4D2B32;
-    --color-brown-darker: #784740;
-    --color-brown-hover: rgba(122, 72, 65, 0.3);
-    --color-brown-hover-focus: rgba(122, 72, 65, 0.45);
-    --color-brown-light: #AC7757;
-    --color-cream: #F8E8D1;
-    --color-gold: #E8C170;
-    --color-lime: #D0DA91;
-    --color-pink: #EEBAAD;
-    --color-red: #BE4D54;
-    --color-red-dark: #A4383F;
-    --color-tan: #D7B594;
-    --color-tan-light: #E7D5B3;
-    --color-teal: #A4DDDB;
-    --shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.25);
-    --shadow-inset: inset 0px 0px 2px 1px rgba(0, 0, 0, 0.25);
-}
+// Configuration
+@use "config/fonts";
+@use "config/variables";
 
-@font-face {
-    font-family: 'Jua';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url('Jua-Regular.ttf') format('truetype');
-}
+// Layouts
+@use "layout/base";
+@use "layout/container";
 
-* {
-    box-sizing: border-box;
-    font-family: 'Jua', sans-serif;
-}
-
-body {
-    margin: 0;
-}
-
-a {
-    color: var(--color-brown-dark);
-    display: inline-block;
-    position: relative;
-    text-decoration: none;
-    z-index: 0;
-
-    &:not(.no-underline)::after {
-        background: var(--color-brown-hover);
-        border-radius: 999px;
-        bottom: 10%;
-        content: '';
-        height: 10px;
-        left: 0;
-        position: absolute;
-        right: 0;
-        transform: translateX(-4px);
-        transition: background .3s ease;
-        width: calc(100% + 8px);
-        z-index: -1;
-    }
-
-    &:not(.no-underline):hover::after,
-    &:not(.no-underline):focus::after {
-        background: var(--color-brown-hover-focus);
-    }
-}
+// Components
+@use "components/alerts";
+@use "components/btn";
+@use "components/card";
+@use "components/form";
+@use "components/input";
+@use "components/project_show";
+@use "components/sidebar";
