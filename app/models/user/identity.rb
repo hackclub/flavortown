@@ -40,6 +40,8 @@ class User::Identity < ApplicationRecord
 
     # Slack OpenID does not send display_name in the response. Therefore, we have to manually get it using users.info method. https://docs.slack.dev/authentication/sign-in-with-slack/#response
     after_create :set_display_name, if: -> { provider == "slack" }
+    after_create :sync_hackatime_projects, if: -> { provider == "slack" }
+
     private
 
     def set_display_name
@@ -63,6 +65,16 @@ class User::Identity < ApplicationRecord
             end
         rescue StandardError => e
             Rails.logger.warn("Slack users.info callback failed for uid=#{uid}: #{e.class}: #{e.message}")
+        end
+    end
+
+    def sync_hackatime_projects
+        return if user.blank?
+
+        begin
+            HackatimeService.sync_user_projects(user, uid)
+        rescue StandardError => e
+            Rails.logger.warn("Hackatime project sync failed for user #{user.id} (slack_uid=#{uid}): #{e.class}: #{e.message}")
         end
     end
 end

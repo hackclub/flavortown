@@ -222,6 +222,17 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_01_060323) do
     t.decimal "usd_cost"
   end
 
+  create_table "user_hackatime_projects", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "project_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["project_id"], name: "index_user_hackatime_projects_on_project_id"
+    t.index ["user_id", "name"], name: "index_user_hackatime_projects_on_user_id_and_name", unique: true
+    t.index ["user_id"], name: "index_user_hackatime_projects_on_user_id"
+  end
+
   create_table "user_identities", force: :cascade do |t|
     t.string "access_token_bidx"
     t.text "access_token_ciphertext"
@@ -284,6 +295,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_01_060323) do
   add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
+  add_foreign_key "user_hackatime_projects", "projects"
+  add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"
   add_foreign_key "user_role_assignments", "roles"
   add_foreign_key "user_role_assignments", "users"
