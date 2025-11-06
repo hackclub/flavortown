@@ -20,6 +20,9 @@
   <% if policy(:admin).flipper? %>
     <%= link_to "Flipper", "/admin/flipper", class: "btn-primary" %>
   <% end %>
+  <% if policy(:admin).user_promotion_perms? %>
+  <%= link_to "Manage users", "/admin/user-perms", class: "btn-primary" %>
+<% end %>
 
   <%= link_to "Help bot", "slack://app?team=T0266FRGM&id=A09NP19R7FX&tab=home", class: "btn-primary" %>
 </div>

@@ -24,7 +24,44 @@ class Admin::UsersController < Admin::ApplicationController
 
     def show
       @user = User.find(params[:id])
+      @current_user = current_user
     end
+
+    def user_perms
+      @users = User.joins(:role_assignments).includes(:roles).distinct.order(:id)
+    end
+
+    def promote_role
+    @user = User.find(params[:id])
+    role_name = params[:role_name]
+    
+    role = Role.find_by(name: role_name)
+    
+    if role && !@user.roles.include?(role)
+    @user.roles << role
+    flash[:notice] = "User promoted to #{role_name}."
+    else
+    flash[:alert] = "Unable to promote user to #{role_name}."
+    end
+    
+    redirect_to admin_user_path(@user)
+    end
+
+  def demote_role
+    @user = User.find(params[:id])
+    role_name = params[:role_name]
+    
+    role = Role.find_by(name: role_name)
+    
+    if role && @user.roles.include?(role)
+      @user.roles.delete(role)
+      flash[:notice] = "User demoted from #{role_name}."
+    else
+      flash[:alert] = "Unable to demote user from #{role_name}."
+    end
+    
+    redirect_to admin_user_path(@user)
+  end
 
     def user_not_authorized
       flash[:alert] = "You are not authorized to perform this action."
