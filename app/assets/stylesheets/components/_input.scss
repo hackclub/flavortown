@@ -1,0 +1,107 @@
+.input-wrapper {
+    position: relative;
+    display: block;
+
+    svg {
+      position: absolute;
+      left: var(--space-m);
+      bottom: var(--space-s);
+      width: 1.5rem;
+      height: 1.5rem;
+      pointer-events: none;
+    }
+
+    .input {
+      padding-left: calc(var(--space-m) * 2 + 1em);
+    }
+  }
+
+.input {
+    display: block;
+    width: 100%;
+    padding: var(--space-s) var(--space-m);
+    border-radius: var(--border-radius);
+    border: solid 5px transparent;
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-m);
+    outline: none;
+    transition: border-color 200ms, box-shadow 200ms;
+    background-color: white;
+
+    &::placeholder {
+      opacity: 0.7;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+    }
+
+    &--red {
+      border-color: var(--color-red-400);
+      color: var(--color-red-500);
+
+      &::placeholder {
+        color: var(--color-red-400);
+      }
+
+      &:focus {
+        border-color: var(--color-red-500);
+      }
+    }
+
+    &--green {
+      border-color: var(--color-green-400);
+      color: var(--color-green-500);
+
+      &::placeholder {
+        color: var(--color-green-400);
+      }
+
+      &:focus {
+        border-color: var(--color-green-500);
+      }
+    }
+
+    &--blue {
+      border-color: var(--color-blue-400);
+      color: var(--color-blue-500);
+
+      &::placeholder {
+        color: var(--color-blue-400);
+      }
+
+      &:focus {
+        border-color: var(--color-blue-500);
+      }
+    }
+
+    &--yellow {
+      border-color: var(--color-yellow-400);
+      color: var(--color-yellow-500);
+
+      &::placeholder {
+        color: var(--color-yellow-400);
+      }
+
+      &:focus {
+        border-color: var(--color-yellow-500);
+      }
+    }
+  
+  }
+
+.input-wrapper--red svg {
+    color: var(--color-red-400);
+  }
+
+.input-wrapper--green svg {
+    color: var(--color-green-400);
+  }
+
+.input-wrapper--blue svg {
+    color: var(--color-blue-400);
+  }
+
+.input-wrapper--yellow svg {
+    color: var(--color-yellow-400);
+  }

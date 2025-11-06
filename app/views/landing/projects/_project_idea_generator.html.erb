@@ -68,7 +68,7 @@
     <p>Order some ideas from our cooks!</p>
 
     <%= form_with url: random_project_ideas_path, method: :post, id: "new_project_idea_form", data: { turbo: false } do |form| %>
-      <%= form.button(type: "submit", id: "shopkeeper-submit", class: "btn-striped-red") do %>
+      <%= form.button(type: "submit", id: "shopkeeper-submit", class: "btn btn--red btn--striped") do %>
         <div>🎲 Generate Project Idea</div>
       <% end %>
     <% end %>

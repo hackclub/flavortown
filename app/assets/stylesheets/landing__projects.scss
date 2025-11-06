@@ -1,14 +1,14 @@
 .projects {
-    background-color: var(--color-gold);
+    background-color: var(--color-yellow-400);
     background-image: url('landing/projects/background.png');
     background-repeat: no-repeat;
-    color: var(--color-brown-dark);
+    color: var(--color-brown-700);
     padding: 40px 20px;
     text-align: center;
 
     .container {
-        background-color: var(--color-cream);
-        border: 2px solid var(--color-tan);
+        background-color: var(--color-bg);
+        border: 2px solid var(--color-tan-400);
         border-radius: 10px;
         margin: 0 auto;
         max-width: 800px;

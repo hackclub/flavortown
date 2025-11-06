@@ -29,14 +29,14 @@ input {
 }
 
 .input-red {
-    background-color: var(--color-red);
+    background-color: var(--color-red-400);
     border-radius: 8px;
     padding: 0.5rem;
     font-size: 1.2em;
 
     > div {
         background: white;
-        color: var(--color-red);
+        color: var(--color-red-400);
         box-shadow: var(--shadow-inset);
         border-radius: 0.25rem;
 
@@ -46,7 +46,7 @@ input {
 
         svg {
             width: 2rem;
-            fill: var(--color-red);
+            fill: var(--color-red-400);
             opacity: 75%;
             padding: 4px;
         }
@@ -61,7 +61,7 @@ input {
             }
 
             &::placeholder {
-                color: var(--color-red-dark);
+                color: var(--color-red-500);
                 opacity: 75%;
             }
         }
@@ -72,33 +72,6 @@ input {
     position: absolute;
     right: 16px;
     top: 16px;
-}
-
-.btn-striped-red {
-    padding: 0.625rem;
-    border: none;
-    border-radius: 0.5rem;
-    background: var(--color-red) url("striped-red-btn-bg.svg") no-repeat calc(50% - 2px) 50% / cover;
-    font-family: inherit;
-
-    div {
-        background: var(--color-red-dark);
-        color: white;
-        box-shadow: var(--shadow);
-        border-radius: 5px;
-        padding: 4px 25px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-
-        img {
-            filter: invert(1);
-        }
-    }
-
-    &:hover {
-        cursor: pointer;
-    }
 }
 
 .ribbon {
@@ -126,7 +99,7 @@ input {
 }
 
 .section-1 {
-    background: url("landing/section-1/long-image.png") var(--color-cream) center / cover;
+    background: url("landing/section-1/long-image.png") var(--color-bg) center / cover;
     align-items: center;
     justify-content: center;
 
@@ -161,7 +134,7 @@ input {
                 flex-direction: column;
                 gap: 0.5rem;
 
-                .btn-striped-red {
+                .btn--striped {
                     align-self: center;
                 }
             }
@@ -180,7 +153,7 @@ input {
                 background-color: #75A743; // TODO do not hardcode!
             }
             .error {
-                background-color: var(--color-red);
+                background-color: var(--color-red-400);
             }
         }
     }
@@ -192,7 +165,7 @@ input {
 }
 
 .section-2 {
-    background: var(--color-cream);
+    background: var(--color-bg);
 
     gap: 1rem;
 
@@ -208,7 +181,7 @@ input {
         .title {
             background-image: url("landing/section-2/title.svg");
             font-size: 3rem;
-            color: var(--color-cream);
+            color: var(--color-bg);
         }
     }
 
@@ -245,7 +218,7 @@ input {
             aspect-ratio: 30 / 35;
             border-radius: 1rem;
 
-            background: var(--color-cream) var(--card-url) no-repeat center / cover;
+            background: var(--color-bg) var(--card-url) no-repeat center / cover;
             color: var(--card-color);
             box-shadow: var(--shadow);
 
@@ -317,16 +290,16 @@ input {
         }
 
         &.left {
-            background: var(--color-pink) url("landing/section-2/texture_1.png") no-repeat center / cover;
+            background: var(--color-pink-400) url("landing/section-2/texture_1.png") no-repeat center / cover;
             --ribbon-url: url("landing/section-2/step-1-ribbon.png");
             --card-url: url("landing/section-2/step-1-card-bg.png");
             --title-edge: #A4383F; // TODO do not hardcode!
             --title-middle: #BE4D54; // TODO do not hardcode!
-            --card-color: var(--color-red-dark);
+            --card-color: var(--color-red-500);
         }
 
         &.center {
-            background: var(--color-lime) url("landing/section-2/texture_2.png") no-repeat center / cover;
+            background: var(--color-lime-400) url("landing/section-2/texture_2.png") no-repeat center / cover;
             --ribbon-url: url("landing/section-2/step-2-ribbon.png");
             --card-url: url("landing/section-2/step-2-card-bg.png");
             --title-edge: #468232; // TODO do not hardcode!
@@ -335,7 +308,7 @@ input {
         }
         
         &.right {
-            background: var(--color-teal) url("landing/section-2/texture_3.png") no-repeat center / cover;
+            background: var(--color-teal-400) url("landing/section-2/texture_3.png") no-repeat center / cover;
             --ribbon-url: url("landing/section-2/step-3-ribbon.png");
             --card-url: url("landing/section-2/step-3-card-bg.png");
             --title-edge: #3C5E8B; // TODO do not hardcode!
@@ -356,7 +329,7 @@ input {
     > .title {
         background-image: url("landing/section-3/title.png");
         font-size: 3rem;
-        color: var(--color-cream);
+        color: var(--color-bg);
 
         padding: 0.5em 3em;
 
@@ -384,7 +357,7 @@ input {
         }
 
         .testimonial {
-            background: var(--color-brown-light);
+            background: var(--color-brown-400);
             box-shadow: var(--shadow);
             border-radius: 2rem;
             padding: 0.75rem;
@@ -393,7 +366,7 @@ input {
             height: 26rem;
 
             > div {
-                background: var(--color-brown-darker);
+                background: var(--color-brown-600);
                 box-shadow: var(--shadow);
                 border-radius: 1.25rem;
 
@@ -405,7 +378,7 @@ input {
                 position: relative;
 
                 p {
-                    color: var(--color-cream);
+                    color: var(--color-bg);
                     margin: 0.5rem 0 4rem 0;
                 }
 
@@ -460,7 +433,7 @@ input {
 }
 
 .section-4 {
-    background: var(--color-cream) url("landing/section-4/bg.svg") center center / cover;
+    background: var(--color-bg) url("landing/section-4/bg.svg") center center / cover;
 
     padding: 2rem 0 4rem 0;
 
@@ -478,7 +451,7 @@ input {
         align-items: center;
         margin-bottom: 3rem;
 
-        background: var(--color-red);
+        background: var(--color-red-400);
         box-shadow: var(--shadow);
         color: white;
 
@@ -492,7 +465,7 @@ input {
             width: 110%;
             text-align: center;
 
-            background: var(--color-red-dark) url("landing/section-4/title-overlay.svg") center center / cover;
+            background: var(--color-red-500) url("landing/section-4/title-overlay.svg") center center / cover;
             box-shadow: var(--shadow);
             border-radius: 1rem;
 
@@ -587,7 +560,7 @@ input {
                     gap: 0.5rem;
 
                     .image-wrapper {
-                        background: var(--color-tan-light) url("landing/section-4/img-overlay.svg") center center / cover;
+                        background: var(--color-tan-300) url("landing/section-4/img-overlay.svg") center center / cover;
                         box-shadow: var(--shadow);
                         border-radius: 0.5rem;
                         padding: 0.25rem;
@@ -666,7 +639,7 @@ input {
 }
 
 .section-5 {
-    background: var(--color-gold);
+    background: var(--color-yellow-400);
     flex-direction: column;
     align-items: center;
     gap: 2rem;
@@ -674,7 +647,7 @@ input {
     
     > .title {
         background-image: url("landing/section-3/title.png");
-        color: var(--color-cream);
+        color: var(--color-bg);
         font-size: 3rem;
         padding: 0.6em 1.5em;
         
@@ -714,27 +687,27 @@ input {
     .title {
         width: 95%;
         height: 40%;
-        background-color: var(--color-brown);
+        background-color: var(--color-brown-500);
         border-radius: 16px 16px 0 0;
         box-shadow: var(--shadow);
         padding: 1rem 1rem 0 1rem;
 
         .inner {
             height: 100%;
-            background-color: var(--color-cream);
+            background-color: var(--color-bg);
             border-radius: 10px 10px 0 0;
             box-shadow: var(--shadow);
             padding: 2rem;
 
             h3 {
-                color: var(--color-brown-dark);
+                color: var(--color-brown-700);
                 font-size: 1.5em;
                 font-weight: normal;
                 margin: 0;
             }
 
             p {
-                color: var(--color-brown);
+                color: var(--color-brown-500);
                 font-size: 1.2em;
                 margin: 0.5rem 0 0 0;
             }
@@ -745,7 +718,7 @@ input {
         width: 100%;
         height: 100%;
         
-        background-color: var(--color-brown);
+        background-color: var(--color-brown-500);
         background-image: url("landing/section-5/projects/bg.png");
         background-repeat: no-repeat;
         background-position: center;
@@ -760,7 +733,7 @@ input {
         align-items: center;
 
         h3 {
-            color: var(--color-cream);
+            color: var(--color-bg);
             font-weight: normal;
             text-align: center;
             font-size: 1.8em;
@@ -826,14 +799,14 @@ input {
                         justify-content: end;
 
                         p {
-                            color: var(--color-cream);
+                            color: var(--color-bg);
                             text-wrap: wrap;
                             font-size: .8em;
                             margin: 0 0 8px 0;
                         }
 
                         a {
-                            color: var(--color-cream);
+                            color: var(--color-bg);
                             box-shadow: var(--shadow);
                             padding: 4px 10px;
                             font-size: .9em;
@@ -904,7 +877,7 @@ input {
 }
 
 .project-idea-generator {
-    background: var(--color-cream);
+    background: var(--color-bg);
 
     padding: 10px;
     border-radius: 16px;
@@ -918,7 +891,7 @@ input {
     }
 
     > div {
-        color: var(--color-cream);
+        color: var(--color-bg);
         background-color: #BE772B;
         background-image: linear-gradient(180deg, #BE772B 20%, #DE9E41 20%);
         
@@ -976,12 +949,12 @@ input {
 }
 
 .section-6 {
-    background-color: var(--color-tan-light);
+    background-color: var(--color-tan-300);
     flex-direction: column;
     align-items: center;
 
     .about {
-        background-color: var(--color-tan);
+        background-color: var(--color-tan-400);
         box-shadow: var(--shadow);
         border-radius: 1rem;
         padding: 0.8rem;
@@ -993,7 +966,7 @@ input {
         }
 
         div {
-            background: var(--color-cream) url("landing/section-6/about-bg.png") center / cover;
+            background: var(--color-bg) url("landing/section-6/about-bg.png") center / cover;
             box-shadow: var(--shadow);
             border-radius: 10px;
             padding: 2rem;
@@ -1006,11 +979,11 @@ input {
             h2 {
                 text-align: center;
                 font-size: 2rem;
-                color: var(--color-brown-dark);
+                color: var(--color-brown-700);
             }
 
             p {
-                color: var(--color-brown);
+                color: var(--color-brown-500);
                 font-size: 1.2rem;
                 margin: 1.5rem 0;
             }
@@ -1018,7 +991,7 @@ input {
     }
 
     .credits {
-        background-color: var(--color-brown-light);
+        background-color: var(--color-brown-400);
         padding: 8px 16px;
         margin: auto 0 16px 0;
         border-radius: 10px;
@@ -1030,13 +1003,13 @@ input {
         }
 
         h3 {
-            color: var(--color-cream);
+            color: var(--color-bg);
             font-size: 1.2em;
             font-weight: normal;
             text-align: center;
             width: 110%;
             transform: translateX(calc(-5% + 4px));
-            background-color: var(--color-brown);
+            background-color: var(--color-brown-500);
             border-radius: 0.4rem;
             padding: 0.5rem 0;
             margin: 0;
@@ -1049,7 +1022,7 @@ input {
         }
 
         .people {
-            background: var(--color-cream) url("landing/section-6/people-bg.png") center / cover;
+            background: var(--color-bg) url("landing/section-6/people-bg.png") center / cover;
             box-shadow: var(--shadow);
             border-radius: 0.5rem;
             padding: 1rem;
