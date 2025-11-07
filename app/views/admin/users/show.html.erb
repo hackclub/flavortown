@@ -34,35 +34,35 @@
     <h2>actions</h2>
     <div class="info-rows">
       <% has_fraud_dept = @user.roles.exists?(name: "fraud_dept") %>
-      <%= button_to (has_fraud_dept ? "Demote from Fraud Dept" : "Promote to Fraud Dept"), 
-                    (has_fraud_dept ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)), 
-                    method: :post, 
-                    params: { role_name: "fraud_dept" }, 
-                    class: "btn-primary slim", 
+      <%= button_to (has_fraud_dept ? "Demote from Fraud Dept" : "Promote to Fraud Dept"),
+                    (has_fraud_dept ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
+                    method: :post,
+                    params: { role_name: "fraud_dept" },
+                    class: "btn-primary slim",
                     disabled: !current_user&.admin? %>
 
       <% has_fulfillment = @user.roles.exists?(name: "fulfillment_person") %>
-      <%= button_to (has_fulfillment ? "Demote from Fulfillment Person" : "Promote to Fulfillment Person"), 
-                    (has_fulfillment ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)), 
-                    method: :post, 
-                    params: { role_name: "fulfillment_person" }, 
-                    class: "btn-primary slim", 
+      <%= button_to (has_fulfillment ? "Demote from Fulfillment Person" : "Promote to Fulfillment Person"),
+                    (has_fulfillment ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
+                    method: :post,
+                    params: { role_name: "fulfillment_person" },
+                    class: "btn-primary slim",
                     disabled: !current_user&.admin? %>
 
       <% has_project_certifier = @user.roles.exists?(name: "project_certifier") %>
-      <%= button_to (has_project_certifier ? "Demote from Project Certifier" : "Promote to Project Certifier"), 
-                    (has_project_certifier ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)), 
-                    method: :post, 
-                    params: { role_name: "project_certifier" }, 
-                    class: "btn-primary slim", 
+      <%= button_to (has_project_certifier ? "Demote from Project Certifier" : "Promote to Project Certifier"),
+                    (has_project_certifier ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
+                    method: :post,
+                    params: { role_name: "project_certifier" },
+                    class: "btn-primary slim",
                     disabled: !current_user&.admin? %>
 
       <% has_admin = @user.roles.exists?(name: "admin") %>
-      <%= button_to (has_admin ? "Demote from Admin" : "Promote to Admin"), 
-                    (has_admin ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)), 
-                    method: :post, 
-                    params: { role_name: "admin" }, 
-                    class: "btn-primary slim", 
+      <%= button_to (has_admin ? "Demote from Admin" : "Promote to Admin"),
+                    (has_admin ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
+                    method: :post,
+                    params: { role_name: "admin" },
+                    class: "btn-primary slim",
                     disabled: !current_user&.super_admin? %>
     </div>
   </div>
