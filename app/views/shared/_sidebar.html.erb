@@ -1,0 +1,41 @@
+<aside class="sidebar" aria-label="Main">
+  <%# <div class="sidebar__header">
+    <span class="sidebar__title">Flavortown</span>
+  </div> %>
+
+  <div class="sidebar__blob">
+    <nav class="sidebar__nav" aria-label="Primary navigation">
+      <% sidebar_nav_items = [
+        { label: "Kitchen", path: "#", icon: "fork_spoon_fill" },
+        { label: "Explore", path: "#", icon: "compass_fill" },
+        { label: "Projects", path: projects_path, icon: "square_fill" },
+        { label: "Vote", path: "#", icon: "star_fill" },
+        { label: "Shop", path: "#", icon: "shopping_cart_1_fill" }
+      ] %>
+
+      <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if current_user&.admin? %>
+
+      <ul class="sidebar__nav-list">
+        <% sidebar_nav_items.each do |item| %>
+          <% active = item[:path] != "#" && current_page?(item[:path]) %>
+          <% link_classes = ["sidebar__nav-link", ("sidebar__nav-link--active" if active)].compact.join(" ") %>
+
+          <li class="sidebar__nav-item">
+            <%= link_to item[:path], class: link_classes, aria: (active ? { current: "page" } : {}) do %>
+              <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
+              <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
+              </span>
+              <span class="sidebar__nav-label"><%= item[:label] %></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="sidebar__user" aria-live="polite">
+    <div class="sidebar__user-placeholder">
+      <span class="sidebar__user-placeholder-text">User info coming soon</span>
+    </div>
+  </div>
+</aside>

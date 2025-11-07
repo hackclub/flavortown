@@ -25,7 +25,7 @@ class SessionsController < ApplicationController
 
       reset_session
       session[:user_id] = user.id
-      redirect_to root_path, notice: "Signed in with Slack"
+      redirect_to projects_path, notice: "Signed in with Slack"
     else
       redirect_to root_path, alert: "Authentication failed or user already signed in"
     end

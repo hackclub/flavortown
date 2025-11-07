@@ -17,6 +17,7 @@ class User < ApplicationRecord
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
   has_many :projects, through: :memberships
   has_many :roles, through: :role_assignments
+  has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
 
   class << self
     # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
