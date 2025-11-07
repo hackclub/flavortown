@@ -57,14 +57,6 @@
                     class: "btn-primary slim",
                     disabled: !current_user&.admin? %>
 
-      <% has_ysws_reviewer = @user.roles.exists?(name: "ysws_reviewer") %>
-      <%= button_to (has_ysws_reviewer ? "Demote from YSWS Reviewer" : "Promote to YSWS Reviewer"),
-                    (has_ysws_reviewer ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    params: { role_name: "ysws_reviewer" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
-
       <% has_admin = @user.roles.exists?(name: "admin") %>
       <%= button_to (has_admin ? "Demote from Admin" : "Promote to Admin"),
                     (has_admin ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
