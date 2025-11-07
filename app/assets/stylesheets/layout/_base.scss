@@ -18,6 +18,14 @@ main {
     // padding: var(--space-l);
 }
 
+body.signed-in {
+    background-image: url('mask/pattern.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
 body.signed-in main {
     margin-left: 280px; //space for sidebar
 }
