@@ -13,6 +13,8 @@
         { label: "Shop", path: "#", icon: "shopping_cart_1_fill" }
       ] %>
 
+      <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if current_user&.admin? %>
+
       <ul class="sidebar__nav-list">
         <% sidebar_nav_items.each do |item| %>
           <% active = item[:path] != "#" && current_page?(item[:path]) %>
