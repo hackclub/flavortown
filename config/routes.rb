@@ -60,6 +60,7 @@ Rails.application.routes.draw do
     resources :projects, only: [ :index ], shallow: true
     get "user-perms", to: "users#user_perms"
     get "manage-shop", to: "shop#index"
+    resources :shop_items, only: [ :new, :create, :edit, :update ]
   end
 
   # Project Ideas
