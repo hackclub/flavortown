@@ -5,12 +5,26 @@
 
   <div class="sidebar__blob">
     <nav class="sidebar__nav" aria-label="Primary navigation">
+      <% sidebar_nav_items = [
+        { label: "Kitchen", path: "#", icon: "fork_spoon_fill" },
+        { label: "Explore", path: "#", icon: "compass_fill" },
+        { label: "Projects", path: projects_path, icon: "square_fill" },
+        { label: "Vote", path: "#", icon: "star_fill" },
+        { label: "Shop", path: "#", icon: "shopping_cart_1_fill" }
+      ] %>
+
       <ul class="sidebar__nav-list">
-        <li class="sidebar__nav-item"><%= link_to "Kitchen", "#", class: "sidebar__nav-link" %></li>
-        <li class="sidebar__nav-item"><%= link_to "Explore", "#", class: "sidebar__nav-link" %></li>
-        <li class="sidebar__nav-item"><%= link_to "Projects", projects_path, class: "sidebar__nav-link" %></li>
-        <li class="sidebar__nav-item"><%= link_to "Vote", "#", class: "sidebar__nav-link" %></li>
-        <li class="sidebar__nav-item"><%= link_to "Shop", "#", class: "sidebar__nav-link" %></li>
+        <% sidebar_nav_items.each do |item| %>
+          <% active = item[:path] != "#" && current_page?(item[:path]) %>
+          <% link_classes = ["sidebar__nav-link", ("sidebar__nav-link--active" if active)].compact.join(" ") %>
+
+          <li class="sidebar__nav-item">
+            <%= link_to item[:path], class: link_classes, aria: (active ? { current: "page" } : {}) do %>
+              <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
+              <span><%= item[:label] %></span>
+            <% end %>
+          </li>
+        <% end %>
       </ul>
     </nav>
   </div>

@@ -64,7 +64,9 @@
 }
 
 .sidebar__nav-link {
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-s);
     padding: var(--space-s);
     color: var(--color-bg);
     font-size: var(--font-size-xxxl);
@@ -75,6 +77,16 @@
     //     background: hsla(0, 0%, 100%, 0.35);
     //     transform: translateX(4px);
     // }
+}
+
+.sidebar__nav-link--active {
+}
+
+.sidebar__nav-icon {
+    width: 1.25em;
+    height: 1.25em;
+    color: inherit !important;
+    flex-shrink: 0;
 }
 
 .sidebar__user {
