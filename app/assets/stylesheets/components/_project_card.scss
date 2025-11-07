@@ -79,6 +79,7 @@
         color: var(--color-tan-400);
         gap: var(--space-s);
         padding: var(--space-l);
+        font-size: var(--font-size-xl);
     }
 
     &__title {
@@ -95,16 +96,6 @@
         &:hover,
         &:focus-visible {
             text-decoration: underline;
-        }
-    }
-
-    &__description {
-        margin: 0;
-        font-size: var(--font-size-m);
-        line-height: var(--line-height-body);
-
-        p {
-            margin: 0;
         }
     }
 }
