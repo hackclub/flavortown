@@ -1,0 +1,23 @@
+<aside class="sidebar" aria-label="Main">
+  <div class="sidebar__header">
+    <span class="sidebar__title">Flavortown</span>
+  </div>
+
+  <div class="sidebar__blob">
+    <nav class="sidebar__nav" aria-label="Primary navigation">
+      <ul class="sidebar__nav-list">
+        <li class="sidebar__nav-item"><%= link_to "Kitchen", "#", class: "sidebar__nav-link" %></li>
+        <li class="sidebar__nav-item"><%= link_to "Explore", "#", class: "sidebar__nav-link" %></li>
+        <li class="sidebar__nav-item"><%= link_to "Projects", projects_path, class: "sidebar__nav-link" %></li>
+        <li class="sidebar__nav-item"><%= link_to "Vote", "#", class: "sidebar__nav-link" %></li>
+        <li class="sidebar__nav-item"><%= link_to "Shop", "#", class: "sidebar__nav-link" %></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="sidebar__user" aria-live="polite">
+    <div class="sidebar__user-placeholder">
+      <span class="sidebar__user-placeholder-text">User info coming soon</span>
+    </div>
+  </div>
+</aside>

@@ -18,12 +18,13 @@
     --font-size-xxxxl: 2.5rem; // 40px
   
     // Colors
-    --color-text-header: hsl(7, 54%, 15%);
+    --color-text-header: hwb(348 17% 70%);
     --color-text-body:   hsl(7, 40%, 25%);
     --color-text-muted:  hsl(7, 14%, 37%);
     
     // Theme colors - Flavortown
     --color-bg:   hsl(35, 74%, 90%);
+    --color-bg-2: hsl(39, 52%, 80%);
 
     // Red
     --color-red-500:   hsl(356, 49%, 43%);
@@ -65,7 +66,7 @@
     --shadow-inset: inset 0px 0px 2px 1px hsla(0, 0%, 0%, 0.25);
 
     // Border radius
-    --border-radius: 0.6rem; // 16px
+    --border-radius: 0.8rem; // 12.8
 
     // Classical and robust spacing system
     --space-xxxs: 0.25rem; // 4px
