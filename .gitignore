@@ -32,8 +32,6 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
-
-/tmp/*
 /config/credentials/development.key
 
 # mac os be like
@@ -46,3 +44,5 @@ db/seeds/shop_items.csv
 # Ignore key files for decrypting credentials and more.
 /config/credentials/*.key
 
+# Ignore files from JetBrains IDEs
+/.idea
