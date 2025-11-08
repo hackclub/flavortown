@@ -1,9 +1,15 @@
 module Admin
   class ShopItemsController < Admin::ApplicationController
+    before_action :set_shop_item, only: [ :show, :edit, :update, :destroy ]
+    before_action :set_shop_item_types, only: [ :new, :edit ]
+
+    def show
+      authorize :admin, :manage_shop?
+    end
+
     def new
       authorize :admin, :manage_shop?
       @shop_item = ShopItem.new
-      @shop_item_types = available_shop_item_types
     end
 
     def create
@@ -11,30 +17,43 @@ module Admin
       @shop_item = ShopItem.new(shop_item_params)
 
       if @shop_item.save
-        redirect_to admin_manage_shop_path, notice: "Shop item created successfully."
+        redirect_to admin_shop_item_path(@shop_item), notice: "Shop item created successfully."
       else
+        @shop_item_types = available_shop_item_types
         render :new, status: :unprocessable_entity
       end
     end
 
     def edit
       authorize :admin, :manage_shop?
-      @shop_item = ShopItem.find(params[:id])
-      @shop_item_types = available_shop_item_types
     end
 
     def update
       authorize :admin, :manage_shop?
-      @shop_item = ShopItem.find(params[:id])
 
       if @shop_item.update(shop_item_params)
-        redirect_to admin_manage_shop_path, notice: "Shop item updated successfully."
+        redirect_to admin_shop_item_path(@shop_item), notice: "Shop item updated successfully."
       else
+        @shop_item_types = available_shop_item_types
         render :edit, status: :unprocessable_entity
       end
     end
 
+    def destroy
+      authorize :admin, :manage_shop?
+      @shop_item.destroy
+      redirect_to admin_manage_shop_path, notice: "Shop item deleted successfully."
+    end
+
     private
+
+    def set_shop_item
+      @shop_item = ShopItem.find(params[:id])
+    end
+
+    def set_shop_item_types
+      @shop_item_types = available_shop_item_types
+    end
 
     def available_shop_item_types
       [

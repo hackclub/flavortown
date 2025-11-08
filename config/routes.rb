@@ -60,7 +60,8 @@ Rails.application.routes.draw do
     resources :projects, only: [ :index ], shallow: true
     get "user-perms", to: "users#user_perms"
     get "manage-shop", to: "shop#index"
-    resources :shop_items, only: [ :new, :create, :edit, :update ]
+    post "shop/clear-carousel-cache", to: "shop#clear_carousel_cache", as: :clear_carousel_cache
+    resources :shop_items, only: [ :new, :create, :show, :edit, :update, :destroy ]
   end
 
   # Project Ideas
