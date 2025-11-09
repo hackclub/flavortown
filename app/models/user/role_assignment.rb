@@ -20,6 +20,8 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class User::RoleAssignment < ApplicationRecord
+  has_paper_trail
+  
   belongs_to :user
   belongs_to :role
 

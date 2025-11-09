@@ -41,15 +41,23 @@
 #  updated_at                        :datetime         not null
 #
 class ShopItem < ApplicationRecord
- include Shop::Regionalizable
-  #   scope :black_market, -> { where(requires_black_market: true) }
-  #   scope :not_black_market, -> { where(requires_black_market: [ false, nil ]) }
+  has_paper_trail
+  
+  include Shop::Regionalizable
+  
+  MANUAL_FULFILLMENT_TYPES = [
+    "ShopItem::HCBGrant",
+    "ShopItem::HCBPreauthGrant",
+    "ShopItem::ThirdPartyPhysical",
+    "ShopItem::SpecialFulfillmentItem"
+  ].freeze
+
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
-  #   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
+  scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
   scope :enabled, -> { where(enabled: true) }
 
   has_one_attached :image
-  has_many :shop_orders
+  has_many :shop_orders, dependent: :restrict_with_error
 
   def is_free?
     self.ticket_cost.zero?

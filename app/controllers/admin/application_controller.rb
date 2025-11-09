@@ -10,6 +10,7 @@ module Admin
 
     # Optional before_action to enforce admin/fraud dept on all admin controllers
     before_action :authenticate_admin, unless: :mission_control_jobs?
+    before_action :set_paper_trail_whodunnit
 
     # Shared admin dashboard logic
     def index
@@ -32,6 +33,11 @@ module Admin
     def user_not_authorized
       flash[:alert] = "You are not authorized to perform this action."
       redirect_to(request.referrer || root_path)
+    end
+    
+    # Track who makes changes in PaperTrail
+    def user_for_paper_trail
+      current_user&.id
     end
   end
 end

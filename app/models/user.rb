@@ -11,7 +11,7 @@
 #  updated_at     :datetime         not null
 #
 class User < ApplicationRecord
-  has_paper_trail ignore: [ :projects_count, :votes_count ]
+  has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :role_assignments, class_name: "User::RoleAssignment", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy

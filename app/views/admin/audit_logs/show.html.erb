@@ -1,0 +1,107 @@
+<h1>Audit Log Details</h1>
+
+<div class="card">
+  <h2>Event Information</h2>
+  
+  <div class="info-rows">
+    <div><b>Timestamp:</b> <%= @version.created_at.strftime("%Y-%m-%d %H:%M:%S %Z") %></div>
+    <div>
+      <b>User:</b>
+      <% if @version.whodunnit.present? %>
+        <% user = User.find_by(id: @version.whodunnit) %>
+        <%= user&.display_name || "User ##{@version.whodunnit}" %>
+        <% if user %>
+          <%= link_to "(View User)", admin_user_path(user), class: "btn-primary slim" %>
+        <% end %>
+      <% else %>
+        <em>System</em>
+      <% end %>
+    </div>
+    <div><b>Action:</b> <span class="badge badge-<%= @version.event %>"><%= @version.event %></span></div>
+    <div><b>Model Type:</b> <%= @version.item_type %></div>
+    <div><b>Record ID:</b> #<%= @version.item_id %></div>
+  </div>
+</div>
+
+<% if @version.object_changes.present? %>
+  <div class="card">
+    <h2>Changes</h2>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Old Value</th>
+          <th>New Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% changes = YAML.load(@version.object_changes) rescue {} %>
+        <% changes.each do |field, values| %>
+          <tr>
+            <td><strong><%= field.humanize %></strong></td>
+            <td>
+              <% if values.is_a?(Array) && values.length == 2 %>
+                <code><%= values[0].inspect %></code>
+              <% else %>
+                <em>N/A</em>
+              <% end %>
+            </td>
+            <td>
+              <% if values.is_a?(Array) && values.length == 2 %>
+                <code><%= values[1].inspect %></code>
+              <% else %>
+                <em>N/A</em>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+<% if @version.object.present? %>
+  <div class="card">
+    <h2>Previous State (Before Change)</h2>
+    
+    <pre style="background: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 6px; overflow-x: auto;"><%= JSON.pretty_generate(YAML.load(@version.object)) rescue @version.object %></pre>
+  </div>
+<% end %>
+
+<div style="margin-top: 2rem;">
+  <%= link_to "← Back to Audit Logs", admin_audit_logs_path, class: "btn-secondary" %>
+</div>
+
+<style>
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.badge-create {
+  background-color: #10b981;
+  color: white;
+}
+
+.badge-update {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.badge-destroy {
+  background-color: #ef4444;
+  color: white;
+}
+
+code {
+  background-color: #1f2937;
+  color: #10b981;
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.875rem;
+}
+</style>

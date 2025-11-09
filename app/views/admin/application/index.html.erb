@@ -12,6 +12,9 @@
   <% if policy(:admin).manage_shop? %>
     <%= link_to "Manage shop", "/admin/manage-shop", class: "btn-primary" %>
   <% end %>
+  <% if policy(:admin).access_audit_logs? %>
+    <%= link_to "Audit Logs", admin_audit_logs_path, class: "btn-primary" %>
+  <% end %>
 </div>
 
 <h2>dashboards</h2>

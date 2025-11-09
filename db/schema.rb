@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_01_060323) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_08_181854) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -222,6 +222,34 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_01_060323) do
     t.decimal "usd_cost"
   end
 
+  create_table "shop_orders", force: :cascade do |t|
+    t.string "aasm_state"
+    t.datetime "awaiting_periodical_fulfillment_at"
+    t.datetime "created_at", null: false
+    t.string "external_ref"
+    t.jsonb "frozen_address"
+    t.decimal "frozen_item_price", precision: 6, scale: 2
+    t.datetime "fulfilled_at"
+    t.string "fulfilled_by"
+    t.decimal "fulfillment_cost", precision: 6, scale: 2, default: "0.0"
+    t.text "internal_notes"
+    t.datetime "on_hold_at"
+    t.integer "quantity"
+    t.datetime "rejected_at"
+    t.string "rejection_reason"
+    t.bigint "shop_card_grant_id"
+    t.bigint "shop_item_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.bigint "warehouse_package_id"
+    t.index ["shop_item_id", "aasm_state", "quantity"], name: "idx_shop_orders_item_state_qty"
+    t.index ["shop_item_id", "aasm_state"], name: "idx_shop_orders_stock_calc"
+    t.index ["shop_item_id"], name: "index_shop_orders_on_shop_item_id"
+    t.index ["user_id", "shop_item_id", "aasm_state"], name: "idx_shop_orders_user_item_state"
+    t.index ["user_id", "shop_item_id"], name: "idx_shop_orders_user_item_unique"
+    t.index ["user_id"], name: "index_shop_orders_on_user_id"
+  end
+
   create_table "user_hackatime_projects", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -286,6 +314,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_01_060323) do
   add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
+  add_foreign_key "shop_orders", "shop_items"
+  add_foreign_key "shop_orders", "users"
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"

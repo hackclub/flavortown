@@ -62,6 +62,7 @@ Rails.application.routes.draw do
     get "manage-shop", to: "shop#index"
     post "shop/clear-carousel-cache", to: "shop#clear_carousel_cache", as: :clear_carousel_cache
     resources :shop_items, only: [ :new, :create, :show, :edit, :update, :destroy ]
+    resources :audit_logs, only: [ :index, :show ]
   end
 
   # Project Ideas

@@ -26,4 +26,7 @@ class AdminPolicy < ApplicationPolicy
     def manage_shop?
       user&.admin?
     end
+    def access_audit_logs?
+      user&.admin?
+    end
 end

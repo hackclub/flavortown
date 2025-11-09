@@ -25,6 +25,19 @@ class Admin::UsersController < Admin::ApplicationController
     def show
       @user = User.find(params[:id])
       @current_user = current_user
+      
+      # Get role assignment history from audit logs
+      all_role_versions = PaperTrail::Version
+        .where(item_type: "User::RoleAssignment")
+        .order(created_at: :desc)
+        .limit(100)
+      
+      # Filter to only this user's role changes
+      @role_history = all_role_versions.select do |v|
+        changes = YAML.load(v.object_changes) rescue {}
+        user_id_change = changes["user_id"]
+        user_id_change.is_a?(Array) ? user_id_change.include?(@user.id) : user_id_change == @user.id
+      end.take(20)
     end
 
     def user_perms
@@ -40,6 +53,14 @@ class Admin::UsersController < Admin::ApplicationController
     if role && !@user.roles.include?(role)
     @user.roles << role
     flash[:notice] = "User promoted to #{role_name}."
+    PaperTrail.request(whodunnit: current_user.id) do
+    PaperTrail::Version.create!(
+      item_type: 'User::RoleAssignment',
+      item_id: role_assignment.id,
+      event: 'create',
+      object_changes: { user_id: [nil, 123], role_id: [nil, 2] }.to_yaml
+    )
+end
     else
     flash[:alert] = "Unable to promote user to #{role_name}."
     end
