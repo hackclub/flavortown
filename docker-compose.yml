@@ -2,7 +2,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: dev.Dockerfile
     command: bin/dev
     ports:
       - "3000:3000"
