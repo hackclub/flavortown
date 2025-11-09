@@ -1,6 +1,6 @@
 class AdminPolicy < ApplicationPolicy
     def blazer?
-      user.try(:admin?)
+      user.try(:admin?) || user.try(:fraud_dept?)
     end
 
     def flipper?
@@ -14,6 +14,9 @@ class AdminPolicy < ApplicationPolicy
     end
     def access_admin_endpoints?
       user&.admin? || user&.fraud_dept?
+    end
+    def access_admin_endpoints_but_ac_admin?
+      user&.admin?
     end
 
     def user_promotion_perms?

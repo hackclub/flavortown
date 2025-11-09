@@ -181,7 +181,8 @@ class ShopOrder < ApplicationRecord
 
   def create_negative_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
-
+    return unless user.respond_to?(:payouts)
+    
     user.payouts.create!(
       amount: -total_cost,
       payable: self,
@@ -192,6 +193,7 @@ class ShopOrder < ApplicationRecord
   def create_refund_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
     return if refund_payout_exists?
+    return unless user.respond_to?(:payouts)
 
     user.payouts.create!(
       amount: total_cost,
