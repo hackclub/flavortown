@@ -17,7 +17,14 @@
 
       <ul class="sidebar__nav-list">
         <% sidebar_nav_items.each do |item| %>
-          <% active = item[:path] != "#" && current_page?(item[:path]) %>
+          <% candidate_path = item[:path] %>
+          <% active = if candidate_path == "#"
+                        false
+                      else
+                        current_page?(candidate_path) ||
+                          request.path == candidate_path ||
+                          request.path.start_with?("#{candidate_path}/")
+                      end %>
           <% link_classes = ["sidebar__nav-link", ("sidebar__nav-link--active" if active)].compact.join(" ") %>
 
           <li class="sidebar__nav-item">
