@@ -66,6 +66,16 @@
       line-height: var(--line-height-body);
       padding-top: var(--space-m);
     }
+
+    &--select {
+      appearance: none;
+      padding-right: calc(var(--space-xxl) * 1.1);
+      cursor: pointer;
+      background-image: url("icons/chevron-down.svg");
+      background-repeat: no-repeat;
+      background-position: right var(--space-m) center;
+      background-size: 1.75rem 1.5rem;
+    }
   }
 
   &__subtitle {
