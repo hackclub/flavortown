@@ -42,9 +42,9 @@
 #
 class ShopItem < ApplicationRecord
   has_paper_trail
-  
+
   include Shop::Regionalizable
-  
+
   MANUAL_FULFILLMENT_TYPES = [
     "ShopItem::HCBGrant",
     "ShopItem::HCBPreauthGrant",

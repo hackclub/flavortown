@@ -10,7 +10,7 @@
 #
 class Role < ApplicationRecord
     has_paper_trail
-    
+
     has_many :role_assignments, class_name: "User::RoleAssignment", dependent: :restrict_with_error
     has_many :users, through: :role_assignments
 

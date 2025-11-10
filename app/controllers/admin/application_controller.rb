@@ -34,7 +34,7 @@ module Admin
       flash[:alert] = "You are not authorized to perform this action."
       redirect_to(request.referrer || root_path)
     end
-    
+
     # Track who makes changes in PaperTrail
     def user_for_paper_trail
       current_user&.id

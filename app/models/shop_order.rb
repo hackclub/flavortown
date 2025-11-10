@@ -49,7 +49,7 @@ class ShopOrder < ApplicationRecord
 
   # has_many :payouts, as: :payable, dependent: :destroy
 
-  # Encrypt frozen_address using Lockbox  
+  # Encrypt frozen_address using Lockbox
   has_encrypted :frozen_address, type: :json
 
   validates :quantity, presence: true, numericality: { only_integer: true, greater_than: 0 }, on: :create
@@ -57,7 +57,7 @@ class ShopOrder < ApplicationRecord
   validate :check_max_quantity_limit, on: :create
   validate :check_user_balance, on: :create
   validate :check_regional_availability, on: :create
-  
+
   after_create :create_negative_payout
   before_create :freeze_item_price
 
@@ -73,7 +73,7 @@ class ShopOrder < ApplicationRecord
   def can_view_address?(current_user)
     return false unless current_user
     return true if current_user.admin?
-    
+
     # Fulfillment person can only see addresses in their region
     if current_user.fulfillment_person? && frozen_address.present?
       order_region = Shop::Regionalizable.country_to_region(frozen_address["country"])
@@ -81,27 +81,27 @@ class ShopOrder < ApplicationRecord
       # You can add user region preferences later
       return true
     end
-    
+
     false
   end
 
   def decrypted_address_for(current_user)
     return nil unless can_view_address?(current_user)
-    
+
     # Log the access
     PaperTrail::Version.create!(
-      item_type: 'ShopOrder',
+      item_type: "ShopOrder",
       item_id: id,
-      event: 'address_access',
+      event: "address_access",
       whodunnit: current_user.id,
-      object_changes: { 
+      object_changes: {
         accessed_at: Time.current,
         user_id: current_user.id,
         order_id: id,
-        reason: 'address_decryption'
+        reason: "address_decryption"
       }.to_yaml
     )
-    
+
     frozen_address
   end
 
@@ -220,7 +220,7 @@ class ShopOrder < ApplicationRecord
   def create_negative_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
     return unless user.respond_to?(:payouts)
-    
+
     user.payouts.create!(
       amount: -total_cost,
       payable: self,

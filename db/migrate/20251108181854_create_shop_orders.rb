@@ -28,9 +28,9 @@ class CreateShopOrders < ActiveRecord::Migration[8.1]
     end
 
     # Indexes for performance
-    add_index :shop_orders, [:shop_item_id, :aasm_state], name: "idx_shop_orders_stock_calc"
-    add_index :shop_orders, [:shop_item_id, :aasm_state, :quantity], name: "idx_shop_orders_item_state_qty"
-    add_index :shop_orders, [:user_id, :shop_item_id], name: "idx_shop_orders_user_item_unique"
-    add_index :shop_orders, [:user_id, :shop_item_id, :aasm_state], name: "idx_shop_orders_user_item_state"
+    add_index :shop_orders, [ :shop_item_id, :aasm_state ], name: "idx_shop_orders_stock_calc"
+    add_index :shop_orders, [ :shop_item_id, :aasm_state, :quantity ], name: "idx_shop_orders_item_state_qty"
+    add_index :shop_orders, [ :user_id, :shop_item_id ], name: "idx_shop_orders_user_item_unique"
+    add_index :shop_orders, [ :user_id, :shop_item_id, :aasm_state ], name: "idx_shop_orders_user_item_state"
   end
 end

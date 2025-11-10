@@ -6,7 +6,7 @@ Rails.application.config.to_prepare do
 
     def check_creator_permission
       return unless %w[new create edit update destroy].include?(action_name)
-      
+
       user = User.find_by(id: session[:user_id])
       unless user&.admin?
         flash[:alert] = "Only admins can create, edit, or delete queries."
