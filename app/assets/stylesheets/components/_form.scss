@@ -1,228 +1,227 @@
 // Form Component Styles using variables
 
 .form-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: var(--space-xl);
-    background-color: var(--color-bg);
-    border-radius: var(--border-radius);
-    border: solid 5px var(--color-brown-500);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1),
-                0 8px 16px rgba(0, 0, 0, 0.05);
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-xl);
+  background-color: var(--color-bg);
+  border-radius: var(--border-radius);
+  border: solid 5px var(--color-brown-500);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1),
+    0 8px 16px rgba(0, 0, 0, 0.05);
+}
+
+.form-header {
+  margin-bottom: var(--space-xl);
+
+  h1 {
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-xxxl);
+    color: var(--color-text-header);
+    margin: 0 0 var(--space-xs);
   }
-  
-  .form-header {
-    margin-bottom: var(--space-xl);
-  
-    h1 {
-      font-family: var(--font-family-jua);
-      font-size: var(--font-size-xxxl);
-      color: var(--color-text-header);
-      margin: 0 0 var(--space-xs);
-    }
-  
-    p {
-      font-family: var(--font-family-sans);
-      font-size: var(--font-size-m);
-      color: var(--color-text-muted);
-      margin: 0;
-    }
+
+  p {
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-m);
+    color: var(--color-text-muted);
+    margin: 0;
   }
-  
-  .form-group {
-    margin-bottom: var(--space-l);
-  
-    label {
-      display: block;
-      font-family: var(--font-family-jua);
-      font-size: var(--font-size-m);
-      color: var(--color-text-header);
-      margin-bottom: var(--space-xs);
-      font-weight: normal;
-    }
-  
-    .form-help-text {
-      font-family: var(--font-family-sans);
-      font-size: var(--font-size-s);
-      color: var(--color-text-muted);
-      margin-top: var(--space-xxs);
-      line-height: var(--line-height-body);
-    }
-  }
-  
-  .form-field {
+}
+
+.form-group {
+  margin-bottom: var(--space-l);
+
+  label {
     display: block;
-    width: 100%;
-    padding: var(--space-s) var(--space-m);
-    border-radius: var(--border-radius);
-    border: solid 2px var(--color-brown-500);
     font-family: var(--font-family-jua);
     font-size: var(--font-size-m);
-    color: var(--color-text-body);
-    background-color: var(--color-bg);
-    outline: none;
-    transition: border-color 200ms, box-shadow 200ms;
-  
-    &::placeholder {
-      color: var(--color-text-muted);
-      opacity: 0.7;
-    }
-  
-    &:focus {
-      border-color: var(--color-brown-400);
-      box-shadow: 0 0 0 3px rgba(7, 30%, 37%, 0.1);
-    }
-  
-    &--textarea {
-      min-height: 120px;
-      resize: vertical;
-      font-family: var(--font-family-jua);
-      line-height: var(--line-height-body);
-    }
+    color: var(--color-text-header);
+    margin-bottom: var(--space-xs);
+    font-weight: normal;
   }
-  
-  // File upload area
-  .file-upload-area {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 200px;
-    padding: var(--space-xl);
-    border: dashed 3px var(--color-brown-500);
-    border-radius: var(--border-radius);
-    background-color: var(--color-bg);
+
+  .form-help-text {
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-s);
+    color: var(--color-text-muted);
+    margin-top: var(--space-xxs);
+    line-height: var(--line-height-body);
+  }
+}
+
+.form-field {
+  display: block;
+  width: 100%;
+  padding: var(--space-s) var(--space-m);
+  border-radius: var(--border-radius);
+  border: solid 2px var(--color-brown-500);
+  font-family: var(--font-family-jua);
+  font-size: var(--font-size-m);
+  color: var(--color-text-body);
+  background-color: var(--color-bg);
+  outline: none;
+  transition: border-color 200ms, box-shadow 200ms;
+
+  &::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.7;
+  }
+
+  &:focus {
+    border-color: var(--color-brown-400);
+    box-shadow: 0 0 0 3px rgba(7, 30%, 37%, 0.1);
+  }
+
+  &--textarea {
+    min-height: 120px;
+    resize: vertical;
+    font-family: var(--font-family-jua);
+    line-height: var(--line-height-body);
+  }
+}
+
+// File upload area
+.file-upload-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: var(--space-xl);
+  border: dashed 3px var(--color-brown-500);
+  border-radius: var(--border-radius);
+  background-color: var(--color-bg);
+  cursor: pointer;
+  transition: border-color 200ms, background-color 200ms;
+
+  &:hover,
+  &.dragover {
+    border-color: var(--color-brown-400);
+    background-color: hsla(7, 30%, 37%, 0.02);
+  }
+
+  &.has-file {
+    border-style: solid;
+    border-color: var(--color-brown-400);
+  }
+
+  input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
     cursor: pointer;
-    transition: border-color 200ms, background-color 200ms;
-  
-    &:hover,
-    &.dragover {
-      border-color: var(--color-brown-400);
-      background-color: hsla(7, 30%, 37%, 0.02);
-    }
-  
-    &.has-file {
-      border-style: solid;
-      border-color: var(--color-brown-400);
-    }
-  
-    input[type="file"] {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-    }
-  
-    .file-upload-content {
-      text-align: center;
-      pointer-events: none;
-      z-index: 1;
-  
-      .file-upload-text {
-        font-family: var(--font-family-jua);
-        font-size: var(--font-size-l);
-        color: var(--color-text-muted);
-      }
-  
-      .file-upload-preview {
-        margin-top: var(--space-m);
-        max-width: 100%;
-        max-height: 300px;
-        border-radius: var(--border-radius);
-        border: solid 2px var(--color-brown-500);
-      }
-    }
+    top: 0;
+    left: 0;
   }
-  
-  // Checkbox styling
-  .form-checkbox {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-s);
-    margin-bottom: var(--space-l);
-  
-    input[type="checkbox"] {
-      width: 1.25rem;
-      height: 1.25rem;
-      margin-top: 0.125rem;
-      cursor: pointer;
-      accent-color: var(--color-brown-500);
-      flex-shrink: 0;
-    }
-  
-    label {
-      font-family: var(--font-family-sans);
-      font-size: var(--font-size-m);
-      color: var(--color-text-body);
-      line-height: var(--line-height-body);
-      cursor: pointer;
-      margin: 0;
-    }
-  }
-  
-  // Form actions (buttons)
-  .form-actions {
-    display: flex;
-    gap: var(--space-m);
-    justify-content: flex-end;
-    margin-top: var(--space-xxl);
-    padding-top: var(--space-l);
-    border-top: solid 2px var(--color-brown-500);
-  
-    @media (max-width: 768px) {
-      flex-direction: column-reverse;
-  
-      .btn {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-  }
-  
-  // Error messages
-  .form-errors {
-    margin-bottom: var(--space-l);
-    padding: var(--space-m);
-    background-color: rgba(356, 49%, 43%, 0.1);
-    border: solid 2px var(--color-red-500);
-    border-radius: var(--border-radius);
-  
-    h3 {
+
+  .file-upload-content {
+    text-align: center;
+    pointer-events: none;
+    z-index: 1;
+
+    .file-upload-text {
       font-family: var(--font-family-jua);
-      font-size: var(--font-size-m);
-      color: var(--color-red-500);
-      margin: 0 0 var(--space-xs);
+      font-size: var(--font-size-l);
+      color: var(--color-text-muted);
     }
-  
-    ul {
-      margin: 0;
-      padding-left: var(--space-l);
-      font-family: var(--font-family-sans);
-      font-size: var(--font-size-s);
-      color: var(--color-red-500);
-    }
-  }
-  
-  // Field errors
-  .field-with-errors {
-    .form-field {
-      border-color: var(--color-red-500);
-  
-      &:focus {
-        border-color: var(--color-red-400);
-        box-shadow: 0 0 0 3px rgba(356, 49%, 43%, 0.1);
-      }
-    }
-  
-    .field-error {
-      display: block;
-      margin-top: var(--space-xxs);
-      font-family: var(--font-family-sans);
-      font-size: var(--font-size-s);
-      color: var(--color-red-500);
+
+    .file-upload-preview {
+      margin-top: var(--space-m);
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: var(--border-radius);
+      border: solid 2px var(--color-brown-500);
     }
   }
-  
+}
+
+// Checkbox styling
+.form-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
+  margin-bottom: var(--space-l);
+
+  input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.125rem;
+    cursor: pointer;
+    accent-color: var(--color-brown-500);
+    flex-shrink: 0;
+  }
+
+  label {
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-m);
+    color: var(--color-text-body);
+    line-height: var(--line-height-body);
+    cursor: pointer;
+    margin: 0;
+  }
+}
+
+// Form actions (buttons)
+.form-actions {
+  display: flex;
+  gap: var(--space-m);
+  justify-content: flex-end;
+  margin-top: var(--space-xxl);
+  padding-top: var(--space-l);
+  border-top: solid 2px var(--color-brown-500);
+
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+// Error messages
+.form-errors {
+  margin-bottom: var(--space-l);
+  padding: var(--space-m);
+  background-color: rgba(356, 49%, 43%, 0.1);
+  border: solid 2px var(--color-red-500);
+  border-radius: var(--border-radius);
+
+  h3 {
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-m);
+    color: var(--color-red-500);
+    margin: 0 0 var(--space-xs);
+  }
+
+  ul {
+    margin: 0;
+    padding-left: var(--space-l);
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-s);
+    color: var(--color-red-500);
+  }
+}
+
+// Field errors
+.field-with-errors {
+  .form-field {
+    border-color: var(--color-red-500);
+
+    &:focus {
+      border-color: var(--color-red-400);
+      box-shadow: 0 0 0 3px rgba(356, 49%, 43%, 0.1);
+    }
+  }
+
+  .field-error {
+    display: block;
+    margin-top: var(--space-xxs);
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-s);
+    color: var(--color-red-500);
+  }
+}
