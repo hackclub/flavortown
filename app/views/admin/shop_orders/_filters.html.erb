@@ -1,0 +1,59 @@
+<div class="card" style="margin-bottom: 2em;">
+  <h3>Filters & Search</h3>
+  <%= form_with url: admin_shop_orders_path, method: :get, local: true do |f| %>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1em; margin-bottom: 1em;">
+      <div>
+        <%= f.label :user_search, "User (name/email)" %>
+        <%= f.text_field :user_search, value: params[:user_search], placeholder: "Search users", class: "form-control" %>
+      </div>
+
+      <div>
+        <%= f.label :shop_item_id, "Item" %>
+        <%= f.select :shop_item_id, options_from_collection_for_select(ShopItem.order(:name), :id, :name, params[:shop_item_id]),
+            { prompt: "All items" }, { class: "form-control" } %>
+      </div>
+
+      <div>
+        <%= f.label :status, "Status" %>
+        <%= f.select :status, options_for_select([
+            ['All statuses', ''],
+            ['Pending', 'pending'],
+            ['Awaiting Fulfillment', 'awaiting_periodical_fulfillment'],
+            ['Fulfilled', 'fulfilled'],
+            ['Rejected', 'rejected'],
+            ['On Hold', 'on_hold']
+          ], params[:status]), {}, { class: "form-control" } %>
+      </div>
+
+      <div>
+        <%= f.label :date_from, "From" %>
+        <%= f.date_field :date_from, value: params[:date_from], class: "form-control" %>
+      </div>
+
+      <div>
+        <%= f.label :date_to, "To" %>
+        <%= f.date_field :date_to, value: params[:date_to], class: "form-control" %>
+      </div>
+
+      <div>
+        <%= f.label :sort, "Sort by" %>
+        <%= f.select :sort, options_for_select([
+            ['Created (newest)', 'created_at_desc'],
+            ['Created (oldest)', 'created_at_asc'],
+            ['ID (desc)', 'id_desc'],
+            ['ID (asc)', 'id_asc'],
+            ['Tickets (high)', 'shells_desc'],
+            ['Tickets (low)', 'shells_asc']
+          ], params[:sort] || 'created_at_desc'), {}, { class: "form-control" } %>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 1em;">
+      <%= f.submit "Apply Filters", class: "btn-primary slim" %>
+      <%= link_to "Clear All", admin_shop_orders_path(view: params[:view]), class: "btn-secondary slim" %>
+    </div>
+
+    <%= f.hidden_field :goob, value: params[:goob] if params[:goob] %>
+    <%= f.hidden_field :view, value: params[:view] if params[:view] %>
+  <% end %>
+</div>

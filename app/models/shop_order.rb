@@ -6,7 +6,6 @@
 #  aasm_state                         :string
 #  awaiting_periodical_fulfillment_at :datetime
 #  external_ref                       :string
-#  frozen_address                     :jsonb
 #  frozen_address_ciphertext          :text
 #  frozen_item_price                  :decimal(6, 2)
 #  fulfilled_at                       :datetime

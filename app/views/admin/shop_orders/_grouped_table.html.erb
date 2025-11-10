@@ -1,0 +1,56 @@
+<% grouped_orders.each do |group| %>
+  <div class="card" style="margin-bottom: 2em;">
+    <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1em; margin-bottom: 1em;">
+      <h3 style="margin: 0;">
+        <%= link_to group[:user].display_name || "Unknown", admin_user_path(group[:user]) %>
+      </h3>
+      <div style="margin-top: 0.5em; color: #6b7280;">
+        <%= group[:user].email %>
+      </div>
+      <div style="margin-top: 0.5em; display: flex; gap: 0.5em;">
+        <span class="badge"><%= pluralize(group[:orders].count, 'order') %></span>
+        <span class="badge"><%= pluralize(group[:total_items], 'item') %></span>
+        <span class="badge"><%= group[:total_shells] %> tickets</span>
+      </div>
+      <% if group[:address].present? %>
+        <div style="margin-top: 0.5em; font-size: 0.9em;">
+          <%= group[:address]["name"] %> @
+          <%= group[:address]["city"] %>, <%= group[:address]["state"] %>, <%= group[:address]["country"] %>
+        </div>
+      <% end %>
+    </div>
+    
+    <table class="table-data">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Item</th>
+          <th>Qty</th>
+          <th>Tickets</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% group[:orders].each do |order| %>
+          <tr>
+            <td>#<%= order.id %></td>
+            <td><%= order.shop_item.name %></td>
+            <td><%= order.quantity %></td>
+            <td><%= order.total_cost %></td>
+            <td>
+              <span class="badge badge-<%= order.aasm_state %>">
+                <%= order.aasm_state.humanize %>
+              </span>
+            </td>
+            <td><%= order.created_at.strftime("%b %d, %Y") %></td>
+            <td>
+              <%= link_to "Inspect", admin_shop_order_path(order), class: "btn-primary slim" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

@@ -2,8 +2,29 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   def index
     authorize :admin, :shop_orders?
     
+    # Determine view mode
+    @view = params[:view] || 'shop_orders'
+    
+    # Check authorization for fulfillment view
+    if @view == 'fulfillment'
+      unless current_user.admin? || current_user.fulfillment_person?
+        flash[:alert] = "You don't have permission to access fulfillment view"
+        redirect_to admin_shop_orders_path(view: 'shop_orders') and return
+      end
+    end
+    
     # Base query
     orders = ShopOrder.includes(:shop_item, :user)
+    
+    # Apply view-specific scopes
+    case @view
+    when 'shop_orders'
+      # Show pending, rejected, on_hold
+      orders = orders.where(aasm_state: %w[pending rejected on_hold])
+    when 'fulfillment'
+      # Show awaiting_periodical_fulfillment and fulfilled
+      orders = orders.where(aasm_state: %w[awaiting_periodical_fulfillment fulfilled])
+    end
     
     # Apply filters
     orders = orders.where(shop_item_id: params[:shop_item_id]) if params[:shop_item_id].present?
@@ -16,17 +37,14 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       orders = orders.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ?", search, search)
     end
     
-    if params[:country].present?
-      orders = orders.where("frozen_address->>'country' ILIKE ?", "%#{params[:country]}%")
-    end
-    
     # Calculate stats
     stats_orders = orders
     @c = {
       pending: stats_orders.where(aasm_state: 'pending').count,
       awaiting_fulfillment: stats_orders.where(aasm_state: 'awaiting_periodical_fulfillment').count,
       fulfilled: stats_orders.where(aasm_state: 'fulfilled').count,
-      rejected: stats_orders.where(aasm_state: 'rejected').count
+      rejected: stats_orders.where(aasm_state: 'rejected').count,
+      on_hold: stats_orders.where(aasm_state: 'on_hold').count
     }
     
     # Calculate average times
@@ -59,7 +77,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           orders: user_orders,
           total_items: user_orders.sum(&:quantity),
           total_shells: user_orders.sum { |o| o.total_cost || 0 },
-          address: user_orders.first&.frozen_address
+          address: user_orders.first&.decrypted_address_for(current_user)
         }
       end
     else

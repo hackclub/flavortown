@@ -3,7 +3,7 @@ class ProjectsController < ApplicationController
   before_action :set_project, only: [ :show ]
 
   def index
-    @projects = current_user.projects.with_attached_banner
+    @projects = current_user.projects.includes(banner_attachment: :blob)
 
     authorize Project
   end
