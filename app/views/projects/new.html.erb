@@ -1,8 +1,41 @@
-<div class="">
-  <div class="">
-  <%= render(HeadingComponent.new(title: "Create a new Project", tone: :brown)) %>
-<div class="input input--red">
-  <label class="input__label">Label</label>
-  <input class="input__field" type="text" placeholder="Default">
-</div>
+<div class="projects-new">
+  <div class="projects-new__container">
+    <%= render(HeadingComponent.new(title: "Create a new Project", tone: :brown)) %>
+
+    <%= form_with(model: @project, class: "projects-new__form", local: true) do |form| %>
+      <div class="projects-new__card">
+        <div class="projects-new__field projects-new__field--title">
+          <%= render(
+                InputComponent.new(
+                  label: "Project Title",
+                  placeholder: "Give your project a name",
+                  form: form,
+                  attribute: :title,
+                  color: :yellow,
+                  subtitle: "A clear title helps people find your work."
+                )
+              ) %>
+        </div>
+
+        <div class="projects-new__field projects-new__field--description">
+          <%= render(
+                InputComponent.new(
+                  label: "Description",
+                  placeholder: "Share what the project does, who's working on it, and what's next.",
+                  form: form,
+                  attribute: :description,
+                  color: :red,
+                  as: :textarea,
+                  input_html: { rows: 4 },
+                  subtitle: "Use a few sentences to explain what you’re making."
+                )
+              ) %>
+        </div>
+      </div>
+
+      <div class="projects-new__actions">
+        <%= form.submit "Create Project", class: "btn btn--yellow" %>
+      </div>
+    <% end %>
+  </div>
 </div>
