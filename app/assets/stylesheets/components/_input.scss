@@ -42,7 +42,7 @@
   }
 
   &__field {
-    padding: var(--space-s) var(--space-s);
+    padding: var(--space-m) var(--space-m);
     border-radius: calc(var(--border-radius) * 0.8);
     border: none;
     background-color: var(--color-bg);
@@ -61,7 +61,7 @@
     }
 
     &--textarea {
-      min-height: 8rem;
+      min-height: 10rem;
       resize: vertical;
       line-height: var(--line-height-body);
       padding-top: var(--space-m);

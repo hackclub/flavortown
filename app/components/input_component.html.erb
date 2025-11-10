@@ -1,6 +1,6 @@
 <div class="<%= input_classes %>">
   <label class="input__label"><%= label %></label>
-  <input type="text" class="input__field" placeholder="<%= placeholder %>">
+  <%= field_tag %>
   <% if has_subtitle? %>
     <div class="input__subtitle"><%= subtitle %></div>
   <% end %>
