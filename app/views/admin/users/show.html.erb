@@ -102,7 +102,7 @@
       </thead>
       <tbody>
         <% @role_history.each do |version| %>
-          <% 
+          <%
             changes = YAML.load(version.object_changes) rescue {}
             # For create: [nil, 5], for destroy: [5, nil] - we want the non-nil value
             role_id_array = changes["role_id"]
@@ -111,7 +111,7 @@
             else
               role_id_array
             end
-            
+
             role = Role.find_by(id: role_id) if role_id
             admin = User.find_by(id: version.whodunnit)
           %>
@@ -145,7 +145,7 @@
         <% end %>
       </tbody>
     </table>
-    
+
     <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User::RoleAssignment", whodunnit: @user.id), class: "btn-secondary", style: "margin-top: 1rem; display: inline-block;" %>
   </div>
 <% end %>

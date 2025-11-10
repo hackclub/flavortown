@@ -2,7 +2,7 @@
 
 <div class="card">
   <h2>Event Information</h2>
-  
+
   <div class="info-rows">
     <div><b>Timestamp:</b> <%= @version.created_at.strftime("%Y-%m-%d %H:%M:%S %Z") %></div>
     <div>
@@ -33,7 +33,7 @@
 <% if @version.object_changes.present? %>
   <div class="card">
     <h2>Changes</h2>
-    
+
     <table>
       <thead>
         <tr>
@@ -43,7 +43,7 @@
         </tr>
       </thead>
       <tbody>
-        <% changes = YAML.load(@version.object_changes) rescue {} %>
+        <% changes = YAML.safe_load(@version.object_changes, permitted_classes: [Symbol, Time, Date, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]) rescue {} %>
         <% changes.each do |field, values| %>
           <tr>
             <td><strong><%= field.to_s.humanize %></strong></td>
@@ -71,8 +71,8 @@
 <% if @version.object.present? %>
   <div class="card">
     <h2>Previous State (Before Change)</h2>
-    
-    <pre style="background: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 6px; overflow-x: auto;"><%= JSON.pretty_generate(YAML.load(@version.object)) rescue @version.object %></pre>
+
+    <pre style="background: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 6px; overflow-x: auto;"><%= JSON.pretty_generate(YAML.safe_load(@version.object, permitted_classes: [Symbol, Time, Date, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone])) rescue @version.object %></pre>
   </div>
 <% end %>
 

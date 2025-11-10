@@ -253,13 +253,13 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label">Estimated Tickets</label>
-                <input type="text" id="estimated_tickets" class="form-control readonly-field" readonly>
+                <input type="text" id="estimated_tickets" class="form-control readonly-field" readonly autocomplete="off">
               </div>
             </div>
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label">Average Hours Estimated</label>
-                <input type="text" id="average_hours_estimated" class="form-control readonly-field" readonly>
+                <input type="text" id="average_hours_estimated" class="form-control readonly-field" readonly autocomplete="off">
               </div>
             </div>
           </div>
@@ -389,14 +389,14 @@
                 </td>
                 <td>
                   <div class="input-group input-group-sm">
-                    <input type="number" step="0.1" class="form-control delta-hours-input" data-region="<%= code.downcase %>" placeholder="0.0">
+                    <input type="number" step="0.1" class="form-control delta-hours-input" data-region="<%= code.downcase %>" placeholder="0.0" autocomplete="off">
                     <span class="input-group-text">hrs</span>
                   </div>
                 </td>
                 <td>
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">$</span>
-                    <input type="number" step="0.01" class="form-control delta-dollars-input" data-region="<%= code.downcase %>" placeholder="0.00">
+                    <input type="number" step="0.01" class="form-control delta-dollars-input" data-region="<%= code.downcase %>" placeholder="0.00" autocomplete="off">
                   </div>
                 </td>
                 <td>

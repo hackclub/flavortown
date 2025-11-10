@@ -56,10 +56,10 @@
         <p style="margin: 0 0 1em 0; color: #374151;">
           🔒 Address is encrypted. Click below to decrypt and view.
         </p>
-        <%= button_to "Reveal Address", reveal_address_admin_shop_order_path(@order), 
+        <%= button_to "Reveal Address", reveal_address_admin_shop_order_path(@order),
             method: :post,
             class: "btn-primary",
-            data: { 
+            data: {
               turbo_frame: "address-content",
               turbo_method: "post"
             } %>
