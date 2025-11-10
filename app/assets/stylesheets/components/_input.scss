@@ -1,103 +1,178 @@
-.input-wrapper {
-    position: relative;
-    display: block;
-
-    svg {
-      position: absolute;
-      left: var(--space-m);
-      bottom: var(--space-s);
-      width: 1.5rem;
-      height: 1.5rem;
-      pointer-events: none;
-    }
-
-    .input {
-      padding-left: calc(var(--space-m) * 2 + 1em);
-    }
-  }
-
 .input {
-    display: block;
-    width: 100%;
-    padding: var(--space-s) var(--space-m);
-    border-radius: var(--border-radius);
-    border: solid 5px transparent;
-    font-family: var(--font-family-jua);
-    font-size: var(--font-size-m);
-    outline: none;
-    transition: border-color 200ms, box-shadow 200ms;
-    background-color: white;
-
-    &::placeholder {
-      opacity: 0.7;
-    }
-
-    &--red {
-      border-color: var(--color-red-400);
-      color: var(--color-red-500);
-
-      &::placeholder {
-        color: var(--color-red-400);
-      }
-
-      &:focus {
-        border-color: var(--color-red-500);
-      }
-    }
-
-    &--green {
-      border-color: var(--color-green-400);
-      color: var(--color-green-500);
-
-      &::placeholder {
-        color: var(--color-green-400);
-      }
-
-      &:focus {
-        border-color: var(--color-green-500);
-      }
-    }
-
-    &--blue {
-      border-color: var(--color-blue-400);
-      color: var(--color-blue-500);
-
-      &::placeholder {
-        color: var(--color-blue-400);
-      }
-
-      &:focus {
-        border-color: var(--color-blue-500);
-      }
-    }
-
-    &--yellow {
-      border-color: var(--color-yellow-400);
-      color: var(--color-yellow-500);
-
-      &::placeholder {
-        color: var(--color-yellow-400);
-      }
-
-      &:focus {
-        border-color: var(--color-yellow-500);
-      }
-    }
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+  padding: var(--space-s) var(--space-s) var(--space-s);
+  overflow: visible;
   
+  /* CSS fuckery to help get the subtitle acc render below the wrapper*/
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: var(--border-radius);
+    background-image: url("mask/title.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  /* Label + the notch */
+  &__label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateY(-70%);
+    color: var(--color-bg);
+    font-size: var(--font-size-xl);
+    padding: var(--space-xs) var(--space-l);
+    border-top-left-radius: calc(var(--border-radius) * 0.8);
+    border-top-right-radius: calc(var(--border-radius) * 0.8);
+    pointer-events: none; 
+    background-image: url("mask/title.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
   }
 
-.input-wrapper--red svg {
-    color: var(--color-red-400);
+  &__field {
+    padding: var(--space-s) var(--space-s);
+    border-radius: calc(var(--border-radius) * 0.8);
+    border: none;
+    background-color: var(--color-bg);
+    font-size: var(--font-size-m);
+    color: var(--color-text-body);
+    outline: none;
+    box-shadow: 0 0 0 0px transparent;
+    transition: box-shadow 0.2s ease;
+    position: relative;
+    z-index: 2;
+    
+    &::placeholder {
+      color: var(--color-text-muted);
+      opacity: 0.75;
+    }
   }
 
-.input-wrapper--green svg {
-    color: var(--color-green-400);
+  &__subtitle {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(calc(100% - var(--space-m)));
+    padding: var(--space-m) var(--space-s) var(--space-xs);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-s);
+    z-index: 0;
   }
 
-.input-wrapper--blue svg {
-    color: var(--color-blue-400);
+  &--red {
+    &::before {
+      background-color: var(--color-red-400);
+    }
+
+    .input__label {
+      background-color: var(--color-red-400);
+    }
+
+    .input__subtitle {
+      background-color: var(--color-red-300);
+      color: var(--color-red-600);
+    }
+
+    .input__field {
+      &:focus {
+        box-shadow: 0 0 0 3px var(--color-red-500);
+      }
+
+      &::placeholder {
+        color: var(--color-red-500);
+        opacity: 0.75;
+      }
+    }
   }
 
-.input-wrapper--yellow svg {
-    color: var(--color-yellow-400);
+  &--blue {
+    &::before {
+      background-color: var(--color-blue-400);
+    }
+
+    .input__label {
+      background-color: var(--color-blue-400);
+    }
+
+    .input__subtitle {
+      background-color: var(--color-blue-300);
+      color: var(--color-blue-600);
+    }
+
+    .input__field {
+      &:focus {
+        box-shadow: 0 0 0 3px var(--color-blue-500);
+      }
+
+      &::placeholder {
+        color: var(--color-blue-500);
+        opacity: 0.75;
+      }
+    }
   }
+
+  &--green {
+    &::before {
+      background-color: var(--color-green-400);
+    }
+
+    .input__label {
+      background-color: var(--color-green-400);
+    }
+
+    .input__subtitle {
+      background-color: var(--color-green-300);
+      color: var(--color-green-600);
+    }
+
+    .input__field {
+      &:focus {
+        box-shadow: 0 0 0 3px var(--color-green-500);
+      }
+
+      &::placeholder {
+        color: var(--color-green-500);
+        opacity: 0.75;
+      }
+    }
+  }
+
+  &--yellow {
+    &::before {
+      background-color: var(--color-yellow-450);
+    }
+
+    .input__label {
+      background-color: var(--color-yellow-450);
+    }
+
+    .input__subtitle {
+      background-color: var(--color-yellow-400);
+      color: var(--color-yellow-600);
+    }
+
+    .input__field {
+      &:focus {
+        box-shadow: 0 0 0 3px var(--color-yellow-500);
+      }
+
+      &::placeholder {
+        color: var(--color-yellow-500);
+        opacity: 0.75;
+      }
+    }
+  }
+}
