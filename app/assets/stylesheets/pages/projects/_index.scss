@@ -1,0 +1,118 @@
+.projects-board {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    padding: var(--space-xl);
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__heading {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xxs);
+    }
+
+    &__title {
+        margin: 0;
+        font-family: var(--font-family-jua);
+        font-size: var(--font-size-xxxxl);
+        color: var(--color-brown-700);
+        line-height: var(--line-height-headers);
+    }
+
+    &__subtitle {
+        margin: 0;
+        font-family: var(--font-family-sans);
+        font-size: var(--font-size-l);
+        color: var(--color-brown-600);
+    }
+
+    &__grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-xl);
+        justify-content: flex-start;
+    }
+
+    &__grid-item {
+        display: flex;
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+
+    @media (min-width: 640px) {
+        &__grid-item {
+            flex: 0 1 22rem;
+            max-width: 22.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        &__grid-item {
+            flex: 0 1 30rem;
+            max-width: 30.5rem;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        &__grid-item {
+            flex: 0 1 37rem;
+            max-width: 37.5rem;
+        }
+    }
+
+    &__grid-item--create {
+        align-items: stretch;
+    }
+
+    &__create-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: var(--space-s);
+        width: 100%;
+        min-height: 23rem;
+        border-radius: calc(var(--border-radius) * 1.8);
+        background-color: hsla(7, 30%, 37%, 0.30);
+        color: var(--color-brown-500);
+        font-family: var(--font-family-jua);
+        font-size: var(--font-size-xl);
+        text-decoration: none;
+        overflow: hidden;
+        transition: transform 0.2s ease;
+      
+        &:hover,
+        &:focus-visible {
+          transform: translateY(-3px);
+        }
+      
+        &::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: url("/mask/create-project.webp") center/100% 100% no-repeat;
+          pointer-events: none;
+        }
+    }
+      
+
+    &__create-icon {
+        width: 3rem;
+        height: 3rem;
+        color: var(--color-brown-600);
+        flex-shrink: 0;
+        display: block;
+    }
+
+    &__create-label {
+        letter-spacing: 0.02em;
+    }
+
+}
+

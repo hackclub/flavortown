@@ -1,145 +1,41 @@
-<div class="project-create">
-  <div class="project-create__container">
-    <header class="project-create__intro">
-      <h1 class="project-create__title">Create a new project</h1>
-      <p class="project-create__subtitle">Beep boop beep</p>
-    </header>
+<div class="projects-new">
+  <div class="projects-new__container">
+    <%= render(HeadingComponent.new(title: "Create a new Project", tone: :brown)) %>
 
-    <%= form_with model: @project, local: true, multipart: true, id: "project_create_form", class: "project-create__form" do |form| %>
-      <% if @project.errors.any? %>
-        <div class="project-create__errors" role="alert">
-          <h2 class="project-create__errors-title"><%= pluralize(@project.errors.count, "error") %> prevented us from saving your project</h2>
-          <ul class="project-create__errors-list">
-            <% @project.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
+    <%= form_with(model: @project, class: "projects-new__form", local: true) do |form| %>
+      <div class="projects-new__card">
+        <div class="projects-new__field projects-new__field--title">
+          <%= render(
+                InputComponent.new(
+                  label: "Project Title",
+                  placeholder: "Give your project a name",
+                  form: form,
+                  attribute: :title,
+                  color: :yellow,
+                  subtitle: "A clear title helps people find your work."
+                )
+              ) %>
         </div>
-      <% end %>
 
-      <div class="project-create__field project-create__field--title">
-        <%= form.label :title, "Project title", class: "project-create__label" %>
-        <%= form.text_field :title, class: "input", placeholder: "Give your project a name" %>
-        <p class="project-create__hint">A clear title helps people find your work.</p>
-      </div>
-
-      <div class="project-create__field project-create__field--description">
-        <%= form.label :description, "Description", class: "project-create__label" %>
-        <%= form.text_area :description, class: "input project-create__textarea", rows: 8, placeholder: "Share what the project does, who's working on it, and what's next." %>
-        <p class="project-create__hint">Use a few sentences to explain what you're making.</p>
-      </div>
-
-      <div class="project-create__field project-create__field--banner">
-        <%= form.label :banner, "Banner image", class: "project-create__label" %>
-        <div class="project-create__upload" id="project-banner-upload">
-          <%= form.file_field :banner, accept: "image/*", class: "project-create__file-input" %>
-          <div class="project-create__upload-state">
-            <p class="project-create__upload-title">Drag an image here or click to browse</p>
-            <p class="project-create__hint">PNG/JPG/HEIC/etc (no gif) up to 5&nbsp;MB</p> 
-          </div>
-          <div class="project-create__upload-preview" aria-live="polite" hidden></div>
+        <div class="projects-new__field projects-new__field--description">
+          <%= render(
+                InputComponent.new(
+                  label: "Description",
+                  placeholder: "Share what the project does, who's working on it, and what's next.",
+                  form: form,
+                  attribute: :description,
+                  color: :red,
+                  as: :textarea,
+                  input_html: { rows: 4 },
+                  subtitle: "Use a few sentences to explain what you’re making."
+                )
+              ) %>
         </div>
       </div>
 
-      <section class="project-create__links" aria-labelledby="project-links-label">
-        <h2 id="project-links-label" class="project-create__section-title">Project links</h2>
-
-        <div class="project-create__field project-create__field--link">
-          <%= form.label :readme_url, "Readme link", class: "project-create__label" %>
-          <%= form.url_field :readme_url, class: "input", placeholder: "https://..." %>
-        </div>
-
-        <div class="project-create__field project-create__field--link">
-          <%= form.label :demo_url, "Demo link", class: "project-create__label" %>
-          <%= form.url_field :demo_url, class: "input", placeholder: "https://..." %>
-        </div>
-
-        <div class="project-create__field project-create__field--link">
-          <%= form.label :repo_url, "Repository", class: "project-create__label" %>
-          <%= form.url_field :repo_url, class: "input", placeholder: "https://..." %>
-        </div>
-      </section>
-
-      <div class="project-create__actions">
-        <%= link_to "Cancel", projects_path, class: "btn btn--red project-create__action" %>
-        <%= form.submit "Create Project", class: "btn btn--green project-create__action" %>
+      <div class="projects-new__actions">
+        <%= form.submit "Create Project", class: "btn btn--yellow" %>
       </div>
     <% end %>
   </div>
 </div>
-
-<script>
-  (function() {
-    const initialize = () => {
-      const uploadArea = document.getElementById('project-banner-upload');
-      if (!uploadArea || uploadArea.dataset.initialized === 'true') return;
-
-      uploadArea.dataset.initialized = 'true';
-      const fileInput = uploadArea.querySelector('input[type="file"]');
-      const previewContainer = uploadArea.querySelector('.project-create__upload-preview');
-      const stateContainer = uploadArea.querySelector('.project-create__upload-state');
-
-      const clearPreview = () => {
-        if (!previewContainer) return;
-        previewContainer.innerHTML = '';
-        previewContainer.hidden = true;
-        uploadArea.classList.remove('project-create__upload--has-file');
-        if (stateContainer) {
-          stateContainer.removeAttribute('aria-hidden');
-        }
-      };
-
-      const showPreview = (file) => {
-        if (!file || !previewContainer) return;
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const image = document.createElement('img');
-          image.src = event.target?.result || '';
-          image.alt = 'Selected banner preview';
-          previewContainer.innerHTML = '';
-          previewContainer.appendChild(image);
-          previewContainer.hidden = false;
-          uploadArea.classList.add('project-create__upload--has-file');
-          if (stateContainer) stateContainer.setAttribute('aria-hidden', 'true');
-        };
-        reader.readAsDataURL(file);
-      };
-
-      if (fileInput) {
-        fileInput.addEventListener('change', (event) => {
-          const file = event.target?.files?.[0];
-          if (file) {
-            showPreview(file);
-          } else {
-            clearPreview();
-          }
-        });
-
-        ['dragover', 'dragleave', 'drop'].forEach((type) => {
-          uploadArea.addEventListener(type, (event) => {
-            event.preventDefault();
-            if (type === 'dragover') {
-              uploadArea.classList.add('project-create__upload--dragging');
-            } else {
-              uploadArea.classList.remove('project-create__upload--dragging');
-            }
-          });
-        });
-
-        uploadArea.addEventListener('drop', (event) => {
-          const files = event.dataTransfer?.files;
-          if (files && files.length > 0) {
-            fileInput.files = files;
-            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-          } else {
-            clearPreview();
-          }
-        });
-      }
-    };
-
-    document.addEventListener('turbo:load', initialize);
-    document.addEventListener('DOMContentLoaded', initialize);
-  })();
-</script>
