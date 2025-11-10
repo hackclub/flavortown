@@ -84,6 +84,35 @@ end
     redirect_to admin_user_path(@user)
   end
 
+  def toggle_flipper
+    @user = User.find(params[:id])
+    feature = params[:feature].to_sym
+
+    if Flipper.enabled?(feature, @user)
+      Flipper.disable(feature, @user)
+      PaperTrail::Version.create!(
+        item_type: 'User',
+        item_id: @user.id,
+        event: 'flipper_disable',
+        whodunnit: current_user.id,
+        object_changes: { feature: [feature.to_s, nil], status: ['enabled', 'disabled'] }.to_yaml
+      )
+      flash[:notice] = "Disabled #{feature} for #{@user.display_name}."
+    else
+      Flipper.enable(feature, @user)
+      PaperTrail::Version.create!(
+        item_type: 'User',
+        item_id: @user.id,
+        event: 'flipper_enable',
+        whodunnit: current_user.id,
+        object_changes: { feature: [nil, feature.to_s], status: ['disabled', 'enabled'] }.to_yaml
+      )
+      flash[:notice] = "Enabled #{feature} for #{@user.display_name}."
+    end
+
+    redirect_to admin_user_path(@user)
+  end
+
     def user_not_authorized
       flash[:alert] = "You are not authorized to perform this action."
       redirect_to(request.referrer || root_path)

@@ -66,6 +66,26 @@
                     disabled: !current_user&.super_admin? %>
     </div>
   </div>
+  <div class="card">
+    <h2>flipper features</h2>
+    <div class="info-rows">
+      <% has_shop_open = Flipper.enabled?(:shop_open, @user) %>
+      <%= button_to (has_shop_open ? "Disable Shop" : "Enable Shop"),
+                    toggle_flipper_admin_user_path(@user),
+                    method: :post,
+                    params: { feature: "shop_open" },
+                    class: "btn-primary slim",
+                    disabled: !current_user&.admin? %>
+
+      <% has_admin_green = Flipper.enabled?(:admin_green, @user) %>
+      <%= button_to (has_admin_green ? "Disable Admin Green" : "Enable Admin Green"),
+                    toggle_flipper_admin_user_path(@user),
+                    method: :post,
+                    params: { feature: "admin_green" },
+                    class: "btn-primary slim",
+                    disabled: !current_user&.admin? %>
+    </div>
+  </div>
 </div>
 
 <% if @role_history.any? %>

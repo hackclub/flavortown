@@ -1,0 +1,265 @@
+<h1>Shop Orders</h1>
+
+<div class="card" style="margin-bottom: 2em;">
+  <h2>Statistics</h2>
+  <div style="display: flex; flex-wrap: wrap; gap: 0.5em; align-items: center; margin-bottom: 1.5em;">
+    <span class="badge badge-pending">Pending: <%= @c[:pending] %></span>
+    <span class="badge badge-awaiting_periodical_fulfillment">Awaiting Fulfillment: <%= @c[:awaiting_fulfillment] %></span>
+    <span class="badge badge-fulfilled">Fulfilled: <%= @c[:fulfilled] %></span>
+    <span class="badge badge-rejected">Rejected: <%= @c[:rejected] %></span>
+  </div>
+  
+  <% if @f %>
+    <div>
+      <strong>Average time from order to fulfilled:</strong>
+      <span style="font-family: monospace; font-weight: bold; <%= @f > 172800 ? 'color: #ef4444;' : '' %>">
+        <%= distance_of_time_in_words(@f) %>
+      </span>
+    </div>
+  <% end %>
+</div>
+
+<div style="margin-bottom: 2em;">
+  <% if params[:goob] == "true" %>
+    <%= link_to "Ungroup", admin_shop_orders_path(params.permit(:user_search, :shop_item_id, :status, :date_from, :date_to, :country, :sort).except(:goob)), class: "btn-secondary slim" %>
+  <% else %>
+    <%= link_to "Group by User", admin_shop_orders_path(params.permit(:user_search, :shop_item_id, :status, :date_from, :date_to, :country, :sort).merge(goob: true)), class: "btn-primary slim" %>
+  <% end %>
+</div>
+
+<div class="card" style="margin-bottom: 2em;">
+  <h3>Filters & Search</h3>
+  <%= form_with url: admin_shop_orders_path, method: :get, local: true do |f| %>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1em; margin-bottom: 1em;">
+      <div>
+        <%= f.label :user_search, "User (name/email)" %>
+        <%= f.text_field :user_search, value: params[:user_search], placeholder: "Search users", class: "form-control" %>
+      </div>
+
+      <div>
+        <%= f.label :shop_item_id, "Item" %>
+        <%= f.select :shop_item_id, options_from_collection_for_select(ShopItem.order(:name), :id, :name, params[:shop_item_id]),
+            { prompt: "All items" }, { class: "form-control" } %>
+      </div>
+
+      <div>
+        <%= f.label :status, "Status" %>
+        <%= f.select :status, options_for_select([
+            ['All statuses', ''],
+            ['Pending', 'pending'],
+            ['Awaiting Fulfillment', 'awaiting_periodical_fulfillment'],
+            ['Fulfilled', 'fulfilled'],
+            ['Rejected', 'rejected'],
+            ['On Hold', 'on_hold']
+          ], params[:status]), {}, { class: "form-control" } %>
+      </div>
+
+      <div>
+        <%= f.label :date_from, "From" %>
+        <%= f.date_field :date_from, value: params[:date_from], class: "form-control" %>
+      </div>
+
+      <div>
+        <%= f.label :date_to, "To" %>
+        <%= f.date_field :date_to, value: params[:date_to], class: "form-control" %>
+      </div>
+
+      <div>
+        <%= f.label :country, "Country" %>
+        <%= f.text_field :country, value: params[:country], placeholder: "US, UK, etc.", class: "form-control" %>
+      </div>
+
+      <div>
+        <%= f.label :sort, "Sort by" %>
+        <%= f.select :sort, options_for_select([
+            ['Created (newest)', 'created_at_desc'],
+            ['Created (oldest)', 'created_at_asc'],
+            ['ID (desc)', 'id_desc'],
+            ['ID (asc)', 'id_asc'],
+            ['Tickets (high)', 'shells_desc'],
+            ['Tickets (low)', 'shells_asc']
+          ], params[:sort] || 'created_at_desc'), {}, { class: "form-control" } %>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 1em;">
+      <%= f.submit "Apply Filters", class: "btn-primary slim" %>
+      <%= link_to "Clear All", admin_shop_orders_path, class: "btn-secondary slim" %>
+    </div>
+
+    <%= f.hidden_field :goob, value: params[:goob] if params[:goob] %>
+  <% end %>
+</div>
+
+<% if @grouped_orders %>
+  <% @grouped_orders.each do |group| %>
+    <div class="card" style="margin-bottom: 2em;">
+      <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1em; margin-bottom: 1em;">
+        <h3 style="margin: 0;">
+          <%= link_to group[:user].display_name || "Unknown", admin_user_path(group[:user]) %>
+        </h3>
+        <div style="margin-top: 0.5em; color: #6b7280;">
+          <%= group[:user].email %>
+        </div>
+        <div style="margin-top: 0.5em; display: flex; gap: 0.5em;">
+          <span class="badge"><%= pluralize(group[:orders].count, 'order') %></span>
+          <span class="badge"><%= pluralize(group[:total_items], 'item') %></span>
+          <span class="badge"><%= group[:total_shells] %> tickets</span>
+        </div>
+        <% if group[:address].present? %>
+          <div style="margin-top: 0.5em; font-size: 0.9em;">
+            <%= group[:address]["first_name"] %> <%= group[:address]["last_name"] %> @
+            <%= group[:address]["city"] %>, <%= group[:address]["state"] %>, <%= group[:address]["country"] %>
+          </div>
+        <% end %>
+      </div>
+      
+      <table class="table-data">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Tickets</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% group[:orders].each do |order| %>
+            <tr>
+              <td>#<%= order.id %></td>
+              <td><%= order.shop_item.name %></td>
+              <td><%= order.quantity %></td>
+              <td><%= order.total_cost %></td>
+              <td>
+                <span class="badge badge-<%= order.aasm_state %>">
+                  <%= order.aasm_state.humanize %>
+                </span>
+              </td>
+              <td><%= order.created_at.strftime("%b %d, %Y") %></td>
+              <td>
+                <%= link_to "Inspect", admin_shop_order_path(order), class: "btn-primary slim" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+<% elsif @shop_orders %>
+  <% if @shop_orders.any? %>
+    <div class="card">
+      <table class="table-data">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Tickets</th>
+            <th>Status</th>
+            <th>Address</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @shop_orders.each do |order| %>
+            <% can_see = order.can_view_address?(current_user) %>
+            <tr>
+              <td>#<%= order.id %></td>
+              <td>
+                <%= link_to order.user.display_name || "Unknown", admin_user_path(order.user), class: "btn-primary slim" %><br>
+                <small style="color: #6b7280;"><%= order.user.email %></small>
+              </td>
+              <td>
+                <%= order.shop_item.name %><br>
+                <small style="color: #6b7280;"><%= order.shop_item.type&.demodulize %></small>
+              </td>
+              <td><%= order.quantity %></td>
+              <td><%= order.total_cost %></td>
+              <td>
+                <span class="badge badge-<%= order.aasm_state %>">
+                  <%= order.aasm_state.humanize %>
+                </span>
+              </td>
+              <td>
+                <% if can_see %>
+                  🔒 <em style="color: #6b7280;">Encrypted (click Inspect)</em>
+                <% else %>
+                  🔒 <em style="color: #991b1b;">No access</em>
+                <% end %>
+              </td>
+              <td>
+                <%= order.created_at.strftime("%b %d, %Y") %><br>
+                <small style="color: #6b7280;"><%= order.created_at.strftime("%l:%M %p") %></small>
+              </td>
+              <td>
+                <%= link_to "Inspect", admin_shop_order_path(order), class: "btn-primary slim" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card">
+      <p>No orders found matching the filters.</p>
+    </div>
+  <% end %>
+<% end %>
+
+<div style="margin-top: 2em;">
+  <%= link_to "← Back", admin_root_path, class: "btn-secondary" %>
+</div>
+
+<style>
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.badge-pending {
+  background-color: #fbbf24;
+  color: #78350f;
+}
+
+.badge-awaiting_periodical_fulfillment {
+  background-color: #60a5fa;
+  color: #1e3a8a;
+}
+
+.badge-fulfilled {
+  background-color: #10b981;
+  color: white;
+}
+
+.badge-rejected {
+  background-color: #ef4444;
+  color: white;
+}
+
+.badge-on_hold {
+  background-color: #6b7280;
+  color: white;
+}
+
+.badge-refunded {
+  background-color: #a855f7;
+  color: white;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5em;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: white;
+}
+</style>

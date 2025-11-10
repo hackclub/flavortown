@@ -19,7 +19,14 @@
     </div>
     <div><b>Action:</b> <span class="badge badge-<%= @version.event %>"><%= @version.event %></span></div>
     <div><b>Model Type:</b> <%= @version.item_type %></div>
-    <div><b>Record ID:</b> #<%= @version.item_id %></div>
+    <div>
+      <b>Record ID:</b>
+      <% if @version.item_type == 'User' && @version.item_id %>
+        <%= link_to "##{@version.item_id}", admin_user_path(@version.item_id), class: "btn-primary slim" %>
+      <% else %>
+        #<%= @version.item_id %>
+      <% end %>
+    </div>
   </div>
 </div>
 
@@ -39,7 +46,7 @@
         <% changes = YAML.load(@version.object_changes) rescue {} %>
         <% changes.each do |field, values| %>
           <tr>
-            <td><strong><%= field.humanize %></strong></td>
+            <td><strong><%= field.to_s.humanize %></strong></td>
             <td>
               <% if values.is_a?(Array) && values.length == 2 %>
                 <code><%= values[0].inspect %></code>

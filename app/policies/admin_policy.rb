@@ -32,4 +32,7 @@ class AdminPolicy < ApplicationPolicy
     def access_audit_logs?
       user&.admin?
     end
+    def shop_orders?
+      user&.admin? || user&.fraud_dept?
+    end
 end

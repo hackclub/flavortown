@@ -1,0 +1,91 @@
+class Admin::ShopOrdersController < Admin::ApplicationController
+  def index
+    authorize :admin, :shop_orders?
+    
+    # Base query
+    orders = ShopOrder.includes(:shop_item, :user)
+    
+    # Apply filters
+    orders = orders.where(shop_item_id: params[:shop_item_id]) if params[:shop_item_id].present?
+    orders = orders.where(aasm_state: params[:status]) if params[:status].present?
+    orders = orders.where("created_at >= ?", params[:date_from]) if params[:date_from].present?
+    orders = orders.where("created_at <= ?", params[:date_to]) if params[:date_to].present?
+    
+    if params[:user_search].present?
+      search = "%#{params[:user_search]}%"
+      orders = orders.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ?", search, search)
+    end
+    
+    if params[:country].present?
+      orders = orders.where("frozen_address->>'country' ILIKE ?", "%#{params[:country]}%")
+    end
+    
+    # Calculate stats
+    stats_orders = orders
+    @c = {
+      pending: stats_orders.where(aasm_state: 'pending').count,
+      awaiting_fulfillment: stats_orders.where(aasm_state: 'awaiting_periodical_fulfillment').count,
+      fulfilled: stats_orders.where(aasm_state: 'fulfilled').count,
+      rejected: stats_orders.where(aasm_state: 'rejected').count
+    }
+    
+    # Calculate average times
+    fulfilled_orders = stats_orders.where(aasm_state: 'fulfilled').where.not(fulfilled_at: nil)
+    if fulfilled_orders.any?
+      @f = fulfilled_orders.average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))").to_f
+    end
+    
+    # Sorting
+    case params[:sort]
+    when 'id_asc'
+      orders = orders.order(id: :asc)
+    when 'id_desc'
+      orders = orders.order(id: :desc)
+    when 'created_at_asc'
+      orders = orders.order(created_at: :asc)
+    when 'shells_asc'
+      orders = orders.order(frozen_item_price: :asc)
+    when 'shells_desc'
+      orders = orders.order(frozen_item_price: :desc)
+    else
+      orders = orders.order(created_at: :desc)
+    end
+    
+    # Grouping
+    if params[:goob] == "true"
+      @grouped_orders = orders.group_by(&:user).map do |user, user_orders|
+        {
+          user: user,
+          orders: user_orders,
+          total_items: user_orders.sum(&:quantity),
+          total_shells: user_orders.sum { |o| o.total_cost || 0 },
+          address: user_orders.first&.frozen_address
+        }
+      end
+    else
+      @shop_orders = orders
+    end
+  end
+  
+  def show
+    authorize :admin, :shop_orders?
+    @order = ShopOrder.find(params[:id])
+    @can_view_address = @order.can_view_address?(current_user)
+  end
+
+  def reveal_address
+    authorize :admin, :shop_orders?
+    @order = ShopOrder.find(params[:id])
+    
+    if @order.can_view_address?(current_user)
+      @decrypted_address = @order.decrypted_address_for(current_user)
+      render turbo_stream: turbo_stream.replace(
+        "address-content",
+        partial: "address_details",
+        locals: { address: @decrypted_address }
+      )
+    else
+      render plain: "Unauthorized", status: :forbidden
+    end
+  end
+end

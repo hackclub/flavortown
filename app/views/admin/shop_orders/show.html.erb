@@ -1,0 +1,161 @@
+<h1>Order #<%= @order.id %></h1>
+
+<div class="card">
+  <h2>Order Details</h2>
+  <div class="info-rows">
+    <div>
+      <b>Status:</b>
+      <span class="badge badge-<%= @order.aasm_state %>">
+        <%= @order.aasm_state.humanize %>
+      </span>
+    </div>
+    <div><b>Created:</b> <%= @order.created_at.strftime("%B %d, %Y at %l:%M %p") %></div>
+    <div><b>Updated:</b> <%= @order.updated_at.strftime("%B %d, %Y at %l:%M %p") %></div>
+    <% if @order.fulfilled_at.present? %>
+      <div><b>Fulfilled:</b> <%= @order.fulfilled_at.strftime("%B %d, %Y at %l:%M %p") %></div>
+    <% end %>
+    <% if @order.rejected_at.present? %>
+      <div><b>Rejected:</b> <%= @order.rejected_at.strftime("%B %d, %Y at %l:%M %p") %></div>
+    <% end %>
+    <% if @order.awaiting_periodical_fulfillment_at.present? %>
+      <div><b>Queued for Fulfillment:</b> <%= @order.awaiting_periodical_fulfillment_at.strftime("%B %d, %Y at %l:%M %p") %></div>
+    <% end %>
+    <% if @order.on_hold_at.present? %>
+      <div><b>On Hold Since:</b> <%= @order.on_hold_at.strftime("%B %d, %Y at %l:%M %p") %></div>
+    <% end %>
+  </div>
+</div>
+
+<div class="card">
+  <h2>User Information</h2>
+  <div class="info-rows">
+    <div>
+      <b>User:</b>
+      <%= link_to @order.user.display_name || "Unknown", admin_user_path(@order.user), class: "btn-primary slim" %>
+    </div>
+    <div><b>Email:</b> <%= @order.user.email %></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Item Information</h2>
+  <div class="info-rows">
+    <div><b>Item:</b> <%= @order.shop_item.name %></div>
+    <div><b>Type:</b> <%= @order.shop_item.type&.demodulize %></div>
+    <div><b>Quantity:</b> <%= @order.quantity %></div>
+    <div><b>Price per Item:</b> <%= @order.frozen_item_price %> tickets</div>
+    <div><b>Total Cost:</b> <%= @order.total_cost %> tickets</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Shipping Address</h2>
+  <% if @can_view_address %>
+    <div id="address-container">
+      <div style="padding: 1em; background: #f3f4f6; border-radius: 4px; text-align: center;">
+        <p style="margin: 0 0 1em 0; color: #374151;">
+          🔒 Address is encrypted. Click below to decrypt and view.
+        </p>
+        <%= button_to "Reveal Address", reveal_address_admin_shop_order_path(@order), 
+            method: :post,
+            class: "btn-primary",
+            data: { 
+              turbo_frame: "address-content",
+              turbo_method: "post"
+            } %>
+      </div>
+      <turbo-frame id="address-content"></turbo-frame>
+    </div>
+  <% else %>
+    <div style="padding: 1em; background: #fee2e2; border-radius: 4px;">
+      <p style="color: #991b1b; margin: 0;">
+        🔒 You do not have permission to view this address. Only admins and fulfillment persons in the order's region can access this information.
+      </p>
+    </div>
+  <% end %>
+</div>
+
+<div class="card">
+  <h2>Fulfillment Information</h2>
+  <div class="info-rows">
+    <% if @order.external_ref.present? %>
+      <div><b>Tracking/External Reference:</b> <%= @order.external_ref %></div>
+    <% end %>
+    <% if @order.fulfilled_by.present? %>
+      <div><b>Fulfilled By:</b> <%= @order.fulfilled_by %></div>
+    <% end %>
+    <% if @order.fulfillment_cost.present? && @order.fulfillment_cost > 0 %>
+      <div><b>Fulfillment Cost:</b> $<%= number_to_currency(@order.fulfillment_cost, precision: 2, unit: "") %></div>
+    <% end %>
+    <% if @order.rejection_reason.present? %>
+      <div><b>Rejection Reason:</b> <%= @order.rejection_reason %></div>
+    <% end %>
+    <% if @order.internal_notes.present? %>
+      <div><b>Internal Notes:</b> <%= @order.internal_notes %></div>
+    <% end %>
+  </div>
+</div>
+
+<% if @order.shop_card_grant_id.present? %>
+  <div class="card">
+    <h2>Card Grant</h2>
+    <div class="info-rows">
+      <div><b>Card Grant ID:</b> <%= @order.shop_card_grant_id %></div>
+    </div>
+  </div>
+<% end %>
+
+<% if @order.warehouse_package_id.present? %>
+  <div class="card">
+    <h2>Warehouse Package</h2>
+    <div class="info-rows">
+      <div><b>Package ID:</b> <%= @order.warehouse_package_id %></div>
+    </div>
+  </div>
+<% end %>
+
+<div style="margin-top: 2rem; display: flex; gap: 1rem;">
+  <%= link_to "← Back to Orders", admin_shop_orders_path, class: "btn-secondary" %>
+  <%= link_to "View User", admin_user_path(@order.user), class: "btn-primary" %>
+</div>
+
+<style>
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.badge-pending {
+  background-color: #fbbf24;
+  color: #78350f;
+}
+
+.badge-awaiting_periodical_fulfillment {
+  background-color: #60a5fa;
+  color: #1e3a8a;
+}
+
+.badge-fulfilled {
+  background-color: #10b981;
+  color: white;
+}
+
+.badge-rejected {
+  background-color: #ef4444;
+  color: white;
+}
+
+.badge-on_hold {
+  background-color: #6b7280;
+  color: white;
+}
+
+.badge-refunded {
+  background-color: #a855f7;
+  color: white;
+}
+</style>

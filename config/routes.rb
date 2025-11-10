@@ -15,6 +15,9 @@ Rails.application.routes.draw do
   # RSVPs
   resources :rsvps, only: [ :create ]
 
+  # Shop
+  get "shop", to: "shop#index"
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
@@ -55,6 +58,7 @@ Rails.application.routes.draw do
       member do
         post :promote_role
         post :demote_role
+        post :toggle_flipper
       end
     end
     resources :projects, only: [ :index ], shallow: true
@@ -62,6 +66,11 @@ Rails.application.routes.draw do
     get "manage-shop", to: "shop#index"
     post "shop/clear-carousel-cache", to: "shop#clear_carousel_cache", as: :clear_carousel_cache
     resources :shop_items, only: [ :new, :create, :show, :edit, :update, :destroy ]
+    resources :shop_orders, only: [ :index, :show ] do
+      member do
+        post :reveal_address
+      end
+    end
     resources :audit_logs, only: [ :index, :show ]
   end
 

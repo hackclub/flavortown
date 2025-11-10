@@ -7,6 +7,7 @@
 #  awaiting_periodical_fulfillment_at :datetime
 #  external_ref                       :string
 #  frozen_address                     :jsonb
+#  frozen_address_ciphertext          :text
 #  frozen_item_price                  :decimal(6, 2)
 #  fulfilled_at                       :datetime
 #  fulfilled_by                       :string
@@ -47,7 +48,10 @@ class ShopOrder < ApplicationRecord
   belongs_to :shop_card_grant, optional: true
   belongs_to :warehouse_package, class_name: "Shop::WarehousePackage", optional: true
 
-  has_many :payouts, as: :payable, dependent: :destroy
+  # has_many :payouts, as: :payable, dependent: :destroy
+
+  # Encrypt frozen_address using Lockbox  
+  has_encrypted :frozen_address, type: :json
 
   validates :quantity, presence: true, numericality: { only_integer: true, greater_than: 0 }, on: :create
   validate :check_one_per_person_ever_limit, on: :create
@@ -65,6 +69,41 @@ class ShopOrder < ApplicationRecord
 
   def full_name
     "#{user.display_name}'s order for #{quantity} #{shop_item.name.pluralize(quantity)}"
+  end
+
+  def can_view_address?(current_user)
+    return false unless current_user
+    return true if current_user.admin?
+    
+    # Fulfillment person can only see addresses in their region
+    if current_user.fulfillment_person? && frozen_address.present?
+      order_region = Shop::Regionalizable.country_to_region(frozen_address["country"])
+      # For now, we assume fulfillment persons can see all regions
+      # You can add user region preferences later
+      return true
+    end
+    
+    false
+  end
+
+  def decrypted_address_for(current_user)
+    return nil unless can_view_address?(current_user)
+    
+    # Log the access
+    PaperTrail::Version.create!(
+      item_type: 'ShopOrder',
+      item_id: id,
+      event: 'address_access',
+      whodunnit: current_user.id,
+      object_changes: { 
+        accessed_at: Time.current,
+        user_id: current_user.id,
+        order_id: id,
+        reason: 'address_decryption'
+      }.to_yaml
+    )
+    
+    frozen_address
   end
 
   aasm timestamps: true do

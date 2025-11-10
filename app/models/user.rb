@@ -18,6 +18,7 @@ class User < ApplicationRecord
   has_many :projects, through: :memberships
   has_many :roles, through: :role_assignments
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
+  has_many :shop_orders, dependent: :destroy
 
   class << self
     # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
@@ -41,6 +42,10 @@ class User < ApplicationRecord
   end
   def fraud_dept?
     roles.exists?(name: "fraud_dept")
+  end
+
+  def fulfillment_person?
+    roles.exists?(name: "fulfillment_person")
   end
 
   def highest_role

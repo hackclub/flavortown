@@ -15,6 +15,10 @@
   <% if policy(:admin).access_audit_logs? %>
     <%= link_to "Audit Logs", admin_audit_logs_path, class: "btn-primary" %>
   <% end %>
+  <% if policy(:admin).shop_orders? %>
+    <% pending_count = ShopOrder.where(aasm_state: 'pending').count %>
+    <%= link_to "Shop Orders#{" (#{pending_count})" if pending_count > 0}", admin_shop_orders_path, class: "btn-primary" %>
+  <% end %>
 </div>
 
 <h2>dashboards</h2>
