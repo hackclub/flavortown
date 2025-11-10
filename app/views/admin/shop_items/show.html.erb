@@ -1,0 +1,74 @@
+<h1><%= @shop_item.name %></h1>
+
+<div class="card">
+  <h2>Details</h2>
+
+  <div class="info-rows">
+    <div><b>ID:</b> <%= @shop_item.id %></div>
+    <div><b>Type:</b> <%= @shop_item.type %></div>
+    <div><b>Name:</b> <%= @shop_item.name %></div>
+    <div><b>Description:</b> <%= @shop_item.description %></div>
+    <div><b>Internal Description:</b> <%= @shop_item.internal_description %></div>
+
+    <% if @shop_item.image.attached? %>
+      <div>
+        <b>Image:</b><br>
+        <%= image_tag @shop_item.image, width: 200 %>
+      </div>
+    <% end %>
+
+    <div><b>Ticket Cost:</b> <%= @shop_item.ticket_cost %></div>
+    <div><b>USD Cost:</b> <%= @shop_item.usd_cost %></div>
+    <div><b>Sale Percentage:</b> <%= @shop_item.sale_percentage %>%</div>
+    <div><b>Hacker Score:</b> <%= @shop_item.hacker_score %></div>
+    <div><b>Max Quantity:</b> <%= @shop_item.max_qty %></div>
+
+    <div><b>Enabled:</b> <%= @shop_item.enabled ? "Yes" : "No" %></div>
+    <div><b>Show in Carousel:</b> <%= @shop_item.show_in_carousel ? "Yes" : "No" %></div>
+    <div><b>One Per Person Ever:</b> <%= @shop_item.one_per_person_ever ? "Yes" : "No" %></div>
+    <div><b>Limited:</b> <%= @shop_item.limited ? "Yes" : "No" %></div>
+
+    <% if @shop_item.limited %>
+      <div><b>Stock:</b> <%= @shop_item.stock %></div>
+    <% end %>
+
+    <div><b>Created:</b> <%= @shop_item.created_at.strftime("%Y-%m-%d %H:%M") %></div>
+    <div><b>Updated:</b> <%= @shop_item.updated_at.strftime("%Y-%m-%d %H:%M") %></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Regional Pricing</h2>
+
+  <div class="info-rows">
+    <% Shop::Regionalizable::REGIONS.each do |code, config| %>
+      <div>
+        <b><%= config[:name] %> (<%= code %>):</b>
+        Enabled: <%= @shop_item.send("enabled_#{code.downcase}") ? "✓" : "✗" %>,
+        Offset: <%= @shop_item.send("price_offset_#{code.downcase}") || 0 %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% if @shop_item.type.in?(["ShopItem::HCBGrant", "ShopItem::HCBPreauthGrant"]) %>
+  <div class="card">
+    <h2>HCB Settings</h2>
+
+    <div class="info-rows">
+      <div><b>Merchant Lock:</b> <%= @shop_item.hcb_merchant_lock %></div>
+      <div><b>Category Lock:</b> <%= @shop_item.hcb_category_lock %></div>
+      <div><b>Keyword Lock:</b> <%= @shop_item.hcb_keyword_lock %></div>
+
+      <% if @shop_item.type == "ShopItem::HCBPreauthGrant" %>
+        <div><b>Preauthorization Instructions:</b><br><%= simple_format(@shop_item.hcb_preauthorization_instructions) %></div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<div style="margin-top: 2rem;">
+  <%= link_to "Edit", edit_admin_shop_item_path(@shop_item), class: "btn-primary" %>
+  <%= button_to "Delete", admin_shop_item_path(@shop_item), method: :delete, class: "btn-danger", data: { confirm: "Are you sure you want to delete this item?" }, style: "display: inline-block; margin-left: 0.5rem;" %>
+  <%= link_to "← Back to Shop", admin_manage_shop_path, class: "btn-secondary", style: "margin-left: 0.5rem;" %>
+</div>

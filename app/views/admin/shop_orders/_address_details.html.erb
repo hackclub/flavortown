@@ -1,0 +1,19 @@
+<div class="info-rows">
+  <div><b>Name:</b> <%= address["first_name"] %> <%= address["last_name"] %></div>
+  <div><b>Address Line 1:</b> <%= address["address_line_1"] %></div>
+  <% if address["address_line_2"].present? %>
+    <div><b>Address Line 2:</b> <%= address["address_line_2"] %></div>
+  <% end %>
+  <div><b>City:</b> <%= address["city"] %></div>
+  <div><b>State/Province:</b> <%= address["state"] %></div>
+  <div><b>Postal Code:</b> <%= address["postal_code"] %></div>
+  <div><b>Country:</b> <%= address["country"] %></div>
+  <% if address["phone_number"].present? %>
+    <div><b>Phone:</b> <%= address["phone_number"] %></div>
+  <% end %>
+</div>
+<div style="margin-top: 1em; padding: 0.5em; background: #fef3c7; border-radius: 4px;">
+  <small style="color: #92400e;">
+    🔒 Address access has been logged for security purposes.
+  </small>
+</div>

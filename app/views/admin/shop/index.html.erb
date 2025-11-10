@@ -1,6 +1,9 @@
 <h1>Manage Shop</h1>
 
-<%= link_to "New Product", "/admin/shop_items/new", class: "btn-primary" %>
+<div style="margin-bottom: 1rem;">
+  <%= link_to "New Product", new_admin_shop_item_path, class: "btn-primary" %>
+  <%= button_to "Clear Carousel Cache", admin_clear_carousel_cache_path, method: :post, class: "btn-secondary", style: "display: inline-block; margin-left: 0.5rem;" %>
+</div>
 
 <h2>Last 20 Items</h2>
 <table>
@@ -18,8 +21,8 @@
   <tbody>
     <% @shop_items.each do |item| %>
       <tr>
-        <td><%= item.id %></td>
-        <td><%= item.name %></td>
+        <td><%= link_to item.id, admin_shop_item_path(item) %></td>
+        <td><%= link_to item.name, admin_shop_item_path(item) %></td>
         <td><%= item.type %></td>
         <td><%= item.ticket_cost %></td>
         <td><%= item.usd_cost %></td>

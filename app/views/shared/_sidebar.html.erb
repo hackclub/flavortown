@@ -10,10 +10,10 @@
         { label: "Explore", path: "#", icon: "compass_fill" },
         { label: "Projects", path: projects_path, icon: "square_fill" },
         { label: "Vote", path: "#", icon: "star_fill" },
-        { label: "Shop", path: "#", icon: "shopping_cart_1_fill" }
+        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" }
       ] %>
 
-      <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if current_user&.admin? %>
+      <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_endpoints? %>
 
       <ul class="sidebar__nav-list">
         <% sidebar_nav_items.each do |item| %>

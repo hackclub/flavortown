@@ -11,13 +11,14 @@
 #  updated_at     :datetime         not null
 #
 class User < ApplicationRecord
-  has_paper_trail ignore: [ :projects_count, :votes_count ]
+  has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :role_assignments, class_name: "User::RoleAssignment", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
   has_many :projects, through: :memberships
   has_many :roles, through: :role_assignments
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
+  has_many :shop_orders, dependent: :destroy
 
   class << self
     # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
@@ -41,6 +42,10 @@ class User < ApplicationRecord
   end
   def fraud_dept?
     roles.exists?(name: "fraud_dept")
+  end
+
+  def fulfillment_person?
+    roles.exists?(name: "fulfillment_person")
   end
 
   def highest_role

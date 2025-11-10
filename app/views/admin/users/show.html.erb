@@ -66,4 +66,86 @@
                     disabled: !current_user&.super_admin? %>
     </div>
   </div>
+  <div class="card">
+    <h2>flipper features</h2>
+    <div class="info-rows">
+      <% has_shop_open = Flipper.enabled?(:shop_open, @user) %>
+      <%= button_to (has_shop_open ? "Disable Shop" : "Enable Shop"),
+                    toggle_flipper_admin_user_path(@user),
+                    method: :post,
+                    params: { feature: "shop_open" },
+                    class: "btn-primary slim",
+                    disabled: !current_user&.admin? %>
+
+      <% has_admin_green = Flipper.enabled?(:admin_green, @user) %>
+      <%= button_to (has_admin_green ? "Disable Admin Green" : "Enable Admin Green"),
+                    toggle_flipper_admin_user_path(@user),
+                    method: :post,
+                    params: { feature: "admin_green" },
+                    class: "btn-primary slim",
+                    disabled: !current_user&.admin? %>
+    </div>
+  </div>
 </div>
+
+<% if @role_history.any? %>
+  <div class="card" style="margin-top: 1.5rem;">
+    <h2>Role Change History</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Action</th>
+          <th>Role</th>
+          <th>Changed By</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @role_history.each do |version| %>
+          <%
+            changes = YAML.load(version.object_changes) rescue {}
+            # For create: [nil, 5], for destroy: [5, nil] - we want the non-nil value
+            role_id_array = changes["role_id"]
+            role_id = if role_id_array.is_a?(Array)
+              role_id_array.compact.first
+            else
+              role_id_array
+            end
+
+            role = Role.find_by(id: role_id) if role_id
+            admin = User.find_by(id: version.whodunnit)
+          %>
+          <tr>
+            <td><%= version.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+            <td>
+              <% if version.event == "create" %>
+                <span style="color: #10b981; font-weight: 500;">✓ Promoted</span>
+              <% elsif version.event == "destroy" %>
+                <span style="color: #ef4444; font-weight: 500;">✗ Demoted</span>
+              <% else %>
+                <%= version.event %>
+              <% end %>
+            </td>
+            <td>
+              <%= role&.name&.titleize || "Unknown Role" %>
+              <% if role_id && !role %>
+                (ID: <%= role_id %>)
+              <% end %>
+            </td>
+            <td>
+              <% if admin %>
+                <%= admin.display_name %>
+              <% elsif version.whodunnit %>
+                User #<%= version.whodunnit %>
+              <% else %>
+                <em>System</em>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User::RoleAssignment", whodunnit: @user.id), class: "btn-secondary", style: "margin-top: 1rem; display: inline-block;" %>
+  </div>
+<% end %>

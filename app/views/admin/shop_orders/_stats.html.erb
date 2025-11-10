@@ -1,0 +1,21 @@
+<div class="card" style="margin-bottom: 2em;">
+  <h2>Statistics</h2>
+  <div style="display: flex; flex-wrap: wrap; gap: 0.5em; align-items: center; margin-bottom: 1.5em;">
+    <span class="badge badge-pending">Pending: <%= counts[:pending] %></span>
+    <span class="badge badge-awaiting_periodical_fulfillment">Awaiting Fulfillment: <%= counts[:awaiting_fulfillment] %></span>
+    <span class="badge badge-fulfilled">Fulfilled: <%= counts[:fulfilled] %></span>
+    <span class="badge badge-rejected">Rejected: <%= counts[:rejected] %></span>
+    <% if counts[:on_hold] && counts[:on_hold] > 0 %>
+      <span class="badge badge-on_hold">On Hold: <%= counts[:on_hold] %></span>
+    <% end %>
+  </div>
+
+  <% if average_fulfillment_time %>
+    <div>
+      <strong>Average time from order to fulfilled:</strong>
+      <span style="font-family: monospace; font-weight: bold; <%= average_fulfillment_time > 172800 ? 'color: #ef4444;' : '' %>">
+        <%= distance_of_time_in_words(average_fulfillment_time) %>
+      </span>
+    </div>
+  <% end %>
+</div>
