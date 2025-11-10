@@ -3,15 +3,16 @@
 class InputComponent < ViewComponent::Base
   COLORS = %i[red blue green yellow].freeze
 
-  attr_reader :label, :placeholder, :color, :subtitle, :form, :attribute, :collection
+  attr_reader :label, :placeholder, :color, :subtitle, :form, :attribute, :collection, :icon
 
-  def initialize(label:, placeholder:, form:, attribute:, color: :yellow, subtitle: nil, as: :text_field, input_html: {}, collection: nil, select_options: {})
+  def initialize(label:, placeholder:, form:, attribute:, color: :yellow, subtitle: nil, icon: nil, as: :text_field, input_html: {}, collection: nil, select_options: {})
     @label = label
     @placeholder = placeholder
     @form = form
     @attribute = attribute
     @color = normalize_color(color)
     @subtitle = subtitle
+    @icon = icon
     @field_method = normalize_field_method(as)
     @input_html = input_html.to_h
     @collection = collection
@@ -21,7 +22,7 @@ class InputComponent < ViewComponent::Base
   end
 
   def input_classes
-    class_names("input", "input--#{color}")
+    class_names("input", "input--#{color}", "input--with-icon" => icon.present?)
   end
 
   def field_tag
@@ -35,6 +36,12 @@ class InputComponent < ViewComponent::Base
 
   def has_subtitle?
     subtitle.present?
+  end
+
+  def icon_tag
+    return nil unless icon.present?
+    return helpers.inline_svg_tag(icon) if icon.end_with?(".svg")
+    icon
   end
 
   private
