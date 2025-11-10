@@ -31,6 +31,42 @@
                 )
               ) %>
         </div>
+
+        <div class="projects-new__field projects-new__field--links">
+          <%= render InputGroupComponent.new(
+                label: "Project Links",
+                color: :blue,
+                subtitle: "Share links to your project's resources."
+              ) do %>
+
+            <%= render InputComponent.new(
+                  label: "Demo Link",
+                  placeholder: "https://flavortown.cooked.selfhosted.hackclub.com/projects",
+                  form: form,
+                  attribute: :demo_link,
+                  color: :blue,
+                  icon: "icons/link.svg"
+                ) %>
+              
+            <%= render InputComponent.new(
+                  label: "Repository",
+                  placeholder: "https://github.com/hackclub/flavortown",
+                  form: form,
+                  attribute: :repository,
+                  color: :blue,
+                  icon: "icons/merge.svg"
+                ) %>
+
+            <%= render InputComponent.new(
+                  label: "Readme Link",
+                  placeholder: "https://github.com/hackclub/flavortown",
+                  form: form,
+                  attribute: :readme_link,
+                  color: :blue,
+                  icon: "icons/paper.svg"
+                ) %>
+          <% end %>
+        </div>
       </div>
 
       <div class="projects-new__actions">
