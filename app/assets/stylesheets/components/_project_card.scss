@@ -7,7 +7,7 @@
     flex-direction: column;
     min-height: 100%;
     overflow: hidden;
-    background-image: url('mask/project-card.png');
+    background-image: url("mask/project-card.png");
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -15,7 +15,6 @@
     &:hover,
     &:focus-within {
         transform: translateY(-4px);
-        box-shadow: 0 10px 24px hsla(0, 0%, 0%, 0.18);
     }
 
     &__banner {
@@ -30,13 +29,6 @@
         overflow: hidden;
         outline: none;
         background-color: var(--color-brown-400);
-        box-shadow: var(--shadow-inset);
-        transition: box-shadow 160ms ease;
-
-        &:focus-visible,
-        &:hover {
-            box-shadow: 0 0 0 3px var(--color-brown-hover);
-        }
     }
 
     &__banner-frame--placeholder {
