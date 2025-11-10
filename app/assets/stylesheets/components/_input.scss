@@ -53,10 +53,18 @@
     transition: box-shadow 0.2s ease;
     position: relative;
     z-index: 2;
+    width: 100%;
     
     &::placeholder {
       color: var(--color-text-muted);
       opacity: 0.75;
+    }
+
+    &--textarea {
+      min-height: 8rem;
+      resize: vertical;
+      line-height: var(--line-height-body);
+      padding-top: var(--space-m);
     }
   }
 
