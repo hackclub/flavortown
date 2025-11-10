@@ -29,7 +29,8 @@ body {
     background: var(--color-tan-300);
   }
 
-  th, td {
+  th,
+  td {
     padding: 0.25rem 0.75rem;
   }
 }
@@ -64,7 +65,6 @@ body {
   font-size: 1rem;
   padding: 0.25em;
   border-radius: 0.5em;
-
 
   &::placeholder {
     color: #444; // TODO color
@@ -126,7 +126,10 @@ body {
   border-radius: 0.5rem;
   padding: 1rem;
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     margin: 0 0 0.25em 0;
   }
 }

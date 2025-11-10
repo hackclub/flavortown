@@ -7,7 +7,8 @@
   background-color: var(--color-bg);
   border-radius: var(--border-radius);
   border: solid 5px var(--color-brown-500);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1),
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.1),
     0 8px 16px rgba(0, 0, 0, 0.05);
 }
 
@@ -61,7 +62,9 @@
   color: var(--color-text-body);
   background-color: var(--color-bg);
   outline: none;
-  transition: border-color 200ms, box-shadow 200ms;
+  transition:
+    border-color 200ms,
+    box-shadow 200ms;
 
   &::placeholder {
     color: var(--color-text-muted);
@@ -93,7 +96,9 @@
   border-radius: var(--border-radius);
   background-color: var(--color-bg);
   cursor: pointer;
-  transition: border-color 200ms, background-color 200ms;
+  transition:
+    border-color 200ms,
+    background-color 200ms;
 
   &:hover,
   &.dragover {

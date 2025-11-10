@@ -36,20 +36,26 @@
   /* plaid pattern */
   background-image:
     /* horizontal stripes */
-    linear-gradient(rgba(255, 255, 255, 0.05) 25%,
-      transparent 25%,
-      transparent 75%,
-      rgba(255, 255, 255, 0.05) 75%,
-      rgba(255, 255, 255, 0.05)),
-    /* vertical stripes */
-    linear-gradient(90deg,
+    linear-gradient(
       rgba(255, 255, 255, 0.05) 25%,
       transparent 25%,
       transparent 75%,
       rgba(255, 255, 255, 0.05) 75%,
-      rgba(255, 255, 255, 0.05));
+      rgba(255, 255, 255, 0.05)
+    ),
+    /* vertical stripes */
+      linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 25%,
+        transparent 25%,
+        transparent 75%,
+        rgba(255, 255, 255, 0.05) 75%,
+        rgba(255, 255, 255, 0.05)
+      );
 
-  background-size: 100px 100px, 100px 100px;
+  background-size:
+    100px 100px,
+    100px 100px;
 }
 
 .sidebar__nav-list {
@@ -89,7 +95,7 @@
   z-index: -1;
 
   background-color: var(--color-blue-500);
-  background-image: url('mask/sidebar-active.webp');
+  background-image: url("mask/sidebar-active.webp");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;

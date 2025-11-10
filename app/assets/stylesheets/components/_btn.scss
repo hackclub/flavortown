@@ -11,7 +11,9 @@
   text-decoration: none;
   cursor: pointer;
   outline: none;
-  transition: filter 400ms, color 200ms;
+  transition:
+    filter 400ms,
+    color 200ms;
   font-family: var(--font-family-jua);
   font-size: var(--font-size-m);
 
@@ -31,7 +33,9 @@
   &:focus,
   &:focus-within,
   &:active {
-    transition: filter 250ms, color 200ms;
+    transition:
+      filter 250ms,
+      color 200ms;
   }
 
   &--red {
