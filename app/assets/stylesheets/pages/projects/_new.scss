@@ -24,11 +24,7 @@
       position: absolute;
       inset: 0;
       background-color: var(--color-bg);
-      background-image: repeating-conic-gradient(
-        from 0deg,
-        rgba(0, 0, 0, 0.08) 0deg 90deg,
-        transparent 90deg 180deg
-      );
+      background-image: repeating-conic-gradient(from 0deg, rgba(0, 0, 0, 0.08) 0deg 90deg, transparent 90deg 180deg);
       background-size: 120px 120px;
       z-index: 0;
     }
@@ -83,4 +79,3 @@
     }
   }
 }
-

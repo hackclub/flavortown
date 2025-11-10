@@ -5,7 +5,7 @@
   gap: var(--space-xxs);
   padding: var(--space-s) var(--space-s) var(--space-s);
   overflow: visible;
-  
+
   /* CSS fuckery to help get the subtitle acc render below the wrapper*/
   &::before {
     content: '';
@@ -22,7 +22,7 @@
     z-index: 1;
     pointer-events: none;
   }
-  
+
   /* Label + the notch */
   &__label {
     position: absolute;
@@ -34,7 +34,7 @@
     padding: var(--space-xs) var(--space-l);
     border-top-left-radius: calc(var(--border-radius) * 0.8);
     border-top-right-radius: calc(var(--border-radius) * 0.8);
-    pointer-events: none; 
+    pointer-events: none;
     background-image: url("mask/title.webp");
     background-repeat: no-repeat;
     background-size: cover;
@@ -54,7 +54,7 @@
     position: relative;
     z-index: 2;
     width: 100%;
-    
+
     &::placeholder {
       color: var(--color-text-muted);
       opacity: 0.75;
