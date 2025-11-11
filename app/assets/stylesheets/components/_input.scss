@@ -5,10 +5,10 @@
   gap: var(--space-xxs);
   padding: var(--space-s) var(--space-s) var(--space-s);
   overflow: visible;
-  
+
   /* CSS fuckery to help get the subtitle acc render below the wrapper*/
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -22,7 +22,7 @@
     z-index: 1;
     pointer-events: none;
   }
-  
+
   /* Label + the notch */
   &__label {
     position: absolute;
@@ -34,7 +34,7 @@
     padding: var(--space-xs) var(--space-l);
     border-top-left-radius: calc(var(--border-radius) * 0.8);
     border-top-right-radius: calc(var(--border-radius) * 0.8);
-    pointer-events: none; 
+    pointer-events: none;
     background-image: url("mask/title.webp");
     background-repeat: no-repeat;
     background-size: cover;
@@ -54,14 +54,14 @@
     position: relative;
     z-index: 2;
     width: 100%;
-    
+
     &::placeholder {
       color: var(--color-text-muted);
       opacity: 0.75;
     }
 
     &--textarea {
-      min-height: 10rem;
+      min-height: 6rem;
       resize: vertical;
       line-height: var(--line-height-body);
       padding-top: var(--space-m);
@@ -78,6 +78,48 @@
     }
   }
 
+  &__control {
+    position: relative;
+    z-index: 2;
+  }
+
+  &__icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--space-m);
+    background-color: var(--input-icon-bg);
+    color: var(--color-bg);
+
+    img,
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      display: block;
+    }
+
+    svg {
+      fill: currentColor;
+    }
+  }
+
+  &--with-icon {
+    .input__control {
+      display: flex;
+      align-items: stretch;
+      border-radius: calc(var(--border-radius) * 0.8);
+      overflow: hidden;
+      background-color: var(--color-bg);
+    }
+
+    .input__field {
+      flex: 1 1 auto;
+      width: 100%;
+      border-radius: 0;
+    }
+  }
+
   &__subtitle {
     position: absolute;
     bottom: 0;
@@ -91,6 +133,9 @@
   }
 
   &--red {
+    --input-icon-bg: var(--color-red-500);
+    --input-icon-color: var(--color-bg);
+
     &::before {
       background-color: var(--color-red-400);
     }
@@ -117,6 +162,9 @@
   }
 
   &--blue {
+    --input-icon-bg: var(--color-blue-500);
+    --input-icon-color: var(--color-bg);
+
     &::before {
       background-color: var(--color-blue-400);
     }
@@ -143,6 +191,9 @@
   }
 
   &--green {
+    --input-icon-bg: var(--color-green-500);
+    --input-icon-color: var(--color-bg);
+
     &::before {
       background-color: var(--color-green-400);
     }
@@ -169,6 +220,9 @@
   }
 
   &--yellow {
+    --input-icon-bg: var(--color-yellow-500);
+    --input-icon-color: var(--color-bg);
+
     &::before {
       background-color: var(--color-yellow-450);
     }

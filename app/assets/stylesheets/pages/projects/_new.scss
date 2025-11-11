@@ -14,7 +14,7 @@
     padding: var(--space-xxxxl);
     display: flex;
     flex-direction: column;
-    gap: calc(var(--space-xxxxl) * 1.2);
+    gap: calc(var(--space-xxxxl) * 1.5);
     overflow: hidden;
     border: 2px solid rgba(139, 102, 70, 0.15);
     box-shadow: 0 18px 32px rgba(47, 34, 21, 0.08);
@@ -83,4 +83,3 @@
     }
   }
 }
-

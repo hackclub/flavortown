@@ -38,14 +38,14 @@
     position: relative;
   }
 
-//   &__form::before {
-//     content: "";
-//     position: absolute;
-//     inset: var(--space-s);
-//     // border: 2px dashed hsla(7, 30%, 37%, 0.35);
-//     border-radius: calc(var(--border-radius) - var(--space-s));
-//     pointer-events: none;
-//   }
+  //   &__form::before {
+  //     content: "";
+  //     position: absolute;
+  //     inset: var(--space-s);
+  //     // border: 2px dashed hsla(7, 30%, 37%, 0.35);
+  //     border-radius: calc(var(--border-radius) - var(--space-s));
+  //     pointer-events: none;
+  //   }
 
   &__errors {
     border: solid 2px var(--color-red-500);
@@ -83,7 +83,9 @@
       margin-top: var(--space-xs);
       background-color: rgba(255, 255, 255, 0.75);
       border: 2px solid var(--color-brown-400);
-      transition: border-color 160ms ease, background-color 160ms ease;
+      transition:
+        border-color 160ms ease,
+        background-color 160ms ease;
 
       &:focus {
         border-color: var(--color-brown-500);
@@ -121,7 +123,9 @@
     gap: var(--space-s);
     text-align: center;
     background-color: hsla(35, 74%, 90%, 0.45);
-    transition: border-color 160ms ease, background-color 160ms ease;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease;
 
     &--dragging {
       border-color: var(--color-brown-400);
@@ -136,7 +140,7 @@
   }
 
   &__upload-title {
-        font-size: var(--font-size-l);
+    font-size: var(--font-size-l);
     color: var(--color-brown-600);
     margin: 0;
   }
@@ -284,4 +288,3 @@
 .project-create__upload-preview[hidden] {
   display: none;
 }
-

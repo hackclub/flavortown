@@ -1,5 +1,5 @@
 // Utilities
-@use 'utils';
+@use "utils";
 
 // Configuration
 @use "config/fonts";
@@ -14,6 +14,7 @@
 @use "components/btn";
 @use "components/form";
 @use "components/input";
+@use "components/input-group";
 @use "components/project_card";
 @use "components/sidebar";
 @use "components/ui-heading";

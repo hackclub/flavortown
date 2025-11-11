@@ -1,126 +1,135 @@
 body {
-    background: var(--color-bg);
-    // TODO color
-    padding: 2rem;
+  background: var(--color-bg);
+  // TODO color
+  padding: 2rem;
 }
 
 .form-basic {
-    margin: 1em 0;
+  margin: 1em 0;
 }
 
 .table-data {
-    width: 100%;
+  width: 100%;
 
-    thead {
-        background: var(--color-tan-400);
-    }
-    th {
-        &:first-child { border-radius: 0.5em 0 0 0; }
-        &:last-child { border-radius: 0 0.5em 0 0; }
-    }
+  thead {
+    background: var(--color-tan-400);
+  }
 
-    tbody tr {
-        background: var(--color-tan-300);
+  th {
+    &:first-child {
+      border-radius: 0.5em 0 0 0;
     }
 
-    th, td {
-        padding: 0.25rem 0.75rem;
+    &:last-child {
+      border-radius: 0 0.5em 0 0;
     }
+  }
+
+  tbody tr {
+    background: var(--color-tan-300);
+  }
+
+  th,
+  td {
+    padding: 0.25rem 0.75rem;
+  }
 }
 
 .pagination {
-    margin: 0.5rem 0;
+  margin: 0.5rem 0;
 
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 
-    a {
-        background: var(--color-tan-400);
-        color: black; // TODO color
-        padding: 0.25em 0.5em;
-        border-radius: 0.25em;
+  a {
+    background: var(--color-tan-400);
+    color: black; // TODO color
+    padding: 0.25em 0.5em;
+    border-radius: 0.25em;
 
-        &::hover {
-            box-shadow: var(--shadow);
-        }
-
-        &::after {
-            content: unset;
-        }
+    &::hover {
+      box-shadow: var(--shadow);
     }
+
+    &::after {
+      content: unset;
+    }
+  }
 }
 
 .input-primary {
-    background: var(--color-tan-400);
-    border: 2px solid var(--color-brown-500);
-    color: black;
+  background: var(--color-tan-400);
+  border: 2px solid var(--color-brown-500);
+  color: black;
 
-    font-size: 1rem;
-    padding: 0.25em;
-    border-radius: 0.5em;
+  font-size: 1rem;
+  padding: 0.25em;
+  border-radius: 0.5em;
 
-
-    &::placeholder {
-        color: #444; // TODO color
-    }
+  &::placeholder {
+    color: #444; // TODO color
+  }
 }
 
 .btn-primary {
-    display: inline-flex;
-    justify-content: center;
-    gap: 0.5em;
-    padding: 1em 2em;
+  display: inline-flex;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 1em 2em;
 
-    background: var(--color-brown-500);
-    color: white; // TODO color
-    border: none;
-    border-radius: 0.5em;
+  background: var(--color-brown-500);
+  color: white; // TODO color
+  border: none;
+  border-radius: 0.5em;
 
-    transition: background 0.1s;
+  transition: background 0.1s;
 
-    font-size: 1rem;
+  font-size: 1rem;
 
-    &::after {
-        content: unset;
-    }
+  &::after {
+    content: unset;
+  }
 
-    &:hover {
-        background: var(--color-brown-400);
-        box-shadow: var(--shadow);
-    }
+  &:hover {
+    background: var(--color-brown-400);
+    box-shadow: var(--shadow);
+  }
 
-    &:disabled {
-        background: #555;
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
+  &:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 
-    &.slim {
-        padding: 0.25em 0.5em;
-    }
+  &.slim {
+    padding: 0.25em 0.5em;
+  }
 }
 
 .button-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 1rem;
 }
 
 .info-rows > * {
-    margin: 0.25em;
+  margin: 0.25em;
 }
 
 .flex {
-    display: flex;
-    gap: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
 }
 
 .card {
-    background: var(--color-tan-300);
-    border-radius: 0.5rem;
-    padding: 1rem;
+  background: var(--color-tan-300);
+  border-radius: 0.5rem;
+  padding: 1rem;
 
-    h1, h2, h3, h4 {
-        margin: 0 0 0.25em 0;
-    }
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin: 0 0 0.25em 0;
+  }
 }

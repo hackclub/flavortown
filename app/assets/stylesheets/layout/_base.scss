@@ -1,34 +1,34 @@
 // Base Layout Styles
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: var(--font-family-jua);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-family-jua);
 }
 
 body {
-    margin: 0;
-    color: var(--color-text-body);
-    background-color: var(--color-bg);
+  margin: 0;
+  color: var(--color-text-body);
+  background-color: var(--color-bg);
 }
 
 main {
-    min-height: 100vh;
-    // padding: var(--space-l);
+  min-height: 100vh;
+  // padding: var(--space-l);
 }
 
 body.signed-in {
-    background-image: url('mask/pattern.webp');
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-color: var(--color-bg-2);
+  background-image: url("mask/pattern.webp");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-color: var(--color-bg-2);
 }
 
 body.signed-in main {
-    margin-left: 320px; // space for sidebar
+  margin-left: 320px; // space for sidebar
 }
 
 // Link styles
@@ -59,4 +59,3 @@ body.signed-in main {
 //         background: var(--color-brown-hover-focus);
 //     }
 // }
-  

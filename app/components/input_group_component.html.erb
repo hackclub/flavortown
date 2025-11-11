@@ -1,0 +1,9 @@
+<div class="<%= group_classes %>">
+  <label class="input-group__label"><%= label %></label>
+  <% if has_subtitle? %>
+    <div class="input-group__subtitle"><%= subtitle %></div>
+  <% end %>
+  <div class="input-group__inputs">
+    <%= content %>
+  </div>
+</div>

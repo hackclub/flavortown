@@ -1,6 +1,6 @@
 :root {
-    --color-admin: #ff9100;
-    --color-dev: #52d831;
+  --color-admin: #ff9100;
+  --color-dev: #52d831;
 }
 
 // border overlay
@@ -17,18 +17,18 @@
 // }
 
 .tools-do {
-    border: 3px dashed;
-    border-radius: 5px;
-    display: inline-block;
-    padding: 4px;
+  border: 3px dashed;
+  border-radius: 5px;
+  display: inline-block;
+  padding: 4px;
 }
 
 .admin.tools-do {
-    background-color: color-mix(in srgb, var(--color-admin) 20%, transparent);
-    border-color: var(--color-admin);
+  background-color: color-mix(in srgb, var(--color-admin) 20%, transparent);
+  border-color: var(--color-admin);
 }
 
 .dev.tools-do {
-    background-color: color-mix(in srgb, var(--color-dev) 20%, transparent);
-    border-color: var(--color-dev);
+  background-color: color-mix(in srgb, var(--color-dev) 20%, transparent);
+  border-color: var(--color-dev);
 }
