@@ -10,13 +10,20 @@
 class Rsvp < ApplicationRecord
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   before_validation :downcase_email
-  after_create :send_signup_confirmation_email
+  after_commit :send_signup_confirmation_email, on: :create
   after_create :set_event_in_loops
 
   private
 
   def send_signup_confirmation_email
-    mail = RsvpMailer.signup_confirmation(email)
+    user = User.find_or_create_by!(email: email)
+    user.generate_magic_link_token!
+    magic_link_url = Rails.application.routes.url_helpers.magic_links_verify_url(
+      token: user.magic_link_token,
+      **Rails.application.config.action_mailer.default_url_options
+    )
+    
+    mail = RsvpMailer.signup_confirmation(email, magic_link_url: magic_link_url)
     if Rails.env.production?
       mail.deliver_later
     else
