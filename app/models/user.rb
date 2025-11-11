@@ -2,13 +2,19 @@
 #
 # Table name: users
 #
-#  id             :bigint           not null, primary key
-#  display_name   :string
-#  email          :string
-#  projects_count :integer
-#  votes_count    :integer
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
+#  id                          :bigint           not null, primary key
+#  display_name                :string
+#  email                       :string
+#  magic_link_token            :string
+#  magic_link_token_expires_at :datetime
+#  projects_count              :integer
+#  votes_count                 :integer
+#  created_at                  :datetime         not null
+#  updated_at                  :datetime         not null
+#
+# Indexes
+#
+#  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #
 class User < ApplicationRecord
   has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
@@ -52,5 +58,19 @@ class User < ApplicationRecord
     role_hierarchy = [ "super_admin", "admin", "fraud_dept", "project_certifier", "ysws_reviewer", "fulfillment_person" ]
     role_names = roles.pluck(:name).map(&:downcase)
     role_hierarchy.find { |role| role_names.include?(role) }&.titleize || "User"
+  end
+
+  def generate_magic_link_token!
+    self.magic_link_token = SecureRandom.urlsafe_base64(32)
+    self.magic_link_token_expires_at = 15.minutes.from_now
+    save!
+  end
+
+  def magic_link_valid?
+    magic_link_token.present? && magic_link_token_expires_at.present? && magic_link_token_expires_at > Time.current
+  end
+
+  def clear_magic_link_token!
+    update!(magic_link_token: nil, magic_link_token_expires_at: nil)
   end
 end

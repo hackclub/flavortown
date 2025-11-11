@@ -4,13 +4,19 @@
 #
 # Table name: users
 #
-#  id             :bigint           not null, primary key
-#  display_name   :string
-#  email          :string
-#  projects_count :integer
-#  votes_count    :integer
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
+#  id                          :bigint           not null, primary key
+#  display_name                :string
+#  email                       :string
+#  magic_link_token            :string
+#  magic_link_token_expires_at :datetime
+#  projects_count              :integer
+#  votes_count                 :integer
+#  created_at                  :datetime         not null
+#  updated_at                  :datetime         not null
+#
+# Indexes
+#
+#  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #
 one:
   email: MyString
