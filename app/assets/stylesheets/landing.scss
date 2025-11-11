@@ -385,6 +385,10 @@ input {
       height: 26rem;
 
       > div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
         background: var(--color-brown-600);
         box-shadow: var(--shadow);
         border-radius: 1.25rem;
@@ -392,7 +396,7 @@ input {
         padding: 0.8rem;
         height: 100%;
 
-        font-size: 1.2rem;
+        font-size: .95rem;
 
         position: relative;
 
@@ -403,10 +407,12 @@ input {
 
         img {
           width: 100%;
+          border-radius: 12px;
         }
 
         .title {
           width: 120%;
+          font-size: 1rem;
 
           position: absolute;
           bottom: 1rem;
