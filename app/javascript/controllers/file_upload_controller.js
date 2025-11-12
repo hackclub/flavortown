@@ -3,270 +3,193 @@ import { Controller } from "@hotwired/stimulus"
 const DROPZONE_ACTIVE_CLASS = "file-upload__dropzone--active"
 const DROPZONE_FILLED_CLASS = "file-upload__dropzone--filled"
 
-class FileUploadView {
-  constructor(controller) {
-    this.controller = controller
-  }
-
-  openFilePicker() {
-    this.controller.inputTarget.click()
-  }
-
-  activateDropzone() {
-    if (this.controller.hasDropzoneTarget) {
-      this.controller.dropzoneTarget.classList.add(DROPZONE_ACTIVE_CLASS)
-    }
-  }
-
-  deactivateDropzone() {
-    if (this.controller.hasDropzoneTarget) {
-      this.controller.dropzoneTarget.classList.remove(DROPZONE_ACTIVE_CLASS)
-    }
-  }
-
-  markFilled(state = true) {
-    if (!this.controller.hasDropzoneTarget) return
-    const action = state ? "add" : "remove"
-    this.controller.dropzoneTarget.classList[action](DROPZONE_FILLED_CLASS)
-  }
-
-  showPreview(file) {
-    if (!this.controller.hasPreviewTarget) return
-
-    if (file.type.startsWith("image/")) {
-      const reader = new FileReader()
-      reader.onload = () => {
-        this.#renderPreviewImage(reader.result, file.name) 
-      }
-      reader.readAsDataURL(file)
-    } else {
-      this.#renderPreviewFallback(file.name)
-    }
-  }
-
-  #renderPreviewImage(src, alt) {
-    this.controller.previewTarget.innerHTML = `<img src="${src}" alt="${alt}" class="file-upload__preview-image" />`
-    this.#displayPreviewShell(alt)
-  }
-
-  #renderPreviewFallback(filename) {
-    this.controller.previewTarget.innerHTML = `<div class="file-upload__preview-fallback">${filename}</div>`
-    this.#displayPreviewShell(filename)
-  }
-
-  #displayPreviewShell(filename) {
-    if (this.controller.hasPreviewTarget) {
-      this.controller.previewTarget.hidden = false
-    }
-    if (this.controller.hasPlaceholderTarget) {
-      this.controller.placeholderTarget.hidden = true
-    }
-    if (this.controller.hasFilenameTarget) {
-      this.controller.filenameTarget.textContent = filename
-      this.controller.filenameTarget.hidden = false
-    }
-    this.markFilled(true)
-  }
-
-  clearPreview() {
-    if (this.controller.hasPreviewTarget) {
-      this.controller.previewTarget.innerHTML = ""
-      this.controller.previewTarget.hidden = true
-    }
-
-    if (this.controller.hasPlaceholderTarget) {
-      this.controller.placeholderTarget.hidden = false
-    }
-
-    if (this.controller.hasFilenameTarget) {
-      this.controller.filenameTarget.textContent = ""
-      this.controller.filenameTarget.hidden = true
-    }
-
-    this.markFilled(false)
-  }
-
-  showProgress(value) {
-    if (!this.controller.hasProgressTarget || !this.controller.hasProgressBarTarget) return
-
-    this.controller.progressTarget.hidden = false
-    this.controller.progressBarTarget.style.width = `${Math.max(0, Math.min(100, value))}%`
-  }
-
-  hideProgress() {
-    if (!this.controller.hasProgressTarget || !this.controller.hasProgressBarTarget) return
-
-    this.controller.progressTarget.hidden = true
-    this.controller.progressBarTarget.style.width = "0%"
-  }
-
-  showStatus(message, tone = "info") {
-    if (!this.controller.hasStatusTarget) return
-
-    this.controller.statusTarget.textContent = message
-    this.controller.statusTarget.dataset.tone = tone
-    this.controller.statusTarget.hidden = false
-  }
-
-  clearStatus() {
-    if (!this.controller.hasStatusTarget) return
-
-    this.controller.statusTarget.textContent = ""
-    delete this.controller.statusTarget.dataset.tone
-    this.controller.statusTarget.hidden = true
-  }
-}
-
-// Connects to data-controller="file-upload"
 export default class extends Controller {
-  static targets = [
-    "input",
-    "dropzone",
-    "placeholder",
-    "preview",
-    "filename",
-    "progress",
-    "progressBar",
-    "status"
-  ]
+  #processing = false
 
-  static values = {
-    maxSize: Number
-  }
+  static targets = ["input", "dropzone", "placeholder", "preview", "filename", "progress", "progressBar", "status"]
+  static values = { maxSize: Number }
 
   connect() {
-    this.view = new FileUploadView(this)
     this.#reset()
   }
 
   open(event) {
     event.preventDefault()
-    this.view.openFilePicker()
+    this.inputTarget.click()
   }
 
   openWithKeyboard(event) {
-    if (event.key !== "Enter" && event.key !== " ") return
-
-    event.preventDefault()
-    this.view.openFilePicker()
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault()
+      this.inputTarget.click()
+    }
   }
 
   dragOver(event) {
     event.preventDefault()
-    this.view.activateDropzone()
+    if (this.hasDropzoneTarget) this.dropzoneTarget.classList.add(DROPZONE_ACTIVE_CLASS)
   }
 
   dragLeave(event) {
     event.preventDefault()
-    this.view.deactivateDropzone()
+    if (this.hasDropzoneTarget) this.dropzoneTarget.classList.remove(DROPZONE_ACTIVE_CLASS)
   }
 
   drop(event) {
     event.preventDefault()
-    this.view.deactivateDropzone()
+    if (this.hasDropzoneTarget) this.dropzoneTarget.classList.remove(DROPZONE_ACTIVE_CLASS)
     this.#processFiles(event.dataTransfer?.files)
   }
 
   handleSelection(event) {
+    if (this.#processing) return
     this.#processFiles(event.target.files)
   }
 
   uploadInitialize(event) {
     const { file } = event.detail
-
     if (!this.#validateFileSize(file)) {
       event.preventDefault()
       this.#rejectFile(file)
       return
     }
-
-    this.view.showPreview(file)
-    this.view.showProgress(0)
-    this.view.showStatus("Preparing upload…")
+    this.#showPreview(file)
+    this.#showProgress(0)
+    this.#showStatus("Preparing upload…")
   }
 
   uploadStart(event) {
-    this.view.showProgress(0)
-    this.view.showStatus(`Uploading ${event.detail.file.name}…`)
+    this.#showProgress(0)
+    this.#showStatus(`Uploading ${event.detail.file.name}…`)
   }
 
   uploadProgress(event) {
-    this.view.showProgress(event.detail.progress)
+    this.#showProgress(event.detail.progress)
   }
 
   uploadError(event) {
     event.preventDefault()
-    this.view.hideProgress()
-    this.view.showStatus(event.detail.error, "error")
+    this.#hideProgress()
+    this.#showStatus(event.detail.error, "error")
   }
 
   uploadEnd() {
-    this.view.showProgress(100)
-    this.view.showStatus("Upload complete", "success")
-
-    window.setTimeout(() => {
-      this.view.hideProgress()
-      this.view.clearStatus()
+    this.#showProgress(100)
+    this.#showStatus("Upload complete", "success")
+    setTimeout(() => {
+      this.#hideProgress()
+      this.#clearStatus()
     }, 1200)
   }
 
   #processFiles(fileList) {
-    const files = Array.from(fileList || [])
-    if (!files.length) return
-
-    const [ file ] = files
+    const file = Array.from(fileList || [])[0]
+    if (!file) return
 
     if (!this.#validateFileSize(file)) {
       this.#rejectFile(file)
       return
     }
 
-    this.#assignFiles([ file ])
-    this.#triggerInputChange()
-    this.view.showPreview(file)
-    this.view.showStatus("Ready to upload")
+    this.#processing = true
+    try {
+      const dt = new DataTransfer()
+      dt.items.add(file)
+      this.inputTarget.files = dt.files
+      this.#showPreview(file)
+      this.inputTarget.dispatchEvent(new Event("change", { bubbles: true }))
+    } finally {
+      this.#processing = false
+    }
   }
 
-  #assignFiles(fileList) {
-    const dataTransfer = new DataTransfer()
+  #showPreview(file) {
+    if (!this.hasPreviewTarget) return
 
-    Array.from(fileList).forEach((file) => dataTransfer.items.add(file))
-    this.inputTarget.files = dataTransfer.files
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader()
+      reader.onload = () => {
+        this.previewTarget.innerHTML = `<img src="${reader.result}" alt="${file.name}" class="file-upload__preview-image" />`
+        this.#displayPreviewShell(file.name)
+      }
+      reader.readAsDataURL(file)
+    } else {
+      this.previewTarget.innerHTML = `<div class="file-upload__preview-fallback">${file.name}</div>`
+      this.#displayPreviewShell(file.name)
+    }
   }
 
-  #triggerInputChange() {
-    const event = new Event("change", { bubbles: true })
-    this.inputTarget.dispatchEvent(event)
+  #displayPreviewShell(filename) {
+    if (this.hasPreviewTarget) this.previewTarget.hidden = false
+    if (this.hasPlaceholderTarget) this.placeholderTarget.hidden = true
+    if (this.hasFilenameTarget) {
+      this.filenameTarget.textContent = filename
+      this.filenameTarget.hidden = false
+    }
+    if (this.hasDropzoneTarget) this.dropzoneTarget.classList.add(DROPZONE_FILLED_CLASS)
+  }
+
+  #clearPreview() {
+    if (this.hasPreviewTarget) {
+      this.previewTarget.innerHTML = ""
+      this.previewTarget.hidden = true
+    }
+    if (this.hasPlaceholderTarget) this.placeholderTarget.hidden = false
+    if (this.hasFilenameTarget) {
+      this.filenameTarget.textContent = ""
+      this.filenameTarget.hidden = true
+    }
+    if (this.hasDropzoneTarget) this.dropzoneTarget.classList.remove(DROPZONE_FILLED_CLASS)
+  }
+
+  #showProgress(value) {
+    if (!this.hasProgressTarget || !this.hasProgressBarTarget) return
+    this.progressTarget.hidden = false
+    this.progressBarTarget.style.width = `${Math.max(0, Math.min(100, value))}%`
+  }
+
+  #hideProgress() {
+    if (!this.hasProgressTarget || !this.hasProgressBarTarget) return
+    this.progressTarget.hidden = true
+    this.progressBarTarget.style.width = "0%"
+  }
+
+  #showStatus(message, tone = "info") {
+    if (!this.hasStatusTarget) return
+    this.statusTarget.textContent = message
+    this.statusTarget.dataset.tone = tone
+    this.statusTarget.hidden = false
+  }
+
+  #clearStatus() {
+    if (!this.hasStatusTarget) return
+    this.statusTarget.textContent = ""
+    delete this.statusTarget.dataset.tone
+    this.statusTarget.hidden = true
   }
 
   #validateFileSize(file) {
-    if (!this.hasMaxSizeValue || !this.maxSizeValue) return true
-    return file.size <= this.maxSizeValue
+    console.log(this.hasMaxSizeValue)
+    return !this.hasMaxSizeValue || !this.maxSizeValue || file.size <= this.maxSizeValue
   }
 
   #rejectFile(file) {
-    this.#clearInput()
-    this.view.clearPreview()
-    const sizeMessage = this.hasMaxSizeValue ? ` (max ${this.#humanMaxSize()})` : ""
-    this.view.showStatus(`"${file.name}" is too large${sizeMessage}.`, "error")
-  }
-
-  #clearInput() {
     this.inputTarget.value = ""
     this.inputTarget.files = new DataTransfer().files
+    this.#clearPreview()
+    const sizeMsg = this.hasMaxSizeValue ? ` (max ${this.#humanMaxSize()})` : ""
+    this.#showStatus(`"${file.name}" is too large${sizeMsg}.`, "error")
   }
 
   #reset() {
-    this.view.clearPreview()
-    this.view.clearStatus()
-    this.view.hideProgress()
+    this.#clearPreview()
+    this.#clearStatus()
+    this.#hideProgress()
   }
 
   #humanMaxSize() {
     if (!this.hasMaxSizeValue || !this.maxSizeValue) return ""
-
-    const megabytes = this.maxSizeValue / (1024 * 1024)
-    const precision = megabytes >= 10 ? 0 : 1
-    return `${megabytes.toFixed(precision)} MB`
+    const mb = this.maxSizeValue / (1024 * 1024)
+    return `${mb.toFixed(mb >= 10 ? 0 : 1)} MB`
   }
 }
