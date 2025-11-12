@@ -113,6 +113,20 @@ end
     redirect_to admin_user_path(@user)
   end
 
+  def sync_hackatime
+    @user = User.find(params[:id])
+    slack_identity = @user.identities.find_by(provider: "slack")
+
+    if slack_identity
+      HackatimeService.sync_user_projects(@user, slack_identity.uid)
+      flash[:notice] = "Hackatime data synced for #{@user.display_name}."
+    else
+      flash[:alert] = "User does not have a Slack identity."
+    end
+
+    redirect_to admin_user_path(@user)
+  end
+
     def user_not_authorized
       flash[:alert] = "You are not authorized to perform this action."
       redirect_to(request.referrer || root_path)

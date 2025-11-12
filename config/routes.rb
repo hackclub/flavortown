@@ -63,6 +63,7 @@ Rails.application.routes.draw do
         post :promote_role
         post :demote_role
         post :toggle_flipper
+        post :sync_hackatime
       end
       resource :magic_link, only: [ :show ]
     end

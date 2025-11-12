@@ -34,6 +34,12 @@
     <h2>actions</h2>
     <div class="info-rows">
       <%= link_to "Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
+      <% slack_identity = @user.identities.find_by(provider: "slack") %>
+      <%= button_to "Sync Hackatime Data",
+                    sync_hackatime_admin_user_path(@user),
+                    method: :post,
+                    class: "btn-primary slim",
+                    disabled: slack_identity.nil? %>
       <% has_fraud_dept = @user.roles.exists?(name: "fraud_dept") %>
       <%= button_to (has_fraud_dept ? "Demote from Fraud Dept" : "Promote to Fraud Dept"),
                     (has_fraud_dept ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),

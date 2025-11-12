@@ -22,7 +22,7 @@ class Rsvp < ApplicationRecord
       token: user.magic_link_token,
       **Rails.application.config.action_mailer.default_url_options
     )
-    
+
     mail = RsvpMailer.signup_confirmation(email, magic_link_url: magic_link_url)
     if Rails.env.production?
       mail.deliver_later
