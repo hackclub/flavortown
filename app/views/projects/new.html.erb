@@ -32,6 +32,21 @@
               ) %>
         </div>
 
+        <div class="projects-new__field projects-new__field--banner">
+          <%= render(
+                FileUploadComponent.new(
+                  label: "Project Banner",
+                  form: form,
+                  attribute: :banner,
+                  color: :green,
+                  subtitle: "Upload a JPEG, PNG, WEBP, HEIC, or HEIF up to 10 MB.",
+                  accept: Project::ACCEPTED_CONTENT_TYPES.join(","),
+                  direct_upload: true,
+                  max_size: Project::MAX_BANNER_SIZE
+                )
+              ) %>
+        </div>
+
         <div class="projects-new__field projects-new__field--links">
           <%= render InputGroupComponent.new(
                 label: "Project Links",
@@ -47,7 +62,7 @@
                   color: :blue,
                   icon: "icons/link.svg"
                 ) %>
-              
+
             <%= render InputComponent.new(
                   label: "Repository",
                   placeholder: "https://github.com/hackclub/flavortown",
@@ -68,7 +83,6 @@
           <% end %>
         </div>
       </div>
-
       <div class="projects-new__actions">
         <%= form.submit "Create Project", class: "btn btn--yellow" %>
       </div>

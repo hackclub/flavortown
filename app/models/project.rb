@@ -15,6 +15,7 @@
 class Project < ApplicationRecord
     # TODO: reflect the allowed content types in the html accept
     ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
+    MAX_BANNER_SIZE = 10.megabytes
 
     has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
     has_many :users, through: :memberships
@@ -49,6 +50,6 @@ class Project < ApplicationRecord
     validates :description, length: { maximum: 1_000 }, allow_blank: true
     validates :banner,
               content_type: { in: ACCEPTED_CONTENT_TYPES, spoofing_protection: true },
-              size: { less_than: 10.megabytes, message: "is too large (max 10 MB)" },
+              size: { less_than: MAX_BANNER_SIZE, message: "is too large (max 10 MB)" },
               processable_file: true
 end
