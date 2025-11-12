@@ -991,7 +991,11 @@ input {
 }
 
 .section-6 {
-  background-color: var(--color-tan-300);
+  background-color: #E7D5B3;
+}
+
+.section-7 {
+  background-color: var(--color-bg);
   flex-direction: column;
   align-items: center;
 
@@ -1008,7 +1012,7 @@ input {
     }
 
     div {
-      background: var(--color-bg) url("landing/section-6/about-bg.webp")
+      background: var(--color-bg) url("landing/section-7/about-bg.webp")
         center / cover;
       box-shadow: var(--shadow);
       border-radius: 10px;
@@ -1065,7 +1069,7 @@ input {
     }
 
     .people {
-      background: var(--color-bg) url("landing/section-6/people-bg.png")
+      background: var(--color-bg) url("landing/section-7/people-bg.png")
         center top 20px / cover;
       box-shadow: var(--shadow);
       border-radius: 0.5rem;
