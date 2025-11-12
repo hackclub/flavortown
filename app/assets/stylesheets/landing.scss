@@ -991,7 +991,139 @@ input {
 }
 
 .section-6 {
+  position: relative;
   background-color: #E7D5B3;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .title {
+    margin-top: 2rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 3rem;
+
+    background: var(--color-red-400);
+    box-shadow: var(--shadow);
+    color: white;
+
+    border-radius: 2rem;
+    font-size: 2rem;
+    padding: 0.5rem;
+    aspect-ratio: 8 / 1;
+
+    > div {
+      font-size: 3rem;
+      width: 110%;
+      text-align: center;
+
+      background: var(--color-red-500)
+        url("landing/section-4/title-overlay.svg") center center / cover;
+      box-shadow: var(--shadow);
+      border-radius: 1rem;
+
+      padding: 0.5rem 0;
+    }
+
+    @media (max-width: 800px) {
+      font-size: 1.25rem;
+
+      aspect-ratio: 11 / 3;
+
+      > div {
+        font-size: 1.75rem;
+      }
+    }
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 4rem;
+
+    width: 70%;
+
+    @media (max-width: 600px) {
+      width: 90%;
+    }
+
+    .card {
+      padding: .5rem 1rem 1rem 1rem;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      z-index: 1;
+
+      display: flex;
+      flex-direction: column;
+      height: 16rem;
+
+      .question {
+        width: 120%;
+        transform: translateX(calc(-10% + 6px));
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        padding: 6px 0;
+        font-size: 1.3em;
+        text-align: center;
+        color: var(--color-bg);
+      }
+
+      .answer {
+        background-color: var(--color-bg);
+
+        height: 100%;
+        padding: 12px;
+        border-radius: 0 0 12px 12px;
+        box-shadow: var(--shadow);
+      }
+    }
+
+    .card-yellow {
+      background-color: #DE9E41;
+
+      .question {
+        background-color: #BE772B;
+      }
+    }
+
+    .card-green {
+      background-color: #A8CA58;
+
+      .question {
+        background-color: #75A743;
+      }
+    }
+
+    .card-blue {
+      background-color: #73BED3;
+
+      .question {
+        background-color: #4F8FBA;
+      }
+    }
+  }
+
+  // wasnt sure on a better way to do opacity rn, will find an better way later
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("landing/section-6/pattern.webp") repeat center center / 1200px;
+    opacity: 0.1;
+    z-index: 0;
+  }
+}
+
+.section-6-7-seperator {
+  width: 100%;
+  height: 16px;
+  background-color: #D5C3A0;
 }
 
 .section-7 {
