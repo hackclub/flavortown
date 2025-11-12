@@ -1,18 +1,16 @@
-<div 
-  class="<%= input_classes %>" 
-  data-controller="hackatime-project-selector" 
+<div
+  class="<%= input_classes %>"
+  data-controller="hackatime-project-selector"
   data-attribute="<%= attribute %>"
   data-project-icon-path="<%= project_icon_path %>"
-  data-close-icon-path="<%= close_icon_path %>"
->
+  data-close-icon-path="<%= close_icon_path %>">
   <label class="hackatime-project-selector__label"><%= label %></label>
-  
+
   <div class="hackatime-project-selector__control">
-    <select 
+    <select
       class="hackatime-project-selector__select"
       data-hackatime-project-selector-target="select"
-      data-action="change->hackatime-project-selector#addProject"
-    >
+      data-action="change->hackatime-project-selector#addProject">
       <option value="" selected>Select a project</option>
       <% projects.each do |project| %>
         <option value="<%= project.id %>" data-name="<%= project.name %>">
@@ -22,10 +20,9 @@
     </select>
   </div>
 
-  <div 
+  <div
     class="hackatime-project-selector__selected"
-    data-hackatime-project-selector-target="selectedContainer"
-  ></div>
+    data-hackatime-project-selector-target="selectedContainer"></div>
 
   <!-- Form submission Hidden shenanigans -->
   <div data-hackatime-project-selector-target="hiddenInputs">
@@ -35,4 +32,3 @@
     <div class="hackatime-project-selector__subtitle"><%= subtitle %></div>
   <% end %>
 </div>
-

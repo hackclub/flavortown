@@ -35,6 +35,10 @@ Rails.application.routes.draw do
   get "auth/:provider/callback", to: "sessions#create"
   get "/auth/failure", to: "sessions#failure"
   get "logout", to: "sessions#destroy"
+
+  # Magic Links
+  post "magic_links", to: "magic_links#create"
+  get "magic_links/verify", to: "magic_links#verify"
   # admin shallow routing
   namespace :admin do
     root to: "application#index"
@@ -59,7 +63,9 @@ Rails.application.routes.draw do
         post :promote_role
         post :demote_role
         post :toggle_flipper
+        post :sync_hackatime
       end
+      resource :magic_link, only: [ :show ]
     end
     resources :projects, only: [ :index ], shallow: true
     get "user-perms", to: "users#user_perms"

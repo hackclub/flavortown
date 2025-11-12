@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_10_172527) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_11_172403) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -292,9 +292,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_10_172527) do
     t.datetime "created_at", null: false
     t.string "display_name"
     t.string "email"
+    t.string "magic_link_token"
+    t.datetime "magic_link_token_expires_at"
     t.integer "projects_count"
     t.datetime "updated_at", null: false
     t.integer "votes_count"
+    t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
   end
 
   create_table "versions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
