@@ -1,0 +1,39 @@
+<div class="<%= wrapper_classes %>" data-controller="file-upload">
+  <label class="input__label" for="<%= form.field_id(attribute) %>"><%= label %></label>
+
+  <%= form.file_field attribute, **file_field_html_options %>
+
+  <div class="file-upload__area">
+    <div
+      class="file-upload__dropzone"
+      role="button"
+      tabindex="0"
+      aria-label="Upload file"
+      data-file-upload-target="dropzone"
+      data-action="<%= dropzone_actions %> keydown->file-upload#openWithKeyboard"
+    >
+      <div class="file-upload__placeholder" data-file-upload-target="placeholder">
+        <p class="file-upload__headline">Drag & drop your file here</p>
+        <p class="file-upload__hint">
+          or
+          <button type="button" class="file-upload__browse" data-action="file-upload#open">
+            browse from your computer
+          </button>
+        </p>
+      </div>
+
+      <div class="file-upload__preview" data-file-upload-target="preview" hidden></div>
+      <p class="file-upload__filename" data-file-upload-target="filename" hidden></p>
+    </div>
+
+    <div class="file-upload__progress" data-file-upload-target="progress" hidden>
+      <div class="file-upload__progress-bar" data-file-upload-target="progressBar"></div>
+    </div>
+
+    <p class="file-upload__status" data-file-upload-target="status" hidden></p>
+  </div>
+
+  <% if has_subtitle? %>
+    <div class="input__subtitle"><%= subtitle %></div>
+  <% end %>
+</div>

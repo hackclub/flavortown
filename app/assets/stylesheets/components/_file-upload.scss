@@ -1,0 +1,203 @@
+.file-upload {
+  [hidden] {
+    display: none !important;
+  }
+
+  .file-upload__input {
+    display: none;
+  }
+
+  .file-upload__area {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  .file-upload__dropzone {
+    --file-upload-border-color: var(--color-yellow-500);
+    --file-upload-background: var(--color-yellow-400);
+
+    position: relative;
+    padding: var(--space-xxl) var(--space-xl);
+    border-radius: calc(var(--border-radius) * 0.8);
+    border: 2px dashed var(--file-upload-border-color);
+    background: var(--file-upload-background);
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+    outline: none;
+  }
+
+  .file-upload__dropzone:focus-visible {
+    box-shadow: 0 0 0 3px var(--file-upload-border-color);
+  }
+
+  .file-upload__dropzone--active {
+    border-style: solid;
+    transform: scale(1.01);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .file-upload__dropzone--filled {
+    border-style: solid;
+  }
+
+  .file-upload__headline {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    color: var(--color-text-body);
+  }
+
+  .file-upload__hint {
+    margin: 0;
+    font-size: var(--font-size-s);
+    color: var(--color-text-muted);
+  }
+
+  .file-upload__browse {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: var(--file-upload-border-color);
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .file-upload__preview {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: calc(var(--border-radius) * 0.6);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .file-upload__preview-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .file-upload__preview-fallback {
+    font-size: var(--font-size-s);
+    color: var(--color-text-muted);
+    padding: var(--space-m);
+    word-break: break-word;
+  }
+
+  .file-upload__filename {
+    font-size: var(--font-size-s);
+    color: var(--color-text-muted);
+    word-break: break-word;
+  }
+
+  .file-upload__progress {
+    position: relative;
+    height: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .file-upload__progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 0%;
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      var(--file-upload-border-color),
+      var(--color-yellow-400)
+    );
+    transition: width 0.2s ease;
+  }
+
+  .file-upload__status {
+    font-size: var(--font-size-s);
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+
+  .file-upload__status[data-tone="success"] {
+    color: var(--color-green-500);
+  }
+
+  .file-upload__status[data-tone="error"] {
+    color: var(--color-red-500);
+  }
+
+  &.input--red {
+    .file-upload__dropzone {
+      --file-upload-border-color: var(--color-red-500);
+      --file-upload-background: var(--color-red-300);
+    }
+
+    .file-upload__progress-bar {
+      background: linear-gradient(
+        90deg,
+        var(--color-red-500),
+        var(--color-red-300)
+      );
+    }
+  }
+
+  &.input--blue {
+    .file-upload__dropzone {
+      --file-upload-border-color: var(--color-blue-500);
+      --file-upload-background: var(--color-blue-300);
+    }
+
+    .file-upload__progress-bar {
+      background: linear-gradient(
+        90deg,
+        var(--color-blue-500),
+        var(--color-blue-300)
+      );
+    }
+  }
+
+  &.input--green {
+    .file-upload__dropzone {
+      --file-upload-border-color: var(--color-green-500);
+      --file-upload-background: var(--color-green-300);
+    }
+
+    .file-upload__progress-bar {
+      background: linear-gradient(
+        90deg,
+        var(--color-green-500),
+        var(--color-green-300)
+      );
+    }
+  }
+
+  &.input--yellow {
+    .file-upload__dropzone {
+      --file-upload-border-color: var(--color-yellow-500);
+      --file-upload-background: var(--color-yellow-400);
+    }
+
+    .file-upload__progress-bar {
+      background: linear-gradient(
+        90deg,
+        var(--color-yellow-500),
+        var(--color-yellow-400)
+      );
+    }
+  }
+}
