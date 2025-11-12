@@ -27,8 +27,8 @@ class ProjectsController < ApplicationController
       flash[:notice] = "Project created successfully"
       redirect_to @project
     else
-      flash[:alert] = "Failed to create project"
-      render :new
+      flash[:alert] = "Failed to create project: #{@project.errors.full_messages.join(', ')}"
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -43,8 +43,8 @@ class ProjectsController < ApplicationController
       flash[:notice] = "Project updated successfully"
       redirect_to @project
     else
-      flash[:alert] = "Failed to update project"
-      render :edit
+      flash[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
+      render :edit, status: :unprocessable_entity
     end
   end
 
