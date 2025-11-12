@@ -21,9 +21,12 @@ class ProjectsController < ApplicationController
     @project = Project.new(project_params)
     authorize @project
 
-    if @project.save
+    validate_hackatime_projects
+
+    if @project.errors.empty? && @project.save
       # Create membership for the current user as owner
       @project.memberships.create!(user: current_user, role: :owner)
+      link_hackatime_projects
       flash[:notice] = "Project created successfully"
       redirect_to @project
     else
@@ -69,5 +72,29 @@ class ProjectsController < ApplicationController
 
   def project_params
     params.require(:project).permit(:title, :description, :demo_url, :repo_url, :readme_url, :banner)
+  end
+
+  def hackatime_project_ids
+    @hackatime_project_ids ||= Array(params[:project][:hackatime_project_ids]).reject(&:blank?)
+  end
+
+  def validate_hackatime_projects
+    return if hackatime_project_ids.empty?
+
+    already_linked = current_user.hackatime_projects
+                                 .where(id: hackatime_project_ids)
+                                 .where.not(project_id: nil)
+
+    return unless already_linked.any?
+
+    @project.errors.add(:base, "The following Hackatime projects are already linked: #{already_linked.pluck(:name).join(', ')}")
+  end
+
+  def link_hackatime_projects
+    return if hackatime_project_ids.empty?
+
+    current_user.hackatime_projects.where(id: hackatime_project_ids).find_each do |hp|
+      hp.update!(project: @project)
+    end
   end
 end

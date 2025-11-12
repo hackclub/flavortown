@@ -1,0 +1,365 @@
+.hackatime-project-selector {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+  padding: var(--space-s) var(--space-s) var(--space-s);
+  overflow: visible;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: var(--border-radius);
+    background-image: url("mask/title.webp");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  &__label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateY(-70%);
+    color: var(--color-bg);
+    font-size: var(--font-size-xl);
+    padding: var(--space-xs) var(--space-l);
+    border-top-left-radius: calc(var(--border-radius) * 0.8);
+    border-top-right-radius: calc(var(--border-radius) * 0.8);
+    pointer-events: none;
+    background-image: url("mask/title.webp");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    z-index: 3;
+  }
+
+  &__control {
+    position: relative;
+    z-index: 2;
+  }
+
+  &__select {
+    padding: var(--space-m) var(--space-m);
+    padding-right: calc(var(--space-xxl) * 1.1);
+    border-radius: calc(var(--border-radius) * 0.8);
+    border: none;
+    background-color: var(--color-bg);
+    font-size: var(--font-size-m);
+    color: var(--color-text-body);
+    outline: none;
+    box-shadow: 0 0 0 0px transparent;
+    transition: box-shadow 0.2s ease;
+    position: relative;
+    width: 100%;
+    appearance: none;
+    cursor: pointer;
+    background-image: url("icons/chevron-down.svg");
+    background-repeat: no-repeat;
+    background-position: right var(--space-m) center;
+    background-size: 1.75rem 1.5rem;
+
+    &::placeholder {
+      color: var(--color-text-muted);
+      opacity: 0.75;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 3px var(--color-blue-500);
+    }
+  }
+
+  &__selected {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    position: relative;
+    z-index: 2;
+    min-height: 0;
+    margin-top: 0;
+    height: 0;
+    overflow: hidden;
+
+    &:not(:empty) {
+      height: auto;
+      margin-top: var(--space-s);
+    }
+  }
+
+  &__project {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    padding: var(--space-s) var(--space-m);
+    border-radius: calc(var(--border-radius) * 0.8);
+    background-color: var(--color-blue-300);
+    transition: background-color 0.2s ease;
+  }
+
+  &__project-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--color-blue-400);
+    color: var(--color-bg);
+
+    img,
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      display: block;
+      object-fit: contain;
+    }
+
+    svg {
+      fill: currentColor;
+    }
+  }
+
+  &__project-content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xxxs);
+  }
+
+  &__project-name {
+    font-size: var(--font-size-xxl);
+    color: var(--color-blue-600);
+    line-height: var(--line-height-body);
+  }
+
+  &__project-meta {
+    font-size: var(--font-size-s);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-body);
+  }
+
+  &__project-remove {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: none;
+    background: transparent;
+    color: var(--color-bg);
+    cursor: pointer;
+    border-radius: calc(var(--border-radius) * 0.5);
+    transition: background-color 0.2s ease;
+    padding: 0;
+
+    &:hover {
+      background-color: var(--color-blue-400);
+    }
+
+    &:focus {
+      outline: 2px solid var(--color-blue-500);
+      outline-offset: 2px;
+    }
+
+    img,
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      display: block;
+      object-fit: contain;
+    }
+
+    svg {
+      fill: currentColor;
+      stroke: currentColor;
+    }
+  }
+
+  &__subtitle {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(calc(100% - var(--space-m)));
+    padding: var(--space-m) var(--space-s) var(--space-xs);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-s);
+    z-index: 0;
+  }
+
+  // Blue theme (default)
+  &--blue {
+    &::before {
+      background-color: var(--color-blue-400);
+    }
+
+    .hackatime-project-selector__label {
+      background-color: var(--color-blue-400);
+    }
+
+    .hackatime-project-selector__subtitle {
+      background-color: var(--color-blue-300);
+      color: var(--color-blue-600);
+    }
+
+    .hackatime-project-selector__select {
+      &:focus {
+        box-shadow: 0 0 0 3px var(--color-blue-500);
+      }
+
+      &::placeholder {
+        color: var(--color-blue-500);
+        opacity: 0.75;
+      }
+    }
+  }
+
+  // Red theme
+  &--red {
+    &::before {
+      background-color: var(--color-red-400);
+    }
+
+    .hackatime-project-selector__label {
+      background-color: var(--color-red-400);
+    }
+
+    .hackatime-project-selector__subtitle {
+      background-color: var(--color-red-300);
+      color: var(--color-red-600);
+    }
+
+    .hackatime-project-selector__select {
+      &:focus {
+        box-shadow: 0 0 0 3px var(--color-red-500);
+      }
+
+      &::placeholder {
+        color: var(--color-red-500);
+        opacity: 0.75;
+      }
+    }
+
+    .hackatime-project-selector__project {
+      background-color: var(--color-red-300);
+    }
+
+    .hackatime-project-selector__project-icon {
+      background-color: var(--color-red-400);
+    }
+
+    .hackatime-project-selector__project-name {
+      color: var(--color-red-600);
+    }
+
+    .hackatime-project-selector__project-remove {
+      color: var(--color-red-600);
+
+      &:hover {
+        background-color: var(--color-red-400);
+      }
+    }
+  }
+
+  // Green theme
+  &--green {
+    &::before {
+      background-color: var(--color-green-400);
+    }
+
+    .hackatime-project-selector__label {
+      background-color: var(--color-green-400);
+    }
+
+    .hackatime-project-selector__subtitle {
+      background-color: var(--color-green-300);
+      color: var(--color-green-600);
+    }
+
+    .hackatime-project-selector__select {
+      &:focus {
+        box-shadow: 0 0 0 3px var(--color-green-500);
+      }
+
+      &::placeholder {
+        color: var(--color-green-500);
+        opacity: 0.75;
+      }
+    }
+
+    .hackatime-project-selector__project {
+      background-color: var(--color-green-300);
+    }
+
+    .hackatime-project-selector__project-icon {
+      background-color: var(--color-green-400);
+    }
+
+    .hackatime-project-selector__project-name {
+      color: var(--color-green-600);
+    }
+
+    .hackatime-project-selector__project-remove {
+      color: var(--color-green-600);
+
+      &:hover {
+        background-color: var(--color-green-400);
+      }
+    }
+  }
+
+  // Yellow theme
+  &--yellow {
+    &::before {
+      background-color: var(--color-yellow-450);
+    }
+
+    .hackatime-project-selector__label {
+      background-color: var(--color-yellow-450);
+    }
+
+    .hackatime-project-selector__subtitle {
+      background-color: var(--color-yellow-400);
+      color: var(--color-yellow-600);
+    }
+
+    .hackatime-project-selector__select {
+      &:focus {
+        box-shadow: 0 0 0 3px var(--color-yellow-500);
+      }
+
+      &::placeholder {
+        color: var(--color-yellow-500);
+        opacity: 0.75;
+      }
+    }
+
+    .hackatime-project-selector__project {
+      background-color: var(--color-yellow-400);
+    }
+
+    .hackatime-project-selector__project-icon {
+      background-color: var(--color-yellow-450);
+    }
+
+    .hackatime-project-selector__project-name {
+      color: var(--color-yellow-600);
+    }
+
+    .hackatime-project-selector__project-remove {
+      color: var(--color-yellow-600);
+
+      &:hover {
+        background-color: var(--color-yellow-450);
+      }
+    }
+  }
+}
