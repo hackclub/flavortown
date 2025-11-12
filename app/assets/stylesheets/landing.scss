@@ -1065,8 +1065,8 @@ input {
     }
 
     .people {
-      background: var(--color-bg) url("landing/section-6/people-bg.webp")
-        center / cover;
+      background: var(--color-bg) url("landing/section-6/people-bg.png")
+        center top 20px / cover;
       box-shadow: var(--shadow);
       border-radius: 0.5rem;
       padding: 1rem;
