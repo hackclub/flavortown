@@ -24,6 +24,14 @@ class ProjectsController < ApplicationController
     if @project.save
       # Create membership for the current user as owner
       @project.memberships.create!(user: current_user, role: :owner)
+
+      if params[:project][:hackatime_project_ids].present?
+        hackatime_project_ids = params[:project][:hackatime_project_ids].reject(&:blank?)
+        current_user.hackatime_projects.where(id: hackatime_project_ids).find_each do |hackatime_project|
+          hackatime_project.update!(project: @project)
+        end
+      end
+
       flash[:notice] = "Project created successfully"
       redirect_to @project
     else
