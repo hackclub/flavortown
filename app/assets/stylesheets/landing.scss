@@ -829,12 +829,21 @@ input {
             display: flex;
             flex-direction: column;
             justify-content: end;
+            overflow: hidden;
+            flex: 1;
+            min-width: 0;
 
             p {
               color: var(--color-bg);
               text-wrap: wrap;
               font-size: 0.8em;
               margin: 0 0 8px 0;
+              overflow-wrap: break-word;
+              word-break: break-word;
+              overflow: hidden;
+              display: -webkit-box;
+              -webkit-line-clamp: 4;
+              -webkit-box-orient: vertical;
             }
 
             a {
@@ -858,12 +867,14 @@ input {
             rotate: 5deg;
             border-radius: 8px;
             box-shadow: var(--shadow);
+            max-width: 40%;
 
             img {
               height: 100%;
-              width: auto;
+              width: 100%;
               border-radius: 8px;
               rotate: -5deg;
+              object-fit: cover;
             }
           }
         }
