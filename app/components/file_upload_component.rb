@@ -46,7 +46,6 @@ class FileUploadComponent < ViewComponent::Base
 
     options[:multiple] = true if multiple?
     options[:accept] = accept if accept.present?
-    options[:data]["file-upload-max-size-value"] = max_size if max_size.present?
 
     options
   end

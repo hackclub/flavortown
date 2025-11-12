@@ -31,4 +31,13 @@ class User::HackatimeProject < ApplicationRecord
   # this ensures that the key can be used in js 1 project
   validates :name, uniqueness: { scope: :user_id }
   validates :name, exclusion: { in: EXCLUDED_NAMES, message: "is excluded" }
+  validate :project_not_already_linked, if: :project_id_changed?
+
+  private
+
+  def project_not_already_linked
+    return unless project_id_was.present? && project_id_was != project_id
+
+    errors.add(:project, "is already linked to another project")
+  end
 end

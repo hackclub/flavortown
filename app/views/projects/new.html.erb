@@ -27,7 +27,7 @@
                   color: :red,
                   as: :textarea,
                   input_html: { rows: 4 },
-                  subtitle: "Use a few sentences to explain what you’re making."
+                  subtitle: "Use a few sentences to explain what you're making."
                 )
               ) %>
         </div>
@@ -81,6 +81,19 @@
                   icon: "icons/paper.svg"
                 ) %>
           <% end %>
+        </div>
+
+        <div class="projects-new__field projects-new__field--hackatime-projects">
+          <%= render(
+                HackatimeProjectSelectorComponent.new(
+                  label: "Hackatime Projects",
+                  form: form,
+                  attribute: :hackatime_project_ids,
+                  color: :yellow,
+                  projects: current_user.hackatime_projects,
+                  subtitle: "Link this project to your Hackatime projects."
+                )
+              ) %>
         </div>
       </div>
       <div class="projects-new__actions">
