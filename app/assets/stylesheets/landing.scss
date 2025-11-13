@@ -670,6 +670,37 @@ input {
 }
 
 .section-5 {
+  background: var(--color-bg);
+  position: relative;
+
+  // not sure on a better idea for opacity
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("landing/pattern.webp") repeat center center / 1200px;
+    opacity: 0.1;
+    z-index: 0;
+  }
+}
+
+.section-5-6-seperator {
+  width: 100%;
+  height: 48px;
+  
+  color: var(--color-bg);
+  background-color: var(--color-brown-500);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+}
+
+.section-6 {
   background: var(--color-yellow-400);
   flex-direction: column;
   align-items: center;
@@ -750,7 +781,7 @@ input {
     height: 100%;
 
     background-color: var(--color-brown-500);
-    background-image: url("landing/section-5/projects/bg.webp");
+    background-image: url("landing/section-6/projects/bg.webp");
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -990,7 +1021,7 @@ input {
   }
 }
 
-.section-6 {
+.section-7 {
   position: relative;
   background-color: #E7D5B3;
 
@@ -1043,6 +1074,7 @@ input {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 4rem;
+    margin-bottom: 4rem;
 
     width: 70%;
 
@@ -1114,19 +1146,19 @@ input {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url("landing/section-6/pattern.webp") repeat center center / 1200px;
+    background: url("landing/pattern.webp") repeat center center / 1200px;
     opacity: 0.1;
     z-index: 0;
   }
 }
 
-.section-6-7-seperator {
+.section-7-7-seperator {
   width: 100%;
   height: 16px;
   background-color: #D5C3A0;
 }
 
-.section-7 {
+.section-8 {
   background-color: var(--color-bg);
   flex-direction: column;
   align-items: center;
@@ -1144,7 +1176,7 @@ input {
     }
 
     div {
-      background: var(--color-bg) url("landing/section-7/about-bg.webp")
+      background: var(--color-bg) url("landing/section-8/about-bg.webp")
         center / cover;
       box-shadow: var(--shadow);
       border-radius: 10px;
@@ -1201,7 +1233,7 @@ input {
     }
 
     .people {
-      background: var(--color-bg) url("landing/section-7/people-bg.png")
+      background: var(--color-bg) url("landing/section-8/people-bg.png")
         center top 20px / cover;
       box-shadow: var(--shadow);
       border-radius: 0.5rem;
