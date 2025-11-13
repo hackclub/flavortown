@@ -681,6 +681,42 @@ input {
     font-size: 2rem;
   }
 
+  .stats {
+    background-color: #AD7757;
+
+    width: 100%;
+    display: flex;
+    position: relative;
+    margin-top: auto;
+    height: 50vh;
+    z-index: 1;
+
+    border-top: 16px solid var(--color-brown-700);
+
+    .stats-title {
+      font-size: 2rem;
+      text-align: center;
+      width: 100%;
+      margin-top: 1rem;
+
+      color: var(--color-bg);
+    }
+
+    &::before {
+      background-image: url("landing/previously-hosted/bg-tile.svg");
+      background-repeat: repeat;
+      background-size: 7rem;
+
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.5;
+    }
+  }
+
   // not sure on a better idea for opacity
   &::before {
     content: "";
