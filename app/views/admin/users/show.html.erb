@@ -91,6 +91,14 @@
                     params: { feature: "admin_green" },
                     class: "btn-primary slim",
                     disabled: !current_user&.admin? %>
+
+      <% has_admin_dark = Flipper.enabled?(:admin_dark, @user) %>
+      <%= button_to (has_admin_dark ? "Disable Admin Dark Mode" : "Enable Admin Dark Mode"),
+                    toggle_flipper_admin_user_path(@user),
+                    method: :post,
+                    params: { feature: "admin_dark" },
+                    class: "btn-primary slim",
+                    disabled: !current_user&.admin? %>
     </div>
   </div>
 </div>

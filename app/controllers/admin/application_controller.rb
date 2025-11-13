@@ -22,16 +22,27 @@ module Admin
 
     # Use this to protect all admin endpoints
     def authenticate_admin
-      authorize :admin, :access_admin_endpoints?  # calls AdminPolicy#access_admin_endpoints?
+      # Fulfillment people can only access the shop orders fulfillment endpoint
+      if current_user&.fulfillment_person?
+        unless shop_orders_fulfillment?
+          raise Pundit::NotAuthorizedError
+        end
+      else
+        authorize :admin, :access_admin_endpoints?  # calls AdminPolicy#access_admin_endpoints?
+      end
     end
 
     def mission_control_jobs?
       request.path.start_with?("/admin/jobs")
     end
 
+    def shop_orders_fulfillment?
+      controller_name == "shop_orders" && (params[:view] == "fulfillment" || action_name == "show" || action_name == "reveal_address")
+    end
+
     # Handles unauthorized access
     def user_not_authorized
-      flash[:alert] = "You are not authorized to perform this action."
+      flash[:alert] = "Hey there buddy u aint no admin!"
       redirect_to(request.referrer || root_path)
     end
 
