@@ -101,15 +101,15 @@ input {
   display: flex;
 }
 
-.section-1 {
-  background: url("landing/section-1/long-image.webp") var(--color-bg) center /
+.hero {
+  background: url("landing/hero/long-image.webp") var(--color-bg) center /
     cover;
   align-items: center;
   justify-content: center;
 
   gap: 4rem;
 
-  .hero {
+  .hero-image {
     width: 30rem;
     aspect-ratio: 2 / 1;
   }
@@ -170,7 +170,7 @@ input {
   }
 }
 
-.section-2 {
+.how-this-works {
   background: var(--color-bg);
 
   gap: 1rem;
@@ -185,7 +185,7 @@ input {
     justify-content: center;
 
     .title {
-      background-image: url("landing/section-2/title.svg");
+      background-image: url("landing/how-this-works/title.svg");
       font-size: 3rem;
       color: var(--color-bg);
     }
@@ -242,7 +242,7 @@ input {
         padding: 0.5em 3em;
       }
 
-      .hero {
+      .step-hero {
         position: relative;
         display: flex;
         flex-direction: column;
@@ -297,37 +297,37 @@ input {
           font-size: 1.25rem;
         }
 
-        .hero .title {
+        .step-hero .title {
           font-size: 1.5rem;
         }
       }
     }
 
     &.left {
-      background: var(--color-pink-400) url("landing/section-2/texture_1.webp")
+      background: var(--color-pink-400) url("landing/how-this-works/texture_1.webp")
         no-repeat center / cover;
-      --ribbon-url: url("landing/section-2/step-1-ribbon.webp");
-      --card-url: url("landing/section-2/step-1-card-bg.webp");
+      --ribbon-url: url("landing/how-this-works/step-1-ribbon.webp");
+      --card-url: url("landing/how-this-works/step-1-card-bg.webp");
       --title-edge: #a4383f; // TODO do not hardcode!
       --title-middle: #be4d54; // TODO do not hardcode!
       --card-color: var(--color-red-500);
     }
 
     &.center {
-      background: var(--color-lime-400) url("landing/section-2/texture_2.webp")
+      background: var(--color-lime-400) url("landing/how-this-works/texture_2.webp")
         no-repeat center / cover;
-      --ribbon-url: url("landing/section-2/step-2-ribbon.webp");
-      --card-url: url("landing/section-2/step-2-card-bg.webp");
+      --ribbon-url: url("landing/how-this-works/step-2-ribbon.webp");
+      --card-url: url("landing/how-this-works/step-2-card-bg.webp");
       --title-edge: #468232; // TODO do not hardcode!
       --title-middle: #75a743; // TODO do not hardcode!
       --card-color: #468232; // TODO do not hardcode!
     }
 
     &.right {
-      background: var(--color-teal-400) url("landing/section-2/texture_3.webp")
+      background: var(--color-teal-400) url("landing/how-this-works/texture_3.webp")
         no-repeat center / cover;
-      --ribbon-url: url("landing/section-2/step-3-ribbon.webp");
-      --card-url: url("landing/section-2/step-3-card-bg.webp");
+      --ribbon-url: url("landing/how-this-works/step-3-ribbon.webp");
+      --card-url: url("landing/how-this-works/step-3-card-bg.webp");
       --title-edge: #3c5e8b; // TODO do not hardcode!
       --title-middle: #4f8fba; // TODO do not hardcode!
       --card-color: #3c5e8b; // TODO do not hardcode!
@@ -335,8 +335,8 @@ input {
   }
 }
 
-.section-3 {
-  background: url("landing/section-3/bg.webp") center center / cover;
+.testimonials {
+  background: url("landing/testimonials/bg.webp") center center / cover;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -344,7 +344,7 @@ input {
   padding: 2rem 0;
 
   > .title {
-    background-image: url("landing/section-3/title.webp");
+    background-image: url("landing/testimonials/title.webp");
     font-size: 3rem;
     color: var(--color-bg);
 
@@ -363,7 +363,7 @@ input {
     }
   }
 
-  .testimonials {
+  .cards {
     width: 70%;
     display: grid;
     justify-content: center;
@@ -460,8 +460,8 @@ input {
   }
 }
 
-.section-4 {
-  background: var(--color-bg) url("landing/section-4/bg.svg") center center /
+.prizes {
+  background: var(--color-bg) url("landing/prizes/bg.svg") center center /
     cover;
 
   padding: 2rem 0 4rem 0;
@@ -494,7 +494,7 @@ input {
       text-align: center;
 
       background: var(--color-red-500)
-        url("landing/section-4/title-overlay.svg") center center / cover;
+        url("landing/prizes/title-overlay.svg") center center / cover;
       box-shadow: var(--shadow);
       border-radius: 1rem;
 
@@ -591,7 +591,7 @@ input {
 
           .image-wrapper {
             background: var(--color-tan-300)
-              url("landing/section-4/img-overlay.svg") center center / cover;
+              url("landing/prizes/img-overlay.svg") center center / cover;
             box-shadow: var(--shadow);
             border-radius: 0.5rem;
             padding: 0.25rem;
@@ -669,7 +669,7 @@ input {
   }
 }
 
-.section-5 {
+.previously-hosted {
   background: var(--color-bg);
   position: relative;
   display: flex;
@@ -695,7 +695,7 @@ input {
   }
 }
 
-.section-5-6-seperator {
+.under-previously-hosted {
   width: 100%;
   height: 48px;
   
@@ -708,7 +708,7 @@ input {
   font-size: 1.5rem;
 }
 
-.section-6 {
+.inspiration {
   background: var(--color-yellow-400);
   flex-direction: column;
   align-items: center;
@@ -716,7 +716,7 @@ input {
   padding: 2rem 0;
 
   > .title {
-    background-image: url("landing/section-3/title.webp");
+    background-image: url("landing/testimonials/title.webp");
     color: var(--color-bg);
     font-size: 3rem;
     padding: 0.6em 1.5em;
@@ -740,217 +740,217 @@ input {
       flex-direction: column;
       align-items: center;
     }
-  }
-}
 
-.inspiration {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 50%;
-  height: auto;
-
-  @media (max-width: 900px) {
-    width: 80%;
-  }
-
-  .title {
-    width: 95%;
-    height: 40%;
-    background-color: var(--color-brown-500);
-    border-radius: 16px 16px 0 0;
-    box-shadow: var(--shadow);
-    padding: 1rem 1rem 0 1rem;
-
-    .inner {
-      height: 100%;
-      background-color: var(--color-bg);
-      border-radius: 10px 10px 0 0;
-      box-shadow: var(--shadow);
-      padding: 2rem;
-
-      h3 {
-        color: var(--color-brown-700);
-        font-size: 1.5em;
-        font-weight: normal;
-        margin: 0;
-      }
-
-      p {
-        color: var(--color-brown-500);
-        font-size: 1.2em;
-        margin: 0.5rem 0 0 0;
-      }
-    }
-  }
-
-  .projects {
-    width: 100%;
-    height: 100%;
-
-    background-color: var(--color-brown-500);
-    background-image: url("landing/section-6/projects/bg.webp");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    padding: 1rem;
-    margin-top: -8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    h3 {
-      color: var(--color-bg);
-      font-weight: normal;
-      text-align: center;
-      font-size: 1.8em;
-      margin: 16px 0;
-
-      @media (max-width: 600px) {
-        font-size: 1.5em;
-        margin: 0 0 16px 0;
-      }
-    }
-
-    .list {
+    .projects {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      gap: 32px;
-      width: 90%;
-      height: 60%;
+      width: 50%;
+      height: auto;
 
-      @media (max-width: 600px) {
-        width: 100%;
-        flex-direction: column;
+      @media (max-width: 900px) {
+        width: 80%;
       }
 
-      .project {
-        height: 140px;
-        position: relative;
+      .title {
+        width: 95%;
+        height: 40%;
+        background-color: var(--color-brown-500);
+        border-radius: 16px 16px 0 0;
+        box-shadow: var(--shadow);
+        padding: 1rem 1rem 0 1rem;
 
-        flex-grow: 1;
-        padding: 12px;
+        .inner {
+          height: 100%;
+          background-color: var(--color-bg);
+          border-radius: 10px 10px 0 0;
+          box-shadow: var(--shadow);
+          padding: 2rem;
+
+          h3 {
+            color: var(--color-brown-700);
+            font-size: 1.5em;
+            font-weight: normal;
+            margin: 0;
+          }
+
+          p {
+            color: var(--color-brown-500);
+            font-size: 1.2em;
+            margin: 0.5rem 0 0 0;
+          }
+        }
+      }
+
+      .content {
+        width: 100%;
+        height: 100%;
+
+        background-color: var(--color-brown-500);
+        background-image: url("landing/inspiration/projects/bg.webp");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+
         border-radius: 16px;
         box-shadow: var(--shadow);
+        padding: 1rem;
+        margin-top: -8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
 
-        > svg {
-          position: absolute;
-          top: -24px;
-          left: -24px;
-          width: 160px;
-          height: auto;
+        h3 {
+          color: var(--color-bg);
+          font-weight: normal;
+          text-align: center;
+          font-size: 1.8em;
+          margin: 16px 0;
+
+          @media (max-width: 600px) {
+            font-size: 1.5em;
+            margin: 0 0 16px 0;
+          }
         }
 
-        > div {
-          width: 100%;
-          height: 100%;
-          padding: 8px;
-          border-radius: 8px;
-          box-shadow: var(--shadow);
+        .list {
           display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 32px;
+          width: 90%;
+          height: 60%;
 
-          background: linear-gradient(
-            -50deg,
-            var(--title-edge) 0%,
-            var(--title-edge) 21.9%,
-            var(--title-middle) 22%,
-            var(--title-middle) 77%,
-            var(--title-edge) 77.1%,
-            var(--title-edge) 100%
-          );
-
-          .details {
-            height: 100%;
-            display: flex;
+          @media (max-width: 600px) {
+            width: 100%;
             flex-direction: column;
-            justify-content: end;
-            overflow: hidden;
-            flex: 1;
-            min-width: 0;
+          }
 
-            p {
-              color: var(--color-bg);
-              text-wrap: wrap;
-              font-size: 0.8em;
-              margin: 0 0 8px 0;
-              overflow-wrap: break-word;
-              word-break: break-word;
-              overflow: hidden;
-              display: -webkit-box;
-              -webkit-line-clamp: 4;
-              -webkit-box-orient: vertical;
+          .project {
+            height: 140px;
+            position: relative;
+
+            flex-grow: 1;
+            padding: 12px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+
+            > svg {
+              position: absolute;
+              top: -24px;
+              left: -24px;
+              width: 160px;
+              height: auto;
             }
 
-            a {
-              color: var(--color-bg);
-              box-shadow: var(--shadow);
-              padding: 4px 10px;
-              font-size: 0.9em;
+            > div {
+              width: 100%;
+              height: 100%;
+              padding: 8px;
               border-radius: 8px;
-              display: inline-flex;
-              align-items: center;
+              box-shadow: var(--shadow);
+              display: flex;
 
-              svg {
-                margin-right: 4px;
-                width: 12px;
+              background: linear-gradient(
+                -50deg,
+                var(--title-edge) 0%,
+                var(--title-edge) 21.9%,
+                var(--title-middle) 22%,
+                var(--title-middle) 77%,
+                var(--title-edge) 77.1%,
+                var(--title-edge) 100%
+              );
+
+              .details {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: end;
+                overflow: hidden;
+                flex: 1;
+                min-width: 0;
+
+                p {
+                  color: var(--color-bg);
+                  text-wrap: wrap;
+                  font-size: 0.8em;
+                  margin: 0 0 8px 0;
+                  overflow-wrap: break-word;
+                  word-break: break-word;
+                  overflow: hidden;
+                  display: -webkit-box;
+                  -webkit-line-clamp: 4;
+                  -webkit-box-orient: vertical;
+                }
+
+                a {
+                  color: var(--color-bg);
+                  box-shadow: var(--shadow);
+                  padding: 4px 10px;
+                  font-size: 0.9em;
+                  border-radius: 8px;
+                  display: inline-flex;
+                  align-items: center;
+
+                  svg {
+                    margin-right: 4px;
+                    width: 12px;
+                  }
+                }
+              }
+
+              .image {
+                margin-left: auto;
+                rotate: 5deg;
+                border-radius: 8px;
+                box-shadow: var(--shadow);
+                max-width: 40%;
+
+                img {
+                  height: 100%;
+                  width: 100%;
+                  border-radius: 8px;
+                  rotate: -5deg;
+                  object-fit: cover;
+                }
               }
             }
           }
 
-          .image {
-            margin-left: auto;
-            rotate: 5deg;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            max-width: 40%;
+          .project-purple {
+            background-color: #a96bc8;
 
-            img {
-              height: 100%;
-              width: 100%;
-              border-radius: 8px;
-              rotate: -5deg;
-              object-fit: cover;
+            > div {
+              --title-middle: #8954ac;
+              --title-edge: #824fa5;
+
+              a {
+                background-color: #5d3682;
+              }
+
+              .image {
+                width: 104px; // TODO: fix, 1 hour spent trying to avoid this, ITS NOT FUCKING WORKING ILL JUST HARDCODE THIS SHIT
+                background-color: #a96bc8;
+              }
             }
           }
-        }
-      }
 
-      .project-purple {
-        background-color: #a96bc8;
-
-        > div {
-          --title-middle: #8954ac;
-          --title-edge: #824fa5;
-
-          a {
-            background-color: #5d3682;
-          }
-
-          .image {
-            width: 104px; // TODO: fix, 1 hour spent trying to avoid this, ITS NOT FUCKING WORKING ILL JUST HARDCODE THIS SHIT
-            background-color: #a96bc8;
-          }
-        }
-      }
-
-      .project-blue {
-        background-color: #73bed3;
-
-        > div {
-          --title-middle: #4f8fba;
-          --title-edge: #4c87b2;
-
-          a {
-            background-color: #3c5e8b;
-          }
-
-          .image {
-            width: 100px; // TODO: fix, i need help, please
+          .project-blue {
             background-color: #73bed3;
+
+            > div {
+              --title-middle: #4f8fba;
+              --title-edge: #4c87b2;
+
+              a {
+                background-color: #3c5e8b;
+              }
+
+              .image {
+                width: 100px; // TODO: fix, i need help, please
+                background-color: #73bed3;
+              }
+            }
           }
         }
       }
@@ -1029,7 +1029,7 @@ input {
   }
 }
 
-.section-7 {
+.faq {
   position: relative;
   background-color: #E7D5B3;
 
@@ -1060,7 +1060,7 @@ input {
       text-align: center;
 
       background: var(--color-red-500)
-        url("landing/section-4/title-overlay.svg") center center / cover;
+        url("landing/prizes/title-overlay.svg") center center / cover;
       box-shadow: var(--shadow);
       border-radius: 1rem;
 
@@ -1160,13 +1160,13 @@ input {
   }
 }
 
-.section-7-7-seperator {
+.faq-7-seperator {
   width: 100%;
   height: 16px;
   background-color: #D5C3A0;
 }
 
-.section-8 {
+.footer {
   background-color: var(--color-bg);
   flex-direction: column;
   align-items: center;
@@ -1184,7 +1184,7 @@ input {
     }
 
     div {
-      background: var(--color-bg) url("landing/section-8/about-bg.webp")
+      background: var(--color-bg) url("landing/footer/about-bg.webp")
         center / cover;
       box-shadow: var(--shadow);
       border-radius: 10px;
@@ -1241,7 +1241,7 @@ input {
     }
 
     .people {
-      background: var(--color-bg) url("landing/section-8/people-bg.png")
+      background: var(--color-bg) url("landing/footer/people-bg.png")
         center top 20px / cover;
       box-shadow: var(--shadow);
       border-radius: 0.5rem;
