@@ -2,8 +2,8 @@
   <%= stylesheet_link_tag "landing", "data-turbo-track": "reload" %>
 <% end %>
 
-<div class="section section-1">
-  <%= inline_svg_tag "landing/section-1/flag-orpheus-top.svg", class: "orph-flag" %>
+<div class="section hero">
+  <%= inline_svg_tag "landing/hero/flag-orpheus-top.svg", class: "orph-flag" %>
 
   <div class="login-btn">
     <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
@@ -21,17 +21,17 @@
     <% end %>
   </div>
 
-  <div class="hero">
+  <div class="hero-image">
     <!-- TODO: som-style hero image? -->
   </div>
 
   <div class="rsvp-container">
-    <%= image_tag "landing/section-1/drawing.webp" %>
+    <%= image_tag "landing/hero/drawing.webp" %>
     <%= render "rsvp_form", rsvp: Rsvp.new %>
   </div>
 </div>
 
-<div class="section section-2">
+<div class="section how-this-works">
   <div class="title-overlay">
     <div class="ribbon ribbon-title title">How this works</div>
   </div>
@@ -40,8 +40,8 @@
     <div class="step-card">
         <div class="ribbon step-count">Step 1</div>
 
-        <div class="hero">
-          <%= image_tag "landing/section-2/step-1-img.webp" %>
+        <div class="step-hero">
+          <%= image_tag "landing/how-this-works/step-1-img.webp" %>
           <div class="title">Cook a real tasty project!</div>
         </div>
 
@@ -53,8 +53,8 @@
     <div class="step-card">
         <div class="ribbon step-count">Step 2</div>
 
-        <div class="hero">
-          <%= image_tag "landing/section-2/step-2-img.webp" %>
+        <div class="step-hero">
+          <%= image_tag "landing/how-this-works/step-2-img.webp" %>
           <div class="title">Rate your fellow hackers!</div>
         </div>
 
@@ -66,8 +66,8 @@
     <div class="step-card">
         <div class="ribbon step-count">Step 3</div>
 
-        <div class="hero">
-          <%= image_tag "landing/section-2/step-3-img.webp" %>
+        <div class="step-hero">
+          <%= image_tag "landing/how-this-works/step-3-img.webp" %>
           <div class="title">Win prizes!</div>
         </div>
 
@@ -76,61 +76,7 @@
   </div>
 </div>
 
-<div class="section section-3">
-  <div class="ribbon ribbon-title title">What past chefs say</div>
-
-  <div class="testimonials">
-    <div class="testimonial blue">
-      <div>
-        <%= image_tag "landing/section-3/cards/card-1.webp", height: "40%", style: "object-fit: cover;" %>
-        <p>I loved summer of making, I got to work on such a great platform and meet so many talented people at HQ as a result of that! Fulfillment hell had the silver lining of seeing all the people getting cool stuff from the event!</p>
-        <div class="title">16 year old Hack Clubber from the US</div>
-      </div>
-    </div>
-
-    <div class="testimonial green">
-      <div>
-        <%= image_tag "landing/section-3/cards/card-2.webp" %>
-        <p>It encouraged me to create more and learn more.</p>
-        <div class="title">14 year old Hack Clubber from Japan</div>
-      </div>
-    </div>
-
-    <div class="testimonial red">
-      <div>
-        <%= image_tag "landing/section-3/cards/card-3.webp", height: "40%", style: "object-fit: cover" %>
-        <p>I salute everybody who volunteered at Hack Club to make Summer of Making possible; without it I would've never had known about just how special this community is. And hey, I got a Flipper Zero from it after spending months the previous year working on my own cheap version of one, so that's pretty cool! ❤️</p>
-        <div class="title">15 year old Hack Clubber from the US</div>
-      </div>
-    </div>
-
-    <div class="testimonial blue">
-      <div>
-        <%= image_tag "landing/section-3/cards/card-4.webp" %>
-        <p>Being a student in South India, where in small cities, students don't even know proper English, I lost the spirit to code which I got during the COVID-19 period. Hack Club has reignited that spirit in me.</p>
-        <div class="title">17 year old Hack Clubber from India</div>
-      </div>
-    </div>
-
-    <div class="testimonial green">
-      <div>
-        <%= image_tag "landing/section-3/cards/card-5.webp", height: "40%", style: "object-fit: cover" %>
-        <p>It has been a learning experience and a fun way to get back into coding properly after Arcade last year. Thank you so much for running such an amazing event and inspiring me. </p>
-        <div class="title">13 year old Hack Clubber from the UK</div>
-      </div>
-    </div>
-
-    <div class="testimonial red">
-      <div>
-        <%= image_tag "landing/section-3/cards/card-6.webp" %>
-        <p>I started programming about 5 years ago. The I saw a yt vid from Hackclub and was immediately excited by the idea that coding as a teenager can get you free stuff. But at the end I realised that it was more than that: it was the people and knowledge I got to know.</p>
-        <div class="title">14 year old Hack Clubber from Germany</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="section section-4">
+<div class="section prizes">
   <div class="title">
     <div>Amazing Prizes</div>
     Prizes to power up your next project!
@@ -155,11 +101,81 @@
   } %>
 </div>
 
-<div class="section section-5">
+<div class="section previously-hosted">
+  <h2 class="title">Previously, we hosted...</h2>
+
+  <div class="events">
+
+  </div>
+
+  <div class="stats">
+    <h3 class="stats-title">For Summer of Making...</h3>
+  </div>
+</div>
+
+<div class="under-previously-hosted">
+  This winter, we're going even bigger!
+</div>
+
+<div class="section testimonials">
+  <div class="ribbon ribbon-title title">What past chefs say</div>
+
+  <div class="cards">
+    <div class="testimonial blue">
+      <div>
+        <%= image_tag "landing/testimonials/cards/card-1.webp", height: "40%", style: "object-fit: cover;" %>
+        <p>I loved summer of making, I got to work on such a great platform and meet so many talented people at HQ as a result of that! Fulfillment hell had the silver lining of seeing all the people getting cool stuff from the event!</p>
+        <div class="title">16 year old Hack Clubber from the US</div>
+      </div>
+    </div>
+
+    <div class="testimonial green">
+      <div>
+        <%= image_tag "landing/testimonials/cards/card-2.webp" %>
+        <p>It encouraged me to create more and learn more.</p>
+        <div class="title">14 year old Hack Clubber from Japan</div>
+      </div>
+    </div>
+
+    <div class="testimonial red">
+      <div>
+        <%= image_tag "landing/testimonials/cards/card-3.webp", height: "40%", style: "object-fit: cover" %>
+        <p>I salute everybody who volunteered at Hack Club to make Summer of Making possible; without it I would've never had known about just how special this community is. And hey, I got a Flipper Zero from it after spending months the previous year working on my own cheap version of one, so that's pretty cool! ❤️</p>
+        <div class="title">15 year old Hack Clubber from the US</div>
+      </div>
+    </div>
+
+    <div class="testimonial blue">
+      <div>
+        <%= image_tag "landing/testimonials/cards/card-4.webp" %>
+        <p>Being a student in South India, where in small cities, students don't even know proper English, I lost the spirit to code which I got during the COVID-19 period. Hack Club has reignited that spirit in me.</p>
+        <div class="title">17 year old Hack Clubber from India</div>
+      </div>
+    </div>
+
+    <div class="testimonial green">
+      <div>
+        <%= image_tag "landing/testimonials/cards/card-5.webp", height: "40%", style: "object-fit: cover" %>
+        <p>It has been a learning experience and a fun way to get back into coding properly after Arcade last year. Thank you so much for running such an amazing event and inspiring me. </p>
+        <div class="title">13 year old Hack Clubber from the UK</div>
+      </div>
+    </div>
+
+    <div class="testimonial red">
+      <div>
+        <%= image_tag "landing/testimonials/cards/card-6.webp" %>
+        <p>I started programming about 5 years ago. The I saw a yt vid from Hackclub and was immediately excited by the idea that coding as a teenager can get you free stuff. But at the end I realised that it was more than that: it was the people and knowledge I got to know.</p>
+        <div class="title">14 year old Hack Clubber from Germany</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section inspiration">
   <div class="ribbon ribbon-title title">What will you cook this winter?</div>
 
   <div class="content">
-    <div class="inspiration">
+    <div class="projects">
       <div class="title">
         <div class="inner">
           <h3>Build whatever you want!</h3>
@@ -167,12 +183,12 @@
         </div>
       </div>
 
-      <div class="projects">
+      <div class="content">
         <h3>Check out these projects for inspirations:</h3>
 
         <div class="list">
           <div class="project project-purple">
-            <%= inline_svg_tag "landing/section-5/projects/project-1-ribbon.svg" %>
+            <%= inline_svg_tag "landing/inspiration/projects/project-1-ribbon.svg" %>
 
             <div>
               <div class="details">
@@ -192,13 +208,13 @@
               </div>
 
               <div class="image">
-                <%= image_tag "landing/section-5/projects/project-11.png" %>
+                <%= image_tag "landing/inspiration/projects/project-11.png" %>
               </div>
             </div>
           </div>
 
           <div class="project project-blue">
-            <%= inline_svg_tag "landing/section-5/projects/project-2-ribbon.svg" %>
+            <%= inline_svg_tag "landing/inspiration/projects/project-2-ribbon.svg" %>
 
             <div>
               <div class="details">
@@ -217,7 +233,7 @@
               </div>
 
               <div class="image">
-                <%= image_tag "landing/section-5/projects/project-2.jpeg" %>
+                <%= image_tag "landing/inspiration/projects/project-2.jpeg" %>
               </div>
             </div>
           </div>
@@ -229,8 +245,7 @@
   </div>
 </div>
 
-
-<div class="section section-6">
+<div class="section faq">
   <div class="title">
     <div>FAQ</div>
   </div>
@@ -238,7 +253,7 @@
   <div class="cards">
     <div class="card card-yellow">
       <p class="question">Who is eligible?</p>
-      <p class="answer">You need to be a high schooler (or younger). If you are over 18, you can participate in our referral program and earn prizes by getting teens excited about building cool stuff.</p>
+      <p class="answer">You need to be a high schooler (or younger). If you are over 18, you can participate in our referral program and earn prizes by getting teens excited about building cool stuff.</p>
     </div>
 
     <div class="card card-green">
@@ -258,19 +273,19 @@
 
     <div class="card card-green">
       <p class="question">How can I trust this is real?</p>
-      <p class="answer">Last winter, we ran High Seas, which gave out over 12,000 prizes with 3,865 projects shipped, and we have the receipts to prove it. Before that, we ran Arcade, which was also a huge success.</p>
+      <p class="answer">Last winter, we ran High Seas, which gave out over 12,000 prizes with 3,865 projects shipped, and we have the receipts to prove it. Before that, we ran Arcade, which was also a huge success.</p>
     </div>
 
     <div class="card card-blue">
       <p class="question">Is Hack Club really a non-profit?</p>
-      <p class="answer">Yup! Hack Club is a 501(c)(3) non-profit, and our EIN is 81-2908499. You can view our 990-N forms on ProPublica. We also keep our financials transparent and available for anyone to view.</p>
+      <p class="answer">Yup! Hack Club is a 501(c)(3) non-profit, and our EIN is 81-2908499. You can view our 990-N forms on ProPublica. We also keep our financials transparent and available for anyone to view.</p>
     </div>
   </div>
 </div>
 
-<div class="section-6-7-seperator"></div>
+<div class="under-faq"></div>
 
-<div class="section section-7">
+<div class="section footer">
   <div class="about">
     <div>
       <h2>About Hack Club</h2>
