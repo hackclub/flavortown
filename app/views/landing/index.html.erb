@@ -76,6 +76,49 @@
   </div>
 </div>
 
+
+<div class="section prizes">
+  <div class="title">
+    <div>Amazing Prizes</div>
+    Prizes to power up your next project!
+  </div>
+
+  <%= render partial: "landing/carousel/showcase", locals: {
+    showcase_items: @prizes.select { |p| p[:hours_estimated].between?(4, 9) },
+    class_name: "five-hour",
+    title: "5 hour prizes"
+  } %>
+
+  <%= render partial: "landing/carousel/showcase", locals: {
+    showcase_items: @prizes.select { |p| p[:hours_estimated].between?(10, 30) },
+    class_name: "twenty-hour",
+    title: "20 hour prizes"
+  } %>
+
+  <%= render partial: "landing/carousel/showcase", locals: {
+    showcase_items: @prizes.select { |p| p[:hours_estimated] > 80 },
+    class_name: "hundred-hour",
+    title: "100 hour prizes"
+  } %>
+</div>
+
+
+<div class="section previously-hosted">
+  <h2 class="title">Previously, we hosted...</h2>
+
+  <div class="events">
+
+  </div>
+
+  <div class="stats">
+    <h3 class="stats-title">For Summer of Making...</h3>
+  </div>
+</div>
+
+<div class="under-previously-hosted">
+  This winter, we're going even bigger!
+</div>
+
 <div class="section testimonials">
   <div class="ribbon ribbon-title title">What past chefs say</div>
 
@@ -128,47 +171,6 @@
       </div>
     </div>
   </div>
-</div>
-
-<div class="section prizes">
-  <div class="title">
-    <div>Amazing Prizes</div>
-    Prizes to power up your next project!
-  </div>
-
-  <%= render partial: "landing/carousel/showcase", locals: {
-    showcase_items: @prizes.select { |p| p[:hours_estimated].between?(4, 9) },
-    class_name: "five-hour",
-    title: "5 hour prizes"
-  } %>
-
-  <%= render partial: "landing/carousel/showcase", locals: {
-    showcase_items: @prizes.select { |p| p[:hours_estimated].between?(10, 30) },
-    class_name: "twenty-hour",
-    title: "20 hour prizes"
-  } %>
-
-  <%= render partial: "landing/carousel/showcase", locals: {
-    showcase_items: @prizes.select { |p| p[:hours_estimated] > 80 },
-    class_name: "hundred-hour",
-    title: "100 hour prizes"
-  } %>
-</div>
-
-<div class="section previously-hosted">
-  <h2 class="title">Previously, we hosted...</h2>
-
-  <div class="events">
-
-  </div>
-
-  <div class="stats">
-    <h3 class="stats-title">For Summer of Making...</h3>
-  </div>
-</div>
-
-<div class="under-previously-hosted">
-  This winter, we're going even bigger!
 </div>
 
 <div class="section inspiration">
