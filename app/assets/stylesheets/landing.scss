@@ -672,6 +672,14 @@ input {
 .section-5 {
   background: var(--color-bg);
   position: relative;
+  display: flex;
+  flex-direction: column;
+
+  .title {
+    margin: 1rem 0 0 0;
+    text-align: center;
+    font-size: 2rem;
+  }
 
   // not sure on a better idea for opacity
   &::before {
