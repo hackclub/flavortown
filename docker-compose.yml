@@ -19,7 +19,7 @@ services:
     volumes:
       - flavortown_postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=flavortown123
+      - POSTGRES_PASSWORD=pass
       - POSTGRES_USER=postgres
       - POSTGRES_DB=flavortown_development
     ports:
