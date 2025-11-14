@@ -739,7 +739,7 @@ input {
   .title {
     margin: 2rem 0 0 0;
     text-align: center;
-    font-size: 2rem;
+    font-size: 3rem;
     font-weight: normal;
   }
 
@@ -751,8 +751,12 @@ input {
     padding: 2rem;
     flex-wrap: wrap;
     text-align: center;
-    color: #F8E8D1;
+    color: var(--color-bg);
     z-index: 2;
+
+    @media (max-width: 800px) {
+      gap: 4rem;
+    }
 
     .event-card {
       background-color: #7A4841;
@@ -795,6 +799,7 @@ input {
 
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     position: relative;
     margin-top: auto;
     z-index: 1;
@@ -810,6 +815,10 @@ input {
     background-image: url("landing/previously-hosted/bg-tile.svg");
     background-repeat: repeat;
     background-size: 7rem;
+
+    @media (max-width: 600px) {
+      margin-top: 2rem;
+    }
 
     h2 {
       margin: 0;
@@ -836,7 +845,7 @@ input {
       position: absolute;
       width: calc(var(--notch-width) + 2 * var(--notch-border));
       height: calc(var(--notch-height) + var(--notch-border));
-      top: calc(-1 * var(--notch-height) - var(--notch-border) - 4px);
+      top: calc(-1 * var(--notch-height) - var(--notch-border));
       left: calc(var(--notch-x) - (var(--notch-width) / 2) - var(--notch-border));
       background: var(--color-brown-700);
       clip-path: polygon(0 100%, 50% 0, 100% 100%);
@@ -849,8 +858,8 @@ input {
       content: "";
       position: absolute;
       width: var(--notch-width);
-      height: var(--notch-height);
-      top: calc(-1 * var(--notch-height) - 4px);
+      height: calc(var(--notch-height) + 4px);
+      top: calc(-1 * var(--notch-height));
       left: calc(var(--notch-x) - var(--notch-width) / 2);
       background: #ad7757;
       clip-path: polygon(0 100%, 50% 0, 100% 100%);
@@ -865,17 +874,22 @@ input {
       flex-direction: row;
       justify-content: center;
       align-items: center;
-      gap: 2rem;
+      gap: 4rem;
       margin-top: 3rem;
+
+      @media (max-width: 800px) {
+        flex-direction: column;
+      }
 
       .stat {
         position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
-        background-color: #F8E8D1;
+        background-color: var(--color-bg);
         padding: 2em 1.5em;
         border-radius: 16px;
+        box-shadow: var(--shadow);
 
         h4 {
           font-size: 3rem;
@@ -897,7 +911,7 @@ input {
           top: -25%;
           left: 50%;
           transform: translateX(-50%);
-          border: 10px solid #F8E8D1;
+          border: 10px solid var(--color-bg);
           border-radius: 50%;
         }
       }
@@ -906,6 +920,7 @@ input {
     .prize-stats {
       display: flex;
       flex-direction: row;
+      flex-wrap: wrap;
       justify-content: center;
       align-items: center;
       gap: 2em;
@@ -956,6 +971,10 @@ input {
   justify-content: center;
   align-items: center;
   font-size: 1.5rem;
+
+  @media (max-width: 600px) {
+    font-size: 1.2rem;
+  }
 }
 
 .inspiration {
