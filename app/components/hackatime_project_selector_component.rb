@@ -38,6 +38,15 @@ class HackatimeProjectSelectorComponent < ViewComponent::Base
     "/assets/icons/close.svg"
   end
 
+  def initial_projects
+    record = form.object
+    if record.respond_to?(:hackatime_projects)
+      record.hackatime_projects.select(:id, :name).map { |hp| { id: hp.id, name: hp.name } }
+    else
+      []
+    end
+  end
+
   private
 
   def normalize_color(value)

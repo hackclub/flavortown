@@ -2,9 +2,22 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static targets = ["select", "selectedContainer", "hiddenInputs"];
+  static values = { initialProjects: Array };
 
   connect() {
     this.selectedProjects = new Set();
+    // Seed initial selected projects if provided as values
+    if (this.hasInitialProjectsValue && Array.isArray(this.initialProjectsValue)) {
+      const seeds = this.initialProjectsValue;
+      seeds.forEach(async (proj) => {
+        const id = String(proj.id);
+        const name = proj.name || `Project ${id}`;
+        if (!this.selectedProjects.has(id)) {
+          this.selectedProjects.add(id);
+          await this.renderSelectedProject(id, name);
+        }
+      });
+    }
     this.updateHiddenInputs();
   }
 
