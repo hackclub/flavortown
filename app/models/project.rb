@@ -20,6 +20,8 @@ class Project < ApplicationRecord
     has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
     has_many :users, through: :memberships
     has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :nullify
+    has_many :posts, dependent: :destroy
+    has_many :devlogs, -> { where(postable_type: "Post::Devlog") }, class_name: "Post"
 
     has_one_attached :demo_video
     # https://github.com/rails/rails/pull/39135
@@ -53,4 +55,9 @@ class Project < ApplicationRecord
               content_type: { in: ACCEPTED_CONTENT_TYPES, spoofing_protection: true },
               size: { less_than: MAX_BANNER_SIZE, message: "is too large (max 10 MB)" },
               processable_file: true
+
+    # prolly countercache it
+    def devlogs_count
+        devlogs.count
+    end
 end
