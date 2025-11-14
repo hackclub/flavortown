@@ -1,57 +1,105 @@
 <div class="section testimonials">
   <div class="ribbon ribbon-title title">What past chefs say</div>
 
+  <% cards_markup = capture do %>
+      <div class="testimonial red">
+        <h2>18 year old Hack Clubber from Japan</h2>
+        <div class="content">
+          <%= image_tag "landing/testimonials/cards/card-1.webp", alt: "Summer of Making", loading: "lazy" %>
+          <h3>I spent over 400 hours at High Seas ... and connected with people from all over the world ... these led to incredible opportunities, like participating in DEFCON...</h3>
+        </div>
+      </div>
+      <div class="testimonial yellow">
+        <h2>17 year old Hack Clubber from India</h2>
+        <div class="content">
+          <%= image_tag "landing/testimonials/cards/card-2.webp", alt: "Summer of Making", loading: "lazy" %>
+          <h3>I found a community of teens working on incredible projects, which helped me out of my comfort zone, from just software to even hardware and automation.</h3>
+        </div>    
+      </div>
+      <div class="testimonial green">
+        <h2>17 year old Hack Clubber from Japan</h2>
+        <div class="content">
+          <%= image_tag "landing/testimonials/cards/card-3.webp", alt: "Summer of Making", loading: "lazy" %>
+          <h3>High Seas motivated me to start my own Hack Club ... it’s also helped me grow, making me less shy, more connected, and even making friends online and in real life.</h3>
+        </div>    
+      </div>
+      <div class="testimonial yellow">
+        <h2>17 year old Hack Clubber from Egypt</h2>
+        <div class="content">
+          <%= image_tag "landing/testimonials/cards/card-4.webp", alt: "Summer of Making", loading: "lazy" %>
+          <h3>One of the best events I’ve ever joined ... I met amazing people and finally found motivation ... huge thanks to everyone who made High Seas such a special experience!</h3>
+        </div>    
+      </div>
+      <div class="testimonial red">
+        <h2>18 year old Hack Clubber from Japan</h2>
+        <div class="content">
+          <%= image_tag "landing/testimonials/cards/card-1.webp", alt: "Summer of Making", loading: "lazy" %>
+          <h3>I spent over 400 hours at High Seas ... and connected with people from all over the world ... these led to incredible opportunities, like participating in DEFCON...</h3>
+        </div>
+      </div>
+      <div class="testimonial yellow">
+        <h2>17 year old Hack Clubber from India</h2>
+        <div class="content">
+          <%= image_tag "landing/testimonials/cards/card-2.webp", alt: "Summer of Making", loading: "lazy" %>
+          <h3>I found a community of teens working on incredible projects, which helped me out of my comfort zone, from just software to even hardware and automation.</h3>
+        </div>    
+      </div>
+      <div class="testimonial green">
+        <h2>17 year old Hack Clubber from Japan</h2>
+        <div class="content">
+          <%= image_tag "landing/testimonials/cards/card-3.webp", alt: "Summer of Making", loading: "lazy" %>
+          <h3>High Seas motivated me to start my own Hack Club ... it’s also helped me grow, making me less shy, more connected, and even making friends online and in real life.</h3>
+        </div>    
+      </div>
+      <div class="testimonial yellow">
+        <h2>17 year old Hack Clubber from Egypt</h2>
+        <div class="content">
+          <%= image_tag "landing/testimonials/cards/card-4.webp", alt: "Summer of Making", loading: "lazy" %>
+          <h3>One of the best events I’ve ever joined ... I met amazing people and finally found motivation ... huge thanks to everyone who made High Seas such a special experience!</h3>
+        </div>    
+      </div>
+    <% end %>
+
   <div class="cards">
-    <div class="testimonial blue">
-      <div>
-        <%= image_tag "landing/testimonials/cards/card-1.webp", height: "40%", style: "object-fit: cover;" %>
-        <p>I loved summer of making, I got to work on such a great platform and meet so many talented people at HQ as a result of that! Fulfillment hell had the silver lining of seeing all the people getting cool stuff from the event!</p>
-        <div class="title">16 year old Hack Clubber from the US</div>
-      </div>
-    </div>
-
-    <div class="testimonial green">
-      <div>
-        <%= image_tag "landing/testimonials/cards/card-2.webp" %>
-        <p>It encouraged me to create more and learn more.</p>
-        <div class="title">14 year old Hack Clubber from Japan</div>
-      </div>
-    </div>
-
-    <div class="testimonial red">
-      <div>
-        <%= image_tag "landing/testimonials/cards/card-3.webp", height: "40%", style: "object-fit: cover" %>
-        <p>I salute everybody who volunteered at Hack Club to make Summer of Making possible; without it I would've never had known about just how special this community is. And hey, I got a Flipper Zero from it after spending months the previous year working on my own cheap version of one, so that's pretty cool! ❤️</p>
-        <div class="title">15 year old Hack Clubber from the US</div>
-      </div>
-    </div>
-
-    <div class="testimonial blue">
-      <div>
-        <%= image_tag "landing/testimonials/cards/card-4.webp" %>
-        <p>Being a student in South India, where in small cities, students don't even know proper English, I lost the spirit to code which I got during the COVID-19 period. Hack Club has reignited that spirit in me.</p>
-        <div class="title">17 year old Hack Clubber from India</div>
-      </div>
-    </div>
-
-    <div class="testimonial green">
-      <div>
-        <%= image_tag "landing/testimonials/cards/card-5.webp", height: "40%", style: "object-fit: cover" %>
-        <p>It has been a learning experience and a fun way to get back into coding properly after Arcade last year. Thank you so much for running such an amazing event and inspiring me. </p>
-        <div class="title">13 year old Hack Clubber from the UK</div>
-      </div>
-    </div>
-
-    <div class="testimonial red">
-      <div>
-        <%= image_tag "landing/testimonials/cards/card-6.webp" %>
-        <p>I started programming about 5 years ago. The I saw a yt vid from Hackclub and was immediately excited by the idea that coding as a teenager can get you free stuff. But at the end I realised that it was more than that: it was the people and knowledge I got to know.</p>
-        <div class="title">14 year old Hack Clubber from Germany</div>
-      </div>
+    <div class="cards-track">
+      <%= cards_markup %>  <%# Only one set now %>
     </div>
   </div>
-<<<<<<< HEAD
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const track = document.querySelector('.cards-track');
+      if (!track) return;
+
+      const originalCards = Array.from(track.children);
+      if (originalCards.length === 0) return;
+
+      const fragment = document.createDocumentFragment();
+      originalCards.forEach(card => fragment.appendChild(card.cloneNode(true)));
+      track.appendChild(fragment);
+
+      const measureLoopWidth = () => track.scrollWidth / 2;
+      let loopWidth = measureLoopWidth();
+      let position = 0;
+      const speed = 1;
+      let isPaused = false;
+
+      function scroll() {
+        if (!isPaused) {
+          position -= speed;
+          if (Math.abs(position) >= loopWidth) position = 0;
+          track.style.transform = `translateX(${position}px)`;
+        }
+        requestAnimationFrame(scroll);
+      }
+
+      scroll();
+      window.addEventListener('resize', () => (loopWidth = measureLoopWidth()));
+
+      const cardsContainer = document.querySelector('.cards');
+      if (!cardsContainer) return;
+      cardsContainer.addEventListener('mouseenter', () => (isPaused = true));
+      cardsContainer.addEventListener('mouseleave', () => (isPaused = false));
+    });
+  </script>
 </div>
-=======
-</div>
->>>>>>> origin/main
