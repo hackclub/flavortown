@@ -1,2 +1,5 @@
-<h1>Projects#show</h1>
-<p>Find me in app/views/projects/show.html.erb</p>
+<div class="projects-show">
+  <div class="projects-show__container">
+    <%= render ProjectShowCardComponent.new(project: @project) %>
+  </div>
+</div>

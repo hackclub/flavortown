@@ -1,0 +1,37 @@
+.projects-show {
+  padding: var(--space-xxl) var(--space-l);
+
+  &__container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  /* (edit/delete) */
+  &__admin-actions {
+    display: flex;
+    gap: var(--space-s);
+    align-self: flex-end;
+  }
+
+  &__icon-btn {
+    background-color: var(--color-brown-400);
+    border-radius: calc(var(--border-radius) * 0.8);
+    padding: var(--space-xs) var(--space-l);
+  }
+
+  &__icon-btn svg {
+    color: var(--color-brown-700) !important;
+    height: 1.35em;
+    width: 1.35em;
+  }
+}
+
+@media (max-width: 768px) {
+  .projects-show {
+    padding: var(--space-xl) var(--space-m);
+  }
+}
+
+
