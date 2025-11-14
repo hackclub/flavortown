@@ -93,6 +93,25 @@ GEM
       fiddle
     ast (2.4.3)
     attr_required (1.0.2)
+    aws-eventstream (1.4.0)
+    aws-partitions (1.1181.0)
+    aws-sdk-core (3.237.0)
+      aws-eventstream (~> 1, >= 1.3.0)
+      aws-partitions (~> 1, >= 1.992.0)
+      aws-sigv4 (~> 1.9)
+      base64
+      bigdecimal
+      jmespath (~> 1, >= 1.6.1)
+      logger
+    aws-sdk-kms (1.117.0)
+      aws-sdk-core (~> 3, >= 3.234.0)
+      aws-sigv4 (~> 1.5)
+    aws-sdk-s3 (1.203.1)
+      aws-sdk-core (~> 3, >= 3.234.0)
+      aws-sdk-kms (~> 1)
+      aws-sigv4 (~> 1.5)
+    aws-sigv4 (1.12.1)
+      aws-eventstream (~> 1, >= 1.0.2)
     base64 (0.3.0)
     bcrypt_pbkdf (1.1.1)
     better_html (2.2.0)
@@ -253,6 +272,7 @@ GEM
     jbuilder (2.14.1)
       actionview (>= 7.0.0)
       activesupport (>= 7.0.0)
+    jmespath (1.6.2)
     json (2.16.0)
     json-jwt (1.17.0)
       activesupport (>= 4.2)
@@ -635,6 +655,7 @@ DEPENDENCIES
   aasm
   active_storage_validations
   annotaterb
+  aws-sdk-s3
   blazer
   blind_index
   bootsnap
