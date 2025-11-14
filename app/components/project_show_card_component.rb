@@ -12,9 +12,9 @@ class ProjectShowCardComponent < ViewComponent::Base
     project.banner.variant(:card)
   end
 
-#   def followers_count
-#     project.memberships_count
-#   end
+  #   def followers_count
+  #     project.memberships_count
+  #   end
 
   def devlogs_count
     Post.where(project_id: project.id, postable_type: "Post::Devlog").count

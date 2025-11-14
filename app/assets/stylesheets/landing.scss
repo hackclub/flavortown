@@ -102,8 +102,7 @@ input {
 }
 
 .hero {
-  background: url("landing/hero/long-image.webp") var(--color-bg) center /
-    cover;
+  background: url("landing/hero/long-image.webp") var(--color-bg) center / cover;
   align-items: center;
   justify-content: center;
 
@@ -304,8 +303,8 @@ input {
     }
 
     &.left {
-      background: var(--color-pink-400) url("landing/how-this-works/texture_1.webp")
-        no-repeat center / cover;
+      background: var(--color-pink-400)
+        url("landing/how-this-works/texture_1.webp") no-repeat center / cover;
       --ribbon-url: url("landing/how-this-works/step-1-ribbon.webp");
       --card-url: url("landing/how-this-works/step-1-card-bg.webp");
       --title-edge: #a4383f; // TODO do not hardcode!
@@ -314,8 +313,8 @@ input {
     }
 
     &.center {
-      background: var(--color-lime-400) url("landing/how-this-works/texture_2.webp")
-        no-repeat center / cover;
+      background: var(--color-lime-400)
+        url("landing/how-this-works/texture_2.webp") no-repeat center / cover;
       --ribbon-url: url("landing/how-this-works/step-2-ribbon.webp");
       --card-url: url("landing/how-this-works/step-2-card-bg.webp");
       --title-edge: #468232; // TODO do not hardcode!
@@ -324,8 +323,8 @@ input {
     }
 
     &.right {
-      background: var(--color-teal-400) url("landing/how-this-works/texture_3.webp")
-        no-repeat center / cover;
+      background: var(--color-teal-400)
+        url("landing/how-this-works/texture_3.webp") no-repeat center / cover;
       --ribbon-url: url("landing/how-this-works/step-3-ribbon.webp");
       --card-url: url("landing/how-this-works/step-3-card-bg.webp");
       --title-edge: #3c5e8b; // TODO do not hardcode!
@@ -461,8 +460,7 @@ input {
 }
 
 .prizes {
-  background: var(--color-bg) url("landing/prizes/bg.svg") center center /
-    cover;
+  background: var(--color-bg) url("landing/prizes/bg.svg") center center / cover;
 
   padding: 2rem 0 4rem 0;
 
@@ -493,8 +491,8 @@ input {
       width: 110%;
       text-align: center;
 
-      background: var(--color-red-500)
-        url("landing/prizes/title-overlay.svg") center center / cover;
+      background: var(--color-red-500) url("landing/prizes/title-overlay.svg")
+        center center / cover;
       box-shadow: var(--shadow);
       border-radius: 1rem;
 
@@ -682,7 +680,7 @@ input {
   }
 
   .stats {
-    background-color: #AD7757;
+    background-color: #ad7757;
 
     width: 100%;
     display: flex;
@@ -734,7 +732,7 @@ input {
 .under-previously-hosted {
   width: 100%;
   height: 48px;
-  
+
   color: var(--color-bg);
   background-color: var(--color-brown-500);
 
@@ -1067,7 +1065,7 @@ input {
 
 .faq {
   position: relative;
-  background-color: #E7D5B3;
+  background-color: #e7d5b3;
 
   display: flex;
   flex-direction: column;
@@ -1095,8 +1093,8 @@ input {
       width: 110%;
       text-align: center;
 
-      background: var(--color-red-500)
-        url("landing/prizes/title-overlay.svg") center center / cover;
+      background: var(--color-red-500) url("landing/prizes/title-overlay.svg")
+        center center / cover;
       box-shadow: var(--shadow);
       border-radius: 1rem;
 
@@ -1127,7 +1125,7 @@ input {
     }
 
     .card {
-      padding: .5rem 1rem 1rem 1rem;
+      padding: 0.5rem 1rem 1rem 1rem;
       border-radius: 16px;
       box-shadow: var(--shadow);
       z-index: 1;
@@ -1158,26 +1156,26 @@ input {
     }
 
     .card-yellow {
-      background-color: #DE9E41;
+      background-color: #de9e41;
 
       .question {
-        background-color: #BE772B;
+        background-color: #be772b;
       }
     }
 
     .card-green {
-      background-color: #A8CA58;
+      background-color: #a8ca58;
 
       .question {
-        background-color: #75A743;
+        background-color: #75a743;
       }
     }
 
     .card-blue {
-      background-color: #73BED3;
+      background-color: #73bed3;
 
       .question {
-        background-color: #4F8FBA;
+        background-color: #4f8fba;
       }
     }
   }
@@ -1199,7 +1197,7 @@ input {
 .under-faq {
   width: 100%;
   height: 16px;
-  background-color: #D5C3A0;
+  background-color: #d5c3a0;
 }
 
 .footer {
@@ -1220,8 +1218,8 @@ input {
     }
 
     div {
-      background: var(--color-bg) url("landing/footer/about-bg.webp")
-        center / cover;
+      background: var(--color-bg) url("landing/footer/about-bg.webp") center /
+        cover;
       box-shadow: var(--shadow);
       border-radius: 10px;
       padding: 2rem;
@@ -1277,8 +1275,8 @@ input {
     }
 
     .people {
-      background: var(--color-bg) url("landing/footer/people-bg.png")
-        center top 20px / cover;
+      background: var(--color-bg) url("landing/footer/people-bg.png") center top
+        20px / cover;
       box-shadow: var(--shadow);
       border-radius: 0.5rem;
       padding: 1rem;
