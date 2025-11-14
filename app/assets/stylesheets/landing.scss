@@ -393,12 +393,24 @@ input {
 }
 
 .testimonials {
-  background: url("landing/testimonials/bg.webp") center center / cover;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   // gap: 2rem;
   padding: 2rem 0;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("landing/pattern.webp") repeat center center / 1200px;
+    opacity: 0.1;
+    z-index: 0;
+    pointer-events: none;
+  }
 
   > .title {
     background-image: url("landing/testimonials/title.webp");
@@ -421,99 +433,125 @@ input {
   }
 
   .cards {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     margin-top: 2rem;
-    width: 70%;
-    display: grid;
-    justify-content: center;
-    justify-items: center;
-    grid-template-columns: repeat(auto-fill, 18rem);
-    gap: 1.5rem 3rem;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
 
-    @media (max-width: 600px) {
-      width: 90%;
+    .cards-track {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 2rem;
+      width: max-content;
+      will-change: transform;
+      align-items: stretch;
+
+      > .testimonial {
+        flex: 0 0 auto;
+      }
     }
 
     .testimonial {
-      background: var(--color-brown-400);
-      box-shadow: var(--shadow);
-      border-radius: 2rem;
-      padding: 0.75rem;
+      position: relative;
+      padding: 1em;
+      width: 350px;
+      border-radius: 16px;
 
-      width: 18rem;
-      height: 26rem;
+      &::after {
+        content: "";
+        width: 50px;
+        height: 50px;
+        background-color: var(--color-bg);
+        z-index: 5;
+        position: absolute;
+        right: 0;
+        top: 9px;;
+        border-radius: 3px;
+        z-index: 10;
+      }
 
-      > div {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        background: var(--color-brown-600);
-        box-shadow: var(--shadow);
-        border-radius: 1.25rem;
-
-        padding: 0.8rem;
-        height: 100%;
-
-        font-size: 0.95rem;
-
+      h2 {
         position: relative;
-
-        p {
-          color: var(--color-bg);
-          margin: 0.5rem 0 4rem 0;
-        }
-
-        img {
-          width: 100%;
-          border-radius: 12px;
-        }
-
-        .title {
-          width: 120%;
-          font-size: 1rem;
-
-          position: absolute;
-          bottom: 1rem;
-          left: -10%;
-
-          background: linear-gradient(
-            52deg,
-            var(--title-edge) 0%,
-            var(--title-edge) 19.9%,
-            var(--title-middle) 20%,
-            var(--title-middle) 75%,
-            var(--title-edge) 75.1%,
-            var(--title-edge) 100%
-          );
-
-          color: white;
-          aspect-ratio: 25 / 4;
-
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 0.75rem;
-
-          @media (max-width: 600px) {
-            font-size: 1rem;
-          }
-        }
+        background-color: var(--color-tan-500);
+        font-weight: normal;
+        padding: 0.4em 0.4em 2em 0.4em;
+        border-radius: 16px;
+        width: 90%;
+        font-weight: lighter;
+        font-size: 0.9rem;
+        z-index: -1;
       }
 
-      &.red {
-        --title-edge: #c24953; // TODO do not hardcode!
-        --title-middle: #c6515e; // TODO do not hardcode!
+      h3 {
+        margin-top: 0.1em;
+        color: var(--color-bg);
+        font-weight: 100;
+        padding: 1em;
       }
 
-      &.green {
-        --title-edge: #539d2b; // TODO do not hardcode!
-        --title-middle: #65a92e; // TODO do not hardcode!
+      .content {
+        position: relative;
+        width: 100%;
+        z-index: 3;
+        margin-top: -2em;
+        border-radius: 24px;
       }
 
-      &.blue {
-        --title-edge: #3484b2; // TODO do not hardcode!
-        --title-middle: #3491be; // TODO do not hardcode!
+      img {
+        border-radius: 16px;
+        width: 100%;
       }
+    }
+
+    .red {
+      h2 {
+        color: var(--color-red-400);
+        border: 10px solid var(--color-red-400);
+      }
+
+      .content {
+        background-color: var(--color-red-500);
+        border: 10px solid var(--color-red-400);
+      }
+    }
+
+    .blue {
+      h2 {
+        color: var(--color-blue-400);
+        border: 10px solid var(--color-blue-400);
+      }
+
+      .content {
+        background-color: var(--color-blue-500);
+        border: 10px solid var(--color-blue-400);
+      }
+    }
+
+    .green {
+      h2 {
+        color: var(--color-green-400);
+        border: 10px solid var(--color-green-400);
+      }
+
+      .content {
+        background-color: var(--color-green-500);
+        border: 10px solid var(--color-green-400);
+      }
+    }
+
+    .yellow {
+      h2 {
+        color: var(--color-yellow-450);
+        border: 10px solid var(--color-yellow-450);
+      }
+
+      .content {
+        background-color: var(--color-yellow-500);
+        border: 10px solid var(--color-yellow-450);
+      } 
     }
   }
 }
@@ -759,15 +797,22 @@ input {
     }
 
     .event-card {
-      background-color: var(--color-brown-500);
-
+      background-color: var(--color-brown-400);
       border-radius: 16px;
       padding: 0.5rem;
       transition: transform 0.3s ease;
-    }
 
-    .event-card-light {
-      background-color: var(--color-brown-400);
+      &.is-active {
+        background-color: var(--color-brown-600);
+        box-shadow: var(--shadow);
+        transform: scale(1.05);
+      }
+
+      &:hover {
+        box-shadow: var(--shadow);
+        transform: scale(1.05);
+        cursor: pointer;
+      }
     }
 
     .event-card:hover {
