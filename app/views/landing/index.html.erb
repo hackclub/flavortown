@@ -2,34 +2,7 @@
   <%= stylesheet_link_tag "landing", "data-turbo-track": "reload" %>
 <% end %>
 
-<div class="section hero">
-  <%= inline_svg_tag "landing/hero/flag-orpheus-top.svg", class: "orph-flag" %>
-
-  <div class="login-btn">
-    <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
-      <button class="btn btn--red btn--striped">
-        <div>
-          <%= image_tag "mask/enter.webp", width: 20, height: 20 %>
-          Sign in!
-        </div>
-      </button>
-    <% end %>
-    <% if current_user&.admin? %>
-      <%= link_to "/admin", class: "btn-striped-red is_admin" do %>
-        <div>Admin</div>
-      <% end %>
-    <% end %>
-  </div>
-
-  <div class="hero-image">
-    <!-- TODO: som-style hero image? -->
-  </div>
-
-  <div class="rsvp-container">
-    <%= image_tag "landing/hero/drawing.webp" %>
-    <%= render "rsvp_form", rsvp: Rsvp.new %>
-  </div>
-</div>
+<%= render "landing/hero" %>
 
 <div class="section how-this-works">
   <div class="title-overlay">
@@ -101,17 +74,7 @@
   } %>
 </div>
 
-<div class="section previously-hosted">
-  <h2 class="title">Previously, we hosted...</h2>
-
-  <div class="events">
-
-  </div>
-
-  <div class="stats">
-    <h3 class="stats-title">For Summer of Making...</h3>
-  </div>
-</div>
+<%= render "landing/previously_hosted" %>
 
 <div class="under-previously-hosted">
   This winter, we're going even bigger!
