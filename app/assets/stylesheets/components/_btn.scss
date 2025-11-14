@@ -99,6 +99,21 @@
     }
   }
 
+  &--brown {
+    --btn-bg: var(--color-brown-700);
+    --btn-bg-dark: var(--color-brown-700);
+    background-color: var(--color-brown-700);
+    border-color: var(--color-brown-400);
+
+    &:hover {
+      filter: brightness(1.1);
+    }
+
+    &:active {
+      filter: brightness(0.95);
+    }
+  }
+
   &--striped {
     padding: 0.5rem;
     border: none;
@@ -130,5 +145,17 @@
         fill: currentColor;
       }
     }
+  }
+
+  &--borderless {
+    border: none;
+  }
+
+  &--lg {
+    padding: var(--space-l) var(--space-xxl);
+  }
+
+  &--lg.btn--striped div {
+    padding: var(--space-m) var(--space-xl);
   }
 }
