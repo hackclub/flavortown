@@ -27,7 +27,7 @@
                     href: helpers.edit_project_path(project),
                     color: :brown,
                     variant: :borderless,
-                    icon: "icons/paper.svg",
+                    icon: "icons/edit.svg",
                     class: "projects-show__icon-btn",
                     aria: { label: "Edit project" }
                   ) %>
@@ -38,7 +38,7 @@
                     method: :delete,
                     color: :brown,
                     variant: :borderless,
-                    icon: "icons/close.svg",
+                    icon: "icons/trash-bin.svg",
                     class: "projects-show__icon-btn",
                     data: { turbo_confirm: "Delete this project?" },
                     aria: { label: "Delete project" }
@@ -84,7 +84,7 @@
                 href: project.repo_url,
                 color: :brown,
                 variant: :borderless,
-                icon: "icons/code.svg"
+                icon: "icons/merge.svg"
               ) %>
         <% end %>
         <% if project.readme_url.present? %>

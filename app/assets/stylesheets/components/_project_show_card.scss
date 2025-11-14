@@ -104,6 +104,12 @@
       border-radius: calc(var(--border-radius));
       font-size: var(--font-size-xxl);
       padding: var(--space-xs) var(--space-xl);
+      gap: var(--space-s);
+
+      svg {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
     }
   }
 }
