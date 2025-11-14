@@ -1,0 +1,73 @@
+<div class="section inspiration">
+  <div class="ribbon ribbon-title title">What will you cook this winter?</div>
+
+  <div class="content">
+    <div class="projects">
+      <div class="title">
+        <div class="inner">
+          <h3>Build whatever you want!</h3>
+          <p>Any technical project counts. You could build an AR game, pixel art display, drawing robot, and more.</p>
+        </div>
+      </div>
+
+      <div class="content">
+        <h3>Check out these projects for inspirations:</h3>
+
+        <div class="list">
+          <div class="project project-purple">
+            <%= inline_svg_tag "landing/inspiration/projects/project-1-ribbon.svg" %>
+
+            <div>
+              <div class="details">
+              <br>
+              <p>A Rust-based monochrome pixel game engine that can be compiled to both web assembly and to a RP2040 microcontroller.</p>
+
+                <div class="links">
+                  <a href="https://arcaege.dev/embedded-engine/" target="_blank" class="no-underline">
+                    <%= inline_svg_tag "icons/globe.svg" %>
+                    Demo
+                  </a>
+                  <a href="https://github.com/ArcaEge/embedded-engine" target="_blank" class="no-underline">
+                    <%= inline_svg_tag "icons/code.svg" %>
+                    Repo
+                  </a>
+                </div>
+              </div>
+
+              <div class="image">
+                <%= image_tag "landing/inspiration/projects/project-11.png" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="project project-blue">
+            <%= inline_svg_tag "landing/inspiration/projects/project-2-ribbon.svg" %>
+
+            <div>
+              <div class="details">
+                <p>CLI-over-CLI tool that improves how the terminal looks, uses an alternative history system, explains error codes.</p>
+
+                <div class="links">
+                  <a href="https://github.com/justdanielndev/dimensity-oss/releases/latest" target="_blank" class="no-underline">
+                    <%= inline_svg_tag "icons/globe.svg" %>
+                    Demo
+                  </a>
+                  <a href="https://github.com/justdanielndev/dimensity-oss" target="_blank" class="no-underline">
+                    <%= inline_svg_tag "icons/code.svg" %>
+                    Repo
+                  </a>
+                </div>
+              </div>
+
+              <div class="image">
+                <%= image_tag "landing/inspiration/projects/project-2.jpeg" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%= render "landing/projects/project_idea_generator" %>
+  </div>
+</div>
