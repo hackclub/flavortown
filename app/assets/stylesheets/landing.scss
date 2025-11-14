@@ -106,8 +106,9 @@ input {
   background-size: 1000px;
   align-items: start;
   justify-content: center;
+  text-align: center;
   overflow: hidden;
-  height: 125vh;
+  height: 100vh;
 
   .top-collab {
     position: absolute;
@@ -119,15 +120,23 @@ input {
     img {
       width: 125px;
     }
+
+    @media (max-width: 600px) {
+      top: 6rem; // clips into flag and sign in btn if too far up on phone
+    }
   }
 
   .rsvp-container {
-    margin-top: 7em;
+    margin-top: 6em;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     z-index: 1;
+
+    @media (max-width: 600px) {
+      margin-top: 10em;
+    }
 
     img {
       width: 15rem;
@@ -142,6 +151,10 @@ input {
       margin-bottom: 1em;
       font-size: 2rem;
       font-weight: 500;
+
+      @media (max-width: 600px) {
+        font-size: 1.5rem;
+      }
     }
 
     h4, h5 {
@@ -173,7 +186,6 @@ input {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        width: 500px;
 
         .btn--striped {
           align-self: center;
@@ -201,17 +213,17 @@ input {
     }
   }
 
-  img.hero-art {
-      position: absolute;
-      overflow: hidden;
-      z-index: 0;
-      width: 120%;
-      margin-top: 15em;
-    }
+  .hero-art {
+    position: absolute;
+    overflow: hidden;
+    z-index: 0;
+    width: 120%;
+    
+    bottom: 0;
 
-  @media (max-width: 1200px) {
-    flex-direction: column;
-    gap: 2rem;
+    @media (max-width: 1100px) {
+      left: -10%;
+    }
   }
 }
 
