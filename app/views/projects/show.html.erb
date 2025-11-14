@@ -1,5 +1,14 @@
 <div class="projects-show">
   <div class="projects-show__container">
     <%= render ProjectShowCardComponent.new(project: @project) %>
+    <% if current_user.present? %>
+      <div class="mt-4">
+        <%= render ButtonComponent.new(
+              text: "Add Devlog",
+              color: :brown,
+              href: new_project_devlog_path(@project)
+            ) %>
+      </div>
+    <% end %>
   </div>
 </div>
