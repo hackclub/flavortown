@@ -48,7 +48,7 @@
         <% end %>
       </div>
       <div class="project-show-card__byline">
-        Created by: <%= owner_display_name %>
+        <%= byline_text %>
       </div>
 
       <div class="project-show-card__stats">
@@ -58,7 +58,7 @@
         </span> %>
         <span class="project-show-card__stat">
           <%= helpers.inline_svg_tag("icons/paper.svg") %>
-          <span><%= devlogs_count %> devlogs</span>
+          <span><%= project.devlogs.count %> devlogs</span>
         </span>
       </div>
     </header>

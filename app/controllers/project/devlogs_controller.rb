@@ -28,5 +28,3 @@ class Project::DevlogsController < ApplicationController
     params.require(:post_devlog).permit(:body, attachments: [])
   end
 end
-
-

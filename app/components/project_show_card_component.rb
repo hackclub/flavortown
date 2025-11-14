@@ -16,10 +16,6 @@ class ProjectShowCardComponent < ViewComponent::Base
   #     project.memberships_count
   #   end
 
-  def devlogs_count
-    Post.where(project_id: project.id, postable_type: "Post::Devlog").count
-  end
-
   def has_any_links?
     project.demo_url.present? || project.repo_url.present? || project.readme_url.present?
   end
@@ -27,5 +23,15 @@ class ProjectShowCardComponent < ViewComponent::Base
   def owner_display_name
     owner = project.memberships.includes(:user).owner.first&.user
     owner&.display_name || project.users.first&.display_name || "Unknown"
+  end
+
+  def byline_text
+    memberships = project.memberships.includes(:user)
+    owner_user = memberships.owner.first&.user
+    other_users = memberships.where.not(role: :owner).map(&:user).compact
+    ordered_users = [ owner_user, *other_users ].compact
+    names = ordered_users.map(&:display_name).reject(&:blank?).uniq
+    return "" if names.empty?
+    "By: #{names.join(', ')}"
   end
 end
