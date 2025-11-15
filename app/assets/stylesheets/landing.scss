@@ -1501,7 +1501,7 @@ input {
     background-color: #AD7757;
     box-shadow: var(--shadow);
     border-radius: 16px;
-    width: 60%;
+    width: 80%;
 
     margin: 48px 0 16px 0;
 
@@ -1514,8 +1514,9 @@ input {
         cover;
       padding: 2em 4em;
       border-radius: 16px;
+      box-shadow: var(--shadow);
 
-      color: #F8E8D1;
+      color: var(--color-bg);
 
       @media (max-width: 600px) {
         background-size: 250% auto;
@@ -1536,7 +1537,19 @@ input {
       }
 
       a {
-        color: #F8E8D1;
+        color: var(--color-bg);
+      }
+
+      @media (max-width: 600px) {
+        padding: 1rem 2rem;
+
+        h2 {
+          font-size: 2rem;
+        }
+
+        p {
+          font-size: 1.2rem;
+        }
       }
     }
   }
@@ -1560,22 +1573,22 @@ input {
       font-size: 1.5em;
       font-weight: normal;
       text-align: center;
-      width: 110%;
       background-color: var(--color-brown-500);
-      border-radius: 0.4rem;
+      border-radius: 0.8rem;
       padding: 0.5em 1.5em 3em 1.5em;
       margin: 0;
       position: absolute;
       left: 50%;
       transform: translate(-50%, -3.2rem);
-      width: fit-content;
+      text-wrap: nowrap;
       z-index: 1;
+      box-shadow: var(--shadow);
     }
 
     .desktop-h3 {
       display: block;
 
-      @media (max-width: 1700px) {
+      @media (max-width: 1200px) {
         display: none;
       }
     }
@@ -1583,14 +1596,14 @@ input {
     .mobile-h3 {
       display: none;
 
-      @media (max-width: 1700px) {
+      @media (max-width: 1200px) {
         display: block;
       }
     }
 
     .people {
       position: relative;
-      background-color: #F8E8D1;
+      background-color: var(--color-bg);
 
       &::after {
         content: "";
@@ -1628,19 +1641,30 @@ input {
         left: 50%;
         transform: translateX(-50%);
         bottom: 1em;
-        width: 100px; 
+        width: 100px;
+      }
+      
+      @media (max-width: 600px) {
+        .signatures {
+          width: 100%;
+        }
+
+        .flag {
+          display: none;
+        }
       }
     }
   }
 
   .links {
     background-color: #AD7757;
-    border-radius: 5rem;
+    border-radius: 1.5rem;
     padding: 1rem 2rem;
     display: flex;
     flex-direction: row;
     gap: 3rem;
     margin-bottom: 2rem;
+    box-shadow: var(--shadow);
 
     a {
       color: #4D2B32;
@@ -1650,6 +1674,10 @@ input {
       &:hover {
         color: var(--color-bg);
         cursor: pointer;
+      }
+
+      @media (max-width: 600px) {
+        font-size: 1.3em;
       }
     }
   }
