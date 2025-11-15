@@ -14,7 +14,7 @@
       ] %>
 
       <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_endpoints? %>
-      <% sidebar_nav_items << { label: "Shop orders", path: "/admin/shop_orders?view=fulfillment", icon: "shopping_cart_1_fill" } if policy(:admin).access_shop_orders? %>
+<% sidebar_nav_items << { label: "Shop orders", path: "/admin/shop_orders?view=fulfillment", icon: "shopping_cart_1_fill" } if current_user&.fulfillment_person? %>
 
       <ul class="sidebar__nav-list">
         <% sidebar_nav_items.each do |item| %>

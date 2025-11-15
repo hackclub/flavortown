@@ -52,27 +52,21 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def promote_role
-    @user = User.find(params[:id])
-    role_name = params[:role_name]
+      @user = User.find(params[:id])
+      role_name = params[:role_name]
 
-    role = Role.find_by(name: role_name)
+      role = Role.find_by(name: role_name)
 
-    if role && !@user.roles.include?(role)
-    @user.roles << role
-    flash[:notice] = "User promoted to #{role_name}."
-    PaperTrail.request(whodunnit: current_user.id) do
-    PaperTrail::Version.create!(
-      item_type: "User::RoleAssignment",
-      item_id: role_assignment.id,
-      event: "create",
-      object_changes: { user_id: [ nil, 123 ], role_id: [ nil, 2 ] }.to_yaml
-    )
-end
-    else
-    flash[:alert] = "Unable to promote user to #{role_name}."
-    end
+      if role && !@user.roles.include?(role)
+        PaperTrail.request(whodunnit: current_user.id) do
+          @user.roles << role
+        end
+        flash[:notice] = "User promoted to #{role_name}."
+      else
+        flash[:alert] = "Unable to promote user to #{role_name}."
+      end
 
-    redirect_to admin_user_path(@user)
+      redirect_to admin_user_path(@user)
     end
 
   def demote_role
@@ -82,7 +76,9 @@ end
     role = Role.find_by(name: role_name)
 
     if role && @user.roles.include?(role)
-      @user.roles.delete(role)
+      PaperTrail.request(whodunnit: current_user.id) do
+        @user.roles.delete(role)
+      end
       flash[:notice] = "User demoted from #{role_name}."
     else
       flash[:alert] = "Unable to demote user from #{role_name}."

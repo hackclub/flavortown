@@ -55,7 +55,15 @@
                     params: { role_name: "fulfillment_person" },
                     class: "btn-primary slim",
                     disabled: !current_user&.admin? %>
+          <% has_helper = @user.roles.exists?(name: "helper") %>
+      <%= button_to (has_helper ? "Demote from Fulfillment Person" : "Promote to helper"),
+                    (has_helper ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
+                    method: :post,
+                    params: { role_name: "helper" },
+                    class: "btn-primary slim",
+                    disabled: !current_user&.admin? %>
 
+              
       <% has_project_certifier = @user.roles.exists?(name: "project_certifier") %>
       <%= button_to (has_project_certifier ? "Demote from Project Certifier" : "Promote to Project Certifier"),
                     (has_project_certifier ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
