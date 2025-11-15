@@ -1476,28 +1476,46 @@ input {
 }
 
 .footer {
-  background-color: var(--color-bg);
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("landing/previously-hosted/bg-tile.svg");
+    background-repeat: repeat;
+    background-size: 7rem;
+    opacity: 0.4;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 2rem;
 
   .about {
-    background-color: var(--color-tan-400);
+    border: 1rem solid #AD7757;
+    background-color: #AD7757;
     box-shadow: var(--shadow);
-    border-radius: 1rem;
-    padding: 0.8rem;
-    margin: 48px 0 16px 0;
+    border-radius: 16px;
     width: 60%;
+
+    margin: 48px 0 16px 0;
 
     @media (max-width: 600px) {
       width: 90%;
     }
 
     div {
-      background: var(--color-bg) url("landing/footer/about-bg.webp") center /
+      background: #7A4841 url("landing/footer/about-bg.webp") center /
         cover;
-      box-shadow: var(--shadow);
-      border-radius: 10px;
-      padding: 2rem;
+      padding: 2em 4em;
+      border-radius: 16px;
+
+      color: #F8E8D1;
 
       @media (max-width: 600px) {
         background-size: 250% auto;
@@ -1506,25 +1524,32 @@ input {
 
       h2 {
         text-align: center;
-        font-size: 2rem;
-        color: var(--color-brown-700);
+        font-size: 3rem;
+        font-weight: normal;
       }
 
       p {
-        color: var(--color-brown-500);
-        font-size: 1.2rem;
+        font-size: 1.4rem;
         margin: 1.5rem 0;
+        font-weight: lighter;
+        line-height: 1.6;
+      }
+
+      a {
+        color: #F8E8D1;
       }
     }
   }
 
   .credits {
+    margin-top: 3.5rem !important;
     background-color: var(--color-brown-400);
-    padding: 8px 16px;
+    padding: 16px;
     margin: auto 0 16px 0;
     border-radius: 10px;
     box-shadow: var(--shadow);
-    width: 40%;
+    width: 90%;
+    position: relative;
 
     @media (max-width: 600px) {
       width: 80%;
@@ -1532,38 +1557,83 @@ input {
 
     h3 {
       color: var(--color-bg);
-      font-size: 1.2em;
+      font-size: 1.5em;
       font-weight: normal;
       text-align: center;
       width: 110%;
-      transform: translateX(calc(-5% + 4px));
       background-color: var(--color-brown-500);
       border-radius: 0.4rem;
-      padding: 0.5rem 0;
+      padding: 0.5em 1.5em 3em 1.5em;
       margin: 0;
-
-      @media (max-width: 600px) {
-        width: 120%;
-        transform: translateX(calc(-10% + 8px));
-        font-size: 1em;
-      }
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, -3.2rem);
+      width: fit-content;
+      z-index: 1;
     }
 
     .people {
-      background: var(--color-bg) url("landing/footer/people-bg.png") center top
-        20px / cover;
+      position: relative;
+      background-color: #F8E8D1;
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("landing/footer/pattern.webp");
+        background-repeat: repeat;
+        background-size: 1000px;
+        opacity: 0.1;
+        z-index: -1;
+        pointer-events: none;
+      }
+
       box-shadow: var(--shadow);
       border-radius: 0.5rem;
       padding: 1rem;
-      margin-top: -1rem;
-      height: 8rem;
-    }
+      position: relative;
+      z-index: 2;
 
-    .links {
-      margin-top: 8px;
       display: flex;
-      gap: 2rem;
+      align-items: center;
       justify-content: center;
+
+      .signatures {
+        height: 200px;
+      }
+
+      .flag {
+        position: absolute;
+        z-index: 5;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 1em;
+        width: 100px; 
+      }
+    }
+  }
+
+  .links {
+    background-color: #AD7757;
+    border-radius: 5rem;
+    padding: 1rem 2rem;
+    display: flex;
+    flex-direction: row;
+    gap: 3rem;
+    margin-bottom: 2rem;
+
+    a {
+      color: #4D2B32;
+      font-size: 1.5em;
+      text-decoration: none;
+
+      &:hover {
+        color: var(--color-bg);
+        cursor: pointer;
+      }
     }
   }
 }

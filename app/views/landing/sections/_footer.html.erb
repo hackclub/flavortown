@@ -15,13 +15,14 @@
     <h3>Flavortown is built with &lt;3 by Hack Clubbers around the world.</h3>
 
     <div class="people">
-
+      <%= image_tag "landing/footer/signatures.webp", class: "signatures", alt: "Flavortown contributors", loading: "lazy" %>
+      <%= image_tag "landing/footer/flag-brown.webp", class: "flag", alt: "Hack Club Flag", loading: "lazy" %>
     </div>
+  </div>
 
-    <div class="links">
-      <a href="https://hackclub.com" target="_blank">Hack Club</a>
-      <a href="https://hackclub.com/clubs/" target="_blank">Clubs</a>
-      <a href="https://hackathons.hackclub.com" target="_blank">Hackathons</a>
-    </div>
+  <div class="links">
+    <%= link_to "Hack Club", "https://hackclub.com", target: "_blank", rel: "noopener" %>
+    <%= link_to "Clubs", "https://hackclub.com/clubs", target: "_blank", rel: "noopener" %>
+    <%= link_to "Hackathons", "https://hackclub.com/hackathons", target: "_blank", rel: "noopener" %>
   </div>
 </div>
