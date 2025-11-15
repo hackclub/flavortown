@@ -1501,7 +1501,7 @@ input {
     background-color: #AD7757;
     box-shadow: var(--shadow);
     border-radius: 16px;
-    width: 60%;
+    width: 80%;
 
     margin: 48px 0 16px 0;
 
@@ -1514,8 +1514,9 @@ input {
         cover;
       padding: 2em 4em;
       border-radius: 16px;
+      box-shadow: var(--shadow);
 
-      color: #F8E8D1;
+      color: var(--color-bg);
 
       @media (max-width: 600px) {
         background-size: 250% auto;
@@ -1536,7 +1537,7 @@ input {
       }
 
       a {
-        color: #F8E8D1;
+        color: var(--color-bg);
       }
     }
   }
@@ -1590,7 +1591,7 @@ input {
 
     .people {
       position: relative;
-      background-color: #F8E8D1;
+      background-color: var(--color-bg);
 
       &::after {
         content: "";
@@ -1635,12 +1636,13 @@ input {
 
   .links {
     background-color: #AD7757;
-    border-radius: 5rem;
+    border-radius: 1.5rem;
     padding: 1rem 2rem;
     display: flex;
     flex-direction: row;
     gap: 3rem;
     margin-bottom: 2rem;
+    box-shadow: var(--shadow);
 
     a {
       color: #4D2B32;
