@@ -64,9 +64,11 @@ Rails.application.routes.draw do
         post :demote_role
         post :toggle_flipper
         post :sync_hackatime
+        post :impersonate
       end
       resource :magic_link, only: [ :show ]
     end
+    post "stop-impersonating", to: "users#stop_impersonating", as: :stop_impersonating
     resources :projects, only: [ :index ], shallow: true
     get "user-perms", to: "users#user_perms"
     get "manage-shop", to: "shop#index"

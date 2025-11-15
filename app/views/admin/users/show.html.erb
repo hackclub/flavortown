@@ -71,6 +71,13 @@
                     params: { role_name: "admin" },
                     class: "btn-primary slim",
                     disabled: !current_user&.super_admin? %>
+
+      <%= button_to "🎭 Impersonate User",
+                    impersonate_admin_user_path(@user),
+                    method: :post,
+                    class: "btn-primary slim",
+                    disabled: !current_user&.admin?,
+                    data: { confirm: "Are you sure you want to impersonate #{@user.display_name}? This action will be logged." } %>
     </div>
   </div>
   <div class="card">
@@ -102,6 +109,92 @@
     </div>
   </div>
 </div>
+
+<% if @user_actions.any? %>
+  <div class="card" style="margin-top: 1.5rem;">
+    <h2>Action History</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Event</th>
+          <th>Changes</th>
+          <th>Performed By</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @user_actions.each do |version| %>
+          <%
+            changes = YAML.load(version.object_changes) rescue {}
+            admin = User.find_by(id: version.whodunnit)
+          %>
+          <tr>
+            <td><%= version.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+            <td>
+              <% case version.event %>
+              <% when "flipper_enable" %>
+                <span style="color: #10b981; font-weight: 500;">🔓 Feature Enabled</span>
+              <% when "flipper_disable" %>
+                <span style="color: #ef4444; font-weight: 500;">🔒 Feature Disabled</span>
+              <% when "impersonate_start" %>
+                <span style="color: #dc2626; font-weight: 500;">🎭 Impersonation Started</span>
+              <% when "impersonate_end" %>
+                <span style="color: #10b981; font-weight: 500;">🎭 Impersonation Ended</span>
+              <% when "update" %>
+                <span style="color: #3b82f6; font-weight: 500;">✏️ Updated</span>
+              <% when "create" %>
+                <span style="color: #10b981; font-weight: 500;">✓ Created</span>
+              <% else %>
+                <%= version.event.titleize %>
+              <% end %>
+            </td>
+            <td>
+              <% if version.event.starts_with?("flipper_") %>
+                <%
+                  # Debug: inspect the changes hash
+                  feature_array = changes["feature"] || changes[:feature]
+                  feature_name = if feature_array.is_a?(Array)
+                    feature_array.compact.first
+                  else
+                    feature_array
+                  end
+                %>
+                <strong><%= feature_name&.titleize || "Unknown Feature" %></strong>
+                <% if changes["status"] || changes[:status] %>
+                  <% status = changes["status"] || changes[:status] %>
+                  (<%= status.first %> → <%= status.last %>)
+                <% end %>
+              <% elsif changes.any? %>
+                <% changes.each do |key, value| %>
+                  <div><strong><%= key.to_s.titleize %>:</strong> 
+                  <% if value.is_a?(Array) %>
+                    <%= value.first.inspect %> → <%= value.last.inspect %>
+                  <% else %>
+                    <%= value.inspect %>
+                  <% end %>
+                  </div>
+                <% end %>
+              <% else %>
+                <em>No changes recorded</em>
+              <% end %>
+            </td>
+            <td>
+              <% if admin %>
+                <%= link_to admin.display_name, admin_user_path(admin) %>
+              <% elsif version.whodunnit %>
+                User #<%= version.whodunnit %>
+              <% else %>
+                <em>System</em>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    
+    <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User", item_id: @user.id), class: "btn-secondary", style: "margin-top: 1rem; display: inline-block;" %>
+  </div>
+<% end %>
 
 <% if @role_history.any? %>
   <div class="card" style="margin-top: 1.5rem;">
@@ -149,7 +242,7 @@
             </td>
             <td>
               <% if admin %>
-                <%= admin.display_name %>
+                <%= link_to admin.display_name, admin_user_path(admin) %>
               <% elsif version.whodunnit %>
                 User #<%= version.whodunnit %>
               <% else %>
@@ -160,7 +253,5 @@
         <% end %>
       </tbody>
     </table>
-
-    <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User::RoleAssignment", whodunnit: @user.id), class: "btn-secondary", style: "margin-top: 1rem; display: inline-block;" %>
   </div>
 <% end %>

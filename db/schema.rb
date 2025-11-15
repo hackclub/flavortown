@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_11_172403) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_15_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_11_172403) do
     t.bigint "query_id"
     t.text "statement"
     t.bigint "user_id"
+    t.index ["created_at"], name: "index_blazer_audits_on_created_at"
     t.index ["query_id"], name: "index_blazer_audits_on_query_id"
     t.index ["user_id"], name: "index_blazer_audits_on_user_id"
   end

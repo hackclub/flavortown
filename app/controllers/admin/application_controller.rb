@@ -23,7 +23,8 @@ module Admin
     # Use this to protect all admin endpoints
     def authenticate_admin
       # Fulfillment people can only access the shop orders fulfillment endpoint
-      if current_user&.fulfillment_person?
+      # But admins can access everything
+      if current_user&.fulfillment_person? && !current_user&.admin? && !current_user&.fraud_dept?
         unless shop_orders_fulfillment?
           raise Pundit::NotAuthorizedError
         end

@@ -1,177 +1,3 @@
-<style>
-.shop-item-form .card {
-  border: 1px solid #374151;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  margin-bottom: 1.5rem;
-  background: #1f2937;
-}
-
-.shop-item-form .card-header {
-  background: #111827;
-  border-bottom: 1px solid #374151;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: #f3f4f6;
-}
-
-.shop-item-form .card-body {
-  padding: 1.5rem;
-}
-
-.shop-item-form .form-label {
-  font-weight: 500;
-  color: #e5e7eb;
-  margin-bottom: 0.5rem;
-}
-
-.shop-item-form .form-control,
-.shop-item-form .form-select {
-  border-radius: 6px;
-  border: 1px solid #4b5563;
-  background: #111827;
-  color: #f3f4f6;
-}
-
-.shop-item-form .form-control:focus,
-.shop-item-form .form-select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 0.2rem rgba(59,130,246,.25);
-  background: #111827;
-  color: #f3f4f6;
-}
-
-.shop-item-form .form-text {
-  font-size: 0.875rem;
-  color: #9ca3af;
-}
-
-.shop-item-form .form-check-label {
-  font-weight: 400;
-  margin-left: 0.5rem;
-  color: #e5e7eb;
-}
-
-.shop-item-form .alert-info {
-  background-color: #1e3a5f;
-  border-color: #3b82f6;
-  color: #93c5fd;
-  border-radius: 6px;
-}
-
-.shop-item-form .alert-danger {
-  background-color: #4c1d1d;
-  border-color: #ef4444;
-  color: #fca5a5;
-  border-radius: 6px;
-}
-
-.shop-item-form .table {
-  color: #e5e7eb;
-}
-
-.shop-item-form .table th {
-  background-color: #111827;
-  font-weight: 600;
-  border-bottom: 2px solid #374151;
-  border-top: 1px solid #374151;
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  color: #f3f4f6;
-}
-
-.shop-item-form .table td {
-  padding: 0.75rem;
-  vertical-align: middle;
-  border-color: #374151;
-}
-
-.shop-item-form .table-striped tbody tr:nth-of-type(odd) {
-  background-color: #1f2937;
-}
-
-.shop-item-form .table-striped tbody tr:nth-of-type(even) {
-  background-color: #111827;
-}
-
-.shop-item-form .input-group-text {
-  background-color: #374151;
-  border-color: #4b5563;
-  color: #e5e7eb;
-  font-size: 0.875rem;
-}
-
-.shop-item-form .final-price {
-  font-weight: 600;
-  color: #34d399;
-  font-size: 1rem;
-}
-
-.shop-item-form .btn {
-  padding: 0.5rem 1.5rem;
-  border-radius: 6px;
-  font-weight: 500;
-}
-
-.shop-item-form .btn-primary {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
-  color: #fff;
-}
-
-.shop-item-form .btn-primary:hover {
-  background-color: #2563eb;
-  border-color: #2563eb;
-}
-
-.shop-item-form .btn-secondary {
-  background-color: #4b5563;
-  border-color: #4b5563;
-  color: #fff;
-  margin-left: 0.5rem;
-}
-
-.shop-item-form .btn-secondary:hover {
-  background-color: #374151;
-  border-color: #374151;
-}
-
-.shop-item-form .actions {
-  padding: 1.5rem 0;
-  border-top: 1px solid #374151;
-  margin-top: 2rem;
-}
-
-.shop-item-form h5 {
-  color: #f3f4f6;
-  font-weight: 600;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-  font-size: 1rem;
-}
-
-.readonly-field {
-  background-color: #111827 !important;
-  cursor: not-allowed;
-  color: #9ca3af !important;
-}
-
-.table-responsive {
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid #374151;
-}
-
-.shop-item-form .estimated-hours {
-  color: #9ca3af;
-}
-
-.shop-item-form small {
-  color: #9ca3af;
-}
-</style>
-
 <div class="shop-item-form" x-data="{ selectedType: '<%= shop_item.type %>' }">
 <%= form_with model: shop_item.becomes(ShopItem), url: (shop_item.persisted? ? admin_shop_item_path(shop_item) : admin_shop_items_path), method: (shop_item.persisted? ? :patch : :post), local: true do |f| %>
   <% if shop_item.errors.any? %>
@@ -339,7 +165,7 @@
 
           <div x-show="selectedType === 'ShopItem::WarehouseItem'" class="mb-3">
             <%= f.label :agh_contents, "AGH Contents (JSON)", class: "form-label" %>
-            <%= f.text_area :agh_contents, rows: 4, class: "form-control", placeholder: "Enter valid JSON" %>
+            <%= f.text_area :agh_contents, rows: 4, class: "form-control", placeholder: "Enter valid JSON", style: "font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;" %>
           </div>
         </div>
       </div>
@@ -459,9 +285,24 @@ document.addEventListener('DOMContentLoaded', function () {
     averageHoursDisplay.value = averageHours.toFixed(2);
   }
 
-  if (usdCostField) usdCostField.addEventListener('input', updateCalculations);
+  function autoFillTicketCost() {
+    const estimatedTickets = calculateEstimatedTickets();
+    if (usdCostField.value && (!ticketCostField.value || ticketCostField.value == 0)) {
+      ticketCostField.value = estimatedTickets.toFixed(2);
+      updateCalculations();
+      updateAllRegionalPricing();
+    }
+  }
+
+  if (usdCostField) {
+    usdCostField.addEventListener('input', updateCalculations);
+    usdCostField.addEventListener('blur', autoFillTicketCost);
+  }
   if (ticketCostField) ticketCostField.addEventListener('input', updateCalculations);
-  if (hackerScoreField) hackerScoreField.addEventListener('input', updateCalculations);
+  if (hackerScoreField) {
+    hackerScoreField.addEventListener('input', updateCalculations);
+    hackerScoreField.addEventListener('blur', autoFillTicketCost);
+  }
   updateCalculations();
 
   const limitedCheckbox = document.getElementById('shop_item_limited');
