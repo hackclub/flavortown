@@ -815,7 +815,8 @@ input {
 
     img {
       width: 300px;
-      border-radius: 12px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
     }
 
     h3 {
@@ -971,7 +972,7 @@ input {
         display: flex;
         flex-direction: column;
         align-items: center;
-        background-color: #D7B594;
+        background-color: var(--color-tan-400);
         padding: 0.5em 1em;
         border-radius: 16px;
 
@@ -1344,7 +1345,7 @@ input {
 
 .faq {
   position: relative;
-  background-color: #e7d5b3;
+  background-color: var(--color-tan-300);
 
   display: flex;
   flex-direction: column;
@@ -1501,8 +1502,8 @@ input {
   gap: 2rem;
 
   .about {
-    border: 1rem solid #AD7757;
-    background-color: #AD7757;
+    border: 1rem solid var(--color-brown-400);
+    background-color: var(--color-brown-400);
     box-shadow: var(--shadow);
     border-radius: 16px;
     width: 80%;
@@ -1514,7 +1515,7 @@ input {
     }
 
     div {
-      background: #7A4841 url("landing/footer/about-bg.webp") center /
+      background: var(--color-brown-500) url("landing/footer/about-bg.webp") center /
         cover;
       padding: 2em 4em;
       border-radius: 16px;
@@ -1661,7 +1662,7 @@ input {
   }
 
   .links {
-    background-color: #AD7757;
+    background-color: var(--color-brown-400);
     border-radius: 1.5rem;
     padding: 1rem 2rem;
     display: flex;
@@ -1671,7 +1672,7 @@ input {
     box-shadow: var(--shadow);
 
     a {
-      color: #4D2B32;
+      color: var(--color-brown-700);
       font-size: 1.5em;
       text-decoration: none;
 
