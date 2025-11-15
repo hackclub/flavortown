@@ -767,6 +767,10 @@ input {
     text-align: center;
     font-size: 3rem;
     font-weight: normal;
+
+    @media (max-width: 800px) {
+      font-size: 2rem;
+    }
   }
 
   .events {
@@ -1396,7 +1400,7 @@ input {
     width: 70%;
 
     @media (max-width: 600px) {
-      width: 90%;
+      width: 80%;
     }
 
     .card {

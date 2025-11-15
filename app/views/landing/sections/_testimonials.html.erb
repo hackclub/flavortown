@@ -98,8 +98,12 @@
 
       const cardsContainer = document.querySelector('.cards');
       if (!cardsContainer) return;
+
       cardsContainer.addEventListener('mouseenter', () => (isPaused = true));
       cardsContainer.addEventListener('mouseleave', () => (isPaused = false));
+
+      cardsContainer.addEventListener('touchstart', () => (isPaused = true));
+      cardsContainer.addEventListener('touchend', () => (isPaused = false));
     });
   </script>
 </div>
