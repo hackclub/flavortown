@@ -396,7 +396,6 @@ input {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  // gap: 2rem;
   padding: 2rem 0;
 
   &::after {
@@ -408,7 +407,7 @@ input {
     height: 100%;
     background: url("landing/pattern.webp") repeat center center / 1200px;
     opacity: 0.1;
-    z-index: 0;
+    z-index: -1;
     pointer-events: none;
   }
 
@@ -460,29 +459,15 @@ input {
       width: 350px;
       border-radius: 16px;
 
-      &::after {
-        content: "";
-        width: 50px;
-        height: 50px;
-        background-color: var(--color-bg);
-        z-index: 5;
-        position: absolute;
-        right: 0;
-        top: 9px;;
-        border-radius: 3px;
-        z-index: 10;
-      }
-
       h2 {
-        position: relative;
-        background-color: var(--color-tan-500);
+        background-color: var(--color-bg);
+        box-shadow: var(--shadow);
         font-weight: normal;
         padding: 0.4em 0.4em 2em 0.4em;
-        border-radius: 16px;
+        border-radius: 18px;
         width: 90%;
         font-weight: lighter;
         font-size: 0.9rem;
-        z-index: -1;
       }
 
       h3 {
@@ -503,6 +488,7 @@ input {
       img {
         border-radius: 16px;
         width: 100%;
+        box-shadow: var(--shadow);
       }
     }
 
