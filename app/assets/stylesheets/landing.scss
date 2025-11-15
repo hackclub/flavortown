@@ -1572,6 +1572,22 @@ input {
       z-index: 1;
     }
 
+    .desktop-h3 {
+      display: block;
+
+      @media (max-width: 1700px) {
+        display: none;
+      }
+    }
+
+    .mobile-h3 {
+      display: none;
+
+      @media (max-width: 1700px) {
+        display: block;
+      }
+    }
+
     .people {
       position: relative;
       background-color: #F8E8D1;
@@ -1602,7 +1618,8 @@ input {
       justify-content: center;
 
       .signatures {
-        height: 200px;
+        width: 90%;
+        max-width: 1400px;
       }
 
       .flag {
