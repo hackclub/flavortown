@@ -77,6 +77,10 @@ Rails.application.routes.draw do
     resources :shop_orders, only: [ :index, :show ] do
       member do
         post :reveal_address
+        post :approve
+        post :reject
+        post :place_on_hold
+        post :release_from_hold
       end
     end
     resources :audit_logs, only: [ :index, :show ]

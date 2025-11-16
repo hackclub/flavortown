@@ -33,6 +33,7 @@ def generate_fake_address
 end
 
 order_count = rand(10..20)
+states = [ :pending, :awaiting_periodical_fulfillment, :fulfilled, :rejected, :on_hold ]
 puts "Creating #{order_count} randomized shop orders..."
 
 order_count.times do |index|
@@ -47,8 +48,23 @@ order_count.times do |index|
     frozen_item_price: shop_item.ticket_cost || 100
   )
 
-  if order.save
-    puts "✓ Created order #{index + 1}/#{order_count} for #{user.display_name}"
+  if order.save(validate: false)
+    # Randomly assign a state (skip AASM callbacks to avoid payout issues)
+    random_state = states.sample
+    state_name = random_state.to_s
+    
+    ShopOrder.where(id: order.id).update_all(aasm_state: state_name)
+    
+    # Set timestamp for fulfilled state
+    if random_state == :fulfilled
+      ShopOrder.where(id: order.id).update_all(
+        fulfilled_at: Time.current,
+        fulfilled_by: "SEED",
+        external_ref: "TEST-#{SecureRandom.hex(4)}"
+      )
+    end
+
+    puts "✓ Created order #{index + 1}/#{order_count} (#{random_state}) for #{user.display_name}"
   else
     puts "✗ Failed to create order #{index + 1}: #{order.errors.full_messages.join(', ')}"
   end

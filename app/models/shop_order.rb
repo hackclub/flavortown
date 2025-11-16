@@ -38,7 +38,7 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopOrder < ApplicationRecord
-  has_paper_trail
+  has_paper_trail ignore: [:frozen_address_ciphertext]
 
   include AASM
 
@@ -157,7 +157,7 @@ class ShopOrder < ApplicationRecord
     end
 
     event :place_on_hold do
-      transitions to: :on_hold
+      transitions from: %i[pending awaiting_periodical_fulfillment], to: :on_hold
     end
 
     event :take_off_hold do

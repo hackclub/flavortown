@@ -1,4 +1,6 @@
 class Admin::ShopOrdersController < Admin::ApplicationController
+  before_action :set_paper_trail_whodunnit
+
   def index
     # Determine view mode
     @view = params[:view] || "shop_orders"
@@ -101,6 +103,92 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       )
     else
       render plain: "Unauthorized", status: :forbidden
+    end
+  end
+
+  def approve
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+    old_state = @order.aasm_state
+    
+    if @order.queue_for_fulfillment && @order.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "update",
+        whodunnit: current_user.id,
+        object_changes: {
+          aasm_state: [old_state, @order.aasm_state]
+        }.to_yaml
+      )
+      redirect_to admin_shop_orders_path, notice: "Order approved for fulfillment"
+    else
+      redirect_to admin_shop_order_path(@order), alert: "Failed to approve order: #{@order.errors.full_messages.join(', ')}"
+    end
+  end
+
+  def reject
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+    reason = params[:reason].presence || "No reason provided"
+    old_state = @order.aasm_state
+    
+    if @order.mark_rejected(reason) && @order.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "update",
+        whodunnit: current_user.id,
+        object_changes: {
+          aasm_state: [old_state, @order.aasm_state],
+          rejection_reason: [nil, reason]
+        }.to_yaml
+      )
+      redirect_to admin_shop_orders_path, notice: "Order rejected"
+    else
+      redirect_to admin_shop_order_path(@order), alert: "Failed to reject order: #{@order.errors.full_messages.join(', ')}"
+    end
+  end
+
+  def place_on_hold
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+    old_state = @order.aasm_state
+    
+    if @order.place_on_hold && @order.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "update",
+        whodunnit: current_user.id,
+        object_changes: {
+          aasm_state: [old_state, @order.aasm_state]
+        }.to_yaml
+      )
+      redirect_to admin_shop_orders_path, notice: "Order placed on hold"
+    else
+      redirect_to admin_shop_order_path(@order), alert: "Failed to place order on hold: #{@order.errors.full_messages.join(', ')}"
+    end
+  end
+
+  def release_from_hold
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+    old_state = @order.aasm_state
+    
+    if @order.take_off_hold && @order.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "update",
+        whodunnit: current_user.id,
+        object_changes: {
+          aasm_state: [old_state, @order.aasm_state]
+        }.to_yaml
+      )
+      redirect_to admin_shop_orders_path, notice: "Order released from hold"
+    else
+      redirect_to admin_shop_order_path(@order), alert: "Failed to release order from hold: #{@order.errors.full_messages.join(', ')}"
     end
   end
 end

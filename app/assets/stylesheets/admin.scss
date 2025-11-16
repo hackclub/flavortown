@@ -133,6 +133,39 @@ body {
   }
 }
 
+.btn-danger {
+  display: inline-flex;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 1em 2em;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 0.5em;
+  transition: background 0.1s;
+  font-size: 1rem;
+  cursor: pointer;
+
+  &::after {
+    content: unset;
+  }
+
+  &:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+  }
+
+  &:disabled {
+    background: #999;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  &.slim {
+    padding: 0.25em 0.5em;
+  }
+}
+
 /* Layout Utilities */
 .button-grid {
   display: grid;
