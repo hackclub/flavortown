@@ -1165,6 +1165,7 @@ input {
       clip-path: var(--jagged-border-polygon);
 
       background: #E8C170 url("landing/inspiration/bg.webp") center center / cover;
+      background-size: 10rem;
       flex-direction: column;
       align-items: center;
       gap: 2rem;
