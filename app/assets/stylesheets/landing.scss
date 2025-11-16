@@ -229,7 +229,7 @@ input {
 
 .how-this-works-second-border-wrapper {
   --gap-top: 20rem;
-  --gap-bottom: 10rem;
+  --gap-bottom: 15rem;
   --jagged-depth: 60px;
   --jagged-border-polygon: polygon(
     0 var(--jagged-depth),
@@ -245,23 +245,11 @@ input {
     84% var(--jagged-depth),
     90% 0,
     99.99% var(--jagged-depth),
-    100% calc(100% - var(--jagged-depth)),
-    96% 100%,
-    88% calc(100% - 55px),
-    81% 100%,
-    70% calc(100% - var(--jagged-depth)),
-    65% 100%,
-    53% calc(100% - 50px),
-    43% 100%,
-    33% calc(100% - 57px),
-    25% 100%,
-    18% calc(100% - 67px),
-    10% 100%,
-    0 calc(100% - var(--jagged-depth))
+    100% 100%,
+    0% 100%
   );
 
   padding-top: 1rem;
-  padding-bottom: 1rem;
   clip-path: var(--jagged-border-polygon);
   background-color: #D5C3A0;
 
@@ -269,7 +257,6 @@ input {
 
   .how-this-works-border-wrapper {
     padding-top: 1rem;
-    padding-bottom: 1rem;
     clip-path: var(--jagged-border-polygon);
     background-color: #FDE8D1;
 
@@ -598,477 +585,540 @@ input {
   }
 }
 
-.prizes {
-  background: var(--color-bg) url("landing/prizes/bg.svg") center center / cover;
+.prizes-section-second-border-wrapper {
+  --jagged-depth: 80px;
+  --jagged-border-polygon: polygon(
+    0 0,
+    8% var(--jagged-depth),
+    16% 5px,
+    22% var(--jagged-depth),
+    33% 2px,
+    40% 65px,
+    55% 5px,
+    65% 55px,
+    70% 2px,
+    79% var(--jagged-depth),
+    84% 0,
+    90% 65px,
+    96% 8px,
+    99.99% 40px,
+    100% 100%,
+    0% 100%
+  );
 
-  padding: 2rem 0 4rem 0;
+  padding-top: 1rem;
+  clip-path: var(--jagged-border-polygon);
+  background-color: #F8E8D1;
 
-  flex-direction: column;
-  align-items: center;
-  gap: 2rem;
+  margin-top: -8rem;
 
-  overflow: hidden;
+  .prizes-section-border-wrapper {
+    padding-top: 1rem;
+    clip-path: var(--jagged-border-polygon);
+    background-color: #D5C3A0;
 
-  .title {
-    display: flex;
-    gap: 0.5rem;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 3rem;
+    .prizes {
+      clip-path: var(--jagged-border-polygon);
 
-    background: var(--color-red-400);
-    box-shadow: var(--shadow);
-    color: white;
+      background: var(--color-bg) url("landing/prizes/bg.svg") center center / cover;
 
-    border-radius: 1rem;
-    font-size: 2rem;
-    padding: 0.5rem;
-    aspect-ratio: 5 / 1;
+      padding: 6rem 0 4rem 0;
 
-    > div {
-      font-size: 3rem;
-      width: 110%;
-      text-align: center;
-
-      background: var(--color-red-500) url("landing/prizes/title-overlay.svg")
-        center center / cover;
-      box-shadow: var(--shadow);
-      border-radius: 1rem;
-
-      padding: 0.5rem 0;
-    }
-
-    @media (max-width: 800px) {
-      font-size: 1.25rem;
-
-      aspect-ratio: 11 / 3;
-
-      > div {
-        font-size: 1.75rem;
-      }
-    }
-  }
-
-  .showcase-container {
-    display: flex;
-    flex-direction: column;
-    margin: 1rem;
-
-    width: 105%;
-    transform: rotate(-4deg);
-
-    --showcase-scroll-time: 10s;
-
-    .showcase-title {
-      width: 95.24%;
-      align-self: center;
-
-      display: flex;
       flex-direction: column;
+      align-items: center;
+      gap: 2rem;
 
-      > div {
-        align-self: var(--align-title);
+      overflow: hidden;
 
-        background: var(--carousel-bg);
-        border-radius: 0.75rem 0.75rem 0 0;
+      .title {
+        display: flex;
+        gap: 0.5rem;
+        flex-direction: column;
+        align-items: center;
+        margin: 3rem 0;
 
-        font-size: 1.75rem;
-        color: white;
+        background: var(--color-red-400);
+        box-shadow: var(--shadow);
+        color: #F8E8D1;
 
-        margin: 0 6rem;
-        padding: 0.5rem 0.5rem 0 0.5rem;
+        border-radius: 1rem;
+        font-size: 1.5rem;
+        padding: 0.5rem 4rem;
+        aspect-ratio: 5 / 1;
 
         > div {
-          background: var(--carousel-title);
+          font-size: 2.5rem;
+          width: 140%;
+          text-align: center;
+          padding: 0.5rem 2rem;
 
-          padding: 0.25rem 3rem;
-          border-radius: 0.5rem;
-
+          background: var(--color-red-500) url("landing/prizes/title-overlay.svg")
+            center center / cover;
           box-shadow: var(--shadow);
+          border-radius: 1rem;
+
         }
 
         @media (max-width: 800px) {
-          margin: 0;
-          align-self: center;
-          font-size: 1.5rem;
+          font-size: 1.25rem;
+
+          aspect-ratio: 11 / 3;
+
+          > div {
+            font-size: 1.75rem;
+          }
         }
       }
-    }
 
-    .showcase {
-      display: flex;
-      gap: 1rem;
-      padding: 0.5rem;
-      border-bottom: 0.5rem solid var(--carousel-title);
-
-      background: var(--carousel-bg);
-
-      &:hover > .items {
-        animation-play-state: paused;
-      }
-
-      > .items {
+      .showcase-container {
         display: flex;
-        gap: 1rem;
-        z-index: 1;
+        flex-direction: column;
+        margin: 1rem;
 
-        will-change: transform;
-        animation: scrolling var(--showcase-scroll-time) linear infinite;
+        width: 105%;
+        transform: rotate(-4deg);
 
-        .prize {
-          background: #ebede9; // TODO do not hardcode
-          box-shadow: var(--shadow);
-          padding: 0.75rem;
-          border-radius: 1rem;
+        --showcase-scroll-time: 10s;
 
-          flex: 0 0 15rem;
-          aspect-ratio: 15 / 14;
+        .showcase-title {
+          width: 95.24%;
+          align-self: center;
 
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
 
-          .image-wrapper {
-            background: var(--color-tan-300)
-              url("landing/prizes/img-overlay.svg") center center / cover;
-            box-shadow: var(--shadow);
-            border-radius: 0.5rem;
-            padding: 0.25rem;
-            flex: 1;
+          > div {
+            align-self: var(--align-title);
 
-            img {
-              width: 100%;
-              height: 100%;
-              object-fit: contain;
+            background: var(--carousel-bg);
+            border-radius: 0.75rem 0.75rem 0 0;
+
+            font-size: 1.75rem;
+            color: white;
+
+            margin: 0 6rem;
+            padding: 0.5rem 0.5rem 0 0.5rem;
+
+            > div {
+              background: var(--carousel-title);
+
+              padding: 0.25rem 3rem;
+              border-radius: 0.5rem;
+
+              box-shadow: var(--shadow);
             }
 
-            overflow: hidden;
-          }
-
-          .description {
-            text-align: center;
-
-            font-size: 0.9rem;
-
-            .name {
-              font-size: 1.25rem;
-            }
-          }
-
-          @media (max-width: 800px) {
-            flex: 0 0 10rem;
-            aspect-ratio: 13 / 14;
-
-            .description {
-              font-size: 0.8rem;
-
-              .name {
-                font-size: 1rem;
-              }
+            @media (max-width: 800px) {
+              margin: 0;
+              align-self: center;
+              font-size: 1.5rem;
             }
           }
         }
+
+        .showcase {
+          display: flex;
+          gap: 1rem;
+          padding: 0.5rem;
+          border-bottom: 0.5rem solid var(--carousel-title);
+
+          background: var(--carousel-bg);
+
+          &:hover > .items {
+            animation-play-state: paused;
+          }
+
+          > .items {
+            display: flex;
+            gap: 1rem;
+            z-index: 1;
+
+            will-change: transform;
+            animation: scrolling var(--showcase-scroll-time) linear infinite;
+
+            .prize {
+              background: #ebede9; // TODO do not hardcode
+              box-shadow: var(--shadow);
+              padding: 0.75rem;
+              border-radius: 1rem;
+
+              flex: 0 0 15rem;
+              aspect-ratio: 15 / 14;
+
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+
+              .image-wrapper {
+                background: var(--color-tan-300)
+                  url("landing/prizes/img-overlay.svg") center center / cover;
+                box-shadow: var(--shadow);
+                border-radius: 0.5rem;
+                padding: 0.25rem;
+                flex: 1;
+
+                img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: contain;
+                }
+
+                overflow: hidden;
+              }
+
+              .description {
+                text-align: center;
+
+                font-size: 0.9rem;
+
+                .name {
+                  font-size: 1.25rem;
+                }
+              }
+
+              @media (max-width: 800px) {
+                flex: 0 0 10rem;
+                aspect-ratio: 13 / 14;
+
+                .description {
+                  font-size: 0.8rem;
+
+                  .name {
+                    font-size: 1rem;
+                  }
+                }
+              }
+            }
+          }
+
+          .bar {
+            position: absolute;
+            bottom: 0.5rem;
+            left: 0;
+            right: 0;
+            background: var(--carousel-bar);
+            box-shadow: var(--shadow);
+            height: 2rem;
+          }
+        }
+
+        &.five-hour {
+          --carousel-bg: #de9e41; // TODO do not hardcode
+          --carousel-title: #be772b; // TODO do not hardcode
+          --carousel-bar: #e7c06d; // TODO do not hardcode
+          --align-title: flex-start;
+        }
+
+        &.twenty-hour {
+          --carousel-bg: #a8ca58; // TODO do not hardcode
+          --carousel-title: #75a743; // TODO do not hardcode
+          --carousel-bar: #d0da91; // TODO do not hardcode
+          --align-title: center;
+        }
+
+        &.hundred-hour {
+          --carousel-bg: #73bed3; // TODO do not hardcode
+          --carousel-title: #4f8fba; // TODO do not hardcode
+          --carousel-bar: #a4dddb; // TODO do not hardcode
+          --align-title: flex-end;
+        }
+
+        &.twenty-hour .showcase > .items {
+          animation: scrolling-reverse var(--showcase-scroll-time) linear infinite;
+        }
       }
-
-      .bar {
-        position: absolute;
-        bottom: 0.5rem;
-        left: 0;
-        right: 0;
-        background: var(--carousel-bar);
-        box-shadow: var(--shadow);
-        height: 2rem;
-      }
-    }
-
-    &.five-hour {
-      --carousel-bg: #de9e41; // TODO do not hardcode
-      --carousel-title: #be772b; // TODO do not hardcode
-      --carousel-bar: #e7c06d; // TODO do not hardcode
-      --align-title: flex-start;
-    }
-
-    &.twenty-hour {
-      --carousel-bg: #a8ca58; // TODO do not hardcode
-      --carousel-title: #75a743; // TODO do not hardcode
-      --carousel-bar: #d0da91; // TODO do not hardcode
-      --align-title: center;
-    }
-
-    &.hundred-hour {
-      --carousel-bg: #73bed3; // TODO do not hardcode
-      --carousel-title: #4f8fba; // TODO do not hardcode
-      --carousel-bar: #a4dddb; // TODO do not hardcode
-      --align-title: flex-end;
-    }
-
-    &.twenty-hour .showcase > .items {
-      animation: scrolling-reverse var(--showcase-scroll-time) linear infinite;
     }
   }
 }
 
-.previously-hosted {
-  background: var(--color-bg);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background-image: url("landing/previously-hosted/dash-trail.svg");
-  background-repeat: repeat-x;
-  background-position: center 200px;
-  background-size: auto 50px;
+.previously-hosted-section-second-border-wrapper {
+  --jagged-depth: 80px;
+  --jagged-border-polygon: polygon(
+    0 var(--jagged-depth),
+    99.99% 0,
+    100% 100%,
+    0% 100%
+  );
+  padding-top: 1rem;
+  clip-path: var(--jagged-border-polygon);
+  background-color: #F8E8D1;
+  margin-top: -8rem;
 
-  .title {
-    margin: 2rem 0 0 0;
-    text-align: center;
-    font-size: 3rem;
-    font-weight: normal;
+  .previously-hosted-section-border-wrapper {
+    padding-top: 1rem;
+    clip-path: var(--jagged-border-polygon);
+    background-color: #D5C3A0;
 
-    @media (max-width: 800px) {
-      font-size: 2rem;
-    }
-  }
+    .previously-hosted {
+      clip-path: var(--jagged-border-polygon);
 
-  .events {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8rem;
-    padding: 2rem;
-    flex-wrap: wrap;
-    text-align: center;
-    color: var(--color-bg);
-    z-index: 2;
-
-    @media (max-width: 800px) {
-      gap: 4rem;
-    }
-
-    .event-card {
-      background-color: var(--color-brown-400);
-      border-radius: 16px;
-      padding: 0.5rem;
-      transition: transform 0.3s ease;
-
-      &.is-active {
-        background-color: var(--color-brown-600);
-        box-shadow: var(--shadow);
-        transform: scale(1.05);
-      }
-
-      &:hover {
-        box-shadow: var(--shadow);
-        transform: scale(1.05);
-        cursor: pointer;
-      }
-    }
-
-    .event-card:hover {
-      box-shadow: var(--shadow);
-      transform: scale(1.05);
-      cursor: pointer;
-    }
-
-    img {
-      width: 300px;
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-    }
-
-    h3 {
-      margin-top: 0.25em;
-      font-size: 1.5rem;
-      font-weight: normal;
-    }
-
-    h4 {
-      margin-top: 0.1em;
-      font-size: 1rem;
-      font-weight: normal;
-    }
-  }
-
-  .stats {
-    --notch-width: 110px;
-    --notch-height: 36px;
-    --notch-border: 20px;
-    --notch-x: 50%;
-
-    background-color: var(--color-brown-400);
-
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    position: relative;
-    margin-top: auto;
-    z-index: 1;
-    padding: 1em;
-    padding-bottom: 2em;
-
-    border-top: 16px solid var(--color-brown-700);
-
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-
-    background-image: url("landing/previously-hosted/bg-tile.svg");
-    background-repeat: repeat;
-    background-size: 7rem;
-
-    @media (max-width: 600px) {
-      margin-top: 2rem;
-    }
-
-    h2 {
-      margin: 0;
-      font-size: 1.5rem;
-      font-weight: normal;
-      color: var(--color-bg);
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    .stats-title {
-      font-size: 2.5rem;
-      text-align: center;
-      width: 100%;
-      margin-top: 1.5rem;
-      margin-bottom: 1rem;
-      font-weight: normal;
-
-      color: var(--color-bg);
-    }
-
-    &::before {
-      content: "";
-      position: absolute;
-      width: calc(var(--notch-width) + 2 * var(--notch-border));
-      height: calc(var(--notch-height) + var(--notch-border));
-      top: calc(-1 * var(--notch-height) - var(--notch-border));
-      left: calc(var(--notch-x) - (var(--notch-width) / 2) - var(--notch-border));
-      background: var(--color-brown-700);
-      clip-path: polygon(0 100%, 50% 0, 100% 100%);
-      transition: left 220ms ease;
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    &::after {
-      content: "";
-      position: absolute;
-      width: var(--notch-width);
-      height: calc(var(--notch-height) + 4px);
-      top: calc(-1 * var(--notch-height));
-      left: calc(var(--notch-x) - var(--notch-width) / 2);
-      background: var(--color-brown-400);
-      clip-path: polygon(0 100%, 50% 0, 100% 100%);
-      box-shadow: 0 -8px 0 var(--color-brown-700);
-      transition: left 220ms ease;
-      z-index: 3;
-      pointer-events: none;
-    }
-
-    .big-stats {
+      background: var(--color-bg);
+      position: relative;
       display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      gap: 4rem;
-      margin-top: 3rem;
+      flex-direction: column;
+      background-image: url("landing/previously-hosted/dash-trail.svg");
+      background-repeat: repeat-x;
+      background-position: center 200px;
+      background-size: auto 50px;
 
-      @media (max-width: 800px) {
-        flex-direction: column;
+      padding-top: 4rem;
+
+      .title {
+        margin: 2rem 0 0 0;
+        text-align: center;
+        font-size: 3rem;
+        font-weight: normal;
+
+        @media (max-width: 800px) {
+          font-size: 2rem;
+        }
       }
 
-      .stat {
-        position: relative;
+      .events {
         display: flex;
-        flex-direction: column;
+        justify-content: center;
         align-items: center;
-        background-color: var(--color-bg);
-        padding: 2em 1.5em;
-        border-radius: 16px;
-        box-shadow: var(--shadow);
+        gap: 8rem;
+        padding: 2rem;
+        flex-wrap: wrap;
+        text-align: center;
+        color: var(--color-bg);
+        z-index: 2;
 
-        h4 {
-          font-size: 3rem;
-          margin: 0;
-          font-weight: normal;
-          color: var(--color-brown-400);
+        @media (max-width: 800px) {
+          gap: 4rem;
         }
 
-        h5 {
+        .event-card {
+          background-color: var(--color-brown-400);
+          border-radius: 16px;
+          padding: 0.5rem;
+          transition: transform 0.3s ease;
+
+          &.is-active {
+            background-color: var(--color-brown-600);
+            box-shadow: var(--shadow);
+            transform: scale(1.05);
+          }
+
+          &:hover {
+            box-shadow: var(--shadow);
+            transform: scale(1.05);
+            cursor: pointer;
+          }
+        }
+
+        .event-card:hover {
+          box-shadow: var(--shadow);
+          transform: scale(1.05);
+          cursor: pointer;
+        }
+
+        img {
+          width: 300px;
+          border-radius: 16px;
+          box-shadow: var(--shadow);
+        }
+
+        h3 {
+          margin-top: 0.25em;
           font-size: 1.5rem;
-          margin: 0;
           font-weight: normal;
-        }
-
-        img {
-          position: absolute;
-          z-index: 2;
-          width: 70px;
-          top: -25%;
-          left: 50%;
-          transform: translateX(-50%);
-          border: 10px solid var(--color-bg);
-          border-radius: 50%;
-        }
-      }
-    }
-
-    .prize-stats {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 2em;
-
-      .prize {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background-color: var(--color-tan-400);
-        padding: 0.5em 1em;
-        border-radius: 16px;
-
-        img {
-          width: 50px;
         }
 
         h4 {
-          margin: 0.5rem 0 0 0;
+          margin-top: 0.1em;
+          font-size: 1rem;
           font-weight: normal;
-          color: var(--color-brown-500);
         }
       }
-    }
-  }
 
-  // not sure on a better idea for opacity
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url("landing/pattern.webp") repeat center center / 1200px;
-    opacity: 0.1;
-    z-index: 0;
+      .stats {
+        --notch-width: 110px;
+        --notch-height: 36px;
+        --notch-border: 20px;
+        --notch-x: 50%;
+
+        background-color: var(--color-brown-400);
+
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        position: relative;
+        margin-top: auto;
+        z-index: 1;
+        padding: 1em;
+        padding-bottom: 2em;
+
+        border-top: 16px solid var(--color-brown-700);
+
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+
+        background-image: url("landing/previously-hosted/bg-tile.svg");
+        background-repeat: repeat;
+        background-size: 7rem;
+
+        @media (max-width: 600px) {
+          margin-top: 2rem;
+        }
+
+        h2 {
+          margin: 0;
+          font-size: 1.5rem;
+          font-weight: normal;
+          color: var(--color-bg);
+          margin-top: 2rem;
+          margin-bottom: 1rem;
+        }
+
+        .stats-title {
+          font-size: 2.5rem;
+          text-align: center;
+          width: 100%;
+          margin-top: 1.5rem;
+          margin-bottom: 1rem;
+          font-weight: normal;
+
+          color: var(--color-bg);
+        }
+
+        &::before {
+          content: "";
+          position: absolute;
+          width: calc(var(--notch-width) + 2 * var(--notch-border));
+          height: calc(var(--notch-height) + var(--notch-border));
+          top: calc(-1 * var(--notch-height) - var(--notch-border));
+          top: calc(-1 * var(--notch-height) - var(--notch-border));
+          left: calc(var(--notch-x) - (var(--notch-width) / 2) - var(--notch-border));
+          background: var(--color-brown-700);
+          clip-path: polygon(0 100%, 50% 0, 100% 100%);
+          transition: left 220ms ease;
+          z-index: 2;
+          pointer-events: none;
+        }
+
+        &::after {
+          content: "";
+          position: absolute;
+          width: var(--notch-width);
+          height: calc(var(--notch-height) + 4px);
+          top: calc(-1 * var(--notch-height));
+          left: calc(var(--notch-x) - var(--notch-width) / 2);
+          background: var(--color-brown-400);
+          clip-path: polygon(0 100%, 50% 0, 100% 100%);
+          box-shadow: 0 -8px 0 var(--color-brown-700);
+          transition: left 220ms ease;
+          z-index: 3;
+          pointer-events: none;
+        }
+
+        .big-stats {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          gap: 4rem;
+          margin-top: 3rem;
+
+          @media (max-width: 800px) {
+            flex-direction: column;
+          }
+
+          .stat {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--color-bg);
+            padding: 2em 1.5em;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+
+            h4 {
+              font-size: 3rem;
+              margin: 0;
+              font-weight: normal;
+              color: var(--color-brown-400);
+            }
+
+            h5 {
+              font-size: 1.5rem;
+              margin: 0;
+              font-weight: normal;
+            }
+
+            img {
+              position: absolute;
+              z-index: 2;
+              width: 70px;
+              top: -25%;
+              left: 50%;
+              transform: translateX(-50%);
+              border: 10px solid var(--color-bg);
+              border-radius: 50%;
+            }
+          }
+        }
+
+        .prize-stats {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: center;
+          align-items: center;
+          gap: 2em;
+
+          .prize {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--color-tan-400);
+            padding: 0.5em 1em;
+            border-radius: 16px;
+
+            img {
+              width: 50px;
+            }
+
+            h4 {
+              margin: 0.5rem 0 0 0;
+              font-weight: normal;
+              color: var(--color-brown-500);
+            }
+          }
+        }
+      }
+
+      // not sure on a better idea for opacity
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("landing/pattern.webp") repeat center center / 1200px;
+        opacity: 0.1;
+        z-index: 0;
+      }
+    }
   }
 }
 
 .under-previously-hosted {
   width: 100%;
-  height: 48px;
+
+  padding: 0.3em 0;
+  margin-top: -0.01em;
 
   color: var(--color-bg);
   background-color: var(--color-brown-500);
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  border-bottom: 1rem solid #D5C3A0;
+
+  text-align: center;
   font-size: 1.5rem;
 
   @media (max-width: 600px) {
@@ -1150,7 +1200,7 @@ input {
         }
       }
 
-      .content {
+      .content { 
         width: 100%;
         height: 100%;
 

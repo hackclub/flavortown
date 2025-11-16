@@ -1,24 +1,28 @@
-<div class="section prizes">
-  <div class="title">
-    <div>Amazing Prizes</div>
-    Prizes to power up your next project!
+<div class="prizes-section-second-border-wrapper">
+  <div class="prizes-section-border-wrapper">
+    <div class="section prizes">
+      <div class="title">
+        <div>Our best prizes yet</div>
+        Prizes to power up your next project!
+      </div>
+
+      <%= render partial: "landing/carousel/showcase", locals: {
+        showcase_items: @prizes.select { |p| p[:hours_estimated].between?(4, 9) },
+        class_name: "five-hour",
+        title: "5 hour prizes"
+      } %>
+
+      <%= render partial: "landing/carousel/showcase", locals: {
+        showcase_items: @prizes.select { |p| p[:hours_estimated].between?(10, 30) },
+        class_name: "twenty-hour",
+        title: "20 hour prizes"
+      } %>
+
+      <%= render partial: "landing/carousel/showcase", locals: {
+        showcase_items: @prizes.select { |p| p[:hours_estimated] > 80 },
+        class_name: "hundred-hour",
+        title: "100 hour prizes"
+      } %>
+    </div>
   </div>
-
-  <%= render partial: "landing/carousel/showcase", locals: {
-    showcase_items: @prizes.select { |p| p[:hours_estimated].between?(4, 9) },
-    class_name: "five-hour",
-    title: "5 hour prizes"
-  } %>
-
-  <%= render partial: "landing/carousel/showcase", locals: {
-    showcase_items: @prizes.select { |p| p[:hours_estimated].between?(10, 30) },
-    class_name: "twenty-hour",
-    title: "20 hour prizes"
-  } %>
-
-  <%= render partial: "landing/carousel/showcase", locals: {
-    showcase_items: @prizes.select { |p| p[:hours_estimated] > 80 },
-    class_name: "hundred-hour",
-    title: "100 hour prizes"
-  } %>
 </div>
