@@ -34,6 +34,27 @@ class FileUploadComponent < ViewComponent::Base
     !!@direct_upload
   end
 
+  def initial_preview_url
+    record = form.object
+    return nil unless record.respond_to?(attribute)
+    attachment = record.public_send(attribute)
+    return nil unless attachment.respond_to?(:attached?) && attachment.attached?
+    helpers.url_for(attachment)
+  rescue
+    nil
+  end
+
+  def initial_filename
+    record = form.object
+    return nil unless record.respond_to?(attribute)
+    attachment = record.public_send(attribute)
+    return nil unless attachment.respond_to?(:attached?) && attachment.attached?
+    blob = attachment.try(:blob)
+    blob&.filename&.to_s
+  rescue
+    nil
+  end
+
   def file_field_html_options
     options = {
       class: "file-upload__input",

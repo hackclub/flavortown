@@ -1,0 +1,115 @@
+.project-show-card {
+  background-color: var(--color-brown-500);
+  border: 14px solid var(--color-brown-400);
+  border-radius: calc(var(--border-radius) * 1.8);
+  background-clip: padding-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  overflow: hidden;
+  background-image: url("mask/project-card.webp");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    padding: var(--space-xl);
+    color: var(--color-bg);
+  }
+
+  &__banner {
+    .project-card__banner-frame {
+      aspect-ratio: 21 / 9;
+    }
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  &__titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m);
+  }
+
+  &__byline {
+    margin-top: 0;
+    color: var(--color-tan-400);
+    font-size: var(--font-size-xl);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--font-size-xxxl);
+    line-height: var(--line-height-headers);
+    color: var(--color-bg);
+  }
+
+  &__title-text {
+    display: inline-block;
+  }
+
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: var(--space-l);
+    color: var(--color-tan-400);
+    font-size: var(--font-size-xl);
+    margin-top: var(--space-m);
+    margin-bottom: var(--space-xxs);
+  }
+
+  &__stat {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+
+    svg {
+      color: var(--color-tan-400) !important;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  &__description {
+    margin: 0;
+    color: var(--color-bg);
+    font-size: var(--font-size-xl);
+    line-height: 1.5;
+
+    /* appr markdown does some funny thigns */
+    p {
+      margin: 0;
+    }
+  }
+
+  &__actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--space-l);
+    margin-top: var(--space-m);
+    align-items: stretch;
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+      height: 120%;
+      border-radius: calc(var(--border-radius));
+      font-size: var(--font-size-xxl);
+      padding: var(--space-xs) var(--space-xl);
+      gap: var(--space-s);
+
+      svg {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+    }
+  }
+}

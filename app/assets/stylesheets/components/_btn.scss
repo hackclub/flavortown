@@ -4,7 +4,7 @@
   gap: var(--space-xs);
   color: var(--color-bg);
   padding: var(--space-xxs) var(--space-m);
-  border-radius: calc( 0.6 * var(--border-radius));
+  border-radius: calc(0.6 * var(--border-radius));
   background-origin: border-box;
   background-color: transparent;
   border: solid 5px transparent;
@@ -99,6 +99,21 @@
     }
   }
 
+  &--brown {
+    --btn-bg: var(--color-brown-700);
+    --btn-bg-dark: var(--color-brown-700);
+    background-color: var(--color-brown-700);
+    border-color: var(--color-brown-400);
+
+    &:hover {
+      filter: brightness(1.1);
+    }
+
+    &:active {
+      filter: brightness(0.95);
+    }
+  }
+
   &--striped {
     padding: 0.5rem;
     border: none;
@@ -130,5 +145,17 @@
         fill: currentColor;
       }
     }
+  }
+
+  &--borderless {
+    border: none;
+  }
+
+  &--lg {
+    padding: var(--space-l) var(--space-xxl);
+  }
+
+  &--lg.btn--striped div {
+    padding: var(--space-m) var(--space-xl);
   }
 }

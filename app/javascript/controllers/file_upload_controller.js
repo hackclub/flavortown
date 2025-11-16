@@ -16,10 +16,19 @@ export default class extends Controller {
     "progressBar",
     "status",
   ];
-  static values = { maxSize: Number };
+  static values = { maxSize: Number, initialUrl: String, initialFilename: String };
 
   connect() {
     this.#reset();
+    // Show existing preview if provided
+    if (this.hasInitialUrlValue && this.initialUrlValue) {
+      this.#showPreviewFromUrl(
+        this.initialUrlValue,
+        this.hasInitialFilenameValue && this.initialFilenameValue
+          ? this.initialFilenameValue
+          : "Current file",
+      );
+    }
   }
 
   open(event) {
@@ -129,6 +138,12 @@ export default class extends Controller {
       this.previewTarget.innerHTML = `<div class="file-upload__preview-fallback">${file.name}</div>`;
       this.#displayPreviewShell(file.name);
     }
+  }
+
+  #showPreviewFromUrl(url, filename = "Current file") {
+    if (!this.hasPreviewTarget) return;
+    this.previewTarget.innerHTML = `<img src="${url}" alt="${filename}" class="file-upload__preview-image" />`;
+    this.#displayPreviewShell(filename);
   }
 
   #displayPreviewShell(filename) {

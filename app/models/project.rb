@@ -20,6 +20,9 @@ class Project < ApplicationRecord
     has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
     has_many :users, through: :memberships
     has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :nullify
+    has_many :posts, dependent: :destroy
+    # prolly countercache it
+    has_many :devlogs, -> { where(postable_type: "Post::Devlog") }, class_name: "Post"
 
     has_one_attached :demo_video
     # https://github.com/rails/rails/pull/39135

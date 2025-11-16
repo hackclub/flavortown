@@ -92,5 +92,6 @@ Rails.application.routes.draw do
   # Projects
   resources :projects, shallow: true do
     resources :memberships, only: [ :create, :destroy ], module: :project
+    resources :devlogs, only: [ :new, :create ], module: :project
   end
 end

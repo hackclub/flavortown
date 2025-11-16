@@ -1,0 +1,44 @@
+<% content_for :title, "Add Devlog" %>
+
+<div class="projects-new">
+  <div class="projects-new__container">
+    <%= render HeadingComponent.new(title: "Add Devlog", tone: :brown) %>
+
+    <%= form_with model: @devlog,
+                  url: project_devlogs_path(@project),
+                  html: { multipart: true },
+                  class: "projects-new__form",
+                  local: true do |f| %>
+      <div class="projects-new__card">
+        <div class="projects-new__field">
+          <%= render InputComponent.new(
+                label: "Devlog Text",
+                placeholder: "Write a few sentences about what you worked on…",
+                form: f,
+                attribute: :body,
+                color: :red,
+                as: :text_area,
+                input_html: { rows: 6 }
+              ) %>
+        </div>
+
+        <div class="projects-new__field">
+          <%= render FileUploadComponent.new(
+                label: "Attachment",
+                form: f,
+                attribute: :attachments,
+                color: :green,
+                subtitle: "Supports images, video, and GIF. Max 50 MB.",
+                accept: Post::Devlog::ACCEPTED_CONTENT_TYPES.join(","),
+                multiple: true,
+                max_size: 50.megabytes
+              ) %>
+        </div>
+      </div>
+
+      <div class="projects-new__actions">
+        <%= render ButtonComponent.new(text: "Create Devlog", color: :brown, type: :submit) %>
+      </div>
+    <% end %>
+  </div>
+</div>

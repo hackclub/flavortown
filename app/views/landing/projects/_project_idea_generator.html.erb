@@ -32,7 +32,7 @@
 
   // Background music setup
   const backgroundMusic = new Howl({
-    src: ['https://hc-cdn.hel1.your-objectstorage.com/s/v3/97c311247fdb3be24c1c0f22b7ef81ae51a4b188_overcooked___penne_for_your_thoughts_gameplay_version___mbjwvpv9unm__audio.mp4'],
+    src: ["<%= audio_path('penne_for_your_thoughts.mp3') %>"],
     loop: true,
     rate: 0.5,
     volume: 0.1
@@ -79,9 +79,9 @@
       </div>
 
       <div id="shopkeeper-bakery">
-        <%= image_tag "landing/section-5/bakery/back.webp" %>
+        <%= image_tag "landing/inspiration/bakery/back.webp" %>
         <img id="shopkeeper-image" src="" class="idle" style="position: absolute; right: 64px; top: 40%; width: 30%;">
-        <%= image_tag "landing/section-5/bakery/front.webp", style: "position: absolute; top: 0; left: 0; pointer-events: none;" %>
+        <%= image_tag "landing/inspiration/bakery/front.webp", style: "position: absolute; top: 1.2rem; left: 0; pointer-events: none;" %>
       </div>
     </div>
   </div>

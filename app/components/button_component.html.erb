@@ -1,0 +1,26 @@
+<% if is_link? %>
+  <%= link_to href, method: method, **button_attributes do %>
+    <% if is_striped? %>
+      <div>
+        <%= icon_tag if icon.present? %>
+        <%= content? ? content : display_text %>
+      </div>
+    <% else %>
+      <%= icon_tag if icon.present? %>
+      <%= content? ? content : display_text %>
+    <% end %>
+  <% end %>
+<% else %>
+  <%= tag.button type: type, **button_attributes do %>
+    <% if is_striped? %>
+      <div>
+        <%= icon_tag if icon.present? %>
+        <%= content? ? content : display_text %>
+      </div>
+    <% else %>
+      <%= icon_tag if icon.present? %>
+      <%= content? ? content : display_text %>
+    <% end %>
+  <% end %>
+<% end %>
+

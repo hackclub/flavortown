@@ -1,0 +1,104 @@
+<article class="project-show-card">
+  <div class="project-show-card__banner project-card__banner">
+    <div class="project-card__banner-frame">
+      <% if banner_variant.present? %>
+        <%= image_tag project.banner.variant(:card), class: "project-card__banner-image", alt: "#{project.title} banner" %>
+      <% else %>
+        <div class="project-card__banner-frame project-card__banner-frame--placeholder">
+          <div class="project-card__banner-placeholder">
+            <div class="project-card__banner-placeholder-text">No banner uploaded</div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="project-show-card__content project-card__content">
+    <header class="project-show-card__header">
+      <div class="project-show-card__titlebar">
+        <h1 class="project-show-card__title project-card__title">
+          <span class="project-show-card__title-text"><%= project.title %></span>
+        </h1>
+
+        <% if helpers.policy(project).edit? || helpers.policy(project).destroy? %>
+          <div class="projects-show__admin-actions">
+            <% if helpers.policy(project).edit? %>
+              <%= render ButtonComponent.new(
+                    href: helpers.edit_project_path(project),
+                    color: :brown,
+                    variant: :borderless,
+                    icon: "icons/edit.svg",
+                    class: "projects-show__icon-btn",
+                    aria: { label: "Edit project" }
+                  ) %>
+            <% end %>
+            <% if helpers.policy(project).destroy? %>
+              <%= render ButtonComponent.new(
+                    href: helpers.project_path(project),
+                    method: :delete,
+                    color: :brown,
+                    variant: :borderless,
+                    icon: "icons/trash-bin.svg",
+                    class: "projects-show__icon-btn",
+                    data: { turbo_confirm: "Delete this project?" },
+                    aria: { label: "Delete project" }
+                  ) %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <div class="project-show-card__byline">
+        <%= byline_text %>
+      </div>
+
+      <div class="project-show-card__stats">
+        <%# <span class="project-show-card__stat">
+          <%= helpers.inline_svg_tag("icons/star_fill.svg") >
+          <span><%= followers_count > followers</span>
+        </span> %>
+        <span class="project-show-card__stat">
+          <%= helpers.inline_svg_tag("icons/paper.svg") %>
+          <span><%= project.devlogs.count %> devlogs</span>
+        </span>
+      </div>
+    </header>
+
+    <% if project.description.present? %>
+      <div class="project-show-card__description"><%= helpers.md project.description %></div>
+    <% end %>
+
+    <% if has_any_links? %>
+      <div class="project-show-card__actions">
+        <% if project.demo_url.present? %>
+          <%= render ButtonComponent.new(
+                text: "Demo",
+                href: project.demo_url,
+                color: :brown,
+                variant: :borderless,
+                icon: "icons/globe.svg"
+              ) %>
+        <% end %>
+        <% if project.repo_url.present? %>
+          <%= render ButtonComponent.new(
+                text: "Repository",
+                href: project.repo_url,
+                color: :brown,
+                variant: :borderless,
+                icon: "icons/merge.svg"
+              ) %>
+        <% end %>
+        <% if project.readme_url.present? %>
+          <%= render ButtonComponent.new(
+                text: "Readme",
+                href: project.readme_url,
+                color: :brown,
+                variant: :borderless,
+                icon: "icons/paper.svg"
+              ) %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</article>
+
+
