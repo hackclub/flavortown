@@ -22,6 +22,13 @@
     <%= yield :stylesheets %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <% if Rails.env.production? %>
+      <script async src="https://plausible.io/js/pa-vZKZvMqR3_6nQr_H-sJ_2.js"></script>
+      <script>
+        window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+        plausible.init()
+      </script>
+    <% end %>
   </head>
 
   <body class="<%= current_user.present? ? 'signed-in' : '' %>">
