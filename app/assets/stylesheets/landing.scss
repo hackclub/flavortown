@@ -1432,9 +1432,9 @@ input {
 }
 
 .project-idea-generator {
-  background: var(--color-bg);
+  background: var(--color-tan-300);
 
-  padding: 10px;
+  padding: 12px;
   border-radius: 16px;
   box-shadow: var(--shadow);
   text-align: center;
@@ -1446,9 +1446,7 @@ input {
   }
 
   > div {
-    color: var(--color-bg);
-    background-color: #be772b;
-    background-image: linear-gradient(180deg, #be772b 20%, #de9e41 20%);
+    background-color: var(--color-bg);
 
     box-shadow: var(--shadow);
     border-radius: 10px;
@@ -1470,11 +1468,11 @@ input {
     p {
       color: var(--color-brown-dark);
       font-size: 1.2em;
-      margin-top: 0;
+      margin-bottom: 16px;
     }
 
     #shopkeeper-bar {
-      margin: 16px 0;
+      margin: 24px 0 0 0;
       height: auto;
       display: flex;
       flex-direction: column;
@@ -1482,7 +1480,7 @@ input {
 
       #shopkeeper-speech {
         padding: 8px 16px;
-        background: #884b2b;
+        background: var(--color-tan-400);
         border-radius: 10px;
         box-shadow: var(--shadow);
         z-index: 10;
@@ -1490,9 +1488,9 @@ input {
 
       #shopkeeper-bakery {
         position: relative;
-        width: 95%;
-        margin-top: -8px;
         align-self: center;
+        width: 100%;
+        margin-top: -8px;
 
         img {
           width: 100%;
