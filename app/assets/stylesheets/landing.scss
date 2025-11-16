@@ -18,6 +18,20 @@
   }
 }
 
+.scrolling-carousel {
+  &:hover > .scrolling-items {
+    animation-play-state: paused;
+  }
+  & > .scrolling-items {
+    will-change: transform;
+    animation: scrolling var(--carousel-scroll-time) linear infinite;
+
+    &.reverse {
+      animation-name: scrolling-reverse;
+    }
+  }
+}
+
 input {
   background: none;
   color: inherit;
@@ -528,7 +542,6 @@ input {
       flex-wrap: nowrap;
       gap: 2rem;
       width: max-content;
-      will-change: transform;
       align-items: stretch;
 
       > .testimonial {
@@ -718,8 +731,6 @@ input {
         width: 105%;
         transform: rotate(-4deg);
 
-        --showcase-scroll-time: 10s;
-
         .showcase-title {
           width: 95.24%;
           align-self: center;
@@ -764,17 +775,10 @@ input {
 
           background: var(--carousel-bg);
 
-          &:hover > .items {
-            animation-play-state: paused;
-          }
-
           > .items {
             display: flex;
             gap: 1rem;
             z-index: 1;
-
-            will-change: transform;
-            animation: scrolling var(--showcase-scroll-time) linear infinite;
 
             .prize {
               background: #ebede9; // TODO do not hardcode
@@ -861,10 +865,6 @@ input {
           --carousel-title: #4f8fba; // TODO do not hardcode
           --carousel-bar: #a4dddb; // TODO do not hardcode
           --align-title: flex-end;
-        }
-
-        &.twenty-hour .showcase > .items {
-          animation: scrolling-reverse var(--showcase-scroll-time) linear infinite;
         }
       }
     }

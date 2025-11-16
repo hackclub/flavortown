@@ -60,50 +60,12 @@
       </div>
     <% end %>
 
-  <div class="cards">
-    <div class="cards-track">
-      <%= cards_markup %>  <%# Only one set now %>
+  <div class="cards scrolling-carousel" style="--carousel-scroll-time: <%= 8 * 3 %>s;">
+    <div class="cards-track scrolling-items">
+      <%= cards_markup %>
+    </div>
+    <div class="cards-track scrolling-items" aria-hidden="true">
+      <%= cards_markup %>
     </div>
   </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const track = document.querySelector('.cards-track');
-      if (!track) return;
-
-      const originalCards = Array.from(track.children);
-      if (originalCards.length === 0) return;
-
-      const fragment = document.createDocumentFragment();
-      originalCards.forEach(card => fragment.appendChild(card.cloneNode(true)));
-      track.appendChild(fragment);
-
-      const measureLoopWidth = () => track.scrollWidth / 2;
-      let loopWidth = measureLoopWidth();
-      let position = 0;
-      const speed = 1;
-      let isPaused = false;
-
-      function scroll() {
-        if (!isPaused) {
-          position -= speed;
-          if (Math.abs(position) >= loopWidth) position = 0;
-          track.style.transform = `translateX(${position}px)`;
-        }
-        requestAnimationFrame(scroll);
-      }
-
-      scroll();
-      window.addEventListener('resize', () => (loopWidth = measureLoopWidth()));
-
-      const cardsContainer = document.querySelector('.cards');
-      if (!cardsContainer) return;
-
-      cardsContainer.addEventListener('mouseenter', () => (isPaused = true));
-      cardsContainer.addEventListener('mouseleave', () => (isPaused = false));
-
-      cardsContainer.addEventListener('touchstart', () => (isPaused = true));
-      cardsContainer.addEventListener('touchend', () => (isPaused = false));
-    });
-  </script>
 </div>
