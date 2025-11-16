@@ -1,4 +1,4 @@
-<% 
+<%
   # fix for it being buggy when many items, works in theory
   if showcase_items.size > 0
     multiplier = (8.0 / showcase_items.count).ceil
@@ -22,11 +22,11 @@
     <div class="items">
       <%= render partial: "landing/carousel/slide", collection: items_to_render, as: :prize %>
     </div>
-    
+
     <div class="items" aria-hidden="true">
       <%= render partial: "landing/carousel/slide", collection: items_to_render, as: :prize %>
     </div>
-    
+
     <div class="bar"></div>
   </div>
 </div>

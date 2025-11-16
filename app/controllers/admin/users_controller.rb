@@ -49,7 +49,7 @@ class Admin::UsersController < Admin::ApplicationController
         flash[:alert] = "Only super admins can manage user roles."
         return redirect_to admin_user_path(params[:id])
       end
-      
+
       @user = User.find(params[:id])
       role_name = params[:role_name]
 
