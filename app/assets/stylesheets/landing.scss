@@ -211,18 +211,32 @@ input {
         background-color: var(--color-red-400);
       }
     }
+
+    @keyframes carat-bounce {
+      0%   { transform: translateY(0); }
+      50%  { transform: translateY(-16px); }
+      100% { transform: translateY(0); }
+    }
+
+    .carat {
+      margin-top: 50px;
+      animation: carat-bounce 1.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    }
   }
 
   .hero-art {
     position: absolute;
     overflow: hidden;
     z-index: 0;
-    width: 120%;
-    
+    width: 110%;
+    margin-bottom: -8%;
+    margin-left: -10%;
     bottom: 0;
 
-    @media (max-width: 1100px) {
-      left: -10%;
+    @media (max-width: 600px) {
+      width: 130%;
+      margin-left: -15%;
+      margin-bottom: 5%;
     }
   }
 }
@@ -277,6 +291,11 @@ input {
         width: 100%;
         z-index: 2;
 
+        @media (max-width: 1330px) {
+          margin: 0;
+          top: 6rem;
+        }
+
         display: flex;
         justify-content: center;
 
@@ -291,7 +310,11 @@ input {
         flex-direction: column;
 
         .step.left {
-          padding-top: 12rem;
+          padding-top: 14rem;
+        }
+
+        .step.right {
+          padding-bottom: 10rem;
         }
       }
 
@@ -316,6 +339,10 @@ input {
         padding: var(--gap-top) 0 var(--gap-bottom) 0;
         position: relative;
         z-index: 1;
+
+        @media (max-width: 1330px) {
+          padding: 2rem 0;
+        }
 
         .step-card {
           width: min(30rem, 75%);
@@ -1449,6 +1476,11 @@ input {
     width: 80%;
   }
 
+  @media (max-width: 600px) {
+    width: 95%;
+    padding: 8px;
+  }
+
   > div {
     background-color: var(--color-bg);
 
@@ -1476,7 +1508,7 @@ input {
     }
 
     #shopkeeper-bar {
-      margin: 24px 0 0 0;
+      margin: 24px auto 0 auto;
       height: auto;
       display: flex;
       flex-direction: column;
@@ -1494,9 +1526,9 @@ input {
         position: relative;
         align-self: center;
         width: 100%;
-        margin-top: -8px;
 
         img {
+          margin-top: -32px;
           width: 100%;
         }
       }
