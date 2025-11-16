@@ -6,21 +6,24 @@
         Prizes to power up your next project!
       </div>
 
-      <%= render partial: "landing/carousel/showcase", locals: {
+      <%= render partial: "landing/prizes/showcase", locals: {
         showcase_items: @prizes.select { |p| p[:hours_estimated].between?(4, 9) },
         class_name: "five-hour",
+        items_class_name: "",
         title: "5 hour prizes"
       } %>
 
-      <%= render partial: "landing/carousel/showcase", locals: {
+      <%= render partial: "landing/prizes/showcase", locals: {
         showcase_items: @prizes.select { |p| p[:hours_estimated].between?(10, 30) },
         class_name: "twenty-hour",
+        items_class_name: "reverse",
         title: "20 hour prizes"
       } %>
 
-      <%= render partial: "landing/carousel/showcase", locals: {
+      <%= render partial: "landing/prizes/showcase", locals: {
         showcase_items: @prizes.select { |p| p[:hours_estimated] > 80 },
         class_name: "hundred-hour",
+        items_class_name: "",
         title: "100 hour prizes"
       } %>
     </div>

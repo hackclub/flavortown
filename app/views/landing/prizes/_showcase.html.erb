@@ -9,7 +9,7 @@
     scroll_time = 30
   end
 %>
-<div class="showcase-container <%= class_name %>" style="--showcase-scroll-time: <%= scroll_time %>s;">
+<div class="showcase-container <%= class_name %>" style="--carousel-scroll-time: <%= scroll_time %>s;">
   <div class="showcase-title">
     <div>
       <div>
@@ -18,13 +18,12 @@
     </div>
   </div>
 
-  <div class="showcase">
-    <div class="items">
-      <%= render partial: "landing/carousel/slide", collection: items_to_render, as: :prize %>
+  <div class="showcase scrolling-carousel">
+    <div class="scrolling-items items <%= items_class_name %>">
+      <%= render partial: "landing/prizes/slide", collection: items_to_render, as: :prize %>
     </div>
-
-    <div class="items" aria-hidden="true">
-      <%= render partial: "landing/carousel/slide", collection: items_to_render, as: :prize %>
+    <div class="scrolling-items items <%= items_class_name %>" aria-hidden="true">
+      <%= render partial: "landing/prizes/slide", collection: items_to_render, as: :prize %>
     </div>
 
     <div class="bar"></div>
