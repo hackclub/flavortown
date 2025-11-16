@@ -1,4 +1,15 @@
-<div class="showcase-container <%= class_name %>" style="--showcase-scroll-time: <%= showcase_items.count * 2 %>s;">
+<% 
+  # fix for it being buggy when many items, works in theory
+  if showcase_items.size > 0
+    multiplier = (8.0 / showcase_items.count).ceil
+    items_to_render = showcase_items * multiplier
+    scroll_time = [items_to_render.count * 2, 30].max
+  else
+    items_to_render = []
+    scroll_time = 30
+  end
+%>
+<div class="showcase-container <%= class_name %>" style="--showcase-scroll-time: <%= scroll_time %>s;">
   <div class="showcase-title">
     <div>
       <div>
@@ -6,13 +17,16 @@
       </div>
     </div>
   </div>
+
   <div class="showcase">
     <div class="items">
-      <%= render partial: "landing/carousel/slide", collection: showcase_items, as: :prize %>
+      <%= render partial: "landing/carousel/slide", collection: items_to_render, as: :prize %>
     </div>
+    
     <div class="items" aria-hidden="true">
-      <%= render partial: "landing/carousel/slide", collection: showcase_items, as: :prize %>
+      <%= render partial: "landing/carousel/slide", collection: items_to_render, as: :prize %>
     </div>
+    
     <div class="bar"></div>
   </div>
 </div>
