@@ -227,167 +227,223 @@ input {
   }
 }
 
-.how-this-works {
-  background: var(--color-bg);
+.how-this-works-second-border-wrapper {
+  --gap-top: 20rem;
+  --gap-bottom: 10rem;
+  --jagged-depth: 60px;
+  --jagged-border-polygon: polygon(
+    0 var(--jagged-depth),
+    8% 0,
+    16% var(--jagged-depth),
+    22% 5px,
+    33% var(--jagged-depth),
+    38% 8px,
+    44% 65px,
+    55% 5px,
+    66.6% 58px,
+    74% 2px,
+    84% var(--jagged-depth),
+    90% 0,
+    99.99% var(--jagged-depth),
+    100% calc(100% - var(--jagged-depth)),
+    96% 100%,
+    88% calc(100% - 55px),
+    81% 100%,
+    70% calc(100% - var(--jagged-depth)),
+    65% 100%,
+    53% calc(100% - 50px),
+    43% 100%,
+    33% calc(100% - 57px),
+    25% 100%,
+    18% calc(100% - 67px),
+    10% 100%,
+    0 calc(100% - var(--jagged-depth))
+  );
 
-  gap: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  clip-path: var(--jagged-border-polygon);
+  background-color: #D5C3A0;
 
-  .title-overlay {
-    position: absolute;
-    top: 2rem;
-    width: 100%;
-    z-index: 1;
+  margin-top: -8rem;
 
-    display: flex;
-    justify-content: center;
+  .how-this-works-border-wrapper {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    clip-path: var(--jagged-border-polygon);
+    background-color: #FDE8D1;
 
-    .title {
-      background-image: url("landing/how-this-works/title.svg");
-      font-size: 2.5rem;
-      color: var(--color-bg);
-    }
-  }
+    .how-this-works {
+      position: relative;
+      
+      background: var(--color-bg);
 
-  @media (max-width: 1330px) {
-    flex-direction: column;
+      gap: 1rem;
 
-    .step.left {
-      padding-top: 12rem;
-    }
-  }
+      clip-path: var(--jagged-border-polygon);
 
-  @media (max-width: 525px) {
-    .title-overlay .title {
-      font-size: 2.25rem;
-    }
+      .title-overlay {
+        margin-top: var(--gap-top);
 
-    .step.left {
-      padding-top: 10rem;
-    }
-  }
+        position: absolute;
+        top: -10rem;
+        width: 100%;
+        z-index: 2;
 
-  .step {
-    flex: 1;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow);
-
-    padding: 2rem 0;
-
-    .step-card {
-      width: min(30rem, 75%);
-      height: auto;
-      aspect-ratio: 30 / 35;
-      border-radius: 1rem;
-
-      background: var(--color-bg) var(--card-url) no-repeat center / cover;
-      color: var(--card-color);
-      box-shadow: var(--shadow);
-
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-
-      .step-count {
-        background-image: var(--ribbon-url);
-        transform: translateY(-40%);
-        font-size: 1.5rem;
-
-        padding: 0.5em 3em;
-      }
-
-      .step-hero {
-        position: relative;
         display: flex;
-        flex-direction: column;
-        align-items: center;
+        justify-content: center;
 
         .title {
-          background: linear-gradient(
-            -52deg,
-            var(--title-edge) 0%,
-            var(--title-edge) 19.9%,
-            var(--title-middle) 20%,
-            var(--title-middle) 80%,
-            var(--title-edge) 80.1%,
-            var(--title-edge) 100%
-          );
+          background-image: url("landing/how-this-works/title.svg");
+          font-size: 2.5rem;
+          color: var(--color-bg);
+        }
+      }
 
-          color: white;
-          border-radius: 1.25rem;
+      @media (max-width: 1330px) {
+        flex-direction: column;
+
+        .step.left {
+          padding-top: 12rem;
+        }
+      }
+
+      @media (max-width: 525px) {
+        .title-overlay .title {
+          font-size: 2.25rem;
+        }
+
+        .step.left {
+          padding-top: 10rem;
+        }
+      }
+
+      .step {
+        flex: 1;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+
+        padding: var(--gap-top) 0 var(--gap-bottom) 0;
+        position: relative;
+        z-index: 1;
+
+        .step-card {
+          width: min(30rem, 75%);
+          height: auto;
+          aspect-ratio: 30 / 35;
+          border-radius: 1rem;
+
+          background: var(--color-bg) var(--card-url) no-repeat center / cover;
+          color: var(--card-color);
           box-shadow: var(--shadow);
-
-          position: absolute;
-          left: -5%;
-          bottom: 0;
-          width: 110%;
-          aspect-ratio: 16 / 2.5;
-
-          font-size: 2rem;
 
           display: flex;
+          flex-direction: column;
           align-items: center;
-          justify-content: center;
+          justify-content: space-between;
+
+          .step-count {
+            background-image: var(--ribbon-url);
+            transform: translateY(-40%);
+            font-size: 1.5rem;
+
+            padding: 0.5em 3em;
+          }
+
+          .step-hero {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            .title {
+              background: linear-gradient(
+                -52deg,
+                var(--title-edge) 0%,
+                var(--title-edge) 19.9%,
+                var(--title-middle) 20%,
+                var(--title-middle) 80%,
+                var(--title-edge) 80.1%,
+                var(--title-edge) 100%
+              );
+
+              color: white;
+              border-radius: 1.25rem;
+              box-shadow: var(--shadow);
+
+              position: absolute;
+              left: -5%;
+              bottom: 0;
+              width: 110%;
+              aspect-ratio: 16 / 2.5;
+
+              font-size: 2rem;
+
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+
+            img {
+              width: 80%;
+              padding-bottom: 10%;
+              border-radius: 12px;
+              box-shadow: var(--shadow);
+            }
+          }
+
+          p {
+            margin: 0;
+            padding: 1.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+          }
+
+          @media (max-width: 1600px) {
+            p,
+            .step-count {
+              font-size: 1.25rem;
+            }
+
+            .step-hero .title {
+              font-size: 1.5rem;
+            }
+          }
         }
 
-        img {
-          width: 80%;
-          padding-bottom: 10%;
-          border-radius: 12px;
-          box-shadow: var(--shadow);
+        &.left {
+          background: var(--color-pink-400)
+            url("landing/how-this-works/texture_1.webp") no-repeat center / cover;
+          --ribbon-url: url("landing/how-this-works/step-1-ribbon.webp");
+          --card-url: url("landing/how-this-works/step-1-card-bg.webp");
+          --title-edge: #a4383f; // TODO do not hardcode!
+          --title-middle: #be4d54; // TODO do not hardcode!
+          --card-color: var(--color-red-500);
+        }
+
+        &.center {
+          background: var(--color-lime-400)
+            url("landing/how-this-works/texture_2.webp") no-repeat center / cover;
+          --ribbon-url: url("landing/how-this-works/step-2-ribbon.webp");
+          --card-url: url("landing/how-this-works/step-2-card-bg.webp");
+          --title-edge: #468232; // TODO do not hardcode!
+          --title-middle: #75a743; // TODO do not hardcode!
+          --card-color: #468232; // TODO do not hardcode!
+        }
+
+        &.right {
+          background: var(--color-teal-400)
+            url("landing/how-this-works/texture_3.webp") no-repeat center / cover;
+          --ribbon-url: url("landing/how-this-works/step-3-ribbon.webp");
+          --card-url: url("landing/how-this-works/step-3-card-bg.webp");
+          --title-edge: #3c5e8b; // TODO do not hardcode!
+          --title-middle: #4f8fba; // TODO do not hardcode!
+          --card-color: #3c5e8b; // TODO do not hardcode!
         }
       }
-
-      p {
-        margin: 0;
-        padding: 1.5rem;
-        font-size: 1.5rem;
-        text-align: center;
-      }
-
-      @media (max-width: 1600px) {
-        p,
-        .step-count {
-          font-size: 1.25rem;
-        }
-
-        .step-hero .title {
-          font-size: 1.5rem;
-        }
-      }
-    }
-
-    &.left {
-      background: var(--color-pink-400)
-        url("landing/how-this-works/texture_1.webp") no-repeat center / cover;
-      --ribbon-url: url("landing/how-this-works/step-1-ribbon.webp");
-      --card-url: url("landing/how-this-works/step-1-card-bg.webp");
-      --title-edge: #a4383f; // TODO do not hardcode!
-      --title-middle: #be4d54; // TODO do not hardcode!
-      --card-color: var(--color-red-500);
-    }
-
-    &.center {
-      background: var(--color-lime-400)
-        url("landing/how-this-works/texture_2.webp") no-repeat center / cover;
-      --ribbon-url: url("landing/how-this-works/step-2-ribbon.webp");
-      --card-url: url("landing/how-this-works/step-2-card-bg.webp");
-      --title-edge: #468232; // TODO do not hardcode!
-      --title-middle: #75a743; // TODO do not hardcode!
-      --card-color: #468232; // TODO do not hardcode!
-    }
-
-    &.right {
-      background: var(--color-teal-400)
-        url("landing/how-this-works/texture_3.webp") no-repeat center / cover;
-      --ribbon-url: url("landing/how-this-works/step-3-ribbon.webp");
-      --card-url: url("landing/how-this-works/step-3-card-bg.webp");
-      --title-edge: #3c5e8b; // TODO do not hardcode!
-      --title-middle: #4f8fba; // TODO do not hardcode!
-      --card-color: #3c5e8b; // TODO do not hardcode!
     }
   }
 }
