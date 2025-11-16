@@ -87,25 +87,49 @@
       "summer-of-making" => {
         title: "For Summer of Making...",
         stats: [
-          { value: "10,000", label: "high schoolers participated", icon: image_path("landing/previously-hosted/participants-badge.webp") },
-          { value: "500,000", label: "hours logged", icon: image_path("landing/previously-hosted/hours-logged-badge.webp") },
-          { value: "99,999", label: "total prizes shipped to 999 countries", icon: image_path("landing/previously-hosted/prizes-shipped-badge.webp") }
+          { value: "4,141", label: "high schoolers participated", icon: image_path("landing/previously-hosted/participants-badge.webp") },
+          { value: "?", label: "hours logged", icon: image_path("landing/previously-hosted/hours-logged-badge.webp") },
+          { value: "5044", label: "total prizes shipped to 79 countries", icon: image_path("landing/previously-hosted/prizes-shipped-badge.webp") }
+        ],
+        prizes: [
+          { image: image_path("landing/previously-hosted/macbook.webp"), label: "3 macbooks" },
+          { image: image_path("landing/previously-hosted/ipad.webp"), label: "9 iPads" },
+          { image: image_path("landing/previously-hosted/pinecil.webp"), label: "104 pinecils" },
+          { image: image_path("landing/previously-hosted/factorio.webp"), label: "48 factorio copies" },
+          { image: image_path("landing/previously-hosted/flipper.webp"), label: "31 flippers" },
+          { label: "and more!" }
         ]
       },
       "high-seas" => {
         title: "For High Seas...",
         stats: [
-          { value: "7,234", label: "high schoolers participated", icon: image_path("landing/previously-hosted/participants-badge.webp") },
-          { value: "243,000", label: "hours logged", icon: image_path("landing/previously-hosted/hours-logged-badge.webp") },
-          { value: "67,000", label: "total prizes shipped to 670 countries", icon: image_path("landing/previously-hosted/prizes-shipped-badge.webp") }
+          { value: "1683", label: "high schoolers participated", icon: image_path("landing/previously-hosted/participants-badge.webp") },
+          { value: "74,143", label: "hours logged", icon: image_path("landing/previously-hosted/hours-logged-badge.webp") },
+          { value: "10,765", label: "total prizes shipped to 212 countries", icon: image_path("landing/previously-hosted/prizes-shipped-badge.webp") }
+        ],
+        prizes: [
+          { image: image_path("landing/previously-hosted/defcon.webp"), label: "2 tickets to defcon" },
+          { image: image_path("landing/previously-hosted/rpi_5.webp"), label: "327 rpi 5s" },
+          { image: image_path("landing/previously-hosted/ipad.webp"), label: "66 ipads" },
+          { image: image_path("landing/previously-hosted/mac_mini.webp"), label: "27 mac minis" },
+          { image: image_path("landing/previously-hosted/macbook.webp"), label: "11 macbooks" },
+          { label: "and more!" }
         ]
       },
       "arcade" => {
         title: "For Arcade...",
         stats: [
-          { value: "5,000", label: "high schoolers participated", icon: image_path("landing/previously-hosted/participants-badge.webp") },
-          { value: "100,000", label: "hours logged", icon: image_path("landing/previously-hosted/hours-logged-badge.webp") },
-          { value: "35,000", label: "total prizes shipped to 99 countries", icon: image_path("landing/previously-hosted/prizes-shipped-badge.webp") }
+          { value: "2709", label: "high schoolers participated", icon: image_path("landing/previously-hosted/participants-badge.webp") },
+          { value: "124,348", label: "hours logged", icon: image_path("landing/previously-hosted/hours-logged-badge.webp") },
+          { value: "6440", label: "total prizes shipped to 131 countries", icon: image_path("landing/previously-hosted/prizes-shipped-badge.webp") }
+        ],
+        prizes: [
+          { image: image_path("landing/previously-hosted/ipad.webp"), label: "120 ipads" },
+          { image: image_path("landing/previously-hosted/quest_3.webp"), label: "18 quest 3s" },
+          { image: image_path("landing/previously-hosted/a1_mini.webp"), label: "53 bambu labs" },
+          { image: image_path("landing/previously-hosted/thinkpad.webp"), label: "11 thinkpads" },
+          { image: image_path("landing/previously-hosted/framework.webp"), label: "14 frameworks" },
+          { label: "and more!" }
         ]
       }
     }.to_json.html_safe %>;
@@ -115,6 +139,7 @@
 
     const statsTitle = statsSection.querySelector(".stats-title");
     const statCards = Array.from(statsSection.querySelectorAll(".stat"));
+    const prizeCards = Array.from(statsSection.querySelectorAll(".prize"));
     const eventCards = Array.from(document.querySelectorAll(".previously-hosted .event-card"));
     let activeCard = null;
 
@@ -142,6 +167,20 @@
         img.alt = info.label;
         card.querySelector("h4").textContent = info.value;
         card.querySelector("h5").textContent = info.label;
+      });
+      prizeCards.forEach((card, index) => {
+        const prize = payload.prizes[index];
+        if (!prize) {
+          card.hidden = true;
+          return;
+        }
+        card.hidden = false;
+        const img = card.querySelector("img");
+        if (img && prize.image) {
+          img.src = prize.image;
+          img.alt = prize.label;
+        }
+        card.querySelector("h4").textContent = prize.label;
       });
     };
 
