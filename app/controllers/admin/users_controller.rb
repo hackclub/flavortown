@@ -45,37 +45,53 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def promote_role
-    @user = User.find(params[:id])
-    role_name = params[:role_name]
+      unless current_user.super_admin?
+        flash[:alert] = "Only super admins can manage user roles."
+        return redirect_to admin_user_path(params[:id])
+      end
+      
+      @user = User.find(params[:id])
+      role_name = params[:role_name]
 
-    role = Role.find_by(name: role_name)
+      if role_name == "Super_Admin"
+        flash[:alert] = "Only super admins can promote to super admin."
+        return redirect_to admin_user_path(@user)
+      end
 
-    if role && !@user.roles.include?(role)
-    @user.roles << role
-    flash[:notice] = "User promoted to #{role_name}."
-    PaperTrail.request(whodunnit: current_user.id) do
-    PaperTrail::Version.create!(
-      item_type: "User::RoleAssignment",
-      item_id: role_assignment.id,
-      event: "create",
-      object_changes: { user_id: [ nil, 123 ], role_id: [ nil, 2 ] }.to_yaml
-    )
-end
-    else
-    flash[:alert] = "Unable to promote user to #{role_name}."
-    end
+      role = Role.find_by(name: role_name)
 
-    redirect_to admin_user_path(@user)
+      if role && !@user.roles.include?(role)
+        PaperTrail.request(whodunnit: current_user.id) do
+          @user.roles << role
+        end
+        flash[:notice] = "User promoted to #{role_name}."
+      else
+        flash[:alert] = "Unable to promote user to #{role_name}."
+      end
+
+      redirect_to admin_user_path(@user)
     end
 
   def demote_role
+    unless current_user.super_admin?
+      flash[:alert] = "Only super admins can manage user roles."
+      return redirect_to admin_user_path(params[:id])
+    end
+
     @user = User.find(params[:id])
     role_name = params[:role_name]
+
+    if role_name == "Super_Admin"
+      flash[:alert] = "Only super admins can demote super admin."
+      return redirect_to admin_user_path(@user)
+    end
 
     role = Role.find_by(name: role_name)
 
     if role && @user.roles.include?(role)
-      @user.roles.delete(role)
+      PaperTrail.request(whodunnit: current_user.id) do
+        @user.roles.delete(role)
+      end
       flash[:notice] = "User demoted from #{role_name}."
     else
       flash[:alert] = "Unable to demote user from #{role_name}."
@@ -85,6 +101,11 @@ end
   end
 
   def toggle_flipper
+    unless current_user.admin?
+      flash[:alert] = "Only admins can toggle features."
+      return redirect_to admin_user_path(params[:id])
+    end
+
     @user = User.find(params[:id])
     feature = params[:feature].to_sym
 
