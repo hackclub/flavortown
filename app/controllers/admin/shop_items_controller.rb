@@ -17,7 +17,7 @@ module Admin
       @shop_item = ShopItem.new(shop_item_params)
 
       if @shop_item.save
-        redirect_to admin_shop_item_path(@shop_item), notice: "Shop item created successfully."
+        redirect_to admin_manage_shop_path, notice: "Shop item created successfully."
       else
         @shop_item_types = available_shop_item_types
         render :new, status: :unprocessable_entity

@@ -74,7 +74,7 @@
     </div>
   <% end %>
 </div>
-
+<% if @order.fulfilled_by.present? %>
 <div class="card">
   <h2>Fulfillment Information</h2>
   <div class="info-rows">
@@ -113,11 +113,13 @@
     </div>
   </div>
 <% end %>
-
+<% end %>
 <div style="margin-top: 2rem; display: flex; gap: 1rem;">
   <%= link_to "← Back to Orders", admin_shop_orders_path, class: "btn-secondary" %>
-  <%= link_to "View User", admin_user_path(@order.user), class: "btn-primary" %>
-</div>
+<% unless current_user.fulfillment_person? %>
+<%= link_to "View User", admin_user_path(@order.user), class: "btn-primary" %>
+<% end %>
+  </div>
 
 <style>
 .badge {

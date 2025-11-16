@@ -3,6 +3,7 @@ class Admin::UsersController < Admin::ApplicationController
     include Pundit::Authorization
     rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
     before_action :authenticate_admin
+    skip_before_action :authenticate_admin, only: [:stop_impersonating]
 
     def index
       @query = params[:query]
@@ -38,6 +39,12 @@ class Admin::UsersController < Admin::ApplicationController
         user_id_change = changes["user_id"]
         user_id_change.is_a?(Array) ? user_id_change.include?(@user.id) : user_id_change == @user.id
       end.take(20)
+
+      # Get all actions performed on this user
+      @user_actions = PaperTrail::Version
+        .where(item_type: "User", item_id: @user.id)
+        .order(created_at: :desc)
+        .limit(50)
     end
 
     def user_perms
@@ -45,27 +52,21 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def promote_role
-    @user = User.find(params[:id])
-    role_name = params[:role_name]
+      @user = User.find(params[:id])
+      role_name = params[:role_name]
 
-    role = Role.find_by(name: role_name)
+      role = Role.find_by(name: role_name)
 
-    if role && !@user.roles.include?(role)
-    @user.roles << role
-    flash[:notice] = "User promoted to #{role_name}."
-    PaperTrail.request(whodunnit: current_user.id) do
-    PaperTrail::Version.create!(
-      item_type: "User::RoleAssignment",
-      item_id: role_assignment.id,
-      event: "create",
-      object_changes: { user_id: [ nil, 123 ], role_id: [ nil, 2 ] }.to_yaml
-    )
-end
-    else
-    flash[:alert] = "Unable to promote user to #{role_name}."
-    end
+      if role && !@user.roles.include?(role)
+        PaperTrail.request(whodunnit: current_user.id) do
+          @user.roles << role
+        end
+        flash[:notice] = "User promoted to #{role_name}."
+      else
+        flash[:alert] = "Unable to promote user to #{role_name}."
+      end
 
-    redirect_to admin_user_path(@user)
+      redirect_to admin_user_path(@user)
     end
 
   def demote_role
@@ -75,7 +76,9 @@ end
     role = Role.find_by(name: role_name)
 
     if role && @user.roles.include?(role)
-      @user.roles.delete(role)
+      PaperTrail.request(whodunnit: current_user.id) do
+        @user.roles.delete(role)
+      end
       flash[:notice] = "User demoted from #{role_name}."
     else
       flash[:alert] = "Unable to demote user from #{role_name}."
@@ -125,6 +128,65 @@ end
     end
 
     redirect_to admin_user_path(@user)
+  end
+
+  def impersonate
+    unless current_user&.admin?
+      flash[:alert] = "You are not authorized to impersonate users."
+      redirect_to(request.referrer || root_path) and return
+    end
+
+    @user = User.find(params[:id])
+    
+    # Log the impersonation
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: @user.id,
+      event: "impersonate_start",
+      whodunnit: current_user.id,
+      object_changes: { impersonator_id: [nil, current_user.id] }.to_yaml
+    )
+
+    session[:impersonating_user_id] = @user.id
+    session[:original_admin_id] = current_user.id
+    
+    flash[:notice] = "You are now impersonating #{@user.display_name}."
+    redirect_to root_path
+  end
+
+  def stop_impersonating
+    # This action needs to work while impersonating, so we check the session directly
+    impersonated_user_id = session[:impersonating_user_id]
+    original_admin_id = session[:original_admin_id]
+
+    unless impersonated_user_id && original_admin_id
+      flash[:alert] = "You are not currently impersonating anyone."
+      redirect_to root_path and return
+    end
+
+    # Verify the original admin is actually an admin
+    original_admin = User.find_by(id: original_admin_id)
+    unless original_admin&.admin?
+      flash[:alert] = "Invalid impersonation session."
+      session.delete(:impersonating_user_id)
+      session.delete(:original_admin_id)
+      redirect_to root_path and return
+    end
+
+    # Log the end of impersonation
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: impersonated_user_id,
+      event: "impersonate_end",
+      whodunnit: original_admin_id,
+      object_changes: { impersonator_id: [original_admin_id, nil] }.to_yaml
+    )
+
+    session.delete(:impersonating_user_id)
+    session.delete(:original_admin_id)
+    
+    flash[:notice] = "Stopped impersonating user."
+    redirect_to admin_user_path(impersonated_user_id)
   end
 
     def user_not_authorized

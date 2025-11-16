@@ -1,5 +1,68 @@
 <%= content_for :stylesheets do %>
   <%= stylesheet_link_tag "admin", "data-turbo-track": "reload" %>
+  <% if current_user && Flipper.enabled?(:admin_dark, current_user) %>
+    <style>
+      body {
+        background: #1a1a1a !important;
+        color: #e0e0e0 !important;
+      }
+
+      .card {
+        background: #2d2d2d !important;
+        color: #e0e0e0 !important;
+      }
+
+      .table-data {
+        thead {
+          background: #3d3d3d !important;
+        }
+
+        tbody tr {
+          background: #2d2d2d !important;
+        }
+
+        th, td {
+          color: #e0e0e0 !important;
+        }
+      }
+
+      .input-primary {
+        background: #2d2d2d !important;
+        border-color: #555 !important;
+        color: #e0e0e0 !important;
+
+        &::placeholder {
+          color: #888 !important;
+        }
+      }
+
+      .btn-primary {
+        background: #4a4a4a !important;
+        color: #e0e0e0 !important;
+
+        &:hover {
+          background: #5a5a5a !important;
+        }
+
+        &:disabled {
+          background: #333 !important;
+        }
+      }
+
+      .pagination a {
+        background: #3d3d3d !important;
+        color: #e0e0e0 !important;
+      }
+
+      h1, h2, h3, h4, h5, h6 {
+        color: #e0e0e0 !important;
+      }
+
+      a {
+        color: #6eb3ff !important;
+      }
+    </style>
+  <% end %>
 <% end %>
 
 <%= render template: 'layouts/application' %>

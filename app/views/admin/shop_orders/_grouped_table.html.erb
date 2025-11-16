@@ -12,12 +12,6 @@
         <span class="badge"><%= pluralize(group[:total_items], 'item') %></span>
         <span class="badge"><%= group[:total_shells] %> tickets</span>
       </div>
-      <% if group[:address].present? %>
-        <div style="margin-top: 0.5em; font-size: 0.9em;">
-          <%= group[:address]["name"] %> @
-          <%= group[:address]["city"] %>, <%= group[:address]["state"] %>, <%= group[:address]["country"] %>
-        </div>
-      <% end %>
     </div>
 
     <table class="table-data">

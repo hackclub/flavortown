@@ -4,9 +4,10 @@
   </h1>
 
   <div style="margin-left: auto; display: flex; gap: 0.5em;">
-    <%= link_to "Shop Orders", admin_shop_orders_path(view: 'shop_orders'),
+  <% if current_user.admin? || current_user.fraud_dept? %>
+  <%= link_to "Shop Orders", admin_shop_orders_path(view: 'shop_orders'),
         class: "btn-#{@view == 'shop_orders' ? 'primary' : 'secondary'} slim" %>
-
+<% end %>
     <% if current_user.admin? || current_user.fulfillment_person? %>
       <%= link_to "Pending Fulfillment", admin_shop_orders_path(view: 'fulfillment'),
           class: "btn-#{@view == 'fulfillment' ? 'primary' : 'secondary'} slim" %>
