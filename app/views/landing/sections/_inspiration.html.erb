@@ -6,57 +6,54 @@
       <div class="content">
         <div class="projects">
           <div class="title">
-            <div class="inner">
-              <h3>Build whatever you want!</h3>
-              <p>Any technical project counts. You could build an AR game, pixel art display, drawing robot, and more.</p>
-            </div>
+            <h3>Build whatever you want!</h3>
+            <p>Any technical project counts. You could build an AR game, pixel art display, drawing robot, and more.</p>
           </div>
 
           <div class="content">
             <h3>Check out these projects for inspirations:</h3>
 
-            <div class="list">
-              <div class="project project-purple">
-                <%= inline_svg_tag "landing/inspiration/projects/project-1-ribbon.svg" %>
-
-                <div>
+            <div class="carousel-wrapper">
+              <div class="carousel-track">
+                <div class="project active">
                   <div class="details">
-                  <br>
-                  <p>A Rust-based monochrome pixel game engine that can be compiled to both web assembly and to a RP2040 microcontroller.</p>
+                    <%= image_tag "landing/inspiration/projects/project-1-author-pfp.jpg", class: "author-pfp" %>
+
+                    <div class="info">
+                      <h4>Embedded Engine</h4>
+                      <p>ArcaEge</p>
+                    </div>
 
                     <div class="links">
                       <a href="https://arcaege.dev/embedded-engine/" target="_blank" class="no-underline">
                         <%= inline_svg_tag "icons/globe.svg" %>
-                        DEMO
                       </a>
                       <a href="https://github.com/ArcaEge/embedded-engine" target="_blank" class="no-underline">
                         <%= inline_svg_tag "icons/code.svg" %>
-                        REPO
                       </a>
                     </div>
                   </div>
 
-                  <div class="image">
-                    <%= image_tag "landing/inspiration/projects/project-11.png" %>
-                  </div>
+                  <%= image_tag "landing/inspiration/projects/project-11.png" %>
+
+                  <p>A Rust-based monochrome pixel game engine that can be compiled to both web assembly and to a RP2040 microcontroller.</p>
                 </div>
-              </div>
 
-              <div class="project project-blue">
-                <%= inline_svg_tag "landing/inspiration/projects/project-2-ribbon.svg" %>
-
-                <div>
+                <div class="project">
                   <div class="details">
-                    <p>CLI-over-CLI tool that improves how the terminal looks, uses an alternative history system, explains error codes.</p>
+                    <%= image_tag "landing/inspiration/projects/project-2-author-pfp.jpg", class: "author-pfp" %>
+
+                    <div class="info">
+                      <h4>Dimensity</h4>
+                      <p>justdanielndev</p>
+                    </div>
 
                     <div class="links">
                       <a href="https://github.com/justdanielndev/dimensity-oss/releases/latest" target="_blank" class="no-underline">
                         <%= inline_svg_tag "icons/globe.svg" %>
-                        DEMO
                       </a>
                       <a href="https://github.com/justdanielndev/dimensity-oss" target="_blank" class="no-underline">
                         <%= inline_svg_tag "icons/code.svg" %>
-                        REPO
                       </a>
                     </div>
                   </div>
@@ -64,7 +61,18 @@
                   <div class="image">
                     <%= image_tag "landing/inspiration/projects/project-2.jpeg" %>
                   </div>
+
+                  <p>CLI-over-CLI tool that improves how the terminal looks, uses an alternative history system, explains error codes.</p>
                 </div>
+
+                <button class="carousel-arrow carousel-next" aria-label="Next project">
+                  <%= inline_svg_tag "icons/chevron-down.svg" %>
+                </button>
+              </div>
+
+              <div class="carousel-dots">
+                <button class="dot active" data-index="0" aria-label="Go to project 1"></button>
+                <button class="dot" data-index="1" aria-label="Go to project 2"></button>
               </div>
             </div>
           </div>
@@ -75,3 +83,35 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const track = document.querySelector('.inspiration .carousel-track');
+    if (!track) return;
+
+    const projects = track.querySelectorAll('.project');
+    const dots = document.querySelectorAll('.inspiration .carousel-dots .dot');
+    const nextBtn = document.querySelector('.inspiration .carousel-next');
+    let currentIndex = 0;
+
+    function showProject(index) {
+      projects.forEach(p => p.classList.remove('active'));
+      dots.forEach(d => d.classList.remove('active'));
+      
+      projects[index].classList.add('active');
+      dots[index].classList.add('active');
+      currentIndex = index;
+    }
+
+    nextBtn.addEventListener('click', () => {
+      const nextIndex = (currentIndex + 1) % projects.length;
+      showProject(nextIndex);
+    });
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        showProject(index);
+      });
+    });
+  });
+</script>
