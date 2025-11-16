@@ -331,16 +331,10 @@ input {
           flex-direction: column;
           align-items: center;
           justify-content: space-between;
-
-          .step-count {
-            background-image: var(--ribbon-url);
-            transform: translateY(-40%);
-            font-size: 1.5rem;
-
-            padding: 0.5em 3em;
-          }
+          position: relative;
 
           .step-hero {
+            margin-top: 2rem;
             position: relative;
             display: flex;
             flex-direction: column;
@@ -397,6 +391,25 @@ input {
 
             .step-hero .title {
               font-size: 1.5rem;
+            }
+          }
+
+          svg {
+            position: absolute;
+            width: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+
+            &.left {
+              left: -3rem;
+            }
+
+            &.right {
+              right: -3rem;
+            }
+
+            @media (max-width: 800px) {
+              display: none;
             }
           }
         }
@@ -1116,7 +1129,7 @@ input {
   color: var(--color-bg);
   background-color: var(--color-brown-500);
 
-  border-bottom: 1rem solid #D5C3A0;
+  border-bottom: 0.5rem solid #D5C3A0;
 
   text-align: center;
   font-size: 1.5rem;

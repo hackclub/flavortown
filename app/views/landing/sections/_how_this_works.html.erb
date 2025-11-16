@@ -7,20 +7,20 @@
 
       <div class="step left">
         <div class="step-card">
-            <div class="ribbon step-count">Step 1</div>
-
             <div class="step-hero">
               <%= image_tag "landing/how-this-works/step-1-img.webp" %>
               <div class="title">Cook a real tasty project!</div>
             </div>
 
             <p>A website, game, hardware, anything to show off your skills</p>
+
+            <%= inline_svg_tag "icons/arrow-red-right.svg", class: "right" %>
         </div>
       </div>
 
       <div class="step center">
         <div class="step-card">
-            <div class="ribbon step-count">Step 2</div>
+            <%= inline_svg_tag "icons/arrow-green-right.svg", class: "left" %>
 
             <div class="step-hero">
               <%= image_tag "landing/how-this-works/step-2-img.webp" %>
@@ -28,12 +28,14 @@
             </div>
 
             <p>Rate projects and receive a rating on your own</p>
+
+            <%= inline_svg_tag "icons/arrow-green-right.svg", class: "right" %>
         </div>
       </div>
 
       <div class="step right">
         <div class="step-card">
-            <div class="ribbon step-count">Step 3</div>
+            <%= inline_svg_tag "icons/arrow-blue-right.svg", class: "left" %>
 
             <div class="step-hero">
               <%= image_tag "landing/how-this-works/step-3-img.webp" %>
