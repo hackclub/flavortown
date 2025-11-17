@@ -464,8 +464,8 @@ input {
 
         &.left {
           background: var(--color-pink-400)
-            image-url("landing/how-this-works/texture_1.webp") no-repeat center /
-            cover;
+            image-url("landing/how-this-works/texture_1.webp") no-repeat
+            center / cover;
           --ribbon-url: image-url("landing/how-this-works/step-1-ribbon.webp");
           --card-url: image-url("landing/how-this-works/step-1-card-bg.avif");
           --title-edge: #a4383f; // TODO do not hardcode!
@@ -475,8 +475,8 @@ input {
 
         &.center {
           background: var(--color-lime-400)
-            image-url("landing/how-this-works/texture_2.webp") no-repeat center /
-            cover;
+            image-url("landing/how-this-works/texture_2.webp") no-repeat
+            center / cover;
           --ribbon-url: image-url("landing/how-this-works/step-2-ribbon.webp");
           --card-url: image-url("landing/how-this-works/step-2-card-bg.avif");
           --title-edge: #468232; // TODO do not hardcode!
@@ -486,8 +486,8 @@ input {
 
         &.right {
           background: var(--color-teal-400)
-            image-url("landing/how-this-works/texture_3.webp") no-repeat center /
-            cover;
+            image-url("landing/how-this-works/texture_3.webp") no-repeat
+            center / cover;
           --ribbon-url: image-url("landing/how-this-works/step-3-ribbon.webp");
           --card-url: image-url("landing/how-this-works/step-3-card-bg.avif");
           --title-edge: #3c5e8b; // TODO do not hardcode!
@@ -683,8 +683,8 @@ input {
     .prizes {
       clip-path: var(--jagged-border-polygon);
 
-      background: var(--color-bg) image-url("landing/prizes/bg.svg") center center /
-        cover;
+      background: var(--color-bg) image-url("landing/prizes/bg.svg") center
+        center / cover;
 
       padding: 6rem 0 4rem 0;
 
@@ -804,8 +804,9 @@ input {
               gap: 0.5rem;
 
               .image-wrapper {
-              background: var(--color-tan-300)
-                image-url("landing/prizes/img-overlay.svg") center center / cover;
+                background: var(--color-tan-300)
+                  image-url("landing/prizes/img-overlay.svg") center center /
+                  cover;
                 box-shadow: var(--shadow);
                 border-radius: 0.5rem;
                 padding: 0.25rem;
@@ -1151,7 +1152,8 @@ input {
         left: 0;
         width: 100%;
         height: 100%;
-        background: image-url("landing/pattern.avif") repeat center center / 1200px;
+        background: image-url("landing/pattern.avif") repeat center center /
+          1200px;
         opacity: 0.1;
         z-index: 0;
       }
@@ -1215,8 +1217,8 @@ input {
     .inspiration {
       clip-path: var(--jagged-border-polygon);
 
-      background: #e8c170 image-url("landing/inspiration/bg.avif") center center /
-        cover;
+      background: #e8c170 image-url("landing/inspiration/bg.avif") center
+        center / cover;
       background-size: 10rem;
       flex-direction: column;
       align-items: center;
@@ -1709,7 +1711,8 @@ input {
         left: 0;
         width: 100%;
         height: 100%;
-        background: image-url("landing/pattern.avif") repeat center center / 1200px;
+        background: image-url("landing/pattern.avif") repeat center center /
+          1200px;
         opacity: 0.1;
         z-index: 0;
       }
@@ -1758,8 +1761,8 @@ input {
     }
 
     div {
-      background: var(--color-brown-500) image-url("landing/footer/about-bg.avif")
-        center / cover;
+      background: var(--color-brown-500)
+        image-url("landing/footer/about-bg.avif") center / cover;
       padding: 2em 4em;
       border-radius: 16px;
       box-shadow: var(--shadow);
