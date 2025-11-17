@@ -285,6 +285,19 @@ input {
     0% 100%
   );
 
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(
+      0 var(--jagged-depth),
+      22% 0,
+      44% var(--jagged-depth),
+      66% 8px,
+      84% 0,
+      99.99% var(--jagged-depth),
+      100% 100%,
+      0% 100%
+    );
+  }
+
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
   background-color: #d5c3a0;
@@ -669,6 +682,21 @@ input {
     100% 100%,
     0% 100%
   );
+
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(
+      0 10px,
+      16% 0,
+      33% var(--jagged-depth),
+      55% 5px,
+      70% 45px,
+      84% 0,
+      96% 20px,
+      99.99% 40px,
+      100% 100%,
+      0% 100%
+    );
+  }
 
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
@@ -1203,6 +1231,19 @@ input {
     0% 100%
   );
 
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(
+      0 var(--jagged-depth),
+      20% 5px,
+      43% 65px,
+      62% 30px,
+      88% 0,
+      99.99% 20px,
+      100% 100%,
+      0% 100%
+    );
+  }
+
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
   background-color: #d5c3a0;
@@ -1551,7 +1592,7 @@ input {
 }
 
 .faq-section-second-border-wrapper {
-  --jagged-depth: 80px;
+  --jagged-depth: 40px;
   --jagged-border-polygon: polygon(
     0 var(--jagged-depth),
     4% 0,
@@ -1563,7 +1604,7 @@ input {
     51% 5px,
     56% var(--jagged-depth),
     64% 2px,
-    70% 62px,
+    70% 30px,
     74% 0,
     79% var(--jagged-depth),
     85% 5px,
@@ -1572,6 +1613,19 @@ input {
     100% 100%,
     0% 100%
   );
+
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(
+      0 var(--jagged-depth),
+      24% 10px,
+      51% 65px,
+      74% 0,
+      96% 50px,
+      99.99% 20px,
+      100% 100%,
+      0% 100%
+    );
+  }
 
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
