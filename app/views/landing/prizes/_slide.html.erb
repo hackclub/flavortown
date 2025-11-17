@@ -25,7 +25,7 @@
     <%= image_tag(
       src,
       alt: prize[:name] || "Prize",
-      loading: "lazy",
+      loading: "eager",
       decoding: "async",
       srcset: srcset_parts.presence&.join(", "),
       sizes: srcset_parts.present? ? "(max-width: 800px) 144px, 224px" : nil
