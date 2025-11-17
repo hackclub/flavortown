@@ -116,7 +116,7 @@ input {
 }
 
 .hero {
-  background: url("landing/hero/hero-bg.webp");
+  background: url("landing/hero/hero-bg.avif");
   background-size: 1000px;
   align-items: start;
   justify-content: center;
@@ -467,7 +467,7 @@ input {
             url("landing/how-this-works/texture_1.webp") no-repeat center /
             cover;
           --ribbon-url: url("landing/how-this-works/step-1-ribbon.webp");
-          --card-url: url("landing/how-this-works/step-1-card-bg.webp");
+          --card-url: url("landing/how-this-works/step-1-card-bg.avif");
           --title-edge: #a4383f; // TODO do not hardcode!
           --title-middle: #be4d54; // TODO do not hardcode!
           --card-color: var(--color-red-500);
@@ -478,7 +478,7 @@ input {
             url("landing/how-this-works/texture_2.webp") no-repeat center /
             cover;
           --ribbon-url: url("landing/how-this-works/step-2-ribbon.webp");
-          --card-url: url("landing/how-this-works/step-2-card-bg.webp");
+          --card-url: url("landing/how-this-works/step-2-card-bg.avif");
           --title-edge: #468232; // TODO do not hardcode!
           --title-middle: #75a743; // TODO do not hardcode!
           --card-color: #468232; // TODO do not hardcode!
@@ -489,7 +489,7 @@ input {
             url("landing/how-this-works/texture_3.webp") no-repeat center /
             cover;
           --ribbon-url: url("landing/how-this-works/step-3-ribbon.webp");
-          --card-url: url("landing/how-this-works/step-3-card-bg.webp");
+          --card-url: url("landing/how-this-works/step-3-card-bg.avif");
           --title-edge: #3c5e8b; // TODO do not hardcode!
           --title-middle: #4f8fba; // TODO do not hardcode!
           --card-color: #3c5e8b; // TODO do not hardcode!
@@ -512,7 +512,7 @@ input {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url("landing/pattern.webp") repeat center center / 1200px;
+    background: url("landing/pattern.avif") repeat center center / 1200px;
     opacity: 0.1;
     z-index: -1;
     pointer-events: none;
@@ -1151,7 +1151,7 @@ input {
         left: 0;
         width: 100%;
         height: 100%;
-        background: url("landing/pattern.webp") repeat center center / 1200px;
+        background: url("landing/pattern.avif") repeat center center / 1200px;
         opacity: 0.1;
         z-index: 0;
       }
@@ -1215,7 +1215,7 @@ input {
     .inspiration {
       clip-path: var(--jagged-border-polygon);
 
-      background: #e8c170 url("landing/inspiration/bg.webp") center center /
+      background: #e8c170 url("landing/inspiration/bg.avif") center center /
         cover;
       background-size: 10rem;
       flex-direction: column;
@@ -1251,7 +1251,7 @@ input {
 
         .projects {
           background-color: var(--color-tan-300);
-          background-image: url("landing/inspiration/projects/bg.webp");
+          background-image: url("landing/inspiration/projects/bg.avif");
           background-repeat: no-repeat;
           background-position: center;
           background-size: cover;
@@ -1709,7 +1709,7 @@ input {
         left: 0;
         width: 100%;
         height: 100%;
-        background: url("landing/pattern.webp") repeat center center / 1200px;
+        background: url("landing/pattern.avif") repeat center center / 1200px;
         opacity: 0.1;
         z-index: 0;
       }
@@ -1758,7 +1758,7 @@ input {
     }
 
     div {
-      background: var(--color-brown-500) url("landing/footer/about-bg.webp")
+      background: var(--color-brown-500) url("landing/footer/about-bg.avif")
         center / cover;
       padding: 2em 4em;
       border-radius: 16px;
@@ -1860,7 +1860,7 @@ input {
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url("landing/footer/pattern.webp");
+        background-image: url("landing/footer/pattern.avif");
         background-repeat: repeat;
         background-size: 1000px;
         opacity: 0.1;

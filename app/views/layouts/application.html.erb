@@ -14,8 +14,8 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= preload_link_tag image_path("landing/hero/long-image.webp"), as: "image", fetchpriority: "high" %>
-    <%= preload_link_tag image_path("landing/hero/hero-bg.webp"), as: "image" %>
+    <%= preload_link_tag image_path("landing/hero/long-image.avif"), as: "image", fetchpriority: "high" %>
+    <%= preload_link_tag image_path("landing/hero/hero-bg.avif"), as: "image" %>
     <%= preload_link_tag asset_path("Jua-Regular.woff2"), as: "font", type: "font/woff2", crossorigin: true %>
 
     <%= yield :head %>

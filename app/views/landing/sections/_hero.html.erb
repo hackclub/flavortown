@@ -6,7 +6,7 @@
       <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
         <button class="btn btn--red btn--striped">
           <div>
-            <%= image_tag "mask/enter.webp", width: 20, height: 20 %>
+            <%= image_tag "mask/enter.avif", width: 20, height: 20 %>
             Sign in!
           </div>
         </button>
@@ -20,11 +20,11 @@
   </div>
 
   <div class="top-collab">
-    <%= image_tag "landing/hero/hc-gh-collab.webp", loading: "lazy", decoding: "async" %>
+    <%= image_tag "landing/hero/hc-gh-collab.avif", loading: "lazy", decoding: "async" %>
   </div>
 
   <div class="rsvp-container">
-    <%= image_tag "landing/hero/logo.webp", loading: "eager", decoding: "async", sizes: "(max-width: 600px) 160px, 240px", fetchpriority: "high" %>
+    <%= image_tag "landing/hero/logo.avif", loading: "eager", decoding: "async", sizes: "(max-width: 600px) 160px, 240px", fetchpriority: "high" %>
     <h3>Cook tasty projects. Win tasty prizes.</h3>
 
     <%= render "rsvp_form", rsvp: Rsvp.new %>
@@ -35,5 +35,6 @@
     <%= image_tag "icons/chevrons-red-down.svg", class: "carat", size: 48 %>
   </div>
 
-  <%= image_tag "landing/hero/long-image.webp", class: "hero-art", loading: "eager", decoding: "async", fetchpriority: "high", sizes: "100vw" %>
+  <%= image_tag "landing/hero/long-image.avif", class: "hero-art", loading: "eager", decoding: "async", fetchpriority: "high", sizes: "100vw" %>
 </div>
+
