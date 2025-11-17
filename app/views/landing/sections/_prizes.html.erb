@@ -10,7 +10,7 @@
         showcase_items: @prizes.select { |p| p[:hours_estimated].between?(0, 19) },
         class_name: "five-hour",
         items_class_name: "",
-        title: "0-10 hour prizes"
+        title: "0-19 hour prizes"
       } %>
 
       <%= render partial: "landing/prizes/showcase", locals: {
