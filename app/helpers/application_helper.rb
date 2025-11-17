@@ -45,6 +45,9 @@ module ApplicationHelper
 
   def show_signin_button?
     return true if params[:login].to_s == "1"
+    if request&.host == "flavortown.hackclub.com"
+      return false
+    end
     ENV["HIDE_SIGNIN"].to_s != "true"
   end
 end
