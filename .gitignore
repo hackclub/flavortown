@@ -46,3 +46,4 @@ db/seeds/shop_items.csv
 
 # Ignore files from JetBrains IDEs
 /.idea
+node_modules
