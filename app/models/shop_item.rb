@@ -77,9 +77,6 @@ class ShopItem < ApplicationRecord
   end
   has_many :shop_orders, dependent: :restrict_with_error
 
-  after_save :expire_carousel_cache, if: :show_in_carousel?
-  after_destroy :expire_carousel_cache
-
   def is_free?
     self.ticket_cost.zero?
   end
@@ -110,11 +107,5 @@ class ShopItem < ApplicationRecord
 
   def out_of_stock?
     limited? && remaining_stock && remaining_stock <= 0
-  end
-
-  private
-
-  def expire_carousel_cache
-    Rails.cache.delete(Cache::CarouselPrizesJob::CACHE_KEY)
   end
 end
