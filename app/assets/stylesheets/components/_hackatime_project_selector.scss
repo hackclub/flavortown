@@ -14,7 +14,7 @@
     right: 0;
     bottom: 0;
     border-radius: var(--border-radius);
-    background-image: url("mask/title.webp");
+    background-image: image-url("mask/title.webp");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -33,7 +33,7 @@
     border-top-left-radius: calc(var(--border-radius) * 0.8);
     border-top-right-radius: calc(var(--border-radius) * 0.8);
     pointer-events: none;
-    background-image: url("mask/title.webp");
+    background-image: image-url("mask/title.webp");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -60,7 +60,7 @@
     width: 100%;
     appearance: none;
     cursor: pointer;
-    background-image: url("icons/chevron-down.svg");
+    background-image: image-url("icons/chevron-down.svg");
     background-repeat: no-repeat;
     background-position: right var(--space-m) center;
     background-size: 1.75rem 1.5rem;
