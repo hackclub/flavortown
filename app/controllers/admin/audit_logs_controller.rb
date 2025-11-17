@@ -1,7 +1,7 @@
 module Admin
   class AuditLogsController < Admin::ApplicationController
     def index
-      authorize :admin, :access_admin_endpoints_but_ac_admin?
+      authorize :admin, :access_audit_logs?
 
       @versions = PaperTrail::Version.order(created_at: :desc).limit(50)
 
@@ -32,7 +32,7 @@ module Admin
     end
 
     def show
-      authorize :admin, :access_admin_endpoints_but_ac_admin?
+      authorize :admin, :access_audit_logs?
       @version = PaperTrail::Version.find(params[:id])
     end
   end
