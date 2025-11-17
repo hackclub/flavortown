@@ -32,6 +32,7 @@
         plausible.init()
       </script>
     <% end %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   </head>
 
   <body class="<%= current_user.present? ? 'signed-in' : '' %>">
@@ -42,6 +43,5 @@
       <%= render "shared/flash" %>
       <%= yield %>
     </main>
-    <%= javascript_importmap_tags %>
   </body>
 </html>

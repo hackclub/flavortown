@@ -94,7 +94,7 @@ GEM
     ast (2.4.3)
     attr_required (1.0.2)
     aws-eventstream (1.4.0)
-    aws-partitions (1.1181.0)
+    aws-partitions (1.1183.0)
     aws-sdk-core (3.237.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -133,7 +133,7 @@ GEM
     blind_index (2.7.0)
       activesupport (>= 7.1)
       argon2-kdf (>= 0.2)
-    bootsnap (1.18.6)
+    bootsnap (1.19.0)
       msgpack (~> 1.2)
     brakeman (7.1.1)
       racc
@@ -273,6 +273,8 @@ GEM
       actionview (>= 7.0.0)
       activesupport (>= 7.0.0)
     jmespath (1.6.2)
+    jsbundling-rails (1.3.1)
+      railties (>= 6.0.0)
     json (2.16.0)
     json-jwt (1.17.0)
       activesupport (>= 4.2)
@@ -513,7 +515,7 @@ GEM
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.47.1, < 2.0)
-    rubocop-rails (2.33.4)
+    rubocop-rails (2.34.0)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
       rack (>= 1.1)
@@ -553,7 +555,7 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 4.0)
       websocket (~> 1.0)
-    slack-ruby-client (3.0.0)
+    slack-ruby-client (3.1.0)
       faraday (>= 2.0.1)
       faraday-mashify
       faraday-multipart
@@ -673,9 +675,9 @@ DEPENDENCIES
   flipper-active_support_cache_store
   flipper-ui
   image_processing (~> 1.2)
-  importmap-rails
   inline_svg
   jbuilder
+  jsbundling-rails (~> 1.3)
   kamal
   letter_opener
   letter_opener_web

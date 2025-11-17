@@ -35,8 +35,6 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Scan for security vulnerabilities in JavaScript dependencies
-        run: bin/importmap audit
 
   lint:
     runs-on: ubuntu-latest
