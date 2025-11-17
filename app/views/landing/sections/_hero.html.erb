@@ -22,7 +22,7 @@
   </div>
 
   <div class="rsvp-container">
-    <%= image_tag "landing/hero/logo.webp" %>
+    <%= image_tag "landing/hero/logo.webp", loading: "eager", fetchpriority: "high" %>
     <h3>Cook tasty projects. Win tasty prizes.</h3>
 
     <%= render "rsvp_form", rsvp: Rsvp.new %>
