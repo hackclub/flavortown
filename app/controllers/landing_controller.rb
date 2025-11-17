@@ -6,7 +6,7 @@ class LandingController < ApplicationController
     end
 
     @current_user = current_user
-    @is_admin = current_user&.roles&.exists?(name: "admin") || false
+    @is_admin = current_user&.admin? || false
     @prizes = Cache::CarouselPrizesJob.perform_now || []
   end
 end

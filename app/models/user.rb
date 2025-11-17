@@ -60,6 +60,8 @@ class User < ApplicationRecord
     role_hierarchy.find { |role| role_names.include?(role) }&.titleize || "User"
   end
 
+  # TEMP: It'll be removed post slack migration
+
   def generate_magic_link_token!
     self.magic_link_token = SecureRandom.urlsafe_base64(32)
     self.magic_link_token_expires_at = 15.minutes.from_now
