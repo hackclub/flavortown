@@ -15,11 +15,24 @@ class Cache::CarouselPrizesJob < ApplicationJob
               .shown_in_carousel
               .order(:ticket_cost)
               .map do |prize|
+        variant_urls =
+          if prize.image.attached?
+            {
+              sm: prize.image.variant(:carousel_sm).processed.url,
+              md: prize.image.variant(:carousel_md).processed.url,
+              lg: prize.image.variant(:carousel_lg).processed.url,
+              original: prize.image.url
+            }
+          else
+            nil
+          end
+
         {
           id: prize.id,
           name: prize.name,
           hours_estimated: prize.hours_estimated,
-          image_url: prize.image.attached? ? prize.image.url : nil
+          image_url: prize.image.attached? ? prize.image.url : nil,
+          image_variants: variant_urls
         }
       end
     end
