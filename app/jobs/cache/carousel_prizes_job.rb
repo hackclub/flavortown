@@ -9,12 +9,12 @@ class Cache::CarouselPrizesJob < ApplicationJob
       ShopItem.with_attached_image
               .shown_in_carousel
               .order(:ticket_cost)
+              .select { |prize| prize.image.attached? }
               .map do |prize|
         {
           id: prize.id,
           name: prize.name,
-          hours_estimated: prize.hours_estimated,
-          has_image: prize.image.attached?
+          hours_estimated: prize.hours_estimated
         }
       end
     end
