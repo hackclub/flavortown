@@ -16,7 +16,11 @@ export default class extends Controller {
     "progressBar",
     "status",
   ];
-  static values = { maxSize: Number, initialUrl: String, initialFilename: String };
+  static values = {
+    maxSize: Number,
+    initialUrl: String,
+    initialFilename: String,
+  };
 
   connect() {
     this.#reset();

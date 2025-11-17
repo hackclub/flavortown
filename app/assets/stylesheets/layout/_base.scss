@@ -42,13 +42,13 @@ a {
     background: var(--color-brown-hover);
     border-radius: 999px;
     bottom: 10%;
-    content: '';
+    content: "";
     height: 8px;
     left: 0;
     position: absolute;
     right: 0;
     transform: translateX(-4px);
-    transition: background .3s ease;
+    transition: background 0.3s ease;
     width: calc(100% + 8px);
     z-index: -1;
   }

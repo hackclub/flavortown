@@ -171,7 +171,8 @@ input {
       }
     }
 
-    h4, h5 {
+    h4,
+    h5 {
       margin: 0;
       color: var(--color-red-500);
       font-weight: normal;
@@ -227,9 +228,15 @@ input {
     }
 
     @keyframes carat-bounce {
-      0%   { transform: translateY(0); }
-      50%  { transform: translateY(-16px); }
-      100% { transform: translateY(0); }
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-16px);
+      }
+      100% {
+        transform: translateY(0);
+      }
     }
 
     .carat {
@@ -279,18 +286,18 @@ input {
 
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
-  background-color: #D5C3A0;
+  background-color: #d5c3a0;
 
   margin-top: -8rem;
 
   .how-this-works-border-wrapper {
     padding-top: 1rem;
     clip-path: var(--jagged-border-polygon);
-    background-color: #FDE8D1;
+    background-color: #fde8d1;
 
     .how-this-works {
       position: relative;
-      
+
       background: var(--color-bg);
 
       gap: 1rem;
@@ -457,7 +464,8 @@ input {
 
         &.left {
           background: var(--color-pink-400)
-            url("landing/how-this-works/texture_1.webp") no-repeat center / cover;
+            url("landing/how-this-works/texture_1.webp") no-repeat center /
+            cover;
           --ribbon-url: url("landing/how-this-works/step-1-ribbon.webp");
           --card-url: url("landing/how-this-works/step-1-card-bg.webp");
           --title-edge: #a4383f; // TODO do not hardcode!
@@ -467,7 +475,8 @@ input {
 
         &.center {
           background: var(--color-lime-400)
-            url("landing/how-this-works/texture_2.webp") no-repeat center / cover;
+            url("landing/how-this-works/texture_2.webp") no-repeat center /
+            cover;
           --ribbon-url: url("landing/how-this-works/step-2-ribbon.webp");
           --card-url: url("landing/how-this-works/step-2-card-bg.webp");
           --title-edge: #468232; // TODO do not hardcode!
@@ -477,7 +486,8 @@ input {
 
         &.right {
           background: var(--color-teal-400)
-            url("landing/how-this-works/texture_3.webp") no-repeat center / cover;
+            url("landing/how-this-works/texture_3.webp") no-repeat center /
+            cover;
           --ribbon-url: url("landing/how-this-works/step-3-ribbon.webp");
           --card-url: url("landing/how-this-works/step-3-card-bg.webp");
           --title-edge: #3c5e8b; // TODO do not hardcode!
@@ -633,7 +643,7 @@ input {
       .content {
         background-color: var(--color-yellow-500);
         border: 10px solid var(--color-yellow-450);
-      } 
+      }
     }
   }
 }
@@ -661,19 +671,20 @@ input {
 
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
-  background-color: #F8E8D1;
+  background-color: #f8e8d1;
 
   margin-top: -8rem;
 
   .prizes-section-border-wrapper {
     padding-top: 1rem;
     clip-path: var(--jagged-border-polygon);
-    background-color: #D5C3A0;
+    background-color: #d5c3a0;
 
     .prizes {
       clip-path: var(--jagged-border-polygon);
 
-      background: var(--color-bg) url("landing/prizes/bg.svg") center center / cover;
+      background: var(--color-bg) url("landing/prizes/bg.svg") center center /
+        cover;
 
       padding: 6rem 0 4rem 0;
 
@@ -692,7 +703,7 @@ input {
 
         background: var(--color-red-400);
         box-shadow: var(--shadow);
-        color: #F8E8D1;
+        color: #f8e8d1;
 
         border-radius: 1rem;
         font-size: 1.5rem;
@@ -705,11 +716,10 @@ input {
           text-align: center;
           padding: 0.5rem 2rem;
 
-          background: var(--color-red-500) url("landing/prizes/title-overlay.svg")
-            center center / cover;
+          background: var(--color-red-500)
+            url("landing/prizes/title-overlay.svg") center center / cover;
           box-shadow: var(--shadow);
           border-radius: 1rem;
-
         }
 
         @media (max-width: 800px) {
@@ -881,13 +891,13 @@ input {
   );
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
-  background-color: #F8E8D1;
+  background-color: #f8e8d1;
   margin-top: -8rem;
 
   .previously-hosted-section-border-wrapper {
     padding-top: 1rem;
     clip-path: var(--jagged-border-polygon);
-    background-color: #D5C3A0;
+    background-color: #d5c3a0;
 
     .previously-hosted {
       clip-path: var(--jagged-border-polygon);
@@ -1031,7 +1041,9 @@ input {
           height: calc(var(--notch-height) + var(--notch-border));
           top: calc(-1 * var(--notch-height) - var(--notch-border));
           top: calc(-1 * var(--notch-height) - var(--notch-border));
-          left: calc(var(--notch-x) - (var(--notch-width) / 2) - var(--notch-border));
+          left: calc(
+            var(--notch-x) - (var(--notch-width) / 2) - var(--notch-border)
+          );
           background: var(--color-brown-700);
           clip-path: polygon(0 100%, 50% 0, 100% 100%);
           transition: left 220ms ease;
@@ -1156,7 +1168,7 @@ input {
   color: var(--color-bg);
   background-color: var(--color-brown-500);
 
-  border-bottom: 0.5rem solid #D5C3A0;
+  border-bottom: 0.5rem solid #d5c3a0;
 
   text-align: center;
   font-size: 1.5rem;
@@ -1191,20 +1203,20 @@ input {
 
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
-  background-color: #D5C3A0;
+  background-color: #d5c3a0;
 
   margin-top: -6rem;
 
   .inspiration-section-border-wrapper {
     padding-top: 1rem;
     clip-path: var(--jagged-border-polygon);
-    background-color: #F8E8D1;
-
+    background-color: #f8e8d1;
 
     .inspiration {
       clip-path: var(--jagged-border-polygon);
 
-      background: #E8C170 url("landing/inspiration/bg.webp") center center / cover;
+      background: #e8c170 url("landing/inspiration/bg.webp") center center /
+        cover;
       background-size: 10rem;
       flex-direction: column;
       align-items: center;
@@ -1277,7 +1289,7 @@ input {
             }
           }
 
-          .content { 
+          .content {
             width: 100%;
             height: 100%;
 
@@ -1349,7 +1361,7 @@ input {
                       align-self: center;
                       box-shadow: var(--shadow);
                     }
-                    
+
                     .info {
                       h4 {
                         font-weight: bold;
@@ -1357,7 +1369,7 @@ input {
                       }
 
                       p {
-                        font-size: .8em;
+                        font-size: 0.8em;
                       }
                     }
 
@@ -1392,7 +1404,7 @@ input {
                     text-wrap: wrap;
                     font-size: 0.9em;
                     word-break: break-word;
-                    margin: auto 0; 
+                    margin: auto 0;
                   }
                 }
               }
@@ -1431,8 +1443,8 @@ input {
                 margin-top: 1rem;
                 gap: 0.5rem;
                 z-index: 10;
-                background-color: #D5C3A0;
-                padding: .3rem .8rem;
+                background-color: #d5c3a0;
+                padding: 0.3rem 0.8rem;
                 border-radius: 16px;
                 box-shadow: var(--shadow);
 
@@ -1561,14 +1573,14 @@ input {
 
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
-  background-color: #F8E8D1;
+  background-color: #f8e8d1;
 
   margin-top: -8rem;
 
   .faq-section-border-wrapper {
     padding-top: 1rem;
     clip-path: var(--jagged-border-polygon);
-    background-color: #D5C3A0;
+    background-color: #d5c3a0;
 
     .faq {
       position: relative;
@@ -1602,8 +1614,8 @@ input {
           width: 110%;
           text-align: center;
 
-          background: var(--color-red-500) url("landing/prizes/title-overlay.svg")
-            center center / cover;
+          background: var(--color-red-500)
+            url("landing/prizes/title-overlay.svg") center center / cover;
           box-shadow: var(--shadow);
           border-radius: 1rem;
 
@@ -1746,8 +1758,8 @@ input {
     }
 
     div {
-      background: var(--color-brown-500) url("landing/footer/about-bg.webp") center /
-        cover;
+      background: var(--color-brown-500) url("landing/footer/about-bg.webp")
+        center / cover;
       padding: 2em 4em;
       border-radius: 16px;
       box-shadow: var(--shadow);
@@ -1879,7 +1891,7 @@ input {
         bottom: 1em;
         width: 100px;
       }
-      
+
       @media (max-width: 600px) {
         .signatures {
           width: 100%;
