@@ -1931,6 +1931,18 @@ input {
   }
 }
 
+/* Perf: avoid rendering until needed */
+.how-this-works,
+.testimonials,
+.prizes,
+.previously-hosted,
+.inspiration,
+.faq,
+.footer {
+  content-visibility: auto;
+  contain-intrinsic-size: 1000px;
+}
+
 button {
   font-size: 1.2em;
 

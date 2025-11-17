@@ -14,6 +14,10 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <%= preload_link_tag image_path("landing/hero/long-image.webp"), as: "image", fetchpriority: "high" %>
+    <%= preload_link_tag image_path("landing/hero/hero-bg.webp"), as: "image" %>
+    <%= preload_link_tag asset_path("Jua-Regular.woff2"), as: "font", type: "font/woff2", crossorigin: true %>
+
     <%= yield :head %>
 
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
@@ -21,7 +25,6 @@
 
     <%= yield :stylesheets %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
     <% if Rails.env.production? %>
       <script async src="https://plausible.io/js/pa-vZKZvMqR3_6nQr_H-sJ_2.js"></script>
       <script>
@@ -47,5 +50,6 @@
       <% end %>
       <%= yield %>
     </main>
+    <%= javascript_importmap_tags %>
   </body>
 </html>
