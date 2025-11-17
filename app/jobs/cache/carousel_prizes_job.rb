@@ -10,17 +10,23 @@ class Cache::CarouselPrizesJob < ApplicationJob
 
     ActiveStorage::Current.url_options = url_options
 
+    url_helpers = Rails.application.routes.url_helpers
+
     Rails.cache.fetch(CACHE_KEY, expires_in: CACHE_DURATION, force: force) do
       ShopItem.with_attached_image
               .shown_in_carousel
               .order(:ticket_cost)
               .map do |prize|
         if prize.image.attached?
+          sm_variant = prize.image.variant(:carousel_sm).processed
+          md_variant = prize.image.variant(:carousel_md).processed
+          lg_variant = prize.image.variant(:carousel_lg).processed
+
           variant_urls = {
-            sm: url_for(prize.image.variant(:carousel_sm).processed),
-            md: url_for(prize.image.variant(:carousel_md).processed),
-            lg: url_for(prize.image.variant(:carousel_lg).processed),
-            original: url_for(prize.image)
+            sm: url_helpers.rails_representation_url(sm_variant, **url_options),
+            md: url_helpers.rails_representation_url(md_variant, **url_options),
+            lg: url_helpers.rails_representation_url(lg_variant, **url_options),
+            original: url_helpers.rails_blob_url(prize.image, **url_options)
           }
         else
           variant_urls = nil
@@ -30,7 +36,7 @@ class Cache::CarouselPrizesJob < ApplicationJob
           id: prize.id,
           name: prize.name,
           hours_estimated: prize.hours_estimated,
-          image_url: prize.image.attached? ? url_for(prize.image) : nil,
+          image_url: prize.image.attached? ? url_helpers.rails_blob_url(prize.image, **url_options) : nil,
           image_variants: variant_urls
         }
       end
