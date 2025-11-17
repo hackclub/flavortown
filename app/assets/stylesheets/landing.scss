@@ -2014,3 +2014,7 @@ button {
     width: 140px;
   }
 }
+
+@media (max-width: 600px) {
+  .hero .hero-art { display: none; }
+}
