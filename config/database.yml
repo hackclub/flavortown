@@ -22,6 +22,8 @@ default: &default
 development:
   <<: *default
   database: battlemage_development
+  
+  url: <%= ENV['DATABASE_URL'] %>
 
   # Uncomment this line to use the production database for development! Must have PROD_DATABASE_URL set in the environment.
   # url: <%= ENV['PROD_DATABASE_URL'] %>

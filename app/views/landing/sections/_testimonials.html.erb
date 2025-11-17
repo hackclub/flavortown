@@ -2,68 +2,125 @@
   <div class="ribbon ribbon-title title">What past chefs say</div>
 
   <% cards_markup = capture do %>
-      <div class="testimonial red">
-        <h2>18 year old Hack Clubber from Japan</h2>
-        <div class="content">
-          <%= image_tag "landing/testimonials/cards/card-1.avif", alt: "Summer of Making", loading: "lazy" %>
-          <h3>I spent over 400 hours at High Seas ... and connected with people from all over the world ... these led to incredible opportunities, like participating in DEFCON...</h3>
-        </div>
+    <div class="testimonial red">
+      <h2>18 year old Hack Clubber from 🇯🇵Japan</h2>
+      <div class="content">
+        <%= image_tag "landing/testimonials/cards/card-1.avif", alt: "Summer of Making", loading: "lazy" %>
+        <h3>
+          I spent over 400 hours at High Seas ... and connected with people from
+          all over the world ... these led to incredible opportunities, like
+          participating in DEFCON...
+        </h3>
       </div>
-      <div class="testimonial yellow">
-        <h2>17 year old Hack Clubber from India</h2>
-        <div class="content">
-          <%= image_tag "landing/testimonials/cards/card-2.avif", alt: "Summer of Making", loading: "lazy" %>
-          <h3>I found a community of teens working on incredible projects, which helped me out of my comfort zone, from just software to even hardware and automation.</h3>
-        </div>
-      </div>
-      <div class="testimonial green">
-        <h2>17 year old Hack Clubber from Japan</h2>
-        <div class="content">
-          <%= image_tag "landing/testimonials/cards/card-3.avif", alt: "Summer of Making", loading: "lazy" %>
-          <h3>High Seas motivated me to start my own Hack Club ... it’s also helped me grow, making me less shy, more connected, and even making friends online and in real life.</h3>
-        </div>
-      </div>
-      <div class="testimonial yellow">
-        <h2>17 year old Hack Clubber from Egypt</h2>
-        <div class="content">
-          <%= image_tag "landing/testimonials/cards/card-4.avif", alt: "Summer of Making", loading: "lazy" %>
-          <h3>One of the best events I’ve ever joined ... I met amazing people and finally found motivation ... huge thanks to everyone who made High Seas such a special experience!</h3>
-        </div>
-      </div>
-      <div class="testimonial red">
-        <h2>18 year old Hack Clubber from Japan</h2>
-        <div class="content">
-          <%= image_tag "landing/testimonials/cards/card-1.avif", alt: "Summer of Making", loading: "lazy" %>
-          <h3>I spent over 400 hours at High Seas ... and connected with people from all over the world ... these led to incredible opportunities, like participating in DEFCON...</h3>
-        </div>
-      </div>
-      <div class="testimonial yellow">
-        <h2>17 year old Hack Clubber from India</h2>
-        <div class="content">
-          <%= image_tag "landing/testimonials/cards/card-2.avif", alt: "Summer of Making", loading: "lazy" %>
-          <h3>I found a community of teens working on incredible projects, which helped me out of my comfort zone, from just software to even hardware and automation.</h3>
-        </div>
-      </div>
-      <div class="testimonial green">
-        <h2>17 year old Hack Clubber from Japan</h2>
-        <div class="content">
-          <%= image_tag "landing/testimonials/cards/card-3.avif", alt: "Summer of Making", loading: "lazy" %>
-          <h3>High Seas motivated me to start my own Hack Club ... it’s also helped me grow, making me less shy, more connected, and even making friends online and in real life.</h3>
-        </div>
-      </div>
-      <div class="testimonial yellow">
-        <h2>17 year old Hack Clubber from Egypt</h2>
-        <div class="content">
-          <%= image_tag "landing/testimonials/cards/card-4.avif", alt: "Summer of Making", loading: "lazy" %>
-          <h3>One of the best events I’ve ever joined ... I met amazing people and finally found motivation ... huge thanks to everyone who made High Seas such a special experience!</h3>
-        </div>
-      </div>
-    <% end %>
-
-  <div class="cards scrolling-carousel" style="--carousel-scroll-time: <%= 8 * 3 %>s;">
-    <div class="cards-track scrolling-items">
-      <%= cards_markup %>
     </div>
+
+    <div class="testimonial yellow">
+      <h2>17 year old Hack Clubber from 🇮🇳India</h2>
+      <div class="content">
+        <%= image_tag "landing/testimonials/cards/card-2.avif", alt: "Summer of Making", loading: "lazy" %>
+        <h3>
+          I found a community of teens working on incredible projects, which
+          helped me out of my comfort zone, from just software to even hardware
+          and automation.
+        </h3>
+      </div>
+    </div>
+
+    <div class="testimonial green">
+      <h2>15 year old Hack Clubber from 🇯🇵Japan</h2>
+      <div class="content">
+        <%= image_tag "landing/testimonials/cards/card-3.avif", alt: "Summer of Making", loading: "lazy" %>
+        <h3>
+            SoM made me do the largest and hardest personal project I've ever done. The community is inspiring, and I wouldn't be doing what I'm trying to right now without it (making my first flight computer)!
+        </h3>
+      </div>
+    </div>
+
+    <div class="testimonial yellow">
+      <h2>15 year old Hack Clubber from 🇪🇸Spain</h2>
+      <div class="content">
+        <%= image_tag "landing/testimonials/cards/card-4.avif", alt: "Summer of Making", loading: "lazy" %>
+        <h3>
+            Summer of Making was the first time I was participating in something like that. I even shipped 2 crazy projects, I didn't even know I could do something like that. That was the best experience in my life so far. ^-^
+        </h3>
+      </div>
+    </div>
+
+    <div class="testimonial red">
+      <h2>18 year old Hack Clubber from 🇯🇵Japan</h2>
+      <div class="content">
+        <%= image_tag "landing/testimonials/cards/card-1.avif", alt: "Summer of Making", loading: "lazy" %>
+        <h3>
+          I spent over 400 hours at High Seas ... and connected with people from
+          all over the world ... these led to incredible opportunities, like
+          participating in DEFCON...
+        </h3>
+      </div>
+    </div>
+
+    <div class="testimonial yellow">
+      <h2>17 year old Hack Clubber from 🇮🇳India</h2>
+      <div class="content">
+        <%= image_tag "landing/testimonials/cards/card-2.avif", alt: "Summer of Making", loading: "lazy" %>
+        <h3>
+          I found a community of teens working on incredible projects, which
+          helped me out of my comfort zone, from just software to even hardware
+          and automation.
+        </h3>
+      </div>
+    </div>
+
+    <div class="testimonial green">
+      <h2>17 year old Hack Clubber from 🇯🇵Japan</h2>
+      <div class="content">
+        <%= image_tag "landing/testimonials/cards/card-3.avif", alt: "Summer of Making", loading: "lazy" %>
+        <h3>
+          High Seas motivated me to start my own Hack Club ... it’s also helped
+          me grow, making me less shy, more connected, and even making friends
+          online and in real life.
+        </h3>
+      </div>
+    </div>
+
+    <div class="testimonial yellow">
+      <h2>17 year old Hack Clubber from 🇪🇬Egypt</h2>
+      <div class="content">
+        <%= image_tag "landing/testimonials/cards/card-4.avif", alt: "Summer of Making", loading: "lazy" %>
+        <h3>
+          One of the best events I’ve ever joined ... I met amazing people and
+          finally found motivation ... huge thanks to everyone who made High
+          Seas such a special experience!
+       </h3>
+      </div>
+    </div>
+    
+    <div class="testimonial red">
+        <h2>18 year old Hack Clubber from the 🇬🇧UK</h2>
+        <div class="content">
+            <%= image_tag "landing/testimonials/cards/card-5.avif", alt: "Summer of Making", loading: "lazy" %>
+            <h3>
+                Summer of Making gave me so much more than just prizes.
+                Over the summer, I made projects that were a mix of fun (a chess-like esolang called C), genuinely useful (Grafana dashboard for #summer-of-making-help), and challenging (learning Postgres + Prisma for a multiplayer web app). I managed to get a Flipper Zero, which I originally thought would be far out of my reach, and met some of my favourite Hack Clubbers. Thanks y'all <3
+            </h3>
+        </div>
+    </div>
+    
+    <div class="testimonial yellow">
+        <h2>18 year old Hack Clubber from 🇺🇸America</h2>
+        <div class="content">
+            <%= image_tag "landing/testimonials/cards/card-6.avif", alt: "Summer of Making", loading: "lazy" %>
+            <h3>
+                I was absolutely terrified of shipping anything before Summer of Making (god forbid my projects are perceived) and so even though I made projects, I never  published anything. Summer of Making encouraged me to get out of my comfort zone and try new mediums of making, but most importantly taught me that the internet is a friendlier place than I thought and that my work deserves to be seen.  
+            </h3>
+        </div>
+    </div>
+  <% end %>
+
+  <div
+    class="cards scrolling-carousel"
+    style="--carousel-scroll-time: <%= 8 * 3 %>s;"
+  >
+    <div class="cards-track scrolling-items"><%= cards_markup %></div>
     <div class="cards-track scrolling-items" aria-hidden="true">
       <%= cards_markup %>
     </div>
