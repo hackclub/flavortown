@@ -11,6 +11,7 @@ end
 Rails.application.routes.draw do
   # Landing
   root "landing#index"
+  get "login", to: redirect("/?login=1")
 
   # RSVPs
   resources :rsvps, only: [ :create ]

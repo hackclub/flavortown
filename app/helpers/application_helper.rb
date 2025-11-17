@@ -42,4 +42,9 @@ module ApplicationHelper
       )
     end
   end
+
+  def show_signin_button?
+    return true if params[:login].to_s == "1"
+    ENV["HIDE_SIGNIN"].to_s != "true"
+  end
 end
