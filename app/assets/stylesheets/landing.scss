@@ -123,6 +123,7 @@ input {
   text-align: center;
   overflow: hidden;
   height: 100vh;
+  padding: 0 0.5rem; // makes it look better on phone
 
   .top-collab {
     position: absolute;
@@ -283,6 +284,19 @@ input {
     100% 100%,
     0% 100%
   );
+
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(
+      0 var(--jagged-depth),
+      22% 0,
+      44% var(--jagged-depth),
+      66% 8px,
+      84% 0,
+      99.99% var(--jagged-depth),
+      100% 100%,
+      0% 100%
+    );
+  }
 
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
@@ -669,6 +683,21 @@ input {
     0% 100%
   );
 
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(
+      0 10px,
+      16% 0,
+      33% var(--jagged-depth),
+      55% 5px,
+      70% 45px,
+      84% 0,
+      96% 20px,
+      99.99% 40px,
+      100% 100%,
+      0% 100%
+    );
+  }
+
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
   background-color: #f8e8d1;
@@ -705,21 +734,22 @@ input {
         box-shadow: var(--shadow);
         color: #f8e8d1;
 
-        border-radius: 1rem;
+        border-radius: .8rem;
         font-size: 1.5rem;
-        padding: 0.5rem 4rem;
+        padding: 0.5rem;
         aspect-ratio: 5 / 1;
+        max-width: 95%;
 
         > div {
           font-size: 2.5rem;
-          width: 140%;
+          width: 110%;
           text-align: center;
           padding: 0.5rem 2rem;
 
           background: var(--color-red-500)
             url("landing/prizes/title-overlay.svg") center center / cover;
           box-shadow: var(--shadow);
-          border-radius: 1rem;
+          border-radius: .5rem;
         }
 
         @media (max-width: 800px) {
@@ -1201,6 +1231,19 @@ input {
     0% 100%
   );
 
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(
+      0 var(--jagged-depth),
+      20% 5px,
+      43% 65px,
+      62% 30px,
+      88% 0,
+      99.99% 20px,
+      100% 100%,
+      0% 100%
+    );
+  }
+
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
   background-color: #d5c3a0;
@@ -1549,7 +1592,7 @@ input {
 }
 
 .faq-section-second-border-wrapper {
-  --jagged-depth: 80px;
+  --jagged-depth: 40px;
   --jagged-border-polygon: polygon(
     0 var(--jagged-depth),
     4% 0,
@@ -1561,7 +1604,7 @@ input {
     51% 5px,
     56% var(--jagged-depth),
     64% 2px,
-    70% 62px,
+    70% 30px,
     74% 0,
     79% var(--jagged-depth),
     85% 5px,
@@ -1570,6 +1613,19 @@ input {
     100% 100%,
     0% 100%
   );
+
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(
+      0 var(--jagged-depth),
+      24% 10px,
+      51% 65px,
+      74% 0,
+      96% 50px,
+      99.99% 20px,
+      100% 100%,
+      0% 100%
+    );
+  }
 
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
