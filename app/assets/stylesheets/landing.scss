@@ -164,8 +164,15 @@ input {
     h3 {
       margin: 0;
       margin-bottom: 1em;
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 500;
+
+      div.subtext {
+        font-size: 1.5rem;
+        font-weight: normal;
+        color: var(--color-red-400);
+        font-style: italic;
+      }
 
       @media (max-width: 600px) {
         font-size: 1.5rem;
@@ -609,6 +616,8 @@ input {
         border-radius: 16px;
         width: 100%;
         box-shadow: var(--shadow);
+        height: 180px;
+        object-fit: cover;
       }
     }
 
@@ -1320,14 +1329,14 @@ input {
 
             h3 {
               color: var(--color-brown-700);
-              font-size: 1.5em;
+              font-size: 1.6em;
               font-weight: normal;
               margin: 0;
             }
 
             p {
               color: var(--color-brown-500);
-              font-size: 1.2em;
+              font-size: 1.4em;
               margin: 0.5rem 0 0 0;
             }
           }
@@ -1408,12 +1417,12 @@ input {
                     .info {
                       h4 {
                         font-weight: bold;
-                        font-size: 1.2em;
+                        font-size: 1.5em;
                       }
 
                       p {
-                        font-size: 0.8em;
-                      }
+                        font-size: 1.2em;
+                      } 
                     }
 
                     .links {
@@ -1445,7 +1454,7 @@ input {
 
                   p {
                     text-wrap: wrap;
-                    font-size: 0.9em;
+                    font-size: 1.4em;
                     word-break: break-word;
                     margin: auto 0;
                   }
