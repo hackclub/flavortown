@@ -52,8 +52,18 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def promote_role
+      unless current_user.super_admin?
+        flash[:alert] = "Only super admins can manage user roles."
+        return redirect_to admin_user_path(params[:id])
+      end
+
       @user = User.find(params[:id])
       role_name = params[:role_name]
+
+      if role_name == "Super_Admin"
+        flash[:alert] = "Only super admins can promote to super admin."
+        return redirect_to admin_user_path(@user)
+      end
 
       role = Role.find_by(name: role_name)
 
@@ -70,8 +80,18 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
   def demote_role
+    unless current_user.super_admin?
+      flash[:alert] = "Only super admins can manage user roles."
+      return redirect_to admin_user_path(params[:id])
+    end
+
     @user = User.find(params[:id])
     role_name = params[:role_name]
+
+    if role_name == "Super_Admin"
+      flash[:alert] = "Only super admins can demote super admin."
+      return redirect_to admin_user_path(@user)
+    end
 
     role = Role.find_by(name: role_name)
 
@@ -88,6 +108,11 @@ class Admin::UsersController < Admin::ApplicationController
   end
 
   def toggle_flipper
+    unless current_user.admin?
+      flash[:alert] = "Only admins can toggle features."
+      return redirect_to admin_user_path(params[:id])
+    end
+
     @user = User.find(params[:id])
     feature = params[:feature].to_sym
 

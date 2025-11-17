@@ -56,7 +56,25 @@ class ShopItem < ApplicationRecord
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
   scope :enabled, -> { where(enabled: true) }
 
-  has_one_attached :image
+  has_one_attached :image do |attachable|
+    attachable.variant :carousel_sm,
+                       resize_to_limit: [ 160, nil ],
+                       format: :webp,
+                       preprocessed: true,
+                       saver: { strip: true, quality: 75 }
+
+    attachable.variant :carousel_md,
+                       resize_to_limit: [ 240, nil ],
+                       format: :webp,
+                       preprocessed: true,
+                       saver: { strip: true, quality: 75 }
+
+    attachable.variant :carousel_lg,
+                       resize_to_limit: [ 360, nil ],
+                       format: :webp,
+                       preprocessed: true,
+                       saver: { strip: true, quality: 75 }
+  end
   has_many :shop_orders, dependent: :restrict_with_error
 
   def is_free?

@@ -7,7 +7,10 @@ export default class extends Controller {
   connect() {
     this.selectedProjects = new Set();
     // Seed initial selected projects if provided as values
-    if (this.hasInitialProjectsValue && Array.isArray(this.initialProjectsValue)) {
+    if (
+      this.hasInitialProjectsValue &&
+      Array.isArray(this.initialProjectsValue)
+    ) {
       const seeds = this.initialProjectsValue;
       seeds.forEach(async (proj) => {
         const id = String(proj.id);

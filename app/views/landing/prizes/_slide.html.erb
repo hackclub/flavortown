@@ -1,6 +1,6 @@
 <div class="prize">
   <div class="image-wrapper">
-    <%= image_tag(prize[:image_url].present? ? prize[:image_url] : "clubhuman.webp", alt: prize[:name] || "Prize", loading: "lazy") %>
+    <%= resp_prize_images(prize) %>
   </div>
   <div class="description">
     <div class="name"><%= prize[:name] %></div>

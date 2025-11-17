@@ -37,7 +37,7 @@
   <% if policy(:admin).flipper? %>
     <%= link_to "Flipper", "/admin/flipper", class: "btn-primary" %>
   <% end %>
-  <% if policy(:admin).user_promotion_perms? %>
+  <% if policy(:admin).can_promote? %>
   <%= link_to "Manage users", "/admin/user-perms", class: "btn-primary" %>
 <% end %>
 <% if policy(:admin).jobs? %>
