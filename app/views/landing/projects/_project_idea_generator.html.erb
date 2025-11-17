@@ -32,7 +32,7 @@
 
   // Background music setup
   const backgroundMusic = new Howl({
-    src: ["<%= audio_url('penne_for_your_thoughts.mp3').to_json %>"],
+    src: ["<%= audio_path('penne_for_your_thoughts.mp3').to_json %>"],
     loop: true,
     rate: 0.5,
     volume: 0.1
@@ -79,9 +79,9 @@
       </div>
 
       <div id="shopkeeper-bakery">
-        <%= image_tag image_url("landing/inspiration/bakery/back.avif"), style: "margin-top: -40px;" %>
+        <%= image_tag "landing/inspiration/bakery/back.avif", style: "margin-top: -40px;" %>
         <img id="shopkeeper-image" src="" class="idle" style="position: absolute; right: 64px; top: 40%; width: 30%;">
-        <%= image_tag image_url("landing/inspiration/bakery/front.avif"), style: "position: absolute; top: 1.2rem; left: 0; pointer-events: none;" %>
+        <%= image_tag "landing/inspiration/bakery/front.avif", style: "position: absolute; top: 1.2rem; left: 0; pointer-events: none;" %>
       </div>
     </div>
   </div>

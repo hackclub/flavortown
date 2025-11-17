@@ -13,7 +13,7 @@
     right: 0;
     bottom: 0;
     border-radius: var(--border-radius);
-    background-image: image-url("mask/inp-group.avif");
+    background-image: url("mask/inp-group.avif");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -32,7 +32,7 @@
     border-top-left-radius: calc(var(--border-radius) * 0.8);
     border-top-right-radius: calc(var(--border-radius) * 0.8);
     pointer-events: none;
-    background-image: image-url("mask/title.webp");
+    background-image: url("mask/title.webp");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
