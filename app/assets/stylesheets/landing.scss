@@ -743,7 +743,7 @@ input {
         box-shadow: var(--shadow);
         color: #f8e8d1;
 
-        border-radius: .8rem;
+        border-radius: 0.8rem;
         font-size: 1.5rem;
         padding: 0.5rem;
         aspect-ratio: 5 / 1;
@@ -758,7 +758,7 @@ input {
           background: var(--color-red-500)
             url("landing/prizes/title-overlay.svg") center center / cover;
           box-shadow: var(--shadow);
-          border-radius: .5rem;
+          border-radius: 0.5rem;
         }
 
         @media (max-width: 800px) {
@@ -2030,5 +2030,7 @@ button {
 }
 
 @media (max-width: 600px) {
-  .hero .hero-art { display: none; }
+  .hero .hero-art {
+    display: none;
+  }
 }
