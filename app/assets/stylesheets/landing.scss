@@ -1291,6 +1291,8 @@ input {
     background-color: #f8e8d1;
 
     .inspiration {
+      min-height: auto;
+      width: 100%;
       clip-path: var(--jagged-border-polygon);
 
       background: #e8c170 url("landing/inspiration/bg.avif") center center /
@@ -1339,12 +1341,17 @@ input {
           align-items: center;
           width: 70%;
           height: auto;
+          max-width: 1200px;
           padding: 1rem;
           border-radius: 16px;
           box-shadow: var(--shadow);
 
           @media (max-width: 900px) {
             width: 80%;
+          }
+
+          @media (max-width: 600px) {
+            width: 95%;
           }
 
           .title {
@@ -1394,7 +1401,7 @@ input {
               flex-direction: column;
               align-items: center;
               width: 100%;
-              height: 100%;
+              height: auto;
 
               @media (max-width: 600px) {
                 width: 100%;
@@ -1403,8 +1410,8 @@ input {
               .carousel-track {
                 display: flex;
                 justify-content: center;
-                width: 90%;
-                height: 90%;
+                width: 100%;
+                height: auto;
 
                 @media (max-width: 600px) {
                   width: 100%;
@@ -1421,6 +1428,10 @@ input {
 
                   @media (max-width: 800px) {
                     width: 80%;
+                  }
+
+                  @media (max-width: 600px) {
+                    width: 100%;
                   }
 
                   &.active {
@@ -1477,6 +1488,9 @@ input {
                   img {
                     width: 100%;
                     height: auto;
+                    display: block;
+                    aspect-ratio: 16 / 9;
+                    object-fit: cover;
                     box-shadow: var(--shadow);
                     border-radius: 12px;
                   }
@@ -1733,22 +1747,23 @@ input {
 
       .cards {
         display: grid;
-        grid-template-columns: repeat(3, minmax(100px, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 22rem));
         gap: 3.5rem;
         margin-bottom: 4rem;
 
         width: 90%;
+        justify-content: center;
 
         @media (min-width: 1600px) {
           gap: 6rem;
         }
 
         @media (max-width: 1200px) {
-          grid-template-columns: repeat(3, minmax(100px, 1fr));
+          grid-template-columns: repeat(3, minmax(0, 22rem));
         }
 
         @media (max-width: 900px) {
-          grid-template-columns: repeat(2, minmax(100px, 1fr));
+          grid-template-columns: repeat(2, minmax(0, 22rem));
         }
 
         @media (max-width: 600px) {
@@ -1764,15 +1779,11 @@ input {
 
           display: flex;
           flex-direction: column;
-          height: 10rem;
+          height: 17rem;
 
-          @media (min-width: 1400px) {
-            height: 13rem;
-          }
-
-          @media (min-width: 1800px) {
-            height: 15rem;
-          }
+          // @media (min-width: 1800px) {
+          //   height: 17rem;
+          // }
 
           .question {
             width: 120%;
