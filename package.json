@@ -10,6 +10,7 @@
     "@rails/activestorage": "^8.1.100"
   },
   "devDependencies": {
-    "esbuild": "^0.27.0"
+    "esbuild": "^0.27.0",
+    "prettier": "3.6.2"
   }
 }
