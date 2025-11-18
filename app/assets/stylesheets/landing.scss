@@ -1733,7 +1733,7 @@ input {
 
       .cards {
         display: grid;
-        grid-template-columns: repeat(4, minmax(250px, 1fr));
+        grid-template-columns: repeat(3, minmax(100px, 1fr));
         gap: 3.5rem;
         margin-bottom: 4rem;
 
@@ -1744,11 +1744,11 @@ input {
         }
 
         @media (max-width: 1200px) {
-          grid-template-columns: repeat(3, minmax(250px, 1fr));
+          grid-template-columns: repeat(3, minmax(100px, 1fr));
         }
 
         @media (max-width: 900px) {
-          grid-template-columns: repeat(2, minmax(250px, 1fr));
+          grid-template-columns: repeat(2, minmax(100px, 1fr));
         }
 
         @media (max-width: 600px) {
@@ -1757,21 +1757,21 @@ input {
         }
 
         .card {
-          padding: 0.5rem 1rem 0.5rem 1rem;
+          padding: 0.5rem 1rem 1rem 1rem;
           border-radius: 16px;
           box-shadow: var(--shadow);
           z-index: 1;
 
           display: flex;
           flex-direction: column;
-          height: 17rem;
+          height: 10rem;
 
           @media (min-width: 1400px) {
-            height: 19rem;
+            height: 13rem;
           }
 
           @media (min-width: 1800px) {
-            height: 20rem;
+            height: 15rem;
           }
 
           .question {
