@@ -1310,7 +1310,7 @@ input {
           display: flex;
           flex-direction: column;
           align-items: center;
-          width: 50%;
+          width: 70%;
           height: auto;
           padding: 1rem;
           border-radius: 16px;
@@ -1383,7 +1383,7 @@ input {
                 }
 
                 .project {
-                  width: 50%;
+                  width: 70%;
                   display: none;
                   background-color: var(--color-tan-400);
                   position: relative;
@@ -1462,7 +1462,7 @@ input {
 
               .carousel-arrow {
                 position: absolute;
-                right: 15%;
+                right: 8%;
                 top: 45%;
                 transform: translateY(-50%) rotate(-90deg);
                 background: none;

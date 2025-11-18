@@ -2,16 +2,19 @@
 // Run that command whenever you add a new controller or create them with
 // ./bin/rails generate stimulus controllerName
 
-import { application } from "./application"
+import { application } from "./application";
 
-import FileUploadController from "./file_upload_controller"
-application.register("file-upload", FileUploadController)
+import FileUploadController from "./file_upload_controller";
+application.register("file-upload", FileUploadController);
 
-import FlashController from "./flash_controller"
-application.register("flash", FlashController)
+import FlashController from "./flash_controller";
+application.register("flash", FlashController);
 
-import HackatimeProjectSelectorController from "./hackatime_project_selector_controller"
-application.register("hackatime-project-selector", HackatimeProjectSelectorController)
+import HackatimeProjectSelectorController from "./hackatime_project_selector_controller";
+application.register(
+  "hackatime-project-selector",
+  HackatimeProjectSelectorController,
+);
 
-import HelloController from "./hello_controller"
-application.register("hello", HelloController)
+import HelloController from "./hello_controller";
+application.register("hello", HelloController);
