@@ -1422,7 +1422,7 @@ input {
 
                       p {
                         font-size: 1.2em;
-                      } 
+                      }
                     }
 
                     .links {
@@ -1651,7 +1651,7 @@ input {
       position: relative;
       background-color: var(--color-tan-300);
 
-      padding: 6rem 0 4rem 0;
+      padding: 8rem 0 4rem 0;
       clip-path: var(--jagged-border-polygon);
       display: flex;
       flex-direction: column;
@@ -1700,25 +1700,46 @@ input {
 
       .cards {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 4rem;
+        grid-template-columns: repeat(4, minmax(250px, 1fr));
+        gap: 3.5rem;
         margin-bottom: 4rem;
 
-        width: 70%;
+        width: 90%;
+
+        @media (min-width: 1600px) {
+          gap: 6rem;
+        }
+
+        @media (max-width: 1200px) {
+          grid-template-columns: repeat(3, minmax(250px, 1fr));
+        }
+
+        @media (max-width: 900px) {
+          grid-template-columns: repeat(2, minmax(250px, 1fr));
+        }
 
         @media (max-width: 600px) {
-          width: 80%;
+          grid-template-columns: 1fr;
+          width: 95%;
         }
 
         .card {
-          padding: 0.5rem 1rem 1rem 1rem;
+          padding: 0.5rem 1rem 0.5rem 1rem;
           border-radius: 16px;
           box-shadow: var(--shadow);
           z-index: 1;
 
           display: flex;
           flex-direction: column;
-          height: 16rem;
+          height: 17rem;
+
+          @media (min-width: 1400px) {
+            height: 19rem;
+          }
+
+          @media (min-width: 1800px) {
+            height: 20rem;
+          }
 
           .question {
             width: 120%;
@@ -1729,6 +1750,15 @@ input {
             font-size: 1.3em;
             text-align: center;
             color: var(--color-bg);
+
+            @media (min-width: 1800px) {
+              font-size: 1.5em;
+            }
+
+            @media (min-width: 1600px) {
+              width: 110%;
+              transform: translateX(calc(-6% + 6px));
+            }
           }
 
           .answer {
@@ -1738,6 +1768,15 @@ input {
             padding: 12px;
             border-radius: 0 0 12px 12px;
             box-shadow: var(--shadow);
+            font-size: 1.05em;
+
+            @media (min-width: 1400px) {
+              font-size: 1.1em;
+            }
+
+            @media (min-width: 1800px) {
+              font-size: var(--font-size-xl);
+            }
           }
         }
 
