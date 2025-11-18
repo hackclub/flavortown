@@ -33,7 +33,7 @@
       </script>
     <% end %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
-    <%= Sentry.get_trace_propagation_meta.html_safe %>
+    <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>
 
   <body class="<%= current_user.present? ? 'signed-in' : '' %>">
