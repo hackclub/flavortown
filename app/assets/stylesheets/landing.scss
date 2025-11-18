@@ -171,6 +171,8 @@ input {
         font-size: 1.4rem;
         font-weight: normal;
         color: var(--color-red-400);
+        font-style: italic;
+        font-family: var(--font-family-text);
       }
 
       @media (max-width: 600px) {
@@ -188,6 +190,7 @@ input {
     h4 {
       margin-top: 1em;
       font-size: 1.4rem;
+      font-family: var(--font-family-text);
     }
 
     h5 {
@@ -434,6 +437,8 @@ input {
               display: flex;
               align-items: center;
               justify-content: center;
+
+              font-family: var(--font-family-subtitle);
             }
 
             img {
@@ -449,6 +454,7 @@ input {
             padding: 1.5rem;
             font-size: 1.5rem;
             text-align: center;
+            font-family: var(--font-family-text);
           }
 
           @media (max-width: 1600px) {
@@ -589,6 +595,7 @@ input {
         background-color: var(--color-bg);
         box-shadow: var(--shadow);
         font-weight: normal;
+        font-family: var(--font-family-text);
         padding: 0.4em 0.4em 2em 0.4em;
         border-radius: 18px;
         width: 90%;
@@ -599,8 +606,21 @@ input {
       h3 {
         margin-top: 0.1em;
         color: var(--color-bg);
-        font-weight: 100;
+        font-weight: normal;
+        font-family: var(--font-family-text);
         padding: 1em;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      h3:hover {
+        overflow: visible;
+        -webkit-line-clamp: unset;
+        line-clamp: unset;
       }
 
       .content {
@@ -747,6 +767,8 @@ input {
         padding: 0.5rem;
         aspect-ratio: 5 / 1;
         max-width: 95%;
+
+        font-family: var(--font-family-text);
 
         > div {
           font-size: 2.5rem;
@@ -1011,13 +1033,14 @@ input {
         h3 {
           margin-top: 0.25em;
           font-size: 1.5rem;
-          font-weight: normal;
+          font-family: var(--font-family-subtitle);
         }
 
         h4 {
           margin-top: 0.1em;
           font-size: 1rem;
           font-weight: normal;
+          font-family: var(--font-family-text);
         }
       }
 
@@ -1059,6 +1082,7 @@ input {
           color: var(--color-bg);
           margin-top: 2rem;
           margin-bottom: 1rem;
+          font-family: var(--font-family-subtitle);
         }
 
         .stats-title {
@@ -1067,7 +1091,7 @@ input {
           width: 100%;
           margin-top: 1.5rem;
           margin-bottom: 1rem;
-          font-weight: normal;
+          font-family: var(--font-family-subtitle);
 
           color: var(--color-bg);
         }
@@ -1129,7 +1153,7 @@ input {
             h4 {
               font-size: 3rem;
               margin: 0;
-              font-weight: normal;
+              font-family: var(--font-family-subtitle);
               color: var(--color-brown-400);
             }
 
@@ -1137,6 +1161,7 @@ input {
               font-size: 1.5rem;
               margin: 0;
               font-weight: normal;
+              font-family: var(--font-family-text);
             }
 
             img {
@@ -1176,6 +1201,7 @@ input {
               margin: 0.5rem 0 0 0;
               font-weight: normal;
               color: var(--color-brown-500);
+              font-family: var(--font-family-text);
             }
           }
         }
@@ -1210,6 +1236,7 @@ input {
 
   text-align: center;
   font-size: 1.5rem;
+  font-family: var(--font-family-subtitle);
 
   @media (max-width: 600px) {
     font-size: 1.2rem;
@@ -1329,7 +1356,7 @@ input {
             h3 {
               color: var(--color-brown-700);
               font-size: 1.6em;
-              font-weight: normal;
+              font-family: var(--font-family-subtitle);
               margin: 0;
             }
 
@@ -1337,6 +1364,7 @@ input {
               color: var(--color-brown-500);
               font-size: 1.4em;
               margin: 0.5rem 0 0 0;
+              font-family: var(--font-family-text);
             }
           }
 
@@ -1350,10 +1378,10 @@ input {
             align-items: center;
 
             h3 {
-              font-weight: normal;
               text-align: center;
               font-size: 1.8em;
               margin: 24px 0 0 0;
+              font-family: var(--font-family-subtitle);
 
               @media (max-width: 600px) {
                 font-size: 1.5em;
@@ -1417,11 +1445,13 @@ input {
                       h4 {
                         font-weight: bold;
                         font-size: 1.5em;
+                        font-family: var(--font-family-subtitle);
                       }
 
                       p {
                         font-size: 1.2em;
-                      }
+                        font-family: var(--font-family-text);
+                      } 
                     }
 
                     .links {
@@ -1456,6 +1486,7 @@ input {
                     font-size: 1.4em;
                     word-break: break-word;
                     margin: auto 0;
+                    font-family: var(--font-family-text);
                   }
                 }
               }
@@ -1558,6 +1589,7 @@ input {
     h3 {
       font-size: 1.8em;
       margin: 0;
+      font-family: var(--font-family-subtitle);
 
       @media (max-width: 600px) {
         font-size: 1.6em;
@@ -1568,6 +1600,7 @@ input {
       color: var(--color-brown-dark);
       font-size: 1.2em;
       margin-bottom: 16px;
+      font-family: var(--font-family-text);
     }
 
     #shopkeeper-bar {
@@ -1583,6 +1616,7 @@ input {
         border-radius: 10px;
         box-shadow: var(--shadow);
         z-index: 10;
+        font-family: var(--font-family-text);
       }
 
       #shopkeeper-bakery {
@@ -1747,6 +1781,7 @@ input {
             box-shadow: var(--shadow);
             padding: 6px 0;
             font-size: 1.3em;
+            font-family: var(--font-family-subtitle);
             text-align: center;
             color: var(--color-bg);
 
@@ -1768,6 +1803,7 @@ input {
             border-radius: 0 0 12px 12px;
             box-shadow: var(--shadow);
             font-size: 1.05em;
+            font-family: var(--font-family-text);
 
             @media (min-width: 1400px) {
               font-size: 1.1em;
@@ -1883,8 +1919,8 @@ input {
       p {
         font-size: 1.4rem;
         margin: 1.5rem 0;
-        font-weight: lighter;
         line-height: 1.6;
+        font-family: var(--font-family-text);
       }
 
       a {
@@ -1922,6 +1958,7 @@ input {
     h3 {
       color: var(--color-bg);
       font-size: 1.5em;
+      font-family: var(--font-family-subtitle);
       font-weight: normal;
       text-align: center;
       background-color: var(--color-brown-500);
@@ -2020,6 +2057,7 @@ input {
     a {
       color: var(--color-brown-700);
       font-size: 1.5em;
+      font-family: var(--font-family-text);
       text-decoration: none;
 
       &:hover {
