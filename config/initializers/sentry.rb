@@ -1,6 +1,6 @@
 Sentry.init do |config|
   config.dsn = Rails.application.credentials.dig(:sentry, :dsn)
-  config.breadcrumbs_logger = [:active_support_logger, :http_logger]
+  config.breadcrumbs_logger = [ :active_support_logger, :http_logger ]
 
   # Add data like request headers and IP for users,
   # see https://docs.sentry.io/platforms/ruby/data-management/data-collected/ for more info
@@ -9,7 +9,7 @@ Sentry.init do |config|
   # Enable sending logs to Sentry
   config.enable_logs = true
   # Patch Ruby logger to forward logs
-  config.enabled_patches = [:logger]
+  config.enabled_patches = [ :logger ]
 
   # Set traces_sample_rate to 1.0 to capture 100%
   # of transactions for tracing.
