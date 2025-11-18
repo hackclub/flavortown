@@ -1781,6 +1781,7 @@ input {
             box-shadow: var(--shadow);
             padding: 6px 0;
             font-size: 1.3em;
+            font-family: var(--font-family-subtitle);
             text-align: center;
             color: var(--color-bg);
 
@@ -1802,6 +1803,7 @@ input {
             border-radius: 0 0 12px 12px;
             box-shadow: var(--shadow);
             font-size: 1.05em;
+            font-family: var(--font-family-text);
 
             @media (min-width: 1400px) {
               font-size: 1.1em;
@@ -1917,8 +1919,8 @@ input {
       p {
         font-size: 1.4rem;
         margin: 1.5rem 0;
-        font-weight: lighter;
         line-height: 1.6;
+        font-family: var(--font-family-text);
       }
 
       a {
@@ -1956,6 +1958,7 @@ input {
     h3 {
       color: var(--color-bg);
       font-size: 1.5em;
+      font-family: var(--font-family-subtitle);
       font-weight: normal;
       text-align: center;
       background-color: var(--color-brown-500);
@@ -2054,6 +2057,7 @@ input {
     a {
       color: var(--color-brown-700);
       font-size: 1.5em;
+      font-family: var(--font-family-text);
       text-decoration: none;
 
       &:hover {
