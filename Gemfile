@@ -106,3 +106,6 @@ gem "view_component"
 gem "aws-sdk-s3"
 
 gem "jsbundling-rails", "~> 1.3"
+gem "stackprof"
+gem "sentry-ruby"
+gem "sentry-rails"
