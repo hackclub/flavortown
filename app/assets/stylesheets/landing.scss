@@ -601,6 +601,18 @@ input {
         color: var(--color-bg);
         font-weight: 100;
         padding: 1em;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      h3:hover {
+        overflow: visible;
+        -webkit-line-clamp: unset;
+        line-clamp: unset;
       }
 
       .content {
