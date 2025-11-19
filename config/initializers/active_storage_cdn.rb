@@ -16,5 +16,3 @@ Rails.application.config.after_initialize do
     ActiveStorage::Current.url_options = { host: asset_host, protocol: "https" }
   end
 end
-
-
