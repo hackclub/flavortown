@@ -65,7 +65,7 @@
 <div class="project-idea-generator">
   <div>
     <h3>Not sure what to make?</h3>
-    <p>Order some ideas from our cooks!</p>
+    <p>Order some ideas from our cooks - get silly ideas to make a fun project in a few hours!</p>
 
     <%= form_with url: random_project_ideas_path, method: :post, id: "new_project_idea_form", data: { turbo: false } do |form| %>
       <%= form.button(type: "submit", id: "shopkeeper-submit", class: "btn btn--red btn--striped") do %>
@@ -79,9 +79,9 @@
       </div>
 
       <div id="shopkeeper-bakery">
-        <%= image_tag "landing/inspiration/bakery/back.webp", style: "margin-top: -40px;" %>
+        <%= image_tag "landing/inspiration/bakery/back.avif", style: "margin-top: -40px;" %>
         <img id="shopkeeper-image" src="" class="idle" style="position: absolute; right: 64px; top: 40%; width: 30%;">
-        <%= image_tag "landing/inspiration/bakery/front.webp", style: "position: absolute; top: 1.2rem; left: 0; pointer-events: none;" %>
+        <%= image_tag "landing/inspiration/bakery/front.avif", style: "position: absolute; top: 1.2rem; left: 0; pointer-events: none;" %>
       </div>
     </div>
   </div>

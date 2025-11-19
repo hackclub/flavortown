@@ -54,6 +54,18 @@ class User < ApplicationRecord
     roles.exists?(name: "fulfillment_person")
   end
 
+  def has_hackatime?
+    identities.exists?(provider: "hackatime")
+  end
+
+  def has_identity_linked?
+    identities.exists?(provider: "idv")
+  end
+
+  def setup_complete?
+    has_hackatime? && has_identity_linked?
+  end
+
   def highest_role
     role_hierarchy = [ "super_admin", "admin", "fraud_dept", "project_certifier", "ysws_reviewer", "fulfillment_person" ]
     role_names = roles.pluck(:name).map(&:downcase)

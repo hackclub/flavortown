@@ -37,6 +37,9 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   get "logout", to: "sessions#destroy"
 
+  # Kitchen
+  get "kitchen", to: "kitchen#index"
+
   # Magic Links
   post "magic_links", to: "magic_links#create"
   get "magic_links/verify", to: "magic_links#verify"
@@ -46,12 +49,12 @@ Rails.application.routes.draw do
 
     mount Blazer::Engine, at: "blazer", constraints: ->(request) {
       user = User.find_by(id: request.session[:user_id])
-      user && AdminPolicy.new(user, :admin).blazer?
+      user && AdminPolicy.new(user, :admin).access_blazer?
     }
 
     mount Flipper::UI.app(Flipper), at: "flipper", constraints: ->(request) {
       user = User.find_by(id: request.session[:user_id])
-      user && AdminPolicy.new(user, :admin).flipper?
+      user && AdminPolicy.new(user, :admin).access_flipper?
     }
 
     mount MissionControl::Jobs::Engine, at: "jobs", constraints: ->(request) {

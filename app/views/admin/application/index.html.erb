@@ -2,11 +2,11 @@
 
 <h2>tasks</h2>
 <div class="button-grid">
-  <% if policy(:admin).users? %>
+  <% if policy(:admin).manage_users? %>
     <%= link_to "Users", "/admin/users", class: "btn-primary" %>
   <% end %>
 
-  <% if policy(:admin).projects? %>
+  <% if policy(:admin).manage_projects? %>
     <%= link_to "Projects", "/admin/projects", class: "btn-primary" %>
   <% end %>
   <% if policy(:admin).manage_shop? %>
@@ -15,7 +15,7 @@
   <% if policy(:admin).access_audit_logs? %>
     <%= link_to "Audit Logs", admin_audit_logs_path, class: "btn-primary" %>
   <% end %>
-  <% if policy(:admin).shop_orders? %>
+  <% if policy(:admin).access_shop_orders? %>
     <% pending_count = ShopOrder.where(aasm_state: 'pending').count %>
     <% on_hold_count = ShopOrder.where(aasm_state: 'on_hold').count %>
     <% rejected_count = ShopOrder.where(aasm_state: 'rejected').count %>
@@ -30,17 +30,17 @@
 
 <h2>dashboards</h2>
 <div class="button-grid">
-  <% if policy(:admin).blazer? %>
+  <% if policy(:admin).access_blazer? %>
     <%= link_to "Blazer", "/admin/blazer", class: "btn-primary" %>
   <% end %>
 
-  <% if policy(:admin).flipper? %>
+  <% if policy(:admin).access_flipper? %>
     <%= link_to "Flipper", "/admin/flipper", class: "btn-primary" %>
   <% end %>
-  <% if policy(:admin).can_promote? %>
+  <% if policy(:admin).manage_user_roles? %>
   <%= link_to "Manage users", "/admin/user-perms", class: "btn-primary" %>
 <% end %>
-<% if policy(:admin).jobs? %>
+<% if policy(:admin).access_jobs? %>
 <%= link_to "Job queue", "/admin/jobs", class: "btn-primary" %>
 <% end %>
   <%= link_to "Help bot", "slack://app?team=T0266FRGM&id=A09NP19R7FX&tab=home", class: "btn-primary" %>

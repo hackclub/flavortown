@@ -1,0 +1,103 @@
+.state-card {
+  background: var(--color-tan-300);
+  border: 10px solid var(--color-brown-400);
+  border-radius: calc(1.2 * var(--border-radius));
+  padding: var(--space-xl);
+  position: relative;
+  box-shadow: var(--shadow);
+  text-align: center;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-conic-gradient(
+      from 0deg,
+      rgba(0, 0, 0, 0.02) 0deg 90deg,
+      transparent 90deg 180deg
+    );
+    background-size: 120px 120px;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__badge {
+    position: absolute;
+    right: var(--space-l);
+    top: var(--space-l);
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-family: var(--font-family-jua);
+    color: white;
+    background: var(--color-brown-400);
+  }
+
+  &__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--color-brown-400);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-bg);
+    margin: 0 auto var(--space-l);
+    position: relative;
+    img,
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      display: block;
+    }
+    svg {
+      fill: currentColor;
+    }
+  }
+
+  &__title {
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-xxxl);
+    color: var(--color-bg);
+    margin-bottom: var(--space-s);
+  }
+
+  &__description {
+    font-family: var(--font-family-jua);
+    color: var(--color-bg);
+    font-size: var(--font-size-xl);
+  }
+
+  &--danger {
+    background: var(--color-red-400);
+    border-color: var(--color-red-300);
+    .state-card__badge { background: var(--color-red-400); }
+    .state-card__icon { background: var(--color-red-500); }
+    .state-card__description { color: #7D2B30; }
+  }
+
+  &--warning {
+    background: var(--color-yellow-450);
+    border-color: var(--color-yellow-400);
+    .state-card__badge { background: var(--color-yellow-450); }
+    .state-card__icon { background: var(--color-yellow-450); }
+    .state-card__description { color: #602C2C; }
+  }
+
+  &--success {
+    background: var(--color-green-400);
+    border-color: var(--color-green-300);
+    .state-card__badge { background: var(--color-green-400); }
+    .state-card__icon { background: var(--color-green-500); }
+    .state-card__description { color: #25562E; }
+  }
+
+}
+
+

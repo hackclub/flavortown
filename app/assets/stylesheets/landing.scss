@@ -116,13 +116,14 @@ input {
 }
 
 .hero {
-  background: url("landing/hero/hero-bg.webp");
+  background: url("landing/hero/hero-bg.avif");
   background-size: 1000px;
   align-items: start;
   justify-content: center;
   text-align: center;
   overflow: hidden;
   height: 100vh;
+  padding: 0 0.5rem; // makes it look better on phone
 
   .top-collab {
     position: absolute;
@@ -141,7 +142,7 @@ input {
   }
 
   .rsvp-container {
-    margin-top: 6em;
+    margin: 6em 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -163,8 +164,16 @@ input {
     h3 {
       margin: 0;
       margin-bottom: 1em;
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 500;
+
+      div.subtext {
+        font-size: 1.4rem;
+        font-weight: normal;
+        color: var(--color-red-400);
+        font-style: italic;
+        font-family: var(--font-family-text);
+      }
 
       @media (max-width: 600px) {
         font-size: 1.5rem;
@@ -181,6 +190,7 @@ input {
     h4 {
       margin-top: 1em;
       font-size: 1.4rem;
+      font-family: var(--font-family-text);
     }
 
     h5 {
@@ -283,6 +293,19 @@ input {
     100% 100%,
     0% 100%
   );
+
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(
+      0 var(--jagged-depth),
+      22% 0,
+      44% var(--jagged-depth),
+      66% 8px,
+      84% 0,
+      99.99% var(--jagged-depth),
+      100% 100%,
+      0% 100%
+    );
+  }
 
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
@@ -414,6 +437,8 @@ input {
               display: flex;
               align-items: center;
               justify-content: center;
+
+              font-family: var(--font-family-subtitle);
             }
 
             img {
@@ -429,6 +454,7 @@ input {
             padding: 1.5rem;
             font-size: 1.5rem;
             text-align: center;
+            font-family: var(--font-family-text);
           }
 
           @media (max-width: 1600px) {
@@ -467,7 +493,7 @@ input {
             url("landing/how-this-works/texture_1.webp") no-repeat center /
             cover;
           --ribbon-url: url("landing/how-this-works/step-1-ribbon.webp");
-          --card-url: url("landing/how-this-works/step-1-card-bg.webp");
+          --card-url: url("landing/how-this-works/step-1-card-bg.avif");
           --title-edge: #a4383f; // TODO do not hardcode!
           --title-middle: #be4d54; // TODO do not hardcode!
           --card-color: var(--color-red-500);
@@ -478,7 +504,7 @@ input {
             url("landing/how-this-works/texture_2.webp") no-repeat center /
             cover;
           --ribbon-url: url("landing/how-this-works/step-2-ribbon.webp");
-          --card-url: url("landing/how-this-works/step-2-card-bg.webp");
+          --card-url: url("landing/how-this-works/step-2-card-bg.avif");
           --title-edge: #468232; // TODO do not hardcode!
           --title-middle: #75a743; // TODO do not hardcode!
           --card-color: #468232; // TODO do not hardcode!
@@ -489,7 +515,7 @@ input {
             url("landing/how-this-works/texture_3.webp") no-repeat center /
             cover;
           --ribbon-url: url("landing/how-this-works/step-3-ribbon.webp");
-          --card-url: url("landing/how-this-works/step-3-card-bg.webp");
+          --card-url: url("landing/how-this-works/step-3-card-bg.avif");
           --title-edge: #3c5e8b; // TODO do not hardcode!
           --title-middle: #4f8fba; // TODO do not hardcode!
           --card-color: #3c5e8b; // TODO do not hardcode!
@@ -499,11 +525,9 @@ input {
   }
 }
 
-.testimonials {
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 0;
+.testimonials-wrapper {
+  position: relative;
+  height: 90vh !important;  
 
   &::after {
     content: "";
@@ -512,10 +536,27 @@ input {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url("landing/pattern.webp") repeat center center / 1200px;
+    background: url("landing/pattern.avif") repeat center center / 1200px;
     opacity: 0.1;
     z-index: -1;
     pointer-events: none;
+  }
+}
+
+.testimonials {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 2rem 0;
+  z-index: 500;
+  overflow-x: hidden;
+  width: 100%;
+
+  .ribbon-title {
+    position: relative;
+    z-index: 10;
   }
 
   > .title {
@@ -542,10 +583,10 @@ input {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    margin-top: 2rem;
+    margin-top: 4rem;
     position: relative;
-    overflow: hidden;
-    width: 100%;
+    width: 100vw;
+    overflow: visible !important;
 
     .cards-track {
       display: flex;
@@ -561,14 +602,27 @@ input {
 
     .testimonial {
       position: relative;
+      flex: 0 0 auto;
       padding: 1em;
       width: 350px;
       border-radius: 16px;
+      overflow: hidden;
+      height: 500px;
+      z-index: 5;
+      transition: transform 0.3s ease, z-index 0.3s ease;
+
+      &:hover {
+        height: auto;
+        overflow: visible;
+        z-index: 10;
+        transform: scale(1.05);
+      }
 
       h2 {
         background-color: var(--color-bg);
         box-shadow: var(--shadow);
         font-weight: normal;
+        font-family: var(--font-family-text);
         padding: 0.4em 0.4em 2em 0.4em;
         border-radius: 18px;
         width: 90%;
@@ -579,7 +633,8 @@ input {
       h3 {
         margin-top: 0.1em;
         color: var(--color-bg);
-        font-weight: 100;
+        font-weight: normal;
+        font-family: var(--font-family-text);
         padding: 1em;
       }
 
@@ -595,6 +650,8 @@ input {
         border-radius: 16px;
         width: 100%;
         box-shadow: var(--shadow);
+        height: 180px;
+        object-fit: cover;
       }
     }
 
@@ -669,6 +726,21 @@ input {
     0% 100%
   );
 
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(
+      0 10px,
+      16% 0,
+      33% var(--jagged-depth),
+      55% 5px,
+      70% 45px,
+      84% 0,
+      96% 20px,
+      99.99% 40px,
+      100% 100%,
+      0% 100%
+    );
+  }
+
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
   background-color: #f8e8d1;
@@ -705,21 +777,24 @@ input {
         box-shadow: var(--shadow);
         color: #f8e8d1;
 
-        border-radius: 1rem;
+        border-radius: 0.8rem;
         font-size: 1.5rem;
-        padding: 0.5rem 4rem;
+        padding: 0.5rem;
         aspect-ratio: 5 / 1;
+        max-width: 95%;
+
+        font-family: var(--font-family-text);
 
         > div {
           font-size: 2.5rem;
-          width: 140%;
+          width: 110%;
           text-align: center;
           padding: 0.5rem 2rem;
 
           background: var(--color-red-500)
             url("landing/prizes/title-overlay.svg") center center / cover;
           box-shadow: var(--shadow);
-          border-radius: 1rem;
+          border-radius: 0.5rem;
         }
 
         @media (max-width: 800px) {
@@ -824,6 +899,7 @@ input {
                 text-align: center;
 
                 font-size: 0.9rem;
+                font-family: var(--font-family-text);
 
                 .name {
                   font-size: 1.25rem;
@@ -973,13 +1049,14 @@ input {
         h3 {
           margin-top: 0.25em;
           font-size: 1.5rem;
-          font-weight: normal;
+          font-family: var(--font-family-subtitle);
         }
 
         h4 {
           margin-top: 0.1em;
           font-size: 1rem;
           font-weight: normal;
+          font-family: var(--font-family-text);
         }
       }
 
@@ -1021,6 +1098,7 @@ input {
           color: var(--color-bg);
           margin-top: 2rem;
           margin-bottom: 1rem;
+          font-family: var(--font-family-subtitle);
         }
 
         .stats-title {
@@ -1029,7 +1107,7 @@ input {
           width: 100%;
           margin-top: 1.5rem;
           margin-bottom: 1rem;
-          font-weight: normal;
+          font-family: var(--font-family-subtitle);
 
           color: var(--color-bg);
         }
@@ -1091,7 +1169,7 @@ input {
             h4 {
               font-size: 3rem;
               margin: 0;
-              font-weight: normal;
+              font-family: var(--font-family-subtitle);
               color: var(--color-brown-400);
             }
 
@@ -1099,6 +1177,7 @@ input {
               font-size: 1.5rem;
               margin: 0;
               font-weight: normal;
+              font-family: var(--font-family-text);
             }
 
             img {
@@ -1138,6 +1217,7 @@ input {
               margin: 0.5rem 0 0 0;
               font-weight: normal;
               color: var(--color-brown-500);
+              font-family: var(--font-family-text);
             }
           }
         }
@@ -1151,7 +1231,7 @@ input {
         left: 0;
         width: 100%;
         height: 100%;
-        background: url("landing/pattern.webp") repeat center center / 1200px;
+        background: url("landing/pattern.avif") repeat center center / 1200px;
         opacity: 0.1;
         z-index: 0;
       }
@@ -1172,6 +1252,7 @@ input {
 
   text-align: center;
   font-size: 1.5rem;
+  font-family: var(--font-family-subtitle);
 
   @media (max-width: 600px) {
     font-size: 1.2rem;
@@ -1201,6 +1282,19 @@ input {
     0% 100%
   );
 
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(
+      0 var(--jagged-depth),
+      20% 5px,
+      43% 65px,
+      62% 30px,
+      88% 0,
+      99.99% 20px,
+      100% 100%,
+      0% 100%
+    );
+  }
+
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
   background-color: #d5c3a0;
@@ -1213,9 +1307,11 @@ input {
     background-color: #f8e8d1;
 
     .inspiration {
+      min-height: auto;
+      width: 100%;
       clip-path: var(--jagged-border-polygon);
 
-      background: #e8c170 url("landing/inspiration/bg.webp") center center /
+      background: #e8c170 url("landing/inspiration/bg.avif") center center /
         cover;
       background-size: 10rem;
       flex-direction: column;
@@ -1239,7 +1335,7 @@ input {
       }
 
       .content {
-        width: 100%;
+        width: 70%;
         display: flex;
         justify-content: center;
         gap: 2rem;
@@ -1247,11 +1343,12 @@ input {
         @media (max-width: 900px) {
           flex-direction: column;
           align-items: center;
+          width: 95%;
         }
 
         .projects {
           background-color: var(--color-tan-300);
-          background-image: url("landing/inspiration/projects/bg.webp");
+          background-image: url("landing/inspiration/projects/bg.avif");
           background-repeat: no-repeat;
           background-position: center;
           background-size: cover;
@@ -1259,14 +1356,19 @@ input {
           display: flex;
           flex-direction: column;
           align-items: center;
-          width: 50%;
+          width: 70%;
           height: auto;
+          max-width: 1200px;
           padding: 1rem;
           border-radius: 16px;
           box-shadow: var(--shadow);
 
           @media (max-width: 900px) {
             width: 80%;
+          }
+
+          @media (max-width: 600px) {
+            width: 95%;
           }
 
           .title {
@@ -1277,15 +1379,16 @@ input {
 
             h3 {
               color: var(--color-brown-700);
-              font-size: 1.5em;
-              font-weight: normal;
+              font-size: 1.6em;
+              font-family: var(--font-family-subtitle);
               margin: 0;
             }
 
             p {
               color: var(--color-brown-500);
-              font-size: 1.2em;
+              font-size: 1.4em;
               margin: 0.5rem 0 0 0;
+              font-family: var(--font-family-text);
             }
           }
 
@@ -1299,10 +1402,10 @@ input {
             align-items: center;
 
             h3 {
-              font-weight: normal;
               text-align: center;
               font-size: 1.8em;
               margin: 24px 0 0 0;
+              font-family: var(--font-family-subtitle);
 
               @media (max-width: 600px) {
                 font-size: 1.5em;
@@ -1315,7 +1418,7 @@ input {
               flex-direction: column;
               align-items: center;
               width: 100%;
-              height: 100%;
+              height: auto;
 
               @media (max-width: 600px) {
                 width: 100%;
@@ -1324,24 +1427,28 @@ input {
               .carousel-track {
                 display: flex;
                 justify-content: center;
-                width: 90%;
-                height: 90%;
+                width: 100%;
+                height: auto;
 
                 @media (max-width: 600px) {
                   width: 100%;
                 }
 
                 .project {
-                  width: 50%;
+                  width: 70%;
                   display: none;
                   background-color: var(--color-tan-400);
                   position: relative;
-                  padding: 12px;
+                  padding: 2rem;
                   border-radius: 16px;
                   box-shadow: var(--shadow);
 
                   @media (max-width: 800px) {
                     width: 80%;
+                  }
+
+                  @media (max-width: 600px) {
+                    width: 100%;
                   }
 
                   &.active {
@@ -1366,10 +1473,12 @@ input {
                       h4 {
                         font-weight: bold;
                         font-size: 1.2em;
+                        font-family: var(--font-family-subtitle);
                       }
 
                       p {
-                        font-size: 0.8em;
+                        font-size: 1em;
+                        font-family: var(--font-family-text);
                       }
                     }
 
@@ -1396,22 +1505,25 @@ input {
                   img {
                     width: 100%;
                     height: auto;
+                    display: block;
+                    object-fit: cover;
                     box-shadow: var(--shadow);
                     border-radius: 12px;
                   }
 
-                  p {
+                  > p {
                     text-wrap: wrap;
-                    font-size: 0.9em;
+                    font-size: 1.2em;
                     word-break: break-word;
-                    margin: auto 0;
+                    margin: 1rem 0 0 0;
+                    font-family: var(--font-family-text);
                   }
                 }
               }
 
               .carousel-arrow {
                 position: absolute;
-                right: 15%;
+                right: 8%;
                 top: 45%;
                 transform: translateY(-50%) rotate(-90deg);
                 background: none;
@@ -1481,8 +1593,9 @@ input {
   border-radius: 16px;
   box-shadow: var(--shadow);
   text-align: center;
+  align-self: center;
 
-  width: 25%;
+  width: 33%;
 
   @media (max-width: 900px) {
     width: 80%;
@@ -1507,6 +1620,7 @@ input {
     h3 {
       font-size: 1.8em;
       margin: 0;
+      font-family: var(--font-family-subtitle);
 
       @media (max-width: 600px) {
         font-size: 1.6em;
@@ -1517,6 +1631,7 @@ input {
       color: var(--color-brown-dark);
       font-size: 1.2em;
       margin-bottom: 16px;
+      font-family: var(--font-family-text);
     }
 
     #shopkeeper-bar {
@@ -1532,6 +1647,7 @@ input {
         border-radius: 10px;
         box-shadow: var(--shadow);
         z-index: 10;
+        font-family: var(--font-family-text);
       }
 
       #shopkeeper-bakery {
@@ -1549,7 +1665,7 @@ input {
 }
 
 .faq-section-second-border-wrapper {
-  --jagged-depth: 80px;
+  --jagged-depth: 40px;
   --jagged-border-polygon: polygon(
     0 var(--jagged-depth),
     4% 0,
@@ -1561,7 +1677,7 @@ input {
     51% 5px,
     56% var(--jagged-depth),
     64% 2px,
-    70% 62px,
+    70% 30px,
     74% 0,
     79% var(--jagged-depth),
     85% 5px,
@@ -1570,6 +1686,19 @@ input {
     100% 100%,
     0% 100%
   );
+
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(
+      0 var(--jagged-depth),
+      24% 10px,
+      51% 65px,
+      74% 0,
+      96% 50px,
+      99.99% 20px,
+      100% 100%,
+      0% 100%
+    );
+  }
 
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
@@ -1586,7 +1715,7 @@ input {
       position: relative;
       background-color: var(--color-tan-300);
 
-      padding: 6rem 0 4rem 0;
+      padding: 8rem 1rem 4rem 1rem;
       clip-path: var(--jagged-border-polygon);
       display: flex;
       flex-direction: column;
@@ -1635,14 +1764,28 @@ input {
 
       .cards {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 4rem;
+        grid-template-columns: repeat(3, minmax(0, 22rem));
+        gap: 3.5rem;
         margin-bottom: 4rem;
 
-        width: 70%;
+        width: 90%;
+        justify-content: center;
+
+        @media (min-width: 1600px) {
+          gap: 6rem;
+        }
+
+        @media (max-width: 1200px) {
+          grid-template-columns: repeat(3, minmax(0, 22rem));
+        }
+
+        @media (max-width: 900px) {
+          grid-template-columns: repeat(2, minmax(0, 22rem));
+        }
 
         @media (max-width: 600px) {
-          width: 80%;
+          grid-template-columns: 1fr;
+          width: 95%;
         }
 
         .card {
@@ -1653,7 +1796,11 @@ input {
 
           display: flex;
           flex-direction: column;
-          height: 16rem;
+          height: 17rem;
+
+          // @media (min-width: 1800px) {
+          //   height: 17rem;
+          // }
 
           .question {
             width: 120%;
@@ -1662,8 +1809,18 @@ input {
             box-shadow: var(--shadow);
             padding: 6px 0;
             font-size: 1.3em;
+            font-family: var(--font-family-subtitle);
             text-align: center;
             color: var(--color-bg);
+
+            @media (min-width: 1800px) {
+              font-size: 1.5em;
+            }
+
+            @media (min-width: 1600px) {
+              width: 110%;
+              transform: translateX(calc(-6% + 6px));
+            }
           }
 
           .answer {
@@ -1673,6 +1830,16 @@ input {
             padding: 12px;
             border-radius: 0 0 12px 12px;
             box-shadow: var(--shadow);
+            font-size: 1.05em;
+            font-family: var(--font-family-text);
+
+            @media (min-width: 1400px) {
+              font-size: 1.1em;
+            }
+
+            @media (min-width: 1800px) {
+              font-size: var(--font-size-xl);
+            }
           }
         }
 
@@ -1709,7 +1876,7 @@ input {
         left: 0;
         width: 100%;
         height: 100%;
-        background: url("landing/pattern.webp") repeat center center / 1200px;
+        background: url("landing/pattern.avif") repeat center center / 1200px;
         opacity: 0.1;
         z-index: 0;
       }
@@ -1758,7 +1925,7 @@ input {
     }
 
     div {
-      background: var(--color-brown-500) url("landing/footer/about-bg.webp")
+      background: var(--color-brown-500) url("landing/footer/about-bg.avif")
         center / cover;
       padding: 2em 4em;
       border-radius: 16px;
@@ -1780,8 +1947,8 @@ input {
       p {
         font-size: 1.4rem;
         margin: 1.5rem 0;
-        font-weight: lighter;
         line-height: 1.6;
+        font-family: var(--font-family-text);
       }
 
       a {
@@ -1819,6 +1986,7 @@ input {
     h3 {
       color: var(--color-bg);
       font-size: 1.5em;
+      font-family: var(--font-family-subtitle);
       font-weight: normal;
       text-align: center;
       background-color: var(--color-brown-500);
@@ -1860,7 +2028,7 @@ input {
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url("landing/footer/pattern.webp");
+        background-image: url("landing/footer/pattern.avif");
         background-repeat: repeat;
         background-size: 1000px;
         opacity: 0.1;
@@ -1917,6 +2085,7 @@ input {
     a {
       color: var(--color-brown-700);
       font-size: 1.5em;
+      font-family: var(--font-family-text);
       text-decoration: none;
 
       &:hover {
@@ -1961,5 +2130,11 @@ button {
 
   @media (max-width: 600px) {
     width: 140px;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero .hero-art {
+    display: none;
   }
 }

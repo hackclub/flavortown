@@ -7,24 +7,24 @@
       </div>
 
       <%= render partial: "landing/prizes/showcase", locals: {
-        showcase_items: @prizes.select { |p| p[:hours_estimated].between?(4, 9) },
+        showcase_items: @prizes.select { |p| p[:hours_estimated].between?(0, 19) },
         class_name: "five-hour",
         items_class_name: "",
-        title: "5 hour prizes"
+        title: "0-19 hour prizes"
       } %>
 
       <%= render partial: "landing/prizes/showcase", locals: {
-        showcase_items: @prizes.select { |p| p[:hours_estimated].between?(10, 30) },
+        showcase_items: @prizes.select { |p| p[:hours_estimated].between?(20, 99) },
         class_name: "twenty-hour",
         items_class_name: "reverse",
-        title: "20 hour prizes"
+        title: "20-99 hour prizes"
       } %>
 
       <%= render partial: "landing/prizes/showcase", locals: {
-        showcase_items: @prizes.select { |p| p[:hours_estimated] > 80 },
+        showcase_items: @prizes.select { |p| p[:hours_estimated] > 99 },
         class_name: "hundred-hour",
         items_class_name: "",
-        title: "100 hour prizes"
+        title: "100+ hour prizes"
       } %>
     </div>
   </div>

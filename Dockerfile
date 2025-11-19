@@ -33,11 +33,21 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config libffi-dev && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
+# Install Node.js, npm, and Yarn for jsbundling (esbuild)
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y nodejs npm && \
+    npm install -g yarn && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
 # Install application gems
 COPY Gemfile Gemfile.lock ./
 RUN bundle install && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
+
+# Install JavaScript dependencies for jsbundling-rails
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile && yarn cache clean
 
 # Copy application code
 COPY . .

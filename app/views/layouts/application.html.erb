@@ -14,8 +14,8 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= preload_link_tag image_path("landing/hero/long-image.webp"), as: "image", fetchpriority: "high" %>
-    <%= preload_link_tag image_path("landing/hero/hero-bg.webp"), as: "image" %>
+    <%= preload_link_tag image_path("landing/hero/long-image.avif"), as: "image", fetchpriority: "high" %>
+    <%= preload_link_tag image_path("landing/hero/hero-bg.avif"), as: "image" %>
     <%= preload_link_tag asset_path("Jua-Regular.woff2"), as: "font", type: "font/woff2", crossorigin: true %>
 
     <%= yield :head %>
@@ -32,6 +32,8 @@
         plausible.init()
       </script>
     <% end %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+    <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>
 
   <body class="<%= current_user.present? ? 'signed-in' : '' %>">
@@ -52,17 +54,8 @@
       <%= render "shared/sidebar" %>
     <% end %>
     <main>
-      <% if flash.any? %>
-        <div style="margin: 1rem;">
-          <% flash.each do |type, message| %>
-            <div class="alert alert-<%= type == 'notice' ? 'success' : 'danger' %>" style="padding: 1rem; margin-bottom: 1rem; border-radius: 4px; background-color: <%= type == 'notice' ? '#d4edda' : '#f8d7da' %>; color: <%= type == 'notice' ? '#155724' : '#721c24' %>; border: 1px solid <%= type == 'notice' ? '#c3e6cb' : '#f5c6cb' %>;">
-              <%= message %>
-            </div>
-          <% end %>
-        </div>
-      <% end %>
+      <%= render "shared/flash" %>
       <%= yield %>
     </main>
-    <%= javascript_importmap_tags %>
   </body>
 </html>

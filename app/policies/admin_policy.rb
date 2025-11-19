@@ -1,17 +1,17 @@
 class AdminPolicy < ApplicationPolicy
-    def blazer?
+    def access_blazer?
       user.super_admin?
     end
 
-    def flipper?
+    def access_flipper?
       user.admin?
     end
 
-    def users?
+    def manage_users?
       user.admin? || user.fraud_dept?
     end
 
-    def projects?
+    def manage_projects?
       user.admin? || user.fraud_dept?
     end
 
@@ -19,15 +19,11 @@ class AdminPolicy < ApplicationPolicy
       user.admin? || user.fraud_dept?
     end
 
-    def access_admin_endpoints_but_ac_admin?
+    def manage_user_roles?
       user.admin?
     end
 
-    def can_promote?
-      user.admin?
-    end
-
-    def jobs?
+    def access_jobs?
       user.admin?
     end
 
@@ -39,7 +35,7 @@ class AdminPolicy < ApplicationPolicy
       user.admin?
     end
 
-    def shop_orders?
+    def access_shop_orders?
       user.admin? || user.fraud_dept?
     end
     def access_shop_orders?

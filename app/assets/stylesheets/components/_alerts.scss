@@ -1,20 +1,94 @@
-// This is for Flash
-
 .alert {
-  padding: var(--space-m);
+  padding: var(--space-s);
   margin: var(--space-m);
-  border-radius: var(--border-radius);
-  border: 1px solid;
+  border-radius: calc(1.2 * var(--border-radius));
+  display: flex;
+  align-items: center;
+  gap: var(--space-m);
+  box-shadow: var(--shadow);
+  pointer-events: auto;
+  max-width: min(90vw, 720px);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+  background-color: var(--color-green-400);
+  background-image: url("mask/title.avif");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  color: var(--color-bg);
+  font-size: var(--font-size-xl);
+  position: relative;
 
   &.alert-success {
-    background-color: hsla(105, 44%, 35%, 0.15);
-    border-color: var(--color-green-400);
-    color: var(--color-green-500);
+    background-color: var(--color-green-400);
   }
 
   &.alert-error {
-    background-color: hsla(356, 49%, 43%, 0.15);
-    border-color: var(--color-red-400);
-    color: var(--color-red-500);
+    background-color: var(--color-red-400);
   }
+
+  &.alert-info {
+    background-color: var(--color-blue-400);
+  }
+
+  .alert__icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    color: var(--color-bg);
+    svg {
+      width: 1.1rem;
+      height: 1.1rem;
+      fill: currentColor;
+      display: block;
+    }
+  }
+
+  .alert__content {
+    flex: 1 1 auto;
+  }
+
+  .alert__close {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: var(--color-bg);
+    cursor: pointer;
+    padding: var(--space-xxs);
+    border-radius: var(--border-radius);
+    line-height: 0;
+    transition:
+      background-color 120ms ease,
+      color 120ms ease;
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      fill: currentColor;
+      display: block;
+    }
+
+    &:hover,
+    &:focus-visible {
+      background-color: rgba(255, 255, 255, 0.15);
+      color: var(--color-bg);
+      outline: none;
+    }
+  }
+}
+
+.alert--hiding {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.flash-container {
+  position: fixed;
+  top: var(--space-s);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  z-index: 9999;
+  pointer-events: none;
 }

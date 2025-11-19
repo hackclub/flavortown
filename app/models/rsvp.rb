@@ -16,14 +16,7 @@ class Rsvp < ApplicationRecord
   private
 
   def send_signup_confirmation_email
-    #    user = User.find_or_create_by!(email: email)
-    #    user.generate_magic_link_token!
-    #    magic_link_url = Rails.application.routes.url_helpers.magic_links_verify_url(
-    #      token: user.magic_link_token,
-    #      **Rails.application.config.action_mailer.default_url_options
-    #    )
-
-    mail = RsvpMailer.signup_confirmation(email, magic_link_url: nil)
+    mail = RsvpMailer.signup_confirmation(email)
     if Rails.env.production?
       mail.deliver_later
     else
