@@ -9,17 +9,20 @@
 #  refresh_token_bidx       :string
 #  refresh_token_ciphertext :text
 #  uid                      :string
+#  username                 :string
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
-#  user_id                  :bigint           not null
+#  hackatime_user_id        :string
+#  user_id                  :integer          not null
 #
 # Indexes
 #
-#  index_user_identities_on_access_token_bidx     (access_token_bidx)
-#  index_user_identities_on_provider_and_uid      (provider,uid) UNIQUE
-#  index_user_identities_on_refresh_token_bidx    (refresh_token_bidx)
-#  index_user_identities_on_user_id               (user_id)
-#  index_user_identities_on_user_id_and_provider  (user_id,provider) UNIQUE
+#  index_user_identities_on_access_token_bidx               (access_token_bidx)
+#  index_user_identities_on_provider_and_hackatime_user_id  (provider,hackatime_user_id) UNIQUE
+#  index_user_identities_on_provider_and_uid                (provider,uid) UNIQUE
+#  index_user_identities_on_refresh_token_bidx              (refresh_token_bidx)
+#  index_user_identities_on_user_id                         (user_id)
+#  index_user_identities_on_user_id_and_provider            (user_id,provider) UNIQUE
 #
 # Foreign Keys
 #
@@ -33,7 +36,8 @@ class User::Identity < ApplicationRecord
 
     PROVIDERS = %w[slack hackatime idv].freeze
 
-    validates :access_token, :provider, :uid, presence: true
+    validates :provider, :uid, presence: true
+    validates :access_token, presence: true, if: -> { provider == "slack" }
     validates :provider, inclusion: { in: PROVIDERS }
     validates :uid, uniqueness: { scope: :provider }
     validates :provider, uniqueness: { scope: :user_id }
@@ -41,6 +45,8 @@ class User::Identity < ApplicationRecord
     # Slack OpenID does not send display_name in the response. Therefore, we have to manually get it using users.info method. https://docs.slack.dev/authentication/sign-in-with-slack/#response
     after_create :set_display_name, if: -> { provider == "slack" }
     after_create :sync_hackatime_projects, if: -> { provider == "slack" }
+
+    before_validation :set_uid_from_hackatime_user_id, if: -> { provider == "hackatime" }
 
     private
 
@@ -76,5 +82,9 @@ class User::Identity < ApplicationRecord
         rescue StandardError => e
             Rails.logger.warn("Hackatime project sync failed for user #{user.id} (slack_uid=#{uid}): #{e.class}: #{e.message}")
         end
+    end
+
+    def set_uid_from_hackatime_user_id
+        self.uid = hackatime_user_id.to_s if uid.blank? && hackatime_user_id.present?
     end
 end

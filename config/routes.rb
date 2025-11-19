@@ -37,6 +37,9 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   get "logout", to: "sessions#destroy"
 
+  # Kitchen
+  get "kitchen", to: "kitchen#index"
+
   # Magic Links
   post "magic_links", to: "magic_links#create"
   get "magic_links/verify", to: "magic_links#verify"

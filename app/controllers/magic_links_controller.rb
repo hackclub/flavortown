@@ -21,7 +21,8 @@ class MagicLinksController < ApplicationController
       user.clear_magic_link_token!
       reset_session
       session[:user_id] = user.id
-      redirect_to projects_path, notice: "Successfully signed in via magic link"
+      target_path = user.setup_complete? ? projects_path : kitchen_path
+      redirect_to target_path, notice: "Successfully signed in via magic link"
     else
       redirect_to root_path, alert: "Invalid or expired magic link"
     end

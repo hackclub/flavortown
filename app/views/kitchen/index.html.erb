@@ -1,0 +1,33 @@
+<div class="kitchen-index">
+  <%= render HeadingComponent.new(title: "Kitchen", tone: :blue) %>
+
+  <div class="kitchen-setup">
+    <div class="kitchen-setup__header">
+      <div class="kitchen-setup__title">Setup</div>
+      <div class="kitchen-setup__subtitle">Before you can cook, you must complete these steps first.</div>
+    </div>
+
+    <div class="kitchen-setup__grid">
+      <% id_variant = @has_identity_linked ? :success : :danger %>
+      <% id_badge = @has_identity_linked ? "Verified" : "Not Verified" %>
+      <%= render StateCardComponent.new(
+        title: "Identity Verification",
+        description: "Verify that you are 18 years old or under.",
+        variant: id_variant,
+        badge_text: id_badge,
+        icon: "user"
+      ) %>
+
+      <% hack_variant = @has_hackatime_linked ? :success : :danger %>
+      <% hack_badge = @has_hackatime_linked ? "Connected" : "Not Connected" %>
+      <%= render StateCardComponent.new(
+        title: "Connect Hackatime",
+        description: "Setup and connect your hackatime account.",
+        variant: hack_variant,
+        badge_text: hack_badge,
+        icon: "time"
+      ) %>
+    </div>
+  </div>
+</div>
+
