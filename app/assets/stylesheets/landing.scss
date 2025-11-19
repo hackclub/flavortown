@@ -620,8 +620,8 @@ input {
         overflow: visible;
         z-index: 10;
         transform: scale(1.05);
-        -webkit-line-clamp: initial;
-        line-clamp: initial;
+        -webkit-line-clamp: 100;
+        line-clamp: 100;
       }
 
       h2 {
