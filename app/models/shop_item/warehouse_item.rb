@@ -41,20 +41,20 @@
 #  updated_at                        :datetime         not null
 #
 class ShopItem::WarehouseItem < ShopItem
-  # Normalizes per-unit ship spec; supports keys like qty/quantity
+  # Normalizes per-unit ship spec; each SKU gets qty=1, batched by order quantity
   def per_unit_contents
     contents_array = agh_contents.is_a?(Array) ? agh_contents : (agh_contents.presence || [])
     contents_array.map do |row|
       {
         "sku" => row["sku"] || row["id"] || row["name"],
         "name" => row["name"],
-        "qty" => (row["qty"] || row["quantity"] || 1).to_i
+        "qty" => 1
       }
     end
   end
 
-  # Multiplies spec by ordered quantity
+  # Multiplies spec by ordered quantity (user-selected quantity batches the SKUs)
   def contents_for_order_qty(order_qty)
-    per_unit_contents.map { |r| r.merge("qty" => r["qty"] * order_qty.to_i) }
+    per_unit_contents.map { |r| r.merge("qty" => order_qty.to_i) }
   end
 end
