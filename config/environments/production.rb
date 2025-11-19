@@ -20,7 +20,7 @@ Rails.application.configure do
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   config.asset_host = "https://flavortown.hackclub.com"
-  
+
   # Proxy mode for CDN
   config.active_storage.resolve_model_to_route = :rails_storage_proxy
 
