@@ -1335,7 +1335,7 @@ input {
       }
 
       .content {
-        width: 100%;
+        width: 70%;
         display: flex;
         justify-content: center;
         gap: 2rem;
@@ -1343,6 +1343,7 @@ input {
         @media (max-width: 900px) {
           flex-direction: column;
           align-items: center;
+          width: 95%;
         }
 
         .projects {
@@ -1438,7 +1439,7 @@ input {
                   display: none;
                   background-color: var(--color-tan-400);
                   position: relative;
-                  padding: 12px;
+                  padding: 2rem;
                   border-radius: 16px;
                   box-shadow: var(--shadow);
 
@@ -1471,12 +1472,12 @@ input {
                     .info {
                       h4 {
                         font-weight: bold;
-                        font-size: 1.5em;
+                        font-size: 1.2em;
                         font-family: var(--font-family-subtitle);
                       }
 
                       p {
-                        font-size: 1.2em;
+                        font-size: 1em;
                         font-family: var(--font-family-text);
                       }
                     }
@@ -1505,17 +1506,16 @@ input {
                     width: 100%;
                     height: auto;
                     display: block;
-                    aspect-ratio: 16 / 9;
                     object-fit: cover;
                     box-shadow: var(--shadow);
                     border-radius: 12px;
                   }
 
-                  p {
+                  > p {
                     text-wrap: wrap;
-                    font-size: 1.4em;
+                    font-size: 1.2em;
                     word-break: break-word;
-                    margin: auto 0;
+                    margin: 1rem 0 0 0;
                     font-family: var(--font-family-text);
                   }
                 }
@@ -1593,8 +1593,9 @@ input {
   border-radius: 16px;
   box-shadow: var(--shadow);
   text-align: center;
+  align-self: center;
 
-  width: 25%;
+  width: 33%;
 
   @media (max-width: 900px) {
     width: 80%;
