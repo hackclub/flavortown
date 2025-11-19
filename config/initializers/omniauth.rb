@@ -11,4 +11,16 @@ Rails.application.config.middleware.use OmniAuth::Builder do
       secret:       Rails.application.credentials.dig(:slack, :client_secret) || ENV["SLACK_CLIENT_SECRET"],
       redirect_uri: Rails.application.credentials.dig(:slack, :redirect_uri) || ENV["SLACK_REDIRECT_URI"]
     }
+
+    # IDV
+    provider :oauth2,
+      name: :idv,
+      scope: "basic_info address",
+      client_options: {
+        site: Rails.application.credentials.dig(:identity_vault, :host),
+        authorize_url: "/oauth/authorize",
+        token_url: "/oauth/token",
+        identifier: Rails.application.credentials.dig(:identity_vault, :client_id),
+        secret:     Rails.application.credentials.dig(:identity_vault, :client_secret)
+      }
 end

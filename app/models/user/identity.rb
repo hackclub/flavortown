@@ -45,8 +45,10 @@ class User::Identity < ApplicationRecord
     # Slack OpenID does not send display_name in the response. Therefore, we have to manually get it using users.info method. https://docs.slack.dev/authentication/sign-in-with-slack/#response
     after_create :set_display_name, if: -> { provider == "slack" }
     after_create :sync_hackatime_projects, if: -> { provider == "slack" }
+    after_create :propagate_slack_id_to_idv, if: -> { provider == "idv" }
 
     before_validation :set_uid_from_hackatime_user_id, if: -> { provider == "hackatime" }
+    before_validation :populate_idv_uid_from_token, if: -> { provider == "idv" }
 
     private
 
@@ -86,5 +88,60 @@ class User::Identity < ApplicationRecord
 
     def set_uid_from_hackatime_user_id
         self.uid = hackatime_user_id.to_s if uid.blank? && hackatime_user_id.present?
+    end
+
+    def populate_idv_uid_from_token
+        return if uid.present?
+        return if access_token.to_s.strip.blank?
+
+        begin
+            me = idv_user_me(access_token)
+            candidate_uid = me.dig(:identity, :id) || me[:id] || me[:identity_id]
+            self.uid = candidate_uid.to_s if candidate_uid.present?
+        rescue StandardError => e
+            Rails.logger.warn("IDV me lookup failed for user #{user_id || 'n/a'}: #{e.class}: #{e.message}")
+        end
+    end
+
+    def propagate_slack_id_to_idv
+        return if user.blank?
+        return if uid.to_s.strip.blank?
+
+        begin
+            slack_identity = user.identities.find_by(provider: "slack")
+            return if slack_identity.blank? || slack_identity.uid.to_s.strip.blank?
+
+            idv_set_slack_id(uid, slack_identity.uid)
+        rescue StandardError => e
+            Rails.logger.warn("IDV set_slack_id failed for user #{user.id} (idv_uid=#{uid}): #{e.class}: #{e.message}")
+        end
+    end
+
+    def idv_host
+        Rails.application.credentials.dig(:identity_vault, :host)
+    end
+
+    def idv_program_key
+        Rails.application.credentials.dig(:identity_vault, :global_program_key)
+    end
+
+    def idv_conn(headers = {})
+        Faraday.new(url: idv_host, headers:) do |f|
+            f.request :json
+            f.response :json, parser_options: { symbolize_names: true }
+            f.response :raise_error
+        end
+    end
+
+    def idv_user_me(user_token)
+        raise ArgumentError, "user_token is required" if user_token.to_s.strip.blank?
+        idv_conn({ "Authorization" => "Bearer #{user_token}" }).get("/api/v1/me").body
+    end
+
+    def idv_set_slack_id(identity_id, slack_id)
+        return if idv_program_key.to_s.strip.blank?
+        idv_conn({ "Authorization" => "Bearer #{idv_program_key}" })
+            .post("/api/v1/identities/#{identity_id}/set_slack_id", { slack_id: })
+            .body
     end
 end

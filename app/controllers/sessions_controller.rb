@@ -27,6 +27,18 @@ class SessionsController < ApplicationController
       session[:user_id] = user.id
       target_path = user.setup_complete? ? projects_path : kitchen_path
       redirect_to target_path, notice: "Signed in with Slack"
+
+    elsif provider == :idv
+      if current_user.blank?
+        redirect_to root_path, alert: "Please sign in with Slack first" and return
+      end
+
+      identity = current_user.identities.find_or_initialize_by(provider: provider)
+      identity.access_token = cred.token
+      identity.refresh_token = cred.refresh_token if cred.respond_to?(:refresh_token) && cred.refresh_token.present?
+      identity.save!
+
+      redirect_to kitchen_path, notice: "Identity linked"
     else
       redirect_to root_path, alert: "Authentication failed or user already signed in"
     end
