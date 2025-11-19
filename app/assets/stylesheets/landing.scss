@@ -525,11 +525,9 @@ input {
   }
 }
 
-.testimonials {
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 0;
+.testimonials-wrapper {
+  position: relative;
+  height: 90vh !important;  
 
   &::after {
     content: "";
@@ -542,6 +540,23 @@ input {
     opacity: 0.1;
     z-index: -1;
     pointer-events: none;
+  }
+}
+
+.testimonials {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 2rem 0;
+  z-index: 500;
+  overflow-x: hidden;
+  width: 100%;
+
+  .ribbon-title {
+    position: relative;
+    z-index: 10;
   }
 
   > .title {
@@ -568,10 +583,10 @@ input {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    margin-top: 2rem;
+    margin-top: 4rem;
     position: relative;
-    overflow: hidden;
-    width: 100%;
+    width: 100vw;
+    overflow: visible !important;
 
     .cards-track {
       display: flex;
@@ -587,9 +602,21 @@ input {
 
     .testimonial {
       position: relative;
+      flex: 0 0 auto;
       padding: 1em;
       width: 350px;
       border-radius: 16px;
+      overflow: hidden;
+      height: 500px;
+      z-index: 5;
+      transition: transform 0.3s ease, z-index 0.3s ease;
+
+      &:hover {
+        height: auto;
+        overflow: visible;
+        z-index: 10;
+        transform: scale(1.05);
+      }
 
       h2 {
         background-color: var(--color-bg);
@@ -609,18 +636,6 @@ input {
         font-weight: normal;
         font-family: var(--font-family-text);
         padding: 1em;
-        display: -webkit-box;
-        -webkit-line-clamp: 4;
-        line-clamp: 4;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      h3:hover {
-        overflow: visible;
-        -webkit-line-clamp: unset;
-        line-clamp: unset;
       }
 
       .content {
@@ -884,6 +899,7 @@ input {
                 text-align: center;
 
                 font-size: 0.9rem;
+                font-family: var(--font-family-text);
 
                 .name {
                   font-size: 1.25rem;
