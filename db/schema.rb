@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_20_021631) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_20_192451) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -265,16 +265,13 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_021631) do
     t.string "access_token_bidx"
     t.text "access_token_ciphertext"
     t.datetime "created_at", null: false
-    t.string "hackatime_user_id"
     t.string "provider"
     t.string "refresh_token_bidx"
     t.text "refresh_token_ciphertext"
     t.string "uid"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
-    t.string "username"
     t.index ["access_token_bidx"], name: "index_user_identities_on_access_token_bidx"
-    t.index ["provider", "hackatime_user_id"], name: "index_user_identities_on_provider_and_hackatime_user_id", unique: true
     t.index ["provider", "uid"], name: "index_user_identities_on_provider_and_uid", unique: true
     t.index ["refresh_token_bidx"], name: "index_user_identities_on_refresh_token_bidx"
     t.index ["user_id", "provider"], name: "index_user_identities_on_user_id_and_provider", unique: true

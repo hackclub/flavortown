@@ -1,5 +1,5 @@
 class StateCardComponent < ViewComponent::Base
-  def initialize(title:, description:, variant:, badge_text:, icon: nil, cta_text: nil, cta_href: nil)
+  def initialize(title:, description:, variant:, badge_text:, icon: nil, cta_text: nil, cta_href: nil, cta_method: nil)
     @title = title
     @description = description
     @variant = variant.to_sym
@@ -7,5 +7,6 @@ class StateCardComponent < ViewComponent::Base
     @icon = icon
     @cta_text = cta_text
     @cta_href = cta_href
+    @cta_method = cta_method
   end
 end
