@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_19_140023) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_20_021631) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -307,7 +307,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_19_140023) do
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.integer "projects_count"
+    t.string "slack_id"
     t.datetime "updated_at", null: false
+    t.string "verification_status"
     t.integer "votes_count"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
   end

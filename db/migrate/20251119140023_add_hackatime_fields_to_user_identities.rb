@@ -6,5 +6,3 @@ class AddHackatimeFieldsToUserIdentities < ActiveRecord::Migration[8.1]
     add_index :user_identities, [ :provider, :hackatime_user_id ], unique: true, name: "index_user_identities_on_provider_and_hackatime_user_id"
   end
 end
-
-

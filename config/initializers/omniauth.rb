@@ -1,14 +1,16 @@
 Rails.application.config.middleware.use OmniAuth::Builder do
-    provider :openid_connect,
-    name: :slack,
-    scope: [ :openid, :profile, :email ],
-    response_type: :code,
-    discovery: true,
-    issuer: "https://slack.com",
-    uid_field: "https://slack.com/user_id",
-    client_options: {
-      identifier:   Rails.application.credentials.dig(:slack, :client_id) || ENV["SLACK_CLIENT_ID"],
-      secret:       Rails.application.credentials.dig(:slack, :client_secret) || ENV["SLACK_CLIENT_SECRET"],
-      redirect_uri: Rails.application.credentials.dig(:slack, :redirect_uri) || ENV["SLACK_REDIRECT_URI"]
-    }
+    # Hack Club Account via generic OAuth2
+    provider :oauth2,
+      Rails.application.credentials.dig(:hack_club, :client_id) || ENV["HACK_CLUB_CLIENT_ID"],
+      Rails.application.credentials.dig(:hack_club, :client_secret) || ENV["HACK_CLUB_CLIENT_SECRET"],
+      {
+        name: :hack_club,
+        scope: "email name slack_id verification_status",
+        callback_path: "/oauth/callback",
+        client_options: {
+          site:          "https://hca.dinosaurbbq.org",
+          authorize_url: "/oauth/authorize",
+          token_url:     "/oauth/token"
+        }
+      }
 end

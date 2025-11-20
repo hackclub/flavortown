@@ -37,6 +37,9 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   get "logout", to: "sessions#destroy"
 
+  # OAuth callback for HCA
+  get "/oauth/callback", to: "sessions#create"
+
   # Kitchen
   get "kitchen", to: "kitchen#index"
 

@@ -8,9 +8,11 @@
 #  magic_link_token            :string
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
+#  verification_status         :string
 #  votes_count                 :integer
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
+#  slack_id                    :string
 #
 # Indexes
 #
@@ -26,9 +28,13 @@ class User < ApplicationRecord
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
   has_many :shop_orders, dependent: :destroy
 
+  VALID_VERIFICATION_STATUSES = %w[needs_submission pending verified ineligible].freeze
+
+  validates :verification_status, presence: true, inclusion: { in: VALID_VERIFICATION_STATUSES }
+  validates :slack_id, presence: true, uniqueness: true
+
   class << self
     # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
-    def find_by_slack(uid)     = find_by_provider("slack", uid)
     def find_by_hackatime(uid) = find_by_provider("hackatime", uid)
     def find_by_idv(uid)       = find_by_provider("idv", uid)
 

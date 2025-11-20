@@ -34,45 +34,17 @@ class User::Identity < ApplicationRecord
     blind_index :access_token, :refresh_token, slow: true
     has_paper_trail only: [ :id, :user_id, :uid, :provider ]
 
-    PROVIDERS = %w[slack hackatime idv].freeze
+    PROVIDERS = %w[hackatime hack_club].freeze
 
     validates :provider, :uid, presence: true
-    validates :access_token, presence: true, if: -> { provider == "slack" }
+    validates :access_token, presence: true, if: -> { provider == "hack_club" }
     validates :provider, inclusion: { in: PROVIDERS }
     validates :uid, uniqueness: { scope: :provider }
     validates :provider, uniqueness: { scope: :user_id }
 
-    # Slack OpenID does not send display_name in the response. Therefore, we have to manually get it using users.info method. https://docs.slack.dev/authentication/sign-in-with-slack/#response
-    after_create :set_display_name, if: -> { provider == "slack" }
-    after_create :sync_hackatime_projects, if: -> { provider == "slack" }
-
     before_validation :set_uid_from_hackatime_user_id, if: -> { provider == "hackatime" }
 
     private
-
-    def set_display_name
-        return if user.blank?
-
-        slack_token = Slack.respond_to?(:config) ? Slack.config.token : nil
-        return if slack_token.blank?
-
-        begin
-            client = Slack::Web::Client.new
-            response = client.users_info(user: uid)
-            slack_user = response.user if response.respond_to?(:user)
-            return if slack_user.blank?
-
-            profile = slack_user.profile if slack_user.respond_to?(:profile)
-            slack_display_name = profile.display_name if profile && profile.respond_to?(:display_name)
-            return if slack_display_name.blank?
-
-            if user.display_name.to_s.strip != slack_display_name.to_s.strip
-                user.update(display_name: slack_display_name)
-            end
-        rescue StandardError => e
-            Rails.logger.warn("Slack users.info callback failed for uid=#{uid}: #{e.class}: #{e.message}")
-        end
-    end
 
     def sync_hackatime_projects
         return if user.blank?
