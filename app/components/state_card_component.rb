@@ -7,4 +7,3 @@ class StateCardComponent < ViewComponent::Base
     @icon = icon
   end
 end
-
