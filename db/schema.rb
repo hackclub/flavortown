@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_19_140023) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_20_001702) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -205,6 +205,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_19_140023) do
     t.integer "max_qty"
     t.string "name"
     t.boolean "one_per_person_ever"
+    t.integer "payout_percentage", default: 0
     t.decimal "price_offset_au"
     t.decimal "price_offset_ca"
     t.decimal "price_offset_eu"
@@ -221,6 +222,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_19_140023) do
     t.date "unlock_on"
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"
+    t.bigint "user_id"
+    t.index ["user_id"], name: "index_shop_items_on_user_id"
   end
 
   create_table "shop_orders", force: :cascade do |t|
@@ -321,6 +324,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_19_140023) do
   add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
+  add_foreign_key "shop_items", "users"
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "users"
   add_foreign_key "user_hackatime_projects", "projects"

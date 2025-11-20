@@ -22,6 +22,7 @@
 #  max_qty                           :integer
 #  name                              :string
 #  one_per_person_ever               :boolean
+#  payout_percentage                 :integer          default(0)
 #  price_offset_au                   :decimal(, )
 #  price_offset_ca                   :decimal(, )
 #  price_offset_eu                   :decimal(, )
@@ -39,6 +40,15 @@
 #  usd_cost                          :decimal(, )
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
+#  user_id                           :bigint
+#
+# Indexes
+#
+#  index_shop_items_on_user_id  (user_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (user_id => users.id)
 #
 class ShopItem < ApplicationRecord
   has_paper_trail
@@ -55,6 +65,8 @@ class ShopItem < ApplicationRecord
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
   scope :enabled, -> { where(enabled: true) }
+
+  belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
 
   has_one_attached :image do |attachable|
     attachable.variant :carousel_sm,

@@ -1,3 +1,20 @@
+# == Schema Information
+#
+# Table name: blazer_audits
+#
+#  id          :bigint           not null, primary key
+#  data_source :string
+#  statement   :text
+#  created_at  :datetime
+#  query_id    :bigint
+#  user_id     :bigint
+#
+# Indexes
+#
+#  index_blazer_audits_on_created_at  (created_at)
+#  index_blazer_audits_on_query_id    (query_id)
+#  index_blazer_audits_on_user_id     (user_id)
+#
 module Blazer
   class Audit < ApplicationRecord
     self.table_name = "blazer_audits"

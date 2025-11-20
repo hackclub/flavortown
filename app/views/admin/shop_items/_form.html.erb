@@ -139,6 +139,20 @@
             <small class="form-text text-muted">Number of items available for purchase</small>
           </div>
 
+          <div x-show="selectedType === 'ShopItem::HackClubberItem'">
+            <h5>Hack Clubber Settings</h5>
+            <div class="mb-3">
+              <%= f.label :user_id, "Seller (User ID)", class: "form-label" %>
+              <%= f.number_field :user_id, class: "form-control", placeholder: "User ID" %>
+              <small class="form-text text-muted">The ID of the Hack Clubber selling this item</small>
+            </div>
+             <div class="mb-3">
+              <%= f.label :payout_percentage, "Payout Percentage (%)", class: "form-label" %>
+              <%= f.number_field :payout_percentage, min: 0, max: 100, class: "form-control" %>
+              <small class="form-text text-muted">Percentage of the sale price that goes to the seller</small>
+            </div>
+          </div>
+
           <div x-show="selectedType === 'ShopItem::HCBGrant' || selectedType === 'ShopItem::HCBPreauthGrant'">
             <h5>HCB Locks</h5>
             <div class="mb-3">

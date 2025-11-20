@@ -50,5 +50,5 @@
 #
 #  fk_rails_...  (user_id => users.id)
 #
-class ShopItem::LetterMail < ShopItem
+class ShopItem::ThirdPartyDigital < ShopItem
 end

@@ -63,7 +63,8 @@ module Admin
         "ShopItem::LetterMail",
         "ShopItem::ThirdPartyPhysical",
         "ShopItem::WarehouseItem",
-        "ShopItem::SpecialFulfillmentItem"
+        "ShopItem::SpecialFulfillmentItem",
+        "ShopItem::HackClubberItem"
       ]
     end
 
@@ -95,6 +96,8 @@ module Admin
         :show_in_carousel,
         :special,
         :sale_percentage,
+        :payout_percentage,
+        :user_id,
         :hacker_score,
         :unlock_on,
         :site_action,
