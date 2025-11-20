@@ -42,6 +42,8 @@ Rails.application.routes.draw do
 
   # Kitchen
   get "kitchen", to: "kitchen#index"
+  get "hackatime/auth", to: "kitchen#hackatime_auth_redirect", as: :hackatime_auth
+  get "hackatime/sync", to: "kitchen#hackatime_sync", as: :hackatime_sync
 
   # Magic Links
   post "magic_links", to: "magic_links#create"

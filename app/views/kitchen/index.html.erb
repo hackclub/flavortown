@@ -23,12 +23,14 @@
 
       <% hack_variant = @has_hackatime_linked ? :success : :danger %>
       <% hack_badge = @has_hackatime_linked ? "Connected" : "Not Connected" %>
+      <% hack_cta = @has_hackatime_linked ? {} : { cta_text: "Link Hackatime", cta_href: hackatime_auth_path } %>
       <%= render StateCardComponent.new(
         title: "Connect Hackatime",
         description: "Setup and connect your hackatime account.",
         variant: hack_variant,
         badge_text: hack_badge,
-        icon: "time"
+        icon: "time",
+        **hack_cta
       ) %>
     </div>
   </div>
