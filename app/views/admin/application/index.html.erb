@@ -6,20 +6,19 @@
     <%= link_to "Users", "/admin/users", class: "btn-primary" %>
   <% end %>
 
+  <% button_class = Flipper.enabled?(:admin_dark_brown_buttons, current_user) ? "btn-primary-dark" : "btn-primary" %>
   <% if policy(:admin).manage_projects? %>
     <%= link_to "Projects", "/admin/projects", class: "btn-primary" %>
   <% end %>
   <% if policy(:admin).manage_shop? %>
-    <%= link_to "Manage shop", "/admin/manage-shop", class: "btn-primary" %>
+    <%= link_to "Manage shop", "/admin/manage-shop", class: button_class %>
   <% end %>
   <% if policy(:admin).access_audit_logs? %>
-    <%= link_to "Audit Logs", admin_audit_logs_path, class: "btn-primary" %>
+    <%= link_to "Audit Logs", admin_audit_logs_path, class: button_class %>
   <% end %>
   <% if policy(:admin).access_shop_orders? %>
     <% pending_count = ShopOrder.where(aasm_state: 'pending').count %>
-    <% on_hold_count = ShopOrder.where(aasm_state: 'on_hold').count %>
-    <% rejected_count = ShopOrder.where(aasm_state: 'rejected').count %>
-    <% total_shop_count = pending_count + on_hold_count + rejected_count %>
+    <% total_shop_count = pending_count  %>
     <%= link_to admin_shop_orders_path(view: 'shop_orders'), class: "btn-primary" do %>
       Shop Orders
       <% if total_shop_count > 0 %>
@@ -64,18 +63,19 @@
 
 <h2>dashboards</h2>
 <div class="button-grid">
+  <% button_class = Flipper.enabled?(:admin_dark_brown_buttons, current_user) ? "btn-primary-dark" : "btn-primary" %>
   <% if policy(:admin).access_blazer? %>
-    <%= link_to "Blazer", "/admin/blazer", class: "btn-primary" %>
+    <%= link_to "Blazer", "/admin/blazer", class: button_class %>
   <% end %>
 
   <% if policy(:admin).access_flipper? %>
-    <%= link_to "Flipper", "/admin/flipper", class: "btn-primary" %>
+    <%= link_to "Flipper", "/admin/flipper", class: button_class %>
   <% end %>
   <% if policy(:admin).manage_user_roles? %>
-  <%= link_to "Manage users", "/admin/user-perms", class: "btn-primary" %>
+  <%= link_to "Manage users", "/admin/user-perms", class: button_class %>
 <% end %>
 <% if policy(:admin).access_jobs? %>
-<%= link_to "Job queue", "/admin/jobs", class: "btn-primary" %>
+<%= link_to "Job queue", "/admin/jobs", class: button_class %>
 <% end %>
   <%= link_to "Help bot", "slack://app?team=T0266FRGM&id=A09NP19R7FX&tab=home", class: "btn-primary" %>
 </div>

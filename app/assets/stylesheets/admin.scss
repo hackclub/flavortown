@@ -108,6 +108,15 @@ body {
   }
 }
 
+.btn-primary-dark {
+  @extend .btn-primary;
+  background: var(--color-brown-700);
+
+  &:hover {
+    background: var(--color-brown-600);
+  }
+}
+
 .btn-secondary {
   display: inline-flex;
   justify-content: center;
