@@ -35,10 +35,11 @@ class AdminPolicy < ApplicationPolicy
       user.admin?
     end
 
-    def access_shop_orders?
+    def shop_orders?
       user.admin? || user.fraud_dept?
     end
+
     def access_shop_orders?
-      user&.admin? || user&.fulfillment_person?
+      user&.admin? || user&.fulfillment_person? || user&.fraud_dept?
     end
 end

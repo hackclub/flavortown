@@ -9,7 +9,7 @@ module Shop
       # Use the first order's ID as the package ID
       package_id = orders.first.id
       ShopOrder.where(id: orders.map(&:id)).update_all(warehouse_package_id: package_id)
-      
+
       package_id
     end
 

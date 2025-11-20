@@ -14,7 +14,7 @@ users = User.all
 abort "No users found. Create some users first." if users.empty?
 
 # Countries for fake addresses
-COUNTRIES = ['US', 'CA', 'GB', 'AU', 'IN', 'DE', 'FR'].freeze
+COUNTRIES = [ 'US', 'CA', 'GB', 'AU', 'IN', 'DE', 'FR' ].freeze
 
 def generate_fake_address
   country = COUNTRIES.sample
@@ -52,9 +52,9 @@ order_count.times do |index|
     # Randomly assign a state (skip AASM callbacks to avoid payout issues)
     random_state = states.sample
     state_name = random_state.to_s
-    
+
     ShopOrder.where(id: order.id).update_all(aasm_state: state_name)
-    
+
     # Set timestamp for fulfilled state
     if random_state == :fulfilled
       ShopOrder.where(id: order.id).update_all(

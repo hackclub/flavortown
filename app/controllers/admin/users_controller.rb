@@ -3,7 +3,7 @@ class Admin::UsersController < Admin::ApplicationController
     include Pundit::Authorization
     rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
     before_action :authenticate_admin
-    skip_before_action :authenticate_admin, only: [:stop_impersonating]
+    skip_before_action :authenticate_admin, only: [ :stop_impersonating ]
 
     def index
       @query = params[:query]
@@ -162,19 +162,19 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     @user = User.find(params[:id])
-    
+
     # Log the impersonation
     PaperTrail::Version.create!(
       item_type: "User",
       item_id: @user.id,
       event: "impersonate_start",
       whodunnit: current_user.id,
-      object_changes: { impersonator_id: [nil, current_user.id] }.to_yaml
+      object_changes: { impersonator_id: [ nil, current_user.id ] }.to_yaml
     )
 
     session[:impersonating_user_id] = @user.id
     session[:original_admin_id] = current_user.id
-    
+
     flash[:notice] = "You are now impersonating #{@user.display_name}."
     redirect_to root_path
   end
@@ -204,12 +204,12 @@ class Admin::UsersController < Admin::ApplicationController
       item_id: impersonated_user_id,
       event: "impersonate_end",
       whodunnit: original_admin_id,
-      object_changes: { impersonator_id: [original_admin_id, nil] }.to_yaml
+      object_changes: { impersonator_id: [ original_admin_id, nil ] }.to_yaml
     )
 
     session.delete(:impersonating_user_id)
     session.delete(:original_admin_id)
-    
+
     flash[:notice] = "Stopped impersonating user."
     redirect_to admin_user_path(impersonated_user_id)
   end

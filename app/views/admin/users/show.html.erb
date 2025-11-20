@@ -63,7 +63,6 @@
                     class: "btn-primary slim",
                     disabled: !current_user&.admin? %>
 
-              
       <% has_project_certifier = @user.roles.exists?(name: "project_certifier") %>
       <%= button_to (has_project_certifier ? "Demote from Project Certifier" : "Promote to Project Certifier"),
                     (has_project_certifier ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
@@ -174,7 +173,7 @@
                 <% end %>
               <% elsif changes.any? %>
                 <% changes.each do |key, value| %>
-                  <div><strong><%= key.to_s.titleize %>:</strong> 
+                  <div><strong><%= key.to_s.titleize %>:</strong>
                   <% if value.is_a?(Array) %>
                     <%= value.first.inspect %> → <%= value.last.inspect %>
                   <% else %>
@@ -199,7 +198,7 @@
         <% end %>
       </tbody>
     </table>
-    
+
     <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User", item_id: @user.id), class: "btn-secondary", style: "margin-top: 1rem; display: inline-block;" %>
   </div>
 <% end %>

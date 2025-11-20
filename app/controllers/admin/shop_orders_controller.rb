@@ -110,7 +110,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
     old_state = @order.aasm_state
-    
+
     if @order.queue_for_fulfillment && @order.save
       PaperTrail::Version.create!(
         item_type: "ShopOrder",
@@ -118,7 +118,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         event: "update",
         whodunnit: current_user.id,
         object_changes: {
-          aasm_state: [old_state, @order.aasm_state]
+          aasm_state: [ old_state, @order.aasm_state ]
         }.to_yaml
       )
       redirect_to admin_shop_orders_path, notice: "Order approved for fulfillment"
@@ -132,7 +132,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @order = ShopOrder.find(params[:id])
     reason = params[:reason].presence || "No reason provided"
     old_state = @order.aasm_state
-    
+
     if @order.mark_rejected(reason) && @order.save
       PaperTrail::Version.create!(
         item_type: "ShopOrder",
@@ -140,8 +140,8 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         event: "update",
         whodunnit: current_user.id,
         object_changes: {
-          aasm_state: [old_state, @order.aasm_state],
-          rejection_reason: [nil, reason]
+          aasm_state: [ old_state, @order.aasm_state ],
+          rejection_reason: [ nil, reason ]
         }.to_yaml
       )
       redirect_to admin_shop_orders_path, notice: "Order rejected"
@@ -154,7 +154,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
     old_state = @order.aasm_state
-    
+
     if @order.place_on_hold && @order.save
       PaperTrail::Version.create!(
         item_type: "ShopOrder",
@@ -162,7 +162,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         event: "update",
         whodunnit: current_user.id,
         object_changes: {
-          aasm_state: [old_state, @order.aasm_state]
+          aasm_state: [ old_state, @order.aasm_state ]
         }.to_yaml
       )
       redirect_to admin_shop_orders_path, notice: "Order placed on hold"
@@ -175,7 +175,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
     old_state = @order.aasm_state
-    
+
     if @order.take_off_hold && @order.save
       PaperTrail::Version.create!(
         item_type: "ShopOrder",
@@ -183,7 +183,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         event: "update",
         whodunnit: current_user.id,
         object_changes: {
-          aasm_state: [old_state, @order.aasm_state]
+          aasm_state: [ old_state, @order.aasm_state ]
         }.to_yaml
       )
       redirect_to admin_shop_orders_path, notice: "Order released from hold"

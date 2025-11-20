@@ -7,7 +7,7 @@
       <%= @order.aasm_state.humanize %>
     </span>
   </div>
-  
+
   <div class="card" style="padding: 0.75rem;">
     <h3 style="font-size: 0.875rem; margin: 0 0 0.5rem 0; font-weight: 600;">Created</h3>
     <div style="font-size: 0.75rem; color: #6b7280;"><%= @order.created_at.strftime("%m/%d %l:%M%p") %></div>
@@ -103,7 +103,7 @@
  <% unless current_user.fulfillment_person? %>
  <%= link_to "View User", admin_user_path(@order.user), class: "btn-primary" %>
  <% end %>
-   
+
    <% if @order.pending? %>
      <form method="post" action="<%= approve_admin_shop_order_path(@order) %>" style="display: inline;">
        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
@@ -132,7 +132,7 @@
   <% if versions.any? %>
     <ul style="list-style: none; padding: 0; margin: 0;">
       <% versions.each do |version| %>
-        <% 
+        <%
           changes = version.changeset.except('frozen_address_ciphertext')
           state_change = changes.dig('aasm_state') rescue nil
           old_state = state_change.is_a?(Array) ? state_change.first : nil
@@ -142,7 +142,7 @@
           notes_change = changes.dig('internal_notes')
           who = version.whodunnit.present? ? User.find_by(id: version.whodunnit)&.display_name || "Unknown User" : "System"
         %>
-        <li style="padding: 0.75rem; margin-bottom: 0.5rem; border-left: 3px solid 
+        <li style="padding: 0.75rem; margin-bottom: 0.5rem; border-left: 3px solid
           <% case version.event %>
             <% when 'create' %>
               #3b82f6
@@ -187,13 +187,13 @@
               <%= version.created_at.strftime("%b %d, %Y %l:%M%p") %>
             </div>
           </div>
-          
+
           <% if new_state %>
             <div style="font-size: 0.8rem; color: #374151; margin-top: 0.5rem;">
               Updated from <code style="background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 2px; font-weight: 500;"><%= old_state %></code> to <code style="background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 2px; font-weight: 500;"><%= new_state %></code>
             </div>
           <% end %>
-          
+
           <% if new_reason %>
             <div style="font-size: 0.8rem; color: #991b1b; background: #fee2e2; padding: 0.5rem; border-radius: 3px; margin-top: 0.5rem;">
               <strong>Rejection Reason:</strong> <%= new_reason %>

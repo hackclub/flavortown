@@ -38,7 +38,7 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopOrder < ApplicationRecord
-  has_paper_trail ignore: [:frozen_address_ciphertext]
+  has_paper_trail ignore: [ :frozen_address_ciphertext ]
 
   include AASM
 
