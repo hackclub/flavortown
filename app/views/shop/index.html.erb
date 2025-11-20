@@ -1,7 +1,7 @@
-<div class="shop-page">
-  <h1>Shop</h1>
+<div class="shop">
+  <%= render HeadingComponent.new(title: "Shop", tone: :brown) %>
   <% if @shop_open %>
-    <div class="shop-buttons">
+    <div class="shop__buttons">
       <%= render ButtonComponent.new(
             text: "View My Orders",
             href: "/shop/my_orders",
@@ -15,13 +15,13 @@
         color: :brown
       ) %>
     </div>
-    <div class="shop-banner">
-      <div class="shop-banner-headings">
-        <h3>Weekly items</h3>
-        <h3 id="item-price">$298,839</h3>
+    <div class="shop__banner">
+      <div class="shop__banner-headings">
+        <h3 class="shop__banner-title">Weekly items</h3>
+        <h3 class="shop__banner-price">$298,839</h3>
       </div>
-      <div class="shop-banner-showcase">
-        <div class="item-desc">
+      <div class="shop__banner-showcase">
+        <div class="shop__banner-item-desc">
           <h4>Playdate</h4>
           <h5>description something blah blah</h5>
           <h6>~125 hours</h6>
@@ -36,11 +36,20 @@
         <%= image_tag image_url("playdate.webp"), loading: "lazy", decoding: "async" %>
       </div>
     </div>
-    <div class="shop-nav">
-      <div class="shop-searchbar">
-        <%= render SearchBarComponent.new(placeholder: "Search item", q: params[:q], action: shop_path) %>
+    <div class="shop__nav">
+      <div class="shop__searchbar">
+        <%= form_with url: shop_path, method: :get, local: true do |f| %>
+          <%= render InputComponent.new(
+            label: nil,
+            icon: "icons/search.svg",
+            placeholder: "Search item",
+            form: f, # Not needed for standalone inputs
+            attribute: :q,
+            color: :yellow
+          ) %>
+         <% end %>
       </div>
-      <div class="shop-filters">
+      <div class="shop__filters">
         <%= render DropdownComponent.new(
           label: "Category",
           options: ["Grants", "Warehouse", "Third Party"],
@@ -67,7 +76,7 @@
         </button>
       </div>
     </div>
-    <div class="shop-items">
+    <div class="shop__items">
       <%= render ShopItemCardComponent.new(
         name: "13-inch M4 MacBook Air",
         description: "description something blah blah",
