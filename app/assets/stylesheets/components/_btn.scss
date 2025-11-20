@@ -114,6 +114,23 @@
     }
   }
 
+  &--bg_yellow {
+    --btn-bg: var(--color-bg);
+    --btn-bg-dark: var(--color-brown-700);
+    background-color: var(--color-bg);
+    border-color: var(--color-brown-400);
+    color: var(--color-red-500);
+
+
+    &:hover {
+      filter: brightness(0.9);
+    }
+
+    &:active {
+      filter: brightness(0.95);
+    }
+  }
+
   &--striped {
     padding: 0.5rem;
     border: none;

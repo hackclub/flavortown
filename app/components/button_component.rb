@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ButtonComponent < ViewComponent::Base
-  COLORS = %i[red green blue yellow brown].freeze
+  COLORS = %i[red green blue yellow brown bg_yellow].freeze
   VARIANTS = %i[default striped borderless].freeze
   SIZES = %i[sm md lg].freeze
 
