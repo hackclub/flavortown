@@ -42,6 +42,8 @@ class User::Identity < ApplicationRecord
     validates :uid, uniqueness: { scope: :provider }
     validates :provider, uniqueness: { scope: :user_id }
 
+    after_create_commit :sync_hackatime_projects, if: -> { provider == "hack_club" }
+
     before_validation :set_uid_from_hackatime_user_id, if: -> { provider == "hackatime" }
 
     private
@@ -50,7 +52,10 @@ class User::Identity < ApplicationRecord
         return if user.blank?
 
         begin
-            HackatimeService.sync_user_projects(user, uid)
+            slack_uid = user.slack_id.to_s
+            return if slack_uid.blank?
+
+            HackatimeService.sync_user_projects(user, slack_uid)
         rescue StandardError => e
             Rails.logger.warn("Hackatime project sync failed for user #{user.id} (slack_uid=#{uid}): #{e.class}: #{e.message}")
         end
