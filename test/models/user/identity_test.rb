@@ -9,20 +9,17 @@
 #  refresh_token_bidx       :string
 #  refresh_token_ciphertext :text
 #  uid                      :string
-#  username                 :string
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
-#  hackatime_user_id        :string
 #  user_id                  :integer          not null
 #
 # Indexes
 #
-#  index_user_identities_on_access_token_bidx               (access_token_bidx)
-#  index_user_identities_on_provider_and_hackatime_user_id  (provider,hackatime_user_id) UNIQUE
-#  index_user_identities_on_provider_and_uid                (provider,uid) UNIQUE
-#  index_user_identities_on_refresh_token_bidx              (refresh_token_bidx)
-#  index_user_identities_on_user_id                         (user_id)
-#  index_user_identities_on_user_id_and_provider            (user_id,provider) UNIQUE
+#  index_user_identities_on_access_token_bidx     (access_token_bidx)
+#  index_user_identities_on_provider_and_uid      (provider,uid) UNIQUE
+#  index_user_identities_on_refresh_token_bidx    (refresh_token_bidx)
+#  index_user_identities_on_user_id               (user_id)
+#  index_user_identities_on_user_id_and_provider  (user_id,provider) UNIQUE
 #
 # Foreign Keys
 #

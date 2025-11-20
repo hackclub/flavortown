@@ -16,9 +16,18 @@
   <div class="state-card__description"><%= @description %></div>
   <% if @cta_text.present? && @cta_href.present? %>
     <div class="state-card__cta">
-      <%= render ButtonComponent.new(text: @cta_text, href: @cta_href, variant: :borderless, color: :bg_yellow, size: :md) do %>
-        <span><%= @cta_text %></span>
-        <%= helpers.inline_svg_tag "icons/right-arrow.svg" %>
+      <% if @cta_method.present? %>
+        <%= form_with url: @cta_href, method: @cta_method, data: { turbo: false } do %>
+          <%= render ButtonComponent.new(text: @cta_text, variant: :borderless, color: :bg_yellow, size: :md, type: :submit) do %>
+            <span><%= @cta_text %></span>
+            <%= helpers.inline_svg_tag "icons/right-arrow.svg" %>
+          <% end %>
+        <% end %>
+      <% else %>
+        <%= render ButtonComponent.new(text: @cta_text, href: @cta_href, variant: :borderless, color: :bg_yellow, size: :md) do %>
+          <span><%= @cta_text %></span>
+          <%= helpers.inline_svg_tag "icons/right-arrow.svg" %>
+        <% end %>
       <% end %>
     </div>
   <% end %>
