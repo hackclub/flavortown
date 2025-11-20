@@ -98,8 +98,8 @@
       </div>
 
       <div class="projects-new__actions">
-        <%= link_to "Cancel", @project, class: "btn btn--yellow" %>
-        <%= form.submit "Update Project", class: "btn btn--blue" %>
+        <%= render(ButtonComponent.new(text: "Cancel", href: @project, color: :red, icon: "icons/close.svg")) %>
+        <%= render(ButtonComponent.new(text: "Update Project", color: :blue, size: :md, icon: "icons/pencil.svg", type: :submit)) %>
       </div>
     <% end %>
   </div>
