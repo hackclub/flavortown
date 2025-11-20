@@ -1,2 +1,8 @@
-<h1>Votes#new</h1>
-<p>Find me in app/views/votes/new.html.erb</p>
+<% content_for :title, "Vote!" %>
+
+<% if @project.nil? %>
+  <p>No more projects to vote on!</p>
+<% else %>
+  <%= render "projects/card", project: @project %>
+  <%= link_to "Vote on another project", new_vote_path %>
+<% end %>
