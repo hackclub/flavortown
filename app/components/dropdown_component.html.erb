@@ -1,0 +1,14 @@
+<div class="<%= dropdown_classes %>">
+  <div class="dropdown__label"><%= label %></div>
+  <button class="dropdown__button">
+    <span class="dropdown__selected">
+      <%= selected_option %>
+    </span>
+    <%= helpers.inline_svg_tag "icons/chevron-down.svg", class: "dropdown__icon" %>
+  </button>
+  <ul class="dropdown__menu">
+    <% options.each do |option| %>
+      <li class="dropdown__item"><%= option %></li>
+    <% end %>
+  </ul>
+</div>
