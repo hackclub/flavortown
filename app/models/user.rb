@@ -65,7 +65,11 @@ class User < ApplicationRecord
   end
 
   def has_identity_linked?
-    identities.exists?(provider: "idv")
+    verification_status != "needs_submission"
+  end
+
+  def identity_verified?
+    verification_status == "verified"
   end
 
   def setup_complete?
