@@ -1,4 +1,5 @@
 .state-card {
+  --state-card-accent: var(--color-yellow-450);
   background: var(--color-tan-300);
   border: 10px solid var(--color-brown-400);
   border-radius: calc(1.2 * var(--border-radius));
@@ -6,7 +7,7 @@
   position: relative;
   box-shadow: var(--shadow);
   text-align: center;
-  overflow: hidden;
+  overflow: visible;
 
   &::before {
     content: "";
@@ -28,15 +29,54 @@
     z-index: 1;
   }
 
-  &__badge {
+  &__status-pill {
     position: absolute;
-    right: var(--space-l);
-    top: var(--space-l);
-    padding: 0.25rem 0.6rem;
-    border-radius: 999px;
+    top: -1.8rem;
+    right: -1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    // z-index: 10;
+  }
+
+  &__badge {
+    padding: 0.45rem 0.75rem 0.45rem 0.75rem;
+    border-radius: 999px 0 0 999px;
     font-family: var(--font-family-jua);
+    font-size: var(--font-size-l);
     color: white;
     background: var(--color-brown-400);
+    z-index: 1;
+  }
+
+  &__icon-circle {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: var(--color-brown-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-left: -12px;
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: var(--state-card-accent);
+      z-index: 1;
+    }
+
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      fill: currentColor;
+      z-index: 2;
+    }
   }
 
   &__icon {
@@ -75,29 +115,62 @@
   }
 
   &--danger {
+    --colro: hsl(359, 66%, 69%);
+    --state-card-accent: var(
+      --color-red-450
+    ); // should be darker than border, badge and icon circle.
     background: var(--color-red-400);
     border-color: var(--color-red-300);
-    .state-card__badge { background: var(--color-red-400); }
-    .state-card__icon { background: var(--color-red-500); }
-    .state-card__description { color: #7D2B30; }
+    .state-card__badge {
+      background: var(--color-red-300);
+      color: var(--color-red-500);
+    } // icon bg & icon text
+    .state-card__icon-circle {
+      background: var(--color-red-300);
+    }
+    .state-card__icon {
+      background: var(--color-red-500);
+    } // main icon bg
+    .state-card__description {
+      color: hsl(356, 49%, 33%);
+    }
   }
 
   &--warning {
-    background: var(--color-yellow-450);
+    --state-card-accent: var(--color-yellow-450);
+    background: var(--color-yellow-500);
     border-color: var(--color-yellow-400);
-    .state-card__badge { background: var(--color-yellow-450); }
-    .state-card__icon { background: var(--color-yellow-450); }
-    .state-card__description { color: #602C2C; }
+    .state-card__badge {
+      background: var(--color-yellow-400);
+      color: #884b2b;
+    }
+    .state-card__icon-circle {
+      background: var(--color-yellow-400);
+    }
+    .state-card__icon {
+      background: var(--color-yellow-600);
+    }
+    .state-card__description {
+      color: hsl(0, 37%, 27%);
+    }
   }
 
   &--success {
+    --state-card-accent: #A8CA58;
     background: var(--color-green-400);
     border-color: var(--color-green-300);
-    .state-card__badge { background: var(--color-green-400); }
-    .state-card__icon { background: var(--color-green-500); }
-    .state-card__description { color: #25562E; }
+    .state-card__badge {
+      background: var(--color-green-300);
+      color: #468232;
+    }
+    .state-card__icon-circle {
+      background: var(--color-green-300);
+    }
+    .state-card__icon {
+      background: var(--color-green-500);
+    }
+    .state-card__description {
+      color: hsl(131, 40%, 24%);
+    }
   }
-
 }
-
-

@@ -37,8 +37,13 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   get "logout", to: "sessions#destroy"
 
+  # OAuth callback for HCA
+  get "/oauth/callback", to: "sessions#create"
+
   # Kitchen
   get "kitchen", to: "kitchen#index"
+  get "hackatime/auth", to: "kitchen#hackatime_auth_redirect", as: :hackatime_auth
+  get "hackatime/sync", to: "kitchen#hackatime_sync", as: :hackatime_sync
 
   # Magic Links
   post "magic_links", to: "magic_links#create"

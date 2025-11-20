@@ -8,26 +8,30 @@
     </div>
 
     <div class="kitchen-setup__grid">
-      <% id_variant = @has_identity_linked ? :success : :danger %>
-      <% id_badge = @has_identity_linked ? "Verified" : "Not Verified" %>
+      <% id_ui = id_verification_ui_for(current_user) %>
+      <% id_variant = id_ui[:variant] %>
+      <% id_badge = id_ui[:badge] %>
+      <% id_cta = current_user&.verification_status == "needs_submission" ? { cta_text: "Get verified", cta_href: "https://hca.dinosaurbbq.org/verifications/document" } : {} %>
       <%= render StateCardComponent.new(
         title: "Identity Verification",
         description: "Verify that you are 18 years old or under.",
         variant: id_variant,
         badge_text: id_badge,
-        icon: "user"
+        icon: "user",
+        **id_cta
       ) %>
 
       <% hack_variant = @has_hackatime_linked ? :success : :danger %>
       <% hack_badge = @has_hackatime_linked ? "Connected" : "Not Connected" %>
+      <% hack_cta = @has_hackatime_linked ? {} : { cta_text: "Link Hackatime", cta_href: hackatime_auth_path } %>
       <%= render StateCardComponent.new(
         title: "Connect Hackatime",
         description: "Setup and connect your hackatime account.",
         variant: hack_variant,
         badge_text: hack_badge,
-        icon: "time"
+        icon: "time",
+        **hack_cta
       ) %>
     </div>
   </div>
 </div>
-

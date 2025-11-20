@@ -527,7 +527,7 @@ input {
 
 .testimonials-wrapper {
   position: relative;
-  height: 90vh !important;  
+  height: 90vh !important;
 
   &::after {
     content: "";
@@ -609,7 +609,9 @@ input {
       overflow: hidden;
       height: 500px;
       z-index: 5;
-      transition: transform 0.3s ease, z-index 0.3s ease;
+      transition:
+        transform 0.3s ease,
+        z-index 0.3s ease;
 
       &:hover {
         height: auto;

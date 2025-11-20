@@ -1,5 +1,12 @@
 <div class="state-card state-card--<%= @variant %>">
-  <div class="state-card__badge"><%= @badge_text %></div>
+  <div class="state-card__status-pill">
+    <div class="state-card__badge"><%= @badge_text %></div>
+    <% if @icon.present? %>
+      <div class="state-card__icon-circle">
+        <%= helpers.inline_svg_tag "icons/#{@icon}.svg", alt: "" %>
+      </div>
+    <% end %>
+  </div>
   <% if @icon.present? %>
     <div class="state-card__icon state-card__icon--<%= @icon %>">
       <%= helpers.inline_svg_tag "icons/#{@icon}.svg", alt: "" %>
@@ -7,6 +14,12 @@
   <% end %>
   <div class="state-card__title"><%= @title %></div>
   <div class="state-card__description"><%= @description %></div>
+  <% if @cta_text.present? && @cta_href.present? %>
+    <div class="state-card__cta">
+      <%= render ButtonComponent.new(text: @cta_text, href: @cta_href, variant: :borderless, color: :bg_yellow, size: :md) do %>
+        <span><%= @cta_text %></span>
+        <%= helpers.inline_svg_tag "icons/right-arrow.svg" %>
+      <% end %>
+    </div>
+  <% end %>
 </div>
-
-
