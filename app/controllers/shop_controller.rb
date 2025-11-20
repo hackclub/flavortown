@@ -3,7 +3,7 @@ class ShopController < ApplicationController
     @shop_open = Flipper.enabled?(:shop_open, current_user)
   end
 
-  def my_orders 
+  def my_orders
     @orders = current_user.shop_orders.includes(:shop_item)
-  end 
+  end
 end
