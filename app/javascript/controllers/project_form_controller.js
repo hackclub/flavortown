@@ -46,7 +46,10 @@ export default class extends Controller {
       message = "Title must be 120 characters or fewer";
     }
     el.setCustomValidity(message);
-    if (event?.type === "blur") el.reportValidity();
+    if (event?.type === "blur") {
+      el.reportValidity();
+      if (message) this.triggerShake(el);
+    }
     this.updateSubmitState();
   }
 
@@ -59,7 +62,10 @@ export default class extends Controller {
       message = "Description must be 1000 characters or fewer";
     }
     el.setCustomValidity(message);
-    if (event?.type === "blur") el.reportValidity();
+    if (event?.type === "blur") {
+      el.reportValidity();
+      if (message) this.triggerShake(el);
+    }
     this.updateSubmitState();
   }
 
@@ -81,7 +87,10 @@ export default class extends Controller {
       }
     }
     el.setCustomValidity(message);
-    if (event?.type === "blur") el.reportValidity();
+    if (event?.type === "blur") {
+      el.reportValidity();
+      if (message) this.triggerShake(el);
+    }
     this.updateSubmitState();
   }
 
@@ -112,6 +121,11 @@ export default class extends Controller {
     if (!form.checkValidity()) {
       form.reportValidity();
       event.preventDefault();
+      // shake all invalid inputs
+      const invalid = form.querySelectorAll(
+        "input:invalid, textarea:invalid, select:invalid",
+      );
+      invalid.forEach((field) => this.triggerShake(field));
     }
   }
 
@@ -231,5 +245,18 @@ export default class extends Controller {
       clearTimeout(t);
       t = setTimeout(() => fn.apply(this, args), wait);
     };
+  }
+
+  triggerShake(field) {
+    const wrapper = field.closest(".input");
+    if (!wrapper) return;
+    // restart animation by toggling the class
+    wrapper.classList.remove("input--shake");
+    // force reflow
+    // eslint-disable-next-line no-unused-expressions
+    wrapper.offsetWidth;
+    wrapper.classList.add("input--shake");
+    // auto-remove after animation ends as a fallback
+    setTimeout(() => wrapper.classList.remove("input--shake"), 400);
   }
 }
