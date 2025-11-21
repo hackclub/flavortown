@@ -168,7 +168,14 @@ export default class extends Controller {
         this.readmeUrlTarget.value = readmeUrl;
         this.readmeUrlTarget.dataset.autofilled = "true";
         this.userEditedReadme = false;
-        // TODO: unhide but disable the input
+        // unhide but disable the input (autofilled)
+        if (this.hasReadmeContainerTarget)
+          this.readmeContainerTarget.hidden = false;
+        this.readmeUrlTarget.disabled = true;
+        // add visual lock state
+        const control = this.readmeUrlTarget.closest(".input__control");
+        if (control) control.classList.add("input__control--locked");
+        this.readmeUrlTarget.title = "Autodetected from repository (locked)";
         this.validateUrl({ target: this.readmeUrlTarget });
       }
     } else {
@@ -208,6 +215,13 @@ export default class extends Controller {
   revealReadme() {
     if (this.hasReadmeContainerTarget)
       this.readmeContainerTarget.hidden = false;
+    // succesfully reveal, but should look visually different!
+    if (this.hasReadmeUrlTarget) {
+      this.readmeUrlTarget.disabled = false;
+      const control = this.readmeUrlTarget.closest(".input__control");
+      if (control) control.classList.remove("input__control--locked");
+      this.readmeUrlTarget.removeAttribute("title");
+    }
   }
 
   // util

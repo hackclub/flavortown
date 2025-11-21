@@ -81,6 +81,16 @@
   &__control {
     position: relative;
     z-index: 2;
+    &--locked {
+      .input__field {
+        opacity: 0.65;
+        cursor: not-allowed;
+        filter: saturate(0.7);
+      }
+      .input__icon {
+        position: relative;
+      }
+    }
   }
 
   &__icon {
