@@ -9,6 +9,10 @@ class ProjectsController < ApplicationController
 
   def show
     authorize @project
+    @posts = @project
+      .posts
+      .order(created_at: :desc)
+      .includes(:user, postable: [ { attachments_attachments: :blob } ])
   end
 
   def new
