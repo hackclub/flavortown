@@ -1,5 +1,5 @@
 .shop-item-card {
-  background: #F8E8D1;
+  background: #f8e8d1;
   border-radius: 16px;
   box-shadow: var(--shadow);
   padding: 1rem;
@@ -12,21 +12,21 @@
   overflow: hidden;
 
   &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url("landing/hero/hero-bg.webp") repeat center center / 1200px;
-      z-index: 0;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("landing/hero/hero-bg.webp") repeat center center / 1200px;
+    z-index: 0;
   }
 
   &__image {
     width: 100%;
     border-radius: 8px;
     overflow: hidden;
-    background-color: #D7B594;
+    background-color: #d7b594;
     height: 250px;
     display: flex;
     align-items: center;
@@ -45,7 +45,7 @@
     position: relative;
     z-index: 1;
   }
-  
+
   &__details {
     display: flex;
     justify-content: space-between;
@@ -56,7 +56,7 @@
   }
 
   &__hours {
-    color: #A87254;
+    color: #a87254;
     font-size: 0.8rem;
   }
 
@@ -68,13 +68,13 @@
   &__title {
     font-size: 1.4rem;
     font-weight: bold;
-    color: #4D2B32;
+    color: #4d2b32;
     font-family: var(--font-family-subtitle);
   }
 
   &__description {
     font-size: 1.2rem;
-    color: #A87254;
+    color: #a87254;
     font-family: var(--font-family-text);
   }
 }

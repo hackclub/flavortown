@@ -609,7 +609,9 @@ input {
       overflow: hidden;
       height: 500px;
       z-index: 5;
-      transition: transform 0.3s ease, z-index 0.3s ease;
+      transition:
+        transform 0.3s ease,
+        z-index 0.3s ease;
       display: -webkit-box;
       -webkit-line-clamp: 10;
       line-clamp: 10;
