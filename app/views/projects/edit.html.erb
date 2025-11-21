@@ -2,7 +2,7 @@
   <div class="projects-new__container">
     <%= render(HeadingComponent.new(title: "Edit Project", tone: :brown)) %>
 
-    <%= form_with(model: @project, class: "projects-new__form", local: true) do |form| %>
+    <%= form_with(model: @project, class: "projects-new__form", local: true, data: { controller: "project-form", action: "submit->project-form#onSubmit" }) do |form| %>
       <div class="projects-new__card">
         <div class="projects-new__field projects-new__field--title">
           <%= render(
@@ -12,7 +12,13 @@
                   form: form,
                   attribute: :title,
                   color: :yellow,
-                  subtitle: "A clear title helps people find your work."
+                  subtitle: "A clear title helps people find your work.",
+                  input_html: {
+                    data: {
+                      action: "input->project-form#validateTitle blur->project-form#validateTitle",
+                      "project-form-target": "title"
+                    }
+                  }
                 )
               ) %>
         </div>
@@ -26,7 +32,13 @@
                   attribute: :description,
                   color: :red,
                   as: :textarea,
-                  input_html: { rows: 4 },
+                  input_html: {
+                    rows: 4,
+                    data: {
+                      action: "input->project-form#validateDescription blur->project-form#validateDescription",
+                      "project-form-target": "description"
+                    }
+                  },
                   subtitle: "Use a few sentences to explain what you're making."
                 )
               ) %>
@@ -60,7 +72,15 @@
                   form: form,
                   attribute: :demo_url,
                   color: :blue,
-                  icon: "icons/link.svg"
+                  icon: "icons/link.svg",
+                  input_html: {
+                    type: :url,
+                    inputmode: "url",
+                    data: {
+                      action: "input->project-form#validateUrl blur->project-form#validateUrl",
+                      "project-form-target": "demoUrl"
+                    }
+                  }
                 ) %>
 
             <%= render InputComponent.new(
@@ -69,17 +89,35 @@
                   form: form,
                   attribute: :repo_url,
                   color: :blue,
-                  icon: "icons/merge.svg"
+                  icon: "icons/merge.svg",
+                  input_html: {
+                    type: :url,
+                    inputmode: "url",
+                    data: {
+                      action: "input->project-form#onRepoInput blur->project-form#onRepoBlur",
+                      "project-form-target": "repoUrl"
+                    }
+                  }
                 ) %>
 
-            <%= render InputComponent.new(
-                  label: "Readme Link",
-                  placeholder: "https://github.com/hackclub/flavortown",
-                  form: form,
-                  attribute: :readme_url,
-                  color: :blue,
-                  icon: "icons/paper.svg"
-                ) %>
+            <div data-project-form-target="readmeContainer" hidden>
+              <%= render InputComponent.new(
+                    label: "Readme Link",
+                    placeholder: "https://github.com/hackclub/flavortown",
+                    form: form,
+                    attribute: :readme_url,
+                    color: :blue,
+                    icon: "icons/paper.svg",
+                    input_html: {
+                      type: :url,
+                      inputmode: "url",
+                      data: {
+                        action: "input->project-form#onReadmeInput input->project-form#validateUrl blur->project-form#validateUrl",
+                        "project-form-target": "readmeUrl"
+                      }
+                    }
+                  ) %>
+            </div>
           <% end %>
         </div>
 
@@ -99,7 +137,7 @@
 
       <div class="projects-new__actions">
         <%= render(ButtonComponent.new(text: "Cancel", href: @project, color: :red, icon: "icons/close.svg")) %>
-        <%= render(ButtonComponent.new(text: "Update Project", color: :blue, size: :md, icon: "icons/pencil.svg", type: :submit)) %>
+        <%= render(ButtonComponent.new(text: "Update Project", color: :blue, size: :md, icon: "icons/pencil.svg", type: :submit, data: { "project-form-target": "submit" })) %>
       </div>
     <% end %>
   </div>
