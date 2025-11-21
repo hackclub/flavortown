@@ -167,14 +167,6 @@ input {
       font-size: 2.2rem;
       font-weight: 500;
 
-      div.subtext {
-        font-size: 1.4rem;
-        font-weight: normal;
-        color: var(--color-red-400);
-        font-style: italic;
-        font-family: var(--font-family-text);
-      }
-
       @media (max-width: 600px) {
         font-size: 1.5rem;
       }
@@ -205,7 +197,12 @@ input {
     .rsvp-form {
       display: flex;
       flex-direction: column;
+      width: 66%;
       gap: 1rem;
+
+      @media (max-width: 800px) {
+        width: 100%;
+      }
 
       form {
         display: flex;
@@ -527,7 +524,7 @@ input {
 
 .testimonials-wrapper {
   position: relative;
-  height: 90vh !important;
+  height: 100vh;
 
   &::after {
     content: "";
@@ -1082,8 +1079,8 @@ input {
         position: relative;
         margin-top: auto;
         z-index: 1;
-        padding: 1em;
-        padding-bottom: 2em;
+        padding: 1em 0 2em 0;
+        margin-top: 2rem;
 
         border-top: 16px solid var(--color-brown-700);
 
@@ -1494,6 +1491,7 @@ input {
                       margin-left: auto;
 
                       a {
+                        color: var(--color-brown-500);
                         background-color: var(--color-bg);
                         box-shadow: var(--shadow);
                         border-radius: 8px;
