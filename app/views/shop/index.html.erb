@@ -1,7 +1,115 @@
-<div style="text-align: center; margin-top: 4rem;">
+<div class="shop">
+  <%= render HeadingComponent.new(title: "Shop", tone: :brown) %>
   <% if @shop_open %>
-    <h1>shop items here</h1>
+    <div class="shop__buttons">
+      <%= render ButtonComponent.new(
+            text: "View My Orders",
+            href: "/shop/my_orders",
+            color: :brown,
+            variant: :borderless
+      ) %>
+      <%= render DropdownComponent.new(
+        label: "Region",
+        options: ["United States", "Canada", "Europe"],
+        selected_option: "United States",
+        color: :brown
+      ) %>
+    </div>
+    <div class="shop__banner">
+      <div class="shop__banner-headings">
+        <h3 class="shop__banner-title">Weekly items</h3>
+        <h3 class="shop__banner-price">$298,839</h3>
+      </div>
+      <div class="shop__banner-showcase">
+        <div class="shop__banner-item-desc">
+          <h4>Playdate</h4>
+          <h5>description something blah blah</h5>
+          <h6>~125 hours</h6>
+
+          <%= render ButtonComponent.new(
+            text: "Buy Playdate",
+            href: "/shop/my_orders",
+            color: :brown,
+            variant: :borderless
+          ) %>
+        </div>
+        <%= image_tag image_url("playdate.webp"), loading: "lazy", decoding: "async" %>
+      </div>
+    </div>
+    <div class="shop__nav">
+      <div class="shop__searchbar">
+        <%= form_with url: shop_path, method: :get, local: true do |f| %>
+          <%= render InputComponent.new(
+            label: nil,
+            icon: "icons/search.svg",
+            placeholder: "Search item",
+            form: f, # Not needed for standalone inputs
+            attribute: :q,
+            color: :yellow
+          ) %>
+         <% end %>
+      </div>
+      <div class="shop__filters">
+        <%= render DropdownComponent.new(
+          label: "Category",
+          options: ["Grants", "Warehouse", "Third Party"],
+          selected_option: "Grants",
+          color: :blue
+        ) %>
+        <%= render DropdownComponent.new(
+          label: "Price Range",
+          options: ["$0 - $100,000", "$100,000 - $500,000", ">$500,000"],
+          selected_option: "$0 - $100,000",
+          color: :pink
+        ) %>
+        <%= render DropdownComponent.new(
+          label: "Sort by",
+          options: ["Prices", "Alphabetical"],
+          selected_option: "Prices",
+          color: :green
+        ) %>
+        <button id="sort-btn">
+          <span>
+            <%= inline_svg_tag "icons/sort.svg", title: "Sort Icon" %>
+          </span>
+          <%= inline_svg_tag "icons/sort-btn-icon.svg", title: "Sort Arrow" %>
+        </button>
+      </div>
+    </div>
+    <div class="shop__items">
+      <%= render ShopItemCardComponent.new(
+        name: "13-inch M4 MacBook Air",
+        description: "description something blah blah",
+        hours: 500,
+        price: 98273,
+        image_url: image_url("macbook-air.png")
+      ) %>
+
+      <%= render ShopItemCardComponent.new(
+        name: "13-inch M4 MacBook Air",
+        description: "description something blah blah",
+        hours: 500,
+        price: 98273,
+        image_url: image_url("macbook-air.png")
+      ) %>
+
+      <%= render ShopItemCardComponent.new(
+        name: "13-inch M4 MacBook Air",
+        description: "description something blah blah",
+        hours: 500,
+        price: 98273,
+        image_url: image_url("macbook-air.png")
+      ) %>
+
+      <%= render ShopItemCardComponent.new(
+        name: "13-inch M4 MacBook Air",
+        description: "description something blah blah",
+        hours: 500,
+        price: 98273,
+        image_url: image_url("macbook-air.png")
+      ) %>
+    </div>
   <% else %>
-    <h1>The shop is not opened yet!</h1>
+    <h2>The shop is not opened yet!</h2>
   <% end %>
 </div>
