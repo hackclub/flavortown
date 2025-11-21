@@ -185,7 +185,7 @@ export default class extends Controller {
         // unhide but disable the input (autofilled)
         if (this.hasReadmeContainerTarget)
           this.readmeContainerTarget.hidden = false;
-        this.readmeUrlTarget.disabled = true;
+        this.readmeUrlTarget.readOnly = true;
         // add visual lock state
         const control = this.readmeUrlTarget.closest(".input__control");
         if (control) control.classList.add("input__control--locked");
@@ -231,7 +231,7 @@ export default class extends Controller {
       this.readmeContainerTarget.hidden = false;
     // succesfully reveal, but should look visually different!
     if (this.hasReadmeUrlTarget) {
-      this.readmeUrlTarget.disabled = false;
+      this.readmeUrlTarget.readOnly = false;
       const control = this.readmeUrlTarget.closest(".input__control");
       if (control) control.classList.remove("input__control--locked");
       this.readmeUrlTarget.removeAttribute("title");
