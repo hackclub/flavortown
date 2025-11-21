@@ -13,12 +13,4 @@ module ApplicationHelper
   def random_carousel_transform
     "rotate(#{rand(-3..3)}deg) scale(#{(rand(97..103).to_f / 100).round(2)}) translateY(#{rand(-8..8)}px)"
   end
-
-  def show_signin_button?
-    return true if params[:login].to_s == "1"
-    if request&.host == "flavortown.hackclub.com"
-      return false
-    end
-    ENV["HIDE_SIGNIN"].to_s != "true"
-  end
 end

@@ -1,8 +1,5 @@
 class Admin::UsersController < Admin::ApplicationController
     PER_PAGE = 25
-    include Pundit::Authorization
-    rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
-    before_action :authenticate_admin
 
     def index
       @query = params[:query]
@@ -41,14 +38,12 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def user_perms
+      authorize :admin, :manage_users?
       @users = User.joins(:role_assignments).includes(:roles).distinct.order(:id)
     end
 
     def promote_role
-      unless current_user.super_admin?
-        flash[:alert] = "Only super admins can manage user roles."
-        return redirect_to admin_user_path(params[:id])
-      end
+      authorize :admin, :manage_user_roles?
 
       @user = User.find(params[:id])
       role_name = params[:role_name]
@@ -73,10 +68,7 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
   def demote_role
-    unless current_user.super_admin?
-      flash[:alert] = "Only super admins can manage user roles."
-      return redirect_to admin_user_path(params[:id])
-    end
+    authorize :admin, :manage_user_roles?
 
     @user = User.find(params[:id])
     role_name = params[:role_name]
@@ -101,10 +93,7 @@ class Admin::UsersController < Admin::ApplicationController
   end
 
   def toggle_flipper
-    unless current_user.admin?
-      flash[:alert] = "Only admins can toggle features."
-      return redirect_to admin_user_path(params[:id])
-    end
+    authorize :admin, :access_flipper?
 
     @user = User.find(params[:id])
     feature = params[:feature].to_sym
@@ -135,6 +124,7 @@ class Admin::UsersController < Admin::ApplicationController
   end
 
   def sync_hackatime
+    authorize :admin, :manage_users?
     @user = User.find(params[:id])
     slack_identity = @user.identities.find_by(provider: "slack")
 
@@ -147,9 +137,4 @@ class Admin::UsersController < Admin::ApplicationController
 
     redirect_to admin_user_path(@user)
   end
-
-    def user_not_authorized
-      flash[:alert] = "You are not authorized to perform this action."
-      redirect_to(request.referrer || root_path)
-    end
 end

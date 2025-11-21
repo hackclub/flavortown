@@ -33,6 +33,9 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  # hackatime should not create a new session; it's used for linking
+  get "auth/hackatime/callback", to: "identities#hackatime"
+
   # Sessions
   get "auth/:provider/callback", to: "sessions#create"
   get "/auth/failure", to: "sessions#failure"
@@ -43,8 +46,6 @@ Rails.application.routes.draw do
 
   # Kitchen
   get "kitchen", to: "kitchen#index"
-  get "hackatime/auth", to: "kitchen#hackatime_auth_redirect", as: :hackatime_auth
-  get "hackatime/sync", to: "kitchen#hackatime_sync", as: :hackatime_sync
 
   # Magic Links
   post "magic_links", to: "magic_links#create"

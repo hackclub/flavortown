@@ -1,16 +1,13 @@
 class Admin::ShopOrdersController < Admin::ApplicationController
   def index
-    authorize :admin, :shop_orders?
+    authorize :admin, :access_shop_orders?
 
     # Determine view mode
     @view = params[:view] || "shop_orders"
 
     # Check authorization for fulfillment view
     if @view == "fulfillment"
-      unless current_user.admin? || current_user.fulfillment_person?
-        flash[:alert] = "You don't have permission to access fulfillment view"
-        redirect_to admin_shop_orders_path(view: "shop_orders") and return
-      end
+      authorize :admin, :access_fulfillment_view?
     end
 
     # Base query
@@ -86,13 +83,13 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def show
-    authorize :admin, :shop_orders?
+    authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
     @can_view_address = @order.can_view_address?(current_user)
   end
 
   def reveal_address
-    authorize :admin, :shop_orders?
+    authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
 
     if @order.can_view_address?(current_user)

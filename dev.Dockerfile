@@ -19,6 +19,11 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
     imagemagick \
     libffi-dev
 
+# Install Node.js and Yarn
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install --global yarn
+
 # Set working directory
 WORKDIR /app
 
