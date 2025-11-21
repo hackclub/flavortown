@@ -18,3 +18,6 @@ application.register(
 
 import HelloController from "./hello_controller";
 application.register("hello", HelloController);
+
+import ProjectFormController from "./project_form_controller";
+application.register("project-form", ProjectFormController);
