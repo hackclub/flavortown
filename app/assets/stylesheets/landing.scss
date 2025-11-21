@@ -111,8 +111,8 @@ input {
 
 .section {
   position: relative;
-  min-height: 100vh;
   display: flex;
+  height: fit-content;
 }
 
 .hero {
@@ -257,9 +257,10 @@ input {
     overflow: hidden;
     z-index: 0;
     width: 110%;
-    margin-bottom: -8%;
-    margin-left: -10%;
+    margin-left: -5%;
     bottom: 0;
+
+
 
     @media (max-width: 600px) {
       width: 130%;
@@ -524,7 +525,6 @@ input {
 
 .testimonials-wrapper {
   position: relative;
-  height: 100vh;
 
   &::after {
     content: "";
@@ -541,12 +541,12 @@ input {
 }
 
 .testimonials {
-  position: absolute;
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  padding: 2rem 0;
+  padding: 8rem 0;
   z-index: 500;
   overflow-x: hidden;
   width: 100%;
@@ -1746,7 +1746,7 @@ input {
 
         > div {
           font-size: 3rem;
-          width: 110%;
+          width: max(110%, 300px);
           text-align: center;
 
           background: var(--color-red-500)
