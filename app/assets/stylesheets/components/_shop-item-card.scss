@@ -66,4 +66,20 @@
     color: #a87254;
     font-family: var(--font-family-text);
   }
+
+  &__customs-warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    color: #856404;
+    font-weight: 600;
+    text-align: center;
+    margin: 0.5rem 0.5rem 0 0.5rem;
+    font-family: var(--font-family-text);
+    position: relative;
+    z-index: 10;
+    width: calc(100% - 1rem);
+  }
 }

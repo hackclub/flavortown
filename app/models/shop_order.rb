@@ -56,6 +56,7 @@ class ShopOrder < ApplicationRecord
   validate :check_max_quantity_limit, on: :create
   validate :check_user_balance, on: :create
   validate :check_regional_availability, on: :create
+  validate :check_free_stickers_requirement, on: :create
 
   after_create :create_negative_payout
   before_create :freeze_item_price
@@ -154,6 +155,9 @@ class ShopOrder < ApplicationRecord
         self.fulfillment_cost = fulfillment_cost if fulfillment_cost
         self.fulfilled_by = fulfilled_by if fulfilled_by
       end
+      after do
+        mark_stickers_received if shop_item.is_a?(ShopItem::FreeStickers)
+      end
     end
 
     event :place_on_hold do
@@ -178,6 +182,10 @@ class ShopOrder < ApplicationRecord
 
   def approve!
     shop_item.fulfill!(self) if shop_item.respond_to?(:fulfill!)
+  end
+
+  def mark_stickers_received
+    user.update(has_gotten_free_stickers: true)
   end
 
   private
@@ -232,6 +240,13 @@ class ShopOrder < ApplicationRecord
     unless shop_item.enabled_in_region?(address_region) || shop_item.enabled_in_region?("XX")
       errors.add(:base, "This item is not available for shipping to #{address_country}.")
     end
+  end
+
+  def check_free_stickers_requirement
+    return if user&.has_gotten_free_stickers?
+    return if shop_item.is_a?(ShopItem::FreeStickers)
+
+    errors.add(:base, "You must order the Free Stickers first before ordering other items!")
   end
 
   def create_negative_payout

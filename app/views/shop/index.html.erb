@@ -23,35 +23,35 @@
         color: :brown
       ) %>
     </div>
-    <% if @weekly_item %>
+    <% if @featured_item %>
       <div class="shop__banner">
         <div class="shop__banner-headings">
-          <h3 class="shop__banner-title">Weekly items</h3>
-          <h3 class="shop__banner-price"><%= number_to_currency(@weekly_item.ticket_cost).gsub('$', '🍪') %></h3>
+          <h3 class="shop__banner-title">Get Started</h3>
+          <h3 class="shop__banner-price"><%= number_to_currency(@featured_item.ticket_cost).gsub('$', '🍪') %></h3>
         </div>
         <div class="shop__banner-showcase">
           <div class="shop__banner-item-desc">
-            <h4><%= @weekly_item.name %></h4>
-            <h5><%= @weekly_item.description %></h5>
-            <h6>~<%= @weekly_item.hours_estimated %> hours</h6>
+            <h4><%= @featured_item.name %></h4>
+            <h5><%= @featured_item.description %></h5>
+            <h6>~<%= @featured_item.hours_estimated %> hours</h6>
 
             <%= render ButtonComponent.new(
-              text: "Buy #{@weekly_item.name}",
-              href: "/shop/my_orders",
+              text: "Order #{@featured_item.name}",
+              href: "/shop/order?shop_item_id=#{@featured_item.id}",
               color: :brown,
               variant: :borderless
             ) %>
           </div>
-          <% if @weekly_item.image.present? %>
-            <%= image_tag @weekly_item.image.variant(:carousel_lg), loading: "lazy", decoding: "async", alt: "#{@weekly_item.name} image" %>
+          <% if @featured_item.image.present? %>
+            <%= image_tag @featured_item.image.variant(:carousel_lg), loading: "lazy", decoding: "async", alt: "#{@featured_item.name} image" %>
           <% end %>
         </div>
       </div>
     <% else %>
       <div class="shop__banner shop__banner--empty">
         <div class="shop__banner-headings">
-          <h3 class="shop__banner-title">No Weekly Item</h3>
-          <h5 class="shop__banner-subtitle">Check back next week for an exciting weekly offer!</h5>
+          <h3 class="shop__banner-title">Free Stickers Not Available</h3>
+          <h5 class="shop__banner-subtitle">Check back soon!</h5>
         </div>
       </div>
     <% end %>
@@ -98,12 +98,14 @@
     <div class="shop__items">
       <% @shop_items.each do |item| %>
         <% if item.image.present? %>
+          <!-- DEBUG: item.type = <%= item.type %> -->
           <%= render ShopItemCardComponent.new(
             name: item.name,
             description: item.description,
             hours: item.hours_estimated,
             price: item.ticket_cost,
-            image_url: item.image.variant(:carousel_lg)
+            image_url: item.image.variant(:carousel_lg),
+            item_type: item.type
           ) %>
         <% end %>
       <% end %>

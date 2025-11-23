@@ -1,4 +1,9 @@
 <div class="shop-item-card">
+  <% if show_customs_warning? %>
+    <div class="shop-item-card__customs-warning">
+      ⚠️ May require customs duties
+    </div>
+  <% end %>
   <div class="shop-item-card__image">
     <%= image_tag image_url, alt: "#{name} image", class: "rounded-lg w-full h-auto object-scale-down aspect-square max-h-48" %>
   </div>

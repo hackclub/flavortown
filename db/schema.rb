@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_23_033600) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_23_223159) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -296,6 +296,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_23_033600) do
     t.datetime "created_at", null: false
     t.string "display_name"
     t.string "email"
+    t.boolean "has_gotten_free_stickers", default: false
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.integer "projects_count"
