@@ -1,0 +1,17 @@
+<%= turbo_frame_tag "readme_modal" do %>
+  <div class="modal-backdrop" 
+       data-controller="modal" 
+       data-action="click->modal#closeBackground keyup@window->modal#closeWithEsc">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>README</h2>
+        <button type="button" class="modal-close" data-action="modal#close" aria-label="Close modal">
+          <%= inline_svg_tag "icons/close.svg" %>
+        </button>
+      </div>
+      <div class="modal-body">
+        <%= @html.html_safe %>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -107,4 +107,14 @@ Rails.application.routes.draw do
     resources :memberships, only: [ :create, :destroy ], module: :project
     resources :devlogs, only: [ :new, :create ], module: :project
   end
+
+  resources :projects do
+    member do
+      get :readme
+    end
+    resources :devlogs, controller: "project/devlogs", only: [ :new, :create ]
+    scope module: :project do
+      resources :memberships, only: [ :destroy ]
+    end
+  end
 end

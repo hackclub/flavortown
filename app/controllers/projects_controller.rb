@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :set_project_minimal, only: [ :edit, :update, :destroy ]
-  before_action :set_project, only: [ :show ]
+  before_action :set_project, only: [ :show, :readme ]
 
   def index
     authorize Project
@@ -13,6 +13,33 @@ class ProjectsController < ApplicationController
       .posts
       .order(created_at: :desc)
       .includes(:user, postable: [ { attachments_attachments: :blob } ])
+  end
+
+  def readme
+    authorize @project
+
+    unless turbo_frame_request?
+      redirect_to project_path(@project)
+      return 
+    end
+
+    url = @project.readme_url
+    
+    if url.present?
+      begin
+        require 'net/http'
+        uri = URI(url)
+        response = Net::HTTP.get_response(uri)
+        content = response.is_a?(Net::HTTPSuccess) ? response.body.force_encoding("UTF-8") : "Failed to load README from #{url}"
+      rescue => e
+        content = "Error loading README: #{e.message}"
+      end
+    else
+      content = "Couldn't find README! Make sure ya set it up!"
+    end
+
+    @html = MarkdownRenderer.render(content)
+    render layout: false
   end
 
   def new

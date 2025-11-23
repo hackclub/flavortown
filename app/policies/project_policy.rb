@@ -7,6 +7,10 @@ class ProjectPolicy < ApplicationPolicy
         true
     end
 
+    def readme?
+        show?
+    end
+
     def new?
         logged_in?
     end

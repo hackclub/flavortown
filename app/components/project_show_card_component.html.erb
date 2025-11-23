@@ -90,10 +90,11 @@
         <% if project.readme_url.present? %>
           <%= render ButtonComponent.new(
                 text: "Readme",
-                href: project.readme_url,
+                href: helpers.readme_project_path(project),
                 color: :brown,
                 variant: :borderless,
-                icon: "icons/paper.svg"
+                icon: "icons/paper.svg",
+                data: { turbo_frame: "readme_modal" }
               ) %>
         <% end %>
       </div>
