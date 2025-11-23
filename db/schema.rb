@@ -332,4 +332,3 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_192451) do
   add_foreign_key "user_role_assignments", "roles"
   add_foreign_key "user_role_assignments", "users"
 end
-
