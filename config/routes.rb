@@ -52,35 +52,45 @@ Rails.application.routes.draw do
   post "magic_links", to: "magic_links#create"
   get "magic_links/verify", to: "magic_links#verify"
   # admin shallow routing
-  namespace :admin do
+  namespace :admin, constraints: AdminConstraint do
     root to: "application#index"
 
     mount Blazer::Engine, at: "blazer", constraints: ->(request) {
       user = User.find_by(id: request.session[:user_id])
+      if user.nil? && !Rails.env.production?
+        user_id = request.session[:test_user_id] || 1
+        user = User.find_by(id: user_id) || User.first
+      end
       user && AdminPolicy.new(user, :admin).access_blazer?
     }
 
     mount Flipper::UI.app(Flipper), at: "flipper", constraints: ->(request) {
       user = User.find_by(id: request.session[:user_id])
+      if user.nil? && !Rails.env.production?
+        user_id = request.session[:test_user_id] || 1
+        user = User.find_by(id: user_id) || User.first
+      end
       user && AdminPolicy.new(user, :admin).access_flipper?
     }
 
     mount MissionControl::Jobs::Engine, at: "jobs", constraints: ->(request) {
       user = User.find_by(id: request.session[:user_id])
+      if user.nil? && !Rails.env.production?
+        user_id = request.session[:test_user_id] || 1
+        user = User.find_by(id: user_id) || User.first
+      end
       user && AdminPolicy.new(user, :admin).access_admin_endpoints?
     }
 
     resources :users, only: [ :index, :show ], shallow: true do
-      member do
-        post :promote_role
-        post :demote_role
-        post :toggle_flipper
-        post :sync_hackatime
-        post :impersonate
-      end
-      resource :magic_link, only: [ :show ]
-    end
-    post "stop-impersonating", to: "users#stop_impersonating", as: :stop_impersonating
+       member do
+         post :promote_role
+         post :demote_role
+         post :toggle_flipper
+         post :sync_hackatime
+       end
+       resource :magic_link, only: [ :show ]
+     end
     resources :projects, only: [ :index ], shallow: true
     get "user-perms", to: "users#user_perms"
     get "manage-shop", to: "shop#index"

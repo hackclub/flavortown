@@ -36,19 +36,7 @@
     <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>
 
-  <body class="<%= current_user.present? ? 'signed-in' : '' %>">
-    <% if impersonating? %>
-      <div class="impersonation-banner">
-        <div class="impersonation-content">
-          <span class="impersonation-icon">🎭</span>
-          <span class="impersonation-text">
-            <strong>Admin Mode:</strong> Impersonating <%= current_user.display_name %>
-            <span class="impersonation-admin">(Admin: <%= original_admin.display_name %>)</span>
-          </span>
-          <%= button_to "Stop Impersonation", admin_stop_impersonating_path, method: :post, class: "btn-stop-impersonation" %>
-        </div>
-      </div>
-    <% end %>
+  <body class="<%= current_user.present? ? 'signed-in' : '' %>"
 
     <% if current_user.present? %>
       <%= render "shared/sidebar" %>

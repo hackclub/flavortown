@@ -1,6 +1,6 @@
 class AdminPolicy < ApplicationPolicy
     def access_blazer?
-      user.super_admin?
+      user.admin?
     end
 
     def access_flipper?
@@ -42,4 +42,8 @@ class AdminPolicy < ApplicationPolicy
     def access_fulfillment_view?
       user.admin? || user.fulfillment_person?
     end
+     def access_shop_orders?
+      user.admin? || user.fraud_dept?
+    end
+
 end

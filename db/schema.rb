@@ -274,7 +274,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_192451) do
     t.text "refresh_token_ciphertext"
     t.string "uid"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["access_token_bidx"], name: "index_user_identities_on_access_token_bidx"
     t.index ["provider", "uid"], name: "index_user_identities_on_provider_and_uid", unique: true
     t.index ["refresh_token_bidx"], name: "index_user_identities_on_refresh_token_bidx"
@@ -332,4 +332,3 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_192451) do
   add_foreign_key "user_role_assignments", "roles"
   add_foreign_key "user_role_assignments", "users"
 end
-

@@ -79,12 +79,7 @@
                     class: "btn-primary slim",
                     disabled: !current_user&.super_admin? %>
 
-      <%= button_to "🎭 Impersonate User",
-                    impersonate_admin_user_path(@user),
-                    method: :post,
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin?,
-                    data: { confirm: "Are you sure you want to impersonate #{@user.display_name}? This action will be logged." } %>
+
     </div>
   </div>
   <div class="card">
@@ -143,10 +138,7 @@
                 <span style="color: #10b981; font-weight: 500;">🔓 Feature Enabled</span>
               <% when "flipper_disable" %>
                 <span style="color: #ef4444; font-weight: 500;">🔒 Feature Disabled</span>
-              <% when "impersonate_start" %>
-                <span style="color: #dc2626; font-weight: 500;">🎭 Impersonation Started</span>
-              <% when "impersonate_end" %>
-                <span style="color: #10b981; font-weight: 500;">🎭 Impersonation Ended</span>
+
               <% when "update" %>
                 <span style="color: #3b82f6; font-weight: 500;">✏️ Updated</span>
               <% when "create" %>
