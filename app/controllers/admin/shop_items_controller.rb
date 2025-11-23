@@ -64,7 +64,8 @@ module Admin
         "ShopItem::ThirdPartyPhysical",
         "ShopItem::WarehouseItem",
         "ShopItem::SpecialFulfillmentItem",
-        "ShopItem::HackClubberItem"
+        "ShopItem::HackClubberItem",
+        "ShopItem::FreeStickers"
       ]
     end
 

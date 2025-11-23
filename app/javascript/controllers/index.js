@@ -24,3 +24,9 @@ application.register("project-form", ProjectFormController);
 
 import PostAttachmentsController from "./post_attachments_controller";
 application.register("post-attachments", PostAttachmentsController);
+
+import ShopController from "./shop_controller";
+application.register("shop", ShopController);
+
+import DropdownController from "./dropdown_controller";
+application.register("dropdown", DropdownController);

@@ -1,6 +1,14 @@
-<div class="shop">
+<div class="shop" data-controller="shop">
   <%= render HeadingComponent.new(title: "Shop", tone: :brown) %>
   <% if @shop_open %>
+    <% if current_user&.admin? %>
+      <div class="admin-banner">
+        <div class="admin-banner__content">
+          <span class="admin-banner__count"><%= @shop_items.count %> items</span>
+          <a href="/admin/shop_items" class="admin-banner__link">Edit items →</a>
+        </div>
+      </div>
+    <% end %>
     <div class="shop__buttons">
       <%= render ButtonComponent.new(
             text: "View My Orders",
@@ -10,32 +18,43 @@
       ) %>
       <%= render DropdownComponent.new(
         label: "Region",
-        options: ["United States", "Canada", "Europe"],
+        options: ["United States", "Canada", "Europe", "United Kingdom", "Australia", "India", "Other"],
         selected_option: "United States",
         color: :brown
       ) %>
     </div>
-    <div class="shop__banner">
-      <div class="shop__banner-headings">
-        <h3 class="shop__banner-title">Weekly items</h3>
-        <h3 class="shop__banner-price">$298,839</h3>
-      </div>
-      <div class="shop__banner-showcase">
-        <div class="shop__banner-item-desc">
-          <h4>Playdate</h4>
-          <h5>description something blah blah</h5>
-          <h6>~125 hours</h6>
-
-          <%= render ButtonComponent.new(
-            text: "Buy Playdate",
-            href: "/shop/my_orders",
-            color: :brown,
-            variant: :borderless
-          ) %>
+    <% if @weekly_item %>
+      <div class="shop__banner">
+        <div class="shop__banner-headings">
+          <h3 class="shop__banner-title">Weekly items</h3>
+          <h3 class="shop__banner-price"><%= number_to_currency(@weekly_item.ticket_cost).gsub('$', '🍪') %></h3>
         </div>
-        <%= image_tag image_url("playdate.webp"), loading: "lazy", decoding: "async" %>
+        <div class="shop__banner-showcase">
+          <div class="shop__banner-item-desc">
+            <h4><%= @weekly_item.name %></h4>
+            <h5><%= @weekly_item.description %></h5>
+            <h6>~<%= @weekly_item.hours_estimated %> hours</h6>
+
+            <%= render ButtonComponent.new(
+              text: "Buy #{@weekly_item.name}",
+              href: "/shop/my_orders",
+              color: :brown,
+              variant: :borderless
+            ) %>
+          </div>
+          <% if @weekly_item.image.present? %>
+            <%= image_tag @weekly_item.image.variant(:carousel_lg), loading: "lazy", decoding: "async", alt: "#{@weekly_item.name} image" %>
+          <% end %>
+        </div>
       </div>
-    </div>
+    <% else %>
+      <div class="shop__banner shop__banner--empty">
+        <div class="shop__banner-headings">
+          <h3 class="shop__banner-title">No Weekly Item</h3>
+          <h5 class="shop__banner-subtitle">Check back next week for an exciting weekly offer!</h5>
+        </div>
+      </div>
+    <% end %>
     <div class="shop__nav">
       <div class="shop__searchbar">
         <%= form_with url: shop_path, method: :get, local: true do |f| %>
@@ -58,8 +77,8 @@
         ) %>
         <%= render DropdownComponent.new(
           label: "Price Range",
-          options: ["$0 - $100,000", "$100,000 - $500,000", ">$500,000"],
-          selected_option: "$0 - $100,000",
+          options: ["🍪0 - 🍪1000", "🍪1000 - 🍪5000", ">🍪5000"],
+          selected_option: "🍪0 - 🍪1000",
           color: :pink
         ) %>
         <%= render DropdownComponent.new(
@@ -77,37 +96,17 @@
       </div>
     </div>
     <div class="shop__items">
-      <%= render ShopItemCardComponent.new(
-        name: "13-inch M4 MacBook Air",
-        description: "description something blah blah",
-        hours: 500,
-        price: 98273,
-        image_url: image_url("macbook-air.png")
-      ) %>
-
-      <%= render ShopItemCardComponent.new(
-        name: "13-inch M4 MacBook Air",
-        description: "description something blah blah",
-        hours: 500,
-        price: 98273,
-        image_url: image_url("macbook-air.png")
-      ) %>
-
-      <%= render ShopItemCardComponent.new(
-        name: "13-inch M4 MacBook Air",
-        description: "description something blah blah",
-        hours: 500,
-        price: 98273,
-        image_url: image_url("macbook-air.png")
-      ) %>
-
-      <%= render ShopItemCardComponent.new(
-        name: "13-inch M4 MacBook Air",
-        description: "description something blah blah",
-        hours: 500,
-        price: 98273,
-        image_url: image_url("macbook-air.png")
-      ) %>
+      <% @shop_items.each do |item| %>
+        <% if item.image.present? %>
+          <%= render ShopItemCardComponent.new(
+            name: item.name,
+            description: item.description,
+            hours: item.hours_estimated,
+            price: item.ticket_cost,
+            image_url: item.image.variant(:carousel_lg)
+          ) %>
+        <% end %>
+      <% end %>
     </div>
   <% else %>
     <h2>The shop is not opened yet!</h2>

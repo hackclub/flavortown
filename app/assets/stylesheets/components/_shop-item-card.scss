@@ -7,9 +7,8 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  width: 300px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 
   &::before {
     content: "";
@@ -20,23 +19,13 @@
     height: 100%;
     background: url("landing/hero/hero-bg.webp") repeat center center / 1200px;
     z-index: 0;
+    border-radius: 16px;
   }
 
   &__image {
     width: 100%;
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: #d7b594;
-    height: 250px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     position: relative;
     z-index: 1;
-
-    .shop-item-card__image-tag {
-      height: 100%;
-    }
   }
 
   &__content {
