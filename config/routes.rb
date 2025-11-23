@@ -89,6 +89,7 @@ Rails.application.routes.draw do
          post :demote_role
          post :toggle_flipper
          post :sync_hackatime
+         post :mass_reject_orders
        end
        resource :magic_link, only: [ :show ]
      end

@@ -12,6 +12,21 @@
         <%= f.select :shop_item_id, options_from_collection_for_select(ShopItem.order(:name), :id, :name, params[:shop_item_id]),
             { prompt: "All items" }, { class: "form-control" } %>
       </div>
+
+      <% unless current_user.fulfillment_person? %>
+      <div>
+        <%= f.label :region, "Region" %>
+        <%= f.select :region, options_for_select([
+            ['All regions', ''],
+            ['United States', 'US'],
+            ['EU + UK', 'EU'],
+            ['India', 'IN'],
+            ['Canada', 'CA'],
+            ['Australia & NZ', 'AU'],
+            ['Rest of World', 'XX']
+          ], params[:region]), {}, { class: "form-control" } %>
+      </div>
+      <% end %>
 <% unless current_user.fulfillment_person? %>
       <div>
         <%= f.label :status, "Status" %>

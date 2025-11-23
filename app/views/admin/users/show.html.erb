@@ -8,6 +8,23 @@
       <div><b>Name:</b> <%= @user.display_name %></div>
       <div><b>Roles:</b> <%= @user.roles.pluck(:name).join(", ") %></div>
       <div><b>Projects:</b> <%= @user.projects.count %></div>
+      <% if @user.fulfillment_person? %>
+        <div>
+          <b>Region:</b>
+          <form method="post" action="<%= admin_user_path(@user) %>" style="display: inline;">
+            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+            <%= hidden_field_tag :_method, "patch" %>
+            <select name="user[region]" onchange="this.form.submit();">
+              <option value="">-- Select Region --</option>
+              <% Shop::Regionalizable::REGION_CODES.each do |code| %>
+                <option value="<%= code %>" <%= "selected" if @user.region == code %>>
+                  <%= Shop::Regionalizable.region_name(code) %>
+                </option>
+              <% end %>
+            </select>
+          </form>
+        </div>
+      <% end %>
     </div>
   </div>
   <div class="card">
@@ -26,59 +43,102 @@
             <%= link_to "go to billy", "#{Rails.application.config.billy_url}?u=#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
             <%= link_to "go to joe", "#{Rails.application.config.joe_url}profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
+          
+            <% if identity.provider == "hack_club" %>
+            <%= link_to "go to idv backend", "https://hca.dinosaurbbq.org/backend/identities/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
+          <% end %>
         </div>
       <% end %>
     </div>
   </div>
   <div class="card">
     <h2>actions</h2>
-    <div class="info-rows">
-      <%= link_to "Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
+    <div class="info-rows" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+      <%= link_to "🔗", admin_user_magic_link_path(@user), title: "Generate Magic Link", class: "btn-primary slim", style: "font-size: 0.75rem; padding: 0.25rem 0.5rem;" %>
       <% slack_identity = @user.identities.find_by(provider: "slack") %>
-      <%= button_to "Sync Hackatime Data",
+      <%= button_to "⚙️",
                     sync_hackatime_admin_user_path(@user),
                     method: :post,
+                    title: "Sync Hackatime Data",
                     class: "btn-primary slim",
+                    style: "font-size: 0.75rem; padding: 0.25rem 0.5rem;",
                     disabled: slack_identity.nil? %>
       <% has_fraud_dept = @user.roles.exists?(name: "fraud_dept") %>
-      <%= button_to (has_fraud_dept ? "Demote from Fraud Dept" : "Promote to Fraud Dept"),
+      <%= button_to (has_fraud_dept ? "🕵️ Fraud❌" : "🕵️ Fraud✅"),
                     (has_fraud_dept ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
                     method: :post,
+                    title: (has_fraud_dept ? "Demote from Fraud Dept" : "Promote to Fraud Dept"),
                     params: { role_name: "fraud_dept" },
                     class: "btn-primary slim",
+                    style: "font-size: 0.7rem; padding: 0.25rem 0.4rem; white-space: nowrap;",
                     disabled: !current_user&.admin? %>
 
       <% has_fulfillment = @user.roles.exists?(name: "fulfillment_person") %>
-      <%= button_to (has_fulfillment ? "Demote from Fulfillment Person" : "Promote to Fulfillment Person"),
+      <%= button_to (has_fulfillment ? "📦 Fulfill❌" : "📦 Fulfill✅"),
                     (has_fulfillment ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
                     method: :post,
+                    title: (has_fulfillment ? "Demote from Fulfillment Person" : "Promote to Fulfillment Person"),
                     params: { role_name: "fulfillment_person" },
                     class: "btn-primary slim",
+                    style: "font-size: 0.7rem; padding: 0.25rem 0.4rem; white-space: nowrap;",
                     disabled: !current_user&.admin? %>
-          <% has_helper = @user.roles.exists?(name: "helper") %>
-      <%= button_to (has_helper ? "Demote from Fulfillment Person" : "Promote to helper"),
+
+      <% has_helper = @user.roles.exists?(name: "helper") %>
+      <%= button_to (has_helper ? "🤝 Helper❌" : "🤝 Helper✅"),
                     (has_helper ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
                     method: :post,
+                    title: (has_helper ? "Demote from Helper" : "Promote to Helper"),
                     params: { role_name: "helper" },
                     class: "btn-primary slim",
+                    style: "font-size: 0.7rem; padding: 0.25rem 0.4rem; white-space: nowrap;",
                     disabled: !current_user&.admin? %>
 
       <% has_project_certifier = @user.roles.exists?(name: "project_certifier") %>
-      <%= button_to (has_project_certifier ? "Demote from Project Certifier" : "Promote to Project Certifier"),
+      <%= button_to (has_project_certifier ? "📋 Certify❌" : "📋 Certify✅"),
                     (has_project_certifier ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
                     method: :post,
+                    title: (has_project_certifier ? "Demote from Project Certifier" : "Promote to Project Certifier"),
                     params: { role_name: "project_certifier" },
                     class: "btn-primary slim",
+                    style: "font-size: 0.7rem; padding: 0.25rem 0.4rem; white-space: nowrap;",
                     disabled: !current_user&.admin? %>
 
       <% has_admin = @user.roles.exists?(name: "admin") %>
-      <%= button_to (has_admin ? "Demote from Admin" : "Promote to Admin"),
+      <%= button_to (has_admin ? "👑 Admin❌" : "👑 Admin✅"),
                     (has_admin ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
                     method: :post,
+                    title: (has_admin ? "Demote from Admin" : "Promote to Admin"),
                     params: { role_name: "admin" },
                     class: "btn-primary slim",
+                    style: "font-size: 0.7rem; padding: 0.25rem 0.4rem; white-space: nowrap;",
                     disabled: !current_user&.super_admin? %>
 
+      <% if @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).any? %>
+        <button type="button" onclick="document.getElementById('reject-modal-orders').showModal()" 
+                title="Reject all pending/awaiting orders" 
+                style="background: #ef4444; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600;">
+          ✗ Reject Orders
+        </button>
+        <dialog id="reject-modal-orders" style="border-radius: 8px; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+          <h3 style="margin-top: 0;">Reject All Orders</h3>
+          <p style="color: #6b7280; margin: 1rem 0;">This will reject all pending and awaiting fulfillment orders for <%= @user.display_name %>.</p>
+          <form action="<%= mass_reject_orders_admin_user_path(@user) %>" method="post">
+            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+            <div style="margin-bottom: 1rem;">
+              <%= label_tag :reason, "Rejection Reason (optional)", style: "display: block; font-weight: 600; margin-bottom: 0.5rem;" %>
+              <%= text_area_tag :reason, "", placeholder: "Enter reason...", style: "width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-family: inherit; font-size: 0.875rem;" %>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+              <button type="submit" class="btn-danger" style="background: #ef4444; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                Confirm Reject
+              </button>
+              <button type="button" onclick="document.getElementById('reject-modal-orders').close()" class="btn-secondary" style="background: #f3f4f6; color: #374151; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </dialog>
+      <% end %>
 
     </div>
   </div>

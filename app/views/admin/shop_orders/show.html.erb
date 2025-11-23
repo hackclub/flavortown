@@ -32,6 +32,7 @@
   </div>
 </div>
 
+<% unless current_user.fraud_dept? %>
 <div class="card">
   <h2>Shipping Address</h2>
   <% if @can_view_address %>
@@ -58,6 +59,7 @@
     </div>
   <% end %>
 </div>
+<% end %>
 <% if @order.fulfilled_by.present? %>
 <div class="card">
   <h2>Fulfillment Information</h2>
@@ -118,7 +120,7 @@
         <button type="submit" class="btn-secondary" onclick="return confirm('Place this order on hold?')">⏸ Place on Hold</button>
       </form>
     <% end %>
-    <% if @order.awaiting_periodical_fulfillment? && current_user.fulfillment_person? && !current_user.admin? %>
+    <% if @order.awaiting_periodical_fulfillment? && (current_user.admin? || current_user.fulfillment_person?) %>
       <form method="post" action="<%= mark_fulfilled_admin_shop_order_path(@order) %>" style="display: inline;">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
         <button type="submit" class="btn-primary" onclick="return confirm('Mark this order as fulfilled?')">✔ Mark as Fulfilled</button>
@@ -131,6 +133,52 @@
      </form>
    <% end %>
    </div>
+
+<% if current_user.fraud_dept? && @user_orders.present? %>
+<div class="card" style="margin-top: 2rem;">
+  <details style="cursor: pointer;">
+    <summary style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; user-select: none; color: #374151;">
+      📋 Past Orders (<%= @user_orders.count %>)
+    </summary>
+    <div style="padding-top: 0.5rem;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <th style="padding: 0.25rem; text-align: left; font-weight: 600; color: #6b7280;">Order #</th>
+            <th style="padding: 0.25rem; text-align: left; font-weight: 600; color: #6b7280;">Item</th>
+            <th style="padding: 0.25rem; text-align: left; font-weight: 600; color: #6b7280;">Status</th>
+            <th style="padding: 0.25rem; text-align: left; font-weight: 600; color: #6b7280;">Created</th>
+            <th style="padding: 0.25rem; text-align: left; font-weight: 600; color: #6b7280;">Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @user_orders.each do |order| %>
+            <tr style="border-bottom: 1px solid #f3f4f6;">
+              <td style="padding: 0.25rem;">
+                <%= link_to "##{order.id}", admin_shop_order_path(order), style: "text-decoration: none; color: #3b82f6;" %>
+              </td>
+              <td style="padding: 0.25rem; color: #6b7280;">
+                <%= truncate(order.shop_item.name, length: 20) %>
+              </td>
+              <td style="padding: 0.25rem;">
+                <span class="badge badge-<%= order.aasm_state %>" style="font-size: 0.65rem; padding: 0.1rem 0.3rem;">
+                  <%= order.aasm_state.humanize %>
+                </span>
+              </td>
+              <td style="padding: 0.25rem; color: #6b7280;">
+                <%= order.created_at.strftime("%m/%d") %>
+              </td>
+              <td style="padding: 0.25rem; color: #6b7280;">
+                <%= order.total_cost %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</div>
+<% end %>
 
 <div class="card" style="margin-top: 2rem;">
   <h2 style="margin-bottom: 1rem;">Audit Log</h2>

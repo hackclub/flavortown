@@ -38,7 +38,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       orders = orders.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ?", search, search)
     end
 
-    # Calculate stats
+    # Calculate stats before region filter (for database queries)
     stats_orders = orders
     @c = {
       pending: stats_orders.where(aasm_state: "pending").count,
@@ -52,6 +52,27 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     fulfilled_orders = stats_orders.where(aasm_state: "fulfilled").where.not(fulfilled_at: nil)
     if fulfilled_orders.any?
       @f = fulfilled_orders.average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))").to_f
+    end
+
+    # Apply region filter after stats calculation (converts to array)
+    if current_user.fulfillment_person? && !current_user.admin? && current_user.region.present?
+      orders = orders.to_a.select do |order|
+        if order.frozen_address.present?
+          order_region = Shop::Regionalizable.country_to_region(order.frozen_address["country"])
+          order_region == current_user.region
+        else
+          false
+        end
+      end
+    elsif params[:region].present?
+      orders = orders.to_a.select do |order|
+        if order.frozen_address.present?
+          order_region = Shop::Regionalizable.country_to_region(order.frozen_address["country"])
+          order_region == params[:region].upcase
+        else
+          false
+        end
+      end
     end
 
     # Sorting
@@ -94,6 +115,11 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
     @order = ShopOrder.find(params[:id])
     @can_view_address = @order.can_view_address?(current_user)
+    
+    # Load user's order history for fraud dept
+    if current_user.fraud_dept?
+      @user_orders = @order.user.shop_orders.where.not(id: @order.id).order(created_at: :desc).limit(10)
+    end
   end
 
   def reveal_address

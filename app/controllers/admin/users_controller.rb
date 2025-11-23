@@ -143,4 +143,33 @@ class Admin::UsersController < Admin::ApplicationController
 
     redirect_to admin_user_path(@user)
   end
+
+  def mass_reject_orders
+    authorize :admin, :access_shop_orders?
+    @user = User.find(params[:id])
+    reason = params[:reason].presence || "Rejected by fraud department"
+    
+    orders = @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment])
+    count = 0
+    
+    orders.each do |order|
+      old_state = order.aasm_state
+      if order.mark_rejected(reason) && order.save
+        PaperTrail::Version.create!(
+          item_type: "ShopOrder",
+          item_id: order.id,
+          event: "update",
+          whodunnit: current_user.id,
+          object_changes: {
+            aasm_state: [ old_state, order.aasm_state ],
+            rejection_reason: [ nil, reason ]
+          }.to_yaml
+        )
+        count += 1
+      end
+    end
+    
+    flash[:notice] = "Rejected #{count} order(s) for #{@user.display_name}."
+    redirect_to admin_user_path(@user)
+  end
 end
