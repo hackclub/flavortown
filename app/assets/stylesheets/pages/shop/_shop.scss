@@ -18,6 +18,12 @@
     &__surface {
       width: 100%;
     }
+
+    @media (max-width: 960px) {
+      &__stack {
+        width: 100%;
+      }
+    }
   }
 
   a {
@@ -140,6 +146,41 @@
         height: 400px;
       }
     }
+
+    @media (max-width: 1000px) {
+      .shop__banner-headings {
+        flex-direction: column;
+        margin-bottom: 1em;
+
+        .shop__banner-price {
+          font-size: 2.5rem;
+          padding: 0.5rem 1rem;
+          margin-top: 1em;
+          width: 100%;
+        }
+      }
+
+      .shop__banner-showcase {
+        flex-direction: column;
+
+        .shop__banner-item-desc {
+          text-align: center;
+
+          h4 {
+            font-size: 3rem;
+          }
+
+          h5 {
+            font-size: 1.5rem;
+          }
+        }
+
+        img {
+          width: 100%;
+          height: auto;
+        }
+      }
+    }
   }
 
   .shop__nav {
@@ -248,6 +289,25 @@
         }
       }
     }
+
+    @media (max-width: 1200px) {
+      flex-direction: column;
+
+      .shop__searchbar {
+        width: 100%;
+      }
+
+      .shop__filters {
+        width: 100%;
+        flex-wrap: wrap;
+        margin-top: 2em;
+        gap: 2em;
+
+        .dropdown {
+          flex-grow: 1;
+        }
+      }
+    }
   }
 
   .shop__items {
@@ -259,6 +319,21 @@
 
     .shop-item-card {
       width: 100%;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .shop__buttons {
+      flex-direction: column;
+      gap: 4rem;
+
+      a {
+        width: 100%;
+      }
+
+      .dropdown {
+        width: 100%;
+      }
     }
   }
 }
