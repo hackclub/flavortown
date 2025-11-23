@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_20_001702) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_20_192451) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -269,16 +269,13 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_001702) do
     t.string "access_token_bidx"
     t.text "access_token_ciphertext"
     t.datetime "created_at", null: false
-    t.string "hackatime_user_id"
     t.string "provider"
     t.string "refresh_token_bidx"
     t.text "refresh_token_ciphertext"
     t.string "uid"
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.string "username"
+    t.integer "user_id", null: false
     t.index ["access_token_bidx"], name: "index_user_identities_on_access_token_bidx"
-    t.index ["provider", "hackatime_user_id"], name: "index_user_identities_on_provider_and_hackatime_user_id", unique: true
     t.index ["provider", "uid"], name: "index_user_identities_on_provider_and_uid", unique: true
     t.index ["refresh_token_bidx"], name: "index_user_identities_on_refresh_token_bidx"
     t.index ["user_id", "provider"], name: "index_user_identities_on_user_id_and_provider", unique: true
@@ -302,7 +299,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_001702) do
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.integer "projects_count"
+    t.string "slack_id"
     t.datetime "updated_at", null: false
+    t.string "verification_status", default: "needs_submission", null: false
     t.integer "votes_count"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
   end
@@ -333,3 +332,4 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_001702) do
   add_foreign_key "user_role_assignments", "roles"
   add_foreign_key "user_role_assignments", "users"
 end
+

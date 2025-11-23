@@ -1,26 +1,29 @@
 Rails.application.config.middleware.use OmniAuth::Builder do
-    provider :openid_connect,
-    name: :slack,
-    scope: [ :openid, :profile, :email ],
-    response_type: :code,
-    discovery: true,
-    issuer: "https://slack.com",
-    uid_field: "https://slack.com/user_id",
-    client_options: {
-      identifier:   Rails.application.credentials.dig(:slack, :client_id) || ENV["SLACK_CLIENT_ID"],
-      secret:       Rails.application.credentials.dig(:slack, :client_secret) || ENV["SLACK_CLIENT_SECRET"],
-      redirect_uri: Rails.application.credentials.dig(:slack, :redirect_uri) || ENV["SLACK_REDIRECT_URI"]
-    }
-
-    # IDV
+    # Hack Club Account via generic OAuth2
     provider :oauth2,
-      name: :idv,
-      scope: "basic_info address",
-      client_options: {
-        site: Rails.application.credentials.dig(:identity_vault, :host),
-        authorize_url: "/oauth/authorize",
-        token_url: "/oauth/token",
-        identifier: Rails.application.credentials.dig(:identity_vault, :client_id),
-        secret:     Rails.application.credentials.dig(:identity_vault, :client_secret)
+      Rails.application.credentials.dig(:hack_club, :client_id),
+      Rails.application.credentials.dig(:hack_club, :client_secret),
+      {
+        name: :hack_club,
+        scope: "email name slack_id verification_status",
+        callback_path: "/oauth/callback",
+        client_options: {
+          site:          "https://hca.dinosaurbbq.org",
+          authorize_url: "/oauth/authorize",
+          token_url:     "/oauth/token"
+        }
+      }
+
+    provider :oauth2,
+      Rails.application.credentials.dig(:hackatime, :client_id),
+      Rails.application.credentials.dig(:hackatime, :client_secret),
+      {
+        name: :hackatime,
+        scope: "profile read",
+        client_options: {
+          site:          "https://hackatime.hackclub.com",
+          authorize_url: "/oauth/authorize",
+          token_url:     "/oauth/token"
+        }
       }
 end

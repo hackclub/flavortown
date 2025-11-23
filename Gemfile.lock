@@ -698,6 +698,7 @@ DEPENDENCIES
   dotenv-rails
   erb_lint
   faker (~> 3.5)
+  faraday
   flipper
   flipper-active_record
   flipper-active_support_cache_store

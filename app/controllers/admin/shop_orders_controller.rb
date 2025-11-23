@@ -1,5 +1,7 @@
 class Admin::ShopOrdersController < Admin::ApplicationController
   before_action :set_paper_trail_whodunnit
+  def index
+    authorize :admin, :access_shop_orders?
 
   def index
     # Determine view mode
@@ -7,9 +9,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     # Check authorization based on view
     if @view == "fulfillment"
-      authorize :admin, :access_shop_orders?
-    else
-      authorize :admin, :shop_orders?
+      authorize :admin, :access_fulfillment_view?
     end
 
     # Base query

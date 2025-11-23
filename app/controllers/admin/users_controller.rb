@@ -1,9 +1,5 @@
 class Admin::UsersController < Admin::ApplicationController
     PER_PAGE = 25
-    include Pundit::Authorization
-    rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
-    before_action :authenticate_admin
-    skip_before_action :authenticate_admin, only: [ :stop_impersonating ]
 
     def index
       @query = params[:query]
@@ -48,14 +44,12 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def user_perms
+      authorize :admin, :manage_users?
       @users = User.joins(:role_assignments).includes(:roles).distinct.order(:id)
     end
 
     def promote_role
-      unless current_user.super_admin?
-        flash[:alert] = "Only super admins can manage user roles."
-        return redirect_to admin_user_path(params[:id])
-      end
+      authorize :admin, :manage_user_roles?
 
       @user = User.find(params[:id])
       role_name = params[:role_name]
@@ -80,10 +74,7 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
   def demote_role
-    unless current_user.super_admin?
-      flash[:alert] = "Only super admins can manage user roles."
-      return redirect_to admin_user_path(params[:id])
-    end
+    authorize :admin, :manage_user_roles?
 
     @user = User.find(params[:id])
     role_name = params[:role_name]
@@ -108,10 +99,7 @@ class Admin::UsersController < Admin::ApplicationController
   end
 
   def toggle_flipper
-    unless current_user.admin?
-      flash[:alert] = "Only admins can toggle features."
-      return redirect_to admin_user_path(params[:id])
-    end
+    authorize :admin, :access_flipper?
 
     @user = User.find(params[:id])
     feature = params[:feature].to_sym
@@ -142,6 +130,7 @@ class Admin::UsersController < Admin::ApplicationController
   end
 
   def sync_hackatime
+    authorize :admin, :manage_users?
     @user = User.find(params[:id])
     slack_identity = @user.identities.find_by(provider: "slack")
 
@@ -154,68 +143,4 @@ class Admin::UsersController < Admin::ApplicationController
 
     redirect_to admin_user_path(@user)
   end
-
-  def impersonate
-    unless current_user&.admin?
-      flash[:alert] = "You are not authorized to impersonate users."
-      redirect_to(request.referrer || root_path) and return
-    end
-
-    @user = User.find(params[:id])
-
-    # Log the impersonation
-    PaperTrail::Version.create!(
-      item_type: "User",
-      item_id: @user.id,
-      event: "impersonate_start",
-      whodunnit: current_user.id,
-      object_changes: { impersonator_id: [ nil, current_user.id ] }.to_yaml
-    )
-
-    session[:impersonating_user_id] = @user.id
-    session[:original_admin_id] = current_user.id
-
-    flash[:notice] = "You are now impersonating #{@user.display_name}."
-    redirect_to root_path
-  end
-
-  def stop_impersonating
-    # This action needs to work while impersonating, so we check the session directly
-    impersonated_user_id = session[:impersonating_user_id]
-    original_admin_id = session[:original_admin_id]
-
-    unless impersonated_user_id && original_admin_id
-      flash[:alert] = "You are not currently impersonating anyone."
-      redirect_to root_path and return
-    end
-
-    # Verify the original admin is actually an admin
-    original_admin = User.find_by(id: original_admin_id)
-    unless original_admin&.admin?
-      flash[:alert] = "Invalid impersonation session."
-      session.delete(:impersonating_user_id)
-      session.delete(:original_admin_id)
-      redirect_to root_path and return
-    end
-
-    # Log the end of impersonation
-    PaperTrail::Version.create!(
-      item_type: "User",
-      item_id: impersonated_user_id,
-      event: "impersonate_end",
-      whodunnit: original_admin_id,
-      object_changes: { impersonator_id: [ original_admin_id, nil ] }.to_yaml
-    )
-
-    session.delete(:impersonating_user_id)
-    session.delete(:original_admin_id)
-
-    flash[:notice] = "Stopped impersonating user."
-    redirect_to admin_user_path(impersonated_user_id)
-  end
-
-    def user_not_authorized
-      flash[:alert] = "You are not authorized to perform this action."
-      redirect_to(request.referrer || root_path)
-    end
 end

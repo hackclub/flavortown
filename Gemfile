@@ -105,6 +105,7 @@ gem "slocks"
 gem "mission_control-jobs"
 gem "view_component"
 gem "aws-sdk-s3"
+gem "faraday"
 
 gem "faker", "~> 3.5"
 gem "jsbundling-rails", "~> 1.3"

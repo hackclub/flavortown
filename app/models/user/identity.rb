@@ -9,20 +9,17 @@
 #  refresh_token_bidx       :string
 #  refresh_token_ciphertext :text
 #  uid                      :string
-#  username                 :string
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
-#  hackatime_user_id        :string
-#  user_id                  :bigint           not null
+#  user_id                  :integer          not null
 #
 # Indexes
 #
-#  index_user_identities_on_access_token_bidx               (access_token_bidx)
-#  index_user_identities_on_provider_and_hackatime_user_id  (provider,hackatime_user_id) UNIQUE
-#  index_user_identities_on_provider_and_uid                (provider,uid) UNIQUE
-#  index_user_identities_on_refresh_token_bidx              (refresh_token_bidx)
-#  index_user_identities_on_user_id                         (user_id)
-#  index_user_identities_on_user_id_and_provider            (user_id,provider) UNIQUE
+#  index_user_identities_on_access_token_bidx     (access_token_bidx)
+#  index_user_identities_on_provider_and_uid      (provider,uid) UNIQUE
+#  index_user_identities_on_refresh_token_bidx    (refresh_token_bidx)
+#  index_user_identities_on_user_id               (user_id)
+#  index_user_identities_on_user_id_and_provider  (user_id,provider) UNIQUE
 #
 # Foreign Keys
 #
@@ -34,114 +31,26 @@ class User::Identity < ApplicationRecord
     blind_index :access_token, :refresh_token, slow: true
     has_paper_trail only: [ :id, :user_id, :uid, :provider ]
 
-    PROVIDERS = %w[slack hackatime idv].freeze
+    PROVIDERS = %w[hackatime hack_club].freeze
 
     validates :provider, :uid, presence: true
-    validates :access_token, presence: true, if: -> { provider == "slack" }
+    validates :access_token, presence: true
     validates :provider, inclusion: { in: PROVIDERS }
     validates :uid, uniqueness: { scope: :provider }
     validates :provider, uniqueness: { scope: :user_id }
 
-    # Slack OpenID does not send display_name in the response. Therefore, we have to manually get it using users.info method. https://docs.slack.dev/authentication/sign-in-with-slack/#response
-    after_create :set_display_name, if: -> { provider == "slack" }
-    after_create :sync_hackatime_projects, if: -> { provider == "slack" }
-    after_create :propagate_slack_id_to_idv, if: -> { provider == "idv" }
-
-    before_validation :set_uid_from_hackatime_user_id, if: -> { provider == "hackatime" }
-    before_validation :populate_idv_uid_from_token, if: -> { provider == "idv" }
-
+    after_create_commit :sync_hackatime_projects, if: -> { provider == "hackatime" }
     private
-
-    def set_display_name
-        return if user.blank?
-
-        slack_token = Slack.respond_to?(:config) ? Slack.config.token : nil
-        return if slack_token.blank?
-
-        begin
-            client = Slack::Web::Client.new
-            response = client.users_info(user: uid)
-            slack_user = response.user if response.respond_to?(:user)
-            return if slack_user.blank?
-
-            profile = slack_user.profile if slack_user.respond_to?(:profile)
-            slack_display_name = profile.display_name if profile && profile.respond_to?(:display_name)
-            return if slack_display_name.blank?
-
-            if user.display_name.to_s.strip != slack_display_name.to_s.strip
-                user.update(display_name: slack_display_name)
-            end
-        rescue StandardError => e
-            Rails.logger.warn("Slack users.info callback failed for uid=#{uid}: #{e.class}: #{e.message}")
-        end
-    end
 
     def sync_hackatime_projects
         return if user.blank?
 
         begin
+            return if uid.blank?
+
             HackatimeService.sync_user_projects(user, uid)
         rescue StandardError => e
-            Rails.logger.warn("Hackatime project sync failed for user #{user.id} (slack_uid=#{uid}): #{e.class}: #{e.message}")
+            Rails.logger.warn("Hackatime project sync failed for user #{user.id} (hackatime_uid=#{uid}): #{e.class}: #{e.message}")
         end
-    end
-
-    def set_uid_from_hackatime_user_id
-        self.uid = hackatime_user_id.to_s if uid.blank? && hackatime_user_id.present?
-    end
-
-    def populate_idv_uid_from_token
-        return if uid.present?
-        return if access_token.to_s.strip.blank?
-
-        begin
-            me = idv_user_me(access_token)
-            candidate_uid = me.dig(:identity, :id) || me[:id] || me[:identity_id]
-            self.uid = candidate_uid.to_s if candidate_uid.present?
-        rescue StandardError => e
-            Rails.logger.warn("IDV me lookup failed for user #{user_id || 'n/a'}: #{e.class}: #{e.message}")
-        end
-    end
-
-    def propagate_slack_id_to_idv
-        return if user.blank?
-        return if uid.to_s.strip.blank?
-
-        begin
-            slack_identity = user.identities.find_by(provider: "slack")
-            return if slack_identity.blank? || slack_identity.uid.to_s.strip.blank?
-
-            idv_set_slack_id(uid, slack_identity.uid)
-        rescue StandardError => e
-            Rails.logger.warn("IDV set_slack_id failed for user #{user.id} (idv_uid=#{uid}): #{e.class}: #{e.message}")
-        end
-    end
-
-    def idv_host
-        Rails.application.credentials.dig(:identity_vault, :host)
-    end
-
-    def idv_program_key
-        Rails.application.credentials.dig(:identity_vault, :global_program_key)
-    end
-
-    def idv_conn(headers = {})
-        Faraday.new(url: idv_host, headers:) do |f|
-            f.request :json
-            f.response :json, parser_options: { symbolize_names: true }
-            f.response :raise_error
-        end
-    end
-
-    def idv_user_me(user_token)
-        raise ArgumentError, "user_token is required" if user_token.to_s.strip.blank?
-        idv_conn({ "Authorization" => "Bearer #{user_token}" }).get("/api/v1/me").body
-    end
-
-    def idv_set_slack_id(identity_id, slack_id)
-        return if idv_program_key.to_s.strip.blank?
-        idv_conn({ "Authorization" => "Bearer #{idv_program_key}" })
-            .post("/api/v1/identities/#{identity_id}/set_slack_id", { slack_id: })
-            .body
     end
 end

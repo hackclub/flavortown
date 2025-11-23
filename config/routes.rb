@@ -18,6 +18,8 @@ Rails.application.routes.draw do
 
   # Shop
   get "shop", to: "shop#index"
+  get "shop/my_orders", to: "shop#my_orders"
+  get "shop/order", to: "shop#order"
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
@@ -32,10 +34,16 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  # hackatime should not create a new session; it's used for linking
+  get "auth/hackatime/callback", to: "identities#hackatime"
+
   # Sessions
   get "auth/:provider/callback", to: "sessions#create"
   get "/auth/failure", to: "sessions#failure"
   get "logout", to: "sessions#destroy"
+
+  # OAuth callback for HCA
+  get "/oauth/callback", to: "sessions#create"
 
   # Kitchen
   get "kitchen", to: "kitchen#index"

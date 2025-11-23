@@ -5,6 +5,8 @@ const DROPZONE_FILLED_CLASS = "file-upload__dropzone--filled";
 
 export default class extends Controller {
   #processing = false;
+  #previews = [];
+  #currentIndex = 0;
 
   static targets = [
     "input",
@@ -15,17 +17,36 @@ export default class extends Controller {
     "progress",
     "progressBar",
     "status",
+    "prevButton",
+    "nextButton",
+    "indicators",
+    "addMore",
   ];
   static values = {
     maxSize: Number,
     initialUrl: String,
     initialFilename: String,
+    initialPreviews: Array,
+    maxCount: Number,
   };
 
   connect() {
     this.#reset();
-    // Show existing preview if provided
-    if (this.hasInitialUrlValue && this.initialUrlValue) {
+    // multiple
+    if (
+      this.hasInitialPreviewsValue &&
+      Array.isArray(this.initialPreviewsValue) &&
+      this.initialPreviewsValue.length > 0
+    ) {
+      this.#previews = this.initialPreviewsValue.map((p) => ({
+        url: p.url || null,
+        filename: p.filename || "File",
+      }));
+      this.#currentIndex = 0;
+      this.#renderCurrentPreview();
+      if (this.inputTarget?.multiple && this.hasAddMoreTarget)
+        this.addMoreTarget.hidden = false;
+    } else if (this.hasInitialUrlValue && this.initialUrlValue) {
       this.#showPreviewFromUrl(
         this.initialUrlValue,
         this.hasInitialFilenameValue && this.initialFilenameValue
@@ -78,7 +99,11 @@ export default class extends Controller {
       this.#rejectFile(file);
       return;
     }
-    this.#showPreview(file);
+    // For single selection, keep existing behavior of previewing during upload.
+    // For multiple selection, previews are rendered from the selection list.
+    if (!this.inputTarget.multiple) {
+      this.#showPreview(file);
+    }
     this.#showProgress(0);
     this.#showStatus("Preparing upload…");
   }
@@ -108,24 +133,103 @@ export default class extends Controller {
   }
 
   #processFiles(fileList) {
-    const file = Array.from(fileList || [])[0];
-    if (!file) return;
+    const files = Array.from(fileList || []);
+    if (files.length === 0) return;
 
-    if (!this.#validateFileSize(file)) {
-      this.#rejectFile(file);
+    const accepted = [];
+    const rejected = [];
+    for (const file of files) {
+      if (this.#validateFileSize(file)) {
+        accepted.push(file);
+      } else {
+        rejected.push(file);
+      }
+    }
+    if (!this.inputTarget.multiple && accepted.length > 1) {
+      accepted.splice(1);
+    }
+    // Enforce max count relative to existing files when in multiple mode
+    if (
+      this.inputTarget.multiple &&
+      this.hasMaxCountValue &&
+      this.maxCountValue
+    ) {
+      const existingCount =
+        (this.inputTarget.files && this.inputTarget.files.length) || 0;
+      const remaining = Math.max(0, this.maxCountValue - existingCount);
+      if (accepted.length > remaining) {
+        accepted.splice(remaining);
+        const overBy = files.length - remaining;
+        if (overBy > 0) {
+          this.#showStatus(
+            `You can upload up to ${this.maxCountValue} files total. ${remaining} more allowed.`,
+            "error",
+          );
+        }
+      }
+    }
+
+    if (accepted.length === 0) {
+      if (rejected.length > 0) this.#rejectFile(rejected[0]);
       return;
     }
 
     this.#processing = true;
     try {
       const dt = new DataTransfer();
-      dt.items.add(file);
+      // When multiple, merge existing files with newly accepted files
+      const existing = this.inputTarget.multiple
+        ? Array.from(this.inputTarget.files || [])
+        : [];
+      [...existing, ...accepted].forEach((f) => dt.items.add(f));
       this.inputTarget.files = dt.files;
-      this.#showPreview(file);
+
+      this.#filesToPreviewEntries(accepted).then((entries) => {
+        if (this.inputTarget.multiple) {
+          this.#previews = [...this.#previews, ...entries];
+          // Jump to first of the newly added group
+          this.#currentIndex = Math.max(
+            0,
+            this.#previews.length - entries.length,
+          );
+          if (this.hasAddMoreTarget) this.addMoreTarget.hidden = false;
+        } else {
+          this.#previews = entries;
+          this.#currentIndex = 0;
+        }
+        this.#renderCurrentPreview();
+      });
       this.inputTarget.dispatchEvent(new Event("change", { bubbles: true }));
     } finally {
       this.#processing = false;
     }
+  }
+
+  prev(event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    if (this.#previews.length <= 1) return;
+    this.#currentIndex =
+      (this.#currentIndex - 1 + this.#previews.length) % this.#previews.length;
+    this.#renderCurrentPreview();
+  }
+
+  next(event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    if (this.#previews.length <= 1) return;
+    this.#currentIndex = (this.#currentIndex + 1) % this.#previews.length;
+    this.#renderCurrentPreview();
+  }
+
+  goTo(event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    const index = Number(event?.currentTarget?.dataset?.index ?? -1);
+    if (Number.isNaN(index) || index < 0 || index >= this.#previews.length)
+      return;
+    this.#currentIndex = index;
+    this.#renderCurrentPreview();
   }
 
   #showPreview(file) {
@@ -150,6 +254,59 @@ export default class extends Controller {
     this.#displayPreviewShell(filename);
   }
 
+  async #filesToPreviewEntries(files) {
+    return await Promise.all(
+      files.map(
+        (file) =>
+          new Promise((resolve) => {
+            if (file.type.startsWith("image/")) {
+              const reader = new FileReader();
+              reader.onload = () =>
+                resolve({ url: reader.result, filename: file.name });
+              reader.readAsDataURL(file);
+            } else {
+              resolve({ url: null, filename: file.name });
+            }
+          }),
+      ),
+    );
+  }
+
+  #renderCurrentPreview() {
+    if (!this.hasPreviewTarget || this.#previews.length === 0) return;
+    const current = this.#previews[this.#currentIndex];
+    if (current.url) {
+      this.previewTarget.innerHTML = `<img src="${current.url}" alt="${current.filename}" class="file-upload__preview-image" />`;
+    } else {
+      this.previewTarget.innerHTML = `<div class="file-upload__preview-fallback">${current.filename}</div>`;
+    }
+    this.#displayPreviewShell(current.filename);
+    this.#updateCarouselUi();
+  }
+
+  #updateCarouselUi() {
+    const many = this.#previews.length > 1;
+    if (this.hasPrevButtonTarget) this.prevButtonTarget.hidden = !many;
+    if (this.hasNextButtonTarget) this.nextButtonTarget.hidden = !many;
+
+    if (this.hasIndicatorsTarget) {
+      if (!many) {
+        this.indicatorsTarget.hidden = true;
+        this.indicatorsTarget.innerHTML = "";
+      } else {
+        this.indicatorsTarget.hidden = false;
+        this.indicatorsTarget.innerHTML = this.#previews
+          .map(
+            (_p, i) =>
+              `<button type="button" class="file-upload__dot${
+                i === this.#currentIndex ? " is-active" : ""
+              }" data-index="${i}" data-action="file-upload#goTo" aria-label="Show file ${i + 1}"></button>`,
+          )
+          .join("");
+      }
+    }
+  }
+
   #displayPreviewShell(filename) {
     if (this.hasPreviewTarget) this.previewTarget.hidden = false;
     if (this.hasPlaceholderTarget) this.placeholderTarget.hidden = true;
@@ -157,6 +314,8 @@ export default class extends Controller {
       this.filenameTarget.textContent = filename;
       this.filenameTarget.hidden = false;
     }
+    if (this.inputTarget?.multiple && this.hasAddMoreTarget)
+      this.addMoreTarget.hidden = false;
     if (this.hasDropzoneTarget)
       this.dropzoneTarget.classList.add(DROPZONE_FILLED_CLASS);
   }
@@ -171,6 +330,11 @@ export default class extends Controller {
       this.filenameTarget.textContent = "";
       this.filenameTarget.hidden = true;
     }
+    if (this.hasIndicatorsTarget) {
+      this.indicatorsTarget.innerHTML = "";
+      this.indicatorsTarget.hidden = true;
+    }
+    if (this.hasAddMoreTarget) this.addMoreTarget.hidden = true;
     if (this.hasDropzoneTarget)
       this.dropzoneTarget.classList.remove(DROPZONE_FILLED_CLASS);
   }
