@@ -38,14 +38,13 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopOrder < ApplicationRecord
-  has_paper_trail
+  has_paper_trail ignore: [ :frozen_address_ciphertext ]
 
   include AASM
 
   belongs_to :user
   belongs_to :shop_item
   belongs_to :shop_card_grant, optional: true
-  belongs_to :warehouse_package, class_name: "Shop::WarehousePackage", optional: true
 
   # has_many :payouts, as: :payable, dependent: :destroy
 
@@ -105,6 +104,24 @@ class ShopOrder < ApplicationRecord
     frozen_address
   end
 
+  def warehouse_pick_lines
+    return [] unless shop_item.is_a?(ShopItem::WarehouseItem)
+    shop_item.contents_for_order_qty(quantity || 1)
+  end
+
+  # Class method to get combined pick lines for a batch of orders (by warehouse_package_id)
+  def self.combined_pick_lines_for_package(package_id)
+    lines = Hash.new { |h, k| h[k] = { "sku" => k, "name" => nil, "qty" => 0 } }
+    where(warehouse_package_id: package_id).includes(:shop_item).each do |order|
+      order.warehouse_pick_lines.each do |line|
+        entry = lines[line["sku"]]
+        entry["name"] ||= line["name"]
+        entry["qty"] += line["qty"].to_i
+      end
+    end
+    lines.values
+  end
+
   aasm timestamps: true do
     # Normal states
     state :pending, initial: true
@@ -140,7 +157,7 @@ class ShopOrder < ApplicationRecord
     end
 
     event :place_on_hold do
-      transitions to: :on_hold
+      transitions from: %i[pending awaiting_periodical_fulfillment], to: :on_hold
     end
 
     event :take_off_hold do

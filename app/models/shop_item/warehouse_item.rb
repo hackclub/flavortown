@@ -22,6 +22,7 @@
 #  max_qty                           :integer
 #  name                              :string
 #  one_per_person_ever               :boolean
+#  payout_percentage                 :integer          default(0)
 #  price_offset_au                   :decimal(, )
 #  price_offset_ca                   :decimal(, )
 #  price_offset_eu                   :decimal(, )
@@ -39,6 +40,31 @@
 #  usd_cost                          :decimal(, )
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
+#  user_id                           :bigint
+#
+# Indexes
+#
+#  index_shop_items_on_user_id  (user_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::WarehouseItem < ShopItem
+  # Normalizes per-unit ship spec; each SKU gets qty=1, batched by order quantity
+  def per_unit_contents
+    contents_array = agh_contents.is_a?(Array) ? agh_contents : (agh_contents.presence || [])
+    contents_array.map do |row|
+      {
+        "sku" => row["sku"] || row["id"] || row["name"],
+        "name" => row["name"],
+        "qty" => 1
+      }
+    end
+  end
+
+  # Multiplies spec by ordered quantity (user-selected quantity batches the SKUs)
+  def contents_for_order_qty(order_qty)
+    per_unit_contents.map { |r| r.merge("qty" => order_qty.to_i) }
+  end
 end

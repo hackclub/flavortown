@@ -50,5 +50,7 @@
 #
 #  fk_rails_...  (user_id => users.id)
 #
-class ShopItem::LetterMail < ShopItem
+class ShopItem::HackClubberItem < ShopItem
+  validates :seller, presence: true
+  validates :payout_percentage, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
 end

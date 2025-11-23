@@ -34,4 +34,15 @@
       ) %>
     </div>
   </div>
+
+  <% unless @has_identity_linked %>
+      <%= form_tag "/auth/idv", method: :post, data: {turbo: false} do %>
+        <button class="btn btn--red btn--striped">
+          <div>
+            <%= image_tag image_url("mask/enter.avif"), width: 20, height: 20 %>
+            Sign in!
+          </div>
+        </button>
+      <% end %>
+  <% end %>
 </div>
