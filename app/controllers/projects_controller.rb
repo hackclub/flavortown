@@ -20,14 +20,14 @@ class ProjectsController < ApplicationController
 
     unless turbo_frame_request?
       redirect_to project_path(@project)
-      return 
+      return
     end
 
     url = @project.readme_url
-    
+
     if url.present?
       begin
-        require 'net/http'
+        require "net/http"
         uri = URI(url)
         response = Net::HTTP.get_response(uri)
         content = response.is_a?(Net::HTTPSuccess) ? response.body.force_encoding("UTF-8") : "Failed to load README from #{url}"
