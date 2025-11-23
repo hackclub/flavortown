@@ -1,15 +1,17 @@
 class Admin::ShopOrdersController < Admin::ApplicationController
   before_action :set_paper_trail_whodunnit
   def index
-    authorize :admin, :access_shop_orders?
-
-  def index
     # Determine view mode
     @view = params[:view] || "shop_orders"
 
-    # Check authorization based on view
-    if @view == "fulfillment"
+    # Fulfillment team can only access fulfillment view
+    if current_user.fulfillment_person? && !current_user.admin?
+      if @view != "fulfillment"
+        authorize :admin, :access_fulfillment_view?  # Will raise NotAuthorized
+      end
       authorize :admin, :access_fulfillment_view?
+    else
+      authorize :admin, :access_shop_orders?
     end
 
     # Base query
@@ -85,13 +87,21 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def show
-    authorize :admin, :access_shop_orders?
+    if current_user.fulfillment_person? && !current_user.admin?
+      authorize :admin, :access_fulfillment_view?
+    else
+      authorize :admin, :access_shop_orders?
+    end
     @order = ShopOrder.find(params[:id])
     @can_view_address = @order.can_view_address?(current_user)
   end
 
   def reveal_address
-    authorize :admin, :access_shop_orders?
+    if current_user.fulfillment_person? && !current_user.admin?
+      authorize :admin, :access_fulfillment_view?
+    else
+      authorize :admin, :access_shop_orders?
+    end
     @order = ShopOrder.find(params[:id])
 
     if @order.can_view_address?(current_user)
@@ -189,6 +199,31 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to admin_shop_orders_path, notice: "Order released from hold"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to release order from hold: #{@order.errors.full_messages.join(', ')}"
+    end
+  end
+
+  def mark_fulfilled
+    if current_user.fulfillment_person? && !current_user.admin?
+      authorize :admin, :access_fulfillment_view?
+    else
+      authorize :admin, :access_shop_orders?
+    end
+    @order = ShopOrder.find(params[:id])
+    old_state = @order.aasm_state
+
+    if @order.mark_fulfilled && @order.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "update",
+        whodunnit: current_user.id,
+        object_changes: {
+          aasm_state: [ old_state, @order.aasm_state ]
+        }.to_yaml
+      )
+      redirect_to admin_shop_order_path(@order), notice: "Order marked as fulfilled"
+    else
+      redirect_to admin_shop_order_path(@order), alert: "Failed to mark order as fulfilled: #{@order.errors.full_messages.join(', ')}"
     end
   end
 end

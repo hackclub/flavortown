@@ -112,12 +112,18 @@
      <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="btn-danger">✗ Reject Order</button>
      <%= render "reject_modal", order: @order %>
    <% end %>
-   <% if @order.pending? || @order.awaiting_periodical_fulfillment? %>
-     <form method="post" action="<%= place_on_hold_admin_shop_order_path(@order) %>" style="display: inline;">
-       <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-       <button type="submit" class="btn-secondary" onclick="return confirm('Place this order on hold?')">⏸ Place on Hold</button>
-     </form>
-   <% end %>
+   <% if (@order.pending? || @order.awaiting_periodical_fulfillment?) && !current_user.fulfillment_person? %>
+      <form method="post" action="<%= place_on_hold_admin_shop_order_path(@order) %>" style="display: inline;">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <button type="submit" class="btn-secondary" onclick="return confirm('Place this order on hold?')">⏸ Place on Hold</button>
+      </form>
+    <% end %>
+    <% if @order.awaiting_periodical_fulfillment? && current_user.fulfillment_person? && !current_user.admin? %>
+      <form method="post" action="<%= mark_fulfilled_admin_shop_order_path(@order) %>" style="display: inline;">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <button type="submit" class="btn-primary" onclick="return confirm('Mark this order as fulfilled?')">✔ Mark as Fulfilled</button>
+      </form>
+    <% end %>
    <% if @order.on_hold? %>
      <form method="post" action="<%= release_from_hold_admin_shop_order_path(@order) %>" style="display: inline;">
        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
