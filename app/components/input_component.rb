@@ -67,8 +67,7 @@ class InputComponent < ViewComponent::Base
     method = value.to_sym
     return :text_area if method == :textarea
     return :select if method == :select
-    return :number_field if method == :number_field
-    return method if %i[text_field text_area number_field].include?(method)
+    return method if %i[text_field text_area].include?(method)
 
     raise ArgumentError, "Unsupported field type #{value.inspect}"
   end
