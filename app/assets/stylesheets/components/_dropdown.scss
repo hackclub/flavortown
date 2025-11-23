@@ -5,6 +5,7 @@
   align-items: center;
   font-family: var(--font-family-text);
   border-radius: 16px;
+  margin-top: -1em;
 
   &--brown {
     .dropdown__button {
@@ -207,9 +208,4 @@
       list-style: none;
     }
   }
-}
-
-.dropdown:hover,
-.dropdown:focus-within {
-  z-index: 20;
 }
