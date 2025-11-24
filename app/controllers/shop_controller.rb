@@ -39,12 +39,12 @@ class ShopController < ApplicationController
     if @shop_item.is_a?(ShopItem::FreeStickers)
         @order.aasm_state = "fulfilled"
         @order.fulfilled_at = Time.current
-        @order.mark_stickers_received
     elsif @order.respond_to?(:aasm_state=)
         @order.aasm_state = "pending"
     end
 
     if @order.save
+        @order.mark_stickers_received if @shop_item.is_a?(ShopItem::FreeStickers)
         redirect_to shop_my_orders_path, notice: "Order placed successfully!"
     else
         redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{@order.errors.full_messages.join(', ')}"
