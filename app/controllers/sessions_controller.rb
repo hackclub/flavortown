@@ -14,7 +14,7 @@ class SessionsController < ApplicationController
     identity_data = fetch_hack_club_identity(access_token)
     return redirect_to(root_path, alert: "Authentication failed") if identity_data.blank?
 
-    user_email, display_name, verification_status, slack_id, uid, address = extract_identity_fields(identity_data)
+    user_email, display_name, verification_status, slack_id, uid, = extract_identity_fields(identity_data)
     return redirect_to(root_path, alert: "Authentication failed") if uid.blank?
     return redirect_to(root_path, alert: "Authentication failed") unless User::VALID_VERIFICATION_STATUSES.include?(verification_status)
 
