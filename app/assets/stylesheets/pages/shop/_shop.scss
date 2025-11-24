@@ -79,6 +79,8 @@
       justify-content: space-between;
       font-family: var(--font-family-text);
       font-size: 2rem;
+      width: 90%;
+      margin: 0 auto;
 
       .shop__banner-title {
         color: var(--color-bg);
@@ -114,6 +116,7 @@
           color: var(--color-bg);
           font-weight: normal;
           font-family: var(--font-family-text);
+          line-height: 1;
         }
 
         h5 {
@@ -153,6 +156,7 @@
       }
 
       img {
+        margin-top: -4em;
         margin-bottom: -2em;
         height: 400px;
       }
@@ -261,6 +265,10 @@
       align-items: flex-end;
       justify-content: space-evenly;
       gap: 1rem;
+
+      .dropdown:nth-child(2) {
+        min-width: 250px;
+      }
 
       .dropdown__button {
         padding: 0.5em 0.5em 0.2em 0.5em;

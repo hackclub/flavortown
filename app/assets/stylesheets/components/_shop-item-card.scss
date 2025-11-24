@@ -9,6 +9,8 @@
   gap: 1rem;
   position: relative;
   overflow: visible;
+  height: 100%;
+  justify-content: space-between;
 
   &::before {
     content: "";
@@ -40,7 +42,7 @@
     justify-content: space-between;
     align-items: flex-end;
     width: 100%;
-    margin-top: 4em;
+    margin-top: auto;
     font-family: var(--font-family-text);
   }
 
