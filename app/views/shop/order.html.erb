@@ -10,19 +10,24 @@
     <div class="shop-order__content">
         <div class="shop-order__view">
             <div class="shop-order__image">
-                <%= image_tag image_url("playdate.webp"), loading: "lazy", decoding: "async" %>
+                <%= image_tag @shop_item.image, loading: "lazy", decoding: "async" if @shop_item.image.attached? %>
             </div>
-            <h2>Playdate</h2>
-            <h3>Play some games or something why you asking me</h3>
+            <h2><%= @shop_item.name %></h2>
+            <h3><%= @shop_item.description %></h3>
         </div>
         <div class="shop-order__details">
+          <% if @shop_item.type.include?("HQMailItem") || @shop_item.type.include?("WarehouseItem") %>
+            <div class="shop-item-card__customs-warning">
+              ⚠️ May require customs duties
+            </div>
+          <% end %>
             <h2>Complete your order:</h2>
             <div class="shop-order__cookies">
                 <h3>Price:</h3>
-                <h3>🍪 1000</h3>
+                <h3>🍪 <%= @shop_item.ticket_cost %></h3>
             </div>
             <div class="shop-order__quantity">
-                <%= form_with url: shop_order_path, method: :post, local: true do |form| %>
+                <%= form_with url: shop_order_path(shop_item_id: @shop_item.id), method: :post, local: true, id: "order-form" do |form| %>
                     <%= render InputComponent.new(
                     label: "Quantity",
                     placeholder: 1,
@@ -30,43 +35,69 @@
                     attribute: :quantity,
                     color: :green,
                     as: :number_field,
-                    input_html: { min: 1, max: 10, step: 1, value: 1 }
+                    input_html: { min: 1, max: 10, step: 1, value: 1, id: "shop-order__quantity-input" }
                     ) %>
                 <% end %>
-                <h6>Maximum <span id="shop-order__max">10</span> items per order.</h6>
+                <h6>Maximum <span id="shop-order__max"><%= @shop_item.max_qty || 10 %></span> items per order.</h6>
             </div>
             <div class="shop-order__address">
-                <%= render DropdownComponent.new(
-                label: "Shipping Address",
-                options: ["My House", "My Other House"],
-                selected_option: "My House",
-                color: :green
-                ) %>
-                <h4>My House</h4>
-                <a href="identity.hackclub.com">Manage addresses</a>
+                <% user_address = current_user.address %>
+                <% if user_address %>
+                    <div class="shop-order__address-details">
+                        <h4>Shipping Address</h4>
+                        <p>
+                            <%= user_address[:name] %><br>
+                            <%= user_address[:street1] %>
+                            <% if user_address[:street2].present? %>
+                                <br><%= user_address[:street2] %>
+                            <% end %>
+                            <br><%= user_address[:city] %>, <%= user_address[:state] %> <%= user_address[:zip] %>
+                            <br><%= user_address[:country] %>
+                        </p>
+                    </div>
+                <% else %>
+                    <div class="shop-order__no-address">
+                         <p>No shipping address found.</p>
+                         <a href="https://identity.hackclub.com" target="_blank" class="btn btn-sm btn-outline-primary">Manage addresses on Hack Club Identity</a>
+                    </div>
+                <% end %>
             </div>
             <div class="shop-order__summary">
                 <h3>Order Summary</h3>
                 <div class="shop-order__summary-price">
                     <h4>Price:</h4>
-                    <h4>🍪 1000</h4>
+                    <h4>🍪 <%= @shop_item.ticket_cost %></h4>
                 </div>
                 <div class="shop-order__summary-qty">
                     <h4>Quantity:</h4>
-                    <h4>1</h4>
+                    <h4 id="shop-order__summary-qty-display">1</h4>
                 </div>
                 <div class="shop-order__summary-total">
                     <h4>Total:</h4>
-                    <h4>🍪 1000</h4>
+                    <h4 id="shop-order__summary-total-display">🍪 <%= @shop_item.ticket_cost %></h4>
                 </div>
             </div>
-            <div class="shop-order__balance">Current balance: <span id="shop-order__curr-bal">🍪 1000</span></div>
-            <%= render ButtonComponent.new(
-                text: "Get!",
-                href: "/shop/my_orders",
-                color: :brown,
-                variant: :borderless
-            ) %>
+            <div class="shop-order__balance">Current balance: <span id="shop-order__curr-bal">🍪 <%= current_user.balance %></span></div>
+            <div style="text-align: center;">
+                <button type="submit" form="order-form" class="btn btn-brown btn-borderless" style="width: 100%;">Get!</button>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const quantityInput = document.getElementById('shop-order__quantity-input');
+    const summaryQtyDisplay = document.getElementById('shop-order__summary-qty-display');
+    const summaryTotalDisplay = document.getElementById('shop-order__summary-total-display');
+    const ticketCost = <%= @shop_item.ticket_cost || 0 %>;
+
+    if (quantityInput) {
+        quantityInput.addEventListener('input', function() {
+            const qty = parseInt(this.value) || 0;
+            summaryQtyDisplay.textContent = qty;
+            summaryTotalDisplay.textContent = '🍪 ' + (qty * ticketCost).toFixed(2);
+        });
+    }
+});
+</script>

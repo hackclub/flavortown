@@ -10,6 +10,9 @@ module Admin
     def new
       authorize :admin, :manage_shop?
       @shop_item = ShopItem.new
+      Shop::Regionalizable::REGION_CODES.each do |code|
+        @shop_item.public_send("enabled_#{code.downcase}=", true)
+      end
     end
 
     def create

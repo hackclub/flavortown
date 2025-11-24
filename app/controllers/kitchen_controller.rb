@@ -31,7 +31,7 @@ class KitchenController < ApplicationController
 
     body = JSON.parse(response.body)
     identity_payload = body["identity"] || {}
-    latest_status = identity_payload["verification_status"].to_s
+    latest_status = identity_payload["verification_status"].to_s 
     return unless User::VALID_VERIFICATION_STATUSES.include?(latest_status)
     return if current_user.verification_status.to_s == latest_status
 

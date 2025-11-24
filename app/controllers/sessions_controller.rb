@@ -14,7 +14,7 @@ class SessionsController < ApplicationController
     identity_data = fetch_hack_club_identity(access_token)
     return redirect_to(root_path, alert: "Authentication failed") if identity_data.blank?
 
-    user_email, display_name, verification_status, slack_id, uid = extract_identity_fields(identity_data)
+    user_email, display_name, verification_status, slack_id, uid, address = extract_identity_fields(identity_data)
     return redirect_to(root_path, alert: "Authentication failed") if uid.blank?
     return redirect_to(root_path, alert: "Authentication failed") unless User::VALID_VERIFICATION_STATUSES.include?(verification_status)
 
@@ -70,7 +70,7 @@ class SessionsController < ApplicationController
 
   def extract_identity_fields(data)
     # Example payload:
-    # {"id"=>"ident!Zk9f3K", "verification_status"=>"needs_submission", "primary_email"=>"user@example.com", "first_name"=>"First", "last_name"=>"Last", "slack_id"=>"UXXXXXXX"}
+    # {"id"=>"ident!Zk9f3K", "verification_status"=>"needs_submission", "primary_email"=>"user@example.com", "first_name"=>"First", "last_name"=>"Last", "slack_id"=>"UXXXXXXX", "address"=>{"street1"=>"123 Test St", "street2"=>"Apt 4B", "city"=>"Testville", "state"=>"TS", "zip"=>"12345", "country"=>"US"}}
     user_email = data["primary_email"].presence.to_s
     first_name = data["first_name"].to_s.strip
     last_name  = data["last_name"].to_s.strip
@@ -78,6 +78,7 @@ class SessionsController < ApplicationController
     verification_status = data["verification_status"].to_s
     slack_id = data["slack_id"].to_s
     uid = data["id"].to_s
-    [ user_email, display_name, verification_status, slack_id, uid ]
+    address = data["address"]
+    [ user_email, display_name, verification_status, slack_id, uid, address ]
   end
 end

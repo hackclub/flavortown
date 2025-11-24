@@ -87,8 +87,10 @@ class ShopItem < ApplicationRecord
                        preprocessed: true,
                        saver: { strip: true, quality: 75 }
   end
-  has_many :shop_orders, dependent: :restrict_with_error
+  validates :name, :description, :ticket_cost, presence: true
+  validates :image, presence: true, on: :create
 
+  has_many :shop_orders, dependent: :restrict_with_error
   def is_free?
     self.ticket_cost.zero?
   end

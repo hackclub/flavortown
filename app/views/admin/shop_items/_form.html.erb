@@ -1,4 +1,4 @@
-<div class="shop-item-form" x-data="{ selectedType: '<%= shop_item.type %>' }">
+<div class="shop-item-form">
 <%= form_with model: shop_item.becomes(ShopItem), url: (shop_item.persisted? ? admin_shop_item_path(shop_item) : admin_shop_items_path), method: (shop_item.persisted? ? :patch : :post), local: true do |f| %>
   <% if shop_item.errors.any? %>
     <div class="alert alert-danger">
@@ -18,17 +18,17 @@
         <div class="card-body">
           <div class="mb-3">
             <%= f.label :type, class: "form-label" %>
-            <%= f.select :type, @shop_item_types, { include_blank: "Select a type" }, { class: "form-select", "x-model": "selectedType" } %>
+            <%= f.select :type, @shop_item_types, { include_blank: "Select a type" }, { class: "form-select", id: "shop_item_type" } %>
           </div>
 
           <div class="mb-3">
             <%= f.label :name, class: "form-label" %>
-            <%= f.text_field :name, class: "form-control" %>
+            <%= f.text_field :name, class: "form-control", required: true %>
           </div>
 
           <div class="mb-3">
             <%= f.label :description, class: "form-label" %>
-            <%= f.text_area :description, rows: 3, class: "form-control" %>
+            <%= f.text_area :description, rows: 3, class: "form-control", required: true %>
           </div>
 
           <div class="mb-3">
@@ -38,7 +38,7 @@
 
           <div class="mb-3">
             <%= f.label :image, class: "form-label" %>
-            <%= f.file_field :image, class: "form-control" %>
+            <%= f.file_field :image, class: "form-control", required: !shop_item.persisted? %>
             <% if shop_item.persisted? && shop_item.image.attached? %>
               <div class="mt-2">
                 <small>Current image:</small><br>
@@ -58,7 +58,7 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <%= f.label :ticket_cost, class: "form-label" %>
-                <%= f.number_field :ticket_cost, step: 0.01, class: "form-control", id: "shop_item_ticket_cost" %>
+                <%= f.number_field :ticket_cost, step: 0.01, class: "form-control", id: "shop_item_ticket_cost", required: true %>
               </div>
             </div>
             <div class="col-md-6">
@@ -139,7 +139,7 @@
             <small class="form-text text-muted">Number of items available for purchase</small>
           </div>
 
-          <div x-show="selectedType === 'ShopItem::HackClubberItem'">
+          <div id="hack_clubber_settings" style="display: none;">
             <h5>Hack Clubber Settings</h5>
             <div class="mb-3">
               <%= f.label :user_id, "Seller (User ID)", class: "form-label" %>
@@ -153,7 +153,7 @@
             </div>
           </div>
 
-          <div x-show="selectedType === 'ShopItem::HCBGrant' || selectedType === 'ShopItem::HCBPreauthGrant'">
+          <div id="hcb_locks_settings" style="display: none;">
             <h5>HCB Locks</h5>
             <div class="mb-3">
               <%= f.label :hcb_merchant_lock, "HCB Merchant Lock", class: "form-label" %>
@@ -171,13 +171,13 @@
             </div>
           </div>
 
-          <div x-show="selectedType === 'ShopItem::HCBPreauthGrant'" class="mb-3">
+          <div id="hcb_preauth_settings" class="mb-3" style="display: none;">
             <%= f.label :hcb_preauthorization_instructions, "HCB Preauthorization Instructions", class: "form-label" %>
             <%= f.text_area :hcb_preauthorization_instructions, rows: 3, class: "form-control", placeholder: "Instructions for preauthorized HCB grants" %>
             <small class="form-text text-muted">Used by HCB Preauth Grant items to provide spending instructions</small>
           </div>
 
-          <div x-show="selectedType === 'ShopItem::WarehouseItem'" class="mb-3">
+          <div id="warehouse_settings" class="mb-3" style="display: none;">
             <%= f.label :agh_contents, "AGH Contents - SKU List (JSON)", class: "form-label" %>
             <%= f.text_area :agh_contents, rows: 4, class: "form-control", placeholder: '[{"sku": "ITEM-001", "name": "Item Name"}, {"sku": "ITEM-002", "name": "Item 2"}]', style: "font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;" %>
             <small class="form-text text-muted">List SKUs to include. Quantity selected by user will batch all SKUs together.</small>
@@ -267,7 +267,7 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+(function() {
   const gameConstants = {
     doubloons_per_dollar: <%= Rails.configuration.game_constants.tickets_per_dollar.to_json %>,
     dollars_per_mean_hour: <%= Rails.configuration.game_constants.dollars_per_mean_hour.to_json %>
@@ -278,6 +278,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const hackerScoreField = document.getElementById('shop_item_hacker_score');
   const estimatedTicketsDisplay = document.getElementById('estimated_tickets');
   const averageHoursDisplay = document.getElementById('average_hours_estimated');
+
+  // State to track if user has manually overridden the ticket cost
+  let isTicketCostManuallySet = false;
+  
+  if (ticketCostField && ticketCostField.value && parseFloat(ticketCostField.value) !== 0) {
+    isTicketCostManuallySet = true;
+  }
 
   function calculateEstimatedTickets() {
     const usdCost = parseFloat(usdCostField.value) || 0;
@@ -296,13 +303,15 @@ document.addEventListener('DOMContentLoaded', function () {
   function updateCalculations() {
     const estimatedTickets = calculateEstimatedTickets();
     const averageHours = calculateAverageHours();
-    estimatedTicketsDisplay.value = estimatedTickets.toFixed(2);
-    averageHoursDisplay.value = averageHours.toFixed(2);
+    if (estimatedTicketsDisplay) estimatedTicketsDisplay.value = estimatedTickets.toFixed(2);
+    if (averageHoursDisplay) averageHoursDisplay.value = averageHours.toFixed(2);
   }
 
   function autoFillTicketCost() {
+    if (isTicketCostManuallySet) return;
+
     const estimatedTickets = calculateEstimatedTickets();
-    if (usdCostField.value && (!ticketCostField.value || ticketCostField.value == 0)) {
+    if (usdCostField.value) {
       ticketCostField.value = estimatedTickets.toFixed(2);
       updateCalculations();
       updateAllRegionalPricing();
@@ -310,15 +319,33 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (usdCostField) {
-    usdCostField.addEventListener('input', updateCalculations);
-    usdCostField.addEventListener('blur', autoFillTicketCost);
+    usdCostField.addEventListener('input', function() {
+      updateCalculations();
+      autoFillTicketCost();
+    });
   }
-  if (ticketCostField) ticketCostField.addEventListener('input', updateCalculations);
+
+  if (ticketCostField) {
+    ticketCostField.addEventListener('input', function(e) {
+      if (e.isTrusted) {
+        isTicketCostManuallySet = true;
+        // If user clears the field, reset manual flag to allow autofill again
+        if (this.value === '' || parseFloat(this.value) === 0) {
+           isTicketCostManuallySet = false;
+           autoFillTicketCost();
+        }
+      }
+      updateCalculations();
+      updateAllRegionalPricing();
+    });
+  }
+
   if (hackerScoreField) {
-    hackerScoreField.addEventListener('input', updateCalculations);
-    hackerScoreField.addEventListener('blur', autoFillTicketCost);
+    hackerScoreField.addEventListener('input', function() {
+      updateCalculations();
+      autoFillTicketCost();
+    });
   }
-  updateCalculations();
 
   const limitedCheckbox = document.getElementById('shop_item_limited');
   const stockFieldContainer = document.getElementById('stock_field_container');
@@ -395,8 +422,44 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.delta-dollars-input').forEach(field => {
     field.addEventListener('input', function() { updateFromDeltaDollars(this.dataset.region); });
   });
-
-  if (ticketCostField) ticketCostField.addEventListener('input', updateAllRegionalPricing);
+  
+  // Run calculations on load
+  updateCalculations();
+  // Try to autofill on load (handles case where we have USD cost but ticket cost is empty/default)
+  autoFillTicketCost();
+  // Also update regional pricing (in case ticket cost was just autofilled)
   updateAllRegionalPricing();
-});
+
+  // Type selection logic
+  const typeSelect = document.getElementById('shop_item_type');
+  const hackClubberSettings = document.getElementById('hack_clubber_settings');
+  const hcbLocksSettings = document.getElementById('hcb_locks_settings');
+  const hcbPreauthSettings = document.getElementById('hcb_preauth_settings');
+  const warehouseSettings = document.getElementById('warehouse_settings');
+
+  function updateTypeVisibility() {
+    const selectedType = typeSelect ? typeSelect.value : '';
+    
+    if (hackClubberSettings) {
+      hackClubberSettings.style.display = (selectedType === 'ShopItem::HackClubberItem') ? 'block' : 'none';
+    }
+    
+    if (hcbLocksSettings) {
+      hcbLocksSettings.style.display = (selectedType === 'ShopItem::HCBGrant' || selectedType === 'ShopItem::HCBPreauthGrant') ? 'block' : 'none';
+    }
+    
+    if (hcbPreauthSettings) {
+      hcbPreauthSettings.style.display = (selectedType === 'ShopItem::HCBPreauthGrant') ? 'block' : 'none';
+    }
+    
+    if (warehouseSettings) {
+      warehouseSettings.style.display = (selectedType === 'ShopItem::WarehouseItem') ? 'block' : 'none';
+    }
+  }
+
+  if (typeSelect) {
+    typeSelect.addEventListener('change', updateTypeVisibility);
+    updateTypeVisibility(); // Run on load
+  }
+})();
 </script>

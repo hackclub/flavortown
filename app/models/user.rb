@@ -81,8 +81,10 @@ class User < ApplicationRecord
     role_names = roles.pluck(:name).map(&:downcase)
     role_hierarchy.find { |role| role_names.include?(role) }&.titleize || "User"
   end
-
-  # TEMP: It'll be removed post slack migration
+  def promote_to_big_leagues!
+    role = ::Role.find_by(name: "super_admin")
+    role_assignments.find_or_create_by!(role: role) if role
+  end
 
   def generate_magic_link_token!
     self.magic_link_token = SecureRandom.urlsafe_base64(32)
@@ -96,5 +98,22 @@ class User < ApplicationRecord
 
   def clear_magic_link_token!
     update!(magic_link_token: nil, magic_link_token_expires_at: nil)
+  end
+  
+  def balance
+    0
+  end
+
+  def address
+    {
+      name: display_name,
+      street1: "15 Falls Rd",
+      street2: nil,
+      city: "Shelburne",
+      state: "VT",
+      zip: "05482",
+      country: "US",
+      email: email
+        }
   end
 end
