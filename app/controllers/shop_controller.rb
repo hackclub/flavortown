@@ -16,7 +16,7 @@ class ShopController < ApplicationController
   def create_order
     @shop_item = ShopItem.find(params[:shop_item_id])
     quantity = params[:quantity].to_i
-    
+
     if quantity <= 0
         redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Quantity must be greater than 0"
         return
@@ -27,14 +27,14 @@ class ShopController < ApplicationController
     # 1. Check stock
     # 2. Check balance/charge user
     # 3. Handle different item types
-    
+
     @order = current_user.shop_orders.new(
         shop_item: @shop_item,
         quantity: quantity,
-        # Assuming address is stored as json in user model now, but for order history we might want to snapshot it
-        # For now just getting it to save
+      # Assuming address is stored as json in user model now, but for order history we might want to snapshot it
+      # For now just getting it to save
     )
-    
+
     # Set initial state if using AASM
     if @shop_item.is_a?(ShopItem::FreeStickers)
         @order.aasm_state = "fulfilled"
@@ -43,7 +43,7 @@ class ShopController < ApplicationController
     elsif @order.respond_to?(:aasm_state=)
         @order.aasm_state = "pending"
     end
-    
+
     if @order.save
         redirect_to shop_my_orders_path, notice: "Order placed successfully!"
     else

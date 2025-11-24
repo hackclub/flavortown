@@ -99,7 +99,7 @@ class User < ApplicationRecord
   def clear_magic_link_token!
     update!(magic_link_token: nil, magic_link_token_expires_at: nil)
   end
-  
+
   def balance
     0
   end

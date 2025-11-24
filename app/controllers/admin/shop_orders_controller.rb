@@ -115,7 +115,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
     @order = ShopOrder.find(params[:id])
     @can_view_address = @order.can_view_address?(current_user)
-    
+
     # Load user's order history for fraud dept
     if current_user.fraud_dept?
       @user_orders = @order.user.shop_orders.where.not(id: @order.id).order(created_at: :desc).limit(10)

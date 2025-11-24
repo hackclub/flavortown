@@ -43,7 +43,7 @@
             <%= link_to "go to billy", "#{Rails.application.config.billy_url}?u=#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
             <%= link_to "go to joe", "#{Rails.application.config.joe_url}profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
-          
+
             <% if identity.provider == "hack_club" %>
             <%= link_to "go to idv backend", "https://hca.dinosaurbbq.org/backend/identities/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
@@ -114,8 +114,8 @@
                     disabled: !current_user&.super_admin? %>
 
       <% if @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).any? %>
-        <button type="button" onclick="document.getElementById('reject-modal-orders').showModal()" 
-                title="Reject all pending/awaiting orders" 
+        <button type="button" onclick="document.getElementById('reject-modal-orders').showModal()"
+                title="Reject all pending/awaiting orders"
                 style="background: #ef4444; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600;">
           ✗ Reject Orders
         </button>

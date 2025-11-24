@@ -281,7 +281,7 @@
 
   // State to track if user has manually overridden the ticket cost
   let isTicketCostManuallySet = false;
-  
+
   if (ticketCostField && ticketCostField.value && parseFloat(ticketCostField.value) !== 0) {
     isTicketCostManuallySet = true;
   }
@@ -422,7 +422,7 @@
   document.querySelectorAll('.delta-dollars-input').forEach(field => {
     field.addEventListener('input', function() { updateFromDeltaDollars(this.dataset.region); });
   });
-  
+
   // Run calculations on load
   updateCalculations();
   // Try to autofill on load (handles case where we have USD cost but ticket cost is empty/default)
@@ -439,19 +439,19 @@
 
   function updateTypeVisibility() {
     const selectedType = typeSelect ? typeSelect.value : '';
-    
+
     if (hackClubberSettings) {
       hackClubberSettings.style.display = (selectedType === 'ShopItem::HackClubberItem') ? 'block' : 'none';
     }
-    
+
     if (hcbLocksSettings) {
       hcbLocksSettings.style.display = (selectedType === 'ShopItem::HCBGrant' || selectedType === 'ShopItem::HCBPreauthGrant') ? 'block' : 'none';
     }
-    
+
     if (hcbPreauthSettings) {
       hcbPreauthSettings.style.display = (selectedType === 'ShopItem::HCBPreauthGrant') ? 'block' : 'none';
     }
-    
+
     if (warehouseSettings) {
       warehouseSettings.style.display = (selectedType === 'ShopItem::WarehouseItem') ? 'block' : 'none';
     }
