@@ -136,7 +136,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_23_223159) do
     t.string "postable_type"
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id"
+    t.bigint "user_id", null: false
     t.index ["project_id"], name: "index_posts_on_project_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
@@ -292,6 +292,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_23_223159) do
     t.index ["user_id"], name: "index_user_role_assignments_on_user_id"
   end
 
+  create_table "user_roles", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "role_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["role_id"], name: "index_user_roles_on_role_id"
+    t.index ["user_id"], name: "index_user_roles_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "display_name"
@@ -303,7 +312,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_23_223159) do
     t.string "region"
     t.string "slack_id"
     t.datetime "updated_at", null: false
-    t.string "verification_status", default: "needs_submission", null: false
+    t.string "verification_status"
     t.integer "votes_count"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["region"], name: "index_users_on_region"
@@ -334,4 +343,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_23_223159) do
   add_foreign_key "user_identities", "users"
   add_foreign_key "user_role_assignments", "roles"
   add_foreign_key "user_role_assignments", "users"
+  add_foreign_key "user_roles", "roles"
+  add_foreign_key "user_roles", "users"
 end
