@@ -1,4 +1,4 @@
-# Battlemage Agent Instructions
+# Flavortown Agent Instructions
 
 ## Build & Test Commands
 
@@ -35,6 +35,6 @@
   - Use `lockbox` and `blind_index` for encrypted fields.
   - Ensure `pundit` policies are applied in controllers.
 
-When making making changes/creations towards admin sides of the codebase there needs to be proper papertrail code and audit logging which should be accessible.
+When making changes/creations towards admin sides of the codebase there needs to be proper papertrail code and audit logging which should be accessible.
 
 DB migrations should always ask for user confirmation.
