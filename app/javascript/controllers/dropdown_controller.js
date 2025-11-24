@@ -12,7 +12,7 @@ export default class extends Controller {
     const option = event.target.textContent;
     this.selectedTarget.textContent = option;
     this.menuTarget.classList.remove("dropdown__menu--open");
-    
+
     // Trigger filtering if label is Category, Price Range, or Sort by
     const label = this.element.querySelector(".dropdown__label")?.textContent;
     if (label === "Category") {
@@ -40,16 +40,18 @@ export default class extends Controller {
   filterByPrice(range) {
     const items = document.querySelectorAll(".shop-item-card");
     const [min, max] = this.getPriceRange(range);
-    
+
     items.forEach((item) => {
-      const priceText = item.querySelector(".shop-item-card__price")?.textContent;
+      const priceText = item.querySelector(
+        ".shop-item-card__price",
+      )?.textContent;
       if (!priceText) {
         item.style.display = "flex";
         return;
       }
       const match = priceText.match(/[\d.]+/);
       const price = match ? parseFloat(match[0]) : 0;
-      item.style.display = (price >= min && price <= max) ? "flex" : "none";
+      item.style.display = price >= min && price <= max ? "flex" : "none";
     });
   }
 
@@ -64,7 +66,9 @@ export default class extends Controller {
     const itemsContainer = document.querySelector(".shop__items");
     if (!itemsContainer) return;
 
-    const items = Array.from(itemsContainer.querySelectorAll(".shop-item-card"));
+    const items = Array.from(
+      itemsContainer.querySelectorAll(".shop-item-card"),
+    );
 
     if (sortType === "Prices") {
       items.sort((a, b) => {
@@ -74,8 +78,10 @@ export default class extends Controller {
       });
     } else if (sortType === "Alphabetical") {
       items.sort((a, b) => {
-        const nameA = a.querySelector(".shop-item-card__title")?.textContent || "";
-        const nameB = b.querySelector(".shop-item-card__title")?.textContent || "";
+        const nameA =
+          a.querySelector(".shop-item-card__title")?.textContent || "";
+        const nameB =
+          b.querySelector(".shop-item-card__title")?.textContent || "";
         return nameA.localeCompare(nameB);
       });
     }
@@ -84,7 +90,9 @@ export default class extends Controller {
   }
 
   extractPrice(element) {
-    const priceText = element.querySelector(".shop-item-card__price")?.textContent;
+    const priceText = element.querySelector(
+      ".shop-item-card__price",
+    )?.textContent;
     if (!priceText) return 0;
     const match = priceText.match(/[\d.]+/);
     return match ? parseFloat(match[0]) : 0;

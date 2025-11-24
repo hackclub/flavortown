@@ -12,7 +12,8 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
   }
   50% {
@@ -36,7 +37,8 @@
 }
 
 @keyframes rotate-icon {
-  0%, 100% {
+  0%,
+  100% {
     transform: rotate(-10deg);
   }
   50% {

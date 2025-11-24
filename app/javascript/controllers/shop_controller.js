@@ -24,7 +24,9 @@ export default class extends Controller {
     const itemsContainer = document.querySelector(".shop__items");
     if (!itemsContainer) return;
 
-    const items = Array.from(itemsContainer.querySelectorAll(".shop-item-card"));
+    const items = Array.from(
+      itemsContainer.querySelectorAll(".shop-item-card"),
+    );
 
     items.sort((a, b) => {
       const priceA = this.extractPrice(a);
@@ -37,9 +39,9 @@ export default class extends Controller {
   }
 
   extractPrice(element) {
-    const priceText = element
-      .querySelector(".shop-item-card__price")
-      ?.textContent;
+    const priceText = element.querySelector(
+      ".shop-item-card__price",
+    )?.textContent;
     if (!priceText) return 0;
     const match = priceText.match(/[\d.]+/);
     return match ? parseFloat(match[0]) : 0;

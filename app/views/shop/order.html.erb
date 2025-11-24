@@ -84,13 +84,12 @@
         </div>
     </div>
 </div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const quantityInput = document.getElementById('shop-order__quantity-input');
     const summaryQtyDisplay = document.getElementById('shop-order__summary-qty-display');
     const summaryTotalDisplay = document.getElementById('shop-order__summary-total-display');
-    const ticketCost = <%= @shop_item.ticket_cost || 0 %>;
+    const ticketCost = <%= (@shop_item.ticket_cost || 0).to_json %>;
 
     if (quantityInput) {
         quantityInput.addEventListener('input', function() {
