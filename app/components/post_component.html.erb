@@ -1,0 +1,48 @@
+<article class="post <%= variant_class %>">
+  <header class="post__header">
+    <div class="post__avatar">
+      <%= helpers.inline_svg_tag("icons/user.svg") %>
+    </div>
+    <div class="post__meta">
+      <div class="post__author"><%= author_name %></div>
+      <div class="post__time"><%= posted_at_text %> ago</div>
+    </div>
+  </header>
+
+  <% if post.postable.respond_to?(:body) && post.postable.body.present? %>
+    <div class="post__body"><%= helpers.md post.postable.body %></div>
+  <% end %>
+
+  <% if attachments.any? %>
+    <div class="post__attachments" data-controller="post-attachments">
+      <div class="post__viewport">
+        <button type="button" class="post__chevron post__chevron--prev" data-post-attachments-target="prevButton" data-action="post-attachments#prev" aria-label="Previous" hidden>
+          <%= helpers.inline_svg_tag "icons/chevron-down.svg", class: "post__chevron-icon", focusable: "false", aria: { hidden: true } %>
+        </button>
+        <div class="post__track" data-post-attachments-target="track">
+          <% attachments.each do |att| %>
+            <div class="post__slide">
+              <% if image?(att) %>
+                <picture class="post__attachment post__attachment--image">
+                  <source type="image/webp" srcset="<%= url_for(att.variant(:medium)) %>">
+                  <img class="post__image" alt="Attachment" src="<%= url_for(att) %>">
+                </picture>
+              <% elsif video?(att) %>
+                <video class="post__attachment post__attachment--video" controls src="<%= url_for(att) %>"></video>
+              <% else %>
+                <a class="post__attachment post__attachment--file" href="<%= url_for(att) %>" target="_blank" rel="noopener">
+                  <%= helpers.inline_svg_tag("icons/paper.svg") %>
+                  <span><%= File.basename(att.filename.to_s) %></span>
+                </a>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        <button type="button" class="post__chevron post__chevron--next" data-post-attachments-target="nextButton" data-action="post-attachments#next" aria-label="Next" hidden>
+          <%= helpers.inline_svg_tag "icons/chevron-down.svg", class: "post__chevron-icon", focusable: "false", aria: { hidden: true } %>
+        </button>
+        <div class="post__indicators" data-post-attachments-target="indicators" hidden></div>
+      </div>
+    </div>
+  <% end %>
+</article>

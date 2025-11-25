@@ -146,7 +146,10 @@
   max-width: 0;
   overflow: hidden;
   white-space: nowrap;
-  transition: opacity 150ms ease, max-width 150ms ease, margin 150ms ease;
+  transition:
+    opacity 150ms ease,
+    max-width 150ms ease,
+    margin 150ms ease;
   margin-left: 0;
 }
 
@@ -177,12 +180,57 @@
 
 @media (max-width: 960px) {
   .sidebar {
-    position: static;
-    width: auto;
-    height: auto;
+    position: fixed;
+    z-index: 100;
+    top: auto;
+    bottom: 1em;
+    left: 0;
+    width: 100%;
+    height: var(--sidebar-collapsed-width);
+
+    &:hover {
+      width: 100%;
+    }
+  }
+
+  .sidebar__blob {
+    width: 100%;
+    justify-content: space-between;
+    padding: 0.5em 0;
+    box-shadow: var(--shadow);
+  }
+
+  .sidebar__nav-list {
+    flex-direction: row;
+    justify-content: space-evenly;
+  }
+
+  .sidebar:hover .sidebar__nav-label {
+    opacity: 0;
+    max-width: 0;
+    margin-left: 0;
+  }
+
+  .sidebar__nav-link--active::before {
+    display: none;
+  }
+
+  .sidebar__nav-icon-wrapper {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .sidebar__user-placeholder {
+    position: relative;
+    z-index: 100;
+    bottom: 0;
+    padding: 0;
+    width: 100%;
+    box-shadow: var(--shadow);
   }
 
   body.signed-in main {
-    margin-left: 0;
+    margin: 0 50px;
   }
 }

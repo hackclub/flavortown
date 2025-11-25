@@ -3,9 +3,9 @@
 class FileUploadComponent < ViewComponent::Base
   COLORS = InputComponent::COLORS
 
-  attr_reader :label, :form, :attribute, :color, :subtitle, :accept, :max_size
+  attr_reader :label, :form, :attribute, :color, :subtitle, :accept, :max_size, :max_count
 
-  def initialize(label:, form:, attribute:, color: :yellow, subtitle: nil, accept: nil, multiple: false, direct_upload: true, max_size: nil)
+  def initialize(label:, form:, attribute:, color: :yellow, subtitle: nil, accept: nil, multiple: false, direct_upload: true, max_size: nil, max_count: nil)
     @label = label
     @form = form
     @attribute = attribute
@@ -15,6 +15,7 @@ class FileUploadComponent < ViewComponent::Base
     @multiple = multiple
     @direct_upload = direct_upload
     @max_size = max_size
+    @max_count = max_count
   end
 
   def wrapper_classes
@@ -39,7 +40,13 @@ class FileUploadComponent < ViewComponent::Base
     return nil unless record.respond_to?(attribute)
     attachment = record.public_send(attribute)
     return nil unless attachment.respond_to?(:attached?) && attachment.attached?
-    helpers.url_for(attachment)
+    if attachment.respond_to?(:attachments) # :attachment for single
+      first = attachment.attachments.first
+      return nil unless first
+      helpers.url_for(first)
+    else
+      helpers.url_for(attachment)
+    end
   rescue
     nil
   end
@@ -49,10 +56,36 @@ class FileUploadComponent < ViewComponent::Base
     return nil unless record.respond_to?(attribute)
     attachment = record.public_send(attribute)
     return nil unless attachment.respond_to?(:attached?) && attachment.attached?
-    blob = attachment.try(:blob)
-    blob&.filename&.to_s
+    if attachment.respond_to?(:attachments)
+      att = attachment.attachments.first
+      att&.blob&.filename&.to_s
+    else
+      blob = attachment.try(:blob)
+      blob&.filename&.to_s
+    end
   rescue
     nil
+  end
+
+  def initial_previews
+    record = form.object
+    return [] unless record.respond_to?(attribute)
+    attachment = record.public_send(attribute)
+    return [] unless attachment.respond_to?(:attached?) && attachment.attached?
+
+    if attachment.respond_to?(:attachments)
+      attachment.attachments.map do |att|
+        {
+          url: helpers.url_for(att),
+          filename: att.blob&.filename&.to_s
+        }
+      end
+    else
+      blob = attachment.try(:blob)
+      [ { url: helpers.url_for(attachment), filename: blob&.filename&.to_s } ].compact
+    end
+  rescue
+    []
   end
 
   def file_field_html_options
@@ -67,6 +100,7 @@ class FileUploadComponent < ViewComponent::Base
 
     options[:multiple] = true if multiple?
     options[:accept] = accept if accept.present?
+    options[:"file-upload-max-count-value"] = max_count if multiple? && max_count.present?
 
     options
   end

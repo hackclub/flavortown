@@ -3,4 +3,3 @@ class KitchenPolicy < ApplicationPolicy
     logged_in?
   end
 end
-
