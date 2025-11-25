@@ -101,10 +101,12 @@ class User < ApplicationRecord
   end
 
   def balance
+    # TODO: implement payouts
     0
   end
 
   def address
+    # TODO: add on HCA address imports
     {
       name: display_name,
       street1: "15 Falls Rd",
