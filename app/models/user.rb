@@ -5,10 +5,12 @@
 #  id                          :bigint           not null, primary key
 #  display_name                :string
 #  email                       :string
+#  has_gotten_free_stickers    :boolean          default(FALSE)
 #  magic_link_token            :string
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
-#  verification_status         :string           default("needs_submission"), not null
+#  region                      :string
+#  verification_status         :string
 #  votes_count                 :integer
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
@@ -17,6 +19,7 @@
 # Indexes
 #
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
+#  index_users_on_region            (region)
 #
 class User < ApplicationRecord
   has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
