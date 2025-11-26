@@ -11,8 +11,12 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user
 
-  def authenticate_user!
-    redirect_to login_path, alert: "You must be logged in to access this section" unless current_user
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
+  private
+
+  def user_not_authorized
+    flash[:alert] = "You are not authorized to perform this action."
+    redirect_to(request.referrer || root_path)
   end
-  helper_method :authenticate_user!
 end

@@ -81,6 +81,16 @@
   &__control {
     position: relative;
     z-index: 2;
+    &--locked {
+      .input__field {
+        opacity: 0.65;
+        cursor: not-allowed;
+        filter: saturate(0.7);
+      }
+      .input__icon {
+        position: relative;
+      }
+    }
   }
 
   &__icon {
@@ -246,5 +256,30 @@
         opacity: 0.75;
       }
     }
+  }
+
+  &--shake {
+    animation: input-shake 0.32s ease both;
+  }
+}
+
+@keyframes input-shake {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+  100% {
+    transform: translateX(0);
   }
 }

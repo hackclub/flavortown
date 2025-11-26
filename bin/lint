@@ -5,3 +5,9 @@ echo "rubocop"
 bundle exec rubocop -A
 echo "linting views"
 bundle exec erb_lint app/ -a
+
+echo "prettier check (javascript/typescript)"
+yarn -s prettier --write "app/javascript/**/*.{js,jsx,ts,tsx}"
+
+echo "prettier check (scss/css)"
+yarn -s prettier --write "app/assets/stylesheets/**/*.{scss,css}"

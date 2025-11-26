@@ -18,6 +18,8 @@ Rails.application.routes.draw do
 
   # Shop
   get "shop", to: "shop#index"
+  get "shop/my_orders", to: "shop#my_orders"
+  get "shop/order", to: "shop#order"
 
   # Voting
   resources :votes, only: [ :new, :create, :index ]

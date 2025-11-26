@@ -53,6 +53,10 @@ class Project < ApplicationRecord
 
     validates :title, presence: true, length: { maximum: 120 }
     validates :description, length: { maximum: 1_000 }, allow_blank: true
+    validates :demo_url, :repo_url, :readme_url,
+              length: { maximum: 2_048 },
+              format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]) },
+              allow_blank: true
     validates :banner,
               content_type: { in: ACCEPTED_CONTENT_TYPES, spoofing_protection: true },
               size: { less_than: MAX_BANNER_SIZE, message: "is too large (max 10 MB)" },

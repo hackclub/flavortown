@@ -3,8 +3,7 @@ require "json"
 
 class KitchenController < ApplicationController
   def index
-    redirect_to root_path unless current_user
-    return unless current_user
+    authorize :kitchen, :index?
 
     # temp: Refresh verification_status from HCA and DB
     # TODO: PR to idv

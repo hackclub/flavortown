@@ -111,8 +111,8 @@ input {
 
 .section {
   position: relative;
-  min-height: 100vh;
   display: flex;
+  height: fit-content;
 }
 
 .hero {
@@ -122,8 +122,12 @@ input {
   justify-content: center;
   text-align: center;
   overflow: hidden;
-  height: 100vh;
-  padding: 0 0.5rem; // makes it look better on phone
+  min-height: 100vh;
+  padding: 0 0.5rem 20vw 0.5rem;
+
+  @media (max-width: 600px) {
+    padding-bottom: 0;
+  }
 
   .top-collab {
     position: absolute;
@@ -167,14 +171,6 @@ input {
       font-size: 2.2rem;
       font-weight: 500;
 
-      div.subtext {
-        font-size: 1.4rem;
-        font-weight: normal;
-        color: var(--color-red-400);
-        font-style: italic;
-        font-family: var(--font-family-text);
-      }
-
       @media (max-width: 600px) {
         font-size: 1.5rem;
       }
@@ -205,7 +201,12 @@ input {
     .rsvp-form {
       display: flex;
       flex-direction: column;
+      width: 66%;
       gap: 1rem;
+
+      @media (max-width: 800px) {
+        width: 100%;
+      }
 
       form {
         display: flex;
@@ -260,8 +261,7 @@ input {
     overflow: hidden;
     z-index: 0;
     width: 110%;
-    margin-bottom: -8%;
-    margin-left: -10%;
+    margin-left: -8%;
     bottom: 0;
 
     @media (max-width: 600px) {
@@ -527,7 +527,6 @@ input {
 
 .testimonials-wrapper {
   position: relative;
-  height: 90vh !important;
 
   &::after {
     content: "";
@@ -544,12 +543,12 @@ input {
 }
 
 .testimonials {
-  position: absolute;
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  padding: 2rem 0;
+  padding: 8rem 0;
   z-index: 500;
   overflow-x: hidden;
   width: 100%;
@@ -612,12 +611,18 @@ input {
       transition:
         transform 0.3s ease,
         z-index 0.3s ease;
+      display: -webkit-box;
+      -webkit-line-clamp: 10;
+      line-clamp: 10;
+      -webkit-box-orient: vertical;
 
       &:hover {
         height: auto;
         overflow: visible;
         z-index: 10;
         transform: scale(1.05);
+        -webkit-line-clamp: 100;
+        line-clamp: 100;
       }
 
       h2 {
@@ -1076,8 +1081,8 @@ input {
         position: relative;
         margin-top: auto;
         z-index: 1;
-        padding: 1em;
-        padding-bottom: 2em;
+        padding: 1em 0 2em 0;
+        margin-top: 2rem;
 
         border-top: 16px solid var(--color-brown-700);
 
@@ -1488,6 +1493,7 @@ input {
                       margin-left: auto;
 
                       a {
+                        color: var(--color-brown-500);
                         background-color: var(--color-bg);
                         box-shadow: var(--shadow);
                         border-radius: 8px;
@@ -1742,7 +1748,7 @@ input {
 
         > div {
           font-size: 3rem;
-          width: 110%;
+          width: max(110%, 300px);
           text-align: center;
 
           background: var(--color-red-500)

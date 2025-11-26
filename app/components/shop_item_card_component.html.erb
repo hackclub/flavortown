@@ -1,0 +1,13 @@
+<div class="shop-item-card">
+  <div class="shop-item-card__image">
+    <%= image_tag image_url, alt: "#{name} image", class: "shop-item-card__image-tag" %>
+  </div>
+  <div class="shop-item-card__content">
+    <h4 class="shop-item-card__title"><%= name %></h4>
+    <p class="shop-item-card__description"><%= description %></p>
+    <div class="shop-item-card__details">
+      <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
+      <span class="shop-item-card__price"><%= number_to_currency(price) %></span>
+    </div>
+  </div>
+</div>

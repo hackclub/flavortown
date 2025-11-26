@@ -1,4 +1,4 @@
-<div class="<%= wrapper_classes %>" data-controller="file-upload"<% if max_size.present? %> data-file-upload-max-size-value="<%= max_size %>"<% end %><% if initial_preview_url.present? %> data-file-upload-initial-url-value="<%= initial_preview_url %>"<% end %><% if initial_filename.present? %> data-file-upload-initial-filename-value="<%= initial_filename %>"<% end %>>
+<div class="<%= wrapper_classes %>" data-controller="file-upload"<% if max_size.present? %> data-file-upload-max-size-value="<%= max_size %>"<% end %><% if max_count.present? %> data-file-upload-max-count-value="<%= max_count %>"<% end %><% if initial_preview_url.present? %> data-file-upload-initial-url-value="<%= initial_preview_url %>"<% end %><% if initial_filename.present? %> data-file-upload-initial-filename-value="<%= initial_filename %>"<% end %><% if initial_previews.any? %> data-file-upload-initial-previews-value="<%= j(initial_previews.to_json) %>"<% end %>>
   <label class="input__label" for="<%= form.field_id(attribute) %>"><%= label %></label>
 
   <%= form.file_field attribute, **file_field_html_options %>
@@ -10,7 +10,7 @@
       tabindex="0"
       aria-label="Upload file"
       data-file-upload-target="dropzone"
-      data-action="<%= dropzone_actions %> keydown->file-upload#openWithKeyboard">
+      data-action="<%= dropzone_actions %> keydown->file-upload#openWithKeyboard keydown.left->file-upload#prev keydown.right->file-upload#next">
       <div class="file-upload__placeholder" data-file-upload-target="placeholder">
         <p class="file-upload__headline">Drag & drop your file here</p>
         <p class="file-upload__hint">
@@ -21,8 +21,25 @@
         </p>
       </div>
 
+      <button type="button" class="file-upload__nav file-upload__nav--prev" data-file-upload-target="prevButton" data-action="file-upload#prev" aria-label="Previous" hidden>
+        <%= helpers.inline_svg_tag "icons/chevron-down.svg", class: "file-upload__nav-icon", focusable: "false", aria: { hidden: true } %>
+      </button>
+
       <div class="file-upload__preview" data-file-upload-target="preview" hidden></div>
+      <button type="button" class="file-upload__nav file-upload__nav--next" data-file-upload-target="nextButton" data-action="file-upload#next" aria-label="Next" hidden>
+        <%= helpers.inline_svg_tag "icons/chevron-down.svg", class: "file-upload__nav-icon", focusable: "false", aria: { hidden: true } %>
+      </button>
+
       <p class="file-upload__filename" data-file-upload-target="filename" hidden></p>
+      <div class="file-upload__indicators" data-file-upload-target="indicators" hidden></div>
+      <button
+        type="button"
+        class="file-upload__browse file-upload__add-more"
+        data-file-upload-target="addMore"
+        data-action="file-upload#open"
+        hidden>
+        Add more files
+      </button>
     </div>
 
     <div class="file-upload__progress" data-file-upload-target="progress" hidden>

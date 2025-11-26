@@ -22,9 +22,14 @@
 @use "components/sidebar";
 @use "components/ui-heading";
 @use "components/state_card";
+@use "components/dropdown";
+@use "components/shop-item-card";
+@use "components/post";
 
 // Pages
 @use "pages/projects/index";
 @use "pages/projects/new";
 @use "pages/projects/show";
 @use "pages/kitchen/index" as kitchen_index;
+@use "pages/shop/shop";
+@use "pages/shop/order";
