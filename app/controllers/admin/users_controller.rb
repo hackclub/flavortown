@@ -1,27 +1,26 @@
 class Admin::UsersController < Admin::ApplicationController
+    before_action :preload_roles
     PER_PAGE = 25
 
     def index
       @query = params[:query]
 
-      users = if @query.present?
+      users = User.all.with_roles
+      if @query.present?
         q = "%#{@query}%"
-        User.where("email ILIKE ? OR display_name ILIKE ?", q, q)
-      else
-        User.all
+        users = users.where("email ILIKE ? OR display_name ILIKE ?", q, q)
       end
 
       # Pagination logic
       @page = params[:page].to_i
       @page = 1 if @page < 1
-      @total_users = users.count
+      @total_users = users.size
       @total_pages = (@total_users / PER_PAGE.to_f).ceil
       @users = users.order(:id).offset((@page - 1) * PER_PAGE).limit(PER_PAGE)
     end
 
     def show
-      @user = User.find(params[:id])
-      @current_user = current_user
+      @user = User.with_roles.includes(:identities).find(params[:id])
 
       # Get role assignment history from audit logs
       all_role_versions = PaperTrail::Version
@@ -39,7 +38,7 @@ class Admin::UsersController < Admin::ApplicationController
 
     def user_perms
       authorize :admin, :manage_users?
-      @users = User.joins(:role_assignments).includes(:roles).distinct.order(:id)
+      @users = User.joins(:role_assignments).distinct.order(:id)
     end
 
     def promote_role
@@ -48,21 +47,15 @@ class Admin::UsersController < Admin::ApplicationController
       @user = User.find(params[:id])
       role_name = params[:role_name]
 
-      if role_name == "Super_Admin"
+      if role_name == "super_admin"
         flash[:alert] = "Only super admins can promote to super admin."
         return redirect_to admin_user_path(@user)
       end
 
-      role = Role.find_by(name: role_name)
-
-      if role && !@user.roles.include?(role)
-        PaperTrail.request(whodunnit: current_user.id) do
-          @user.roles << role
-        end
-        flash[:notice] = "User promoted to #{role_name}."
-      else
-        flash[:alert] = "Unable to promote user to #{role_name}."
+      PaperTrail.request(whodunnit: current_user.id) do
+        @user.role_assignments.create!(role: role_name)
       end
+      flash[:notice] = "User promoted to #{role_name.titleize}."
 
       redirect_to admin_user_path(@user)
     end
@@ -73,20 +66,20 @@ class Admin::UsersController < Admin::ApplicationController
     @user = User.find(params[:id])
     role_name = params[:role_name]
 
-    if role_name == "Super_Admin"
+    if role_name == "super_admin"
       flash[:alert] = "Only super admins can demote super admin."
       return redirect_to admin_user_path(@user)
     end
 
-    role = Role.find_by(name: role_name)
+    role_assignment = @user.role_assignments.find_by(role: User::RoleAssignment.roles[role_name])
 
-    if role && @user.roles.include?(role)
+    if role_assignment
       PaperTrail.request(whodunnit: current_user.id) do
-        @user.roles.delete(role)
+        role_assignment.destroy!
       end
-      flash[:notice] = "User demoted from #{role_name}."
+      flash[:notice] = "User demoted from #{role_name.titleize}."
     else
-      flash[:alert] = "Unable to demote user from #{role_name}."
+      flash[:alert] = "Unable to demote user from #{role_name.titleize}."
     end
 
     redirect_to admin_user_path(@user)
@@ -136,5 +129,11 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     redirect_to admin_user_path(@user)
+  end
+
+  private
+
+  def preload_roles
+    @current_user = current_user(:role_assignments)
   end
 end

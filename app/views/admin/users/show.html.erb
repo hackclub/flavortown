@@ -6,8 +6,8 @@
 
     <div class="info-rows">
       <div><b>Name:</b> <%= @user.display_name %></div>
-      <div><b>Roles:</b> <%= @user.roles.pluck(:name).join(", ") %></div>
-      <div><b>Projects:</b> <%= @user.projects.count %></div>
+      <div><b>Roles:</b> <%= @user.role_assignments.map(&:role).join(", ") %></div>
+      <div><b>Projects:</b> <%= @user.projects_count %></div>
     </div>
   </div>
   <div class="card">
@@ -34,43 +34,16 @@
     <h2>actions</h2>
     <div class="info-rows">
       <%= link_to "Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
-      <% slack_identity = @user.identities.find_by(provider: "slack") %>
+      <% slack_identity = @user.identities.find { |i| i.provider == "slack" } %>
       <%= button_to "Sync Hackatime Data",
                     sync_hackatime_admin_user_path(@user),
                     method: :post,
                     class: "btn-primary slim",
                     disabled: slack_identity.nil? %>
-      <% has_fraud_dept = @user.roles.exists?(name: "fraud_dept") %>
-      <%= button_to (has_fraud_dept ? "Demote from Fraud Dept" : "Promote to Fraud Dept"),
-                    (has_fraud_dept ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    params: { role_name: "fraud_dept" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
-
-      <% has_fulfillment = @user.roles.exists?(name: "fulfillment_person") %>
-      <%= button_to (has_fulfillment ? "Demote from Fulfillment Person" : "Promote to Fulfillment Person"),
-                    (has_fulfillment ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    params: { role_name: "fulfillment_person" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
-
-      <% has_project_certifier = @user.roles.exists?(name: "project_certifier") %>
-      <%= button_to (has_project_certifier ? "Demote from Project Certifier" : "Promote to Project Certifier"),
-                    (has_project_certifier ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    params: { role_name: "project_certifier" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
-
-      <% has_admin = @user.roles.exists?(name: "admin") %>
-      <%= button_to (has_admin ? "Demote from Admin" : "Promote to Admin"),
-                    (has_admin ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    params: { role_name: "admin" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.super_admin? %>
+      <%= render 'role_toggle', user: @user, role_name: 'fraud_dept', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_name: 'fulfillment_person', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_name: 'project_certifier', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_name: 'admin', disabled: !current_user&.super_admin? %>
     </div>
   </div>
   <div class="card">
@@ -112,14 +85,14 @@
           <%
             changes = YAML.load(version.object_changes) rescue {}
             # For create: [nil, 5], for destroy: [5, nil] - we want the non-nil value
-            role_id_array = changes["role_id"]
-            role_id = if role_id_array.is_a?(Array)
-              role_id_array.compact.first
+            role_int_array = changes["role"]
+            role_int = if role_int_array.is_a?(Array)
+              role_int_array.compact.first
             else
-              role_id_array
+              role_int_array
             end
 
-            role = Role.find_by(id: role_id) if role_id
+            role_name = User::RoleAssignment.roles.key(role_int) if role_int
             admin = User.find_by(id: version.whodunnit)
           %>
           <tr>
@@ -134,10 +107,7 @@
               <% end %>
             </td>
             <td>
-              <%= role&.name&.titleize || "Unknown Role" %>
-              <% if role_id && !role %>
-                (ID: <%= role_id %>)
-              <% end %>
+              <%= role_name&.titleize || "Unknown Role" %>
             </td>
             <td>
               <% if admin %>
