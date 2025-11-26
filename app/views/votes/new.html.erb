@@ -3,6 +3,25 @@
 <% if @project.nil? %>
   <p>No more projects to vote on!</p>
 <% else %>
-  <%= render "projects/card", project: @project %>
-  <%= link_to "Vote on another project", new_vote_path %>
+  <%# project to vote on %>
+  <div>
+    <%# TODO: i'd like a general-purpose "project mention" we can use for this sort of thing %>
+    <strong>
+      <%= @project.title %>
+    </strong>
+    <em>
+      <%= @project.description %>
+    </em>
+  </div>
+
+  <%# voting form %>
+  <div>
+    <%= render "form", project: @project %>
+  </div>
+
+  <% if current_user.votes.exists? %>
+    <div>
+      <%= link_to "See my previous votes", votes_path %>
+    </div>
+  <% end %>
 <% end %>

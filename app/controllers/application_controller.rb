@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
 
   # Add Policy Pundit
   include Pundit::Authorization
+  include Pagy::Method
 
   def current_user
     @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
