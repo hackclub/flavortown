@@ -27,18 +27,23 @@ class ProjectsController < ApplicationController
 
     if url.present?
       begin
-        require "net/http"
-        uri = URI(url)
-        response = Net::HTTP.get_response(uri)
-        content = response.is_a?(Net::HTTPSuccess) ? response.body.force_encoding("UTF-8") : "Failed to load README from #{url}"
-      rescue => e
+        response = Faraday.get(url) do |req|
+          req.options.timeout = 5 
+          req.options.open_timeout = 2 
+        end
+
+        if response.success?
+          @content = response.body.force_encoding("UTF-8")
+        else
+          @content = "Failed to load README from #{url}: (HTTP #{response.status})"
+        end
+      rescue Faraday::Error => e
         content = "Error loading README: #{e.message}"
       end
     else
-      content = "Couldn't find README! Make sure ya set it up!"
+      @content = "Couldn't find README! Make sure ya set it up!"
     end
 
-    @html = MarkdownRenderer.render(content)
     render layout: false
   end
 
