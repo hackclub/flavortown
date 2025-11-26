@@ -23,6 +23,7 @@ class Project < ApplicationRecord
     has_many :posts, dependent: :destroy
     # prolly countercache it
     has_many :devlogs, -> { where(postable_type: "Post::Devlog") }, class_name: "Post"
+    has_many :votes, dependent: :destroy
 
     has_one_attached :demo_video
     # https://github.com/rails/rails/pull/39135
@@ -60,4 +61,9 @@ class Project < ApplicationRecord
               content_type: { in: ACCEPTED_CONTENT_TYPES, spoofing_protection: true },
               size: { less_than: MAX_BANNER_SIZE, message: "is too large (max 10 MB)" },
               processable_file: true
+
+    scope :votable_by, ->(user) {
+        where.not(id: user.projects.select(:id))
+        .where.not(id: user.votes.select(:project_id))
+    }
 end

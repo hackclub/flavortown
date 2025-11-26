@@ -27,6 +27,7 @@ class User < ApplicationRecord
   has_many :roles, through: :role_assignments
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
   has_many :shop_orders, dependent: :destroy
+  has_many :votes, dependent: :destroy
 
   VALID_VERIFICATION_STATUSES = %w[needs_submission pending verified ineligible].freeze
 

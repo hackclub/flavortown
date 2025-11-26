@@ -111,3 +111,6 @@ gem "jsbundling-rails", "~> 1.3"
 gem "stackprof"
 gem "sentry-ruby"
 gem "sentry-rails"
+
+# for pagination
+gem "pagy", "~> 43.1"

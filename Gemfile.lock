@@ -406,6 +406,9 @@ GEM
       validate_url
       webfinger (~> 2.0)
     ostruct (0.6.3)
+    pagy (43.1.5)
+      json
+      yaml
     paper_trail (17.0.0)
       activerecord (>= 7.1)
       request_store (~> 1.4)
@@ -663,6 +666,7 @@ GEM
     websocket-extensions (0.1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
+    yaml (0.4.0)
     zeitwerk (2.7.3)
 
 PLATFORMS
@@ -713,6 +717,7 @@ DEPENDENCIES
   omniauth-oauth2
   omniauth-rails_csrf_protection
   omniauth_openid_connect
+  pagy (~> 43.1)
   paper_trail
   pg (~> 1.1)
   propshaft

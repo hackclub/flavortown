@@ -1,0 +1,27 @@
+<% content_for :title, "Vote!" %>
+
+<% if @project.nil? %>
+  <p>No more projects to vote on!</p>
+<% else %>
+  <%# project to vote on %>
+  <div>
+    <%# TODO: i'd like a general-purpose "project mention" we can use for this sort of thing %>
+    <strong>
+      <%= @project.title %>
+    </strong>
+    <em>
+      <%= @project.description %>
+    </em>
+  </div>
+
+  <%# voting form %>
+  <div>
+    <%= render "form", project: @project %>
+  </div>
+
+  <% if current_user.votes.exists? %>
+    <div>
+      <%= link_to "See my previous votes", votes_path %>
+    </div>
+  <% end %>
+<% end %>

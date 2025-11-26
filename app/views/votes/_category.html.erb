@@ -1,0 +1,8 @@
+<div class="category-vote mb-6">
+  <div>
+    <%= fields.label :score, category.name.to_s.humanize %>
+    <p><%= category.description %></p>
+  </div>
+  <%= fields.hidden_field :category, value: category.name %>
+  <%= fields.number_field :score, min: 1, max: 5 %>
+</div>

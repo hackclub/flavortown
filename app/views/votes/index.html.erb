@@ -1,0 +1,22 @@
+<% content_for :title, "My Votes" %>
+
+<div>
+  <div>
+    <h1>My Votes</h1>
+    <%= link_to "Back to Voting", new_vote_path %>
+  </div>
+
+  <% if @votes_by_project.empty? %>
+    <p>You haven't voted on any projects yet.</p>
+  <% else %>
+    <div>
+      <% @votes_by_project.each do |project, votes| %>
+        <%= render "project_vote", project: project, votes: votes %>
+      <% end %>
+    </div>
+
+    <% if @pagy.pages > 1 %>
+      <%== @pagy.series_nav %>
+    <% end %>
+  <% end %>
+</div>
