@@ -10,7 +10,7 @@
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
 #  region                      :string
-#  verification_status         :string
+#  verification_status         :string           default("needs_submission"), not null
 #  votes_count                 :integer
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
@@ -27,7 +27,6 @@ class User < ApplicationRecord
   has_many :role_assignments, class_name: "User::RoleAssignment", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
   has_many :projects, through: :memberships
-  has_many :roles, through: :role_assignments
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
   has_many :shop_orders, dependent: :destroy
   has_many :votes, dependent: :destroy
@@ -36,6 +35,8 @@ class User < ApplicationRecord
 
   validates :verification_status, presence: true, inclusion: { in: VALID_VERIFICATION_STATUSES }
   validates :slack_id, presence: true, uniqueness: true
+
+  scope :with_roles, -> { includes(:role_assignments) }
 
   class << self
     # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
@@ -49,19 +50,20 @@ class User < ApplicationRecord
     end
   end
 
-  def admin?
-    roles.exists?(name: [ "admin", "super_admin" ])
-  end
+  User::RoleAssignment.roles.each_key do |role_name|
+    # ie. admin?
+    define_method "#{role_name}?" do
+      if role_assignments.loaded?
+        role_assignments.any? { |r| r.role == role_name }
+      else
+        role_assignments.exists?(role: role_name)
+      end
+    end
 
-  def super_admin?
-    roles.exists?(name: "super_admin")
-  end
-  def fraud_dept?
-    roles.exists?(name: "fraud_dept")
-  end
-
-  def fulfillment_person?
-    roles.exists?(name: "fulfillment_person")
+    # ie. make_admin!
+    define_method "make_#{role_name}!" do
+      role_assignments.find_or_create_by!(role: role_name)
+    end
   end
 
   def has_hackatime?
@@ -81,9 +83,7 @@ class User < ApplicationRecord
   end
 
   def highest_role
-    role_hierarchy = [ "super_admin", "admin", "fraud_dept", "project_certifier", "ysws_reviewer", "fulfillment_person" ]
-    role_names = roles.pluck(:name).map(&:downcase)
-    role_hierarchy.find { |role| role_names.include?(role) }&.titleize || "User"
+    role_assignments.min_by { |a| User::RoleAssignment.roles[a.role] }&.role&.titleize || "User"
   end
   def promote_to_big_leagues!
     role = ::Role.find_by(name: "super_admin")

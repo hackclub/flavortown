@@ -6,8 +6,8 @@
 
     <div class="info-rows">
       <div><b>Name:</b> <%= @user.display_name %></div>
-      <div><b>Roles:</b> <%= @user.roles.pluck(:name).join(", ") %></div>
-      <div><b>Projects:</b> <%= @user.projects.count %></div>
+      <div><b>Roles:</b> <%= @user.role_assignments.map(&:role).join(", ") %></div>
+      <div><b>Projects:</b> <%= @user.projects_count %></div>
       <% if @user.fulfillment_person? %>
         <div>
           <b>Region:</b>
@@ -54,64 +54,19 @@
   <div class="card">
     <h2>actions</h2>
     <div class="info-rows" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-      <%= link_to "🔗", admin_user_magic_link_path(@user), title: "Generate Magic Link", class: "btn-primary slim", style: "font-size: 0.75rem; padding: 0.25rem 0.5rem;" %>
-      <% slack_identity = @user.identities.find_by(provider: "slack") %>
-      <%= button_to "⚙️",
+      <%= link_to "Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
+      <% slack_identity = @user.identities.find { |i| i.provider == "slack" } %>
+      <%= button_to "Sync Hackatime Data",
                     sync_hackatime_admin_user_path(@user),
                     method: :post,
                     title: "Sync Hackatime Data",
                     class: "btn-primary slim",
                     style: "font-size: 0.75rem; padding: 0.25rem 0.5rem;",
                     disabled: slack_identity.nil? %>
-      <% has_fraud_dept = @user.roles.exists?(name: "fraud_dept") %>
-      <%= button_to (has_fraud_dept ? "🕵️ Fraud❌" : "🕵️ Fraud✅"),
-                    (has_fraud_dept ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    title: (has_fraud_dept ? "Demote from Fraud Dept" : "Promote to Fraud Dept"),
-                    params: { role_name: "fraud_dept" },
-                    class: "btn-primary slim",
-                    style: "font-size: 0.7rem; padding: 0.25rem 0.4rem; white-space: nowrap;",
-                    disabled: !current_user&.admin? %>
-
-      <% has_fulfillment = @user.roles.exists?(name: "fulfillment_person") %>
-      <%= button_to (has_fulfillment ? "📦 Fulfill❌" : "📦 Fulfill✅"),
-                    (has_fulfillment ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    title: (has_fulfillment ? "Demote from Fulfillment Person" : "Promote to Fulfillment Person"),
-                    params: { role_name: "fulfillment_person" },
-                    class: "btn-primary slim",
-                    style: "font-size: 0.7rem; padding: 0.25rem 0.4rem; white-space: nowrap;",
-                    disabled: !current_user&.admin? %>
-
-      <% has_helper = @user.roles.exists?(name: "helper") %>
-      <%= button_to (has_helper ? "🤝 Helper❌" : "🤝 Helper✅"),
-                    (has_helper ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    title: (has_helper ? "Demote from Helper" : "Promote to Helper"),
-                    params: { role_name: "helper" },
-                    class: "btn-primary slim",
-                    style: "font-size: 0.7rem; padding: 0.25rem 0.4rem; white-space: nowrap;",
-                    disabled: !current_user&.admin? %>
-
-      <% has_project_certifier = @user.roles.exists?(name: "project_certifier") %>
-      <%= button_to (has_project_certifier ? "📋 Certify❌" : "📋 Certify✅"),
-                    (has_project_certifier ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    title: (has_project_certifier ? "Demote from Project Certifier" : "Promote to Project Certifier"),
-                    params: { role_name: "project_certifier" },
-                    class: "btn-primary slim",
-                    style: "font-size: 0.7rem; padding: 0.25rem 0.4rem; white-space: nowrap;",
-                    disabled: !current_user&.admin? %>
-
-      <% has_admin = @user.roles.exists?(name: "admin") %>
-      <%= button_to (has_admin ? "👑 Admin❌" : "👑 Admin✅"),
-                    (has_admin ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    title: (has_admin ? "Demote from Admin" : "Promote to Admin"),
-                    params: { role_name: "admin" },
-                    class: "btn-primary slim",
-                    style: "font-size: 0.7rem; padding: 0.25rem 0.4rem; white-space: nowrap;",
-                    disabled: !current_user&.super_admin? %>
+      <%= render 'role_toggle', user: @user, role_name: 'fraud_dept', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_name: 'fulfillment_person', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_name: 'project_certifier', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_name: 'admin', disabled: !current_user&.super_admin? %>
 
       <% if @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).any? %>
         <button type="button" onclick="document.getElementById('reject-modal-orders').showModal()"
@@ -272,14 +227,14 @@
           <%
             changes = YAML.load(version.object_changes) rescue {}
             # For create: [nil, 5], for destroy: [5, nil] - we want the non-nil value
-            role_id_array = changes["role_id"]
-            role_id = if role_id_array.is_a?(Array)
-              role_id_array.compact.first
+            role_int_array = changes["role"]
+            role_int = if role_int_array.is_a?(Array)
+              role_int_array.compact.first
             else
-              role_id_array
+              role_int_array
             end
 
-            role = Role.find_by(id: role_id) if role_id
+            role_name = User::RoleAssignment.roles.key(role_int) if role_int
             admin = User.find_by(id: version.whodunnit)
           %>
           <tr>
@@ -294,10 +249,7 @@
               <% end %>
             </td>
             <td>
-              <%= role&.name&.titleize || "Unknown Role" %>
-              <% if role_id && !role %>
-                (ID: <%= role_id %>)
-              <% end %>
+              <%= role_name&.titleize || "Unknown Role" %>
             </td>
             <td>
               <% if admin %>

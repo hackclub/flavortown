@@ -1,7 +1,0 @@
-Super_Admin: Can do everything an admin can, and also can assign other users admin
-Admin: Can do everything except assign or remove admin
-Fraud_Dept: Can issue negative payouts, cancel grants & shop orders, but not reject or ban users; access to Blazer; access to read-only admin User w/o PII
-Project_Certifier: Approve/reject if project work meets Shipwright standards
-YSWS_Reviewer: Can approve/reject projects for YSWS DB
-Fulfillment_Person: Can approve/reject/on-hold shop orders, fulfill them, and see addresses; access to read-only admin User w/ pII
-Helper: Special access to a page to help page so they can use it in support tickets, besides that nothing else
