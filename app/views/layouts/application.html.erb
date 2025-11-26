@@ -40,9 +40,7 @@
     <% if current_user.present? %>
       <%= render "shared/sidebar" %>
     <% end %>
-    <main>
-      <%= render "shared/flash" %>
-      <%= yield %>
-    </main>
+    <%= render "shared/flash" %>
+    <%= yield %>
   </body>
 </html>

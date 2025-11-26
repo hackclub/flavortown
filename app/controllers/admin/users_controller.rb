@@ -35,6 +35,12 @@ class Admin::UsersController < Admin::ApplicationController
         user_id_change = changes["user_id"]
         user_id_change.is_a?(Array) ? user_id_change.include?(@user.id) : user_id_change == @user.id
       end.take(20)
+
+      # Get all actions performed on this user
+      @user_actions = PaperTrail::Version
+        .where(item_type: "User", item_id: @user.id)
+        .order(created_at: :desc)
+        .limit(50)
     end
 
     def user_perms
@@ -135,6 +141,35 @@ class Admin::UsersController < Admin::ApplicationController
       flash[:alert] = "User does not have a Slack identity."
     end
 
+    redirect_to admin_user_path(@user)
+  end
+
+  def mass_reject_orders
+    authorize :admin, :access_shop_orders?
+    @user = User.find(params[:id])
+    reason = params[:reason].presence || "Rejected by fraud department"
+
+    orders = @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment])
+    count = 0
+
+    orders.each do |order|
+      old_state = order.aasm_state
+      if order.mark_rejected(reason) && order.save
+        PaperTrail::Version.create!(
+          item_type: "ShopOrder",
+          item_id: order.id,
+          event: "update",
+          whodunnit: current_user.id,
+          object_changes: {
+            aasm_state: [ old_state, order.aasm_state ],
+            rejection_reason: [ nil, reason ]
+          }.to_yaml
+        )
+        count += 1
+      end
+    end
+
+    flash[:notice] = "Rejected #{count} order(s) for #{@user.display_name}."
     redirect_to admin_user_path(@user)
   end
 end

@@ -22,6 +22,7 @@
 #  max_qty                           :integer
 #  name                              :string
 #  one_per_person_ever               :boolean
+#  payout_percentage                 :integer          default(0)
 #  price_offset_au                   :decimal(, )
 #  price_offset_ca                   :decimal(, )
 #  price_offset_eu                   :decimal(, )
@@ -39,6 +40,15 @@
 #  usd_cost                          :decimal(, )
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
+#  user_id                           :bigint
+#
+# Indexes
+#
+#  index_shop_items_on_user_id  (user_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::HCBGrant < ShopItem
 end

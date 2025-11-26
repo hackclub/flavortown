@@ -79,6 +79,8 @@
       justify-content: space-between;
       font-family: var(--font-family-text);
       font-size: 2rem;
+      width: 90%;
+      margin: 0 auto;
 
       .shop__banner-title {
         color: var(--color-bg);
@@ -107,12 +109,14 @@
 
       .shop__banner-item-desc {
         text-align: left;
+        flex: 1;
 
         h4 {
           font-size: 5rem;
           color: var(--color-bg);
           font-weight: normal;
           font-family: var(--font-family-text);
+          line-height: 1;
         }
 
         h5 {
@@ -129,19 +133,30 @@
           font-weight: normal;
           font-family: var(--font-family-text);
         }
-      }
 
-      a {
-        margin-top: 0.5rem;
-        background-color: var(--color-brown-700);
-        color: var(--color-bg);
-        padding: 0.5em 2em;
-        font-size: 2rem;
-        font-family: var(--font-fanily-text);
-        font-weight: normal;
+        a {
+          margin-top: 1.5rem;
+          background-color: var(--color-brown-700);
+          color: var(--color-bg);
+          padding: 1em 2em;
+          font-size: 1.5rem;
+          font-family: var(--font-family-text);
+          font-weight: normal;
+          display: inline-block;
+          border-radius: 8px;
+          text-decoration: none;
+          cursor: pointer;
+          position: relative;
+          z-index: 10;
+
+          &:hover {
+            background-color: var(--color-brown-800);
+          }
+        }
       }
 
       img {
+        margin-top: -4em;
         margin-bottom: -2em;
         height: 400px;
       }
@@ -250,6 +265,10 @@
       align-items: flex-end;
       justify-content: space-evenly;
       gap: 1rem;
+
+      .dropdown:nth-child(2) {
+        min-width: 250px;
+      }
 
       .dropdown__button {
         padding: 0.5em 0.5em 0.2em 0.5em;

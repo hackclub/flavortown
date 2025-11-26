@@ -1,9 +1,48 @@
-<div class="my-shop-orders" style="text-align: center; margin-top: 4rem;">
-    <h1>My Orders</h1>
-    <%= render ButtonComponent.new(
-        text: "Back to the Shop",
-        href: "/shop/",
-        color: :brown,
-        variant: :borderless
-    ) %>
+<div class="my-shop-orders" style="margin-top: 4rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h1>My Orders</h1>
+        <%= render ButtonComponent.new(
+            text: "Back to the Shop",
+            href: "/shop/",
+            color: :brown,
+            variant: :borderless
+        ) %>
+    </div>
+
+    <% if @orders.empty? %>
+        <div style="text-align: center;">
+            <p>You haven't placed any orders yet.</p>
+        </div>
+    <% else %>
+        <div class="container">
+            <div class="row">
+                <% @orders.each do |order| %>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <% if order.shop_item.image.attached? && order.shop_item.image.variable? %>
+                                <%= image_tag order.shop_item.image.variant(:carousel_md), class: "card-img-top", style: "height: 200px; object-fit: cover;", loading: "lazy" %>
+                            <% elsif order.shop_item.image.attached? %>
+                                <%= image_tag order.shop_item.image, class: "card-img-top", style: "height: 200px; object-fit: cover;", loading: "lazy" %>
+                            <% else %>
+                                <div class="d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                                    <span class="text-muted">No Image</span>
+                                </div>
+                            <% end %>
+                            <div class="card-body">
+                                <h5 class="card-title"><%= order.shop_item.name %></h5>
+                                <p class="card-text text-muted"><small>Ordered on <%= order.created_at.strftime("%B %d, %Y") %></small></p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-secondary"><%= order.aasm_state.humanize %></span>
+                                    <span>Quantity: <%= order.quantity %></span>
+                                </div>
+                                <div class="mt-2 text-end">
+                                     <strong>Total: 🍪 <%= (order.frozen_item_price || order.shop_item.ticket_cost) * order.quantity %></strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% end %>
+            </div>
+        </div>
+    <% end %>
 </div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_20_213006) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_23_223159) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_213006) do
     t.bigint "query_id"
     t.text "statement"
     t.bigint "user_id"
+    t.index ["created_at"], name: "index_blazer_audits_on_created_at"
     t.index ["query_id"], name: "index_blazer_audits_on_query_id"
     t.index ["user_id"], name: "index_blazer_audits_on_user_id"
   end
@@ -204,6 +205,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_213006) do
     t.integer "max_qty"
     t.string "name"
     t.boolean "one_per_person_ever"
+    t.integer "payout_percentage", default: 0
     t.decimal "price_offset_au"
     t.decimal "price_offset_ca"
     t.decimal "price_offset_eu"
@@ -220,6 +222,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_213006) do
     t.date "unlock_on"
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"
+    t.bigint "user_id"
+    t.index ["user_id"], name: "index_shop_items_on_user_id"
   end
 
   create_table "shop_orders", force: :cascade do |t|
@@ -270,7 +274,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_213006) do
     t.text "refresh_token_ciphertext"
     t.string "uid"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["access_token_bidx"], name: "index_user_identities_on_access_token_bidx"
     t.index ["provider", "uid"], name: "index_user_identities_on_provider_and_uid", unique: true
     t.index ["refresh_token_bidx"], name: "index_user_identities_on_refresh_token_bidx"
@@ -301,14 +305,17 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_213006) do
     t.datetime "created_at", null: false
     t.string "display_name"
     t.string "email"
+    t.boolean "has_gotten_free_stickers", default: false
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.integer "projects_count"
+    t.string "region"
     t.string "slack_id"
     t.datetime "updated_at", null: false
     t.string "verification_status"
     t.integer "votes_count"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
+    t.index ["region"], name: "index_users_on_region"
   end
 
   create_table "versions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -340,6 +347,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_213006) do
   add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
+  add_foreign_key "shop_items", "users"
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "users"
   add_foreign_key "user_hackatime_projects", "projects"

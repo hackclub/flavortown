@@ -38,14 +38,13 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopOrder < ApplicationRecord
-  has_paper_trail
+  has_paper_trail ignore: [ :frozen_address_ciphertext ]
 
   include AASM
 
   belongs_to :user
   belongs_to :shop_item
   belongs_to :shop_card_grant, optional: true
-  belongs_to :warehouse_package, class_name: "Shop::WarehousePackage", optional: true
 
   # has_many :payouts, as: :payable, dependent: :destroy
 
@@ -57,6 +56,7 @@ class ShopOrder < ApplicationRecord
   validate :check_max_quantity_limit, on: :create
   validate :check_user_balance, on: :create
   validate :check_regional_availability, on: :create
+  validate :check_free_stickers_requirement, on: :create
 
   after_create :create_negative_payout
   before_create :freeze_item_price
@@ -105,6 +105,24 @@ class ShopOrder < ApplicationRecord
     frozen_address
   end
 
+  def warehouse_pick_lines
+    return [] unless shop_item.is_a?(ShopItem::WarehouseItem)
+    shop_item.contents_for_order_qty(quantity || 1)
+  end
+
+  # Class method to get combined pick lines for a batch of orders (by warehouse_package_id)
+  def self.combined_pick_lines_for_package(package_id)
+    lines = Hash.new { |h, k| h[k] = { "sku" => k, "name" => nil, "qty" => 0 } }
+    where(warehouse_package_id: package_id).includes(:shop_item).each do |order|
+      order.warehouse_pick_lines.each do |line|
+        entry = lines[line["sku"]]
+        entry["name"] ||= line["name"]
+        entry["qty"] += line["qty"].to_i
+      end
+    end
+    lines.values
+  end
+
   aasm timestamps: true do
     # Normal states
     state :pending, initial: true
@@ -137,10 +155,13 @@ class ShopOrder < ApplicationRecord
         self.fulfillment_cost = fulfillment_cost if fulfillment_cost
         self.fulfilled_by = fulfilled_by if fulfilled_by
       end
+      after do
+        mark_stickers_received if shop_item.is_a?(ShopItem::FreeStickers)
+      end
     end
 
     event :place_on_hold do
-      transitions to: :on_hold
+      transitions from: %i[pending awaiting_periodical_fulfillment], to: :on_hold
     end
 
     event :take_off_hold do
@@ -161,6 +182,10 @@ class ShopOrder < ApplicationRecord
 
   def approve!
     shop_item.fulfill!(self) if shop_item.respond_to?(:fulfill!)
+  end
+
+  def mark_stickers_received
+    user.update(has_gotten_free_stickers: true)
   end
 
   private
@@ -215,6 +240,13 @@ class ShopOrder < ApplicationRecord
     unless shop_item.enabled_in_region?(address_region) || shop_item.enabled_in_region?("XX")
       errors.add(:base, "This item is not available for shipping to #{address_country}.")
     end
+  end
+
+  def check_free_stickers_requirement
+    return if user&.has_gotten_free_stickers?
+    return if shop_item.is_a?(ShopItem::FreeStickers)
+
+    errors.add(:base, "You must order the Free Stickers first before ordering other items!")
   end
 
   def create_negative_payout

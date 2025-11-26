@@ -13,6 +13,21 @@
             { prompt: "All items" }, { class: "form-control" } %>
       </div>
 
+      <% unless current_user.fulfillment_person? %>
+      <div>
+        <%= f.label :region, "Region" %>
+        <%= f.select :region, options_for_select([
+            ['All regions', ''],
+            ['United States', 'US'],
+            ['EU + UK', 'EU'],
+            ['India', 'IN'],
+            ['Canada', 'CA'],
+            ['Australia & NZ', 'AU'],
+            ['Rest of World', 'XX']
+          ], params[:region]), {}, { class: "form-control" } %>
+      </div>
+      <% end %>
+<% unless current_user.fulfillment_person? %>
       <div>
         <%= f.label :status, "Status" %>
         <%= f.select :status, options_for_select([
@@ -24,7 +39,7 @@
             ['On Hold', 'on_hold']
           ], params[:status]), {}, { class: "form-control" } %>
       </div>
-
+<% end %>
       <div>
         <%= f.label :date_from, "From" %>
         <%= f.date_field :date_from, value: params[:date_from], class: "form-control" %>
