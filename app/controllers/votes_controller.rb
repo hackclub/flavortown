@@ -2,6 +2,7 @@ class VotesController < ApplicationController
   before_action :authenticate_user!
 
   def index
+    authorize :vote, :index?
     # Get distinct project IDs ordered by the user's most recent vote for that project
     project_ids = Vote.where(user: current_user)
                       .select("project_id, MAX(created_at) as max_created_at")
@@ -21,11 +22,13 @@ class VotesController < ApplicationController
   end
 
   def new
+    authorize :vote, :new?
     # new vote
     @project = Project.votable_by(current_user).first
   end
 
   def create
+    authorize :vote, :create?
     @project = Project.find(params[:project_id])
 
     Vote.transaction do
