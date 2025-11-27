@@ -1,7 +1,3 @@
-* {
-  outline: 1px solid red; 
-}
-
 .projects-show {
   padding: var(--space-xxl) var(--space-l);
 
@@ -32,23 +28,19 @@
   }
 
   &__timeline {
-    padding-left: 3em;
+    padding-left: 4em;
     position: relative;
-
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 0;
-      border-left: 4px dashed var(--color-brown-300);
-    }
   }
-}
 
-@media (max-width: 768px) {
-  .projects-show {
-    padding: var(--space-xl) var(--space-m);
+  &__timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    background-image: url("data:image/svg+xml,%3csvg width='8' height='90' viewBox='0 0 4 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3crect x='0' y='0' width='4' height='30' rx='2' fill='%23AD7757' /%3e%3c/svg%3e");
+    background-repeat: repeat-y;
+    opacity: 0.5;
   }
 }
