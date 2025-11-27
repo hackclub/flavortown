@@ -9,13 +9,13 @@ module Admin
     rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
     # Optional before_action to enforce admin/fraud dept on all admin controllers
+    before_action :preload_roles
     before_action :authenticate_admin, unless: :mission_control_jobs?
     before_action :set_paper_trail_whodunnit
 
     # Shared admin dashboard logic
     def index
-      # Authorize access to Users page in AdminPolicy
-      # authorize :admin, :users?
+      authorize :admin, :index?
     end
 
     private
@@ -50,6 +50,10 @@ module Admin
     # Track who makes changes in PaperTrail
     def user_for_paper_trail
       current_user&.id
+    end
+
+    def preload_roles
+      current_user(:role_assignments)
     end
   end
 end

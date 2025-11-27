@@ -1,4 +1,8 @@
 class AdminPolicy < ApplicationPolicy
+  def access_admin_dashboard?
+    user.has_roles?
+  end
+
   def access_blazer?
     user.admin?
   end
