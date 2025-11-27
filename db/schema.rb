@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_27_033743) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_27_132703) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -198,6 +198,17 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_033743) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "shop_card_grants", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "expected_amount_cents"
+    t.string "hcb_grant_hashid"
+    t.bigint "shop_item_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["shop_item_id"], name: "index_shop_card_grants_on_shop_item_id"
+    t.index ["user_id"], name: "index_shop_card_grants_on_user_id"
+  end
+
   create_table "shop_items", force: :cascade do |t|
     t.jsonb "agh_contents"
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
@@ -352,6 +363,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_033743) do
   add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
+  add_foreign_key "shop_card_grants", "shop_items"
+  add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "users"
