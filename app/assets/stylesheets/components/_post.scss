@@ -8,26 +8,27 @@
   gap: var(--space-m);
   padding: var(--space-xl);
   color: var(--color-bg);
-  background: var(--color-brown-500) repeating-conic-gradient(
-    from 0deg,
-    rgba(0, 0, 0, 0.02) 0deg 90deg,
-    transparent 90deg 180deg
-  );
+  background: var(--color-brown-500)
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(0, 0, 0, 0.02) 0deg 90deg,
+      transparent 90deg 180deg
+    );
   background-size: 120px 120px;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     width: 40px;
     height: 40px;
-    background-color: #f8e8d1;
+    background-color: var(--color-bg);
     top: 0.2em;
     left: -5.9em;
     z-index: 1;
   }
 
   &::after {
-    content: '';
+    content: "";
     width: 60px;
     height: 60px;
     position: absolute;
@@ -35,7 +36,7 @@
     left: -7.2em;
     border-radius: 50%;
     border-width: 10px;
-    border-style: solid; 
+    border-style: solid;
     box-shadow: var(--shadow);
   }
 
@@ -241,8 +242,8 @@
       background: var(--color-red-400);
     }
     &::after {
-      border-color: #F9B2A0;
-      background-color: #E47A7B;
+      border-color: var(--color-red-300);
+      background-color: var(--color-red-450);
     }
     &::before {
       -webkit-mask: url("icons/fire.svg") no-repeat center / 40px 40px;
@@ -270,8 +271,8 @@
       background: var(--color-green-300);
     }
     &::after {
-      border-color: #D0DA91;
-      background-color: #A8CA58;
+      border-color: var(--color-green-300);
+      background-color: var(--color-green-450);
     }
     &::before {
       -webkit-mask: url("icons/paper.svg") no-repeat center / 40px 40px;
@@ -299,8 +300,8 @@
       background: var(--color-blue-400);
     }
     &::after {
-      border-color: #A4DDDB;
-      background-color: #73BED3;
+      border-color: var(--color-teal-400);
+      background-color: var(--color-blue-300);
     }
     &::before {
       -webkit-mask: url("icons/checkmark.svg") no-repeat center / 40px 40px;
@@ -328,8 +329,8 @@
       background: var(--color-yellow-450);
     }
     &::after {
-      border-color: #E7C06D;
-      background-color: #DE9E41;
+      border-color: var(--color-yellow-300);
+      background-color: var(--color-yellow-450);
     }
     &::before {
       -webkit-mask: url("icons/ship.svg") no-repeat center / 40px 40px;
