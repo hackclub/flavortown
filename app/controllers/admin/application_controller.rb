@@ -22,10 +22,6 @@ module Admin
 
     # Use this to protect all admin endpoints
     def authenticate_admin
-      Rails.logger.info "session[:user_id]: #{session[:user_id].inspect}"
-      Rails.logger.info "current_user: #{current_user.inspect}"
-      Rails.logger.info "current_user.admin?: #{current_user&.admin?.inspect}"
-      Rails.logger.info "current_user.admin.role_assignments: #{current_user&.role_assignments&.map(&:role).inspect}"
       # Fulfillment people can only access the shop orders fulfillment endpoint
       # But admins can access everything
       if current_user&.fulfillment_person? && !current_user&.admin? && !current_user&.fraud_dept?
