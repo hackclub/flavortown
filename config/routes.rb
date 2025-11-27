@@ -37,7 +37,7 @@ Rails.application.routes.draw do
   end
 
   # Action Mailbox for incoming HCB and tracking emails
-  mount ActionMailbox::Enginer => "/rails/action_mailbox"
+  mount ActionMailbox::Engine => "/rails/action_mailbox"
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
