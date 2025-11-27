@@ -1,5 +1,4 @@
 class Admin::UsersController < Admin::ApplicationController
-    before_action :preload_roles
     PER_PAGE = 25
 
     def index
@@ -164,11 +163,5 @@ class Admin::UsersController < Admin::ApplicationController
 
     flash[:notice] = "Rejected #{count} order(s) for #{@user.display_name}."
     redirect_to admin_user_path(@user)
-  end
-
-  private
-
-  def preload_roles
-    @current_user = current_user(:role_assignments)
   end
 end
