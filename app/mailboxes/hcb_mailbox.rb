@@ -12,7 +12,7 @@ class HCBMailbox < ApplicationMailbox
             donation_json = JSON.parse(donation_data.body)
             amount_cents = donation_json["amount_cents"].to_i
             Rails.logger.info("Processing donation of #{amount_cents} cents for Grant ID cdg_#{grant_id}")
-            
+
             if amount_cents
               shop_card_grant.topup!(amount_cents)
             else
