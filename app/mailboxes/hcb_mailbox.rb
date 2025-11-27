@@ -7,7 +7,13 @@ class HCBMailbox < ApplicationMailbox
         donation_id = mail.body.decoded.split("donations/").last.to_s.split(/[\/\s]/).first.remove('"')
 
         if shop_card_grant
-          donation_data = Faraday.get("#{HCBService.base_url}/api/v3/transactions/txn_#{donation_id}")
+          begin
+            donation_data = Faraday.get("#{HCBService.base_url}/api/v3/transactions/txn_#{donation_id}")
+          rescue StandardError => e
+            Rails.logger.error("Error fetching donation details for Donation ID #{donation_id}: #{e.message}")
+            return
+          end
+
           if donation_data.success?
             donation_json = JSON.parse(donation_data.body)
             amount_cents = donation_json["amount_cents"].to_i
