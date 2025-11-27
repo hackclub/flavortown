@@ -11,10 +11,12 @@
       </div>
     <% end %>
     <% if @posts.present? %>
-      <div class="mt-4" style="display: grid; gap: var(--space-xl);">
-        <% @posts.each do |post| %>
-          <%= render PostComponent.new(post: post, variant: :green) %>
-        <% end %>
+      <div class="projects-show__timeline">
+        <div class="mt-4" style="display: grid; gap: var(--space-xl);">
+          <% @posts.each do |post| %>
+            <%= render PostComponent.new(post: post, variant: :devlog) %>
+          <% end %>
+        </div>
       </div>
     <% end %>
   </div>

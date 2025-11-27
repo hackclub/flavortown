@@ -5,7 +5,6 @@
   background-clip: padding-box;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
   overflow: hidden;
   background-image: url("mask/project-card.webp");
   background-repeat: no-repeat;
@@ -22,7 +21,7 @@
 
   &__banner {
     .project-card__banner-frame {
-      aspect-ratio: 21 / 9;
+      aspect-ratio: 21 / 7;
     }
   }
 

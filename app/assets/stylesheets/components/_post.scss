@@ -1,5 +1,4 @@
 .post {
-  background-color: var(--color-brown-500);
   border: 14px solid var(--color-brown-400);
   border-radius: calc(var(--border-radius) * 1.8);
   background-clip: padding-box;
@@ -9,20 +8,36 @@
   gap: var(--space-m);
   padding: var(--space-xl);
   color: var(--color-bg);
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: repeating-conic-gradient(
+  background: var(--color-brown-500)
+    repeating-conic-gradient(
       from 0deg,
       rgba(0, 0, 0, 0.02) 0deg 90deg,
       transparent 90deg 180deg
     );
-    background-size: 120px 120px;
-    z-index: 0;
-    border-radius: inherit;
-    pointer-events: none;
+  background-size: 120px 120px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: var(--color-bg);
+    top: 0.2em;
+    left: -5.9em;
+    z-index: 1;
+  }
+
+  &::after {
+    content: "";
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    top: -1em;
+    left: -7.2em;
+    border-radius: 50%;
+    border-width: 10px;
+    border-style: solid;
+    box-shadow: var(--shadow);
   }
 
   > * {
@@ -206,23 +221,8 @@
     background: var(--color-brown-400);
   }
 
-  // Color variants
-  &--brown {
-    background-color: var(--color-brown-500);
-    border-color: var(--color-brown-400);
-
-    .post__avatar {
-      background-color: var(--color-brown-300);
-    }
-    .post__attachment {
-      background: var(--color-brown-300);
-    }
-    .post__viewport {
-      background: var(--color-brown-300);
-    }
-  }
-
-  &--red {
+  // Variants
+  &--fire {
     background-color: var(--color-red-500);
     border-color: var(--color-red-400);
 
@@ -241,9 +241,17 @@
     .post__dot.is-active {
       background: var(--color-red-400);
     }
+    &::after {
+      border-color: var(--color-red-300);
+      background-color: var(--color-red-450);
+    }
+    &::before {
+      -webkit-mask: url("icons/fire.svg") no-repeat center / 40px 40px;
+      mask: url("icons/fire.svg") no-repeat center / 40px 40px;
+    }
   }
 
-  &--green {
+  &--devlog {
     background-color: var(--color-green-400);
     border-color: var(--color-green-300);
 
@@ -262,9 +270,17 @@
     .post__dot.is-active {
       background: var(--color-green-300);
     }
+    &::after {
+      border-color: var(--color-green-300);
+      background-color: var(--color-green-450);
+    }
+    &::before {
+      -webkit-mask: url("icons/paper.svg") no-repeat center / 40px 40px;
+      mask: url("icons/paper.svg") no-repeat center / 40px 40px;
+    }
   }
 
-  &--blue {
+  &--certified {
     background-color: var(--color-blue-500);
     border-color: var(--color-blue-400);
 
@@ -283,9 +299,17 @@
     .post__dot.is-active {
       background: var(--color-blue-400);
     }
+    &::after {
+      border-color: var(--color-teal-400);
+      background-color: var(--color-blue-300);
+    }
+    &::before {
+      -webkit-mask: url("icons/checkmark.svg") no-repeat center / 40px 40px;
+      mask: url("icons/checkmark.svg") no-repeat center / 40px 40px;
+    }
   }
 
-  &--yellow {
+  &--ship {
     background-color: var(--color-yellow-500);
     border-color: var(--color-yellow-450);
 
@@ -303,6 +327,14 @@
     }
     .post__dot.is-active {
       background: var(--color-yellow-450);
+    }
+    &::after {
+      border-color: var(--color-yellow-300);
+      background-color: var(--color-yellow-450);
+    }
+    &::before {
+      -webkit-mask: url("icons/ship.svg") no-repeat center / 40px 40px;
+      mask: url("icons/ship.svg") no-repeat center / 40px 40px;
     }
   }
 }
