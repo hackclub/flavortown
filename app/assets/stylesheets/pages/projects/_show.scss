@@ -1,3 +1,7 @@
+* {
+  outline: 1px solid red; 
+}
+
 .projects-show {
   padding: var(--space-xxl) var(--space-l);
 
@@ -25,6 +29,21 @@
     color: var(--color-brown-700) !important;
     height: 1.35em;
     width: 1.35em;
+  }
+
+  &__timeline {
+    padding-left: 3em;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      border-left: 4px dashed var(--color-brown-300);
+    }
   }
 }
 
