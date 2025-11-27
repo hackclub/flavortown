@@ -84,4 +84,22 @@
     z-index: 10;
     width: calc(100% - 1rem);
   }
+  
+  &__order-button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #ff6f61;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-family: var(--font-family-text);
+
+    &:hover {
+      background-color: #e65b50;
+    }
+  }
 }

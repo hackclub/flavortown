@@ -107,7 +107,7 @@ class User < ApplicationRecord
 
   def balance
     # TODO: implement payouts
-    0
+    1000
   end
 
   def address

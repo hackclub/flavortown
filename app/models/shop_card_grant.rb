@@ -32,6 +32,15 @@ class ShopCardGrant < ApplicationRecord
     "#{HCBService.base_url}/grants/#{stripped_hashid}"
   end
 
+  def topup!(amount_cents)
+    HCBService.topup_card_grant(
+      hashid: hcb_grant_hashid,
+      amount_cents: amount_cents
+    )
+    self.expected_amount_cents += amount_cents
+    save!
+  end
+
   private
 
   def stripped_hashid

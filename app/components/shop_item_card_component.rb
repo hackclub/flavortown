@@ -1,7 +1,8 @@
 class ShopItemCardComponent < ViewComponent::Base
-  attr_reader :name, :description, :hours, :price, :image_url, :item_type
+  attr_reader :item_id, :name, :description, :hours, :price, :image_url, :item_type
 
-  def initialize(name:, description:, hours:, price:, image_url:, item_type: nil)
+  def initialize(item_id:, name:, description:, hours:, price:, image_url:, item_type: nil)
+    @item_id = item_id
     @name = name
     @description = description
     @hours = hours

@@ -21,7 +21,8 @@ Faraday::Response.register_middleware hcb_error: RaiseHCBErrorMiddleware
 module HCBService
   class << self
     def base_url
-      @base_url ||= ENV.fetch("HCB_BASE_URL", "https://hcb.hackclub.com")
+      hcb_credentials = HCBCredential.first
+      return hcb_credentials.base_url if hcb_credentials && hcb_credentials.base_url.present? or "https://hcb.hackclub.com"
     end
 
     # Generic wrapper that will attempt a token refresh on 401 once, then retry.
@@ -94,6 +95,7 @@ module HCBService
     end
 
     def topup_card_grant(hashid:, amount_cents:)
+      Rails.logger.info "Topping up HCB card grant #{hashid} by #{amount_cents}¢"
       with_retry { conn.post("card_grants/#{hashid}/topup", amount_cents:).body }
     end
 

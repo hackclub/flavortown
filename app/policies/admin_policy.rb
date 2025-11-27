@@ -3,6 +3,10 @@ class AdminPolicy < ApplicationPolicy
     user.has_roles?
   end
 
+  def index?
+    user.admin? || user.fraud_dept?
+  end
+
   def access_blazer?
     user.admin?
   end
@@ -24,7 +28,7 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def manage_user_roles?
-    user.admin?
+    user.admin? || user.super_admin?
   end
 
   def access_jobs?
