@@ -164,6 +164,8 @@ class Admin::UsersController < Admin::ApplicationController
 
     flash[:notice] = "Rejected #{count} order(s) for #{@user.display_name}."
     redirect_to admin_user_path(@user)
+  end
+
   private
 
   def preload_roles
