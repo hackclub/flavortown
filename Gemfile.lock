@@ -713,7 +713,6 @@ DEPENDENCIES
   letter_opener_web
   lockbox
   mission_control-jobs
-  oauth2 (~> 2.0)
   omniauth
   omniauth-oauth2
   omniauth-rails_csrf_protection

@@ -328,7 +328,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_213006) do
     t.integer "projects_count"
     t.string "slack_id"
     t.datetime "updated_at", null: false
-    t.string "verification_status"
+    t.string "verification_status", default: "needs_submission", null: false
     t.integer "votes_count"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
   end
