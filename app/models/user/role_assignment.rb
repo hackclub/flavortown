@@ -21,6 +21,9 @@ class User::RoleAssignment < ApplicationRecord
 
   belongs_to :user
 
+  after_commit :update_user_has_roles, on: [ :create, :destroy ]
+  after_update :handle_user_id_change_update, if: :saved_change_to_user_id?
+
   class RoleDefinition
     attr_reader :id, :name, :description
 
@@ -55,4 +58,21 @@ class User::RoleAssignment < ApplicationRecord
   end
 
   validates :user_id, uniqueness: { scope: :role }
+
+  private
+
+  def update_user_has_roles(target_user_id = nil)
+    target_user = target_user_id ? User.find_by(id: target_user_id) : user
+    return unless target_user
+
+    target_user.update_column(:has_roles, target_user.role_assignments.exists?)
+  end
+
+  def handle_user_id_change_update
+    # Update the *new* user
+    update_user_has_roles
+
+    # Update the *old* user
+    update_user_has_roles(saved_change_to_user_id[0])
+  end
 end
