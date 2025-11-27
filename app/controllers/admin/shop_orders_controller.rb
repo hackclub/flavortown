@@ -1,13 +1,17 @@
 class Admin::ShopOrdersController < Admin::ApplicationController
+  before_action :set_paper_trail_whodunnit
   def index
-    authorize :admin, :access_shop_orders?
-
     # Determine view mode
     @view = params[:view] || "shop_orders"
 
-    # Check authorization for fulfillment view
-    if @view == "fulfillment"
+    # Fulfillment team can only access fulfillment view
+    if current_user.fulfillment_person? && !current_user.admin?
+      if @view != "fulfillment"
+        authorize :admin, :access_fulfillment_view?  # Will raise NotAuthorized
+      end
       authorize :admin, :access_fulfillment_view?
+    else
+      authorize :admin, :access_shop_orders?
     end
 
     # Base query
@@ -34,7 +38,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       orders = orders.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ?", search, search)
     end
 
-    # Calculate stats
+    # Calculate stats before region filter (for database queries)
     stats_orders = orders
     @c = {
       pending: stats_orders.where(aasm_state: "pending").count,
@@ -48,6 +52,27 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     fulfilled_orders = stats_orders.where(aasm_state: "fulfilled").where.not(fulfilled_at: nil)
     if fulfilled_orders.any?
       @f = fulfilled_orders.average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))").to_f
+    end
+
+    # Apply region filter after stats calculation (converts to array)
+    if current_user.fulfillment_person? && !current_user.admin? && current_user.region.present?
+      orders = orders.to_a.select do |order|
+        if order.frozen_address.present?
+          order_region = Shop::Regionalizable.country_to_region(order.frozen_address["country"])
+          order_region == current_user.region
+        else
+          false
+        end
+      end
+    elsif params[:region].present?
+      orders = orders.to_a.select do |order|
+        if order.frozen_address.present?
+          order_region = Shop::Regionalizable.country_to_region(order.frozen_address["country"])
+          order_region == params[:region].upcase
+        else
+          false
+        end
+      end
     end
 
     # Sorting
@@ -83,13 +108,26 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def show
-    authorize :admin, :access_shop_orders?
+    if current_user.fulfillment_person? && !current_user.admin?
+      authorize :admin, :access_fulfillment_view?
+    else
+      authorize :admin, :access_shop_orders?
+    end
     @order = ShopOrder.find(params[:id])
     @can_view_address = @order.can_view_address?(current_user)
+
+    # Load user's order history for fraud dept
+    if current_user.fraud_dept?
+      @user_orders = @order.user.shop_orders.where.not(id: @order.id).order(created_at: :desc).limit(10)
+    end
   end
 
   def reveal_address
-    authorize :admin, :access_shop_orders?
+    if current_user.fulfillment_person? && !current_user.admin?
+      authorize :admin, :access_fulfillment_view?
+    else
+      authorize :admin, :access_shop_orders?
+    end
     @order = ShopOrder.find(params[:id])
 
     if @order.can_view_address?(current_user)
@@ -101,6 +139,117 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       )
     else
       render plain: "Unauthorized", status: :forbidden
+    end
+  end
+
+  def approve
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+    old_state = @order.aasm_state
+
+    if @order.queue_for_fulfillment && @order.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "update",
+        whodunnit: current_user.id,
+        object_changes: {
+          aasm_state: [ old_state, @order.aasm_state ]
+        }.to_yaml
+      )
+      redirect_to admin_shop_orders_path, notice: "Order approved for fulfillment"
+    else
+      redirect_to admin_shop_order_path(@order), alert: "Failed to approve order: #{@order.errors.full_messages.join(', ')}"
+    end
+  end
+
+  def reject
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+    reason = params[:reason].presence || "No reason provided"
+    old_state = @order.aasm_state
+
+    if @order.mark_rejected(reason) && @order.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "update",
+        whodunnit: current_user.id,
+        object_changes: {
+          aasm_state: [ old_state, @order.aasm_state ],
+          rejection_reason: [ nil, reason ]
+        }.to_yaml
+      )
+      redirect_to admin_shop_orders_path, notice: "Order rejected"
+    else
+      redirect_to admin_shop_order_path(@order), alert: "Failed to reject order: #{@order.errors.full_messages.join(', ')}"
+    end
+  end
+
+  def place_on_hold
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+    old_state = @order.aasm_state
+
+    if @order.place_on_hold && @order.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "update",
+        whodunnit: current_user.id,
+        object_changes: {
+          aasm_state: [ old_state, @order.aasm_state ]
+        }.to_yaml
+      )
+      redirect_to admin_shop_orders_path, notice: "Order placed on hold"
+    else
+      redirect_to admin_shop_order_path(@order), alert: "Failed to place order on hold: #{@order.errors.full_messages.join(', ')}"
+    end
+  end
+
+  def release_from_hold
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+    old_state = @order.aasm_state
+
+    if @order.take_off_hold && @order.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "update",
+        whodunnit: current_user.id,
+        object_changes: {
+          aasm_state: [ old_state, @order.aasm_state ]
+        }.to_yaml
+      )
+      redirect_to admin_shop_orders_path, notice: "Order released from hold"
+    else
+      redirect_to admin_shop_order_path(@order), alert: "Failed to release order from hold: #{@order.errors.full_messages.join(', ')}"
+    end
+  end
+
+  def mark_fulfilled
+    if current_user.fulfillment_person? && !current_user.admin?
+      authorize :admin, :access_fulfillment_view?
+    else
+      authorize :admin, :access_shop_orders?
+    end
+    @order = ShopOrder.find(params[:id])
+    old_state = @order.aasm_state
+
+    if @order.mark_fulfilled && @order.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "update",
+        whodunnit: current_user.id,
+        object_changes: {
+          aasm_state: [ old_state, @order.aasm_state ]
+        }.to_yaml
+      )
+      redirect_to admin_shop_order_path(@order), notice: "Order marked as fulfilled"
+    else
+      redirect_to admin_shop_order_path(@order), alert: "Failed to mark order as fulfilled: #{@order.errors.full_messages.join(', ')}"
     end
   end
 end

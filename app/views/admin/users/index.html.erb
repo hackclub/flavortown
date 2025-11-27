@@ -27,9 +27,9 @@
           <td><%= user.id %></td>
           <td><%= user.display_name %></td>
           <td><%= user.email %></td>
-          <td><%= user.roles.pluck(:name).join(", ") %></td>
+          <td><%= user.role_assignments.pluck(:role).map(&:titleize).join(", ") %></td>
           <td>
-            <%= link_to "View", "/admin/users/#{user.id}", class: "btn-primary slim" %>
+            <%= link_to "👁️", admin_user_path(user), title: "View user details", style: "font-size: 1rem; text-decoration: none;" %>
           </td>
         </tr>
       <% end %>

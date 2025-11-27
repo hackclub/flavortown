@@ -6,8 +6,25 @@
 
     <div class="info-rows">
       <div><b>Name:</b> <%= @user.display_name %></div>
-      <div><b>Roles:</b> <%= @user.roles.pluck(:name).join(", ") %></div>
-      <div><b>Projects:</b> <%= @user.projects.count %></div>
+      <div><b>Roles:</b> <%= @user.role_assignments.map(&:role).join(", ") %></div>
+      <div><b>Projects:</b> <%= @user.projects_count %></div>
+      <% if @user.fulfillment_person? %>
+        <div>
+          <b>Region:</b>
+          <form method="post" action="<%= admin_user_path(@user) %>" style="display: inline;">
+            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+            <%= hidden_field_tag :_method, "patch" %>
+            <select name="user[region]" onchange="this.form.submit();">
+              <option value="">-- Select Region --</option>
+              <% Shop::Regionalizable::REGION_CODES.each do |code| %>
+                <option value="<%= code %>" <%= "selected" if @user.region == code %>>
+                  <%= Shop::Regionalizable.region_name(code) %>
+                </option>
+              <% end %>
+            </select>
+          </form>
+        </div>
+      <% end %>
     </div>
   </div>
   <div class="card">
@@ -26,51 +43,58 @@
             <%= link_to "go to billy", "#{Rails.application.config.billy_url}?u=#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
             <%= link_to "go to joe", "#{Rails.application.config.joe_url}profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
+
+            <% if identity.provider == "hack_club" %>
+            <%= link_to "go to idv backend", "https://hca.dinosaurbbq.org/backend/identities/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
+          <% end %>
         </div>
       <% end %>
     </div>
   </div>
   <div class="card">
     <h2>actions</h2>
-    <div class="info-rows">
+    <div class="info-rows" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
       <%= link_to "Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
-      <% slack_identity = @user.identities.find_by(provider: "slack") %>
+      <% slack_identity = @user.identities.find { |i| i.provider == "slack" } %>
       <%= button_to "Sync Hackatime Data",
                     sync_hackatime_admin_user_path(@user),
                     method: :post,
+                    title: "Sync Hackatime Data",
                     class: "btn-primary slim",
+                    style: "font-size: 0.75rem; padding: 0.25rem 0.5rem;",
                     disabled: slack_identity.nil? %>
-      <% has_fraud_dept = @user.roles.exists?(name: "fraud_dept") %>
-      <%= button_to (has_fraud_dept ? "Demote from Fraud Dept" : "Promote to Fraud Dept"),
-                    (has_fraud_dept ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    params: { role_name: "fraud_dept" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_name: 'fraud_dept', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_name: 'fulfillment_person', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_name: 'project_certifier', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_name: 'admin', disabled: !current_user&.super_admin? %>
 
-      <% has_fulfillment = @user.roles.exists?(name: "fulfillment_person") %>
-      <%= button_to (has_fulfillment ? "Demote from Fulfillment Person" : "Promote to Fulfillment Person"),
-                    (has_fulfillment ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    params: { role_name: "fulfillment_person" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
+      <% if @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).any? %>
+        <button type="button" onclick="document.getElementById('reject-modal-orders').showModal()"
+                title="Reject all pending/awaiting orders"
+                style="background: #ef4444; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600;">
+          ✗ Reject Orders
+        </button>
+        <dialog id="reject-modal-orders" style="border-radius: 8px; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+          <h3 style="margin-top: 0;">Reject All Orders</h3>
+          <p style="color: #6b7280; margin: 1rem 0;">This will reject all pending and awaiting fulfillment orders for <%= @user.display_name %>.</p>
+          <form action="<%= mass_reject_orders_admin_user_path(@user) %>" method="post">
+            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+            <div style="margin-bottom: 1rem;">
+              <%= label_tag :reason, "Rejection Reason (optional)", style: "display: block; font-weight: 600; margin-bottom: 0.5rem;" %>
+              <%= text_area_tag :reason, "", placeholder: "Enter reason...", style: "width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-family: inherit; font-size: 0.875rem;" %>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+              <button type="submit" class="btn-danger" style="background: #ef4444; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                Confirm Reject
+              </button>
+              <button type="button" onclick="document.getElementById('reject-modal-orders').close()" class="btn-secondary" style="background: #f3f4f6; color: #374151; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </dialog>
+      <% end %>
 
-      <% has_project_certifier = @user.roles.exists?(name: "project_certifier") %>
-      <%= button_to (has_project_certifier ? "Demote from Project Certifier" : "Promote to Project Certifier"),
-                    (has_project_certifier ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    params: { role_name: "project_certifier" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
-
-      <% has_admin = @user.roles.exists?(name: "admin") %>
-      <%= button_to (has_admin ? "Demote from Admin" : "Promote to Admin"),
-                    (has_admin ? demote_role_admin_user_path(@user) : promote_role_admin_user_path(@user)),
-                    method: :post,
-                    params: { role_name: "admin" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.super_admin? %>
     </div>
   </div>
   <div class="card">
@@ -91,9 +115,100 @@
                     params: { feature: "admin_green" },
                     class: "btn-primary slim",
                     disabled: !current_user&.admin? %>
+
+      <% has_admin_dark = Flipper.enabled?(:admin_dark, @user) %>
+      <%= button_to (has_admin_dark ? "Disable Admin Dark Mode" : "Enable Admin Dark Mode"),
+                    toggle_flipper_admin_user_path(@user),
+                    method: :post,
+                    params: { feature: "admin_dark" },
+                    class: "btn-primary slim",
+                    disabled: !current_user&.admin? %>
     </div>
   </div>
 </div>
+
+<% if @user_actions.any? %>
+  <div class="card" style="margin-top: 1.5rem;">
+    <h2>Action History</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Event</th>
+          <th>Changes</th>
+          <th>Performed By</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @user_actions.each do |version| %>
+          <%
+            changes = YAML.load(version.object_changes) rescue {}
+            admin = User.find_by(id: version.whodunnit)
+          %>
+          <tr>
+            <td><%= version.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+            <td>
+              <% case version.event %>
+              <% when "flipper_enable" %>
+                <span style="color: #10b981; font-weight: 500;">🔓 Feature Enabled</span>
+              <% when "flipper_disable" %>
+                <span style="color: #ef4444; font-weight: 500;">🔒 Feature Disabled</span>
+
+              <% when "update" %>
+                <span style="color: #3b82f6; font-weight: 500;">✏️ Updated</span>
+              <% when "create" %>
+                <span style="color: #10b981; font-weight: 500;">✓ Created</span>
+              <% else %>
+                <%= version.event.titleize %>
+              <% end %>
+            </td>
+            <td>
+              <% if version.event.starts_with?("flipper_") %>
+                <%
+                  # Debug: inspect the changes hash
+                  feature_array = changes["feature"] || changes[:feature]
+                  feature_name = if feature_array.is_a?(Array)
+                    feature_array.compact.first
+                  else
+                    feature_array
+                  end
+                %>
+                <strong><%= feature_name&.titleize || "Unknown Feature" %></strong>
+                <% if changes["status"] || changes[:status] %>
+                  <% status = changes["status"] || changes[:status] %>
+                  (<%= status.first %> → <%= status.last %>)
+                <% end %>
+              <% elsif changes.any? %>
+                <% changes.each do |key, value| %>
+                  <div><strong><%= key.to_s.titleize %>:</strong>
+                  <% if value.is_a?(Array) %>
+                    <%= value.first.inspect %> → <%= value.last.inspect %>
+                  <% else %>
+                    <%= value.inspect %>
+                  <% end %>
+                  </div>
+                <% end %>
+              <% else %>
+                <em>No changes recorded</em>
+              <% end %>
+            </td>
+            <td>
+              <% if admin %>
+                <%= link_to admin.display_name, admin_user_path(admin) %>
+              <% elsif version.whodunnit %>
+                User #<%= version.whodunnit %>
+              <% else %>
+                <em>System</em>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User", item_id: @user.id), class: "btn-secondary", style: "margin-top: 1rem; display: inline-block;" %>
+  </div>
+<% end %>
 
 <% if @role_history.any? %>
   <div class="card" style="margin-top: 1.5rem;">
@@ -112,14 +227,14 @@
           <%
             changes = YAML.load(version.object_changes) rescue {}
             # For create: [nil, 5], for destroy: [5, nil] - we want the non-nil value
-            role_id_array = changes["role_id"]
-            role_id = if role_id_array.is_a?(Array)
-              role_id_array.compact.first
+            role_int_array = changes["role"]
+            role_int = if role_int_array.is_a?(Array)
+              role_int_array.compact.first
             else
-              role_id_array
+              role_int_array
             end
 
-            role = Role.find_by(id: role_id) if role_id
+            role_name = User::RoleAssignment.roles.key(role_int) if role_int
             admin = User.find_by(id: version.whodunnit)
           %>
           <tr>
@@ -134,14 +249,11 @@
               <% end %>
             </td>
             <td>
-              <%= role&.name&.titleize || "Unknown Role" %>
-              <% if role_id && !role %>
-                (ID: <%= role_id %>)
-              <% end %>
+              <%= role_name&.titleize || "Unknown Role" %>
             </td>
             <td>
               <% if admin %>
-                <%= admin.display_name %>
+                <%= link_to admin.display_name, admin_user_path(admin) %>
               <% elsif version.whodunnit %>
                 User #<%= version.whodunnit %>
               <% else %>
@@ -152,7 +264,5 @@
         <% end %>
       </tbody>
     </table>
-
-    <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User::RoleAssignment", whodunnit: @user.id), class: "btn-secondary", style: "margin-top: 1rem; display: inline-block;" %>
   </div>
 <% end %>

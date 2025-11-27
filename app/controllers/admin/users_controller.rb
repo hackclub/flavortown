@@ -4,24 +4,22 @@ class Admin::UsersController < Admin::ApplicationController
     def index
       @query = params[:query]
 
-      users = if @query.present?
+      users = User.all.with_roles
+      if @query.present?
         q = "%#{@query}%"
-        User.where("email ILIKE ? OR display_name ILIKE ?", q, q)
-      else
-        User.all
+        users = users.where("email ILIKE ? OR display_name ILIKE ?", q, q)
       end
 
       # Pagination logic
       @page = params[:page].to_i
       @page = 1 if @page < 1
-      @total_users = users.count
+      @total_users = users.size
       @total_pages = (@total_users / PER_PAGE.to_f).ceil
       @users = users.order(:id).offset((@page - 1) * PER_PAGE).limit(PER_PAGE)
     end
 
     def show
-      @user = User.find(params[:id])
-      @current_user = current_user
+      @user = User.with_roles.includes(:identities).find(params[:id])
 
       # Get role assignment history from audit logs
       all_role_versions = PaperTrail::Version
@@ -35,11 +33,17 @@ class Admin::UsersController < Admin::ApplicationController
         user_id_change = changes["user_id"]
         user_id_change.is_a?(Array) ? user_id_change.include?(@user.id) : user_id_change == @user.id
       end.take(20)
+
+      # Get all actions performed on this user
+      @user_actions = PaperTrail::Version
+        .where(item_type: "User", item_id: @user.id)
+        .order(created_at: :desc)
+        .limit(50)
     end
 
     def user_perms
       authorize :admin, :manage_users?
-      @users = User.joins(:role_assignments).includes(:roles).distinct.order(:id)
+      @users = User.joins(:role_assignments).distinct.order(:id)
     end
 
     def promote_role
@@ -48,21 +52,15 @@ class Admin::UsersController < Admin::ApplicationController
       @user = User.find(params[:id])
       role_name = params[:role_name]
 
-      if role_name == "Super_Admin"
+      if role_name == "super_admin"
         flash[:alert] = "Only super admins can promote to super admin."
         return redirect_to admin_user_path(@user)
       end
 
-      role = Role.find_by(name: role_name)
-
-      if role && !@user.roles.include?(role)
-        PaperTrail.request(whodunnit: current_user.id) do
-          @user.roles << role
-        end
-        flash[:notice] = "User promoted to #{role_name}."
-      else
-        flash[:alert] = "Unable to promote user to #{role_name}."
+      PaperTrail.request(whodunnit: current_user.id) do
+        @user.role_assignments.create!(role: role_name)
       end
+      flash[:notice] = "User promoted to #{role_name.titleize}."
 
       redirect_to admin_user_path(@user)
     end
@@ -73,20 +71,20 @@ class Admin::UsersController < Admin::ApplicationController
     @user = User.find(params[:id])
     role_name = params[:role_name]
 
-    if role_name == "Super_Admin"
+    if role_name == "super_admin"
       flash[:alert] = "Only super admins can demote super admin."
       return redirect_to admin_user_path(@user)
     end
 
-    role = Role.find_by(name: role_name)
+    role_assignment = @user.role_assignments.find_by(role: User::RoleAssignment.roles[role_name])
 
-    if role && @user.roles.include?(role)
+    if role_assignment
       PaperTrail.request(whodunnit: current_user.id) do
-        @user.roles.delete(role)
+        role_assignment.destroy!
       end
-      flash[:notice] = "User demoted from #{role_name}."
+      flash[:notice] = "User demoted from #{role_name.titleize}."
     else
-      flash[:alert] = "Unable to demote user from #{role_name}."
+      flash[:alert] = "Unable to demote user from #{role_name.titleize}."
     end
 
     redirect_to admin_user_path(@user)
@@ -135,6 +133,35 @@ class Admin::UsersController < Admin::ApplicationController
       flash[:alert] = "User does not have a Slack identity."
     end
 
+    redirect_to admin_user_path(@user)
+  end
+
+  def mass_reject_orders
+    authorize :admin, :access_shop_orders?
+    @user = User.find(params[:id])
+    reason = params[:reason].presence || "Rejected by fraud department"
+
+    orders = @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment])
+    count = 0
+
+    orders.each do |order|
+      old_state = order.aasm_state
+      if order.mark_rejected(reason) && order.save
+        PaperTrail::Version.create!(
+          item_type: "ShopOrder",
+          item_id: order.id,
+          event: "update",
+          whodunnit: current_user.id,
+          object_changes: {
+            aasm_state: [ old_state, order.aasm_state ],
+            rejection_reason: [ nil, reason ]
+          }.to_yaml
+        )
+        count += 1
+      end
+    end
+
+    flash[:notice] = "Rejected #{count} order(s) for #{@user.display_name}."
     redirect_to admin_user_path(@user)
   end
 end

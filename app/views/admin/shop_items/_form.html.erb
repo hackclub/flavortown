@@ -1,178 +1,4 @@
-<style>
-.shop-item-form .card {
-  border: 1px solid #374151;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  margin-bottom: 1.5rem;
-  background: #1f2937;
-}
-
-.shop-item-form .card-header {
-  background: #111827;
-  border-bottom: 1px solid #374151;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: #f3f4f6;
-}
-
-.shop-item-form .card-body {
-  padding: 1.5rem;
-}
-
-.shop-item-form .form-label {
-  font-weight: 500;
-  color: #e5e7eb;
-  margin-bottom: 0.5rem;
-}
-
-.shop-item-form .form-control,
-.shop-item-form .form-select {
-  border-radius: 6px;
-  border: 1px solid #4b5563;
-  background: #111827;
-  color: #f3f4f6;
-}
-
-.shop-item-form .form-control:focus,
-.shop-item-form .form-select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 0.2rem rgba(59,130,246,.25);
-  background: #111827;
-  color: #f3f4f6;
-}
-
-.shop-item-form .form-text {
-  font-size: 0.875rem;
-  color: #9ca3af;
-}
-
-.shop-item-form .form-check-label {
-  font-weight: 400;
-  margin-left: 0.5rem;
-  color: #e5e7eb;
-}
-
-.shop-item-form .alert-info {
-  background-color: #1e3a5f;
-  border-color: #3b82f6;
-  color: #93c5fd;
-  border-radius: 6px;
-}
-
-.shop-item-form .alert-danger {
-  background-color: #4c1d1d;
-  border-color: #ef4444;
-  color: #fca5a5;
-  border-radius: 6px;
-}
-
-.shop-item-form .table {
-  color: #e5e7eb;
-}
-
-.shop-item-form .table th {
-  background-color: #111827;
-  font-weight: 600;
-  border-bottom: 2px solid #374151;
-  border-top: 1px solid #374151;
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  color: #f3f4f6;
-}
-
-.shop-item-form .table td {
-  padding: 0.75rem;
-  vertical-align: middle;
-  border-color: #374151;
-}
-
-.shop-item-form .table-striped tbody tr:nth-of-type(odd) {
-  background-color: #1f2937;
-}
-
-.shop-item-form .table-striped tbody tr:nth-of-type(even) {
-  background-color: #111827;
-}
-
-.shop-item-form .input-group-text {
-  background-color: #374151;
-  border-color: #4b5563;
-  color: #e5e7eb;
-  font-size: 0.875rem;
-}
-
-.shop-item-form .final-price {
-  font-weight: 600;
-  color: #34d399;
-  font-size: 1rem;
-}
-
-.shop-item-form .btn {
-  padding: 0.5rem 1.5rem;
-  border-radius: 6px;
-  font-weight: 500;
-}
-
-.shop-item-form .btn-primary {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
-  color: #fff;
-}
-
-.shop-item-form .btn-primary:hover {
-  background-color: #2563eb;
-  border-color: #2563eb;
-}
-
-.shop-item-form .btn-secondary {
-  background-color: #4b5563;
-  border-color: #4b5563;
-  color: #fff;
-  margin-left: 0.5rem;
-}
-
-.shop-item-form .btn-secondary:hover {
-  background-color: #374151;
-  border-color: #374151;
-}
-
-.shop-item-form .actions {
-  padding: 1.5rem 0;
-  border-top: 1px solid #374151;
-  margin-top: 2rem;
-}
-
-.shop-item-form h5 {
-  color: #f3f4f6;
-  font-weight: 600;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-  font-size: 1rem;
-}
-
-.readonly-field {
-  background-color: #111827 !important;
-  cursor: not-allowed;
-  color: #9ca3af !important;
-}
-
-.table-responsive {
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid #374151;
-}
-
-.shop-item-form .estimated-hours {
-  color: #9ca3af;
-}
-
-.shop-item-form small {
-  color: #9ca3af;
-}
-</style>
-
-<div class="shop-item-form" x-data="{ selectedType: '<%= shop_item.type %>' }">
+<div class="shop-item-form">
 <%= form_with model: shop_item.becomes(ShopItem), url: (shop_item.persisted? ? admin_shop_item_path(shop_item) : admin_shop_items_path), method: (shop_item.persisted? ? :patch : :post), local: true do |f| %>
   <% if shop_item.errors.any? %>
     <div class="alert alert-danger">
@@ -192,17 +18,17 @@
         <div class="card-body">
           <div class="mb-3">
             <%= f.label :type, class: "form-label" %>
-            <%= f.select :type, @shop_item_types, { include_blank: "Select a type" }, { class: "form-select", "x-model": "selectedType" } %>
+            <%= f.select :type, @shop_item_types, { include_blank: "Select a type" }, { class: "form-select", id: "shop_item_type" } %>
           </div>
 
           <div class="mb-3">
             <%= f.label :name, class: "form-label" %>
-            <%= f.text_field :name, class: "form-control" %>
+            <%= f.text_field :name, class: "form-control", required: true %>
           </div>
 
           <div class="mb-3">
             <%= f.label :description, class: "form-label" %>
-            <%= f.text_area :description, rows: 3, class: "form-control" %>
+            <%= f.text_area :description, rows: 3, class: "form-control", required: true %>
           </div>
 
           <div class="mb-3">
@@ -212,7 +38,7 @@
 
           <div class="mb-3">
             <%= f.label :image, class: "form-label" %>
-            <%= f.file_field :image, class: "form-control" %>
+            <%= f.file_field :image, class: "form-control", required: !shop_item.persisted? %>
             <% if shop_item.persisted? && shop_item.image.attached? %>
               <div class="mt-2">
                 <small>Current image:</small><br>
@@ -232,7 +58,7 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <%= f.label :ticket_cost, class: "form-label" %>
-                <%= f.number_field :ticket_cost, step: 0.01, class: "form-control", id: "shop_item_ticket_cost" %>
+                <%= f.number_field :ticket_cost, step: 0.01, class: "form-control", id: "shop_item_ticket_cost", required: true %>
               </div>
             </div>
             <div class="col-md-6">
@@ -313,7 +139,21 @@
             <small class="form-text text-muted">Number of items available for purchase</small>
           </div>
 
-          <div x-show="selectedType === 'ShopItem::HCBGrant' || selectedType === 'ShopItem::HCBPreauthGrant'">
+          <div id="hack_clubber_settings" style="display: none;">
+            <h5>Hack Clubber Settings</h5>
+            <div class="mb-3">
+              <%= f.label :user_id, "Seller (User ID)", class: "form-label" %>
+              <%= f.number_field :user_id, class: "form-control", placeholder: "User ID" %>
+              <small class="form-text text-muted">The ID of the Hack Clubber selling this item</small>
+            </div>
+             <div class="mb-3">
+              <%= f.label :payout_percentage, "Payout Percentage (%)", class: "form-label" %>
+              <%= f.number_field :payout_percentage, min: 0, max: 100, class: "form-control" %>
+              <small class="form-text text-muted">Percentage of the sale price that goes to the seller</small>
+            </div>
+          </div>
+
+          <div id="hcb_locks_settings" style="display: none;">
             <h5>HCB Locks</h5>
             <div class="mb-3">
               <%= f.label :hcb_merchant_lock, "HCB Merchant Lock", class: "form-label" %>
@@ -331,15 +171,16 @@
             </div>
           </div>
 
-          <div x-show="selectedType === 'ShopItem::HCBPreauthGrant'" class="mb-3">
+          <div id="hcb_preauth_settings" class="mb-3" style="display: none;">
             <%= f.label :hcb_preauthorization_instructions, "HCB Preauthorization Instructions", class: "form-label" %>
             <%= f.text_area :hcb_preauthorization_instructions, rows: 3, class: "form-control", placeholder: "Instructions for preauthorized HCB grants" %>
             <small class="form-text text-muted">Used by HCB Preauth Grant items to provide spending instructions</small>
           </div>
 
-          <div x-show="selectedType === 'ShopItem::WarehouseItem'" class="mb-3">
-            <%= f.label :agh_contents, "AGH Contents (JSON)", class: "form-label" %>
-            <%= f.text_area :agh_contents, rows: 4, class: "form-control", placeholder: "Enter valid JSON" %>
+          <div id="warehouse_settings" class="mb-3" style="display: none;">
+            <%= f.label :agh_contents, "AGH Contents - SKU List (JSON)", class: "form-label" %>
+            <%= f.text_area :agh_contents, rows: 4, class: "form-control", placeholder: '[{"sku": "ITEM-001", "name": "Item Name"}, {"sku": "ITEM-002", "name": "Item 2"}]', style: "font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;" %>
+            <small class="form-text text-muted">List SKUs to include. Quantity selected by user will batch all SKUs together.</small>
           </div>
         </div>
       </div>
@@ -426,7 +267,7 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+(function() {
   const gameConstants = {
     doubloons_per_dollar: <%= Rails.configuration.game_constants.tickets_per_dollar.to_json %>,
     dollars_per_mean_hour: <%= Rails.configuration.game_constants.dollars_per_mean_hour.to_json %>
@@ -437,6 +278,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const hackerScoreField = document.getElementById('shop_item_hacker_score');
   const estimatedTicketsDisplay = document.getElementById('estimated_tickets');
   const averageHoursDisplay = document.getElementById('average_hours_estimated');
+
+  // State to track if user has manually overridden the ticket cost
+  let isTicketCostManuallySet = false;
+
+  if (ticketCostField && ticketCostField.value && parseFloat(ticketCostField.value) !== 0) {
+    isTicketCostManuallySet = true;
+  }
 
   function calculateEstimatedTickets() {
     const usdCost = parseFloat(usdCostField.value) || 0;
@@ -455,14 +303,49 @@ document.addEventListener('DOMContentLoaded', function () {
   function updateCalculations() {
     const estimatedTickets = calculateEstimatedTickets();
     const averageHours = calculateAverageHours();
-    estimatedTicketsDisplay.value = estimatedTickets.toFixed(2);
-    averageHoursDisplay.value = averageHours.toFixed(2);
+    if (estimatedTicketsDisplay) estimatedTicketsDisplay.value = estimatedTickets.toFixed(2);
+    if (averageHoursDisplay) averageHoursDisplay.value = averageHours.toFixed(2);
   }
 
-  if (usdCostField) usdCostField.addEventListener('input', updateCalculations);
-  if (ticketCostField) ticketCostField.addEventListener('input', updateCalculations);
-  if (hackerScoreField) hackerScoreField.addEventListener('input', updateCalculations);
-  updateCalculations();
+  function autoFillTicketCost() {
+    if (isTicketCostManuallySet) return;
+
+    const estimatedTickets = calculateEstimatedTickets();
+    if (usdCostField.value) {
+      ticketCostField.value = estimatedTickets.toFixed(2);
+      updateCalculations();
+      updateAllRegionalPricing();
+    }
+  }
+
+  if (usdCostField) {
+    usdCostField.addEventListener('input', function() {
+      updateCalculations();
+      autoFillTicketCost();
+    });
+  }
+
+  if (ticketCostField) {
+    ticketCostField.addEventListener('input', function(e) {
+      if (e.isTrusted) {
+        isTicketCostManuallySet = true;
+        // If user clears the field, reset manual flag to allow autofill again
+        if (this.value === '' || parseFloat(this.value) === 0) {
+           isTicketCostManuallySet = false;
+           autoFillTicketCost();
+        }
+      }
+      updateCalculations();
+      updateAllRegionalPricing();
+    });
+  }
+
+  if (hackerScoreField) {
+    hackerScoreField.addEventListener('input', function() {
+      updateCalculations();
+      autoFillTicketCost();
+    });
+  }
 
   const limitedCheckbox = document.getElementById('shop_item_limited');
   const stockFieldContainer = document.getElementById('stock_field_container');
@@ -540,7 +423,43 @@ document.addEventListener('DOMContentLoaded', function () {
     field.addEventListener('input', function() { updateFromDeltaDollars(this.dataset.region); });
   });
 
-  if (ticketCostField) ticketCostField.addEventListener('input', updateAllRegionalPricing);
+  // Run calculations on load
+  updateCalculations();
+  // Try to autofill on load (handles case where we have USD cost but ticket cost is empty/default)
+  autoFillTicketCost();
+  // Also update regional pricing (in case ticket cost was just autofilled)
   updateAllRegionalPricing();
-});
+
+  // Type selection logic
+  const typeSelect = document.getElementById('shop_item_type');
+  const hackClubberSettings = document.getElementById('hack_clubber_settings');
+  const hcbLocksSettings = document.getElementById('hcb_locks_settings');
+  const hcbPreauthSettings = document.getElementById('hcb_preauth_settings');
+  const warehouseSettings = document.getElementById('warehouse_settings');
+
+  function updateTypeVisibility() {
+    const selectedType = typeSelect ? typeSelect.value : '';
+
+    if (hackClubberSettings) {
+      hackClubberSettings.style.display = (selectedType === 'ShopItem::HackClubberItem') ? 'block' : 'none';
+    }
+
+    if (hcbLocksSettings) {
+      hcbLocksSettings.style.display = (selectedType === 'ShopItem::HCBGrant' || selectedType === 'ShopItem::HCBPreauthGrant') ? 'block' : 'none';
+    }
+
+    if (hcbPreauthSettings) {
+      hcbPreauthSettings.style.display = (selectedType === 'ShopItem::HCBPreauthGrant') ? 'block' : 'none';
+    }
+
+    if (warehouseSettings) {
+      warehouseSettings.style.display = (selectedType === 'ShopItem::WarehouseItem') ? 'block' : 'none';
+    }
+  }
+
+  if (typeSelect) {
+    typeSelect.addEventListener('change', updateTypeVisibility);
+    updateTypeVisibility(); // Run on load
+  }
+})();
 </script>

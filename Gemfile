@@ -52,7 +52,8 @@ group :development, :test do
   gem "bullet"
 
   # Rack Mini Profiler gem for performance monitoring
-  gem "rack-mini-profiler"
+  # gem "rack-mini-profiler"
+  gem "rack-mini-profiler", github: "coalest/rack-mini-profiler", branch: "fix-missing-badge-for-turbo-drive"
 
   # Annoate for annotating, ig.
   gem "annotaterb"
@@ -107,6 +108,7 @@ gem "view_component"
 gem "aws-sdk-s3"
 gem "faraday"
 
+gem "faker", "~> 3.5"
 gem "jsbundling-rails", "~> 1.3"
 gem "stackprof"
 gem "sentry-ruby"

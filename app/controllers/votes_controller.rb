@@ -1,6 +1,4 @@
 class VotesController < ApplicationController
-  before_action :authenticate_user!
-
   def index
     authorize :vote, :index?
     # Get distinct project IDs ordered by the user's most recent vote for that project

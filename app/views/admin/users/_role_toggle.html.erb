@@ -1,0 +1,7 @@
+<% has_role = user.public_send("#{role_name}?") %>
+<%= button_to (has_role ? "Demote from #{role_name.titleize}" : "Promote to #{role_name.titleize}"),
+              (has_role ? demote_role_admin_user_path(user) : promote_role_admin_user_path(user)),
+              method: :post,
+              params: { role_name: role_name },
+              class: "btn-primary slim",
+              disabled: disabled %>

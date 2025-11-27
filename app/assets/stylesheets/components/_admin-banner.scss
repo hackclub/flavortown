@@ -1,0 +1,61 @@
+.admin-banner {
+  width: fit-content;
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border: 1px dashed #ff9800;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: visible;
+
+  &::before {
+    content: "⚙️";
+    position: absolute;
+    right: -1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    opacity: 0.2;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  &__count {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #e65100;
+    font-family: var(--font-family-text);
+    line-height: 1;
+  }
+
+  &__link {
+    background-color: #ff9800;
+    color: white;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.65rem;
+    font-family: var(--font-family-text);
+    transition: all 0.3s ease;
+    display: inline-block;
+    white-space: nowrap;
+
+    &:hover {
+      background-color: #f57c00;
+      transform: translateX(1px);
+      box-shadow: 0 1px 4px rgba(255, 152, 0, 0.3);
+    }
+
+    &:active {
+      transform: translateX(0px);
+    }
+  }
+}

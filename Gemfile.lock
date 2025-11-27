@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/coalest/rack-mini-profiler.git
+  revision: c7ec597822824af15fa4946f44a7015758b40b46
+  branch: fix-missing-badge-for-turbo-drive
+  specs:
+    rack-mini-profiler (4.0.1)
+      rack (>= 1.2.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -190,6 +198,8 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
+    faker (3.5.2)
+      i18n (>= 1.8.11, < 2)
     faraday (2.14.0)
       faraday-net_http (>= 2.0, < 3.5)
       json
@@ -441,8 +451,6 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     rack (3.2.4)
-    rack-mini-profiler (4.0.1)
-      rack (>= 1.2.0)
     rack-oauth2 (2.3.0)
       activesupport
       attr_required
@@ -699,6 +707,7 @@ DEPENDENCIES
   debug
   dotenv-rails
   erb_lint
+  faker (~> 3.5)
   faraday
   flipper
   flipper-active_record
@@ -723,7 +732,7 @@ DEPENDENCIES
   propshaft
   puma (>= 5.0)
   pundit (~> 2.5)
-  rack-mini-profiler
+  rack-mini-profiler!
   rails (~> 8.1.1)
   rails_performance
   rubocop

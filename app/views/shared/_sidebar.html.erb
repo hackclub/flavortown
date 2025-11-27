@@ -13,7 +13,7 @@
         { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" }
       ] %>
 
-      <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_endpoints? %>
+      <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_dashboard? %>
 
       <ul class="sidebar__nav-list">
         <% sidebar_nav_items.each do |item| %>
