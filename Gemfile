@@ -53,7 +53,7 @@ group :development, :test do
 
   # Rack Mini Profiler gem for performance monitoring
   # gem "rack-mini-profiler"
-  gem "rack-mini-profiler", require: false, github: "coalest/rack-mini-profiler", branch: "fix-missing-badge-for-turbo-drive"
+  gem "rack-mini-profiler", github: "coalest/rack-mini-profiler", branch: "fix-missing-badge-for-turbo-drive"
 
   # Annoate for annotating, ig.
   gem "annotaterb"
