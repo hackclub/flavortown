@@ -2,9 +2,9 @@
 
  class PostComponent < ViewComponent::Base
   attr_reader :post, :variant
-  VARIANTS = %i[brown red green blue yellow].freeze
+  VARIANTS = %i[fire devlog certified ship].freeze
 
-  def initialize(post:, variant: :brown)
+  def initialize(post:, variant: :devlog)
      @post = post
     @variant = normalize_variant(variant)
    end
@@ -39,6 +39,6 @@
   def normalize_variant(value)
     symbol = value.to_sym
     return symbol if VARIANTS.include?(symbol)
-    :brown
+    :devlog
   end
  end
