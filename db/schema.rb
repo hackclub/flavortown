@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_27_033743) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_27_132703) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "action_mailbox_inbound_emails", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "message_checksum", null: false
+    t.string "message_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["message_id", "message_checksum"], name: "index_action_mailbox_inbound_emails_uniqueness", unique: true
+  end
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
@@ -115,6 +124,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_033743) do
     t.index ["feature_key", "key", "value"], name: "index_flipper_gates_on_feature_key_and_key_and_value", unique: true
   end
 
+  create_table "hcb_credentials", force: :cascade do |t|
+    t.text "access_token_ciphertext"
+    t.string "base_url"
+    t.string "client_id"
+    t.text "client_secret_ciphertext"
+    t.datetime "created_at", null: false
+    t.string "redirect_uri"
+    t.text "refresh_token_ciphertext"
+    t.string "slug"
+    t.datetime "updated_at", null: false
+  end
+
   create_table "post_devlogs", force: :cascade do |t|
     t.string "body"
     t.datetime "created_at", null: false
@@ -136,7 +157,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_033743) do
     t.string "postable_type"
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id"
+    t.bigint "user_id", null: false
     t.index ["project_id"], name: "index_posts_on_project_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
@@ -175,6 +196,17 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_033743) do
     t.datetime "created_at", null: false
     t.string "email", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "shop_card_grants", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "expected_amount_cents"
+    t.string "hcb_grant_hashid"
+    t.bigint "shop_item_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["shop_item_id"], name: "index_shop_card_grants_on_shop_item_id"
+    t.index ["user_id"], name: "index_shop_card_grants_on_user_id"
   end
 
   create_table "shop_items", force: :cascade do |t|
@@ -236,6 +268,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_033743) do
     t.string "rejection_reason"
     t.bigint "shop_card_grant_id"
     t.bigint "shop_item_id", null: false
+    t.string "tracking_number"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.bigint "warehouse_package_id"
@@ -267,7 +300,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_033743) do
     t.text "refresh_token_ciphertext"
     t.string "uid"
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
+    t.integer "user_id", null: false
     t.index ["access_token_bidx"], name: "index_user_identities_on_access_token_bidx"
     t.index ["provider", "uid"], name: "index_user_identities_on_provider_and_uid", unique: true
     t.index ["refresh_token_bidx"], name: "index_user_identities_on_refresh_token_bidx"
@@ -281,6 +314,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_033743) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_user_role_assignments_on_user_id"
+  end
+
+  create_table "user_roles", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "role_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["role_id"], name: "index_user_roles_on_role_id"
+    t.index ["user_id"], name: "index_user_roles_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -330,6 +372,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_033743) do
   add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
+  add_foreign_key "shop_card_grants", "shop_items"
+  add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "users"

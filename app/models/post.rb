@@ -8,7 +8,7 @@
 #  updated_at    :datetime         not null
 #  postable_id   :string
 #  project_id    :bigint           not null
-#  user_id       :bigint
+#  user_id       :bigint           not null
 #
 # Indexes
 #

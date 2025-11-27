@@ -6,7 +6,7 @@ class AdminConstraint
       user = User.find_by(id: user_id)
     end
     return false unless user
-    user.admin? || user.fraud_dept? || user.fulfillment_person?
+    user.super_admin? || user.admin? || user.fraud_dept? || user.fulfillment_person?
   end
 end
 

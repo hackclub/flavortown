@@ -147,6 +147,11 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @order = ShopOrder.find(params[:id])
     old_state = @order.aasm_state
 
+    if @order.shop_item.respond_to?(:fulfill!)
+      @order.approve!
+      redirect_to admin_shop_orders_path, notice: "Order approved and fulfilled" and return
+    end
+
     if @order.queue_for_fulfillment && @order.save
       PaperTrail::Version.create!(
         item_type: "ShopOrder",

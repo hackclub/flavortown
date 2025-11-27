@@ -100,6 +100,7 @@
         <% if item.image.present? %>
           <!-- DEBUG: item.type = <%= item.type %> -->
           <%= render ShopItemCardComponent.new(
+            item_id: item.id,
             name: item.name,
             description: item.description,
             hours: item.hours_estimated,

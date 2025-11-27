@@ -16,6 +16,7 @@
 #  quantity                           :integer
 #  rejected_at                        :datetime
 #  rejection_reason                   :string
+#  tracking_number                    :string
 #  created_at                         :datetime         not null
 #  updated_at                         :datetime         not null
 #  shop_card_grant_id                 :bigint
