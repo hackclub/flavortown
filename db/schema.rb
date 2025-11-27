@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_23_223159) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_26_163621) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -136,7 +136,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_23_223159) do
     t.string "postable_type"
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.index ["project_id"], name: "index_posts_on_project_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
@@ -168,13 +168,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_23_223159) do
     t.text "readme_url"
     t.text "repo_url"
     t.string "title", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "roles", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "description"
-    t.string "name"
     t.datetime "updated_at", null: false
   end
 
@@ -284,21 +277,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_23_223159) do
 
   create_table "user_role_assignments", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.bigint "role_id", null: false
+    t.integer "role", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
-    t.index ["role_id"], name: "index_user_role_assignments_on_role_id"
-    t.index ["user_id", "role_id"], name: "index_user_role_assignments_on_user_id_and_role_id", unique: true
     t.index ["user_id"], name: "index_user_role_assignments_on_user_id"
-  end
-
-  create_table "user_roles", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "role_id", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["role_id"], name: "index_user_roles_on_role_id"
-    t.index ["user_id"], name: "index_user_roles_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -312,7 +294,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_23_223159) do
     t.string "region"
     t.string "slack_id"
     t.datetime "updated_at", null: false
-    t.string "verification_status"
+    t.string "verification_status", default: "needs_submission", null: false
     t.integer "votes_count"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["region"], name: "index_users_on_region"
@@ -353,10 +335,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_23_223159) do
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"
-  add_foreign_key "user_role_assignments", "roles"
   add_foreign_key "user_role_assignments", "users"
-  add_foreign_key "user_roles", "roles"
-  add_foreign_key "user_roles", "users"
   add_foreign_key "votes", "projects"
   add_foreign_key "votes", "users"
 end

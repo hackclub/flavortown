@@ -6,8 +6,12 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
   include Pagy::Method
 
-  def current_user
-    @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
+  def current_user(preloads = [])
+    @current_user ||= begin
+      user = User.all
+      user = user.includes(*preloads) unless preloads.empty?
+      user = user.find_by(id: session[:user_id])
+    end if session[:user_id]
   end
   helper_method :current_user
 
