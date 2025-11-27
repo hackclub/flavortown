@@ -13,6 +13,7 @@
     <meta property="og:site_name" content="Flavortown - Hack Club">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <meta name="turbo-prefetch" content="false">
 
     <%= preload_link_tag image_path("landing/hero/long-image.avif"), as: "image", fetchpriority: "high" %>
     <%= preload_link_tag image_path("landing/hero/hero-bg.avif"), as: "image" %>
