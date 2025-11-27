@@ -14,6 +14,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_213006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
+  create_table "action_mailbox_inbound_emails", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "message_checksum", null: false
+    t.string "message_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["message_id", "message_checksum"], name: "index_action_mailbox_inbound_emails_uniqueness", unique: true
+  end
+
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -112,6 +121,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_213006) do
     t.datetime "updated_at", null: false
     t.text "value"
     t.index ["feature_key", "key", "value"], name: "index_flipper_gates_on_feature_key_and_key_and_value", unique: true
+  end
+
+  create_table "hcb_credentials", force: :cascade do |t|
+    t.text "access_token_ciphertext"
+    t.string "base_url"
+    t.string "client_id"
+    t.text "client_secret_ciphertext"
+    t.datetime "created_at", null: false
+    t.string "redirect_uri"
+    t.text "refresh_token_ciphertext"
+    t.string "slug"
+    t.datetime "updated_at", null: false
   end
 
   create_table "post_devlogs", force: :cascade do |t|
@@ -239,6 +260,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_20_213006) do
     t.string "rejection_reason"
     t.bigint "shop_card_grant_id"
     t.bigint "shop_item_id", null: false
+    t.string "tracking_number"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.bigint "warehouse_package_id"

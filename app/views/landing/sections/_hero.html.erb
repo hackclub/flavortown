@@ -2,14 +2,13 @@
   <%= inline_svg_tag "landing/hero/flag-orpheus-top.svg", class: "orph-flag" %>
 
   <div class="login-btn">
-    <% if show_signin_button? %>
-      <%= form_tag "/auth/slack", method: :post, data: {turbo: false} do %>
-        <button class="btn btn--red btn--striped">
-          <div>
-            <%= image_tag "mask/enter.avif", width: 20, height: 20 %> Sign in!
-          </div>
-        </button>
-      <% end %>
+    <%= form_tag "/auth/hack_club", method: :post, data: {turbo: false} do %>
+      <button class="btn btn--red btn--striped">
+        <div>
+          <%= image_tag image_url("mask/enter.avif"), width: 20, height: 20 %>
+          Sign in!
+        </div>
+      </button>
     <% end %>
     <% if current_user&.admin? %>
       <%= link_to "/admin", class: "btn-striped-red is_admin" do %>
@@ -30,13 +29,7 @@
 
     <%= render "rsvp_form", rsvp: Rsvp.new %>
 
-<<<<<<< HEAD
     <h4>Ages 13-18. Starts <u>December 1, 2025</u>.</h4>
-=======
-    <h4>For ages 13 to 18. Ends February 30, 2026.</h4>
-
-    <!-- <h5>Over 18? Earn the same prizes by <a href="https://docs.google.com/document/d/1xiAoYrO6wY1knzZhI1TFYVqCo6q2R7A46he0w5tan90/edit?tab=t.0" target="_blank">getting teens to sign up</a></h5> -->
->>>>>>> 5d4116d (update placeholders on landing page)
 
     <!-- <h5>Over 18? Earn the same prizes by <a class="no-underline" href="https://docs.google.com/document/d/1xiAoYrO6wY1knzZhI1TFYVqCo6q2R7A46he0w5tan90/edit?tab=t.0" target="_blank">getting teens to sign up</a></h5> -->
 
