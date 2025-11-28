@@ -119,16 +119,16 @@ class ShopItem::HCBGrant < ShopItem
           memo = "[grant] topping up #{shop_order.user.display_name}'s #{name}"
         end
 
-          Rails.logger.info "Got disbursement #{latest_disbursement}"
-          rescue => e
-          if user_canceled
-            Rails.logger.info "Grant was canceled, creating new grant"
-            retry
-          else
-            raise e
-          end
+      Rails.logger.info "Got disbursement #{latest_disbursement}"
+      rescue => e
+        if user_canceled
+          Rails.logger.info "Grant was canceled, creating new grant"
+          retry
+        else
+          raise e
         end
       end
+    end
 
     # add card grant to shop order
     shop_order.shop_card_grant = grant_rec
