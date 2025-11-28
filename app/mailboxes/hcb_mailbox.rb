@@ -2,7 +2,7 @@ class HCBMailbox < ApplicationMailbox
   def process
     if mail.subject.include?("You've received a donation for Flavortown")
       if mail.body.decoded =~ %r{grants/}
-        grant_id = mail.body.decoded.split("grants/").last.to_s.split(/[\/\s]/).first
+        grant_id = mail.body.decoded.split("grants/").last.to_s.split(/[^a-zA-Z0-9]/).first
         shop_card_grant = ShopCardGrant.find_by(hcb_grant_hashid: "cdg_" + grant_id)
         donation_id = mail.body.decoded.split("donations/").last.to_s.split(/[\/\s]/).first.remove('"')
 
