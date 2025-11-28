@@ -26,8 +26,16 @@
 
   &__image {
     width: 100%;
-    position: relative;
-    z-index: 1;
+    height: 350px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
   }
 
   &__content {
