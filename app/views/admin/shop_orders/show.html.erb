@@ -32,7 +32,7 @@
   </div>
 </div>
 
-<% unless current_user.fraud_dept? %>
+<% if @can_view_address %>
 <div class="card">
   <h2>Shipping Address</h2>
   <% if @can_view_address %>
@@ -134,7 +134,7 @@
    <% end %>
    </div>
 
-<% if current_user.fraud_dept? && @user_orders.present? %>
+<% if @user_orders.present? %>
 <div class="card" style="margin-top: 2rem;">
   <details style="cursor: pointer;">
     <summary style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; user-select: none; color: #374151;">

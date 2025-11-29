@@ -9,7 +9,6 @@
           <th>Qty</th>
           <th>Tickets</th>
           <th>Status</th>
-          <th>Address</th>
           <th>Created</th>
           <th>Actions</th>
         </tr>
@@ -34,13 +33,7 @@
                 <%= order.aasm_state.humanize %>
               </span>
             </td>
-            <td>
-              <% if can_see %>
-                🔒 <em style="color: #6b7280;">Encrypted (click Inspect)</em>
-              <% else %>
-                🔒 <em style="color: #991b1b;">No access</em>
-              <% end %>
-            </td>
+           
             <td>
               <%= order.created_at.strftime("%b %d, %Y") %><br>
               <small style="color: #6b7280;"><%= order.created_at.strftime("%l:%M %p") %></small>
