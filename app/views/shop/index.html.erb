@@ -20,6 +20,7 @@
         label: "Region",
         options: ["United States", "Canada", "Europe", "United Kingdom", "Australia", "India", "Other"],
         selected_option: "United States",
+        longest_option_string: "United Kingdom",
         color: :brown
       ) %>
     </div>
@@ -71,20 +72,23 @@
       <div class="shop__filters">
         <%= render DropdownComponent.new(
           label: "Category",
-          options: ["Grants", "Warehouse", "Third Party"],
-          selected_option: "Grants",
+          options: ["All", "Grants", "Warehouse", "Third Party"],
+          selected_option: "All",
+          longest_option_string: "Third Party",
           color: :blue
         ) %>
         <%= render DropdownComponent.new(
           label: "Price Range",
-          options: ["🍪0 - 🍪1000", "🍪1000 - 🍪5000", ">🍪5000"],
-          selected_option: "🍪0 - 🍪1000",
+          options: ["None", "🍪0 - 🍪1000", "🍪1000 - 🍪5000", ">🍪5000"],
+          selected_option: "None",
+          longest_option_string: "🍪1000 - 🍪5000",
           color: :pink
         ) %>
         <%= render DropdownComponent.new(
           label: "Sort by",
           options: ["Prices", "Alphabetical"],
           selected_option: "Prices",
+          longest_option_string: "Alphabetical",
           color: :green
         ) %>
         <button id="sort-btn">
