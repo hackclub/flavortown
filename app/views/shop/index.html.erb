@@ -65,7 +65,11 @@
             placeholder: "Search item",
             form: f, # Not needed for standalone inputs
             attribute: :q,
-            color: :yellow
+            color: :yellow,
+            input_html: { 
+              value: params[:q],
+              data: { action: "input->shop#search" }
+            }
           ) %>
          <% end %>
       </div>
