@@ -4,7 +4,7 @@
   <p>No more projects to vote on!</p>
 <% else %>
   <%# project to vote on %>
-  <div>
+  <div data-controller="vote-tracker">
     <%# TODO: i'd like a general-purpose "project mention" we can use for this sort of thing %>
     <strong>
       <%= @project.title %>
@@ -12,11 +12,21 @@
     <em>
       <%= @project.description %>
     </em>
-  </div>
 
-  <%# voting form %>
-  <div>
-    <%= render "form", project: @project %>
+    <div style="margin: 10px 0;">
+      <% if @project.repo_url.present? %>
+        <%= link_to "View Code", @project.repo_url, target: "_blank", data: { action: "click->vote-tracker#trackRepoClick" } %>
+      <% end %>
+      
+      <% if @project.demo_url.present? %>
+        <%= link_to "View Demo", @project.demo_url, target: "_blank", style: "margin-left: 10px;", data: { action: "click->vote-tracker#trackDemoClick" } %>
+      <% end %>
+    </div>
+
+    <%# voting form %>
+    <div>
+      <%= render "form", project: @project %>
+    </div>
   </div>
 
   <% if current_user.votes.exists? %>

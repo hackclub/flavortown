@@ -120,6 +120,36 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     if current_user.fraud_dept?
       @user_orders = @order.user.shop_orders.where.not(id: @order.id).order(created_at: :desc).limit(10)
     end
+
+    # Load Hackatime stats
+    hackatime_identity = @order.user.identities.find_by(provider: "hackatime")
+    if hackatime_identity
+      # Fetch summaries
+      summaries = HackatimeService.fetch_user_summaries(hackatime_identity.uid)
+      
+      # Get names of linked projects
+      linked_project_names = @order.user.hackatime_projects.pluck(:name)
+      
+      # Organize data by project
+      @hackatime_stats = {}
+      linked_project_names.each do |name|
+        @hackatime_stats[name] = []
+      end
+
+      summaries.each do |day_summary|
+        date = Date.parse(day_summary["range"]["date"])
+        
+        day_summary["projects"].each do |project_data|
+          project_name = project_data["name"]
+          if @hackatime_stats.key?(project_name)
+            @hackatime_stats[project_name] << {
+              date: date,
+              seconds: project_data["total_seconds"]
+            }
+          end
+        end
+      end
+    end
   end
 
   def reveal_address
