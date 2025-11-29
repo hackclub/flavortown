@@ -55,6 +55,9 @@ export default class extends Controller {
       const title = item.querySelector(".shop-item-card__title")?.textContent?.toLowerCase() || "";
       if (title.includes(query)) {
         item.style.display = "flex";
+        if (window.innerWidth > 1400) {
+          item.style.maxWidth = "350px";
+        }
       } else {
         item.style.display = "none";
       }
