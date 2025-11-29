@@ -262,7 +262,9 @@
   flex-direction: column;
   opacity: 0;
   max-width: 0;
-  transition: opacity 150ms ease, max-width 150ms ease;
+  transition:
+    opacity 150ms ease,
+    max-width 150ms ease;
 }
 
 .sidebar__user-name {
@@ -272,12 +274,7 @@
   background-color: var(--color-red-500);
   padding: 0.1em 1em 0.1em 2em;
   margin-left: -2em;
-  clip-path: polygon(
-    0 0, 
-    100% 0,
-    calc(100% - 10px) 100%,
-    0 100% 
-  );
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
 }
 
 .sidebar__user-balance {
@@ -346,7 +343,6 @@
     width: 100%;
     box-shadow: var(--shadow);
   }
-
 
   .sidebar__user-avatar {
     left: 0.3em;

@@ -121,10 +121,9 @@
         position: absolute;
         top: -0.25em;
         left: -0.5em;
-        filter: 
-          drop-shadow(5px 0 0 var(--color-tan-400)) 
-          drop-shadow(-5px 0 0 var(--color-tan-400)) 
-          drop-shadow(0 5px 0 var(--color-tan-400)) 
+        filter: drop-shadow(5px 0 0 var(--color-tan-400))
+          drop-shadow(-5px 0 0 var(--color-tan-400))
+          drop-shadow(0 5px 0 var(--color-tan-400))
           drop-shadow(0 -5px 0 var(--color-tan-400));
       }
     }

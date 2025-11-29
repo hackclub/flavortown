@@ -52,7 +52,10 @@ export default class extends Controller {
     const items = document.querySelectorAll(".shop-item-card");
 
     items.forEach((item) => {
-      const title = item.querySelector(".shop-item-card__title")?.textContent?.toLowerCase() || "";
+      const title =
+        item
+          .querySelector(".shop-item-card__title")
+          ?.textContent?.toLowerCase() || "";
       if (title.includes(query)) {
         item.style.display = "flex";
         if (window.innerWidth > 1400) {
