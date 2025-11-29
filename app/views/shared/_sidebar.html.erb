@@ -41,8 +41,18 @@
   </div>
 
   <div class="sidebar__user" aria-live="polite">
-    <div class="sidebar__user-placeholder">
-      <span class="sidebar__user-placeholder-text">User info coming soon</span>
+    <div class="sidebar__user-card">
+      <div class="sidebar__user-avatar">
+        <%= image_tag "chef-hat.webp", alt: "Hat", class: "sidebar__user-avatar-hat", aria: { hidden: true } %>
+        <%= image_tag "chef-hat-bg.webp", alt: "Hat", class: "sidebar__user-avatar-hat-bg", aria: { hidden: true } %>
+        <div class="sidebar__user-avatar-placeholder">
+          <%= current_user.display_name.first.upcase %>
+        </div>
+      </div>
+      <div class="sidebar__user-details">
+        <span class="sidebar__user-name"><%= current_user.display_name %></span>
+        <span class="sidebar__user-balance">🍪 <%= current_user.balance %></span>
+      </div>
     </div>
   </div>
 </aside>

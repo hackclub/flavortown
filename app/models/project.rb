@@ -66,4 +66,12 @@ class Project < ApplicationRecord
         where.not(id: user.projects.select(:id))
         .where.not(id: user.votes.select(:project_id))
     }
+
+    def time
+        total_hours = Post::ShipEvent.where(id: posts.where(postable_type: "Post::ShipEvent").select("postable_id::bigint")).sum(:hours) || 0
+        hours = total_hours.to_i
+        minutes = ((total_hours - hours) * 60).to_i
+
+        OpenStruct.new(hours: hours, minutes: minutes)
+    end
 end

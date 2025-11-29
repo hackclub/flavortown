@@ -36,6 +36,11 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-m);
+
+    h1 {
+      font-weight: 400;
+      font-size: 2.4rem;
+    }
   }
 
   &__byline {
@@ -61,26 +66,26 @@
     gap: var(--space-l);
     color: var(--color-tan-400);
     font-size: var(--font-size-xl);
-    margin-top: var(--space-m);
-    margin-bottom: var(--space-xxs);
+    margin-top: 0.4em;
   }
 
   &__stat {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2xs);
+    gap: 0.3em;
 
     svg {
       color: var(--color-tan-400) !important;
       width: 24px;
       height: 24px;
+      margin-bottom: 0.1em;
     }
   }
 
   &__description {
     margin: 0;
     color: var(--color-bg);
-    font-size: var(--font-size-xl);
+    font-size: 1.5rem;
     line-height: 1.5;
 
     /* appr markdown does some funny thigns */
@@ -93,7 +98,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
     gap: var(--space-l);
-    margin-top: var(--space-m);
+    margin-top: 0.5em;
     align-items: stretch;
 
     .btn {

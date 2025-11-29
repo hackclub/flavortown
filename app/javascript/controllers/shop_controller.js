@@ -46,4 +46,24 @@ export default class extends Controller {
     const match = priceText.match(/[\d.]+/);
     return match ? parseFloat(match[0]) : 0;
   }
+
+  search(event) {
+    const query = event.target.value.toLowerCase();
+    const items = document.querySelectorAll(".shop-item-card");
+
+    items.forEach((item) => {
+      const title =
+        item
+          .querySelector(".shop-item-card__title")
+          ?.textContent?.toLowerCase() || "";
+      if (title.includes(query)) {
+        item.style.display = "flex";
+        if (window.innerWidth > 1400) {
+          item.style.maxWidth = "350px";
+        }
+      } else {
+        item.style.display = "none";
+      }
+    });
+  }
 }
