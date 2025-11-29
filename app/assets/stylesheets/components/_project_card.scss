@@ -90,4 +90,50 @@
       text-decoration: underline;
     }
   }
+
+  .project-card__stats {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 2.5em;
+    width: 100%;
+    padding: 0 var(--space-l);
+    margin-bottom: 1rem;
+
+    h5 {
+      flex-grow: 0;
+      display: inline-block;
+      margin: 0;
+      font-weight: normal;
+      font-size: 1.1rem;
+      background-color: var(--color-tan-400);
+      border-radius: 4px;
+      color: var(--color-brown-500);
+      width: fit-content;
+      padding: 0.2em 0.2em 0.2em 1.6em;
+      position: relative;
+
+      svg {
+        color: var(--color-brown-500) !important;
+        content: "";
+        width: 30px;
+        height: 30px;
+        position: absolute;
+        top: -0.25em;
+        left: -0.5em;
+        filter: 
+          drop-shadow(5px 0 0 var(--color-tan-400)) 
+          drop-shadow(-5px 0 0 var(--color-tan-400)) 
+          drop-shadow(0 5px 0 var(--color-tan-400)) 
+          drop-shadow(0 -5px 0 var(--color-tan-400));
+      }
+    }
+
+    @media (max-width: 960px) {
+      gap: 1.5em;
+      h5 {
+        flex-grow: 1;
+      }
+    }
+  }
 }
