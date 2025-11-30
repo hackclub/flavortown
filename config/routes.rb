@@ -114,6 +114,7 @@ Rails.application.routes.draw do
         post :place_on_hold
         post :release_from_hold
         post :mark_fulfilled
+        post :update_internal_notes
       end
     end
     resources :audit_logs, only: [ :index, :show ]

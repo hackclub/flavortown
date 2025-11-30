@@ -1,5 +1,8 @@
-<%= form_with(url: votes_path, data: { turbo: false }) do |form| %>
+<%= form_with(url: votes_path, data: { turbo: false, action: "submit->vote-tracker#submit" }) do |form| %>
   <%= form.hidden_field :project_id, value: project.id %>
+  <%= form.hidden_field :time_taken_to_vote, value: 0, data: { vote_tracker_target: "timeField" } %>
+  <%= form.hidden_field :repo_url_clicked, value: false, data: { vote_tracker_target: "repoField" } %>
+  <%= form.hidden_field :demo_url_clicked, value: false, data: { vote_tracker_target: "demoField" } %>
 
   <% Vote::Category.all.each do |category| %>
     <%= fields_for "votes[]", Vote.new do |vote_fields| %>

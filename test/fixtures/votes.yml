@@ -4,13 +4,16 @@
 #
 # Table name: votes
 #
-#  id         :bigint           not null, primary key
-#  category   :integer          default("originality"), not null
-#  score      :integer          not null
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  project_id :bigint           not null
-#  user_id    :bigint           not null
+#  id                 :bigint           not null, primary key
+#  category           :integer          default("originality"), not null
+#  demo_url_clicked   :boolean
+#  repo_url_clicked   :boolean
+#  score              :integer          not null
+#  time_taken_to_vote :integer
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  project_id         :bigint           not null
+#  user_id            :bigint           not null
 #
 # Indexes
 #

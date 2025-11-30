@@ -28,5 +28,8 @@ application.register("post-attachments", PostAttachmentsController);
 import ShopController from "./shop_controller";
 application.register("shop", ShopController);
 
+import VoteTrackerController from "./vote_tracker_controller";
+application.register("vote-tracker", VoteTrackerController);
+
 import DropdownController from "./dropdown_controller";
 application.register("dropdown", DropdownController);
