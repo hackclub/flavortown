@@ -336,6 +336,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_132703) do
     t.integer "projects_count"
     t.string "region"
     t.string "slack_id"
+    t.datetime "synced_at"
     t.datetime "updated_at", null: false
     t.string "verification_status", default: "needs_submission", null: false
     t.integer "votes_count"
