@@ -16,7 +16,12 @@ export default class extends Controller {
 
     const label = this.element.querySelector(".dropdown__label")?.textContent;
 
-    if (label === "Category" || label === "Price Range" || label === "Sort by" || label === "Region") {
+    if (
+      label === "Category" ||
+      label === "Price Range" ||
+      label === "Sort by" ||
+      label === "Region"
+    ) {
       document.dispatchEvent(
         new CustomEvent("shop:filter", {
           detail: { filterType: label, value: value },
