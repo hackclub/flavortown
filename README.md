@@ -39,8 +39,6 @@ docker-compose run web bin/rails bundle install
 docker-compose run web bin/lint
 ```
 
----
-
 ## i hate docker
 
 weirdo, but okay, you gotta figure out how to get postgres running yourself bucko
