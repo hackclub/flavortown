@@ -5,7 +5,7 @@ class SyncSlackDisplayNameJob < ApplicationJob
     return unless user.slack_id.present?
 
     client = Slack::Web::Client.new(token: ENV.fetch("SLACK_BOT_TOKEN", nil))
-    
+
     begin
       response = client.users_info(user: user.slack_id)
       return unless response.ok
