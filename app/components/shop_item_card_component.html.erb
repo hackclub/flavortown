@@ -7,14 +7,14 @@
     <p class="shop-item-card__description"><%= description %></p>
     <div class="shop-item-card__details">
       <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
-      <span class="shop-item-card__price"><%= number_to_currency(price, precision: 0).gsub('$', '🍪') %></span>
+      <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
     </div>
   </div>
   <div class="shop-item-card__order-button">
-    <% if balance >= price %>
+    <% if balance >= display_price %>
       <%= link_to "Order Now", "/shop/order?shop_item_id=#{item_id}", class: "btn btn-primary w-full" %>
     <% else %>
-      <p class="btn btn-primary w-full disabled">You need <%= number_to_currency(price - balance, precision: 0).gsub('$', '🍪') %> more cookies!</p>
+      <p class="btn btn-primary w-full disabled">You need <%= number_to_currency(display_price - balance, precision: 0).gsub('$', '🍪') %> more cookies!</p>
     <% end %>
   </div>
 </div>

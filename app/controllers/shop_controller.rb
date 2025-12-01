@@ -1,7 +1,15 @@
 class ShopController < ApplicationController
   def index
     @shop_open = true
-    @featured_item = ShopItem.where(type: "ShopItem::FreeStickers").includes(:image_attachment).first
+    @user_region = user_region
+    @region_options = Shop::Regionalizable::REGIONS.map do |code, config|
+      { label: config[:name], value: code }
+    end
+
+    @featured_item = ShopItem.where(type: "ShopItem::FreeStickers")
+                             .includes(:image_attachment)
+                             .select { |item| item.enabled_in_region?(@user_region) }
+                             .first
     @shop_items = ShopItem.all.includes(:image_attachment)
     @user_balance = current_user.balance
   end
@@ -49,5 +57,12 @@ class ShopController < ApplicationController
     else
         redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{@order.errors.full_messages.join(', ')}"
     end
+  end
+
+  private
+
+  def user_region
+    country = current_user.address&.dig("country") || current_user.address&.dig(:country)
+    Shop::Regionalizable.country_to_region(country)
   end
 end
