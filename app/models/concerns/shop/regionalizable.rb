@@ -7,7 +7,8 @@ module Shop
 
     REGIONS = {
       "US" => { name: "United States", countries: [ "US" ] },
-      "EU" => { name: "EU + UK", countries: [ "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "GB" ] },
+      "EU" => { name: "EU", countries: [ "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE" ] },
+      "UK" => { name: "United Kingdom", countries: [ "GB" ] },
       "IN" => { name: "India", countries: [ "IN" ] },
       "CA" => { name: "Canada", countries: [ "CA" ] },
       "AU" => { name: "Australia", countries: [ "AU", "NZ" ] },
