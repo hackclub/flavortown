@@ -3,6 +3,7 @@ class ShopController < ApplicationController
     @shop_open = true
     @featured_item = ShopItem.where(type: "ShopItem::FreeStickers").includes(:image_attachment).first
     @shop_items = ShopItem.all.includes(:image_attachment)
+    @user_balance = current_user.balance
   end
 
   def my_orders

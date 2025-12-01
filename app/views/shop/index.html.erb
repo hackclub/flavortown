@@ -18,7 +18,14 @@
       ) %>
       <%= render DropdownComponent.new(
         label: "Region",
-        options: ["United States", "Canada", "Europe", "United Kingdom", "Australia", "India", "Other"],
+        options: [
+          { label: "United States", value: "US" },
+          { label: "Canada", value: "CA" },
+          { label: "Europe / UK", value: "EU" },
+          { label: "Australia", value: "AU" },
+          { label: "India", value: "IN" },
+          { label: "Other", value: "XX" }
+        ],
         selected_option: "United States",
         longest_option_string: "United Kingdom",
         color: :brown
@@ -28,7 +35,7 @@
       <div class="shop__banner">
         <div class="shop__banner-headings">
           <h3 class="shop__banner-title">Get Started</h3>
-          <h3 class="shop__banner-price"><%= number_to_currency(@featured_item.ticket_cost).gsub('$', '🍪') %></h3>
+          <h3 class="shop__banner-price"><%= number_to_currency(@featured_item.ticket_cost, precision: 0).gsub('$', '🍪') %></h3>
         </div>
         <div class="shop__banner-showcase">
           <div class="shop__banner-item-desc">
@@ -76,14 +83,19 @@
       <div class="shop__filters">
         <%= render DropdownComponent.new(
           label: "Category",
-          options: ["All", "Grants", "Warehouse", "Third Party"],
+          options: ["All", "Grants", "HQ", "Digital", "Locally Fulfilled", "Made by Hack Clubbers"],
           selected_option: "All",
-          longest_option_string: "Third Party",
+          longest_option_string: "Made by Hack Clubbers",
           color: :blue
         ) %>
         <%= render DropdownComponent.new(
           label: "Price Range",
-          options: ["None", "🍪0 - 🍪1000", "🍪1000 - 🍪5000", ">🍪5000"],
+          options: [
+            { label: "None", value: "none" },
+            { label: "🍪0 - 🍪1000", value: "0-1000" },
+            { label: "🍪1000 - 🍪5000", value: "1000-5000" },
+            { label: ">🍪5000", value: "5000+" }
+          ],
           selected_option: "None",
           longest_option_string: "🍪1000 - 🍪5000",
           color: :pink
@@ -106,7 +118,6 @@
     <div class="shop__items">
       <% @shop_items.each do |item| %>
         <% if item.image.present? %>
-          <!-- DEBUG: item.type = <%= item.type %> -->
           <%= render ShopItemCardComponent.new(
             item_id: item.id,
             name: item.name,
@@ -114,7 +125,9 @@
             hours: item.hours_estimated,
             price: item.ticket_cost,
             image_url: item.image.variant(:carousel_lg),
-            item_type: item.type
+            item_type: item.type,
+            balance: @user_balance,
+            enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) }
           ) %>
         <% end %>
       <% end %>

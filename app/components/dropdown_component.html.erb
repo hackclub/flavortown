@@ -11,7 +11,11 @@
   </button>
   <ul class="dropdown__menu" data-dropdown-target="menu">
     <% options.each do |option| %>
-      <li class="dropdown__item" data-action="click->dropdown#select"><%= option %></li>
+      <% if option.is_a?(Hash) %>
+        <li class="dropdown__item" data-action="click->dropdown#select" data-value="<%= option[:value] %>"><%= option[:label] %></li>
+      <% else %>
+        <li class="dropdown__item" data-action="click->dropdown#select" data-value="<%= option %>"><%= option %></li>
+      <% end %>
     <% end %>
   </ul>
 </div>
