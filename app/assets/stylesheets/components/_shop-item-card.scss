@@ -100,6 +100,11 @@
       padding: 0.2rem;
     }
 
+    .disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
     .btn:hover {
       filter: brightness(1.1);
     }
