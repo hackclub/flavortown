@@ -14,7 +14,7 @@ class SessionsController < ApplicationController
     identity_data = fetch_hack_club_identity(access_token)
     return redirect_to(root_path, alert: "Authentication failed") if identity_data.blank?
 
-    user_email, display_name, verification_status, slack_id, uid, = extract_identity_fields(identity_data)
+    user_email, display_name, verification_status, slack_id, uid, _, first_name, last_name = extract_identity_fields(identity_data)
     return redirect_to(root_path, alert: "Authentication failed") if uid.blank?
     return redirect_to(root_path, alert: "Authentication failed") unless User::VALID_VERIFICATION_STATUSES.include?(verification_status)
 
@@ -24,6 +24,8 @@ class SessionsController < ApplicationController
     user = identity.user || User.find_by(slack_id: slack_id) || User.new
     user.email ||= user_email
     user.display_name = display_name if user.display_name.to_s.strip.blank?
+    user.first_name = first_name if first_name.present?
+    user.last_name = last_name if last_name.present?
     user.verification_status = verification_status if user.verification_status.to_s != verification_status
     user.slack_id = slack_id if user.slack_id.to_s != slack_id
     user.save!
@@ -79,6 +81,6 @@ class SessionsController < ApplicationController
     slack_id = data["slack_id"].to_s
     uid = data["id"].to_s
     address = data["address"]
-    [ user_email, display_name, verification_status, slack_id, uid, address ]
+    [ user_email, display_name, verification_status, slack_id, uid, address, first_name, last_name ]
   end
 end
