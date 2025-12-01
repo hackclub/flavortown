@@ -45,9 +45,13 @@
       <div class="sidebar__user-avatar">
         <%= image_tag "chef-hat.webp", alt: "Hat", class: "sidebar__user-avatar-hat", aria: { hidden: true } %>
         <%= image_tag "chef-hat-bg.webp", alt: "Hat", class: "sidebar__user-avatar-hat-bg", aria: { hidden: true } %>
-        <div class="sidebar__user-avatar-placeholder">
-          <%= current_user.display_name.first.upcase %>
-        </div>
+        <% if current_user.slack_id.present? %>
+          <%= image_tag "http://cachet.dunkirk.sh/users/#{current_user.slack_id}/r", alt: current_user.display_name, class: "sidebar__user-avatar-placeholder", style: "object-fit: cover;" %>
+        <% else %>
+          <div class="sidebar__user-avatar-placeholder">
+            <%= current_user.display_name.first.upcase %>
+          </div>
+        <% end %>
       </div>
       <div class="sidebar__user-details">
         <span class="sidebar__user-name"><%= current_user.display_name %></span>

@@ -230,6 +230,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_01_184507) do
     t.boolean "enabled_ca"
     t.boolean "enabled_eu"
     t.boolean "enabled_in"
+    t.boolean "enabled_uk"
     t.boolean "enabled_us"
     t.boolean "enabled_xx"
     t.integer "hacker_score"
@@ -247,6 +248,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_01_184507) do
     t.decimal "price_offset_ca"
     t.decimal "price_offset_eu"
     t.decimal "price_offset_in"
+    t.decimal "price_offset_uk", precision: 10, scale: 2
     t.decimal "price_offset_us"
     t.decimal "price_offset_xx"
     t.integer "sale_percentage"
@@ -339,7 +341,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_01_184507) do
     t.integer "projects_count"
     t.string "region"
     t.string "slack_id"
-    t.datetime "synced_at"
     t.datetime "updated_at", null: false
     t.string "verification_status", default: "needs_submission", null: false
     t.integer "votes_count"
