@@ -1,43 +1,46 @@
 <h1 style="font-size: 1.5rem; margin-bottom: 1rem;">Order #<%= @order.id %></h1>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
-  <div class="card" style="padding: 0.75rem;">
-    <h3 style="font-size: 0.875rem; margin: 0 0 0.5rem 0; font-weight: 600;">Status</h3>
-    <span class="badge badge-<%= @order.aasm_state %>" style="font-size: 0.75rem; padding: 0.2rem 0.4rem;">
-      <%= @order.aasm_state.humanize %>
-    </span>
-  </div>
+<div class="card" style="padding: 1rem; margin-bottom: 1rem;">
+  <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
+    <div>
+      <span style="font-size: 0.75rem; color: #6b7280; display: block;">Status</span>
+      <span class="badge badge-<%= @order.aasm_state %>" style="font-size: 0.75rem; padding: 0.2rem 0.4rem;">
+        <%= @order.aasm_state.humanize %>
+      </span>
+    </div>
 
-  <div class="card" style="padding: 0.75rem;">
-    <h3 style="font-size: 0.875rem; margin: 0 0 0.5rem 0; font-weight: 600;">Created</h3>
-    <div style="font-size: 0.75rem; color: #6b7280;"><%= @order.created_at.strftime("%m/%d %l:%M%p") %></div>
-  </div>
+    <div>
+      <span style="font-size: 0.75rem; color: #6b7280; display: block;">Created</span>
+      <span style="font-size: 0.875rem;"><%= @order.created_at.strftime("%m/%d %l:%M%p") %></span>
+    </div>
 
-  <div class="card" style="padding: 0.75rem;">
-    <h3 style="font-size: 0.875rem; margin: 0 0 0.5rem 0; font-weight: 600;">User</h3>
-    <%= link_to @order.user.display_name || "Unknown", admin_user_path(@order.user), class: "btn-primary slim", style: "font-size: 0.75rem; padding: 0.2rem 0.4rem;" %>
-  </div>
+    <div>
+      <span style="font-size: 0.75rem; color: #6b7280; display: block;">User</span>
+      <%= link_to @order.user.display_name || "Unknown", admin_user_path(@order.user), style: "font-size: 0.875rem; color: #3b82f6;" %>
+    </div>
 
-  <div class="card" style="padding: 0.75rem;">
-    <h3 style="font-size: 0.875rem; margin: 0 0 0.5rem 0; font-weight: 600;">Item</h3>
-    <div style="font-size: 0.75rem; color: #374151;"><%= truncate(@order.shop_item.name, length: 25) %></div>
-  </div>
+    <div>
+      <span style="font-size: 0.75rem; color: #6b7280; display: block;">Item</span>
+      <span style="font-size: 0.875rem;"><%= truncate(@order.shop_item.name, length: 25) %></span>
+    </div>
 
-  <div class="card" style="padding: 0.75rem;">
-    <h3 style="font-size: 0.875rem; margin: 0 0 0.5rem 0; font-weight: 600;">Qty / Cost</h3>
-    <div style="font-size: 0.75rem; color: #374151;">
-      <%= @order.quantity %> × <%= @order.frozen_item_price %> tickets<br>
-      <strong style="color: #15803d;"><%= @order.total_cost %> total</strong>
+    <div>
+      <span style="font-size: 0.75rem; color: #6b7280; display: block;">Qty / Cost</span>
+      <span style="font-size: 0.875rem;">
+        <%= @order.quantity %> × <%= @order.frozen_item_price %> tickets
+        <strong style="color: #15803d;">(<%= @order.total_cost %> total)</strong>
+      </span>
     </div>
   </div>
 </div>
 
-<% unless current_user.fraud_dept? %>
+<% if @can_view_address %>
 <div class="card">
   <h2>Shipping Address</h2>
   <% if @can_view_address %>
     <div id="address-container">
-      <div style="padding: 1em; background: #f3f4f6; border-radius: 4px; text-align: center;">
+
+      <turbo-frame id="address-content"> <div style="padding: 1em; background: #f3f4f6; border-radius: 4px; text-align: center;">
         <p style="margin: 0 0 1em 0; color: #374151;">
           🔒 Address is encrypted. Click below to decrypt and view.
         </p>
@@ -48,8 +51,7 @@
               turbo_frame: "address-content",
               turbo_method: "post"
             } %>
-      </div>
-      <turbo-frame id="address-content"></turbo-frame>
+      </div></turbo-frame>
     </div>
   <% else %>
     <div style="padding: 1em; background: #fee2e2; border-radius: 4px;">
@@ -100,42 +102,63 @@
   </div>
 <% end %>
 <% end %>
-<div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-   <%= link_to "← Back to Orders", admin_shop_orders_path, class: "btn-secondary" %>
- <% unless current_user.fulfillment_person? %>
- <%= link_to "View User", admin_user_path(@order.user), class: "btn-primary" %>
- <% end %>
+<div class="card" style="margin-top: 0.75rem; padding: 0.4rem; width: 50%;">
+<h2>Buttons!</h2>
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.25rem;">
+    <%= link_to "← Back", admin_shop_orders_path, class: "btn-secondary", style: "text-align: center; padding: 0.2rem 0.4rem;" %>
+    <% unless current_user.fulfillment_person? %>
+      <%= link_to "View User", admin_user_path(@order.user), class: "btn-primary", style: "text-align: center; padding: 0.2rem 0.4rem;" %>
+    <% end %>
 
-   <% if @order.pending? %>
-     <form method="post" action="<%= approve_admin_shop_order_path(@order) %>" style="display: inline;">
-       <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-       <button type="submit" class="btn-primary" onclick="return confirm('Approve this order for fulfillment?')">✓ Approve for Fulfillment</button>
-     </form>
-     <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="btn-danger">✗ Reject Order</button>
-     <%= render "reject_modal", order: @order %>
-   <% end %>
-   <% if (@order.pending? || @order.awaiting_periodical_fulfillment?) && !current_user.fulfillment_person? %>
-      <form method="post" action="<%= place_on_hold_admin_shop_order_path(@order) %>" style="display: inline;">
+    <% if @order.pending? %>
+      <form method="post" action="<%= approve_admin_shop_order_path(@order) %>">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <button type="submit" class="btn-secondary" onclick="return confirm('Place this order on hold?')">⏸ Place on Hold</button>
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
+      </form>
+      <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="btn-danger" style="width: 100%; padding: 0.2rem 0.4rem;">✗ Reject</button>
+      <%= render "reject_modal", order: @order %>
+    <% end %>
+
+    <% if (@order.pending? || @order.awaiting_periodical_fulfillment?) && !current_user.fulfillment_person? %>
+      <form method="post" action="<%= place_on_hold_admin_shop_order_path(@order) %>">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <button type="submit" class="btn-secondary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Place this order on hold?')">⏸ Hold</button>
       </form>
     <% end %>
+
     <% if @order.awaiting_periodical_fulfillment? && (current_user.admin? || current_user.fulfillment_person?) %>
-      <form method="post" action="<%= mark_fulfilled_admin_shop_order_path(@order) %>" style="display: inline;">
+      <form method="post" action="<%= mark_fulfilled_admin_shop_order_path(@order) %>">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <button type="submit" class="btn-primary" onclick="return confirm('Mark this order as fulfilled?')">✔ Mark as Fulfilled</button>
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Mark this order as fulfilled?')">✔ Fulfilled</button>
       </form>
     <% end %>
-   <% if @order.on_hold? %>
-     <form method="post" action="<%= release_from_hold_admin_shop_order_path(@order) %>" style="display: inline;">
-       <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-       <button type="submit" class="btn-primary" onclick="return confirm('Release this order from hold?')">▶ Release from Hold</button>
-     </form>
-   <% end %>
-   </div>
 
-<% if current_user.fraud_dept? && @user_orders.present? %>
-<div class="card" style="margin-top: 2rem;">
+    <% if @order.on_hold? %>
+      <form method="post" action="<%= release_from_hold_admin_shop_order_path(@order) %>">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Release this order from hold?')">▶ Release</button>
+      </form>
+    <% end %>
+  </div>
+</div>
+
+<div class="card" style="margin-top: 1rem;">
+  <details style="cursor: pointer;">
+    <summary style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; user-select: none; color: #374151;">
+      📝 Internal Notes
+    </summary>
+    <div style="padding-top: 0.5rem;">
+      <form method="post" action="<%= update_internal_notes_admin_shop_order_path(@order) %>">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <textarea name="internal_notes" rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; resize: vertical;"><%= @order.internal_notes %></textarea>
+        <button type="submit" class="btn-primary" style="margin-top: 0.5rem; padding: 0.25rem 0.75rem; font-size: 0.8rem;">Save Notes</button>
+      </form>
+    </div>
+  </details>
+</div>
+
+<% if @user_orders.present? %>
+<div class="card" style="margin-top: 1rem;">
   <details style="cursor: pointer;">
     <summary style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; user-select: none; color: #374151;">
       📋 Past Orders (<%= @user_orders.count %>)
@@ -181,8 +204,12 @@
 <% end %>
 
 <div class="card" style="margin-top: 2rem;">
-  <h2 style="margin-bottom: 1rem;">Audit Log</h2>
   <% versions = @order.versions.order(created_at: :desc) %>
+  <details style="cursor: pointer;">
+    <summary style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; user-select: none; color: #374151;">
+      📜 Audit Log (<%= versions.count %>)
+    </summary>
+    <div style="padding-top: 0.5rem;">
   <% if versions.any? %>
     <ul style="list-style: none; padding: 0; margin: 0;">
       <% versions.each do |version| %>
@@ -259,6 +286,8 @@
   <% else %>
     <p style="color: #6b7280; margin: 0; font-size: 0.875rem;">No audit history yet.</p>
   <% end %>
+    </div>
+  </details>
 </div>
 
 <style>

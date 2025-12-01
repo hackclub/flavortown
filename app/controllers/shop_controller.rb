@@ -29,10 +29,9 @@ class ShopController < ApplicationController
     # 3. Handle different item types
 
     @order = current_user.shop_orders.new(
-        shop_item: @shop_item,
-        quantity: quantity,
-      # Assuming address is stored as json in user model now, but for order history we might want to snapshot it
-      # For now just getting it to save
+      shop_item: @shop_item,
+      quantity: quantity,
+      frozen_address: current_user.address
     )
 
     # Set initial state if using AASM

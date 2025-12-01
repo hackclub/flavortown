@@ -10,8 +10,9 @@
 #  magic_link_token            :string
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
-#  verification_status         :string           default("needs_submission"), not null
 #  region                      :string
+#  synced_at                   :datetime
+#  verification_status         :string           default("needs_submission"), not null
 #  votes_count                 :integer
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null

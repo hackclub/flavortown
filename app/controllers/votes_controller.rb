@@ -31,11 +31,17 @@ class VotesController < ApplicationController
 
     Vote.transaction do
       votes_params = params.require(:votes)
+
+      Rails.logger.info "VOTE PARAMS: time=#{params[:time_taken_to_vote]}, repo=#{params[:repo_url_clicked]}, demo=#{params[:demo_url_clicked]}"
+
       votes_params.each do |vote_params|
         current_user.votes.create!(
           project: @project,
           category: vote_params[:category],
-          score: vote_params[:score]
+          score: vote_params[:score],
+          time_taken_to_vote: params[:time_taken_to_vote].to_i,
+          repo_url_clicked: params[:repo_url_clicked] == "true",
+          demo_url_clicked: params[:demo_url_clicked] == "true"
         )
       end
     end
