@@ -32,6 +32,6 @@ class ProjectShowCardComponent < ViewComponent::Base
     ordered_users = [ owner_user, *other_users ].compact
     names = ordered_users.map(&:display_name).reject(&:blank?).uniq
     return "" if names.empty?
-    "By: #{names.join(', ')}"
+    "Created by: #{names.join(', ')}"
   end
 end
