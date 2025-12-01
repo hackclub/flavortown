@@ -71,7 +71,7 @@ class ShopOrder < ApplicationRecord
     ShopItem::HCBGrant
     ShopItem::HCBPreauthGrant
     ShopItem::ThirdPartyDigital
-    ShopItem::SpeicalFufilmentType
+    ShopItem::SpecialFulfillmentItem
     ShopItem::WarehouseItem
     ShopItem::FreeStickers
   ].freeze
