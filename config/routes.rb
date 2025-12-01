@@ -23,6 +23,7 @@ Rails.application.routes.draw do
   get "shop/my_orders", to: "shop#my_orders"
   get "shop/order", to: "shop#order"
   post "shop/order", to: "shop#create_order"
+  patch "shop/update_region", to: "shop#update_region"
 
   # Voting
   resources :votes, only: [ :new, :create, :index ]

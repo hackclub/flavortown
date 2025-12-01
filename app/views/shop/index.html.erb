@@ -1,4 +1,4 @@
-<div class="shop" data-controller="shop">
+<div class="shop" data-controller="shop" data-shop-user-region-value="<%= @user_region %>">
   <%= render HeadingComponent.new(title: "Shop", tone: :brown) %>
   <% if @shop_open %>
     <% if current_user&.admin? %>
@@ -25,10 +25,18 @@
       ) %>
     </div>
     <% if @featured_item %>
-      <div class="shop__banner">
+      <%
+        featured_regional_prices = Shop::Regionalizable::REGION_CODES.each_with_object({}) do |code, hash|
+          hash[code] = @featured_item.price_for_region(code) if @featured_item.enabled_in_region?(code)
+        end
+      %>
+      <div class="shop__banner"
+           data-shop-target="banner"
+           data-regional-prices="<%= featured_regional_prices.to_json %>"
+           data-enabled-regions="<%= featured_regional_prices.keys.join(',') %>">
         <div class="shop__banner-headings">
           <h3 class="shop__banner-title">Get Started</h3>
-          <h3 class="shop__banner-price"><%= number_to_currency(@featured_item.price_for_region(@user_region), precision: 0).gsub('$', '🍪') %></h3>
+          <h3 class="shop__banner-price" data-shop-target="bannerPrice"><%= number_to_currency(@featured_item.price_for_region(@user_region), precision: 0).gsub('$', '🍪') %></h3>
         </div>
         <div class="shop__banner-showcase">
           <div class="shop__banner-item-desc">

@@ -1,14 +1,15 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["sortBtn", "items"];
+  static targets = ["sortBtn", "items", "banner", "bannerPrice"];
+  static values = { userRegion: { type: String, default: "US" } };
 
   connect() {
     this.sortAscending = true;
     this.sortType = "Prices";
     this.categoryFilter = "All";
     this.priceRange = "none";
-    this.regionFilter = "US";
+    this.regionFilter = this.userRegionValue;
     this.searchQuery = "";
 
     this.setupSortButton();
@@ -35,6 +36,8 @@ export default class extends Controller {
         this.sortType = value;
       } else if (filterType === "Region") {
         this.regionFilter = value;
+        this.saveRegion(value);
+        this.updateBanner(value);
       }
 
       this.applyFiltersAndSort();
@@ -144,5 +147,36 @@ export default class extends Controller {
   search(event) {
     this.searchQuery = event.target.value.toLowerCase();
     this.applyFiltersAndSort();
+  }
+
+  saveRegion(region) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    const formData = new FormData();
+    formData.append("region", region);
+
+    fetch("/shop/update_region", {
+      method: "PATCH",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+      },
+      body: formData,
+    });
+  }
+
+  updateBanner(region) {
+    if (!this.hasBannerTarget) return;
+
+    const banner = this.bannerTarget;
+    const enabledRegions = (banner.dataset.enabledRegions || "").split(",");
+    const regionalPrices = JSON.parse(banner.dataset.regionalPrices || "{}");
+
+    if (enabledRegions.includes(region) && regionalPrices[region]) {
+      banner.style.display = "";
+      if (this.hasBannerPriceTarget) {
+        this.bannerPriceTarget.textContent = `🍪${regionalPrices[region]}`;
+      }
+    } else {
+      banner.style.display = "none";
+    }
   }
 }

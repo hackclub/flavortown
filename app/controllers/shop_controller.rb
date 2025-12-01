@@ -22,6 +22,16 @@ class ShopController < ApplicationController
     @shop_item = ShopItem.find(params[:shop_item_id])
   end
 
+  def update_region
+    region = params[:region]&.upcase
+    if Shop::Regionalizable::REGION_CODES.include?(region)
+      current_user.update!(region: region)
+      head :ok
+    else
+      head :unprocessable_entity
+    end
+  end
+
   def create_order
     @shop_item = ShopItem.find(params[:shop_item_id])
     quantity = params[:quantity].to_i
@@ -62,6 +72,8 @@ class ShopController < ApplicationController
   private
 
   def user_region
+    return current_user.region if current_user.region.present?
+
     country = current_user.address&.dig("country") || current_user.address&.dig(:country)
     Shop::Regionalizable.country_to_region(country)
   end
