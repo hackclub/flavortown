@@ -12,4 +12,5 @@
 #
 class Post::ShipEvent < ApplicationRecord
   include Postable
+  include Ledgerable
 end

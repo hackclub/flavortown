@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_30_221513) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_01_184507) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -134,6 +134,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_30_221513) do
     t.text "refresh_token_ciphertext"
     t.string "slug"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "ledger_entries", force: :cascade do |t|
+    t.integer "amount"
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id", null: false
+    t.bigint "ledgerable_id", null: false
+    t.string "ledgerable_type", null: false
+    t.string "reason"
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_ledger_entries_on_created_by_id"
+    t.index ["ledgerable_type", "ledgerable_id"], name: "index_ledger_entries_on_ledgerable"
   end
 
   create_table "post_devlogs", force: :cascade do |t|
@@ -363,6 +375,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_30_221513) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "ledger_entries", "users", column: "created_by_id"
   add_foreign_key "posts", "projects"
   add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"

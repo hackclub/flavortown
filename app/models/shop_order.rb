@@ -42,6 +42,7 @@ class ShopOrder < ApplicationRecord
   has_paper_trail ignore: [ :frozen_address_ciphertext ]
 
   include AASM
+  include Ledgerable
 
   belongs_to :user
   belongs_to :shop_item
