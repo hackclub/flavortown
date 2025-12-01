@@ -8,15 +8,15 @@ class Airtable::RsvpSync < ApplicationJob
     end
     def perform
       table = Norairrecord.table(
-      Rails.application.credentials.airtable.api_key || ENV["AIRTABLE_API_KEY"],
-      Rails.application.credentials.airtable.base_id || ENV["AIRTABLE_BASE_ID"],
+      Rails.application.credentials&.airtable&.api_key || ENV["AIRTABLE_API_KEY"],
+      Rails.application.credentials&.airtable&.base_id || ENV["AIRTABLE_BASE_ID"],
       "_rsvps"
       )
      records = rsvps_to_sync.map do |rsvp|
         table.new({
         "email" => rsvp.email,
-        "ip" => rsvp.ip,
-        "user_agent" => rsvp.user_agent,
+        "ip" => rsvp&.ip_address,
+        "user_agent" => rsvp&.user_agent,
         # "ref" => rsvp.ref,
         "created_at" => rsvp.created_at,
         "synced_at" => Time.now,
@@ -24,7 +24,7 @@ class Airtable::RsvpSync < ApplicationJob
         })
       end
 
-      table.batch_upsert(records, "slack_id")
+      table.batch_upsert(records, "email")
     ensure
         rsvps_to_sync.update_all(synced_at: Time.now)
     end
