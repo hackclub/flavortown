@@ -108,6 +108,7 @@ CSV.foreach(CSV_PATH, headers: true) do |row|
   # enabled flags per region
   attrs[:enabled_us] = parse_bool.call(raw['enabled_us'])
   attrs[:enabled_eu] = parse_bool.call(raw['enabled_eu'])
+  attrs[:enabled_uk] = parse_bool.call(raw['enabled_uk'])
   attrs[:enabled_in] = parse_bool.call(raw['enabled_in'])
   attrs[:enabled_ca] = parse_bool.call(raw['enabled_ca'])
   attrs[:enabled_au] = parse_bool.call(raw['enabled_au'])
@@ -121,6 +122,7 @@ CSV.foreach(CSV_PATH, headers: true) do |row|
   # price offsets / percentages
   attrs[:price_offset_us] = parse_decimal.call(raw['price_offset_us'])
   attrs[:price_offset_eu] = parse_decimal.call(raw['price_offset_eu'])
+  attrs[:price_offset_uk] = parse_decimal.call(raw['price_offset_uk'])
   attrs[:price_offset_in] = parse_decimal.call(raw['price_offset_in'])
   attrs[:price_offset_ca] = parse_decimal.call(raw['price_offset_ca'])
   attrs[:price_offset_au] = parse_decimal.call(raw['price_offset_au'])
