@@ -33,6 +33,8 @@ class User < ApplicationRecord
   has_many :shop_orders, dependent: :destroy
   has_many :votes, dependent: :destroy
 
+  include Ledgerable
+
   VALID_VERIFICATION_STATUSES = %w[needs_submission pending verified ineligible].freeze
 
   validates :verification_status, presence: true, inclusion: { in: VALID_VERIFICATION_STATUSES }
@@ -107,8 +109,7 @@ class User < ApplicationRecord
   end
 
   def balance
-    # TODO: implement payouts
-    1000
+    ledger_entries.sum(:amount)
   end
 
   def address
