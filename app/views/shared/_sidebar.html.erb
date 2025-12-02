@@ -56,7 +56,9 @@
       </div>
       <div class="sidebar__user-details">
         <span class="sidebar__user-name"><%= current_user.display_name %></span>
-        <span class="sidebar__user-balance">🍪 <%= current_user.balance %></span>
+        <%= link_to "/my/balance", class: "sidebar__user-balance" do %>
+          🍪 <%= current_user.balance %>
+        <% end %>
       </div>
     </div>
   </div>

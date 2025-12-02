@@ -61,6 +61,9 @@ Rails.application.routes.draw do
   # Kitchen
   get "kitchen", to: "kitchen#index"
 
+  # My
+  get "my/balance", to: "my#balance"
+
   # Magic Links
   post "magic_links", to: "magic_links#create"
   get "magic_links/verify", to: "magic_links#verify"
