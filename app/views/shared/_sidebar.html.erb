@@ -10,7 +10,8 @@
         { label: "Explore", path: "#", icon: "compass_fill" },
         { label: "Projects", path: projects_path, icon: "square_fill" },
         { label: "Vote", path: new_vote_path, icon: "star_fill" },
-        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" }
+        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" },
+        { label: "Logout", path: "/logout", icon: "arrow-red-right" }
       ] %>
 
       <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_dashboard? %>
@@ -55,7 +56,9 @@
       </div>
       <div class="sidebar__user-details">
         <span class="sidebar__user-name"><%= current_user.display_name %></span>
-        <span class="sidebar__user-balance">🍪 <%= current_user.balance %></span>
+        <%= link_to "/my/balance", class: "sidebar__user-balance" do %>
+          🍪 <%= current_user.balance %>
+        <% end %>
       </div>
     </div>
   </div>
