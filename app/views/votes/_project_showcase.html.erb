@@ -1,6 +1,8 @@
 <div class="votes-new__project">
   <div class="votes-new__project-card">
-    <%= image_tag project.banner, alt: "#{project.title} banner", class: "votes-new__project-banner-image" %>
+    <% if project.banner.attached? %>
+      <%= image_tag project.banner, alt: "#{project.title} banner", class: "votes-new__project-banner-image" %>
+    <% end %>
     <div class="votes-new__project-card-content">
         <h1><%= project.title %></h1>
         <p><%= truncate(project.description, length: 250) %></p>
