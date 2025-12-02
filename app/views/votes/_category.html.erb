@@ -1,8 +1,21 @@
-<div class="category-vote mb-6">
-  <div>
-    <%= fields.label :score, category.name.to_s.humanize %>
-    <p><%= category.description %></p>
+<div class="vote-category">
+  <div class="vote-category__header">
+    <%= category.name.to_s.humanize %>
+  </div>
+
+  <div class="vote-category__body">
+    <div class="vote-category__stars">
+      <% 5.downto(1) do |i| %>
+        <%= fields.radio_button :score, i, class: "vote-category__input", id: "#{fields.object_name.gsub(/[\[\]]+/, '_')}_#{category.name}_#{i}" %>
+        <%= fields.label :score, value: i, for: "#{fields.object_name.gsub(/[\[\]]+/, '_')}_#{category.name}_#{i}", class: "vote-category__star" do %>
+          <%= inline_svg_tag "icons/star_fill.svg" %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="vote-category__footer">
+    <%= category.description %>
   </div>
   <%= fields.hidden_field :category, value: category.name %>
-  <%= fields.number_field :score, min: 1, max: 5 %>
 </div>

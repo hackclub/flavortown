@@ -5,10 +5,13 @@
   <%= form.hidden_field :demo_url_clicked, value: false, data: { vote_tracker_target: "demoField" } %>
 
   <% Vote::Category.all.each do |category| %>
-    <%= fields_for "votes[]", Vote.new do |vote_fields| %>
+    <%= fields_for "votes[]", Vote.new, index: category.id do |vote_fields| %>
       <%= render "category", fields: vote_fields, category: category %>
     <% end %>
   <% end %>
 
-  <%= form.submit "Vote" %>
+  <%= button_tag(type: "submit", class: "btn-submit") do %>
+    <%= inline_svg_tag "icons/checkmark.svg", class: "btn-submit__icon", aria: { hidden: true } %>
+    Vote
+  <% end %>
 <% end %>
