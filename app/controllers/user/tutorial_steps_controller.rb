@@ -1,5 +1,5 @@
 class User::TutorialStepsController < ApplicationController
-  before_action :set_tutorial_step, only: [:show]
+  before_action :set_tutorial_step, only: [ :show ]
 
   def index
     console
