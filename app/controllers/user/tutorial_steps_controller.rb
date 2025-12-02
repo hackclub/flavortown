@@ -2,8 +2,8 @@ class User::TutorialStepsController < ApplicationController
   before_action :set_tutorial_step, only: [ :show ]
 
   def index
-    @tutorial_steps = User::TutorialStep.slugged.slice(*User::TutorialStep.all_slugs - current_user.tutorial_steps).values
-    @completed_steps = current_user.tutorial_steps_completed
+    @tutorial_steps = User::TutorialStep.all
+    @completed_steps = current_user.tutorial_steps
   end
 
   def show

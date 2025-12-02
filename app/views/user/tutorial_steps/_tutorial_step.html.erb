@@ -5,6 +5,9 @@
 %>
 
 <div class="tutorial-step-card <%= "completed" if current_user.tutorial_step_completed?(tutorial_step.slug) %> <%= "disabled" unless deps_satisfied %>">
+  <% if current_user.tutorial_step_completed?(tutorial_step.slug) %>
+    <div class="tutorial-step-checkmark">✓</div>
+  <% end %>
   <div class="tutorial-step-icon">
     <%= image_tag "icons/#{tutorial_step.icon}.svg", alt: tutorial_step.name %>
   </div>

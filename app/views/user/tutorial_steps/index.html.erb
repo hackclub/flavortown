@@ -79,6 +79,7 @@
     text-align: center;
     text-decoration: none;
     color: inherit;
+    position: relative;
   }
 
   .tutorial-step-card:hover:not(.completed) {
@@ -90,7 +91,22 @@
   .tutorial-step-card.completed {
     background: #f0fdf4;
     border-color: #86efac;
-    opacity: 0.7;
+  }
+
+  .tutorial-step-checkmark {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 28px;
+    height: 28px;
+    background: #22c55e;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.125rem;
   }
 
   .tutorial-step-icon {
@@ -158,5 +174,52 @@
 
   .tutorial-step-card.completed .tutorial-step-link:hover {
     background: #6ee7b7;
+  }
+
+  .tutorial-step-card.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .tutorial-step-link.disabled {
+    background: #d1d5db;
+    color: #6b7280;
+    cursor: not-allowed;
+  }
+
+  .tutorial-step-link.disabled:hover {
+    background: #d1d5db;
+  }
+
+  [data-tooltip] {
+    position: relative;
+  }
+
+  [data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a1a;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  [data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #1a1a1a;
+    z-index: 10;
+    pointer-events: none;
   }
 </style>
