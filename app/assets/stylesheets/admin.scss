@@ -437,3 +437,65 @@ body {
   color: #3b82f6;
   font-weight: 500;
 }
+
+/* Modal */
+.modal {
+  background: var(--color-tan-300);
+  border: 2px solid var(--color-brown-500);
+  border-radius: var(--border-radius);
+  padding: var(--space-l);
+  box-shadow: var(--shadow);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  max-width: 90vw;
+  width: 400px;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  &__title {
+    margin: 0 0 var(--space-s) 0;
+    color: var(--color-text-header);
+  }
+
+  &__description {
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-m) 0;
+  }
+
+  &__field {
+    margin-bottom: var(--space-m);
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+      color: var(--color-text-body);
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: var(--space-xs);
+      border: 2px solid var(--color-brown-500);
+      border-radius: 0.5em;
+      background: var(--color-tan-400);
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--color-text-body);
+
+      &::placeholder {
+        color: var(--color-text-muted);
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--space-s);
+  }
+}

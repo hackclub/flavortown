@@ -6,6 +6,7 @@
 
     <div class="info-rows">
       <div><b>Name:</b> <%= @user.display_name %></div>
+      <div><b>Balance:</b> <%= @user.balance %> tickets</div>
       <div><b>Roles:</b> <%= @user.role_assignments.map(&:role).join(", ") %></div>
       <div><b>Projects:</b> <%= @user.projects_count %></div>
       <% if @user.fulfillment_person? %>
@@ -54,45 +55,60 @@
   <div class="card">
     <h2>actions</h2>
     <div class="info-rows" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-      <%= link_to "Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
+      <%= link_to "🔗 Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
       <% slack_identity = @user.identities.find { |i| i.provider == "slack" } %>
-      <%= button_to "Sync Hackatime Data",
+      <%= button_to "🕰️ Sync Hackatime Data",
                     sync_hackatime_admin_user_path(@user),
                     method: :post,
                     title: "Sync Hackatime Data",
                     class: "btn-primary slim",
                     style: "font-size: 0.75rem; padding: 0.25rem 0.5rem;",
                     disabled: slack_identity.nil? %>
-      <%= render 'role_toggle', user: @user, role_name: 'fraud_dept', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_name: 'fulfillment_person', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_name: 'project_certifier', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_name: 'admin', disabled: !current_user&.super_admin? %>
+      <%= render 'role_toggle', user: @user, role_icon: '🕵️‍♀️', role_name: 'fraud_dept', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_icon: '📦', role_name: 'fulfillment_person', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_icon: '🚢', role_name: 'project_certifier', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_icon: '⚡', role_name: 'admin', disabled: !current_user&.super_admin? %>
 
       <% if @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).any? %>
-        <button type="button" onclick="document.getElementById('reject-modal-orders').showModal()"
-                title="Reject all pending/awaiting orders"
-                style="background: #ef4444; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600;">
+        <button type="button" onclick="document.getElementById('reject-modal-orders').showModal()" class="btn-danger slim">
           ✗ Reject Orders
         </button>
-        <dialog id="reject-modal-orders" style="border-radius: 8px; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
-          <h3 style="margin-top: 0;">Reject All Orders</h3>
-          <p style="color: #6b7280; margin: 1rem 0;">This will reject all pending and awaiting fulfillment orders for <%= @user.display_name %>.</p>
+        <%= render layout: "shared/modal", locals: { id: "reject-modal-orders", title: "Reject All Orders", description: "This will reject all pending and awaiting fulfillment orders for #{@user.display_name}." } do %>
           <form action="<%= mass_reject_orders_admin_user_path(@user) %>" method="post">
             <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-            <div style="margin-bottom: 1rem;">
-              <%= label_tag :reason, "Rejection Reason (optional)", style: "display: block; font-weight: 600; margin-bottom: 0.5rem;" %>
-              <%= text_area_tag :reason, "", placeholder: "Enter reason...", style: "width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-family: inherit; font-size: 0.875rem;" %>
+            <div class="modal__field">
+              <%= label_tag :reason, "Rejection Reason (optional)" %>
+              <%= text_area_tag :reason, "", placeholder: "Enter reason..." %>
             </div>
-            <div style="display: flex; gap: 1rem;">
-              <button type="submit" class="btn-danger" style="background: #ef4444; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                Confirm Reject
-              </button>
-              <button type="button" onclick="document.getElementById('reject-modal-orders').close()" class="btn-secondary" style="background: #f3f4f6; color: #374151; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                Cancel
-              </button>
+            <div class="modal__actions">
+              <button type="submit" class="btn-danger slim">Confirm Reject</button>
+              <button type="button" onclick="document.getElementById('reject-modal-orders').close()" class="btn-secondary slim">Cancel</button>
             </div>
           </form>
-        </dialog>
+        <% end %>
+      <% end %>
+
+      <% if policy(:admin).manage_users? %>
+        <button type="button" onclick="document.getElementById('adjust-balance-modal').showModal()" class="btn-primary slim">
+          💰 Adjust Balance
+        </button>
+        <%= render layout: "shared/modal", locals: { id: "adjust-balance-modal", title: "Adjust Balance", description: "Current balance: #{@user.balance} tickets" } do %>
+          <form action="<%= adjust_balance_admin_user_path(@user) %>" method="post">
+            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+            <div class="modal__field">
+              <%= label_tag :amount, "Amount (use negative to decrease)" %>
+              <%= number_field_tag :amount, nil, placeholder: "e.g. 100 or -50", required: true, autocomplete: "off" %>
+            </div>
+            <div class="modal__field">
+              <%= label_tag :reason, "Reason (required)" %>
+              <%= text_area_tag :reason, "", placeholder: "Enter reason for adjustment...", required: true %>
+            </div>
+            <div class="modal__actions">
+              <button type="submit" class="btn-primary slim">Confirm Adjustment</button>
+              <button type="button" onclick="document.getElementById('adjust-balance-modal').close()" class="btn-secondary slim">Cancel</button>
+            </div>
+          </form>
+        <% end %>
       <% end %>
 
     </div>
@@ -153,7 +169,8 @@
                 <span style="color: #10b981; font-weight: 500;">🔓 Feature Enabled</span>
               <% when "flipper_disable" %>
                 <span style="color: #ef4444; font-weight: 500;">🔒 Feature Disabled</span>
-
+              <% when "balance_adjustment" %>
+                <span style="color: #3b82f6; font-weight: 500;">💰 Balance Adjusted</span>
               <% when "update" %>
                 <span style="color: #3b82f6; font-weight: 500;">✏️ Updated</span>
               <% when "create" %>

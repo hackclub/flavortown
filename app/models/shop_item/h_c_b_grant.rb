@@ -125,6 +125,8 @@ class ShopItem::HCBGrant < ShopItem
       rescue => e
         if user_canceled
           Rails.logger.info "Grant was canceled, creating new grant"
+          grant_rec = ShopCardGrant.new(user: shop_order.user, shop_item: self)
+          user_canceled = false
           retry
         else
           raise e
