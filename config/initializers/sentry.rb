@@ -1,5 +1,5 @@
 Sentry.init do |config|
-  config.dsn = Rails.application.credentials.dig(:sentry, :dsn)
+  config.dsn = Rails.application.credentials.dig(:sentry, :dsn) || ENV["SENTRY_DSN"]
   config.breadcrumbs_logger = [ :active_support_logger, :http_logger ]
 
   # Add data like request headers and IP for users,
