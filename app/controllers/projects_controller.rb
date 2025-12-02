@@ -4,7 +4,11 @@ class ProjectsController < ApplicationController
 
   def index
     authorize Project
-    @projects = current_user.projects.includes(banner_attachment: :blob)
+    @projects = current_user.projects
+      .includes(banner_attachment: :blob)
+      .left_joins(:devlogs)
+      .select("projects.*, COUNT(posts.id) AS devlogs_count")
+      .group("projects.id")
   end
 
   def show
