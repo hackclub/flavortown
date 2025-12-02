@@ -99,6 +99,7 @@ Rails.application.routes.draw do
          post :toggle_flipper
          post :sync_hackatime
          post :mass_reject_orders
+         post :adjust_balance
        end
        resource :magic_link, only: [ :show ]
      end
