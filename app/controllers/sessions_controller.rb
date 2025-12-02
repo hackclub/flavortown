@@ -51,7 +51,7 @@ class SessionsController < ApplicationController
 
   def fetch_hack_club_identity(access_token)
     # https://hca.dinosaurbbq.org/docs/oauth-guide
-    conn = Faraday.new(url: "https://hca.dinosaurbbq.org")
+    conn = Faraday.new(url: Rails.application.config.identity)
     response = conn.get("/api/v1/me") do |req|
       req.headers["Authorization"] = "Bearer #{access_token}"
       req.headers["Accept"] = "application/json"
