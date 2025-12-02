@@ -1,0 +1,66 @@
+.tutorial-step-card {
+  &.disabled {
+    opacity: 0.6;
+
+    .tutorial-step-link {
+      &.disabled {
+        cursor: not-allowed;
+        position: relative;
+
+        &[data-tooltip] {
+          pointer-events: auto;
+
+          &::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--color-brown-600);
+            color: var(--color-bg);
+            padding: var(--space-s) var(--space-m);
+            border-radius: var(--border-radius);
+            font-family: var(--font-family-text);
+            font-size: var(--font-size-s);
+            line-height: 1.3;
+            white-space: nowrap;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition:
+              opacity 0.2s ease,
+              transform 0.2s ease;
+            box-shadow: var(--shadow);
+            transform: translateX(-50%) translateY(4px);
+            will-change: transform, opacity;
+          }
+
+          &::before {
+            content: "";
+            position: absolute;
+            bottom: calc(100% + 4px);
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--color-brown-600);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+          }
+
+          &:hover {
+            &::after {
+              opacity: 1;
+              transform: translateX(-50%) translateY(0);
+            }
+
+            &::before {
+              opacity: 1;
+            }
+          }
+        }
+      }
+    }
+  }
+}
