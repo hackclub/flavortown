@@ -16,9 +16,34 @@
         </div>
     </div>
     <div class="votes-new__project-buttons">
-        <%= link_to "DEMO", project.demo_url, class: "btn btn--brown", target: "_blank" %>
-        <%= link_to "REPO", project.repo_url, class: "btn btn--brown", target: "_blank" %>
-        <%= link_to "REPORT", project.repo_url, class: "btn btn--gray", target: "_blank" %>
+        <%= render ButtonComponent.new(
+          href: project.demo_url,
+          color: :brown,
+          variant: :borderless,
+          text: "DEMO",
+          icon: "icons/globe2.svg",
+          aria: { label: "Demo" },
+          target: "_blank"
+        ) %>
+        <%= render ButtonComponent.new(
+          href: project.repo_url,
+          color: :brown,
+          variant: :borderless,
+          text: "REPO",
+          icon: "icons/code.svg",
+          aria: { label: "Repo" },
+          target: "_blank"
+        ) %>
+        <%= render ButtonComponent.new(
+          href: project.repo_url, 
+          color: :yellow,
+          variant: :borderless,
+          text: "REPORT",
+          icon: "icons/flag.svg",
+          class: "report-btn",
+          aria: { label: "Report" },
+          target: "_blank"
+        ) %>
     </div>
   </div>
   <div class="votes-new__devlogs">

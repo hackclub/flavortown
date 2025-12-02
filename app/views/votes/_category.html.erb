@@ -1,4 +1,10 @@
-<div class="vote-category">
+<% theme = {
+     originality: "vote-category--red",
+     technical:   "vote-category--yellow",
+     usability:   "vote-category--blue"
+   }.fetch(category.name.to_sym, "") %>
+
+<div class="vote-category <%= theme %>">
   <div class="vote-category__header">
     <%= category.name.to_s.humanize %>
   </div>
