@@ -16,6 +16,9 @@ class User::TutorialStep < Data.define(:slug, :name, :description, :icon, :link)
     def slugged = SLUGGED
     def all_slugs = ALL_SLUGS
     def find(slug) = SLUGGED.fetch slug
+
+    # console affordance - don't let me catch you using this in application code
+    alias_method :[], :find
   end
 
   def to_param = slug

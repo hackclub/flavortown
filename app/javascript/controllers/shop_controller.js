@@ -150,7 +150,9 @@ export default class extends Controller {
   }
 
   saveRegion(region) {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    const csrfToken = document.querySelector(
+      'meta[name="csrf-token"]',
+    )?.content;
     const formData = new FormData();
     formData.append("region", region);
 

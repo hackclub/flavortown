@@ -2,7 +2,6 @@ class User::TutorialStepsController < ApplicationController
   before_action :set_tutorial_step, only: [ :show ]
 
   def index
-    console
     @tutorial_steps = User::TutorialStep.slugged.slice(*User::TutorialStep.all_slugs - current_user.tutorial_steps).values
   end
 
