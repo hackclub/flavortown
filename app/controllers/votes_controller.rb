@@ -27,9 +27,9 @@ class VotesController < ApplicationController
                           .includes(:postable, :user)
                           .order(created_at: :desc)
                           .limit(5)
-               else
+    else
                  []
-               end
+    end
   end
 
   def create
