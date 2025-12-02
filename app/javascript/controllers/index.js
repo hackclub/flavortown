@@ -33,3 +33,6 @@ application.register("vote-tracker", VoteTrackerController);
 
 import DropdownController from "./dropdown_controller";
 application.register("dropdown", DropdownController);
+
+import ProjectIdeasController from "./project_ideas_controller";
+application.register("project-ideas", ProjectIdeasController);
