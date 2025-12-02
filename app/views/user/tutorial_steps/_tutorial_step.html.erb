@@ -1,4 +1,10 @@
-<div class="tutorial-step-card <%= "completed" if current_user.tutorial_step_completed?(tutorial_step.slug) %>">
+<%
+  deps_satisfied = tutorial_step.deps_satisfied?(completed_steps)
+  unsatisfied_deps = tutorial_step.deps&.reject { |dep| dep.satisfied?(completed_steps) }
+  hint_text = unsatisfied_deps&.map(&:hint)&.join("; ")
+%>
+
+<div class="tutorial-step-card <%= "completed" if current_user.tutorial_step_completed?(tutorial_step.slug) %> <%= "disabled" unless deps_satisfied %>">
   <div class="tutorial-step-icon">
     <%= image_tag "icons/#{tutorial_step.icon}.svg", alt: tutorial_step.name %>
   </div>
@@ -7,6 +13,10 @@
       <span class="tutorial-step-text"><%= tutorial_step.name %></span>
     </h3>
     <p class="tutorial-step-description"><%= tutorial_step.description %></p>
-    <%= link_to "Start", tutorial_step, class: "tutorial-step-link" %>
+    <% if deps_satisfied %>
+      <%= link_to "Start", tutorial_step, class: "tutorial-step-link" %>
+    <% else %>
+      <span class="tutorial-step-link disabled" data-tooltip="<%= hint_text %>">Start</span>
+    <% end %>
   </div>
 </div>

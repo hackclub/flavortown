@@ -3,6 +3,7 @@ class User::TutorialStepsController < ApplicationController
 
   def index
     @tutorial_steps = User::TutorialStep.slugged.slice(*User::TutorialStep.all_slugs - current_user.tutorial_steps).values
+    @completed_steps = current_user.tutorial_steps_completed
   end
 
   def show
