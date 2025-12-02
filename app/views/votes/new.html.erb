@@ -3,35 +3,27 @@
 <% if @project.nil? %>
   <p>No more projects to vote on!</p>
 <% else %>
-  <%# project to vote on %>
-  <div data-controller="vote-tracker">
-    <%# TODO: i'd like a general-purpose "project mention" we can use for this sort of thing %>
-    <strong>
-      <%= @project.title %>
-    </strong>
-    <em>
-      <%= @project.description %>
-    </em>
+  <div class="votes-new">
+    <%= render HeadingComponent.new(title: "Vote", tone: :green) %>
+    <%= render ButtonComponent.new(
+          href: votes_path(@project),
+          color: :brown,
+          variant: :borderless,
+          text: "See my previous votes",
+          class: "votes-new__prev-btn",
+          aria: { label: "See my previous votes" }
+        ) %>
 
-    <div style="margin: 10px 0;">
-      <% if (safe_repo_url = safe_external_url(@project.repo_url)) %>
-        <%= link_to "View Code", safe_repo_url, target: "_blank", data: { action: "click->vote-tracker#trackRepoClick" } %>
-      <% end %>
+    <div class="votes-new__main" data-controller="vote-tracker">
+      <%= render "project_showcase", project: @project, devlogs: @devlogs %>
 
-      <% if (safe_demo_url = safe_external_url(@project.demo_url)) %>
-        <%= link_to "View Demo", safe_demo_url, target: "_blank", style: "margin-left: 10px;", data: { action: "click->vote-tracker#trackDemoClick" } %>
-      <% end %>
-    </div>
-
-    <%# voting form %>
-    <div>
-      <%= render "form", project: @project %>
+      <div class="votes-new__form">
+        <%= image_tag "star-flag.webp", alt: "star-flag", class: "votes-new__form-flag" %>
+        <h1>Your grades, chef</h1>
+        <div>
+          <%= render "form", project: @project %>
+        </div>
+      </div>
     </div>
   </div>
-
-  <% if current_user.votes.exists? %>
-    <div>
-      <%= link_to "See my previous votes", votes_path %>
-    </div>
-  <% end %>
 <% end %>
