@@ -61,6 +61,11 @@ Rails.application.routes.draw do
   # Magic Links
   post "magic_links", to: "magic_links#create"
   get "magic_links/verify", to: "magic_links#verify"
+
+  namespace :user, path: "" do
+    resources :tutorial_steps, only: [:index, :show]
+  end
+
   # admin shallow routing
   namespace :admin, constraints: AdminConstraint do
     root to: "application#index"

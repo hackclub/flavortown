@@ -1,0 +1,12 @@
+<div class="tutorial-step-card <%= "completed" if current_user.tutorial_step_completed?(tutorial_step.slug) %>">
+  <div class="tutorial-step-icon">
+    <%= image_tag "icons/#{tutorial_step.icon}.svg", alt: tutorial_step.name %>
+  </div>
+  <div class="tutorial-step-content">
+    <h3 class="tutorial-step-name">
+      <span class="tutorial-step-text"><%= tutorial_step.name %></span>
+    </h3>
+    <p class="tutorial-step-description"><%= tutorial_step.description %></p>
+    <%= link_to "Start", tutorial_step, class: "tutorial-step-link" %>
+  </div>
+</div>

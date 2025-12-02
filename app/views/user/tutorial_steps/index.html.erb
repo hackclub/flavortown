@@ -1,0 +1,162 @@
+<div class="tutorial-container">
+  <div class="tutorial-header">
+    <h1>Getting Started</h1>
+    
+    <div class="progress-section">
+      <% completed_count = current_user.tutorial_steps.count %>
+      <% total_count = User::TutorialStep.all.count %>
+      <div class="progress-info">
+        <span class="progress-text"><%= completed_count %> of <%= total_count %> completed</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: <%= (completed_count * 100.0 / total_count).round %>%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tutorial-steps-grid">
+    <%= render @tutorial_steps %>
+  </div>
+</div>
+
+<style>
+  .tutorial-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .tutorial-header {
+    margin-bottom: 2rem;
+  }
+
+  .tutorial-header h1 {
+    margin: 0 0 1.5rem 0;
+    font-size: 2rem;
+    color: #1a1a1a;
+  }
+
+  .progress-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .progress-info {
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e5e5e5;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+  }
+
+  .tutorial-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .tutorial-step-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    background: white;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .tutorial-step-card:hover:not(.completed) {
+    border-color: #4f46e5;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .tutorial-step-card.completed {
+    background: #f0fdf4;
+    border-color: #86efac;
+    opacity: 0.7;
+  }
+
+  .tutorial-step-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tutorial-step-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .tutorial-step-card.completed .tutorial-step-icon {
+    opacity: 0.6;
+  }
+
+  .tutorial-step-name {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .tutorial-step-card.completed .tutorial-step-text {
+    text-decoration: line-through;
+    color: #666;
+  }
+
+  .tutorial-step-description {
+    margin: 0 0 1rem 0;
+    font-size: 0.875rem;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  .tutorial-step-card.completed .tutorial-step-description {
+    color: #999;
+  }
+
+  .tutorial-step-link {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #4f46e5;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background 0.2s ease;
+  }
+
+  .tutorial-step-link:hover {
+    background: #4338ca;
+  }
+
+  .tutorial-step-card.completed .tutorial-step-link {
+    background: #86efac;
+    color: #166534;
+  }
+
+  .tutorial-step-card.completed .tutorial-step-link:hover {
+    background: #6ee7b7;
+  }
+</style>
