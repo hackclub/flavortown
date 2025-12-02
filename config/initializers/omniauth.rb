@@ -8,7 +8,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
         scope: "email name slack_id verification_status",
         callback_path: "/oauth/callback",
         client_options: {
-          site:          "https://hca.dinosaurbbq.org",
+          site:         Rails.application.config.identity,
           authorize_url: "/oauth/authorize",
           token_url:     "/oauth/token"
         }
