@@ -1,0 +1,254 @@
+<h1>Payouts Dashboard</h1>
+
+<div class="dashboard-stats">
+  <div class="card">
+    <h3>Total Circulation</h3>
+    <p class="stat-value"><%= number_with_delimiter(@cap) %></p>
+  </div>
+
+  <div class="card">
+    <h3>Last 24 Hours</h3>
+    <table class="stats-table">
+      <tr><td>Created</td><td class="positive">+<%= number_with_delimiter(@created) %></td></tr>
+      <tr><td>Destroyed</td><td class="negative">-<%= number_with_delimiter(@destroyed) %></td></tr>
+      <tr><td>Transactions</td><td><%= number_with_delimiter(@txns) %></td></tr>
+      <tr><td>Volume</td><td><%= number_with_delimiter(@volume) %></td></tr>
+    </table>
+  </div>
+</div>
+
+<h2>Top Spenders (24h)</h2>
+<% if @spenders.any? %>
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Amount Spent</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @spenders.each do |(user_data, amount)| %>
+        <tr>
+          <td><%= link_to user_data[1] || "User ##{user_data[0]}", admin_user_path(user_data[0]) %></td>
+          <td><%= number_with_delimiter(amount) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No spending activity in the last 24 hours.</p>
+<% end %>
+
+<h2>Top Holders</h2>
+<% if @holders.any? %>
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Balance</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @holders.each do |(user_data, balance)| %>
+        <tr>
+          <td><%= link_to user_data[1] || "User ##{user_data[0]}", admin_user_path(user_data[0]) %></td>
+          <td><%= number_with_delimiter(balance) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No positive balances.</p>
+<% end %>
+
+<h2>Sources (24h)</h2>
+<% if @sources.any? %>
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Direction</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @sources.each do |(type, is_positive), amount| %>
+        <tr>
+          <td><%= type&.humanize || "Unknown" %></td>
+          <td><%= is_positive ? "Created" : "Destroyed" %></td>
+          <td class="<%= is_positive ? 'positive' : 'negative' %>"><%= number_with_delimiter(amount.abs) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No activity.</p>
+<% end %>
+
+<h2>Volume by Type (7 days)</h2>
+<% if @types.any? %>
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Volume</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @types.sort_by { |_, v| -v }.each do |type, volume| %>
+        <tr>
+          <td><%= type %></td>
+          <td><%= number_with_delimiter(volume) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No activity.</p>
+<% end %>
+
+<h2>30-Day Trends</h2>
+<div class="chart-section">
+  <h3>Daily Creation</h3>
+  <div class="chart-bars">
+    <% max_creation = @creation.values.max.to_f.nonzero? || 1 %>
+    <% @creation.each do |date, amount| %>
+      <div class="chart-bar-container" title="<%= date.strftime('%b %d') %>: <%= number_with_delimiter(amount) %>">
+        <div class="chart-bar positive" style="height: <%= (amount / max_creation * 100).round %>%;"></div>
+        <span class="chart-label"><%= date.strftime('%d') %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <h3>Daily Destruction</h3>
+  <div class="chart-bars">
+    <% max_destruction = @destruction.values.max.to_f.nonzero? || 1 %>
+    <% @destruction.each do |date, amount| %>
+      <div class="chart-bar-container" title="<%= date.strftime('%b %d') %>: <%= number_with_delimiter(amount) %>">
+        <div class="chart-bar negative" style="height: <%= (amount / max_destruction * 100).round %>%;"></div>
+        <span class="chart-label"><%= date.strftime('%d') %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <h3>Circulation Over Time</h3>
+  <div class="chart-bars">
+    <% min_circ = @circulation.values.min.to_f %>
+    <% max_circ = @circulation.values.max.to_f %>
+    <% range = (max_circ - min_circ).nonzero? || 1 %>
+    <% @circulation.each do |date, amount| %>
+      <div class="chart-bar-container" title="<%= date.strftime('%b %d') %>: <%= number_with_delimiter(amount) %>">
+        <div class="chart-bar neutral" style="height: <%= ((amount - min_circ) / range * 100).round %>%;"></div>
+        <span class="chart-label"><%= date.strftime('%d') %></span>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<h2>Recent Transactions</h2>
+<% if @recent.any? %>
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Created By</th>
+        <th>Amount</th>
+        <th>Source</th>
+        <th>Reason</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @recent.each do |entry| %>
+        <tr>
+          <td><%= entry.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          <td>
+            <% if entry.created_by %>
+              <%= link_to entry.created_by.display_name || "User ##{entry.created_by_id}", admin_user_path(entry.created_by) %>
+            <% else %>
+              Unknown
+            <% end %>
+          </td>
+          <td class="<%= entry.amount >= 0 ? 'positive' : 'negative' %>">
+            <%= entry.amount >= 0 ? '+' : '' %><%= number_with_delimiter(entry.amount) %>
+          </td>
+          <td><%= entry.ledgerable_type&.humanize || "Unknown" %></td>
+          <td><%= entry.reason || "-" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No recent transactions.</p>
+<% end %>
+
+<%= link_to "Go back", "/admin", class: "btn-primary" %>
+
+<style>
+  .dashboard-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .stats-table {
+    width: 100%;
+  }
+
+  .stats-table td {
+    padding: 0.25rem 0;
+  }
+
+  .stats-table td:last-child {
+    text-align: right;
+    font-weight: bold;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+  }
+
+  .positive { color: #10b981; }
+  .negative { color: #ef4444; }
+  .neutral { background-color: #6366f1; }
+
+  .chart-section {
+    margin: 2rem 0;
+  }
+
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    height: 100px;
+    gap: 2px;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem;
+    background: #f5f5f5;
+    border-radius: 4px;
+  }
+
+  .chart-bar-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+  }
+
+  .chart-bar {
+    width: 100%;
+    min-height: 2px;
+    border-radius: 2px 2px 0 0;
+  }
+
+  .chart-bar.positive { background-color: #10b981; }
+  .chart-bar.negative { background-color: #ef4444; }
+
+  .chart-label {
+    font-size: 0.6rem;
+    color: #666;
+    margin-top: 2px;
+  }
+</style>
