@@ -50,4 +50,8 @@ class AdminPolicy < ApplicationPolicy
   def access_shop_orders?
     user.admin? || user.fraud_dept?
   end
+
+  def access_payouts_dashboard?
+    user.admin?
+  end
 end

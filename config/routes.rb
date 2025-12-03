@@ -126,6 +126,7 @@ Rails.application.routes.draw do
       end
     end
     resources :audit_logs, only: [ :index, :show ]
+    get "payouts_dashboard", to: "payouts_dashboard#index"
   end
 
   # Project Ideas

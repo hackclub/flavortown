@@ -77,5 +77,8 @@
 <% if policy(:admin).access_jobs? %>
 <%= link_to "Job queue", "/admin/jobs", class: button_class %>
 <% end %>
+  <% if policy(:admin).access_payouts_dashboard? %>
+  <%= link_to "Payouts Dashboard", "/admin/payouts_dashboard", class: button_class %>
+<% end %>
   <%= link_to "Help bot", "slack://app?team=T0266FRGM&id=A09NP19R7FX&tab=home", class: "btn-primary" %>
 </div>
