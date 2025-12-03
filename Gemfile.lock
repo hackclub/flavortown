@@ -213,6 +213,9 @@ GEM
       multipart-post (~> 2.0)
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
+    faraday-net_http_persistent (2.3.1)
+      faraday (~> 2.5)
+      net-http-persistent (>= 4.0.4, < 5)
     ffi (1.17.2-aarch64-linux-gnu)
     ffi (1.17.2-aarch64-linux-musl)
     ffi (1.17.2-arm-linux-gnu)
@@ -352,6 +355,8 @@ GEM
     multipart-post (2.4.1)
     net-http (0.8.0)
       uri (>= 0.11.1)
+    net-http-persistent (4.0.6)
+      connection_pool (~> 2.2, >= 2.2.4)
     net-imap (0.5.12)
       date
       net-protocol
@@ -381,6 +386,10 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.10-x86_64-linux-musl)
       racc (~> 1.4)
+    norairrecord (0.5.1)
+      faraday (>= 1.0, < 3.0)
+      faraday-net_http_persistent
+      net-http-persistent
     oauth2 (2.0.9)
       faraday (>= 0.17.3, < 3.0)
       jwt (>= 1.0, < 3.0)
@@ -722,6 +731,7 @@ DEPENDENCIES
   letter_opener_web
   lockbox
   mission_control-jobs
+  norairrecord
   omniauth
   omniauth-oauth2
   omniauth-rails_csrf_protection
