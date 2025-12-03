@@ -22,9 +22,9 @@
         </div>
         <div class="shop-order__details">
             <h2>Complete your order:</h2>
-            <% if @shop_item.one_per_person_ever %>
-                <div class="shop-order__quantity">
-                    <%= form_with url: shop_order_path(shop_item_id: @shop_item.id), method: :post, local: true, id: "order-form" do |form| %>
+            <%= form_with url: shop_order_path(shop_item_id: @shop_item.id), method: :post, local: true, id: "order-form" do |form| %>
+                <% if @shop_item.one_per_person_ever %>
+                    <div class="shop-order__quantity">
                         <%= render InputComponent.new(
                         label: "Quantity",
                         placeholder: 1,
@@ -35,33 +35,39 @@
                         as: :number_field,
                         input_html: { min: 1, max: 10, step: 1, value: 1, id: "shop-order__quantity-input" }
                         ) %>
-                    <% end %>
-                </div>
+                    </div>
+                <% else %>
+                    <%= form.hidden_field :quantity, value: 1 %>
+                <% end %>
             <% end %>
-            <div class="shop-order__address">
-                <% user_addresses = current_user.addresses %>
+            <% user_addresses = current_user.addresses %>
+            <br />
+            <br />
+            <br />
+            <div class="shop-order__address" data-controller="address-select" data-addresses="<%= user_addresses.to_json %>">
                 <% if user_addresses.any? %>
                     <div class="shop-order__address-details">
-                        <h4>Shipping Address</h4>
-                        <select name="address_id" form="order-form" id="address-select" class="shop-order__address-select">
-                            <% user_addresses.each do |addr| %>
-                                <option value="<%= addr["id"] %>" <%= "selected" if addr["primary"] %>>
-                                    <%= addr["first_name"] %> <%= addr["last_name"] %> - <%= addr["line_1"] %>, <%= addr["city"] %>, <%= addr["state"] %> <%= addr["postal_code"] %>
-                                </option>
-                            <% end %>
-                        </select>
-                        <div id="address-preview" class="shop-order__address-preview">
-                            <% primary_addr = user_addresses.find { |a| a["primary"] } || user_addresses.first %>
-                            <p>
-                                <%= primary_addr["first_name"] %> <%= primary_addr["last_name"] %><br>
-                                <%= primary_addr["line_1"] %>
-                                <% if primary_addr["line_2"].present? %>
-                                    <br><%= primary_addr["line_2"] %>
-                                <% end %>
-                                <br><%= primary_addr["city"] %>, <%= primary_addr["state"] %> <%= primary_addr["postal_code"] %>
-                                <br><%= primary_addr["country"] %>
-                            </p>
+                        <%
+                          primary_addr = user_addresses.find { |a| a["primary"] } || user_addresses.first
+                          address_options = user_addresses.map do |addr|
+                            {
+                              label: "#{addr["first_name"]} #{addr["last_name"]} - #{addr["line_1"]}, #{addr["city"]}",
+                              value: addr["id"]
+                            }
+                          end
+                          longest_option = address_options.max_by { |o| o[:label].length }&.dig(:label) || ""
+                        %>
+                        <input type="hidden" name="address_id" form="order-form" id="address-id-input" value="<%= primary_addr["id"] %>" data-address-select-target="input">
+                        <div data-address-select-target="dropdown">
+                            <%= render DropdownComponent.new(
+                                label: "Shipping Address",
+                                options: address_options,
+                                selected_option: "#{primary_addr["first_name"]} #{primary_addr["last_name"]} - #{primary_addr["line_1"]}, #{primary_addr["city"]}",
+                                longest_option_string: longest_option,
+                                color: :brown
+                            ) %>
                         </div>
+                   
                     </div>
                 <% else %>
                     <div class="shop-order__no-address">
@@ -104,35 +110,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const quantityInput = document.getElementById('shop-order__quantity-input');
     const summaryQtyDisplay = document.getElementById('shop-order__summary-qty-display');
     const summaryTotalDisplay = document.getElementById('shop-order__summary-total-display');
-    const ticketCost = <%= (@shop_item.ticket_cost || 0).to_json %>;
+    const ticketCost = <%= @shop_item.ticket_cost || 0 %>;
 
     if (quantityInput) {
         quantityInput.addEventListener('input', function() {
             const qty = parseInt(this.value) || 0;
             summaryQtyDisplay.textContent = qty;
             summaryTotalDisplay.textContent = '🍪 ' + (qty * ticketCost).toFixed(2);
-        });
-    }
-
-    const addressSelect = document.getElementById('address-select');
-    const addressPreview = document.getElementById('address-preview');
-    const addresses = <%= raw (current_user.addresses || []).to_json %>;
-
-    if (addressSelect && addressPreview) {
-        addressSelect.addEventListener('change', function() {
-            const selectedId = this.value;
-            const addr = addresses.find(a => a.id === selectedId);
-            if (addr) {
-                let html = '<p>' +
-                    addr.first_name + ' ' + addr.last_name + '<br>' +
-                    addr.line_1;
-                if (addr.line_2) {
-                    html += '<br>' + addr.line_2;
-                }
-                html += '<br>' + addr.city + ', ' + addr.state + ' ' + addr.postal_code +
-                    '<br>' + addr.country + '</p>';
-                addressPreview.innerHTML = html;
-            }
         });
     }
 });
