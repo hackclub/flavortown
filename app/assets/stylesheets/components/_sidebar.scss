@@ -123,7 +123,7 @@
     &__table {
       width: 100%;
       border-collapse: collapse;
-      
+
       th {
         text-align: center;
         margin-bottom: var(--space-xs);
@@ -132,19 +132,19 @@
         font-family: var(--font-family-subtitle);
         font-size: 1.5rem;
       }
-      
+
       td {
         padding: 0.3em 0;
         border-bottom: 1px solid var(--color-brown-500);
         text-align: center;
       }
 
-      .balance-history__amount--positive { 
-        color: var(--color-green-500); 
+      .balance-history__amount--positive {
+        color: var(--color-green-500);
       }
-      
-      .balance-history__amount--negative { 
-        color: var(--color-red-500); 
+
+      .balance-history__amount--negative {
+        color: var(--color-red-500);
       }
     }
   }
@@ -425,7 +425,7 @@
   cursor: pointer;
 
   &:hover {
-    text-decoration: wavy;
+    text-decoration: underline;
   }
 }
 

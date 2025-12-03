@@ -6,7 +6,7 @@ class MyController < ApplicationController
       redirect_to root_path
       return
     end
-    
+
     @balance = current_user.ledger_entries.order(created_at: :desc)
   end
 
