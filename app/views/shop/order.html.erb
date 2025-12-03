@@ -39,19 +39,29 @@
                 </div>
             <% end %>
             <div class="shop-order__address">
-                <% user_address = current_user.address %>
-                <% if user_address %>
+                <% user_addresses = current_user.addresses %>
+                <% if user_addresses.any? %>
                     <div class="shop-order__address-details">
                         <h4>Shipping Address</h4>
-                        <p>
-                            <%= user_address[:name] %><br>
-                            <%= user_address[:street1] %>
-                            <% if user_address[:street2].present? %>
-                                <br><%= user_address[:street2] %>
+                        <select name="address_id" form="order-form" id="address-select" class="shop-order__address-select">
+                            <% user_addresses.each do |addr| %>
+                                <option value="<%= addr["id"] %>" <%= "selected" if addr["primary"] %>>
+                                    <%= addr["first_name"] %> <%= addr["last_name"] %> - <%= addr["line_1"] %>, <%= addr["city"] %>, <%= addr["state"] %> <%= addr["postal_code"] %>
+                                </option>
                             <% end %>
-                            <br><%= user_address[:city] %>, <%= user_address[:state] %> <%= user_address[:zip] %>
-                            <br><%= user_address[:country] %>
-                        </p>
+                        </select>
+                        <div id="address-preview" class="shop-order__address-preview">
+                            <% primary_addr = user_addresses.find { |a| a["primary"] } || user_addresses.first %>
+                            <p>
+                                <%= primary_addr["first_name"] %> <%= primary_addr["last_name"] %><br>
+                                <%= primary_addr["line_1"] %>
+                                <% if primary_addr["line_2"].present? %>
+                                    <br><%= primary_addr["line_2"] %>
+                                <% end %>
+                                <br><%= primary_addr["city"] %>, <%= primary_addr["state"] %> <%= primary_addr["postal_code"] %>
+                                <br><%= primary_addr["country"] %>
+                            </p>
+                        </div>
                     </div>
                 <% else %>
                     <div class="shop-order__no-address">
@@ -101,6 +111,28 @@ document.addEventListener('DOMContentLoaded', function() {
             const qty = parseInt(this.value) || 0;
             summaryQtyDisplay.textContent = qty;
             summaryTotalDisplay.textContent = '🍪 ' + (qty * ticketCost).toFixed(2);
+        });
+    }
+
+    const addressSelect = document.getElementById('address-select');
+    const addressPreview = document.getElementById('address-preview');
+    const addresses = <%= raw (current_user.addresses || []).to_json %>;
+
+    if (addressSelect && addressPreview) {
+        addressSelect.addEventListener('change', function() {
+            const selectedId = this.value;
+            const addr = addresses.find(a => a.id === selectedId);
+            if (addr) {
+                let html = '<p>' +
+                    addr.first_name + ' ' + addr.last_name + '<br>' +
+                    addr.line_1;
+                if (addr.line_2) {
+                    html += '<br>' + addr.line_2;
+                }
+                html += '<br>' + addr.city + ', ' + addr.state + ' ' + addr.postal_code +
+                    '<br>' + addr.country + '</p>';
+                addressPreview.innerHTML = html;
+            }
         });
     }
 });
