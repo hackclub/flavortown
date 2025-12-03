@@ -3,6 +3,7 @@
 # Table name: projects
 #
 #  id                :bigint           not null, primary key
+#  deleted_at        :datetime
 #  demo_url          :text
 #  description       :text
 #  memberships_count :integer          default(0), not null
@@ -12,10 +13,19 @@
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #
+# Indexes
+#
+#  index_projects_on_deleted_at  (deleted_at)
+#
 class Project < ApplicationRecord
     # TODO: reflect the allowed content types in the html accept
     ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
     MAX_BANNER_SIZE = 10.megabytes
+
+    scope :kept, -> { where(deleted_at: nil) }
+    scope :deleted, -> { where.not(deleted_at: nil) }
+
+    default_scope { kept }
 
     has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
     has_many :users, through: :memberships
@@ -73,5 +83,17 @@ class Project < ApplicationRecord
         minutes = ((total_hours - hours) * 60).to_i
 
         OpenStruct.new(hours: hours, minutes: minutes)
+    end
+
+    def soft_delete!
+      update!(deleted_at: Time.current)
+    end
+
+    def restore!
+      update!(deleted_at: nil)
+    end
+
+    def deleted?
+      deleted_at.present?
     end
 end

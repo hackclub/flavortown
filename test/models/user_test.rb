@@ -3,6 +3,9 @@
 # Table name: users
 #
 #  id                          :bigint           not null, primary key
+#  banned                      :boolean          default(FALSE), not null
+#  banned_at                   :datetime
+#  banned_reason               :text
 #  display_name                :string
 #  email                       :string
 #  first_name                  :string
@@ -22,8 +25,10 @@
 #
 # Indexes
 #
+#  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #  index_users_on_region            (region)
+#  index_users_on_slack_id          (slack_id) UNIQUE
 #
 require "test_helper"
 
