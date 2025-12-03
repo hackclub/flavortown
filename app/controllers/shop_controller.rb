@@ -75,7 +75,8 @@ class ShopController < ApplicationController
   def user_region
     return current_user.region if current_user.region.present?
 
-    country = current_user.address&.dig("country") || current_user.address&.dig(:country)
+    primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
+    country = primary_address&.dig("country")
     Shop::Regionalizable.country_to_region(country)
   end
 end

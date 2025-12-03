@@ -36,3 +36,6 @@ application.register("dropdown", DropdownController);
 
 import ProjectIdeasController from "./project_ideas_controller";
 application.register("project-ideas", ProjectIdeasController);
+
+import AddressSelectController from "./address_select_controller";
+application.register("address-select", AddressSelectController);

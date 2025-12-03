@@ -1,8 +1,8 @@
 <div class="info-rows">
   <div><b>Name:</b> <%= address["first_name"] %> <%= address["last_name"] %></div>
-  <div><b>Address Line 1:</b> <%= address["address_line_1"] %></div>
-  <% if address["address_line_2"].present? %>
-    <div><b>Address Line 2:</b> <%= address["address_line_2"] %></div>
+  <div><b>Address Line 1:</b> <%= address["line_1"] %></div>
+  <% if address["line_2"].present? %>
+    <div><b>Address Line 2:</b> <%= address["line_2"] %></div>
   <% end %>
   <div><b>City:</b> <%= address["city"] %></div>
   <div><b>State/Province:</b> <%= address["state"] %></div>
