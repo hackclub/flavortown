@@ -54,4 +54,8 @@ class AdminPolicy < ApplicationPolicy
   def access_payouts_dashboard?
     user.admin?
   end
+
+  def ban_users?
+    user.admin?
+  end
 end

@@ -101,6 +101,8 @@ Rails.application.routes.draw do
          post :sync_hackatime
          post :mass_reject_orders
          post :adjust_balance
+         post :ban
+         post :unban
        end
        resource :magic_link, only: [ :show ]
      end

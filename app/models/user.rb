@@ -114,6 +114,14 @@ class User < ApplicationRecord
     ledger_entries.sum(:amount)
   end
 
+  def ban!(reason: nil)
+    update!(banned: true, banned_at: Time.current, banned_reason: reason)
+  end
+
+  def unban!
+    update!(banned: false, banned_at: nil, banned_reason: nil)
+  end
+
   def addresses
     identity = identities.find_by(provider: "hack_club")
     return [] unless identity&.access_token.present?
