@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_01_184507) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_03_145919) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -471,8 +471,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_01_184507) do
     t.datetime "updated_at", null: false
     t.string "verification_status", default: "needs_submission", null: false
     t.integer "votes_count"
+    t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["region"], name: "index_users_on_region"
+    t.index ["slack_id"], name: "index_users_on_slack_id", unique: true
   end
 
   create_table "versions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
