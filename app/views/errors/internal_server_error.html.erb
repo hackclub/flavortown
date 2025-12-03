@@ -9,5 +9,12 @@
     </div>
   <% end %>
 
+  <% if @exception.present? %>
+    <div class="error-page__details" style="margin-top: 2rem; text-align: left; background: #1a1a1a; padding: 1rem; border-radius: 8px; overflow-x: auto;">
+      <p><strong><%= @exception.class %>:</strong> <%= @exception.message %></p>
+      <pre style="font-size: 0.75rem; color: #ccc; margin-top: 0.5rem;"><%= @exception.backtrace&.first(20)&.join("\n") %></pre>
+    </div>
+  <% end %>
+
   <p><%= link_to "Go back home", root_path %></p>
 </div>
