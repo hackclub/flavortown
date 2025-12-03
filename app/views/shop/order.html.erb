@@ -41,9 +41,9 @@
                 <% end %>
             <% end %>
             <% user_addresses = current_user.addresses %>
-            <br />
-            <br />
-            <br />
+            <br>
+            <br>
+            <br>
             <div class="shop-order__address" data-controller="address-select" data-addresses="<%= user_addresses.to_json %>">
                 <% if user_addresses.any? %>
                     <div class="shop-order__address-details">
@@ -67,7 +67,7 @@
                                 color: :brown
                             ) %>
                         </div>
-                   
+
                     </div>
                 <% else %>
                     <div class="shop-order__no-address">
