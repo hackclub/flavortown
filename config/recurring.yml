@@ -13,3 +13,15 @@ production:
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
+
+  sync_user_to_airtable:
+    class: Airtable::UserSync
+    schedule: every minute
+    concurrency: 1
+    description: "Sync user data to Airtable every minute with single execution limit"
+
+  sync_rsvp_to_airtable:
+    class: Airtable::RsvpSync
+    schedule: every minute
+    concurrency: 1
+    description: "Sync RSVPs to Airtable every minute with single execution limit"
