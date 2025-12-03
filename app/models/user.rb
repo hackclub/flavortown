@@ -112,7 +112,7 @@ class User < ApplicationRecord
   end
 
   def address
-    identity = current_user.identities.find_by(provider: "hack_club")
+    identity = identities.find_by(provider: "hack_club")
     return unless identity&.access_token.present?
 
     conn = Faraday.new(url: Rails.application.config.identity)
