@@ -114,6 +114,16 @@ class User < ApplicationRecord
     ledger_entries.sum(:amount)
   end
 
+  def cancel_shop_order(order_id)
+    order = shop_orders.find(order_id)
+    return { success: false, error: "Your order can not be canceled" } unless order.pending?
+
+    order.refund!
+    { success: true, order: order }
+  rescue ActiveRecord::RecordNotFound
+    { success: false, error: "wuh" }
+  end
+
   def addresses
     identity = identities.find_by(provider: "hack_club")
     return [] unless identity&.access_token.present?
