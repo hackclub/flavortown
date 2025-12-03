@@ -5,7 +5,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
       Rails.application.credentials.dig(:idv, :client_secret),
       {
         name: :hack_club,
-        scope: "email name slack_id verification_status",
+        scope: "email name slack_id verification_status address",
         callback_path: "/oauth/callback",
         client_options: {
           site:         Rails.application.config.identity,
