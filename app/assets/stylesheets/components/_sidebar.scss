@@ -88,6 +88,25 @@
   gap: var(--space-xs);
 }
 
+.sidebar__nav-form {
+  button {
+    all: unset;
+    cursor: pointer;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-s);
+    padding: var(--space-xs) var(--space-m);
+    padding-inline-start: var(--space-xxxs);
+    color: var(--color-bg);
+    font-size: var(--font-size-xxxl);
+    text-decoration: none;
+    width: 100%;
+    border-radius: calc(var(--border-radius) / 1.5);
+    z-index: 0;
+  }
+}
+
 .sidebar__nav-link {
   position: relative;
   display: inline-flex;

@@ -6,14 +6,17 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
   include Pagy::Method
 
+  rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
   rescue_from StandardError, with: :handle_error
 
   def current_user(preloads = [])
-    @current_user ||= begin
-      user = User.all
-      user = user.includes(*preloads) unless preloads.empty?
-      user = user.find_by(id: session[:user_id])
-    end if session[:user_id]
+    return @current_user if defined?(@current_user)
+
+    if session[:user_id]
+      scope = User.where(id: session[:user_id])
+      scope = scope.includes(*preloads) unless preloads.empty?
+      @current_user = scope.first
+    end
   end
   helper_method :current_user
 
@@ -24,6 +27,11 @@ class ApplicationController < ActionController::Base
   def user_not_authorized
     flash[:alert] = "You are not authorized to perform this action."
     redirect_to(request.referrer || root_path)
+  end
+
+  def handle_invalid_auth_token
+    reset_session
+    redirect_to root_path, alert: "Your session has expired. Please try again."
   end
 
   def handle_error(exception)

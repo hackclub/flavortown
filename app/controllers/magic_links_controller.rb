@@ -1,5 +1,5 @@
 class MagicLinksController < ApplicationController
-  skip_before_action :verify_authenticity_token, only: [ :create ]
+  protect_from_forgery with: :null_session, only: [ :create ]
 
   def create
     user = User.find_by(email: params[:email])
@@ -7,10 +7,9 @@ class MagicLinksController < ApplicationController
     if user
       user.generate_magic_link_token!
       MagicLinkMailer.send_magic_link(user).deliver_later
-      render json: { message: "Magic link sent to #{params[:email]}" }, status: :ok
-    else
-      render json: { error: "User not found" }, status: :not_found
     end
+
+    render json: { message: "If an account exists, a magic link has been sent." }, status: :ok
   end
 
   def verify
