@@ -111,9 +111,9 @@ class User < ApplicationRecord
     ledger_entries.sum(:amount)
   end
 
-  def address
+  def addresses
     identity = identities.find_by(provider: "hack_club")
-    return unless identity&.access_token.present?
+    return [] unless identity&.access_token.present?
 
     conn = Faraday.new(url: Rails.application.config.identity)
     response = conn.get("/api/v1/me") do |req|
@@ -121,14 +121,13 @@ class User < ApplicationRecord
       req.headers["Accept"] = "application/json"
     end
 
-    return unless response.success?
+    return [] unless response.success?
 
     body = JSON.parse(response.body)
     identity_payload = body["identity"] || {}
-    addresses = identity_payload["addresses"] || {}
-    return addresses[0]
-
+    identity_payload["addresses"] || []
   rescue StandardError => e
     Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")
+    []
   end
 end

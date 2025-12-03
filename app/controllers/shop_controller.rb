@@ -47,10 +47,11 @@ class ShopController < ApplicationController
     # 2. Check balance/charge user
     # 3. Handle different item types
 
+    selected_address = current_user.addresses.find { |a| a["id"] == params[:address_id] } || current_user.addresses.first
     @order = current_user.shop_orders.new(
       shop_item: @shop_item,
       quantity: quantity,
-      frozen_address: current_user.address
+      frozen_address: selected_address
     )
 
     # Set initial state if using AASM
