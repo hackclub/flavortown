@@ -1,6 +1,7 @@
 module Admin
   class PayoutsDashboardController < ApplicationController
     def index
+      authorize :admin, :access_payouts_dashboard?
       @cap = LedgerEntry.sum(:amount)
 
       yesterday = 24.hours.ago
