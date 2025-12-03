@@ -65,10 +65,19 @@
       </div>
       <div class="sidebar__user-details">
         <span class="sidebar__user-name"><%= current_user.display_name %></span>
-        <%= link_to "/my/balance", class: "sidebar__user-balance" do %>
+        <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
           🍪 <%= current_user.balance %>
-        <% end %>
+        </button>
       </div>
     </div>
   </div>
+
+  <%= render layout: "shared/modal", locals: { id: "balance-modal", title: "Transaction History" } do %>
+    <%= turbo_frame_tag "balance_history", src: "/my/balance", loading: "lazy" do %>
+      <div class="modal__loading">Loading history...</div>
+    <% end %>
+    <div class="modal__actions">
+      <button type="button" class="modal__actions-close" onclick="document.getElementById('balance-modal').close()">Close</button>
+    </div>
+  <% end %>
 </aside>
