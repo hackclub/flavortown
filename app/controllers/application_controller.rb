@@ -6,6 +6,8 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
   include Pagy::Method
 
+  rescue_from StandardError, with: :handle_error
+
   def current_user(preloads = [])
     @current_user ||= begin
       user = User.all
@@ -22,5 +24,17 @@ class ApplicationController < ActionController::Base
   def user_not_authorized
     flash[:alert] = "You are not authorized to perform this action."
     redirect_to(request.referrer || root_path)
+  end
+
+  def handle_error(exception)
+    event_id = Sentry.last_event_id || Sentry.capture_exception(exception)&.event_id
+    @trace_id = event_id || request.request_id
+
+    raise exception if Rails.env.development? && !params[:show_error_page]
+
+    respond_to do |format|
+      format.html { render "errors/internal_server_error", status: :internal_server_error, layout: "application" }
+      format.json { render json: { error: "Internal server error", trace_id: @trace_id }, status: :internal_server_error }
+    end
   end
 end
