@@ -286,6 +286,6 @@ class ShopOrder < ApplicationRecord
   end
 
   def refund_payout_exists?
-    payouts.where("amount > 0 AND reason LIKE ?", "Refund%").exists?
+    user.payouts.where(payable: self).where("amount > 0 AND reason LIKE ?", "Refund%").exists?
   end
 end
