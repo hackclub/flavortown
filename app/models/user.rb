@@ -5,8 +5,10 @@
 #  id                          :bigint           not null, primary key
 #  display_name                :string
 #  email                       :string
+#  first_name                  :string
 #  has_gotten_free_stickers    :boolean          default(FALSE)
 #  has_roles                   :boolean          default(TRUE), not null
+#  last_name                   :string
 #  magic_link_token            :string
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
