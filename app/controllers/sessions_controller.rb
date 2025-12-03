@@ -33,6 +33,8 @@ class SessionsController < ApplicationController
     identity.user = user
     identity.save!
 
+    SyncSlackDisplayNameJob.perform_later(user)
+
     reset_session
     session[:user_id] = user.id
     redirect_to(user.setup_complete? ? projects_path : kitchen_path, notice: "Signed in with Hack Club")
@@ -51,7 +53,7 @@ class SessionsController < ApplicationController
 
   def fetch_hack_club_identity(access_token)
     # https://hca.dinosaurbbq.org/docs/oauth-guide
-    conn = Faraday.new(url: "https://hca.dinosaurbbq.org")
+    conn = Faraday.new(url: Rails.application.config.identity)
     response = conn.get("/api/v1/me") do |req|
       req.headers["Authorization"] = "Bearer #{access_token}"
       req.headers["Accept"] = "application/json"

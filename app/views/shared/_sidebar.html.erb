@@ -10,7 +10,8 @@
         { label: "Explore", path: "#", icon: "compass_fill" },
         { label: "Projects", path: projects_path, icon: "square_fill" },
         { label: "Vote", path: new_vote_path, icon: "star_fill" },
-        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" }
+        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" },
+        { label: "Logout", path: "/logout", icon: "arrow-red-right" }
       ] %>
 
       <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_dashboard? %>
@@ -41,8 +42,24 @@
   </div>
 
   <div class="sidebar__user" aria-live="polite">
-    <div class="sidebar__user-placeholder">
-      <span class="sidebar__user-placeholder-text">User info coming soon</span>
+    <div class="sidebar__user-card">
+      <div class="sidebar__user-avatar">
+        <%= image_tag "chef-hat.webp", alt: "Hat", class: "sidebar__user-avatar-hat", aria: { hidden: true } %>
+        <%= image_tag "chef-hat-bg.webp", alt: "Hat", class: "sidebar__user-avatar-hat-bg", aria: { hidden: true } %>
+        <% if current_user.slack_id.present? %>
+          <%= image_tag "http://cachet.dunkirk.sh/users/#{current_user.slack_id}/r", alt: current_user.display_name, class: "sidebar__user-avatar-placeholder", style: "object-fit: cover;" %>
+        <% else %>
+          <div class="sidebar__user-avatar-placeholder">
+            <%= current_user.display_name.first.upcase %>
+          </div>
+        <% end %>
+      </div>
+      <div class="sidebar__user-details">
+        <span class="sidebar__user-name"><%= current_user.display_name %></span>
+        <%= link_to "/my/balance", class: "sidebar__user-balance" do %>
+          🍪 <%= current_user.balance %>
+        <% end %>
+      </div>
     </div>
   </div>
 </aside>

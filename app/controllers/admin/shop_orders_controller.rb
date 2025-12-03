@@ -116,10 +116,8 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @order = ShopOrder.find(params[:id])
     @can_view_address = @order.can_view_address?(current_user)
 
-    # Load user's order history for fraud dept
-    if current_user.fraud_dept?
-      @user_orders = @order.user.shop_orders.where.not(id: @order.id).order(created_at: :desc).limit(10)
-    end
+    # Load user's order history for fraud dept or order review
+    @user_orders = @order.user.shop_orders.where.not(id: @order.id).order(created_at: :desc).limit(10)
   end
 
   def reveal_address
@@ -255,6 +253,31 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to admin_shop_order_path(@order), notice: "Order marked as fulfilled"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to mark order as fulfilled: #{@order.errors.full_messages.join(', ')}"
+    end
+  end
+
+  def update_internal_notes
+    if current_user.fulfillment_person? && !current_user.admin?
+      authorize :admin, :access_fulfillment_view?
+    else
+      authorize :admin, :access_shop_orders?
+    end
+    @order = ShopOrder.find(params[:id])
+    old_notes = @order.internal_notes
+
+    if @order.update(internal_notes: params[:internal_notes])
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "update",
+        whodunnit: current_user.id,
+        object_changes: {
+          internal_notes: [ old_notes, @order.internal_notes ]
+        }.to_yaml
+      )
+      redirect_to admin_shop_order_path(@order), notice: "Internal notes updated"
+    else
+      redirect_to admin_shop_order_path(@order), alert: "Failed to update notes"
     end
   end
 end

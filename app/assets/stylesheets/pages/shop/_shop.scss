@@ -26,7 +26,7 @@
     }
   }
 
-  a {
+  .btn {
     background: var(--color-blue-400);
     padding: 0.5em 2em;
     font-family: var(--font-family-text);
@@ -309,7 +309,7 @@
       }
     }
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1400px) {
       flex-direction: column;
 
       .shop__searchbar {
@@ -353,6 +353,10 @@
       .dropdown {
         width: 100%;
       }
+    }
+
+    .dropdown--pink {
+      margin-top: 1.7em;
     }
   }
 }

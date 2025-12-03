@@ -21,8 +21,15 @@ class VotesController < ApplicationController
 
   def new
     authorize :vote, :new?
-    # new vote
     @project = Project.votable_by(current_user).first
+    @devlogs = if @project
+                 @project.posts
+                          .includes(:postable, :user)
+                          .order(created_at: :desc)
+                          .limit(5)
+    else
+                 []
+    end
   end
 
   def create
@@ -31,11 +38,17 @@ class VotesController < ApplicationController
 
     Vote.transaction do
       votes_params = params.require(:votes)
-      votes_params.each do |vote_params|
+
+      Rails.logger.info "VOTE PARAMS: time=#{params[:time_taken_to_vote]}, repo=#{params[:repo_url_clicked]}, demo=#{params[:demo_url_clicked]}"
+
+      votes_params.values.each do |vote_params|
         current_user.votes.create!(
           project: @project,
           category: vote_params[:category],
-          score: vote_params[:score]
+          score: vote_params[:score],
+          time_taken_to_vote: params[:time_taken_to_vote].to_i,
+          repo_url_clicked: params[:repo_url_clicked] == "true",
+          demo_url_clicked: params[:demo_url_clicked] == "true"
         )
       end
     end

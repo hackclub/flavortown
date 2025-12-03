@@ -1,0 +1,31 @@
+<div style="max-width: 600px; margin: 2rem auto; font-family: system-ui, sans-serif;">
+  <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">🍪 My Balance</h1>
+  <p style="font-size: 2.5rem; font-weight: bold; color: #b45309; margin-bottom: 2rem;">
+    <%= current_user.balance %> cookies
+  </p>
+
+  <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: #666;">Transaction History</h2>
+
+  <% if @balance.any? %>
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background: #f5f5f5; text-align: left;">
+          <th style="padding: 0.75rem; border-bottom: 2px solid #ddd;">Amount</th>
+          <th style="padding: 0.75rem; border-bottom: 2px solid #ddd;">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @balance.each do |entry| %>
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 0.75rem; font-weight: bold; color: <%= entry.amount >= 0 ? '#16a34a' : '#dc2626' %>;">
+              <%= entry.amount >= 0 ? '+' : '' %><%= entry.amount %>
+            </td>
+            <td style="padding: 0.75rem; color: #888;"><%= entry.created_at.strftime('%b %d, %Y') %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p style="color: #888; text-align: center; padding: 2rem;">No transactions yet</p>
+  <% end %>
+</div>

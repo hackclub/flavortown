@@ -1,4 +1,4 @@
-<div class="shop-item-card">
+<div class="shop-item-card" data-categories="<%= categories.join(',') %>" data-regions="<%= enabled_regions.join(',') %>">
   <div class="shop-item-card__image">
     <%= image_tag image_url, alt: "#{name} image", class: "rounded-lg w-full h-auto object-scale-down aspect-square max-h-48" %>
   </div>
@@ -7,10 +7,14 @@
     <p class="shop-item-card__description"><%= description %></p>
     <div class="shop-item-card__details">
       <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
-      <span class="shop-item-card__price"><%= number_to_currency(price).gsub('$', '🍪') %></span>
+      <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
     </div>
-    <div class="shop-item-card__order-button">
+  </div>
+  <div class="shop-item-card__order-button">
+    <% if balance >= display_price %>
       <%= link_to "Order Now", "/shop/order?shop_item_id=#{item_id}", class: "btn btn-primary w-full" %>
-      </div>
+    <% else %>
+      <p class="btn btn-primary w-full disabled">You need <%= number_to_currency(display_price - balance, precision: 0).gsub('$', '🍪') %> more cookies!</p>
+    <% end %>
   </div>
 </div>

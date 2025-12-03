@@ -3,25 +3,27 @@
 <% if @project.nil? %>
   <p>No more projects to vote on!</p>
 <% else %>
-  <%# project to vote on %>
-  <div>
-    <%# TODO: i'd like a general-purpose "project mention" we can use for this sort of thing %>
-    <strong>
-      <%= @project.title %>
-    </strong>
-    <em>
-      <%= @project.description %>
-    </em>
-  </div>
+  <div class="votes-new">
+    <%= render HeadingComponent.new(title: "Vote", tone: :green) %>
+    <%= render ButtonComponent.new(
+          href: votes_path(@project),
+          color: :brown,
+          variant: :borderless,
+          text: "See my previous votes",
+          class: "votes-new__prev-btn",
+          aria: { label: "See my previous votes" }
+        ) %>
 
-  <%# voting form %>
-  <div>
-    <%= render "form", project: @project %>
-  </div>
+    <div class="votes-new__main" data-controller="vote-tracker">
+      <%= render "project_showcase", project: @project, devlogs: @devlogs %>
 
-  <% if current_user.votes.exists? %>
-    <div>
-      <%= link_to "See my previous votes", votes_path %>
+      <div class="votes-new__form">
+        <%= image_tag "star-flag.webp", alt: "star-flag", class: "votes-new__form-flag" %>
+        <h1>Your grades, chef</h1>
+        <div>
+          <%= render "form", project: @project %>
+        </div>
+      </div>
     </div>
-  <% end %>
+  </div>
 <% end %>

@@ -1,14 +1,14 @@
 Rails.application.config.middleware.use OmniAuth::Builder do
     # Hack Club Account via generic OAuth2
     provider :oauth2,
-      Rails.application.credentials.dig(:hack_club, :client_id),
-      Rails.application.credentials.dig(:hack_club, :client_secret),
+      Rails.application.credentials.dig(:idv, :client_id),
+      Rails.application.credentials.dig(:idv, :client_secret),
       {
         name: :hack_club,
-        scope: "email name slack_id verification_status",
+        scope: "email name slack_id verification_status address",
         callback_path: "/oauth/callback",
         client_options: {
-          site:          "https://hca.dinosaurbbq.org",
+          site:         Rails.application.config.identity,
           authorize_url: "/oauth/authorize",
           token_url:     "/oauth/token"
         }

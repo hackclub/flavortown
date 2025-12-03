@@ -10,6 +10,7 @@
 #  enabled_ca                        :boolean
 #  enabled_eu                        :boolean
 #  enabled_in                        :boolean
+#  enabled_uk                        :boolean
 #  enabled_us                        :boolean
 #  enabled_xx                        :boolean
 #  hacker_score                      :integer
@@ -27,6 +28,7 @@
 #  price_offset_ca                   :decimal(, )
 #  price_offset_eu                   :decimal(, )
 #  price_offset_in                   :decimal(, )
+#  price_offset_uk                   :decimal(10, 2)
 #  price_offset_us                   :decimal(, )
 #  price_offset_xx                   :decimal(, )
 #  sale_percentage                   :integer
@@ -123,6 +125,8 @@ class ShopItem::HCBGrant < ShopItem
       rescue => e
         if user_canceled
           Rails.logger.info "Grant was canceled, creating new grant"
+          grant_rec = ShopCardGrant.new(user: shop_order.user, shop_item: self)
+          user_canceled = false
           retry
         else
           raise e

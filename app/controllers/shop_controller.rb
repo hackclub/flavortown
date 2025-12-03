@@ -1,8 +1,17 @@
 class ShopController < ApplicationController
   def index
     @shop_open = true
-    @featured_item = ShopItem.where(type: "ShopItem::FreeStickers").includes(:image_attachment).first
+    @user_region = user_region
+    @region_options = Shop::Regionalizable::REGIONS.map do |code, config|
+      { label: config[:name], value: code }
+    end
+
+    @featured_item = ShopItem.where(type: "ShopItem::FreeStickers")
+                             .includes(:image_attachment)
+                             .select { |item| item.enabled_in_region?(@user_region) }
+                             .first
     @shop_items = ShopItem.all.includes(:image_attachment)
+    @user_balance = current_user.balance
   end
 
   def my_orders
@@ -11,6 +20,16 @@ class ShopController < ApplicationController
 
   def order
     @shop_item = ShopItem.find(params[:shop_item_id])
+  end
+
+  def update_region
+    region = params[:region]&.upcase
+    if Shop::Regionalizable::REGION_CODES.include?(region)
+      current_user.update!(region: region)
+      head :ok
+    else
+      head :unprocessable_entity
+    end
   end
 
   def create_order
@@ -28,11 +47,11 @@ class ShopController < ApplicationController
     # 2. Check balance/charge user
     # 3. Handle different item types
 
+    selected_address = current_user.addresses.find { |a| a["id"] == params[:address_id] } || current_user.addresses.first
     @order = current_user.shop_orders.new(
-        shop_item: @shop_item,
-        quantity: quantity,
-      # Assuming address is stored as json in user model now, but for order history we might want to snapshot it
-      # For now just getting it to save
+      shop_item: @shop_item,
+      quantity: quantity,
+      frozen_address: selected_address
     )
 
     # Set initial state if using AASM
@@ -49,5 +68,15 @@ class ShopController < ApplicationController
     else
         redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{@order.errors.full_messages.join(', ')}"
     end
+  end
+
+  private
+
+  def user_region
+    return current_user.region if current_user.region.present?
+
+    primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
+    country = primary_address&.dig("country")
+    Shop::Regionalizable.country_to_region(country)
   end
 end

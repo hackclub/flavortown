@@ -12,14 +12,15 @@
   }
 
   &__content {
-    background-color: var(--color-brown-700);
+    background: var(--color-bg) url("landing/hero/hero-bg.webp") repeat center
+      center / 1200px;
     padding: 2em;
     border-radius: 2em;
     width: 90%;
     margin-left: 50%;
     transform: translateX(-50%);
     box-shadow: var(--shadow);
-    color: var(--color-bg);
+    color: var(--color-brown-700);
     display: flex;
     flex-direction: row;
     gap: 2em;
@@ -33,11 +34,16 @@
     width: 50%;
 
     .shop-order__image {
-      background-color: var(--color-tan-300);
+      background-color: var(--color-tan-400);
+      height: 350px;
       border-radius: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
 
       img {
-        width: 90%;
+        height: 90%;
       }
     }
 
@@ -68,36 +74,24 @@
       text-align: left;
     }
 
-    .shop-order__cookies {
-      margin-top: 1em;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 1.2rem;
-      background-color: var(--color-bg);
-      color: var(--color-brown-700);
-      border-radius: 1em;
-      padding: 0.5em 1em;
-
-      h3 {
-        font-weight: normal;
-        font-family: var(--font-family-text);
-      }
-    }
-
     .shop-order__quantity {
       margin-top: 3em;
+      margin-bottom: 3em;
 
       .input {
         width: 100%;
-        padding: 0.2em 0.2em;
 
         .input__label {
-          background: var(--color-bg);
-          color: var(--color-brown-700);
           margin-top: -0.2em;
+          font-family: var(--font-family-subtitle);
+          font-size: 1.5rem;
+        }
+
+        .input__subtitle {
+          padding: 1em var(--space-s) 0.1em var(--space-m);
           font-family: var(--font-family-text);
+          font-size: 1.1rem;
+          color: var(--color-red-500);
         }
 
         .input__field {
@@ -105,33 +99,16 @@
           font-family: var(--font-family-text);
           font-size: 1.2rem;
           border-radius: 1em;
-          color: var(--color-bg);
-          background-color: var(--color-brown-700);
-        }
-
-        .input__field::placeholder {
-          color: var(--color-bg);
         }
 
         .input__field:focus {
           box-shadow: none;
         }
-
-        &::before {
-          background: var(--color-bg);
-        }
-      }
-
-      h6 {
-        font-weight: normal;
-        font-family: var(--font-family-text);
-        font-size: 1.1rem;
-        margin-top: 0.5em;
       }
     }
 
     .shop-order__address {
-      margin-top: 3.5em;
+      /* margin-top: 3.5em; */
 
       .dropdown {
         width: 100%;
@@ -220,21 +197,12 @@
   }
 
   &__summary {
-    background-color: var(--color-bg);
-    border-radius: 1em;
-    padding: 0.5em;
-    color: var(--color-brown-700);
-    margin-top: 1.5em;
-
-    h3 {
-      font-family: var(--font-family-subtitle);
-      font-size: 1.4rem;
-    }
+    margin-top: 4em;
 
     h4 {
-      font-family: var(--font-family-text);
+      font-family: var(--font-family-subtitle);
       font-size: 1.2rem;
-      font-weight: normal;
+      color: var(--color-green-500);
     }
 
     .shop-order__summary-price,
@@ -245,5 +213,71 @@
       align-items: center;
       margin-top: 0.5em;
     }
+
+    .shop-order__summary-content {
+      background-color: var(--color-green-300);
+      padding: 0.5em;
+      border-radius: 16px;
+    }
+
+    .input-group {
+      width: 100%;
+
+      .input-group__label {
+        margin-top: -0.2em;
+        font-family: var(--font-family-subtitle);
+        font-size: 1.5rem;
+      }
+
+      .input-group__inputs {
+        padding-left: 0;
+      }
+
+      .input-group__subtitle {
+        padding: 1em var(--space-s) 0.1em var(--space-m);
+        font-family: var(--font-family-subtitle);
+        font-size: 1.1rem;
+        color: var(--color-green-500);
+        text-align: center;
+      }
+
+      .input-group__field {
+        font-weight: normal;
+        font-family: var(--font-family-text);
+        font-size: 1.2rem;
+        border-radius: 1em;
+      }
+    }
+  }
+
+  .btn-order {
+    margin-top: 2em;
+    background-color: var(--color-brown-500);
+    color: var(--color-bg);
+    border-radius: 12px;
+    width: 100%;
+    border-color: var(--color-brown-500);
+    font-size: 1.8rem;
+    padding: 0;
+
+    svg {
+      height: 30px;
+      width: 30px;
+    }
+  }
+
+  &__customs-warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1.2rem;
+    color: #856404;
+    font-weight: normal;
+    text-align: center;
+    margin-top: 1em;
+    font-family: var(--font-family-text);
+    position: relative;
+    z-index: 10;
   }
 }

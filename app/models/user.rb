@@ -33,6 +33,8 @@ class User < ApplicationRecord
   has_many :shop_orders, dependent: :destroy
   has_many :votes, dependent: :destroy
 
+  include Ledgerable
+
   VALID_VERIFICATION_STATUSES = %w[needs_submission pending verified ineligible].freeze
 
   validates :verification_status, presence: true, inclusion: { in: VALID_VERIFICATION_STATUSES }
@@ -107,21 +109,26 @@ class User < ApplicationRecord
   end
 
   def balance
-    # TODO: implement payouts
-    1000
+    ledger_entries.sum(:amount)
   end
 
-  def address
-    # TODO: add on HCA address imports
-    {
-      name: display_name,
-      street1: "15 Falls Rd",
-      street2: nil,
-      city: "Shelburne",
-      state: "VT",
-      zip: "05482",
-      country: "US",
-      email: email
-        }
+  def addresses
+    identity = identities.find_by(provider: "hack_club")
+    return [] unless identity&.access_token.present?
+
+    conn = Faraday.new(url: Rails.application.config.identity)
+    response = conn.get("/api/v1/me") do |req|
+      req.headers["Authorization"] = "Bearer #{identity.access_token}"
+      req.headers["Accept"] = "application/json"
+    end
+
+    return [] unless response.success?
+
+    body = JSON.parse(response.body)
+    identity_payload = body["identity"] || {}
+    identity_payload["addresses"] || []
+  rescue StandardError => e
+    Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")
+    []
   end
 end

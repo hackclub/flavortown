@@ -136,6 +136,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_01_031805) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "ledger_entries", force: :cascade do |t|
+    t.integer "amount"
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id", null: false
+    t.bigint "ledgerable_id", null: false
+    t.string "ledgerable_type", null: false
+    t.string "reason"
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_ledger_entries_on_created_by_id"
+    t.index ["ledgerable_type", "ledgerable_id"], name: "index_ledger_entries_on_ledgerable"
+  end
+
   create_table "post_devlogs", force: :cascade do |t|
     t.string "body"
     t.datetime "created_at", null: false
@@ -221,6 +233,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_01_031805) do
     t.boolean "enabled_ca"
     t.boolean "enabled_eu"
     t.boolean "enabled_in"
+    t.boolean "enabled_uk"
     t.boolean "enabled_us"
     t.boolean "enabled_xx"
     t.integer "hacker_score"
@@ -238,6 +251,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_01_031805) do
     t.decimal "price_offset_ca"
     t.decimal "price_offset_eu"
     t.decimal "price_offset_in"
+    t.decimal "price_offset_uk", precision: 10, scale: 2
     t.decimal "price_offset_us"
     t.decimal "price_offset_xx"
     t.integer "sale_percentage"
@@ -368,6 +382,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_01_031805) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "ledger_entries", "users", column: "created_by_id"
   add_foreign_key "posts", "projects"
   add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"

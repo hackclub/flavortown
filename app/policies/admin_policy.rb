@@ -1,6 +1,6 @@
 class AdminPolicy < ApplicationPolicy
   def access_admin_dashboard?
-    user.has_roles?
+    user.admin? || user.fraud_dept?
   end
 
   def index?
@@ -49,5 +49,9 @@ class AdminPolicy < ApplicationPolicy
 
   def access_shop_orders?
     user.admin? || user.fraud_dept?
+  end
+
+  def access_payouts_dashboard?
+    user.admin?
   end
 end

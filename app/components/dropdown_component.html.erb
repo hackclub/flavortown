@@ -1,4 +1,7 @@
 <div class="<%= dropdown_classes %>" data-controller="dropdown">
+<div class="dropdown__spacer">
+    <%= longest_option_string %>
+  </div>
   <div class="dropdown__label"><%= label %></div>
   <button class="dropdown__button" data-action="click->dropdown#toggle" data-dropdown-target="button">
     <span class="dropdown__selected" data-dropdown-target="selected">
@@ -8,7 +11,11 @@
   </button>
   <ul class="dropdown__menu" data-dropdown-target="menu">
     <% options.each do |option| %>
-      <li class="dropdown__item" data-action="click->dropdown#select"><%= option %></li>
+      <% if option.is_a?(Hash) %>
+        <li class="dropdown__item" data-action="click->dropdown#select" data-value="<%= option[:value] %>"><%= option[:label] %></li>
+      <% else %>
+        <li class="dropdown__item" data-action="click->dropdown#select" data-value="<%= option %>"><%= option %></li>
+      <% end %>
     <% end %>
   </ul>
 </div>

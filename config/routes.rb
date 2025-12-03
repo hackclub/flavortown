@@ -23,6 +23,7 @@ Rails.application.routes.draw do
   get "shop/my_orders", to: "shop#my_orders"
   get "shop/order", to: "shop#order"
   post "shop/order", to: "shop#create_order"
+  patch "shop/update_region", to: "shop#update_region"
 
   # Voting
   resources :votes, only: [ :new, :create, :index ]
@@ -30,6 +31,9 @@ Rails.application.routes.draw do
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
+
+  # Test error page for Sentry
+  get "test_error" => "debug#error" unless Rails.env.production?
 
   # Letter opener web for development email preview
   if Rails.env.development?
@@ -56,6 +60,9 @@ Rails.application.routes.draw do
 
   # Kitchen
   get "kitchen", to: "kitchen#index"
+
+  # My
+  get "my/balance", to: "my#balance"
 
   # Magic Links
   post "magic_links", to: "magic_links#create"
@@ -98,6 +105,7 @@ Rails.application.routes.draw do
          post :toggle_flipper
          post :sync_hackatime
          post :mass_reject_orders
+         post :adjust_balance
        end
        resource :magic_link, only: [ :show ]
      end
@@ -114,9 +122,11 @@ Rails.application.routes.draw do
         post :place_on_hold
         post :release_from_hold
         post :mark_fulfilled
+        post :update_internal_notes
       end
     end
     resources :audit_logs, only: [ :index, :show ]
+    get "payouts_dashboard", to: "payouts_dashboard#index"
   end
 
   # Project Ideas

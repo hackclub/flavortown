@@ -1,0 +1,13 @@
+<div class="error-page">
+  <h1>Something went wrong</h1>
+  <p>We've been notified and are looking into it.</p>
+
+  <% if @trace_id.present? %>
+    <div class="error-page__trace">
+      <p>If you need help, please share this reference code:</p>
+      <code><%= @trace_id %></code>
+    </div>
+  <% end %>
+
+  <p><%= link_to "Go back home", root_path %></p>
+</div>

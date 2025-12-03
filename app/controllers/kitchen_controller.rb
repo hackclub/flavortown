@@ -21,7 +21,7 @@ class KitchenController < ApplicationController
     identity = current_user.identities.find_by(provider: "hack_club")
     return unless identity&.access_token.present?
 
-    conn = Faraday.new(url: "https://hca.dinosaurbbq.org")
+    conn = Faraday.new(url: Rails.application.config.identity)
     response = conn.get("/api/v1/me") do |req|
       req.headers["Authorization"] = "Bearer #{identity.access_token}"
       req.headers["Accept"] = "application/json"

@@ -42,6 +42,7 @@ class ShopOrder < ApplicationRecord
   has_paper_trail ignore: [ :frozen_address_ciphertext ]
 
   include AASM
+  include Ledgerable
 
   belongs_to :user
   belongs_to :shop_item
@@ -67,16 +68,27 @@ class ShopOrder < ApplicationRecord
   scope :with_item_type, ->(item_type) { joins(:shop_item).where(shop_items: { type: item_type.to_s }) }
   scope :without_item_type, ->(item_type) { joins(:shop_item).where.not(shop_items: { type: item_type.to_s }) }
 
+  DIGITAL_FULFILLMENT_TYPES = %w[
+    ShopItem::HCBGrant
+    ShopItem::HCBPreauthGrant
+    ShopItem::ThirdPartyDigital
+    ShopItem::SpecialFulfillmentItem
+    ShopItem::WarehouseItem
+    ShopItem::FreeStickers
+  ].freeze
+
   def full_name
     "#{user.display_name}'s order for #{quantity} #{shop_item.name.pluralize(quantity)}"
   end
 
-  def can_view_address?(current_user)
-    return false unless current_user
-    return true if current_user.admin?
+  def can_view_address?(viewer)
+    return false unless viewer
+    return false if DIGITAL_FULFILLMENT_TYPES.include?(shop_item.type)
+
+    return true if viewer.admin?
 
     # Fulfillment person can only see addresses in their region
-    if current_user.fulfillment_person? && frozen_address.present?
+    if viewer.fulfillment_person? && frozen_address.present?
       order_region = Shop::Regionalizable.country_to_region(frozen_address["country"])
       # For now, we assume fulfillment persons can see all regions
       # You can add user region preferences later
@@ -86,18 +98,18 @@ class ShopOrder < ApplicationRecord
     false
   end
 
-  def decrypted_address_for(current_user)
-    return nil unless can_view_address?(current_user)
+  def decrypted_address_for(viewer)
+    return nil unless can_view_address?(viewer)
 
     # Log the access
     PaperTrail::Version.create!(
       item_type: "ShopOrder",
       item_id: id,
       event: "address_access",
-      whodunnit: current_user.id,
+      whodunnit: viewer.id,
       object_changes: {
         accessed_at: Time.current,
-        user_id: current_user.id,
+        user_id: viewer.id,
         order_id: id,
         reason: "address_decryption"
       }.to_yaml
