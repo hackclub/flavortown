@@ -5,7 +5,10 @@ export default class extends Controller {
   static values = { addresses: Array };
 
   connect() {
-    this.element.addEventListener("click", this.handleDropdownSelect.bind(this));
+    this.element.addEventListener(
+      "click",
+      this.handleDropdownSelect.bind(this),
+    );
   }
 
   handleDropdownSelect(event) {
@@ -20,12 +23,7 @@ export default class extends Controller {
 
     if (addr && this.hasPreviewTarget) {
       let html =
-        "<p>" +
-        addr.first_name +
-        " " +
-        addr.last_name +
-        "<br>" +
-        addr.line_1;
+        "<p>" + addr.first_name + " " + addr.last_name + "<br>" + addr.line_1;
       if (addr.line_2) {
         html += "<br>" + addr.line_2;
       }

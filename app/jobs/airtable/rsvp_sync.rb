@@ -19,8 +19,8 @@ class Airtable::RsvpSync < ApplicationJob
         "user_agent" => rsvp&.user_agent,
         # "ref" => rsvp.ref,
         "created_at" => rsvp.created_at,
-        "synced_at" => Time.now,
-        # "som_id" => rsvp.id
+        "synced_at" => Time.now
+          # "som_id" => rsvp.id
         })
       end
 
@@ -30,7 +30,7 @@ class Airtable::RsvpSync < ApplicationJob
     end
       private
 
-    
+
   def rsvps_to_sync
     @rsvps_to_sync ||= Rsvp.order("synced_at ASC NULLS FIRST").limit(10)
   end
