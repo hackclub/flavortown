@@ -31,6 +31,7 @@ Rails.application.routes.draw do
   # Shop
   get "shop", to: "shop#index"
   get "shop/my_orders", to: "shop#my_orders"
+  get "shop/cancel_order", to: "shop#cancel_order"
   get "shop/order", to: "shop#order"
   post "shop/order", to: "shop#create_order"
   patch "shop/update_region", to: "shop#update_region"
