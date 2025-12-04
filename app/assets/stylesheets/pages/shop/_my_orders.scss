@@ -158,8 +158,13 @@
     font-size: var(--font-size-s);
     color: var(--color-blue-400);
     text-decoration: none;
+    cursor: pointer;
     transition: color 0.2s ease;
-
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    
     &:hover {
       color: var(--color-blue-300);
       text-decoration: underline;
