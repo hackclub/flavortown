@@ -11,7 +11,7 @@
       <% id_ui = id_verification_ui_for(current_user) %>
       <% id_variant = id_ui[:variant] %>
       <% id_badge = id_ui[:badge] %>
-      <% id_cta = current_user&.verification_status == "needs_submission" ? { cta_text: "Get verified", cta_href: "https://hca.dinosaurbbq.org/verifications/document" } : {} %>
+      <% id_cta = current_user&.verification_status == "needs_submission" ? { cta_text: "Get verified", cta_href: "#{Rails.application.config.identity}/verifications/document" } : {} %>
       <%= render StateCardComponent.new(
         title: "Identity Verification",
         description: "Verify that you are 18 years old or under.",

@@ -1,12 +1,22 @@
 class AdminConstraint
   def self.matches?(request)
-    user = User.find_by(id: request.session[:user_id])
-    if user.nil? && !Rails.env.production?
-      user_id = request.session[:test_user_id] || 1
-      user = User.find_by(id: user_id)
-    end
+    user = admin_user_for(request)
     return false unless user
-    user.super_admin? || user.admin? || user.fraud_dept? || user.fulfillment_person?
+    AdminPolicy.new(user, :admin).access_admin_endpoints?
+  end
+
+  def self.admin_user_for(request)
+    user = User.find_by(id: request.session[:user_id])
+    return user if user
+
+    if Rails.env.development? && ENV["DEV_ADMIN_USER_ID"].present?
+      User.find_by(id: ENV["DEV_ADMIN_USER_ID"])
+    end
+  end
+
+  def self.allow?(request, permission)
+    user = admin_user_for(request)
+    user && AdminPolicy.new(user, :admin).public_send(permission)
   end
 end
 
@@ -21,6 +31,7 @@ Rails.application.routes.draw do
   # Shop
   get "shop", to: "shop#index"
   get "shop/my_orders", to: "shop#my_orders"
+  delete "shop/cancel_order/:order_id", to: "shop#cancel_order", as: :cancel_shop_order
   get "shop/order", to: "shop#order"
   post "shop/order", to: "shop#create_order"
   patch "shop/update_region", to: "shop#update_region"
@@ -31,6 +42,9 @@ Rails.application.routes.draw do
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
+
+  # Test error page for Sentry
+  get "test_error" => "debug#error" unless Rails.env.production?
 
   # Letter opener web for development email preview
   if Rails.env.development?
@@ -50,13 +64,16 @@ Rails.application.routes.draw do
   # Sessions
   get "auth/:provider/callback", to: "sessions#create"
   get "/auth/failure", to: "sessions#failure"
-  get "logout", to: "sessions#destroy"
+  delete "logout", to: "sessions#destroy"
 
   # OAuth callback for HCA
   get "/oauth/callback", to: "sessions#create"
 
   # Kitchen
   get "kitchen", to: "kitchen#index"
+
+  # My
+  get "my/balance", to: "my#balance"
 
   # Magic Links
   post "magic_links", to: "magic_links#create"
@@ -66,30 +83,15 @@ Rails.application.routes.draw do
     root to: "application#index"
 
     mount Blazer::Engine, at: "blazer", constraints: ->(request) {
-      user = User.find_by(id: request.session[:user_id])
-      if user.nil? && !Rails.env.production?
-        user_id = request.session[:test_user_id] || 1
-        user = User.find_by(id: user_id) || User.first
-      end
-      user && AdminPolicy.new(user, :admin).access_blazer?
+      AdminConstraint.allow?(request, :access_blazer?)
     }
 
     mount Flipper::UI.app(Flipper), at: "flipper", constraints: ->(request) {
-      user = User.find_by(id: request.session[:user_id])
-      if user.nil? && !Rails.env.production?
-        user_id = request.session[:test_user_id] || 1
-        user = User.find_by(id: user_id) || User.first
-      end
-      user && AdminPolicy.new(user, :admin).access_flipper?
+      AdminConstraint.allow?(request, :access_flipper?)
     }
 
     mount MissionControl::Jobs::Engine, at: "jobs", constraints: ->(request) {
-      user = User.find_by(id: request.session[:user_id])
-      if user.nil? && !Rails.env.production?
-        user_id = request.session[:test_user_id] || 1
-        user = User.find_by(id: user_id) || User.first
-      end
-      user && AdminPolicy.new(user, :admin).access_admin_endpoints?
+      AdminConstraint.allow?(request, :access_admin_endpoints?)
     }
 
     resources :users, only: [ :index, :show ], shallow: true do
@@ -120,6 +122,7 @@ Rails.application.routes.draw do
       end
     end
     resources :audit_logs, only: [ :index, :show ]
+    get "payouts_dashboard", to: "payouts_dashboard#index"
   end
 
   # Project Ideas

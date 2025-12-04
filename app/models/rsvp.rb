@@ -4,6 +4,9 @@
 #
 #  id         :bigint           not null, primary key
 #  email      :string           not null
+#  ip_address :string
+#  synced_at  :datetime
+#  user_agent :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #

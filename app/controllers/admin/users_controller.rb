@@ -52,8 +52,8 @@ class Admin::UsersController < Admin::ApplicationController
       @user = User.find(params[:id])
       role_name = params[:role_name]
 
-      if role_name == "super_admin" && !current_user.super_admin?
-        flash[:alert] = "Only super admins can promote to super admin."
+      if role_name == "admin" && !current_user.super_admin?
+        flash[:alert] = "Only super admins can promote to admin."
         return redirect_to admin_user_path(@user)
       end
 

@@ -1,48 +1,81 @@
-<div class="my-shop-orders" style="margin-top: 4rem;">
-    <div style="text-align: center; margin-bottom: 2rem;">
-        <h1>My Orders</h1>
-        <%= render ButtonComponent.new(
-            text: "Back to the Shop",
-            href: "/shop/",
-            color: :brown,
-            variant: :borderless
-        ) %>
-    </div>
+<div class="my-orders">
+  <div class="my-orders__header">
+    <h1 class="my-orders__title">My Orders</h1>
+    <%= render ButtonComponent.new(text: "Back to the Shop", href: "/shop/", color: :brown, variant: :borderless) %>
+  </div>
 
-    <% if @orders.empty? %>
-        <div style="text-align: center;">
-            <p>You haven't placed any orders yet.</p>
-        </div>
-    <% else %>
-        <div class="container">
-            <div class="row">
-                <% @orders.each do |order| %>
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100">
-                            <% if order.shop_item.image.attached? && order.shop_item.image.variable? %>
-                                <%= image_tag order.shop_item.image.variant(:carousel_md), class: "card-img-top", style: "height: 200px; object-fit: cover;", loading: "lazy" %>
-                            <% elsif order.shop_item.image.attached? %>
-                                <%= image_tag order.shop_item.image, class: "card-img-top", style: "height: 200px; object-fit: cover;", loading: "lazy" %>
-                            <% else %>
-                                <div class="d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
-                                    <span class="text-muted">No Image</span>
-                                </div>
-                            <% end %>
-                            <div class="card-body">
-                                <h5 class="card-title"><%= order.shop_item.name %></h5>
-                                <p class="card-text text-muted"><small>Ordered on <%= order.created_at.strftime("%B %d, %Y") %></small></p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="badge bg-secondary"><%= order.aasm_state.humanize %></span>
-                                    <span>Quantity: <%= order.quantity %></span>
-                                </div>
-                                <div class="mt-2 text-end">
-                                     <strong>Total: 🍪 <%= (order.frozen_item_price || order.shop_item.ticket_cost) * order.quantity %></strong>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <% end %>
+  <% if @orders.empty? %>
+    <div class="my-orders__empty">
+      <p>You haven't placed any orders yet.</p>
+    </div>
+  <% else %>
+    <div class="my-orders__list">
+      <% @orders.each do |order| %>
+        <div class="my-orders__item">
+          <div class="my-orders__header-bar">
+            <div class="my-orders__header-item">
+              <span class="my-orders__header-label">Order Placed</span>
+              <span class="my-orders__header-value"><%= order.created_at.strftime("%b %d, %Y") %></span>
             </div>
+
+            <div class="my-orders__header-item">
+              <span class="my-orders__header-label">Total</span>
+              <span class="my-orders__header-value">🍪 <%= number_with_precision((order.frozen_item_price || order.shop_item.ticket_cost) * order.quantity, precision: 0) %></span>
+            </div>
+
+            <% if order.frozen_address.present? %>
+              <div class="my-orders__header-item">
+                <span class="my-orders__header-label">Ship To</span>
+                <span class="my-orders__header-value"><%= order.frozen_address.dig('line_1')&.to_s&.split(',')&.first&.truncate(30) || 'N/A' %></span>
+              </div>
+            <% end %>
+
+            <div class="my-orders__header-item my-orders__header-item--right">
+              <div class="my-orders__order-number-section">
+                  <span class="my-orders__header-label">Order # <%= order.id %></span>
+                  <% if order.pending? %>
+                    <%= button_to "Cancel Order", cancel_shop_order_path(order_id: order.id), method: :delete, class: "my-orders__cancel-link", form: { data: { turbo_confirm: "Are you sure you want to cancel this order?" } } %>
+                  <% end %>
+                </div>
+            </div>
+          </div>
+
+          <div class="my-orders__body">
+            <div class="my-orders__image-container">
+              <% if order.shop_item.image.attached? && order.shop_item.image.variable? %>
+                <%= image_tag(order.shop_item.image.variant(:carousel_md), class: "my-orders__image", loading: "lazy") %>
+              <% elsif order.shop_item.image.attached? %>
+                <%= image_tag(order.shop_item.image, class: "my-orders__image", loading: "lazy") %>
+              <% else %>
+                <div class="my-orders__image--placeholder">
+                  No Image
+                </div>
+              <% end %>
+            </div>
+
+            <div class="my-orders__content">
+              <div class="my-orders__title-section">
+                <h2 class="my-orders__item-name"><%= order.shop_item.name %></h2>
+                <span class="my-orders__status my-orders__status--<%= order.aasm_state %>">
+                  <%= order.aasm_state.humanize %>
+                </span>
+              </div>
+
+              <div class="my-orders__details">
+                <div class="my-orders__detail-row">
+                  <span class="my-orders__label">Quantity:</span>
+                  <span class="my-orders__value"><%= order.quantity %></span>
+                </div>
+
+                <div class="my-orders__detail-row">
+                  <span class="my-orders__label">Unit Price:</span>
+                  <span class="my-orders__value">🍪 <%= number_with_precision(order.frozen_item_price || order.shop_item.ticket_cost, precision: 0) %></span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-    <% end %>
+      <% end %>
+    </div>
+  <% end %>
 </div>

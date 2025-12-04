@@ -31,7 +31,7 @@
     <div class="project-card__stats">
         <h5>
             <%= inline_svg_tag "icons/paper.svg", class: "project-card__stats-icon", aria: { hidden: true } %>
-            <%= project.devlogs.count %> devlogs
+            <%= project.try(:devlogs_count) || project.devlogs.count %> devlogs
         </h5>
         <h5>
             <%= inline_svg_tag "icons/time.svg", class: "project-card__stats-icon", aria: { hidden: true } %>

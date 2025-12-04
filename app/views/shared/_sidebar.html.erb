@@ -10,7 +10,8 @@
         { label: "Explore", path: "#", icon: "compass_fill" },
         { label: "Projects", path: projects_path, icon: "square_fill" },
         { label: "Vote", path: new_vote_path, icon: "star_fill" },
-        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" }
+        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" },
+        { label: "Logout", path: "/logout", icon: "arrow-red-right", method: :delete }
       ] %>
 
       <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_dashboard? %>
@@ -28,11 +29,20 @@
           <% link_classes = ["sidebar__nav-link", ("sidebar__nav-link--active" if active)].compact.join(" ") %>
 
           <li class="sidebar__nav-item">
-            <%= link_to item[:path], class: link_classes, aria: (active ? { current: "page" } : {}) do %>
-              <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
-              <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
-              </span>
-              <span class="sidebar__nav-label"><%= item[:label] %></span>
+            <% if item[:method] %>
+              <%= button_to item[:path], method: item[:method], class: link_classes, aria: (active ? { current: "page" } : {}), form: { class: "sidebar__nav-form" } do %>
+                <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
+                <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
+                </span>
+                <span class="sidebar__nav-label"><%= item[:label] %></span>
+              <% end %>
+            <% else %>
+              <%= link_to item[:path], class: link_classes, aria: (active ? { current: "page" } : {}) do %>
+                <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
+                <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
+                </span>
+                <span class="sidebar__nav-label"><%= item[:label] %></span>
+              <% end %>
             <% end %>
           </li>
         <% end %>
@@ -55,8 +65,19 @@
       </div>
       <div class="sidebar__user-details">
         <span class="sidebar__user-name"><%= current_user.display_name %></span>
-        <span class="sidebar__user-balance">🍪 <%= current_user.balance %></span>
+        <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
+          🍪 <%= current_user.balance %>
+        </button>
       </div>
     </div>
   </div>
+
+  <%= render layout: "shared/modal", locals: { id: "balance-modal", title: "Transaction History" } do %>
+    <%= turbo_frame_tag "balance_history", src: "/my/balance", loading: "lazy" do %>
+      <div class="modal__loading">Loading history...</div>
+    <% end %>
+    <div class="modal__actions">
+      <button type="button" class="modal__actions-close" onclick="document.getElementById('balance-modal').close()">Close</button>
+    </div>
+  <% end %>
 </aside>

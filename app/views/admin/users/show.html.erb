@@ -41,12 +41,12 @@
           <% end %>
 
           <% if identity.provider == "hackatime" %>
-            <%= link_to "go to billy", "#{Rails.application.config.billy_url}?u=#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
-            <%= link_to "go to joe", "#{Rails.application.config.joe_url}profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
+            <%= link_to "go to billy", "https://billy.3kh0.net/?u=#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
+            <%= link_to "go to joe", "https://dash.fraud.land/profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
 
             <% if identity.provider == "hack_club" %>
-            <%= link_to "go to idv backend", "https://hca.dinosaurbbq.org/backend/identities/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
+            <%= link_to "go to idv backend", "#{Rails.application.config.identity}/backend/identities/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
         </div>
       <% end %>

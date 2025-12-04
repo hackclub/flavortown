@@ -26,6 +26,7 @@
 @use "components/shop-item-card";
 @use "components/admin-banner";
 @use "components/post";
+@use "components/project_idea_generator";
 
 // Pages
 @use "pages/projects/index";
@@ -34,4 +35,5 @@
 @use "pages/kitchen/index" as kitchen_index;
 @use "pages/shop/shop";
 @use "pages/shop/order";
+@use "pages/shop/my_orders";
 @use "pages/votes/new" as votes_new;
