@@ -101,6 +101,7 @@ GEM
       fiddle
     ast (2.4.3)
     attr_required (1.0.2)
+    awesome_print (1.9.2)
     aws-eventstream (1.4.0)
     aws-partitions (1.1190.0)
     aws-sdk-core (3.239.2)
@@ -705,6 +706,7 @@ DEPENDENCIES
   aasm
   active_storage_validations
   annotaterb
+  awesome_print
   aws-sdk-s3
   blazer
   blind_index

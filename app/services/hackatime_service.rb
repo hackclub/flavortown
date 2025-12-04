@@ -23,6 +23,27 @@ class HackatimeService
     []
   end
 
+  def self.fetch_user_projects_with_time(identifier)
+    url = "#{BASE_URL}/users/#{identifier}/stats?features=projects"
+
+    response = Faraday.get(url) do |req|
+      req.headers["Content-Type"] = "application/json"
+    end
+
+    if response.success?
+      data = JSON.parse(response.body)
+      projects = data.dig("data", "projects") || []
+      projects.reject { |p| User::HackatimeProject::EXCLUDED_NAMES.include?(p["name"]) }
+               .to_h { |p| [ p["name"], p["total_seconds"].to_i ] }
+    else
+      Rails.logger.error "HackatimeService error: #{response.status} - #{response.body}"
+      {}
+    end
+  rescue => e
+    Rails.logger.error "HackatimeService exception: #{e.message}"
+    {}
+  end
+
   def self.sync_user_projects(user, identifier)
     project_names = fetch_user_projects(identifier)
 

@@ -3,6 +3,7 @@
 # Table name: projects
 #
 #  id                :bigint           not null, primary key
+#  deleted_at        :datetime
 #  demo_url          :text
 #  description       :text
 #  memberships_count :integer          default(0), not null
@@ -11,6 +12,10 @@
 #  title             :string           not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#
+# Indexes
+#
+#  index_projects_on_deleted_at  (deleted_at)
 #
 class Project < ApplicationRecord
     # TODO: reflect the allowed content types in the html accept
@@ -68,10 +73,15 @@ class Project < ApplicationRecord
     }
 
     def time
-        total_hours = Post::ShipEvent.where(id: posts.where(postable_type: "Post::ShipEvent").select("postable_id::bigint")).sum(:hours) || 0
+        total_seconds = Post::Devlog.where(id: posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")).sum(:duration_seconds) || 0
+        total_hours = total_seconds / 3600.0
         hours = total_hours.to_i
         minutes = ((total_hours - hours) * 60).to_i
 
         OpenStruct.new(hours: hours, minutes: minutes)
+    end
+
+    def hackatime_keys
+        hackatime_projects.pluck(:name)
     end
 end

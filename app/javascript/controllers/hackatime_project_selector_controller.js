@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static targets = ["select", "selectedContainer", "hiddenInputs"];
-  static values = { initialProjects: Array };
+  static values = { initialProjects: Array, projectTimes: Object };
 
   connect() {
     this.selectedProjects = new Set();
@@ -59,6 +59,12 @@ export default class extends Controller {
     this.updateHiddenInputs();
   }
 
+  formatTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    return `${hours}h ${minutes}m`;
+  }
+
   async renderSelectedProject(projectId, projectName) {
     const projectIconPath =
       this.element.dataset.projectIconPath || "/assets/icons/rocket.svg";
@@ -68,6 +74,10 @@ export default class extends Controller {
     const rocketSvg = await this.loadSvgAsInline(projectIconPath, 24);
     const closeSvg = await this.loadSvgAsInline(closeIconPath, 20);
 
+    const projectTimes = this.hasProjectTimesValue ? this.projectTimesValue : {};
+    const totalSeconds = projectTimes[projectName] || 0;
+    const timeDisplay = this.formatTime(totalSeconds);
+
     const projectElement = document.createElement("div");
     projectElement.className = "hackatime-project-selector__project";
     projectElement.innerHTML = `
@@ -76,7 +86,7 @@ export default class extends Controller {
       </div>
       <div class="hackatime-project-selector__project-content">
         <div class="hackatime-project-selector__project-name">${this.escapeHtml(projectName)}</div>
-        <div class="hackatime-project-selector__project-meta">Time tracked: 0h 0m</div>
+        <div class="hackatime-project-selector__project-meta">Time tracked: ${timeDisplay}</div>
       </div>
       <button 
         type="button"
