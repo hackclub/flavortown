@@ -19,16 +19,13 @@ class ShopController < ApplicationController
   end
 
   def cancel_order
-    @order = current_user.shop_orders.find(params[:order_id])
-    result = current_user.cancel_shop_order(@order.id)
+    result = current_user.cancel_shop_order(params[:order_id])
 
     if result[:success]
       redirect_to shop_my_orders_path, notice: "Order cancelled successfully!"
     else
       redirect_to shop_my_orders_path, alert: "Failed to cancel order: #{result[:error]}"
     end
-  rescue ActiveRecord::RecordNotFound
-    redirect_to shop_my_orders_path, alert: "Order not found"
   end
 
   def order
