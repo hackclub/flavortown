@@ -1,0 +1,34 @@
+<%= turbo_frame_tag "shop_banner" do %>
+  <% if featured_item %>
+    <div class="shop__banner">
+      <div class="shop__banner-headings">
+        <h3 class="shop__banner-title">Get Started</h3>
+        <h3 class="shop__banner-price"><%= number_to_currency(featured_item.price_for_region(user_region), precision: 0).gsub('$', '🍪') %></h3>
+      </div>
+      <div class="shop__banner-showcase">
+        <div class="shop__banner-item-desc">
+          <h4><%= featured_item.name %></h4>
+          <h5><%= featured_item.description %></h5>
+          <h6>~<%= featured_item.hours_estimated %> hours</h6>
+
+          <%= render ButtonComponent.new(
+            text: "Order #{featured_item.name}",
+            href: "/shop/order?shop_item_id=#{featured_item.id}",
+            color: :brown,
+            variant: :borderless
+          ) %>
+        </div>
+        <% if featured_item.image.present? %>
+          <%= image_tag featured_item.image.variant(:carousel_lg), loading: "lazy", decoding: "async", alt: "#{featured_item.name} image" %>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="shop__banner shop__banner--empty">
+      <div class="shop__banner-headings">
+        <h3 class="shop__banner-title">Free Stickers Not Available</h3>
+        <h5 class="shop__banner-subtitle">Check back soon!</h5>
+      </div>
+    </div>
+  <% end %>
+<% end %>
