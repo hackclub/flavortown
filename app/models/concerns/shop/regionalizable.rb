@@ -34,9 +34,20 @@ module Shop
       end
     end
 
+    def any_region_enabled?
+      REGION_CODES.any? { |code| send("enabled_#{code.downcase}") }
+    end
+
     def enabled_in_region?(region_code)
       return false unless REGION_CODES.include?(region_code.upcase)
-      send("enabled_#{region_code.downcase}")
+
+      return true unless any_region_enabled?
+
+      # If enabled for this specific region, return true
+      return true if send("enabled_#{region_code.downcase}")
+
+      # If enabled for XX (Rest of World), item is available everywhere
+      enabled_xx
     end
 
     def price_for_region(region_code)

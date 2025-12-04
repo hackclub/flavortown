@@ -40,52 +40,54 @@ module HCBService
     end
 
     def refresh_token!
-      hcb_credentials = HCBCredential.first
-      raise HCBError, "no HCB credentials found" unless hcb_credentials
-      client_id = hcb_credentials.client_id
-      client_secret = hcb_credentials.client_secret
-      refresh_token = hcb_credentials.refresh_token
-      redirect_uri = hcb_credentials.redirect_uri
-      base = hcb_credentials.base_url || base_url
+      HCBCredential.transaction do
+        hcb_credentials = HCBCredential.first
+        raise HCBError, "no HCB credentials found" unless hcb_credentials
+        client_id = hcb_credentials.client_id
+        client_secret = hcb_credentials.client_secret
+        refresh_token = hcb_credentials.refresh_token
+        redirect_uri = hcb_credentials.redirect_uri
+        base = hcb_credentials.base_url || base_url
 
-      # Use a lightweight connection to call the token endpoint to avoid recursion.
-      # Doorkeeper expects a form-encoded POST (application/x-www-form-urlencoded).
-      token_conn = Faraday.new(url: "#{base}/api/v4/") do |f|
-        f.request :url_encoded
-        f.response :json, content_type: /\bjson$/
-        f.adapter :net_http
-        f.headers["Accept"] = "application/json"
+        # Use a lightweight connection to call the token endpoint to avoid recursion.
+        # Doorkeeper expects a form-encoded POST (application/x-www-form-urlencoded).
+        token_conn = Faraday.new(url: "#{base}/api/v4/") do |f|
+          f.request :url_encoded
+          f.response :json, content_type: /\bjson$/
+          f.adapter :net_http
+          f.headers["Accept"] = "application/json"
+        end
+
+        message = {
+          client_id: client_id,
+          client_secret: client_secret,
+          refresh_token: refresh_token,
+          redirect_uri: redirect_uri,
+          grant_type: "refresh_token"
+        }
+
+        # Send form-encoded params (not JSON) so Doorkeeper accepts the refresh request.
+        resp = token_conn.post("oauth/token", message)
+
+        unless resp.success?
+          error_msg = resp.body.is_a?(Hash) ? resp.body["error"] || resp.body[:error] : resp.body
+          raise HCBError, "token refresh failed with status #{resp.status}: #{error_msg}"
+        end
+
+        body = resp.body
+        access_token = body && (body["access_token"] || body[:access_token])
+        new_refresh_token = body && (body["refresh_token"] || body[:refresh_token])
+        raise HCBError, "no access_token in response: #{body}" unless access_token
+
+        hcb_credentials.update!(refresh_token: new_refresh_token, access_token: access_token)
+        @conn = nil
+
+        true
+      rescue Faraday::Error => e
+        raise HCBError, "token refresh HTTP error: #{e.message}"
+      rescue => e
+        raise HCBError, "token refresh failed: #{e.message}"
       end
-
-      message = {
-        client_id: client_id,
-        client_secret: client_secret,
-        refresh_token: refresh_token,
-        redirect_uri: redirect_uri,
-        grant_type: "refresh_token"
-      }
-
-      # Send form-encoded params (not JSON) so Doorkeeper accepts the refresh request.
-      resp = token_conn.post("oauth/token", message)
-
-      unless resp.success?
-        error_msg = resp.body.is_a?(Hash) ? resp.body["error"] || resp.body[:error] : resp.body
-        raise HCBError, "token refresh failed with status #{resp.status}: #{error_msg}"
-      end
-
-      body = resp.body
-      access_token = body && (body["access_token"] || body[:access_token])
-      new_refresh_token = body && (body["refresh_token"] || body[:refresh_token])
-      raise HCBError, "no access_token in response: #{body}" unless access_token
-
-      hcb_credentials.update!(refresh_token: new_refresh_token, access_token: access_token)
-      @conn = nil
-
-      true
-    rescue Faraday::Error => e
-      raise HCBError, "token refresh HTTP error: #{e.message}"
-    rescue => e
-      raise HCBError, "token refresh failed: #{e.message}"
     end
 
     def create_card_grant(email:, amount_cents:, merchant_lock: nil, category_lock: nil, keyword_lock: nil, purpose: nil, pre_authorization_required: false, one_time_use: false, instructions: nil)
