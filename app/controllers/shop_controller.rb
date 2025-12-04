@@ -15,7 +15,17 @@ class ShopController < ApplicationController
   end
 
   def my_orders
-    @orders = current_user.shop_orders.includes(shop_item: { image_attachment: :blob })
+    @orders = current_user.shop_orders.includes(shop_item: { image_attachment: :blob }).order(id: :desc)
+  end
+
+  def cancel_order
+    result = current_user.cancel_shop_order(params[:order_id])
+
+    if result[:success]
+      redirect_to shop_my_orders_path, notice: "Order cancelled successfully!"
+    else
+      redirect_to shop_my_orders_path, alert: "Failed to cancel order: #{result[:error]}"
+    end
   end
 
   def order
