@@ -36,7 +36,19 @@ class ShopController < ApplicationController
     region = params[:region]&.upcase
     if Shop::Regionalizable::REGION_CODES.include?(region)
       current_user.update!(region: region)
-      head :ok
+
+      @user_region = region
+      @shop_items = ShopItem.all.includes(:image_attachment)
+      @user_balance = current_user.balance
+      @featured_item = ShopItem.where(type: "ShopItem::FreeStickers")
+                               .includes(:image_attachment)
+                               .select { |item| item.enabled_in_region?(@user_region) }
+                               .first
+
+      respond_to do |format|
+        format.turbo_stream
+        format.html { head :ok }
+      end
     else
       head :unprocessable_entity
     end

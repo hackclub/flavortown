@@ -1,0 +1,26 @@
+<%= turbo_stream.replace "shop_items" do %>
+  <%= turbo_frame_tag "shop_items" do %>
+    <div class="shop__items">
+      <% @shop_items.each do |item| %>
+        <% if item.image.present? && item.enabled_in_region?(@user_region) %>
+          <%= render ShopItemCardComponent.new(
+            item_id: item.id,
+            name: item.name,
+            description: item.description,
+            hours: item.hours_estimated,
+            price: item.ticket_cost,
+            image_url: item.image.variant(:carousel_lg),
+            item_type: item.type,
+            balance: @user_balance,
+            enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
+            regional_price: item.price_for_region(@user_region)
+          ) %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.replace "shop_banner" do %>
+  <%= render partial: "shop/banner", locals: { featured_item: @featured_item, user_region: @user_region } %>
+<% end %>
