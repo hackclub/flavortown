@@ -85,8 +85,37 @@ class ShopController < ApplicationController
   def user_region
     return current_user.region if current_user.region.present?
 
-    primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
-    country = primary_address&.dig("country")
-    Shop::Regionalizable.country_to_region(country)
+    if current_user
+      primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
+      country = primary_address&.dig("country")
+      region = Shop::Regionalizable.country_to_region(country)
+      return region if region.present? && region != "XX"
+    end
+
+    x = ttr
+    return x if x.present?
+
+    "XX"
+  end
+
+  def ttr
+    tz = ActiveSupport::TimeZone.new(Time.zone.name)
+
+    case tz.name
+    when /US|America|Denver|Chicago|New_York|Los_Angeles|Anchorage|Honolulu/
+      "US"
+    when /Europe|London|Paris|Berlin|Amsterdam|Madrid|Rome|Vienna|Prague|Dublin|Athens|Lisbon|Warsaw|Budapest|Stockholm|Copenhagen|Helsinki|Sofia|Bucharest|Zagreb|Nicosia|Bratislava|Ljubljana|Malta/
+      "EU"
+    when /Britain|Ireland|London|Europe\/London/
+      "UK"
+    when /Asia\/Kolkata|Asia\/Calcutta/
+      "IN"
+    when /America\/Toronto|America\/Vancouver|America\/Edmonton|America\/Winnipeg|America\/Mexico_City|America\/Atikokan/
+      "CA"
+    when /Australia|Pacific\/Auckland|Pacific\/Fiji/
+      "AU"
+    else
+      "XX"
+    end
   end
 end
