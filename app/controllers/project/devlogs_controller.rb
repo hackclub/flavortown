@@ -33,6 +33,7 @@ class Project::DevlogsController < ApplicationController
   end
 
   def load_preview_time
+    @preview_seconds = 0
     return @preview_time = nil unless @project.hackatime_keys.present?
     return @preview_time = nil unless current_user.slack_id.present?
 
