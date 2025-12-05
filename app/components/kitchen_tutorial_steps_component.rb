@@ -4,7 +4,6 @@ class KitchenTutorialStepsComponent < ApplicationComponent
   def initialize(tutorial_steps:, completed_steps:, current_user:)
     @tutorial_steps = tutorial_steps
     @completed_steps = completed_steps
-    @current_user = current_user
   end
 
   def view_template
