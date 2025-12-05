@@ -46,7 +46,7 @@
           <% end %>
 
             <% if identity.provider == "hack_club" %>
-            <%= link_to "go to idv backend", "#{Rails.application.config.identity}/backend/identities/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
+            <%= link_to "go to idv backend", "#{HCAService.backend_url("/identities/#{identity.uid}")}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
         </div>
       <% end %>
