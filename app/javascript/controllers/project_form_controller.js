@@ -60,7 +60,7 @@ export default class extends Controller {
     const el = this.descriptionTarget;
     const value = el.value || "";
     let message = "";
-if (value.length > 1000) {
+    if (value.length > 1000) {
       message = "Description must be 1000 characters or fewer";
     }
     el.setCustomValidity(message);
@@ -76,7 +76,7 @@ if (value.length > 1000) {
     if (!el) return;
     const value = (el.value || "").trim();
     let message = "";
-   if (value.length > 0) {
+    if (value.length > 0) {
       try {
         const url = new URL(value);
         if (!["http:", "https:"].includes(url.protocol)) {
@@ -95,8 +95,6 @@ if (value.length > 1000) {
     }
     this.updateSubmitState();
   }
-
-
 
   // input change -> validate + detect (try)
   onRepoInput(event) {

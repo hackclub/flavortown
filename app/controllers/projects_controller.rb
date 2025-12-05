@@ -46,7 +46,6 @@ class ProjectsController < ApplicationController
 
   def edit
     authorize @project
-
   end
 
   def update
@@ -105,7 +104,6 @@ class ProjectsController < ApplicationController
   end
 
   def validate_urls
-
     if @project.demo_url.blank? && @project.repo_url.blank? && @project.readme_url.blank?
       return
     end
@@ -118,26 +116,23 @@ class ProjectsController < ApplicationController
     end
 
     validate_url_not_dead(:demo_url, "Demo URL") if @project.demo_url.present? && @project.errors.empty?
-    
+
     validate_url_not_dead(:repo_url, "Repository URL") if @project.repo_url.present? && @project.errors.empty?
     validate_url_not_dead(:readme_url, "Readme URL") if @project.readme_url.present? && @project.errors.empty?
-
-
   end
 
   def validate_url_not_dead(attribute, name)
-    
     require "uri"
     require "net/http"
 
     return unless @project.send(attribute).present?
 
     uri = URI.parse(@project.send(attribute))
-    response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', open_timeout: 5, read_timeout: 5) do |http|
+    response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https", open_timeout: 5, read_timeout: 5) do |http|
       http.get(uri.request_uri)
     end
 
-    unless response.code == '200'
+    unless response.code == "200"
       @project.errors.add(attribute, "Your #{name} needs to return a 200 status. I got #{response.code}, is your code/website set to public!?!?")
     end
 
@@ -177,7 +172,7 @@ class ProjectsController < ApplicationController
         is_valid_repo_url = true
       end
 
-      unless is_valid_repo_url 
+      unless is_valid_repo_url
         @project.errors.add(attribute, "#{name} does not appear to be a valid repository or project URL")
       end
     end
@@ -186,7 +181,7 @@ class ProjectsController < ApplicationController
     @project.errors.add(attribute, "#{name} is not a valid URL")
   rescue OpenSSL::SSL::SSLError => e
     @project.errors.add(attribute, "SSL error while verifying URL: #{e.message}")
-  
+
   rescue StandardError => e
     @project.errors.add(attribute, "#{name} could not be verified (idk why, pls let a admin know if this is happning alot and your sure that the url is valid): #{e.message}")
   end
