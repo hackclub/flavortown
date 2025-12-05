@@ -144,19 +144,7 @@ class User < ApplicationRecord
     identity = identities.find_by(provider: "hack_club")
     return [] unless identity&.access_token.present?
 
-    conn = Faraday.new(url: Rails.application.config.identity)
-    response = conn.get("/api/v1/me") do |req|
-      req.headers["Authorization"] = "Bearer #{identity.access_token}"
-      req.headers["Accept"] = "application/json"
-    end
-
-    return [] unless response.success?
-
-    body = JSON.parse(response.body)
-    identity_payload = body["identity"] || {}
+    identity_payload = HcaService.identity(identity.access_token)
     identity_payload["addresses"] || []
-  rescue StandardError => e
-    Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")
-    []
   end
 end
