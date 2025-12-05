@@ -14,6 +14,7 @@
 #  projects_count              :integer
 #  region                      :string
 #  synced_at                   :datetime
+#  tutorial_steps_completed    :string           default([]), is an Array
 #  verification_status         :string           default("needs_submission"), not null
 #  votes_count                 :integer
 #  created_at                  :datetime         not null
@@ -22,8 +23,10 @@
 #
 # Indexes
 #
+#  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #  index_users_on_region            (region)
+#  index_users_on_slack_id          (slack_id) UNIQUE
 #
 require "test_helper"
 
