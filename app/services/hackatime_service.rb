@@ -1,10 +1,9 @@
 class HackatimeService
   BASE_URL = "https://hackatime.hackclub.com/api/v1"
-
+  START_DATE = "2025-11-05"
   # fetch projects agnostic of slack id or hackatime uid
   def self.fetch_user_projects(identifier)
-    start_date = "2025-11-05"
-    url = "#{BASE_URL}/users/#{identifier}/stats?features=projects&start_date=#{start_date}"
+    url = "#{BASE_URL}/users/#{identifier}/stats?features=projects&start_date=#{START_DATE}"
 
     response = Faraday.get(url) do |req|
       req.headers["Content-Type"] = "application/json"
@@ -24,8 +23,7 @@ class HackatimeService
   end
 
   def self.fetch_user_projects_with_time(identifier)
-    start_date = "2025-11-05"
-    url = "#{BASE_URL}/users/#{identifier}/stats?features=projects&start_date=#{start_date}"
+    url = "#{BASE_URL}/users/#{identifier}/stats?features=projects&start_date=#{START_DATE}"
 
     response = Faraday.get(url) do |req|
       req.headers["Content-Type"] = "application/json"
