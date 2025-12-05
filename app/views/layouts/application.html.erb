@@ -37,7 +37,7 @@
     <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>
 
-  <body class="<%= current_user.present? ? 'signed-in' : '' %>">
+  <body class="<%= current_user.present? ? 'signed-in' : '' %>" data-controller="timezone">
     <% if current_user.present? %>
       <%= render "shared/sidebar" %>
     <% end %>

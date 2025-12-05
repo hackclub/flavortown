@@ -96,10 +96,15 @@ class ShopController < ApplicationController
   private
 
   def user_region
-    return current_user.region if current_user.region.present?
+    if current_user
+      return current_user.region if current_user.region.present?
 
-    primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
-    country = primary_address&.dig("country")
-    Shop::Regionalizable.country_to_region(country)
+      primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
+      country = primary_address&.dig("country")
+      region_from_address = Shop::Regionalizable.country_to_region(country)
+      return region_from_address if region_from_address != "XX" || country.present?
+    end
+
+    Shop::Regionalizable.timezone_to_region(cookies[:timezone])
   end
 end
