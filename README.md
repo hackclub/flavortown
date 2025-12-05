@@ -39,6 +39,18 @@ docker-compose run web bin/rails bundle install
 docker-compose run web bin/lint
 ```
 
+if its giving you a file not found error and you are on windows, try running these commands. They switch line endings to lf (linux) ones
+
+This will reset all your code!
+
+```
+git config --local core.autocrlf false
+git rm --cached -r .   
+git reset --hard
+```
+
+
+
 ## i hate docker
 
 weirdo, but okay, you gotta figure out how to get postgres running yourself bucko
