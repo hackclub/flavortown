@@ -468,6 +468,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_03_145919) do
     t.string "region"
     t.string "slack_id"
     t.datetime "synced_at"
+    t.string "tutorial_steps_completed", default: [], array: true
     t.datetime "updated_at", null: false
     t.string "verification_status", default: "needs_submission", null: false
     t.integer "votes_count"

@@ -1,0 +1,82 @@
+.tutorial-steps {
+  &__header {
+    margin-bottom: var(--space-xl);
+  }
+
+  &__progress {
+    margin-bottom: var(--space-l);
+  }
+
+  &__progress-text {
+    display: block;
+    margin-bottom: var(--space-s);
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-l);
+    color: var(--color-brown-500);
+  }
+
+  &__progress-bar {
+    width: 100%;
+    height: 12px;
+    background: var(--color-tan-300);
+    border: 3px solid var(--color-brown-400);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  &__progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-green-400) 0%, var(--color-green-300) 100%);
+    transition: width 0.3s ease;
+    border-radius: 999px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-xl);
+  }
+}
+
+.tutorial-step-card--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.tutorial-step-card__locked-btn {
+  position: relative;
+  cursor: not-allowed;
+
+  .btn--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-brown-500);
+    color: white;
+    padding: var(--space-s) var(--space-m);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-s);
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  &[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--color-brown-500);
+    z-index: 10;
+    pointer-events: none;
+  }
+}

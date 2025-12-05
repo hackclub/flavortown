@@ -35,6 +35,7 @@ class ProjectsController < ApplicationController
       @project.memberships.create!(user: current_user, role: :owner)
       link_hackatime_projects
       flash[:notice] = "Project created successfully"
+      current_user.complete_tutorial_step! :create_project
       redirect_to @project
     else
       flash[:alert] = "Failed to create project: #{@project.errors.full_messages.join(', ')}"
@@ -61,6 +62,7 @@ class ProjectsController < ApplicationController
   def destroy
     authorize @project
     @project.destroy
+    current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
     flash[:notice] = "Project deleted successfully"
     redirect_to projects_path
   end
