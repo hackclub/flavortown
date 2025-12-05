@@ -140,17 +140,21 @@
   }
 
   &__label {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     width: 100%;
     padding: 0.4em 0.5em 2em 0.5em;
     border-radius: 16px;
     box-shadow: var(--shadow);
-    position: absolute;
+    position: relative;
     z-index: -1;
-    top: -90%;
+    top: -1em;
     left: 0;
     font-weight: normal;
     font-family: var(--font-family-text);
+
+    @media (max-width: 500px) {
+      font-size: 1rem;
+    }
   }
 
   &__button {
@@ -164,7 +168,7 @@
     color: #f8e8d1;
     cursor: pointer;
     font-family: var(--font-family-subtitle);
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     width: 100%;
     box-shadow: var(--shadow);
     position: relative;
@@ -172,6 +176,10 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    @media (max-width: 500px) {
+      font-size: 1rem;
+    }
   }
 
   &__selected {
@@ -181,14 +189,19 @@
   }
 
   &__icon {
-    width: 2rem;
-    height: 2rem;
+    width: 1.5rem;
+    height: 1.5rem;
     fill: currentColor;
+
+    @media (max-width: 500px) {
+      width: 1.2rem;
+      height: 1.2rem;
+    }
   }
 
   &__menu {
     position: absolute;
-    top: calc(100% - 2em);
+    top: calc(100% - 3em);
     left: 0;
     width: 100%;
     padding: 2.5em 0 var(--space-xs) 0;
@@ -204,8 +217,7 @@
     visibility: hidden;
     pointer-events: none;
     font-family: var(--font-family-text);
-    font-size: 1.2rem;
-    padding: 0 3rem 0 1rem;
+    font-size: 1rem;
     height: 0;
     overflow: hidden;
     white-space: nowrap;
@@ -214,9 +226,13 @@
 
   &__item {
     padding: var(--space-xs) var(--space-m);
-    font-size: 1.2rem;
+    font-size: 1rem;
     cursor: pointer;
     font-family: var(--font-family-text) !important;
+
+    @media (max-width: 500px) {
+      font-size: 0.9rem;
+    }
   }
 
   &:hover .dropdown__menu {

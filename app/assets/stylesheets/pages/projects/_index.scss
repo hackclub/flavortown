@@ -8,6 +8,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    @media (max-width: 960px) {
+      flex-direction: column;
+      justify-content: center;
+      gap: 1em;
+      text-align: center;
+    }
   }
 
   &__heading {
@@ -35,6 +42,10 @@
     display: grid;
     gap: 2rem;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+
+    @media (max-width: 960px) {
+      grid-template-columns: 1fr;
+    }
   }
 
   &__grid-item {
@@ -43,6 +54,12 @@
 
     &:only-child {
       max-width: 600px;
+    }
+
+    @media (max-width: 1500px) {
+      &:only-child {
+        max-width: 400px;
+      }
     }
 
     @media (max-width: 960px) {
