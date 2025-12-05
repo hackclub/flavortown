@@ -60,6 +60,13 @@ class User < ApplicationRecord
     update!(tutorial_steps_completed: tutorial_steps - [ slug ]) if tutorial_step_completed?(slug)
   end
 
+  def attempt_to_refresh_verification_status
+    # if user has tutorial step finished, skip
+    return unless tutorial_step_completed?(:identity_verified)
+    # if user has verified, skip
+    return unless verifi
+  end
+
   class << self
     # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
     def find_by_hackatime(uid) = find_by_provider("hackatime", uid)
@@ -144,7 +151,7 @@ class User < ApplicationRecord
     identity = identities.find_by(provider: "hack_club")
     return [] unless identity&.access_token.present?
 
-    identity_payload = HcaService.identity(identity.access_token)
+    identity_payload = HCAService.identity(identity.access_token)
     identity_payload["addresses"] || []
   end
 end

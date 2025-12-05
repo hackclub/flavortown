@@ -50,7 +50,7 @@ class SessionsController < ApplicationController
 
   def fetch_hack_club_identity(access_token)
     # https://hca.dinosaurbbq.org/docs/oauth-guide
-    HcaService.identity(access_token)
+    HCAService.identity(access_token)
   end
 
   def extract_identity_fields(data)

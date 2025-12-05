@@ -22,15 +22,15 @@ class KitchenController < ApplicationController
     identity = current_user.identities.find_by(provider: "hack_club")
     return unless identity&.access_token.present?
 
-    identity_payload = HcaService.identity(identity.access_token)
+    identity_payload = HCAService.identity(identity.access_token)
     return if identity_payload.blank?
 
     latest_status = identity_payload["verification_status"].to_s
     return unless User::VALID_VERIFICATION_STATUSES.include?(latest_status)
-    return if current_user.verification_status.to_s == latest_status
 
     current_user.complete_tutorial_step!(:identity_verified) if latest_status == "verified"
 
+    return if current_user.verification_status.to_s == latest_status
     current_user.update!(verification_status: latest_status)
   rescue StandardError => e
     Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")

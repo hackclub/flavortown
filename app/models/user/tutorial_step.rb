@@ -48,7 +48,7 @@ class User
           name: "Get your stickers!",
           description: "get your stickers!",
           icon: "trash-bin",
-          link: ->(_) { shop_order_path(shop_item_id: ShopItem::FreeStickers.first.id) },
+          link: ->(_) { shop_order_path(shop_item_id: ShopItem::FreeStickers.first&.id) },
           deps: [
             Dep[:post_devlog, "you need to dev on your log first!"],
             Dep[:identity_verified, "you need to verify your identity!"]

@@ -1,7 +1,7 @@
 require "faraday"
 require "json"
 
-module HcaService
+module HCAService
   class Error < StandardError; end
 
   module_function
