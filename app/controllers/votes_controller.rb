@@ -9,7 +9,7 @@ class VotesController < ApplicationController
                       .map(&:project_id)
 
     # Paginate the array of project IDs
-    @pagy, @project_ids = pagy(project_ids)
+    @pagy, @project_ids = pagy(:offset, project_ids)
 
     # Fetch the votes for the paginated project IDs
     @votes_by_project = Vote.where(user: current_user, project_id: @project_ids)

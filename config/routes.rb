@@ -128,6 +128,11 @@ Rails.application.routes.draw do
     end
     resources :audit_logs, only: [ :index, :show ]
     get "payouts_dashboard", to: "payouts_dashboard#index"
+    resources :fulfillment_dashboard, only: [ :index ] do
+      collection do
+        post :send_letter_mail
+      end
+    end
   end
 
   # Project Ideas
