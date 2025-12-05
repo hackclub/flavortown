@@ -25,6 +25,8 @@ export default class extends Controller {
 
     this.updateSubmitState(); // submit button
 
+    this.restorReadmeWhenThereIsAError();
+
     if (
       this.hasRepoUrlTarget &&
       this.hasReadmeUrlTarget &&
@@ -58,7 +60,7 @@ export default class extends Controller {
     const el = this.descriptionTarget;
     const value = el.value || "";
     let message = "";
-    if (value.length > 1000) {
+if (value.length > 1000) {
       message = "Description must be 1000 characters or fewer";
     }
     el.setCustomValidity(message);
@@ -74,7 +76,7 @@ export default class extends Controller {
     if (!el) return;
     const value = (el.value || "").trim();
     let message = "";
-    if (value.length > 0) {
+   if (value.length > 0) {
       try {
         const url = new URL(value);
         if (!["http:", "https:"].includes(url.protocol)) {
@@ -93,6 +95,8 @@ export default class extends Controller {
     }
     this.updateSubmitState();
   }
+
+
 
   // input change -> validate + detect (try)
   onRepoInput(event) {
@@ -235,6 +239,28 @@ export default class extends Controller {
       const control = this.readmeUrlTarget.closest(".input__control");
       if (control) control.classList.remove("input__control--locked");
       this.readmeUrlTarget.removeAttribute("title");
+    }
+  }
+
+  restorReadmeWhenThereIsAError() {
+    if (!this.hasReadmeContainerTarget || !this.hasReadmeUrlTarget) return;
+    const value = (this.readmeUrlTarget.value || "").trim();
+    if (!value) return;
+
+    this.readmeContainerTarget.hidden = false;
+
+    if (this.readmeUrlTarget.dataset.autofilled === "true") {
+      this.readmeUrlTarget.readOnly = true;
+      const control = this.readmeUrlTarget.closest(".input__control");
+      if (control) control.classList.add("input__control--locked");
+      this.readmeUrlTarget.title = "Autodetected from repository (locked)";
+      this.userEditedReadme = false;
+    } else {
+      this.readmeUrlTarget.readOnly = false;
+      const control = this.readmeUrlTarget.closest(".input__control");
+      if (control) control.classList.remove("input__control--locked");
+      this.readmeUrlTarget.removeAttribute("title");
+      this.userEditedReadme = true;
     }
   }
 
