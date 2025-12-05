@@ -3,15 +3,16 @@
 class HackatimeProjectSelectorComponent < ViewComponent::Base
   COLORS = %i[red blue green yellow].freeze
 
-  attr_reader :label, :color, :subtitle, :form, :attribute, :projects
+  attr_reader :label, :color, :subtitle, :form, :attribute, :projects, :project_times
 
-  def initialize(label:, form:, attribute:, color: :blue, subtitle: nil, projects: [])
+  def initialize(label:, form:, attribute:, color: :blue, subtitle: nil, projects: [], project_times: {})
     @label = label
     @form = form
     @attribute = attribute
     @color = normalize_color(color)
     @subtitle = subtitle
     @projects = projects
+    @project_times = project_times
   end
 
   def input_classes

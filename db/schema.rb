@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_03_145919) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_05_144523) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,6 +21,46 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_03_145919) do
     t.integer "status", default: 0, null: false
     t.datetime "updated_at", null: false
     t.index ["message_id", "message_checksum"], name: "index_action_mailbox_inbound_emails_uniqueness", unique: true
+  end
+
+  create_table "active_insights_jobs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.float "db_runtime"
+    t.float "duration"
+    t.datetime "finished_at"
+    t.string "job"
+    t.string "queue"
+    t.float "queue_time"
+    t.datetime "scheduled_at"
+    t.datetime "started_at"
+    t.datetime "updated_at", null: false
+    t.string "uuid"
+    t.index ["started_at", "duration", "queue_time"], name: "idx_on_started_at_duration_queue_time_010695b74f"
+    t.index ["started_at", "duration"], name: "index_active_insights_jobs_on_started_at_and_duration"
+    t.index ["started_at"], name: "index_active_insights_jobs_on_started_at"
+  end
+
+  create_table "active_insights_requests", force: :cascade do |t|
+    t.string "action"
+    t.string "controller"
+    t.datetime "created_at", null: false
+    t.float "db_runtime"
+    t.float "duration"
+    t.datetime "finished_at"
+    t.string "format"
+    t.virtual "formatted_controller", type: :string, as: "(((controller)::text || '#'::text) || (action)::text)", stored: true
+    t.string "http_method"
+    t.string "ip_address"
+    t.text "path"
+    t.datetime "started_at"
+    t.integer "status"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.string "uuid"
+    t.float "view_runtime"
+    t.index ["started_at", "duration"], name: "index_active_insights_requests_on_started_at_and_duration"
+    t.index ["started_at", "formatted_controller"], name: "idx_on_started_at_formatted_controller_5d659a01d9"
+    t.index ["started_at"], name: "index_active_insights_requests_on_started_at"
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -151,6 +191,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_03_145919) do
   create_table "post_devlogs", force: :cascade do |t|
     t.string "body"
     t.datetime "created_at", null: false
+    t.integer "duration_seconds"
+    t.text "hackatime_projects_key_snapshot"
+    t.datetime "hackatime_pulled_at"
     t.datetime "updated_at", null: false
   end
 
@@ -165,11 +208,13 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_03_145919) do
 
   create_table "posts", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.datetime "deleted_at"
     t.string "postable_id"
     t.string "postable_type"
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id"
+    t.index ["deleted_at"], name: "index_posts_on_deleted_at"
     t.index ["project_id"], name: "index_posts_on_project_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
@@ -195,6 +240,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_03_145919) do
 
   create_table "projects", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.datetime "deleted_at"
     t.text "demo_url"
     t.text "description"
     t.integer "memberships_count", default: 0, null: false
@@ -202,6 +248,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_03_145919) do
     t.text "repo_url"
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.index ["deleted_at"], name: "index_projects_on_deleted_at"
   end
 
   create_table "rsvps", force: :cascade do |t|
@@ -334,6 +381,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_03_145919) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.boolean "banned", default: false, null: false
+    t.datetime "banned_at"
+    t.text "banned_reason"
     t.datetime "created_at", null: false
     t.string "display_name"
     t.string "email"

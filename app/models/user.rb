@@ -3,6 +3,9 @@
 # Table name: users
 #
 #  id                          :bigint           not null, primary key
+#  banned                      :boolean          default(FALSE), not null
+#  banned_at                   :datetime
+#  banned_reason               :text
 #  display_name                :string
 #  email                       :string
 #  first_name                  :string
@@ -158,5 +161,8 @@ class User < ApplicationRecord
   rescue StandardError => e
     Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")
     []
+  end
+  def avatar
+    "http://cachet.dunkirk.sh/users/#{slack_id}/r"
   end
 end

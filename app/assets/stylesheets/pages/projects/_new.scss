@@ -62,6 +62,24 @@
     padding-right: var(--space-xxl);
     gap: var(--space-m);
   }
+
+  &__time-preview {
+    background: var(--color-green-100);
+    border: 2px solid var(--color-green-300);
+    border-radius: var(--border-radius);
+    padding: var(--space-m) var(--space-l);
+    text-align: center;
+
+    p {
+      margin: 0;
+      font-size: var(--font-size-l);
+      color: var(--color-green-600);
+    }
+
+    strong {
+      color: var(--color-green-700);
+    }
+  }
 }
 
 @media (max-width: 768px) {
