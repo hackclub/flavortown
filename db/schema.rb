@@ -240,7 +240,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_144523) do
 
   create_table "projects", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.datetime "deleted_at"
     t.text "demo_url"
     t.text "description"
     t.integer "memberships_count", default: 0, null: false
@@ -248,7 +247,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_144523) do
     t.text "repo_url"
     t.string "title", null: false
     t.datetime "updated_at", null: false
-    t.index ["deleted_at"], name: "index_projects_on_deleted_at"
   end
 
   create_table "rsvps", force: :cascade do |t|
@@ -381,9 +379,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_144523) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.boolean "banned", default: false, null: false
-    t.datetime "banned_at"
-    t.text "banned_reason"
     t.datetime "created_at", null: false
     t.string "display_name"
     t.string "email"
