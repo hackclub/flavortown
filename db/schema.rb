@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_05_135728) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_05_144523) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,6 +21,46 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_135728) do
     t.integer "status", default: 0, null: false
     t.datetime "updated_at", null: false
     t.index ["message_id", "message_checksum"], name: "index_action_mailbox_inbound_emails_uniqueness", unique: true
+  end
+
+  create_table "active_insights_jobs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.float "db_runtime"
+    t.float "duration"
+    t.datetime "finished_at"
+    t.string "job"
+    t.string "queue"
+    t.float "queue_time"
+    t.datetime "scheduled_at"
+    t.datetime "started_at"
+    t.datetime "updated_at", null: false
+    t.string "uuid"
+    t.index ["started_at", "duration", "queue_time"], name: "idx_on_started_at_duration_queue_time_010695b74f"
+    t.index ["started_at", "duration"], name: "index_active_insights_jobs_on_started_at_and_duration"
+    t.index ["started_at"], name: "index_active_insights_jobs_on_started_at"
+  end
+
+  create_table "active_insights_requests", force: :cascade do |t|
+    t.string "action"
+    t.string "controller"
+    t.datetime "created_at", null: false
+    t.float "db_runtime"
+    t.float "duration"
+    t.datetime "finished_at"
+    t.string "format"
+    t.virtual "formatted_controller", type: :string, as: "(((controller)::text || '#'::text) || (action)::text)", stored: true
+    t.string "http_method"
+    t.string "ip_address"
+    t.text "path"
+    t.datetime "started_at"
+    t.integer "status"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.string "uuid"
+    t.float "view_runtime"
+    t.index ["started_at", "duration"], name: "index_active_insights_requests_on_started_at_and_duration"
+    t.index ["started_at", "formatted_controller"], name: "idx_on_started_at_formatted_controller_5d659a01d9"
+    t.index ["started_at"], name: "index_active_insights_requests_on_started_at"
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|

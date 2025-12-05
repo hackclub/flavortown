@@ -119,3 +119,4 @@ gem "pagy", "~> 43.1"
 gem "norairrecord"
 
 gem "awesome_print"
+gem "activeinsights"
