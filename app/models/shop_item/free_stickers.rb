@@ -53,7 +53,7 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::FreeStickers < ShopItem
-  QUEUE_ID = "flavortown-free-stickers"
+  QUEUE_ID = "flavortown-tutorial-stickers"
   def fulfill!(shop_order)
     response = TheseusService.create_letter_v1(
       QUEUE_ID,
