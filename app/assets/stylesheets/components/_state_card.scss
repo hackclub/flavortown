@@ -114,6 +114,14 @@
     font-size: var(--font-size-xl);
   }
 
+  &__hint {
+    margin-top: var(--space-s);
+    font-family: var(--font-family-text);
+    font-size: var(--font-size-s);
+    font-style: italic;
+    opacity: 0.8;
+  }
+
   &--danger {
     --colro: hsl(359, 66%, 69%);
     --state-card-accent: var(
@@ -131,6 +139,9 @@
     .state-card__icon {
       background: var(--color-red-500);
     } // main icon bg
+    .state-card__title {
+      color: hsl(356, 49%, 33%);
+    }
     .state-card__description {
       color: hsl(356, 49%, 33%);
     }
@@ -150,6 +161,9 @@
     .state-card__icon {
       background: var(--color-yellow-600);
     }
+    .state-card__title {
+      color: hsl(0, 37%, 27%);
+    }
     .state-card__description {
       color: hsl(0, 37%, 27%);
     }
@@ -168,6 +182,9 @@
     }
     .state-card__icon {
       background: var(--color-green-500);
+    }
+    .state-card__title {
+      color: hsl(131, 40%, 24%);
     }
     .state-card__description {
       color: hsl(131, 40%, 24%);

@@ -15,7 +15,8 @@
             text: "Order #{featured_item.name}",
             href: "/shop/order?shop_item_id=#{featured_item.id}",
             color: :brown,
-            variant: :borderless
+            variant: :borderless,
+            data: { turbo_frame: "_top"}
           ) %>
         </div>
         <% if featured_item.image.present? %>

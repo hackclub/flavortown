@@ -35,6 +35,7 @@ class IdentitiesController < ApplicationController
     identity.uid = uid
     identity.access_token = access_token if access_token.present?
     identity.save!
+    current_user.complete_tutorial_step! :setup_hackatime
 
     redirect_to kitchen_path, notice: "Hackatime linked!"
   rescue ActiveRecord::RecordInvalid => e

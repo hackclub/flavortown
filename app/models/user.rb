@@ -17,6 +17,7 @@
 #  projects_count              :integer
 #  region                      :string
 #  synced_at                   :datetime
+#  tutorial_steps_completed    :string           default([]), is an Array
 #  verification_status         :string           default("needs_submission"), not null
 #  votes_count                 :integer
 #  created_at                  :datetime         not null
@@ -48,6 +49,19 @@ class User < ApplicationRecord
   validates :slack_id, presence: true, uniqueness: true
 
   scope :with_roles, -> { includes(:role_assignments) }
+
+  # use me! i'm full of symbols!! disregard the foul tutorial_steps_completed, she lies
+  def tutorial_steps = tutorial_steps_completed&.map(&:to_sym) || []
+
+  def tutorial_step_completed?(slug) = tutorial_steps.include?(slug)
+
+  def complete_tutorial_step!(slug)
+    update!(tutorial_steps_completed: tutorial_steps + [ slug ]) unless tutorial_step_completed?(slug)
+  end
+
+  def revoke_tutorial_step!(slug)
+    update!(tutorial_steps_completed: tutorial_steps - [ slug ]) if tutorial_step_completed?(slug)
+  end
 
   class << self
     # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
