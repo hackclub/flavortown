@@ -124,10 +124,10 @@ class Admin::UsersController < Admin::ApplicationController
   def sync_hackatime
     authorize :admin, :manage_users?
     @user = User.find(params[:id])
-    slack_identity = @user.identities.find_by(provider: "slack")
+    hackatime_identity = @user.identities.find_by(provider: "hack_club")
 
-    if slack_identity
-      HackatimeService.sync_user_projects(@user, slack_identity.uid)
+    if hackatime_identity
+      HackatimeService.sync_user_projects(@user, hackatime_identity.uid)
       flash[:notice] = "Hackatime data synced for #{@user.display_name}."
     else
       flash[:alert] = "User does not have a Slack identity."

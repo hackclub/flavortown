@@ -62,7 +62,10 @@ class ProjectsController < ApplicationController
 
   def destroy
     authorize @project
-    @project.destroy
+    ActiveRecord::Base.transaction do
+      @project.posts.find_each(&:soft_delete)
+      @project.soft_delete
+    end
     flash[:notice] = "Project deleted successfully"
     redirect_to projects_path
   end

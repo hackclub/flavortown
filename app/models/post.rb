@@ -3,6 +3,7 @@
 # Table name: posts
 #
 #  id            :bigint           not null, primary key
+#  deleted_at    :datetime
 #  postable_type :string
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
@@ -12,6 +13,7 @@
 #
 # Indexes
 #
+#  index_posts_on_deleted_at  (deleted_at)
 #  index_posts_on_project_id  (project_id)
 #  index_posts_on_user_id     (user_id)
 #
@@ -21,6 +23,8 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Post < ApplicationRecord
+    include SoftDeletable
+
     belongs_to :project
     # optional because it can be a system post – achievements, milestones, well-done/magic happening, etc –
     # integeration – git remotes – or a user post

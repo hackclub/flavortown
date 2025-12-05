@@ -8,10 +8,11 @@ class Project::DevlogsController < ApplicationController
 
   def create
     @devlog = Post::Devlog.new(devlog_params)
+    load_preview_time
+    @devlog.duration_seconds = @preview_seconds
 
     if @devlog.save
       Post.create!(project: @project, user: current_user, postable: @devlog)
-      @devlog.recalculate_seconds_coded
       flash[:notice] = "Devlog created successfully"
       redirect_to @project
     else
@@ -34,20 +35,21 @@ class Project::DevlogsController < ApplicationController
     return @preview_time = nil unless @project.hackatime_keys.present?
     return @preview_time = nil unless current_user.slack_id.present?
 
-    project_keys = @project.hackatime_keys.join(",")
-    encoded_keys = URI.encode_www_form_component(project_keys)
-
-    # Get total time for these hackatime projects (no date filter for preview)
-    url = "https://hackatime.hackclub.com/api/v1/users/#{current_user.slack_id}/stats?" \
-          "filter_by_project=#{encoded_keys}&" \
-          "features=projects&total_seconds=true"
+    # Get all projects with their times since event start
+    url = "https://hackatime.hackclub.com/api/v1/users/#{current_user.slack_id}/stats?features=projects&start_date=2025-11-05"
 
     headers = { "RACK_ATTACK_BYPASS" => ENV["HACKATIME_BYPASS_KEYS"] }.compact
     response = Faraday.get(url, nil, headers)
 
     if response.success?
       data = JSON.parse(response.body)
-      total_seconds = data.dig("total_seconds").to_i
+      projects = data.dig("data", "projects") || []
+
+      # Sum up total_seconds for matching hackatime project keys
+      hackatime_keys = @project.hackatime_keys
+      total_seconds = projects
+        .select { |p| hackatime_keys.include?(p["name"]) }
+        .sum { |p| p["total_seconds"].to_i }
 
       # Subtract time already logged in previous devlogs
       already_logged = Post::Devlog.where(

@@ -87,36 +87,34 @@ class Post::Devlog < ApplicationRecord
   def fetch_and_update_duration(user, project, prev_time)
     return false unless user.slack_id.present?
 
-    project_keys = project.hackatime_keys.join(",")
-    encoded_project_keys = URI.encode_www_form_component(project_keys)
+    hackatime_keys = project.hackatime_keys
     end_time = posts.first.created_at.utc
 
-    # For first devlog (no prev_time), get total time without date filter
-    # Then subtract any already-logged time from other devlogs
+    # Build URL - first devlog gets all time since event start, subsequent get time since last devlog
+    base_url = "https://hackatime.hackclub.com/api/v1/users/#{user.slack_id}/stats?features=projects"
     url = if prev_time.nil?
-            "https://hackatime.hackclub.com/api/v1/users/#{user.slack_id}/stats?" \
-            "filter_by_project=#{encoded_project_keys}&" \
-            "features=projects&total_seconds=true"
-          else
-            "https://hackatime.hackclub.com/api/v1/users/#{user.slack_id}/stats?" \
-            "filter_by_project=#{encoded_project_keys}&" \
-            "start_date=#{prev_time.iso8601}&" \
-            "end_date=#{end_time.iso8601}&" \
-            "features=projects&total_seconds=true"
-          end
+            "#{base_url}&start_date=2025-11-05"
+    else
+            "#{base_url}&start_date=#{prev_time.iso8601}&end_date=#{end_time.iso8601}"
+    end
 
     headers = { "RACK_ATTACK_BYPASS" => ENV["HACKATIME_BYPASS_KEYS"] }.compact
     response = Faraday.get(url, nil, headers)
 
     if response.success?
       data = JSON.parse(response.body)
-      seconds = data.dig("total_seconds")
+      projects_data = data.dig("data", "projects") || []
+
+      # Sum up total_seconds for matching hackatime project keys
+      seconds = projects_data
+        .select { |p| hackatime_keys.include?(p["name"]) }
+        .sum { |p| p["total_seconds"].to_i }
 
       Rails.logger.info "\tDevlog #{id} duration_seconds: #{seconds}"
       update!(
         duration_seconds: seconds,
         hackatime_pulled_at: Time.current,
-        hackatime_projects_key_snapshot: project.hackatime_keys.join(",")
+        hackatime_projects_key_snapshot: hackatime_keys.join(",")
       )
       true
     else
