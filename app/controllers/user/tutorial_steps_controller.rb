@@ -1,11 +1,6 @@
 class User::TutorialStepsController < ApplicationController
   before_action :set_tutorial_step, only: [ :show ]
 
-  def index
-    @tutorial_steps = User::TutorialStep.all
-    @completed_steps = current_user.tutorial_steps
-  end
-
   def show
     redirect_to @tutorial_step.link
   end

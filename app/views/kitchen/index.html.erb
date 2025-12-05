@@ -2,47 +2,10 @@
   <%= render HeadingComponent.new(title: "Kitchen", tone: :blue) %>
 
   <div class="kitchen-setup">
-    <div class="kitchen-setup__header">
-      <div class="kitchen-setup__title">Setup</div>
-      <div class="kitchen-setup__subtitle">Before you can cook, you must complete these steps first.</div>
-    </div>
-
-    <div class="kitchen-setup__grid">
-      <% id_ui = id_verification_ui_for(current_user) %>
-      <% id_variant = id_ui[:variant] %>
-      <% id_badge = id_ui[:badge] %>
-      <% id_cta = current_user&.verification_status == "needs_submission" ? { cta_text: "Get verified", cta_href: "https://hca.dinosaurbbq.org/verifications/document" } : {} %>
-      <%= render StateCardComponent.new(
-        title: "Identity Verification",
-        description: "Verify that you are 18 years old or under.",
-        variant: id_variant,
-        badge_text: id_badge,
-        icon: "user",
-        **id_cta
-      ) %>
-
-      <% hack_variant = @has_hackatime_linked ? :success : :danger %>
-      <% hack_badge = @has_hackatime_linked ? "Connected" : "Not Connected" %>
-      <% hack_cta = @has_hackatime_linked ? {} : { cta_text: "Link Hackatime", cta_href: '/auth/hackatime', cta_method: :post } %>
-      <%= render StateCardComponent.new(
-        title: "Connect Hackatime",
-        description: "Setup and connect your hackatime account.",
-        variant: hack_variant,
-        badge_text: hack_badge,
-        icon: "time",
-        **hack_cta
-      ) %>
-    </div>
+    <%= render KitchenTutorialStepsComponent.new(
+      tutorial_steps: @tutorial_steps,
+      completed_steps: @completed_steps,
+      current_user: current_user
+    ) %>
   </div>
-
-  <% unless @has_identity_linked %>
-      <%= form_tag "/auth/idv", method: :post, data: {turbo: false} do %>
-        <button class="btn btn--red btn--striped">
-          <div>
-            <%= image_tag image_url("mask/enter.avif"), width: 20, height: 20 %>
-            Sign in!
-          </div>
-        </button>
-      <% end %>
-  <% end %>
 </div>

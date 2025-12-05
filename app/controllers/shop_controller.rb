@@ -63,6 +63,7 @@ class ShopController < ApplicationController
 
     if @order.save
         @order.mark_stickers_received if @shop_item.is_a?(ShopItem::FreeStickers)
+        current_user.complete_tutorial_step! :free_stickers
         redirect_to shop_my_orders_path, notice: "Order placed successfully!"
     else
         redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{@order.errors.full_messages.join(', ')}"

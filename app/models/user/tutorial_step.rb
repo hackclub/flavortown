@@ -1,10 +1,11 @@
 class User
-  TutorialStep = Data.define(:slug, :name, :description, :icon, :link, :deps) do
+  TutorialStep = Data.define(:slug, :name, :description, :icon, :link, :deps, :verb) do
     include ActiveModel::Conversion
     extend ActiveModel::Naming
 
     def initialize(params = {})
       params[:deps] ||= nil
+      params[:verb] ||= :get
       super(**params)
     end
 
@@ -16,7 +17,25 @@ class User
 
     ALL = [
       new(:first_login, "First login", "log into the platform for the first time!", "user", "/"),
-      new(:create_project, "Create your first project", "what are you cooking?", "fork_spoon_fill", ->(_) { new_project_path }),
+      new(slug: :identity_verified,
+          name: "Confirm your age",
+          description: "you must be under this tall to ride!",
+          icon: "user",
+          link: "https://auth.hackclub.com/verifications/new"),
+      new(slug: :setup_hackatime,
+          name: "Setup hackatime",
+          description: "Start tracking your time",
+          icon: "time",
+          link: "/auth/hackatime",
+          verb: :post),
+      new(slug: :create_project,
+          name: "Create your first project",
+          description: "what are you cooking?",
+          icon: "fork_spoon_fill",
+          link: ->(_) { new_project_path },
+          deps: [
+            Dep[:setup_hackatime, "you need to setup hackatime first!"]
+          ]),
       new(slug: :post_devlog,
           name: "Post a devlog",
           description: "dev your log!",
@@ -24,6 +43,15 @@ class User
           link: ->(_) { new_project_devlog_path(current_user.projects.first) },
           deps: [
             Dep[:create_project, "you need to create a project first!"]
+          ]),
+      new(slug: :free_stickers,
+          name: "Get your stickers!",
+          description: "get your stickers!",
+          icon: "trash-bin",
+          link: ->(_) { shop_order_path(shop_item_id: ShopItem::FreeStickers.first.id) },
+          deps: [
+            Dep[:post_devlog, "you need to dev on your log first!"],
+            Dep[:identity_verified, "you need to verify your identity!"]
           ])
     ].freeze
 

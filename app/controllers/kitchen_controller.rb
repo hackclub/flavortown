@@ -12,6 +12,10 @@ class KitchenController < ApplicationController
 
     @has_hackatime_linked = current_user.has_hackatime?
     @has_identity_linked = current_user.identity_verified?
+
+    @tutorial_steps = User::TutorialStep.all
+    @completed_steps = current_user.tutorial_steps
+    @tutorial_is_complete = @tutorial_steps - @completed_steps
   end
 
   private
@@ -34,6 +38,8 @@ class KitchenController < ApplicationController
     latest_status = identity_payload["verification_status"].to_s
     return unless User::VALID_VERIFICATION_STATUSES.include?(latest_status)
     return if current_user.verification_status.to_s == latest_status
+
+    current_user.complete_tutorial_step!(:identity_verified) if latest_status == "verified"
 
     current_user.update!(verification_status: latest_status)
   rescue StandardError => e
