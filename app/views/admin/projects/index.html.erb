@@ -36,18 +36,10 @@
   <p>No projects found.</p>
 <% end %>
 
-<div class="pagination">
-  <% if @page > 1 %>
-    <%= link_to "Previous", admin_projects_path(page: @page - 1, query: params[:query]) %>
-  <% end %>
-
-  <% (1..@total_pages).each do |p| %>
-    <%= link_to p, admin_projects_path(page: p, query: params[:query]) %>
-  <% end %>
-
-  <% if @page < @total_pages %>
-    <%= link_to "Next", admin_projects_path(page: @page + 1, query: params[:query]) %>
-  <% end %>
-</div>
+<% if @pagy.pages > 1 %>
+  <div class="pagination">
+    <%== @pagy.nav %>
+  </div>
+<% end %>
 
 <%= link_to "Go back", "/admin", class: "btn-primary" %>
