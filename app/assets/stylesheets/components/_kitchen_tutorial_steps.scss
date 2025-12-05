@@ -26,7 +26,11 @@
 
   &__progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--color-green-400) 0%, var(--color-green-300) 100%);
+    background: linear-gradient(
+      90deg,
+      var(--color-green-400) 0%,
+      var(--color-green-300) 100%
+    );
     transition: width 0.3s ease;
     border-radius: 999px;
   }
@@ -69,7 +73,7 @@
   }
 
   &[data-tooltip]:hover::before {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 120%;
     left: 50%;
