@@ -6,11 +6,14 @@ class ShopController < ApplicationController
       { label: config[:name], value: code }
     end
 
-    @featured_item = ShopItem.where(type: "ShopItem::FreeStickers")
-                             .includes(:image_attachment)
-                             .select { |item| item.enabled_in_region?(@user_region) }
-                             .first
+    @featured_item = unless user_ordered_free_stickers?
+      ShopItem.where(type: "ShopItem::FreeStickers")
+              .includes(:image_attachment)
+              .select { |item| item.enabled_in_region?(@user_region) }
+              .first
+    end
     @shop_items = ShopItem.all.includes(:image_attachment)
+    @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if user_ordered_free_stickers?
     @user_balance = current_user.balance
   end
 
@@ -39,11 +42,14 @@ class ShopController < ApplicationController
 
       @user_region = region
       @shop_items = ShopItem.all.includes(:image_attachment)
+      @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if user_ordered_free_stickers?
       @user_balance = current_user.balance
-      @featured_item = ShopItem.where(type: "ShopItem::FreeStickers")
-                               .includes(:image_attachment)
-                               .select { |item| item.enabled_in_region?(@user_region) }
-                               .first
+      @featured_item = unless user_ordered_free_stickers?
+        ShopItem.where(type: "ShopItem::FreeStickers")
+                .includes(:image_attachment)
+                .select { |item| item.enabled_in_region?(@user_region) }
+                .first
+      end
 
       respond_to do |format|
         format.turbo_stream
@@ -101,5 +107,12 @@ class ShopController < ApplicationController
     primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
     country = primary_address&.dig("country")
     Shop::Regionalizable.country_to_region(country)
+  end
+
+  def user_ordered_free_stickers?
+    @user_ordered_free_stickers ||= current_user.shop_orders
+      .joins(:shop_item)
+      .where(shop_items: { type: "ShopItem::FreeStickers" })
+      .exists?
   end
 end

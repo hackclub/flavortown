@@ -24,7 +24,9 @@
         color: :brown
       ) %>
     </div>
-    <%= render partial: "shop/banner", locals: { featured_item: @featured_item, user_region: @user_region } %>
+    <% if @featured_item %>
+        <%= render partial: "shop/banner", locals: { featured_item: @featured_item, user_region: @user_region } %>
+    <% end %>
     <div class="shop__nav">
       <div class="shop__searchbar">
         <%= form_with url: shop_path, method: :get, local: true do |f| %>
