@@ -2,10 +2,6 @@
   <div class="balance-history">
     <h1>My Balance: 🍪 <%= current_user.balance %></h1>
     <p></p>
-<%= turbo_frame_tag "balance_history" do %>
-  <div class="balance-history">
-    <h1>My Balance: 🍪 <%= current_user.balance %></h1>
-    <p></p>
 
     <% if @balance.any? %>
       <table class="balance-history__table">
