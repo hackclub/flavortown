@@ -74,7 +74,9 @@ export default class extends Controller {
     const rocketSvg = await this.loadSvgAsInline(projectIconPath, 24);
     const closeSvg = await this.loadSvgAsInline(closeIconPath, 20);
 
-    const projectTimes = this.hasProjectTimesValue ? this.projectTimesValue : {};
+    const projectTimes = this.hasProjectTimesValue
+      ? this.projectTimesValue
+      : {};
     const totalSeconds = projectTimes[projectName] || 0;
     const timeDisplay = this.formatTime(totalSeconds);
 

@@ -24,8 +24,8 @@ class CreateActiveInsightsTables < ActiveRecord::Migration[7.1]
       end
 
       t.index :started_at
-      t.index %i(started_at duration)
-      t.index %i(started_at formatted_controller)
+      t.index %i[started_at duration]
+      t.index %i[started_at formatted_controller]
 
       t.timestamps
     end
@@ -42,8 +42,8 @@ class CreateActiveInsightsTables < ActiveRecord::Migration[7.1]
       t.float :queue_time
 
       t.index :started_at
-      t.index %i(started_at duration)
-      t.index %i(started_at duration queue_time)
+      t.index %i[started_at duration]
+      t.index %i[started_at duration queue_time]
 
       t.timestamps
     end
