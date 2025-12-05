@@ -15,7 +15,17 @@ class ShopController < ApplicationController
   end
 
   def my_orders
-    @orders = current_user.shop_orders.includes(shop_item: { image_attachment: :blob })
+    @orders = current_user.shop_orders.includes(shop_item: { image_attachment: :blob }).order(id: :desc)
+  end
+
+  def cancel_order
+    result = current_user.cancel_shop_order(params[:order_id])
+
+    if result[:success]
+      redirect_to shop_my_orders_path, notice: "Order cancelled successfully!"
+    else
+      redirect_to shop_my_orders_path, alert: "Failed to cancel order: #{result[:error]}"
+    end
   end
 
   def order
@@ -26,7 +36,19 @@ class ShopController < ApplicationController
     region = params[:region]&.upcase
     if Shop::Regionalizable::REGION_CODES.include?(region)
       current_user.update!(region: region)
-      head :ok
+
+      @user_region = region
+      @shop_items = ShopItem.all.includes(:image_attachment)
+      @user_balance = current_user.balance
+      @featured_item = ShopItem.where(type: "ShopItem::FreeStickers")
+                               .includes(:image_attachment)
+                               .select { |item| item.enabled_in_region?(@user_region) }
+                               .first
+
+      respond_to do |format|
+        format.turbo_stream
+        format.html { head :ok }
+      end
     else
       head :unprocessable_entity
     end
@@ -47,10 +69,11 @@ class ShopController < ApplicationController
     # 2. Check balance/charge user
     # 3. Handle different item types
 
+    selected_address = current_user.addresses.find { |a| a["id"] == params[:address_id] } || current_user.addresses.first
     @order = current_user.shop_orders.new(
       shop_item: @shop_item,
       quantity: quantity,
-      frozen_address: current_user.address
+      frozen_address: selected_address
     )
 
     # Set initial state if using AASM
@@ -75,7 +98,8 @@ class ShopController < ApplicationController
   def user_region
     return current_user.region if current_user.region.present?
 
-    country = current_user.address&.dig("country") || current_user.address&.dig(:country)
+    primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
+    country = primary_address&.dig("country")
     Shop::Regionalizable.country_to_region(country)
   end
 end

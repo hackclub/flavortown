@@ -13,6 +13,7 @@
 #  magic_link_token_expires_at               :datetime
 #  projects_count                            :integer
 #  region                                    :string
+#  synced_at                                 :datetime
 #  tutorial_steps_completed                  :string           default([]), is an Array
 #  verification_status                       :string           default("needs_submission"), not null
 #  votes_count                               :integer
@@ -131,17 +132,33 @@ class User < ApplicationRecord
     ledger_entries.sum(:amount)
   end
 
-  def address
-    # TODO: add on HCA address imports
-    {
-      name: display_name,
-      street1: "15 Falls Rd",
-      street2: nil,
-      city: "Shelburne",
-      state: "VT",
-      zip: "05482",
-      country: "US",
-      email: email
-        }
+  def cancel_shop_order(order_id)
+    order = shop_orders.find(order_id)
+    return { success: false, error: "Your order can not be canceled" } unless order.pending?
+
+    order.refund!
+    { success: true, order: order }
+  rescue ActiveRecord::RecordNotFound
+    { success: false, error: "wuh" }
+  end
+
+  def addresses
+    identity = identities.find_by(provider: "hack_club")
+    return [] unless identity&.access_token.present?
+
+    conn = Faraday.new(url: Rails.application.config.identity)
+    response = conn.get("/api/v1/me") do |req|
+      req.headers["Authorization"] = "Bearer #{identity.access_token}"
+      req.headers["Accept"] = "application/json"
+    end
+
+    return [] unless response.success?
+
+    body = JSON.parse(response.body)
+    identity_payload = body["identity"] || {}
+    identity_payload["addresses"] || []
+  rescue StandardError => e
+    Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")
+    []
   end
 end

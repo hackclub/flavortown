@@ -16,15 +16,15 @@ class ProjectPolicy < ApplicationPolicy
     end
 
     def edit?
-        owns? || user.admin?
+        owns? || user&.admin?
     end
 
     def update?
-        owns? || user.admin?
+        owns? || user&.admin?
     end
 
     def destroy?
-        owns? || user.admin?
+        owns? || user&.admin?
     end
 
     private

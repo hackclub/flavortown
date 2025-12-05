@@ -184,7 +184,7 @@ class ShopOrder < ApplicationRecord
     event :refund do
       transitions from: %i[pending awaiting_periodical_fulfillment fulfilled], to: :refunded
       after do
-        create_refund_payout unless refund_payout_exists?
+        create_refund_payout
       end
     end
   end
@@ -275,17 +275,11 @@ class ShopOrder < ApplicationRecord
 
   def create_refund_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
-    return if refund_payout_exists?
-    return unless user.respond_to?(:payouts)
 
-    user.payouts.create!(
+    ledger_entries.create!(
       amount: total_cost,
-      payable: self,
-      reason: "Refund for rejected order of #{shop_item.name.pluralize(quantity)}"
+      reason: "Refund for rejected order of #{shop_item.name.pluralize(quantity)}",
+      created_by: user
     )
-  end
-
-  def refund_payout_exists?
-    payouts.where("amount > 0 AND reason LIKE ?", "Refund%").exists?
   end
 end

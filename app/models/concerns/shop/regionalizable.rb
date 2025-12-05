@@ -34,29 +34,31 @@ module Shop
       end
     end
 
+    def any_region_enabled?
+      REGION_CODES.any? { |code| send("enabled_#{code.downcase}") }
+    end
+
     def enabled_in_region?(region_code)
       return false unless REGION_CODES.include?(region_code.upcase)
-      send("enabled_#{region_code.downcase}")
+
+      return true unless any_region_enabled?
+
+      # If enabled for this specific region, return true
+      return true if send("enabled_#{region_code.downcase}")
+
+      # If enabled for XX (Rest of World), item is available everywhere
+      enabled_xx
     end
 
     def price_for_region(region_code)
-      # bro actually sold the bag
-      region_code = "XX" unless REGION_CODES.include?(region_code.upcase)
+      region_code = region_code.upcase
+      region_code = "XX" unless REGION_CODES.include?(region_code)
 
-      base_price = nil
-      # If item is enabled for this region, use regional pricing
-      if enabled_in_region?(region_code)
-        offset = send("price_offset_#{region_code.downcase}") || 0
-        base_price = ticket_cost + offset
-      # If item is not enabled for this region but is enabled for XX, use XX pricing
-      elsif enabled_in_region?("XX")
-        offset = send("price_offset_xx") || 0
-        base_price = ticket_cost + offset
-      else
-        # Fallback to base price (though this shouldn't happen in practice)
-        base_price = ticket_cost
-      end
+      # Get region-specific offset, falling back to XX offset if not set
+      region_offset = send("price_offset_#{region_code.downcase}")
+      offset = region_offset.present? ? region_offset : (send("price_offset_xx") || 0)
 
+      base_price = ticket_cost + offset
       apply_sale_discount(base_price)
     end
 

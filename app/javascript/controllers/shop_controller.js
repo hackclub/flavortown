@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["sortBtn", "items", "banner", "bannerPrice"];
+  static targets = ["sortBtn", "items"];
   static values = { userRegion: { type: String, default: "US" } };
 
   connect() {
@@ -37,7 +37,6 @@ export default class extends Controller {
       } else if (filterType === "Region") {
         this.regionFilter = value;
         this.saveRegion(value);
-        this.updateBanner(value);
       }
 
       this.applyFiltersAndSort();
@@ -160,25 +159,17 @@ export default class extends Controller {
       method: "PATCH",
       headers: {
         "X-CSRF-Token": csrfToken,
+        Accept: "text/vnd.turbo-stream.html",
       },
       body: formData,
-    });
-  }
-
-  updateBanner(region) {
-    if (!this.hasBannerTarget) return;
-
-    const banner = this.bannerTarget;
-    const enabledRegions = (banner.dataset.enabledRegions || "").split(",");
-    const regionalPrices = JSON.parse(banner.dataset.regionalPrices || "{}");
-
-    if (enabledRegions.includes(region) && regionalPrices[region]) {
-      banner.style.display = "";
-      if (this.hasBannerPriceTarget) {
-        this.bannerPriceTarget.textContent = `🍪${regionalPrices[region]}`;
-      }
-    } else {
-      banner.style.display = "none";
-    }
+    })
+      .then((response) => response.text())
+      .then((html) => {
+        Turbo.renderStreamMessage(html);
+        // Wait for Turbo to finish updating the DOM
+        requestAnimationFrame(() => {
+          this.applyFiltersAndSort();
+        });
+      });
   }
 }

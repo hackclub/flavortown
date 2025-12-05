@@ -52,8 +52,8 @@ class Admin::UsersController < Admin::ApplicationController
       @user = User.find(params[:id])
       role_name = params[:role_name]
 
-      if role_name == "super_admin" && !current_user.super_admin?
-        flash[:alert] = "Only super admins can promote to super admin."
+      if role_name == "admin" && !current_user.super_admin?
+        flash[:alert] = "Only super admins can promote to admin."
         return redirect_to admin_user_path(@user)
       end
 
@@ -162,6 +162,48 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     flash[:notice] = "Rejected #{count} order(s) for #{@user.display_name}."
+    redirect_to admin_user_path(@user)
+  end
+
+  def adjust_balance
+    authorize :admin, :manage_users?
+    @user = User.find(params[:id])
+
+    amount = params[:amount].to_i
+    reason = params[:reason].presence
+
+    if amount.zero?
+      flash[:alert] = "Amount cannot be zero."
+      return redirect_to admin_user_path(@user)
+    end
+
+    if reason.blank?
+      flash[:alert] = "Reason is required."
+      return redirect_to admin_user_path(@user)
+    end
+
+    old_balance = @user.balance
+
+    ledger_entry = @user.ledger_entries.create!(
+      amount: amount,
+      reason: reason,
+      created_by: current_user
+    )
+
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: @user.id,
+      event: "balance_adjustment",
+      whodunnit: current_user.id,
+      object_changes: {
+        balance: [ old_balance, @user.balance ],
+        amount: [ amount ],
+        reason: [ reason ],
+        ledger_entry_id: [ nil, ledger_entry.id ]
+      }.to_yaml
+    )
+
+    flash[:notice] = "Balance adjusted by #{amount} for #{@user.display_name}."
     redirect_to admin_user_path(@user)
   end
 end

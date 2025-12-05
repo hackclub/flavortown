@@ -1,0 +1,7 @@
+<dialog id="<%= id %>" class="modal">
+  <h3 class="modal__title"><%= title %></h3>
+  <% if local_assigns[:description] %>
+    <p class="modal__description"><%= description %></p>
+  <% end %>
+  <%= yield %>
+</dialog>

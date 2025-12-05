@@ -59,6 +59,13 @@
     padding: 1em;
   }
 
+  &__project-details {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    align-items: flex-start;
+  }
+
   &__project-banner-image {
     width: 50px;
     height: 50px;
@@ -192,6 +199,14 @@
       font-size: 2rem;
       margin-bottom: 1.5rem;
       text-align: center;
+
+      @media (max-width: 1400px) {
+        text-align: left;
+      }
+
+      @media (max-width: 1200px) {
+        text-align: center;
+      }
     }
 
     .btn-submit {
@@ -232,7 +247,7 @@
     }
   }
 
-  @media (max-width: 1400px) {
+  @media (max-width: 1200px) {
     &__main {
       flex-direction: column;
     }

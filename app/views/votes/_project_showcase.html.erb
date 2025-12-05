@@ -1,19 +1,23 @@
 <div class="votes-new__project">
   <div class="votes-new__project-card">
-    <%= image_tag project.banner, alt: "#{project.title} banner", class: "votes-new__project-banner-image" %>
-    <div class="votes-new__project-card-content">
-        <h1><%= project.title %></h1>
-        <p><%= truncate(project.description, length: 250) %></p>
-        <div class="votes-new__project-card-stats">
-            <div class="votes-new__project-card-stat">
-                <%= inline_svg_tag "icons/paper.svg" %>
-                <span><%= project.devlogs.count %> devlogs</span>
-            </div>
-            <div class="votes-new__project-card-stat">
-                <%= inline_svg_tag "icons/time.svg" %>
-                <span><%= "#{project.time.hours}hr #{project.time.minutes}min" %></span>
-            </div>
-        </div>
+    <div class="votes-new__project-details">
+      <% if project.banner.attached? %>
+        <%= image_tag project.banner, alt: "#{project.title} banner", class: "votes-new__project-banner-image" %>
+      <% end %>
+      <div class="votes-new__project-card-content">
+          <h1><%= project.title %></h1>
+          <p><%= truncate(project.description, length: 250) %></p>
+          <div class="votes-new__project-card-stats">
+              <div class="votes-new__project-card-stat">
+                  <%= inline_svg_tag "icons/paper.svg" %>
+                  <span><%= project.devlogs.count %> devlogs</span>
+              </div>
+              <div class="votes-new__project-card-stat">
+                  <%= inline_svg_tag "icons/time.svg" %>
+                  <span><%= "#{project.time.hours}hr #{project.time.minutes}min" %></span>
+              </div>
+          </div>
+      </div>
     </div>
     <div class="votes-new__project-buttons">
         <%= render ButtonComponent.new(
