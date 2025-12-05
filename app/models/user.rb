@@ -64,7 +64,7 @@ class User < ApplicationRecord
     # if user has tutorial step finished, skip
     return unless tutorial_step_completed?(:identity_verified)
     # if user has verified, skip
-    return unless verifi
+    nil unless verifi
   end
 
   class << self
