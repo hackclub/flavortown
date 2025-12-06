@@ -2,33 +2,31 @@
 #
 # Table name: users
 #
-#  id                                        :bigint           not null, primary key
-#  display_name                              :string
-#  email                                     :string
-#  hack_club_account_access_token_bidx       :string
-#  hack_club_account_access_token_ciphertext :text
-#  has_gotten_free_stickers                  :boolean          default(FALSE)
-#  has_roles                                 :boolean          default(TRUE), not null
-#  magic_link_token                          :string
-#  magic_link_token_expires_at               :datetime
-#  projects_count                            :integer
-#  region                                    :string
-#  synced_at                                 :datetime
-#  tutorial_steps_completed                  :string           default([]), is an Array
-#  verification_status                       :string           default("needs_submission"), not null
-#  votes_count                               :integer
-#  ysws_verified                             :boolean
-#  created_at                                :datetime         not null
-#  updated_at                                :datetime         not null
-#  hack_club_account_id                      :string
-#  slack_id                                  :string
+#  id                          :bigint           not null, primary key
+#  display_name                :string
+#  email                       :string
+#  first_name                  :string
+#  has_gotten_free_stickers    :boolean          default(FALSE)
+#  has_roles                   :boolean          default(TRUE), not null
+#  last_name                   :string
+#  magic_link_token            :string
+#  magic_link_token_expires_at :datetime
+#  projects_count              :integer
+#  region                      :string
+#  synced_at                   :datetime
+#  tutorial_steps_completed    :string           default([]), is an Array
+#  verification_status         :string           default("needs_submission"), not null
+#  votes_count                 :integer
+#  created_at                  :datetime         not null
+#  updated_at                  :datetime         not null
+#  slack_id                    :string
 #
 # Indexes
 #
-#  index_users_on_hack_club_account_access_token_bidx  (hack_club_account_access_token_bidx)
-#  index_users_on_hack_club_account_id                 (hack_club_account_id) UNIQUE
-#  index_users_on_magic_link_token                     (magic_link_token) UNIQUE
-#  index_users_on_region                               (region)
+#  index_users_on_email             (email)
+#  index_users_on_magic_link_token  (magic_link_token) UNIQUE
+#  index_users_on_region            (region)
+#  index_users_on_slack_id          (slack_id) UNIQUE
 #
 class User < ApplicationRecord
   has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
@@ -60,6 +58,13 @@ class User < ApplicationRecord
 
   def revoke_tutorial_step!(slug)
     update!(tutorial_steps_completed: tutorial_steps - [ slug ]) if tutorial_step_completed?(slug)
+  end
+
+  def attempt_to_refresh_verification_status
+    # if user has tutorial step finished, skip
+    return unless tutorial_step_completed?(:identity_verified)
+    # if user has verified, skip
+    nil unless verifi
   end
 
   class << self
@@ -146,19 +151,10 @@ class User < ApplicationRecord
     identity = identities.find_by(provider: "hack_club")
     return [] unless identity&.access_token.present?
 
-    conn = Faraday.new(url: Rails.application.config.identity)
-    response = conn.get("/api/v1/me") do |req|
-      req.headers["Authorization"] = "Bearer #{identity.access_token}"
-      req.headers["Accept"] = "application/json"
-    end
-
-    return [] unless response.success?
-
-    body = JSON.parse(response.body)
-    identity_payload = body["identity"] || {}
+    identity_payload = HCAService.identity(identity.access_token)
     identity_payload["addresses"] || []
-  rescue StandardError => e
-    Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")
-    []
+  end
+  def avatar
+    "http://cachet.dunkirk.sh/users/#{slack_id}/r"
   end
 end

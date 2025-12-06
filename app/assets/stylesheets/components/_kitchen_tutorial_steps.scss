@@ -1,22 +1,60 @@
 .tutorial-steps {
+  position: relative;
+  z-index: 1;
+
   &__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
     margin-bottom: var(--space-xl);
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
   }
 
-  &__progress {
-    margin-bottom: var(--space-l);
+  &__toggle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    transform: rotate(-90deg);
+
+    svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--color-brown-500);
+    }
   }
 
-  &__progress-text {
-    display: block;
-    margin-bottom: var(--space-s);
+  &[open] > &__header &__toggle-icon {
+    transform: rotate(0deg);
+  }
+
+  &__title {
     font-family: var(--font-family-jua);
     font-size: var(--font-size-l);
     color: var(--color-brown-500);
   }
 
+  &__progress {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+    flex: 1;
+  }
+
+  &__progress-text {
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-l);
+    color: var(--color-brown-500);
+    white-space: nowrap;
+  }
+
   &__progress-bar {
-    width: 100%;
+    flex: 1;
     height: 12px;
     background: var(--color-tan-300);
     border: 3px solid var(--color-brown-400);
@@ -26,7 +64,11 @@
 
   &__progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--color-green-400) 0%, var(--color-green-300) 100%);
+    background: linear-gradient(
+      90deg,
+      var(--color-green-400) 0%,
+      var(--color-green-300) 100%
+    );
     transition: width 0.3s ease;
     border-radius: 999px;
   }
@@ -69,7 +111,7 @@
   }
 
   &[data-tooltip]:hover::before {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 120%;
     left: 50%;

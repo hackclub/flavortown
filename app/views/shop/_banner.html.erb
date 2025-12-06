@@ -9,13 +9,16 @@
         <div class="shop__banner-item-desc">
           <h4><%= featured_item.name %></h4>
           <h5><%= featured_item.description %></h5>
-          <h6>~<%= featured_item.hours_estimated %> hours</h6>
+          <% if featured_item.hours_estimated > 0 %>
+              <h6>~<%= featured_item.hours_estimated %> hours</h6>
+          <% end %>
 
           <%= render ButtonComponent.new(
             text: "Order #{featured_item.name}",
             href: "/shop/order?shop_item_id=#{featured_item.id}",
             color: :brown,
-            variant: :borderless
+            variant: :borderless,
+            data: { turbo_frame: "_top"}
           ) %>
         </div>
         <% if featured_item.image.present? %>

@@ -1,6 +1,4 @@
 class Admin::UsersController < Admin::ApplicationController
-    PER_PAGE = 25
-
     def index
       @query = params[:query]
 
@@ -10,12 +8,7 @@ class Admin::UsersController < Admin::ApplicationController
         users = users.where("email ILIKE ? OR display_name ILIKE ?", q, q)
       end
 
-      # Pagination logic
-      @page = params[:page].to_i
-      @page = 1 if @page < 1
-      @total_users = users.size
-      @total_pages = (@total_users / PER_PAGE.to_f).ceil
-      @users = users.order(:id).offset((@page - 1) * PER_PAGE).limit(PER_PAGE)
+      @pagy, @users = pagy(:offset, users.order(:id))
     end
 
     def show
@@ -124,10 +117,10 @@ class Admin::UsersController < Admin::ApplicationController
   def sync_hackatime
     authorize :admin, :manage_users?
     @user = User.find(params[:id])
-    slack_identity = @user.identities.find_by(provider: "slack")
+    hackatime_identity = @user.identities.find_by(provider: "hack_club")
 
-    if slack_identity
-      HackatimeService.sync_user_projects(@user, slack_identity.uid)
+    if hackatime_identity
+      HackatimeService.sync_user_projects(@user, hackatime_identity.uid)
       flash[:notice] = "Hackatime data synced for #{@user.display_name}."
     else
       flash[:alert] = "User does not have a Slack identity."

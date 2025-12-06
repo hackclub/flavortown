@@ -6,11 +6,14 @@ class ShopController < ApplicationController
       { label: config[:name], value: code }
     end
 
-    @featured_item = ShopItem.where(type: "ShopItem::FreeStickers")
-                             .includes(:image_attachment)
-                             .select { |item| item.enabled_in_region?(@user_region) }
-                             .first
+    @featured_item = unless user_ordered_free_stickers?
+      ShopItem.where(type: "ShopItem::FreeStickers")
+              .includes(:image_attachment)
+              .select { |item| item.enabled_in_region?(@user_region) }
+              .first
+    end
     @shop_items = ShopItem.all.includes(:image_attachment)
+    @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if user_ordered_free_stickers?
     @user_balance = current_user.balance
   end
 
@@ -39,11 +42,14 @@ class ShopController < ApplicationController
 
       @user_region = region
       @shop_items = ShopItem.all.includes(:image_attachment)
+      @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if user_ordered_free_stickers?
       @user_balance = current_user.balance
-      @featured_item = ShopItem.where(type: "ShopItem::FreeStickers")
-                               .includes(:image_attachment)
-                               .select { |item| item.enabled_in_region?(@user_region) }
-                               .first
+      @featured_item = unless user_ordered_free_stickers?
+        ShopItem.where(type: "ShopItem::FreeStickers")
+                .includes(:image_attachment)
+                .select { |item| item.enabled_in_region?(@user_region) }
+                .first
+      end
 
       respond_to do |format|
         format.turbo_stream
@@ -76,20 +82,23 @@ class ShopController < ApplicationController
       frozen_address: selected_address
     )
 
-    # Set initial state if using AASM
-    if @shop_item.is_a?(ShopItem::FreeStickers)
-        @order.aasm_state = "fulfilled"
-        @order.fulfilled_at = Time.current
-    elsif @order.respond_to?(:aasm_state=)
-        @order.aasm_state = "pending"
-    end
+    @order.aasm_state = "pending" if @order.respond_to?(:aasm_state=)
 
     if @order.save
-        @order.mark_stickers_received if @shop_item.is_a?(ShopItem::FreeStickers)
-        current_user.complete_tutorial_step! :free_stickers
-        redirect_to shop_my_orders_path, notice: "Order placed successfully!"
+      if @shop_item.is_a?(ShopItem::FreeStickers)
+        begin
+          @shop_item.fulfill!(@order)
+          @order.mark_stickers_received
+          current_user.complete_tutorial_step! :free_stickers
+        rescue => e
+          Rails.logger.error "Free stickers fulfillment failed: #{e.message}"
+          redirect_to shop_my_orders_path, alert: "Order placed but fulfillment failed. We'll process it shortly."
+          return
+        end
+      end
+      redirect_to shop_my_orders_path, notice: "Order placed successfully!"
     else
-        redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{@order.errors.full_messages.join(', ')}"
+      redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{@order.errors.full_messages.join(', ')}"
     end
   end
 
@@ -101,5 +110,12 @@ class ShopController < ApplicationController
     primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
     country = primary_address&.dig("country")
     Shop::Regionalizable.country_to_region(country)
+  end
+
+  def user_ordered_free_stickers?
+    @user_ordered_free_stickers ||= current_user.shop_orders
+      .joins(:shop_item)
+      .where(shop_items: { type: "ShopItem::FreeStickers" })
+      .exists?
   end
 end

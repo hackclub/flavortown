@@ -1,0 +1,230 @@
+<h1>yo we need things to move</h1>
+
+<div class="dashboard-stats">
+  <%
+    filter_cards = [
+      { key: :all, label: "All", color: "#6366f1" },
+      { key: :hq_mail, label: "HQ Stuff", color: "#10b981" },
+      { key: :third_party, label: "Rowan & Co", color: "#f59e0b" },
+      { key: :warehouse, label: "Warehouse", color: "#ef4444" },
+      { key: :other, label: "Other", color: "#8b5cf6" }
+    ]
+  %>
+  <% filter_cards.each do |card| %>
+    <%= link_to admin_fulfillment_dashboard_index_path(fulfillment_type: card[:key]), class: "card fulfillment-filter-card #{'active' if @fulfillment_type == card[:key].to_s}" do %>
+      <div class="filter-card-accent" style="background: <%= card[:color] %>;"></div>
+      <h4><%= card[:label] %></h4>
+      <div class="filter-card-stats">
+        <span class="badge badge-pending">Pending: <%= @stats[card[:key]][:pc] %></span>
+        <span class="badge badge-awaiting_periodical_fulfillment">Awaiting: <%= @stats[card[:key]][:ac] %></span>
+      </div>
+      <div class="filter-card-times">
+        <div class="time-stat">
+          <span class="time-label">Avg wait (order)</span>
+          <span class="time-value <%= @stats[card[:key]][:aho] && @stats[card[:key]][:aho] > 172800 ? 'text-danger' : '' %>">
+            <%= format_seconds(@stats[card[:key]][:aho], include_days: true) %>
+          </span>
+        </div>
+        <div class="time-stat">
+          <span class="time-label">Avg wait (fulfill)</span>
+          <span class="time-value <%= @stats[card[:key]][:ahf] && @stats[card[:key]][:ahf] > 172800 ? 'text-danger' : '' %>">
+            <%= format_seconds(@stats[card[:key]][:ahf], include_days: true) %>
+          </span>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<div class="actions-bar">
+  <%= button_to "Send Letter Mail", send_letter_mail_admin_fulfillment_dashboard_index_path,
+        method: :post, class: "btn-primary slim" %>
+</div>
+
+<% if @orders.any? %>
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User</th>
+        <th>Item</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Status</th>
+        <th>Wait Time</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @orders.each do |order| %>
+        <% seconds_since_order = (Time.current - order.created_at).to_i %>
+        <% seconds_since_fulfillment = order.awaiting_periodical_fulfillment_at ? (Time.current - order.awaiting_periodical_fulfillment_at).to_i : nil %>
+        <tr>
+          <td><%= order.id %></td>
+          <td>
+            <%= link_to order.user.display_name || "Unknown", admin_user_path(order.user) %>
+            <br><small class="text-muted"><%= order.user.email %></small>
+          </td>
+          <td>
+            <%= order.shop_item.name %>
+            <br><small class="text-muted"><%= order.shop_item.type&.demodulize %></small>
+          </td>
+          <td>
+            <% if order.frozen_item_price.zero? %>
+              <small class="text-muted">free</small>
+            <% else %>
+              <%= number_with_precision(order.frozen_item_price, precision: 0) %>
+            <% end %>
+          </td>
+          <td>x<%= order.quantity %></td>
+          <td>
+            <span class="badge badge-<%= order.aasm_state %>">
+              <%= order.aasm_state.humanize %>
+            </span>
+          </td>
+          <td>
+            <div class="time-breakdown">
+              <div>
+                <small class="text-muted">Total:</small>
+                <span class="time-value <%= seconds_since_order > 172800 ? 'text-danger' : '' %>">
+                  <%= format_seconds(seconds_since_order, include_days: true) %>
+                </span>
+              </div>
+              <% if seconds_since_fulfillment %>
+                <div>
+                  <small class="text-muted">Since approved:</small>
+                  <span class="time-value <%= seconds_since_fulfillment > 172800 ? 'text-danger' : '' %>">
+                    <%= format_seconds(seconds_since_fulfillment, include_days: true) %>
+                  </span>
+                </div>
+              <% end %>
+            </div>
+          </td>
+          <td>
+            <%= order.created_at.strftime("%m/%d/%y") %>
+            <br><small class="text-muted"><%= order.created_at.strftime("%l:%M %p") %></small>
+          </td>
+          <td>
+            <%= link_to "Manage", admin_shop_order_path(order), class: "btn-primary slim" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No orders found.</p>
+<% end %>
+
+<% if @pagy.pages > 1 %>
+  <div class="pagination">
+    <%== pagy_nav(@pagy) %>
+  </div>
+  <%== pagy_info(@pagy) %>
+<% end %>
+
+<%= link_to "← Back", admin_root_path, class: "btn-secondary" %>
+
+<style>
+  .dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .fulfillment-filter-card {
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .fulfillment-filter-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .fulfillment-filter-card.active {
+    box-shadow: 0 0 0 2px var(--color-brown-500);
+  }
+
+  .fulfillment-filter-card::after {
+    content: none;
+  }
+
+  .filter-card-accent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+  }
+
+  .fulfillment-filter-card h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  .filter-card-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .filter-card-times {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .time-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+  }
+
+  .time-label {
+    color: #666;
+  }
+
+  .time-value {
+    font-family: monospace;
+    font-weight: bold;
+  }
+
+  .text-danger {
+    color: #ef4444;
+  }
+
+  .text-muted {
+    color: #6b7280;
+  }
+
+  .actions-bar {
+    margin-bottom: 1.5rem;
+  }
+
+  .time-breakdown {
+    font-size: 0.85rem;
+  }
+
+  .time-breakdown > div {
+    margin-bottom: 0.25rem;
+  }
+
+  @media (max-width: 1200px) {
+    .dashboard-stats {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

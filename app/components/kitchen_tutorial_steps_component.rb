@@ -4,14 +4,17 @@ class KitchenTutorialStepsComponent < ApplicationComponent
   def initialize(tutorial_steps:, completed_steps:, current_user:)
     @tutorial_steps = tutorial_steps
     @completed_steps = completed_steps
-    @current_user = current_user
   end
 
   def view_template
-    div(class: "tutorial-steps") do
-      div(class: "tutorial-steps__header") do
+    details(class: "tutorial-steps", open: !all_completed?) do
+      summary(class: "tutorial-steps__header") do
+        span(class: "tutorial-steps__toggle-icon") do
+          raw helpers.inline_svg_tag("icons/chevron-down.svg", alt: "")
+        end
+        span(class: "tutorial-steps__title") { "Tutorial" }
         div(class: "tutorial-steps__progress") do
-          span(class: "tutorial-steps__progress-text") { "#{completed_count} of #{total_count} completed" }
+          span(class: "tutorial-steps__progress-text") { "#{completed_count} of #{total_count}" }
           div(class: "tutorial-steps__progress-bar") do
             div(class: "tutorial-steps__progress-fill", style: "width: #{progress_percentage}%")
           end
@@ -25,6 +28,8 @@ class KitchenTutorialStepsComponent < ApplicationComponent
       end
     end
   end
+
+  def all_completed? = completed_count == total_count
 
   private
 
@@ -60,9 +65,16 @@ class KitchenTutorialStepsComponent < ApplicationComponent
       return unless link
 
       div(class: "state-card__cta") do
-        button_to link, method: verb, form_class: "btn btn--borderless btn--bg_yellow", data: { turbo: false } do
-          span { "Start" }
-          raw helpers.inline_svg_tag("icons/right-arrow.svg")
+        if verb == :get
+          a(href: link, class: "btn btn--borderless btn--bg_yellow", data: { turbo: false }) do
+            span { "Start" }
+            raw helpers.inline_svg_tag("icons/right-arrow.svg")
+          end
+        else
+          button_to link, method: verb, form_class: "btn btn--borderless btn--bg_yellow", data: { turbo: false } do
+            span { "Start" }
+            raw helpers.inline_svg_tag("icons/right-arrow.svg")
+          end
         end
       end
     elsif !deps_ok

@@ -22,6 +22,7 @@ class ProjectsController < ApplicationController
   def new
     @project = Project.new
     authorize @project
+    load_project_times
   end
 
   def create
@@ -46,6 +47,7 @@ class ProjectsController < ApplicationController
 
   def edit
     authorize @project
+    load_project_times
   end
 
   def update
@@ -195,6 +197,15 @@ class ProjectsController < ApplicationController
 
     current_user.hackatime_projects.where(id: hackatime_project_ids).find_each do |hp|
       hp.update!(project: @project)
+    end
+  end
+
+  def load_project_times
+    hackatime_identity = current_user.identities.find_by(provider: "hackatime")
+    @project_times = if hackatime_identity
+                       HackatimeService.fetch_user_projects_with_time(hackatime_identity.uid)
+    else
+                       {}
     end
   end
 end
