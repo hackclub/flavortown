@@ -6,6 +6,8 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
   include Pagy::Method
 
+  before_action :enforce_ban
+
   rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
   rescue_from StandardError, with: :handle_error
 
@@ -45,5 +47,12 @@ class ApplicationController < ActionController::Base
       format.html { render "errors/internal_server_error", status: :internal_server_error, layout: "application" }
       format.json { render json: { error: "Internal server error", trace_id: @trace_id }, status: :internal_server_error }
     end
+  end
+
+  def enforce_ban
+    return unless current_user&.banned?
+    return if controller_name == "kitchen" || controller_name == "sessions"
+
+    redirect_to kitchen_path, alert: "Your account has been banned."
   end
 end

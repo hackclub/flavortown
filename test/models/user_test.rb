@@ -3,6 +3,9 @@
 # Table name: users
 #
 #  id                          :bigint           not null, primary key
+#  banned                      :boolean          default(FALSE), not null
+#  banned_at                   :datetime
+#  banned_reason               :text
 #  display_name                :string
 #  email                       :string
 #  first_name                  :string
