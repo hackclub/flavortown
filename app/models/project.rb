@@ -13,8 +13,6 @@
 #  updated_at        :datetime         not null
 #
 class Project < ApplicationRecord
-    include SoftDeletable
-
     # TODO: reflect the allowed content types in the html accept
     ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
     MAX_BANNER_SIZE = 10.megabytes
