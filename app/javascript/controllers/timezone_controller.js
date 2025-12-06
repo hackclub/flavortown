@@ -8,7 +8,9 @@ export default class extends Controller {
   }
 
   hasTimezoneCookie() {
-    return document.cookie.split(";").some((c) => c.trim().startsWith("timezone="));
+    return document.cookie
+      .split(";")
+      .some((c) => c.trim().startsWith("timezone="));
   }
 
   setTimezoneCookie() {

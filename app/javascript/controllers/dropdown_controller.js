@@ -11,7 +11,7 @@ export default class extends Controller {
   select(event) {
     const option = event.target.textContent;
     const value = event.target.dataset.value || option;
-    const charSpan = this.selectedTarget.querySelector('.dropdown__char-span');
+    const charSpan = this.selectedTarget.querySelector(".dropdown__char-span");
     if (charSpan) {
       charSpan.textContent = option;
     }
