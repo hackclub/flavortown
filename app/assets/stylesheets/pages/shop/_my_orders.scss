@@ -4,7 +4,21 @@
   margin-left: auto;
   margin-right: auto;
   padding: 0 1rem;
+    
+  &__blurred-when-inactive {
+    filter: blur(8px);
+    pointer-events: none; 
+    user-select: none;   
 
+    transition: all 0.3s ease-in-out;
+    &:hover {
+      filter: blur(0);     
+      opacity: 1;       
+      pointer-events: auto; 
+      user-select: auto;   
+    }
+  }
+  
   &__header {
     text-align: center;
     margin-bottom: 3rem;
