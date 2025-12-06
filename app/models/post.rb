@@ -23,8 +23,6 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Post < ApplicationRecord
-    
-
     belongs_to :project
     # optional because it can be a system post – achievements, milestones, well-done/magic happening, etc –
     # integeration – git remotes – or a user post
