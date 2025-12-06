@@ -123,17 +123,22 @@ class ProjectsController < ApplicationController
 
   def validate_url_not_dead(attribute, name)
     require "uri"
-    require "net/http"
+    require "faraday"
 
     return unless @project.send(attribute).present?
 
     uri = URI.parse(@project.send(attribute))
-    response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https", open_timeout: 5, read_timeout: 5) do |http|
-      http.get(uri.request_uri)
+    conn = Faraday.new(
+      url: uri.to_s,
+      headers: {"User-Agent" => "Flavortown project validtor (https://flavortown.hackclub.com/)"}
+    )
+    response = conn.get() do |req|
+      req.options.timeout = 5
+      req.options.open_timeout = 5
     end
 
-    unless response.code == "200"
-      @project.errors.add(attribute, "Your #{name} needs to return a 200 status. I got #{response.code}, is your code/website set to public!?!?")
+    unless response.status == 200
+      @project.errors.add(attribute, "Your #{name} needs to return a 200 status. I got #{response.status}, is your code/website set to public!?!?")
     end
 
 
@@ -179,9 +184,8 @@ class ProjectsController < ApplicationController
 
   rescue URI::InvalidURIError
     @project.errors.add(attribute, "#{name} is not a valid URL")
-  rescue OpenSSL::SSL::SSLError => e
-    @project.errors.add(attribute, "SSL error while verifying URL: #{e.message}")
-
+  rescue Faraday::ConnectionFailed => e
+    @project.errors.add(attribute, "Please make sure the url is valid and reachable: #{e.message}")
   rescue StandardError => e
     @project.errors.add(attribute, "#{name} could not be verified (idk why, pls let a admin know if this is happning alot and your sure that the url is valid): #{e.message}")
   end
