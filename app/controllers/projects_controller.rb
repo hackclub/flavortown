@@ -130,7 +130,7 @@ class ProjectsController < ApplicationController
     uri = URI.parse(@project.send(attribute))
     conn = Faraday.new(
       url: uri.to_s,
-      headers: {"User-Agent" => "Flavortown project validtor (https://flavortown.hackclub.com/)"}
+      headers: { "User-Agent" => "Flavortown project validtor (https://flavortown.hackclub.com/)" }
     )
     response = conn.get() do |req|
       req.options.timeout = 5
