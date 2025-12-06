@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_05_144523) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_06_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -249,6 +249,19 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_144523) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "reports", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "details", null: false
+    t.bigint "project_id", null: false
+    t.string "reason", null: false
+    t.bigint "reporter_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_reports_on_project_id"
+    t.index ["reporter_id", "project_id"], name: "index_reports_on_reporter_id_and_project_id", unique: true
+    t.index ["reporter_id"], name: "index_reports_on_reporter_id"
+  end
+
   create_table "rsvps", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
@@ -435,6 +448,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_144523) do
   add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
+  add_foreign_key "reports", "projects"
+  add_foreign_key "reports", "users", column: "reporter_id"
   add_foreign_key "shop_card_grants", "shop_items"
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"

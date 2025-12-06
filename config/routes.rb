@@ -39,6 +39,9 @@ Rails.application.routes.draw do
   # Voting
   resources :votes, only: [ :new, :create, :index ]
 
+  # Reports
+  resources :reports, only: [ :create ]
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
@@ -127,6 +130,12 @@ Rails.application.routes.draw do
       end
     end
     resources :audit_logs, only: [ :index, :show ]
+    resources :reports, only: [ :index, :show ] do
+      member do
+        post :review
+        post :dismiss
+      end
+    end
     get "payouts_dashboard", to: "payouts_dashboard#index"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do

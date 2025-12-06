@@ -37,6 +37,7 @@ class User < ApplicationRecord
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
   has_many :shop_orders, dependent: :destroy
   has_many :votes, dependent: :destroy
+  has_many :reports, foreign_key: :reporter_id, dependent: :destroy
 
   include Ledgerable
 
@@ -156,5 +157,8 @@ class User < ApplicationRecord
   end
   def avatar
     "http://cachet.dunkirk.sh/users/#{slack_id}/r"
+  end
+  def dm_user(message)
+    SendSlackDmJob.perform_later(slack_id, message)
   end
 end

@@ -1,0 +1,122 @@
+<h1>Project Reports</h1>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h2>Stats</h2>
+  <div style="display: flex; gap: 2rem;">
+    <div>
+      <strong>Pending:</strong> <%= @counts[:pending] %>
+    </div>
+    <div>
+      <strong>Reviewed:</strong> <%= @counts[:reviewed] %>
+    </div>
+    <div>
+      <strong>Dismissed:</strong> <%= @counts[:dismissed] %>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h2>Filters</h2>
+
+  <%= form_with url: admin_reports_path, method: :get, local: true do |f| %>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+      <div>
+        <%= f.label :status, "Status" %>
+        <%= f.select :status, options_for_select([["Pending", "pending"], ["Reviewed", "reviewed"], ["Dismissed", "dismissed"]], params[:status]), { include_blank: "All" }, class: "form-control" %>
+      </div>
+
+      <div>
+        <%= f.label :reason, "Reason" %>
+        <%= f.select :reason, options_for_select(Report::REASONS.map { |r| [r.titleize, r] }, params[:reason]), { include_blank: "All" }, class: "form-control" %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.submit "Filter", class: "btn-primary" %>
+      <%= link_to "Clear Filters", admin_reports_path, class: "btn-secondary" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Project</th>
+        <th>Reporter</th>
+        <th>Reason</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @reports.each do |report| %>
+        <tr>
+          <td>#<%= report.id %></td>
+          <td>
+            <%= link_to report.project.title, project_path(report.project) %>
+          </td>
+          <td><%= report.reporter.display_name || report.reporter.email %></td>
+          <td><%= report.reason.titleize %></td>
+          <td>
+            <span class="badge badge-<%= report.status %>">
+              <%= report.status %>
+            </span>
+          </td>
+          <td><%= report.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          <td style="display: flex; gap: 0.5rem;">
+            <%= link_to "View", admin_report_path(report), class: "btn-primary slim" %>
+            <% if report.pending? %>
+              <%= button_to "Review", review_admin_report_path(report), method: :post, class: "btn-secondary slim" %>
+              <%= button_to "Dismiss", dismiss_admin_report_path(report), method: :post, class: "btn-secondary slim" %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if @reports.empty? %>
+    <p style="text-align: center; padding: 2rem;">No reports found.</p>
+  <% end %>
+</div>
+
+<div style="margin-top: 2em;">
+  <%= link_to "← Back", admin_root_path, class: "btn-secondary" %>
+</div>
+
+<style>
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.badge-pending {
+  background-color: #fbbf24;
+  color: #78350f;
+}
+
+.badge-reviewed {
+  background-color: #10b981;
+  color: white;
+}
+
+.badge-dismissed {
+  background-color: #6b7280;
+  color: white;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5em;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: white;
+}
+</style>

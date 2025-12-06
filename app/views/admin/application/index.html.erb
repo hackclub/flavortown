@@ -16,6 +16,17 @@
   <% if policy(:admin).access_audit_logs? %>
     <%= link_to "Audit Logs", admin_audit_logs_path, class: button_class %>
   <% end %>
+  <% if policy(:admin).access_reports? %>
+    <% pending_reports = Report.pending.count %>
+    <%= link_to admin_reports_path, class: button_class do %>
+      Reports
+      <% if pending_reports > 0 %>
+        <span style="background-color: #ef4444; color: white; border-radius: 9999px; padding: 0px 6px; font-size: 0.9em; min-width: 20px; text-align: center;">
+          <%= pending_reports %>
+        </span>
+      <% end %>
+    <% end %>
+  <% end %>
   <% if policy(:admin).access_shop_orders? %>
     <% pending_count = ShopOrder.where(aasm_state: 'pending').count %>
     <% total_shop_count = pending_count %>
