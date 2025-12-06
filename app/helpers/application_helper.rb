@@ -1,6 +1,4 @@
 module ApplicationHelper
-  include Pagy::Frontend
-
   def admin_tool(&block)
     if current_user&.admin?
       content_tag(:div, class: "admin tools-do", &block)
