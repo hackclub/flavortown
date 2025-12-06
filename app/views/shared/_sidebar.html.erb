@@ -64,7 +64,7 @@
         <% end %>
       </div>
       <div class="sidebar__user-details">
-        <span class="sidebar__user-name"><%= current_user.display_name %></span>
+        <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
         <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
           🍪 <%= current_user.balance %>
         </button>
