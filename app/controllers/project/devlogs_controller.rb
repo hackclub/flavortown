@@ -1,5 +1,6 @@
 class Project::DevlogsController < ApplicationController
   before_action :set_project
+  before_action :require_project_member
 
   def new
     @devlog = Post::Devlog.new
@@ -26,6 +27,12 @@ class Project::DevlogsController < ApplicationController
 
   def set_project
     @project = Project.find(params[:project_id])
+  end
+
+  def require_project_member
+    unless current_user && @project.users.include?(current_user)
+      redirect_to @project, alert: "You must be a project member to add devlogs"
+    end
   end
 
   def devlog_params

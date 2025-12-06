@@ -1,7 +1,7 @@
 <div class="projects-show">
   <div class="projects-show__container">
     <%= render ProjectShowCardComponent.new(project: @project) %>
-    <% if current_user.present? %>
+    <% if current_user.present? && @project.users.include?(current_user) %>
       <div class="mt-4">
         <%= render ButtonComponent.new(
               text: "Add Devlog",
