@@ -1,13 +1,13 @@
 .shop {
   text-align: center;
-  margin-top: 4rem;
+  margin-top: 3rem;
 
   .ui-heading {
     width: 100%;
     margin-bottom: 3em;
 
     &__title {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-family: var(--font-family-text);
     }
 
@@ -30,8 +30,8 @@
     background: var(--color-blue-400);
     padding: 0.5em 2em;
     font-family: var(--font-family-text);
-    font-size: 1.5rem;
-    border-radius: 16px;
+    font-size: 1.2rem;
+    border-radius: 12px;
 
     &::after {
       content: "";
@@ -57,7 +57,7 @@
     border: 1em solid hsl(22, 34%, 51%);
     background-color: var(--color-brown-500);
     border-radius: 16px;
-    padding: 1.5em;
+    padding: 1em;
     overflow: hidden;
     position: relative;
 
@@ -78,22 +78,19 @@
       align-items: center;
       justify-content: space-between;
       font-family: var(--font-family-text);
-      font-size: 2rem;
-      width: 90%;
+      font-size: 1.5rem;
       margin: 0 auto;
 
       .shop__banner-title {
         color: var(--color-bg);
-        font-weight: normal;
-        font-size: 3rem;
-        font-family: var(--font-family-text);
+        font-family: var(--font-family-subtitle);
       }
 
       .shop__banner-price {
         background-color: var(--color-brown-700);
         color: var(--color-bg);
-        padding: 1rem 2rem;
-        border-radius: 16px;
+        padding: 0.1rem 1.5rem;
+        border-radius: 8px;
         font-weight: normal;
         font-family: var(--font-family-text);
       }
@@ -104,15 +101,17 @@
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      width: 90%;
+      width: 95%;
       margin: 0 auto;
+      gap: 1em;
+      margin-top: 1em;
 
       .shop__banner-item-desc {
         text-align: left;
         flex: 1;
 
         h4 {
-          font-size: 5rem;
+          font-size: 3rem;
           color: var(--color-bg);
           font-weight: normal;
           font-family: var(--font-family-text);
@@ -121,14 +120,14 @@
 
         h5 {
           margin-top: 0.5rem;
-          font-size: 2rem;
+          font-size: 1.5rem;
           color: var(--color-tan-400);
           font-weight: normal;
           font-family: var(--font-family-text);
         }
 
         h6 {
-          font-size: 1.5rem;
+          font-size: 1.25rem;
           color: var(--color-tan-400);
           font-weight: normal;
           font-family: var(--font-family-text);
@@ -138,7 +137,7 @@
           margin-top: 1.5rem;
           background-color: var(--color-brown-700);
           color: var(--color-bg);
-          padding: 1em 2em;
+          padding: 0.2em 1em;
           font-size: 1.5rem;
           font-family: var(--font-family-text);
           font-weight: normal;
@@ -150,15 +149,14 @@
           z-index: 10;
 
           &:hover {
-            background-color: var(--color-brown-800);
+            filter: brightness(1.1);
           }
         }
       }
 
       img {
-        margin-top: -4em;
         margin-bottom: -2em;
-        height: 400px;
+        height: 100%;
       }
     }
 
@@ -166,13 +164,7 @@
       .shop__banner-headings {
         flex-direction: column;
         margin-bottom: 1em;
-
-        .shop__banner-price {
-          font-size: 2.5rem;
-          padding: 0.5rem 1rem;
-          margin-top: 1em;
-          width: 100%;
-        }
+        gap: 1rem;
       }
 
       .shop__banner-showcase {
@@ -188,6 +180,11 @@
           h5 {
             font-size: 1.5rem;
           }
+        }
+
+        .shop__banner-item-desc {
+          width: 100%;
+          margin-bottom: 1rem;
         }
 
         img {
@@ -209,6 +206,8 @@
 
     .shop__searchbar {
       flex-grow: 1;
+      position: relative;
+      top: -1em;
 
       .input {
         width: 100%;
@@ -237,14 +236,14 @@
         padding: 0 var(--space-s);
 
         svg {
-          width: 2rem;
-          height: 2rem;
+          width: 1.5rem;
+          height: 1.5rem;
         }
       }
 
       .input__field {
         color: var(--color-brown-700);
-        font-size: 1.7rem;
+        font-size: 1.2rem;
         margin-bottom: -0.2em;
       }
 
@@ -276,25 +275,33 @@
 
       #sort-btn {
         background-color: var(--color-green-400);
-        padding: 1em;
         border: none;
         cursor: pointer;
         border-radius: 1rem;
         position: relative;
-        margin-top: 1rem;
         padding: 1rem 1rem 0.6rem 1rem;
+        top: -1rem;
+
+        &.descending svg {
+          transform: rotate(180deg);
+        }
 
         svg {
-          width: 30px;
-          height: 30px;
+          width: 20px;
+          height: 20px;
           color: var(--color-green-500);
+
+          @media (max-width: 500px) {
+            width: 15px;
+            height: 15px;
+          }
         }
 
         span {
           background-color: var(--color-green-300);
           position: absolute;
           z-index: -1;
-          top: -2.5rem;
+          top: -1.5rem;
           left: 0;
           width: 100%;
           padding: 0.6rem 0.1rem 2rem 0.1rem;
@@ -302,15 +309,25 @@
           box-shadow: var(--shadow);
 
           svg {
-            width: 25px;
-            height: 25px;
+            width: 15px;
+            height: 15px;
+
+            @media (max-width: 500px) {
+              width: 12px;
+              height: 12px;
+            }
           }
+        }
+
+        @media (max-width: 500px) {
+          padding: 0.8rem 0.8rem 0.4rem 0.8rem;
         }
       }
     }
 
     @media (max-width: 1400px) {
       flex-direction: column;
+      gap: 2rem;
 
       .shop__searchbar {
         width: 100%;
@@ -319,8 +336,7 @@
       .shop__filters {
         width: 100%;
         flex-wrap: wrap;
-        margin-top: 2em;
-        gap: 2em;
+        margin-top: 0;
 
         .dropdown {
           flex-grow: 1;
@@ -330,7 +346,7 @@
   }
 
   .shop__items {
-    margin: 2em 0;
+    margin: 1em 0;
     width: 100%;
     display: grid;
     gap: 2rem;
@@ -344,7 +360,7 @@
   @media (max-width: 650px) {
     .shop__buttons {
       flex-direction: column;
-      gap: 4rem;
+      gap: 2rem;
 
       a {
         width: 100%;
@@ -353,10 +369,6 @@
       .dropdown {
         width: 100%;
       }
-    }
-
-    .dropdown--pink {
-      margin-top: 1.7em;
     }
   }
 }
