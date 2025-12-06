@@ -8,6 +8,7 @@
   gap: var(--space-m);
   padding: var(--space-xl);
   color: var(--color-bg);
+  max-width: 800px;
   background: var(--color-brown-500)
     repeating-conic-gradient(
       from 0deg,
@@ -54,6 +55,8 @@
   &__avatar {
     width: 48px;
     height: 48px;
+    max-width: 48px;
+    max-height: 48px;
     border-radius: 50%;
     background-color: var(--color-brown-300);
     display: grid;
@@ -81,6 +84,36 @@
 
   &__time {
     font-size: var(--font-size-l);
+  }
+
+  &__duration {
+    font-size: var(--font-size-m);
+    font-weight: 600;
+    color: var(--color-bg);
+    opacity: 0.8;
+  }
+
+  &__debug {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius);
+    padding: var(--space-s);
+    font-size: var(--font-size-s);
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--color-bg);
+    }
+
+    pre {
+      margin: var(--space-s) 0 0;
+      padding: var(--space-s);
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: calc(var(--border-radius) / 2);
+      overflow-x: auto;
+      font-size: var(--font-size-xs);
+      color: var(--color-tan-300);
+    }
   }
 
   &__body {

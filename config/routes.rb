@@ -31,6 +31,7 @@ Rails.application.routes.draw do
   # Shop
   get "shop", to: "shop#index"
   get "shop/my_orders", to: "shop#my_orders"
+  delete "shop/cancel_order/:order_id", to: "shop#cancel_order", as: :cancel_shop_order
   get "shop/order", to: "shop#order"
   post "shop/order", to: "shop#create_order"
   patch "shop/update_region", to: "shop#update_region"
@@ -52,7 +53,7 @@ Rails.application.routes.draw do
 
   # Action Mailbox for incoming HCB and tracking emails
   mount ActionMailbox::Engine => "/rails/action_mailbox"
-
+  mount ActiveInsights::Engine => "/insights"
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
@@ -77,6 +78,11 @@ Rails.application.routes.draw do
   # Magic Links
   post "magic_links", to: "magic_links#create"
   get "magic_links/verify", to: "magic_links#verify"
+
+  namespace :user, path: "" do
+    resources :tutorial_steps, only: [ :show ]
+  end
+
   # admin shallow routing
   namespace :admin, constraints: AdminConstraint do
     root to: "application#index"
@@ -124,6 +130,11 @@ Rails.application.routes.draw do
     end
     resources :audit_logs, only: [ :index, :show ]
     get "payouts_dashboard", to: "payouts_dashboard#index"
+    resources :fulfillment_dashboard, only: [ :index ] do
+      collection do
+        post :send_letter_mail
+      end
+    end
   end
 
   # Project Ideas

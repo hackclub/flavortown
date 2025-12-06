@@ -78,7 +78,8 @@ class Project < ApplicationRecord
     }
 
     def time
-        total_hours = Post::ShipEvent.where(id: posts.where(postable_type: "Post::ShipEvent").select("postable_id::bigint")).sum(:hours) || 0
+        total_seconds = Post::Devlog.where(id: posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")).sum(:duration_seconds) || 0
+        total_hours = total_seconds / 3600.0
         hours = total_hours.to_i
         minutes = ((total_hours - hours) * 60).to_i
 
@@ -95,5 +96,8 @@ class Project < ApplicationRecord
 
     def deleted?
       deleted_at.present?
+    end
+    def hackatime_keys
+        hackatime_projects.pluck(:name)
     end
 end

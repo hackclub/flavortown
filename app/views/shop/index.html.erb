@@ -25,44 +25,7 @@
       ) %>
     </div>
     <% if @featured_item %>
-      <%
-        featured_regional_prices = Shop::Regionalizable::REGION_CODES.each_with_object({}) do |code, hash|
-          hash[code] = @featured_item.price_for_region(code) if @featured_item.enabled_in_region?(code)
-        end
-      %>
-      <div class="shop__banner"
-           data-shop-target="banner"
-           data-regional-prices="<%= featured_regional_prices.to_json %>"
-           data-enabled-regions="<%= featured_regional_prices.keys.join(',') %>">
-        <div class="shop__banner-headings">
-          <h3 class="shop__banner-title">Get Started</h3>
-          <h3 class="shop__banner-price" data-shop-target="bannerPrice"><%= number_to_currency(@featured_item.price_for_region(@user_region), precision: 0).gsub('$', '🍪') %></h3>
-        </div>
-        <div class="shop__banner-showcase">
-          <div class="shop__banner-item-desc">
-            <h4><%= @featured_item.name %></h4>
-            <h5><%= @featured_item.description %></h5>
-            <h6>~<%= @featured_item.hours_estimated %> hours</h6>
-
-            <%= render ButtonComponent.new(
-              text: "Order #{@featured_item.name}",
-              href: "/shop/order?shop_item_id=#{@featured_item.id}",
-              color: :brown,
-              variant: :borderless
-            ) %>
-          </div>
-          <% if @featured_item.image.present? %>
-            <%= image_tag @featured_item.image.variant(:carousel_lg), loading: "lazy", decoding: "async", alt: "#{@featured_item.name} image" %>
-          <% end %>
-        </div>
-      </div>
-    <% else %>
-      <div class="shop__banner shop__banner--empty">
-        <div class="shop__banner-headings">
-          <h3 class="shop__banner-title">Free Stickers Not Available</h3>
-          <h5 class="shop__banner-subtitle">Check back soon!</h5>
-        </div>
-      </div>
+        <%= render partial: "shop/banner", locals: { featured_item: @featured_item, user_region: @user_region } %>
     <% end %>
     <div class="shop__nav">
       <div class="shop__searchbar">
@@ -116,24 +79,26 @@
         </button>
       </div>
     </div>
-    <div class="shop__items">
-      <% @shop_items.each do |item| %>
-        <% if item.image.present? && item.enabled_in_region?(@user_region) %>
-          <%= render ShopItemCardComponent.new(
-            item_id: item.id,
-            name: item.name,
-            description: item.description,
-            hours: item.hours_estimated,
-            price: item.ticket_cost,
-            image_url: item.image.variant(:carousel_lg),
-            item_type: item.type,
-            balance: @user_balance,
-            enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
-            regional_price: item.price_for_region(@user_region)
-          ) %>
+    <%= turbo_frame_tag "shop_items" do %>
+      <div class="shop__items">
+        <% @shop_items.each do |item| %>
+          <% if item.image.present? && item.enabled_in_region?(@user_region) %>
+            <%= render ShopItemCardComponent.new(
+              item_id: item.id,
+              name: item.name,
+              description: item.description,
+              hours: item.hours_estimated,
+              price: item.ticket_cost,
+              image_url: item.image.variant(:carousel_lg),
+              item_type: item.type,
+              balance: @user_balance,
+              enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
+              regional_price: item.price_for_region(@user_region)
+            ) %>
+          <% end %>
         <% end %>
-      <% end %>
-    </div>
+      </div>
+    <% end %>
   <% else %>
     <h2>The shop is not opened yet!</h2>
   <% end %>

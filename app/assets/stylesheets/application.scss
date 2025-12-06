@@ -22,6 +22,7 @@
 @use "components/sidebar";
 @use "components/ui-heading";
 @use "components/state_card";
+@use "components/kitchen_tutorial_steps";
 @use "components/dropdown";
 @use "components/shop-item-card";
 @use "components/admin-banner";
@@ -35,4 +36,5 @@
 @use "pages/kitchen/index" as kitchen_index;
 @use "pages/shop/shop";
 @use "pages/shop/order";
+@use "pages/shop/my_orders";
 @use "pages/votes/new" as votes_new;

@@ -4,6 +4,12 @@
   <div class="projects-new__container">
     <%= render HeadingComponent.new(title: "Add Devlog", tone: :brown) %>
 
+    <% if @preview_time.present? %>
+      <div class="projects-new__time-preview">
+        <p>This devlog will log <strong><%= @preview_time %></strong> of work.</p>
+      </div>
+    <% end %>
+
     <%= form_with model: @devlog,
                   url: project_devlogs_path(@project),
                   html: { multipart: true },

@@ -1,4 +1,6 @@
 class ShopController < ApplicationController
+  before_action :require_login
+
   def index
     @shop_open = true
     @user_region = user_region
@@ -6,16 +8,29 @@ class ShopController < ApplicationController
       { label: config[:name], value: code }
     end
 
-    @featured_item = ShopItem.where(type: "ShopItem::FreeStickers")
-                             .includes(:image_attachment)
-                             .select { |item| item.enabled_in_region?(@user_region) }
-                             .first
+    @featured_item = unless user_ordered_free_stickers?
+      ShopItem.where(type: "ShopItem::FreeStickers")
+              .includes(:image_attachment)
+              .select { |item| item.enabled_in_region?(@user_region) }
+              .first
+    end
     @shop_items = ShopItem.all.includes(:image_attachment)
+    @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if user_ordered_free_stickers?
     @user_balance = current_user.balance
   end
 
   def my_orders
-    @orders = current_user.shop_orders.includes(shop_item: { image_attachment: :blob })
+    @orders = current_user.shop_orders.includes(shop_item: { image_attachment: :blob }).order(id: :desc)
+  end
+
+  def cancel_order
+    result = current_user.cancel_shop_order(params[:order_id])
+
+    if result[:success]
+      redirect_to shop_my_orders_path, notice: "Order cancelled successfully!"
+    else
+      redirect_to shop_my_orders_path, alert: "Failed to cancel order: #{result[:error]}"
+    end
   end
 
   def order
@@ -26,7 +41,22 @@ class ShopController < ApplicationController
     region = params[:region]&.upcase
     if Shop::Regionalizable::REGION_CODES.include?(region)
       current_user.update!(region: region)
-      head :ok
+
+      @user_region = region
+      @shop_items = ShopItem.all.includes(:image_attachment)
+      @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if user_ordered_free_stickers?
+      @user_balance = current_user.balance
+      @featured_item = unless user_ordered_free_stickers?
+        ShopItem.where(type: "ShopItem::FreeStickers")
+                .includes(:image_attachment)
+                .select { |item| item.enabled_in_region?(@user_region) }
+                .first
+      end
+
+      respond_to do |format|
+        format.turbo_stream
+        format.html { head :ok }
+      end
     else
       head :unprocessable_entity
     end
@@ -54,29 +84,49 @@ class ShopController < ApplicationController
       frozen_address: selected_address
     )
 
-    # Set initial state if using AASM
-    if @shop_item.is_a?(ShopItem::FreeStickers)
-        @order.aasm_state = "fulfilled"
-        @order.fulfilled_at = Time.current
-    elsif @order.respond_to?(:aasm_state=)
-        @order.aasm_state = "pending"
-    end
+    @order.aasm_state = "pending" if @order.respond_to?(:aasm_state=)
 
     if @order.save
-        @order.mark_stickers_received if @shop_item.is_a?(ShopItem::FreeStickers)
-        redirect_to shop_my_orders_path, notice: "Order placed successfully!"
+      if @shop_item.is_a?(ShopItem::FreeStickers)
+        begin
+          @shop_item.fulfill!(@order)
+          @order.mark_stickers_received
+          current_user.complete_tutorial_step! :free_stickers
+        rescue => e
+          Rails.logger.error "Free stickers fulfillment failed: #{e.message}"
+          redirect_to shop_my_orders_path, alert: "Order placed but fulfillment failed. We'll process it shortly."
+          return
+        end
+      end
+      redirect_to shop_my_orders_path, notice: "Order placed successfully!"
     else
-        redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{@order.errors.full_messages.join(', ')}"
+      redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{@order.errors.full_messages.join(', ')}"
     end
   end
 
   private
 
   def user_region
-    return current_user.region if current_user.region.present?
+    if current_user
+      return current_user.region if current_user.region.present?
 
-    primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
-    country = primary_address&.dig("country")
-    Shop::Regionalizable.country_to_region(country)
+      primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
+      country = primary_address&.dig("country")
+      region_from_address = Shop::Regionalizable.country_to_region(country)
+      return region_from_address if region_from_address != "XX" || country.present?
+    end
+
+    Shop::Regionalizable.timezone_to_region(cookies[:timezone])
+  end
+
+  def user_ordered_free_stickers?
+    @user_ordered_free_stickers ||= current_user.shop_orders
+      .joins(:shop_item)
+      .where(shop_items: { type: "ShopItem::FreeStickers" })
+      .exists?
+  end
+
+  def require_login
+    redirect_to root_path, alert: "Please log in first" and return unless current_user
   end
 end

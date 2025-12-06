@@ -1,6 +1,3 @@
-require "faraday"
-require "json"
-
 class KitchenController < ApplicationController
   def index
     authorize :kitchen, :index?
@@ -12,6 +9,10 @@ class KitchenController < ApplicationController
 
     @has_hackatime_linked = current_user.has_hackatime?
     @has_identity_linked = current_user.identity_verified?
+
+    @tutorial_steps = User::TutorialStep.all
+    @completed_steps = current_user.tutorial_steps
+    @tutorial_is_complete = @tutorial_steps - @completed_steps
   end
 
   private
@@ -21,20 +22,15 @@ class KitchenController < ApplicationController
     identity = current_user.identities.find_by(provider: "hack_club")
     return unless identity&.access_token.present?
 
-    conn = Faraday.new(url: Rails.application.config.identity)
-    response = conn.get("/api/v1/me") do |req|
-      req.headers["Authorization"] = "Bearer #{identity.access_token}"
-      req.headers["Accept"] = "application/json"
-    end
+    identity_payload = HCAService.identity(identity.access_token)
+    return if identity_payload.blank?
 
-    return unless response.success?
-
-    body = JSON.parse(response.body)
-    identity_payload = body["identity"] || {}
     latest_status = identity_payload["verification_status"].to_s
     return unless User::VALID_VERIFICATION_STATUSES.include?(latest_status)
-    return if current_user.verification_status.to_s == latest_status
 
+    current_user.complete_tutorial_step!(:identity_verified) if latest_status == "verified"
+
+    return if current_user.verification_status.to_s == latest_status
     current_user.update!(verification_status: latest_status)
   rescue StandardError => e
     Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")

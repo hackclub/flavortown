@@ -105,6 +105,7 @@ gem "dartsass-rails", "~> 0.5.1"
 gem "slocks"
 gem "mission_control-jobs"
 gem "view_component"
+gem "phlex-rails"
 gem "aws-sdk-s3"
 gem "faraday"
 
@@ -115,5 +116,8 @@ gem "sentry-ruby"
 gem "sentry-rails"
 
 # for pagination
-gem "pagy", "~> 43.1"
+gem "pagy", "~> 43.2"
 gem "norairrecord"
+
+gem "awesome_print"
+gem "activeinsights"

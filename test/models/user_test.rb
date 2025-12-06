@@ -17,6 +17,7 @@
 #  projects_count              :integer
 #  region                      :string
 #  synced_at                   :datetime
+#  tutorial_steps_completed    :string           default([]), is an Array
 #  verification_status         :string           default("needs_submission"), not null
 #  votes_count                 :integer
 #  created_at                  :datetime         not null

@@ -23,7 +23,7 @@
         <div class="shop-order__details">
             <h2>Complete your order:</h2>
             <%= form_with url: shop_order_path(shop_item_id: @shop_item.id), method: :post, local: true, id: "order-form" do |form| %>
-                <% if @shop_item.one_per_person_ever %>
+                <% if not @shop_item.one_per_person_ever %>
                     <div class="shop-order__quantity">
                         <%= render InputComponent.new(
                         label: "Quantity",
@@ -72,7 +72,7 @@
                 <% else %>
                     <div class="shop-order__no-address">
                          <p>No shipping address found.</p>
-                         <a href="https://identity.hackclub.com" target="_blank" class="btn btn-sm btn-outline-primary">Manage addresses on Hack Club Identity</a>
+                         <a href="https://auth.hackclub.com/addresses" target="_blank" class="btn btn-sm btn-outline-primary">Manage addresses on Hack Club Auth</a>
                     </div>
                 <% end %>
             </div>

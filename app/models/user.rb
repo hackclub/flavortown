@@ -17,6 +17,7 @@
 #  projects_count              :integer
 #  region                      :string
 #  synced_at                   :datetime
+#  tutorial_steps_completed    :string           default([]), is an Array
 #  verification_status         :string           default("needs_submission"), not null
 #  votes_count                 :integer
 #  created_at                  :datetime         not null
@@ -48,6 +49,26 @@ class User < ApplicationRecord
   validates :slack_id, presence: true, uniqueness: true
 
   scope :with_roles, -> { includes(:role_assignments) }
+
+  # use me! i'm full of symbols!! disregard the foul tutorial_steps_completed, she lies
+  def tutorial_steps = tutorial_steps_completed&.map(&:to_sym) || []
+
+  def tutorial_step_completed?(slug) = tutorial_steps.include?(slug)
+
+  def complete_tutorial_step!(slug)
+    update!(tutorial_steps_completed: tutorial_steps + [ slug ]) unless tutorial_step_completed?(slug)
+  end
+
+  def revoke_tutorial_step!(slug)
+    update!(tutorial_steps_completed: tutorial_steps - [ slug ]) if tutorial_step_completed?(slug)
+  end
+
+  def attempt_to_refresh_verification_status
+    # if user has tutorial step finished, skip
+    return unless tutorial_step_completed?(:identity_verified)
+    # if user has verified, skip
+    nil unless verifi
+  end
 
   class << self
     # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
@@ -139,24 +160,24 @@ class User < ApplicationRecord
   def unban!
     update!(banned: false, banned_at: nil, banned_reason: nil)
   end
+  def cancel_shop_order(order_id)
+    order = shop_orders.find(order_id)
+    return { success: false, error: "Your order can not be canceled" } unless order.pending?
+
+    order.refund!
+    { success: true, order: order }
+  rescue ActiveRecord::RecordNotFound
+    { success: false, error: "wuh" }
+  end
 
   def addresses
     identity = identities.find_by(provider: "hack_club")
     return [] unless identity&.access_token.present?
 
-    conn = Faraday.new(url: Rails.application.config.identity)
-    response = conn.get("/api/v1/me") do |req|
-      req.headers["Authorization"] = "Bearer #{identity.access_token}"
-      req.headers["Accept"] = "application/json"
-    end
-
-    return [] unless response.success?
-
-    body = JSON.parse(response.body)
-    identity_payload = body["identity"] || {}
+    identity_payload = HCAService.identity(identity.access_token)
     identity_payload["addresses"] || []
-  rescue StandardError => e
-    Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")
-    []
+  end
+  def avatar
+    "http://cachet.dunkirk.sh/users/#{slack_id}/r"
   end
 end
