@@ -118,9 +118,9 @@
 
 <% if @pagy.pages > 1 %>
   <div class="pagination">
-    <%== pagy_nav(@pagy) %>
+    <%== @pagy.series_nav %>
   </div>
-  <%== pagy_info(@pagy) %>
+  <%== @pagy.info_tag %>
 <% end %>
 
 <%= link_to "← Back", admin_root_path, class: "btn-secondary" %>

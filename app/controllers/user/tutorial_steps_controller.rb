@@ -2,7 +2,7 @@ class User::TutorialStepsController < ApplicationController
   before_action :set_tutorial_step, only: [ :show ]
 
   def show
-    redirect_to @tutorial_step.link
+    redirect_to @tutorial_step.link, allow_other_host: true
   end
 
   private

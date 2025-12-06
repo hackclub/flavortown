@@ -1,4 +1,6 @@
 class ShopController < ApplicationController
+  before_action :require_login
+
   def index
     @shop_open = true
     @user_region = user_region
@@ -117,5 +119,9 @@ class ShopController < ApplicationController
       .joins(:shop_item)
       .where(shop_items: { type: "ShopItem::FreeStickers" })
       .exists?
+  end
+
+  def require_login
+    redirect_to root_path, alert: "Please log in first" and return unless current_user
   end
 end
