@@ -5,7 +5,7 @@
   margin-right: auto;
   padding: 0 1rem;
     
-  &__hidden-until-hover {
+  &__blurred-when-inactive {
     filter: blur(8px);
     pointer-events: none; 
     user-select: none;   
