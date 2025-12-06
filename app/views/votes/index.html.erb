@@ -16,7 +16,7 @@
     </div>
 
     <% if @pagy.pages > 1 %>
-      <%== @pagy.series_nav %>
+      <%== pagy_nav(@pagy) %>
     <% end %>
   <% end %>
 </div>

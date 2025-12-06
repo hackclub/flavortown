@@ -23,7 +23,7 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Post < ApplicationRecord
-    include SoftDeletable
+    
 
     belongs_to :project
     # optional because it can be a system post – achievements, milestones, well-done/magic happening, etc –
