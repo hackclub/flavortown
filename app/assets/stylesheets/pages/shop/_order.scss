@@ -161,6 +161,12 @@
       }
     }
 
+    .shop-order__no-address {
+      a {
+        background-color: var(--color-brown-500);
+      }
+    }
+
     .shop-order__balance {
       font-size: 1.2rem;
       margin-top: 0.5em;
