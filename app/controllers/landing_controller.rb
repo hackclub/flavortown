@@ -1,8 +1,14 @@
 class LandingController < ApplicationController
   def index
     if current_user
-      redirect_to projects_path
-      return
+      steps_left = User::TutorialStep.all.count - current_user.tutorial_steps.count
+      if steps_left > 0
+        redirect_to kitchen_path
+        return
+      else
+        redirect_to projects_path
+        return
+      end
     end
     @prizes = Cache::CarouselPrizesJob.perform_now || []
     if @prizes.any?
