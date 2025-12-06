@@ -53,7 +53,7 @@ Rails.application.routes.draw do
 
   # Action Mailbox for incoming HCB and tracking emails
   mount ActionMailbox::Engine => "/rails/action_mailbox"
-
+  mount ActiveInsights::Engine => "/insights"
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
@@ -128,6 +128,11 @@ Rails.application.routes.draw do
     end
     resources :audit_logs, only: [ :index, :show ]
     get "payouts_dashboard", to: "payouts_dashboard#index"
+    resources :fulfillment_dashboard, only: [ :index ] do
+      collection do
+        post :send_letter_mail
+      end
+    end
   end
 
   # Project Ideas

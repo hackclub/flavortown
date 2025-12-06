@@ -118,3 +118,6 @@ gem "sentry-rails"
 # for pagination
 gem "pagy", "~> 43.2"
 gem "norairrecord"
+
+gem "awesome_print"
+gem "activeinsights"

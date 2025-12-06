@@ -53,16 +53,20 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::FreeStickers < ShopItem
-  QUEUE_ID = "flavortown-free-stickers"
+  QUEUE_ID = "flavortown-tutorial-stickers"
+
   def fulfill!(shop_order)
     response = TheseusService.create_letter_v1(
       QUEUE_ID,
       {
         recipient_email: shop_order.user.email,
         address: shop_order.frozen_address,
-        idempotency_key: "flavortown_free_stickers_order_#{Rails.env}_#{shop_order.id}"
+        idempotency_key: "flavortown_tutorial_stickers_order_#{Rails.env}_#{shop_order.id}"
       }
     )
     shop_order.mark_fulfilled!(response[:id], nil, "System")
+  rescue => e
+    Rails.logger.error "Failed to fulfill free stickers order #{shop_order.id}: #{e.message}"
+    raise e
   end
 end
