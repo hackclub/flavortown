@@ -65,9 +65,14 @@
       </div>
       <div class="sidebar__user-details">
         <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
-        <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
-          🍪 <%= current_user.balance %>
-        </button>
+        <div class="sidebar__user-actions">
+          <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
+            🍪 <%= current_user.balance %>
+          </button>
+          <button type="button" class="sidebar__user-settings" onclick="document.getElementById('settings-modal').showModal()" aria-label="Settings">
+            <%= inline_svg_tag "icons/gear.svg", class: "sidebar__user-settings-icon" %>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -79,5 +84,30 @@
     <div class="modal__actions">
       <button type="button" class="modal__actions-close" onclick="document.getElementById('balance-modal').close()">Close</button>
     </div>
+  <% end %>
+
+  <%= render layout: "shared/modal", locals: { id: "settings-modal", title: "Settings" } do %>
+    <%= form_with url: my_settings_path, method: :patch, local: true, class: "settings-form" do |f| %>
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
+          <%= check_box_tag :send_votes_to_slack, "1", current_user.send_votes_to_slack, id: "send_votes_to_slack" %>
+          <span>Send votes to Slack</span>
+        </label>
+        <small class="settings-form__hint">Share your votes in #flavortown-share-votes to help project creators understand how their work is being received</small>
+      </div>
+
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
+          <%= check_box_tag :vote_anonymously, "1", current_user.vote_anonymously, id: "vote_anonymously" %>
+          <span>Vote anonymously</span>
+        </label>
+        <small class="settings-form__hint">Hide your identity when sharing votes to Slack</small>
+      </div>
+
+      <div class="modal__actions">
+        <%= f.submit "Save", class: "modal__actions-close" %>
+        <button type="button" class="modal__actions-close" onclick="document.getElementById('settings-modal').close()">Cancel</button>
+      </div>
+    <% end %>
   <% end %>
 </aside>

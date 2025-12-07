@@ -77,6 +77,7 @@ Rails.application.routes.draw do
 
   # My
   get "my/balance", to: "my#balance"
+  patch "my/settings", to: "my#update_settings", as: :my_settings
 
   # Magic Links
   post "magic_links", to: "magic_links#create"
