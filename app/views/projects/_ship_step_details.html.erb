@@ -3,7 +3,7 @@
   <p class="projects-ship__section-desc">
     You can come back to this page at anytime! Your information will be saved.
   </p>
-<br />
+<br>
   <%= form_with(model: @project, url: update_ship_project_path(@project, step: 2), method: :patch, class: "projects-ship__form", local: true) do |form| %>
     <div class="projects-ship__form-field">
       <%= render(
@@ -19,7 +19,7 @@
             )
           ) %>
     </div>
-<br />
+<br>
 
     <div class="projects-ship__form-field">
       <%= render(
@@ -32,7 +32,7 @@
             )
           ) %>
     </div>
-<br />
+<br>
 
     <div class="projects-ship__form-field">
       <%= render(
@@ -48,7 +48,7 @@
             )
           ) %>
     </div>
-<br />
+<br>
 
     <div class="projects-ship__form-field">
       <%= render(
@@ -63,7 +63,7 @@
             )
           ) %>
     </div>
-<br />
+<br>
     <div class="projects-ship__form-field">
       <%= render(
             InputComponent.new(
@@ -77,7 +77,7 @@
             )
           ) %>
     </div>
-<br />
+<br>
     <div class="projects-ship__form-actions">
       <%= render(ButtonComponent.new(text: "Save & Continue", color: :green, type: :submit)) %>
     </div>
