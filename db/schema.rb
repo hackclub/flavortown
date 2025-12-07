@@ -208,13 +208,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
 
   create_table "posts", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.datetime "deleted_at"
     t.string "postable_id"
     t.string "postable_type"
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id"
-    t.index ["deleted_at"], name: "index_posts_on_deleted_at"
     t.index ["project_id"], name: "index_posts_on_project_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end

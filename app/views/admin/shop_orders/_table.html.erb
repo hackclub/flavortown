@@ -32,6 +32,9 @@
               <span class="badge badge-<%= order.aasm_state %>">
                 <%= order.aasm_state.humanize %>
               </span>
+              <% if order.aasm_state == "fulfilled" %>
+                <br><small style="color: #6b7280;">Shipped to user</small>
+              <% end %>
             </td>
 
             <td>
