@@ -1,6 +1,6 @@
 module Admin
   class ReportsController < Admin::ApplicationController
-    before_action :set_report, only: [:show, :review, :dismiss]
+    before_action :set_report, only: [ :show, :review, :dismiss ]
 
     def index
       authorize :admin, :access_reports?
@@ -47,7 +47,7 @@ module Admin
           event: "update",
           whodunnit: current_user.id,
           object_changes: {
-            status: [old_status, @report.status]
+            status: [ old_status, @report.status ]
           }.to_yaml
         )
         redirect_to admin_reports_path, notice: notice_message

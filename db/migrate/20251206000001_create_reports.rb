@@ -10,6 +10,6 @@ class CreateReports < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :reports, [:reporter_id, :project_id], unique: true
+    add_index :reports, [ :reporter_id, :project_id ], unique: true
   end
 end
