@@ -2,6 +2,7 @@ class Admin::MagicLinksController < Admin::ApplicationController
   before_action :authenticate_admin
 
   def show
+    authorize :admin, :generate_magic_links?
     @user = User.find(params[:user_id])
     @user.generate_magic_link_token!
 
