@@ -211,6 +211,42 @@
   }
 }
 
+// Settings form (modal)
+.settings-form {
+  &__field {
+    margin-bottom: var(--space-l);
+  }
+
+  &__checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    cursor: pointer;
+
+    input[type="checkbox"] {
+      width: 1.25rem;
+      height: 1.25rem;
+      cursor: pointer;
+      accent-color: var(--color-brown-500);
+    }
+
+    span {
+      font-family: var(--font-family-sans);
+      font-size: var(--font-size-m);
+      color: var(--color-text-body);
+    }
+  }
+
+  &__hint {
+    display: block;
+    margin-top: var(--space-xxs);
+    margin-left: calc(1.25rem + var(--space-s));
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-s);
+    color: var(--color-text-muted);
+  }
+}
+
 // Field errors
 .field-with-errors {
   .form-field {

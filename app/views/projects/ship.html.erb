@@ -1,0 +1,54 @@
+<div class="projects-ship">
+  <div class="projects-ship__container">
+    <div class="projects-ship__sidebar">
+      <div class="projects-ship__preview-card">
+        <% if @project.banner.attached? %>
+          <%= image_tag @project.banner, alt: @project.title, class: "projects-ship__preview-image" %>
+        <% else %>
+          <div class="projects-ship__preview-placeholder">No screenshot</div>
+        <% end %>
+        <h3><%= @project.title %></h3>
+      </div>
+    </div>
+
+    <div class="projects-ship__content">
+      <%= link_to "← Back", @project, class: "projects-ship__back-link" %>
+
+      <h1 class="projects-ship__title">
+        Ready to submit <span class="projects-ship__project-name"><%= @project.title %></span>?
+      </h1>
+
+      <% if @step == 1 %>
+        <%= render "ship_step_requirements" %>
+      <% elsif @step == 2 %>
+        <%= render "ship_step_details" %>
+      <% elsif @step == 3 %>
+        <%= render "ship_step_hackatime" %>
+      <% elsif @step == 4 %>
+        <%= render "ship_step_update" %>
+      <% end %>
+
+      <div class="projects-ship__navigation">
+        <% if @step > 1 %>
+          <%= link_to ship_project_path(@project, step: @step - 1), class: "projects-ship__nav-btn projects-ship__nav-btn--prev" do %>
+            ← Prev
+          <% end %>
+        <% else %>
+          <div></div>
+        <% end %>
+
+        <% if @step < 4 %>
+          <% if @step == 1 && !@project.shippable? %>
+            <button type="button" class="projects-ship__nav-btn projects-ship__nav-btn--disabled" disabled>
+              Missing Fields
+            </button>
+          <% else %>
+            <%= link_to ship_project_path(@project, step: @step + 1), class: "projects-ship__nav-btn projects-ship__nav-btn--next" do %>
+              Next →
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

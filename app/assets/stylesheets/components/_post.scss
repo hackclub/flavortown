@@ -119,6 +119,10 @@
   &__body {
     font-size: var(--font-size-xl);
     line-height: 1.5;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow: hidden;
 
     p {
       margin: 0;
@@ -340,6 +344,13 @@
       -webkit-mask: url("icons/checkmark.svg") no-repeat center / 40px 40px;
       mask: url("icons/checkmark.svg") no-repeat center / 40px 40px;
     }
+  }
+
+  &__ship-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 var(--space-s) 0;
+    color: inherit;
   }
 
   &--ship {

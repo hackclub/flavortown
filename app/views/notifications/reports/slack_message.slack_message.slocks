@@ -1,0 +1,6 @@
+header "New report"
+section "Project #{report.project_id} was reported by user #{report.reporter_id} - Type: `#{report.reason}` "
+divider 
+section "Reason: #{report.details}"
+divider
+button("See on platform", "link", url: "https://flavortown.hackclub.com/reports/#{report.id}")

@@ -26,7 +26,7 @@
             <% if order.frozen_address.present? %>
               <div class="my-orders__header-item">
                 <span class="my-orders__header-label">Ship To</span>
-                <span class="my-orders__header-value"><%= order.frozen_address.dig('line_1')&.to_s&.split(',')&.first&.truncate(30) || 'N/A' %></span>
+                <span class="my-orders__header-value my-orders__blurred-when-inactive"><%= order.frozen_address.dig('line_1')&.to_s&.split(',')&.first&.truncate(30) || 'N/A' %></span>
               </div>
             <% end %>
 

@@ -10,6 +10,14 @@ class MyController < ApplicationController
     @balance = current_user.ledger_entries.order(created_at: :desc)
   end
 
+  def update_settings
+    current_user.update(
+      send_votes_to_slack: params[:send_votes_to_slack] == "1",
+      vote_anonymously: params[:vote_anonymously] == "1"
+    )
+    redirect_back fallback_location: root_path, notice: "Settings saved"
+  end
+
   private
 
   def require_login

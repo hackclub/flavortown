@@ -27,7 +27,24 @@ class ProjectPolicy < ApplicationPolicy
         owns? || user&.admin?
     end
 
+    def ship?
+        member?
+    end
+
+    def update_ship?
+        member?
+    end
+
+    def submit_ship?
+        member?
+    end
+
     private
+
+    def member?
+        return false unless user && record
+        user.memberships.exists?(project: record)
+    end
 
     def owns?
         return false unless user && record
