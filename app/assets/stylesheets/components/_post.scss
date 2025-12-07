@@ -346,6 +346,13 @@
     }
   }
 
+  &__ship-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 var(--space-s) 0;
+    color: inherit;
+  }
+
   &--ship {
     background-color: var(--color-yellow-500);
     border-color: var(--color-yellow-450);

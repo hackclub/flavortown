@@ -53,6 +53,12 @@ class Post::Devlog < ApplicationRecord
             size: { less_than: 50.megabytes, message: "is too large (max 50 MB)" },
             processable_file: true
 
+  validate :at_least_one_attachment
+
+  def at_least_one_attachment
+    errors.add(:attachments, "must include at least one image or video") unless attachments.attached?
+  end
+
   def recalculate_seconds_coded
     post = posts.first
     return false unless post

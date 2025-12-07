@@ -43,4 +43,58 @@
     background-repeat: repeat-y;
     opacity: 0.5;
   }
+
+  &__submission-tracking {
+    background: var(--color-brown-200);
+    border-radius: var(--border-radius);
+    padding: var(--space-l);
+    border: 2px solid var(--color-brown-400);
+
+    h3 {
+      margin: 0 0 var(--space-2xs) 0;
+      font-size: 1.2rem;
+    }
+
+    p {
+      margin: 0 0 var(--space-m) 0;
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+    }
+  }
+
+  &__status-tracker {
+    display: flex;
+    justify-content: space-around;
+    gap: var(--space-m);
+  }
+
+  &__status-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2xs);
+    opacity: 0.5;
+
+    &--completed,
+    &--active {
+      opacity: 1;
+    }
+
+    &--completed .projects-show__status-icon {
+      color: #16a34a;
+    }
+
+    &--active .projects-show__status-icon {
+      color: #f59e0b;
+    }
+  }
+
+  &__status-icon {
+    font-size: 1.5rem;
+  }
+
+  &__status-label {
+    font-size: 0.85rem;
+    text-align: center;
+  }
 }

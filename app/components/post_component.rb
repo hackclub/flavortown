@@ -28,6 +28,10 @@
      "#{hours}h #{minutes}m"
    end
 
+   def ship_event?
+     post.postable.is_a?(Post::ShipEvent)
+   end
+
    def attachments
      return [] unless post.postable.respond_to?(:attachments)
      post.postable.attachments

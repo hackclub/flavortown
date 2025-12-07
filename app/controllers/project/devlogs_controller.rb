@@ -31,7 +31,7 @@ class Project::DevlogsController < ApplicationController
 
   def require_project_member
     unless current_user && @project.users.include?(current_user)
-      redirect_to @project, alert: "You must be a project member to add devlogs"
+      redirect_to @project, alert: "You must be a project member to add devlogs" and return
     end
   end
 

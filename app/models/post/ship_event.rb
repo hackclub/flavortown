@@ -13,4 +13,6 @@
 class Post::ShipEvent < ApplicationRecord
   include Postable
   include Ledgerable
+
+  validates :body, presence: { message: "Update message can't be blank" }
 end
