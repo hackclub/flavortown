@@ -1,0 +1,41 @@
+<div class="projects-ship__step">
+  <h2 class="projects-ship__section-title">Share an update about your project!</h2>
+  <p class="projects-ship__section-desc">
+    Tell everyone what you built, what you learned, and how it went. This will appear on your project's timeline.
+  </p>
+
+  <% unless @project.draft? %>
+    <% if @project.has_devlog_since_last_ship? %>
+      <div class="projects-ship__reship-info projects-ship__reship-info--success">
+        ✓ You have new devlogs since your last ship - you can ship again!
+      </div>
+    <% else %>
+      <div class="projects-ship__reship-info projects-ship__reship-info--warning">
+        ⚠ You need to add at least one devlog since your last ship before you can ship again.
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= form_with(url: submit_ship_project_path(@project), method: :post, class: "projects-ship__form", local: true) do |form| %>
+    <div class="projects-ship__form-field">
+      <label class="projects-ship__label">Your ship update</label>
+      <p class="projects-ship__hint">Write a few sentences about your project. What did you make? How does it work? What did you learn?</p>
+      <%= form.text_area :ship_update, 
+            rows: 6, 
+            class: "projects-ship__textarea",
+            placeholder: "We made the motor go SPINNNNY :3\n\nIt works pretty well, but spinning the base in circles does get the wire tangled... oh and if that happens the entire breadboard might get jammed and break :/ (don't ask how I know that)\n\nAnyway yea :D hopefully this ship goes well" %>
+    </div>
+
+    <div class="projects-ship__form-actions">
+      <% if @project.shippable? && @project.can_ship_again? %>
+        <%= form.submit "Ship It! 🚀", class: "projects-ship__nav-btn projects-ship__nav-btn--submit" %>
+      <% elsif !@project.can_ship_again? %>
+        <span class="projects-ship__nav-btn projects-ship__nav-btn--disabled">Add a devlog first</span>
+      <% else %>
+        <button type="button" class="projects-ship__nav-btn projects-ship__nav-btn--disabled" disabled>
+          Complete All Requirements First
+        </button>
+      <% end %>
+    </div>
+  <% end %>
+</div>

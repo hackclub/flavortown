@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_06_000002) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -243,8 +243,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_06_000002) do
     t.text "demo_url"
     t.text "description"
     t.integer "memberships_count", default: 0, null: false
+    t.string "project_type"
     t.text "readme_url"
     t.text "repo_url"
+    t.string "ship_status", default: "draft"
+    t.datetime "shipped_at"
     t.string "title", null: false
     t.datetime "updated_at", null: false
   end
