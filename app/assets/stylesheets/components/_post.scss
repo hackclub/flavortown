@@ -119,6 +119,10 @@
   &__body {
     font-size: var(--font-size-xl);
     line-height: 1.5;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow: hidden;
 
     p {
       margin: 0;
