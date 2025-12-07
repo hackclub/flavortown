@@ -24,6 +24,7 @@ class Project < ApplicationRecord
     # prolly countercache it
     has_many :devlogs, -> { where(postable_type: "Post::Devlog") }, class_name: "Post"
     has_many :votes, dependent: :destroy
+    has_many :reports, dependent: :destroy
 
     has_one_attached :demo_video
     # https://github.com/rails/rails/pull/39135

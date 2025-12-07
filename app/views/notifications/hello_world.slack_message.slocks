@@ -1,0 +1,15 @@
+header "👋 Hello World!"
+
+section "This is a sample Slack message using *Block Kit*", markdown: true
+
+divider
+
+section "Details:",
+  fields: [
+    mrkdwn_text("*From:* Flavortown"),
+    mrkdwn_text("*Time:* #{Time.current.strftime('%Y-%m-%d %H:%M')}")
+  ]
+
+context [
+  mrkdwn_text("Sent via Slocks DSL")
+]

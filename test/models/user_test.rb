@@ -13,9 +13,11 @@
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
 #  region                      :string
+#  send_votes_to_slack         :boolean          default(FALSE), not null
 #  synced_at                   :datetime
 #  tutorial_steps_completed    :string           default([]), is an Array
 #  verification_status         :string           default("needs_submission"), not null
+#  vote_anonymously            :boolean          default(FALSE), not null
 #  votes_count                 :integer
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null

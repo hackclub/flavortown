@@ -13,9 +13,11 @@
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
 #  region                      :string
+#  send_votes_to_slack         :boolean          default(FALSE), not null
 #  synced_at                   :datetime
 #  tutorial_steps_completed    :string           default([]), is an Array
 #  verification_status         :string           default("needs_submission"), not null
+#  vote_anonymously            :boolean          default(FALSE), not null
 #  votes_count                 :integer
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
@@ -37,6 +39,7 @@ class User < ApplicationRecord
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
   has_many :shop_orders, dependent: :destroy
   has_many :votes, dependent: :destroy
+  has_many :reports, foreign_key: :reporter_id, dependent: :destroy
 
   include Ledgerable
 
@@ -156,5 +159,8 @@ class User < ApplicationRecord
   end
   def avatar
     "http://cachet.dunkirk.sh/users/#{slack_id}/r"
+  end
+  def dm_user(message)
+    SendSlackDmJob.perform_later(slack_id, message)
   end
 end

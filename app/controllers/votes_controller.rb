@@ -36,13 +36,15 @@ class VotesController < ApplicationController
     authorize :vote, :create?
     @project = Project.find(params[:project_id])
 
+    created_votes = []
+
     Vote.transaction do
       votes_params = params.require(:votes)
 
       Rails.logger.info "VOTE PARAMS: time=#{params[:time_taken_to_vote]}, repo=#{params[:repo_url_clicked]}, demo=#{params[:demo_url_clicked]}"
 
       votes_params.values.each do |vote_params|
-        current_user.votes.create!(
+        created_votes << current_user.votes.create!(
           project: @project,
           category: vote_params[:category],
           score: vote_params[:score],
@@ -53,8 +55,28 @@ class VotesController < ApplicationController
       end
     end
 
+    share_vote_to_slack(created_votes) if current_user.send_votes_to_slack
+
     redirect_to new_vote_path, notice: "Voted!"
   rescue ActiveRecord::RecordInvalid => e
     redirect_to new_vote_path, alert: e.record.errors.full_messages.to_sentence
+  end
+
+  private
+
+  def share_vote_to_slack(votes)
+    return if votes.empty?
+
+    SendSlackDmJob.perform_later(
+      "C0A2DTFSYSD",
+      nil,
+      blocks_path: "notifications/votes/shared",
+      locals: {
+        project: votes.first.project,
+        votes: votes,
+        anonymous: current_user.vote_anonymously,
+        voter_slack_id: current_user.slack_id
+      }
+    )
   end
 end

@@ -59,10 +59,10 @@
 <%= render layout: "shared/modal", locals: { id: "report-modal", title: "Report project?" } do %>
   <h2>We want good, high quality projects in Flavortown. If you believe this project violates our community guidelines, please let us know why:</h2>
 
-  <%= form_with local: true do |f| %>
+  <%= form_with model: Report.new, url: reports_path(project_id: project.id), local: true do |f| %>
     <div class="form-field">
       <div class="form-checkbox">
-        <%= f.radio_button :reason, "low_effort", id: "report_reason_low_effort" %>
+        <%= f.radio_button :reason, "low_effort", id: "report_reason_low_effort", required: true %>
         <%= f.label :reason, "Low-effort project", for: "report_reason_low_effort" %>
       </div>
 
@@ -91,10 +91,10 @@
             placeholder: "Share a short explanation (20+ characters)." %>
       <small>Why are you reporting this project? (20+ characters)</small>
     </div>
-  <% end %>
 
-  <div class="modal__actions">
-    <button type="button" class="modal__actions-close" onclick="document.getElementById('report-modal').close()">Submit</button>
-    <button type="button" class="modal__actions-close" onclick="document.getElementById('report-modal').close()">Cancel</button>
-  </div>
+    <div class="modal__actions">
+      <%= f.submit "Submit", class: "modal__actions-close" %>
+      <button type="button" class="modal__actions-close" onclick="document.getElementById('report-modal').close()">Cancel</button>
+    </div>
+  <% end %>
 <% end %>

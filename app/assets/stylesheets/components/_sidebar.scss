@@ -433,6 +433,12 @@
   clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
 }
 
+.sidebar__user-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .sidebar__user-balance {
   font-family: var(--font-family-text);
   font-size: 1rem;
@@ -446,6 +452,33 @@
 
   &:hover {
     text-decoration: underline;
+  }
+}
+
+.sidebar__user-settings {
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.sidebar__user-settings-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: currentColor;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
   }
 }
 

@@ -1,0 +1,16 @@
+header "🗳️ New Vote Submitted"
+
+section "A vote was submitted for *#{project.title}*", markdown: true
+
+divider
+
+section "Scores:",
+  fields: [
+    mrkdwn_text("*Originality:* #{votes.find { |v| v.category == 'originality' }&.score || '-'}/5"),
+    mrkdwn_text("*Technical:* #{votes.find { |v| v.category == 'technical' }&.score || '-'}/5"),
+    mrkdwn_text("*Usability:* #{votes.find { |v| v.category == 'usability' }&.score || '-'}/5")
+  ]
+
+context [
+  mrkdwn_text("Voted by: #{anonymous ? 'Anonymous' : "<@#{voter_slack_id}>"}")
+]
