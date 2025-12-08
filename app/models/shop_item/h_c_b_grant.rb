@@ -60,7 +60,7 @@ class ShopItem::HCBGrant < ShopItem
   has_many :shop_card_grants, through: :shop_orders
   def fulfill!(shop_order)
     amount_cents = (usd_cost * shop_order.quantity * 100).to_i
-    email = shop_order.user.email
+    email = shop_order.user.grant_email
     merchant_lock = hcb_merchant_lock
     keyword_lock = hcb_keyword_lock
     category_lock = hcb_category_lock

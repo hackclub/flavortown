@@ -11,6 +11,7 @@
 #  first_name                  :string
 #  has_gotten_free_stickers    :boolean          default(FALSE)
 #  has_roles                   :boolean          default(TRUE), not null
+#  hcb_email                   :string
 #  last_name                   :string
 #  magic_link_token            :string
 #  magic_link_token_expires_at :datetime
@@ -52,6 +53,7 @@ class User < ApplicationRecord
 
   validates :verification_status, presence: true, inclusion: { in: VALID_VERIFICATION_STATUSES }
   validates :slack_id, presence: true, uniqueness: true
+  validates :hcb_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
   scope :with_roles, -> { includes(:role_assignments) }
 
@@ -184,6 +186,10 @@ class User < ApplicationRecord
   end
   def avatar
     "http://cachet.dunkirk.sh/users/#{slack_id}/r"
+  end
+
+  def grant_email
+    hcb_email.presence || email
   end
   def dm_user(message)
     SendSlackDmJob.perform_later(slack_id, message)
