@@ -9,14 +9,6 @@
               color: :brown,
               href: new_project_devlog_path(@project)
             ) %>
-        <% if @project.draft? || @project.can_ship_again? %>
-          <%= render ButtonComponent.new(
-                text: @project.draft? ? "Ship Project" : "Ship Again",
-                color: :green,
-                icon: "icons/ship.svg",
-                href: ship_project_path(@project)
-              ) %>
-        <% end %>
       </div>
     <% end %>
     <% if @posts.present? %>

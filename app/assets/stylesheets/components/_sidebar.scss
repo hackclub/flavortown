@@ -71,6 +71,7 @@
       margin-top: var(--space-m);
       display: flex;
       justify-content: flex-end;
+      gap: 1em;
     }
 
     &__actions-close {
@@ -158,6 +159,25 @@
 
       h1 {
         font-size: 1.2rem;
+      }
+    }
+  }
+
+  #settings-modal {
+    .settings-form {
+      margin-top: 1.5em;
+
+      &__checkbox {
+        span {
+          font-weight: bold;
+          font-family: var(--font-family-subtitle);
+          font-size: 1.3rem;
+        }
+      }
+
+      small {
+        font-size: 1.1rem;
+        font-family: var(--font-family-text);
       }
     }
   }
@@ -458,27 +478,17 @@
 .sidebar__user-settings {
   background: transparent;
   border: none;
-  padding: 0.25rem;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
+  margin-top: 0.4em;
 }
 
 .sidebar__user-settings-icon {
   width: 1.2rem;
   height: 1.2rem;
-  fill: currentColor;
-  opacity: 0.7;
+  fill: var(--color-bg);
 
   &:hover {
-    opacity: 1;
+    filter: brightness(1.1);
   }
 }
 

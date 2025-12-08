@@ -56,7 +56,7 @@
   &__content {
     display: flex;
     flex-direction: column;
-    gap: var(--space-l);
+    gap: 1em;
   }
 
   &__back-link {
@@ -82,7 +82,7 @@
   &__step {
     background: var(--color-brown-200);
     border-radius: var(--border-radius);
-    padding: var(--space-xl) var(--space-xxl);
+    padding: var(--space-l) var(--space-xl);
     border: 2px solid var(--color-brown-400);
   }
 
@@ -106,8 +106,7 @@
     display: flex;
     align-items: flex-start;
     gap: var(--space-s);
-    padding: var(--space-s) var(--space-m);
-    border-radius: var(--border-radius);
+    padding: var(--space-xs) var(--space-s);
     background: var(--color-brown-300);
 
     &--passed {
@@ -144,7 +143,7 @@
   &__form {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xxl);
+    gap: var(--space-xl);
   }
 
   &__form-field {
@@ -174,10 +173,6 @@
     border: 2px solid var(--color-brown-400);
     background: var(--color-bg);
     font-size: 1rem;
-  }
-
-  &__form-actions {
-    margin-top: var(--space-m);
   }
 
   &__reship-info {
@@ -252,14 +247,14 @@
   &__edit-link {
     display: inline-block;
     padding: var(--space-xs) var(--space-m);
-    background: var(--color-brown-300);
-    border-radius: var(--border-radius);
-    color: var(--color-text-body);
+    background: var(--color-brown-500);
+    border-radius: 8px;
+    color: var(--color-bg);
     text-decoration: none;
     font-size: 0.9rem;
 
     &:hover {
-      background: var(--color-brown-400);
+      filter: brightness(1.1);
     }
   }
 
@@ -308,6 +303,10 @@
     color: var(--color-text-body);
     line-height: 1.5;
     margin-bottom: var(--space-xs);
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow: hidden;
   }
 
   &__devlog-duration {
