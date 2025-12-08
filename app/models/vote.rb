@@ -17,10 +17,10 @@
 #
 # Indexes
 #
-#  index_votes_on_project_id                           (project_id)
-#  index_votes_on_ship_event_id                        (ship_event_id)
-#  index_votes_on_user_id                              (user_id)
-#  index_votes_on_user_id_and_project_id_and_category  (user_id,project_id,category) UNIQUE
+#  index_votes_on_project_id                              (project_id)
+#  index_votes_on_ship_event_id                           (ship_event_id)
+#  index_votes_on_user_id                                 (user_id)
+#  index_votes_on_user_id_and_ship_event_id_and_category  (user_id,ship_event_id,category) UNIQUE
 #
 # Foreign Keys
 #
