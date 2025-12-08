@@ -21,12 +21,15 @@ class VotesController < ApplicationController
 
   def new
     authorize :vote, :new?
-    @project = Project.votable_by(current_user).first
+    project_id = Project.looking_for_votes
+                        .votable_by(current_user)
+                        .limit(10)
+                        .pluck(:id)
+                        .sample
+
+    @project = Project.find_by(id: project_id)
     @devlogs = if @project
-                 @project.posts
-                          .includes(:postable, :user)
-                          .order(created_at: :desc)
-                          .limit(5)
+                 @project.posts.includes(:postable, :user).order(created_at: :desc).limit(5)
     else
                  []
     end

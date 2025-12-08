@@ -36,8 +36,9 @@ class Project < ApplicationRecord
     has_many :users, through: :memberships
     has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :nullify
     has_many :posts, dependent: :destroy
-    # prolly countercache it
     has_many :devlogs, -> { where(postable_type: "Post::Devlog") }, class_name: "Post"
+    has_many :ship_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
+    has_one :latest_ship_post, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
     has_many :votes, dependent: :destroy
     has_many :reports, dependent: :destroy
 
@@ -79,8 +80,27 @@ class Project < ApplicationRecord
               processable_file: true
 
     scope :votable_by, ->(user) {
-        where.not(id: user.projects.select(:id))
-        .where.not(id: user.votes.select(:project_id))
+      where.not(id: user.projects.select(:id))
+        .where("NOT EXISTS (
+          SELECT 1 FROM votes
+          WHERE votes.user_id = ?
+          AND votes.ship_event_id = latest_ship.id
+        )", user.id)
+    }
+
+    scope :looking_for_votes, -> {
+      joins("INNER JOIN LATERAL (
+        SELECT post_ship_events.id, post_ship_events.votes_count
+        FROM posts
+        INNER JOIN post_ship_events ON post_ship_events.id = posts.postable_id::bigint
+        WHERE posts.project_id = projects.id
+          AND posts.postable_type = 'Post::ShipEvent'
+          AND post_ship_events.payout IS NULL
+          AND post_ship_events.votes_count < #{Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT}
+        ORDER BY posts.created_at DESC
+        LIMIT 1
+      ) latest_ship ON true")
+        .order("latest_ship.votes_count ASC")
     }
 
     def time
