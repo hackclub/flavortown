@@ -4,6 +4,8 @@
 #
 #  id                                :bigint           not null, primary key
 #  agh_contents                      :jsonb
+#  attached_shop_item_ids            :bigint           default([]), is an Array
+#  buyable_by_self                   :boolean          default(TRUE)
 #  description                       :string
 #  enabled                           :boolean
 #  enabled_au                        :boolean
@@ -123,5 +125,13 @@ class ShopItem < ApplicationRecord
 
   def out_of_stock?
     limited? && remaining_stock && remaining_stock <= 0
+  end
+
+  def available_accessories
+    ShopItem::Accessory.where("? = ANY(attached_shop_item_ids)", id).where(enabled: true)
+  end
+
+  def has_accessories?
+    available_accessories.exists?
   end
 end

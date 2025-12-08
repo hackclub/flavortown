@@ -35,6 +35,7 @@ class ShopController < ApplicationController
 
   def order
     @shop_item = ShopItem.find(params[:shop_item_id])
+    @accessories = @shop_item.available_accessories.includes(:image_attachment)
   end
 
   def update_region
@@ -65,10 +66,18 @@ class ShopController < ApplicationController
   def create_order
     @shop_item = ShopItem.find(params[:shop_item_id])
     quantity = params[:quantity].to_i
+    accessory_ids = Array(params[:accessory_ids]).map(&:to_i).reject(&:zero?)
 
     if quantity <= 0
         redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Quantity must be greater than 0"
         return
+    end
+
+    # Validate accessories belong to this item
+    @accessories = if accessory_ids.any?
+      @shop_item.available_accessories.where(id: accessory_ids)
+    else
+      []
     end
 
     # Create the order
@@ -81,12 +90,25 @@ class ShopController < ApplicationController
     @order = current_user.shop_orders.new(
       shop_item: @shop_item,
       quantity: quantity,
-      frozen_address: selected_address
+      frozen_address: selected_address,
+      accessory_ids: @accessories.pluck(:id)
     )
 
     @order.aasm_state = "pending" if @order.respond_to?(:aasm_state=)
 
     if @order.save
+      # Create orders for each accessory
+      @accessories.each do |accessory|
+        accessory_order = current_user.shop_orders.new(
+          shop_item: accessory,
+          quantity: 1,
+          frozen_address: selected_address,
+          parent_order_id: @order.id
+        )
+        accessory_order.aasm_state = "pending" if accessory_order.respond_to?(:aasm_state=)
+        accessory_order.save!
+      end
+
       if @shop_item.is_a?(ShopItem::FreeStickers)
         begin
           @shop_item.fulfill!(@order)
