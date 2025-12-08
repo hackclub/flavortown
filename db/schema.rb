@@ -287,6 +287,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
 
   create_table "shop_items", force: :cascade do |t|
     t.jsonb "agh_contents"
+    t.bigint "attached_shop_item_ids", default: [], array: true
+    t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.string "description"
     t.boolean "enabled"
@@ -331,6 +333,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
 
   create_table "shop_orders", force: :cascade do |t|
     t.string "aasm_state"
+    t.bigint "accessory_ids", default: [], array: true
     t.datetime "awaiting_periodical_fulfillment_at"
     t.datetime "created_at", null: false
     t.string "external_ref"
@@ -341,6 +344,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
     t.decimal "fulfillment_cost", precision: 6, scale: 2, default: "0.0"
     t.text "internal_notes"
     t.datetime "on_hold_at"
+    t.bigint "parent_order_id"
     t.integer "quantity"
     t.datetime "rejected_at"
     t.string "rejection_reason"
@@ -350,6 +354,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.bigint "warehouse_package_id"
+    t.index ["parent_order_id"], name: "index_shop_orders_on_parent_order_id"
     t.index ["shop_card_grant_id"], name: "index_shop_orders_on_shop_card_grant_id"
     t.index ["shop_item_id", "aasm_state", "quantity"], name: "idx_shop_orders_item_state_qty"
     t.index ["shop_item_id", "aasm_state"], name: "idx_shop_orders_stock_calc"
@@ -422,6 +427,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
     t.integer "projects_count"
     t.string "region"
     t.boolean "send_votes_to_slack", default: false, null: false
+    t.string "session_token"
     t.string "slack_id"
     t.datetime "synced_at"
     t.string "tutorial_steps_completed", default: [], array: true
@@ -432,6 +438,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["region"], name: "index_users_on_region"
+    t.index ["session_token"], name: "index_users_on_session_token", unique: true
     t.index ["slack_id"], name: "index_users_on_slack_id", unique: true
   end
 
@@ -474,6 +481,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_orders", "shop_items"
+  add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
   add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"
   add_foreign_key "shop_orders", "users"
   add_foreign_key "shop_warehouse_packages", "users"
