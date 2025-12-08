@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_03_145919) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -289,12 +289,24 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_03_145919) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.bigint "warehouse_package_id"
+    t.index ["shop_card_grant_id"], name: "index_shop_orders_on_shop_card_grant_id"
     t.index ["shop_item_id", "aasm_state", "quantity"], name: "idx_shop_orders_item_state_qty"
     t.index ["shop_item_id", "aasm_state"], name: "idx_shop_orders_stock_calc"
     t.index ["shop_item_id"], name: "index_shop_orders_on_shop_item_id"
     t.index ["user_id", "shop_item_id", "aasm_state"], name: "idx_shop_orders_user_item_state"
     t.index ["user_id", "shop_item_id"], name: "idx_shop_orders_user_item_unique"
     t.index ["user_id"], name: "index_shop_orders_on_user_id"
+    t.index ["warehouse_package_id"], name: "index_shop_orders_on_warehouse_package_id"
+  end
+
+  create_table "shop_warehouse_packages", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "frozen_address_ciphertext"
+    t.string "theseus_package_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["theseus_package_id"], name: "index_shop_warehouse_packages_on_theseus_package_id", unique: true
+    t.index ["user_id"], name: "index_shop_warehouse_packages_on_user_id"
   end
 
   create_table "user_hackatime_projects", force: :cascade do |t|
@@ -394,7 +406,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_03_145919) do
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_orders", "shop_items"
+  add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"
   add_foreign_key "shop_orders", "users"
+  add_foreign_key "shop_warehouse_packages", "users"
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"

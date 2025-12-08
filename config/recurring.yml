@@ -25,3 +25,9 @@ production:
     schedule: every minute
     concurrency: 1
     description: "Sync RSVPs to Airtable every minute with single execution limit"
+    
+  shop_process_warehouse_orders:
+    class: Shop::ProcessWarehouseOrdersJob
+    schedule: every 2 days
+    concurrency: 1
+    description: "Process warehouse orders every 2 days with single execution limit"
