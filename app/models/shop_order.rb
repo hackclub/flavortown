@@ -279,7 +279,7 @@ class ShopOrder < ApplicationRecord
     ledger_entries.create!(
       amount: total_cost,
       reason: "Refund for rejected order of #{shop_item.name.pluralize(quantity)}",
-      created_by: user
+      created_by: "#{user.display_name} (#{user.id})"
     )
   end
 end
