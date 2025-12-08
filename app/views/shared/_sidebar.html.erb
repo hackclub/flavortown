@@ -90,7 +90,7 @@
     <%= form_with url: my_settings_path, method: :patch, local: true, class: "settings-form" do |f| %>
       <div class="settings-form__field">
         <label class="settings-form__label" for="hcb_email">HCB Email</label>
-        <%= text_field_tag :hcb_email, current_user.hcb_email, id: "hcb_email", class: "settings-form__input", placeholder: current_user.email %>
+        <%= text_field_tag :hcb_email, current_user.hcb_email, id: "hcb_email", class: "settings-form__input", placeholder: current_user.email, autocomplete: "email" %>
         <small class="settings-form__hint">Email used for receiving HCB grants. Leave blank to use your default email.</small>
       </div>
 
