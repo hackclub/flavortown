@@ -58,7 +58,7 @@ class AdminPolicy < ApplicationPolicy
   def ban_users?
     user.admin? || user.fraud_dept?
   end
-  
+
   def access_reports?
     user.admin? || user.fraud_dept?
   end
