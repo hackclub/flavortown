@@ -38,7 +38,40 @@
 require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  test "grant_email returns hcb_email when present" do
+    user = users(:one)
+    user.hcb_email = "hcb@example.com"
+    assert_equal "hcb@example.com", user.grant_email
+  end
+
+  test "grant_email falls back to email when hcb_email is nil" do
+    user = users(:one)
+    user.hcb_email = nil
+    assert_equal user.email, user.grant_email
+  end
+
+  test "grant_email falls back to email when hcb_email is blank" do
+    user = users(:one)
+    user.hcb_email = ""
+    assert_equal user.email, user.grant_email
+  end
+
+  test "hcb_email validates email format" do
+    user = users(:one)
+    user.hcb_email = "not-an-email"
+    assert_not user.valid?
+    assert_includes user.errors[:hcb_email], "is invalid"
+  end
+
+  test "hcb_email allows valid email format" do
+    user = users(:one)
+    user.hcb_email = "valid@example.com"
+    assert user.valid?
+  end
+
+  test "hcb_email allows blank value" do
+    user = users(:one)
+    user.hcb_email = ""
+    assert user.valid?
+  end
 end

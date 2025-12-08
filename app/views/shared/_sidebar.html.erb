@@ -89,6 +89,12 @@
   <%= render layout: "shared/modal", locals: { id: "settings-modal", title: "Settings" } do %>
     <%= form_with url: my_settings_path, method: :patch, local: true, class: "settings-form" do |f| %>
       <div class="settings-form__field">
+        <label class="settings-form__label" for="hcb_email">HCB Email</label>
+        <%= text_field_tag :hcb_email, current_user.hcb_email, id: "hcb_email", class: "settings-form__input", placeholder: current_user.email, autocomplete: "email" %>
+        <small class="settings-form__hint">Email used for receiving HCB grants. Leave blank to use your default email.</small>
+      </div>
+
+      <div class="settings-form__field">
         <label class="settings-form__checkbox">
           <%= check_box_tag :send_votes_to_slack, "1", current_user.send_votes_to_slack, id: "send_votes_to_slack" %>
           <span>Send votes to Slack</span>
