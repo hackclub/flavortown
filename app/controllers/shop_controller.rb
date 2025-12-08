@@ -14,13 +14,16 @@ class ShopController < ApplicationController
               .select { |item| item.enabled_in_region?(@user_region) }
               .first
     end
-    @shop_items = ShopItem.all.includes(:image_attachment)
+    @shop_items = ShopItem.buyable_standalone.includes(:image_attachment)
     @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if user_ordered_free_stickers?
     @user_balance = current_user.balance
   end
 
   def my_orders
-    @orders = current_user.shop_orders.includes(shop_item: { image_attachment: :blob }).order(id: :desc)
+    @orders = current_user.shop_orders
+                          .where(parent_order_id: nil)
+                          .includes(:accessory_orders, shop_item: { image_attachment: :blob })
+                          .order(id: :desc)
   end
 
   def cancel_order
@@ -44,7 +47,7 @@ class ShopController < ApplicationController
       current_user.update!(region: region)
 
       @user_region = region
-      @shop_items = ShopItem.all.includes(:image_attachment)
+      @shop_items = ShopItem.buyable_standalone.includes(:image_attachment)
       @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if user_ordered_free_stickers?
       @user_balance = current_user.balance
       @featured_item = unless user_ordered_free_stickers?

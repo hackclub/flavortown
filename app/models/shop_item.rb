@@ -69,6 +69,7 @@ class ShopItem < ApplicationRecord
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
   scope :enabled, -> { where(enabled: true) }
+  scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
 
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
 
