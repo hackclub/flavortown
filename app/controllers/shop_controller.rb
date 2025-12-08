@@ -99,17 +99,21 @@ class ShopController < ApplicationController
 
     @order.aasm_state = "pending" if @order.respond_to?(:aasm_state=)
 
-    if @order.save
-      # Create orders for each accessory
-      @accessories.each do |accessory|
-        accessory_order = current_user.shop_orders.new(
-          shop_item: accessory,
-          quantity: 1,
-          frozen_address: selected_address,
-          parent_order_id: @order.id
-        )
-        accessory_order.aasm_state = "pending" if accessory_order.respond_to?(:aasm_state=)
-        accessory_order.save!
+    begin
+      ActiveRecord::Base.transaction do
+        @order.save!
+
+        # Create orders for each accessory
+        @accessories.each do |accessory|
+          accessory_order = current_user.shop_orders.new(
+            shop_item: accessory,
+            quantity: 1,
+            frozen_address: selected_address,
+            parent_order_id: @order.id
+          )
+          accessory_order.aasm_state = "pending" if accessory_order.respond_to?(:aasm_state=)
+          accessory_order.save!
+        end
       end
 
       if @shop_item.is_a?(ShopItem::FreeStickers)
@@ -124,8 +128,8 @@ class ShopController < ApplicationController
         end
       end
       redirect_to shop_my_orders_path, notice: "Order placed successfully!"
-    else
-      redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{@order.errors.full_messages.join(', ')}"
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{e.record.errors.full_messages.join(', ')}"
     end
   end
 
