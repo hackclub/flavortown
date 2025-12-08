@@ -9,6 +9,7 @@
 #  duration_seconds                :integer
 #  hackatime_projects_key_snapshot :text
 #  hackatime_pulled_at             :datetime
+#  scrapbook_url                   :string
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null
 #

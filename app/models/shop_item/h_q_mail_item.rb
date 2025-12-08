@@ -4,6 +4,8 @@
 #
 #  id                                :bigint           not null, primary key
 #  agh_contents                      :jsonb
+#  attached_shop_item_ids            :bigint           default([]), is an Array
+#  buyable_by_self                   :boolean          default(TRUE)
 #  description                       :string
 #  enabled                           :boolean
 #  enabled_au                        :boolean
