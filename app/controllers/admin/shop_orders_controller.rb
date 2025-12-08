@@ -15,7 +15,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     # Base query
-    orders = ShopOrder.includes(:shop_item, :user)
+    orders = ShopOrder.includes(:shop_item, :user, :accessory_orders)
 
     # Apply view-specific scopes
     case @view

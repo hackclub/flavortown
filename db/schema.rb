@@ -290,6 +290,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_222733) do
 
   create_table "shop_items", force: :cascade do |t|
     t.jsonb "agh_contents"
+    t.bigint "attached_shop_item_ids", default: [], array: true
+    t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.string "description"
     t.boolean "enabled"
@@ -334,6 +336,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_222733) do
 
   create_table "shop_orders", force: :cascade do |t|
     t.string "aasm_state"
+    t.bigint "accessory_ids", default: [], array: true
     t.datetime "awaiting_periodical_fulfillment_at"
     t.datetime "created_at", null: false
     t.string "external_ref"
@@ -344,6 +347,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_222733) do
     t.decimal "fulfillment_cost", precision: 6, scale: 2, default: "0.0"
     t.text "internal_notes"
     t.datetime "on_hold_at"
+    t.bigint "parent_order_id"
     t.integer "quantity"
     t.datetime "rejected_at"
     t.string "rejection_reason"
@@ -353,12 +357,25 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_222733) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.bigint "warehouse_package_id"
+    t.index ["parent_order_id"], name: "index_shop_orders_on_parent_order_id"
+    t.index ["shop_card_grant_id"], name: "index_shop_orders_on_shop_card_grant_id"
     t.index ["shop_item_id", "aasm_state", "quantity"], name: "idx_shop_orders_item_state_qty"
     t.index ["shop_item_id", "aasm_state"], name: "idx_shop_orders_stock_calc"
     t.index ["shop_item_id"], name: "index_shop_orders_on_shop_item_id"
     t.index ["user_id", "shop_item_id", "aasm_state"], name: "idx_shop_orders_user_item_state"
     t.index ["user_id", "shop_item_id"], name: "idx_shop_orders_user_item_unique"
     t.index ["user_id"], name: "index_shop_orders_on_user_id"
+    t.index ["warehouse_package_id"], name: "index_shop_orders_on_warehouse_package_id"
+  end
+
+  create_table "shop_warehouse_packages", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "frozen_address_ciphertext"
+    t.string "theseus_package_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["theseus_package_id"], name: "index_shop_warehouse_packages_on_theseus_package_id", unique: true
+    t.index ["user_id"], name: "index_shop_warehouse_packages_on_user_id"
   end
 
   create_table "user_hackatime_projects", force: :cascade do |t|
@@ -407,12 +424,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_222733) do
     t.string "first_name"
     t.boolean "has_gotten_free_stickers", default: false
     t.boolean "has_roles", default: true, null: false
+    t.string "hcb_email"
     t.string "last_name"
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.integer "projects_count"
     t.string "region"
     t.boolean "send_votes_to_slack", default: false, null: false
+    t.string "session_token"
     t.string "slack_id"
     t.datetime "synced_at"
     t.string "tutorial_steps_completed", default: [], array: true
@@ -423,6 +442,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_222733) do
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["region"], name: "index_users_on_region"
+    t.index ["session_token"], name: "index_users_on_session_token", unique: true
     t.index ["slack_id"], name: "index_users_on_slack_id", unique: true
   end
 
@@ -467,7 +487,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_222733) do
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_orders", "shop_items"
+  add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
+  add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"
   add_foreign_key "shop_orders", "users"
+  add_foreign_key "shop_warehouse_packages", "users"
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"

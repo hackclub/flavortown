@@ -11,12 +11,14 @@
 #  first_name                  :string
 #  has_gotten_free_stickers    :boolean          default(FALSE)
 #  has_roles                   :boolean          default(TRUE), not null
+#  hcb_email                   :string
 #  last_name                   :string
 #  magic_link_token            :string
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
 #  region                      :string
 #  send_votes_to_slack         :boolean          default(FALSE), not null
+#  session_token               :string
 #  synced_at                   :datetime
 #  tutorial_steps_completed    :string           default([]), is an Array
 #  verification_status         :string           default("needs_submission"), not null
@@ -31,6 +33,7 @@
 #  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #  index_users_on_region            (region)
+#  index_users_on_session_token     (session_token) UNIQUE
 #  index_users_on_slack_id          (slack_id) UNIQUE
 #
 class User < ApplicationRecord
@@ -50,6 +53,7 @@ class User < ApplicationRecord
 
   validates :verification_status, presence: true, inclusion: { in: VALID_VERIFICATION_STATUSES }
   validates :slack_id, presence: true, uniqueness: true
+  validates :hcb_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
   scope :with_roles, -> { includes(:role_assignments) }
 
@@ -182,6 +186,10 @@ class User < ApplicationRecord
   end
   def avatar
     "http://cachet.dunkirk.sh/users/#{slack_id}/r"
+  end
+
+  def grant_email
+    hcb_email.presence || email
   end
   def dm_user(message)
     SendSlackDmJob.perform_later(slack_id, message)
