@@ -175,25 +175,10 @@ class Admin::UsersController < Admin::ApplicationController
       return redirect_to admin_user_path(@user)
     end
 
-    old_balance = @user.balance
-
-    ledger_entry = @user.ledger_entries.create!(
+    @user.ledger_entries.create!(
       amount: amount,
       reason: reason,
       created_by: "#{current_user.display_name} (#{current_user.id})"
-    )
-
-    PaperTrail::Version.create!(
-      item_type: "User",
-      item_id: @user.id,
-      event: "balance_adjustment",
-      whodunnit: current_user.id,
-      object_changes: {
-        balance: [ old_balance, @user.balance ],
-        amount: [ amount ],
-        reason: [ reason ],
-        ledger_entry_id: [ nil, ledger_entry.id ]
-      }.to_yaml
     )
 
     flash[:notice] = "Balance adjusted by #{amount} for #{@user.display_name}."

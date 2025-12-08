@@ -194,8 +194,22 @@
                   <% status = changes["status"] || changes[:status] %>
                   (<%= status.first %> → <%= status.last %>)
                 <% end %>
+              <% elsif version.event == "balance_adjustment" %>
+                <%
+                  balance = changes["balance"] || changes[:balance]
+                  reason = changes["reason"] || changes[:reason]
+                  reason = reason.is_a?(Array) ? reason.last : reason
+                  created_by = changes["created_by"] || changes[:created_by]
+                  created_by = created_by.is_a?(Array) ? created_by.last : created_by
+                %>
+                <% if balance.is_a?(Array) %>
+                  <%= balance.first %> → <%= balance.last %> tickets
+                <% end %>
+                <% if reason.present? %>
+                  (<%= reason %>)
+                <% end %>
               <% elsif changes.any? %>
-                <% changes.each do |key, value| %>
+                <% changes.except("amount", "ledger_entry_id").each do |key, value| %>
                   <div><strong><%= key.to_s.titleize %>:</strong>
                   <% if value.is_a?(Array) %>
                     <%= value.first.inspect %> → <%= value.last.inspect %>
