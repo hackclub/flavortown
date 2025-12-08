@@ -29,7 +29,11 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     # Apply filters
     orders = orders.where(shop_item_id: params[:shop_item_id]) if params[:shop_item_id].present?
-    orders = orders.where(aasm_state: params[:status]) if params[:status].present?
+
+    # Set default status for fraud dept
+    @default_status = "pending" if current_user.fraud_dept? && !current_user.admin?
+    status_filter = params[:status].presence || @default_status
+    orders = orders.where(aasm_state: status_filter) if status_filter.present?
     orders = orders.where("created_at >= ?", params[:date_from]) if params[:date_from].present?
     orders = orders.where("created_at <= ?", params[:date_to]) if params[:date_to].present?
 
@@ -118,6 +122,18 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     # Load user's order history for fraud dept or order review
     @user_orders = @order.user.shop_orders.where.not(id: @order.id).order(created_at: :desc).limit(10)
+
+    # User's shop orders summary stats
+    user_orders = @order.user.shop_orders
+    @user_order_stats = {
+      total: user_orders.count,
+      fulfilled: user_orders.where(aasm_state: "fulfilled").count,
+      pending: user_orders.where(aasm_state: "pending").count,
+      rejected: user_orders.where(aasm_state: "rejected").count,
+      total_quantity: user_orders.sum(:quantity),
+      on_hold: user_orders.where(aasm_state: "on_hold").count,
+      awaiting_fulfillment: user_orders.where(aasm_state: "awaiting_periodical_fulfillment").count
+    }
   end
 
   def reveal_address

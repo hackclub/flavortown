@@ -49,3 +49,5 @@ db/seeds/shop_items.csv
 /node_modules
 
 wak.toml
+
+/config/*.key

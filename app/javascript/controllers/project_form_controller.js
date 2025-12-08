@@ -25,6 +25,8 @@ export default class extends Controller {
 
     this.updateSubmitState(); // submit button
 
+    this.restorReadmeWhenThereIsAError();
+
     if (
       this.hasRepoUrlTarget &&
       this.hasReadmeUrlTarget &&
@@ -235,6 +237,28 @@ export default class extends Controller {
       const control = this.readmeUrlTarget.closest(".input__control");
       if (control) control.classList.remove("input__control--locked");
       this.readmeUrlTarget.removeAttribute("title");
+    }
+  }
+
+  restorReadmeWhenThereIsAError() {
+    if (!this.hasReadmeContainerTarget || !this.hasReadmeUrlTarget) return;
+    const value = (this.readmeUrlTarget.value || "").trim();
+    if (!value) return;
+
+    this.readmeContainerTarget.hidden = false;
+
+    if (this.readmeUrlTarget.dataset.autofilled === "true") {
+      this.readmeUrlTarget.readOnly = true;
+      const control = this.readmeUrlTarget.closest(".input__control");
+      if (control) control.classList.add("input__control--locked");
+      this.readmeUrlTarget.title = "Autodetected from repository (locked)";
+      this.userEditedReadme = false;
+    } else {
+      this.readmeUrlTarget.readOnly = false;
+      const control = this.readmeUrlTarget.closest(".input__control");
+      if (control) control.classList.remove("input__control--locked");
+      this.readmeUrlTarget.removeAttribute("title");
+      this.userEditedReadme = true;
     }
   }
 

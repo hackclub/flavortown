@@ -1,0 +1,21 @@
+secret_key_base: run rails secret
+
+lockbox:
+  master_key: "0000000000000000000000000000000000000000000000000000000000000000"
+
+slack:
+  bot_token: "xoxb-"
+
+constants:
+  billy_url: https://billy.3kh0.net
+  joe_url: https://dash.fraud.land
+
+idv:
+  client_id: client_id
+  client_secret: secrets
+  redirect_url: http://localhost:3000/oauth/callback
+  site: https://hca.dinosaurbbq.org
+
+hackatime:
+  client_id: client_id
+  client_secret: client_secret

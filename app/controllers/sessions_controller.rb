@@ -1,6 +1,3 @@
-require "faraday"
-require "json"
-
 class SessionsController < ApplicationController
   def create
     auth = request.env["omniauth.auth"]
@@ -16,6 +13,7 @@ class SessionsController < ApplicationController
 
     user_email, display_name, verification_status, slack_id, uid, _, first_name, last_name = extract_identity_fields(identity_data)
     return redirect_to(root_path, alert: "Authentication failed") if uid.blank?
+    return redirect_to(root_path, alert: "Authentication failed") if slack_id.blank?
     return redirect_to(root_path, alert: "Authentication failed") unless User::VALID_VERIFICATION_STATUSES.include?(verification_status)
 
     identity = User::Identity.find_or_initialize_by(provider: "hack_club", uid: uid)
@@ -36,7 +34,7 @@ class SessionsController < ApplicationController
     SyncSlackDisplayNameJob.perform_later(user)
 
     session[:user_id] = user.id
-    current_user.complete_tutorial_step! :first_login
+    user.complete_tutorial_step! :first_login
     redirect_to(user.setup_complete? ? projects_path : kitchen_path, notice: "Signed in with Hack Club")
   end
 
@@ -53,23 +51,7 @@ class SessionsController < ApplicationController
 
   def fetch_hack_club_identity(access_token)
     # https://hca.dinosaurbbq.org/docs/oauth-guide
-    conn = Faraday.new(url: Rails.application.config.identity)
-    response = conn.get("/api/v1/me") do |req|
-      req.headers["Authorization"] = "Bearer #{access_token}"
-      req.headers["Accept"] = "application/json"
-    end
-
-    unless response.success?
-      Rails.logger.warn("Hack Club /me fetch failed with status #{response.status}")
-      return nil
-    end
-
-    json_payload = JSON.parse(response.body)
-    Rails.logger.info(json_payload)
-    json_payload["identity"] || {}
-  rescue StandardError => e
-    Rails.logger.warn("Hack Club /me fetch error: #{e.class}: #{e.message}")
-    nil
+    HCAService.identity(access_token)
   end
 
   def extract_identity_fields(data)

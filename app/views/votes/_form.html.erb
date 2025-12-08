@@ -10,6 +10,14 @@
     <% end %>
   <% end %>
 
+  <% if current_user.send_votes_to_slack %>
+    <div class="vote-reason">
+      <%= form.label :reason, "Feedback for the creator (optional)", class: "vote-reason__label" %>
+      <%= form.text_area :reason, class: "vote-reason__input", placeholder: "Share your thoughts about this project...", rows: 3 %>
+      <small class="vote-reason__hint">This will be shared to Slack with your vote</small>
+    </div>
+  <% end %>
+
   <%= button_tag(type: "submit", class: "btn-submit") do %>
     <%= inline_svg_tag "icons/tick.svg", class: "btn-submit__icon", aria: { hidden: true } %>
     Submit

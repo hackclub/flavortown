@@ -1,4 +1,6 @@
 class ShopController < ApplicationController
+  before_action :require_login
+
   def index
     @shop_open = true
     @user_region = user_region
@@ -105,11 +107,16 @@ class ShopController < ApplicationController
   private
 
   def user_region
-    return current_user.region if current_user.region.present?
+    if current_user
+      return current_user.region if current_user.region.present?
 
-    primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
-    country = primary_address&.dig("country")
-    Shop::Regionalizable.country_to_region(country)
+      primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
+      country = primary_address&.dig("country")
+      region_from_address = Shop::Regionalizable.country_to_region(country)
+      return region_from_address if region_from_address != "XX" || country.present?
+    end
+
+    Shop::Regionalizable.timezone_to_region(cookies[:timezone])
   end
 
   def user_ordered_free_stickers?
@@ -117,5 +124,9 @@ class ShopController < ApplicationController
       .joins(:shop_item)
       .where(shop_items: { type: "ShopItem::FreeStickers" })
       .exists?
+  end
+
+  def require_login
+    redirect_to root_path, alert: "Please log in first" and return unless current_user
   end
 end

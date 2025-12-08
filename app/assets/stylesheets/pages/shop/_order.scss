@@ -8,6 +8,7 @@
     .btn {
       margin-left: 50%;
       transform: translateX(-50%);
+      text-align: center;
     }
   }
 
@@ -48,13 +49,13 @@
     }
 
     h2 {
-      font-size: 3rem;
+      font-size: 2.2rem;
       margin-top: 0.2em;
       font-family: var(--font-family-subtitle);
     }
 
     h3 {
-      font-size: 1.2rem;
+      font-size: 1rem;
       margin-top: 0.2rem;
       font-weight: normal;
       font-family: var(--font-family-text);
@@ -108,45 +109,57 @@
     }
 
     .shop-order__address {
-      /* margin-top: 3.5em; */
-
       .dropdown {
         width: 100%;
-      }
+        margin-top: 3em;
 
-      .dropdown__button {
-        background-color: var(--color-brown-700);
-        margin-top: -0.3em;
-        border: 0.2em solid var(--color-bg);
-        box-shadow: none;
-      }
+        @media (max-width: 960px) {
+          margin-top: 4em;
+        }
 
-      .dropdown__menu {
-        background-color: var(--color-brown-500);
-      }
+        &__label {
+          top: -1.4em;
+          width: fit-content;
+          background-color: #4f8fba;
+          color: var(--color-bg);
+          border-radius: 8px;
+          font-family: var(--font-family-subtitle);
+          padding: 0.3em 0.8em 1.6em 0.8em;
+          font-size: 1.4rem;
+        }
 
-      .dropdown__label {
-        color: var(--color-brown-700);
-        background-color: var(--color-bg);
-        font-size: 1.2rem;
-        width: fit-content;
-        border-top-left-radius: calc(var(--border-radius) * 0.8);
-        border-top-right-radius: calc(var(--border-radius) * 0.8);
-        padding-left: 1em;
-        padding-right: 1em;
-      }
+        &__button {
+          padding: 1.4em 0.4em;
+          position: relative;
+          box-shadow: none;
 
-      .dropdown__menu {
-        background-color: var(--color-bg);
-      }
+          .dropdown__selected {
+            background-color: var(--color-bg);
+            color: var(--color-blue-500);
+            padding: 0.5em;
+            border-radius: 8px;
+            width: calc(100% - 1em);
+            font-size: 1.1rem;
+            display: block;
+            text-align: left;
+            position: absolute;
+            z-index: -1;
 
-      .dropdown__item {
-        color: var(--color-brown-700);
-      }
+            .dropdown__char-span {
+              display: block;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              overflow: hidden;
+              max-width: 90%;
+            }
+          }
 
-      .dropdown__item:hover {
-        background-color: var(--color-brown-700);
-        color: var(--color-bg);
+          svg {
+            position: absolute;
+            right: 1.5em;
+            color: var(--color-blue-500);
+          }
+        }
       }
 
       h4 {
@@ -155,9 +168,11 @@
         font-weight: normal;
         font-family: var(--font-family-text);
       }
+    }
 
+    .shop-order__no-address {
       a {
-        color: var(--color-bg);
+        background-color: var(--color-brown-500);
       }
     }
 
@@ -188,6 +203,28 @@
       &:hover {
         background-color: var(--color-brown-700);
         color: var(--color-bg);
+      }
+    }
+
+    .shop-order__no-address {
+      p {
+        margin-bottom: 0.5em;
+        font-family: var(--font-family-text);
+      }
+
+      a {
+        font-size: 1.2rem;
+        background-color: var(--color-brown-500);
+        color: var(--color-bg);
+        border-radius: 8px;
+        border: 2px solid var(--color-brown-500);
+        font-family: var(--font-family-subtitle);
+        margin: 0;
+
+        &:hover {
+          background-color: var(--color-brown-700);
+          border-color: var(--color-brown-700);
+        }
       }
     }
 
@@ -254,15 +291,15 @@
     margin-top: 2em;
     background-color: var(--color-brown-500);
     color: var(--color-bg);
-    border-radius: 12px;
+    border-radius: 8px;
     width: 100%;
     border-color: var(--color-brown-500);
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     padding: 0;
 
     svg {
-      height: 30px;
-      width: 30px;
+      height: 1.4rem;
+      width: 1.4rem;
     }
   }
 
@@ -270,8 +307,8 @@
     background-color: #fff3cd;
     border: 1px solid #ffc107;
     border-radius: 6px;
-    padding: 0.5rem 0.75rem;
-    font-size: 1.2rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 1rem;
     color: #856404;
     font-weight: normal;
     text-align: center;

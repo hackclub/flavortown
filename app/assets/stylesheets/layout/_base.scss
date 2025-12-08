@@ -28,8 +28,14 @@ body.signed-in {
   margin-left: 320px; // space for sidebar
   margin-right: 100px;
 
-  @media (max-width: 960px) {
-    margin-left: 50px;
+  @media (max-width: 1500px) {
+    margin-left: 270px;
     margin-right: 50px;
+  }
+
+  @media (max-width: 960px) {
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 180px; // extra space for bottom-bar
   }
 }

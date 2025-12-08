@@ -1,0 +1,21 @@
+secret_key_base: [redacted]
+
+slack:
+  bot_token: [redacted]
+
+lockbox:
+  master_key: [redacted]
+
+cloudflare:
+  account_id: [redacted]
+  access_key_id: [redacted]
+  secret_access_key: [redacted]
+  bucket: [redacted]
+
+idv:
+  client_id: [redacted]
+  client_secret: [redacted]
+
+hackatime:
+  client_id: [redacted]
+  client_secret: [redacted]

@@ -30,6 +30,13 @@
     margin-bottom: 2em;
     margin-left: 50%;
     transform: translateX(-50%);
+
+    @media (max-width: 500px) {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   }
 
   &__main {
@@ -57,6 +64,11 @@
     border-radius: 16px;
     color: var(--color-bg);
     padding: 1em;
+
+    @media (max-width: 1500px) {
+      flex-direction: column;
+      gap: 1em;
+    }
   }
 
   &__project-details {
@@ -64,6 +76,11 @@
     flex-direction: row;
     gap: 0.5em;
     align-items: flex-start;
+
+    @media (max-width: 1500px) {
+      flex-direction: column;
+      align-items: center;
+    }
   }
 
   &__project-banner-image {
@@ -72,6 +89,11 @@
     border-radius: 8px;
     flex-shrink: 0;
     object-fit: cover;
+
+    @media (max-width: 1500px) {
+      width: 100%;
+      height: 60px;
+    }
   }
 
   &__project-card-content {
@@ -94,6 +116,10 @@
     flex-direction: row;
     gap: 1em;
     margin-top: 0.5em;
+
+    @media (max-width: 600px) {
+      justify-content: center;
+    }
   }
 
   &__project-card-stat {
@@ -119,6 +145,13 @@
     .btn {
       font-family: var(--font-family-text);
       font-size: 1rem;
+
+      @media (max-width: 500px) {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
     }
 
     .report-btn {
@@ -129,6 +162,17 @@
         opacity: 1;
       }
     }
+
+    @media (max-width: 1500px) {
+      flex-direction: row;
+      width: 100%;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 500px) {
+      flex-direction: column;
+    }
   }
 
   &__devlogs {
@@ -137,8 +181,7 @@
     flex-direction: column;
     gap: 0.5em;
     max-height: 850px;
-    overflow-y: scroll;
-    padding-right: 5px;
+    overflow-y: auto;
 
     @supports (-moz-appearance: none) {
       scrollbar-width: 15px;
@@ -207,6 +250,10 @@
       @media (max-width: 1200px) {
         text-align: center;
       }
+
+      @media (max-width: 500px) {
+        font-size: 1.5rem;
+      }
     }
 
     .btn-submit {
@@ -221,13 +268,15 @@
       margin-left: 50%;
       transform: translateX(-50%);
       margin-top: 1em;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 1em;
       cursor: pointer;
 
       svg {
         width: 30px;
         height: 30px;
-        margin-bottom: -0.2em;
-        margin-right: 1em;
       }
 
       &::before {
@@ -243,6 +292,97 @@
 
       &:hover {
         filter: brightness(1.1);
+      }
+    }
+  }
+
+  .modal {
+    border: none;
+    border-radius: var(--border-radius);
+    border: 0.5rem solid var(--color-brown-700);
+    padding: var(--space-l);
+    background: var(--color-bg);
+    box-shadow: var(--shadow);
+    max-width: 700px;
+    width: 90%;
+    color: var(--color-text-body);
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    &::backdrop {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+    }
+
+    &__title {
+      font-family: var(--font-family-subtitle);
+      font-size: 2rem;
+      margin-bottom: 0.5em;
+    }
+
+    &__loading {
+      text-align: center;
+      color: var(--color-text-muted);
+      margin-top: 0.5em;
+    }
+
+    &__actions {
+      margin-top: var(--space-m);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1em;
+    }
+
+    &__actions-close {
+      background-color: var(--color-brown-500);
+      font-size: 1rem;
+      padding: 0.2rem 0.5rem;
+      border: 2px solid var(--color-brown-700);
+      border-radius: 5px;
+      color: var(--color-bg);
+      cursor: pointer;
+
+      &:hover {
+        filter: brightness(1.1);
+      }
+    }
+  }
+
+  #report-modal {
+    h2 {
+      font-weight: normal;
+      font-size: 1.2rem;
+      font-family: var(--font-family-text);
+      margin: 0;
+      margin-bottom: 0.5em;
+    }
+
+    .form-field {
+      border: none;
+    }
+
+    .form-checkbox {
+      label {
+        margin-top: -0.4em;
+        font-family: var(--font-family-text);
+      }
+    }
+
+    .form-group {
+      margin-top: -1em;
+
+      textarea {
+        border: 2px solid var(--color-brown-700);
+        margin-bottom: 0.5em;
+        font-family: var(--font-family-text);
+      }
+
+      small {
+        font-weight: bold;
+        font-family: var(--font-family-subtitle);
+        font-size: 1rem;
       }
     }
   }
@@ -313,6 +453,16 @@
       width: 3rem;
       height: 3rem;
       fill: currentColor;
+
+      @media (max-width: 500px) {
+        width: 2rem;
+        height: 2rem;
+      }
+
+      @media (max-width: 400px) {
+        width: 1rem;
+        height: 1rem;
+      }
     }
 
     &:hover,

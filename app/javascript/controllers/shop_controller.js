@@ -45,6 +45,10 @@ export default class extends Controller {
 
   toggleSort() {
     this.sortAscending = !this.sortAscending;
+    const sortBtn = document.getElementById("sort-btn");
+    if (sortBtn) {
+      sortBtn.classList.toggle("descending", !this.sortAscending);
+    }
     this.applyFiltersAndSort();
   }
 

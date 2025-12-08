@@ -23,6 +23,46 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
     t.index ["message_id", "message_checksum"], name: "index_action_mailbox_inbound_emails_uniqueness", unique: true
   end
 
+  create_table "active_insights_jobs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.float "db_runtime"
+    t.float "duration"
+    t.datetime "finished_at"
+    t.string "job"
+    t.string "queue"
+    t.float "queue_time"
+    t.datetime "scheduled_at"
+    t.datetime "started_at"
+    t.datetime "updated_at", null: false
+    t.string "uuid"
+    t.index ["started_at", "duration", "queue_time"], name: "idx_on_started_at_duration_queue_time_010695b74f"
+    t.index ["started_at", "duration"], name: "index_active_insights_jobs_on_started_at_and_duration"
+    t.index ["started_at"], name: "index_active_insights_jobs_on_started_at"
+  end
+
+  create_table "active_insights_requests", force: :cascade do |t|
+    t.string "action"
+    t.string "controller"
+    t.datetime "created_at", null: false
+    t.float "db_runtime"
+    t.float "duration"
+    t.datetime "finished_at"
+    t.string "format"
+    t.virtual "formatted_controller", type: :string, as: "(((controller)::text || '#'::text) || (action)::text)", stored: true
+    t.string "http_method"
+    t.string "ip_address"
+    t.text "path"
+    t.datetime "started_at"
+    t.integer "status"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.string "uuid"
+    t.float "view_runtime"
+    t.index ["started_at", "duration"], name: "index_active_insights_requests_on_started_at_and_duration"
+    t.index ["started_at", "formatted_controller"], name: "idx_on_started_at_formatted_controller_5d659a01d9"
+    t.index ["started_at"], name: "index_active_insights_requests_on_started_at"
+  end
+
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -139,18 +179,21 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
   create_table "ledger_entries", force: :cascade do |t|
     t.integer "amount"
     t.datetime "created_at", null: false
-    t.bigint "created_by_id", null: false
+    t.string "created_by", null: false
     t.bigint "ledgerable_id", null: false
     t.string "ledgerable_type", null: false
     t.string "reason"
     t.datetime "updated_at", null: false
-    t.index ["created_by_id"], name: "index_ledger_entries_on_created_by_id"
     t.index ["ledgerable_type", "ledgerable_id"], name: "index_ledger_entries_on_ledgerable"
   end
 
   create_table "post_devlogs", force: :cascade do |t|
     t.string "body"
     t.datetime "created_at", null: false
+    t.integer "duration_seconds"
+    t.text "hackatime_projects_key_snapshot"
+    t.datetime "hackatime_pulled_at"
+    t.string "scrapbook_url"
     t.datetime "updated_at", null: false
   end
 
@@ -195,13 +238,31 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
 
   create_table "projects", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.datetime "deleted_at"
     t.text "demo_url"
     t.text "description"
     t.integer "memberships_count", default: 0, null: false
+    t.string "project_type"
     t.text "readme_url"
     t.text "repo_url"
+    t.string "ship_status", default: "draft"
+    t.datetime "shipped_at"
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.index ["deleted_at"], name: "index_projects_on_deleted_at"
+  end
+
+  create_table "reports", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "details", null: false
+    t.bigint "project_id", null: false
+    t.string "reason", null: false
+    t.bigint "reporter_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_reports_on_project_id"
+    t.index ["reporter_id", "project_id"], name: "index_reports_on_reporter_id_and_project_id", unique: true
+    t.index ["reporter_id"], name: "index_reports_on_reporter_id"
   end
 
   create_table "rsvps", force: :cascade do |t|
@@ -346,6 +407,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.boolean "banned", default: false, null: false
+    t.datetime "banned_at"
+    t.text "banned_reason"
     t.datetime "created_at", null: false
     t.string "display_name"
     t.string "email"
@@ -357,11 +421,13 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
     t.datetime "magic_link_token_expires_at"
     t.integer "projects_count"
     t.string "region"
+    t.boolean "send_votes_to_slack", default: false, null: false
     t.string "slack_id"
     t.datetime "synced_at"
     t.string "tutorial_steps_completed", default: [], array: true
     t.datetime "updated_at", null: false
     t.string "verification_status", default: "needs_submission", null: false
+    t.boolean "vote_anonymously", default: false, null: false
     t.integer "votes_count"
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
@@ -385,6 +451,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
     t.datetime "created_at", null: false
     t.boolean "demo_url_clicked"
     t.bigint "project_id", null: false
+    t.text "reason"
     t.boolean "repo_url_clicked"
     t.integer "score", null: false
     t.integer "time_taken_to_vote"
@@ -397,11 +464,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "ledger_entries", "users", column: "created_by_id"
   add_foreign_key "posts", "projects"
   add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
+  add_foreign_key "reports", "projects"
+  add_foreign_key "reports", "users", column: "reporter_id"
   add_foreign_key "shop_card_grants", "shop_items"
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"

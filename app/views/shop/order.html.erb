@@ -41,9 +41,6 @@
                 <% end %>
             <% end %>
             <% user_addresses = current_user.addresses %>
-            <br>
-            <br>
-            <br>
             <div class="shop-order__address" data-controller="address-select" data-addresses="<%= user_addresses.to_json %>">
                 <% if user_addresses.any? %>
                     <div class="shop-order__address-details">
@@ -64,7 +61,7 @@
                                 options: address_options,
                                 selected_option: "#{primary_addr["first_name"]} #{primary_addr["last_name"]} - #{primary_addr["line_1"]}, #{primary_addr["city"]}",
                                 longest_option_string: longest_option,
-                                color: :brown
+                                color: :blue
                             ) %>
                         </div>
 
@@ -72,7 +69,7 @@
                 <% else %>
                     <div class="shop-order__no-address">
                          <p>No shipping address found.</p>
-                         <a href="https://auth.hackclub.com/addresses" target="_blank" class="btn btn-sm btn-outline-primary">Manage addresses on Hack Club Auth</a>
+                         <a href="https://auth.hackclub.com/addresses" target="_blank" class="btn btn-sm btn-outline-primary">Manage addresses</a>
                     </div>
                 <% end %>
             </div>
@@ -99,7 +96,7 @@
                 <% end %>
             </div>
             <button type="submit" form="order-form" class="btn btn-order" style="width: 100%;">
-                <%= inline_svg_tag "icons/checkmark.svg", class: "shop-order__summary-btn-icon", aria: { hidden: true } %>
+                <%= inline_svg_tag "icons/tick.svg", class: "shop-order__summary-btn-icon", aria: { hidden: true } %>
                 Get!
             </button>
         </div>

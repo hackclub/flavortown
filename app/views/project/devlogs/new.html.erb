@@ -4,6 +4,12 @@
   <div class="projects-new__container">
     <%= render HeadingComponent.new(title: "Add Devlog", tone: :brown) %>
 
+    <% if @preview_time.present? %>
+      <div class="projects-new__time-preview">
+        <p>This devlog will log <strong><%= @preview_time %></strong> of work.</p>
+      </div>
+    <% end %>
+
     <%= form_with model: @devlog,
                   url: project_devlogs_path(@project),
                   html: { multipart: true },
@@ -21,6 +27,19 @@
                 input_html: { rows: 6 }
               ) %>
         </div>
+
+        <% if Flipper.enabled?(:scrapbook_devlogs, current_user) %>
+          <div class="projects-new__field">
+            <%= render InputComponent.new(
+                  label: "Scrapbook URL (optional)",
+                  placeholder: "https://hackclub.slack.com/...",
+                  form: f,
+                  attribute: :scrapbook_url,
+                  color: :blue,
+                  subtitle: "⚠️ If provided, this will replace the devlog text and attachments with the Slack message content."
+                ) %>
+          </div>
+        <% end %>
 
         <div class="projects-new__field">
           <%= render FileUploadComponent.new(

@@ -3,6 +3,9 @@
     <%= render(HeadingComponent.new(title: "Edit Project", tone: :brown)) %>
 
     <%= form_with(model: @project, class: "projects-new__form", local: true, data: { controller: "project-form", action: "submit->project-form#onSubmit" }) do |form| %>
+      <% if params[:return_to].present? %>
+        <%= hidden_field_tag :return_to, params[:return_to] %>
+      <% end %>
       <div class="projects-new__card">
         <div class="projects-new__field projects-new__field--title">
           <%= render(
@@ -129,6 +132,7 @@
                   attribute: :hackatime_project_ids,
                   color: :yellow,
                   projects: current_user.hackatime_projects,
+                  project_times: @project_times,
                   subtitle: "Link this project to your Hackatime projects."
                 )
               ) %>

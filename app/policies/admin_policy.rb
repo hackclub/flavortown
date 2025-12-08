@@ -52,6 +52,18 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def access_payouts_dashboard?
+    user.admin? || user.fraud_dept?
+  end
+
+  def ban_users?
+    user.admin? || user.fraud_dept?
+  end
+
+  def access_reports?
+    user.admin? || user.fraud_dept?
+  end
+
+  def generate_magic_links?
     user.admin?
   end
 end

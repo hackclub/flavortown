@@ -3,6 +3,9 @@
 # Table name: users
 #
 #  id                          :bigint           not null, primary key
+#  banned                      :boolean          default(FALSE), not null
+#  banned_at                   :datetime
+#  banned_reason               :text
 #  display_name                :string
 #  email                       :string
 #  first_name                  :string
@@ -13,9 +16,11 @@
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
 #  region                      :string
+#  send_votes_to_slack         :boolean          default(FALSE), not null
 #  synced_at                   :datetime
 #  tutorial_steps_completed    :string           default([]), is an Array
 #  verification_status         :string           default("needs_submission"), not null
+#  vote_anonymously            :boolean          default(FALSE), not null
 #  votes_count                 :integer
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
@@ -37,6 +42,7 @@ class User < ApplicationRecord
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
   has_many :shop_orders, dependent: :destroy
   has_many :votes, dependent: :destroy
+  has_many :reports, foreign_key: :reporter_id, dependent: :destroy
 
   include Ledgerable
 
@@ -58,6 +64,13 @@ class User < ApplicationRecord
 
   def revoke_tutorial_step!(slug)
     update!(tutorial_steps_completed: tutorial_steps - [ slug ]) if tutorial_step_completed?(slug)
+  end
+
+  def attempt_to_refresh_verification_status
+    # if user has tutorial step finished, skip
+    return unless tutorial_step_completed?(:identity_verified)
+    # if user has verified, skip
+    nil unless verifi
   end
 
   class << self
@@ -130,6 +143,26 @@ class User < ApplicationRecord
     ledger_entries.sum(:amount)
   end
 
+  def ban!(reason: nil)
+    update!(banned: true, banned_at: Time.current, banned_reason: reason)
+    reject_pending_orders!(reason: reason || "User banned")
+    soft_delete_projects!
+  end
+
+  def reject_pending_orders!(reason: "User banned")
+    shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).find_each do |order|
+      order.mark_rejected(reason)
+      order.save!
+    end
+  end
+
+  def soft_delete_projects!
+    projects.find_each(&:soft_delete!)
+  end
+
+  def unban!
+    update!(banned: false, banned_at: nil, banned_reason: nil)
+  end
   def cancel_shop_order(order_id)
     order = shop_orders.find(order_id)
     return { success: false, error: "Your order can not be canceled" } unless order.pending?
@@ -144,19 +177,13 @@ class User < ApplicationRecord
     identity = identities.find_by(provider: "hack_club")
     return [] unless identity&.access_token.present?
 
-    conn = Faraday.new(url: Rails.application.config.identity)
-    response = conn.get("/api/v1/me") do |req|
-      req.headers["Authorization"] = "Bearer #{identity.access_token}"
-      req.headers["Accept"] = "application/json"
-    end
-
-    return [] unless response.success?
-
-    body = JSON.parse(response.body)
-    identity_payload = body["identity"] || {}
+    identity_payload = HCAService.identity(identity.access_token)
     identity_payload["addresses"] || []
-  rescue StandardError => e
-    Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")
-    []
+  end
+  def avatar
+    "http://cachet.dunkirk.sh/users/#{slack_id}/r"
+  end
+  def dm_user(message)
+    SendSlackDmJob.perform_later(slack_id, message)
   end
 end

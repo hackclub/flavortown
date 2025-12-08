@@ -80,3 +80,36 @@
     }
   }
 }
+
+.banned-banner {
+  background: var(--color-red-100, #fee2e2);
+  border: 2px solid var(--color-red-500, #ef4444);
+  border-radius: var(--border-radius);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  text-align: center;
+
+  &__content {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  &__title {
+    font-family: var(--font-family-subtitle);
+    font-size: var(--font-size-xxxl);
+    color: var(--color-red-700, #b91c1c);
+    margin-bottom: var(--space-m);
+  }
+
+  &__message {
+    font-size: var(--font-size-l);
+    color: var(--color-red-600, #dc2626);
+    margin-bottom: var(--space-s);
+  }
+
+  &__reason {
+    font-size: var(--font-size-m);
+    color: var(--color-red-600, #dc2626);
+    margin-top: var(--space-m);
+  }
+}

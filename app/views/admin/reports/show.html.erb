@@ -1,0 +1,109 @@
+<h1>Report #<%= @report.id %></h1>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h2>Report Details</h2>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+    <div>
+      <strong>Status:</strong>
+      <span class="badge badge-<%= @report.status %>"><%= @report.status %></span>
+    </div>
+    <div>
+      <strong>Reason:</strong> <%= @report.reason.titleize %>
+    </div>
+    <div>
+      <strong>Reporter:</strong>
+      <%= link_to @report.reporter.display_name || @report.reporter.email, admin_user_path(@report.reporter) %>
+    </div>
+    <div>
+      <strong>Created:</strong> <%= @report.created_at.strftime("%Y-%m-%d %H:%M:%S") %>
+    </div>
+  </div>
+
+  <div style="margin-top: 1rem;">
+    <strong>Details:</strong>
+    <p style="background: #f9fafb; padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
+      <%= @report.details %>
+    </p>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h2>Reported Project</h2>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <div>
+      <strong>Title:</strong> <%= link_to @report.project.title, project_path(@report.project) %>
+    </div>
+    <div>
+      <strong>Demo URL:</strong>
+      <% if @report.project.demo_url.present? %>
+        <%= link_to @report.project.demo_url, @report.project.demo_url, target: "_blank" %>
+      <% else %>
+        <em>Not provided</em>
+      <% end %>
+    </div>
+    <div>
+      <strong>Repo URL:</strong>
+      <% if @report.project.repo_url.present? %>
+        <%= link_to @report.project.repo_url, @report.project.repo_url, target: "_blank" %>
+      <% else %>
+        <em>Not provided</em>
+      <% end %>
+    </div>
+    <div>
+      <strong>Members:</strong>
+      <%= @report.project.users.map { |u| u.display_name || u.email }.join(", ") %>
+    </div>
+  </div>
+
+  <% if @report.project.description.present? %>
+    <div style="margin-top: 1rem;">
+      <strong>Description:</strong>
+      <p style="background: #f9fafb; padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
+        <%= @report.project.description %>
+      </p>
+    </div>
+  <% end %>
+</div>
+
+<div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+  <% if @report.pending? %>
+    <%= button_to "Mark as Reviewed", review_admin_report_path(@report), method: :post, class: "btn-primary" %>
+    <%= button_to "Dismiss Report", dismiss_admin_report_path(@report), method: :post, class: "btn-secondary" %>
+  <% elsif @report.reviewed? %>
+    <span class="badge badge-reviewed" style="padding: 0.5rem 1rem;">Already Reviewed</span>
+  <% elsif @report.dismissed? %>
+    <span class="badge badge-dismissed" style="padding: 0.5rem 1rem;">Already Dismissed</span>
+  <% end %>
+</div>
+
+<div>
+  <%= link_to "← Back to Reports", admin_reports_path, class: "btn-secondary" %>
+</div>
+
+<style>
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.badge-pending {
+  background-color: #fbbf24;
+  color: #78350f;
+}
+
+.badge-reviewed {
+  background-color: #10b981;
+  color: white;
+}
+
+.badge-dismissed {
+  background-color: #6b7280;
+  color: white;
+}
+</style>

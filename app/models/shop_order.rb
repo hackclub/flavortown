@@ -66,6 +66,7 @@ class ShopOrder < ApplicationRecord
 
   after_create :create_negative_payout
   before_create :freeze_item_price
+  after_commit :notify_user_of_status_change, if: :saved_change_to_aasm_state?
 
   scope :worth_counting, -> { where.not(aasm_state: %w[rejected refunded]) }
   scope :manually_fulfilled, -> { joins(:shop_item).merge(ShopItem.where(type: ShopItem::MANUAL_FULFILLMENT_TYPES)) }
@@ -188,6 +189,24 @@ class ShopOrder < ApplicationRecord
   end
 
   def get_agh_contents = shop_item.get_agh_contents(self)
+    
+  def notify_user_of_status_change
+    return unless user.slack_id.present?
+
+    template = case aasm_state
+    when "rejected" then "notifications/shop_orders/rejected"
+    when "awaiting_periodical_fulfillment" then "notifications/shop_orders/awaiting_fulfillment"
+    when "fulfilled" then "notifications/shop_orders/fulfilled"
+    else "notifications/shop_orders/default"
+    end
+
+    SendSlackDmJob.perform_later(
+      user.slack_id,
+      nil,
+      blocks_path: template,
+      locals: { order: self }
+    )
+  end
 
   private
 
@@ -246,28 +265,28 @@ class ShopOrder < ApplicationRecord
   def check_free_stickers_requirement
     return if user&.has_gotten_free_stickers?
     return if shop_item.is_a?(ShopItem::FreeStickers)
+    return if user.shop_orders.joins(:shop_item).where(shop_items: { type: "ShopItem::FreeStickers" }).worth_counting.exists?
 
     errors.add(:base, "You must order the Free Stickers first before ordering other items!")
   end
 
   def create_negative_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
-    return unless user.respond_to?(:payouts)
 
-    user.payouts.create!(
+    user.ledger_entries.create!(
       amount: -total_cost,
-      payable: self,
-      reason: "Shop order of #{shop_item.name.pluralize(quantity)}"
+      reason: "Shop order of #{shop_item.name.pluralize(quantity)}",
+      created_by: "System"
     )
   end
 
   def create_refund_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
 
-    ledger_entries.create!(
+    user.ledger_entries.create!(
       amount: total_cost,
       reason: "Refund for rejected order of #{shop_item.name.pluralize(quantity)}",
-      created_by: user
+      created_by: "System"
     )
   end
 

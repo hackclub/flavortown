@@ -1,16 +1,31 @@
 <article class="post <%= variant_class %>">
   <header class="post__header">
     <div class="post__avatar">
-      <%= helpers.inline_svg_tag("icons/user.svg") %>
+    <%= image_tag post.user.avatar, alt: author_name, class: "post__avatar" %>
     </div>
     <div class="post__meta">
       <div class="post__author"><%= author_name %></div>
       <div class="post__time"><%= posted_at_text %> ago</div>
+      <% if duration_text.present? %>
+        <div class="post__duration"><%= duration_text %> logged</div>
+      <% end %>
     </div>
   </header>
 
+  <%= render "shared/inspector", record: post.postable %>
+
+  <% if ship_event? %>
+    <h2 class="post__ship-title">Shipped this project!</h2>
+  <% end %>
+
   <% if post.postable.respond_to?(:body) && post.postable.body.present? %>
     <div class="post__body"><%= helpers.md post.postable.body %></div>
+  <% end %>
+
+  <% if scrapbook_url.present? %>
+    <%= link_to scrapbook_url, target: "_blank", rel: "noopener", class: "post__scrapbook-link", title: "View on Slack" do %>
+      <%= helpers.inline_svg_tag "icons/slack.svg", class: "post__scrapbook-icon" %>
+    <% end %>
   <% end %>
 
   <% if attachments.any? %>

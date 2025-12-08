@@ -16,6 +16,17 @@
   <% if policy(:admin).access_audit_logs? %>
     <%= link_to "Audit Logs", admin_audit_logs_path, class: button_class %>
   <% end %>
+  <% if policy(:admin).access_reports? %>
+    <% pending_reports = Report.pending.count %>
+    <%= link_to admin_reports_path, class: button_class do %>
+      Reports
+      <% if pending_reports > 0 %>
+        <span style="background-color: #ef4444; color: white; border-radius: 9999px; padding: 0px 6px; font-size: 0.9em; min-width: 20px; text-align: center;">
+          <%= pending_reports %>
+        </span>
+      <% end %>
+    <% end %>
+  <% end %>
   <% if policy(:admin).access_shop_orders? %>
     <% pending_count = ShopOrder.where(aasm_state: 'pending').count %>
     <% total_shop_count = pending_count %>
@@ -72,7 +83,7 @@
     <%= link_to "Flipper", "/admin/flipper", class: button_class %>
   <% end %>
   <% if policy(:admin).manage_user_roles? %>
-  <%= link_to "Manage users", "/admin/user-perms", class: button_class %>
+  <%= link_to "Manage users w/ perms", "/admin/user-perms", class: button_class %>
 <% end %>
 <% if policy(:admin).access_jobs? %>
 <%= link_to "Job queue", "/admin/jobs", class: button_class %>
@@ -80,7 +91,7 @@
   <% if policy(:admin).access_payouts_dashboard? %>
   <%= link_to "Payouts Dashboard", "/admin/payouts_dashboard", class: button_class %>
 <% end %>
-<% if current_user.admin? || current_user.fraud_dept? %>
+<% if current_user.admin? %>
   <%= link_to "Fulfillment Dashboard", admin_fulfillment_dashboard_index_path, class: button_class %>
 <% end %>
   <%= link_to "Help bot", "slack://app?team=T0266FRGM&id=A09NP19R7FX&tab=home", class: "btn-primary" %>
