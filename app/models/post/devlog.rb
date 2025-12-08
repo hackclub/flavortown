@@ -104,7 +104,6 @@ class Post::Devlog < ApplicationRecord
 
     @scrapbook_message_fetched = true
     self.body = message["text"]
-    attachments.purge if attachments.attached?
 
     attach_slack_files(message)
 
