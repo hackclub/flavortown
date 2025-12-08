@@ -421,6 +421,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
     t.string "first_name"
     t.boolean "has_gotten_free_stickers", default: false
     t.boolean "has_roles", default: true, null: false
+    t.string "hcb_email"
     t.string "last_name"
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
