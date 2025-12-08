@@ -499,3 +499,37 @@ body {
     gap: var(--space-s);
   }
 }
+
+/* Tooltips */
+.tooltip-wrapper {
+  position: relative;
+  cursor: pointer;
+
+  &[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-brown-500);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  &[data-tooltip]:hover::before {
+    content: "";
+    position: absolute;
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--color-brown-500);
+    z-index: 10;
+    pointer-events: none;
+  }
+}

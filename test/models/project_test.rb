@@ -7,8 +7,11 @@
 #  demo_url          :text
 #  description       :text
 #  memberships_count :integer          default(0), not null
+#  project_type      :string
 #  readme_url        :text
 #  repo_url          :text
+#  ship_status       :string           default("draft")
+#  shipped_at        :datetime
 #  title             :string           not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
