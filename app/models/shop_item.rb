@@ -96,6 +96,20 @@ class ShopItem < ApplicationRecord
   validates :image, presence: true, on: :create
 
   has_many :shop_orders, dependent: :restrict_with_error
+
+  def agh_contents=(value)
+    if value.is_a?(String) && value.present?
+      begin
+        super(JSON.parse(value))
+      rescue JSON::ParserError
+        errors.add(:agh_contents, "is not valid JSON")
+        super(nil)
+      end
+    else
+      super(value)
+    end
+  end
+
   def is_free?
     self.ticket_cost.zero?
   end
