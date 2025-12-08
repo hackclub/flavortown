@@ -29,7 +29,7 @@ module Battlemage
 
     # what do we want? sessions! when do we want em? now!
     config.session_store :cookie_store,
-                         key: "_flavortown_session",
+                         key: "_flavortown_session_v2",
                          expire_after: 2.months,
                          secure: Rails.env.production?,
                          httponly: true
