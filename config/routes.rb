@@ -86,6 +86,8 @@ Rails.application.routes.draw do
   # API
   namespace :api do
     get "/", to: "root#index"
+
+    resources :projects
   end
 
   namespace :user, path: "" do
