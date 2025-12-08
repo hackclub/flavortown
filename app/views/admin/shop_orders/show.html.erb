@@ -34,6 +34,53 @@
   </div>
 </div>
 
+<div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+  <div class="card" style="flex: 1; padding: 1rem;">
+    <h2 style="color: #a855f7; font-size: 1rem; margin-bottom: 0.75rem;">Shop Orders Summary</h2>
+    <div style="font-size: 0.875rem; line-height: 1.6;">
+      <div><strong>Total Orders:</strong> <%= @user_order_stats[:total] %></div>
+      <div><strong>Fulfilled:</strong> <%= @user_order_stats[:fulfilled] %></div>
+      <div><strong>Pending:</strong> <%= @user_order_stats[:pending] %></div>
+      <div><strong>Rejected:</strong> <%= @user_order_stats[:rejected] %></div>
+      <div><strong>Total Quantity:</strong> <%= @user_order_stats[:total_quantity] %></div>
+      <div><strong>On Hold:</strong> <%= @user_order_stats[:on_hold] %></div>
+      <div><strong>Awaiting Fulfillment:</strong> <%= @user_order_stats[:awaiting_fulfillment] %></div>
+    </div>
+    <% if @user_orders.present? %>
+      <details style="margin-top: 0.75rem; cursor: pointer;">
+        <summary style="font-size: 0.8rem; color: #6b7280;">▸ View All Orders (<%= @user_order_stats[:total] %>)</summary>
+        <div style="padding-top: 0.5rem; font-size: 0.75rem;">
+          <% @order.user.shop_orders.order(created_at: :desc).each do |order| %>
+            <div style="padding: 0.25rem 0; border-bottom: 1px solid #374151;">
+              <%= link_to "##{order.id}", admin_shop_order_path(order), style: "color: #3b82f6;" %>
+              - <%= truncate(order.shop_item.name, length: 15) %>
+              <span class="badge badge-<%= order.aasm_state %>" style="font-size: 0.6rem; padding: 0.1rem 0.25rem;"><%= order.aasm_state.humanize %></span>
+            </div>
+          <% end %>
+        </div>
+      </details>
+    <% end %>
+  </div>
+
+  <div class="card" style="flex: 1; padding: 1rem;">
+    <h2 style="color: #a855f7; font-size: 1rem; margin-bottom: 0.75rem;">shop item</h2>
+    <% item = @order.shop_item %>
+    <%= link_to item.name, "#", style: "color: #60a5fa; font-size: 0.95rem; text-decoration: underline;" %>
+    <div style="font-size: 0.875rem; line-height: 1.6; margin-top: 0.5rem;">
+      <div><strong>Description:</strong> <%= item.description %></div>
+      <div><strong>Internal description:</strong> <%= item.internal_description %></div>
+      <div><strong>USD cost:</strong> $<%= number_with_precision(item.usd_cost, precision: 2) %></div>
+      <div><strong>Ticket cost:</strong> <%= item.ticket_cost %></div>
+      <div><strong>Type:</strong> <%= item.type %></div>
+    </div>
+    <% if item.image.attached? %>
+      <div style="margin-top: 0.75rem;">
+        <%= image_tag item.image.variant(:carousel_sm), style: "max-width: 120px; border-radius: 4px;" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
 <% if @can_view_address %>
 <div class="card">
   <h2>Shipping Address</h2>

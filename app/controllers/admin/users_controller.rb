@@ -184,4 +184,29 @@ class Admin::UsersController < Admin::ApplicationController
     flash[:notice] = "Balance adjusted by #{amount} for #{@user.display_name}."
     redirect_to admin_user_path(@user)
   end
+
+  def ban
+    authorize :admin, :ban_users?
+    @user = User.find(params[:id])
+    reason = params[:reason].presence
+
+    PaperTrail.request(whodunnit: current_user.id) do
+      @user.ban!(reason: reason)
+    end
+
+    flash[:notice] = "#{@user.display_name} has been banned."
+    redirect_to admin_user_path(@user)
+  end
+
+  def unban
+    authorize :admin, :ban_users?
+    @user = User.find(params[:id])
+
+    PaperTrail.request(whodunnit: current_user.id) do
+      @user.unban!
+    end
+
+    flash[:notice] = "#{@user.display_name} has been unbanned."
+    redirect_to admin_user_path(@user)
+  end
 end

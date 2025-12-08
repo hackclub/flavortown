@@ -37,7 +37,7 @@
             ['Fulfilled', 'fulfilled'],
             ['Rejected', 'rejected'],
             ['On Hold', 'on_hold']
-          ], params[:status]), {}, { class: "form-control" } %>
+          ], params[:status] || @default_status), {}, { class: "form-control" } %>
       </div>
 <% end %>
       <div>

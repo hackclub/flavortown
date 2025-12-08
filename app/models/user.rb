@@ -3,6 +3,9 @@
 # Table name: users
 #
 #  id                          :bigint           not null, primary key
+#  banned                      :boolean          default(FALSE), not null
+#  banned_at                   :datetime
+#  banned_reason               :text
 #  display_name                :string
 #  email                       :string
 #  first_name                  :string
@@ -140,6 +143,26 @@ class User < ApplicationRecord
     ledger_entries.sum(:amount)
   end
 
+  def ban!(reason: nil)
+    update!(banned: true, banned_at: Time.current, banned_reason: reason)
+    reject_pending_orders!(reason: reason || "User banned")
+    soft_delete_projects!
+  end
+
+  def reject_pending_orders!(reason: "User banned")
+    shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).find_each do |order|
+      order.mark_rejected(reason)
+      order.save!
+    end
+  end
+
+  def soft_delete_projects!
+    projects.find_each(&:soft_delete!)
+  end
+
+  def unban!
+    update!(banned: false, banned_at: nil, banned_reason: nil)
+  end
   def cancel_shop_order(order_id)
     order = shop_orders.find(order_id)
     return { success: false, error: "Your order can not be canceled" } unless order.pending?

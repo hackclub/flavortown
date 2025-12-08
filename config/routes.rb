@@ -100,7 +100,7 @@ Rails.application.routes.draw do
     }
 
     mount MissionControl::Jobs::Engine, at: "jobs", constraints: ->(request) {
-      AdminConstraint.allow?(request, :access_admin_endpoints?)
+      AdminConstraint.allow?(request, :access_jobs?)
     }
 
     resources :users, only: [ :index, :show ], shallow: true do
@@ -111,6 +111,8 @@ Rails.application.routes.draw do
          post :sync_hackatime
          post :mass_reject_orders
          post :adjust_balance
+         post :ban
+         post :unban
        end
        resource :magic_link, only: [ :show ]
      end
