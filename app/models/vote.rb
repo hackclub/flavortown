@@ -12,25 +12,31 @@
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  project_id         :bigint           not null
+#  ship_event_id      :bigint
 #  user_id            :bigint           not null
 #
 # Indexes
 #
 #  index_votes_on_project_id                           (project_id)
+#  index_votes_on_ship_event_id                        (ship_event_id)
 #  index_votes_on_user_id                              (user_id)
 #  index_votes_on_user_id_and_project_id_and_category  (user_id,project_id,category) UNIQUE
 #
 # Foreign Keys
 #
 #  fk_rails_...  (project_id => projects.id)
+#  fk_rails_...  (ship_event_id => post_ship_events.id)
 #  fk_rails_...  (user_id => users.id)
 #
 class Vote < ApplicationRecord
   belongs_to :user
   belongs_to :project
+  belongs_to :ship_event, class_name: "Post::ShipEvent", optional: true, counter_cache: true
 
   validate :score_must_be_in_range
   validate :user_cannot_vote_on_own_projects
+
+  before_validation :set_ship_event, on: :create
 
   class Category
     attr_reader :id, :name, :description
@@ -63,6 +69,16 @@ class Vote < ApplicationRecord
   end
 
   private
+
+  def set_ship_event
+    return if ship_event_id.present?
+
+    self.ship_event = project&.posts
+                             &.where(postable_type: "Post::ShipEvent")
+                             &.order(created_at: :desc)
+                             &.first
+                             &.postable
+  end
 
   def score_must_be_in_range
     unless (1..5).include?(score)

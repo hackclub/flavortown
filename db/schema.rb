@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_08_222733) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -204,15 +204,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
     t.float "multiplier"
     t.float "payout"
     t.datetime "updated_at", null: false
+    t.integer "votes_count", default: 0, null: false
   end
 
   create_table "posts", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.datetime "deleted_at"
     t.string "postable_id"
     t.string "postable_type"
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id"
+    t.index ["deleted_at"], name: "index_posts_on_deleted_at"
     t.index ["project_id"], name: "index_posts_on_project_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
@@ -462,10 +465,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
     t.text "reason"
     t.boolean "repo_url_clicked"
     t.integer "score", null: false
+    t.bigint "ship_event_id"
     t.integer "time_taken_to_vote"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["project_id"], name: "index_votes_on_project_id"
+    t.index ["ship_event_id"], name: "index_votes_on_ship_event_id"
     t.index ["user_id", "project_id", "category"], name: "index_votes_on_user_id_and_project_id_and_category", unique: true
     t.index ["user_id"], name: "index_votes_on_user_id"
   end
@@ -490,6 +495,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_204436) do
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"
   add_foreign_key "user_role_assignments", "users"
+  add_foreign_key "votes", "post_ship_events", column: "ship_event_id"
   add_foreign_key "votes", "projects"
   add_foreign_key "votes", "users"
 end
