@@ -50,12 +50,13 @@ class VotesController < ApplicationController
           score: vote_params[:score],
           time_taken_to_vote: params[:time_taken_to_vote].to_i,
           repo_url_clicked: params[:repo_url_clicked] == "true",
-          demo_url_clicked: params[:demo_url_clicked] == "true"
+          demo_url_clicked: params[:demo_url_clicked] == "true",
+          reason: params[:reason].presence
         )
       end
     end
 
-    share_vote_to_slack(created_votes) if current_user.send_votes_to_slack
+    share_vote_to_slack(created_votes, params[:reason].presence) if current_user.send_votes_to_slack
 
     redirect_to new_vote_path, notice: "Voted!"
   rescue ActiveRecord::RecordInvalid => e
@@ -64,7 +65,7 @@ class VotesController < ApplicationController
 
   private
 
-  def share_vote_to_slack(votes)
+  def share_vote_to_slack(votes, reason)
     return if votes.empty?
 
     SendSlackDmJob.perform_later(
@@ -73,7 +74,7 @@ class VotesController < ApplicationController
       blocks_path: "notifications/votes/shared",
       locals: {
         project: votes.first.project,
-        votes: votes,
+        reason: reason,
         anonymous: current_user.vote_anonymously,
         voter_slack_id: current_user.slack_id
       }
