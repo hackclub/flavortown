@@ -179,7 +179,7 @@
 
           <div id="warehouse_settings" class="mb-3" style="display: none;">
             <%= f.label :agh_contents, "AGH Contents (JSON)", class: "form-label" %>
-            <%= f.text_area :agh_contents, rows: 4, class: "form-control", placeholder: '[{"sku": "ITEM-001", "name": "Item Name"}, {"sku": "ITEM-002", "name": "Item 2"}]', style: "font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;" %>
+            <%= f.text_area :agh_contents, rows: 4, class: "form-control", placeholder: '[{"sku": "ITEM-001", "quantity": 1}, {"sku": "ITEM-002", "quantity": 2}]', style: "font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;" %>
             <small class="form-text text-muted">List SKUs to include. Quantity selected by user will batch all SKUs together.</small>
           </div>
         </div>

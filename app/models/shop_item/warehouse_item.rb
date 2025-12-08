@@ -59,7 +59,7 @@ class ShopItem::WarehouseItem < ShopItem
     agh_contents.map do |content_item|
       {
         sku: content_item["sku"],
-        quantity: content_item["quantity"] * order.quantity
+        quantity: (content_item["quantity"] || 1) * order.quantity
       }
     end
   end
