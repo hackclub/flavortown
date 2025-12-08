@@ -56,9 +56,14 @@
             <div class="my-orders__content">
               <div class="my-orders__title-section">
                 <h2 class="my-orders__item-name"><%= order.shop_item.name %></h2>
-                <span class="my-orders__status my-orders__status--<%= order.aasm_state %>">
-                  <%= order.aasm_state.humanize %>
-                </span>
+                <div class="my-orders__status-wrapper">
+                  <span class="my-orders__status my-orders__status--<%= order.aasm_state %>">
+                    <%= order.aasm_state.humanize %>
+                  </span>
+                  <% if order.aasm_state == "fulfilled" %>
+                    <span class="my-orders__status-hint">We have ordered/shipped the item to you! this does not mean it has already reached you.</span>
+                  <% end %>
+                </div>
               </div>
 
               <div class="my-orders__details">

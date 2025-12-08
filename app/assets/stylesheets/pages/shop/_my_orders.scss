@@ -227,6 +227,23 @@
     flex: 1;
   }
 
+  &__status-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-xxs);
+
+    @media (max-width: 768px) {
+      align-items: flex-start;
+    }
+  }
+
+  &__status-hint {
+    font-family: var(--font-family-text);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+  }
+
   &__status {
     display: inline-block;
     padding: var(--space-xxs) var(--space-m);
