@@ -92,7 +92,7 @@ class ShopWarehousePackage < ApplicationRecord
         end
       end
 
-      if is_idempotency_error 
+      if is_idempotency_error
         Rails.logger.error "Idempotency error sending pkg #{id} to Theseus. Package created on Theseus but we don't have the ID."
         SendSlackDmJob.perform_later(
           "U054VC2KM9P", # hardcoded to amber

@@ -189,7 +189,7 @@ class ShopOrder < ApplicationRecord
   end
 
   def get_agh_contents = shop_item.get_agh_contents(self)
-    
+
   def notify_user_of_status_change
     return unless user.slack_id.present?
 
@@ -289,5 +289,4 @@ class ShopOrder < ApplicationRecord
       created_by: "System"
     )
   end
-
 end
