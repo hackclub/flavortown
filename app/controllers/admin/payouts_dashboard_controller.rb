@@ -12,8 +12,8 @@ module Admin
       @txns = recent.count
       @volume = recent.sum("ABS(amount)")
 
-      spenders = LedgerEntry.joins("JOIN users ON ledger_entries.created_by_id = users.id")
-                            .where(created_at: yesterday.., amount: ...0, ledgerable_type: "ShopOrder")
+      spenders = LedgerEntry.joins("JOIN users ON ledger_entries.ledgerable_id = users.id AND ledger_entries.ledgerable_type = 'User'")
+                            .where(created_at: yesterday.., amount: ...0)
                             .group("users.id", "users.display_name")
                             .sum("ledger_entries.amount")
 
@@ -21,7 +21,7 @@ module Admin
                           .sort_by { |_, amount| -amount }
                           .first(10)
 
-      holder_balances = LedgerEntry.joins("JOIN users ON ledger_entries.created_by_id = users.id")
+      holder_balances = LedgerEntry.joins("JOIN users ON ledger_entries.ledgerable_id = users.id AND ledger_entries.ledgerable_type = 'User'")
                                    .group("users.id", "users.display_name")
                                    .sum(:amount)
                                    .select { |_, balance| balance > 0 }
@@ -77,7 +77,7 @@ module Admin
         @types[type&.humanize || "Unknown"] = volume
       end
 
-      @recent = LedgerEntry.includes(:created_by, :ledgerable)
+      @recent = LedgerEntry.includes(:ledgerable)
                            .order(created_at: :desc)
                            .limit(100)
     end
