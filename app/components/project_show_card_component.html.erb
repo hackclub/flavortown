@@ -3,7 +3,7 @@
     <div class="project-card__banner-frame">
       <% if banner_variant.present? %>
         <%= image_tag project.banner.variant(:card), class: "project-card__banner-image", alt: "#{project.title} banner" %>
-        <% #if project.draft? || project.can_ship_again? %>
+        <% if project.draft? || project.can_ship_again? %>
             <%= render ButtonComponent.new(
                 text: project.draft? ? "Ship" : "Ship Again",
                 color: :green,
@@ -11,7 +11,7 @@
                 href: ship_project_path(project),
                 class: "project-show-card__ship-btn"
             ) %>
-        <% #end %>
+        <% end %>
       <% else %>
         <div class="project-card__banner-frame project-card__banner-frame--placeholder">
           <div class="project-card__banner-placeholder">
