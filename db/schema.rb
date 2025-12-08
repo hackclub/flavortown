@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_08_222733) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_08_223213) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -471,7 +471,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_222733) do
     t.bigint "user_id", null: false
     t.index ["project_id"], name: "index_votes_on_project_id"
     t.index ["ship_event_id"], name: "index_votes_on_ship_event_id"
-    t.index ["user_id", "project_id", "category"], name: "index_votes_on_user_id_and_project_id_and_category", unique: true
+    t.index ["user_id", "ship_event_id", "category"], name: "index_votes_on_user_id_and_ship_event_id_and_category", unique: true
     t.index ["user_id"], name: "index_votes_on_user_id"
   end
 
