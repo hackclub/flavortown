@@ -206,11 +206,11 @@ class ShopOrder < ApplicationRecord
     return unless user.slack_id.present?
 
     template = case aasm_state
-               when "rejected" then "notifications/shop_orders/rejected"
-               when "awaiting_periodical_fulfillment" then "notifications/shop_orders/awaiting_fulfillment"
-               when "fulfilled" then "notifications/shop_orders/fulfilled"
-               else "notifications/shop_orders/default"
-               end
+    when "rejected" then "notifications/shop_orders/rejected"
+    when "awaiting_periodical_fulfillment" then "notifications/shop_orders/awaiting_fulfillment"
+    when "fulfilled" then "notifications/shop_orders/fulfilled"
+    else "notifications/shop_orders/default"
+    end
 
     SendSlackDmJob.perform_later(
       user.slack_id,
