@@ -53,20 +53,14 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::WarehouseItem < ShopItem
-  # Normalizes per-unit ship spec; each SKU gets qty=1, batched by order quantity
-  def per_unit_contents
-    contents_array = agh_contents.is_a?(Array) ? agh_contents : (agh_contents.presence || [])
-    contents_array.map do |row|
+  def get_agh_contents(order)
+    return [] unless agh_contents.present?
+
+    agh_contents.map do |content_item|
       {
-        "sku" => row["sku"] || row["id"] || row["name"],
-        "name" => row["name"],
-        "qty" => 1
+        sku: content_item["sku"],
+        quantity: (content_item["quantity"] || 1) * order.quantity
       }
     end
-  end
-
-  # Multiplies spec by ordered quantity (user-selected quantity batches the SKUs)
-  def contents_for_order_qty(order_qty)
-    per_unit_contents.map { |r| r.merge("qty" => order_qty.to_i) }
   end
 end
