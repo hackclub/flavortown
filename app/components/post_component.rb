@@ -37,6 +37,11 @@
      post.postable.attachments
    end
 
+   def scrapbook_url
+     return nil unless post.postable.respond_to?(:scrapbook_url)
+     post.postable.scrapbook_url
+   end
+
    def image?(attachment)
      attachment.content_type.start_with?("image/")
    end
