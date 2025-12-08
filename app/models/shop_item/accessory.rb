@@ -54,5 +54,40 @@
 #
 #  fk_rails_...  (user_id => users.id)
 #
-class ShopItem::ThirdPartyDigital < ShopItem
+class ShopItem::Accessory < ShopItem
+  validate :must_have_attached_items_if_not_buyable_by_self
+
+  def attached_shop_items
+    return ShopItem.none if attached_shop_item_ids.blank?
+
+    ShopItem.where(id: attached_shop_item_ids)
+  end
+
+  def can_be_purchased_standalone?
+    buyable_by_self?
+  end
+
+  def can_attach_to?(shop_item)
+    attached_shop_item_ids.include?(shop_item.id)
+  end
+
+  def total_cost_with(parent_item)
+    return nil unless can_attach_to?(parent_item)
+
+    ticket_cost + parent_item.ticket_cost
+  end
+
+  def standalone_cost
+    return nil unless can_be_purchased_standalone?
+
+    ticket_cost
+  end
+
+  private
+
+  def must_have_attached_items_if_not_buyable_by_self
+    if !buyable_by_self? && attached_shop_item_ids.blank?
+      errors.add(:attached_shop_item_ids, "must have at least one attached item when not buyable by self")
+    end
+  end
 end

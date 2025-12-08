@@ -322,6 +322,12 @@
     margin-top: var(--space-l);
   }
 
+  &__step4-actions {
+    display: flex;
+    gap: var(--space-m);
+    align-items: center;
+  }
+
   &__nav-btn {
     padding: var(--space-s) var(--space-l);
     border-radius: var(--border-radius);

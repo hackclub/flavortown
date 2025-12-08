@@ -4,6 +4,7 @@
 #
 #  id                                 :bigint           not null, primary key
 #  aasm_state                         :string
+#  accessory_ids                      :bigint           default([]), is an Array
 #  awaiting_periodical_fulfillment_at :datetime
 #  external_ref                       :string
 #  frozen_address_ciphertext          :text
@@ -19,6 +20,7 @@
 #  tracking_number                    :string
 #  created_at                         :datetime         not null
 #  updated_at                         :datetime         not null
+#  parent_order_id                    :bigint
 #  shop_card_grant_id                 :bigint
 #  shop_item_id                       :bigint           not null
 #  user_id                            :bigint           not null
@@ -26,17 +28,22 @@
 #
 # Indexes
 #
-#  idx_shop_orders_item_state_qty     (shop_item_id,aasm_state,quantity)
-#  idx_shop_orders_stock_calc         (shop_item_id,aasm_state)
-#  idx_shop_orders_user_item_state    (user_id,shop_item_id,aasm_state)
-#  idx_shop_orders_user_item_unique   (user_id,shop_item_id)
-#  index_shop_orders_on_shop_item_id  (shop_item_id)
-#  index_shop_orders_on_user_id       (user_id)
+#  idx_shop_orders_item_state_qty             (shop_item_id,aasm_state,quantity)
+#  idx_shop_orders_stock_calc                 (shop_item_id,aasm_state)
+#  idx_shop_orders_user_item_state            (user_id,shop_item_id,aasm_state)
+#  idx_shop_orders_user_item_unique           (user_id,shop_item_id)
+#  index_shop_orders_on_parent_order_id       (parent_order_id)
+#  index_shop_orders_on_shop_card_grant_id    (shop_card_grant_id)
+#  index_shop_orders_on_shop_item_id          (shop_item_id)
+#  index_shop_orders_on_user_id               (user_id)
+#  index_shop_orders_on_warehouse_package_id  (warehouse_package_id)
 #
 # Foreign Keys
 #
+#  fk_rails_...  (parent_order_id => shop_orders.id)
 #  fk_rails_...  (shop_item_id => shop_items.id)
 #  fk_rails_...  (user_id => users.id)
+#  fk_rails_...  (warehouse_package_id => shop_warehouse_packages.id)
 #
 class ShopOrder < ApplicationRecord
   has_paper_trail ignore: [ :frozen_address_ciphertext ]
@@ -47,6 +54,9 @@ class ShopOrder < ApplicationRecord
   belongs_to :user
   belongs_to :shop_item
   belongs_to :shop_card_grant, optional: true
+  belongs_to :parent_order, class_name: "ShopOrder", optional: true
+  has_many :accessory_orders, class_name: "ShopOrder", foreign_key: :parent_order_id, dependent: :destroy
+  belongs_to :warehouse_package, class_name: "ShopWarehousePackage", optional: true
 
   # has_many :payouts, as: :payable, dependent: :destroy
 
@@ -119,24 +129,6 @@ class ShopOrder < ApplicationRecord
     frozen_address
   end
 
-  def warehouse_pick_lines
-    return [] unless shop_item.is_a?(ShopItem::WarehouseItem)
-    shop_item.contents_for_order_qty(quantity || 1)
-  end
-
-  # Class method to get combined pick lines for a batch of orders (by warehouse_package_id)
-  def self.combined_pick_lines_for_package(package_id)
-    lines = Hash.new { |h, k| h[k] = { "sku" => k, "name" => nil, "qty" => 0 } }
-    where(warehouse_package_id: package_id).includes(:shop_item).each do |order|
-      order.warehouse_pick_lines.each do |line|
-        entry = lines[line["sku"]]
-        entry["name"] ||= line["name"]
-        entry["qty"] += line["qty"].to_i
-      end
-    end
-    lines.values
-  end
-
   aasm timestamps: true do
     # Normal states
     state :pending, initial: true
@@ -201,6 +193,8 @@ class ShopOrder < ApplicationRecord
   def mark_stickers_received
     user.update(has_gotten_free_stickers: true)
   end
+
+  def get_agh_contents = shop_item.get_agh_contents(self)
 
   def notify_user_of_status_change
     return unless user.slack_id.present?

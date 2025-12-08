@@ -76,6 +76,24 @@
                   <span class="my-orders__label">Unit Price:</span>
                   <span class="my-orders__value">🍪 <%= number_with_precision(order.frozen_item_price || order.shop_item.ticket_cost, precision: 0) %></span>
                 </div>
+
+                <% if order.accessory_orders.any? %>
+                  <div class="my-orders__accessories">
+                    <span class="my-orders__label">Accessories:</span>
+                    <ul class="my-orders__accessory-list">
+                      <% order.accessory_orders.includes(shop_item: { image_attachment: :blob }).each do |acc_order| %>
+                        <li class="my-orders__accessory-item">
+                          <% if acc_order.shop_item.image.attached? %>
+                            <%= image_tag acc_order.shop_item.image.variant(:carousel_sm), class: "my-orders__accessory-image", loading: "lazy" %>
+                          <% end %>
+                          <span class="my-orders__accessory-name"><%= acc_order.shop_item.name %></span>
+                          <span class="my-orders__accessory-price">🍪 <%= number_with_precision(acc_order.frozen_item_price || acc_order.shop_item.ticket_cost, precision: 0) %></span>
+                          <span class="my-orders__status my-orders__status--<%= acc_order.aasm_state %>"><%= acc_order.aasm_state.humanize %></span>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                <% end %>
               </div>
             </div>
           </div>

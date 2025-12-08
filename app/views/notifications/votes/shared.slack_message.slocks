@@ -2,14 +2,12 @@ header "🗳️ New Vote Submitted"
 
 section "A vote was submitted for *#{project.title}*", markdown: true
 
-divider
+if reason.present?
+  divider
 
-section "Scores:",
-  fields: [
-    mrkdwn_text("*Originality:* #{votes.find { |v| v.category == 'originality' }&.score || '-'}/5"),
-    mrkdwn_text("*Technical:* #{votes.find { |v| v.category == 'technical' }&.score || '-'}/5"),
-    mrkdwn_text("*Usability:* #{votes.find { |v| v.category == 'usability' }&.score || '-'}/5")
-  ]
+  sanitized_reason = reason.gsub(/<@[A-Z0-9]+>/, '[mention]').gsub(/@(here|channel|everyone)/, '[@\\1]')
+  section sanitized_reason
+end
 
 context [
   mrkdwn_text("Voted by: #{anonymous ? 'Anonymous' : "<@#{voter_slack_id}>"}")
