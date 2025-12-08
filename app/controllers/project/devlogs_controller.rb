@@ -36,7 +36,7 @@ class Project::DevlogsController < ApplicationController
   end
 
   def devlog_params
-    params.require(:post_devlog).permit(:body, attachments: [])
+    params.require(:post_devlog).permit(:body, :scrapbook_url, attachments: [])
   end
 
   def load_preview_time
