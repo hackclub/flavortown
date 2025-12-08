@@ -170,8 +170,10 @@ class Project < ApplicationRecord
     end
 
     def has_devlog_since_last_ship?
-        return true if shipped_at.nil?
-        devlogs.where("created_at > ?", shipped_at).exists?
+        last_ship = last_ship_event
+        return true if last_ship.nil?
+
+        devlogs.where("created_at > ?", last_ship.created_at).exists?
     end
 
     def last_ship_event
@@ -182,14 +184,16 @@ class Project < ApplicationRecord
         demo_url.present? &&
         repo_url.present? &&
         banner.attached? &&
-        description.present?
+        description.present? &&
+        devlogs.any?
     end
 
     def shipping_validations
         [
             { key: :demo_url, label: "You have an experienceable link (a URL where anyone can try your project now)", passed: demo_url.present? },
             { key: :repo_url, label: "You have a public GitHub URL with all source code", passed: repo_url.present? },
-            { key: :screenshot, label: "You have a screenshot of your project", passed: banner.attached? }
+            { key: :screenshot, label: "You have a screenshot of your project", passed: banner.attached? },
+            { key: :devlogs, label: "You have at least one devlog", passed: devlogs.any? }
         ]
     end
 end
