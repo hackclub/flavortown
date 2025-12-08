@@ -28,13 +28,15 @@
 #
 # Indexes
 #
-#  idx_shop_orders_item_state_qty        (shop_item_id,aasm_state,quantity)
-#  idx_shop_orders_stock_calc            (shop_item_id,aasm_state)
-#  idx_shop_orders_user_item_state       (user_id,shop_item_id,aasm_state)
-#  idx_shop_orders_user_item_unique      (user_id,shop_item_id)
-#  index_shop_orders_on_parent_order_id  (parent_order_id)
-#  index_shop_orders_on_shop_item_id     (shop_item_id)
-#  index_shop_orders_on_user_id          (user_id)
+#  idx_shop_orders_item_state_qty             (shop_item_id,aasm_state,quantity)
+#  idx_shop_orders_stock_calc                 (shop_item_id,aasm_state)
+#  idx_shop_orders_user_item_state            (user_id,shop_item_id,aasm_state)
+#  idx_shop_orders_user_item_unique           (user_id,shop_item_id)
+#  index_shop_orders_on_parent_order_id       (parent_order_id)
+#  index_shop_orders_on_shop_card_grant_id    (shop_card_grant_id)
+#  index_shop_orders_on_shop_item_id          (shop_item_id)
+#  index_shop_orders_on_user_id               (user_id)
+#  index_shop_orders_on_warehouse_package_id  (warehouse_package_id)
 #
 # Foreign Keys
 #
