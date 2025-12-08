@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_08_133833) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_08_143923) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -410,6 +410,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_133833) do
     t.integer "projects_count"
     t.string "region"
     t.boolean "send_votes_to_slack", default: false, null: false
+    t.string "session_token"
     t.string "slack_id"
     t.datetime "synced_at"
     t.string "tutorial_steps_completed", default: [], array: true
@@ -420,6 +421,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_133833) do
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["region"], name: "index_users_on_region"
+    t.index ["session_token"], name: "index_users_on_session_token", unique: true
     t.index ["slack_id"], name: "index_users_on_slack_id", unique: true
   end
 

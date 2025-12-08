@@ -14,10 +14,11 @@ class ApplicationController < ActionController::Base
   def current_user(preloads = [])
     return @current_user if defined?(@current_user)
 
-    if session[:user_id]
+    if session[:user_id] && session[:session_token]
       scope = User.where(id: session[:user_id])
       scope = scope.includes(*preloads) unless preloads.empty?
-      @current_user = scope.first
+      user = scope.first
+      @current_user = user if user&.valid_session_token?(session[:session_token])
     end
   end
   helper_method :current_user

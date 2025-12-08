@@ -17,6 +17,7 @@
 #  projects_count              :integer
 #  region                      :string
 #  send_votes_to_slack         :boolean          default(FALSE), not null
+#  session_token               :string
 #  synced_at                   :datetime
 #  tutorial_steps_completed    :string           default([]), is an Array
 #  verification_status         :string           default("needs_submission"), not null
@@ -31,6 +32,7 @@
 #  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #  index_users_on_region            (region)
+#  index_users_on_session_token     (session_token) UNIQUE
 #  index_users_on_slack_id          (slack_id) UNIQUE
 #
 require "test_helper"
