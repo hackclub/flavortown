@@ -21,7 +21,7 @@ default: &default
 
 development:
   <<: *default
-  database: battlemage_development
+  database: flavortown_development
   
   url: <%= ENV['DATABASE_URL'] %>
 

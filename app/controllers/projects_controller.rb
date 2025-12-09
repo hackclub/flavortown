@@ -197,6 +197,7 @@ class ProjectsController < ApplicationController
   def validate_url_not_dead(attribute, name)
     require "uri"
     require "faraday"
+    require "faraday/follow_redirects"
 
     return unless @project.send(attribute).present?
 
@@ -204,16 +205,18 @@ class ProjectsController < ApplicationController
     conn = Faraday.new(
       url: uri.to_s,
       headers: { "User-Agent" => "Flavortown project validtor (https://flavortown.hackclub.com/)" }
-    ) do |f|
-      f.response :follow_redirects
+    ) do |faraday|
+      faraday.response :follow_redirects, limit: 3
+      faraday.adapter Faraday.default_adapter
     end
-    response = conn.get() do |req|
+
+    response = conn.get do |req|
       req.options.timeout = 5
       req.options.open_timeout = 5
     end
 
-    unless response.status == 200
-      @project.errors.add(attribute, "Your #{name} needs to return a 200 status. I got #{response.status}, is your code/website set to public!?!?")
+    unless (200..299).cover?(response.status)
+      @project.errors.add(attribute, "Your #{name} needs to return a 2xx status. I got #{response.status}, is your code/website set to public!?!?")
     end
 
 
