@@ -20,7 +20,7 @@ class Api::V1::ProjectsController < Api::BaseController
   def index
     if @current_user&.admin? || @current_user&.super_admin?
       projects = Project.all
-    else 
+    else
       public_projects = Project.left_joins(memberships: :user)
                               .where(users: { public_api: true })
 
@@ -31,8 +31,8 @@ class Api::V1::ProjectsController < Api::BaseController
       projects = public_projects.or(user_projects).distinct
     end
 
-    projects = projects.includes({memberships: :user}, :votes, :devlogs)
-    limit = [params[:limit]&.to_i || 20, 50].min
+    projects = projects.includes({ memberships: :user }, :votes, :devlogs)
+    limit = [ params[:limit]&.to_i || 20, 50 ].min
     offset = params[:offset]&.to_i || 0
     projects = projects.limit(limit).offset(offset)
 

@@ -15,7 +15,7 @@ class Api::V1::DevlogsController < Api::BaseController
       return
     end
 
-    limit = [params[:limit]&.to_i || 20, 50].min
+    limit = [ params[:limit]&.to_i || 20, 50 ].min
     offset = params[:offset]&.to_i || 0
 
     devlogs = project.devlogs.limit(limit).offset(offset)
@@ -34,9 +34,9 @@ class Api::V1::DevlogsController < Api::BaseController
         duration_seconds: d.duration_seconds,
         created_at: d.created_at,
         updated_at: d.updated_at,
-        author: d.user ? { 
-          id: d.user&.id, 
-          name: d.user&.display_name 
+        author: d.user ? {
+          id: d.user&.id,
+          name: d.user&.display_name
           } : nil,
         scrapbook_url: d.scrapbook_url
       }

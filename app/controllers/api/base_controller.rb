@@ -28,6 +28,6 @@ class Api::BaseController < ActionController::API
       return true if @current_user.super_admin? || @current_user.admin?
     end
     render json: { status: "Forbidden", data: "No permission :(" }, status: :forbidden
-    return false
+    false
   end
 end

@@ -220,5 +220,4 @@ class Project < ApplicationRecord
     def owner
         memberships.owner.first&.user
     end
-
 end
