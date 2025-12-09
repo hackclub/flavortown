@@ -88,6 +88,7 @@ Rails.application.routes.draw do
     get "/", to: "root#index"
 
     resources :projects
+    resources :store
   end
 
   namespace :user, path: "" do
