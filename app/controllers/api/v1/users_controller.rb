@@ -1,6 +1,6 @@
 class Api::V1::UsersController < Api::BaseController
   def show
-    user = User.find_by(params[:id])
+    user = User.find_by(id: params[:id])
 
     if user.nil?
       render json: { status: "Not Found", data: "User not found" }, status: :not_found
@@ -36,7 +36,7 @@ class Api::V1::UsersController < Api::BaseController
   def user_data(user)
     {
       id: user.id,
-      email: user.display_name,
+      name: user.display_name,
       projects_count: user.projects_count,
       votes_count: user.votes_count,
       slack_id: user.slack_id,

@@ -18,12 +18,16 @@ class Api::BaseController < ActionController::API
   end
 
   def check_user_is_public(target_user)
+    if target_user.nil?
+      render json: { status: "Not Found", data: "User not found" }, status: :not_found
+      return false
+    end
     return true if target_user.public_api?
     return true if target_user == @current_user
     if @current_user
       return true if @current_user.super_admin? || @current_user.admin?
     end
     render json: { status: "Forbidden", data: "No permission :(" }, status: :forbidden
-    false
+    return false
   end
 end
