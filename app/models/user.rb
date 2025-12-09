@@ -117,6 +117,10 @@ class User < ApplicationRecord
 
   def eligible_for_shop? = identity_verified? && ysws_eligible?
 
+  def should_reject_orders?
+    verification_ineligible? || (identity_verified? && !ysws_eligible?)
+  end
+
   def setup_complete?
     has_hackatime? && has_identity_linked?
   end
@@ -216,10 +220,6 @@ class User < ApplicationRecord
     elsif should_reject_orders?
       reject_awaiting_verification_orders!
     end
-  end
-
-  def should_reject_orders?
-    verification_ineligible? || (identity_verified? && !ysws_eligible?)
   end
 
   def reject_awaiting_verification_orders!
