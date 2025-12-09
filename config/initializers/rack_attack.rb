@@ -31,7 +31,7 @@ Rack::Attack.throttled_response = lambda do |env|
 
   body = {
     error: "rate_limited",
-    message: "Too many requests. Please slow down.",
+    message: "Too many requests. Please slow down."
   }.to_json
 
   [
@@ -40,6 +40,6 @@ Rack::Attack.throttled_response = lambda do |env|
       "Content-Type" => "application/json",
       "Retry-After" => env["rack.attack.match_data"][:period].to_s
     },
-    [body]
+    [ body ]
   ]
 end
