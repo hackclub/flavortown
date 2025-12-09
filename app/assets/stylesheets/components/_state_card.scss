@@ -122,8 +122,11 @@
     opacity: 0.8;
   }
 
+  &__cta {
+    margin-top: var(--space-l);
+  }
+
   &--danger {
-    --colro: hsl(359, 66%, 69%);
     --state-card-accent: var(
       --color-red-450
     ); // should be darker than border, badge and icon circle.
@@ -140,10 +143,11 @@
       background: var(--color-red-500);
     } // main icon bg
     .state-card__title {
-      color: hsl(356, 49%, 33%);
+      color: hsl(356, 49%, 20%);
     }
     .state-card__description {
-      color: hsl(356, 49%, 33%);
+      color: hsl(356, 49%, 22%);
+      line-height: 1.5;
     }
   }
 

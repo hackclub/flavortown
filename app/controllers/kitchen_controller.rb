@@ -4,7 +4,7 @@ class KitchenController < ApplicationController
 
     # temp: Refresh verification_status from HCA and DB
     # TODO: PR to idv
-    refresh_verification_status_from_hca!
+    @verification_rejection_reason = refresh_verification_status_from_hca!
     current_user.reload
 
     @has_hackatime_linked = current_user.has_hackatime?
@@ -36,7 +36,13 @@ class KitchenController < ApplicationController
     current_user.ysws_eligible = ysws_eligible
 
     current_user.save!
+
+    {
+      "reason" => identity_payload["rejection_reason"],
+      "details" => identity_payload["rejection_reason_details"]
+    }.compact_blank.presence
   rescue StandardError => e
     Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")
+    nil
   end
 end

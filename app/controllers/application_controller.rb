@@ -7,6 +7,7 @@ class ApplicationController < ActionController::Base
   include Pagy::Method
 
   before_action :enforce_ban
+  before_action :refresh_identity_on_portal_return
 
   rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
   rescue_from StandardError, with: :handle_error
@@ -54,5 +55,26 @@ class ApplicationController < ActionController::Base
     return if controller_name == "kitchen" || controller_name == "sessions"
 
     redirect_to kitchen_path, alert: "Your account has been banned."
+  end
+
+  def refresh_identity_on_portal_return
+    return unless params[:portal_status].present? && current_user
+
+    identity = current_user.identities.find_by(provider: "hack_club")
+    return unless identity&.access_token.present?
+
+    identity_payload = HCAService.identity(identity.access_token)
+    return if identity_payload.blank?
+
+    latest_status = identity_payload["verification_status"].to_s
+    return unless User::VALID_VERIFICATION_STATUSES.include?(latest_status)
+
+    current_user.complete_tutorial_step!(:identity_verified) if %w[pending verified].include?(latest_status)
+    current_user.update!(
+      verification_status: latest_status,
+      ysws_eligible: identity_payload["ysws_eligible"] == true
+    )
+  rescue StandardError => e
+    Rails.logger.warn("Portal return identity refresh failed: #{e.class}: #{e.message}")
   end
 end

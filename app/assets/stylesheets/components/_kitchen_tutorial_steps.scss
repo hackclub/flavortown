@@ -85,6 +85,69 @@
   pointer-events: none;
 }
 
+.kitchen-verification-notice {
+  &--compact {
+    margin-top: var(--space-xl);
+    max-width: 480px;
+
+    &.kitchen-verification-notice--wide {
+      max-width: none;
+      margin-top: 0;
+      margin-bottom: var(--space-xl);
+    }
+
+    .state-card {
+      padding: var(--space-l);
+      border-width: 6px;
+    }
+
+    .state-card__title {
+      font-size: var(--font-size-xl);
+      margin-bottom: var(--space-xs);
+    }
+
+    .state-card__description {
+      font-size: var(--font-size-m);
+    }
+
+    .state-card__icon {
+      width: 40px;
+      height: 40px;
+      margin-bottom: var(--space-m);
+
+      svg {
+        width: 1.2rem;
+        height: 1.2rem;
+      }
+    }
+
+    .state-card__status-pill {
+      top: -1.4rem;
+      right: -1rem;
+    }
+
+    .state-card__badge {
+      font-size: var(--font-size-m);
+      padding: 0.35rem 0.6rem;
+    }
+
+    .state-card__icon-circle {
+      width: 2.8rem;
+      height: 2.8rem;
+
+      &::before {
+        width: 2rem;
+        height: 2rem;
+      }
+
+      svg {
+        width: 1.2rem;
+        height: 1.2rem;
+      }
+    }
+  }
+}
+
 .tutorial-step-card__locked-btn {
   position: relative;
   cursor: not-allowed;

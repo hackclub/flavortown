@@ -12,6 +12,20 @@
       </div>
     </div>
   <% else %>
+  <% if current_user.verification_status == "needs_submission" && current_user.tutorial_step_completed?(:identity_verified) %>
+    <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
+      <% rejection_message = [@verification_rejection_reason&.dig("reason")&.humanize, @verification_rejection_reason&.dig("details")].compact_blank.join(": ").presence %>
+      <%= render StateCardComponent.new(
+        title: "one more try!",
+        description: "we need you to resubmit your ID verification..." + (rejection_message ? " #{rejection_message}" : ""),
+        variant: :danger,
+        badge_text: "action needed",
+        icon: "info",
+        cta_text: "verify again",
+        cta_href: HCAService.verify_portal_url(return_to: kitchen_url)
+      ) %>
+    </div>
+  <% end %>
   <div class="kitchen-setup">
     <%= render KitchenTutorialStepsComponent.new(
       tutorial_steps: @tutorial_steps,
@@ -19,5 +33,16 @@
       current_user: current_user
     ) %>
   </div>
+  <% if current_user.verification_status == "pending" %>
+    <div class="kitchen-verification-notice kitchen-verification-notice--compact">
+      <%= render StateCardComponent.new(
+        title: "Verification Pending",
+        description: "Your identity verification is being reviewed. This usually takes a few days.",
+        variant: :warning,
+        badge_text: "Pending",
+        icon: "time"
+      ) %>
+    </div>
+  <% end %>
   <% end %>
 </div>
