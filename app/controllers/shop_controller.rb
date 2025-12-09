@@ -67,7 +67,7 @@ class ShopController < ApplicationController
   end
 
   def create_order
-    unless current_user.eligible_for_shop?
+    if current_user.should_reject_orders?
       redirect_to shop_path, alert: "You're not eligible to place orders."
       return
     end
