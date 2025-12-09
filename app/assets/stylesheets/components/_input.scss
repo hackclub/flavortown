@@ -15,6 +15,7 @@
     right: 0;
     bottom: 0;
     border-radius: var(--border-radius);
+    background-color: var(--input-bg);
     background-image: url("mask/title.webp");
     background-repeat: no-repeat;
     background-size: cover;
@@ -35,6 +36,7 @@
     border-top-left-radius: calc(var(--border-radius) * 0.8);
     border-top-right-radius: calc(var(--border-radius) * 0.8);
     pointer-events: none;
+    background-color: var(--input-bg);
     background-image: url("mask/title.webp");
     background-repeat: no-repeat;
     background-size: cover;
@@ -55,8 +57,13 @@
     z-index: 2;
     width: 100%;
 
+    &:focus {
+      outline: 4px solid var(--input-focus-ring);
+      outline-offset: 2px;
+    }
+
     &::placeholder {
-      color: var(--color-text-muted);
+      color: var(--input-placeholder-color, var(--color-text-muted));
       opacity: 0.75;
     }
 
@@ -140,122 +147,48 @@
     border-radius: var(--border-radius);
     font-size: var(--font-size-s);
     z-index: 0;
+    background-color: var(--input-subtitle-bg);
+    color: var(--input-subtitle-color);
   }
 
   &--red {
+    --input-bg: var(--color-red-400);
+    --input-focus-ring: var(--color-red-500);
+    --input-placeholder-color: var(--color-red-500);
+    --input-subtitle-bg: var(--color-red-300);
+    --input-subtitle-color: var(--color-red-600);
     --input-icon-bg: var(--color-red-500);
     --input-icon-color: var(--color-bg);
-
-    &::before {
-      background-color: var(--color-red-400);
-    }
-
-    .input__label {
-      background-color: var(--color-red-400);
-    }
-
-    .input__subtitle {
-      background-color: var(--color-red-300);
-      color: var(--color-red-600);
-    }
-
-    .input__field {
-      &:focus {
-        box-shadow: 0 0 0 3px var(--color-red-500);
-      }
-
-      &::placeholder {
-        color: var(--color-red-500);
-        opacity: 0.75;
-      }
-    }
   }
 
   &--blue {
+    --input-bg: var(--color-blue-400);
+    --input-focus-ring: var(--color-blue-500);
+    --input-placeholder-color: var(--color-blue-500);
+    --input-subtitle-bg: var(--color-blue-300);
+    --input-subtitle-color: var(--color-blue-600);
     --input-icon-bg: var(--color-blue-500);
     --input-icon-color: var(--color-bg);
-
-    &::before {
-      background-color: var(--color-blue-400);
-    }
-
-    .input__label {
-      background-color: var(--color-blue-400);
-    }
-
-    .input__subtitle {
-      background-color: var(--color-blue-300);
-      color: var(--color-blue-600);
-    }
-
-    .input__field {
-      &:focus {
-        box-shadow: 0 0 0 3px var(--color-blue-500);
-      }
-
-      &::placeholder {
-        color: var(--color-blue-500);
-        opacity: 0.75;
-      }
-    }
   }
 
   &--green {
+    --input-bg: var(--color-green-400);
+    --input-focus-ring: var(--color-green-500);
+    --input-placeholder-color: var(--color-green-500);
+    --input-subtitle-bg: var(--color-green-300);
+    --input-subtitle-color: var(--color-green-600);
     --input-icon-bg: var(--color-green-500);
     --input-icon-color: var(--color-bg);
-
-    &::before {
-      background-color: var(--color-green-400);
-    }
-
-    .input__label {
-      background-color: var(--color-green-400);
-    }
-
-    .input__subtitle {
-      background-color: var(--color-green-300);
-      color: var(--color-green-600);
-    }
-
-    .input__field {
-      &:focus {
-        box-shadow: 0 0 0 3px var(--color-green-500);
-      }
-
-      &::placeholder {
-        color: var(--color-green-500);
-        opacity: 0.75;
-      }
-    }
   }
 
   &--yellow {
+    --input-bg: var(--color-yellow-450);
+    --input-focus-ring: var(--color-yellow-500);
+    --input-placeholder-color: var(--color-yellow-500);
+    --input-subtitle-bg: var(--color-yellow-400);
+    --input-subtitle-color: var(--color-yellow-600);
     --input-icon-bg: var(--color-yellow-500);
     --input-icon-color: var(--color-bg);
-
-    &::before {
-      background-color: var(--color-yellow-450);
-    }
-
-    .input__label {
-      background-color: var(--color-yellow-450);
-    }
-
-    .input__subtitle {
-      background-color: var(--color-yellow-400);
-      color: var(--color-yellow-600);
-    }
-
-    .input__field {
-      &:focus {
-        box-shadow: 0 0 0 3px var(--color-yellow-500);
-      }
-
-      &::placeholder {
-        color: var(--color-yellow-500);
-        opacity: 0.75;
-      }
-    }
   }
 
   &--shake {
