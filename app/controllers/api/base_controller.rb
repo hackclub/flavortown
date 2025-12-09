@@ -27,6 +27,3 @@ class Api::BaseController < ActionController::API
     false
   end
 end
-rescue_from ActiveRecord::RecordNotFound, with: :record_not_found def record_not_found
-  render json: { status: "Not Found", data: "Data not found" }, status: :not_found
-end
