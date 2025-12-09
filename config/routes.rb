@@ -83,6 +83,16 @@ Rails.application.routes.draw do
   post "magic_links", to: "magic_links#create"
   get "magic_links/verify", to: "magic_links#verify"
 
+  # API
+  namespace :api do
+    get "/", to: "root#index"
+
+    namespace :v1 do
+      resources :projects, only: [ :index, :show ]
+      resources :store, only: [ :index, :show ]
+    end
+  end
+
   namespace :user, path: "" do
     resources :tutorial_steps, only: [ :show ]
   end

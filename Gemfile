@@ -121,3 +121,5 @@ gem "norairrecord"
 
 gem "awesome_print"
 gem "activeinsights"
+
+gem "rack-attack"
