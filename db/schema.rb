@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_09_132626) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_09_163416) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -209,13 +209,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_09_132626) do
 
   create_table "posts", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.datetime "deleted_at"
     t.string "postable_id"
     t.string "postable_type"
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id"
-    t.index ["deleted_at"], name: "index_posts_on_deleted_at"
     t.index ["project_id"], name: "index_posts_on_project_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
@@ -399,7 +397,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_09_132626) do
     t.text "refresh_token_ciphertext"
     t.string "uid"
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
+    t.integer "user_id", null: false
     t.index ["access_token_bidx"], name: "index_user_identities_on_access_token_bidx"
     t.index ["provider", "uid"], name: "index_user_identities_on_provider_and_uid", unique: true
     t.index ["refresh_token_bidx"], name: "index_user_identities_on_refresh_token_bidx"
@@ -416,6 +414,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_09_132626) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.string "api_key"
     t.boolean "banned", default: false, null: false
     t.datetime "banned_at"
     t.text "banned_reason"
