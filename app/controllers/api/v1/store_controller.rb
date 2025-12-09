@@ -2,11 +2,11 @@ class Api::V1::StoreController < ApplicationController
   include ApiAuthenticatable
 
   def index
-    @items = ShopItem.where(enabled: true)
+    @items = ShopItem.all
   end
 
   def show
-    @item = ShopItem.find_by!(id: params[:id], enabled: true)
+    @item = ShopItem.find_by!(id: params[:id])
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Item not found" }, status: :not_found
   end
