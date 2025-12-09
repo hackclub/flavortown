@@ -1,4 +1,6 @@
 class ShopItemCardComponent < ViewComponent::Base
+  include MarkdownHelper
+
   attr_reader :item_id, :name, :description, :hours, :price, :image_url, :item_type, :balance, :enabled_regions, :regional_price
 
   def initialize(item_id:, name:, description:, hours:, price:, image_url:, item_type: nil, balance: nil, enabled_regions: [], regional_price: nil)
