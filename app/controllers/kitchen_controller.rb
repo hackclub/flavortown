@@ -2,10 +2,10 @@ class KitchenController < ApplicationController
   def index
     authorize :kitchen, :index?
 
-    # temp: Refresh verification_status from HCA and DB
-    # TODO: PR to idv
-    @verification_rejection_reason = refresh_verification_status_from_hca!
-    current_user.reload
+    unless current_user.verification_status == "verified" && current_user.ysws_eligible?
+      @verification_rejection_reason = refresh_verification_status_from_hca!
+      current_user.reload
+    end
 
     @has_hackatime_linked = current_user.has_hackatime?
     @has_identity_linked = current_user.identity_verified?
