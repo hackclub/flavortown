@@ -15,7 +15,8 @@
   transition: width 180ms ease;
   overflow: visible;
 
-  &:hover, &:focus-within {
+  &:hover,
+  &:focus-within {
     width: var(--sidebar-expanded-width);
 
     .sidebar__user-card {
@@ -547,7 +548,8 @@
     height: var(--sidebar-collapsed-width);
     margin-left: -0.5em;
 
-    &:hover, &:focus-within {
+    &:hover,
+    &:focus-within {
       width: 100%;
     }
 

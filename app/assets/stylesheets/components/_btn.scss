@@ -46,7 +46,7 @@
   &--red {
     --btn-bg: var(--color-red-400);
     --btn-bg-dark: var(--color-red-500);
-    --btn-focus-ring : var(--color-red-500);
+    --btn-focus-ring: var(--color-red-500);
     background-color: var(--color-red-500);
     border-color: var(--color-red-400);
 
@@ -62,7 +62,7 @@
   &--green {
     --btn-bg: var(--color-green-400);
     --btn-bg-dark: var(--color-green-500);
-    --btn-focus-ring : var(--color-green-500);
+    --btn-focus-ring: var(--color-green-500);
     background-color: var(--color-green-500);
     border-color: var(--color-green-400);
 
@@ -78,7 +78,7 @@
   &--blue {
     --btn-bg: var(--color-blue-400);
     --btn-bg-dark: var(--color-blue-500);
-    --btn-focus-ring : var(--color-blue-500);
+    --btn-focus-ring: var(--color-blue-500);
     background-color: var(--color-blue-500);
     border-color: var(--color-blue-400);
 
@@ -109,7 +109,7 @@
   &--brown {
     --btn-bg: var(--color-brown-700);
     --btn-bg-dark: var(--color-brown-700);
-    --btn-focus-ring : var(--color-brown-700);
+    --btn-focus-ring: var(--color-brown-700);
     background-color: var(--color-brown-700);
     border-color: var(--color-brown-400);
 
@@ -125,7 +125,7 @@
   &--bg_yellow {
     --btn-bg: var(--color-bg);
     --btn-bg-dark: var(--color-brown-700);
-    --btn-focus-ring : var(--color-brown-400);
+    --btn-focus-ring: var(--color-brown-400);
     background-color: var(--color-bg);
     border-color: var(--color-brown-400);
     color: var(--color-red-500);
