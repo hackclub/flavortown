@@ -64,6 +64,7 @@ class ShopOrder < ApplicationRecord
   has_encrypted :frozen_address, type: :json
 
   validates :quantity, presence: true, numericality: { only_integer: true, greater_than: 0 }, on: :create
+  validates :frozen_address, presence: true, on: :create
   validate :check_one_per_person_ever_limit, on: :create
   validate :check_max_quantity_limit, on: :create
   validate :check_user_balance, on: :create

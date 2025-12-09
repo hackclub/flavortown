@@ -5,6 +5,7 @@
 # Table name: users
 #
 #  id                          :bigint           not null, primary key
+#  api_key                     :string
 #  banned                      :boolean          default(FALSE), not null
 #  banned_at                   :datetime
 #  banned_reason               :text
