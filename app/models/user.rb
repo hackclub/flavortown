@@ -199,6 +199,12 @@ class User < ApplicationRecord
     SendSlackDmJob.perform_later(slack_id, message)
   end
 
+  def generate_api_key!
+    PaperTrail.request(whodunnit: -> { id || "system" }) do
+      update!(api_key: "ft_sk_" + SecureRandom.hex(20))
+    end
+  end
+
   private
 
   def should_check_verification_eligibility?
@@ -225,12 +231,6 @@ class User < ApplicationRecord
                  "Not eligible for YSWS"
       end
       order.mark_rejected!(reason)
-    end
-  end
-
-  def generate_api_key!
-    PaperTrail.request(whodunnit: -> { id || "system" }) do
-      update!(api_key: "ft_sk_" + SecureRandom.hex(20))
     end
   end
 end
