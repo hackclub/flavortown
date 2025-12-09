@@ -50,6 +50,11 @@ input {
   padding: 0.5rem;
   font-size: 1.2em;
 
+  &:has(input:focus-visible) {
+    outline: 4px solid var(--color-red-500);
+    outline-offset: 2px;
+  }
+
   > div {
     background: white;
     color: var(--color-red-400);
