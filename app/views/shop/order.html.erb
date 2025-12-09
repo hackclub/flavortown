@@ -39,6 +39,28 @@
                 <% else %>
                     <%= form.hidden_field :quantity, value: 1 %>
                 <% end %>
+
+                <% if @accessories.any? %>
+                    <div class="shop-order__accessories">
+                        <h4>Add Accessories:</h4>
+                        <% @accessories.each do |accessory| %>
+                            <div class="shop-order__accessory-item">
+                                <label class="shop-order__accessory-label">
+                                    <input type="checkbox"
+                                           name="accessory_ids[]"
+                                           value="<%= accessory.id %>"
+                                           class="shop-order__accessory-checkbox"
+                                           data-price="<%= accessory.ticket_cost %>">
+                                    <% if accessory.image.attached? %>
+                                        <%= image_tag accessory.image.variant(:carousel_sm), class: "shop-order__accessory-image", loading: "lazy" %>
+                                    <% end %>
+                                    <span class="shop-order__accessory-name"><%= accessory.name %></span>
+                                    <span class="shop-order__accessory-price">🍪 <%= accessory.ticket_cost %></span>
+                                </label>
+                            </div>
+                        <% end %>
+                    </div>
+                <% end %>
             <% end %>
             <% user_addresses = current_user.addresses %>
             <div class="shop-order__address" data-controller="address-select" data-addresses="<%= user_addresses.to_json %>">
@@ -88,6 +110,10 @@
                             <h4>Quantity:</h4>
                             <h4 id="shop-order__summary-qty-display">1x</h4>
                         </div>
+                        <div class="shop-order__summary-accessories" id="shop-order__summary-accessories" style="display: none;">
+                            <h4>Accessories:</h4>
+                            <h4 id="shop-order__summary-accessories-display">🍪 0</h4>
+                        </div>
                         <div class="shop-order__summary-total">
                             <h4>Total:</h4>
                             <h4 id="shop-order__summary-total-display">🍪 <%= @shop_item.ticket_cost %></h4>
@@ -107,15 +133,54 @@ document.addEventListener('DOMContentLoaded', function() {
     const quantityInput = document.getElementById('shop-order__quantity-input');
     const summaryQtyDisplay = document.getElementById('shop-order__summary-qty-display');
     const summaryTotalDisplay = document.getElementById('shop-order__summary-total-display');
+    const summaryAccessoriesContainer = document.getElementById('shop-order__summary-accessories');
+    const summaryAccessoriesDisplay = document.getElementById('shop-order__summary-accessories-display');
+    const accessoryCheckboxes = document.querySelectorAll('.shop-order__accessory-checkbox');
     const ticketCost = <%= raw (@shop_item.ticket_cost || 0).to_json %>;
 
-    if (quantityInput) {
-        quantityInput.addEventListener('input', function() {
-            const qty = parseInt(this.value) || 0;
-            summaryQtyDisplay.textContent = qty;
-            summaryTotalDisplay.textContent = '🍪 ' + (qty * ticketCost).toFixed(2);
+    function calculateAccessoriesTotal() {
+        let total = 0;
+        accessoryCheckboxes.forEach(function(checkbox) {
+            if (checkbox.checked) {
+                total += parseFloat(checkbox.dataset.price) || 0;
+            }
         });
+        return total;
     }
+
+    function updateOrderSummary() {
+        const qty = parseInt(quantityInput ? quantityInput.value : 1) || 1;
+        const accessoriesTotal = calculateAccessoriesTotal();
+        const itemTotal = qty * ticketCost;
+        const grandTotal = itemTotal + accessoriesTotal;
+
+        if (summaryQtyDisplay) {
+            summaryQtyDisplay.textContent = qty + 'x';
+        }
+
+        if (summaryAccessoriesContainer && summaryAccessoriesDisplay) {
+            if (accessoriesTotal > 0) {
+                summaryAccessoriesContainer.style.display = 'flex';
+                summaryAccessoriesDisplay.textContent = '🍪 ' + accessoriesTotal.toFixed(2);
+            } else {
+                summaryAccessoriesContainer.style.display = 'none';
+            }
+        }
+
+        if (summaryTotalDisplay) {
+            summaryTotalDisplay.textContent = '🍪 ' + grandTotal.toFixed(2);
+        }
+    }
+
+    if (quantityInput) {
+        quantityInput.addEventListener('input', updateOrderSummary);
+    }
+
+    accessoryCheckboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', updateOrderSummary);
+    });
+
+    updateOrderSummary();
 
     const addressSelect = document.getElementById('address-select');
     const addressPreview = document.getElementById('address-preview');

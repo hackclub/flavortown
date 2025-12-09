@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_08_223213) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -179,12 +179,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
   create_table "ledger_entries", force: :cascade do |t|
     t.integer "amount"
     t.datetime "created_at", null: false
-    t.bigint "created_by_id", null: false
+    t.string "created_by", null: false
     t.bigint "ledgerable_id", null: false
     t.string "ledgerable_type", null: false
     t.string "reason"
     t.datetime "updated_at", null: false
-    t.index ["created_by_id"], name: "index_ledger_entries_on_created_by_id"
     t.index ["ledgerable_type", "ledgerable_id"], name: "index_ledger_entries_on_ledgerable"
   end
 
@@ -194,6 +193,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
     t.integer "duration_seconds"
     t.text "hackatime_projects_key_snapshot"
     t.datetime "hackatime_pulled_at"
+    t.string "scrapbook_url"
     t.datetime "updated_at", null: false
   end
 
@@ -204,6 +204,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
     t.float "multiplier"
     t.float "payout"
     t.datetime "updated_at", null: false
+    t.integer "votes_count", default: 0, null: false
   end
 
   create_table "posts", force: :cascade do |t|
@@ -240,6 +241,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
 
   create_table "projects", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.datetime "deleted_at"
     t.text "demo_url"
     t.text "description"
     t.integer "memberships_count", default: 0, null: false
@@ -250,6 +252,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
     t.datetime "shipped_at"
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.index ["deleted_at"], name: "index_projects_on_deleted_at"
   end
 
   create_table "reports", force: :cascade do |t|
@@ -287,6 +290,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
 
   create_table "shop_items", force: :cascade do |t|
     t.jsonb "agh_contents"
+    t.bigint "attached_shop_item_ids", default: [], array: true
+    t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.string "description"
     t.boolean "enabled"
@@ -331,6 +336,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
 
   create_table "shop_orders", force: :cascade do |t|
     t.string "aasm_state"
+    t.bigint "accessory_ids", default: [], array: true
     t.datetime "awaiting_periodical_fulfillment_at"
     t.datetime "created_at", null: false
     t.string "external_ref"
@@ -341,6 +347,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
     t.decimal "fulfillment_cost", precision: 6, scale: 2, default: "0.0"
     t.text "internal_notes"
     t.datetime "on_hold_at"
+    t.bigint "parent_order_id"
     t.integer "quantity"
     t.datetime "rejected_at"
     t.string "rejection_reason"
@@ -350,12 +357,25 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.bigint "warehouse_package_id"
+    t.index ["parent_order_id"], name: "index_shop_orders_on_parent_order_id"
+    t.index ["shop_card_grant_id"], name: "index_shop_orders_on_shop_card_grant_id"
     t.index ["shop_item_id", "aasm_state", "quantity"], name: "idx_shop_orders_item_state_qty"
     t.index ["shop_item_id", "aasm_state"], name: "idx_shop_orders_stock_calc"
     t.index ["shop_item_id"], name: "index_shop_orders_on_shop_item_id"
     t.index ["user_id", "shop_item_id", "aasm_state"], name: "idx_shop_orders_user_item_state"
     t.index ["user_id", "shop_item_id"], name: "idx_shop_orders_user_item_unique"
     t.index ["user_id"], name: "index_shop_orders_on_user_id"
+    t.index ["warehouse_package_id"], name: "index_shop_orders_on_warehouse_package_id"
+  end
+
+  create_table "shop_warehouse_packages", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "frozen_address_ciphertext"
+    t.string "theseus_package_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["theseus_package_id"], name: "index_shop_warehouse_packages_on_theseus_package_id", unique: true
+    t.index ["user_id"], name: "index_shop_warehouse_packages_on_user_id"
   end
 
   create_table "user_hackatime_projects", force: :cascade do |t|
@@ -395,18 +415,23 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.boolean "banned", default: false, null: false
+    t.datetime "banned_at"
+    t.text "banned_reason"
     t.datetime "created_at", null: false
     t.string "display_name"
     t.string "email"
     t.string "first_name"
     t.boolean "has_gotten_free_stickers", default: false
     t.boolean "has_roles", default: true, null: false
+    t.string "hcb_email"
     t.string "last_name"
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.integer "projects_count"
     t.string "region"
     t.boolean "send_votes_to_slack", default: false, null: false
+    t.string "session_token"
     t.string "slack_id"
     t.datetime "synced_at"
     t.string "tutorial_steps_completed", default: [], array: true
@@ -417,6 +442,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["region"], name: "index_users_on_region"
+    t.index ["session_token"], name: "index_users_on_session_token", unique: true
     t.index ["slack_id"], name: "index_users_on_slack_id", unique: true
   end
 
@@ -436,19 +462,21 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
     t.datetime "created_at", null: false
     t.boolean "demo_url_clicked"
     t.bigint "project_id", null: false
+    t.text "reason"
     t.boolean "repo_url_clicked"
     t.integer "score", null: false
+    t.bigint "ship_event_id"
     t.integer "time_taken_to_vote"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["project_id"], name: "index_votes_on_project_id"
-    t.index ["user_id", "project_id", "category"], name: "index_votes_on_user_id_and_project_id_and_category", unique: true
+    t.index ["ship_event_id"], name: "index_votes_on_ship_event_id"
+    t.index ["user_id", "ship_event_id", "category"], name: "index_votes_on_user_id_and_ship_event_id_and_category", unique: true
     t.index ["user_id"], name: "index_votes_on_user_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "ledger_entries", "users", column: "created_by_id"
   add_foreign_key "posts", "projects"
   add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"
@@ -459,11 +487,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_07_000001) do
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_orders", "shop_items"
+  add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
+  add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"
   add_foreign_key "shop_orders", "users"
+  add_foreign_key "shop_warehouse_packages", "users"
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"
   add_foreign_key "user_role_assignments", "users"
+  add_foreign_key "votes", "post_ship_events", column: "ship_event_id"
   add_foreign_key "votes", "projects"
   add_foreign_key "votes", "users"
 end

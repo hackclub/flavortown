@@ -178,9 +178,31 @@
           </div>
 
           <div id="warehouse_settings" class="mb-3" style="display: none;">
-            <%= f.label :agh_contents, "AGH Contents - SKU List (JSON)", class: "form-label" %>
-            <%= f.text_area :agh_contents, rows: 4, class: "form-control", placeholder: '[{"sku": "ITEM-001", "name": "Item Name"}, {"sku": "ITEM-002", "name": "Item 2"}]', style: "font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;" %>
+            <%= f.label :agh_contents, "AGH Contents (JSON)", class: "form-label" %>
+            <%= f.text_area :agh_contents, rows: 4, class: "form-control", placeholder: '[{"sku": "ITEM-001", "quantity": 1}, {"sku": "ITEM-002", "quantity": 2}]', style: "font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;" %>
             <small class="form-text text-muted">List SKUs to include. Quantity selected by user will batch all SKUs together.</small>
+          </div>
+
+          <div id="accessory_settings" style="display: none;">
+            <h5>Accessory Settings</h5>
+            <div class="mb-3">
+              <div class="form-check">
+                <%= f.check_box :buyable_by_self, class: "form-check-input", id: "shop_item_buyable_by_self" %>
+                <%= f.label :buyable_by_self, "Buyable By Self", class: "form-check-label" %>
+              </div>
+              <small class="form-text text-muted">If unchecked, this accessory can only be purchased with an attached item</small>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :attached_shop_item_ids, "Attached To (Shop Items)", class: "form-label" %>
+              <%= f.collection_check_boxes :attached_shop_item_ids, ShopItem.where.not(type: "ShopItem::Accessory").order(:name), :id, :name do |b| %>
+                <div class="form-check">
+                  <%= b.check_box class: "form-check-input" %>
+                  <%= b.label class: "form-check-label" %>
+                </div>
+              <% end %>
+              <small class="form-text text-muted">Select items this accessory can be attached to</small>
+            </div>
           </div>
         </div>
       </div>
@@ -436,6 +458,7 @@
   const hcbLocksSettings = document.getElementById('hcb_locks_settings');
   const hcbPreauthSettings = document.getElementById('hcb_preauth_settings');
   const warehouseSettings = document.getElementById('warehouse_settings');
+  const accessorySettings = document.getElementById('accessory_settings');
 
   function updateTypeVisibility() {
     const selectedType = typeSelect ? typeSelect.value : '';
@@ -454,6 +477,10 @@
 
     if (warehouseSettings) {
       warehouseSettings.style.display = (selectedType === 'ShopItem::WarehouseItem') ? 'block' : 'none';
+    }
+
+    if (accessorySettings) {
+      accessorySettings.style.display = (selectedType === 'ShopItem::Accessory') ? 'block' : 'none';
     }
   }
 

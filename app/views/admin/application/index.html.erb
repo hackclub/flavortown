@@ -83,7 +83,7 @@
     <%= link_to "Flipper", "/admin/flipper", class: button_class %>
   <% end %>
   <% if policy(:admin).manage_user_roles? %>
-  <%= link_to "Manage users", "/admin/user-perms", class: button_class %>
+  <%= link_to "Manage users w/ perms", "/admin/user-perms", class: button_class %>
 <% end %>
 <% if policy(:admin).access_jobs? %>
 <%= link_to "Job queue", "/admin/jobs", class: button_class %>
@@ -91,7 +91,7 @@
   <% if policy(:admin).access_payouts_dashboard? %>
   <%= link_to "Payouts Dashboard", "/admin/payouts_dashboard", class: button_class %>
 <% end %>
-<% if current_user.admin? || current_user.fraud_dept? %>
+<% if current_user.admin? %>
   <%= link_to "Fulfillment Dashboard", admin_fulfillment_dashboard_index_path, class: button_class %>
 <% end %>
   <%= link_to "Help bot", "slack://app?team=T0266FRGM&id=A09NP19R7FX&tab=home", class: "btn-primary" %>

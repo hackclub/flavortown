@@ -11,6 +11,7 @@ class Project::DevlogsController < ApplicationController
     @devlog = Post::Devlog.new(devlog_params)
     load_preview_time
     @devlog.duration_seconds = @preview_seconds
+    @devlog.hackatime_projects_key_snapshot = @project.hackatime_keys.join(",")
 
     if @devlog.save
       Post.create!(project: @project, user: current_user, postable: @devlog)
@@ -36,7 +37,7 @@ class Project::DevlogsController < ApplicationController
   end
 
   def devlog_params
-    params.require(:post_devlog).permit(:body, attachments: [])
+    params.require(:post_devlog).permit(:body, :scrapbook_url, attachments: [])
   end
 
   def load_preview_time

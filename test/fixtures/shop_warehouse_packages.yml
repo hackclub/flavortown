@@ -1,0 +1,31 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# This model initially had no columns defined. If you add columns to the
+# model remove the "{}" from the fixture names and add the columns immediately
+# below each fixture, per the syntax in the comments below
+#
+# == Schema Information
+#
+# Table name: shop_warehouse_packages
+#
+#  id                        :bigint           not null, primary key
+#  frozen_address_ciphertext :text
+#  created_at                :datetime         not null
+#  updated_at                :datetime         not null
+#  theseus_package_id        :string
+#  user_id                   :bigint           not null
+#
+# Indexes
+#
+#  index_shop_warehouse_packages_on_theseus_package_id  (theseus_package_id) UNIQUE
+#  index_shop_warehouse_packages_on_user_id             (user_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (user_id => users.id)
+#
+one: {}
+# column: value
+#
+two: {}
+# column: value

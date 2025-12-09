@@ -3,6 +3,7 @@
 # Table name: projects
 #
 #  id                :bigint           not null, primary key
+#  deleted_at        :datetime
 #  demo_url          :text
 #  description       :text
 #  memberships_count :integer          default(0), not null
@@ -15,6 +16,10 @@
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #
+# Indexes
+#
+#  index_projects_on_deleted_at  (deleted_at)
+#
 class Project < ApplicationRecord
     include AASM
 
@@ -22,14 +27,18 @@ class Project < ApplicationRecord
     ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
     MAX_BANNER_SIZE = 10.megabytes
 
-    PROJECT_TYPES = %w[game app website tool library hardware other].freeze
+    scope :kept, -> { where(deleted_at: nil) }
+    scope :deleted, -> { where.not(deleted_at: nil) }
+
+    default_scope { kept }
 
     has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
     has_many :users, through: :memberships
     has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :nullify
     has_many :posts, dependent: :destroy
-    # prolly countercache it
     has_many :devlogs, -> { where(postable_type: "Post::Devlog") }, class_name: "Post"
+    has_many :ship_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
+    has_one :latest_ship_post, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
     has_many :votes, dependent: :destroy
     has_many :reports, dependent: :destroy
 
@@ -71,8 +80,27 @@ class Project < ApplicationRecord
               processable_file: true
 
     scope :votable_by, ->(user) {
-        where.not(id: user.projects.select(:id))
-        .where.not(id: user.votes.select(:project_id))
+      where.not(id: user.projects.select(:id))
+        .where("NOT EXISTS (
+          SELECT 1 FROM votes
+          WHERE votes.user_id = ?
+          AND votes.ship_event_id = latest_ship.id
+        )", user.id)
+    }
+
+    scope :looking_for_votes, -> {
+      joins("INNER JOIN LATERAL (
+        SELECT post_ship_events.id, post_ship_events.votes_count
+        FROM posts
+        INNER JOIN post_ship_events ON post_ship_events.id = posts.postable_id::bigint
+        WHERE posts.project_id = projects.id
+          AND posts.postable_type = 'Post::ShipEvent'
+          AND post_ship_events.payout IS NULL
+          AND post_ship_events.votes_count < #{Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT}
+        ORDER BY posts.created_at DESC
+        LIMIT 1
+      ) latest_ship ON true")
+        .order("latest_ship.votes_count ASC")
     }
 
     def time
@@ -84,6 +112,17 @@ class Project < ApplicationRecord
         OpenStruct.new(hours: hours, minutes: minutes)
     end
 
+    def soft_delete!
+      update!(deleted_at: Time.current)
+    end
+
+    def restore!
+      update!(deleted_at: nil)
+    end
+
+    def deleted?
+      deleted_at.present?
+    end
     def hackatime_keys
         hackatime_projects.pluck(:name)
     end
@@ -97,7 +136,7 @@ class Project < ApplicationRecord
         hackatime_identity = owner.identities.find_by(provider: "hackatime")
         return 0 unless hackatime_identity
 
-        project_times = HackatimeService.fetch_user_projects_with_time(hackatime_identity.uid)
+        project_times = HackatimeService.fetch_user_projects_with_time(hackatime_identity.uid, user: owner)
         total_seconds = hackatime_projects.sum { |hp| project_times[hp.name].to_i }
         (total_seconds / 3600.0).round(1)
     end
@@ -109,7 +148,7 @@ class Project < ApplicationRecord
         hackatime_identity = owner.identities.find_by(provider: "hackatime")
         return [] unless hackatime_identity
 
-        project_times = HackatimeService.fetch_user_projects_with_time(hackatime_identity.uid)
+        project_times = HackatimeService.fetch_user_projects_with_time(hackatime_identity.uid, user: owner)
         hackatime_projects.map do |hp|
             {
                 name: hp.name,
@@ -151,8 +190,10 @@ class Project < ApplicationRecord
     end
 
     def has_devlog_since_last_ship?
-        return true if shipped_at.nil?
-        devlogs.where("created_at > ?", shipped_at).exists?
+        last_ship = last_ship_event
+        return true if last_ship.nil?
+
+        devlogs.where("created_at > ?", last_ship.created_at).exists?
     end
 
     def last_ship_event
@@ -163,14 +204,16 @@ class Project < ApplicationRecord
         demo_url.present? &&
         repo_url.present? &&
         banner.attached? &&
-        description.present?
+        description.present? &&
+        devlogs.any?
     end
 
     def shipping_validations
         [
             { key: :demo_url, label: "You have an experienceable link (a URL where anyone can try your project now)", passed: demo_url.present? },
             { key: :repo_url, label: "You have a public GitHub URL with all source code", passed: repo_url.present? },
-            { key: :screenshot, label: "You have a screenshot of your project", passed: banner.attached? }
+            { key: :screenshot, label: "You have a screenshot of your project", passed: banner.attached? },
+            { key: :devlogs, label: "You have at least one devlog", passed: devlogs.any? }
         ]
     end
 end

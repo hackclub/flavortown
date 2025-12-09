@@ -3,17 +3,22 @@
 # Table name: users
 #
 #  id                          :bigint           not null, primary key
+#  banned                      :boolean          default(FALSE), not null
+#  banned_at                   :datetime
+#  banned_reason               :text
 #  display_name                :string
 #  email                       :string
 #  first_name                  :string
 #  has_gotten_free_stickers    :boolean          default(FALSE)
 #  has_roles                   :boolean          default(TRUE), not null
+#  hcb_email                   :string
 #  last_name                   :string
 #  magic_link_token            :string
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
 #  region                      :string
 #  send_votes_to_slack         :boolean          default(FALSE), not null
+#  session_token               :string
 #  synced_at                   :datetime
 #  tutorial_steps_completed    :string           default([]), is an Array
 #  verification_status         :string           default("needs_submission"), not null
@@ -28,6 +33,7 @@
 #  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #  index_users_on_region            (region)
+#  index_users_on_session_token     (session_token) UNIQUE
 #  index_users_on_slack_id          (slack_id) UNIQUE
 #
 class User < ApplicationRecord
@@ -47,6 +53,7 @@ class User < ApplicationRecord
 
   validates :verification_status, presence: true, inclusion: { in: VALID_VERIFICATION_STATUSES }
   validates :slack_id, presence: true, uniqueness: true
+  validates :hcb_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
   scope :with_roles, -> { includes(:role_assignments) }
 
@@ -140,6 +147,26 @@ class User < ApplicationRecord
     ledger_entries.sum(:amount)
   end
 
+  def ban!(reason: nil)
+    update!(banned: true, banned_at: Time.current, banned_reason: reason)
+    reject_pending_orders!(reason: reason || "User banned")
+    soft_delete_projects!
+  end
+
+  def reject_pending_orders!(reason: "User banned")
+    shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).find_each do |order|
+      order.mark_rejected(reason)
+      order.save!
+    end
+  end
+
+  def soft_delete_projects!
+    projects.find_each(&:soft_delete!)
+  end
+
+  def unban!
+    update!(banned: false, banned_at: nil, banned_reason: nil)
+  end
   def cancel_shop_order(order_id)
     order = shop_orders.find(order_id)
     return { success: false, error: "Your order can not be canceled" } unless order.pending?
@@ -159,6 +186,10 @@ class User < ApplicationRecord
   end
   def avatar
     "http://cachet.dunkirk.sh/users/#{slack_id}/r"
+  end
+
+  def grant_email
+    hcb_email.presence || email
   end
   def dm_user(message)
     SendSlackDmJob.perform_later(slack_id, message)

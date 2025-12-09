@@ -7,16 +7,14 @@
 
   &__blurred-when-inactive {
     filter: blur(8px);
-    pointer-events: none;
     user-select: none;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+  }
 
-    transition: all 0.5s ease-in-out;
-    &:hover {
-      filter: blur(0);
-      opacity: 1;
-      pointer-events: auto;
-      user-select: auto;
-    }
+  &__header-item:hover &__blurred-when-inactive {
+    filter: blur(0);
+    user-select: auto;
   }
 
   &__header {
@@ -225,6 +223,23 @@
     color: var(--color-text-header);
     margin: 0;
     flex: 1;
+  }
+
+  &__status-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-xxs);
+
+    @media (max-width: 768px) {
+      align-items: flex-start;
+    }
+  }
+
+  &__status-hint {
+    font-family: var(--font-family-text);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
   }
 
   &__status {

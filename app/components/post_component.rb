@@ -5,8 +5,10 @@
   VARIANTS = %i[fire devlog certified ship].freeze
 
   def initialize(post:, variant: :devlog, current_user: nil)
-     @post = post
+    @post = post
     @variant = normalize_variant(variant)
+    @variant = :ship if post.postable.is_a?(Post::ShipEvent)
+    @current_user = current_user
    end
 
    def author_name
@@ -35,6 +37,11 @@
    def attachments
      return [] unless post.postable.respond_to?(:attachments)
      post.postable.attachments
+   end
+
+   def scrapbook_url
+     return nil unless post.postable.respond_to?(:scrapbook_url)
+     post.postable.scrapbook_url
    end
 
    def image?(attachment)

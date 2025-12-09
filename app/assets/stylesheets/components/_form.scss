@@ -245,6 +245,38 @@
     font-size: var(--font-size-s);
     color: var(--color-text-muted);
   }
+
+  &__label {
+    display: block;
+    margin-bottom: var(--space-xxs);
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-m);
+    color: var(--color-text-body);
+  }
+
+  &__input {
+    width: 100%;
+    padding: var(--space-s);
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-m);
+    color: var(--color-text-body);
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-s);
+
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-brown-500);
+    }
+  }
+
+  &__field:has(&__input) &__hint {
+    margin-left: 0;
+  }
 }
 
 // Field errors

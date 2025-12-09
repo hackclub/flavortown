@@ -4,6 +4,7 @@
 #
 #  id                                 :bigint           not null, primary key
 #  aasm_state                         :string
+#  accessory_ids                      :bigint           default([]), is an Array
 #  awaiting_periodical_fulfillment_at :datetime
 #  external_ref                       :string
 #  frozen_address_ciphertext          :text
@@ -19,6 +20,7 @@
 #  tracking_number                    :string
 #  created_at                         :datetime         not null
 #  updated_at                         :datetime         not null
+#  parent_order_id                    :bigint
 #  shop_card_grant_id                 :bigint
 #  shop_item_id                       :bigint           not null
 #  user_id                            :bigint           not null
@@ -26,17 +28,22 @@
 #
 # Indexes
 #
-#  idx_shop_orders_item_state_qty     (shop_item_id,aasm_state,quantity)
-#  idx_shop_orders_stock_calc         (shop_item_id,aasm_state)
-#  idx_shop_orders_user_item_state    (user_id,shop_item_id,aasm_state)
-#  idx_shop_orders_user_item_unique   (user_id,shop_item_id)
-#  index_shop_orders_on_shop_item_id  (shop_item_id)
-#  index_shop_orders_on_user_id       (user_id)
+#  idx_shop_orders_item_state_qty             (shop_item_id,aasm_state,quantity)
+#  idx_shop_orders_stock_calc                 (shop_item_id,aasm_state)
+#  idx_shop_orders_user_item_state            (user_id,shop_item_id,aasm_state)
+#  idx_shop_orders_user_item_unique           (user_id,shop_item_id)
+#  index_shop_orders_on_parent_order_id       (parent_order_id)
+#  index_shop_orders_on_shop_card_grant_id    (shop_card_grant_id)
+#  index_shop_orders_on_shop_item_id          (shop_item_id)
+#  index_shop_orders_on_user_id               (user_id)
+#  index_shop_orders_on_warehouse_package_id  (warehouse_package_id)
 #
 # Foreign Keys
 #
+#  fk_rails_...  (parent_order_id => shop_orders.id)
 #  fk_rails_...  (shop_item_id => shop_items.id)
 #  fk_rails_...  (user_id => users.id)
+#  fk_rails_...  (warehouse_package_id => shop_warehouse_packages.id)
 #
 class ShopOrder < ApplicationRecord
   has_paper_trail ignore: [ :frozen_address_ciphertext ]
@@ -47,6 +54,9 @@ class ShopOrder < ApplicationRecord
   belongs_to :user
   belongs_to :shop_item
   belongs_to :shop_card_grant, optional: true
+  belongs_to :parent_order, class_name: "ShopOrder", optional: true
+  has_many :accessory_orders, class_name: "ShopOrder", foreign_key: :parent_order_id, dependent: :destroy
+  belongs_to :warehouse_package, class_name: "ShopWarehousePackage", optional: true
 
   # has_many :payouts, as: :payable, dependent: :destroy
 
@@ -62,6 +72,7 @@ class ShopOrder < ApplicationRecord
 
   after_create :create_negative_payout
   before_create :freeze_item_price
+  after_commit :notify_user_of_status_change, if: :saved_change_to_aasm_state?
 
   scope :worth_counting, -> { where.not(aasm_state: %w[rejected refunded]) }
   scope :manually_fulfilled, -> { joins(:shop_item).merge(ShopItem.where(type: ShopItem::MANUAL_FULFILLMENT_TYPES)) }
@@ -116,24 +127,6 @@ class ShopOrder < ApplicationRecord
     )
 
     frozen_address
-  end
-
-  def warehouse_pick_lines
-    return [] unless shop_item.is_a?(ShopItem::WarehouseItem)
-    shop_item.contents_for_order_qty(quantity || 1)
-  end
-
-  # Class method to get combined pick lines for a batch of orders (by warehouse_package_id)
-  def self.combined_pick_lines_for_package(package_id)
-    lines = Hash.new { |h, k| h[k] = { "sku" => k, "name" => nil, "qty" => 0 } }
-    where(warehouse_package_id: package_id).includes(:shop_item).each do |order|
-      order.warehouse_pick_lines.each do |line|
-        entry = lines[line["sku"]]
-        entry["name"] ||= line["name"]
-        entry["qty"] += line["qty"].to_i
-      end
-    end
-    lines.values
   end
 
   aasm timestamps: true do
@@ -201,6 +194,26 @@ class ShopOrder < ApplicationRecord
     user.update(has_gotten_free_stickers: true)
   end
 
+  def get_agh_contents = shop_item.get_agh_contents(self)
+
+  def notify_user_of_status_change
+    return unless user.slack_id.present?
+
+    template = case aasm_state
+    when "rejected" then "notifications/shop_orders/rejected"
+    when "awaiting_periodical_fulfillment" then "notifications/shop_orders/awaiting_fulfillment"
+    when "fulfilled" then "notifications/shop_orders/fulfilled"
+    else "notifications/shop_orders/default"
+    end
+
+    SendSlackDmJob.perform_later(
+      user.slack_id,
+      nil,
+      blocks_path: template,
+      locals: { order: self }
+    )
+  end
+
   private
 
   def freeze_item_price
@@ -258,28 +271,28 @@ class ShopOrder < ApplicationRecord
   def check_free_stickers_requirement
     return if user&.has_gotten_free_stickers?
     return if shop_item.is_a?(ShopItem::FreeStickers)
+    return if user.shop_orders.joins(:shop_item).where(shop_items: { type: "ShopItem::FreeStickers" }).worth_counting.exists?
 
     errors.add(:base, "You must order the Free Stickers first before ordering other items!")
   end
 
   def create_negative_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
-    return unless user.respond_to?(:payouts)
 
-    user.payouts.create!(
+    user.ledger_entries.create!(
       amount: -total_cost,
-      payable: self,
-      reason: "Shop order of #{shop_item.name.pluralize(quantity)}"
+      reason: "Shop order of #{shop_item.name.pluralize(quantity)}",
+      created_by: "System"
     )
   end
 
   def create_refund_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
 
-    ledger_entries.create!(
+    user.ledger_entries.create!(
       amount: total_cost,
       reason: "Refund for rejected order of #{shop_item.name.pluralize(quantity)}",
-      created_by: user
+      created_by: "System"
     )
   end
 end

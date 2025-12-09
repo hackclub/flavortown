@@ -161,13 +161,7 @@
       <% @recent.each do |entry| %>
         <tr>
           <td><%= entry.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-          <td>
-            <% if entry.created_by %>
-              <%= link_to entry.created_by.display_name || "User ##{entry.created_by_id}", admin_user_path(entry.created_by) %>
-            <% else %>
-              Unknown
-            <% end %>
-          </td>
+          <td><%= entry.created_by || "Unknown" %></td>
           <td class="<%= entry.amount >= 0 ? 'positive' : 'negative' %>">
             <%= entry.amount >= 0 ? '+' : '' %><%= number_with_delimiter(entry.amount) %>
           </td>
