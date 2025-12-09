@@ -12,13 +12,23 @@
       </div>
     </div>
   <% else %>
-  <% if current_user.ysws_eligible == false %>
+  <% if current_user.verification_status == "ineligible" %>
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <%= render StateCardComponent.new(
         title: "Not Eligible",
-        description: "Unfortunately, you're not currently eligible for this program. This could be due to age requirements or other eligibility criteria.",
+        description: "Your account has been marked as ineligible for this program. If you believe this is an error, please contact identity@hackclub.com.",
         variant: :danger,
         badge_text: "ineligible",
+        icon: "info"
+      ) %>
+    </div>
+  <% elsif current_user.verification_status == "verified" && current_user.ysws_eligible == false %>
+    <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
+      <%= render StateCardComponent.new(
+        title: "Outside age range",
+        description: "You're verified, but this program is only available to teenagers :-/",
+        variant: :warning,
+        badge_text: "sorry...",
         icon: "info"
       ) %>
     </div>

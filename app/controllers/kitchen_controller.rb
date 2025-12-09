@@ -2,7 +2,7 @@ class KitchenController < ApplicationController
   def index
     authorize :kitchen, :index?
 
-    unless current_user.verification_status == "verified" && current_user.ysws_eligible?
+    unless current_user.verification_status == "verified" && current_user.ysws_eligible == true
       @verification_rejection_reason = refresh_verification_status_from_hca!
       current_user.reload
     end
