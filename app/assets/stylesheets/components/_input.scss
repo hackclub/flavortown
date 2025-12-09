@@ -88,6 +88,13 @@
   &__control {
     position: relative;
     z-index: 2;
+    &:focus-within {
+      outline: 4px solid var(--input-focus-ring);
+      outline-offset: 2px;
+      & .input__field {
+        outline: none;
+      }
+    }
     &--locked {
       .input__field {
         opacity: 0.65;
