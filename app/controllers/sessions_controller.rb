@@ -11,7 +11,7 @@ class SessionsController < ApplicationController
     identity_data = fetch_hack_club_identity(access_token)
     return redirect_to(root_path, alert: "Authentication failed") if identity_data.blank?
 
-    user_email, display_name, verification_status, slack_id, uid, _, first_name, last_name = extract_identity_fields(identity_data)
+    user_email, display_name, verification_status, ysws_eligible, slack_id, uid, _, first_name, last_name = extract_identity_fields(identity_data)
     return redirect_to(root_path, alert: "Authentication failed") if uid.blank?
     return redirect_to(root_path, alert: "Authentication failed") if slack_id.blank?
     return redirect_to(root_path, alert: "Authentication failed") unless User::VALID_VERIFICATION_STATUSES.include?(verification_status)
@@ -25,6 +25,7 @@ class SessionsController < ApplicationController
     user.first_name = first_name if first_name.present?
     user.last_name = last_name if last_name.present?
     user.verification_status = verification_status if user.verification_status.to_s != verification_status
+    user.ysws_eligible = ysws_eligible if user.ysws_eligible != ysws_eligible
     user.slack_id = slack_id if user.slack_id.to_s != slack_id
     user.save!
 
@@ -56,15 +57,16 @@ class SessionsController < ApplicationController
 
   def extract_identity_fields(data)
     # Example payload:
-    # {"id"=>"ident!Zk9f3K", "verification_status"=>"needs_submission", "primary_email"=>"user@example.com", "first_name"=>"First", "last_name"=>"Last", "slack_id"=>"UXXXXXXX", "address"=>{"street1"=>"123 Test St", "street2"=>"Apt 4B", "city"=>"Testville", "state"=>"TS", "zip"=>"12345", "country"=>"US"}}
+    # {"id"=>"ident!Zk9f3K", "verification_status"=>"needs_submission", "ysws_eligible"=>true, "primary_email"=>"user@example.com", "first_name"=>"First", "last_name"=>"Last", "slack_id"=>"UXXXXXXX", "address"=>{"street1"=>"123 Test St", "street2"=>"Apt 4B", "city"=>"Testville", "state"=>"TS", "zip"=>"12345", "country"=>"US"}}
     user_email = data["primary_email"].presence.to_s
     first_name = data["first_name"].to_s.strip
     last_name  = data["last_name"].to_s.strip
     display_name = [ first_name, last_name ].reject(&:blank?).join(" ")
     verification_status = data["verification_status"].to_s
+    ysws_eligible = data["ysws_eligible"] == true
     slack_id = data["slack_id"].to_s
     uid = data["id"].to_s
     address = data["address"]
-    [ user_email, display_name, verification_status, slack_id, uid, address, first_name, last_name ]
+    [ user_email, display_name, verification_status, ysws_eligible, slack_id, uid, address, first_name, last_name ]
   end
 end

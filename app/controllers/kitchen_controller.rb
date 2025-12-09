@@ -28,10 +28,14 @@ class KitchenController < ApplicationController
     latest_status = identity_payload["verification_status"].to_s
     return unless User::VALID_VERIFICATION_STATUSES.include?(latest_status)
 
+    ysws_eligible = identity_payload["ysws_eligible"] == true
+
     current_user.complete_tutorial_step!(:identity_verified) if latest_status == "verified"
 
-    return if current_user.verification_status.to_s == latest_status
-    current_user.update!(verification_status: latest_status)
+    current_user.verification_status = latest_status
+    current_user.ysws_eligible = ysws_eligible
+
+    current_user.save!
   rescue StandardError => e
     Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")
   end

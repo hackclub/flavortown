@@ -118,6 +118,13 @@ class ShopController < ApplicationController
         end
       end
 
+      unless current_user.eligible_for_shop?
+        @order.queue_for_verification!
+        @order.accessory_orders.each(&:queue_for_verification!)
+        redirect_to shop_my_orders_path, notice: "Order placed! It will be processed once your identity is verified."
+        return
+      end
+
       if @shop_item.is_a?(ShopItem::FreeStickers)
         begin
           @shop_item.fulfill!(@order)

@@ -133,6 +133,7 @@ class ShopOrder < ApplicationRecord
   aasm timestamps: true do
     # Normal states
     state :pending, initial: true
+    state :awaiting_verification
     state :awaiting_periodical_fulfillment
     state :fulfilled
 
@@ -141,12 +142,16 @@ class ShopOrder < ApplicationRecord
     state :on_hold
     state :refunded
 
+    event :queue_for_verification do
+      transitions from: :pending, to: :awaiting_verification
+    end
+
     event :queue_for_fulfillment do
       transitions from: :pending, to: :awaiting_periodical_fulfillment
     end
 
     event :mark_rejected do
-      transitions from: %i[pending awaiting_periodical_fulfillment], to: :rejected
+      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment], to: :rejected
       before do |rejection_reason|
         self.rejection_reason = rejection_reason
       end
@@ -168,7 +173,7 @@ class ShopOrder < ApplicationRecord
     end
 
     event :place_on_hold do
-      transitions from: %i[pending awaiting_periodical_fulfillment], to: :on_hold
+      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment], to: :on_hold
     end
 
     event :take_off_hold do
@@ -176,7 +181,7 @@ class ShopOrder < ApplicationRecord
     end
 
     event :refund do
-      transitions from: %i[pending awaiting_periodical_fulfillment fulfilled], to: :refunded
+      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment fulfilled], to: :refunded
       after do
         create_refund_payout
       end
@@ -202,6 +207,7 @@ class ShopOrder < ApplicationRecord
 
     template = case aasm_state
     when "rejected" then "notifications/shop_orders/rejected"
+    when "awaiting_verification" then "notifications/shop_orders/awaiting_verification"
     when "awaiting_periodical_fulfillment" then "notifications/shop_orders/awaiting_fulfillment"
     when "fulfilled" then "notifications/shop_orders/fulfilled"
     else "notifications/shop_orders/default"
