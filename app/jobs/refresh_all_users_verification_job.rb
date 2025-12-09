@@ -23,7 +23,7 @@ class RefreshAllUsersVerificationJob < ApplicationJob
     return if payload.blank?
 
     status = payload["verification_status"].to_s
-    return unless User::VALID_VERIFICATION_STATUSES.include?(status)
+    return unless User.verification_statuses.key?(status)
 
     ysws_eligible = payload["ysws_eligible"] == true
 

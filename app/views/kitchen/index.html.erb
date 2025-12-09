@@ -12,7 +12,7 @@
       </div>
     </div>
   <% else %>
-  <% if current_user.verification_status == "ineligible" %>
+  <% if current_user.verification_ineligible? %>
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <%= render StateCardComponent.new(
         title: "Not Eligible",
@@ -22,7 +22,7 @@
         icon: "info"
       ) %>
     </div>
-  <% elsif current_user.verification_status == "verified" && current_user.ysws_eligible == false %>
+  <% elsif current_user.verification_verified? && current_user.ysws_eligible == false %>
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <%= render StateCardComponent.new(
         title: "Outside age range",
@@ -32,7 +32,7 @@
         icon: "info"
       ) %>
     </div>
-  <% elsif current_user.verification_status == "needs_submission" && current_user.tutorial_step_completed?(:identity_verified) %>
+  <% elsif current_user.verification_needs_submission? && current_user.tutorial_step_completed?(:identity_verified) %>
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <% rejection_message = [@verification_rejection_reason&.dig("reason")&.humanize, @verification_rejection_reason&.dig("details")].compact_blank.join(": ").presence %>
       <%= render StateCardComponent.new(
@@ -53,7 +53,7 @@
       current_user: current_user
     ) %>
   </div>
-  <% if current_user.verification_status == "pending" %>
+  <% if current_user.verification_pending? %>
     <div class="kitchen-verification-notice kitchen-verification-notice--compact">
       <%= render StateCardComponent.new(
         title: "Verification Pending",

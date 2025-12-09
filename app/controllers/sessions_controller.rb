@@ -14,7 +14,7 @@ class SessionsController < ApplicationController
     user_email, display_name, verification_status, ysws_eligible, slack_id, uid, _, first_name, last_name = extract_identity_fields(identity_data)
     return redirect_to(root_path, alert: "Authentication failed") if uid.blank?
     return redirect_to(root_path, alert: "Authentication failed") if slack_id.blank?
-    return redirect_to(root_path, alert: "Authentication failed") unless User::VALID_VERIFICATION_STATUSES.include?(verification_status)
+    return redirect_to(root_path, alert: "Authentication failed") unless User.verification_statuses.key?(verification_status)
 
     identity = User::Identity.find_or_initialize_by(provider: "hack_club", uid: uid)
     identity.access_token = access_token
