@@ -372,6 +372,13 @@
     color: inherit;
   }
 
+  &__interactions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+    padding-top: var(--space-s);
+  }
+
   &--ship {
     background-color: var(--color-yellow-500);
     border-color: var(--color-yellow-450);

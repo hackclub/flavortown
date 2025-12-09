@@ -1,0 +1,12 @@
+<%
+  commentable_type = @commentable.class.name.underscore.gsub("/", "_")
+%>
+<%= turbo_stream.append "comments_#{commentable_type}_#{@commentable.id}" do %>
+  <%= render "comments/comment", comment: @comment %>
+<% end %>
+<%= turbo_stream.replace "comment_form_#{commentable_type}_#{@commentable.id}" do %>
+  <%= render "comments/form", commentable: @commentable %>
+<% end %>
+<%= turbo_stream.replace "comments_count_#{commentable_type}_#{@commentable.id}" do %>
+  <span id="comments_count_<%= commentable_type %>_<%= @commentable.id %>"><%= @commentable.reload.comments_count %></span>
+<% end %>

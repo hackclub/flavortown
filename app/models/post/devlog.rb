@@ -4,15 +4,20 @@
 #
 #  id                              :bigint           not null, primary key
 #  body                            :string
+#  comments_count                  :integer          default(0), not null
 #  duration_seconds                :integer
 #  hackatime_projects_key_snapshot :text
 #  hackatime_pulled_at             :datetime
+#  likes_count                     :integer          default(0), not null
 #  scrapbook_url                   :string
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null
 #
 class Post::Devlog < ApplicationRecord
   include Postable
+
+  has_many :likes, as: :likeable, dependent: :destroy
+  has_many :comments, as: :commentable, dependent: :destroy
 
   SCRAPBOOK_CHANNEL_ID = "C01504DCLVD".freeze
 

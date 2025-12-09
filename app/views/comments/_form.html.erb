@@ -1,0 +1,17 @@
+<%
+  commentable_type = commentable.class.name.underscore.gsub("/", "_")
+  dom_id = "comment_form_#{commentable_type}_#{commentable.id}"
+%>
+
+<div id="<%= dom_id %>" class="comment-form">
+  <% if current_user %>
+    <%= form_with model: Comment.new, url: devlog_comments_path(commentable), class: "comment-form__form" do |f| %>
+      <%= f.text_area :body, placeholder: "Write a comment...", class: "comment-form__input", rows: 2 %>
+      <div class="comment-form__actions">
+        <%= render ButtonComponent.new(text: "Post Comment", color: :brown, type: :submit, size: :sm) %>
+      </div>
+    <% end %>
+  <% else %>
+    <p class="comment-form__login-prompt">Log in to leave a comment</p>
+  <% end %>
+</div>

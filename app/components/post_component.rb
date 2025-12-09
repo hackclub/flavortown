@@ -34,6 +34,10 @@
      post.postable.is_a?(Post::ShipEvent)
    end
 
+   def devlog?
+     post.postable.is_a?(Post::Devlog)
+   end
+
    def attachments
      return [] unless post.postable.respond_to?(:attachments)
      post.postable.attachments

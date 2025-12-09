@@ -28,6 +28,8 @@
 @use "components/admin-banner";
 @use "components/post";
 @use "components/project_idea_generator";
+@use "components/like_button";
+@use "components/comments";
 
 // Pages
 @use "pages/projects/index";

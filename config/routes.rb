@@ -164,4 +164,10 @@ Rails.application.routes.draw do
       post :submit_ship
     end
   end
+
+  # Devlog likes and comments
+  resources :devlogs, only: [] do
+    resource :like, only: [ :create, :destroy ]
+    resources :comments, only: [ :create, :destroy ]
+  end
 end
