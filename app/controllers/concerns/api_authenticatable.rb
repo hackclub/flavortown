@@ -15,12 +15,12 @@ module ApiAuthenticatable
       render json: { error: "Missing Authorization header" }, status: :unauthorized
       return false
     end
-    
+
     @current_api_user = User.find_by(api_key: api_key) if api_key.present?
-    
+
     unless @current_api_user
       render json: { error: "Invalid API key" }, status: :unauthorized
-      return false
+      false
     end
   end
 

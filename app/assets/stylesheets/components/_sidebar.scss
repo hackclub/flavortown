@@ -627,10 +627,10 @@
 
 .api-key-container {
   display: flex;
-  gap: 0.5rem; 
+  gap: 0.5rem;
 
   > form > button {
-    padding: 0.5rem 0.75rem; 
+    padding: 0.5rem 0.75rem;
     min-width: 2.5rem;
 
     border: none;
@@ -650,12 +650,12 @@
 }
 
 .api-key-display {
-  flex: 1; 
-  padding: 0.5rem; 
-  background: var(--color-bg-secondary); 
-  border-radius: 4px; 
-  font-family: monospace; 
-  font-size: 0.875rem; 
-  transition: filter 0.2s; 
-  filter: blur(8px); 
+  flex: 1;
+  padding: 0.5rem;
+  background: var(--color-bg-secondary);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.875rem;
+  transition: filter 0.2s;
+  filter: blur(8px);
 }
