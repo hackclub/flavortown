@@ -8,7 +8,7 @@
       <div class="shop__banner-showcase">
         <div class="shop__banner-item-desc">
           <h4><%= featured_item.name %></h4>
-          <h5><%= featured_item.description %></h5>
+          <div class="shop__banner-item-description"><%= md(featured_item.description) %></div>
           <% if featured_item.hours_estimated > 0 %>
               <h6>~<%= featured_item.hours_estimated %> hours</h6>
           <% end %>

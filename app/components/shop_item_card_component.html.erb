@@ -4,7 +4,7 @@
   </div>
   <div class="shop-item-card__content">
     <h4 class="shop-item-card__title"><%= name %></h4>
-    <p class="shop-item-card__description"><%= description %></p>
+    <div class="shop-item-card__description"><%= md(description) %></div>
     <div class="shop-item-card__details">
       <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
       <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
