@@ -54,7 +54,7 @@ class Api::V1::ProjectsController < Api::BaseController
       created_at: project.created_at,
       updated_at: project.updated_at,
       owner: owner ? { id: owner.id, name: owner.display_name } : nil,
-      members: project.memberships&.map { |m| { id: m.user.id, name: m.user.display_name } },
+      members: project.memberships&.map { |m| m.user ? { id: m.user.id, name: m.user.display_name } : nil }&.compact,
       votes_count: project.votes.count,
       devlogs_count: project.devlogs.count,
       demo_video_url: project.demo_video.attached? ? url_for(project.demo_video) : nil,
