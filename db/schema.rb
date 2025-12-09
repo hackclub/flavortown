@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_08_223213) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_09_025758) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -415,6 +415,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_223213) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.string "api_key"
     t.boolean "banned", default: false, null: false
     t.datetime "banned_at"
     t.text "banned_reason"
@@ -429,6 +430,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_223213) do
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.integer "projects_count"
+    t.boolean "public_api", default: true
     t.string "region"
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"

@@ -110,10 +110,21 @@
         <small class="settings-form__hint">Hide your identity when sharing votes to Slack</small>
       </div>
 
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
+          <%= check_box_tag :public_api, "1", current_user.public_api, id: "public_api" %>
+          <span>Make profile public via API</span>
+        </label>
+        <small class="settings-form__hint">Allow others to view your profile, projects, and devlogs through the public API</small>
+      </div>
+
       <div class="modal__actions">
         <%= f.submit "Save", class: "modal__actions-close" %>
         <button type="button" class="modal__actions-close" onclick="document.getElementById('settings-modal').close()">Cancel</button>
       </div>
+
+
     <% end %>
+
   <% end %>
 </aside>

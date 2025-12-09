@@ -3,6 +3,7 @@
 # Table name: users
 #
 #  id                          :bigint           not null, primary key
+#  api_key                     :string
 #  banned                      :boolean          default(FALSE), not null
 #  banned_at                   :datetime
 #  banned_reason               :text
@@ -16,6 +17,7 @@
 #  magic_link_token            :string
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
+#  public_api                  :boolean          default(TRUE)
 #  region                      :string
 #  send_votes_to_slack         :boolean          default(FALSE), not null
 #  session_token               :string

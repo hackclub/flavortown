@@ -1,5 +1,5 @@
 class ProjectsController < ApplicationController
-  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship ]
+  before_action :set_project_minimal, only: [ :edit, :update, :destroy ]
   before_action :set_project, only: [ :show ]
 
   def index
@@ -20,22 +20,12 @@ class ProjectsController < ApplicationController
   end
 
   def new
-    unless current_user.has_hackatime?
-      redirect_to kitchen_path, alert: "You need to link your Hackatime account before creating a project."
-      return
-    end
-
     @project = Project.new
     authorize @project
     load_project_times
   end
 
   def create
-    unless current_user.has_hackatime?
-      redirect_to kitchen_path, alert: "You need to link your Hackatime account before creating a project."
-      return
-    end
-
     @project = Project.new(project_params)
     authorize @project
 
@@ -64,16 +54,13 @@ class ProjectsController < ApplicationController
     authorize @project
 
     @project.assign_attributes(project_params)
-    validate_hackatime_projects
     validate_urls
 
     if @project.errors.empty? && @project.save
-      link_hackatime_projects
       flash[:notice] = "Project updated successfully"
-      redirect_to params[:return_to].presence || @project
+      redirect_to @project
     else
       flash[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
-      load_project_times
       render :edit, status: :unprocessable_entity
     end
   end
@@ -86,78 +73,7 @@ class ProjectsController < ApplicationController
     redirect_to projects_path
   end
 
-  def ship
-    authorize @project
-    @step = params[:step]&.to_i || 1
-    @step = 1 if @step < 1 || @step > 4
-
-    load_ship_data
-  end
-
-  def update_ship
-    authorize @project
-
-    if @project.update(ship_params)
-      step = params[:step]&.to_i || 1
-      next_step = step + 1
-      next_step = 4 if next_step > 4
-
-      redirect_to ship_project_path(@project, step: next_step)
-    else
-      @step = params[:step]&.to_i || 1
-      load_ship_data
-      flash.now[:alert] = "Failed to save: #{@project.errors.full_messages.join(', ')}"
-      render :ship, status: :unprocessable_entity
-    end
-  end
-
-  def submit_ship
-    authorize @project
-
-    unless @project.shippable?
-      flash[:alert] = "Your project doesn't meet all shipping requirements yet."
-      redirect_to ship_project_path(@project, step: 1) and return
-    end
-
-    ship_body = params[:ship_update].to_s.strip
-
-    if ship_body.blank?
-      flash[:alert] = "Please write an update message before shipping."
-      redirect_to ship_project_path(@project, step: 4) and return
-    end
-
-    unless @project.can_ship_again?
-      flash[:alert] = "You need to add at least one devlog since your last ship before you can ship again."
-      redirect_to ship_project_path(@project, step: 4) and return
-    end
-
-    @project.submit_for_review!
-
-    ship_event = Post::ShipEvent.new(body: ship_body)
-    post = @project.posts.build(user: current_user, postable: ship_event)
-
-    if post.save
-      flash[:notice] = "🚀 Congratulations! Your project has been submitted for review!"
-    else
-      error_messages = (post.errors.full_messages + ship_event.errors.full_messages).uniq
-      flash[:alert] = "We couldn't post your ship update: #{error_messages.to_sentence}"
-      redirect_to ship_project_path(@project, step: 4) and return
-    end
-
-    redirect_to @project
-  end
-
   private
-
-  def load_ship_data
-    @hackatime_projects = @project.hackatime_projects_with_time
-    @total_hours = @project.total_hackatime_hours
-    @devlogs = @project.devlogs.includes(:user, postable: [ { attachments_attachments: :blob } ]).order(created_at: :desc)
-  end
-
-  def ship_params
-    params.require(:project).permit(:title, :description, :demo_url, :repo_url, :readme_url, :banner, :project_type)
-  end
 
   # These are the same today, but they'll be different tomorrow.
 

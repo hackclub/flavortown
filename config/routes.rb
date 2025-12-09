@@ -78,6 +78,7 @@ Rails.application.routes.draw do
   # My
   get "my/balance", to: "my#balance"
   patch "my/settings", to: "my#update_settings", as: :my_settings
+  post "my/regenerate_api_key", to: "my#regenerate_api_key", as: :regenerate_api_key
 
   # Magic Links
   post "magic_links", to: "magic_links#create"
@@ -143,6 +144,21 @@ Rails.application.routes.draw do
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
+      end
+    end
+  end
+
+
+  namespace :api do
+    namespace :v1 do
+      resources :users, only: [ :show ] do
+        get "projects", to: "projects#index", on: :member
+        collection do
+          get :find_by_slack_id
+        end
+      end
+      resources :projects, only: [:show] do
+        resources :devlogs, only: [:index]
       end
     end
   end
