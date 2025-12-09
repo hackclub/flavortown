@@ -42,6 +42,20 @@ module HCAService
     result&.dig("identity") || {}
   end
 
+  def portal_url(path, return_to:)
+    uri = URI.join(host, "/portal/#{path}")
+    uri.query = { return_to: return_to }.to_query
+    uri.to_s
+  end
+
+  def address_portal_url(return_to:)
+    portal_url("address", return_to:)
+  end
+
+  def verify_portal_url(return_to:)
+    portal_url("verify", return_to:)
+  end
+
   def connection
     @connection ||= Faraday.new(url: host)
   end
