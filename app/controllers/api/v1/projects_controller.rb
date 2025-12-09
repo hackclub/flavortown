@@ -9,7 +9,7 @@ class Api::V1::ProjectsController < Api::BaseController
       return
     end
     owner = project.memberships.owner.first&.user
-    unless check_user_is_public(user)
+    unless check_user_is_public(owner)
       return
     end
 
@@ -18,7 +18,7 @@ class Api::V1::ProjectsController < Api::BaseController
 
 
   def index
-    projects = Project.all
+    projects = Project.all.includes(:memberships, :votes, :devlogs)
     limit = params[:limit]&.to_i || 20
     offset = params[:offset]&.to_i || 0
     projects = projects.limit(limit).offset(offset)

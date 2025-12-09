@@ -21,7 +21,7 @@ class Api::BaseController < ActionController::API
     return true if target_user.public_api?
     return true if target_user == @current_user
     if @current_user
-      return true if @current_user.highest_role == "admin" || @current_user.highest_role == "superadmin"
+      return true if @current_user.highest_role.downcase == "admin" || @current_user.highest_role.downcase == "superadmin"
     end
     render json: { status: "Forbidden", data: "No permission :(" }, status: :forbidden
     false
