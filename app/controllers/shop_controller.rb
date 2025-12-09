@@ -89,6 +89,8 @@ class ShopController < ApplicationController
     # 2. Check balance/charge user
     # 3. Handle different item types
 
+    return redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "You need to have an address to make an order!" unless current_user.addresses.any?
+
     selected_address = current_user.addresses.find { |a| a["id"] == params[:address_id] } || current_user.addresses.first
     @order = current_user.shop_orders.new(
       shop_item: @shop_item,
