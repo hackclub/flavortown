@@ -157,8 +157,8 @@ Rails.application.routes.draw do
           get :find_by_slack_id
         end
       end
-      resources :projects, only: [:show] do
-        resources :devlogs, only: [:index]
+      resources :projects, only: [ :show ] do
+        resources :devlogs, only: [ :index ]
       end
     end
   end

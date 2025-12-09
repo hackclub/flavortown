@@ -17,13 +17,13 @@ class Api::V1::ProjectsController < Api::BaseController
   end
 
 
-  def index 
-    projects = Project.all 
+  def index
+    projects = Project.all
     limit = params[:limit]&.to_i || 20
     offset = params[:offset]&.to_i || 0
     projects = projects.limit(limit).offset(offset)
 
-    render json: {status: "Success", data: projects.map { |p| project_data(p) } }, status: :ok
+    render json: { status: "Success", data: projects.map { |p| project_data(p) } }, status: :ok
   end
 
   private
@@ -40,7 +40,7 @@ class Api::V1::ProjectsController < Api::BaseController
       created_at: project.created_at,
       updated_at: project.updated_at,
       owner: owner ? { id: owner.id, name: owner.display_name } : nil,
-      members: project.memberships&.map { |m| { id: m.user.id, name: m.user.display_name} },
+      members: project.memberships&.map { |m| { id: m.user.id, name: m.user.display_name } },
       votes_count: project.votes.count,
       devlogs_count: project.devlogs.count,
       demo_video_url: project.demo_video.attached? ? url_for(project.demo_video) : nil,

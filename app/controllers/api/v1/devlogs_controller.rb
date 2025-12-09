@@ -4,7 +4,7 @@ include Rails.application.routes.url_helpers
 class Api::V1::DevlogsController < Api::BaseController
   def index
     project = Project.find(params[:project_id])
-    
+
     unless project
       render json: { status: "Not Found", data: "Project not found" }, status: :not_found
       return
