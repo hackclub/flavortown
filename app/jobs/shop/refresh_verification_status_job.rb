@@ -28,11 +28,9 @@ class Shop::RefreshVerificationStatusJob < ApplicationJob
 
     ysws_eligible = payload["ysws_eligible"] == true
 
-    updates = {}
-    updates[:verification_status] = status if user.verification_status != status
-    updates[:ysws_eligible] = ysws_eligible if user.ysws_eligible != ysws_eligible
-
-    user.update!(updates) if updates.present?
+    user.verification_status = status
+    user.ysws_eligible = ysws_eligible
+    user.save!
   rescue StandardError => e
     Rails.logger.warn("Failed to refresh verification status for user #{user.id}: #{e.message}")
   end
