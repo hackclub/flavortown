@@ -3,7 +3,7 @@ include Rails.application.routes.url_helpers
 
 class Api::V1::ProjectsController < Api::BaseController
   def show
-    project = Project.find(params[:id])
+    project = Project.find_by(id: params[:id])
     unless project
       render json: { status: "Not Found", data: "Project not found" }, status: :not_found
       return
@@ -18,8 +18,21 @@ class Api::V1::ProjectsController < Api::BaseController
 
 
   def index
-    projects = Project.all.includes(:memberships, :votes, :devlogs)
-    limit = params[:limit]&.to_i || 20
+    if @current_user&.highest_role&.downcase&.in?(%w[admin super_admin])
+      projects = Project.all
+    else 
+      public_projects = Project.left_joins(memberships: :user)
+                              .where(users: { public_api: true })
+
+      user_projects = Project
+        .joins(:memberships)
+        .where(project_memberships: { user_id: @current_user.id })
+
+      projects = public_projects.or(user_projects).distinct
+    end
+
+    projects = projects.includes(:memberships, :votes, :devlogs)
+    limit = [params[:limit]&.to_i || 20, 50].min
     offset = params[:offset]&.to_i || 0
     projects = projects.limit(limit).offset(offset)
 
@@ -29,6 +42,7 @@ class Api::V1::ProjectsController < Api::BaseController
   private
 
   def project_data(project)
+    owner = project.memberships.owner.first&.user
     {
       id: project.id,
       title: project.title,

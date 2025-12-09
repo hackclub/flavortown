@@ -32,6 +32,7 @@
 #
 # Indexes
 #
+#  index_users_on_api_key           (api_key) UNIQUE
 #  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #  index_users_on_region            (region)

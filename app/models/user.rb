@@ -32,6 +32,7 @@
 #
 # Indexes
 #
+#  index_users_on_api_key           (api_key) UNIQUE
 #  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #  index_users_on_region            (region)
@@ -198,6 +199,11 @@ class User < ApplicationRecord
   end
 
   def regenerate_api_key!
-    update!(api_key: "FT--" + SecureRandom.urlsafe_base64(32))
+    loop do
+      new_key = "FT--" + SecureRandom.urlsafe_base64(32)
+      return update!(api_key: new_key)
+    rescue ActiveRecord::RecordNotUnique
+      next
+    end
   end
 end

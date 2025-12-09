@@ -4,7 +4,7 @@ class Api::BaseController < ActionController::API
   private
 
   def authenticate_user
-    token = request.headers["Authorization"]&.split(": ")&.last
+    token = request.headers["Authorization"]&.delete_prefix("Bearer ")
     unless token
       render json: { status: "Forbidden", data: "No permission :(" }, status: :forbidden
       return
@@ -21,9 +21,12 @@ class Api::BaseController < ActionController::API
     return true if target_user.public_api?
     return true if target_user == @current_user
     if @current_user
-      return true if @current_user.highest_role.downcase == "admin" || @current_user.highest_role.downcase == "superadmin"
+      return true if @current_user.highest_role.downcase == "admin" || @current_user.highest_role.downcase == "super_admin"
     end
     render json: { status: "Forbidden", data: "No permission :(" }, status: :forbidden
     false
   end
+end
+rescue_from ActiveRecord::RecordNotFound, with: :record_not_found def record_not_found
+  render json: { status: "Not Found", data: "Data not found" }, status: :not_found
 end

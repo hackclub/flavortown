@@ -1,14 +1,17 @@
 class Api::V1::UsersController < Api::BaseController
   def show
     user = User.find(params[:id])
-    unless check_user_is_public(user)
-      return
-    end
 
     if user.nil?
       render json: { status: "Not Found", data: "User not found" }, status: :not_found
       return
     end
+
+
+    unless check_user_is_public(user)
+      return
+    end
+    
     render json: { status: "Success", data: user_data(user) }, status: :ok
   end
 
