@@ -1,6 +1,6 @@
 class Api::V1::ProjectsController < ApplicationController
   def index
-      @projects = Project.where(deleted_at: nil).page(params[:page]).per(100)
+    @pagy, @projects = pagy(Project.where(deleted_at: nil), items: 100)
   end
 
   def show

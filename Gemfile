@@ -123,4 +123,3 @@ gem "awesome_print"
 gem "activeinsights"
 
 gem "rack-attack"
-gem "kaminari"

@@ -3,8 +3,8 @@ json.projects @projects do |project|
 end
 
 json.pagination do
-  json.current_page @projects.current_page
-  json.per_page @projects.limit_value
-  json.total_pages @projects.total_pages
-  json.total_count @projects.total_count
+  json.current_page @pagy.page
+  json.total_pages @pagy.pages
+  json.total_count @pagy.count
+  json.next_page @pagy.next
 end
