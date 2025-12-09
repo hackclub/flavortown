@@ -31,3 +31,9 @@ production:
     schedule: every 2 days
     concurrency: 1
     description: "Process warehouse orders every 2 days with single execution limit"
+
+  shop_refresh_verification_status:
+    class: Shop::RefreshVerificationStatusJob
+    schedule: every hour
+    concurrency: 1
+    description: "Refresh verification status for users with orders awaiting verification"

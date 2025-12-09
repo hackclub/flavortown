@@ -27,6 +27,7 @@
 #  verification_status         :string           default("needs_submission"), not null
 #  vote_anonymously            :boolean          default(FALSE), not null
 #  votes_count                 :integer
+#  ysws_eligible               :boolean          default(FALSE), not null
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
 #  slack_id                    :string

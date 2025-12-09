@@ -25,6 +25,7 @@
 #  verification_status         :string           default("needs_submission"), not null
 #  vote_anonymously            :boolean          default(FALSE), not null
 #  votes_count                 :integer
+#  ysws_eligible               :boolean          default(FALSE), not null
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
 #  slack_id                    :string
@@ -56,6 +57,8 @@ class User < ApplicationRecord
   validates :slack_id, presence: true, uniqueness: true
   validates :hcb_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
+  after_commit :handle_verification_eligibility_change, if: :should_check_verification_eligibility?
+
   scope :with_roles, -> { includes(:role_assignments) }
 
   # use me! i'm full of symbols!! disregard the foul tutorial_steps_completed, she lies
@@ -69,13 +72,6 @@ class User < ApplicationRecord
 
   def revoke_tutorial_step!(slug)
     update!(tutorial_steps_completed: tutorial_steps - [ slug ]) if tutorial_step_completed?(slug)
-  end
-
-  def attempt_to_refresh_verification_status
-    # if user has tutorial step finished, skip
-    return unless tutorial_step_completed?(:identity_verified)
-    # if user has verified, skip
-    nil unless verifi
   end
 
   class << self
@@ -116,6 +112,10 @@ class User < ApplicationRecord
 
   def identity_verified?
     verification_status == "verified"
+  end
+
+  def eligible_for_shop?
+    identity_verified? && ysws_eligible?
   end
 
   def setup_complete?
@@ -194,5 +194,34 @@ class User < ApplicationRecord
   end
   def dm_user(message)
     SendSlackDmJob.perform_later(slack_id, message)
+  end
+
+  private
+
+  def should_check_verification_eligibility?
+    saved_change_to_verification_status? || saved_change_to_ysws_eligible?
+  end
+
+  def handle_verification_eligibility_change
+    if eligible_for_shop?
+      Shop::ProcessVerifiedOrdersJob.perform_later(id)
+    elsif should_reject_orders?
+      reject_awaiting_verification_orders!
+    end
+  end
+
+  def should_reject_orders?
+    verification_status == "ineligible" || (identity_verified? && !ysws_eligible?)
+  end
+
+  def reject_awaiting_verification_orders!
+    shop_orders.where(aasm_state: "awaiting_verification").find_each do |order|
+      reason = if verification_status == "ineligible"
+                 "Identity verification marked as ineligible"
+      else
+                 "Not eligible for YSWS"
+      end
+      order.mark_rejected!(reason)
+    end
   end
 end

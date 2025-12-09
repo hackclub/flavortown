@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_09_163416) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_09_190933) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -397,7 +397,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_09_163416) do
     t.text "refresh_token_ciphertext"
     t.string "uid"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["access_token_bidx"], name: "index_user_identities_on_access_token_bidx"
     t.index ["provider", "uid"], name: "index_user_identities_on_provider_and_uid", unique: true
     t.index ["refresh_token_bidx"], name: "index_user_identities_on_refresh_token_bidx"
@@ -439,6 +439,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_09_163416) do
     t.string "verification_status", default: "needs_submission", null: false
     t.boolean "vote_anonymously", default: false, null: false
     t.integer "votes_count"
+    t.boolean "ysws_eligible", default: false, null: false
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["region"], name: "index_users_on_region"
