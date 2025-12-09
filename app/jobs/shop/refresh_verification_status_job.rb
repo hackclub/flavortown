@@ -7,8 +7,10 @@ class Shop::RefreshVerificationStatusJob < ApplicationJob
     user_ids = ShopOrder.where(aasm_state: "awaiting_verification")
                         .distinct.pluck(:user_id)
 
-    User.where(id: user_ids).find_each do |user|
-      refresh_verification_status(user)
+    User.where(id: user_ids)
+      .includes(:identities)
+      .find_each do |user|
+        refresh_verification_status(user)
     end
   end
 
