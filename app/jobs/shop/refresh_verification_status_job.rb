@@ -32,6 +32,7 @@ class Shop::RefreshVerificationStatusJob < ApplicationJob
     user.ysws_eligible = ysws_eligible
     user.save!
   rescue StandardError => e
-    Rails.logger.warn("Failed to refresh verification status for user #{user.id}: #{e.message}")
+    Rails.logger.error "Failed to refresh verification status for user #{user.id}: #{e.message}"
+    Sentry.capture_exception(e, extra: { user_id: user.id })
   end
 end
