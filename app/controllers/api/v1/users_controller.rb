@@ -1,7 +1,9 @@
 class Api::V1::UsersController < Api::BaseController
   def show
     user = User.find(params[:id])
-    check_user_is_public(user, [:admin, :super_admin, :fraud_dept])
+    unless check_user_is_public(user)
+      return
+    end
 
     if user.nil?
       render json: { status: "Not Found", data: "User not found" }, status: :not_found
@@ -12,8 +14,9 @@ class Api::V1::UsersController < Api::BaseController
 
   def find_by_slack_id
     user = User.find_by(slack_id: params[:slack_id])
-    check_user_is_public(user, [:admin, :super_admin, :fraud_dept])
-
+    unless check_user_is_public(user)
+      return
+    end
     if user.nil?
       render json: { status: "Not Found", data: "User not found" }, status: :not_found
       return
@@ -28,7 +31,7 @@ class Api::V1::UsersController < Api::BaseController
     {
       id: user.id,
       email: user.display_name,
-      project_count: user.project_count,
+      projects_count: user.projects_count,
       votes_count: user.votes_count,
       slack_id: user.slack_id,
       tutorial_steps_count: user.tutorial_steps_completed.count

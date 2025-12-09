@@ -10,6 +10,10 @@ class Api::V1::DevlogsController < Api::BaseController
       return
     end
 
+    owner = project.memberships.owner.first&.user
+    unless check_user_is_public(owner)
+      return
+    end
 
     limit = params[:limit]&.to_i || 20
     offset = params[:offset]&.to_i || 0

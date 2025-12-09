@@ -126,5 +126,18 @@
 
     <% end %>
 
+    <div style="margin-top: 24px;">
+      <div class="settings-form__field">
+        <label class="settings-form__label" for="api_key">API Key</label>
+        <%= text_field_tag :api_key, "Click to show", id: "api_key", class: "settings-form__input", placeholder: "Your API key", autocomplete: "off", readonly: true, onclick: "if(this.value==='Click to show'){this.value='#{current_user.api_key}'; this.select(); setTimeout(() => {this.value='Click to show';}, 10000);}", style: "cursor: pointer;" %>
+        <small class="settings-form__hint">Use this key to authenticate API requests. Keep it secret!</small>
+      </div>
+
+      <%= form_with url: regenerate_api_key_path, method: :post, local: true do %>
+        <button type="submit" class="modal__actions-close" onclick="return confirm('Are you sure? This will invalidate your current API key and any applications using it will stop working.')">Reset API Key</button>
+      <% end %>
+    </div>
+
+
   <% end %>
 </aside>

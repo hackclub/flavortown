@@ -9,8 +9,10 @@ class Api::V1::ProjectsController < Api::BaseController
       return
     end
     owner = project.memberships.owner.first&.user
-    check_user_is_public(owner, [:admin, :super_admin, :fraud_dept])
-    
+    unless check_user_is_public(user)
+      return
+    end
+
     render json: { status: "Success", data: project_data(project) }, status: :ok
   end
 
