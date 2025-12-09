@@ -5,8 +5,10 @@
   VARIANTS = %i[fire devlog certified ship].freeze
 
   def initialize(post:, variant: :devlog, current_user: nil)
-     @post = post
+    @post = post
     @variant = normalize_variant(variant)
+    @variant = :ship if post.postable.is_a?(Post::ShipEvent)
+    @current_user = current_user
    end
 
    def author_name

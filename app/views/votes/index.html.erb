@@ -1,19 +1,36 @@
 <% content_for :title, "My Votes" %>
 
-<div>
-  <div>
-    <h1>My Votes</h1>
-    <%= link_to "Back to Voting", new_vote_path %>
-  </div>
+<div class="my-votes">
+  <h1>My Votes</h1>
+  <%= link_to "Back to Voting", new_vote_path %>
 
   <% if @votes_by_project.empty? %>
     <p>You haven't voted on any projects yet.</p>
   <% else %>
-    <div>
+    <table>
+      <thead>
+        <tr>
+          <th>Project</th>
+          <th>Category</th>
+          <th>Score</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
       <% @votes_by_project.each do |project, votes| %>
-        <%= render "project_vote", project: project, votes: votes %>
+        <tbody>
+          <% votes.each do |vote| %>
+            <tr>
+              <td><%= project.title %></td>
+              <td><%= vote.category.humanize %></td>
+              <td><%= vote.score %>/5</td>
+              <td>
+                <%= link_to "View Project", project_path(project), class: "btn btn--brown slim" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
       <% end %>
-    </div>
+    </table>
 
     <% if @pagy.pages > 1 %>
       <%== @pagy.series_nav %>

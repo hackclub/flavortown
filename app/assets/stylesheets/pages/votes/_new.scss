@@ -332,6 +332,7 @@
       margin-top: var(--space-m);
       display: flex;
       justify-content: flex-end;
+      gap: 1em;
     }
 
     &__actions-close {
@@ -345,6 +346,43 @@
 
       &:hover {
         filter: brightness(1.1);
+      }
+    }
+  }
+
+  #report-modal {
+    h2 {
+      font-weight: normal;
+      font-size: 1.2rem;
+      font-family: var(--font-family-text);
+      margin: 0;
+      margin-bottom: 0.5em;
+    }
+
+    .form-field {
+      border: none;
+    }
+
+    .form-checkbox {
+      label {
+        margin-top: -0.4em;
+        font-family: var(--font-family-text);
+      }
+    }
+
+    .form-group {
+      margin-top: -1em;
+
+      textarea {
+        border: 2px solid var(--color-brown-700);
+        margin-bottom: 0.5em;
+        font-family: var(--font-family-text);
+      }
+
+      small {
+        font-weight: bold;
+        font-family: var(--font-family-subtitle);
+        font-size: 1rem;
       }
     }
   }

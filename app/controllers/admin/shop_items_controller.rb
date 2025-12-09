@@ -65,6 +65,7 @@ module Admin
 
     def available_shop_item_types
       [
+        "ShopItem::Accessory",
         "ShopItem::HCBGrant",
         "ShopItem::HCBPreauthGrant",
         "ShopItem::HQMailItem",
@@ -117,7 +118,9 @@ module Admin
         :hcb_merchant_lock,
         :hcb_preauthorization_instructions,
         :agh_contents,
-        :image
+        :image,
+        :buyable_by_self,
+        attached_shop_item_ids: []
       )
     end
   end

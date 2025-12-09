@@ -33,10 +33,7 @@ class SessionsController < ApplicationController
 
     SyncSlackDisplayNameJob.perform_later(user)
 
-    user.regenerate_session_token!
-    reset_session
     session[:user_id] = user.id
-    session[:session_token] = user.session_token
     user.complete_tutorial_step! :first_login
     redirect_to(user.setup_complete? ? projects_path : kitchen_path, notice: "Signed in with Hack Club")
   end

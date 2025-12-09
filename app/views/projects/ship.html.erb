@@ -38,15 +38,24 @@
         <% end %>
 
         <% if @step < 4 %>
-          <% if @step == 1 && !@project.shippable? %>
-            <button type="button" class="projects-ship__nav-btn projects-ship__nav-btn--disabled" disabled>
-              Missing Fields
-            </button>
-          <% else %>
-            <%= link_to ship_project_path(@project, step: @step + 1), class: "projects-ship__nav-btn projects-ship__nav-btn--next" do %>
-              Next →
-            <% end %>
+          <%= link_to ship_project_path(@project, step: @step + 1), class: "projects-ship__nav-btn projects-ship__nav-btn--next" do %>
+            Next →
           <% end %>
+        <% elsif @step == 4 %>
+          <div class="projects-ship__step4-actions">
+            <%= link_to "Add Devlog", new_project_devlog_path(@project), class: "projects-ship__nav-btn projects-ship__nav-btn--prev" %>
+            <% can_ship = @project.shippable? && @project.can_ship_again? %>
+            <% if can_ship %>
+              <button type="submit" form="ship-form" class="projects-ship__nav-btn projects-ship__nav-btn--submit">
+                Ship It! 🚀
+              </button>
+            <% else %>
+              <% reason = !@project.shippable? ? "Complete all requirements first" : "Add a devlog first" %>
+              <button type="button" class="projects-ship__nav-btn projects-ship__nav-btn--disabled" disabled title="<%= reason %>">
+                Ship It! 🚀
+              </button>
+            <% end %>
+          </div>
         <% end %>
       </div>
     </div>

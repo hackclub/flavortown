@@ -4,6 +4,8 @@
 #
 #  id                                :bigint           not null, primary key
 #  agh_contents                      :jsonb
+#  attached_shop_item_ids            :bigint           default([]), is an Array
+#  buyable_by_self                   :boolean          default(TRUE)
 #  description                       :string
 #  enabled                           :boolean
 #  enabled_au                        :boolean
@@ -68,6 +70,7 @@ class ShopItem < ApplicationRecord
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
   scope :enabled, -> { where(enabled: true) }
+  scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
 
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
 
@@ -94,6 +97,20 @@ class ShopItem < ApplicationRecord
   validates :image, presence: true, on: :create
 
   has_many :shop_orders, dependent: :restrict_with_error
+
+  def agh_contents=(value)
+    if value.is_a?(String) && value.present?
+      begin
+        super(JSON.parse(value))
+      rescue JSON::ParserError
+        errors.add(:agh_contents, "is not valid JSON")
+        super(nil)
+      end
+    else
+      super(value)
+    end
+  end
+
   def is_free?
     self.ticket_cost.zero?
   end
@@ -124,5 +141,13 @@ class ShopItem < ApplicationRecord
 
   def out_of_stock?
     limited? && remaining_stock && remaining_stock <= 0
+  end
+
+  def available_accessories
+    ShopItem::Accessory.where("? = ANY(attached_shop_item_ids)", id).where(enabled: true)
+  end
+
+  def has_accessories?
+    available_accessories.exists?
   end
 end

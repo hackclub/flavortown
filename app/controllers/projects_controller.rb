@@ -20,12 +20,22 @@ class ProjectsController < ApplicationController
   end
 
   def new
+    unless current_user.has_hackatime?
+      redirect_to kitchen_path, alert: "You need to link your Hackatime account before creating a project."
+      return
+    end
+
     @project = Project.new
     authorize @project
     load_project_times
   end
 
   def create
+    unless current_user.has_hackatime?
+      redirect_to kitchen_path, alert: "You need to link your Hackatime account before creating a project."
+      return
+    end
+
     @project = Project.new(project_params)
     authorize @project
 
@@ -54,13 +64,16 @@ class ProjectsController < ApplicationController
     authorize @project
 
     @project.assign_attributes(project_params)
+    validate_hackatime_projects
     validate_urls
 
     if @project.errors.empty? && @project.save
+      link_hackatime_projects
       flash[:notice] = "Project updated successfully"
-      redirect_to @project
+      redirect_to params[:return_to].presence || @project
     else
       flash[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
+      load_project_times
       render :edit, status: :unprocessable_entity
     end
   end

@@ -81,6 +81,53 @@
   </div>
 </div>
 
+<% if @order.parent_order.present? %>
+<div class="card" style="padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #f59e0b;">
+  <h2 style="color: #f59e0b; font-size: 1rem; margin-bottom: 0.5rem;">🔗 This is an Accessory Order</h2>
+  <div style="font-size: 0.875rem;">
+    <p style="margin: 0;">This accessory was ordered with:</p>
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 0.5rem; padding: 0.5rem; background: #fffbeb; border-radius: 4px;">
+      <% if @order.parent_order.shop_item.image.attached? %>
+        <%= image_tag @order.parent_order.shop_item.image.variant(:carousel_sm), style: "width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" %>
+      <% end %>
+      <div>
+        <strong><%= @order.parent_order.shop_item.name %></strong>
+        <br>
+        <%= link_to "View Parent Order ##{@order.parent_order.id}", admin_shop_order_path(@order.parent_order), style: "color: #3b82f6; font-size: 0.8rem;" %>
+      </div>
+    </div>
+  </div>
+</div>
+<% end %>
+
+<% if @order.accessory_orders.any? %>
+<div class="card" style="padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #10b981;">
+  <h2 style="color: #10b981; font-size: 1rem; margin-bottom: 0.75rem;">🎁 Accessories Ordered</h2>
+  <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+    <% @order.accessory_orders.includes(shop_item: { image_attachment: :blob }).each do |acc_order| %>
+      <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; background: #f0fdf4; border-radius: 4px;">
+        <% if acc_order.shop_item.image.attached? %>
+          <%= image_tag acc_order.shop_item.image.variant(:carousel_sm), style: "width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" %>
+        <% end %>
+        <div style="flex: 1;">
+          <strong><%= acc_order.shop_item.name %></strong>
+          <br>
+          <small style="color: #6b7280;">🍪 <%= acc_order.frozen_item_price || acc_order.shop_item.ticket_cost %></small>
+        </div>
+        <div>
+          <span class="badge badge-<%= acc_order.aasm_state %>" style="font-size: 0.7rem;">
+            <%= acc_order.aasm_state.humanize %>
+          </span>
+        </div>
+        <div>
+          <%= link_to "View", admin_shop_order_path(acc_order), class: "btn-primary slim", style: "font-size: 0.75rem; padding: 0.2rem 0.5rem;" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
 <% if @can_view_address %>
 <div class="card">
   <h2>Shipping Address</h2>
