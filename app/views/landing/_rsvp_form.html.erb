@@ -24,11 +24,10 @@
         </div>
       </div>
 
-      <button class="btn btn--red btn--striped">
-        <div>
-          <%= form.submit "RSVP to get notified on launch" %>
-        </div>
-      </button>
+      <%= form.button type: "submit", class: "btn btn--red btn--striped" do %>
+        <div>RSVP to get notified on launch</div>
+      <% end %>
+
     <% end %>
   <% end %>
 </div>
