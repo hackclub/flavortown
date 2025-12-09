@@ -2,7 +2,7 @@ module Api
   module V1
     class ProjectsController < ApplicationController
       def index
-          @projects = Project.where(deleted_at: nil)
+          @projects = Project.where(deleted_at: nil).page(params[:page]).per(100)
       end
 
       def show
