@@ -1,4 +1,4 @@
-module Api::V1::StoreController < ApplicationController
+class Api::V1::StoreController < ApplicationController
   def index
     @items = ShopItem.where(enabled: true)
   end
