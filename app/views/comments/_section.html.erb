@@ -1,0 +1,19 @@
+<%
+  commentable_type = commentable.class.name.underscore.gsub("/", "_")
+  comments_dom_id = "comments_#{commentable_type}_#{commentable.id}"
+%>
+
+<div class="comments-section">
+  <h3 class="comments-section__title">
+    <%= inline_svg_tag("icons/paper.svg") %>
+    Comments (<span id="comments_count_<%= commentable_type %>_<%= commentable.id %>"><%= commentable.comments_count %></span>)
+  </h3>
+
+  <%= render "comments/form", commentable: commentable %>
+
+  <div id="<%= comments_dom_id %>" class="comments-section__list">
+    <% commentable.comments.includes(:user).order(created_at: :asc).each do |comment| %>
+      <%= render "comments/comment", comment: comment %>
+    <% end %>
+  </div>
+</div>

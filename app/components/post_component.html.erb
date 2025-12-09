@@ -60,4 +60,11 @@
       </div>
     </div>
   <% end %>
+
+  <% if devlog? %>
+    <div class="post__interactions">
+      <%= render "likes/button", likeable: post.postable %>
+    </div>
+    <%= render "comments/section", commentable: post.postable %>
+  <% end %>
 </article>

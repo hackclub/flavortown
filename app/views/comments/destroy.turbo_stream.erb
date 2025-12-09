@@ -1,0 +1,7 @@
+<%
+  commentable_type = @commentable.class.name.underscore.gsub("/", "_")
+%>
+<%= turbo_stream.remove "comment_#{@comment.id}" %>
+<%= turbo_stream.replace "comments_count_#{commentable_type}_#{@commentable.id}" do %>
+  <span id="comments_count_<%= commentable_type %>_<%= @commentable.id %>"><%= @commentable.reload.comments_count %></span>
+<% end %>

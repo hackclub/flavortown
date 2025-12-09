@@ -1,0 +1,20 @@
+<div id="comment_<%= comment.id %>" class="comment">
+  <div class="comment__header">
+    <img src="<%= comment.user.avatar %>" alt="<%= comment.user.display_name || comment.user.slack_id %>" class="comment__avatar">
+    <div class="comment__meta">
+      <span class="comment__author"><%= comment.user.display_name || comment.user.slack_id %></span>
+      <span class="comment__time"><%= time_ago_in_words(comment.created_at) %> ago</span>
+    </div>
+    <% if current_user && (comment.user == current_user || current_user.admin?) %>
+      <%= button_to devlog_comment_path(comment.commentable, comment),
+            method: :delete,
+            class: "comment__delete",
+            data: { turbo_confirm: "Delete this comment?" } do %>
+        <%= inline_svg_tag("icons/trash-bin.svg") %>
+      <% end %>
+    <% end %>
+  </div>
+  <div class="comment__body">
+    <%= simple_format(comment.body) %>
+  </div>
+</div>

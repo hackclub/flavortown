@@ -1,0 +1,32 @@
+<%
+  likeable_type = likeable.class.name.underscore.gsub("/", "_")
+  dom_id = "like_button_#{likeable_type}_#{likeable.id}"
+  liked = current_user && likeable.likes.exists?(user: current_user)
+%>
+
+<div id="<%= dom_id %>" class="like-button">
+  <% if current_user %>
+    <% if liked %>
+      <%= button_to devlog_like_path(likeable),
+            method: :delete,
+            class: "like-button__btn like-button__btn--liked",
+            data: { turbo_frame: "_top" } do %>
+        <%= inline_svg_tag("icons/star_fill.svg", class: "like-button__icon") %>
+        <span class="like-button__count"><%= likeable.likes_count %></span>
+      <% end %>
+    <% else %>
+      <%= button_to devlog_like_path(likeable),
+            method: :post,
+            class: "like-button__btn",
+            data: { turbo_frame: "_top" } do %>
+        <%= inline_svg_tag("icons/star_fill.svg", class: "like-button__icon") %>
+        <span class="like-button__count"><%= likeable.likes_count %></span>
+      <% end %>
+    <% end %>
+  <% else %>
+    <div class="like-button__btn like-button__btn--disabled">
+      <%= inline_svg_tag("icons/star_fill.svg", class: "like-button__icon") %>
+      <span class="like-button__count"><%= likeable.likes_count %></span>
+    </div>
+  <% end %>
+</div>
