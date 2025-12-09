@@ -309,6 +309,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_09_172447) do
     t.boolean "limited"
     t.integer "max_qty"
     t.string "name"
+    t.integer "old_prices", default: [], array: true
     t.boolean "one_per_person_ever"
     t.integer "payout_percentage", default: 0
     t.decimal "price_offset_au"
@@ -396,7 +397,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_09_172447) do
     t.text "refresh_token_ciphertext"
     t.string "uid"
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
+    t.integer "user_id", null: false
     t.index ["access_token_bidx"], name: "index_user_identities_on_access_token_bidx"
     t.index ["provider", "uid"], name: "index_user_identities_on_provider_and_uid", unique: true
     t.index ["refresh_token_bidx"], name: "index_user_identities_on_refresh_token_bidx"

@@ -39,3 +39,6 @@ application.register("project-ideas", ProjectIdeasController);
 
 import AddressSelectController from "./address_select_controller";
 application.register("address-select", AddressSelectController);
+
+import OrderFormController from "./order_form_controller";
+application.register("order-form", OrderFormController);

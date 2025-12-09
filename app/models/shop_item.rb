@@ -24,6 +24,7 @@
 #  limited                           :boolean
 #  max_qty                           :integer
 #  name                              :string
+#  old_prices                        :integer          default([]), is an Array
 #  one_per_person_ever               :boolean
 #  payout_percentage                 :integer          default(0)
 #  price_offset_au                   :decimal(, )

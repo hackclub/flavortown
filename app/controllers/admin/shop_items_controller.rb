@@ -35,6 +35,11 @@ module Admin
       authorize :admin, :manage_shop?
 
       if @shop_item.update(shop_item_params)
+        if @shop_item.saved_change_to_ticket_cost?
+          @shop_item.old_prices << @shop_item.ticket_cost_before_last_save
+          @shop_item.save
+        end
+
         redirect_to admin_shop_item_path(@shop_item), notice: "Shop item updated successfully."
       else
         @shop_item_types = available_shop_item_types
