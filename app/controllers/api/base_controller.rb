@@ -1,5 +1,5 @@
 class Api::BaseController < ActionController::API
-  # before_action :authenticate_user
+  before_action :authenticate_user
 
   private
 
@@ -12,7 +12,7 @@ class Api::BaseController < ActionController::API
 
     @current_user = User.find_by(api_key: token)
     unless @current_user
-      render json: { status: "Forbidden", data: "No permission :(" }, status: :forbidden unless @current_user
+      render json: { status: "Forbidden", data: "No permission :(" }, status: :forbidden
       nil
     end
   end
@@ -21,7 +21,7 @@ class Api::BaseController < ActionController::API
     return true if target_user.public_api?
     return true if target_user == @current_user
     if @current_user
-      return true if @current_user.highest_role.downcase == "admin" || @current_user.highest_role.downcase == "super_admin"
+      return true if @current_user.super_admin? || @current_user.admin?
     end
     render json: { status: "Forbidden", data: "No permission :(" }, status: :forbidden
     false
