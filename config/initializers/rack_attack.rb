@@ -1,28 +1,28 @@
 require "rack/attack"
 
 # these give a lot of data and wont need to be queried often
-Rack::Attack.throttle("api/store_all/ip", limit: 5, period: 1.minute) do |req|
+Rack::Attack.throttle("api/store_all/auth", limit: 5, period: 1.minute) do |req|
   if req.path == "/api/v1/store"
-    req.ip
+    req.env["HTTP_AUTHORIZATION"]
   end
 end
 
-Rack::Attack.throttle("api/projects_all/ip", limit: 5, period: 1.minute) do |req|
+Rack::Attack.throttle("api/projects_all/auth", limit: 5, period: 1.minute) do |req|
   if req.path == "/api/v1/projects"
-    req.ip
+    req.env["HTTP_AUTHORIZATION"]
   end
 end
 
 # these makes sense to query more often
-Rack::Attack.throttle("api/store/ip", limit: 30, period: 1.minute) do |req|
+Rack::Attack.throttle("api/store/auth", limit: 30, period: 1.minute) do |req|
   if req.path.start_with?("/api/v1/store/")
-    req.ip
+    req.env["HTTP_AUTHORIZATION"]
   end
 end
 
-Rack::Attack.throttle("api/projects/ip", limit: 30, period: 1.minute) do |req|
+Rack::Attack.throttle("api/projects/auth", limit: 30, period: 1.minute) do |req|
   if req.path.start_with?("/api/v1/projects/")
-    req.ip
+    req.env["HTTP_AUTHORIZATION"]
   end
 end
 

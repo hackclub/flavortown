@@ -170,6 +170,7 @@ class User < ApplicationRecord
   def unban!
     update!(banned: false, banned_at: nil, banned_reason: nil)
   end
+
   def cancel_shop_order(order_id)
     order = shop_orders.find(order_id)
     return { success: false, error: "Your order can not be canceled" } unless order.pending?
@@ -187,6 +188,7 @@ class User < ApplicationRecord
     identity_payload = HCAService.identity(identity.access_token)
     identity_payload["addresses"] || []
   end
+
   def avatar
     "http://cachet.dunkirk.sh/users/#{slack_id}/r"
   end
@@ -194,11 +196,17 @@ class User < ApplicationRecord
   def grant_email
     hcb_email.presence || email
   end
+
   def dm_user(message)
     SendSlackDmJob.perform_later(slack_id, message)
   end
 
   def has_commented?
     comments.exists?
+  end
+  def generate_api_key!
+    PaperTrail.request(whodunnit: -> { id || "system" }) do
+      update!(api_key: "ft_sk_" + SecureRandom.hex(20))
+    end
   end
 end

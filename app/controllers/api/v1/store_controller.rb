@@ -1,4 +1,6 @@
 class Api::V1::StoreController < ApplicationController
+  include ApiAuthenticatable
+
   def index
     @items = ShopItem.where(enabled: true)
   end
