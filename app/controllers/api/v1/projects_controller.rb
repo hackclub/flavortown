@@ -1,4 +1,6 @@
 class Api::V1::ProjectsController < ApplicationController
+  include ApiAuthenticatable
+
   def index
     @pagy, @projects = pagy(Project.where(deleted_at: nil), items: 100)
   end

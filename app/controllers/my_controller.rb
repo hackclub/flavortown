@@ -19,6 +19,11 @@ class MyController < ApplicationController
     redirect_back fallback_location: root_path, notice: "Settings saved"
   end
 
+  def roll_api_key
+    current_user.generate_api_key!
+    redirect_back fallback_location: root_path, notice: "API key rolled"
+  end
+
   private
 
   def require_login
