@@ -114,6 +114,11 @@ class ProjectsController < ApplicationController
   def submit_ship
     authorize @project
 
+    unless current_user.eligible_for_shop?
+      redirect_to ship_project_path(@project, step: 1), alert: "You're not eligible to ship projects."
+      return
+    end
+
     unless @project.shippable?
       flash[:alert] = "Your project doesn't meet all shipping requirements yet."
       redirect_to ship_project_path(@project, step: 1) and return

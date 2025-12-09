@@ -12,7 +12,17 @@
       </div>
     </div>
   <% else %>
-  <% if current_user.verification_status == "needs_submission" && current_user.tutorial_step_completed?(:identity_verified) %>
+  <% if current_user.ysws_eligible == false %>
+    <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
+      <%= render StateCardComponent.new(
+        title: "Not Eligible",
+        description: "Unfortunately, you're not currently eligible for this program. This could be due to age requirements or other eligibility criteria.",
+        variant: :danger,
+        badge_text: "ineligible",
+        icon: "info"
+      ) %>
+    </div>
+  <% elsif current_user.verification_status == "needs_submission" && current_user.tutorial_step_completed?(:identity_verified) %>
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <% rejection_message = [@verification_rejection_reason&.dig("reason")&.humanize, @verification_rejection_reason&.dig("details")].compact_blank.join(": ").presence %>
       <%= render StateCardComponent.new(

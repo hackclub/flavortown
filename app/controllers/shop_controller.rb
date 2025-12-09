@@ -67,6 +67,11 @@ class ShopController < ApplicationController
   end
 
   def create_order
+    unless current_user.eligible_for_shop?
+      redirect_to shop_path, alert: "You're not eligible to place orders."
+      return
+    end
+
     @shop_item = ShopItem.find(params[:shop_item_id])
     quantity = params[:quantity].to_i
     accessory_ids = Array(params[:accessory_ids]).map(&:to_i).reject(&:zero?)
