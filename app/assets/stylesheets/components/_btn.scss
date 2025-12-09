@@ -10,7 +10,6 @@
   border: solid 5px transparent;
   text-decoration: none;
   cursor: pointer;
-  outline: none;
   transition:
     filter 400ms,
     color 200ms;
@@ -37,6 +36,11 @@
     transition:
       filter 250ms,
       color 200ms;
+  }
+
+  &:focus-visible {
+    outline: 4px solid var(--color-red-500);
+    outline-offset: 2px;
   }
 
   &--red {
