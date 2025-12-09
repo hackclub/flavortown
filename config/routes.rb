@@ -87,8 +87,10 @@ Rails.application.routes.draw do
   namespace :api do
     get "/", to: "root#index"
 
-    resources :projects
-    resources :store
+    namespace :v1 do
+      resources :projects, only: [ :index, :show ]
+      resources :store, only: [ :index, :show ]
+    end
   end
 
   namespace :user, path: "" do
