@@ -21,12 +21,11 @@ class Api::V1::ProjectsController < Api::BaseController
     if @current_user&.admin? || @current_user&.super_admin?
       projects = Project.all
     else
-      public_projects = Project.left_joins(memberships: :user)
-                              .where(users: { public_api: true })
+      base = Project.left_joins(memberships: :user)
 
-      user_projects = Project
-        .joins(:memberships)
-        .where(project_memberships: { user_id: @current_user.id })
+      public_projects = base.where(users: { public_api: true })
+
+      user_projects = base.where(project_memberships: { user_id: @current_user&.id })
 
       projects = public_projects.or(user_projects).distinct
     end
@@ -46,7 +45,7 @@ class Api::V1::ProjectsController < Api::BaseController
     {
       id: project.id,
       title: project.title,
-      image: project.image.attached? ? url_for(project.image) : nil,
+      image: project.banner.attached? ? url_for(project.banner) : nil,
       description: project.description,
       readme: project.readme_url,
       demo: project.demo_url,
