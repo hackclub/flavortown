@@ -88,10 +88,13 @@
                         </div>
 
                     </div>
+                    <div class="shop-order__edit-address">
+                        <a href="<%= HCAService.address_portal_url(return_to: request.original_url) %>" class="btn btn-sm btn-outline-secondary">Edit addresses</a>
+                    </div>
                 <% else %>
                     <div class="shop-order__no-address">
                          <p>No shipping address found.</p>
-                         <a href="https://auth.hackclub.com/addresses" target="_blank" class="btn btn-sm btn-outline-primary">Manage addresses</a>
+                         <a href="<%= HCAService.address_portal_url(return_to: request.original_url) %>" class="btn btn-sm btn-outline-primary">Add an address</a>
                     </div>
                 <% end %>
             </div>

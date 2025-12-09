@@ -2,10 +2,10 @@ class KitchenController < ApplicationController
   def index
     authorize :kitchen, :index?
 
-    # temp: Refresh verification_status from HCA and DB
-    # TODO: PR to idv
-    refresh_verification_status_from_hca!
-    current_user.reload
+    unless current_user.verification_verified? && current_user.ysws_eligible == true
+      @verification_rejection_reason = refresh_verification_status_from_hca!
+      current_user.reload
+    end
 
     @has_hackatime_linked = current_user.has_hackatime?
     @has_identity_linked = current_user.identity_verified?
@@ -26,7 +26,7 @@ class KitchenController < ApplicationController
     return if identity_payload.blank?
 
     latest_status = identity_payload["verification_status"].to_s
-    return unless User::VALID_VERIFICATION_STATUSES.include?(latest_status)
+    return unless User.verification_statuses.key?(latest_status)
 
     ysws_eligible = identity_payload["ysws_eligible"] == true
 
@@ -36,7 +36,13 @@ class KitchenController < ApplicationController
     current_user.ysws_eligible = ysws_eligible
 
     current_user.save!
+
+    {
+      "reason" => identity_payload["rejection_reason"],
+      "details" => identity_payload["rejection_reason_details"]
+    }.compact_blank.presence
   rescue StandardError => e
     Rails.logger.warn("Kitchen HCA refresh failed: #{e.class}: #{e.message}")
+    nil
   end
 end

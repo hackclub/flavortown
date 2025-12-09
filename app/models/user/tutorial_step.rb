@@ -21,7 +21,7 @@ class User
           name: "Confirm your age",
           description: "you must be under this tall to ride!",
           icon: "user",
-          link: "https://auth.hackclub.com/verifications/new"),
+          link: ->(_) { HCAService.verify_portal_url(return_to: kitchen_url) }),
       new(slug: :setup_hackatime,
           name: "Setup hackatime",
           description: "Start tracking your time",

@@ -1,16 +1,15 @@
 # frozen_string_literal: true
 
-class Shop::RefreshVerificationStatusJob < ApplicationJob
+class RefreshAllUsersVerificationJob < ApplicationJob
   queue_as :default
 
   def perform
-    user_ids = ShopOrder.where(aasm_state: "awaiting_verification")
-                        .distinct.pluck(:user_id)
-
-    User.where(id: user_ids)
-      .includes(:identities)
-      .find_each do |user|
-        refresh_verification_status(user)
+    User.joins(:identities)
+        .where(user_identities: { provider: "hack_club" })
+        .where.not(user_identities: { access_token: [ nil, "" ] })
+        .includes(:identities)
+        .find_each do |user|
+      refresh_verification_status(user)
     end
   end
 

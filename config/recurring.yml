@@ -37,3 +37,9 @@ production:
     schedule: every hour
     concurrency: 1
     description: "Refresh verification status for users with orders awaiting verification"
+
+  refresh_all_users_verification:
+    class: RefreshAllUsersVerificationJob
+    schedule: every Sunday at 3am
+    concurrency: 1
+    description: "Weekly refresh of verification status for all users with linked identities"

@@ -51,9 +51,14 @@ class User < ApplicationRecord
 
   include Ledgerable
 
-  VALID_VERIFICATION_STATUSES = %w[needs_submission pending verified ineligible].freeze
+  enum :verification_status, {
+    needs_submission: "needs_submission",
+    pending: "pending",
+    verified: "verified",
+    ineligible: "ineligible"
+  }, default: :needs_submission, prefix: :verification
 
-  validates :verification_status, presence: true, inclusion: { in: VALID_VERIFICATION_STATUSES }
+  validates :verification_status, presence: true
   validates :slack_id, presence: true, uniqueness: true
   validates :hcb_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
@@ -106,16 +111,14 @@ class User < ApplicationRecord
     identities.exists?(provider: "hackatime")
   end
 
-  def has_identity_linked?
-    verification_status != "needs_submission"
-  end
+  def has_identity_linked? = !verification_needs_submission?
 
-  def identity_verified?
-    verification_status == "verified"
-  end
+  def identity_verified? = verification_verified?
 
-  def eligible_for_shop?
-    identity_verified? && ysws_eligible?
+  def eligible_for_shop? = identity_verified? && ysws_eligible?
+
+  def should_reject_orders?
+    verification_ineligible? || (identity_verified? && !ysws_eligible?)
   end
 
   def setup_complete?
@@ -219,13 +222,9 @@ class User < ApplicationRecord
     end
   end
 
-  def should_reject_orders?
-    verification_status == "ineligible" || (identity_verified? && !ysws_eligible?)
-  end
-
   def reject_awaiting_verification_orders!
     shop_orders.where(aasm_state: "awaiting_verification").find_each do |order|
-      reason = if verification_status == "ineligible"
+      reason = if verification_ineligible?
                  "Identity verification marked as ineligible"
       else
                  "Not eligible for YSWS"
