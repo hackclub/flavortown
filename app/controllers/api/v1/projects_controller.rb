@@ -6,6 +6,6 @@ class Api::V1::ProjectsController < ApplicationController
   def show
     @project = Project.find_by!(id: params[:id], deleted_at: nil)
   rescue ActiveRecord::RecordNotFound
-    head :not_found
+    render json: { error: "Project not found" }, status: :not_found
   end
 end

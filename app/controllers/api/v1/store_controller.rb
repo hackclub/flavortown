@@ -6,6 +6,6 @@ module Api::V1::StoreController < ApplicationController
   def show
     @item = ShopItem.find_by!(id: params[:id], enabled: true)
   rescue ActiveRecord::RecordNotFound
-    head :not_found
+    render json: { error: "Item not found" }, status: :not_found
   end
 end
