@@ -38,6 +38,12 @@ class ShopController < ApplicationController
 
   def order
     @shop_item = ShopItem.find(params[:shop_item_id])
+
+    unless @shop_item.buyable_by_self?
+      redirect_to shop_path, alert: "This item cannot be ordered on its own."
+      return
+    end
+
     @accessories = @shop_item.available_accessories.includes(:image_attachment)
   end
 
@@ -73,6 +79,12 @@ class ShopController < ApplicationController
     end
 
     @shop_item = ShopItem.find(params[:shop_item_id])
+
+    unless @shop_item.buyable_by_self?
+      redirect_to shop_path, alert: "This item cannot be ordered on its own."
+      return
+    end
+
     quantity = params[:quantity].to_i
     accessory_ids = Array(params[:accessory_ids]).map(&:to_i).reject(&:zero?)
 
