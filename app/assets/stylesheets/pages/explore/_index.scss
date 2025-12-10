@@ -1,0 +1,79 @@
+.explore {
+    margin-top: 3em;
+
+    &__nav {
+        background-color: var(--color-brown-400);
+        display: flex;
+        flex-direction: row;
+        gap: 1em;
+        border-radius: 16px;
+        padding: 0.5em;
+        width: fit-content;
+        margin: 0 auto;
+
+        @media (max-width: 960px) {
+            flex-direction: column;
+            width: 100%;
+        }
+    }
+
+    &__nav-component {
+        color: var(--color-bg);
+        font-size: 1.5rem;
+        display: flex;
+        gap: 0.4em;
+        padding: 0.2em 0.5em;
+        border-radius: 8px;
+
+        &:hover {
+            cursor: pointer;
+            filter: brightness(1.1);
+        }
+
+        &.selected {
+            background-color: var(--color-brown-500);
+
+            &:hover {
+                filter: none;
+            }
+        }
+    }
+
+    &__list {
+        margin-top: 2em;
+
+        .post {
+            margin: 0 auto 2em auto;
+            position: relative;
+
+            &::after {
+                left: auto;
+                right: -2.5em;
+                top: -2em;
+            }
+
+            &::before {
+                left: auto;
+                right: -1.25em;
+                top: -0.75em;
+                -webkit-mask: url("icons/paper.svg") no-repeat center / 40px 40px;
+                mask: url("icons/paper.svg") no-repeat center / 40px 40px;
+            }
+        }
+    }
+
+    &__pagination {
+        .btn {
+            margin-bottom: 1em;
+            margin-left: 50%;
+            transform: translateX(-50%);
+        }
+
+        p {
+            text-align: center;
+            margin-bottom: 1em;
+            font-size: 2rem;
+            font-family: var(--font-family-text);
+        }
+    }
+}

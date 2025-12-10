@@ -38,6 +38,9 @@ Rails.application.routes.draw do
 
   # Voting
   resources :votes, only: [ :new, :create, :index ]
+  
+  # Explore
+  get "explore", to: "explore#index", as: :explore_index
 
   # Reports
   resources :reports, only: [ :create ]

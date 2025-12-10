@@ -1,0 +1,39 @@
+<div class="explore" data-controller="load-more" data-load-more-url-value="<%= explore_index_path %>">
+    <div class="explore__nav">
+        <div class="explore__nav-component selected">
+            <%= inline_svg "icons/globe2.svg" %>
+            Devlogs
+        </div>
+        <div class="explore__nav-component">
+            <%= inline_svg "icons/globe2.svg" %>
+            Following
+        </div>
+        <div class="explore__nav-component">
+            <%= inline_svg "icons/globe2.svg" %>
+            Gallery
+        </div>
+    </div>
+
+    <div id="devlog-list" class="explore__list" data-load-more-target="entries">
+        <% @devlogs.each do |post| %>
+            <%= render PostComponent.new(post: post, variant: devlog_variant(post), current_user: current_user) %>
+        <% end %>
+    </div>
+
+    <div class="explore__pagination">
+        <% if @pagy.next %>
+            <button 
+                type="button" 
+                class="btn btn--brown"
+                data-load-more-target="button"
+                data-load-more-url-value="<%= explore_index_path %>"
+                data-turbo="false"
+                data-action="load-more#load"
+                data-page="<%= @pagy.next %>">
+                Load More Devlogs
+            </button>
+        <% else %>
+            <p class="explore__end">No more devlogs.</p>
+        <% end %>
+    </div>
+</div>
