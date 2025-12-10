@@ -41,6 +41,7 @@ Rails.application.routes.draw do
   
   # Explore
   get "explore", to: "explore#index", as: :explore_index
+  get "explore/gallery", to: "explore#gallery", as: :explore_gallery
 
   # Reports
   resources :reports, only: [ :create ]

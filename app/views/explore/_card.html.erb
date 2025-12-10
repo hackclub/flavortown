@@ -1,0 +1,41 @@
+<%= tag.div id: dom_id(project), class: "project-card" do %>
+    <% if project.banner.attached? %>
+        <div class="project-card__banner">
+            <%= link_to project_path(project), class: "project-card__banner-frame" do %>
+                <%= image_tag project.banner.variant(:card),
+                    alt: "#{project.title} banner",
+                    class: "project-card__banner-image" %>
+            <% end %>
+        </div>
+    <% else %>
+    <%# TODO: Replace w/ Mani's image %>
+        <div class="project-card__banner project-card__banner--placeholder">
+            <%= link_to project_path(project), class: "project-card__banner-frame project-card__banner-frame--placeholder" do %>
+                <div class="project-card__banner-placeholder">
+                    <p class="project-card__banner-placeholder-text">No banner yet</p>
+                </div>
+            <% end %>
+        </div>
+    <% end %>
+    <div class="project-card__content">
+        <h3 class="project-card__title">
+            <%= link_to project.title, project_path(project), class: "project-card__title-link" %>
+        </h3>
+        <%# TODO: add continue/read more https://apidock.com/rails/ActionView/Helpers/TextHelper/truncate %>
+        <% if project.description.present? %>
+            <p class="project-card__description">
+                <%= md truncate(project.description, length: 120) %>
+            </p>
+        <% end %>
+    </div>
+    <div class="project-card__stats">
+        <h5>
+            <%= inline_svg_tag "icons/paper.svg", class: "project-card__stats-icon", aria: { hidden: true } %>
+            <%= project.try(:devlogs_count) || project.devlogs.count %> devlogs
+        </h5>
+        <h5>
+            <%= inline_svg_tag "icons/time.svg", class: "project-card__stats-icon", aria: { hidden: true } %>
+            <%= "#{project.time.hours}hr #{project.time.minutes}min" %>
+        </h5>
+    </div>
+<% end %>
