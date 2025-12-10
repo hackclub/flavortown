@@ -13,7 +13,6 @@ class Shop::ProcessVerifiedOrdersJob < ApplicationJob
         if order.shop_item.is_a?(ShopItem::FreeStickers)
           order.shop_item.fulfill!(order)
           order.mark_stickers_received
-          user.complete_tutorial_step!(:free_stickers)
         else
           order.update!(aasm_state: "pending")
         end
