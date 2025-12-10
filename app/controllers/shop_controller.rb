@@ -124,7 +124,7 @@ class ShopController < ApplicationController
       end
 
       if @shop_item.is_a?(ShopItem::FreeStickers)
-        user.complete_tutorial_step!(:free_stickers)
+        current_user.complete_tutorial_step!(:free_stickers)
       end
 
       unless current_user.eligible_for_shop?
