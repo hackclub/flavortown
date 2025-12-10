@@ -42,3 +42,6 @@ application.register("address-select", AddressSelectController);
 
 import OrderFormController from "./order_form_controller";
 application.register("order-form", OrderFormController);
+
+import LoadMoreController from "./load_more_controller";
+application.register("load-more", LoadMoreController);
