@@ -88,6 +88,14 @@ class ShopController < ApplicationController
     quantity = params[:quantity].to_i
     accessory_ids = Array(params[:accessory_ids]).map(&:to_i).reject(&:zero?)
 
+    # Collect accessory IDs from tagged radio buttons (accessory_tag_* params)
+    params.each do |key, value|
+      if key.to_s.start_with?("accessory_tag_") && value.present?
+        accessory_ids << value.to_i
+      end
+    end
+    accessory_ids = accessory_ids.uniq.reject(&:zero?)
+
     if quantity <= 0
         redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Quantity must be greater than 0"
         return
@@ -100,11 +108,16 @@ class ShopController < ApplicationController
       []
     end
 
-    # Create the order
-    # This is a simplified version. In a real app, you'd want to:
-    # 1. Check stock
-    # 2. Check balance/charge user
-    # 3. Handle different item types
+    # Calculate total cost
+    item_total = @shop_item.ticket_cost * quantity
+    accessories_total = @accessories.sum(:ticket_cost)
+    total_cost = item_total + accessories_total
+
+    # Check user balance
+    if total_cost > current_user.balance
+      redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Insufficient balance. You need 🍪#{total_cost} but only have 🍪#{current_user.balance}."
+      return
+    end
 
     return redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "You need to have an address to make an order!" unless current_user.addresses.any?
 
