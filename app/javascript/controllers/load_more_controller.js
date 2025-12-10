@@ -47,7 +47,7 @@ export default class extends Controller {
           Object.assign(document.createElement("p"), {
             className: "explore__end",
             textContent: "No more devlogs.",
-          })
+          }),
         );
       }
     } catch (error) {

@@ -30,7 +30,7 @@ class ExploreController < ApplicationController
     end
   end
 
-  def gallery 
+  def gallery
     scope = Project.includes(banner_attachment: :blob)
                     .order(created_at: :desc)
 
