@@ -110,7 +110,7 @@ class ShopController < ApplicationController
 
     # Calculate total cost
     item_total = @shop_item.ticket_cost * quantity
-    accessories_total = @accessories.sum(:ticket_cost)
+    accessories_total = @accessories.sum(&:ticket_cost)
     total_cost = item_total + accessories_total
 
     # Check user balance
