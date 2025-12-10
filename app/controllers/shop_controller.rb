@@ -123,6 +123,10 @@ class ShopController < ApplicationController
         end
       end
 
+      if @shop_item.is_a?(ShopItem::FreeStickers)
+        current_user.complete_tutorial_step!(:free_stickers)
+      end
+
       unless current_user.eligible_for_shop?
         @order.queue_for_verification!
         @order.accessory_orders.each(&:queue_for_verification!)
