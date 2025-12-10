@@ -71,6 +71,7 @@ module Admin
         "ShopItem::HQMailItem",
         "ShopItem::LetterMail",
         "ShopItem::ThirdPartyPhysical",
+        "ShopItem::ThirdPartyDigital",
         "ShopItem::WarehouseItem",
         "ShopItem::SpecialFulfillmentItem",
         "ShopItem::HackClubberItem",
