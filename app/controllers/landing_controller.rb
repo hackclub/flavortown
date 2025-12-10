@@ -10,6 +10,18 @@ class LandingController < ApplicationController
         return
       end
     end
+    load_prizes
+  end
+
+  def marketing
+    @hide_sidebar = true
+    load_prizes
+    render :index
+  end
+
+  private
+
+  def load_prizes
     @prizes = Cache::CarouselPrizesJob.perform_now || []
     if @prizes.any?
       prize_ids = @prizes.map { |p| p[:id] }

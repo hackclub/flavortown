@@ -23,6 +23,7 @@ end
 Rails.application.routes.draw do
   # Landing
   root "landing#index"
+  get "marketing", to: "landing#marketing"
   get "login", to: redirect("/?login=1")
 
   # RSVPs
