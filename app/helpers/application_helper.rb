@@ -42,20 +42,20 @@ module ApplicationHelper
 
   def achievement_icon(icon_name, earned: true, **options)
     if earned
-      png_path = "achievements/#{icon_name}.png"
-      svg_path = "achievements/#{icon_name}.svg"
-
-      if asset_exists?(png_path)
-        image_tag(png_path, **options)
-      elsif asset_exists?(svg_path)
-        inline_svg_tag(svg_path, **options)
+      asset_path = find_achievement_asset(icon_name)
+      if asset_path
+        if asset_path.end_with?(".svg")
+          inline_svg_tag(asset_path, **options)
+        else
+          image_tag(asset_path, **options)
+        end
       else
         inline_svg_tag("icons/#{icon_name}.svg", **options)
       end
     else
       silhouette_path = AchievementSilhouettes.silhouette_path(icon_name)
 
-      if silhouette_path && asset_exists?(silhouette_path)
+      if silhouette_path && achievement_asset_exists?(silhouette_path)
         if silhouette_path.end_with?(".svg")
           inline_svg_tag(silhouette_path, **options)
         else
@@ -81,7 +81,16 @@ module ApplicationHelper
 
   private
 
-  def asset_exists?(path)
-    File.exist?(Rails.root.join("app/assets/images", path))
+  def find_achievement_asset(icon_name)
+    %w[png svg jpg jpeg gif webp].each do |ext|
+      path = "achievements/#{icon_name}.#{ext}"
+      return path if achievement_asset_exists?(path)
+    end
+    nil
+  end
+
+  def achievement_asset_exists?(path)
+    File.exist?(Rails.root.join("app/assets/images", path)) ||
+      File.exist?(Rails.root.join("secrets/assets/images", path))
   end
 end

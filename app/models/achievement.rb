@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :progress) do
+Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :progress, :visibility, :secret_hint) do
   include ActiveModel::Conversion
   extend ActiveModel::Naming
 
-  def initialize(slug:, name:, description:, icon:, earned_check:, progress: nil)
-    super(slug:, name:, description:, icon:, earned_check:, progress:)
+  VISIBILITIES = %i[visible secret hidden].freeze
+
+  def initialize(slug:, name:, description:, icon:, earned_check:, progress: nil, visibility: :visible, secret_hint: nil)
+    super(slug:, name:, description:, icon:, earned_check:, progress:, visibility:, secret_hint:)
   end
 
   ALL = [
@@ -42,6 +44,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       name: "Storyteller",
       description: "Post your first devlog",
       icon: "edit",
+      visibility: :secret,
       earned_check: ->(user) { user.projects.joins(:posts).exists?(posts: { postable_type: "PostDevlog" }) }
     ),
     new(
@@ -83,11 +86,14 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
     )
   ].freeze
 
-  SLUGGED = ALL.index_by(&:slug).freeze
+  SECRET = (Secrets.available? && defined?(Secrets::SecretAchievements) ? Secrets::SecretAchievements::ALL : []).freeze
+
+  ALL_WITH_SECRETS = (ALL + SECRET).freeze
+  SLUGGED = ALL_WITH_SECRETS.index_by(&:slug).freeze
   ALL_SLUGS = SLUGGED.keys.freeze
 
   class << self
-    def all = ALL
+    def all = ALL_WITH_SECRETS
 
     def slugged = SLUGGED
 
@@ -102,6 +108,18 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
 
   def persisted? = true
 
+  def visible? = visibility == :visible
+  def secret? = visibility == :secret
+  def hidden? = visibility == :hidden
+
+  def shown_to?(user, earned:)
+    return true if earned
+    return true if visible?
+    return true if secret?
+
+    false
+  end
+
   def earned_by?(user) = earned_check.call(user)
 
   def progress_for(user)
@@ -111,4 +129,33 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
   end
 
   def has_progress? = progress.present?
+
+  def display_name(earned:)
+    (secret? || hidden?) && !earned ? "???" : name
+  end
+
+  SECRET_DESCRIPTIONS = [
+    "This achievement is a secret...",
+    "What could this be?",
+    "Something mysterious awaits...",
+    "Keep exploring to find out!",
+    "A hidden treasure lies here...",
+    "The secret ingredient is...",
+    "Only the worthy shall know...",
+    "🤫"
+  ].freeze
+
+  def display_description(earned:)
+    return description if earned || visible?
+
+    secret_hint || SECRET_DESCRIPTIONS.sample
+  end
+
+  def show_progress?(earned:)
+    return false if earned
+    return false unless has_progress?
+    return false if hidden?
+
+    true
+  end
 end
