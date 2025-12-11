@@ -7,13 +7,18 @@
         <div class="achievements__icon">
           <%= inline_svg_tag "icons/#{item[:achievement].icon}.svg", class: "achievements__icon-svg" %>
         </div>
-        <div class="achievements__content">
-          <h3 class="achievements__name"><%= item[:achievement].name %></h3>
-          <p class="achievements__description"><%= item[:achievement].description %></p>
-          <% if item[:earned] %>
-            <span class="achievements__earned-at">Earned <%= time_ago_in_words(item[:earned_at]) %> ago</span>
-          <% end %>
-        </div>
+        <h3 class="achievements__name"><%= item[:achievement].name %></h3>
+        <p class="achievements__description"><%= item[:achievement].description %></p>
+        <% if item[:progress] && !item[:earned] %>
+          <div class="achievements__progress">
+            <div class="achievements__progress-bar">
+              <div class="achievements__progress-fill" style="width: <%= [(item[:progress][:current].to_f / item[:progress][:target] * 100), 100].min %>%"></div>
+            </div>
+            <span class="achievements__progress-text"><%= [(item[:progress][:current].to_f / item[:progress][:target] * 100).round, 100].min %>%</span>
+          </div>
+        <% elsif item[:earned] %>
+          <span class="achievements__earned-at">Earned <%= time_ago_in_words(item[:earned_at]) %> ago</span>
+        <% end %>
         <% if item[:earned] %>
           <div class="achievements__badge">
             <%= inline_svg_tag "icons/checkmark.svg", class: "achievements__badge-icon" %>
