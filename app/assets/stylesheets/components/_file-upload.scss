@@ -39,7 +39,8 @@
   }
 
   .file-upload__dropzone:focus-visible {
-    box-shadow: 0 0 0 3px var(--file-upload-border-color);
+    outline: 4px solid var(--file-upload-border-color);
+    outline-offset: 2px;
   }
 
   .file-upload__dropzone--active {

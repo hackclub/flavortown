@@ -15,7 +15,8 @@
   transition: width 180ms ease;
   overflow: visible;
 
-  &:hover {
+  &:hover,
+  &:focus-within {
     width: var(--sidebar-expanded-width);
 
     .sidebar__user-card {
@@ -300,7 +301,7 @@
   }
 }
 
-.sidebar:hover .sidebar__nav-link--active::before {
+.sidebar:is(:hover, :focus-within) .sidebar__nav-link--active::before {
   width: 130%;
 
   @media (max-width: 1500px) {
@@ -343,7 +344,7 @@
   margin-left: 0;
 }
 
-.sidebar:hover .sidebar__nav-label {
+.sidebar:is(:hover, :focus-within) .sidebar__nav-label {
   opacity: 1;
   max-width: 240px;
   margin-left: var(--space-s);
@@ -547,18 +548,19 @@
     height: var(--sidebar-collapsed-width);
     margin-left: -0.5em;
 
-    &:hover {
+    &:hover,
+    &:focus-within {
       width: 100%;
     }
 
     .sidebar__user-card,
-    .sidebar:hover .sidebar__user-card {
+    .sidebar:is(:hover, :focus-within) .sidebar__user-card {
       padding: 0.4em 0 0.4em 5em !important;
       transition: none;
     }
 
     .sidebar__user-details,
-    .sidebar:hover .sidebar__user-details {
+    .sidebar:is(:hover, :focus-within) .sidebar__user-details {
       opacity: 1;
       max-width: 100%;
     }
@@ -568,12 +570,12 @@
       transform: none;
     }
 
-    .sidebar:hover .sidebar__user-avatar {
+    .sidebar:is(:hover, :focus-within) .sidebar__user-avatar {
       left: 0.3em;
       transform: none;
     }
 
-    .sidebar:hover .sidebar__user-card {
+    .sidebar:is(:hover, :focus-within) .sidebar__user-card {
       padding: 0.4em 0 0.4em 5em;
     }
   }
@@ -590,7 +592,7 @@
     justify-content: space-evenly;
   }
 
-  .sidebar:hover .sidebar__nav-label {
+  .sidebar:is(:hover, :focus-within) .sidebar__nav-label {
     opacity: 0;
     max-width: 0;
     margin-left: 0;
