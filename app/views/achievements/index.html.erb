@@ -1,0 +1,25 @@
+<div class="achievements">
+  <%= render HeadingComponent.new(title: "Achievements", tone: :blue) %>
+
+  <div class="achievements__grid">
+    <% @achievements.each do |item| %>
+      <div class="achievements__card <%= 'achievements__card--earned' if item[:earned] %>">
+        <div class="achievements__icon">
+          <%= inline_svg_tag "icons/#{item[:achievement].icon}.svg", class: "achievements__icon-svg" %>
+        </div>
+        <div class="achievements__content">
+          <h3 class="achievements__name"><%= item[:achievement].name %></h3>
+          <p class="achievements__description"><%= item[:achievement].description %></p>
+          <% if item[:earned] %>
+            <span class="achievements__earned-at">Earned <%= time_ago_in_words(item[:earned_at]) %> ago</span>
+          <% end %>
+        </div>
+        <% if item[:earned] %>
+          <div class="achievements__badge">
+            <%= inline_svg_tag "icons/checkmark.svg", class: "achievements__badge-icon" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
