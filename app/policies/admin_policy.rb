@@ -66,4 +66,6 @@ class AdminPolicy < ApplicationPolicy
   def generate_magic_links?
     user.admin?
   end
+
+  def access_ysws_reviews?
 end
