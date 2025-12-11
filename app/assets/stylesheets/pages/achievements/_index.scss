@@ -43,7 +43,11 @@
 
 .achievements__stats-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-green-400) 0%, var(--color-green-500) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-green-400) 0%,
+    var(--color-green-500) 100%
+  );
   border-radius: 999px;
   transition: width 0.5s ease;
 }
@@ -183,7 +187,11 @@
 
 .achievements__progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-yellow-400) 0%, var(--color-yellow-500) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-yellow-400) 0%,
+    var(--color-yellow-500) 100%
+  );
   border-radius: 999px;
   transition: width 0.3s ease;
 }
