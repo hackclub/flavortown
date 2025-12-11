@@ -16,17 +16,30 @@ module Achievementable
 
   private
 
-  def grant_achievement!(slug)
-    return unless current_user
+  def grant_achievement!(slug, flash: :now)
+    return nil unless current_user
 
-    current_user.award_achievement!(slug)
+    achievement = current_user.award_achievement!(slug)
+    flash_achievement!(achievement, flash:) if achievement
+    achievement
   end
 
   def check_and_grant_earned_achievements
     return unless current_user
 
     achievements_to_check.each do |slug|
-      grant_achievement!(slug)
+      grant_achievement!(slug, flash: :later)
     end
+  end
+
+  def flash_achievement!(achievement, flash: :now)
+    target = flash == :now ? self.flash.now : self.flash
+    target[:achievements] ||= []
+    target[:achievements] << {
+      "name" => achievement.name,
+      "description" => achievement.description,
+      "icon" => achievement.icon,
+      "cookie_reward" => achievement.cookie_reward
+    }
   end
 end
