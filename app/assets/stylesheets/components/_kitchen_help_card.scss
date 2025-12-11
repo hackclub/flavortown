@@ -1,0 +1,40 @@
+.kitchen-help {
+  margin-top: var(--space-xl);
+  position: relative;
+  border-radius: var(--border-radius);
+	padding: var(--space-xl);
+	background: var(--color-tan-300);
+	box-shadow: var(--shadow);
+	overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-bg);
+    background-image: repeating-conic-gradient(
+      from 0deg,
+      rgba(0, 0, 0, 0.04) 0deg 90deg,
+      transparent 90deg 180deg
+    );
+    background-size: 120px 120px;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  &__title {
+    margin-bottom: var(--space-xl);
+    font-family: var(--font-family-jua);
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-xl);
+  }
+}
