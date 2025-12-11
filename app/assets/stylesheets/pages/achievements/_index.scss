@@ -140,6 +140,22 @@
   line-height: 1.4;
 }
 
+.achievements__reward {
+  display: inline-block;
+  font-family: var(--font-family-subtitle);
+  font-size: 0.9rem;
+  color: var(--color-brown-500);
+  background: var(--color-yellow-300);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  margin-top: 0.5rem;
+
+  &--secret {
+    background: var(--color-tan-300);
+    color: var(--color-brown-300);
+  }
+}
+
 .achievements__earned-at {
   display: block;
   font-family: var(--font-family-text);

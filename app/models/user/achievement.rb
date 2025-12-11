@@ -22,6 +22,8 @@
 #
 class User
   class Achievement < ApplicationRecord
+    include Ledgerable
+
     self.table_name = "user_achievements"
 
     belongs_to :user
@@ -30,8 +32,22 @@ class User
     validates :achievement_slug, uniqueness: { scope: :user_id }
     validates :earned_at, presence: true
 
+    after_create :grant_cookie_reward
+
     def achievement
       ::Achievement.find(achievement_slug)
+    end
+
+    private
+
+    def grant_cookie_reward
+      return unless achievement.has_cookie_reward?
+
+      ledger_entries.create!(
+        amount: achievement.cookie_reward,
+        reason: "Achievement: #{achievement.name}",
+        created_by: "achievement:#{achievement.slug}"
+      )
     end
   end
 end

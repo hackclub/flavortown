@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :progress, :visibility, :secret_hint, :excluded_from_count) do
+Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :progress, :visibility, :secret_hint, :excluded_from_count, :cookie_reward) do
   include ActiveModel::Conversion
   extend ActiveModel::Naming
 
   VISIBILITIES = %i[visible secret hidden].freeze
 
-  def initialize(slug:, name:, description:, icon:, earned_check:, progress: nil, visibility: :visible, secret_hint: nil, excluded_from_count: false)
-    super(slug:, name:, description:, icon:, earned_check:, progress:, visibility:, secret_hint:, excluded_from_count:)
+  def initialize(slug:, name:, description:, icon:, earned_check:, progress: nil, visibility: :visible, secret_hint: nil, excluded_from_count: false, cookie_reward: 0)
+    super(slug:, name:, description:, icon:, earned_check:, progress:, visibility:, secret_hint:, excluded_from_count:, cookie_reward:)
   end
 
   ALL = [
@@ -23,21 +23,24 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       name: "Very Fried",
       description: "prove you belong in this kitchen!",
       icon: "verified",
-      earned_check: ->(user) { user.identity_verified? }
+      earned_check: ->(user) { user.identity_verified? },
+      cookie_reward: 5
     ),
     new(
       slug: :first_project,
       name: "Home Cookin'",
       description: "fire up the stove and start your first dish",
       icon: "fork_spoon_fill",
-      earned_check: ->(user) { user.projects.exists? }
+      earned_check: ->(user) { user.projects.exists? },
+      cookie_reward: 3
     ),
     new(
       slug: :first_devlog,
       name: "Recipe Notes",
       description: "jot down your cooking process",
       icon: "edit",
-      earned_check: ->(user) { user.projects.joins(:posts).exists?(posts: { postable_type: "PostDevlog" }) }
+      earned_check: ->(user) { user.projects.joins(:posts).exists?(posts: { postable_type: "PostDevlog" }) },
+      cookie_reward: 2
     ),
     new(
       slug: :first_comment,
@@ -75,7 +78,8 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       description: "5 dishes cooking at once? mise en place!",
       icon: "square_fill",
       earned_check: ->(user) { user.projects.count >= 5 },
-      progress: ->(user) { { current: user.projects.count, target: 5 } }
+      progress: ->(user) { { current: user.projects.count, target: 5 } },
+      cookie_reward: 10
     ),
     new(
       slug: :ten_devlogs,
@@ -83,7 +87,9 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       description: "10 recipes documented - publish that cookbook!",
       icon: "fire",
       earned_check: ->(user) { Post.joins(:project).where(projects: { id: user.project_ids }, postable_type: "PostDevlog").count >= 10 },
-      progress: ->(user) { { current: Post.joins(:project).where(projects: { id: user.project_ids }, postable_type: "PostDevlog").count, target: 10 } }
+      progress: ->(user) { { current: Post.joins(:project).where(projects: { id: user.project_ids }, postable_type: "PostDevlog").count, target: 10 } },
+      cookie_reward: 15,
+      visibility: :secret
     )
   ].freeze
 
@@ -138,6 +144,8 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
   end
 
   def has_progress? = progress.present?
+
+  def has_cookie_reward? = cookie_reward.positive?
 
   SECRET_DESCRIPTIONS = [
     "the secret ingredient is... secret",

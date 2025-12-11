@@ -25,6 +25,9 @@
         </div>
         <h3 class="achievements__name"><%= achievement.display_name(earned: item[:earned]) %></h3>
         <p class="achievements__description"><%= achievement.display_description(earned: item[:earned]) %></p>
+        <% if achievement.has_cookie_reward? %>
+          <span class="achievements__reward <%= 'achievements__reward--secret' if is_obscured %>">+<%= is_obscured ? "?" : achievement.cookie_reward %> 🍪</span>
+        <% end %>
         <% if achievement.show_progress?(earned: item[:earned]) && item[:progress] %>
           <div class="achievements__progress">
             <div class="achievements__progress-bar">
