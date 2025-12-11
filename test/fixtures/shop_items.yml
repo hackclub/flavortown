@@ -9,6 +9,7 @@
 # Table name: shop_items
 #
 #  id                                :bigint           not null, primary key
+#  accessory_tag                     :string
 #  agh_contents                      :jsonb
 #  attached_shop_item_ids            :bigint           default([]), is an Array
 #  buyable_by_self                   :boolean          default(TRUE)

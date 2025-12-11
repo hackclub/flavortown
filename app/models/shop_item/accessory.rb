@@ -3,6 +3,7 @@
 # Table name: shop_items
 #
 #  id                                :bigint           not null, primary key
+#  accessory_tag                     :string
 #  agh_contents                      :jsonb
 #  attached_shop_item_ids            :bigint           default([]), is an Array
 #  buyable_by_self                   :boolean          default(TRUE)
@@ -57,6 +58,10 @@
 #
 class ShopItem::Accessory < ShopItem
   validate :must_have_attached_items_if_not_buyable_by_self
+
+  def has_tag?
+    accessory_tag.present?
+  end
 
   def attached_shop_items
     return ShopItem.none if attached_shop_item_ids.blank?

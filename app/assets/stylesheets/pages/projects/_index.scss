@@ -93,6 +93,11 @@
       transform: translateY(-3px);
     }
 
+    &:focus-visible {
+      outline: 6px solid var(--color-brown-500);
+      outline-offset: 4px;
+    }
+
     &::before {
       content: "";
       position: absolute;

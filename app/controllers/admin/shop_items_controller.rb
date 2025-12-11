@@ -122,6 +122,7 @@ module Admin
         :agh_contents,
         :image,
         :buyable_by_self,
+        :accessory_tag,
         attached_shop_item_ids: []
       )
     end
