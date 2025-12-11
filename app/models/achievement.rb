@@ -13,73 +13,74 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
   ALL = [
     new(
       slug: :first_login,
-      name: "Welcome!",
-      description: "Log into Flavortown for the first time",
-      icon: "user",
+      name: "Anyone Can Cook!",
+      description: "welcome to the kitchen, chef",
+      icon: "chepheus",
       earned_check: ->(user) { user.persisted? }
     ),
     new(
       slug: :identity_verified,
-      name: "Verified",
-      description: "Verify your identity",
+      name: "Very Fried",
+      description: "prove you belong in this kitchen!",
       icon: "verified",
       earned_check: ->(user) { user.identity_verified? }
     ),
     new(
-      slug: :hackatime_connected,
-      name: "Time Tracker",
-      description: "Connect your Hackatime account",
-      icon: "time",
-      earned_check: ->(user) { user.has_hackatime? }
-    ),
-    new(
       slug: :first_project,
-      name: "Chef",
-      description: "Create your first project",
+      name: "Home Cookin'",
+      description: "fire up the stove and start your first dish",
       icon: "fork_spoon_fill",
       earned_check: ->(user) { user.projects.exists? }
     ),
     new(
       slug: :first_devlog,
-      name: "Storyteller",
-      description: "Post your first devlog",
+      name: "Recipe Notes",
+      description: "jot down your cooking process",
       icon: "edit",
-      visibility: :secret,
       earned_check: ->(user) { user.projects.joins(:posts).exists?(posts: { postable_type: "PostDevlog" }) }
     ),
     new(
       slug: :first_comment,
-      name: "Conversationalist",
-      description: "Leave your first comment",
-      icon: "mail",
+      name: "Yapper",
+      description: "awawawawawawawa",
+      icon: "rac_yap",
       earned_check: ->(user) { user.has_commented? }
     ),
     new(
-      slug: :first_like,
-      name: "Appreciator",
-      description: "Like something for the first time",
-      icon: "star_fill",
-      earned_check: ->(user) { user.likes.exists? }
+      slug: :first_order,
+      name: "Off the Menu",
+      icon: "shopping_cart_1_fill",
+      description: "treat yourself to something from the shop",
+      earned_check: ->(user) { user.shop_orders.joins(:shop_item).where.not(shop_item: {type: "ShopItem::FreeStickers"}).exists? }
     ),
     new(
-      slug: :first_order,
-      name: "Shopper",
-      description: "Place your first shop order",
+      slug: :five_orders,
+      name: "Regular Customer",
+      icon: "shopping",
+      description: "5 orders in - the kitchen knows your name now",
+      earned_check: ->(user) { user.shop_orders.real.worth_counting.count >= 5 },
+      progress: ->(user) { { current: user.shop_orders.real.worth_counting.count, target: 5 } }
+    ),
+    new(
+      slug: :ten_orders,
+      name: "VIP Diner",
+      description: "10 orders?! we're naming a dish after you",
       icon: "shopping_cart_1_fill",
-      earned_check: ->(user) { user.shop_orders.exists? }
+      earned_check: ->(user) { user.shop_orders.real.worth_counting.count >= 10 },
+      progress: ->(user) { { current: user.shop_orders.real.worth_counting.count, target: 10 } }
     ),
     new(
       slug: :five_projects,
-      name: "Prolific",
-      description: "Create 5 projects",
+      name: "Line Cook",
+      description: "5 dishes cooking at once? mise en place!",
       icon: "square_fill",
       earned_check: ->(user) { user.projects.count >= 5 },
       progress: ->(user) { { current: user.projects.count, target: 5 } }
     ),
     new(
       slug: :ten_devlogs,
-      name: "Dedicated",
-      description: "Post 10 devlogs",
+      name: "Cookbook Author",
+      description: "10 recipes documented - publish that cookbook!",
       icon: "fire",
       earned_check: ->(user) { Post.joins(:project).where(projects: { id: user.project_ids }, postable_type: "PostDevlog").count >= 10 },
       progress: ->(user) { { current: Post.joins(:project).where(projects: { id: user.project_ids }, postable_type: "PostDevlog").count, target: 10 } }
@@ -130,20 +131,22 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
 
   def has_progress? = progress.present?
 
-  def display_name(earned:)
-    (secret? || hidden?) && !earned ? "???" : name
-  end
-
   SECRET_DESCRIPTIONS = [
-    "This achievement is a secret...",
-    "What could this be?",
-    "Something mysterious awaits...",
-    "Keep exploring to find out!",
-    "A hidden treasure lies here...",
-    "The secret ingredient is...",
-    "Only the worthy shall know...",
-    "🤫"
+    "the secret ingredient is... secret",
+    "something's cooking... 👀",
+    "this recipe is under wraps",
+    "only the head chef knows this one",
+    "a mystery dish awaits...",
+    "keep stirring the pot to find out!",
+    "classified kitchen intel 🤫",
+    "shhh... it's marinating"
   ].freeze
+
+  def display_name(earned:)
+    return name if earned || visible?
+
+    secret? ? "???" : name
+  end
 
   def display_description(earned:)
     return description if earned || visible?
