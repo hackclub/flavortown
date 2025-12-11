@@ -112,7 +112,10 @@
   background: linear-gradient(135deg, #d4a017 0%, #f4c430 50%, #d4a017 100%);
   border: 2px solid #b8860b;
   border-radius: calc(1.2 * var(--border-radius));
-  box-shadow: var(--shadow), 0 0 24px rgba(212, 160, 23, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow:
+    var(--shadow),
+    0 0 24px rgba(212, 160, 23, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   pointer-events: auto;
   max-width: min(90vw, 400px);
   transition:
@@ -169,7 +172,9 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: var(--shadow), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  box-shadow:
+    var(--shadow),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4);
 }
 
 .achievement-toast__icon-img {
@@ -252,7 +257,15 @@
   transform: translateY(-10px);
 }
 
-.achievement-toast:nth-child(2) { animation-delay: 0.2s; }
-.achievement-toast:nth-child(3) { animation-delay: 0.4s; }
-.achievement-toast:nth-child(4) { animation-delay: 0.6s; }
-.achievement-toast:nth-child(5) { animation-delay: 0.8s; }
+.achievement-toast:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.achievement-toast:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.achievement-toast:nth-child(4) {
+  animation-delay: 0.6s;
+}
+.achievement-toast:nth-child(5) {
+  animation-delay: 0.8s;
+}
