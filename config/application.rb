@@ -16,6 +16,14 @@ module Battlemage
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
+    # Autoload secrets submodule models if present
+    secrets_models = Rails.root.join("secrets", "app", "models")
+    config.autoload_paths << secrets_models if secrets_models.exist?
+
+    # Add secrets assets to asset pipeline
+    secrets_images = Rails.root.join("secrets", "assets", "images")
+    config.assets.paths << secrets_images if secrets_images.exist?
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
