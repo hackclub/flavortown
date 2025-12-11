@@ -49,15 +49,20 @@ module AchievementSilhouettes
 
         require "mini_magick"
 
-        image = MiniMagick::Image.open(file)
-        image.combine_options do |c|
-          c.alpha "extract"
-          c.background "black"
-          c.alpha "shape"
-        end
-        image.write(output_path)
+        begin
+          image = MiniMagick::Image.open(file)
+          image.combine_options do |c|
+            c.alpha "extract"
+            c.background "black"
+            c.alpha "shape"
+          end
+          image.write(output_path)
 
-        Rails.logger.info "[Achievements] Generated silhouette: #{filename} -> #{hashed_filename}"
+          Rails.logger.info "[Achievements] Generated silhouette: #{filename} -> #{hashed_filename}"
+        rescue MiniMagick::Error => e
+          Rails.logger.warn "[Achievements] Skipping silhouette generation: #{e.message}"
+          return
+        end
       end
 
       Dir.glob(source_dir.join("*.svg")).each do |file|
