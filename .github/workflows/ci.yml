@@ -71,23 +71,60 @@ jobs:
       - name: Check zeitwerk loader
         run: bin/rails zeitwerk:check
 
-  migration_check:
-    uses: ./.github/workflows/ruby-postgres-setup.yml
-    with:
-      commands: |
-        bundle exec rails db:migrate
-        if ! git diff --exit-code db/schema.rb; then
-          echo "::error::Schema is not up to date! Run 'rails db:migrate' locally and commit the changes."
-          git diff db/schema.rb
-          exit 1
-        fi
+  db_checks:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: flavortown_test
+        ports:
+          - 5432:5432
+        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: postgresql://postgres:password@localhost:5432/flavortown_test
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
 
-  annotate_check:
-    uses: ./.github/workflows/ruby-postgres-setup.yml
-    with:
-      commands: |
-        bundle exec rails db:schema:load
-        bundle exec annotaterb models --frozen
+      - name: Check schema matches migrations
+        id: migration_check
+        run: |
+          bundle exec rails db:migrate
+          git diff --exit-code db/schema.rb
+      - name: Comment on schema failure
+        if: failure() && steps.migration_check.outcome == 'failure' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### :rage2: you GOOF!\n Schema dump has fallen out of date\n\nRun \`rails db:migrate\` locally and commit the changes to \`db/schema.rb\`.`
+            });
+
+      - name: Check annotations are up to date
+        id: annotate_check
+        if: success()
+        run: bundle exec annotaterb models --frozen
+      - name: Comment on annotation failure
+        if: failure() && steps.annotate_check.outcome == 'failure' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### :rage1: you SILLY GOOSE!\nModel annotations have fallen out of date.\n\nPlease run \`bundle exec annotaterb models\` locally and commit the changes.`
+            });
 
   # test:
   #   runs-on: ubuntu-latest
