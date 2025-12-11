@@ -44,6 +44,21 @@
               ) %>
         </div>
 
+        <div class="projects-new__field projects-new__field--project-type">
+          <%= render(
+                InputComponent.new(
+                  label: "Project Type",
+                  placeholder: "Select a category",
+                  form: form,
+                  attribute: :project_type,
+                  color: :blue,
+                  as: :select,
+                  collection: Project::PROJECT_TYPES.map { |t| [t.titleize, t] },
+                  subtitle: "What kind of project are you building?"
+                )
+              ) %>
+        </div>
+
         <div class="projects-new__field projects-new__field--banner">
           <%= render(
                 FileUploadComponent.new(
