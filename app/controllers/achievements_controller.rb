@@ -4,8 +4,10 @@ class AchievementsController < ApplicationController
   def index
     current_user.check_and_award_achievements!
 
+    user_achievements_by_slug = current_user.achievements.index_by(&:achievement_slug)
+
     @achievements = Achievement.all.map do |achievement|
-      user_achievement = current_user.achievements.find_by(achievement_slug: achievement.slug.to_s)
+      user_achievement = user_achievements_by_slug[achievement.slug.to_s]
       {
         achievement: achievement,
         earned: user_achievement.present?,
