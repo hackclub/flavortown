@@ -72,4 +72,3 @@ class ShopItem::PileOfStickersItem < ShopItem
     end
   end
 end
-
