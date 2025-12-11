@@ -87,6 +87,7 @@ class ShopOrder < ApplicationRecord
     ShopItem::SpecialFulfillmentItem
     ShopItem::WarehouseItem
     ShopItem::FreeStickers
+    ShopItem::PileOfStickersItem
   ].freeze
 
   def full_name
