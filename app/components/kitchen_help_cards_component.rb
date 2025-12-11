@@ -9,8 +9,8 @@ class KitchenHelpCardsComponent < ApplicationComponent
             "If you're stuck, or have any questions about Flavortown, join our Slack community and ask away in the #flavortown-help channel."
           end
           div(class: "state-card__cta") do
-            a(href: "https://slack.com", class: "btn btn--borderless btn--bg_yellow") do
-              span { "Join Slack" }
+            a(href: "https://hackclub.slack.com/app_redirect?channel=C09MATKQM8C", class: "btn btn--borderless btn--bg_yellow", target: "_blank") do
+              span { "Go to #flavortown-help" }
               # raw helpers.inline_svg_tag("icons/right-arrow.svg")
             end
           end
@@ -21,7 +21,7 @@ class KitchenHelpCardsComponent < ApplicationComponent
           div(class: "state-card__description") do
             plain "If you're having issues with Slack (or just prefer email), you can send a message to "
             a(href: "mailto:flavortown@hackclub.com") { "flavortown@hackclub.com" }
-            plain "!"
+            plain "."
           end
         end
       end
