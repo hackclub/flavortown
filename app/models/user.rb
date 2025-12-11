@@ -249,12 +249,13 @@ def all_time_coding_seconds
   end
 
   def award_achievement!(slug)
-    return if earned_achievement?(slug)
+    return nil if earned_achievement?(slug)
 
     achievement = ::Achievement.find(slug)
-    return unless achievement.earned_by?(self)
+    return nil unless achievement.earned_by?(self)
 
     achievements.create!(achievement_slug: slug.to_s, earned_at: Time.current)
+    achievement
   end
 
   def check_and_award_achievements!
