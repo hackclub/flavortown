@@ -8,7 +8,7 @@ class HCBMailbox < ApplicationMailbox
 
         if shop_card_grant
           begin
-            donation_data = Faraday.get("#{HCBService.base_url}/api/v3/transactions/txn_#{donation_id}")
+            donation_data = Faraday.get("#{HCBService.base_url}/api/v3/donations/don_#{donation_id}")
           rescue StandardError => e
             Rails.logger.error("Error fetching donation details for Donation ID #{donation_id}: #{e.message}")
             return
