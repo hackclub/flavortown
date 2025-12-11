@@ -39,4 +39,23 @@ module ApplicationHelper
   rescue URI::InvalidURIError
     nil
   end
+
+  def achievement_icon(icon_name, **options)
+    png_path = "achievements/#{icon_name}.png"
+    svg_path = "achievements/#{icon_name}.svg"
+
+    if asset_exists?(png_path)
+      image_tag(png_path, **options)
+    elsif asset_exists?(svg_path)
+      inline_svg_tag(svg_path, **options)
+    else
+      inline_svg_tag("icons/#{icon_name}.svg", **options)
+    end
+  end
+
+  private
+
+  def asset_exists?(path)
+    File.exist?(Rails.root.join("app/assets/images", path))
+  end
 end
