@@ -2,10 +2,10 @@
   margin-top: var(--space-xl);
   position: relative;
   border-radius: var(--border-radius);
-	padding: var(--space-xl);
-	background: var(--color-tan-300);
-	box-shadow: var(--shadow);
-	overflow: hidden;
+  padding: var(--space-xl);
+  background: var(--color-tan-300);
+  box-shadow: var(--shadow);
+  overflow: hidden;
 
   &::before {
     content: "";
