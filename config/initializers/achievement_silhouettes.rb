@@ -85,7 +85,7 @@ module AchievementSilhouettes
 end
 
 Rails.application.config.after_initialize do
-  next if Rails.env.test?
+  next unless Rails.env.development?
 
   AchievementSilhouettes.generate!
 end
