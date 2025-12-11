@@ -16,6 +16,7 @@
       transparent 90deg 180deg
     );
   background-size: 120px 120px;
+  box-shadow: var(--shadow);
 
   &::before {
     content: "";
@@ -279,8 +280,8 @@
 
   // Variants
   &--fire {
-    background-color: var(--color-red-500);
-    border-color: var(--color-red-400);
+    background-color: var(--color-red-400);
+    border-color: var(--color-red-300);
 
     .post__avatar {
       background-color: var(--color-red-300);
@@ -337,8 +338,8 @@
   }
 
   &--certified {
-    background-color: var(--color-blue-500);
-    border-color: var(--color-blue-400);
+    background-color: var(--color-blue-400);
+    border-color: var(--color-teal-400);
 
     .post__avatar {
       background-color: var(--color-blue-300);
@@ -381,7 +382,7 @@
 
   &--ship {
     background-color: var(--color-yellow-500);
-    border-color: var(--color-yellow-450);
+    border-color: var(--color-yellow-300);
 
     .post__avatar {
       background-color: var(--color-yellow-400);
