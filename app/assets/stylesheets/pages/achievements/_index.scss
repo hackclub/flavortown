@@ -4,8 +4,48 @@
   padding: 0 var(--space-l);
 
   .ui-heading {
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-l);
   }
+}
+
+.achievements__stats {
+  margin-bottom: var(--space-xl);
+  background: #f8e8d1;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.achievements__stats-text {
+  font-family: var(--font-family-subtitle);
+  font-size: 1.1rem;
+  color: var(--color-brown-500);
+  margin-bottom: 0.5rem;
+}
+
+.achievements__stats-count {
+  font-weight: bold;
+  color: var(--color-green-500);
+}
+
+.achievements__stats-total {
+  color: var(--color-brown-400);
+}
+
+.achievements__stats-bar {
+  width: 100%;
+  height: 16px;
+  background: var(--color-tan-300);
+  border: 2px solid var(--color-brown-400);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.achievements__stats-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-green-400) 0%, var(--color-green-500) 100%);
+  border-radius: 999px;
+  transition: width 0.5s ease;
 }
 
 .achievements__grid {

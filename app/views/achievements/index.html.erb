@@ -1,6 +1,15 @@
 <div class="achievements">
   <%= render HeadingComponent.new(title: "Achievements", tone: :blue) %>
 
+  <div class="achievements__stats">
+    <div class="achievements__stats-text">
+      <span class="achievements__stats-count"><%= @achievement_stats[:earned] %></span> / <span class="achievements__stats-total"><%= @achievement_stats[:total] %></span> collected
+    </div>
+    <div class="achievements__stats-bar">
+      <div class="achievements__stats-fill" style="width: <%= @achievement_stats[:total] > 0 ? (@achievement_stats[:earned].to_f / @achievement_stats[:total] * 100).round : 0 %>%"></div>
+    </div>
+  </div>
+
   <div class="achievements__grid">
     <% @achievements.each do |item| %>
       <% achievement = item[:achievement] %>

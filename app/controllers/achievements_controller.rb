@@ -13,5 +13,12 @@ class AchievementsController < ApplicationController
         progress: achievement.progress_for(current_user)
       }
     end
+
+    countable = Achievement.countable_for_user(current_user)
+    earned_countable = countable.count { |a| a.earned_by?(current_user) }
+    @achievement_stats = {
+      earned: earned_countable,
+      total: countable.count
+    }
   end
 end

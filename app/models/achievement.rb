@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :progress, :visibility, :secret_hint) do
+Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :progress, :visibility, :secret_hint, :excluded_from_count) do
   include ActiveModel::Conversion
   extend ActiveModel::Naming
 
   VISIBILITIES = %i[visible secret hidden].freeze
 
-  def initialize(slug:, name:, description:, icon:, earned_check:, progress: nil, visibility: :visible, secret_hint: nil)
-    super(slug:, name:, description:, icon:, earned_check:, progress:, visibility:, secret_hint:)
+  def initialize(slug:, name:, description:, icon:, earned_check:, progress: nil, visibility: :visible, secret_hint: nil, excluded_from_count: false)
+    super(slug:, name:, description:, icon:, earned_check:, progress:, visibility:, secret_hint:, excluded_from_count:)
   end
 
   ALL = [
@@ -51,7 +51,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       name: "Off the Menu",
       icon: "shopping_cart_1_fill",
       description: "treat yourself to something from the shop",
-      earned_check: ->(user) { user.shop_orders.joins(:shop_item).where.not(shop_item: {type: "ShopItem::FreeStickers"}).exists? }
+      earned_check: ->(user) { user.shop_orders.joins(:shop_item).where.not(shop_item: { type: "ShopItem::FreeStickers" }).exists? }
     ),
     new(
       slug: :five_orders,
@@ -103,6 +103,14 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
     def find(slug) = SLUGGED.fetch(slug.to_sym)
 
     alias_method :[], :find
+
+    def countable
+      ALL_WITH_SECRETS.reject(&:excluded_from_count)
+    end
+
+    def countable_for_user(user)
+      countable.select { |a| a.shown_to?(user, earned: a.earned_by?(user)) }
+    end
   end
 
   def to_param = slug
