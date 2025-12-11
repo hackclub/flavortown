@@ -244,8 +244,12 @@ def all_time_coding_seconds
     comments.exists?
   end
 
+  def earned_achievement_slugs
+    @earned_achievement_slugs ||= achievements.pluck(:achievement_slug).to_set
+  end
+
   def earned_achievement?(slug)
-    achievements.exists?(achievement_slug: slug.to_s)
+    earned_achievement_slugs.include?(slug.to_s)
   end
 
   def award_achievement!(slug)
@@ -253,6 +257,7 @@ def all_time_coding_seconds
 
     achievement = ::Achievement.find(slug)
     achievements.create!(achievement_slug: slug.to_s, earned_at: Time.current)
+    @earned_achievement_slugs&.add(slug.to_s)
     achievement
   end
 
