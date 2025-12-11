@@ -50,6 +50,6 @@ export default class extends Controller {
     this.element.addEventListener("transitionend", onEnd);
     setTimeout(() => {
       if (this.element && this.element.parentNode) this.element.remove();
-    }, 300);
+    }, 500);
   }
 }

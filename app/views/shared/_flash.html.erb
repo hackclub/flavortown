@@ -1,6 +1,29 @@
-<% if flash.any? %>
+<% if flash[:achievements].present? %>
+  <div class="achievement-toast-container">
+    <% flash[:achievements].each do |achievement| %>
+      <div class="achievement-toast" role="alert" aria-live="assertive" data-controller="flash" data-flash-timeout-value="3470">
+        <div class="achievement-toast__icon">
+          <%= achievement_icon achievement["icon"], earned: true, class: "achievement-toast__icon-img" %>
+        </div>
+        <div class="achievement-toast__content">
+          <span class="achievement-toast__label">Achievement Get!</span>
+          <span class="achievement-toast__name"><%= achievement["name"] %></span>
+          <span class="achievement-toast__description"><%= achievement["description"] %></span>
+          <% if achievement["cookie_reward"].to_i > 0 %>
+            <span class="achievement-toast__reward">+<%= achievement["cookie_reward"] %> 🍪</span>
+          <% end %>
+        </div>
+        <button type="button" class="achievement-toast__close" aria-label="Close" title="Close" data-action="click->flash#close">
+          <%= inline_svg_tag "icons/close.svg", aria: { hidden: true }, focusable: "false" %>
+        </button>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<% if flash.to_hash.except("achievements").any? %>
   <div class="flash-container">
-    <% flash.each do |type, message| %>
+    <% flash.to_hash.except("achievements").each do |type, message| %>
       <% next if type.to_s == "tutorial_messages" %>
       <% icon, variant = case type.to_s
         when "notice", ":success" then ["icons/checked.svg", "success"]
