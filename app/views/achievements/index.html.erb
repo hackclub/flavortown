@@ -3,13 +3,20 @@
 
   <div class="achievements__grid">
     <% @achievements.each do |item| %>
-      <div class="achievements__card <%= 'achievements__card--earned' if item[:earned] %>">
+      <% achievement = item[:achievement] %>
+      <% next unless achievement.shown_to?(current_user, earned: item[:earned]) %>
+      <% is_obscured = !achievement.visible? && !item[:earned] %>
+      <div class="achievements__card <%= 'achievements__card--earned' if item[:earned] %> <%= 'achievements__card--secret' if is_obscured %>">
         <div class="achievements__icon">
-          <%= achievement_icon item[:achievement].icon, earned: item[:earned], class: "achievements__icon-svg" %>
+          <% if is_obscured %>
+            <%= inline_svg_tag "icons/question.svg", class: "achievements__icon-svg" %>
+          <% else %>
+            <%= achievement_icon achievement.icon, earned: item[:earned], class: "achievements__icon-svg" %>
+          <% end %>
         </div>
-        <h3 class="achievements__name"><%= item[:achievement].name %></h3>
-        <p class="achievements__description"><%= item[:achievement].description %></p>
-        <% if item[:progress] && !item[:earned] %>
+        <h3 class="achievements__name"><%= achievement.display_name(earned: item[:earned]) %></h3>
+        <p class="achievements__description"><%= achievement.display_description(earned: item[:earned]) %></p>
+        <% if achievement.show_progress?(earned: item[:earned]) && item[:progress] %>
           <div class="achievements__progress">
             <div class="achievements__progress-bar">
               <div class="achievements__progress-fill" style="width: <%= [(item[:progress][:current].to_f / item[:progress][:target] * 100), 100].min %>%"></div>

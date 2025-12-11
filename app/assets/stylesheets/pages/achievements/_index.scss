@@ -159,3 +159,15 @@
   height: 16px;
   fill: white;
 }
+
+.achievements__card--secret {
+  .achievements__icon {
+    background: var(--color-brown-300);
+  }
+
+  .achievements__name,
+  .achievements__description {
+    font-style: italic;
+    opacity: 0.7;
+  }
+}
