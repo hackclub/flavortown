@@ -9,7 +9,8 @@ class AchievementsController < ApplicationController
       {
         achievement: achievement,
         earned: user_achievement.present?,
-        earned_at: user_achievement&.earned_at
+        earned_at: user_achievement&.earned_at,
+        progress: achievement.progress_for(current_user)
       }
     end
   end
