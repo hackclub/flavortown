@@ -90,6 +90,12 @@ class ShopOrder < ApplicationRecord
     ShopItem::PileOfStickersItem
   ].freeze
 
+  DIGITAL_ITEM_TYPES = %w[
+    ShopItem::HCBGrant
+    ShopItem::HCBPreauthGrant
+    ShopItem::ThirdPartyDigital
+  ]
+
   def full_name
     "#{user.display_name}'s order for #{quantity} #{shop_item.name.pluralize(quantity)}"
   end
@@ -187,6 +193,20 @@ class ShopOrder < ApplicationRecord
         create_refund_payout
       end
     end
+  end
+
+  def digital?
+    DIGITAL_ITEM_TYPES.include?(shop_item.type)
+  end
+
+  def grant?
+    shop_item.is_a?(ShopItem::HCBGrant) || shop_item.is_a?(ShopItem::HCBPreauthGrant)
+  end
+
+  def topup_url
+    return nil unless grant?
+
+    "https://ui3.hcb.hackclub.com/donations/start/flavortown?email=#{user.email}&message=#{}"
   end
 
   def total_cost

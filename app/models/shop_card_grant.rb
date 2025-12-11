@@ -32,6 +32,10 @@ class ShopCardGrant < ApplicationRecord
     "#{HCBService.base_url}/grants/#{stripped_hashid}"
   end
 
+  def topup_url
+    "#{HCBService.base_url}/donations/start/#{HCBService.slug}?email=#{user.grant_email}&message=Top up for #{HCBService.base_url}/grants/#{stripped_hashid}&name=#{user.full_name}&goods=true"
+  end
+
   def topup!(amount_cents)
     HCBService.topup_card_grant(
       hashid: hcb_grant_hashid,

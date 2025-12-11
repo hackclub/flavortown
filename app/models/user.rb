@@ -109,6 +109,10 @@ class User < ApplicationRecord
     end
   end
 
+  def full_name
+    [ first_name, last_name ].compact.join(" ").strip
+  end
+
   def has_hackatime?
     identities.exists?(provider: "hackatime")
   end
