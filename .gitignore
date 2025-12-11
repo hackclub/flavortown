@@ -51,5 +51,6 @@ db/seeds/shop_items.csv
 wak.toml
 
 /config/*.key
+app/assets/images/achievements/silhouettes/
 
 Procfile.assets

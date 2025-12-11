@@ -20,7 +20,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       slug: :identity_verified,
       name: "Verified",
       description: "Verify your identity",
-      icon: "checked",
+      icon: "verified",
       earned_check: ->(user) { user.identity_verified? }
     ),
     new(
