@@ -434,6 +434,16 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_204015) do
     t.index ["user_id"], name: "index_shop_warehouse_packages_on_user_id"
   end
 
+  create_table "user_achievements", force: :cascade do |t|
+    t.string "achievement_slug", null: false
+    t.datetime "created_at", null: false
+    t.datetime "earned_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id", "achievement_slug"], name: "index_user_achievements_on_user_id_and_achievement_slug", unique: true
+    t.index ["user_id"], name: "index_user_achievements_on_user_id"
+  end
+
   create_table "user_hackatime_projects", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -550,6 +560,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_204015) do
   add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"
   add_foreign_key "shop_orders", "users"
   add_foreign_key "shop_warehouse_packages", "users"
+  add_foreign_key "user_achievements", "users"
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"
