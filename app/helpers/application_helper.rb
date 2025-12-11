@@ -40,16 +40,30 @@ module ApplicationHelper
     nil
   end
 
-  def achievement_icon(icon_name, **options)
-    png_path = "achievements/#{icon_name}.png"
-    svg_path = "achievements/#{icon_name}.svg"
+  def achievement_icon(icon_name, earned: true, **options)
+    if earned
+      png_path = "achievements/#{icon_name}.png"
+      svg_path = "achievements/#{icon_name}.svg"
 
-    if asset_exists?(png_path)
-      image_tag(png_path, **options)
-    elsif asset_exists?(svg_path)
-      inline_svg_tag(svg_path, **options)
+      if asset_exists?(png_path)
+        image_tag(png_path, **options)
+      elsif asset_exists?(svg_path)
+        inline_svg_tag(svg_path, **options)
+      else
+        inline_svg_tag("icons/#{icon_name}.svg", **options)
+      end
     else
-      inline_svg_tag("icons/#{icon_name}.svg", **options)
+      silhouette_path = AchievementSilhouettes.silhouette_path(icon_name)
+
+      if silhouette_path && asset_exists?(silhouette_path)
+        if silhouette_path.end_with?(".svg")
+          inline_svg_tag(silhouette_path, **options)
+        else
+          image_tag(silhouette_path, **options)
+        end
+      else
+        inline_svg_tag("icons/#{icon_name}.svg", **options.merge(style: "filter: brightness(0) opacity(0.4)"))
+      end
     end
   end
 

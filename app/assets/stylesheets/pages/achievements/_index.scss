@@ -44,14 +44,12 @@
   }
 
   &:not(&--earned) {
-    opacity: 0.5;
-
     .achievements__icon {
       background: var(--color-tan-300);
     }
 
     .achievements__icon-svg {
-      fill: var(--color-brown-400);
+      opacity: 0.4;
     }
   }
 }
@@ -69,9 +67,20 @@
 }
 
 .achievements__icon-svg {
-  width: 40px;
-  height: 40px;
+  max-width: 56px;
+  max-height: 56px;
   fill: var(--color-brown-500);
+  object-fit: contain;
+
+  &:is(svg) {
+    width: 32px;
+    height: 32px;
+  }
+
+  &:is(img) {
+    width: auto;
+    height: auto;
+  }
 }
 
 .achievements__name {

@@ -5,7 +5,7 @@
     <% @achievements.each do |item| %>
       <div class="achievements__card <%= 'achievements__card--earned' if item[:earned] %>">
         <div class="achievements__icon">
-          <%= achievement_icon item[:achievement].icon, class: "achievements__icon-svg" %>
+          <%= achievement_icon item[:achievement].icon, earned: item[:earned], class: "achievements__icon-svg" %>
         </div>
         <h3 class="achievements__name"><%= item[:achievement].name %></h3>
         <p class="achievements__description"><%= item[:achievement].description %></p>
