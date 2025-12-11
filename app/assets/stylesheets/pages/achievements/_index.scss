@@ -78,6 +78,7 @@
   }
 
   &:is(img) {
+    image-rendering: pixelated;
     width: auto;
     height: auto;
   }
