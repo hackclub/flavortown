@@ -40,6 +40,20 @@ module ApplicationHelper
     nil
   end
 
+  def achievement_icon(icon_name, **options)
+    png_path = "achievements/#{icon_name}.png"
+    svg_path = "achievements/#{icon_name}.svg"
+
+    if asset_exists?(png_path)
+      image_tag(png_path, **options)
+    elsif asset_exists?(svg_path)
+      inline_svg_tag(svg_path, **options)
+    else
+      inline_svg_tag("icons/#{icon_name}.svg", **options)
+    end
+  end
+
+
   def cache_stats
     hits = Thread.current[:cache_hits] || 0
     misses = Thread.current[:cache_misses] || 0
@@ -49,5 +63,11 @@ module ApplicationHelper
   def requests_per_second
     rps = RequestCounter.per_second
     rps == :high_load ? "lots of req/sec" : "#{rps} req/sec"
+  end
+
+  private
+
+  def asset_exists?(path)
+    File.exist?(Rails.root.join("app/assets/images", path))
   end
 end
