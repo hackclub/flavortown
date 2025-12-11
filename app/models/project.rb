@@ -27,6 +27,8 @@ class Project < ApplicationRecord
     ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
     MAX_BANNER_SIZE = 10.megabytes
 
+    PROJECT_TYPES = %w[web mobile desktop cli game hardware other].freeze
+
     scope :kept, -> { where(deleted_at: nil) }
     scope :deleted, -> { where.not(deleted_at: nil) }
 
@@ -41,6 +43,8 @@ class Project < ApplicationRecord
     has_one :latest_ship_post, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
     has_many :votes, dependent: :destroy
     has_many :reports, dependent: :destroy
+    has_many :ship_certifications, dependent: :destroy
+    has_one :latest_ship_certification, -> { order(created_at: :desc) }, class_name: "ShipCertification"
 
     has_one_attached :demo_video
     # https://github.com/rails/rails/pull/39135
@@ -78,6 +82,7 @@ class Project < ApplicationRecord
               content_type: { in: ACCEPTED_CONTENT_TYPES, spoofing_protection: true },
               size: { less_than: MAX_BANNER_SIZE, message: "is too large (max 10 MB)" },
               processable_file: true
+    validates :project_type, inclusion: { in: PROJECT_TYPES }, allow_blank: true
 
     scope :votable_by, ->(user) {
       where.not(id: user.projects.select(:id))
