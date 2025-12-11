@@ -35,7 +35,7 @@ module Secrets
       return nil unless file.exist?
 
       @data_cache ||= {}
-      @data_cache[name] ||= YAML.load_file(file, permitted_classes: [Symbol, Date, Time])
+      @data_cache[name] ||= YAML.load_file(file, permitted_classes: [ Symbol, Date, Time ])
     end
 
     def data_path
