@@ -71,54 +71,23 @@ jobs:
       - name: Check zeitwerk loader
         run: bin/rails zeitwerk:check
 
-  # annotate_check:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v6
+  migration_check:
+    uses: ./.github/workflows/ruby-postgres-setup.yml
+    with:
+      commands: |
+        bundle exec rails db:migrate
+        if ! git diff --exit-code db/schema.rb; then
+          echo "::error::Schema is not up to date! Run 'rails db:migrate' locally and commit the changes."
+          git diff db/schema.rb
+          exit 1
+        fi
 
-  #     - name: Set up Ruby
-  #       uses: ruby/setup-ruby@v1
-  #       with:
-  #         ruby-version: .ruby-version
-  #         bundler-cache: true
-
-  #     - name: Check if annotations are up to date
-  #       run: |
-  #         bundle exec annotaterb models --frozen --show-migration
-  #         bundle exec annotaterb routes --frozen
-
-  migration-check:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: flavortown_test
-        ports:
-          - 5432:5432
-        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Run migrations from scratch and check schema matches
-        env:
-          RAILS_ENV: test
-          DATABASE_URL: postgresql://postgres:password@localhost:5432/flavortown_test
-        run: |
-          bundle exec rails db:migrate
-          if ! git diff --exit-code db/schema.rb; then
-            echo "::error::Schema is not up to date! Run 'rails db:migrate' locally and commit the changes."
-            git diff db/schema.rb
-            exit 1
-          fi
+  annotate_check:
+    uses: ./.github/workflows/ruby-postgres-setup.yml
+    with:
+      commands: |
+        bundle exec rails db:schema:load
+        bundle exec annotaterb models --frozen
 
   # test:
   #   runs-on: ubuntu-latest
