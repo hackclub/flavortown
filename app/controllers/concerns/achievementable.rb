@@ -9,7 +9,7 @@ module Achievementable
 
   class_methods do
     def grant_earned_achievements(*slugs, **options)
-      self.achievements_to_check = slugs.map(&:to_sym)
+      self.achievements_to_check += slugs.map(&:to_sym)
       after_action :check_and_grant_earned_achievements, **options
     end
   end
