@@ -75,7 +75,8 @@ module Admin
         "ShopItem::WarehouseItem",
         "ShopItem::SpecialFulfillmentItem",
         "ShopItem::HackClubberItem",
-        "ShopItem::FreeStickers"
+        "ShopItem::FreeStickers",
+        "ShopItem::PileOfStickersItem"
       ]
     end
 

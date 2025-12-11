@@ -22,7 +22,7 @@ module Admin
       {
         "hq_mail" => [ "ShopItem::HQMailItem", "ShopItem::PileOfStickersItem", "ShopItem::LetterMail" ],
         "third_party" => "ShopItem::ThirdPartyPhysical",
-        "warehouse" => "ShopItem::WarehouseItem",
+        "warehouse" => [ "ShopItem::WarehouseItem", "ShopItem::PileOfStickersItem" ],
         "other" => [
           "ShopItem::HCBGrant",
           "ShopItem::SiteActionItem",

@@ -5,7 +5,7 @@ class Shop::ProcessWarehouseOrdersJob < ApplicationJob
   def perform
     warehouse_orders = ShopOrder
       .joins(:shop_item)
-      .where(shop_items: { type: %w[ShopItem::WarehouseItem] }).where(aasm_state: "awaiting_periodical_fulfillment", warehouse_package_id: nil)
+      .where(shop_items: { type: %w[ShopItem::WarehouseItem ShopItem::PileOfStickersItem] }).where(aasm_state: "awaiting_periodical_fulfillment", warehouse_package_id: nil)
 
     return if warehouse_orders.empty?
 
