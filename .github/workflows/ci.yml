@@ -108,22 +108,15 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Setup Database
-        env:
-          RAILS_ENV: test
-          DATABASE_URL: postgresql://postgres:password@localhost:5432/flavortown_test
-        run: |
-          bundle exec rails db:create
-          bundle exec rails db:schema:load
-
-      - name: Run migrations and check schema is up to date
+      - name: Run migrations from scratch and check schema matches
         env:
           RAILS_ENV: test
           DATABASE_URL: postgresql://postgres:password@localhost:5432/flavortown_test
         run: |
           bundle exec rails db:migrate
           if ! git diff --exit-code db/schema.rb; then
-            echo "Schema is not up to date! Run 'rails db:migrate' locally and commit the changes."
+            echo "::error::Schema is not up to date! Run 'rails db:migrate' locally and commit the changes."
+            git diff db/schema.rb
             exit 1
           fi
 
