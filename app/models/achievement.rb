@@ -87,7 +87,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
     )
   ].freeze
 
-  SECRET = (Secrets.available? && defined?(Secrets::SecretAchievements) ? Secrets::SecretAchievements::ALL : []).freeze
+  SECRET = (Secrets.available? ? SecretAchievements::DEFINITIONS.map { |d| new(**d) } : []).freeze
 
   ALL_WITH_SECRETS = (ALL + SECRET).freeze
   SLUGGED = ALL_WITH_SECRETS.index_by(&:slug).freeze
