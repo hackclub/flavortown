@@ -32,6 +32,7 @@ class ExploreController < ApplicationController
 
   def gallery
     scope = Project.includes(banner_attachment: :blob)
+                    .where.not(id: current_user.projects.pluck(:id))
                     .order(created_at: :desc)
 
     @pagy, @projects = pagy(scope)
@@ -41,7 +42,8 @@ class ExploreController < ApplicationController
       format.json do
         html = @projects.map do |project|
           render_to_string(
-            ProjectCardComponent.new(project: project),
+            partial: "explore/card",
+            locals: { project: project },
             layout: false,
             formats: [ :html ]
           )

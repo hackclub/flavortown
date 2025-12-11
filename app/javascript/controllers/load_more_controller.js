@@ -46,7 +46,7 @@ export default class extends Controller {
         button.replaceWith(
           Object.assign(document.createElement("p"), {
             className: "explore__end",
-            textContent: "No more devlogs.",
+            textContent: "You've reached the end.",
           }),
         );
       }
