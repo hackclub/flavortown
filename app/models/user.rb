@@ -3,6 +3,7 @@
 # Table name: users
 #
 #  id                          :bigint           not null, primary key
+#  fake_column_for_testing     :string
 #  api_key                     :string
 #  banned                      :boolean          default(FALSE), not null
 #  banned_at                   :datetime
