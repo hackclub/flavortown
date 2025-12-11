@@ -61,7 +61,14 @@
                     <%= order.aasm_state.humanize %>
                   </span>
                   <% if order.aasm_state == "fulfilled" %>
-                    <span class="my-orders__status-hint">We have ordered/shipped the item to you! this does not mean it has already reached you.</span>
+                    <% if not order.digital? %>
+                      <span class="my-orders__status-hint">We have ordered/shipped the item to you! this does not mean it has already reached you.</span>
+                    <% elsif order.grant? && order.shop_card_grant.present? %>
+                      <div class="my-orders__grant-actions">
+                        <%= render ButtonComponent.new(text: "Open Grant", href: order.shop_card_grant.hcb_url, color: :brown, target: "_blank") %>
+                        <%= render ButtonComponent.new(text: "Top Up", href: order.shop_card_grant.topup_url, color: :brown, target: "_blank") %>
+                      </div>
+                    <% end %>
                   <% end %>
                 </div>
               </div>

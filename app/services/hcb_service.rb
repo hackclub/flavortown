@@ -25,6 +25,11 @@ module HCBService
       hcb_credentials.base_url if hcb_credentials && hcb_credentials.base_url.present? or "https://hcb.hackclub.com"
     end
 
+    def slug
+      hcb_credentials = HCBCredential.first
+      hcb_credentials.slug if hcb_credentials && hcb_credentials.slug.present? or "flavortown"
+    end
+
     # Generic wrapper that will attempt a token refresh on 401 once, then retry.
     def with_retry
       attempts = 0
