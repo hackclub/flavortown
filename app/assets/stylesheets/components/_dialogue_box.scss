@@ -16,27 +16,27 @@
   bottom: 3em;
   left: 6em;
   margin-right: 1em;
-  background-color: #73BED3;
+  background-color: #73bed3;
   padding: 0.8em 0.8em 0.8em 12em;
   border-radius: 16px;
 
   h1 {
     margin: 0;
     margin-bottom: 0.2em;
-    color: #253A5E;
+    color: #253a5e;
     font-size: 2rem;
     font-weight: normal;
   }
 
   &__image {
     position: absolute;
-    background-color: #73BED3;
+    background-color: #73bed3;
     height: 230px;
     width: 230px;
     border-radius: 50%;
     left: -4em;
     bottom: -2em;
-    border: 1em solid #4F8FBA;
+    border: 1em solid #4f8fba;
 
     img {
       height: 240px;
@@ -49,7 +49,7 @@
   &__text {
     font-size: 1.4rem;
     color: var(--color-bg);
-    background-color: #4F8FBA;
+    background-color: #4f8fba;
     padding: 1em 1em 0.4em 1em;
     border-radius: 16px;
     display: flex;
