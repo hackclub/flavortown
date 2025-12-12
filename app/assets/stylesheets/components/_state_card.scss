@@ -194,4 +194,27 @@
       color: hsl(131, 40%, 24%);
     }
   }
+
+  &--neutral {
+    --state-card-accent: var(--color-tan-400);
+    background: var(--color-tan-400);
+    border-color: var(--color-tan-300);
+    .state-card__badge {
+      background: var(--color-tan-300);
+      color: var(--color-brown-700);
+      // or color-text
+    }
+    .state-card__icon-circle {
+      background: var(--color-tan-300);
+    }
+    .state-card__icon {
+      background: var(--color-brown-700);
+    }
+    .state-card__title {
+      color: var(--color-brown-700);
+    }
+    .state-card__description {
+      color: var(--color-brown-700);
+    }
+  }
 }
