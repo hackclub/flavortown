@@ -1,0 +1,531 @@
+<div class="som-header">
+  <h1>
+    Ship Certification Dashboard
+    <span class="pill pill-<%= @category == 'all_pending' ? 'yellow' : (@category.in?(%w[approved]) ? 'green' : 'dark') %>">
+      <%= @category.humanize %>
+    </span>
+  </h1>
+</div>
+
+<div class="som-layout">
+  <div class="som-sidebar">
+    <div class="som-card">
+      <h3>Stats</h3>
+      <div class="som-stats-grid">
+        <div class="som-stat">
+          <span class="som-stat-value"><%= @stats[:all_pending][:count] %></span>
+          <span class="som-stat-label">Pending</span>
+        </div>
+        <div class="som-stat">
+          <span class="som-stat-value"><%= @stats[:approved][:count] %></span>
+          <span class="som-stat-label">Approved</span>
+        </div>
+        <div class="som-stat">
+          <span class="som-stat-value"><%= @stats[:rejected][:count] %></span>
+          <span class="som-stat-label">Rejected</span>
+        </div>
+      </div>
+      <% if @stats[:all_pending][:avg_wait] && @stats[:all_pending][:avg_wait] > 0 %>
+        <div class="som-stat-row">
+          <span>Avg Wait Time:</span>
+          <span class="<%= @stats[:all_pending][:avg_wait] > 172800 ? 'text-danger' : '' %>">
+            <%= format_seconds(@stats[:all_pending][:avg_wait], include_days: true) %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="som-card">
+      <h3>Leaderboard</h3>
+      <div class="som-leaderboard-tabs">
+        <button type="button" class="som-tab active" onclick="showLeaderboard('week', this)">Week</button>
+        <button type="button" class="som-tab" onclick="showLeaderboard('day', this)">24h</button>
+        <button type="button" class="som-tab" onclick="showLeaderboard('all', this)">All Time</button>
+      </div>
+
+      <div id="leaderboard-week" class="som-leaderboard">
+        <% if @leaderboard_week.any? %>
+          <table>
+            <tbody>
+              <% @leaderboard_week.each_with_index do |(name, email, count), index| %>
+                <tr class="<%= index.even? ? 'even' : 'odd' %>">
+                  <td><%= name || email %></td>
+                  <td class="count"><%= count %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class="som-empty">No reviews this week</p>
+        <% end %>
+      </div>
+
+      <div id="leaderboard-day" class="som-leaderboard" style="display: none;">
+        <% if @leaderboard_day.any? %>
+          <table>
+            <tbody>
+              <% @leaderboard_day.each_with_index do |(name, email, count), index| %>
+                <tr class="<%= index.even? ? 'even' : 'odd' %>">
+                  <td><%= name || email %></td>
+                  <td class="count"><%= count %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class="som-empty">No reviews in 24h</p>
+        <% end %>
+      </div>
+
+      <div id="leaderboard-all" class="som-leaderboard" style="display: none;">
+        <% if @leaderboard_all.any? %>
+          <table>
+            <tbody>
+              <% @leaderboard_all.each_with_index do |(name, email, count), index| %>
+                <tr class="<%= index.even? ? 'even' : 'odd' %>">
+                  <td><%= name || email %></td>
+                  <td class="count"><%= count %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class="som-empty">No reviews yet</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="som-main">
+    <div class="som-filters">
+      <div class="som-filter-pills">
+        <%= link_to admin_ship_certifications_path(category: "all_pending", sort: params[:sort]),
+            class: "pill pill-yellow #{'active' if @category == 'all_pending'}" do %>
+          Pending (<%= @stats[:all_pending][:count] %>)
+        <% end %>
+        <%= link_to admin_ship_certifications_path(category: "approved", sort: params[:sort]),
+            class: "pill pill-green #{'active' if @category == 'approved'}" do %>
+          Approved (<%= @stats[:approved][:count] %>)
+        <% end %>
+        <%= link_to admin_ship_certifications_path(category: "rejected", sort: params[:sort]),
+            class: "pill pill-red #{'active' if @category == 'rejected'}" do %>
+          Rejected (<%= @stats[:rejected][:count] %>)
+        <% end %>
+      </div>
+
+      <div class="som-sort">
+        <%= form_with url: admin_ship_certifications_path, method: :get, local: true, class: "som-sort-form" do |f| %>
+          <%= hidden_field_tag :category, @category %>
+          <%= select_tag :sort,
+              options_for_select([
+                ["Shipped Date (Oldest)", "shipped_asc"],
+                ["Shipped Date (Newest)", "shipped_desc"],
+                ["Dev Time (High → Low)", "time_desc"],
+                ["Dev Time (Low → High)", "time_asc"],
+                ["Random", "random"]
+              ], params[:sort] || "shipped_asc"),
+              onchange: "this.form.submit()",
+              class: "som-select" %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="som-type-filters">
+      <span class="som-type-label">Type:</span>
+      <%= link_to admin_ship_certifications_path(category: @category, sort: params[:sort]),
+          class: "pill pill-gray #{'active' unless params[:type]}" do %>
+        All
+      <% end %>
+      <% [
+        { key: "web", label: "Web" },
+        { key: "mobile", label: "Mobile" },
+        { key: "game", label: "Game" },
+        { key: "hardware", label: "Hardware" },
+        { key: "cli", label: "CLI" },
+        { key: "other", label: "Other" }
+      ].each do |type| %>
+        <%= link_to admin_ship_certifications_path(category: type[:key], sort: params[:sort]),
+            class: "pill pill-gray #{'active' if @category == type[:key]}" do %>
+          <%= type[:label] %> (<%= @stats[type[:key].to_sym]&.dig(:count) || 0 %>)
+        <% end %>
+      <% end %>
+    </div>
+
+    <% if @projects.any? %>
+      <div class="som-project-grid">
+        <% @projects.each do |project| %>
+          <% cert = project.latest_ship_certification %>
+          <div class="som-project-card">
+            <div class="som-project-header">
+              <%= link_to project.title, admin_project_ship_certification_path(project), class: "som-project-title" %>
+              <span class="pill pill-<%= project.ship_status == 'submitted' ? 'yellow' : (project.ship_status == 'under_review' ? 'blue' : (project.ship_status == 'approved' ? 'green' : 'red')) %> small">
+                <%= project.ship_status.humanize %>
+              </span>
+            </div>
+
+            <div class="som-project-meta">
+              <span><%= project.users.first&.display_name || "Unknown" %></span>
+              <span>•</span>
+              <span><%= project.devlogs.count %> devlog(s)</span>
+            </div>
+
+            <div class="som-project-stats">
+              <div class="som-project-stat">
+                <span class="label">Time</span>
+                <span class="value"><%= project.time.hours %>h <%= project.time.minutes %>m</span>
+              </div>
+              <div class="som-project-stat">
+                <span class="label">Type</span>
+                <span class="value"><%= project.project_type&.humanize || "—" %></span>
+              </div>
+              <div class="som-project-stat">
+                <span class="label">Shipped</span>
+                <span class="value"><%= project.shipped_at ? time_ago_in_words(project.shipped_at) + " ago" : "—" %></span>
+              </div>
+            </div>
+
+            <% if cert&.reviewer.present? %>
+              <div class="som-project-reviewer">
+                Reviewer: <%= cert.reviewer.display_name || cert.reviewer.email %>
+              </div>
+            <% end %>
+
+            <div class="som-project-actions">
+              <% if project.ship_status.in?(%w[submitted under_review]) %>
+                <%= link_to "Review", admin_project_ship_certification_path(project), class: "btn-primary" %>
+              <% else %>
+                <%= link_to "View", admin_project_ship_certification_path(project), class: "btn-secondary" %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="som-empty-state">
+        <p>No projects found for this filter.</p>
+      </div>
+    <% end %>
+
+    <% if @pagy.pages > 1 %>
+      <div class="pagination">
+        <%== @pagy.series_nav %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary", style: "margin-top: 1rem;" %>
+
+<script>
+function showLeaderboard(type, button) {
+  document.querySelectorAll('.som-leaderboard').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.som-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('leaderboard-' + type).style.display = 'block';
+  button.classList.add('active');
+}
+</script>
+
+<style>
+.som-header {
+  margin-bottom: 1.5rem;
+}
+
+.som-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.som-layout {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.som-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.som-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.som-card {
+  background: var(--color-card, #fff);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.som-card h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+}
+
+.som-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.som-stat {
+  text-align: center;
+}
+
+.som-stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-primary, #6366f1);
+}
+
+.som-stat-label {
+  font-size: 0.7rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.som-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.som-leaderboard-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.som-tab {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.75rem;
+  border: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-background, #f9fafb);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.som-tab:hover {
+  background: var(--color-card, #fff);
+}
+
+.som-tab.active {
+  background: var(--color-primary, #6366f1);
+  color: white;
+  border-color: var(--color-primary, #6366f1);
+}
+
+.som-leaderboard table {
+  width: 100%;
+  font-size: 0.8rem;
+}
+
+.som-leaderboard tr.even {
+  background: var(--color-background, #f9fafb);
+}
+
+.som-leaderboard td {
+  padding: 0.35rem 0.25rem;
+}
+
+.som-leaderboard td.count {
+  text-align: right;
+  font-weight: bold;
+}
+
+.som-empty {
+  color: var(--color-text-muted, #6b7280);
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.som-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.som-filter-pills {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.som-sort-form {
+  display: inline;
+}
+
+.som-select {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 4px;
+  background: var(--color-card, #fff);
+}
+
+.som-type-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.som-type-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.pill {
+  display: inline-block;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.pill.small {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+}
+
+.pill-yellow { background: #fef3c7; color: #92400e; }
+.pill-green { background: #d1fae5; color: #065f46; }
+.pill-red { background: #fee2e2; color: #991b1b; }
+.pill-blue { background: #dbeafe; color: #1e40af; }
+.pill-gray { background: #f3f4f6; color: #374151; }
+.pill-dark { background: #374151; color: #fff; }
+.pill-orange { background: #ffedd5; color: #9a3412; }
+
+.pill.active {
+  box-shadow: 0 0 0 2px var(--color-primary, #6366f1);
+}
+
+.pill:hover {
+  filter: brightness(0.95);
+}
+
+.som-project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.som-project-card {
+  background: var(--color-card, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.som-project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.som-project-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-primary, #6366f1);
+  text-decoration: none;
+}
+
+.som-project-title:hover {
+  text-decoration: underline;
+}
+
+.som-project-meta {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #6b7280);
+  margin-bottom: 0.75rem;
+}
+
+.som-project-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.som-project-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.som-project-stat .label {
+  font-size: 0.65rem;
+  color: var(--color-text-muted, #6b7280);
+  text-transform: uppercase;
+}
+
+.som-project-stat .value {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.som-project-reviewer {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #6b7280);
+  margin-bottom: 0.75rem;
+}
+
+.som-project-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.som-empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.text-danger {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .som-layout {
+    flex-direction: column;
+  }
+
+  .som-sidebar {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .som-card {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .som-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .som-filter-pills {
+    flex-wrap: wrap;
+  }
+}
+</style>

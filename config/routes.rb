@@ -57,6 +57,7 @@ Rails.application.routes.draw do
   # Letter opener web for development email preview
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
+    post "dev_login", to: "sessions#dev_login", as: :dev_login
   end
 
   # Action Mailbox for incoming HCB and tracking emails
@@ -135,7 +136,14 @@ Rails.application.routes.draw do
        end
        resource :magic_link, only: [ :show ]
      end
-    resources :projects, only: [ :index ], shallow: true
+    resources :projects, only: [ :index ], shallow: true do
+      resource :ship_certification, only: [ :show ] do
+        post :start_review
+        post :approve
+        post :reject
+      end
+    end
+    resources :ship_certifications, only: [ :index ]
     get "user-perms", to: "users#user_perms"
     get "manage-shop", to: "shop#index"
     post "shop/clear-carousel-cache", to: "shop#clear_carousel_cache", as: :clear_carousel_cache

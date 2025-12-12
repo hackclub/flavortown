@@ -1,0 +1,632 @@
+<div class="som-review-header">
+  <div class="som-review-title">
+    <h1><%= link_to @project.title, project_path(@project), target: "_blank" %></h1>
+    <div class="som-review-badges">
+      <span class="pill pill-<%= @project.ship_status == 'submitted' ? 'yellow' : (@project.ship_status == 'under_review' ? 'blue' : (@project.ship_status == 'approved' ? 'green' : 'red')) %>">
+        <%= @project.ship_status.humanize %>
+      </span>
+      <% if @project.project_type.present? %>
+        <span class="pill pill-gray"><%= @project.project_type.humanize %></span>
+      <% end %>
+    </div>
+  </div>
+  <div class="som-review-meta">
+    <span>by <strong><%= @project.users.first&.display_name || "Unknown" %></strong></span>
+    <span>•</span>
+    <span>Created <%= @project.created_at.strftime("%b %d, %Y") %></span>
+    <% if @ship_certification.persisted? && @ship_certification.reviewer.present? %>
+      <span>•</span>
+      <span>Reviewer: <strong><%= @ship_certification.reviewer.display_name %></strong></span>
+    <% end %>
+  </div>
+</div>
+
+<% if @project.ship_status == "approved" %>
+  <div class="som-status-banner som-status-approved">
+    This project was <strong>approved</strong>
+    <% if @ship_certification.persisted? %>
+      by <%= @ship_certification.reviewer&.display_name || "Unknown" %>
+      on <%= @ship_certification.decided_at&.strftime("%b %d, %Y at %l:%M%p") %>
+    <% end %>
+    <% if @ship_certification.feedback.present? %>
+      <br><em>"<%= @ship_certification.feedback %>"</em>
+    <% end %>
+  </div>
+<% elsif @project.ship_status == "rejected" %>
+  <div class="som-status-banner som-status-rejected">
+    This project was <strong>rejected</strong>
+    <% if @ship_certification.persisted? %>
+      by <%= @ship_certification.reviewer&.display_name || "Unknown" %>
+      on <%= @ship_certification.decided_at&.strftime("%b %d, %Y at %l:%M%p") %>
+    <% end %>
+    <% if @ship_certification.feedback.present? %>
+      <br><em>"<%= @ship_certification.feedback %>"</em>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="som-review-layout">
+  <div class="som-review-main">
+    <div class="som-card">
+      <h3>Description</h3>
+      <p class="som-description"><%= @project.description || "No description provided" %></p>
+    </div>
+
+    <div class="som-card">
+      <h3>Project Links</h3>
+      <div class="som-links">
+        <% if @project.repo_url.present? %>
+          <%= link_to @project.repo_url, target: "_blank", rel: "noopener", class: "som-link" do %>
+            Repository
+          <% end %>
+        <% end %>
+        <% if @project.demo_url.present? %>
+          <%= link_to @project.demo_url, target: "_blank", rel: "noopener", class: "som-link" do %>
+            Demo
+          <% end %>
+        <% end %>
+        <%= link_to project_path(@project), target: "_blank", class: "som-link" do %>
+          View Project
+        <% end %>
+      </div>
+    </div>
+
+    <% if @project.banner.attached? %>
+      <div class="som-card">
+        <h3>Screenshot</h3>
+        <%= image_tag @project.banner.variant(:card), class: "som-banner" %>
+      </div>
+    <% end %>
+
+    <div class="som-card">
+      <h3>Devlog Time Analysis</h3>
+      <%
+        devlog_data = @project.devlogs.includes(:postable).order(created_at: :asc).map.with_index do |post, i|
+          devlog = post.postable
+          hours = devlog.respond_to?(:duration_seconds) && devlog.duration_seconds.present? ? (devlog.duration_seconds / 3600.0).round(2) : 0
+          ["##{i + 1}", hours]
+        end.to_h
+
+        total_hours = devlog_data.values.sum
+        avg_hours = devlog_data.any? ? (total_hours / devlog_data.size).round(2) : 0
+        max_hours = devlog_data.values.max || 0
+        count_over_1hr = devlog_data.values.count { |h| h >= 1 }
+      %>
+
+      <div class="som-time-stats">
+        <div class="som-time-stat">
+          <span class="value"><%= total_hours.round(1) %> hrs</span>
+          <span class="label">Total Time</span>
+        </div>
+        <div class="som-time-stat">
+          <span class="value"><%= avg_hours %> hrs</span>
+          <span class="label">Average</span>
+        </div>
+        <div class="som-time-stat">
+          <span class="value"><%= max_hours.round(1) %> hrs</span>
+          <span class="label">Longest</span>
+        </div>
+        <div class="som-time-stat">
+          <span class="value"><%= count_over_1hr %></span>
+          <span class="label">≥1 hour</span>
+        </div>
+      </div>
+
+      <% if devlog_data.any? %>
+        <div class="som-time-chart">
+          <% max_val = devlog_data.values.max || 1 %>
+          <% devlog_data.each do |label, hours| %>
+            <div class="som-bar-container">
+              <div class="som-bar" style="height: <%= [(hours / max_val * 100), 5].max %>%;"></div>
+              <span class="som-bar-label"><%= hours %>h</span>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="som-card">
+      <h3>Devlogs (<%= @project.devlogs.count %>)</h3>
+      <div class="som-devlogs">
+        <% @project.devlogs.includes(:user, :postable).order(created_at: :desc).each do |post| %>
+          <% devlog = post.postable %>
+          <div class="som-devlog">
+            <div class="som-devlog-header">
+              <span class="som-devlog-id">#<%= post.id %></span>
+              <span class="som-devlog-date"><%= post.created_at.strftime("%b %d, %Y") %></span>
+              <span class="som-devlog-author"><%= post.user&.display_name || "Unknown" %></span>
+              <% if devlog.respond_to?(:duration_seconds) && devlog.duration_seconds.present? %>
+                <span class="pill pill-blue small"><%= (devlog.duration_seconds / 60.0).round %> min</span>
+              <% end %>
+            </div>
+            <div class="som-devlog-body">
+              <%= simple_format(truncate(devlog.body, length: 500)) %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="som-review-sidebar">
+    <div class="som-card som-decision-card">
+      <h3>Certification Decision</h3>
+
+      <% if @project.ship_status == "submitted" %>
+        <div class="som-notice som-notice-warning">
+          This project is awaiting review. Click "Start Review" to assign yourself.
+        </div>
+        <%= button_to "Start Review",
+            start_review_admin_project_ship_certification_path(@project),
+            method: :post,
+            class: "btn-primary som-btn-full",
+            data: { turbo_confirm: "Start reviewing this project?" } %>
+      <% end %>
+
+      <% if @project.ship_status.in?(%w[under_review submitted]) %>
+        <div class="som-decision-section som-decision-approve">
+          <h4>Approve</h4>
+          <%= form_with url: approve_admin_project_ship_certification_path(@project), method: :post, local: true do |f| %>
+            <%= f.text_area :feedback,
+                rows: 3,
+                class: "som-textarea",
+                placeholder: "Feedback (optional)" %>
+            <%= f.submit "Approve Project",
+                class: "btn-primary som-btn-full",
+                data: { turbo_confirm: "Approve this project?" } %>
+          <% end %>
+        </div>
+
+        <div class="som-decision-section som-decision-reject">
+          <h4>Reject</h4>
+          <%= form_with url: reject_admin_project_ship_certification_path(@project), method: :post, local: true do |f| %>
+            <%= f.text_area :feedback,
+                rows: 3,
+                class: "som-textarea",
+                placeholder: "Reason for rejection (required)",
+                required: true %>
+            <div class="som-quick-reasons" data-controller="quick-reason">
+              <% ["Demo not working", "Incomplete project", "Not original work", "Insufficient docs", "Does not meet guidelines"].each do |reason| %>
+                <button type="button" class="som-reason-btn" data-action="click->quick-reason#fill" data-reason="<%= j reason %>">
+                  <%= reason %>
+                </button>
+              <% end %>
+            </div>
+            <%= f.submit "Reject Project",
+                class: "btn-danger som-btn-full",
+                data: { turbo_confirm: "Reject this project?" } %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="som-card">
+      <h3>Team</h3>
+      <div class="som-team">
+        <% @project.users.each do |user| %>
+          <%= link_to admin_user_path(user), class: "som-team-member" do %>
+            <span class="som-avatar"></span>
+            <span><%= user.display_name || user.email %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if @ship_certification.persisted? && @ship_certification.versions.any? %>
+      <div class="som-card">
+        <h3>Audit Log</h3>
+        <div class="som-audit-log">
+          <% @ship_certification.versions.order(created_at: :desc).limit(10).each do |version| %>
+            <div class="som-audit-entry">
+              <strong><%= version.event.humanize %></strong>
+              by <%= User.find_by(id: version.whodunnit)&.display_name || "System" %>
+              <br>
+              <small><%= version.created_at.strftime("%b %d, %Y %l:%M%p") %></small>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="som-actions">
+  <%= link_to "← Back to Queue", admin_ship_certifications_path, class: "btn-secondary" %>
+</div>
+
+<style>
+.som-review-header {
+  margin-bottom: 1.5rem;
+}
+
+.som-review-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.som-review-title h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.som-review-title h1 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.som-review-title h1 a:hover {
+  color: var(--color-primary, #6366f1);
+}
+
+.som-review-badges {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.som-review-meta {
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.som-status-banner {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.som-status-approved {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #10b981;
+}
+
+.som-status-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+.som-review-layout {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.som-review-main {
+  flex: 2;
+  min-width: 0;
+}
+
+.som-review-sidebar {
+  flex: 1;
+  min-width: 300px;
+}
+
+.som-card {
+  background: var(--color-card, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.som-card h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+}
+
+.som-description {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-text, #374151);
+}
+
+.som-links {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.som-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-background, #f9fafb);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--color-text, #374151);
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+
+.som-link:hover {
+  background: var(--color-primary, #6366f1);
+  color: white;
+  border-color: var(--color-primary, #6366f1);
+}
+
+.som-banner {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.som-time-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.som-time-stat {
+  text-align: center;
+  padding: 0.5rem;
+  background: var(--color-background, #f9fafb);
+  border-radius: 6px;
+}
+
+.som-time-stat .value {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--color-primary, #6366f1);
+}
+
+.som-time-stat .label {
+  font-size: 0.7rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.som-time-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 100px;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.som-bar-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.som-bar {
+  width: 100%;
+  background: linear-gradient(180deg, #ec3750 0%, #ff6b6b 100%);
+  border-radius: 2px 2px 0 0;
+  min-height: 4px;
+}
+
+.som-bar-label {
+  font-size: 0.6rem;
+  color: var(--color-text-muted, #6b7280);
+  margin-top: 2px;
+}
+
+.som-devlogs {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.som-devlog {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.som-devlog:last-child {
+  border-bottom: none;
+}
+
+.som-devlog-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.som-devlog-id {
+  font-weight: bold;
+  color: var(--color-primary, #6366f1);
+}
+
+.som-devlog-date {
+  color: var(--color-text-muted, #6b7280);
+}
+
+.som-devlog-author {
+  color: var(--color-text-muted, #6b7280);
+}
+
+.som-devlog-body {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-text, #374151);
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.som-decision-card h3 {
+  margin-bottom: 1rem;
+}
+
+.som-notice {
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.som-notice-warning {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fbbf24;
+}
+
+.som-decision-section {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.som-decision-section h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+}
+
+.som-decision-approve {
+  background: #f0fdf4;
+  border: 1px solid #10b981;
+}
+
+.som-decision-approve h4 {
+  color: #065f46;
+}
+
+.som-decision-reject {
+  background: #fef2f2;
+  border: 1px solid #ef4444;
+}
+
+.som-decision-reject h4 {
+  color: #991b1b;
+}
+
+.som-textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  resize: vertical;
+}
+
+.som-quick-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.som-reason-btn {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.4rem;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.som-reason-btn:hover {
+  background: #fca5a5;
+}
+
+.som-btn-full {
+  width: 100%;
+}
+
+.som-team {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.som-team-member {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--color-background, #f9fafb);
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--color-text, #374151);
+  font-size: 0.85rem;
+  transition: background 0.15s ease;
+}
+
+.som-team-member:hover {
+  background: var(--color-border, #e5e7eb);
+}
+
+.som-avatar {
+  font-size: 1.25rem;
+}
+
+.som-audit-log {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.som-audit-entry {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  font-size: 0.8rem;
+}
+
+.som-audit-entry:last-child {
+  border-bottom: none;
+}
+
+.som-actions {
+  margin-top: 1.5rem;
+}
+
+.pill {
+  display: inline-block;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+.pill.small {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+}
+
+.pill-yellow { background: #fef3c7; color: #92400e; }
+.pill-green { background: #d1fae5; color: #065f46; }
+.pill-red { background: #fee2e2; color: #991b1b; }
+.pill-blue { background: #dbeafe; color: #1e40af; }
+.pill-gray { background: #f3f4f6; color: #374151; }
+
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+@media (max-width: 900px) {
+  .som-review-layout {
+    flex-direction: column;
+  }
+
+  .som-review-sidebar {
+    min-width: 100%;
+  }
+
+  .som-time-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+</style>
