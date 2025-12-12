@@ -1,0 +1,17 @@
+<div class="dialogue-box-backdrop"></div>
+
+<div class="dialogue-box" data-controller="dialogue-iteration" data-dialogue-iteration-text-value='<%= text.to_json %>'>
+  <h1>Chef Orpheus</h1>
+
+  <div class="dialogue-box__image">
+    <%= image_tag "chef-orpheus-head.webp", alt: "Chef Orpheus" %>
+  </div>
+
+  <div class="dialogue-box__text">
+    <span data-dialogue-iteration-target="content"><%= text.first %></span>
+
+    <button type="button" class="dialogue-box__text-btn" data-action="dialogue-iteration#next">
+      Click to continue...<span>&#8964;</span>
+    </button>
+  </div>
+</div>

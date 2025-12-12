@@ -16,7 +16,14 @@ class Project::DevlogsController < ApplicationController
     if @devlog.save
       Post.create!(project: @project, user: current_user, postable: @devlog)
       flash[:notice] = "Devlog created successfully"
-      current_user.complete_tutorial_step! :post_devlog
+
+      if current_user.complete_tutorial_step! :post_devlog
+        tutorial_message [
+          "You just earned free stickers for posting your first devlog!",
+          "Now you can ship your project to earn chips (🍪) and buy stuff in the shop."
+        ]
+      end
+
       redirect_to @project
     else
       flash.now[:alert] = @devlog.errors.full_messages.to_sentence

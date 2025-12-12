@@ -1,9 +1,10 @@
 <% if flash.any? %>
   <div class="flash-container">
     <% flash.each do |type, message| %>
-      <% variant = case type.to_s
-        when "notice", "success" then "success"
-        when "alert", "error", "danger" then "error"
+      <% next if type == :tutorial_messages %>
+      <% variant = case type
+        when :notice, :success then "success"
+        when :alert, :error, :danger then "error"
         else "info"
       end %>
       <div class="alert alert-<%= variant %>" role="alert" aria-live="assertive" data-controller="flash" data-flash-timeout-value="5000">
