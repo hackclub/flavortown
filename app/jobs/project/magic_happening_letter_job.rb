@@ -22,6 +22,13 @@ class Project::MagicHappeningLetterJob < ApplicationJob
       }
     )
 
-    project.update!(fire_letter_id: response[:id])
+    if response && response[:id]
+      project.update!(fire_letter_id: response[:id])
+    else
+      Rails.logger.error "MagicHappeningLetterJob: No letter ID returned for project #{project.id}"
+    end
+  rescue => e
+    Rails.logger.error "MagicHappeningLetterJob: Failed to send letter for project #{project.id}: #{e.message}"
+    raise e
   end
 end
