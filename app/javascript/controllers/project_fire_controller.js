@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static values = { projectId: Number, isFire: Boolean };
+  static targets = ["text"];
 
   async toggle(event) {
     event.preventDefault();
@@ -38,13 +39,23 @@ export default class extends Controller {
         return;
       }
 
+      this.isFireValue = !this.isFireValue;
+      this.updateButtonText();
+
       alert(
-        payload.message || (this.isFireValue ? "Unmarked 🔥" : "Marked as 🔥"),
+        payload.message || (this.isFireValue ? "Marked as 🔥" : "Unmarked 🔥"),
       );
-      window.location.reload();
     } catch (e) {
       console.error(e);
       alert("Request failed");
+    }
+  }
+
+  updateButtonText() {
+    const button = this.element;
+    const textSpan = button.querySelector(".button__text");
+    if (textSpan) {
+      textSpan.textContent = this.isFireValue ? "Unmark 🔥" : "Mark as 🔥";
     }
   }
 }

@@ -1,7 +1,7 @@
 <article class="post <%= variant_class %>">
   <header class="post__header">
     <div class="post__avatar">
-    <%= image_tag post.user.avatar, alt: author_name, class: "post__avatar" %>
+    <%= image_tag post.user&.avatar || "https://ca.slack-edge.com/T0266FRGM-U07GZPGJX1G-g98be5e77f20-512", alt: author_name, class: "post__avatar" %>
     </div>
     <div class="post__meta">
       <div class="post__author"><%= author_name %><%= " ⚡" if post.user&.admin? %></div>
