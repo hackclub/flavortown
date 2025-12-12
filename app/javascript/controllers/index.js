@@ -45,3 +45,6 @@ application.register("order-form", OrderFormController);
 
 import LoadMoreController from "./load_more_controller";
 application.register("load-more", LoadMoreController);
+
+import ProjectFireController from "./project_fire_controller";
+application.register("project-fire", ProjectFireController);

@@ -1,5 +1,5 @@
 class ProjectsController < ApplicationController
-  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship ]
+  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship, :mark_fire ]
   before_action :set_project, only: [ :show ]
 
   def index
@@ -150,6 +150,37 @@ class ProjectsController < ApplicationController
     end
 
     redirect_to @project
+  end
+
+  def mark_fire
+    authorize :admin, :manage_projects?
+
+    return render(json: { message: "Project not found" }, status: :not_found) unless @project
+
+    PaperTrail.request(whodunnit: current_user.id) do
+      ship_event = Post::ShipEvent.new(
+        body: "As a prize for your magical project, look out for a bonus prize in the mail :)"
+      )
+      post = @project.posts.build(user: current_user, postable: ship_event)
+
+      if post.save
+        PaperTrail::Version.create!(
+          item_type: "Project",
+          item_id: @project.id,
+          event: "mark_fire",
+          whodunnit: current_user.id,
+          object_changes: {
+            admin_action: [ nil, "mark_fire" ],
+            created_post_id: [ nil, post.id ]
+          }.to_yaml
+        )
+
+        render json: { message: "Project marked as 🔥 and post created!" }, status: :ok
+      else
+        errors = (post.errors.full_messages + ship_event.errors.full_messages).uniq
+        render json: { message: errors.to_sentence.presence || "Failed to mark project as 🔥" }, status: :unprocessable_entity
+      end
+    end
   end
 
   private
