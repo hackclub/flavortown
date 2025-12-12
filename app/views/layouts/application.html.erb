@@ -42,6 +42,9 @@
       <%= render "shared/sidebar" %>
     <% end %>
     <%= render "shared/flash" %>
+    <% if tutorial_messages.present? %>
+      <%= render DialogueBoxComponent.new(text: tutorial_messages) %>
+    <% end %>
     <%= yield %>
   </body>
 </html>

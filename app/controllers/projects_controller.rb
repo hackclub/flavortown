@@ -48,6 +48,20 @@ class ProjectsController < ApplicationController
       link_hackatime_projects
       flash[:notice] = "Project created successfully"
       current_user.complete_tutorial_step! :create_project
+
+      project_hours = @project.total_hackatime_hours
+      if project_hours > 0
+        tutorial_message [
+          "Your project has #{helpers.distance_of_time_in_words(project_hours.hours)} tracked already!",
+          "You're ready to post your first devlog."
+        ]
+      else
+        tutorial_message [
+          "Project created! Now start coding to track some hours.",
+          "Once you have time tracked, come back and post a devlog."
+        ]
+      end
+
       redirect_to @project
     else
       flash[:alert] = "Failed to create project: #{@project.errors.full_messages.join(', ')}"
