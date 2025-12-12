@@ -50,8 +50,7 @@ class User < ApplicationRecord
   has_many :reports, foreign_key: :reporter_id, dependent: :destroy
   has_many :likes, dependent: :destroy
   has_many :comments, dependent: :destroy
-
-  include Ledgerable
+  has_many :ledger_entries, dependent: :destroy
 
   enum :verification_status, {
     needs_submission: "needs_submission",
@@ -153,9 +152,7 @@ class User < ApplicationRecord
     update!(magic_link_token: nil, magic_link_token_expires_at: nil)
   end
 
-  def balance
-    ledger_entries.sum(:amount)
-  end
+  def balance = ledger_entries.sum(:amount)
 
   def ban!(reason: nil)
     update!(banned: true, banned_at: Time.current, banned_reason: reason)
