@@ -45,3 +45,6 @@ application.register("order-form", OrderFormController);
 
 import LoadMoreController from "./load_more_controller";
 application.register("load-more", LoadMoreController);
+
+import DialogueIterationController from "./dialogue_iteration_controller";
+application.register("dialogue-iteration", DialogueIterationController);
