@@ -9,6 +9,15 @@
   <% button_class = Flipper.enabled?(:admin_dark_brown_buttons, current_user) ? "btn-primary-dark" : "btn-primary" %>
   <% if policy(:admin).manage_projects? %>
     <%= link_to "Projects", "/admin/projects", class: "btn-primary" %>
+    <% pending_certs = Project.where(ship_status: %w[submitted under_review]).count %>
+    <%= link_to admin_ship_certifications_path, class: "btn-primary" do %>
+      Ship Certifications
+      <% if pending_certs > 0 %>
+        <span style="background-color: #fbbf24; color: #78350f; border-radius: 9999px; padding: 0px 6px; font-size: 0.9em; min-width: 20px; text-align: center;">
+          <%= pending_certs %>
+        </span>
+      <% end %>
+    <% end %>
   <% end %>
   <% if policy(:admin).manage_shop? %>
     <%= link_to "Manage shop", "/admin/manage-shop", class: button_class %>
