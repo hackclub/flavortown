@@ -71,7 +71,7 @@ class KitchenTutorialStepsComponent < ApplicationComponent
             raw helpers.inline_svg_tag("icons/right-arrow.svg")
           end
         else
-          button_to link, method: verb, form_class: "btn btn--borderless btn--bg_yellow", data: { turbo: false } do
+          button_to link, method: verb, class: "btn btn--borderless btn--bg_yellow", data: { turbo: false } do
             span { "Start" }
             raw helpers.inline_svg_tag("icons/right-arrow.svg")
           end
