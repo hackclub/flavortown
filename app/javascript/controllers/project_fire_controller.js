@@ -38,7 +38,9 @@ export default class extends Controller {
         return;
       }
 
-      alert(payload.message || (this.isFireValue ? "Unmarked 🔥" : "Marked as 🔥"));
+      alert(
+        payload.message || (this.isFireValue ? "Unmarked 🔥" : "Marked as 🔥"),
+      );
       window.location.reload();
     } catch (e) {
       console.error(e);

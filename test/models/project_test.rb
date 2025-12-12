@@ -6,6 +6,7 @@
 #  deleted_at        :datetime
 #  demo_url          :text
 #  description       :text
+#  marked_fire_at    :datetime
 #  memberships_count :integer          default(0), not null
 #  project_type      :string
 #  readme_url        :text
@@ -15,10 +16,16 @@
 #  title             :string           not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#  marked_fire_by_id :bigint
 #
 # Indexes
 #
-#  index_projects_on_deleted_at  (deleted_at)
+#  index_projects_on_deleted_at         (deleted_at)
+#  index_projects_on_marked_fire_by_id  (marked_fire_by_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (marked_fire_by_id => users.id)
 #
 require "test_helper"
 
