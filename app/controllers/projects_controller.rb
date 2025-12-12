@@ -178,6 +178,9 @@ class ProjectsController < ApplicationController
           }.to_yaml
         )
 
+        Project::PostToMagicJob.perform_later(@project)
+        Project::MagicHappeningLetterJob.perform_later(@project)
+
         render json: { message: "Project marked as 🔥!", fire: true }, status: :ok
       else
         errors = (post.errors.full_messages + fire_event.errors.full_messages).uniq
