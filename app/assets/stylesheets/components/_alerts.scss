@@ -123,7 +123,7 @@
     transform 400ms ease-in;
   position: relative;
   overflow: hidden;
-  animation: achievement-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: achievement-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
 
   &::before {
     content: "";
