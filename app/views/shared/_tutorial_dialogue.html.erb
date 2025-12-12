@@ -1,0 +1,198 @@
+<script src="/howler.js"></script>
+<script src="/yapping.js"></script>
+
+<div id="tutorial-dialogue" class="tutorial-dialogue" data-message="<%= dialogue_lines.first %>">
+  <div class="tutorial-dialogue__backdrop" onclick="closeTutorialDialogue()"></div>
+  <div class="tutorial-dialogue__container">
+    <div class="tutorial-dialogue__character">
+      <img id="tutorial-character" src="<%= character_image %>" alt="Guide">
+    </div>
+    <div class="tutorial-dialogue__box">
+      <div class="tutorial-dialogue__text" id="tutorial-dialogue-text"></div>
+      <div class="tutorial-dialogue__actions">
+        <% if local_assigns[:cta_href] && cta_href.present? %>
+          <a href="<%= cta_href %>" class="tutorial-dialogue__btn tutorial-dialogue__btn--primary">
+            <%= cta_text || "Continue" %> →
+          </a>
+        <% else %>
+          <button type="button" class="tutorial-dialogue__btn tutorial-dialogue__btn--primary" onclick="closeTutorialDialogue()">
+            <%= cta_text || "Got it!" %>
+          </button>
+        <% end %>
+        <button type="button" class="tutorial-dialogue__btn tutorial-dialogue__btn--skip" onclick="closeTutorialDialogue()">
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.tutorial-dialogue {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.tutorial-dialogue__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.tutorial-dialogue__container {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.tutorial-dialogue__character {
+  width: 120px;
+  margin-bottom: -4px;
+  z-index: 1;
+}
+
+.tutorial-dialogue__character img {
+  width: 100%;
+  cursor: pointer;
+  transition: transform 200ms ease;
+  transform-origin: bottom center;
+}
+
+.tutorial-dialogue__character img.idle {
+  animation: tutorial-idle 1.5s ease-in-out infinite alternate;
+}
+
+.tutorial-dialogue__character img.talking {
+  animation: tutorial-talking 0.15s infinite alternate;
+}
+
+.tutorial-dialogue__character img:hover {
+  animation: none;
+  transform: scale(1.15);
+}
+
+.tutorial-dialogue__character img:active {
+  animation: none;
+  transform: scale(1.25, 0.80);
+}
+
+@keyframes tutorial-idle {
+  from { transform: translateY(0); }
+  to { transform: translateY(-5px); }
+}
+
+@keyframes tutorial-talking {
+  from { transform: scale(1.01, 0.99) translateY(2%); }
+  to { transform: scale(0.99, 1.01) translateY(0%); }
+}
+
+.tutorial-dialogue__box {
+  flex: 1;
+  background: #1a0f05;
+  border: 3px solid #8b6914;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin: 0 0 1rem -15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.tutorial-dialogue__text {
+  color: #fff;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  min-height: 1.5em;
+}
+
+.tutorial-dialogue__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  justify-content: flex-end;
+}
+
+.tutorial-dialogue__btn {
+  padding: 0.4rem 1rem;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+}
+
+.tutorial-dialogue__btn--primary {
+  background: #d4a017;
+  color: #1a0f05;
+}
+
+.tutorial-dialogue__btn--primary:hover {
+  background: #e8b82a;
+}
+
+.tutorial-dialogue__btn--skip {
+  background: transparent;
+  color: #888;
+  border: 1px solid #555;
+}
+
+.tutorial-dialogue__btn--skip:hover {
+  color: #fff;
+  border-color: #777;
+}
+
+.tutorial-dialogue--hidden {
+  display: none;
+}
+</style>
+
+<script>
+(function() {
+  let speakingMutex = false;
+  const dialogueEl = document.getElementById('tutorial-dialogue');
+  const textEl = document.getElementById('tutorial-dialogue-text');
+  const characterEl = document.getElementById('tutorial-character');
+  const message = dialogueEl.dataset.message;
+
+  let squeakSound;
+  try {
+    squeakSound = new Howl({
+      src: ["https://hc-cdn.hel1.your-objectstorage.com/s/v3/ff2d5691f663fc471761f4407856a26291926baf_squeak_audio.mp4"],
+    });
+  } catch (e) {}
+
+  characterEl.addEventListener('mousedown', function() {
+    if (squeakSound) squeakSound.play();
+  });
+
+  function setIdle() {
+    characterEl.classList.add('idle');
+    characterEl.classList.remove('talking');
+  }
+
+  function setTalking() {
+    characterEl.classList.add('talking');
+    characterEl.classList.remove('idle');
+  }
+
+  window.closeTutorialDialogue = function() {
+    window.tutorialDialogueSpeaking = false;
+    dialogueEl.classList.add('tutorial-dialogue--hidden');
+  };
+
+  setTalking();
+  yap(message, {
+    rate: 4.0,
+    letterCallback: function(data) {
+      textEl.innerHTML += data.letter;
+    },
+    endCallback: function() {
+      setIdle();
+    }
+  });
+})();
+</script>

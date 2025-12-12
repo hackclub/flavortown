@@ -66,3 +66,12 @@
   <% end %>
   <% end %>
 </div>
+
+<% if @tutorial_dialogue == :setup_hackatime %>
+  <% config = tutorial_dialogue_config(:setup_hackatime, has_hackatime_time: @has_hackatime_time) %>
+  <%= render "shared/tutorial_dialogue", 
+    character_image: config[:character_image],
+    dialogue_lines: [config[:message]],
+    cta_text: config[:cta_text],
+    cta_href: config[:cta_href] %>
+<% end %>

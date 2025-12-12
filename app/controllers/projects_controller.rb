@@ -17,6 +17,7 @@ class ProjectsController < ApplicationController
       .posts
       .order(created_at: :desc)
       .includes(:user, postable: [ { attachments_attachments: :blob } ])
+    @tutorial_dialogue = params[:tutorial_dialogue]&.to_sym
   end
 
   def new
@@ -46,9 +47,13 @@ class ProjectsController < ApplicationController
       # Create membership for the current user as owner
       @project.memberships.create!(user: current_user, role: :owner)
       link_hackatime_projects
-      flash[:notice] = "Project created successfully"
-      current_user.complete_tutorial_step! :create_project
-      redirect_to @project
+      flash[:notice] = "Project created successfully!"
+      if current_user.tutorial_step_completed?(:create_project)
+        redirect_to @project
+      else
+        current_user.complete_tutorial_step! :create_project
+        redirect_to project_path(@project, tutorial_dialogue: :create_project)
+      end
     else
       flash[:alert] = "Failed to create project: #{@project.errors.full_messages.join(', ')}"
       render :new, status: :unprocessable_entity

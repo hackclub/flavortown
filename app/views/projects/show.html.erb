@@ -23,3 +23,12 @@
     <% end %>
   </div>
 </div>
+
+<% if @tutorial_dialogue == :create_project %>
+  <% config = tutorial_dialogue_config(:create_project, project: @project) %>
+  <%= render "shared/tutorial_dialogue", 
+    character_image: config[:character_image],
+    dialogue_lines: [config[:message]],
+    cta_text: config[:cta_text],
+    cta_href: config[:cta_href] %>
+<% end %>

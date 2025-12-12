@@ -13,6 +13,9 @@ class KitchenController < ApplicationController
     @tutorial_steps = User::TutorialStep.all
     @completed_steps = current_user.tutorial_steps
     @tutorial_is_complete = @tutorial_steps - @completed_steps
+
+    @tutorial_dialogue = params[:tutorial_dialogue]&.to_sym
+    @has_hackatime_time = current_user.hackatime_projects.any? { |hp| hp.total_seconds.to_i > 0 } if @tutorial_dialogue == :setup_hackatime
   end
 
   private
