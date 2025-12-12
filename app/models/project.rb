@@ -29,6 +29,9 @@ class Project < ApplicationRecord
 
     scope :kept, -> { where(deleted_at: nil) }
     scope :deleted, -> { where.not(deleted_at: nil) }
+    scope :fire, -> { where.not(marked_fire_at: nil) }
+
+    belongs_to :marked_fire_by, class_name: "User", optional: true
 
     default_scope { kept }
 
@@ -206,6 +209,18 @@ class Project < ApplicationRecord
         banner.attached? &&
         description.present? &&
         devlogs.any?
+    end
+
+    def fire?
+        marked_fire_at.present?
+    end
+
+    def mark_fire!(user)
+        update!(marked_fire_at: Time.current, marked_fire_by: user)
+    end
+
+    def unmark_fire!
+        update!(marked_fire_at: nil, marked_fire_by: nil)
     end
 
     def shipping_validations

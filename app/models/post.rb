@@ -26,5 +26,5 @@ class Post < ApplicationRecord
     # integeration – git remotes – or a user post
     belongs_to :user, optional: true
 
-    delegated_type :postable, types: %w[Post::Devlog Post::ShipEvent]
+    delegated_type :postable, types: %w[Post::Devlog Post::ShipEvent Post::FireEvent]
 end

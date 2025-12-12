@@ -182,6 +182,7 @@ Rails.application.routes.draw do
       patch :update_ship
       post :submit_ship
       post :mark_fire
+      post :unmark_fire
     end
   end
 

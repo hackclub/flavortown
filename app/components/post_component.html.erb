@@ -4,7 +4,7 @@
     <%= image_tag post.user.avatar, alt: author_name, class: "post__avatar" %>
     </div>
     <div class="post__meta">
-      <div class="post__author"><%= author_name %></div>
+      <div class="post__author"><%= author_name %><%= " ⚡" if post.user&.admin? %></div>
       <div class="post__time"><%= posted_at_text %> ago</div>
       <% if duration_text.present? %>
         <div class="post__duration"><%= duration_text %> logged</div>
@@ -16,6 +16,10 @@
 
   <% if ship_event? %>
     <h2 class="post__ship-title">Shipped this project!</h2>
+  <% end %>
+
+  <% if fire_event? %>
+    <h2 class="post__fire-title">Tagged your project as well cooked!</h2>
   <% end %>
 
   <% if post.postable.respond_to?(:body) && post.postable.body.present? %>

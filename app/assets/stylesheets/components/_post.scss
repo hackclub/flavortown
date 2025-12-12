@@ -373,6 +373,13 @@
     color: inherit;
   }
 
+  &__fire-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 var(--space-s) 0;
+    color: inherit;
+  }
+
   &__interactions {
     display: flex;
     align-items: center;

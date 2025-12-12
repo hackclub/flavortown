@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_11_205422) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_12_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -222,6 +222,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_11_205422) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "post_fire_events", force: :cascade do |t|
+    t.string "body"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "post_ship_events", force: :cascade do |t|
     t.string "body"
     t.datetime "created_at", null: false
@@ -267,6 +273,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_11_205422) do
     t.datetime "deleted_at"
     t.text "demo_url"
     t.text "description"
+    t.datetime "marked_fire_at"
+    t.bigint "marked_fire_by_id"
     t.integer "memberships_count", default: 0, null: false
     t.string "project_type"
     t.text "readme_url"
@@ -276,6 +284,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_11_205422) do
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "index_projects_on_deleted_at"
+    t.index ["marked_fire_by_id"], name: "index_projects_on_marked_fire_by_id"
   end
 
   create_table "reports", force: :cascade do |t|
@@ -510,6 +519,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_11_205422) do
   add_foreign_key "posts", "users"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
+  add_foreign_key "projects", "users", column: "marked_fire_by_id"
   add_foreign_key "reports", "projects"
   add_foreign_key "reports", "users", column: "reporter_id"
   add_foreign_key "shop_card_grants", "shop_items"

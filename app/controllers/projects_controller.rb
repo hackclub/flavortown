@@ -1,5 +1,5 @@
 class ProjectsController < ApplicationController
-  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship, :mark_fire ]
+  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship, :mark_fire, :unmark_fire ]
   before_action :set_project, only: [ :show ]
 
   def index
@@ -158,12 +158,14 @@ class ProjectsController < ApplicationController
     return render(json: { message: "Project not found" }, status: :not_found) unless @project
 
     PaperTrail.request(whodunnit: current_user.id) do
-      ship_event = Post::ShipEvent.new(
-        body: "As a prize for your magical project, look out for a bonus prize in the mail :)"
+      fire_event = Post::FireEvent.new(
+        body: "🔥 #{current_user.display_name} marked your project as well cooked! As a prize for your nicely cooked project, look out for a bonus prize in the mail :)"
       )
-      post = @project.posts.build(user: current_user, postable: ship_event)
+      post = @project.posts.build(user: current_user, postable: fire_event)
 
       if post.save
+        @project.mark_fire!(current_user)
+
         PaperTrail::Version.create!(
           item_type: "Project",
           item_id: @project.id,
@@ -171,15 +173,38 @@ class ProjectsController < ApplicationController
           whodunnit: current_user.id,
           object_changes: {
             admin_action: [ nil, "mark_fire" ],
+            marked_fire_by_id: [ nil, current_user.id ],
             created_post_id: [ nil, post.id ]
           }.to_yaml
         )
 
-        render json: { message: "Project marked as 🔥 and post created!" }, status: :ok
+        render json: { message: "Project marked as 🔥!", fire: true }, status: :ok
       else
-        errors = (post.errors.full_messages + ship_event.errors.full_messages).uniq
+        errors = (post.errors.full_messages + fire_event.errors.full_messages).uniq
         render json: { message: errors.to_sentence.presence || "Failed to mark project as 🔥" }, status: :unprocessable_entity
       end
+    end
+  end
+
+  def unmark_fire
+    authorize :admin, :manage_projects?
+
+    return render(json: { message: "Project not found" }, status: :not_found) unless @project
+
+    PaperTrail.request(whodunnit: current_user.id) do
+      @project.unmark_fire!
+
+      PaperTrail::Version.create!(
+        item_type: "Project",
+        item_id: @project.id,
+        event: "unmark_fire",
+        whodunnit: current_user.id,
+        object_changes: {
+          admin_action: [ nil, "unmark_fire" ]
+        }.to_yaml
+      )
+
+      render json: { message: "Project unmarked as 🔥", fire: false }, status: :ok
     end
   end
 
