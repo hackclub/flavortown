@@ -1,0 +1,5 @@
+context [
+  plain_text("🔥 magic reported!")
+]
+
+section "*<#{project_url}|#{project_title}>* by _#{owner_name}_\n#{project_description}", markdown: true

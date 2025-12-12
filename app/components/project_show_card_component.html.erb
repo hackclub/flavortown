@@ -12,6 +12,20 @@
                 class: "project-show-card__ship-btn"
             ) %>
         <% end %>
+        <% if helpers.policy(:admin).manage_projects? %>
+          <%= render ButtonComponent.new(
+              text: project.fire? ? "Unmark 🔥" : "Mark as 🔥",
+              color: :green,
+              icon: "icons/fire.svg",
+              class: "project-show-card__fire-btn",
+              data: {
+                controller: "project-fire",
+                action: "click->project-fire#toggle",
+                project_fire_project_id_value: project.id,
+                project_fire_is_fire_value: project.fire?
+              }
+          ) %>
+        <% end %>
       <% else %>
         <div class="project-card__banner-frame project-card__banner-frame--placeholder">
           <div class="project-card__banner-placeholder">
@@ -24,6 +38,20 @@
                 href: ship_project_path(project),
                 class: "project-show-card__ship-btn",
                 disabled: true
+              ) %>
+            <% end %>
+            <% if helpers.policy(:admin).manage_projects? %>
+              <%= render ButtonComponent.new(
+                  text: project.fire? ? "Unmark 🔥" : "Mark as 🔥",
+                  color: :green,
+                  icon: "icons/fire.svg",
+                  class: "project-show-card__fire-btn",
+                  data: {
+                    controller: "project-fire",
+                    action: "click->project-fire#toggle",
+                    project_fire_project_id_value: project.id,
+                    project_fire_is_fire_value: project.fire?
+                  }
               ) %>
             <% end %>
           </div>

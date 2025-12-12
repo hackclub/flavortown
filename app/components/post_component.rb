@@ -8,6 +8,7 @@
     @post = post
     @variant = normalize_variant(variant)
     @variant = :ship if post.postable.is_a?(Post::ShipEvent)
+    @variant = :fire if post.postable.is_a?(Post::FireEvent)
     @current_user = current_user
    end
 
@@ -35,8 +36,12 @@
    end
 
    def devlog?
-     post.postable.is_a?(Post::Devlog)
-   end
+      post.postable.is_a?(Post::Devlog)
+    end
+
+   def fire_event?
+      post.postable.is_a?(Post::FireEvent)
+    end
 
    def attachments
      return [] unless post.postable.respond_to?(:attachments)

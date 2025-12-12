@@ -36,6 +36,17 @@
       padding: 0.4em 1em;
       background-color: var(--color-brown-700);
     }
+
+    .project-show-card__fire-btn {
+      position: absolute;
+      z-index: 10;
+      top: 3.5em;
+      right: 1.15em;
+      font-size: 1.4rem;
+      border: 2px solid orange;
+      padding: 0.4em 1em;
+      background-color: var(--color-brown-700);
+    }
   }
 
   &__header {
