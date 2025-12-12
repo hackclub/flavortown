@@ -1,12 +1,18 @@
 import { Controller } from "@hotwired/stimulus";
+import { Howl } from "howler";
 
 export default class extends Controller {
-  static targets = ["content"];
+  static targets = ["content", "character"];
   static values = { text: Array };
 
   connect() {
     this.index = 0;
     this.#render();
+    this.squeak = new Howl({
+      src: [
+        "https://hc-cdn.hel1.your-objectstorage.com/s/v3/ff2d5691f663fc471761f4407856a26291926baf_squeak_audio.mp4",
+      ],
+    });
   }
 
   next(event) {
@@ -29,6 +35,10 @@ export default class extends Controller {
       backdrop.remove();
     }
     this.element.remove();
+  }
+
+  squeakCharacter() {
+    this.squeak?.play();
   }
 
   #render() {
