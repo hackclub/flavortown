@@ -4,7 +4,7 @@ class ExploreController < ApplicationController
   def index
     scope = Post.includes(:user, :project, postable: { attachments_attachments: :blob })
                 .where(postable_type: "Post::Devlog")
-                .where.not(user_id: current_user.id)
+                .where.not(user_id: current_user&.id)
                 .order(created_at: :desc)
 
     @pagy, @devlogs = pagy(scope)
@@ -32,7 +32,7 @@ class ExploreController < ApplicationController
 
   def gallery
     scope = Project.includes(banner_attachment: :blob)
-                    .where.not(id: current_user.projects.pluck(:id))
+                    .where.not(id: current_user&.projects&.pluck(:id) || [])
                     .order(created_at: :desc)
 
     @pagy, @projects = pagy(scope)
