@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_12_000002) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_12_195808) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -196,7 +196,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_000002) do
     t.string "ledgerable_type", null: false
     t.string "reason"
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["ledgerable_type", "ledgerable_id"], name: "index_ledger_entries_on_ledgerable"
+    t.index ["user_id"], name: "index_ledger_entries_on_user_id"
   end
 
   create_table "likes", force: :cascade do |t|
@@ -514,6 +516,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_000002) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "comments", "users"
+  add_foreign_key "ledger_entries", "users"
   add_foreign_key "likes", "users"
   add_foreign_key "posts", "projects"
   add_foreign_key "posts", "users"

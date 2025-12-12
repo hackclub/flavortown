@@ -12,10 +12,16 @@
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  ledgerable_id   :bigint           not null
+#  user_id         :bigint           not null
 #
 # Indexes
 #
 #  index_ledger_entries_on_ledgerable  (ledgerable_type,ledgerable_id)
+#  index_ledger_entries_on_user_id     (user_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (user_id => users.id)
 #
 one:
   ledgerable: one
