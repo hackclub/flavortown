@@ -1,7 +1,7 @@
 class Project::PostToMagicJob < ApplicationJob
   queue_as :default
 
-  CHANNEL_ID = "U07L45W79E1"
+  CHANNEL_ID = "C0A38L9MFEE"
 
   include Rails.application.routes.url_helpers
 
