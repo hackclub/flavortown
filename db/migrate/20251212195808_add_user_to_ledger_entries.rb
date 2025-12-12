@@ -5,7 +5,7 @@ class AddUserToLedgerEntries < ActiveRecord::Migration[8.1]
     reversible do |dir|
       dir.up do
         puts "Denormalizing user data onto ledger_entries..."
-        
+
         # For User ledger entries, set user_id = ledgerable_id
         execute <<-SQL
           UPDATE ledger_entries
