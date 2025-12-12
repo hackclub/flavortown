@@ -37,12 +37,23 @@
     left: -4em;
     bottom: -2em;
     border: 1em solid #4f8fba;
+    cursor: pointer;
+    transition: transform 200ms ease;
+    transform-origin: bottom center;
 
     img {
       height: 240px;
       position: absolute;
       left: 0em;
       bottom: 0em;
+    }
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(1.1, 0.9);
     }
   }
 
