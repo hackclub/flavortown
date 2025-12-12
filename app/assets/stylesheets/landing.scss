@@ -1061,7 +1061,17 @@ input {
         h3 {
           margin-top: 0.25em;
           font-size: 1.5rem;
-          font-family: var(--font-family-subtitle);
+
+          a {
+            color: var(--color-bg);
+            text-decoration: none;
+            font-family: var(--font-family-subtitle);
+            font-weight: bold;
+
+            &:hover {
+              text-decoration: underline;
+            }
+          }
         }
 
         h4 {
