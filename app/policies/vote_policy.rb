@@ -11,7 +11,7 @@ class VotePolicy < ApplicationPolicy
     user_can_vote?
   end
 
-  private 
+  private
 
   def user_can_vote?
     user.admin? || user.verification_verified?
