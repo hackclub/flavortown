@@ -1,0 +1,17 @@
+<% content_for :title, "Loading Devlog" %>
+
+<% content_for :head do %>
+  <meta http-equiv="refresh" content="3;url=<%= new_project_devlog_path(@project, retry: @retry_count + 1) %>">
+<% end %>
+
+<div class="projects-new">
+  <div class="projects-new__container">
+    <%= render HeadingComponent.new(title: "Add Devlog", tone: :brown) %>
+
+    <div class="projects-new__loading">
+      <div class="projects-new__loading-spinner"></div>
+      <p>Syncing your Hackatime data...</p>
+      <p class="projects-new__loading-subtitle">Please wait a few moments while we fetch your coding time.</p>
+    </div>
+  </div>
+</div>
