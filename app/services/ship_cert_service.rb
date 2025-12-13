@@ -1,6 +1,7 @@
 class ShipCertService
   WEBHOOK_URL = ENV["SW_DASHBOARD_WEBHOOK_URL"]
   CERT_API_KEY = ENV["SW_DASHBOARD_API_KEY"]
+  USER_AGENT = "Flavortown/1.0 (ShipCertService)"
 
   def self.ship_data(project)
     owner = project.memberships.owner.first&.user
@@ -34,6 +35,7 @@ class ShipCertService
 
     response = Faraday.post(WEBHOOK_URL) do |req|
       req.headers["Content-Type"] = "application/json"
+      req.headers["User-Agent"] = USER_AGENT
       req.headers["x-api-key"] = CERT_API_KEY
       req.options.open_timeout = 5
       req.options.timeout = 10
