@@ -156,14 +156,21 @@ class ProjectsController < ApplicationController
       redirect_to ship_project_path(@project, step: 4) and return
     end
 
-    is_first_ship = @project.ship_posts.empty?
-    @project.submit_for_review!
-    ShipCertService.ship_to_dash(@project) if is_first_ship
-
     ship_event = Post::ShipEvent.new(body: ship_body)
     post = @project.posts.build(user: current_user, postable: ship_event)
 
-    if post.save
+    @project.with_lock do
+      is_first_ship = @project.ship_posts.empty?
+      @project.submit_for_review!
+
+      unless post.save
+        raise ActiveRecord::Rollback
+      end
+
+      ShipCertService.ship_to_dash(@project) if is_first_ship
+    end
+
+    if post.persisted?
       flash[:notice] = "🚀 Congratulations! Your project has been submitted for review!"
     else
       error_messages = (post.errors.full_messages + ship_event.errors.full_messages).uniq
