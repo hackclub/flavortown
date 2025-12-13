@@ -1,6 +1,6 @@
 class VotePolicy < ApplicationPolicy
   def index?
-    logged_in?
+    user_can_vote?
   end
 
   def new?

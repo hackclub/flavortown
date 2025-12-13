@@ -1,5 +1,5 @@
 class VotesController < ApplicationController
-  before_action :ensure_user_can_vote, only: [:new, :create]
+  before_action :ensure_user_can_vote, only: [:index, :new, :create]
 
   def index
     authorize :vote, :index?
