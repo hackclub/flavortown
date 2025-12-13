@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_12_195808) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_13_001508) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -442,14 +442,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_195808) do
     t.index ["user_id"], name: "index_user_identities_on_user_id"
   end
 
-  create_table "user_role_assignments", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.integer "role", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["user_id"], name: "index_user_role_assignments_on_user_id"
-  end
-
   create_table "users", force: :cascade do |t|
     t.string "api_key"
     t.boolean "banned", default: false, null: false
@@ -460,13 +452,13 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_195808) do
     t.string "email"
     t.string "first_name"
     t.boolean "has_gotten_free_stickers", default: false
-    t.boolean "has_roles", default: true, null: false
     t.string "hcb_email"
     t.string "last_name"
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.integer "projects_count"
     t.string "region"
+    t.string "roles", default: [], array: true
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
     t.string "slack_id"
@@ -536,7 +528,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_195808) do
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"
-  add_foreign_key "user_role_assignments", "users"
   add_foreign_key "votes", "post_ship_events", column: "ship_event_id"
   add_foreign_key "votes", "projects"
   add_foreign_key "votes", "users"

@@ -11,7 +11,7 @@
 #  email                       :string
 #  first_name                  :string
 #  has_gotten_free_stickers    :boolean          default(FALSE)
-#  has_roles                   :boolean          default(TRUE), not null
+#  roles                       :string           default([]), is an Array
 #  hcb_email                   :string
 #  last_name                   :string
 #  magic_link_token            :string

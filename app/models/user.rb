@@ -11,7 +11,7 @@
 #  email                       :string
 #  first_name                  :string
 #  has_gotten_free_stickers    :boolean          default(FALSE)
-#  has_roles                   :boolean          default(TRUE), not null
+#  roles                       :string           default([]), is an Array
 #  hcb_email                   :string
 #  last_name                   :string
 #  magic_link_token            :string
@@ -41,7 +41,7 @@
 class User < ApplicationRecord
   has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
   has_many :identities, class_name: "User::Identity", dependent: :destroy
-  has_many :role_assignments, class_name: "User::RoleAssignment", dependent: :destroy
+
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
   has_many :projects, through: :memberships
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
@@ -65,7 +65,31 @@ class User < ApplicationRecord
 
   after_commit :handle_verification_eligibility_change, if: :should_check_verification_eligibility?
 
-  scope :with_roles, -> { includes(:role_assignments) }
+  ROLES = %i[super_admin admin fraud_dept project_certifier ysws_reviewer fulfillment_person].freeze
+
+  ROLE_DESCRIPTIONS = {
+    super_admin: "Can do everything an admin can, and also can assign other users admin",
+    admin: "Can do everything except assign or remove admin",
+    fraud_dept: "Can issue negative payouts, cancel grants & shop orders, but not reject or ban users; access to Blazer; access to read-only admin User w/o PII",
+    project_certifier: "Approve/reject if project work meets Shipwright standards",
+    ysws_reviewer: "Can approve/reject projects for YSWS DB",
+    fulfillment_person: "Can approve/reject/on-hold shop orders, fulfill them, and see addresses; access to read-only admin User w/ pII"
+  }.freeze
+
+  def user_roles = roles&.map(&:to_sym) || []
+
+  def has_role?(role_name) = user_roles.include?(role_name.to_sym)
+
+  def add_role!(role_name)
+    role_sym = role_name.to_sym
+    raise ArgumentError, "Invalid role: #{role_name}" unless ROLES.include?(role_sym)
+    update!(roles: (user_roles + [ role_sym.to_s ]).uniq) unless has_role?(role_sym)
+  end
+
+  def remove_role!(role_name)
+    role_sym = role_name.to_sym
+    update!(roles: user_roles.reject { |r| r == role_sym }.map(&:to_s)) if has_role?(role_sym)
+  end
 
   # use me! i'm full of symbols!! disregard the foul tutorial_steps_completed, she lies
   def tutorial_steps = tutorial_steps_completed&.map(&:to_sym) || []
@@ -92,19 +116,13 @@ class User < ApplicationRecord
     end
   end
 
-  User::RoleAssignment.roles.each_key do |role_name|
-    # ie. admin?
+  ROLES.each do |role_name|
     define_method "#{role_name}?" do
-      if role_assignments.loaded?
-        role_assignments.any? { |r| r.role == role_name }
-      else
-        role_assignments.exists?(role: role_name)
-      end
+      has_role?(role_name)
     end
 
-    # ie. make_admin!
     define_method "make_#{role_name}!" do
-      role_assignments.find_or_create_by!(role: role_name)
+      add_role!(role_name)
     end
   end
 
@@ -131,11 +149,11 @@ class User < ApplicationRecord
   end
 
   def highest_role
-    role_assignments.min_by { |a| User::RoleAssignment.roles[a.role] }&.role&.titleize || "User"
+    user_roles.min_by { |r| ROLES.index(r) }&.to_s&.titleize || "User"
   end
+
   def promote_to_big_leagues!
-    role = ::Role.find_by(name: "super_admin")
-    role_assignments.find_or_create_by!(role: role) if role
+    add_role!(:super_admin)
   end
 
   def generate_magic_link_token!

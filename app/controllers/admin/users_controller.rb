@@ -2,7 +2,7 @@ class Admin::UsersController < Admin::ApplicationController
     def index
       @query = params[:query]
 
-      users = User.all.with_roles
+      users = User.all
       if @query.present?
         q = "%#{@query}%"
         users = users.where("email ILIKE ? OR display_name ILIKE ?", q, q)
@@ -12,20 +12,16 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def show
-      @user = User.with_roles.includes(:identities).find(params[:id])
+      @user = User.includes(:identities).find(params[:id])
 
-      # Get role assignment history from audit logs
-      all_role_versions = PaperTrail::Version
-        .where(item_type: "User::RoleAssignment")
+      # Get role change history from User versions (roles array changes)
+      @role_history = PaperTrail::Version
+        .where(item_type: "User", item_id: @user.id)
         .order(created_at: :desc)
-        .limit(100)
-
-      # Filter to only this user's role changes
-      @role_history = all_role_versions.select do |v|
-        changes = YAML.load(v.object_changes) rescue {}
-        user_id_change = changes["user_id"]
-        user_id_change.is_a?(Array) ? user_id_change.include?(@user.id) : user_id_change == @user.id
-      end.take(20)
+        .select do |v|
+          changes = YAML.load(v.object_changes) rescue {}
+          changes.key?("roles")
+        end.take(20)
 
       # Get all actions performed on this user
       @user_actions = PaperTrail::Version
@@ -36,7 +32,7 @@ class Admin::UsersController < Admin::ApplicationController
 
     def user_perms
       authorize :admin, :manage_users?
-      @users = User.joins(:role_assignments).distinct.order(:id)
+      @users = User.where("array_length(roles, 1) > 0").order(:id)
     end
 
     def promote_role
@@ -51,7 +47,7 @@ class Admin::UsersController < Admin::ApplicationController
       end
 
       PaperTrail.request(whodunnit: current_user.id) do
-        @user.role_assignments.create!(role: role_name)
+        @user.add_role!(role_name)
       end
       flash[:notice] = "User promoted to #{role_name.titleize}."
 
@@ -69,11 +65,9 @@ class Admin::UsersController < Admin::ApplicationController
       return redirect_to admin_user_path(@user)
     end
 
-    role_assignment = @user.role_assignments.find_by(role: User::RoleAssignment.roles[role_name])
-
-    if role_assignment
+    if @user.has_role?(role_name)
       PaperTrail.request(whodunnit: current_user.id) do
-        role_assignment.destroy!
+        @user.remove_role!(role_name)
       end
       flash[:notice] = "User demoted from #{role_name.titleize}."
     else
