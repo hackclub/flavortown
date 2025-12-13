@@ -153,6 +153,7 @@ class ProjectsController < ApplicationController
     end
 
     @project.submit_for_review!
+    ShipCertService.ship_to_dash(@project)
 
     ship_event = Post::ShipEvent.new(body: ship_body)
     post = @project.posts.build(user: current_user, postable: ship_event)
