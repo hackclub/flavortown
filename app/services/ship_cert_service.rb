@@ -6,7 +6,7 @@ class ShipCertService
     owner = project.memberships.owner.first&.user
 
     {
-      event: 'ship.submitted',
+      event: "ship.submitted",
       data: {
         id: project.id.to_s,
         projectName: project.title,
