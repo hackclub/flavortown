@@ -152,8 +152,9 @@ class ProjectsController < ApplicationController
       redirect_to ship_project_path(@project, step: 4) and return
     end
 
+    is_first_ship = @project.ship_posts.empty?
     @project.submit_for_review!
-    ShipCertService.ship_to_dash(@project)
+    ShipCertService.ship_to_dash(@project) if is_first_ship
 
     ship_event = Post::ShipEvent.new(body: ship_body)
     post = @project.posts.build(user: current_user, postable: ship_event)
