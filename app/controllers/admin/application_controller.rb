@@ -53,7 +53,7 @@ module Admin
     end
 
     def preload_roles
-      current_user(:role_assignments)
+      current_user
     end
   end
 end

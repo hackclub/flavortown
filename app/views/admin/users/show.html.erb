@@ -19,7 +19,7 @@
     <div class="info-rows">
       <div><b>Name:</b> <%= @user.display_name %></div>
       <div><b>Balance:</b> <%= @user.balance %> tickets</div>
-      <div><b>Roles:</b> <%= @user.role_assignments.map(&:role).join(", ") %></div>
+      <div><b>Roles:</b> <%= @user.roles.join(", ") %></div>
       <div><b>Projects:</b> <%= @user.projects_count %></div>
       <% if @user.fulfillment_person? %>
         <div>
@@ -284,8 +284,7 @@
       <thead>
         <tr>
           <th>Date</th>
-          <th>Action</th>
-          <th>Role</th>
+          <th>Change</th>
           <th>Changed By</th>
         </tr>
       </thead>
@@ -293,30 +292,22 @@
         <% @role_history.each do |version| %>
           <%
             changes = YAML.load(version.object_changes) rescue {}
-            # For create: [nil, 5], for destroy: [5, nil] - we want the non-nil value
-            role_int_array = changes["role"]
-            role_int = if role_int_array.is_a?(Array)
-              role_int_array.compact.first
-            else
-              role_int_array
-            end
-
-            role_name = User::RoleAssignment.roles.key(role_int) if role_int
+            roles_change = changes["roles"]
+            old_roles = roles_change&.first || []
+            new_roles = roles_change&.last || []
+            added = new_roles - old_roles
+            removed = old_roles - new_roles
             admin = User.find_by(id: version.whodunnit)
           %>
           <tr>
             <td><%= version.created_at.strftime("%Y-%m-%d %H:%M") %></td>
             <td>
-              <% if version.event == "create" %>
-                <span style="color: #10b981; font-weight: 500;">✓ Promoted</span>
-              <% elsif version.event == "destroy" %>
-                <span style="color: #ef4444; font-weight: 500;">✗ Demoted</span>
-              <% else %>
-                <%= version.event %>
+              <% if added.any? %>
+                <span style="color: #10b981; font-weight: 500;">✓ Added: <%= added.map(&:titleize).join(", ") %></span>
               <% end %>
-            </td>
-            <td>
-              <%= role_name&.titleize || "Unknown Role" %>
+              <% if removed.any? %>
+                <span style="color: #ef4444; font-weight: 500;">✗ Removed: <%= removed.map(&:titleize).join(", ") %></span>
+              <% end %>
             </td>
             <td>
               <% if admin %>
