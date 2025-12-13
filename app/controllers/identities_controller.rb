@@ -43,14 +43,14 @@ class IdentitiesController < ApplicationController
     if total_seconds > 0
       duration = helpers.distance_of_time_in_words(total_seconds)
       tutorial_message [
-        "You already have #{duration} tracked on Hackatime. Nice!",
-        "Now create a project to start earning hours toward rewards."
+        "Waouh! You already have #{duration} tracked on Hackatime — well done chef!",
+        "Now we will create a project..."
       ]
     else
       tutorial_message [
-        "Hackatime is linked, but you don't have any time tracked yet.",
-        "Install the Hackatime extension in your code editor to start tracking time.",
-        "Then create a project here to earn hours toward rewards."
+        "Oh, it would appear that Hackatime is linked, but you don't have any time tracked yet.",
+        "Don't worry — just install the Hackatime extension in your code editor.",
+        "And then cook tasty projects here, earn cookies, and get free rewards!"
       ]
     end
 
