@@ -1,15 +1,17 @@
 class Project::DevlogsController < ApplicationController
   before_action :set_project
   before_action :require_project_member
+  before_action :require_hackatime_project
+  before_action :sync_hackatime_projects
+  before_action :load_preview_time
+  before_action :require_preview_time
 
   def new
     @devlog = Post::Devlog.new
-    load_preview_time
   end
 
   def create
     @devlog = Post::Devlog.new(devlog_params)
-    load_preview_time
     @devlog.duration_seconds = @preview_seconds
     @devlog.hackatime_projects_key_snapshot = @project.hackatime_keys.join(",")
 
@@ -44,13 +46,47 @@ class Project::DevlogsController < ApplicationController
     end
   end
 
+  def require_hackatime_project
+    unless @project.hackatime_keys.present?
+      redirect_to edit_project_path(@project), alert: "You must link at least one Hackatime project before posting a devlog" and return
+    end
+  end
+
+  def sync_hackatime_projects
+    owner = @project.memberships.owner.first&.user
+    return unless owner
+
+    hackatime_identity = owner.identities.find_by(provider: "hackatime")
+    return unless hackatime_identity
+
+    HackatimeService.sync_user_projects(owner, hackatime_identity.uid)
+    @project.reload
+  end
+
+  def require_preview_time
+    unless @preview_time.present?
+      @retry_count = (params[:retry] || 0).to_i
+      if @retry_count < 3
+        @show_loading = true
+        render :loading and return
+      else
+        redirect_to @project, alert: "Could not fetch your coding time from Hackatime after multiple attempts. Please ensure Hackatime is tracking your project." and return
+      end
+    end
+  end
+
   def devlog_params
     params.require(:post_devlog).permit(:body, :scrapbook_url, attachments: [])
   end
 
   def load_preview_time
     @preview_seconds = 0
-    return @preview_time = nil unless @project.hackatime_keys.present?
+    @project.reload
+    hackatime_keys = @project.hackatime_keys
+    
+    Rails.logger.info "DevlogsController#load_preview_time: project=#{@project.id}, hackatime_keys=#{hackatime_keys.inspect}, slack_id=#{current_user.slack_id}"
+    
+    return @preview_time = nil unless hackatime_keys.present?
     return @preview_time = nil unless current_user.slack_id.present?
 
     # Get all projects with their times since event start
@@ -64,7 +100,6 @@ class Project::DevlogsController < ApplicationController
       projects = data.dig("data", "projects") || []
 
       # Sum up total_seconds for matching hackatime project keys
-      hackatime_keys = @project.hackatime_keys
       total_seconds = projects
         .select { |p| hackatime_keys.include?(p["name"]) }
         .sum { |p| p["total_seconds"].to_i }

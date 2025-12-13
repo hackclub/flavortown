@@ -238,4 +238,5 @@ class Project < ApplicationRecord
             { key: :devlogs, label: "You have at least one devlog", passed: devlogs.any? }
         ]
     end
+
 end
