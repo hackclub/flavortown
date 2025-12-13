@@ -4,11 +4,9 @@
   <div class="projects-new__container">
     <%= render HeadingComponent.new(title: "Add Devlog", tone: :brown) %>
 
-    <% if @preview_time.present? %>
-      <div class="projects-new__time-preview">
-        <p>This devlog will log <strong><%= @preview_time %></strong> of work.</p>
-      </div>
-    <% end %>
+    <div class="projects-new__time-preview">
+      <p>This devlog will log <strong><%= @preview_time %></strong> of work.</p>
+    </div>
 
     <%= form_with model: @devlog,
                   url: project_devlogs_path(@project),
@@ -57,7 +55,12 @@
       </div>
 
       <div class="projects-new__actions">
-        <%= render ButtonComponent.new(text: "Create Devlog", color: :brown, type: :submit) %>
+        <% if @project.hackatime_keys.present? %>
+          <%= render ButtonComponent.new(text: "Create Devlog", color: :brown, type: :submit) %>
+        <% else %>
+          <%= render ButtonComponent.new(text: "Create Devlog", color: :brown, type: :submit, disabled: true) %>
+          <p class="projects-new__error">You must link at least one Hackatime project before posting a devlog. <%= link_to "Edit project settings", edit_project_path(@project) %></p>
+        <% end %>
       </div>
     <% end %>
   </div>
