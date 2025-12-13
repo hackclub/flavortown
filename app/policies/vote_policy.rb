@@ -4,10 +4,16 @@ class VotePolicy < ApplicationPolicy
   end
 
   def new?
-    logged_in?
+    user_can_vote?
   end
 
   def create?
-    logged_in?
+    user_can_vote?
+  end
+
+  private 
+
+  def user_can_vote?
+    user.admin? || user.verification_verified?
   end
 end
