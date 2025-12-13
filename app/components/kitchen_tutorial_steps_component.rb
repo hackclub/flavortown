@@ -10,7 +10,7 @@ class KitchenTutorialStepsComponent < ApplicationComponent
     details(class: "tutorial-steps", open: !all_completed?) do
       summary(class: "tutorial-steps__header") do
         span(class: "tutorial-steps__toggle-icon") do
-          raw helpers.inline_svg_tag("icons/chevron-down.svg", alt: "")
+          inline_svg_tag("icons/chevron-down.svg", alt: "")
         end
         span(class: "tutorial-steps__title") { "Tutorial" }
         div(class: "tutorial-steps__progress") do
@@ -47,7 +47,7 @@ class KitchenTutorialStepsComponent < ApplicationComponent
         div(class: "state-card__badge") { badge_text_for(step) }
         if step.icon.present?
           div(class: "state-card__icon-circle") do
-            raw helpers.inline_svg_tag("icons/#{step.icon}.svg", alt: "")
+            inline_svg_tag("icons/#{step.icon}.svg", alt: "")
           end
         end
       end
@@ -68,12 +68,12 @@ class KitchenTutorialStepsComponent < ApplicationComponent
         if verb == :get
           a(href: link, class: "btn btn--borderless btn--bg_yellow", data: { turbo: false }) do
             span { "Start" }
-            raw helpers.inline_svg_tag("icons/right-arrow.svg")
+            inline_svg_tag("icons/right-arrow.svg")
           end
         else
           button_to link, method: verb, class: "btn btn--borderless btn--bg_yellow", data: { turbo: false } do
             span { "Start" }
-            raw helpers.inline_svg_tag("icons/right-arrow.svg")
+            inline_svg_tag("icons/right-arrow.svg")
           end
         end
       end
@@ -128,7 +128,7 @@ class KitchenTutorialStepsComponent < ApplicationComponent
     return nil unless step.link
 
     if step.link.respond_to?(:call)
-      helpers.instance_exec(@current_user, &step.link)
+      view_context.instance_exec(@current_user, &step.link)
     else
       step.link
     end
