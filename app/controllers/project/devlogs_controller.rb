@@ -83,9 +83,9 @@ class Project::DevlogsController < ApplicationController
     @preview_seconds = 0
     @project.reload
     hackatime_keys = @project.hackatime_keys
-    
+
     Rails.logger.info "DevlogsController#load_preview_time: project=#{@project.id}, hackatime_keys=#{hackatime_keys.inspect}, slack_id=#{current_user.slack_id}"
-    
+
     return @preview_time = nil unless hackatime_keys.present?
     return @preview_time = nil unless current_user.slack_id.present?
 

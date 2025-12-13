@@ -293,6 +293,6 @@ class Post::Devlog < ApplicationRecord
   def minimum_duration
     if duration_seconds.present? && duration_seconds < 900
       errors.add(:duration_seconds, "must be at least 15 minutes")
-  end
+    end
 end
 end
