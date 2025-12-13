@@ -60,7 +60,7 @@ class ProjectsController < ApplicationController
         tutorial_message [
           "Good job chef — you created a project! Now cook up some code for a bit and track hours in your code editor.",
           "Once you have some time tracked, come back here and post a devlog.",
-          "Remember, post devlogs every few hours. Good chefs know that not posting a devlog after over 10 hours of tracked time might lead to it being lost!",
+          "Remember, post devlogs every few hours. Good chefs know that not posting a devlog after over 10 hours of tracked time might lead to it being lost!"
         ]
       end
 
