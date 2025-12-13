@@ -52,4 +52,26 @@ class ShipCertService
     Rails.logger.error e.backtrace.join("\n") if Rails.env.development?
     false
   end
+
+  def self.get_status(project)
+    ship_event = latest_ship_event(project)
+    return nil unless ship_event
+
+    ship_event.certification_status
+  end
+
+  def self.get_feedback(project)
+    ship_event = latest_ship_event(project)
+    return nil unless ship_event
+
+    {
+      status: ship_event.certification_status,
+      video_url: ship_event.feedback_video_url,
+      reason: ship_event.feedback_reason
+    }
+  end
+
+  def self.latest_ship_event(project)
+    project.ship_posts.order(created_at: :desc).first&.postable
+  end
 end

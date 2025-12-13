@@ -17,6 +17,10 @@ class ProjectsController < ApplicationController
       .posts
       .order(created_at: :desc)
       .includes(:user, postable: [ { attachments_attachments: :blob } ])
+
+    unless ShipCertService.get_status(@project) == "approved"
+      @posts = @posts.where.not(postable_type: "Post::ShipEvent")
+    end
   end
 
   def new

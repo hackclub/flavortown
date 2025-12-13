@@ -20,4 +20,11 @@ class Post::ShipEvent < ApplicationRecord
   has_many :votes, foreign_key: :ship_event_id, dependent: :nullify, inverse_of: :ship_event
 
   validates :body, presence: { message: "Update message can't be blank" }
+
+  def status
+    project = posts.first&.project
+    return nil unless project
+
+    ShipCertService.get_status(project)
+  end
 end

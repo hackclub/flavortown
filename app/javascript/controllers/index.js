@@ -51,3 +51,6 @@ application.register("dialogue-iteration", DialogueIterationController);
 
 import ProjectFireController from "./project_fire_controller";
 application.register("project-fire", ProjectFireController);
+
+import ModalController from "./modal_controller";
+application.register("modal", ModalController);
