@@ -1,6 +1,3 @@
-require "net/http"
-require "json"
-
 class ShipCertService
   WEBHOOK_URL = ENV["SW_DASHBOARD_WEBHOOK_URL"]
   CERT_API_KEY = ENV["SW_DASHBOARD_API_KEY"]
@@ -35,31 +32,24 @@ class ShipCertService
     return false unless WEBHOOK_URL.present?
     return false unless CERT_API_KEY.present?
 
-    uri = URI(WEBHOOK_URL)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = uri.scheme == 'https'
-    http.open_timeout = 5
-    http.read_timeout = 10
+    response = Faraday.post(WEBHOOK_URL) do |req|
+      req.headers["Content-Type"] = "application/json"
+      req.headers["x-api-key"] = CERT_API_KEY
+      req.options.open_timeout = 5
+      req.options.timeout = 10
+      req.body = ship_data(project).to_json
+    end
 
-    request = Net::HTTP::Post.new(uri.path, {
-      'Content-Type' => 'application/json',
-      'x-api-key' => CERT_API_KEY
-    })
-    request.body = self.ship_data(project).to_json
-
-    response = http.request(request)
-
-    if response.is_a?(Net::HTTPSuccess)
+    if response.success?
       Rails.logger.info "#{project.id} sent for certification"
       true
     else
       Rails.logger.error "cert request failed: #{response.body}"
       false
     end
-  rescue => e
+  rescue Faraday::Error => e
     Rails.logger.error "cert request error: #{e.message}"
     Rails.logger.error e.backtrace.join("\n") if Rails.env.development?
     false
   end
-
 end
