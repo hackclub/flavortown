@@ -1,10 +1,17 @@
 # frozen_string_literal: true
 
 class ProjectShowCardComponent < ViewComponent::Base
-  attr_reader :project
+  attr_reader :project, :current_user
 
-  def initialize(project:)
+  def initialize(project:, current_user: nil)
     @project = project
+    @current_user = current_user
+  end
+
+  def owner?
+    return false unless current_user
+
+    project.users.include?(current_user)
   end
 
   def banner_variant
