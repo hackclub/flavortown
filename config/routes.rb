@@ -90,6 +90,10 @@ Rails.application.routes.draw do
   get "magic_links/verify", to: "magic_links#verify"
 
   # API
+  namespace :webhooks do
+    post "ship_cert", to: "ship_cert#update_status"
+  end
+
   namespace :api do
     get "/", to: "root#index"
 

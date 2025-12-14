@@ -34,4 +34,40 @@ class ProjectShowCardComponent < ViewComponent::Base
     return "" if names.empty?
     "Created by: #{names.join(', ')}"
   end
+
+  def ship_feedback
+    return nil if project.draft?
+
+    @ship_feedback ||= ShipCertService.get_feedback(project)
+  end
+
+  def ship_status
+    return nil if project.draft?
+
+    ship_feedback&.dig(:status) || "pending"
+  end
+
+  def ship_status_color
+    case ship_status
+    when "approved" then "#10b981"
+    when "rejected" then "#ef4444"
+    else "#fbbf24"
+    end
+  end
+
+  def ship_status_label
+    ship_status&.capitalize || "Pending"
+  end
+
+  def ship_feedback_video_url
+    ship_feedback&.dig(:video_url)
+  end
+
+  def ship_feedback_reason
+    ship_feedback&.dig(:reason)
+  end
+
+  def has_feedback?
+    ship_status.in?(%w[approved rejected]) && (ship_feedback_video_url.present? || ship_feedback_reason.present?)
+  end
 end
