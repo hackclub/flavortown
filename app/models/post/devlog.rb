@@ -34,11 +34,12 @@ class Post::Devlog < ApplicationRecord
 
 
   validates :body, presence: true
-  validates :scrapbook_url, uniqueness: { message: "has already been used for another devlog" }, allow_blank: true
+  validates :scrapbook_url, uniqueness: { message: "has already been used for another devlog" }, allow_blank: true, unless: -> { Rails.env.development? }
   validate :validate_scrapbook_url
 
   before_validation :populate_from_scrapbook_url
   after_create :notify_scrapbook_thread
+  after_create :notify_slack_channel
 
   # only for images – not for videos or gif!
   has_many_attached :attachments do |attachable|
@@ -181,6 +182,10 @@ class Post::Devlog < ApplicationRecord
       "This scrapbook post has been linked to a Flavortown devlog! :flavortown: https://flavortown.hackclub.com/projects/#{id}",
       thread_ts: @scrapbook_message_ts
     )
+  end
+
+  def notify_slack_channel
+    PostCreationToSlackJob.perform_later(self)
   end
 
   def extract_slack_ids_from_url(url)
