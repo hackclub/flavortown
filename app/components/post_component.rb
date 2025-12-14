@@ -65,7 +65,7 @@
     "post--#{variant}"
   end
 
-  def commentable 
+  def commentable
     post.postable
   end
 
