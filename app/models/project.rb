@@ -148,10 +148,10 @@ class Project < ApplicationRecord
         owner = memberships.owner.first&.user
         return 0 unless owner
 
-        hackatime_identity = owner.identities.find_by(provider: "hackatime")
-        return 0 unless hackatime_identity
+        result = owner.try_sync_hackatime_data!
+        return 0 unless result
 
-        project_times = HackatimeService.fetch_user_projects_with_time(hackatime_identity.uid, user: owner)
+        project_times = result[:projects]
         total_seconds = hackatime_projects.sum { |hp| project_times[hp.name].to_i }
         (total_seconds / 3600.0).round(1)
     end
@@ -160,10 +160,10 @@ class Project < ApplicationRecord
         owner = memberships.owner.first&.user
         return [] unless owner
 
-        hackatime_identity = owner.identities.find_by(provider: "hackatime")
-        return [] unless hackatime_identity
+        result = owner.try_sync_hackatime_data!
+        return [] unless result
 
-        project_times = HackatimeService.fetch_user_projects_with_time(hackatime_identity.uid, user: owner)
+        project_times = result[:projects]
         hackatime_projects.map do |hp|
             {
                 name: hp.name,

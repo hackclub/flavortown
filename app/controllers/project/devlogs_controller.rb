@@ -56,10 +56,7 @@ class Project::DevlogsController < ApplicationController
     owner = @project.memberships.owner.first&.user
     return unless owner
 
-    hackatime_identity = owner.identities.find_by(provider: "hackatime")
-    return unless hackatime_identity
-
-    HackatimeService.sync_user_projects(owner, hackatime_identity.uid)
+    owner.try_sync_hackatime_data!
     @project.reload
   end
 
@@ -84,38 +81,24 @@ class Project::DevlogsController < ApplicationController
     @project.reload
     hackatime_keys = @project.hackatime_keys
 
-    Rails.logger.info "DevlogsController#load_preview_time: project=#{@project.id}, hackatime_keys=#{hackatime_keys.inspect}, slack_id=#{current_user.slack_id}"
+    Rails.logger.info "DevlogsController#load_preview_time: project=#{@project.id}, hackatime_keys=#{hackatime_keys.inspect}"
 
     return @preview_time = nil unless hackatime_keys.present?
-    return @preview_time = nil unless current_user.slack_id.present?
 
-    # Get all projects with their times since event start
-    url = "https://hackatime.hackclub.com/api/v1/users/#{current_user.slack_id}/stats?features=projects&start_date=2025-11-05"
+    result = current_user.try_sync_hackatime_data!
+    return @preview_time = nil unless result
 
-    headers = { "RACK_ATTACK_BYPASS" => ENV["HACKATIME_BYPASS_KEYS"] }.compact
-    response = Faraday.get(url, nil, headers)
+    project_times = result[:projects]
+    total_seconds = hackatime_keys.sum { |key| project_times[key].to_i }
 
-    if response.success?
-      data = JSON.parse(response.body)
-      projects = data.dig("data", "projects") || []
+    already_logged = Post::Devlog.where(
+      id: @project.posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")
+    ).sum(:duration_seconds) || 0
 
-      # Sum up total_seconds for matching hackatime project keys
-      total_seconds = projects
-        .select { |p| hackatime_keys.include?(p["name"]) }
-        .sum { |p| p["total_seconds"].to_i }
-
-      # Subtract time already logged in previous devlogs
-      already_logged = Post::Devlog.where(
-        id: @project.posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")
-      ).sum(:duration_seconds) || 0
-
-      @preview_seconds = [ total_seconds - already_logged, 0 ].max
-      hours = @preview_seconds / 3600
-      minutes = (@preview_seconds % 3600) / 60
-      @preview_time = "#{hours}h #{minutes}m"
-    else
-      @preview_time = nil
-    end
+    @preview_seconds = [ total_seconds - already_logged, 0 ].max
+    hours = @preview_seconds / 3600
+    minutes = (@preview_seconds % 3600) / 60
+    @preview_time = "#{hours}h #{minutes}m"
   rescue => e
     Rails.logger.error "Failed to load preview time: #{e.message}"
     @preview_time = nil

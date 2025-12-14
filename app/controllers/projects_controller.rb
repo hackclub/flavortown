@@ -414,11 +414,7 @@ class ProjectsController < ApplicationController
   end
 
   def load_project_times
-    hackatime_identity = current_user.identities.find_by(provider: "hackatime")
-    @project_times = if hackatime_identity
-                       HackatimeService.fetch_user_projects_with_time(hackatime_identity.uid)
-    else
-                       {}
-    end
+    result = current_user.try_sync_hackatime_data!
+    @project_times = result&.dig(:projects) || {}
   end
 end

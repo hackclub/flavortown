@@ -7,3 +7,4 @@ version = is_dirty ? "#{short_hash}-dirty" : short_hash
 Rails.application.config.server_start_time = Time.current
 Rails.application.config.git_version = version
 Rails.application.config.commit_link = commit_link
+Rails.application.config.user_agent = "Flavortown/#{version} (https://github.com/hackclub/flavortown)"

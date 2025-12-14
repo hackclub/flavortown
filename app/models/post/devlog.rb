@@ -258,46 +258,33 @@ class Post::Devlog < ApplicationRecord
   end
 
   def fetch_and_update_duration(user, project, prev_time)
-    return false unless user.slack_id.present?
+    return false unless user.hackatime_identity
 
     hackatime_keys = project.hackatime_keys
     end_time = posts.first.created_at.utc
 
-    # Build URL - first devlog gets all time since event start, subsequent get time since last devlog
-    base_url = "https://hackatime.hackclub.com/api/v1/users/#{user.slack_id}/stats?features=projects"
-    url = if prev_time.nil?
-            "#{base_url}&start_date=2025-11-05"
+    result = if prev_time.nil?
+               HackatimeService.fetch_stats(user.hackatime_identity.uid)
     else
-            "#{base_url}&start_date=#{prev_time.iso8601}&end_date=#{end_time.iso8601}"
+               HackatimeService.fetch_stats(user.hackatime_identity.uid, start_date: prev_time.iso8601, end_date: end_time.iso8601)
     end
 
-    headers = { "RACK_ATTACK_BYPASS" => ENV["HACKATIME_BYPASS_KEYS"] }.compact
-    response = Faraday.get(url, nil, headers)
+    return false unless result
 
-    if response.success?
-      data = JSON.parse(response.body)
-      projects_data = data.dig("data", "projects") || []
+    seconds = hackatime_keys.sum { |key| result[:projects][key].to_i }
 
-      # Sum up total_seconds for matching hackatime project keys
-      seconds = projects_data
-        .select { |p| hackatime_keys.include?(p["name"]) }
-        .sum { |p| p["total_seconds"].to_i }
-
-      Rails.logger.info "\tDevlog #{id} duration_seconds: #{seconds}"
-      update!(
-        duration_seconds: seconds,
-        hackatime_pulled_at: Time.current,
-        hackatime_projects_key_snapshot: hackatime_keys.join(",")
-      )
-      true
-    else
-      Rails.logger.error "Hackatime API failed for devlog #{id}: HTTP #{response.status} - #{response.body}"
-      false
-    end
+    Rails.logger.info "\tDevlog #{id} duration_seconds: #{seconds}"
+    update!(
+      duration_seconds: seconds,
+      hackatime_pulled_at: Time.current,
+      hackatime_projects_key_snapshot: hackatime_keys.join(",")
+    )
+    true
   end
+
   def minimum_duration
     if duration_seconds.present? && duration_seconds < 900
       errors.add(:duration_seconds, "must be at least 15 minutes")
     end
-end
+  end
 end
