@@ -318,7 +318,8 @@ class ShopOrder < ApplicationRecord
     user.ledger_entries.create!(
       amount: -total_cost,
       reason: "Shop order of #{shop_item.name.pluralize(quantity)}",
-      created_by: "System"
+      created_by: "System",
+      ledgerable: self
     )
   end
 
@@ -328,7 +329,8 @@ class ShopOrder < ApplicationRecord
     user.ledger_entries.create!(
       amount: total_cost,
       reason: "Refund for rejected order of #{shop_item.name.pluralize(quantity)}",
-      created_by: "System"
+      created_by: "System",
+      ledgerable: self
     )
   end
 end
