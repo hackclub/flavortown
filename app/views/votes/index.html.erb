@@ -33,7 +33,9 @@
     </table>
 
     <% if @pagy.pages > 1 %>
-      <%== @pagy.series_nav %>
+      <div class="pagination">
+        <%== @pagy.series_nav %>
+      </div>
     <% end %>
   <% end %>
 </div>
