@@ -2,13 +2,15 @@
   <%= inline_svg_tag "landing/hero/flag-orpheus-top.svg", class: "orph-flag" %>
 
   <div class="login-btn">
-    <%= form_tag "/auth/hack_club", method: :post, data: {turbo: false} do %>
-      <button class="btn btn--red btn--striped">
-        <div>
-          <%= image_tag image_url("mask/enter.avif"), width: 20, height: 20 %>
-          Sign in!
-        </div>
-      </button>
+    <% if params[:show_login] %>
+      <%= form_tag "/auth/hack_club", method: :post, data: {turbo: false} do %>
+        <button class="btn btn--red btn--striped">
+          <div>
+            <%= image_tag image_url("mask/enter.avif"), width: 20, height: 20 %>
+            Sign in!
+          </div>
+        </button>
+      <% end %>
     <% end %>
     <% if current_user&.admin? %>
       <%= link_to "/admin", class: "btn-striped-red is_admin" do %>
