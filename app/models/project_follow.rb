@@ -29,7 +29,7 @@ class ProjectFollow < ApplicationRecord
   private
 
   def cannot_follow_own_project
-    return unless project.users.exists?(user_id)
+    return unless project.users.loaded? && project.users.any? { |u| u.id == user_id }
 
     errors.add(:user_id, "cannot follow your own project")
   end
