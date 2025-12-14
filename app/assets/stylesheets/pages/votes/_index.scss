@@ -72,4 +72,38 @@
       }
     }
   }
+
+  .pagination {
+    margin: 1.5rem 0;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+
+    a,
+    span {
+      background: var(--color-tan-400);
+      color: var(--color-brown-700);
+      padding: 0.5em 1em;
+      border-radius: 0.5em;
+      text-decoration: none;
+      font-size: 1rem;
+      margin: 0;
+      transform: none;
+
+      &:hover {
+        background: var(--color-brown-500);
+        color: var(--color-bg);
+      }
+    }
+
+    span.current {
+      background: var(--color-brown-700);
+      color: var(--color-bg);
+    }
+
+    span.gap {
+      background: transparent;
+      color: var(--color-brown-500);
+    }
+  }
 }
