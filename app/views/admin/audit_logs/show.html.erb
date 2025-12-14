@@ -43,7 +43,16 @@
         </tr>
       </thead>
       <tbody>
-        <% changes = YAML.safe_load(@version.object_changes, permitted_classes: [Symbol, Time, Date, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]) rescue {} %>
+        <%
+          raw = @version.object_changes
+          changes = if raw.is_a?(Hash)
+            raw
+          elsif raw.is_a?(String)
+            YAML.safe_load(raw, permitted_classes: [Symbol, Time, Date, DateTime, BigDecimal, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]) rescue {}
+          else
+            {}
+          end
+        %>
         <% changes.each do |field, values| %>
           <tr>
             <td><strong><%= field.to_s.humanize %></strong></td>
@@ -72,7 +81,17 @@
   <div class="card">
     <h2>Previous State (Before Change)</h2>
 
-    <pre style="background: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 6px; overflow-x: auto;"><%= JSON.pretty_generate(YAML.safe_load(@version.object, permitted_classes: [Symbol, Time, Date, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone])) rescue @version.object %></pre>
+    <%
+      raw_obj = @version.object
+      parsed_obj = if raw_obj.is_a?(Hash)
+        raw_obj
+      elsif raw_obj.is_a?(String)
+        YAML.safe_load(raw_obj, permitted_classes: [Symbol, Time, Date, DateTime, BigDecimal, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]) rescue raw_obj
+      else
+        raw_obj
+      end
+    %>
+    <pre style="background: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 6px; overflow-x: auto;"><%= parsed_obj.is_a?(Hash) ? JSON.pretty_generate(parsed_obj) : parsed_obj %></pre>
   </div>
 <% end %>
 

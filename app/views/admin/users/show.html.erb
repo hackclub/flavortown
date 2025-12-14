@@ -179,6 +179,8 @@
   </div>
 </div>
 
+<%= render Admin::PastOrdersComponent.new(user: @user, title: "Shop Orders") %>
+
 <% if @user_actions.any? %>
   <div class="card" style="margin-top: 1.5rem;">
     <h2>Action History</h2>
@@ -192,33 +194,106 @@
         </tr>
       </thead>
       <tbody>
-        <% @user_actions.each do |version| %>
-          <%
-            changes = YAML.load(version.object_changes) rescue {}
-            admin = User.find_by(id: version.whodunnit)
-          %>
-          <tr>
-            <td><%= version.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-            <td>
-              <% case version.event %>
-              <% when "flipper_enable" %>
-                <span style="color: #10b981; font-weight: 500;">🔓 Feature Enabled</span>
-              <% when "flipper_disable" %>
-                <span style="color: #ef4444; font-weight: 500;">🔒 Feature Disabled</span>
-              <% when "balance_adjustment" %>
-                <span style="color: #3b82f6; font-weight: 500;">💰 Balance Adjusted</span>
-              <% when "update" %>
-                <span style="color: #3b82f6; font-weight: 500;">✏️ Updated</span>
-              <% when "create" %>
-                <span style="color: #10b981; font-weight: 500;">✓ Created</span>
-              <% else %>
-                <%= version.event.titleize %>
-              <% end %>
-            </td>
-            <td>
-              <% if version.event.starts_with?("flipper_") %>
+        <% @user_actions.each do |action| %>
+          <% if action.is_a?(LedgerEntry) %>
+            <tr>
+              <td><%= action.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+              <td>
+                <% if action.amount < 0 %>
+                  <span style="color: #ef4444; font-weight: 500;">🛒 Shop Purchase</span>
+                <% else %>
+                  <span style="color: #10b981; font-weight: 500;">💰 Balance Credit</span>
+                <% end %>
+              </td>
+              <td>
+                <strong><%= action.amount > 0 ? "+#{action.amount}" : action.amount %> tickets</strong>
+                <% if action.reason.present? %>
+                  (<%= action.reason %>)
+                <% end %>
+              </td>
+              <td>
+                <% if action.created_by.present? && (match = action.created_by.match(/\((\d+)\)$/)) && (performer = User.find_by(id: match[1])) %>
+                  <%= link_to performer.display_name, admin_user_path(performer) %>
+                <% elsif action.created_by.present? %>
+                  <%= action.created_by %>
+                <% else %>
+                  <em>System</em>
+                <% end %>
+              </td>
+            </tr>
+          <% else %>
+            <%
+              version = action
+              # Handle both YAML strings (old data) and native JSONB hashes (new data)
+              raw_changes = version.object_changes
+              changes = if raw_changes.is_a?(Hash)
+                raw_changes.with_indifferent_access
+              elsif raw_changes.is_a?(String) && raw_changes.present?
+                (YAML.safe_load(raw_changes, permitted_classes: [Time, Date, DateTime, BigDecimal, Symbol]) || {}).with_indifferent_access rescue {}
+              else
+                {}.with_indifferent_access
+              end
+              admin = User.find_by(id: version.whodunnit)
+              is_ban_event = changes["banned"].is_a?(Array) rescue false
+              is_magic_link_event = changes["magic_link_token"].is_a?(Array) rescue false
+            %>
+            <tr>
+              <td><%= version.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+              <td>
+                <% if version.event == "role_promoted" %>
+                  <span style="color: #10b981; font-weight: 500;">👑 Role Promoted</span>
+                <% elsif version.event == "role_demoted" %>
+                  <span style="color: #ef4444; font-weight: 500;">👑 Role Demoted</span>
+                <% elsif is_ban_event %>
+                  <% if changes["banned"]&.last == true %>
+                    <span style="color: #ef4444; font-weight: 500;">🚫 Banned</span>
+                  <% else %>
+                    <span style="color: #10b981; font-weight: 500;">✅ Unbanned</span>
+                  <% end %>
+                <% elsif is_magic_link_event && changes["magic_link_token"]&.last.present? %>
+                  <span style="color: #f59e0b; font-weight: 500;">🔗 Magic Link Created</span>
+                <% elsif version.event == "address_revealed" %>
+                  <span style="color: #f59e0b; font-weight: 500;">📍 Address Revealed</span>
+                <% else %>
+                  <% case version.event
+                     when "flipper_enable" %>
+                    <span style="color: #10b981; font-weight: 500;">🔓 Feature Enabled</span>
+                  <% when "flipper_disable" %>
+                    <span style="color: #ef4444; font-weight: 500;">🔒 Feature Disabled</span>
+                  <% when "balance_adjustment" %>
+                    <span style="color: #3b82f6; font-weight: 500;">💰 Balance Adjusted</span>
+                  <% when "update" %>
+                    <span style="color: #3b82f6; font-weight: 500;">✏️ Updated</span>
+                  <% when "create" %>
+                    <span style="color: #10b981; font-weight: 500;">✓ Created</span>
+                  <% else %>
+                    <%= version.event.titleize %>
+                  <% end %>
+                <% end %>
+              </td>
+              <td>
+                <% if version.event == "role_promoted" || version.event == "role_demoted" %>
+                  <% role_name_str = changes["role"] || changes[:role] %>
+                  <strong><%= role_name_str&.to_s&.titleize || "Unknown Role" %></strong>
+                <% elsif is_ban_event %>
+                  <% ban_reason = changes["banned_reason"]&.last %>
+                  <% if ban_reason.present? %>
+                    Reason: <%= ban_reason %>
+                  <% else %>
+                    <em>No reason provided</em>
+                  <% end %>
+                <% elsif is_magic_link_event && changes["magic_link_token"]&.last.present? %>
+                  Expires: <%= changes["magic_link_token_expires_at"]&.last %>
+                <% elsif version.event == "address_revealed" %>
+                  <% order_id = changes["order_id"] || changes[:order_id] %>
+                  <% shop_item_name = changes["shop_item"] || changes[:shop_item] %>
+                  <% if order_id.present? %>
+                    <%= link_to "Order ##{order_id}", admin_shop_order_path(order_id) %> (<%= shop_item_name %>)
+                  <% else %>
+                    <em>Order details unavailable</em>
+                  <% end %>
+                <% elsif version.event.starts_with?("flipper_") %>
                 <%
-                  # Debug: inspect the changes hash
                   feature_array = changes["feature"] || changes[:feature]
                   feature_name = if feature_array.is_a?(Array)
                     feature_array.compact.first
@@ -264,72 +339,22 @@
                 <%= link_to admin.display_name, admin_user_path(admin) %>
               <% elsif version.whodunnit %>
                 User #<%= version.whodunnit %>
+              <% elsif version.event == "balance_adjustment" && defined?(created_by) && created_by.present? %>
+                <% if (match = created_by.match(/\((\d+)\)$/)) && (adjuster = User.find_by(id: match[1])) %>
+                  <%= link_to adjuster.display_name, admin_user_path(adjuster) %>
+                <% else %>
+                  <%= created_by %>
+                <% end %>
               <% else %>
                 <em>System</em>
               <% end %>
             </td>
           </tr>
+          <% end %>
         <% end %>
       </tbody>
     </table>
 
     <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User", item_id: @user.id), class: "btn-secondary", style: "margin-top: 1rem; display: inline-block;" %>
-  </div>
-<% end %>
-
-<% if @role_history.any? %>
-  <div class="card" style="margin-top: 1.5rem;">
-    <h2>Role Change History</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Action</th>
-          <th>Role</th>
-          <th>Changed By</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @role_history.each do |version| %>
-          <%
-            changes = YAML.load(version.object_changes) rescue {}
-            # For create: [nil, 5], for destroy: [5, nil] - we want the non-nil value
-            role_int_array = changes["role"]
-            role_int = if role_int_array.is_a?(Array)
-              role_int_array.compact.first
-            else
-              role_int_array
-            end
-
-            role_name = User::Role.all.find { |r| r.id == role_int }&.name if role_int
-            admin = User.find_by(id: version.whodunnit)
-          %>
-          <tr>
-            <td><%= version.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-            <td>
-              <% if version.event == "create" %>
-                <span style="color: #10b981; font-weight: 500;">✓ Promoted</span>
-              <% elsif version.event == "destroy" %>
-                <span style="color: #ef4444; font-weight: 500;">✗ Demoted</span>
-              <% else %>
-                <%= version.event %>
-              <% end %>
-            </td>
-            <td>
-              <%= role_name&.titleize || "Unknown Role" %>
-            </td>
-            <td>
-              <% if admin %>
-                <%= link_to admin.display_name, admin_user_path(admin) %>
-              <% elsif version.whodunnit %>
-                User #<%= version.whodunnit %>
-              <% else %>
-                <em>System</em>
-              <% end %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
   </div>
 <% end %>
