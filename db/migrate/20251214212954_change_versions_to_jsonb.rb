@@ -38,7 +38,7 @@ class ChangeVersionsToJsonb < ActiveRecord::Migration[8.0]
       # Convert object column if it contains YAML
       if version.object.is_a?(String) && version.object.start_with?("---")
         begin
-          parsed = YAML.safe_load(version.object, permitted_classes: [Time, Date, DateTime, BigDecimal, Symbol, ActiveSupport::TimeWithZone])
+          parsed = YAML.safe_load(version.object, permitted_classes: [ Time, Date, DateTime, BigDecimal, Symbol, ActiveSupport::TimeWithZone ])
           updates[:object] = parsed.to_json
         rescue => e
           Rails.logger.warn "Failed to convert version #{version.id} object: #{e.message}"
@@ -51,7 +51,7 @@ class ChangeVersionsToJsonb < ActiveRecord::Migration[8.0]
       # Convert object_changes column if it contains YAML
       if version.object_changes.is_a?(String) && version.object_changes.start_with?("---")
         begin
-          parsed = YAML.safe_load(version.object_changes, permitted_classes: [Time, Date, DateTime, BigDecimal, Symbol, ActiveSupport::TimeWithZone])
+          parsed = YAML.safe_load(version.object_changes, permitted_classes: [ Time, Date, DateTime, BigDecimal, Symbol, ActiveSupport::TimeWithZone ])
           updates[:object_changes] = parsed.to_json
         rescue => e
           Rails.logger.warn "Failed to convert version #{version.id} object_changes: #{e.message}"
