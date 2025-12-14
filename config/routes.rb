@@ -90,6 +90,10 @@ Rails.application.routes.draw do
   post "magic_links", to: "magic_links#create"
   get "magic_links/verify", to: "magic_links#verify"
 
+  # This will be an link for people in the slack
+  # Not hidden, but wont be shared and only announced in slack
+  get "hidden_login", to: "hidden_login#index"
+
   # API
   namespace :webhooks do
     post "ship_cert", to: "ship_cert#update_status"
