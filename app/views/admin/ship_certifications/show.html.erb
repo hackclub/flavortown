@@ -97,19 +97,7 @@
   <div class="card" style="margin-bottom: 1rem;">
     <h2>make your decision</h2>
 
-    <% if @project.ship_status == "submitted" %>
-      <div style="background: var(--color-tan-400); border: 2px solid var(--color-brown-500); border-radius: 0.5em; padding: 1.5rem; text-align: center;">
-        <p style="font-size: 1.1rem; margin-bottom: 1rem;"><strong>⚠️ This project is awaiting review.</strong></p>
-        <p style="margin-bottom: 1rem;">Click below to assign yourself as the reviewer.</p>
-        <%= button_to "Start Review",
-            start_review_admin_project_ship_certification_path(@project),
-            method: :post,
-            class: "btn-primary",
-            style: "font-size: 1.1rem; padding: 1rem 3rem;",
-            data: { turbo_confirm: "Start reviewing this project?" } %>
-      </div>
-    <% else %>
-      <!-- Review Checklist -->
+    <!-- Review Checklist -->
       <div style="background: var(--color-tan-400); border: 1px solid var(--color-brown-500); border-radius: 0.5em; padding: 1rem; margin-bottom: 1.5rem;">
         <p style="font-weight: 600; margin-bottom: 0.75rem;">Before deciding, confirm you have reviewed:</p>
         <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
@@ -172,7 +160,6 @@
           <% end %>
         </div>
       </div>
-    <% end %>
   </div>
 <% end %>
 
