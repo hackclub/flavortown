@@ -12,6 +12,18 @@
       </div>
     <% end %>
 
+    <% if current_user.present? && !@project.users.include?(current_user) %>
+      <% if current_user.project_follows.exists?(project: @project) %>
+        <%= button_to unfollow_project_path(@project), method: :delete, class: "btn btn--brown" do %>
+          Unfollow
+        <% end %>
+      <% else %>
+        <%= button_to follow_project_path(@project), method: :post, class: "btn btn--brown" do %>
+          Follow
+        <% end %>
+      <% end %>
+    <% end %>
+
     <% if @posts.present? %>
       <div class="projects-show__timeline">
         <div class="mt-4" style="display: grid; gap: var(--space-xl);">

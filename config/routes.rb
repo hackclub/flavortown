@@ -183,6 +183,8 @@ Rails.application.routes.draw do
       post :submit_ship
       post :mark_fire
       post :unmark_fire
+      post :follow
+      delete :unfollow
     end
   end
 

@@ -51,6 +51,8 @@ class Project < ApplicationRecord
     has_one :latest_ship_post, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
     has_many :votes, dependent: :destroy
     has_many :reports, dependent: :destroy
+    has_many :project_follows, dependent: :destroy
+    has_many :followers, through: :project_follows, source: :user
 
     has_one_attached :demo_video
     # https://github.com/rails/rails/pull/39135
