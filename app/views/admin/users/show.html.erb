@@ -264,6 +264,12 @@
                 <%= link_to admin.display_name, admin_user_path(admin) %>
               <% elsif version.whodunnit %>
                 User #<%= version.whodunnit %>
+              <% elsif version.event == "balance_adjustment" && defined?(created_by) && created_by.present? %>
+                <% if (match = created_by.match(/\((\d+)\)$/)) && (adjuster = User.find_by(id: match[1])) %>
+                  <%= link_to adjuster.display_name, admin_user_path(adjuster) %>
+                <% else %>
+                  <%= created_by %>
+                <% end %>
               <% else %>
                 <em>System</em>
               <% end %>
