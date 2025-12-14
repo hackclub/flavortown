@@ -2,8 +2,10 @@ name: CI
 
 on:
   pull_request:
+  merge_group:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   scan_ruby:
