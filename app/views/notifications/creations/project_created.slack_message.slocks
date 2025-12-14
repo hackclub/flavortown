@@ -1,0 +1,7 @@
+context [
+  plain_text("🚀 New project created!")
+]
+
+section "*<#{project_url}|#{project_title}>* by _#{owner_name}_", markdown: true
+
+section project_description, markdown: true if project_description.present?

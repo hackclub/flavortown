@@ -1,0 +1,7 @@
+context [
+  plain_text("📝 New devlog posted!")
+]
+
+section "*<#{project_url}|#{project_title}>* by _#{author_name}_", markdown: true
+
+section devlog_body, markdown: true

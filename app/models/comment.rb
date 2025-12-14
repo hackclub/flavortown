@@ -27,4 +27,12 @@ class Comment < ApplicationRecord
   belongs_to :user
 
   validates :body, presence: true, length: { maximum: 5000 }
+
+  after_create :notify_slack_channel
+
+  private
+
+  def notify_slack_channel
+    PostCreationToSlackJob.perform_later(self)
+  end
 end

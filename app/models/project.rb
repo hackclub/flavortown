@@ -30,6 +30,8 @@
 class Project < ApplicationRecord
     include AASM
 
+    after_create :notify_slack_channel
+
     # TODO: reflect the allowed content types in the html accept
     ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
     MAX_BANNER_SIZE = 10.megabytes
@@ -237,5 +239,11 @@ class Project < ApplicationRecord
             { key: :screenshot, label: "You have a screenshot of your project", passed: banner.attached? },
             { key: :devlogs, label: "You have at least one devlog", passed: devlogs.any? }
         ]
+    end
+
+    private
+
+    def notify_slack_channel
+        PostCreationToSlackJob.perform_later(self)
     end
 end
