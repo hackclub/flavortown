@@ -232,7 +232,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_14_034956) do
 
   create_table "post_ship_events", force: :cascade do |t|
     t.string "body"
+    t.string "certification_status", default: "pending"
     t.datetime "created_at", null: false
+    t.text "feedback_reason"
+    t.string "feedback_video_url"
     t.float "hours"
     t.float "multiplier"
     t.float "payout"
