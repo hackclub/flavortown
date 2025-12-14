@@ -17,7 +17,7 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class User::RoleAssignment < ApplicationRecord
-  has_paper_trail
+  has_paper_trail on: [ :create, :update, :destroy ]
 
   belongs_to :user
 

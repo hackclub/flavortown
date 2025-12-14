@@ -4,7 +4,10 @@ class Admin::MagicLinksController < Admin::ApplicationController
   def show
     authorize :admin, :generate_magic_links?
     @user = User.find(params[:user_id])
-    @user.generate_magic_link_token!
+
+    PaperTrail.request(whodunnit: current_user.id) do
+      @user.generate_magic_link_token!
+    end
 
     @magic_link_url = magic_links_verify_url(token: @user.magic_link_token)
 

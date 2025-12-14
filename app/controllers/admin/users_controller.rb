@@ -14,24 +14,22 @@ class Admin::UsersController < Admin::ApplicationController
     def show
       @user = User.with_roles.includes(:identities).find(params[:id])
 
-      # Get role assignment history from audit logs
-      all_role_versions = PaperTrail::Version
-        .where(item_type: "User::RoleAssignment")
-        .order(created_at: :desc)
-        .limit(100)
-
-      # Filter to only this user's role changes
-      @role_history = all_role_versions.select do |v|
-        changes = YAML.load(v.object_changes) rescue {}
-        user_id_change = changes["user_id"]
-        user_id_change.is_a?(Array) ? user_id_change.include?(@user.id) : user_id_change == @user.id
-      end.take(20)
-
-      # Get all actions performed on this user
-      @user_actions = PaperTrail::Version
+      # Get all actions performed on this user (filter out empty updates)
+      user_versions = PaperTrail::Version
         .where(item_type: "User", item_id: @user.id)
         .order(created_at: :desc)
-        .limit(50)
+        .select do |v|
+          next true unless v.event == "update"
+          # With native JSONB, object_changes is already a hash
+          changes = v.object_changes || {}
+          changes.keys.any? { |k| !%w[updated_at synced_at].include?(k.to_s) }
+        end
+
+      # Get ledger entries for this user
+      ledger_entries = @user.ledger_entries.includes(:ledgerable).order(created_at: :desc)
+
+      # Combine and sort by created_at (role changes are now in user_versions as role_promoted/role_demoted events)
+      @user_actions = (user_versions + ledger_entries).sort_by(&:created_at).reverse
     end
 
     def user_perms
@@ -50,9 +48,17 @@ class Admin::UsersController < Admin::ApplicationController
         return redirect_to admin_user_path(@user)
       end
 
-      PaperTrail.request(whodunnit: current_user.id) do
-        @user.role_assignments.create!(role: role_name)
-      end
+      @user.role_assignments.create!(role: role_name)
+
+      # Create explicit audit entry on User
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: @user.id,
+        event: "role_promoted",
+        whodunnit: current_user.id.to_s,
+        object_changes: { role: role_name }.to_yaml
+      )
+
       flash[:notice] = "User promoted to #{role_name.titleize}."
 
       redirect_to admin_user_path(@user)
@@ -72,9 +78,17 @@ class Admin::UsersController < Admin::ApplicationController
     role_assignment = @user.role_assignments.find_by(role: User::RoleAssignment.roles[role_name])
 
     if role_assignment
-      PaperTrail.request(whodunnit: current_user.id) do
-        role_assignment.destroy!
-      end
+      role_assignment.destroy!
+
+      # Create explicit audit entry on User
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: @user.id,
+        event: "role_demoted",
+        whodunnit: current_user.id.to_s,
+        object_changes: { role: role_name }.to_yaml
+      )
+
       flash[:notice] = "User demoted from #{role_name.titleize}."
     else
       flash[:alert] = "Unable to demote user from #{role_name.titleize}."

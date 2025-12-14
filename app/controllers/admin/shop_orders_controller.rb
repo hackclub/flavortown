@@ -146,6 +146,15 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     if @order.can_view_address?(current_user)
       @decrypted_address = @order.decrypted_address_for(current_user)
+
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: @order.user_id,
+        event: "address_revealed",
+        whodunnit: current_user.id.to_s,
+        object_changes: { order_id: @order.id, shop_item: @order.shop_item&.name }.to_yaml
+      )
+
       render turbo_stream: turbo_stream.replace(
         "address-content",
         partial: "address_details",

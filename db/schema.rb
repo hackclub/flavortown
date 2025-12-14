@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_14_034956) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_14_212954) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -258,7 +258,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_14_034956) do
     t.datetime "created_at", null: false
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id"
+    t.bigint "user_id", null: false
     t.index ["project_id"], name: "index_project_follows_on_project_id"
     t.index ["user_id", "project_id"], name: "index_project_follows_on_user_id_and_project_id", unique: true
     t.index ["user_id"], name: "index_project_follows_on_user_id"
@@ -288,7 +288,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_14_034956) do
     t.datetime "deleted_at"
     t.text "demo_url"
     t.text "description"
-    t.string "fire_letter_id"
     t.datetime "marked_fire_at"
     t.bigint "marked_fire_by_id"
     t.integer "memberships_count", default: 0, null: false
@@ -503,10 +502,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_14_034956) do
     t.string "event", null: false
     t.string "item_id", null: false
     t.string "item_type", null: false
-    t.text "object"
-    t.text "object_changes"
+    t.jsonb "object", default: {}
+    t.jsonb "object_changes", default: {}
     t.string "whodunnit"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
+    t.index ["object"], name: "index_versions_on_object", using: :gin
+    t.index ["object_changes"], name: "index_versions_on_object_changes", using: :gin
   end
 
   create_table "votes", force: :cascade do |t|
