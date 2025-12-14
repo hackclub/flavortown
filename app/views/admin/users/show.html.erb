@@ -179,6 +179,8 @@
   </div>
 </div>
 
+<%= render Admin::PastOrdersComponent.new(user: @user, title: "Shop Orders") %>
+
 <% if @user_actions.any? %>
   <div class="card" style="margin-top: 1.5rem;">
     <h2>Action History</h2>

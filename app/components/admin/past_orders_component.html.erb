@@ -1,0 +1,17 @@
+<div class="card" style="margin-top: 1rem;">
+  <% if collapsible %>
+    <details style="cursor: pointer;">
+      <summary style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; user-select: none; color: #374151;">
+        📋 <%= title %> (<%= orders.count %>)
+      </summary>
+      <div style="padding-top: 0.5rem;">
+        <%= render "admin/past_orders_component/orders_table", orders: orders %>
+      </div>
+    </details>
+  <% else %>
+    <h2 style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; color: #374151;">
+      📋 <%= title %> (<%= orders.count %>)
+    </h2>
+    <%= render "admin/past_orders_component/orders_table", orders: orders %>
+  <% end %>
+</div>
