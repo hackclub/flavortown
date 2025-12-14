@@ -39,3 +39,22 @@ body.signed-in {
     margin-bottom: 180px; // extra space for bottom-bar
   }
 }
+
+.dev-footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #6b7280;
+  opacity: 0.1;
+  transition: opacity 0.2s ease;
+  margin-top: 3rem;
+  padding: 0.625rem;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
+}

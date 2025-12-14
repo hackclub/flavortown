@@ -470,6 +470,9 @@ GEM
       nio4r (~> 2.0)
     pundit (2.5.2)
       activesupport (>= 3.0.0)
+    query_count (1.1.1)
+      activerecord (>= 4.2)
+      railties (>= 4.2)
     raabro (1.4.0)
     racc (1.8.1)
     rack (3.2.4)
@@ -760,6 +763,7 @@ DEPENDENCIES
   propshaft
   puma (>= 5.0)
   pundit (~> 2.5)
+  query_count
   rack-attack
   rack-mini-profiler!
   rails (~> 8.1.1)

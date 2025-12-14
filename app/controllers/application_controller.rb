@@ -8,6 +8,8 @@ class ApplicationController < ActionController::Base
 
   before_action :enforce_ban
   before_action :refresh_identity_on_portal_return
+  before_action :initialize_cache_counters
+  before_action :track_request
 
   rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
   rescue_from StandardError, with: :handle_error
@@ -69,6 +71,15 @@ class ApplicationController < ActionController::Base
     return if controller_name == "kitchen" || controller_name == "sessions"
 
     redirect_to kitchen_path, alert: "Your account has been banned."
+  end
+
+  def initialize_cache_counters
+    Thread.current[:cache_hits] = 0
+    Thread.current[:cache_misses] = 0
+  end
+
+  def track_request
+    RequestCounter.increment
   end
 
   def refresh_identity_on_portal_return
