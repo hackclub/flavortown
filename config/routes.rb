@@ -43,6 +43,7 @@ Rails.application.routes.draw do
   # Explore
   get "explore", to: "explore#index", as: :explore_index
   get "explore/gallery", to: "explore#gallery", as: :explore_gallery
+  get "explore/following", to: "explore#following", as: :explore_following
 
   # Reports
   resources :reports, only: [ :create ]
