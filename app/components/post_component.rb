@@ -65,6 +65,10 @@
     "post--#{variant}"
   end
 
+  def commentable 
+    post.postable
+  end
+
   private
 
   def normalize_variant(value)

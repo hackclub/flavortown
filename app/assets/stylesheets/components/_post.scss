@@ -278,6 +278,25 @@
     background: var(--color-brown-400);
   }
 
+  .comments-count {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-xs);
+    color: var(--brown);
+    font-weight: 600;
+
+    svg {
+      width: 25px;
+      height: 25px;
+      fill: var(--brown);
+      transition: fill 0.15s ease;
+    }
+
+    &__count {
+      font-size: 1rem;
+    }
+  }
+
   // Variants
   &--fire {
     background-color: var(--color-red-400);
@@ -305,6 +324,10 @@
     &::before {
       -webkit-mask: url("icons/fire.svg") no-repeat center / 40px 40px;
       mask: url("icons/fire.svg") no-repeat center / 40px 40px;
+    }
+    .comments-section {
+      --comments-bg-col: var(--color-red-500);
+      --comments-text-col: var(--color-red-300);
     }
   }
 
@@ -335,6 +358,10 @@
       -webkit-mask: url("icons/paper.svg") no-repeat center / 40px 40px;
       mask: url("icons/paper.svg") no-repeat center / 40px 40px;
     }
+    .comments-section {
+      --comments-bg-col: var(--color-green-500);
+      --comments-text-col: var(--color-green-300);
+    }
   }
 
   &--certified {
@@ -364,6 +391,10 @@
       -webkit-mask: url("icons/checkmark.svg") no-repeat center / 40px 40px;
       mask: url("icons/checkmark.svg") no-repeat center / 40px 40px;
     }
+    .comments-section {
+      --comments-bg-col: var(--color-blue-300);
+      --comments-text-col: var(--color-blue-500);
+    }
   }
 
   &__ship-title {
@@ -384,7 +415,6 @@
     display: flex;
     align-items: center;
     gap: var(--space-m);
-    padding-top: var(--space-s);
   }
 
   &--ship {
@@ -413,6 +443,10 @@
     &::before {
       -webkit-mask: url("icons/ship.svg") no-repeat center / 40px 40px;
       mask: url("icons/ship.svg") no-repeat center / 40px 40px;
+    }
+    .comments-section {
+      --comments-bg-col: var(--color-yellow-450);
+      --comments-text-col: var(--color-yellow-600);
     }
   }
 }

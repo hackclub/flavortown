@@ -68,6 +68,10 @@
   <% if devlog? %>
     <div class="post__interactions">
       <%= render "likes/button", likeable: post.postable %>
+      <div class="comments-count">
+        <%= helpers.inline_svg_tag("icons/paper.svg") %>
+        <span class="comments-count__count"><%= commentable.comments_count %></span>
+      </div>
     </div>
     <%= render "comments/section", commentable: post.postable %>
   <% end %>

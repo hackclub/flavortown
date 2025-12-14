@@ -2,10 +2,9 @@
   display: inline-flex;
 
   &__btn {
-    display: inline-flex;
-    align-items: center;
+    display: flex;
+    align-items: flex-end;
     gap: var(--space-xs);
-    padding: var(--space-xs) var(--space-s);
     background: var(--bg-brown);
     border: 2px solid var(--brown);
     border-radius: var(--radius-md);
@@ -49,13 +48,13 @@
   }
 
   &__icon {
-    width: 16px;
-    height: 16px;
+    width: 25px;
+    height: 25px;
     fill: var(--brown);
     transition: fill 0.15s ease;
   }
 
   &__count {
-    font-size: var(--font-size-sm);
+    font-size: 1rem;
   }
 }
