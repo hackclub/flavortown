@@ -3,7 +3,7 @@
     <div class="project-card__banner-frame">
       <% if banner_variant.present? %>
         <%= image_tag project.banner.variant(:card), class: "project-card__banner-image", alt: "#{project.title} banner" %>
-        <% if project.draft? || project.can_ship_again? %>
+        <% if owner? && (project.draft? || project.can_ship_again?) %>
             <%= render ButtonComponent.new(
                 text: project.draft? ? "Ship" : "Ship Again",
                 color: :green,
@@ -30,7 +30,7 @@
         <div class="project-card__banner-frame project-card__banner-frame--placeholder">
           <div class="project-card__banner-placeholder">
             <div class="project-card__banner-placeholder-text">No banner uploaded</div>
-            <% if project.draft? || project.can_ship_again? %>
+            <% if owner? && (project.draft? || project.can_ship_again?) %>
               <%= render ButtonComponent.new(
                 text: project.draft? ? "Ship" : "Ship Again",
                 color: :green,
@@ -108,7 +108,7 @@
             <%= helpers.inline_svg_tag("icons/time.svg") %>
             <span><%= "#{project.time.hours}hr #{project.time.minutes}min" %></span>
           </div>
-          <% if ship_status.present? %>
+          <% if owner? && ship_status.present? %>
             <div class="project-show-card__stat">
               <% if has_feedback? %>
                 <button type="button" data-controller="modal" data-action="click->modal#open" data-modal-target-value="ship-feedback-modal-<%= project.id %>" style="background-color: <%= ship_status_color %>; color: white; border-radius: 9999px; padding: 2px 10px; font-size: 0.85em; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Click to view feedback">
@@ -164,7 +164,7 @@
   </div>
 </article>
 
-<% if has_feedback? %>
+<% if owner? && has_feedback? %>
   <div id="ship-feedback-modal-<%= project.id %>" class="modal" data-controller="modal" style="display: none; position: fixed; inset: 0; z-index: 1000; justify-content: center; align-items: center;">
     <div data-action="click->modal#close" style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);"></div>
     <div style="background: var(--color-cream, #fef3e2); border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; position: relative; z-index: 1001;">

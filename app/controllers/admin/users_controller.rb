@@ -175,7 +175,8 @@ class Admin::UsersController < Admin::ApplicationController
     @user.ledger_entries.create!(
       amount: amount,
       reason: reason,
-      created_by: "#{current_user.display_name} (#{current_user.id})"
+      created_by: "#{current_user.display_name} (#{current_user.id})",
+      ledgerable: @user
     )
 
     flash[:notice] = "Balance adjusted by #{amount} for #{@user.display_name}."
