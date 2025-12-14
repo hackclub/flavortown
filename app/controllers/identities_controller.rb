@@ -8,23 +8,7 @@ class IdentitiesController < ApplicationController
     auth = request.env["omniauth.auth"]
     access_token = auth&.credentials&.token.to_s
 
-    if access_token.present?
-      begin
-        conn = Faraday.new(url: "https://hackatime.hackclub.com")
-        response = conn.get("/api/v1/authenticated/me") do |req|
-          req.headers["Authorization"] = "Bearer #{access_token}"
-          req.headers["Accept"] = "application/json"
-        end
-        if response.success?
-          body = JSON.parse(response.body) rescue {}
-          uid = body.dig("id").to_s
-        end
-      rescue Faraday::Error => e
-        Rails.logger.warn("Hackatime /authenticated/me error: #{e.class}: #{e.message}")
-      rescue StandardError => e
-        Rails.logger.warn("Hackatime /authenticated/me unexpected error: #{e.class}: #{e.message}")
-      end
-    end
+    uid = HackatimeService.fetch_authenticated_user(access_token) if access_token.present?
 
     if uid.blank?
       redirect_to kitchen_path, alert: "Could not determine Hackatime user. Try again."
@@ -37,8 +21,8 @@ class IdentitiesController < ApplicationController
     identity.save!
     current_user.complete_tutorial_step! :setup_hackatime
 
-    project_times = HackatimeService.fetch_user_projects_with_time(uid, user: current_user)
-    total_seconds = project_times.values.sum
+    result = current_user.try_sync_hackatime_data!(force: true)
+    total_seconds = result&.dig(:projects)&.values&.sum || 0
 
     if total_seconds > 0
       duration = helpers.distance_of_time_in_words(total_seconds)

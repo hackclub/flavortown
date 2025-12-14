@@ -82,6 +82,14 @@ class User < ApplicationRecord
     update!(tutorial_steps_completed: tutorial_steps - [ slug ]) if tutorial_step_completed?(slug)
   end
 
+  def hackatime_identity
+    identities.loaded? ? identities.find { |i| i.provider == "hackatime" } : identities.find_by(provider: "hackatime")
+  end
+
+  def hack_club_identity
+    identities.loaded? ? identities.find { |i| i.provider == "hack_club" } : identities.find_by(provider: "hack_club")
+  end
+
   class << self
     # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
     def find_by_hackatime(uid) = find_by_provider("hackatime", uid)
@@ -210,10 +218,31 @@ class User < ApplicationRecord
   def has_commented?
     comments.exists?
   end
+
   def generate_api_key!
     PaperTrail.request(whodunnit: -> { id || "system" }) do
       update!(api_key: "ft_sk_" + SecureRandom.hex(20))
     end
+  end
+
+  def try_sync_hackatime_data!(force: false)
+    return @hackatime_data if @hackatime_data && !force
+
+    return nil unless hackatime_identity
+
+    result = HackatimeService.fetch_stats(hackatime_identity.uid)
+    return nil unless result
+
+    if result[:banned] && !banned?
+      Rails.logger.warn "User #{id} (#{slack_id}) is banned on Hackatime, auto-banning"
+      ban!(reason: "Automatically banned: User is banned on Hackatime")
+    end
+
+    result[:projects].each_key do |name|
+      hackatime_projects.find_or_create_by!(name: name)
+    end
+
+    @hackatime_data = result
   end
 
   private
