@@ -8,6 +8,10 @@
             <%= inline_svg "icons/globe2.svg" %>
             Gallery
         <% end %>
+        <%= link_to explore_following_path, class: "explore__nav-component" do %>
+            <%= inline_svg "icons/globe2.svg" %>
+            Following
+        <% end %>
     </div>
 
     <div id="devlog-list" class="explore__list" data-load-more-target="entries">

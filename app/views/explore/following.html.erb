@@ -1,0 +1,39 @@
+<div class="explore" data-controller="load-more" data-load-more-url-value="<%= explore_following_path %>">
+  <div class="explore__nav">
+    <%= link_to explore_index_path, class: "explore__nav-component" do %>
+      <%= inline_svg "icons/globe2.svg" %>
+      Devlogs
+    <% end %>
+    <%= link_to explore_gallery_path, class: "explore__nav-component" do %>
+      <%= inline_svg "icons/globe2.svg" %>
+      Gallery
+    <% end %>
+    <%= link_to explore_following_path, class: "explore__nav-component selected" do %>
+      <%= inline_svg "icons/globe2.svg" %>
+      Following
+    <% end %>
+  </div>
+
+  <div id="project-list" class="explore__projects-list" data-load-more-target="entries">
+    <% @projects.each do |project| %>
+      <%= render partial: "explore/card", locals: { project: project } %>
+    <% end %>
+  </div>
+
+  <div class="explore__pagination">
+    <% if @pagy.next %>
+      <button
+        type="button"
+        class="btn btn--brown"
+        data-load-more-target="button"
+        data-load-more-url-value="<%= explore_following_path %>"
+        data-turbo="false"
+        data-action="load-more#load"
+        data-page="<%= @pagy.next %>">
+        Load More Projects
+      </button>
+    <% else %>
+      <p class="explore__end">You've reached the end.</p>
+    <% end %>
+  </div>
+</div>

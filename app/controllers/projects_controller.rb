@@ -240,6 +240,34 @@ class ProjectsController < ApplicationController
     end
   end
 
+  def follow
+    return redirect_to(project_path(params[:id]), alert: "Please sign in first.") unless current_user
+
+    @project = Project.find(params[:id])
+    authorize @project, :show?
+
+    follow = current_user.project_follows.build(project: @project)
+    if follow.save
+      redirect_to @project, notice: "You are now following this project."
+    else
+      redirect_to @project, alert: follow.errors.full_messages.to_sentence
+    end
+  end
+
+  def unfollow
+    return redirect_to(project_path(params[:id]), alert: "Please sign in first.") unless current_user
+
+    @project = Project.find(params[:id])
+    authorize @project, :show?
+
+    follow = current_user.project_follows.find_by(project: @project)
+    if follow&.destroy
+      redirect_to @project, notice: "You have unfollowed this project."
+    else
+      redirect_to @project, alert: "Could not unfollow."
+    end
+  end
+
   private
 
   def load_ship_data

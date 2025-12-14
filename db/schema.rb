@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_13_000001) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_14_034956) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -252,6 +252,16 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_13_000001) do
     t.bigint "user_id"
     t.index ["project_id"], name: "index_posts_on_project_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
+  end
+
+  create_table "project_follows", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "project_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["project_id"], name: "index_project_follows_on_project_id"
+    t.index ["user_id", "project_id"], name: "index_project_follows_on_user_id_and_project_id", unique: true
+    t.index ["user_id"], name: "index_project_follows_on_user_id"
   end
 
   create_table "project_ideas", force: :cascade do |t|
@@ -524,6 +534,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_13_000001) do
   add_foreign_key "likes", "users"
   add_foreign_key "posts", "projects"
   add_foreign_key "posts", "users"
+  add_foreign_key "project_follows", "projects"
+  add_foreign_key "project_follows", "users"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
   add_foreign_key "projects", "users", column: "marked_fire_by_id"

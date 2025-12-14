@@ -57,6 +57,37 @@ class ExploreController < ApplicationController
     end
   end
 
+  def following
+    unless current_user
+      redirect_to login_path, alert: "You need to sign in to view followed projects." and return
+    end
+
+    scope = current_user.followed_projects
+                        .includes(:banner_attachment, posts: :postable)
+                        .order(created_at: :desc)
+
+    @pagy, @projects = pagy(scope)
+
+    respond_to do |format|
+      format.html
+      format.json do
+        html = @projects.map do |project|
+          render_to_string(
+            partial: "explore/card",
+            locals: { project: project },
+            layout: false,
+            formats: [ :html ]
+          )
+        end.join
+
+        render json: {
+          html: html,
+          next_page: @pagy.next
+        }
+      end
+    end
+  end
+
   private
 
   def devlog_variant(post)
