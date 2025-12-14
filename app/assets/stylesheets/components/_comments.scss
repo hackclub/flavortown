@@ -1,29 +1,43 @@
 .comments-section {
-  margin-top: var(--space-xl);
-  padding: var(--space-l);
-  background: var(--bg-brown);
-  border-radius: var(--radius-lg);
+  --comments-bg-col: var(--color-yellow-450);
+  --comments-text-col: var(--color-yellow-600);
 
   &__title {
     display: flex;
     align-items: center;
     gap: var(--space-xs);
     margin: 0 0 var(--space-m);
-    font-size: var(--font-size-lg);
-    color: var(--brown);
-
-    svg {
-      width: 20px;
-      height: 20px;
-      fill: var(--brown);
-    }
+    font-weight: normal;
+    font-size: 1.2rem;
   }
 
   &__list {
     display: flex;
     flex-direction: column;
-    gap: var(--space-m);
     margin-top: var(--space-m);
+    background: var(--comments-bg-col);
+    border-radius: 12px;
+    color: var(--comments-text-col);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: "";
+      position: absolute;
+      border-radius: inherit;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url("landing/pattern.avif") repeat center center / 1200px;
+      opacity: 0.05;
+      z-index: 0;
+    }
+
+    > * {
+      position: relative;
+      z-index: 1;
+    }
   }
 }
 
@@ -32,29 +46,39 @@
   background: var(--bg-cream);
   border-radius: var(--radius-md);
   border: 1px solid var(--brown-light);
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-m);
+
+  &__content {
+    width: 100%;
+  }
 
   &__header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--space-s);
     margin-bottom: var(--space-s);
+    width: 100%;
   }
 
   &__avatar {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
   }
 
   &__meta {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5em;
     flex: 1;
   }
 
   &__author {
-    font-weight: 600;
+    font-weight: bold;
     color: var(--brown);
     font-size: var(--font-size-sm);
   }
@@ -67,7 +91,6 @@
   &__delete {
     background: none;
     border: none;
-    padding: var(--space-xs);
     cursor: pointer;
     opacity: 0.5;
     transition: opacity 0.15s ease;
@@ -89,11 +112,7 @@
     line-height: 1.5;
 
     p {
-      margin: 0;
-
-      + p {
-        margin-top: var(--space-s);
-      }
+      margin-top: -0.5em;
     }
   }
 }

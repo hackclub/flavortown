@@ -4,12 +4,9 @@
 %>
 
 <div class="comments-section">
-  <h3 class="comments-section__title">
-    <%= inline_svg_tag("icons/paper.svg") %>
-    Comments (<span id="comments_count_<%= commentable_type %>_<%= commentable.id %>"><%= commentable.comments_count %></span>)
-  </h3>
-
   <%= render "comments/form", commentable: commentable %>
+
+  <h3 class="comments-section__title">Comments</h3>
 
   <div id="<%= comments_dom_id %>" class="comments-section__list">
     <% commentable.comments.includes(:user).order(created_at: :asc).each do |comment| %>
