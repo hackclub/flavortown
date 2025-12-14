@@ -70,6 +70,7 @@ class ShopOrder < ApplicationRecord
   validate :check_user_balance, on: :create
   validate :check_regional_availability, on: :create
   validate :check_free_stickers_requirement, on: :create
+  validate :check_devlog_for_free_stickers, on: :create
 
   after_create :create_negative_payout
   before_create :freeze_item_price
@@ -302,6 +303,13 @@ class ShopOrder < ApplicationRecord
     return if user.shop_orders.joins(:shop_item).where(shop_items: { type: "ShopItem::FreeStickers" }).worth_counting.exists?
 
     errors.add(:base, "You must order the Free Stickers first before ordering other items!")
+  end
+
+  def check_devlog_for_free_stickers
+    return unless shop_item.is_a?(ShopItem::FreeStickers)
+    return if Post.where(user: user, postable_type: "Post::Devlog").exists?
+
+    errors.add(:base, "You must post at least one devlog before ordering free stickers!")
   end
 
   def create_negative_payout
