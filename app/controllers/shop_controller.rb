@@ -166,6 +166,7 @@ class ShopController < ApplicationController
           current_user.complete_tutorial_step! :free_stickers
         rescue => e
           Rails.logger.error "Free stickers fulfillment failed: #{e.message}"
+          Sentry.capture_exception(e, extra: { order_id: @order.id, user_id: current_user.id })
           redirect_to shop_my_orders_path, alert: "Order placed but fulfillment failed. We'll process it shortly."
           return
         end
