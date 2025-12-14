@@ -204,7 +204,7 @@ class ProjectsController < ApplicationController
             admin_action: [ nil, "mark_fire" ],
             marked_fire_by_id: [ nil, current_user.id ],
             created_post_id: [ nil, post.id ]
-          }.to_yaml
+          }
         )
 
         Project::PostToMagicJob.perform_later(@project)
@@ -233,7 +233,7 @@ class ProjectsController < ApplicationController
         whodunnit: current_user.id,
         object_changes: {
           admin_action: [ nil, "unmark_fire" ]
-        }.to_yaml
+        }
       )
 
       render json: { message: "Project unmarked as 🔥", fire: false }, status: :ok

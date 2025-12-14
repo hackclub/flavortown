@@ -146,6 +146,15 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     if @order.can_view_address?(current_user)
       @decrypted_address = @order.decrypted_address_for(current_user)
+
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: @order.user_id,
+        event: "address_revealed",
+        whodunnit: current_user.id.to_s,
+        object_changes: { order_id: @order.id, shop_item: @order.shop_item&.name }
+      )
+
       render turbo_stream: turbo_stream.replace(
         "address-content",
         partial: "address_details",
@@ -174,7 +183,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         whodunnit: current_user.id,
         object_changes: {
           aasm_state: [ old_state, @order.aasm_state ]
-        }.to_yaml
+        }
       )
       redirect_to admin_shop_orders_path, notice: "Order approved for fulfillment"
     else
@@ -197,7 +206,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         object_changes: {
           aasm_state: [ old_state, @order.aasm_state ],
           rejection_reason: [ nil, reason ]
-        }.to_yaml
+        }
       )
       redirect_to admin_shop_orders_path, notice: "Order rejected"
     else
@@ -218,7 +227,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         whodunnit: current_user.id,
         object_changes: {
           aasm_state: [ old_state, @order.aasm_state ]
-        }.to_yaml
+        }
       )
       redirect_to admin_shop_orders_path, notice: "Order placed on hold"
     else
@@ -239,7 +248,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         whodunnit: current_user.id,
         object_changes: {
           aasm_state: [ old_state, @order.aasm_state ]
-        }.to_yaml
+        }
       )
       redirect_to admin_shop_orders_path, notice: "Order released from hold"
     else
@@ -264,7 +273,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         whodunnit: current_user.id,
         object_changes: {
           aasm_state: [ old_state, @order.aasm_state ]
-        }.to_yaml
+        }
       )
       redirect_to admin_shop_order_path(@order), notice: "Order marked as fulfilled"
     else
@@ -289,7 +298,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         whodunnit: current_user.id,
         object_changes: {
           internal_notes: [ old_notes, @order.internal_notes ]
-        }.to_yaml
+        }
       )
       redirect_to admin_shop_order_path(@order), notice: "Internal notes updated"
     else
