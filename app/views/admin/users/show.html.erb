@@ -19,7 +19,7 @@
     <div class="info-rows">
       <div><b>Name:</b> <%= @user.display_name %></div>
       <div><b>Balance:</b> <%= @user.balance %> tickets</div>
-      <div><b>Roles:</b> <%= @user.role_assignments.map(&:role).join(", ") %></div>
+      <div><b>Roles:</b> <%= @user.roles.map { |r| r.to_s.titleize }.join(", ") %></div>
       <div><b>Projects:</b> <%= @user.projects_count %></div>
       <% if @user.fulfillment_person? %>
         <div>
@@ -301,7 +301,7 @@
               role_int_array
             end
 
-            role_name = User::RoleAssignment.roles.key(role_int) if role_int
+            role_name = User::Role.all.find { |r| r.id == role_int }&.name if role_int
             admin = User.find_by(id: version.whodunnit)
           %>
           <tr>
