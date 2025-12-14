@@ -2,7 +2,7 @@ class Admin::UsersController < Admin::ApplicationController
     def index
       @query = params[:query]
 
-      users = User.all.with_roles
+      users = User.all
       if @query.present?
         q = "%#{@query}%"
         users = users.where("email ILIKE ? OR display_name ILIKE ?", q, q)
@@ -12,7 +12,7 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def show
-      @user = User.with_roles.includes(:identities).find(params[:id])
+      @user = User.includes(:identities).find(params[:id])
 
       # Get all actions performed on this user (filter out empty updates)
       user_versions = PaperTrail::Version
@@ -34,7 +34,7 @@ class Admin::UsersController < Admin::ApplicationController
 
     def user_perms
       authorize :admin, :manage_users?
-      @users = User.joins(:role_assignments).distinct.order(:id)
+      @users = User.where("array_length(granted_roles, 1) > 0").order(:id)
     end
 
     def promote_role
@@ -48,7 +48,8 @@ class Admin::UsersController < Admin::ApplicationController
         return redirect_to admin_user_path(@user)
       end
 
-      @user.role_assignments.create!(role: role_name)
+
+      @user.grant_role!(role_name)
 
       # Create explicit audit entry on User
       PaperTrail::Version.create!(
@@ -75,10 +76,9 @@ class Admin::UsersController < Admin::ApplicationController
       return redirect_to admin_user_path(@user)
     end
 
-    role_assignment = @user.role_assignments.find_by(role: User::RoleAssignment.roles[role_name])
 
-    if role_assignment
-      role_assignment.destroy!
+    if @user.has_role?(role_name)
+      @user.remove_role!(role_name)
 
       # Create explicit audit entry on User
       PaperTrail::Version.create!(
@@ -131,13 +131,12 @@ class Admin::UsersController < Admin::ApplicationController
   def sync_hackatime
     authorize :admin, :manage_users?
     @user = User.find(params[:id])
-    hackatime_identity = @user.identities.find_by(provider: "hack_club")
 
-    if hackatime_identity
-      HackatimeService.sync_user_projects(@user, hackatime_identity.uid)
+    if @user.hackatime_identity
+      @user.try_sync_hackatime_data!(force: true)
       flash[:notice] = "Hackatime data synced for #{@user.display_name}."
     else
-      flash[:alert] = "User does not have a Slack identity."
+      flash[:alert] = "User does not have a Hackatime identity."
     end
 
     redirect_to admin_user_path(@user)

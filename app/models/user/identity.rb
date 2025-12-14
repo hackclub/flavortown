@@ -39,18 +39,5 @@ class User::Identity < ApplicationRecord
     validates :uid, uniqueness: { scope: :provider }
     validates :provider, uniqueness: { scope: :user_id }
 
-    after_create_commit :sync_hackatime_projects, if: -> { provider == "hackatime" }
-    private
-
-    def sync_hackatime_projects
-        return if user.blank?
-
-        begin
-            return if uid.blank?
-
-            HackatimeService.sync_user_projects(user, uid)
-        rescue StandardError => e
-            Rails.logger.warn("Hackatime project sync failed for user #{user.id} (hackatime_uid=#{uid}): #{e.class}: #{e.message}")
-        end
-    end
+    after_create_commit -> { user&.try_sync_hackatime_data! }, if: -> { provider == "hackatime" }
 end

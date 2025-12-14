@@ -10,8 +10,8 @@
 #  display_name                :string
 #  email                       :string
 #  first_name                  :string
+#  granted_roles               :string           default([]), not null, is an Array
 #  has_gotten_free_stickers    :boolean          default(FALSE)
-#  has_roles                   :boolean          default(TRUE), not null
 #  hcb_email                   :string
 #  last_name                   :string
 #  magic_link_token            :string
@@ -41,7 +41,6 @@
 class User < ApplicationRecord
   has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
   has_many :identities, class_name: "User::Identity", dependent: :destroy
-  has_many :role_assignments, class_name: "User::RoleAssignment", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
   has_many :projects, through: :memberships
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
@@ -67,7 +66,23 @@ class User < ApplicationRecord
 
   after_commit :handle_verification_eligibility_change, if: :should_check_verification_eligibility?
 
-  scope :with_roles, -> { includes(:role_assignments) }
+  def roles = granted_roles&.map(&:to_sym) || []
+
+  def has_role?(role_name) = roles.include?(role_name.to_sym)
+
+  def grant_role!(role_name)
+    role = role_name.to_sym
+    raise ArgumentError, "Invalid role: #{role_name}" unless User::Role.all_slugs.include?(role)
+
+    update!(granted_roles: roles + [ role ]) unless has_role?(role)
+  end
+
+  def remove_role!(role_name)
+    role = role_name.to_sym
+    raise ArgumentError, "Invalid role: #{role_name}" unless User::Role.all_slugs.include?(role)
+
+    update!(granted_roles: roles - [ role ]) if has_role?(role)
+  end
 
   # use me! i'm full of symbols!! disregard the foul tutorial_steps_completed, she lies
   def tutorial_steps = tutorial_steps_completed&.map(&:to_sym) || []
@@ -82,6 +97,14 @@ class User < ApplicationRecord
     update!(tutorial_steps_completed: tutorial_steps - [ slug ]) if tutorial_step_completed?(slug)
   end
 
+  def hackatime_identity
+    identities.loaded? ? identities.find { |i| i.provider == "hackatime" } : identities.find_by(provider: "hackatime")
+  end
+
+  def hack_club_identity
+    identities.loaded? ? identities.find { |i| i.provider == "hack_club" } : identities.find_by(provider: "hack_club")
+  end
+
   class << self
     # Add more providers if needed, but make sure to include each one in PROVIDERS inside user/identity.rb; otherwise, the validation will fail.
     def find_by_hackatime(uid) = find_by_provider("hackatime", uid)
@@ -94,19 +117,13 @@ class User < ApplicationRecord
     end
   end
 
-  User::RoleAssignment.roles.each_key do |role_name|
-    # ie. admin?
+  %i[super_admin admin fraud_dept project_certifier ysws_reviewer fulfillment_person].each do |role_name|
     define_method "#{role_name}?" do
-      if role_assignments.loaded?
-        role_assignments.any? { |r| r.role == role_name }
-      else
-        role_assignments.exists?(role: role_name)
-      end
+      has_role?(role_name)
     end
 
-    # ie. make_admin!
     define_method "make_#{role_name}!" do
-      role_assignments.find_or_create_by!(role: role_name)
+      grant_role!(role_name)
     end
   end
 
@@ -133,11 +150,12 @@ class User < ApplicationRecord
   end
 
   def highest_role
-    role_assignments.min_by { |a| User::RoleAssignment.roles[a.role] }&.role&.titleize || "User"
+    roles.min_by { |r| User::Role.all_slugs.index(r) }&.to_s&.titleize || "User"
   end
+
   def promote_to_big_leagues!
-    role = ::Role.find_by(name: "super_admin")
-    role_assignments.find_or_create_by!(role: role) if role
+    make_super_admin!
+    make_admin!
   end
 
   def generate_magic_link_token!
@@ -210,10 +228,31 @@ class User < ApplicationRecord
   def has_commented?
     comments.exists?
   end
+
   def generate_api_key!
     PaperTrail.request(whodunnit: -> { id || "system" }) do
       update!(api_key: "ft_sk_" + SecureRandom.hex(20))
     end
+  end
+
+  def try_sync_hackatime_data!(force: false)
+    return @hackatime_data if @hackatime_data && !force
+
+    return nil unless hackatime_identity
+
+    result = HackatimeService.fetch_stats(hackatime_identity.uid)
+    return nil unless result
+
+    if result[:banned] && !banned?
+      Rails.logger.warn "User #{id} (#{slack_id}) is banned on Hackatime, auto-banning"
+      ban!(reason: "Automatically banned: User is banned on Hackatime")
+    end
+
+    result[:projects].each_key do |name|
+      hackatime_projects.find_or_create_by!(name: name)
+    end
+
+    @hackatime_data = result
   end
 
   private

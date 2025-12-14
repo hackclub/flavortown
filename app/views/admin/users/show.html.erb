@@ -19,7 +19,7 @@
     <div class="info-rows">
       <div><b>Name:</b> <%= @user.display_name %></div>
       <div><b>Balance:</b> <%= @user.balance %> tickets</div>
-      <div><b>Roles:</b> <%= @user.role_assignments.map(&:role).join(", ") %></div>
+      <div><b>Roles:</b> <%= @user.roles.map { |r| r.to_s.titleize }.join(", ") %></div>
       <div><b>Projects:</b> <%= @user.projects_count %></div>
       <% if @user.fulfillment_person? %>
         <div>
@@ -379,5 +379,62 @@
     </table>
 
     <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User", item_id: @user.id), class: "btn-secondary", style: "margin-top: 1rem; display: inline-block;" %>
+  </div>
+<% end %>
+
+<% if @role_history.any? %>
+  <div class="card" style="margin-top: 1.5rem;">
+    <h2>Role Change History</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Action</th>
+          <th>Role</th>
+          <th>Changed By</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @role_history.each do |version| %>
+          <%
+            changes = YAML.load(version.object_changes) rescue {}
+            # For create: [nil, 5], for destroy: [5, nil] - we want the non-nil value
+            role_int_array = changes["role"]
+            role_int = if role_int_array.is_a?(Array)
+              role_int_array.compact.first
+            else
+              role_int_array
+            end
+
+            role_name = User::Role.all.find { |r| r.id == role_int }&.name if role_int
+            admin = User.find_by(id: version.whodunnit)
+          %>
+          <tr>
+            <td><%= version.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+            <td>
+              <% if version.event == "create" %>
+                <span style="color: #10b981; font-weight: 500;">✓ Promoted</span>
+              <% elsif version.event == "destroy" %>
+                <span style="color: #ef4444; font-weight: 500;">✗ Demoted</span>
+              <% else %>
+                <%= version.event %>
+              <% end %>
+            </td>
+            <td>
+              <%= role_name&.titleize || "Unknown Role" %>
+            </td>
+            <td>
+              <% if admin %>
+                <%= link_to admin.display_name, admin_user_path(admin) %>
+              <% elsif version.whodunnit %>
+                User #<%= version.whodunnit %>
+              <% else %>
+                <em>System</em>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
 <% end %>
