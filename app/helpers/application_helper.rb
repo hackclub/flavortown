@@ -39,4 +39,15 @@ module ApplicationHelper
   rescue URI::InvalidURIError
     nil
   end
+
+  def cache_stats
+    hits = Thread.current[:cache_hits] || 0
+    misses = Thread.current[:cache_misses] || 0
+    { hits: hits, misses: misses }
+  end
+
+  def requests_per_second
+    rps = RequestCounter.per_second
+    rps == :high_load ? "lots of req/sec" : "#{rps} req/sec"
+  end
 end
