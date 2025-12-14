@@ -6,7 +6,7 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #  project_id :bigint           not null
-#  user_id    :bigint
+#  user_id    :bigint           not null
 #
 # Indexes
 #
@@ -29,8 +29,10 @@ class ProjectFollow < ApplicationRecord
   private
 
   def cannot_follow_own_project
-    return unless project.users.loaded? && project.users.any? { |u| u.id == user_id }
+    project_users = project.users
 
-    errors.add(:user_id, "cannot follow your own project")
+    if project_users.any? { |u| u.id == user_id }
+      errors.add(:user_id, "cannot follow your own project")
+    end
   end
 end
