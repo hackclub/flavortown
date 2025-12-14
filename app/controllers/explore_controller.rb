@@ -58,6 +58,10 @@ class ExploreController < ApplicationController
   end
 
   def following
+    unless current_user
+      redirect_to login_path, alert: "You need to sign in to view followed projects." and return
+    end
+
     scope = current_user.followed_projects.includes(banner_attachment: :blob).order(created_at: :desc)
 
     @pagy, @projects = pagy(scope)
