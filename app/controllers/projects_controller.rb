@@ -258,10 +258,11 @@ class ProjectsController < ApplicationController
   end
 
   def validate_hackatime_projects
-    if hackatime_project_ids.empty?
-      @project.errors.add(:base, "You must select at least one Hackatime project")
-      return
-    end
+    # if hackatime_project_ids.empty?
+    #   @project.errors.add(:base, "You must select at least one Hackatime project")
+    #   return
+    # end
+    return if hackatime_project_ids.empty?
 
     already_linked = current_user.hackatime_projects
                                  .where(id: hackatime_project_ids)
