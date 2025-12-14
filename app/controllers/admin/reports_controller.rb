@@ -48,7 +48,7 @@ module Admin
           whodunnit: current_user.id,
           object_changes: {
             status: [ old_status, @report.status ]
-          }.to_yaml
+          }
         )
         redirect_to admin_reports_path, notice: notice_message
       else

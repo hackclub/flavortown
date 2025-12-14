@@ -57,7 +57,7 @@ class Admin::UsersController < Admin::ApplicationController
         item_id: @user.id,
         event: "role_promoted",
         whodunnit: current_user.id.to_s,
-        object_changes: { role: role_name }.to_yaml
+        object_changes: { role: role_name }
       )
 
       flash[:notice] = "User promoted to #{role_name.titleize}."
@@ -86,7 +86,7 @@ class Admin::UsersController < Admin::ApplicationController
         item_id: @user.id,
         event: "role_demoted",
         whodunnit: current_user.id.to_s,
-        object_changes: { role: role_name }.to_yaml
+        object_changes: { role: role_name }
       )
 
       flash[:notice] = "User demoted from #{role_name.titleize}."
@@ -110,7 +110,7 @@ class Admin::UsersController < Admin::ApplicationController
         item_id: @user.id,
         event: "flipper_disable",
         whodunnit: current_user.id,
-        object_changes: { feature: [ feature.to_s, nil ], status: [ "enabled", "disabled" ] }.to_yaml
+        object_changes: { feature: [ feature.to_s, nil ], status: [ "enabled", "disabled" ] }
       )
       flash[:notice] = "Disabled #{feature} for #{@user.display_name}."
     else
@@ -120,7 +120,7 @@ class Admin::UsersController < Admin::ApplicationController
         item_id: @user.id,
         event: "flipper_enable",
         whodunnit: current_user.id,
-        object_changes: { feature: [ nil, feature.to_s ], status: [ "disabled", "enabled" ] }.to_yaml
+        object_changes: { feature: [ nil, feature.to_s ], status: [ "disabled", "enabled" ] }
       )
       flash[:notice] = "Enabled #{feature} for #{@user.display_name}."
     end
@@ -161,7 +161,7 @@ class Admin::UsersController < Admin::ApplicationController
           object_changes: {
             aasm_state: [ old_state, order.aasm_state ],
             rejection_reason: [ nil, reason ]
-          }.to_yaml
+          }
         )
         count += 1
       end

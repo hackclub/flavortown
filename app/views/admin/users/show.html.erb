@@ -224,10 +224,16 @@
           <% else %>
             <%
               version = action
-              # With native JSONB, object_changes is already a hash
-              changes = (version.object_changes || {}).with_indifferent_access
+              # Handle both YAML strings (old data) and native JSONB hashes (new data)
+              raw_changes = version.object_changes
+              changes = if raw_changes.is_a?(Hash)
+                raw_changes.with_indifferent_access
+              elsif raw_changes.is_a?(String) && raw_changes.present?
+                (YAML.safe_load(raw_changes, permitted_classes: [Time, Date, DateTime, BigDecimal, Symbol]) || {}).with_indifferent_access rescue {}
+              else
+                {}.with_indifferent_access
+              end
               admin = User.find_by(id: version.whodunnit)
-              is_role_version = version.item_type == "User::RoleAssignment"
               is_ban_event = changes["banned"].is_a?(Array) rescue false
               is_magic_link_event = changes["magic_link_token"].is_a?(Array) rescue false
             %>
@@ -237,10 +243,6 @@
                 <% if version.event == "role_promoted" %>
                   <span style="color: #10b981; font-weight: 500;">👑 Role Promoted</span>
                 <% elsif version.event == "role_demoted" %>
-                  <span style="color: #ef4444; font-weight: 500;">👑 Role Demoted</span>
-                <% elsif is_role_version && version.event == "create" %>
-                  <span style="color: #10b981; font-weight: 500;">👑 Role Promoted</span>
-                <% elsif is_role_version && version.event == "destroy" %>
                   <span style="color: #ef4444; font-weight: 500;">👑 Role Demoted</span>
                 <% elsif is_ban_event %>
                   <% if changes["banned"]&.last == true %>
@@ -273,31 +275,6 @@
                 <% if version.event == "role_promoted" || version.event == "role_demoted" %>
                   <% role_name_str = changes["role"] || changes[:role] %>
                   <strong><%= role_name_str&.to_s&.titleize || "Unknown Role" %></strong>
-                <% elsif is_role_version %>
-                  <%
-                    # Try object_changes first
-                    role_int_array = changes["role"] || changes[:role]
-                    role_int = if role_int_array.is_a?(Array)
-                      role_int_array.compact.last || role_int_array.compact.first
-                    else
-                      role_int_array
-                    end
-
-                    # If not in object_changes, try to get from the actual record or object
-                    if role_int.nil? && version.item_id.present?
-                      role_assignment = User::RoleAssignment.find_by(id: version.item_id)
-                      role_int = role_assignment&.role_before_type_cast
-                    end
-
-                    # For destroy events, use the object (previous state) - already a hash with JSONB
-                    if role_int.nil? && version.object.present?
-                      obj = (version.object || {}).with_indifferent_access
-                      role_int = obj["role"]
-                    end
-
-                    role_name = User::RoleAssignment.roles.key(role_int.to_i) if role_int.present?
-                  %>
-                  <strong><%= role_name&.to_s&.titleize || "Unknown Role" %></strong>
                 <% elsif is_ban_event %>
                   <% ban_reason = changes["banned_reason"]&.last %>
                   <% if ban_reason.present? %>
@@ -382,59 +359,4 @@
   </div>
 <% end %>
 
-<% if @role_history.any? %>
-  <div class="card" style="margin-top: 1.5rem;">
-    <h2>Role Change History</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Action</th>
-          <th>Role</th>
-          <th>Changed By</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @role_history.each do |version| %>
-          <%
-            changes = YAML.load(version.object_changes) rescue {}
-            # For create: [nil, 5], for destroy: [5, nil] - we want the non-nil value
-            role_int_array = changes["role"]
-            role_int = if role_int_array.is_a?(Array)
-              role_int_array.compact.first
-            else
-              role_int_array
-            end
 
-            role_name = User::Role.all.find { |r| r.id == role_int }&.name if role_int
-            admin = User.find_by(id: version.whodunnit)
-          %>
-          <tr>
-            <td><%= version.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-            <td>
-              <% if version.event == "create" %>
-                <span style="color: #10b981; font-weight: 500;">✓ Promoted</span>
-              <% elsif version.event == "destroy" %>
-                <span style="color: #ef4444; font-weight: 500;">✗ Demoted</span>
-              <% else %>
-                <%= version.event %>
-              <% end %>
-            </td>
-            <td>
-              <%= role_name&.titleize || "Unknown Role" %>
-            </td>
-            <td>
-              <% if admin %>
-                <%= link_to admin.display_name, admin_user_path(admin) %>
-              <% elsif version.whodunnit %>
-                User #<%= version.whodunnit %>
-              <% else %>
-                <em>System</em>
-              <% end %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
-<% end %>
