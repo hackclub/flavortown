@@ -37,6 +37,23 @@ class IdentitiesController < ApplicationController
     identity.save!
     current_user.complete_tutorial_step! :setup_hackatime
 
+    project_times = HackatimeService.fetch_user_projects_with_time(uid, user: current_user)
+    total_seconds = project_times.values.sum
+
+    if total_seconds > 0
+      duration = helpers.distance_of_time_in_words(total_seconds)
+      tutorial_message [
+        "Waouh! You already have #{duration} tracked on Hackatime — well done chef!",
+        "Now we will create a project..."
+      ]
+    else
+      tutorial_message [
+        "Oh, it would appear that Hackatime is linked, but you don't have any time tracked yet.",
+        "Don't worry — just install the Hackatime extension in your code editor.",
+        "And then cook tasty projects here, earn cookies, and get free rewards!"
+      ]
+    end
+
     redirect_to kitchen_path, notice: "Hackatime linked!"
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.warn("Hackatime identity save failed: #{e.record.errors.full_messages.join(", ")}")

@@ -1,5 +1,5 @@
 class ProjectsController < ApplicationController
-  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship ]
+  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship, :mark_fire, :unmark_fire ]
   before_action :set_project, only: [ :show ]
 
   def index
@@ -48,6 +48,22 @@ class ProjectsController < ApplicationController
       link_hackatime_projects
       flash[:notice] = "Project created successfully"
       current_user.complete_tutorial_step! :create_project
+
+      project_hours = @project.total_hackatime_hours
+      if project_hours > 0
+        tutorial_message [
+          "Hmmm... your project has #{helpers.distance_of_time_in_words(project_hours.hours)} tracked already — nice work chef!",
+          "You're ready to post your first devlog.",
+          "A good chef shows their progress every few hours — they never go over 10 hours without logging progress as it might get lost!"
+        ]
+      else
+        tutorial_message [
+          "Good job chef — you created a project! Now cook up some code for a bit and track hours in your code editor.",
+          "Once you have some time tracked, come back here and post a devlog.",
+          "Remember, post devlogs every few hours. Good chefs know that not posting a devlog after over 10 hours of tracked time might lead to it being lost!"
+        ]
+      end
+
       redirect_to @project
     else
       flash[:alert] = "Failed to create project: #{@project.errors.full_messages.join(', ')}"
@@ -152,6 +168,65 @@ class ProjectsController < ApplicationController
     redirect_to @project
   end
 
+  def mark_fire
+    authorize :admin, :manage_projects?
+
+    return render(json: { message: "Project not found" }, status: :not_found) unless @project
+
+    PaperTrail.request(whodunnit: current_user.id) do
+      fire_event = Post::FireEvent.new(
+        body: "🔥 #{current_user.display_name} marked your project as well cooked! As a prize for your nicely cooked project, look out for a bonus prize in the mail :)"
+      )
+      post = @project.posts.build(user: current_user, postable: fire_event)
+
+      if post.save
+        @project.mark_fire!(current_user)
+
+        PaperTrail::Version.create!(
+          item_type: "Project",
+          item_id: @project.id,
+          event: "mark_fire",
+          whodunnit: current_user.id,
+          object_changes: {
+            admin_action: [ nil, "mark_fire" ],
+            marked_fire_by_id: [ nil, current_user.id ],
+            created_post_id: [ nil, post.id ]
+          }.to_yaml
+        )
+
+        Project::PostToMagicJob.perform_later(@project)
+        Project::MagicHappeningLetterJob.perform_later(@project)
+
+        render json: { message: "Project marked as 🔥!", fire: true }, status: :ok
+      else
+        errors = (post.errors.full_messages + fire_event.errors.full_messages).uniq
+        render json: { message: errors.to_sentence.presence || "Failed to mark project as 🔥" }, status: :unprocessable_entity
+      end
+    end
+  end
+
+  def unmark_fire
+    authorize :admin, :manage_projects?
+
+    return render(json: { message: "Project not found" }, status: :not_found) unless @project
+
+    PaperTrail.request(whodunnit: current_user.id) do
+      @project.unmark_fire!
+
+      PaperTrail::Version.create!(
+        item_type: "Project",
+        item_id: @project.id,
+        event: "unmark_fire",
+        whodunnit: current_user.id,
+        object_changes: {
+          admin_action: [ nil, "unmark_fire" ]
+        }.to_yaml
+      )
+
+      render json: { message: "Project unmarked as 🔥", fire: false }, status: :ok
+    end
+  end
+
   private
 
   def load_ship_data
@@ -183,6 +258,10 @@ class ProjectsController < ApplicationController
   end
 
   def validate_hackatime_projects
+    # if hackatime_project_ids.empty?
+    #   @project.errors.add(:base, "You must select at least one Hackatime project")
+    #   return
+    # end
     return if hackatime_project_ids.empty?
 
     already_linked = current_user.hackatime_projects

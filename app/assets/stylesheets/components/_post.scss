@@ -16,6 +16,7 @@
       transparent 90deg 180deg
     );
   background-size: 120px 120px;
+  box-shadow: var(--shadow);
 
   &::before {
     content: "";
@@ -277,10 +278,29 @@
     background: var(--color-brown-400);
   }
 
+  .comments-count {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-xs);
+    color: var(--brown);
+    font-weight: 600;
+
+    svg {
+      width: 25px;
+      height: 25px;
+      fill: var(--brown);
+      transition: fill 0.15s ease;
+    }
+
+    &__count {
+      font-size: 1rem;
+    }
+  }
+
   // Variants
   &--fire {
-    background-color: var(--color-red-500);
-    border-color: var(--color-red-400);
+    background-color: var(--color-red-400);
+    border-color: var(--color-red-300);
 
     .post__avatar {
       background-color: var(--color-red-300);
@@ -304,6 +324,10 @@
     &::before {
       -webkit-mask: url("icons/fire.svg") no-repeat center / 40px 40px;
       mask: url("icons/fire.svg") no-repeat center / 40px 40px;
+    }
+    .comments-section {
+      --comments-bg-col: var(--color-red-500);
+      --comments-text-col: var(--color-red-300);
     }
   }
 
@@ -334,11 +358,15 @@
       -webkit-mask: url("icons/paper.svg") no-repeat center / 40px 40px;
       mask: url("icons/paper.svg") no-repeat center / 40px 40px;
     }
+    .comments-section {
+      --comments-bg-col: var(--color-green-500);
+      --comments-text-col: var(--color-green-300);
+    }
   }
 
   &--certified {
-    background-color: var(--color-blue-500);
-    border-color: var(--color-blue-400);
+    background-color: var(--color-blue-400);
+    border-color: var(--color-teal-400);
 
     .post__avatar {
       background-color: var(--color-blue-300);
@@ -363,9 +391,20 @@
       -webkit-mask: url("icons/checkmark.svg") no-repeat center / 40px 40px;
       mask: url("icons/checkmark.svg") no-repeat center / 40px 40px;
     }
+    .comments-section {
+      --comments-bg-col: var(--color-blue-300);
+      --comments-text-col: var(--color-blue-500);
+    }
   }
 
   &__ship-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 var(--space-s) 0;
+    color: inherit;
+  }
+
+  &__fire-title {
     font-size: 1.8rem;
     font-weight: 700;
     margin: 0 0 var(--space-s) 0;
@@ -376,12 +415,11 @@
     display: flex;
     align-items: center;
     gap: var(--space-m);
-    padding-top: var(--space-s);
   }
 
   &--ship {
     background-color: var(--color-yellow-500);
-    border-color: var(--color-yellow-450);
+    border-color: var(--color-yellow-300);
 
     .post__avatar {
       background-color: var(--color-yellow-400);
@@ -405,6 +443,10 @@
     &::before {
       -webkit-mask: url("icons/ship.svg") no-repeat center / 40px 40px;
       mask: url("icons/ship.svg") no-repeat center / 40px 40px;
+    }
+    .comments-section {
+      --comments-bg-col: var(--color-yellow-450);
+      --comments-text-col: var(--color-yellow-600);
     }
   }
 }

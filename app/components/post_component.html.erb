@@ -1,10 +1,10 @@
 <article class="post <%= variant_class %>">
   <header class="post__header">
     <div class="post__avatar">
-    <%= image_tag post.user.avatar, alt: author_name, class: "post__avatar" %>
+    <%= image_tag post.user&.avatar || "https://ca.slack-edge.com/T0266FRGM-U07GZPGJX1G-g98be5e77f20-512", alt: author_name, class: "post__avatar" %>
     </div>
     <div class="post__meta">
-      <div class="post__author"><%= author_name %></div>
+      <div class="post__author"><%= author_name %><%= " ⚡" if post.user&.admin? %></div>
       <div class="post__time"><%= posted_at_text %> ago</div>
       <% if duration_text.present? %>
         <div class="post__duration"><%= duration_text %> logged</div>
@@ -16,6 +16,10 @@
 
   <% if ship_event? %>
     <h2 class="post__ship-title">Shipped this project!</h2>
+  <% end %>
+
+  <% if fire_event? %>
+    <h2 class="post__fire-title">Tagged your project as well cooked!</h2>
   <% end %>
 
   <% if post.postable.respond_to?(:body) && post.postable.body.present? %>
@@ -64,6 +68,10 @@
   <% if devlog? %>
     <div class="post__interactions">
       <%= render "likes/button", likeable: post.postable %>
+      <div class="comments-count">
+        <%= helpers.inline_svg_tag("icons/paper.svg") %>
+        <span class="comments-count__count"><%= commentable.comments_count %></span>
+      </div>
     </div>
     <%= render "comments/section", commentable: post.postable %>
   <% end %>

@@ -189,6 +189,8 @@ Rails.application.routes.draw do
       get :ship
       patch :update_ship
       post :submit_ship
+      post :mark_fire
+      post :unmark_fire
     end
   end
 

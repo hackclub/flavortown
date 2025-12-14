@@ -6,6 +6,7 @@
 #  deleted_at        :datetime
 #  demo_url          :text
 #  description       :text
+#  marked_fire_at    :datetime
 #  memberships_count :integer          default(0), not null
 #  project_type      :string
 #  readme_url        :text
@@ -15,10 +16,16 @@
 #  title             :string           not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#  marked_fire_by_id :bigint
 #
 # Indexes
 #
-#  index_projects_on_deleted_at  (deleted_at)
+#  index_projects_on_deleted_at         (deleted_at)
+#  index_projects_on_marked_fire_by_id  (marked_fire_by_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (marked_fire_by_id => users.id)
 #
 class Project < ApplicationRecord
     include AASM
@@ -31,6 +38,9 @@ class Project < ApplicationRecord
 
     scope :kept, -> { where(deleted_at: nil) }
     scope :deleted, -> { where.not(deleted_at: nil) }
+    scope :fire, -> { where.not(marked_fire_at: nil) }
+
+    belongs_to :marked_fire_by, class_name: "User", optional: true
 
     default_scope { kept }
 
@@ -211,6 +221,18 @@ class Project < ApplicationRecord
         banner.attached? &&
         description.present? &&
         devlogs.any?
+    end
+
+    def fire?
+        marked_fire_at.present?
+    end
+
+    def mark_fire!(user)
+        update!(marked_fire_at: Time.current, marked_fire_by: user)
+    end
+
+    def unmark_fire!
+        update!(marked_fire_at: nil, marked_fire_by: nil)
     end
 
     def shipping_validations

@@ -23,6 +23,20 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user
 
+  def tutorial_message(msg)
+    flash[:tutorial_messages] ||= []
+    if msg.is_a?(Array)
+      flash[:tutorial_messages] += msg
+    else
+      flash[:tutorial_messages] << msg
+    end
+  end
+
+  def tutorial_messages
+    flash[:tutorial_messages] || []
+  end
+  helper_method :tutorial_messages
+
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private

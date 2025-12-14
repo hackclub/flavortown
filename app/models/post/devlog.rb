@@ -18,7 +18,7 @@ class Post::Devlog < ApplicationRecord
 
   has_many :likes, as: :likeable, dependent: :destroy
   has_many :comments, as: :commentable, dependent: :destroy
-
+  validate :minimum_duration
   SCRAPBOOK_CHANNEL_ID = "C01504DCLVD".freeze
 
   ACCEPTED_CONTENT_TYPES = %w[
@@ -290,4 +290,9 @@ class Post::Devlog < ApplicationRecord
       false
     end
   end
+  def minimum_duration
+    if duration_seconds.present? && duration_seconds < 900
+      errors.add(:duration_seconds, "must be at least 15 minutes")
+    end
+end
 end

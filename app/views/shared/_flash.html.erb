@@ -1,20 +1,15 @@
 <% if flash.any? %>
   <div class="flash-container">
     <% flash.each do |type, message| %>
-      <% variant = case type.to_s
-        when "notice", "success" then "success"
-        when "alert", "error", "danger" then "error"
-        else "info"
+      <% next if type.to_s == "tutorial_messages" %>
+      <% icon, variant = case type.to_s
+        when "notice", ":success" then ["icons/checked.svg", "success"]
+        when "alert", "error", "danger" then ["icons/delete.svg", "error"]
+        else [ "icons/info.svg", "info"]
       end %>
       <div class="alert alert-<%= variant %>" role="alert" aria-live="assertive" data-controller="flash" data-flash-timeout-value="5000">
         <span class="alert__icon" aria-hidden="true">
-          <% if variant == "success" %>
-            <%= inline_svg_tag "icons/checked.svg", aria: { hidden: true }, focusable: "false" %>
-          <% elsif variant == "error" %>
-            <%= inline_svg_tag "icons/delete.svg", aria: { hidden: true }, focusable: "false" %>
-          <% else %>
-            <%= inline_svg_tag "icons/info.svg", aria: { hidden: true }, focusable: "false" %>
-          <% end %>
+          <%= inline_svg_tag icon, aria: { hidden: true }, focusable: "false" %>
         </span>
         <div class="alert__content"><%= message %></div>
         <button type="button" class="alert__close" aria-label="Close" title="Close" data-action="click->flash#close">

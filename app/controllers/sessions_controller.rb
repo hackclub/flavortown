@@ -35,7 +35,13 @@ class SessionsController < ApplicationController
     SyncSlackDisplayNameJob.perform_later(user)
 
     session[:user_id] = user.id
-    user.complete_tutorial_step! :first_login
+    if user.complete_tutorial_step! :first_login
+      tutorial_message [
+        "Hello Chef! You just signed in — welcome to Flavortown! Are you excited for your first day?",
+        "You'll first have to complete a set of quick setup steps in the Kitchen before you can start cooking up some projects.",
+        "And your reward will be free stickers! Excited? Let's get cookin'!"
+    ]
+    end
     redirect_to(user.setup_complete? ? projects_path : kitchen_path, notice: "Signed in with Hack Club")
   end
 
