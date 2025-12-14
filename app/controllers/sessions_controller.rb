@@ -54,6 +54,22 @@ class SessionsController < ApplicationController
     redirect_to root_path, alert: "Authentication failed"
   end
 
+  def dev_login
+    unless Rails.env.development?
+      redirect_to root_path, alert: "Not available"
+      return
+    end
+
+    user = User.first
+    if user.nil?
+      redirect_to root_path, alert: "No users in database"
+      return
+    end
+
+    session[:user_id] = user.id
+    redirect_to projects_path, notice: "Dev logged in as #{user.display_name}"
+  end
+
   private
 
   def fetch_hack_club_identity(access_token)

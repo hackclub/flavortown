@@ -104,21 +104,21 @@ projects_data.each_with_index do |data, index|
     end
 
     # Create ship certification record
-    if data[:status].in?([:submitted, :under_review, :approved, :rejected])
+    if data[:status].in?([ :submitted, :under_review, :approved, :rejected ])
       cert_state = case data[:status]
-                   when :submitted then :pending
-                   when :under_review then :pending
-                   when :approved then :approved
-                   when :rejected then :rejected
-                   end
+      when :submitted then :pending
+      when :under_review then :pending
+      when :approved then :approved
+      when :rejected then :rejected
+      end
 
       cert = project.ship_certifications.find_or_create_by!(aasm_state: cert_state) do |c|
         c.reviewer = data[:reviewer]
         c.feedback = case cert_state
-                     when :approved then "Great project! Well documented and demo works perfectly."
-                     when :rejected then "Project does not meet minimum requirements. Please add more functionality."
-                     else nil
-                     end
+        when :approved then "Great project! Well documented and demo works perfectly."
+        when :rejected then "Project does not meet minimum requirements. Please add more functionality."
+        else nil
+        end
         c.decided_at = cert_state != :pending ? rand(1..7).days.ago : nil
       end
     end

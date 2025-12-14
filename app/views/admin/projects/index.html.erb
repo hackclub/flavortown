@@ -1,5 +1,4 @@
 <h1>Project Search</h1>
-
 <%= form_with url: admin_projects_path, method: :get, local: true do %>
   <%= text_field_tag :query, params[:query],
     placeholder: "Search projects by title or other meta info...",
@@ -16,6 +15,7 @@
         <th>ID</th>
         <th>Name</th>
         <th>Description</th>
+        <th>Status</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -24,9 +24,15 @@
         <tr>
           <td><%= project.id %></td>
           <td><%= project.title %></td>
-          <td><%= project.description %></td>
+          <td><%= truncate(project.description, length: 50) %></td>
           <td>
-            <%= link_to "View", "/admin/projects/#{project.id}", class: "btn-primary slim" %>
+            <span class="badge badge-<%= project.ship_status %>"><%= project.ship_status.humanize %></span>
+          </td>
+          <td style="display: flex; gap: 0.25rem;">
+            <%= link_to "View", project_path(project), target: "_blank", class: "btn-secondary slim" %>
+            <% if project.ship_status.in?(%w[submitted under_review]) %>
+              <%= link_to "Review", admin_project_ship_certification_path(project), class: "btn-primary slim" %>
+            <% end %>
           </td>
         </tr>
       <% end %>
@@ -35,6 +41,21 @@
 <% else %>
   <p>No projects found.</p>
 <% end %>
+
+<style>
+.badge {
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.badge-draft { background-color: #e5e7eb; color: #374151; }
+.badge-submitted { background-color: #fbbf24; color: #78350f; }
+.badge-under_review { background-color: #60a5fa; color: #1e3a8a; }
+.badge-approved { background-color: #10b981; color: white; }
+.badge-rejected { background-color: #ef4444; color: white; }
+</style>
 
 <% if @pagy.pages > 1 %>
   <div class="pagination">

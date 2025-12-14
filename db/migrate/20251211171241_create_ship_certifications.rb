@@ -10,6 +10,6 @@ class CreateShipCertifications < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :ship_certifications, [:project_id, :created_at]
+    add_index :ship_certifications, [ :project_id, :created_at ]
   end
 end

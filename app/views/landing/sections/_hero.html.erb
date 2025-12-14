@@ -10,6 +10,9 @@
         </div>
       </button>
     <% end %>
+    <% if Rails.env.development? %>
+      <%= button_to "Dev Login", dev_login_path, method: :post, data: { turbo: false }, class: "btn btn--red btn--striped", style: "margin-top: 8px;" %>
+    <% end %>
     <% if current_user&.admin? %>
       <%= link_to "/admin", class: "btn-striped-red is_admin" do %>
         <div>Admin</div>
