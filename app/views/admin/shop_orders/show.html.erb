@@ -251,51 +251,7 @@
   </details>
 </div>
 
-<% if @user_orders.present? %>
-<div class="card" style="margin-top: 1rem;">
-  <details style="cursor: pointer;">
-    <summary style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; user-select: none; color: #374151;">
-      📋 Past Orders (<%= @user_orders.count %>)
-    </summary>
-    <div style="padding-top: 0.5rem;">
-      <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
-        <thead>
-          <tr style="border-bottom: 1px solid #e5e7eb;">
-            <th style="padding: 0.25rem; text-align: left; font-weight: 600; color: #6b7280;">Order #</th>
-            <th style="padding: 0.25rem; text-align: left; font-weight: 600; color: #6b7280;">Item</th>
-            <th style="padding: 0.25rem; text-align: left; font-weight: 600; color: #6b7280;">Status</th>
-            <th style="padding: 0.25rem; text-align: left; font-weight: 600; color: #6b7280;">Created</th>
-            <th style="padding: 0.25rem; text-align: left; font-weight: 600; color: #6b7280;">Cost</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @user_orders.each do |order| %>
-            <tr style="border-bottom: 1px solid #f3f4f6;">
-              <td style="padding: 0.25rem;">
-                <%= link_to "##{order.id}", admin_shop_order_path(order), style: "text-decoration: none; color: #3b82f6;" %>
-              </td>
-              <td style="padding: 0.25rem; color: #6b7280;">
-                <%= truncate(order.shop_item.name, length: 20) %>
-              </td>
-              <td style="padding: 0.25rem;">
-                <span class="badge badge-<%= order.aasm_state %>" style="font-size: 0.65rem; padding: 0.1rem 0.3rem;">
-                  <%= order.aasm_state.humanize %>
-                </span>
-              </td>
-              <td style="padding: 0.25rem; color: #6b7280;">
-                <%= order.created_at.strftime("%m/%d") %>
-              </td>
-              <td style="padding: 0.25rem; color: #6b7280;">
-                <%= order.total_cost %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  </details>
-</div>
-<% end %>
+<%= render Admin::PastOrdersComponent.new(user: @order.user, orders: @user_orders) %>
 
 <div class="card" style="margin-top: 2rem;">
   <% versions = @order.versions.order(created_at: :desc) %>
