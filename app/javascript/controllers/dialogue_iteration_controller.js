@@ -2,12 +2,19 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static targets = ["content", "character"];
-  static values = { text: Array };
+  static values = { text: Array, voiceUrl: String };
 
   connect() {
     this.index = 0;
-    this.#render();
+    this.typingInterval = null;
     this.#loadSqueak();
+    this.#loadVoice();
+    this.#render();
+  }
+
+  disconnect() {
+    this.#stopTyping();
+    if (this.voiceAudio) this.voiceAudio.pause();
   }
 
   #loadSqueak() {
@@ -24,15 +31,33 @@ export default class extends Controller {
     }
   }
 
+  #loadVoice() {
+    if (!this.hasVoiceUrlValue || !this.voiceUrlValue) return;
+
+    this.voiceAudio = new Audio(this.voiceUrlValue);
+    this.voiceAudio.volume = 0.5;
+  }
+
+  #stopTyping() {
+    if (this.typingInterval) {
+      clearInterval(this.typingInterval);
+      this.typingInterval = null;
+    }
+  }
+
   next(event) {
     event?.preventDefault?.();
     event?.stopPropagation?.();
+
+    if (this.typingInterval) {
+      this.#completeTyping();
+      return;
+    }
+
     this.advance();
   }
 
   advance() {
-    this.squeakCharacter();
-
     const lines = Array.isArray(this.textValue) ? this.textValue : [];
     if (lines.length === 0) return this.close();
 
@@ -44,6 +69,8 @@ export default class extends Controller {
   }
 
   close() {
+    this.#stopTyping();
+    if (this.voiceAudio) this.voiceAudio.pause();
     const backdrop = this.element.previousElementSibling;
     if (backdrop?.classList?.contains("dialogue-box-backdrop")) {
       backdrop.remove();
@@ -60,9 +87,37 @@ export default class extends Controller {
     }
   }
 
-  #render() {
+  #completeTyping() {
+    this.#stopTyping();
+    if (this.voiceAudio) this.voiceAudio.pause();
     if (!this.hasContentTarget) return;
     const line = this.textValue?.[this.index] ?? "";
     this.contentTarget.textContent = line;
+  }
+
+  #render() {
+    if (!this.hasContentTarget) return;
+
+    const line = this.textValue?.[this.index] ?? "";
+    this.contentTarget.textContent = "";
+
+    this.#stopTyping();
+    if (this.voiceAudio) this.voiceAudio.pause();
+
+    if (!line) return;
+
+    this.voiceAudio.currentTime = 0;
+    this.voiceAudio.play();
+    let charIndex = 0;
+
+    this.typingInterval = setInterval(() => {
+      if (charIndex < line.length) {
+        this.contentTarget.textContent += line[charIndex];
+        charIndex++;
+      } else {
+        this.#stopTyping();
+        if (this.voiceAudio) this.voiceAudio.pause();
+      }
+    }, 30); // 30ms
   }
 }
