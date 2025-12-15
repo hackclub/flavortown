@@ -48,8 +48,8 @@
                 <div class="shop-order__agh-contents">
                     <h4>Package Contents:</h4>
                     <ul>
-                        <% @shop_item.agh_contents.each do |sku, qty| %>
-                            <li><%= qty %>x <%= sku %></li>
+                        <% @shop_item.agh_contents.each do |item| %>
+                            <li><%= item["quantity"] %>x <%= item["sku"] %></li>
                         <% end %>
                     </ul>
                 </div>
