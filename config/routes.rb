@@ -20,6 +20,14 @@ class AdminConstraint
   end
 end
 
+class HelperConstraint
+  def self.matches?(request)
+    u = User.find_by(id: request.session[:user_id])
+    u ||= User.find_by(id: ENV["DEV_ADMIN_USER_ID"]) if Rails.env.development?
+    u && HelperPolicy.new(u, :helper).access?
+  end
+end
+
 Rails.application.routes.draw do
   # Landing
   root "landing#index"
@@ -109,6 +117,13 @@ Rails.application.routes.draw do
 
   namespace :user, path: "" do
     resources :tutorial_steps, only: [ :show ]
+  end
+
+  namespace :helper, constraints: HelperConstraint do
+    root to: "application#index"
+    resources :users, only: [ :index, :show ]
+    resources :projects, only: [ :index, :show ]
+    resources :shop_orders, only: [ :index, :show ]
   end
 
   # admin shallow routing

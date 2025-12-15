@@ -1,0 +1,58 @@
+<h1>User #<%= @user.id %></h1>
+
+<% if @user.banned? %>
+  <div class="alert alert--danger" style="margin-bottom: 1rem;">
+    <strong>🚫 This user is banned</strong>
+    <% if @user.banned_reason.present? %>
+      <br>Reason: <%= @user.banned_reason %>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="flex" style="gap: 1rem; flex-wrap: wrap;">
+  <div class="card">
+    <h2>Basic Info</h2>
+    <div class="info-rows">
+      <div><b>Name:</b> <%= @user.display_name %></div>
+      <div><b>Verification:</b> <%= @user.verification_status.titleize %></div>
+      <div><b>YSWS Eligible:</b> <%= @user.ysws_eligible? ? "Yes" : "No" %></div>
+      <div><b>Projects:</b> <%= @user.projects_count %></div>
+      <div><b>Joined:</b> <%= @user.created_at.strftime("%Y-%m-%d") %></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Projects (<%= @user.projects.size %>)</h2>
+    <% if @user.projects.any? %>
+      <ul style="margin: 0; padding-left: 1.25rem;">
+        <% @user.projects.limit(10).each do |p| %>
+          <li><%= link_to p.title, helper_project_path(p) %></li>
+        <% end %>
+        <% if @user.projects.size > 10 %>
+          <li><em>... and <%= @user.projects.size - 10 %> more</em></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No projects.</p>
+    <% end %>
+  </div>
+
+  <div class="card">
+    <h2>Shop Orders</h2>
+    <% orders = @user.shop_orders.order(created_at: :desc).limit(10) %>
+    <% if orders.any? %>
+      <ul style="margin: 0; padding-left: 1.25rem;">
+        <% orders.each do |o| %>
+          <li>
+            <%= link_to "##{o.id}", helper_shop_order_path(o) %> -
+            <%= o.shop_item&.name || "Unknown" %> (<%= o.aasm_state.titleize %>)
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No orders.</p>
+    <% end %>
+  </div>
+</div>
+
+<%= link_to "← Back", helper_users_path, class: "btn-secondary", style: "margin-top: 1rem;" %>

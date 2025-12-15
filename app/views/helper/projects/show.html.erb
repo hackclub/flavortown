@@ -1,0 +1,35 @@
+<h1>Project #<%= @project.id %></h1>
+
+<div class="flex" style="gap: 1rem; flex-wrap: wrap;">
+  <div class="card">
+    <h2>Details</h2>
+    <div class="info-rows">
+      <div><b>Title:</b> <%= @project.title %></div>
+      <div><b>Description:</b> <%= @project.description.presence || "None" %></div>
+      <div><b>Ship Status:</b> <%= @project.ship_status.titleize %></div>
+      <div><b>Type:</b> <%= @project.project_type.presence || "Not set" %></div>
+      <div><b>Created:</b> <%= @project.created_at.strftime("%Y-%m-%d") %></div>
+      <% if @project.repo_url.present? %>
+        <div><b>Repo:</b> <%= safe(@project.repo_url, "Repo") %></div>
+      <% end %>
+      <% if @project.demo_url.present? %>
+        <div><b>Demo:</b> <%= safe(@project.demo_url, "Demo") %></div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Members</h2>
+    <% if @project.users.any? %>
+      <ul style="margin: 0; padding-left: 1.25rem;">
+        <% @project.users.each do |u| %>
+          <li><%= link_to u.display_name, helper_user_path(u) %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No members.</p>
+    <% end %>
+  </div>
+</div>
+
+<%= link_to "← Back", helper_projects_path, class: "btn-secondary", style: "margin-top: 1rem;" %>
