@@ -24,32 +24,32 @@ class ProjectsController < ApplicationController
   end
 
   def new
-    unless current_user.has_hackatime?
-      redirect_to kitchen_path, alert: "You need to link your Hackatime account before creating a project."
-      return
-    end
-
     @project = Project.new
     authorize @project
     load_project_times
   end
 
   def create
-    unless current_user.has_hackatime?
-      redirect_to kitchen_path, alert: "You need to link your Hackatime account before creating a project."
-      return
-    end
-
     @project = Project.new(project_params)
     authorize @project
 
-    validate_hackatime_projects
     validate_urls
+    success = false
 
-    if @project.errors.empty? && @project.save
-      # Create membership for the current user as owner
+    Project.transaction do
+      break unless @project.errors.empty? && @project.save
+
       @project.memberships.create!(user: current_user, role: :owner)
       link_hackatime_projects
+
+      if @project.errors.empty?
+        success = true
+      else
+        raise ActiveRecord::Rollback
+      end
+    end
+
+    if success
       flash[:notice] = "Project created successfully"
       current_user.complete_tutorial_step! :create_project
 
@@ -71,6 +71,7 @@ class ProjectsController < ApplicationController
       redirect_to @project
     else
       flash[:alert] = "Failed to create project: #{@project.errors.full_messages.join(', ')}"
+      load_project_times
       render :new, status: :unprocessable_entity
     end
   end
@@ -84,11 +85,12 @@ class ProjectsController < ApplicationController
     authorize @project
 
     @project.assign_attributes(project_params)
-    validate_hackatime_projects
     validate_urls
+    success = @project.errors.empty? && @project.save
 
-    if @project.errors.empty? && @project.save
-      link_hackatime_projects
+    link_hackatime_projects if success
+    # 2nd check w/ @project.errors.empty? is not redudant. this is ensures that hackatime is linked!
+    if success && @project.errors.empty?
       flash[:notice] = "Project updated successfully"
       redirect_to params[:return_to].presence || @project
     else
@@ -298,22 +300,6 @@ class ProjectsController < ApplicationController
     @hackatime_project_ids ||= Array(params[:project][:hackatime_project_ids]).reject(&:blank?)
   end
 
-  def validate_hackatime_projects
-    # if hackatime_project_ids.empty?
-    #   @project.errors.add(:base, "You must select at least one Hackatime project")
-    #   return
-    # end
-    return if hackatime_project_ids.empty?
-
-    already_linked = current_user.hackatime_projects
-                                 .where(id: hackatime_project_ids)
-                                 .where.not(project_id: nil)
-
-    return unless already_linked.any?
-
-    @project.errors.add(:base, "The following Hackatime projects are already linked: #{already_linked.pluck(:name).join(', ')}")
-  end
-
   def validate_urls
     if @project.demo_url.blank? && @project.repo_url.blank? && @project.readme_url.blank?
       return
@@ -409,7 +395,11 @@ class ProjectsController < ApplicationController
     return if hackatime_project_ids.empty?
 
     current_user.hackatime_projects.where(id: hackatime_project_ids).find_each do |hp|
-      hp.update!(project: @project)
+      unless hp.update(project: @project)
+        hp.errors.full_messages.each do |message|
+          @project.errors.add(:base, "Hackatime project #{hp.name}: #{message}")
+        end
+      end
     end
   end
 
