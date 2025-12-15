@@ -249,7 +249,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_14_212954) do
     t.string "postable_type"
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.index ["project_id"], name: "index_posts_on_project_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
@@ -288,7 +288,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_14_212954) do
     t.datetime "deleted_at"
     t.text "demo_url"
     t.text "description"
-    t.string "fire_letter_id"
     t.datetime "marked_fire_at"
     t.bigint "marked_fire_by_id"
     t.integer "memberships_count", default: 0, null: false
@@ -448,21 +447,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_14_212954) do
     t.text "refresh_token_ciphertext"
     t.string "uid"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["access_token_bidx"], name: "index_user_identities_on_access_token_bidx"
     t.index ["provider", "uid"], name: "index_user_identities_on_provider_and_uid", unique: true
     t.index ["refresh_token_bidx"], name: "index_user_identities_on_refresh_token_bidx"
     t.index ["user_id", "provider"], name: "index_user_identities_on_user_id_and_provider", unique: true
     t.index ["user_id"], name: "index_user_identities_on_user_id"
-  end
-
-  create_table "user_roles", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "role_id", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["role_id"], name: "index_user_roles_on_role_id"
-    t.index ["user_id"], name: "index_user_roles_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -488,7 +478,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_14_212954) do
     t.datetime "synced_at"
     t.string "tutorial_steps_completed", default: [], array: true
     t.datetime "updated_at", null: false
-    t.string "verification_status"
+    t.string "verification_status", default: "needs_submission", null: false
     t.boolean "vote_anonymously", default: false, null: false
     t.integer "votes_count"
     t.boolean "ysws_eligible", default: false, null: false
@@ -555,7 +545,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_14_212954) do
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"
-  add_foreign_key "user_roles", "users"
   add_foreign_key "votes", "post_ship_events", column: "ship_event_id"
   add_foreign_key "votes", "projects"
   add_foreign_key "votes", "users"

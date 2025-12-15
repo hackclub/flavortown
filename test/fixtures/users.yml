@@ -24,7 +24,7 @@
 #  session_token               :string
 #  synced_at                   :datetime
 #  tutorial_steps_completed    :string           default([]), is an Array
-#  verification_status         :string
+#  verification_status         :string           default("needs_submission"), not null
 #  vote_anonymously            :boolean          default(FALSE), not null
 #  votes_count                 :integer
 #  ysws_eligible               :boolean          default(FALSE), not null
