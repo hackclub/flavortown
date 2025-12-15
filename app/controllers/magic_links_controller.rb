@@ -19,7 +19,7 @@ class MagicLinksController < ApplicationController
     if user&.magic_link_valid?
       user.clear_magic_link_token!
       reset_session
-      session[:user_id] = user.id
+      session[:user_uuid] = user.uuid
       target_path = user.setup_complete? ? projects_path : kitchen_path
       redirect_to target_path, notice: "Successfully signed in via magic link"
     else

@@ -17,10 +17,16 @@ class ApplicationController < ActionController::Base
   def current_user(preloads = [])
     return @current_user if defined?(@current_user)
 
-    if session[:user_id]
+    if session[:user_uuid]
+      scope = User.where(uuid: session[:user_uuid])
+      scope = scope.includes(*preloads) unless preloads.empty?
+      @current_user = scope.first
+    elsif session[:user_id]
       scope = User.where(id: session[:user_id])
       scope = scope.includes(*preloads) unless preloads.empty?
       @current_user = scope.first
+      session[:user_uuid] = @current_user.uuid if @current_user
+      session.delete(:user_id)
     end
   end
   helper_method :current_user

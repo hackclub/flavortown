@@ -34,7 +34,7 @@ class SessionsController < ApplicationController
 
     SyncSlackDisplayNameJob.perform_later(user)
 
-    session[:user_id] = user.id
+    session[:user_uuid] = user.uuid
     if user.complete_tutorial_step! :first_login
       tutorial_message [
         "Hello Chef! You just signed in — welcome to Flavortown! Are you excited for your first day?",
