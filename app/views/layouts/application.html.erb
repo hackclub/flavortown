@@ -46,14 +46,16 @@
       <%= render DialogueBoxComponent.new(text: tutorial_messages) %>
     <% end %>
     <%= yield %>
-    <footer class="dev-footer">
-      <p>
-        Build <%= link_to Rails.application.config.git_version, Rails.application.config.commit_link %>
-        from <%= time_ago_in_words(Rails.application.config.server_start_time) %> ago.
-        (DB: <%= pluralize(QueryCount::Counter.counter, "query") %>, <%= QueryCount::Counter.counter_cache %> cached)
-        (CACHE: <%= cache_stats[:hits] %> hits, <%= cache_stats[:misses] %> misses)
-        (<%= requests_per_second %>)
-      </p>
-    </footer>
+    <% unless @hide_footer %>
+      <footer class="dev-footer">
+        <p>
+          Build <%= link_to Rails.application.config.git_version, Rails.application.config.commit_link %>
+          from <%= time_ago_in_words(Rails.application.config.server_start_time) %> ago.
+          (DB: <%= pluralize(QueryCount::Counter.counter, "query") %>, <%= QueryCount::Counter.counter_cache %> cached)
+          (CACHE: <%= cache_stats[:hits] %> hits, <%= cache_stats[:misses] %> misses)
+          (<%= requests_per_second %>)
+        </p>
+      </footer>
+    <% end %>
   </body>
 </html>

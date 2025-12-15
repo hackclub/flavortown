@@ -32,10 +32,7 @@ class User
           name: "Create your first project",
           description: "what are you cooking?",
           icon: "fork_spoon_fill",
-          link: ->(_) { new_project_path },
-          deps: [
-            Dep[:setup_hackatime, "you need to setup hackatime first!"]
-          ]),
+          link: ->(_) { new_project_path }),
       new(slug: :post_devlog,
           name: "Post a devlog",
           description: "dev your log!",

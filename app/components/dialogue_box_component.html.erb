@@ -1,6 +1,10 @@
 <div class="dialogue-box-backdrop"></div>
 
-<div class="dialogue-box" data-controller="dialogue-iteration" data-dialogue-iteration-text-value='<%= text.to_json %>'>
+<div
+  class="dialogue-box"
+  data-controller="dialogue-iteration"
+  data-dialogue-iteration-text-value='<%= text.to_json %>'
+  data-action="keydown.enter@window->dialogue-iteration#next click@window->dialogue-iteration#next">
   <h1>Chef Orpheus</h1>
 
   <div class="dialogue-box__image" data-action="click->dialogue-iteration#squeakCharacter" data-dialogue-iteration-target="character">
@@ -10,7 +14,7 @@
   <div class="dialogue-box__text">
     <span data-dialogue-iteration-target="content"><%= text.first %></span>
 
-    <button type="button" class="dialogue-box__text-btn" data-action="dialogue-iteration#next">
+    <button type="button" class="dialogue-box__text-btn">
       Click to continue...<span>&#8964;</span>
     </button>
   </div>

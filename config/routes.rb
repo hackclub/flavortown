@@ -34,6 +34,13 @@ Rails.application.routes.draw do
   get "marketing", to: "landing#marketing"
   get "login", to: redirect("/?login=1")
 
+  # Start Flow
+  get  "/start",               to: "start#index"
+  post "/start/display_name",  to: "start#update_display_name"
+  post "/start/project",       to: "start#update_project"
+  post "/start/devlog",        to: "start#update_devlog"
+  post "/start/begin_sign_in", to: "start#begin_sign_in"
+
   # RSVPs
   resources :rsvps, only: [ :create ]
 
