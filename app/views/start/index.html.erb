@@ -1,0 +1,60 @@
+<% content_for :title, "Get Started - Flavortown" %>
+
+<% @hide_sidebar = true %>
+<% @hide_footer = true %>
+
+<div class="start-flow">
+  <div class="start-flow__container">
+    <%= render HeadingComponent.new(title: "Welcome to Flavortown", tone: :brown) %>
+
+    <div class="start-flow__progress">
+      <div class="start-flow__steps">
+        <% %w[name project devlog signin].each_with_index do |step_name, index| %>
+          <div class="start-flow__step <%= 'start-flow__step--active' if @step == step_name %> <%= 'start-flow__step--completed' if StartController::STEPS.index(@step) > index %>">
+            <div class="start-flow__step-number"><%= index + 1 %></div>
+            <div class="start-flow__step-label"><%= step_name.titleize %></div>
+          </div>
+          <% if index < 3 %>
+            <div class="start-flow__step-connector <%= 'start-flow__step-connector--completed' if StartController::STEPS.index(@step) > index %>"></div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <% case @step %>
+    <% when "name" %>
+      <%= render partial: "start/step_name" %>
+    <% when "project" %>
+      <%= render partial: "start/step_project" %>
+    <% when "devlog" %>
+      <%= render partial: "start/step_devlog" %>
+    <% when "signin" %>
+      <%= render partial: "start/step_signin" %>
+    <% end %>
+  </div>
+
+  <% if @step == "name" %>
+    <%= render DialogueBoxComponent.new(text: [
+      "Hello chef! Welcome to Flavortown, are you excited for your first day?",
+      "Let's get you set up! First, tell me what you'd like to be called."
+    ]) %>
+  <% elsif @step == "project" %>
+    <%= render DialogueBoxComponent.new(text: [
+      "Perfect! Are you excited to cook your first tasty project?",
+      "After this tutorial, a tasty sticker will be waiting for you!",
+      "Just fill out these details, don't worry you can always change this later!"
+    ]) %>
+  <% elsif @step == "devlog" %>
+    <%= render DialogueBoxComponent.new(text: [
+      "Nice project! Now let's add your first devlog.",
+      "Devlogs are how you share your progress with other chefs!",
+      "Add some text and at least one image or video of what you're working on."
+    ]) %>
+  <% elsif @step == "signin" %>
+    <%= render DialogueBoxComponent.new(text: [
+      "You're almost done! Just one more step.",
+      "Sign in with Hack Club to save your project and claim your free stickers!",
+      "You'll be briefly taken off-site, but don't worry — you'll be right back!"
+    ]) %>
+  <% end %>
+</div>

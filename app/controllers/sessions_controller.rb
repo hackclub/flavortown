@@ -50,6 +50,19 @@ class SessionsController < ApplicationController
     SyncSlackDisplayNameJob.perform_later(user)
 
     session[:user_id] = user.id
+
+    # This is sorta temp too!
+    if session.delete(:start_flow)
+      apply_start_flow_data!(user)
+      user.complete_tutorial_step!(:first_login)
+      tutorial_message [
+        "Welcome to Flavortown, Chef! Your project and devlog have been created.",
+        "You've unlocked free stickers! Verify your identity to redeem them."
+      ]
+      redirect_to shop_path, notice: "Welcome to Flavortown! You've unlocked free stickers."
+      return
+    end
+
     if user.complete_tutorial_step! :first_login
       tutorial_message [
         "Hello Chef! You just signed in — welcome to Flavortown! Are you excited for your first day?",
@@ -89,5 +102,73 @@ class SessionsController < ApplicationController
     uid = data["id"].to_s
     address = data["address"]
     [ user_email, display_name, verification_status, ysws_eligible, slack_id, uid, address, first_name, last_name ]
+  end
+
+  # this is very obviously temp and vibe coded
+  def apply_start_flow_data!(user)
+    # 1. Apply display name from session (only if user doesn't have one from HCA)
+    start_display_name = session[:start_display_name].to_s.strip
+    if user.display_name.to_s.strip.blank? && start_display_name.present?
+      user.display_name = start_display_name
+      user.save! if user.valid?
+    end
+
+    # 2. Create project from session data (using model validations)
+    project_attrs = session[:start_project_attrs] || {}
+    project_attrs = project_attrs.slice("title", "description") # extra safety
+
+    return if project_attrs["title"].to_s.strip.blank?
+
+    project = Project.new(
+      title: project_attrs["title"],
+      description: project_attrs["description"]
+    )
+
+    unless project.valid?
+      Rails.logger.warn("Start flow project invalid: #{project.errors.full_messages.join(', ')}")
+      return
+    end
+
+    project.save!
+    project.memberships.create!(user: user, role: :owner)
+    user.complete_tutorial_step!(:create_project)
+
+    # 3. Create devlog from session data (using model validations)
+    devlog_body = session[:start_devlog_body].to_s
+    attachment_ids = session[:start_devlog_attachment_ids] || []
+
+    if devlog_body.present? || attachment_ids.any?
+      devlog = Post::Devlog.new(body: devlog_body)
+
+      # Re-attach blobs from signed blob IDs
+      if attachment_ids.any?
+        attachment_ids.each do |signed_id|
+          blob = ActiveStorage::Blob.find_signed(signed_id)
+          devlog.attachments.attach(blob) if blob
+        rescue ActiveSupport::MessageVerifier::InvalidSignature
+          Rails.logger.warn("Start flow: Invalid signed blob ID: #{signed_id}")
+        end
+      end
+
+      if devlog.valid?
+        devlog.save!
+        Post.create!(project: project, user: user, postable: devlog)
+        user.complete_tutorial_step!(:post_devlog)
+      else
+        Rails.logger.warn("Start flow devlog invalid: #{devlog.errors.full_messages.join(', ')}")
+      end
+    end
+  rescue StandardError => e
+    Rails.logger.error("Start flow data application failed: #{e.class}: #{e.message}")
+    Sentry.capture_exception(e, extra: { user_id: user.id })
+  ensure
+    clear_start_flow_session!
+  end
+
+  def clear_start_flow_session!
+    session.delete(:start_display_name)
+    session.delete(:start_project_attrs)
+    session.delete(:start_devlog_body)
+    session.delete(:start_devlog_attachment_ids)
   end
 end
