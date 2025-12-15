@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-# this is temp, it'll be refactored
-
 class StartController < ApplicationController
   STEPS = %w[name project devlog signin].freeze
+
+  before_action :set_step, only: :index
+  before_action :enforce_step_order, only: :index
 
   def index
     authorize :start, :index?
 
-    @step = normalize_step(params[:step])
     @display_name = session[:start_display_name]
     @project_attrs = session[:start_project_attrs] || {}
     @devlog_body = session[:start_devlog_body]
@@ -16,47 +16,68 @@ class StartController < ApplicationController
   end
 
   def update_display_name
-    session[:start_display_name] = start_display_name_param
+    session[:start_display_name] = params.fetch(:display_name, "").to_s.strip.first(50)
     redirect_to start_path(step: "project")
   end
 
   def update_project
-    session[:start_project_attrs] = start_project_params.to_h
+    permitted = params.fetch(:project, {}).permit(:title, :description)
+    session[:start_project_attrs] = {
+      title: permitted[:title].to_s.strip.first(120),
+      description: permitted[:description].to_s.strip.first(1_000)
+    }
     redirect_to start_path(step: "devlog")
   end
 
   def update_devlog
-    session[:start_devlog_body] = start_devlog_body_param
+    body = params.fetch(:devlog_body, "").to_s.strip.first(2_000)
+    attachment_ids = Array(params[:devlog_attachment_ids]).compact_blank
 
-    # store the blobies (direct upload)
-    attachment_ids = Array(params[:devlog_attachment_ids]).reject(&:blank?)
+    if attachment_ids.empty?
+      redirect_to start_path(step: "devlog"), alert: "Please upload at least one image or video."
+      return
+    end
+
+    session[:start_devlog_body] = body
     session[:start_devlog_attachment_ids] = attachment_ids
-
     redirect_to start_path(step: "signin")
   end
 
   private
 
-  # this is temp, it'll be refactored
-  def normalize_step(step)
-    STEPS.include?(step) ? step : "name"
+  def set_step
+    @step = STEPS.include?(params[:step]) ? params[:step] : "name"
   end
 
-  def start_display_name_param
-    params.require(:display_name).to_s.strip[0, 80]
-  rescue ActionController::ParameterMissing
-    ""
+  def enforce_step_order
+    required = first_incomplete_step
+    return if @step == required || step_accessible?(@step)
+
+    redirect_to start_path(step: required), alert: "Please complete the previous steps first."
   end
 
-  def start_project_params
-    params.require(:project).permit(:title, :description)
-  rescue ActionController::ParameterMissing
-    {}
+  def step_accessible?(step)
+    step_index = STEPS.index(step) || 0
+    required_index = STEPS.index(first_incomplete_step) || 0
+    step_index <= required_index
   end
 
-  def start_devlog_body_param
-    params.require(:devlog_body).to_s[0, 10_000]
-  rescue ActionController::ParameterMissing
-    ""
+  def first_incomplete_step
+    return "name"    unless name_complete?
+    return "project" unless project_complete?
+    return "devlog"  unless devlog_complete?
+    "signin"
+  end
+
+  def name_complete?
+    session[:start_display_name].present?
+  end
+
+  def project_complete?
+    session[:start_project_attrs].present? && session[:start_project_attrs].any?
+  end
+
+  def devlog_complete?
+    session[:start_devlog_body].present? && session[:start_devlog_attachment_ids].present?
   end
 end

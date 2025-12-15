@@ -51,7 +51,7 @@ class SessionsController < ApplicationController
 
     session[:user_id] = user.id
 
-    # This is sorta temp too!
+    # /start
     if session.delete(:start_flow)
       apply_start_flow_data!(user)
       user.complete_tutorial_step!(:first_login)
@@ -63,13 +63,6 @@ class SessionsController < ApplicationController
       return
     end
 
-    if user.complete_tutorial_step! :first_login
-      tutorial_message [
-        "Hello! You just signed in — welcome to Flavortown! Are you excited for your first day?",
-        "You'll first have to complete a set of quick setup steps in the Kitchen before you can start cooking up some projects.",
-        "And your reward will be free stickers! Excited? Let's get cookin'!"
-    ]
-    end
     redirect_to(user.setup_complete? ? projects_path : kitchen_path, notice: "Signed in with Hack Club")
   end
 
@@ -104,63 +97,21 @@ class SessionsController < ApplicationController
     [ user_email, display_name, verification_status, ysws_eligible, slack_id, uid, address, first_name, last_name ]
   end
 
-  # this is very obviously temp and vibe coded
   def apply_start_flow_data!(user)
-    # 1. Apply display name from session (only if user doesn't have one from HCA)
-    start_display_name = session[:start_display_name].to_s.strip
-    if user.display_name.to_s.strip.blank? && start_display_name.present?
-      user.display_name = start_display_name
-      user.save! if user.valid?
+    session_data = {
+      start_display_name: session[:start_display_name],
+      start_project_attrs: session[:start_project_attrs],
+      start_devlog_body: session[:start_devlog_body],
+      start_devlog_attachment_ids: session[:start_devlog_attachment_ids]
+    }
+
+    result = StartFlowService.new(user: user, session_data: session_data).call
+
+    unless result.success?
+      flash[:alert] = result.errors.join(". ")
     end
 
-    # 2. Create project from session data (using model validations)
-    project_attrs = session[:start_project_attrs] || {}
-    project_attrs = project_attrs.slice("title", "description") # extra safety
-
-    return if project_attrs["title"].to_s.strip.blank?
-
-    project = Project.new(
-      title: project_attrs["title"],
-      description: project_attrs["description"]
-    )
-
-    unless project.valid?
-      Rails.logger.warn("Start flow project invalid: #{project.errors.full_messages.join(', ')}")
-      return
-    end
-
-    project.save!
-    project.memberships.create!(user: user, role: :owner)
-    user.complete_tutorial_step!(:create_project)
-
-    # 3. Create devlog from session data (using model validations)
-    devlog_body = session[:start_devlog_body].to_s
-    attachment_ids = session[:start_devlog_attachment_ids] || []
-
-    if devlog_body.present? || attachment_ids.any?
-      devlog = Post::Devlog.new(body: devlog_body)
-
-      # Re-attach blobs from signed blob IDs
-      if attachment_ids.any?
-        attachment_ids.each do |signed_id|
-          blob = ActiveStorage::Blob.find_signed(signed_id)
-          devlog.attachments.attach(blob) if blob
-        rescue ActiveSupport::MessageVerifier::InvalidSignature
-          Rails.logger.warn("Start flow: Invalid signed blob ID: #{signed_id}")
-        end
-      end
-
-      if devlog.valid?
-        devlog.save!
-        Post.create!(project: project, user: user, postable: devlog)
-        user.complete_tutorial_step!(:post_devlog)
-      else
-        Rails.logger.warn("Start flow devlog invalid: #{devlog.errors.full_messages.join(', ')}")
-      end
-    end
-  rescue StandardError => e
-    Rails.logger.error("Start flow data application failed: #{e.class}: #{e.message}")
-    Sentry.capture_exception(e, extra: { user_id: user.id })
+    result
   ensure
     clear_start_flow_session!
   end
