@@ -1,6 +1,6 @@
 <div class="projects-show">
   <div class="projects-show__container">
-    <%= render ProjectShowCardComponent.new(project: @project) %>
+    <%= render ProjectShowCardComponent.new(project: @project, current_user: current_user) %>
 
     <% if current_user.present? && @project.users.include?(current_user) %>
       <div class="mt-4" style="display: flex; gap: var(--space-m);">

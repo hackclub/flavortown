@@ -5,7 +5,7 @@ export default class extends Controller {
   static values = { addresses: Array, hasAddresses: Boolean };
 
   connect() {
-    if (this.hasAddressesValue) {
+    if (!this.hasAddressesValue) {
       this.submitButtonTarget.disabled = true;
     }
   }

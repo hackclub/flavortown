@@ -5,16 +5,31 @@ class SessionsController < ApplicationController
     cred = auth.credentials
 
     # provider is a symbol. do not change it to string... equality will fail otherwise
-    return redirect_to(root_path, alert: "Authentication failed or user already signed in") unless provider == :hack_club && current_user.blank?
+    unless provider == :hack_club && current_user.blank?
+      Sentry.capture_message("Authentication failed: invalid provider or user already signed in", level: :warning, extra: { provider:, user_signed_in: current_user.present? })
+      return redirect_to(root_path, alert: "Authentication failed or user already signed in")
+    end
 
     access_token = cred&.token.to_s
     identity_data = fetch_hack_club_identity(access_token)
-    return redirect_to(root_path, alert: "Authentication failed") if identity_data.blank?
+    if identity_data.blank?
+      Sentry.capture_message("Authentication failed: unable to fetch identity data", level: :warning)
+      return redirect_to(root_path, alert: "Authentication failed")
+    end
 
     user_email, display_name, verification_status, ysws_eligible, slack_id, uid, _, first_name, last_name = extract_identity_fields(identity_data)
-    return redirect_to(root_path, alert: "Authentication failed") if uid.blank?
-    return redirect_to(root_path, alert: "Authentication failed") if slack_id.blank?
-    return redirect_to(root_path, alert: "Authentication failed") unless User.verification_statuses.key?(verification_status)
+    if uid.blank?
+      Sentry.capture_message("Authentication failed: uid is blank", level: :warning, extra: { identity_data: })
+      return redirect_to(root_path, alert: "Authentication failed")
+    end
+    if slack_id.blank?
+      Sentry.capture_message("Authentication failed: slack_id is blank", level: :warning, extra: { uid: })
+      return redirect_to(root_path, alert: "Authentication failed")
+    end
+    unless User.verification_statuses.key?(verification_status)
+      Sentry.capture_message("Authentication failed: invalid verification_status", level: :warning, extra: { verification_status: })
+      return redirect_to(root_path, alert: "Authentication failed")
+    end
 
     identity = User::Identity.find_or_initialize_by(provider: "hack_club", uid: uid)
     identity.access_token = access_token

@@ -12,12 +12,16 @@
         </button>
       <% end %>
     <% end %>
+
     <% if current_user&.admin? %>
       <%= link_to "/admin", class: "btn-striped-red is_admin" do %>
         <div>Admin</div>
       <% end %>
     <% end %>
   </div>
+<%
+=end
+%>
 
   <div class="top-collab">
     <%= image_tag image_url("landing/hero/hc-gh-collab.avif"), loading: "lazy", decoding: "async" %>

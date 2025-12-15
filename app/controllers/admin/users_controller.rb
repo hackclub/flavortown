@@ -2,7 +2,7 @@ class Admin::UsersController < Admin::ApplicationController
     def index
       @query = params[:query]
 
-      users = User.all.with_roles
+      users = User.all
       if @query.present?
         q = "%#{@query}%"
         users = users.where("email ILIKE ? OR display_name ILIKE ?", q, q)
@@ -12,31 +12,29 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def show
-      @user = User.with_roles.includes(:identities).find(params[:id])
+      @user = User.includes(:identities).find(params[:id])
 
-      # Get role assignment history from audit logs
-      all_role_versions = PaperTrail::Version
-        .where(item_type: "User::RoleAssignment")
-        .order(created_at: :desc)
-        .limit(100)
-
-      # Filter to only this user's role changes
-      @role_history = all_role_versions.select do |v|
-        changes = YAML.load(v.object_changes) rescue {}
-        user_id_change = changes["user_id"]
-        user_id_change.is_a?(Array) ? user_id_change.include?(@user.id) : user_id_change == @user.id
-      end.take(20)
-
-      # Get all actions performed on this user
-      @user_actions = PaperTrail::Version
+      # Get all actions performed on this user (filter out empty updates)
+      user_versions = PaperTrail::Version
         .where(item_type: "User", item_id: @user.id)
         .order(created_at: :desc)
-        .limit(50)
+        .select do |v|
+          next true unless v.event == "update"
+          # With native JSONB, object_changes is already a hash
+          changes = v.object_changes || {}
+          changes.keys.any? { |k| !%w[updated_at synced_at].include?(k.to_s) }
+        end
+
+      # Get ledger entries for this user
+      ledger_entries = @user.ledger_entries.includes(:ledgerable).order(created_at: :desc)
+
+      # Combine and sort by created_at (role changes are now in user_versions as role_promoted/role_demoted events)
+      @user_actions = (user_versions + ledger_entries).sort_by(&:created_at).reverse
     end
 
     def user_perms
       authorize :admin, :manage_users?
-      @users = User.joins(:role_assignments).distinct.order(:id)
+      @users = User.where("array_length(granted_roles, 1) > 0").order(:id)
     end
 
     def promote_role
@@ -50,9 +48,18 @@ class Admin::UsersController < Admin::ApplicationController
         return redirect_to admin_user_path(@user)
       end
 
-      PaperTrail.request(whodunnit: current_user.id) do
-        @user.role_assignments.create!(role: role_name)
-      end
+
+      @user.grant_role!(role_name)
+
+      # Create explicit audit entry on User
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: @user.id,
+        event: "role_promoted",
+        whodunnit: current_user.id.to_s,
+        object_changes: { role: role_name }
+      )
+
       flash[:notice] = "User promoted to #{role_name.titleize}."
 
       redirect_to admin_user_path(@user)
@@ -69,12 +76,19 @@ class Admin::UsersController < Admin::ApplicationController
       return redirect_to admin_user_path(@user)
     end
 
-    role_assignment = @user.role_assignments.find_by(role: User::RoleAssignment.roles[role_name])
 
-    if role_assignment
-      PaperTrail.request(whodunnit: current_user.id) do
-        role_assignment.destroy!
-      end
+    if @user.has_role?(role_name)
+      @user.remove_role!(role_name)
+
+      # Create explicit audit entry on User
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: @user.id,
+        event: "role_demoted",
+        whodunnit: current_user.id.to_s,
+        object_changes: { role: role_name }
+      )
+
       flash[:notice] = "User demoted from #{role_name.titleize}."
     else
       flash[:alert] = "Unable to demote user from #{role_name.titleize}."
@@ -96,7 +110,7 @@ class Admin::UsersController < Admin::ApplicationController
         item_id: @user.id,
         event: "flipper_disable",
         whodunnit: current_user.id,
-        object_changes: { feature: [ feature.to_s, nil ], status: [ "enabled", "disabled" ] }.to_yaml
+        object_changes: { feature: [ feature.to_s, nil ], status: [ "enabled", "disabled" ] }
       )
       flash[:notice] = "Disabled #{feature} for #{@user.display_name}."
     else
@@ -106,7 +120,7 @@ class Admin::UsersController < Admin::ApplicationController
         item_id: @user.id,
         event: "flipper_enable",
         whodunnit: current_user.id,
-        object_changes: { feature: [ nil, feature.to_s ], status: [ "disabled", "enabled" ] }.to_yaml
+        object_changes: { feature: [ nil, feature.to_s ], status: [ "disabled", "enabled" ] }
       )
       flash[:notice] = "Enabled #{feature} for #{@user.display_name}."
     end
@@ -117,13 +131,12 @@ class Admin::UsersController < Admin::ApplicationController
   def sync_hackatime
     authorize :admin, :manage_users?
     @user = User.find(params[:id])
-    hackatime_identity = @user.identities.find_by(provider: "hack_club")
 
-    if hackatime_identity
-      HackatimeService.sync_user_projects(@user, hackatime_identity.uid)
+    if @user.hackatime_identity
+      @user.try_sync_hackatime_data!(force: true)
       flash[:notice] = "Hackatime data synced for #{@user.display_name}."
     else
-      flash[:alert] = "User does not have a Slack identity."
+      flash[:alert] = "User does not have a Hackatime identity."
     end
 
     redirect_to admin_user_path(@user)
@@ -148,7 +161,7 @@ class Admin::UsersController < Admin::ApplicationController
           object_changes: {
             aasm_state: [ old_state, order.aasm_state ],
             rejection_reason: [ nil, reason ]
-          }.to_yaml
+          }
         )
         count += 1
       end
@@ -178,7 +191,8 @@ class Admin::UsersController < Admin::ApplicationController
     @user.ledger_entries.create!(
       amount: amount,
       reason: reason,
-      created_by: "#{current_user.display_name} (#{current_user.id})"
+      created_by: "#{current_user.display_name} (#{current_user.id})",
+      ledgerable: @user
     )
 
     flash[:notice] = "Balance adjusted by #{amount} for #{@user.display_name}."

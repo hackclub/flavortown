@@ -1,9 +1,9 @@
 <% content_for :title, "Vote!" %>
 
-<% if @project.nil? %>
-  <p>No more projects to vote on!</p>
-<% else %>
-  <div class="votes-new">
+<div class="votes-new">
+  <% if @project.nil? %>
+    <p class="votes-new__no-projects">No more projects to vote on!</p>
+  <% else %>
     <%= render HeadingComponent.new(title: "Vote", tone: :green) %>
     <%= render ButtonComponent.new(
           href: votes_path(@project),
@@ -25,5 +25,5 @@
         </div>
       </div>
     </div>
-  </div>
-<% end %>
+  <% end %>
+</div>

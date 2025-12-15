@@ -20,6 +20,14 @@ class AdminConstraint
   end
 end
 
+class HelperConstraint
+  def self.matches?(request)
+    u = User.find_by(id: request.session[:user_id])
+    u ||= User.find_by(id: ENV["DEV_ADMIN_USER_ID"]) if Rails.env.development?
+    u && HelperPolicy.new(u, :helper).access?
+  end
+end
+
 Rails.application.routes.draw do
   # Landing
   root "landing#index"
@@ -90,6 +98,10 @@ Rails.application.routes.draw do
   post "magic_links", to: "magic_links#create"
   get "magic_links/verify", to: "magic_links#verify"
 
+  # This will be an link for people in the slack
+  # Not hidden, but wont be shared and only announced in slack
+  get "hidden_login", to: "hidden_login#index"
+
   # API
   namespace :webhooks do
     post "ship_cert", to: "ship_cert#update_status"
@@ -109,6 +121,13 @@ Rails.application.routes.draw do
 
   namespace :user, path: "" do
     resources :tutorial_steps, only: [ :show ]
+  end
+
+  namespace :helper, constraints: HelperConstraint do
+    root to: "application#index"
+    resources :users, only: [ :index, :show ]
+    resources :projects, only: [ :index, :show ]
+    resources :shop_orders, only: [ :index, :show ]
   end
 
   # admin shallow routing

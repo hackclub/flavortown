@@ -204,7 +204,7 @@ class ProjectsController < ApplicationController
             admin_action: [ nil, "mark_fire" ],
             marked_fire_by_id: [ nil, current_user.id ],
             created_post_id: [ nil, post.id ]
-          }.to_yaml
+          }
         )
 
         Project::PostToMagicJob.perform_later(@project)
@@ -233,7 +233,7 @@ class ProjectsController < ApplicationController
         whodunnit: current_user.id,
         object_changes: {
           admin_action: [ nil, "unmark_fire" ]
-        }.to_yaml
+        }
       )
 
       render json: { message: "Project unmarked as 🔥", fire: false }, status: :ok
@@ -342,7 +342,7 @@ class ProjectsController < ApplicationController
     uri = URI.parse(@project.send(attribute))
     conn = Faraday.new(
       url: uri.to_s,
-      headers: { "User-Agent" => "Flavortown project validtor (https://flavortown.hackclub.com/)" }
+      headers: { "User-Agent" => "Flavortown project validator (https://flavortown.hackclub.com/)" }
     ) do |faraday|
       faraday.response :follow_redirects, max_redirects: 3
       faraday.adapter Faraday.default_adapter
@@ -400,9 +400,9 @@ class ProjectsController < ApplicationController
   rescue URI::InvalidURIError
     @project.errors.add(attribute, "#{name} is not a valid URL")
   rescue Faraday::ConnectionFailed => e
-    @project.errors.add(attribute, "Please make sure the url is valid and reachable: #{e.message}")
+    @project.errors.add(attribute, "Please make sure the URL is valid and reachable: #{e.message}")
   rescue StandardError => e
-    @project.errors.add(attribute, "#{name} could not be verified (idk why, pls let a admin know if this is happning alot and your sure that the url is valid): #{e.message}")
+    @project.errors.add(attribute, "#{name} could not be verified (idk why, pls let a admin know if this is happening a lot and your sure that the URL is valid): #{e.message}")
   end
 
   def link_hackatime_projects
@@ -414,11 +414,7 @@ class ProjectsController < ApplicationController
   end
 
   def load_project_times
-    hackatime_identity = current_user.identities.find_by(provider: "hackatime")
-    @project_times = if hackatime_identity
-                       HackatimeService.fetch_user_projects_with_time(hackatime_identity.uid)
-    else
-                       {}
-    end
+    result = current_user.try_sync_hackatime_data!
+    @project_times = result&.dig(:projects) || {}
   end
 end
