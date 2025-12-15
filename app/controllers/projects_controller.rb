@@ -56,15 +56,15 @@ class ProjectsController < ApplicationController
       project_hours = @project.total_hackatime_hours
       if project_hours > 0
         tutorial_message [
-          "Hmmm... your project has #{helpers.distance_of_time_in_words(project_hours.hours)} tracked already — nice work chef!",
+          "Hmmm... your project has #{helpers.distance_of_time_in_words(project_hours.hours)} tracked already — nice work!",
           "You're ready to post your first devlog.",
-          "A good chef shows their progress every few hours — they never go over 10 hours without logging progress as it might get lost!"
+          "Never go over 10 hours without logging progress as it might get lost!"
         ]
       else
         tutorial_message [
-          "Good job chef — you created a project! Now cook up some code for a bit and track hours in your code editor.",
+          "Good job — you created a project! Now cook up some code for a bit and track hours in your code editor.",
           "Once you have some time tracked, come back here and post a devlog.",
-          "Remember, post devlogs every few hours. Good chefs know that not posting a devlog after over 10 hours of tracked time might lead to it being lost!"
+          "Remember, post devlogs every few hours. Not posting a devlog after over 10 hours of tracked time might lead to it being lost!"
         ]
       end
 

@@ -21,9 +21,9 @@ class Project::DevlogsController < ApplicationController
 
       if current_user.complete_tutorial_step! :post_devlog
         tutorial_message [
-          "Yay! Chef, you just earned free stickers for posting your first devlog!",
+          "Yay! You just earned free stickers for posting your first devlog — claim them from the Kitchen!",
           "Now ship your project (when it is cooked to your satisfaction) to earn cookies 🍪 and exchange those for stuff in the shop.",
-          "Bonne chance chef! Remember, anyone can cook — go forth and whip up a storm!"
+          "Bonne chance! Remember, anyone can cook — go forth and whip up a storm!"
         ]
       end
 
