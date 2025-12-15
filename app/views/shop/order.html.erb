@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
          if (submitButton) {
              const canAfford = userBalance >= grandTotal;
              const shortfall = Math.max(0, grandTotal - userBalance);
-             
+
              if (canAfford) {
                  submitButton.disabled = false;
                  submitButton.innerHTML = initialGetButtonHTML;

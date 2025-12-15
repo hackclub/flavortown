@@ -13,7 +13,7 @@ export default class extends Controller {
 
   undo() {
     const radios = this.element.querySelectorAll(
-      ".shop-order__accessory-option-input"
+      ".shop-order__accessory-option-input",
     );
     radios.forEach((radio) => {
       radio.addEventListener("click", (e) => {
@@ -23,7 +23,7 @@ export default class extends Controller {
           radio.dispatchEvent(new Event("change", { bubbles: true }));
         } else {
           const same = this.element.querySelectorAll(
-            `input[name="${radio.name}"]`
+            `input[name="${radio.name}"]`,
           );
           same.forEach((r) => (r.dataset.wasChecked = "false"));
           radio.dataset.wasChecked = "true";
