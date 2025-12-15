@@ -1,18 +1,21 @@
+<% x = "/shop/order?shop_item_id=#{item_id}" %>
 <div class="shop-item-card" data-categories="<%= categories.join(',') %>" data-regions="<%= enabled_regions.join(',') %>" data-shop-id="<%= item_id %>">
-  <div class="shop-item-card__image">
-    <%= image_tag image_url, alt: "#{name} image", class: "rounded-lg w-full h-auto object-scale-down aspect-square max-h-48" %>
-  </div>
-  <div class="shop-item-card__content">
-    <h4 class="shop-item-card__title"><%= name %></h4>
-    <div class="shop-item-card__description"><%= md(description) %></div>
-    <div class="shop-item-card__details">
-      <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
-      <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
+  <a href="<%= x %>" class="shop-item-card__link" data-turbo-frame="_top">
+    <div class="shop-item-card__image">
+      <%= image_tag image_url, alt: "#{name} image", class: "rounded-lg w-full h-auto object-scale-down aspect-square max-h-48" %>
     </div>
-  </div>
+    <div class="shop-item-card__content">
+      <h4 class="shop-item-card__title"><%= name %></h4>
+      <div class="shop-item-card__description"><%= md(description) %></div>
+      <div class="shop-item-card__details">
+        <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
+        <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
+      </div>
+    </div>
+  </a>
   <div class="shop-item-card__order-button">
     <% if balance >= display_price %>
-      <%= link_to "Order Now", "/shop/order?shop_item_id=#{item_id}", class: "btn btn-primary w-full", data: {turbo_frame: "_top"} %>
+      <%= link_to "Order Now", x, class: "btn btn-primary w-full", data: {turbo_frame: "_top"} %>
     <% else %>
       <p class="btn btn-primary w-full disabled">You need <%= number_to_currency(display_price - balance, precision: 0).gsub('$', '🍪') %> more cookies!</p>
     <% end %>
