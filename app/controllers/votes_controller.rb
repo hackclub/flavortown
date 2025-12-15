@@ -1,4 +1,6 @@
 class VotesController < ApplicationController
+  before_action :ensure_user_can_vote, only: [ :index, :new, :create ]
+
   def index
     authorize :vote, :index?
     # Get distinct project IDs ordered by the user's most recent vote for that project
@@ -82,5 +84,17 @@ class VotesController < ApplicationController
         voter_slack_id: current_user.slack_id
       }
     )
+  end
+
+  def ensure_user_can_vote
+    unless current_user
+      redirect_to login_path, alert: "You need to log in to vote."
+      return
+    end
+
+    return if current_user.admin? || current_user.verification_verified?
+
+    tutorial_message "Hold on — voting unlocks after your account is verified!"
+    redirect_to kitchen_path
   end
 end

@@ -65,7 +65,7 @@ class SessionsController < ApplicationController
 
     if user.complete_tutorial_step! :first_login
       tutorial_message [
-        "Hello Chef! You just signed in — welcome to Flavortown! Are you excited for your first day?",
+        "Hello! You just signed in — welcome to Flavortown! Are you excited for your first day?",
         "You'll first have to complete a set of quick setup steps in the Kitchen before you can start cooking up some projects.",
         "And your reward will be free stickers! Excited? Let's get cookin'!"
     ]
