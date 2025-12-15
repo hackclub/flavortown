@@ -285,6 +285,19 @@
         border-radius: 1em;
       }
     }
+
+    .shop-order__summary-accessories-list {
+      ul {
+        list-style-type: none;
+        margin-top: 0.5em;
+
+        li {
+          color: var(--color-green-500);
+          display: flex;
+          justify-content: space-between;
+        }
+      }
+    }
   }
 
   .btn-order {
@@ -316,5 +329,88 @@
     font-family: var(--font-family-text);
     position: relative;
     z-index: 10;
+  }
+
+  &__accessories {
+    margin-top: 2em;
+    padding: 1em;
+
+    h4 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      font-family: var(--font-family-subtitle);
+    }
+
+    h5 {
+      font-size: 1.2rem;
+      font-weight: normal;
+      font-family: var(--font-family-text);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .shop-order__accessory-group {
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: row;
+      gap: 1em;
+      flex-wrap: wrap;
+    }
+
+    .shop-order__accessory-item {
+      background-color: var(--color-bg);
+      border: 1px solid var(--color-brown-400);
+      border-radius: 8px;
+      padding: 1rem;
+      width: fit-content;
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      gap: 0.5em;
+
+      img {
+        height: 80px;
+        width: 80px;
+        margin-left: 50%;
+        transform: translateX(-50%);
+        object-fit: cover;
+        border-radius: var(--border-radius);
+        border: 2px solid var(--color-brown-400);
+      }
+    }
+
+    &__accessory-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    &__accessory-image {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: var(--border-radius);
+      border: 2px solid var(--color-brown-400);
+    }
+
+    &__accessory-details {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+
+      &-name {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--color-brown-700);
+      }
+
+      &-price {
+        font-size: 1rem;
+        color: var(--color-brown-500);
+      }
+    }
   }
 }

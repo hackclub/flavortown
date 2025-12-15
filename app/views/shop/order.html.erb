@@ -14,7 +14,7 @@
             </div>
             <h2><%= @shop_item.name %></h2>
             <div class="shop-order__description"><%= md(@shop_item.description) %></div>
-            <% if @shop_item.type.include?("HQMailItem") || @shop_item.type.include?("WarehouseItem") %>
+            <% if @shop_item.type.include?("HQMailItem") || @shop_item.type.include?("WarehouseItem") || @shop_item.type.include?("ThirdPartyPhysical") %>
                 <div class="shop-order__customs-warning">
                 ⚠️ May incur customs duties
                 </div>
@@ -50,10 +50,13 @@
 
                         <%# Render tagged accessory groups as radio buttons %>
                         <% tagged_accessories.each do |tag, accessories_in_group| %>
+                            <h5><%= tag.titleize.gsub('_', ' ') %></h5>
                             <div class="shop-order__accessory-group" data-tag="<%= tag %>">
-                                <h5 class="shop-order__accessory-group-title"><%= tag.titleize.gsub('_', ' ') %></h5>
                                 <% accessories_in_group.each do |accessory| %>
                                     <div class="shop-order__accessory-item">
+                                        <% if accessory.image.attached? %>
+                                            <%= image_tag accessory.image.variant(:carousel_sm), class: "shop-order__accessory-image", loading: "lazy" %>
+                                        <% end %>
                                         <label class="shop-order__accessory-label">
                                             <input type="radio"
                                                    name="accessory_tag_<%= tag %>"
@@ -62,34 +65,34 @@
                                                    data-price="<%= accessory.ticket_cost %>"
                                                    data-tag="<%= tag %>"
                                                    form="order-form">
-                                            <% if accessory.image.attached? %>
-                                                <%= image_tag accessory.image.variant(:carousel_sm), class: "shop-order__accessory-image", loading: "lazy" %>
-                                            <% end %>
                                             <span class="shop-order__accessory-name"><%= accessory.name %></span>
-                                            <span class="shop-order__accessory-price">🍪 <%= accessory.ticket_cost %></span>
                                         </label>
+                                        <span class="shop-order__accessory-price">🍪 <%= accessory.ticket_cost %></span>
                                     </div>
                                 <% end %>
                             </div>
                         <% end %>
 
                         <%# Render untagged accessories as checkboxes %>
-                        <% untagged_accessories.each do |accessory| %>
-                            <div class="shop-order__accessory-item">
-                                <label class="shop-order__accessory-label">
-                                    <input type="checkbox"
-                                           name="accessory_ids[]"
-                                           value="<%= accessory.id %>"
-                                           class="shop-order__accessory-checkbox"
-                                           data-price="<%= accessory.ticket_cost %>">
+                        <h5>Other upgrades</h5>
+                        <div class="shop-order__accessory-group">
+                            <% untagged_accessories.each do |accessory| %>
+                                <div class="shop-order__accessory-item">
                                     <% if accessory.image.attached? %>
                                         <%= image_tag accessory.image.variant(:carousel_sm), class: "shop-order__accessory-image", loading: "lazy" %>
                                     <% end %>
-                                    <span class="shop-order__accessory-name"><%= accessory.name %></span>
+                                    <label class="shop-order__accessory-label">
+                                        <input type="checkbox"
+                                            name="accessory_ids[]"
+                                            value="<%= accessory.id %>"
+                                            class="shop-order__accessory-checkbox"
+                                            data-price="<%= accessory.ticket_cost %>">
+                                        <span class="shop-order__accessory-name"><%= accessory.name %></span>
+                                    </label>
                                     <span class="shop-order__accessory-price">🍪 <%= accessory.ticket_cost %></span>
-                                </label>
-                            </div>
-                        <% end %>
+                                </div>
+                            <% end %>
+                        </div>
                     </div>
                 <% end %>
             <% end %>
