@@ -9,6 +9,7 @@ export default class extends Controller {
       "click",
       this.handleDropdownSelect.bind(this),
     );
+    this.dispatchAddressChange();
   }
 
   handleDropdownSelect(event) {
@@ -38,6 +39,24 @@ export default class extends Controller {
         addr.country +
         "</p>";
       this.previewTarget.innerHTML = html;
+    }
+
+    this.dispatchAddressChange(addr);
+  }
+
+  dispatchAddressChange(addr = null) {
+    const addresses = JSON.parse(this.element.dataset.addresses || "[]");
+    if (!addr && this.hasInputTarget) {
+      addr = addresses.find((a) => a.id === this.inputTarget.value);
+    }
+
+    if (addr) {
+      this.dispatch("change", {
+        detail: {
+          country: addr.country,
+          addressId: addr.id,
+        },
+      });
     }
   }
 }
