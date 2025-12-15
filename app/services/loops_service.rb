@@ -2,6 +2,8 @@ class LoopsService
   BASE_URL = "https://loops-api-service.hackclub.dev/api"
 
   def self.set_event(email, event_name, user_group: "Hack Clubber")
+    return { error: "Invalid email" } unless valid?(email)
+
     uri = URI("#{BASE_URL}/subscribe")
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -28,5 +30,11 @@ class LoopsService
   rescue => e
     Rails.logger.error "LoopsService exception: #{e.message}"
     { error: "Failed to set event in Loops" }
+  end
+
+  private
+
+  def self.valid?(email)
+    email.match?(/\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i)
   end
 end
