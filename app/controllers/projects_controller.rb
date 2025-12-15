@@ -342,7 +342,7 @@ class ProjectsController < ApplicationController
     uri = URI.parse(@project.send(attribute))
     conn = Faraday.new(
       url: uri.to_s,
-      headers: { "User-Agent" => "Flavortown project validtor (https://flavortown.hackclub.com/)" }
+      headers: { "User-Agent" => "Flavortown project validator (https://flavortown.hackclub.com/)" }
     ) do |faraday|
       faraday.response :follow_redirects, max_redirects: 3
       faraday.adapter Faraday.default_adapter
@@ -400,9 +400,9 @@ class ProjectsController < ApplicationController
   rescue URI::InvalidURIError
     @project.errors.add(attribute, "#{name} is not a valid URL")
   rescue Faraday::ConnectionFailed => e
-    @project.errors.add(attribute, "Please make sure the url is valid and reachable: #{e.message}")
+    @project.errors.add(attribute, "Please make sure the URL is valid and reachable: #{e.message}")
   rescue StandardError => e
-    @project.errors.add(attribute, "#{name} could not be verified (idk why, pls let a admin know if this is happning alot and your sure that the url is valid): #{e.message}")
+    @project.errors.add(attribute, "#{name} could not be verified (idk why, pls let a admin know if this is happening a lot and your sure that the URL is valid): #{e.message}")
   end
 
   def link_hackatime_projects
