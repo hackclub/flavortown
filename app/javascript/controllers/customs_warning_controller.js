@@ -9,11 +9,11 @@ export default class extends Controller {
   };
 
   connect() {
-    this.updateWarning("United States");
+    this.updateWarning("US");
   }
 
   addressChanged(event) {
-    const country = event.detail?.country || "United States";
+    const country = event.detail?.country || "US";
     this.updateWarning(country);
   }
 
@@ -26,7 +26,7 @@ export default class extends Controller {
 
     switch (itemType) {
       case "us_origin":
-        shouldShow = country !== "United States";
+        shouldShow = country !== "US";
         message = this.usOriginMessageValue;
         break;
       case "unknown_origin":
