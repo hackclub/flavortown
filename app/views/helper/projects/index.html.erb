@@ -1,0 +1,40 @@
+<h1>Projects</h1>
+
+<%= form_with url: helper_projects_path, method: :get, local: true, class: "form-basic" do %>
+  <%= text_field_tag :query, params[:query],
+    placeholder: "Search projects...",
+    autocomplete: "off",
+    class: "input-primary" %>
+  <%= submit_tag "Search", class: "btn-primary slim" %>
+<% end %>
+
+<% if @projects.any? %>
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Description</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @projects.each do |p| %>
+        <tr>
+          <td><%= p.id %></td>
+          <td><%= p.title %></td>
+          <td><%= truncate(p.description, length: 60) %></td>
+          <td><%= link_to "View", helper_project_path(p), class: "btn-primary slim" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No projects found.</p>
+<% end %>
+
+<% if @pagy.pages > 1 %>
+  <div class="pagination"><%== @pagy.series_nav %></div>
+<% end %>
+
+<%= link_to "← Back", helper_root_path, class: "btn-secondary" %>

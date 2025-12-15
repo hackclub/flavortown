@@ -9,7 +9,8 @@ class User
       new(2, :fraud_dept, "Can issue negative payouts, cancel grants & shop orders, but not reject or ban users; access to Blazer; access to read-only admin User w/o PII"),
       new(3, :project_certifier, "Approve/reject if project work meets Shipwright standards"),
       new(4, :ysws_reviewer, "Can approve/reject projects for YSWS DB"),
-      new(5, :fulfillment_person, "Can approve/reject/on-hold shop orders, fulfill them, and see addresses; access to read-only admin User w/ pII")
+      new(5, :fulfillment_person, "Can approve/reject/on-hold shop orders, fulfill them, and see addresses; access to read-only admin User w/ pII"),
+      new(6, :helper, "Support team with read-only access to users (no PII), projects, and shop orders")
     ].freeze
 
     SLUGGED = ALL.index_by(&:name).freeze
