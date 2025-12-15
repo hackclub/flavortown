@@ -10,10 +10,10 @@
       <div><b>Type:</b> <%= @project.project_type.presence || "Not set" %></div>
       <div><b>Created:</b> <%= @project.created_at.strftime("%Y-%m-%d") %></div>
       <% if @project.repo_url.present? %>
-        <div><b>Repo:</b> <%= link_to @project.repo_url, @project.repo_url, target: "_blank" %></div>
+        <div><b>Repo:</b> <%= safe(@project.repo_url, "Repo") %></div>
       <% end %>
       <% if @project.demo_url.present? %>
-        <div><b>Demo:</b> <%= link_to @project.demo_url, @project.demo_url, target: "_blank" %></div>
+        <div><b>Demo:</b> <%= safe(@project.demo_url, "Demo") %></div>
       <% end %>
     </div>
   </div>
