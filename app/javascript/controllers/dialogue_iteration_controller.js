@@ -27,6 +27,11 @@ export default class extends Controller {
   next(event) {
     event?.preventDefault?.();
     event?.stopPropagation?.();
+    this.advance();
+  }
+
+  advance() {
+    this.squeakCharacter();
 
     const lines = Array.isArray(this.textValue) ? this.textValue : [];
     if (lines.length === 0) return this.close();
