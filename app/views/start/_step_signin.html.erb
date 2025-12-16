@@ -55,9 +55,16 @@
     <%= hidden_field_tag :login_hint, @email if @email.present? %>
     <div class="start-flow__actions start-flow__actions--center">
       <%= render ButtonComponent.new(
-        text: "Sign in with Hack Club",
+        text: "Back",
         color: :brown,
+        variant: :borderless,
+        href: start_path(step: "devlog")
+      ) %>
+      <%= render ButtonComponent.new(
+        text: "Sign in with Hack Club",
+        color: :green,
         type: :submit,
+        variant: :borderless,
         icon: "icons/tick.svg"
       ) %>
     </div>
