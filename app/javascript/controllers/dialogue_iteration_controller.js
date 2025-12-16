@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["content", "character"];
+  static targets = ["content", "character", "sticker"];
   static values = { text: Array, voiceUrl: String };
 
   connect() {
@@ -66,15 +66,16 @@ export default class extends Controller {
 
     this.index = nextIndex;
     this.#render();
+
+    // pop up sticker on 3rd line
+    if (nextIndex === 2 && this.hasStickerTarget) {
+      this.stickerTarget.classList.remove("dialogue-box__sticker--hidden");
+    }
   }
 
   close() {
     this.#stopTyping();
     if (this.voiceAudio) this.voiceAudio.pause();
-    const backdrop = this.element.previousElementSibling;
-    if (backdrop?.classList?.contains("dialogue-box-backdrop")) {
-      backdrop.remove();
-    }
     this.element.remove();
   }
 
