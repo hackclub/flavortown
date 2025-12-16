@@ -118,11 +118,19 @@
     font-size: 1.4rem;
     color: var(--color-bg);
     background-color: #4f8fba;
-    padding: 1em 1em 0.4em 1em;
+    padding: 0.5em 1em 0.4em 1em;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    max-height: 6rem;
+    overflow-y: auto;
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
+    
+    &::-webkit-scrollbar {
+      display: none; 
+    }
 
     .dialogue-box__text-btn {
       font-size: 1rem;
