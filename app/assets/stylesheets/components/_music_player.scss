@@ -1,0 +1,42 @@
+.music-player {
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 1em;
+
+  &:hover .music-player__volume {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  &__play-pause {
+    cursor: pointer;
+    color: var(--color-bg);
+    font-size: 2rem;
+    padding: 0.1em 0.5em;
+    border-radius: 50%;
+    background: var(--color-brown-700);
+    border: none;
+    filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
+  }
+
+  &__volume {
+    background: var(--color-brown-700);
+    padding: 0.5em 1em 0.2em 1em;
+    border-radius: 16px;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.2s ease,
+      visibility 0.2s ease;
+
+    input[type="range"] {
+      &::-webkit-slider-thumb {
+        cursor: pointer;
+      }
+    }
+  }
+}
