@@ -7,6 +7,8 @@ export default class extends Controller {
   connect() {
     this.audio = null;
     this.audioStarted = false;
+    this.canDismiss = false;
+
     document.body.style.overflow = "hidden";
 
     // Start animations after a brief delay
@@ -14,6 +16,13 @@ export default class extends Controller {
       this.#startAnimations();
       this.#playAudio();
     });
+
+    setTimeout(() => {
+      this.canDismiss = true;
+      if (this.hasHintTarget) {
+        this.hintTarget.classList.add("welcome-overlay__hint--visible");
+      }
+    }, 3000);
   }
 
   disconnect() {
@@ -22,6 +31,8 @@ export default class extends Controller {
   }
 
   dismiss() {
+    if (!this.canDismiss) return;
+
     // Try to play audio on first click if autoplay was blocked
     if (!this.audioStarted) {
       this.#playAudio();
@@ -58,7 +69,7 @@ export default class extends Controller {
     if (this.hasHintTarget) {
       setTimeout(() => {
         this.hintTarget.classList.add("welcome-overlay__hint--visible");
-      }, 1000);
+      }, 3000);
     }
   }
 
