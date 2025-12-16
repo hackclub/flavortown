@@ -58,7 +58,7 @@
                   untagged_accessories = @accessories.reject(&:has_tag?)
                 %>
 
-                <% if tagged_accessories.any? %>
+                <% if tagged_accessories.any? || untagged_accessories.any? %>
                     <div class="shop-order__accessories">
 
                          <% tagged_accessories.each do |tag, accessories_in_group| %>
