@@ -17,7 +17,7 @@
     <% if balance >= display_price %>
       <%= link_to "Order Now", x, class: "btn btn-primary w-full", data: {turbo_frame: "_top"} %>
     <% else %>
-      <p class="btn btn-primary w-full">You need <%= number_to_currency(display_price - balance, precision: 0).gsub('$', '🍪') %> more cookies!</p>
+      <p class="btn btn-primary w-full"><%= number_to_currency(display_price - balance, precision: 0).gsub('$', '🍪') %> more needed!</p>
     <% end %>
   </div>
 </div>
