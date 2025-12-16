@@ -113,26 +113,27 @@ class ShopController < ApplicationController
     accessories_total = @accessories.sum(&:ticket_cost)
     total_cost = item_total + accessories_total
 
-    # Check user balance
-    if total_cost > current_user.balance
-      redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Insufficient balance. You need 🍪#{total_cost} but only have 🍪#{current_user.balance}."
-      return
-    end
-
     return redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "You need to have an address to make an order!" unless current_user.addresses.any?
 
     selected_address = current_user.addresses.find { |a| a["id"] == params[:address_id] } || current_user.addresses.first
-    @order = current_user.shop_orders.new(
-      shop_item: @shop_item,
-      quantity: quantity,
-      frozen_address: selected_address,
-      accessory_ids: @accessories.pluck(:id)
-    )
-
-    @order.aasm_state = "pending" if @order.respond_to?(:aasm_state=)
 
     begin
       ActiveRecord::Base.transaction do
+        current_user.lock!
+        user_balance = current_user.balance
+
+        if total_cost > user_balance
+          redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Insufficient balance. You need 🍪#{total_cost} but only have 🍪#{user_balance}."
+          return
+        end
+
+        @order = current_user.shop_orders.new(
+          shop_item: @shop_item,
+          quantity: quantity,
+          frozen_address: selected_address,
+          accessory_ids: @accessories.pluck(:id)
+        )
+        @order.aasm_state = "pending" if @order.respond_to?(:aasm_state=)
         @order.save!
 
         # Create orders for each accessory
