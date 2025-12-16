@@ -1,3 +1,7 @@
+.dialogue-box-wrapper {
+  // Container for dialogue box and related elements
+}
+
 .dialogue-box-backdrop {
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
@@ -9,13 +13,65 @@
   z-index: 999;
 }
 
+.dialogue-box__sticker {
+  position: fixed;
+  bottom: -50px;
+  right: -100px;
+  width: 700px;
+  height: 200px;
+  background: var(--color-brown-500);
+  background-image: url("mask/inp-group.avif");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  border: 15px solid var(--color-brown-400);
+  border-radius: 12px;
+  transform: rotate(5deg);
+  z-index: 999;
+  pointer-events: none;
+  transition:
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.4s ease;
+
+  &--hidden {
+    transform: rotate(5deg) translateY(100px);
+    opacity: 0;
+  }
+}
+
+.dialogue-box__sticker-image {
+  position: absolute;
+  left: -10px;
+  bottom: 30px;
+  height: 350px;
+  width: auto;
+  transform: rotate(-10deg);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+
+  .dialogue-box__sticker:not(.dialogue-box__sticker--hidden) & {
+    animation: sticker-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+}
+
+@keyframes sticker-bounce {
+  0% {
+    opacity: 0;
+    transform: rotate(-10deg) scale(0.5) translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-10deg) scale(1) translateY(0);
+  }
+}
+
 .dialogue-box {
   isolation: isolate;
   position: fixed;
   z-index: 1000;
   bottom: 3em;
   left: 6em;
-  margin-right: 1em;
+  right: 1em;
+  max-width: 700px;
   background-color: #73bed3;
   padding: 0.8em 0.8em 0.8em 12em;
   border-radius: 16px;
@@ -42,10 +98,11 @@
     transform-origin: bottom center;
 
     img {
-      height: 240px;
+      height: 220px;
       position: absolute;
-      left: 0em;
-      bottom: 0em;
+      left: 50%;
+      bottom: 0.5em;
+      transform: scaleX(-1) translateX(50%);
     }
 
     &:hover {
@@ -99,13 +156,53 @@
     }
   }
 
+  // Tablet breakpoint - smaller character, adjusted spacing
   @media (max-width: 960px) {
     left: 1em;
+    right: 1em;
     bottom: 1em;
+    max-width: 100%;
+    padding: 0.8em 0.8em 0.8em 10em;
+
+    &__image {
+      height: 180px;
+      width: 180px;
+      left: -3em;
+      bottom: -1.5em;
+      border-width: 0.8em;
+
+      img {
+        height: 170px;
+      }
+    }
+
+    h1 {
+      font-size: 1.6rem;
+    }
+
+    &__text {
+      font-size: 1.2rem;
+    }
+  }
+
+  // Mobile breakpoint - hide character, full width
+  @media (max-width: 600px) {
+    left: 0.5em;
+    right: 0.5em;
+    bottom: 0.5em;
     padding: 0.8em;
 
     &__image {
       display: none;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+    }
+
+    &__text {
+      font-size: 1.1rem;
+      padding: 0.8em;
     }
   }
 }

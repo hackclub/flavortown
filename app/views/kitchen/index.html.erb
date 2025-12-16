@@ -1,3 +1,7 @@
+<% if @show_welcome_overlay %>
+  <%= render WelcomeOverlayComponent.new %>
+<% end %>
+
 <div class="kitchen-index">
   <%= render HeadingComponent.new(title: "Kitchen", tone: :blue) %>
 

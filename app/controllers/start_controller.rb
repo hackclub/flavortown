@@ -10,13 +10,23 @@ class StartController < ApplicationController
     authorize :start, :index?
 
     @display_name = session[:start_display_name]
+    @email = session[:start_email]
     @project_attrs = session[:start_project_attrs] || {}
     @devlog_body = session[:start_devlog_body]
     @devlog_attachment_ids = session[:start_devlog_attachment_ids] || []
   end
 
   def update_display_name
-    session[:start_display_name] = params.fetch(:display_name, "").to_s.strip.first(50)
+    display_name = params.fetch(:display_name, "").to_s.strip.first(50)
+    email = params.fetch(:email, "").to_s.strip.downcase.first(255)
+
+    unless valid_email?(email)
+      redirect_to start_path(step: "name"), alert: "Please enter a valid email address."
+      return
+    end
+
+    session[:start_display_name] = display_name
+    session[:start_email] = email
     redirect_to start_path(step: "project")
   end
 
@@ -40,6 +50,7 @@ class StartController < ApplicationController
 
     session[:start_devlog_body] = body
     session[:start_devlog_attachment_ids] = attachment_ids
+    session[:start_flow] = true
     redirect_to start_path(step: "signin")
   end
 
@@ -70,7 +81,7 @@ class StartController < ApplicationController
   end
 
   def name_complete?
-    session[:start_display_name].present?
+    session[:start_display_name].present? && session[:start_email].present?
   end
 
   def project_complete?
@@ -79,5 +90,9 @@ class StartController < ApplicationController
 
   def devlog_complete?
     session[:start_devlog_body].present? && session[:start_devlog_attachment_ids].present?
+  end
+
+  def valid_email?(email)
+    email.present? && email.match?(URI::MailTo::EMAIL_REGEXP)
   end
 end
