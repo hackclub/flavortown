@@ -30,7 +30,7 @@ export default class extends Controller {
 
   setupAccessoryRadioUndo() {
     const radios = this.element.querySelectorAll(
-      ".shop-order__accessory-option-input"
+      ".shop-order__accessory-option-input",
     );
     radios.forEach((radio) => {
       radio.addEventListener("click", () => {
@@ -55,15 +55,15 @@ export default class extends Controller {
       this.element.querySelector("#shop-order__quantity-input") || null;
 
     this.accessoryCheckboxes = this.element.querySelectorAll(
-      ".shop-order__accessory-checkbox"
+      ".shop-order__accessory-checkbox",
     );
     this.accessoryRadios = this.element.querySelectorAll(
-      ".shop-order__accessory-option-input"
+      ".shop-order__accessory-option-input",
     );
 
     if (this.quantityInput) {
       this.quantityInput.addEventListener("input", () =>
-        this.updateOrderSummary()
+        this.updateOrderSummary(),
       );
     }
 
@@ -120,7 +120,7 @@ export default class extends Controller {
         this.accessoriesListItemsTarget.innerHTML = accessories
           .map(
             (acc) =>
-              `<li>${acc.name} <span>🍪 ${acc.price.toFixed(2)}</span></li>`
+              `<li>${acc.name} <span>🍪 ${acc.price.toFixed(2)}</span></li>`,
           )
           .join("");
       } else {

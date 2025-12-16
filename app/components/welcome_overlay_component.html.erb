@@ -5,19 +5,21 @@
 
   <div class="welcome-overlay__backdrop"></div>
 
+  <%= image_tag "banner-bg-glow.webp", class: "welcome-overlay__bg-glow" %>
+
   <div class="welcome-overlay__content">
     <!-- Star decorations with glow -->
     <div class="welcome-overlay__star welcome-overlay__star--top-left" data-welcome-overlay-target="star">
-      <%= helpers.inline_svg_tag "icons/star_fill.svg", class: "welcome-overlay__star-icon" %>
+      <%= image_tag "overlay-star-2.webp", class: "welcome-overlay__star-icon" %>
     </div>
     <div class="welcome-overlay__star welcome-overlay__star--top-right" data-welcome-overlay-target="star">
-      <%= helpers.inline_svg_tag "icons/star_fill.svg", class: "welcome-overlay__star-icon" %>
+      <%= image_tag "overlay-star-2.webp", class: "welcome-overlay__star-icon" %>
     </div>
     <div class="welcome-overlay__star welcome-overlay__star--bottom-left" data-welcome-overlay-target="star">
-      <%= helpers.inline_svg_tag "icons/star_fill.svg", class: "welcome-overlay__star-icon" %>
+      <%= image_tag "overlay-star-1.webp", class: "welcome-overlay__star-icon" %>
     </div>
     <div class="welcome-overlay__star welcome-overlay__star--bottom-right" data-welcome-overlay-target="star">
-      <%= helpers.inline_svg_tag "icons/star_fill.svg", class: "welcome-overlay__star-icon" %>
+      <%= image_tag "overlay-star-1.webp", class: "welcome-overlay__star-icon" %>
     </div>
 
     <!-- Welcome banner image -->

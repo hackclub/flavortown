@@ -23,6 +23,15 @@
   animation: welcome-overlay-backdrop-in 0.6s ease-out forwards;
 }
 
+.welcome-overlay__bg-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .welcome-overlay__content {
   position: relative;
   display: flex;
@@ -92,12 +101,11 @@
 .welcome-overlay__star {
   position: absolute;
   opacity: 0;
-  filter: drop-shadow(0 0 0 transparent);
 
   &--top-left {
-    top: -50px;
+    top: -30px;
     left: -80px;
-    transform: scale(0) rotate(-15deg);
+    transform: rotate(-80deg) !important;
 
     &.welcome-overlay__star--animate {
       animation: welcome-star-appear-1 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)
@@ -107,8 +115,8 @@
 
   &--top-right {
     top: -60px;
-    right: -70px;
-    transform: scale(0) rotate(20deg);
+    right: -90px;
+    transform: rotate(60deg) !important;
 
     &.welcome-overlay__star--animate {
       animation: welcome-star-appear-2 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)
@@ -117,9 +125,9 @@
   }
 
   &--bottom-left {
-    bottom: -40px;
-    left: -70px;
-    transform: scale(0) rotate(-25deg);
+    bottom: 40px;
+    left: -60px;
+    transform: rotate(-50deg) !important;
 
     &.welcome-overlay__star--animate {
       animation: welcome-star-appear-3 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)
@@ -128,9 +136,9 @@
   }
 
   &--bottom-right {
-    bottom: -50px;
-    right: -80px;
-    transform: scale(0) rotate(10deg);
+    bottom: 80px;
+    right: -60px;
+    transform: rotate(80deg) !important;
 
     &.welcome-overlay__star--animate {
       animation: welcome-star-appear-4 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)
@@ -140,31 +148,30 @@
 }
 
 .welcome-overlay__star-icon {
-  color: hsl(45, 95%, 65%);
   animation: welcome-star-glow 2s ease-in-out infinite alternate;
 
   // Varying sizes for each star
   .welcome-overlay__star--top-left & {
-    width: 52px;
-    height: 52px;
+    width: 60px;
+    height: 60px;
     animation-delay: 0s;
   }
 
   .welcome-overlay__star--top-right & {
-    width: 44px;
-    height: 44px;
+    width: 60px;
+    height: 60px;
     animation-delay: 0.3s;
   }
 
   .welcome-overlay__star--bottom-left & {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     animation-delay: 0.6s;
   }
 
   .welcome-overlay__star--bottom-right & {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     animation-delay: 0.9s;
   }
 }
