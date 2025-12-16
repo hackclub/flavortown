@@ -43,10 +43,12 @@ module Shop
 
       return true unless any_region_enabled?
 
-      # If enabled for this specific region, return true
-      return true if send("enabled_#{region_code.downcase}")
+      region_value = send("enabled_#{region_code.downcase}")
 
-      # If enabled for XX (Rest of World), item is available everywhere
+      # If explicitly set for this region, use that value
+      return region_value unless region_value.nil?
+
+      # Only fall back to XX (Rest of World) if region is not explicitly set
       enabled_xx
     end
 
