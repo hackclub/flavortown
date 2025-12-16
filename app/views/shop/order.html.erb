@@ -18,31 +18,7 @@
                 <%= image_tag @shop_item.image, loading: "lazy", decoding: "async" if @shop_item.image.attached? %>
             </div>
             <h2><%= @shop_item.name %></h2>
-            <div class="shop-order__fulfillment-badge shop-order__fulfillment-badge--<%= fulfillment_badge_color(@shop_item) %>">
-                <%= fulfillment_source_text(@shop_item) %>
-                <% if is_warehouse_item?(@shop_item) && @shop_item.seller.present? %>
-                  - <%= @shop_item.seller.display_name %>
-                <% elsif @shop_item.type == "ShopItem::HackClubberItem" && @shop_item.seller.present? %>
-                  - <%= @shop_item.seller.display_name %>
-                <% end %>
-            </div>
             <div class="shop-order__description"><%= md(@shop_item.description) %></div>
-
-            <% if @accessories.any? %>
-                <div class="shop-order__available-accessories">
-                    <h4>Available Options:</h4>
-                    <div class="shop-order__accessory-list">
-                        <% @accessories.each do |accessory| %>
-                            <div class="shop-order__accessory-preview">
-                                <% if accessory.image.attached? %>
-                                    <%= image_tag accessory.image.variant(:carousel_sm), loading: "lazy" %>
-                                <% end %>
-                                <span><%= accessory.name %></span>
-                            </div>
-                        <% end %>
-                    </div>
-                </div>
-            <% end %>
 
             <% if is_warehouse_item?(@shop_item) && @shop_item.agh_contents.present? %>
                 <div class="shop-order__agh-contents">
@@ -57,7 +33,7 @@
 
             <div class="shop-order__customs-warning" data-customs-warning-target="warning" style="display: none;"></div>
         </div>
-        <div class="shop-order__details" data-controller="order-form" data-order-form-has-addresses-value="<%= current_user.addresses.any? %>">
+        <div class="shop-order__details" data-controller="order-form" data-order-form-has-addresses-value="<%= current_user.addresses.any? %>" data-order-form-base-ticket-cost-value="<%= @shop_item.ticket_cost || 0 %>" data-order-form-user-balance-value="<%= current_user.balance || 0 %>">
             <h2>Complete your order:</h2>
             <%= form_with url: shop_order_path(shop_item_id: @shop_item.id), method: :post, local: true, id: "order-form" do |form| %>
                 <% if not @shop_item.one_per_person_ever %>
@@ -77,59 +53,61 @@
                     <%= form.hidden_field :quantity, value: 1 %>
                 <% end %>
 
-                <% if @accessories.any? %>
-                    <div class="shop-order__accessories">
-                        <h4>Add Accessories:</h4>
-                        <%
-                          tagged_accessories = @accessories.select(&:has_tag?).group_by(&:accessory_tag)
-                          untagged_accessories = @accessories.reject(&:has_tag?)
-                        %>
+                <%
+                  tagged_accessories = @accessories.select(&:has_tag?).group_by(&:accessory_tag)
+                  untagged_accessories = @accessories.reject(&:has_tag?)
+                %>
 
-                        <%# Render tagged accessory groups as radio buttons %>
-                        <% tagged_accessories.each do |tag, accessories_in_group| %>
-                            <h5><%= tag.titleize.gsub('_', ' ') %></h5>
-                            <div class="shop-order__accessory-group" data-tag="<%= tag %>">
-                                <% accessories_in_group.each do |accessory| %>
-                                    <div class="shop-order__accessory-item">
-                                        <% if accessory.image.attached? %>
-                                            <%= image_tag accessory.image.variant(:carousel_sm), class: "shop-order__accessory-image", loading: "lazy" %>
-                                        <% end %>
-                                        <label class="shop-order__accessory-label">
-                                            <input type="radio"
-                                                   name="accessory_tag_<%= tag %>"
-                                                   value="<%= accessory.id %>"
-                                                   class="shop-order__accessory-radio"
-                                                   data-price="<%= accessory.ticket_cost %>"
-                                                   data-tag="<%= tag %>"
-                                                   form="order-form">
-                                            <span class="shop-order__accessory-name"><%= accessory.name %></span>
-                                        </label>
-                                        <span class="shop-order__accessory-price">🍪 <%= accessory.ticket_cost %></span>
-                                    </div>
-                                <% end %>
+                <% if tagged_accessories.any? || untagged_accessories.any? %>
+                    <div class="shop-order__accessories">
+
+                         <% tagged_accessories.each do |tag, accessories_in_group| %>
+                             <div class="shop-order__accessory-group-section">
+                                 <h5><%= tag.titleize.gsub('_', ' ') %></h5>
+                                 <div class="shop-order__accessory-options">
+                                     <% accessories_in_group.each do |accessory| %>
+                                         <label class="shop-order__accessory-option-label">
+                                             <input type="radio"
+                                                    name="accessory_tag_<%= tag %>"
+                                                    value="<%= accessory.id %>"
+                                                    class="shop-order__accessory-option-input"
+                                                    data-price="<%= accessory.ticket_cost %>"
+                                                    data-tag="<%= tag %>"
+                                                    form="order-form"
+                                                    style="display: none;">
+                                             <div class="shop-order__accessory-option-block">
+                                                 <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
+                                                 <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                             </div>
+                                         </label>
+                                     <% end %>
+                                 </div>
+                             </div>
+                         <% end %>
+
+                        <% if untagged_accessories.any? %>
+                            <div class="shop-order__other-upgrades">
+                                <h5>Other upgrades</h5>
+                                <div class="shop-order__accessory-group">
+                                    <% untagged_accessories.each do |accessory| %>
+                                        <div class="shop-order__accessory-item">
+                                            <% if accessory.image.attached? %>
+                                                <%= image_tag accessory.image.variant(:carousel_sm), class: "shop-order__accessory-image", loading: "lazy" %>
+                                            <% end %>
+                                            <label class="shop-order__accessory-label">
+                                                <input type="checkbox"
+                                                    name="accessory_ids[]"
+                                                    value="<%= accessory.id %>"
+                                                    class="shop-order__accessory-checkbox"
+                                                    data-price="<%= accessory.ticket_cost %>">
+                                                <span class="shop-order__accessory-name"><%= accessory.name %></span>
+                                            </label>
+                                            <span class="shop-order__accessory-price">🍪 <%= accessory.ticket_cost %></span>
+                                        </div>
+                                    <% end %>
+                                </div>
                             </div>
                         <% end %>
-
-                        <%# Render untagged accessories as checkboxes %>
-                        <h5>Other upgrades</h5>
-                        <div class="shop-order__accessory-group">
-                            <% untagged_accessories.each do |accessory| %>
-                                <div class="shop-order__accessory-item">
-                                    <% if accessory.image.attached? %>
-                                        <%= image_tag accessory.image.variant(:carousel_sm), class: "shop-order__accessory-image", loading: "lazy" %>
-                                    <% end %>
-                                    <label class="shop-order__accessory-label">
-                                        <input type="checkbox"
-                                            name="accessory_ids[]"
-                                            value="<%= accessory.id %>"
-                                            class="shop-order__accessory-checkbox"
-                                            data-price="<%= accessory.ticket_cost %>">
-                                        <span class="shop-order__accessory-name"><%= accessory.name %></span>
-                                    </label>
-                                    <span class="shop-order__accessory-price">🍪 <%= accessory.ticket_cost %></span>
-                                </div>
-                            <% end %>
-                        </div>
                     </div>
                 <% end %>
             <% end %>
@@ -160,12 +138,12 @@
 
                     </div>
                     <div class="shop-order__edit-address">
-                        <a href="<%= HCAService.address_portal_url(return_to: request.original_url) %>" class="btn btn-sm btn-outline-secondary">Edit addresses</a>
+                        <a href="<%= HCAService.address_portal_url(return_to: request.original_url) %>" class="btn btn-order" style="margin-top: 0.5em;">Edit addresses</a>
                     </div>
                 <% else %>
                     <div class="shop-order__no-address">
                          <p>No shipping address found.</p>
-                         <a href="<%= HCAService.address_portal_url(return_to: request.original_url) %>" class="btn btn-sm btn-outline-primary">Add an address</a>
+                         <a href="<%= HCAService.address_portal_url(return_to: request.original_url) %>" class="btn btn-order">Add an address</a>
                     </div>
                 <% end %>
             </div>
@@ -180,17 +158,17 @@
                             <h4>Base Price:</h4>
                             <h4>🍪 <%= @shop_item.ticket_cost %></h4>
                         </div>
-                        <div class="shop-order__summary-accessories-list" id="shop-order__summary-accessories-list" style="display: none;">
+                        <div class="shop-order__summary-accessories-list" id="shop-order__summary-accessories-list" style="display: none;" data-order-form-target="accessoriesListContainer">
                             <h4>Accessories:</h4>
-                            <ul id="shop-order__accessories-list-items"></ul>
+                            <ul id="shop-order__accessories-list-items" data-order-form-target="accessoriesListItems"></ul>
                         </div>
                         <div class="shop-order__summary-qty">
                             <h4>Quantity:</h4>
-                            <h4 id="shop-order__summary-qty-display">1x</h4>
+                            <h4 id="shop-order__summary-qty-display" data-order-form-target="summaryQtyDisplay">1x</h4>
                         </div>
                         <div class="shop-order__summary-total">
                             <h4>Total:</h4>
-                            <h4 id="shop-order__summary-total-display">🍪 <%= @shop_item.ticket_cost %></h4>
+                            <h4 id="shop-order__summary-total-display" data-order-form-target="summaryTotalDisplay">🍪 <%= @shop_item.ticket_cost %></h4>
                         </div>
                     </div>
                 <% end %>
@@ -202,109 +180,3 @@
         </div>
     </div>
 </div>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const quantityInput = document.getElementById('shop-order__quantity-input');
-    const summaryQtyDisplay = document.getElementById('shop-order__summary-qty-display');
-    const summaryTotalDisplay = document.getElementById('shop-order__summary-total-display');
-    const accessoriesListContainer = document.getElementById('shop-order__summary-accessories-list');
-    const accessoriesListItems = document.getElementById('shop-order__accessories-list-items');
-    const accessoryCheckboxes = document.querySelectorAll('.shop-order__accessory-checkbox');
-    const accessoryRadios = document.querySelectorAll('.shop-order__accessory-radio');
-    const baseTicketCost = <%= raw (@shop_item.ticket_cost || 0).to_json %>;
-
-    function getSelectedAccessories() {
-        const selected = [];
-        accessoryCheckboxes.forEach(function(checkbox) {
-            if (checkbox.checked) {
-                const label = checkbox.closest('label');
-                const name = label.querySelector('.shop-order__accessory-name').textContent;
-                const price = parseFloat(checkbox.dataset.price) || 0;
-                selected.push({ name: name, price: price });
-            }
-        });
-        accessoryRadios.forEach(function(radio) {
-            if (radio.checked) {
-                const label = radio.closest('label');
-                const name = label.querySelector('.shop-order__accessory-name').textContent;
-                const price = parseFloat(radio.dataset.price) || 0;
-                selected.push({ name: name, price: price });
-            }
-        });
-        return selected;
-    }
-
-    function calculateAccessoriesTotal() {
-        let total = 0;
-        getSelectedAccessories().forEach(function(acc) {
-            total += acc.price;
-        });
-        return total;
-    }
-
-    function updateOrderSummary() {
-        const qty = parseInt(quantityInput ? quantityInput.value : 1) || 1;
-        const selectedAccessories = getSelectedAccessories();
-        const accessoriesTotal = selectedAccessories.reduce((sum, acc) => sum + acc.price, 0);
-        const itemTotal = baseTicketCost * qty;
-        const grandTotal = itemTotal + accessoriesTotal;
-
-        // Update accessories list
-        if (accessoriesListContainer && accessoriesListItems) {
-            if (selectedAccessories.length > 0) {
-                accessoriesListContainer.style.display = 'block';
-                accessoriesListItems.innerHTML = selectedAccessories.map(function(acc) {
-                    return '<li>' + acc.name + ' <span>🍪 ' + acc.price.toFixed(2) + '</span></li>';
-                }).join('');
-            } else {
-                accessoriesListContainer.style.display = 'none';
-                accessoriesListItems.innerHTML = '';
-            }
-        }
-
-        if (summaryQtyDisplay) {
-            summaryQtyDisplay.textContent = qty + 'x';
-        }
-
-        if (summaryTotalDisplay) {
-            summaryTotalDisplay.textContent = '🍪 ' + grandTotal.toFixed(2);
-        }
-    }
-
-    if (quantityInput) {
-        quantityInput.addEventListener('input', updateOrderSummary);
-    }
-
-    accessoryCheckboxes.forEach(function(checkbox) {
-        checkbox.addEventListener('change', updateOrderSummary);
-    });
-
-    accessoryRadios.forEach(function(radio) {
-        radio.addEventListener('change', updateOrderSummary);
-    });
-
-    updateOrderSummary();
-
-    const addressSelect = document.getElementById('address-select');
-    const addressPreview = document.getElementById('address-preview');
-    const addresses = <%= raw (current_user.addresses || []).to_json %>;
-
-    if (addressSelect && addressPreview) {
-        addressSelect.addEventListener('change', function() {
-            const selectedId = this.value;
-            const addr = addresses.find(a => a.id === selectedId);
-            if (addr) {
-                let html = '<p>' +
-                    addr.first_name + ' ' + addr.last_name + '<br>' +
-                    addr.line_1;
-                if (addr.line_2) {
-                    html += '<br>' + addr.line_2;
-                }
-                html += '<br>' + addr.city + ', ' + addr.state + ' ' + addr.postal_code +
-                    '<br>' + addr.country + '</p>';
-                addressPreview.innerHTML = html;
-            }
-        });
-    }
-});
-</script>
