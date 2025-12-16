@@ -55,11 +55,8 @@ class SessionsController < ApplicationController
     if session.delete(:start_flow)
       apply_start_flow_data!(user)
       user.complete_tutorial_step!(:first_login)
-      tutorial_message [
-        "Welcome to Flavortown, Chef! Your project and devlog have been created.",
-        "You've unlocked free stickers! Verify your identity to redeem them."
-      ]
-      redirect_to shop_path, notice: "Welcome to Flavortown! You've unlocked free stickers."
+      session[:show_welcome_overlay] = true
+      redirect_to kitchen_path
       return
     end
 
