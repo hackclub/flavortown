@@ -118,6 +118,7 @@ class SessionsController < ApplicationController
 
   def clear_start_flow_session!
     session.delete(:start_display_name)
+    session.delete(:start_email)
     session.delete(:start_project_attrs)
     session.delete(:start_devlog_body)
     session.delete(:start_devlog_attachment_ids)
