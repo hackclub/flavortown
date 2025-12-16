@@ -70,7 +70,8 @@
   z-index: 1000;
   bottom: 3em;
   left: 6em;
-  margin-right: 1em;
+  right: 1em;
+  max-width: 700px;
   background-color: #73bed3;
   padding: 0.8em 0.8em 0.8em 12em;
   border-radius: 16px;
@@ -155,13 +156,53 @@
     }
   }
 
+  // Tablet breakpoint - smaller character, adjusted spacing
   @media (max-width: 960px) {
     left: 1em;
+    right: 1em;
     bottom: 1em;
+    max-width: 100%;
+    padding: 0.8em 0.8em 0.8em 10em;
+
+    &__image {
+      height: 180px;
+      width: 180px;
+      left: -3em;
+      bottom: -1.5em;
+      border-width: 0.8em;
+
+      img {
+        height: 170px;
+      }
+    }
+
+    h1 {
+      font-size: 1.6rem;
+    }
+
+    &__text {
+      font-size: 1.2rem;
+    }
+  }
+
+  // Mobile breakpoint - hide character, full width
+  @media (max-width: 600px) {
+    left: 0.5em;
+    right: 0.5em;
+    bottom: 0.5em;
     padding: 0.8em;
 
     &__image {
       display: none;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+    }
+
+    &__text {
+      font-size: 1.1rem;
+      padding: 0.8em;
     }
   }
 }
