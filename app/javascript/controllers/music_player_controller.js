@@ -26,6 +26,13 @@ export default class extends Controller {
     this.audio.volume = event.target.value;
   }
 
+  disconnect() {
+    if (this.audio) {
+      this.audio.pause();
+      this.audio = null;
+    }
+  }
+
   #toggleIcons() {
     const playIcon = this.element.querySelector(".music-player__icon--play");
     const pauseIcon = this.element.querySelector(".music-player__icon--pause");
