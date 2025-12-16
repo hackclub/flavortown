@@ -13,6 +13,8 @@ class KitchenController < ApplicationController
     @tutorial_steps = User::TutorialStep.all
     @completed_steps = current_user.tutorial_steps
     @tutorial_is_complete = @tutorial_steps - @completed_steps
+
+    @show_welcome_overlay = session.delete(:show_welcome_overlay)
   end
 
   private

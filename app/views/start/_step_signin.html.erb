@@ -52,6 +52,7 @@
   </div>
 
   <%= form_tag "/auth/hack_club", method: :post, class: "start-flow__form", data: {turbo: false} do %>
+    <%= hidden_field_tag :login_hint, @email if @email.present? %>
     <div class="start-flow__actions start-flow__actions--center">
       <%= render ButtonComponent.new(
         text: "Sign in with Hack Club",
