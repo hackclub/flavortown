@@ -2,6 +2,7 @@
   data-controller="dialogue-iteration"
   data-dialogue-iteration-text-value='<%= text.to_json %>'
   data-dialogue-iteration-voice-url-value="<%= audio_path('cartoon-yap.mp3') %>"
+  data-dialogue-iteration-sprites-value='<%= sprite_urls.to_json %>'
   data-action="keydown.enter@window->dialogue-iteration#next click@window->dialogue-iteration#next">
 
   <div class="dialogue-box-backdrop"></div>
@@ -16,7 +17,7 @@
     <h1>Chef Orpheus</h1>
 
     <div class="dialogue-box__image" data-action="click->dialogue-iteration#squeakCharacter" data-dialogue-iteration-target="character">
-      <%= image_tag "chef-orpheus-head.webp", alt: "Chef Orpheus" %>
+      <%= image_tag "orpheus_sprites/1.png", alt: "Chef Orpheus", data: { dialogue_iteration_target: "sprite" } %>
     </div>
 
     <div class="dialogue-box__text">

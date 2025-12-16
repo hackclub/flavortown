@@ -1,20 +1,59 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["content", "character", "sticker"];
-  static values = { text: Array, voiceUrl: String };
+  static targets = ["content", "character", "sticker", "sprite"];
+  static values = { text: Array, voiceUrl: String, sprites: Array };
+
+  static SPRITE_INTERVAL = 80; // in ms; time b/w sprite changes
 
   connect() {
     this.index = 0;
     this.typingInterval = null;
+    this.spriteInterval = null;
+    this.currentSpriteIndex = 0;
     this.#loadSqueak();
     this.#loadVoice();
+    this.#preloadSprites();
     this.#render();
+  }
+
+  #preloadSprites() {
+    if (!this.hasSpritesValue) return;
+
+    this.spriteImages = this.spritesValue.map((url) => {
+      const img = new Image();
+      img.src = url;
+      return img;
+    });
   }
 
   disconnect() {
     this.#stopTyping();
+    this.#stopSpriteAnimation();
     if (this.voiceAudio) this.voiceAudio.pause();
+  }
+
+  #startSpriteAnimation() {
+    if (this.spriteInterval || !this.hasSpriteTarget || !this.hasSpritesValue)
+      return;
+
+    this.spriteInterval = setInterval(() => {
+      this.currentSpriteIndex =
+        (this.currentSpriteIndex + 1) % this.spritesValue.length;
+      this.spriteTarget.src = this.spritesValue[this.currentSpriteIndex];
+    }, this.constructor.SPRITE_INTERVAL);
+  }
+
+  #stopSpriteAnimation() {
+    if (this.spriteInterval) {
+      clearInterval(this.spriteInterval);
+      this.spriteInterval = null;
+    }
+
+    if (this.hasSpriteTarget && this.hasSpritesValue) {
+      this.currentSpriteIndex = 7; // 8.png
+      this.spriteTarget.src = this.spritesValue[7];
+    }
   }
 
   #loadSqueak() {
@@ -43,6 +82,7 @@ export default class extends Controller {
       clearInterval(this.typingInterval);
       this.typingInterval = null;
     }
+    this.#stopSpriteAnimation();
   }
 
   next(event) {
@@ -109,6 +149,7 @@ export default class extends Controller {
 
     this.voiceAudio.currentTime = 0;
     this.voiceAudio.play();
+    this.#startSpriteAnimation();
     let charIndex = 0;
 
     this.typingInterval = setInterval(() => {

@@ -97,11 +97,11 @@
     transform-origin: bottom center;
 
     img {
-      height: 240px;
+      height: 220px;
       position: absolute;
-      left: 0em;
-      bottom: 0em;
-    }
+      left: 50%;
+      bottom: 0.5em;
+      transform: scaleX(-1) translateX(50%);
 
     &:hover {
       transform: scale(1.05);
@@ -162,5 +162,6 @@
     &__image {
       display: none;
     }
+  }
   }
 }
