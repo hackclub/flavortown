@@ -50,6 +50,7 @@ class StartController < ApplicationController
 
     session[:start_devlog_body] = body
     session[:start_devlog_attachment_ids] = attachment_ids
+    session[:start_flow] = true
     redirect_to start_path(step: "signin")
   end
 
