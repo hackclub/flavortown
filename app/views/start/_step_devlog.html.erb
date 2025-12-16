@@ -44,10 +44,17 @@
 
     <div class="start-flow__actions start-flow__actions--center">
       <%= render ButtonComponent.new(
-        text: "Submit",
+        text: "Back",
         color: :brown,
+        variant: :borderless,
+        href: start_path(step: "project")
+      ) %>
+      <%= render ButtonComponent.new(
+        text: "Next",
+        color: :green,
         type: :submit,
-        icon: "icons/tick.svg"
+        variant: :borderless,
+        icon: "icons/right-arrow.svg"
       ) %>
     </div>
   <% end %>
