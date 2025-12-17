@@ -29,6 +29,7 @@
 #  hcb_preauthorization_instructions :text
 #  internal_description              :string
 #  limited                           :boolean
+#  long_description                  :text
 #  max_qty                           :integer
 #  name                              :string
 #  old_prices                        :integer          default([]), is an Array

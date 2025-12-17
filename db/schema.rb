@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_14_212954) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_17_030959) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -358,6 +358,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_14_212954) do
     t.text "hcb_preauthorization_instructions"
     t.string "internal_description"
     t.boolean "limited"
+    t.text "long_description"
     t.integer "max_qty"
     t.string "name"
     t.integer "old_prices", default: [], array: true

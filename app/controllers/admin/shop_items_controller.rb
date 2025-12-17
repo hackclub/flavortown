@@ -85,6 +85,7 @@ module Admin
         :name,
         :type,
         :description,
+        :long_description,
         :internal_description,
         :ticket_cost,
         :usd_cost,
