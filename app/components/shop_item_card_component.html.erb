@@ -1,5 +1,21 @@
 <% x = "/shop/order?shop_item_id=#{item_id}" %>
-<div class="shop-item-card" data-categories="<%= categories.join(',') %>" data-regions="<%= enabled_regions.join(',') %>" data-shop-id="<%= item_id %>">
+<div class="shop-item-card"
+     data-categories="<%= categories.join(',') %>"
+     data-regions="<%= enabled_regions.join(',') %>"
+     data-shop-id="<%= item_id %>"
+     data-controller="shop-wishlist"
+     data-shop-wishlist-item-id-value="<%= item_id %>"
+     data-shop-wishlist-item-name-value="<%= name %>"
+     data-shop-wishlist-item-price-value="<%= display_price %>"
+     data-shop-wishlist-item-image-value="<%= url_for(image_url) %>">
+  <button type="button"
+          class="shop-item-card__star"
+          data-shop-wishlist-target="starButton"
+          data-action="click->shop-wishlist#toggle"
+          aria-label="Add to goals"
+          aria-pressed="false">
+    <%= helpers.inline_svg_tag "icons/star_fill.svg" %>
+  </button>
   <a href="<%= x %>" class="shop-item-card__link" data-turbo-frame="_top">
     <div class="shop-item-card__image">
       <%= image_tag image_url, alt: "#{name} image", class: "rounded-lg w-full h-auto object-scale-down aspect-square max-h-48" %>
