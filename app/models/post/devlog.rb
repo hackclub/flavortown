@@ -33,6 +33,9 @@ class Post::Devlog < ApplicationRecord
     video/webm
     video/x-matroska].freeze
 
+  # File extensions for browser file picker (some browsers need these alongside MIME types)
+  ACCEPTED_FILE_EXTENSIONS = %w[.jpg .jpeg .png .webp .heic .heif .gif .mp4 .mov .webm .mkv].freeze
+  ACCEPTED_UPLOAD_TYPES = (ACCEPTED_CONTENT_TYPES + ACCEPTED_FILE_EXTENSIONS).freeze
 
   validates :body, presence: true, length: { maximum: 2_000 }
   validates :scrapbook_url, uniqueness: { message: "has already been used for another devlog" }, allow_blank: true, unless: -> { Rails.env.development? }
