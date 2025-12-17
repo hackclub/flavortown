@@ -25,12 +25,30 @@
       ) %>
     </div>
 
-    <div class="start-flow__actions start-flow__actions--center">
+    <div class="start-flow__field" style="margin-top: var(--space-xxxl);">
+      <%= render InputComponent.new(
+        label: "Email",
+        placeholder: "chef@example.com",
+        form: f,
+        attribute: :email,
+        color: :red,
+        subtitle: "We’ll never sell your information. We’ll only use it to send you updates and identify your account.",
+        input_html: {
+          value: @email,
+          type: :email,
+          maxlength: 255,
+          required: true
+        }
+      ) %>
+    </div>
+
+    <div class="start-flow__actions start-flow__actions--center" style="margin-top: var(--space-l);">
       <%= render ButtonComponent.new(
-        text: "Submit",
-        color: :brown,
+        text: "Next",
+        color: :green,
         type: :submit,
-        icon: "icons/tick.svg"
+        variant: :borderless,
+        icon: "icons/right-arrow.svg"
       ) %>
     </div>
   <% end %>

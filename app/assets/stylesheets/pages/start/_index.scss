@@ -162,7 +162,6 @@
 
   &__card-header {
     text-align: center;
-    padding-right: 60px; // Space for ribbon
 
     h2 {
       font-family: var(--font-display);
@@ -192,10 +191,6 @@
     .input {
       width: 100%;
     }
-
-    &:not(:last-child) {
-      margin-bottom: var(--space-xl);
-    }
   }
 
   &__actions {
@@ -203,7 +198,7 @@
     justify-content: center;
     align-items: center;
     gap: var(--space-m);
-    padding-top: var(--space-m);
+    padding-top: var(--space-xs);
 
     &--center {
       justify-content: center;
@@ -318,8 +313,6 @@
     }
 
     &__card-header {
-      padding-right: 50px;
-
       h2 {
         font-size: var(--font-size-l);
       }

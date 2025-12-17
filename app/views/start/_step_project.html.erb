@@ -26,7 +26,7 @@
       ) %>
     </div>
 
-    <div class="start-flow__field">
+    <div class="start-flow__field" style="margin-top: var(--space-xxxl);">
       <%= render InputComponent.new(
         label: "Description",
         placeholder: "Share what the project does, who's working on it, and what's next.",
@@ -45,10 +45,18 @@
 
     <div class="start-flow__actions start-flow__actions--center">
       <%= render ButtonComponent.new(
-        text: "Submit",
+        text: "Back",
         color: :brown,
+        variant: :borderless,
+        size: :md,
+        href: start_path(step: "name")
+      ) %>
+      <%= render ButtonComponent.new(
+        text: "Next",
+        color: :green,
         type: :submit,
-        icon: "icons/tick.svg"
+        variant: :borderless,
+        icon: "icons/right-arrow.svg"
       ) %>
     </div>
   <% end %>

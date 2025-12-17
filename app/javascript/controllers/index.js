@@ -54,3 +54,9 @@ application.register("project-fire", ProjectFireController);
 
 import ModalController from "./modal_controller";
 application.register("modal", ModalController);
+
+import WelcomeOverlayController from "./welcome_overlay_controller";
+application.register("welcome-overlay", WelcomeOverlayController);
+
+import MusicPlayerController from "./music_player_controller";
+application.register("music-player", MusicPlayerController);

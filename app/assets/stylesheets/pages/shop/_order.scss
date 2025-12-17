@@ -120,7 +120,7 @@
         &__label {
           top: -1.4em;
           width: fit-content;
-          background-color: #4f8fba;
+          background-color: var(--color-blue-400);
           color: var(--color-bg);
           border-radius: 8px;
           font-family: var(--font-family-subtitle);
@@ -308,7 +308,21 @@
     width: 100%;
     border-color: var(--color-brown-500);
     font-size: 1.4rem;
-    padding: 0;
+    font-family: var(--font-family-subtitle);
+    padding: 0.5em 1em;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+
+    &:hover {
+      background-color: var(--color-brown-700);
+      border-color: var(--color-brown-700);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
     svg {
       height: 1.4rem;
@@ -317,12 +331,12 @@
   }
 
   &__customs-warning {
-    background-color: #fff3cd;
-    border: 1px solid #ffc107;
-    border-radius: 6px;
+    background-color: var(--color-yellow-300);
+    border: 1px solid var(--color-yellow-500);
+    border-radius: 8px;
     padding: 0.2rem 0.5rem;
     font-size: 1rem;
-    color: #856404;
+    color: var(--color-yellow-600);
     font-weight: normal;
     text-align: center;
     margin-top: 1em;
@@ -377,50 +391,6 @@
     }
   }
 
-  &__available-accessories {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 12px;
-    border: 1px solid var(--color-tan-400, #bcaaa4);
-
-    h4 {
-      font-size: 1.1rem;
-      font-family: var(--font-family-subtitle);
-      margin-bottom: 0.75rem;
-      color: var(--color-brown-700);
-    }
-  }
-
-  &__accessory-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  &__accessory-preview {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: var(--color-bg);
-    padding: 0.4rem 0.8rem;
-    border-radius: 8px;
-    border: 1px solid var(--color-tan-400, #bcaaa4);
-
-    img {
-      width: 32px;
-      height: 32px;
-      object-fit: cover;
-      border-radius: 4px;
-    }
-
-    span {
-      font-size: 0.9rem;
-      font-family: var(--font-family-text);
-      color: var(--color-brown-600);
-    }
-  }
-
   &__agh-contents {
     margin-top: 1rem;
     padding: 0.75rem 1rem;
@@ -450,13 +420,16 @@
   }
 
   &__accessories {
-    margin-top: 2em;
-    padding: 1em;
+    margin-top: 3em;
+    padding: 1.5em;
+    background-color: var(--color-tan-300);
+    border-radius: 16px;
 
     h4 {
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       margin-bottom: 0.5rem;
       font-family: var(--font-family-subtitle);
+      color: var(--color-brown-700);
     }
 
     h5 {
@@ -465,6 +438,70 @@
       font-family: var(--font-family-text);
       margin-bottom: 1rem;
       text-align: center;
+      color: var(--color-brown-700);
+    }
+
+    .shop-order__accessory-group-section {
+      margin-bottom: 2rem;
+      h5 {
+        margin-bottom: 1rem;
+        font-family: var(--font-family-subtitle);
+      }
+
+      :last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .shop-order__accessory-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .shop-order__accessory-option-label {
+      display: block;
+      cursor: pointer;
+    }
+
+    .shop-order__accessory-option-block {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      border: 2px solid var(--color-tan-400);
+      border-radius: 16px;
+      background: var(--color-tan-300) url("landing/hero/hero-bg.webp") repeat
+        center center / 1200px;
+      box-shadow: var(--shadow);
+    }
+
+    .shop-order__accessory-option-input:checked
+      ~ .shop-order__accessory-option-block {
+      border: 2px solid var(--color-brown-500);
+      background-color: var(--color-tan-400);
+    }
+
+    .shop-order__accessory-option-name {
+      font-size: 1.1rem;
+      font-family: var(--font-family-text);
+      color: var(--color-brown-700);
+      font-weight: 500;
+    }
+
+    .shop-order__accessory-option-price {
+      font-size: 1rem;
+      font-family: var(--font-family-text);
+      color: var(--color-brown-600);
+      white-space: nowrap;
+      margin-left: 1rem;
+      text-align: right;
+    }
+
+    .shop-order__other-upgrades {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-tan-400);
     }
 
     .shop-order__accessory-group {
@@ -476,15 +513,17 @@
     }
 
     .shop-order__accessory-item {
-      background-color: var(--color-bg);
-      border: 1px solid var(--color-brown-400);
-      border-radius: 8px;
+      background: var(--color-tan-300) url("landing/hero/hero-bg.webp") repeat
+        center center / 1200px;
+      border: 2px solid var(--color-tan-400);
+      border-radius: 16px;
       padding: 1rem;
       width: fit-content;
       display: flex;
       flex-direction: column;
       text-align: center;
       gap: 0.5em;
+      box-shadow: var(--shadow);
 
       img {
         height: 80px;

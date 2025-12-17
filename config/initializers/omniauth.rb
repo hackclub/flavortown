@@ -11,6 +11,14 @@ Rails.application.config.middleware.use OmniAuth::Builder do
           site:         HCAService.host,
           authorize_url: "/oauth/authorize",
           token_url:     "/oauth/token"
+        },
+        setup: lambda { |env|
+          request = Rack::Request.new(env)
+          login_hint = request.params["login_hint"]
+          if login_hint.present?
+            env["omniauth.strategy"].options[:authorize_params] ||= {}
+            env["omniauth.strategy"].options[:authorize_params][:login_hint] = login_hint
+          end
         }
       }
 

@@ -33,7 +33,7 @@ class Post::Devlog < ApplicationRecord
     video/x-matroska].freeze
 
 
-  validates :body, presence: true
+  validates :body, presence: true, length: { maximum: 2_000 }
   validates :scrapbook_url, uniqueness: { message: "has already been used for another devlog" }, allow_blank: true, unless: -> { Rails.env.development? }
   validate :validate_scrapbook_url
 

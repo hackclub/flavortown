@@ -33,28 +33,37 @@
     <% end %>
   </div>
 
-  <% if @step == "name" %>
-    <%= render DialogueBoxComponent.new(text: [
-      "Hello chef! Welcome to Flavortown, are you excited for your first day?",
-      "Let's get you set up! First, tell me what you'd like to be called."
-    ]) %>
-  <% elsif @step == "project" %>
-    <%= render DialogueBoxComponent.new(text: [
-      "Perfect! Are you excited to cook your first tasty project?",
-      "After this tutorial, a tasty sticker will be waiting for you!",
-      "Just fill out these details, don't worry you can always change this later!"
-    ]) %>
-  <% elsif @step == "devlog" %>
-    <%= render DialogueBoxComponent.new(text: [
-      "Nice project! Now let's add your first devlog.",
-      "Devlogs are how you share your progress with other chefs!",
-      "Add some text and at least one image or video of what you're working on."
-    ]) %>
-  <% elsif @step == "signin" %>
-    <%= render DialogueBoxComponent.new(text: [
-      "You're almost done! Just one more step.",
-      "Sign in with Hack Club to save your project and claim your free stickers!",
-      "You'll be briefly taken off-site, but don't worry — you'll be right back!"
-    ]) %>
-  <% end %>
+<% if @step == "name" %>
+  <%= render DialogueBoxComponent.new(text: [
+    "Hey there, chef! I’m Chef Orpheus, your guide to Flavortown.",
+    "I’ll walk you through how the platform works. By the end, you’ll earn your first reward and feel right at home here!",
+    "Ooo, looks like your first reward just unlocked! Once we finish the tutorial, I’ll send you a pack of free, real stickers to your doorstep.",
+    "Let’s start simple. Choose a display name. This is what other chefs will see around Flavortown, and it doesn’t have to be your real name."
+  ], show_sticker: true) %>
+
+<% elsif @step == "project" %>
+  <%= render DialogueBoxComponent.new(text: [
+    "Great choice! Now let’s create your first project.",
+    "On Flavortown, everything starts with a project. It’s whatever you’re building or working on.",
+    "It could be a game, an app, a website, hardware, or anything else you’re making, as long as it’s technical. Just give it a name and a short description, even if it’s still just an idea.",
+    "No pressure. You can always update these details later."
+  ]) %>
+
+<% elsif @step == "devlog" %>
+  <%= render DialogueBoxComponent.new(text: [
+    "Awesome project! Now for the fun part: devlogs.",
+    "Devlogs are updates where you share your progress. Think of them as mini blog posts or journals about what you’re working on.",
+    "At Hack Club, we believe in building in the open. Devlogs are a great way to share your journey, explore other projects, read devlogs, and chat with fellow chefs along the way.",
+    "Let’s start with a simple devlog. I’ll show you examples of great ones later, so no pressure!",
+    "Add some text and at least one image or video showing what you’ve made so far. It can be anything for now."
+  ]) %>
+
+<% elsif @step == "signin" %>
+  <%= render DialogueBoxComponent.new(text: [
+    "You’re almost there. Just one last step to claim your reward!",
+    "Before we ship your stickers, we need your address and a quick confirmation that you’re a student.",
+    "You’ll be taken off-site briefly to sign in or sign up with a Hack Club account. One account works for all current and future Hack Club programs!",
+    "Alright, chef! See you on the other side. 👋"
+  ]) %>
+<% end %>
 </div>

@@ -32,6 +32,8 @@
 @use "components/like_button";
 @use "components/comments";
 @use "components/dialogue_box";
+@use "components/welcome_overlay";
+@use "components/music_player";
 
 // Pages
 @use "pages/projects/index";
