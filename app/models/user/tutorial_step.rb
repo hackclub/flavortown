@@ -15,7 +15,7 @@ class User
       def satisfied?(completed_steps) = completed_steps.include? slug
     end
 
-    ALL = [
+    self::ALL = [
       new(:first_login, "First login", "log into the platform for the first time!", "user", "/"),
       new(slug: :identity_verified,
           name: "Confirm your age",
@@ -52,8 +52,8 @@ class User
           ])
     ].freeze
 
-    SLUGGED = ALL.index_by(&:slug).freeze
-    ALL_SLUGS = SLUGGED.keys.freeze
+    self::SLUGGED = self::ALL.index_by(&:slug).freeze
+    self::ALL_SLUGS = self::SLUGGED.keys.freeze
 
     class << self
       def all = ALL
