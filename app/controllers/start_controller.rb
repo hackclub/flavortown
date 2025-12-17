@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class StartController < ApplicationController
-  STEPS = %w[name project devlog signin].freeze
+  STEPS = %w[name experience project devlog signin].freeze
 
   before_action :set_step, only: :index
   before_action :enforce_step_order, only: :index
@@ -11,6 +11,7 @@ class StartController < ApplicationController
 
     @display_name = session[:start_display_name]
     @email = session[:start_email]
+    @experience_level = session[:start_experience_level]
     @project_attrs = session[:start_project_attrs] || {}
     @devlog_body = session[:start_devlog_body]
     @devlog_attachment_ids = session[:start_devlog_attachment_ids] || []
@@ -27,6 +28,18 @@ class StartController < ApplicationController
 
     session[:start_display_name] = display_name
     session[:start_email] = email
+    redirect_to start_path(step: "experience")
+  end
+
+  def update_experience
+    experience_level = params.fetch(:experience_level, "").to_s.strip
+
+    unless %w[unseasoned seasoned].include?(experience_level)
+      redirect_to start_path(step: "experience"), alert: "Please select your experience level."
+      return
+    end
+
+    session[:start_experience_level] = experience_level
     redirect_to start_path(step: "project")
   end
 
@@ -74,14 +87,19 @@ class StartController < ApplicationController
   end
 
   def first_incomplete_step
-    return "name"    unless name_complete?
-    return "project" unless project_complete?
-    return "devlog"  unless devlog_complete?
+    return "name"       unless name_complete?
+    return "experience" unless experience_complete?
+    return "project"    unless project_complete?
+    return "devlog"     unless devlog_complete?
     "signin"
   end
 
   def name_complete?
     session[:start_display_name].present? && session[:start_email].present?
+  end
+
+  def experience_complete?
+    session[:start_experience_level].present?
   end
 
   def project_complete?
