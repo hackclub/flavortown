@@ -34,7 +34,9 @@ export default class extends Controller {
     }
 
     this.containerTarget.style.display = "block";
-    this.itemsTarget.innerHTML = items.map((item) => this.renderItem(item)).join("");
+    this.itemsTarget.innerHTML = items
+      .map((item) => this.renderItem(item))
+      .join("");
   }
 
   renderItem(item) {
@@ -71,10 +73,13 @@ export default class extends Controller {
     const itemId = event.currentTarget.dataset.itemId;
     const wishlist = this.getWishlist();
     delete wishlist[itemId];
-    localStorage.setItem(this.constructor.STORAGE_KEY, JSON.stringify(wishlist));
+    localStorage.setItem(
+      this.constructor.STORAGE_KEY,
+      JSON.stringify(wishlist),
+    );
 
     const starButton = document.querySelector(
-      `[data-shop-wishlist-item-id-value="${itemId}"] .shop-item-card__star`
+      `[data-shop-wishlist-item-id-value="${itemId}"] .shop-item-card__star`,
     );
     if (starButton) {
       starButton.classList.remove("shop-item-card__star--active");

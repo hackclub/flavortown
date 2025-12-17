@@ -26,7 +26,10 @@ export default class extends Controller {
   }
 
   saveWishlist(wishlist) {
-    localStorage.setItem(this.constructor.STORAGE_KEY, JSON.stringify(wishlist));
+    localStorage.setItem(
+      this.constructor.STORAGE_KEY,
+      JSON.stringify(wishlist),
+    );
     this.dispatch("updated", { detail: { wishlist } });
   }
 
@@ -63,15 +66,15 @@ export default class extends Controller {
     const isStarred = this.isStarred();
     this.starButtonTarget.classList.toggle(
       "shop-item-card__star--active",
-      isStarred
+      isStarred,
     );
     this.starButtonTarget.setAttribute(
       "aria-pressed",
-      isStarred ? "true" : "false"
+      isStarred ? "true" : "false",
     );
     this.starButtonTarget.setAttribute(
       "title",
-      isStarred ? "Remove from goals" : "Add to goals"
+      isStarred ? "Remove from goals" : "Add to goals",
     );
   }
 }
