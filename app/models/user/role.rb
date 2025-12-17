@@ -3,7 +3,7 @@ class User
     include ActiveModel::Conversion
     extend ActiveModel::Naming
 
-    ALL = [
+    self::ALL = [
       new(0, :super_admin, "Can assign other users admin"),
       new(1, :admin, "Can do everything except assign or remove admin"),
       new(2, :fraud_dept, "Can issue negative payouts, cancel grants & shop orders, but not reject or ban users; access to Blazer; access to read-only admin User w/o PII"),
@@ -13,8 +13,8 @@ class User
       new(6, :helper, "Support team with read-only access to users (no PII), projects, and shop orders")
     ].freeze
 
-    SLUGGED = ALL.index_by(&:name).freeze
-    ALL_SLUGS = SLUGGED.keys.freeze
+    self::SLUGGED = self::ALL.index_by(&:name).freeze
+    self::ALL_SLUGS = self::SLUGGED.keys.freeze
 
     class << self
       def all = ALL
