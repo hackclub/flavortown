@@ -43,6 +43,15 @@ class ButtonComponent < ViewComponent::Base
     html_options.except(:class).merge(class: button_classes)
   end
 
+  def link_attributes
+    attrs = button_attributes
+    if method.present? && method.to_sym != :get
+      attrs[:data] ||= {}
+      attrs[:data][:turbo_method] = method
+    end
+    attrs
+  end
+
   def icon_tag
     return nil unless icon.present?
     return helpers.inline_svg_tag(icon) if icon.end_with?(".svg")

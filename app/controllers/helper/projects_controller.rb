@@ -3,8 +3,17 @@ module Helper
     def index
       authorize :helper, :view_projects?
       @q = params[:query]
+      @filter = params[:filter] || "active"
 
-      p = Project.all
+      p = case @filter
+      when "deleted"
+        Project.unscoped.deleted
+      when "all"
+        Project.unscoped.all
+      else
+        Project.all
+      end
+
       if @q.present?
         q = "%#{@q}%"
         p = p.where("title ILIKE ? OR description ILIKE ?", q, q)
@@ -15,7 +24,19 @@ module Helper
 
     def show
       authorize :helper, :view_projects?
-      @project = Project.find(params[:id])
+      @project = Project.unscoped.find(params[:id])
+    end
+
+    def restore
+      authorize :helper, :restore_projects?
+      @project = Project.unscoped.find(params[:id])
+
+      if @project.deleted?
+        @project.restore!
+        redirect_to helper_project_path(@project), notice: "Project restored successfully."
+      else
+        redirect_to helper_project_path(@project), alert: "Project is not deleted."
+      end
     end
   end
 end
