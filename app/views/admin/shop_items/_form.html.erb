@@ -32,6 +32,12 @@
           </div>
 
           <div class="mb-3">
+            <%= f.label :long_description, "extra detail", class: "form-label" %>
+            <%= f.text_area :long_description, rows: 5, class: "form-control", placeholder: "this field is so big, its bigger than ur mom!" %>
+            <small class="form-text text-muted">shown below the short description on the order page. you can use markdown!</small>
+          </div>
+
+          <div class="mb-3">
             <%= f.label :internal_description, "Internal Description (admin only)", class: "form-label" %>
             <%= f.text_area :internal_description, rows: 2, class: "form-control" %>
           </div>
