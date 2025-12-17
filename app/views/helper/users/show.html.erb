@@ -37,6 +37,27 @@
     <% end %>
   </div>
 
+  <% deleted_projects = Project.unscoped.deleted.joins(:memberships).where(project_memberships: { user_id: @user.id }) %>
+  <% if deleted_projects.any? %>
+    <div class="card">
+      <h2 style="color: #dc2626;">Deleted Projects (<%= deleted_projects.size %>)</h2>
+      <ul style="margin: 0; padding-left: 1.25rem;">
+        <% deleted_projects.limit(10).each do |p| %>
+          <li>
+            <%= link_to p.title, helper_project_path(p) %>
+            <span class="badge badge-danger" style="margin-left: 0.5rem;">Deleted</span>
+          </li>
+        <% end %>
+        <% if deleted_projects.size > 10 %>
+          <li><em>... and <%= deleted_projects.size - 10 %> more</em></li>
+        <% end %>
+      </ul>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+        Click on a project to view details and restore it.
+      </p>
+    </div>
+  <% end %>
+
   <div class="card">
     <h2>Shop Orders</h2>
     <% orders = @user.shop_orders.order(created_at: :desc).limit(10) %>
