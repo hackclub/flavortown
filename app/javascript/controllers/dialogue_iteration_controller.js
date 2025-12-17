@@ -166,7 +166,7 @@ export default class extends Controller {
   }
 
   #scrollToBottom() {
-    const container = this.contentTarget.closest(".dialogue-box__text");
+    const container = this.contentTarget.closest(".dialogue-box__text-content");
     if (container) {
       container.scrollTop = container.scrollHeight;
     }
