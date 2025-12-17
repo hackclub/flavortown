@@ -28,6 +28,7 @@ class Post::Devlog < ApplicationRecord
     image/heic
     image/heif
     image/gif
+    video/mp4
     video/quicktime
     video/webm
     video/x-matroska].freeze
