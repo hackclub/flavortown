@@ -18,10 +18,10 @@
       <div><b>Created:</b> <%= @project.created_at.strftime("%Y-%m-%d") %></div>
       <div><b>Status:</b> <%= @project.deleted? ? "Deleted" : "Active" %></div>
       <% if @project.repo_url.present? %>
-        <div><b>Repo:</b> <%= safe(@project.repo_url, "Repo") %></div>
+        <div><b>Repo:</b> <%= link_to @project.repo_url, @project.repo_url, target: "_blank" %></div>
       <% end %>
       <% if @project.demo_url.present? %>
-        <div><b>Demo:</b> <%= safe(@project.demo_url, "Demo") %></div>
+        <div><b>Demo:</b> <%= link_to @project.demo_url, @project.demo_url, target: "_blank" %></div>
       <% end %>
     </div>
   </div>
@@ -31,7 +31,7 @@
     <% if @project.users.any? %>
       <ul style="margin: 0; padding-left: 1.25rem;">
         <% @project.users.each do |u| %>
-          <li><%= link_to u.display_name, helper_user_path(u) %></li>
+          <li><%= link_to u.display_name, admin_user_path(u) %></li>
         <% end %>
       </ul>
     <% else %>
@@ -41,11 +41,12 @@
 </div>
 
 <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-  <%= link_to "← Back", helper_projects_path, class: "btn-secondary" %>
+  <%= link_to "← Back", admin_projects_path, class: "btn-secondary" %>
+  <%= link_to "View Public Page", project_path(@project), class: "btn-secondary", target: "_blank" %>
   <% if @project.deleted? %>
-    <%= button_to "Restore Project", restore_helper_project_path(@project),
+    <%= button_to "Restore Project", restore_admin_project_path(@project),
       method: :post,
       class: "btn-primary",
-      data: { turbo_confirm: "Are you sure you want to restore this project?" } %>
+      data: { confirm: "Are you sure you want to restore this project?" } %>
   <% end %>
 </div>
