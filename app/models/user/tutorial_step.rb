@@ -56,13 +56,13 @@ class User
     self::ALL_SLUGS = self::SLUGGED.keys.freeze
 
     class << self
-      def all = ALL
+      def all = self::ALL
 
-      def slugged = SLUGGED
+      def slugged = self::SLUGGED
 
-      def all_slugs = ALL_SLUGS
+      def all_slugs = self::ALL_SLUGS
 
-      def find(slug) = SLUGGED.fetch slug.to_sym
+      def find(slug) = self::SLUGGED.fetch slug.to_sym
 
       # console affordance - don't let me catch you using this in application code
       alias_method :[], :find
