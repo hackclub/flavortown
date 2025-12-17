@@ -1,5 +1,5 @@
 <% if is_link? %>
-  <%= link_to href, method: method, **button_attributes do %>
+  <%= link_to href, **link_attributes do %>
     <% if is_striped? %>
       <div>
         <%= icon_tag if icon.present? %>
