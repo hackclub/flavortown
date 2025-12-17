@@ -57,6 +57,10 @@
      attachment.content_type.start_with?("image/")
    end
 
+   def gif?(attachment)
+     attachment.content_type == "image/gif"
+   end
+
    def video?(attachment)
      attachment.content_type.start_with?("video/")
    end

@@ -41,7 +41,9 @@
         <div class="post__track" data-post-attachments-target="track">
           <% attachments.each do |att| %>
             <div class="post__slide">
-              <% if image?(att) %>
+              <% if gif?(att) %>
+                <img class="post__attachment post__attachment--image post__image" alt="Attachment" src="<%= url_for(att) %>">
+              <% elsif image?(att) %>
                 <picture class="post__attachment post__attachment--image">
                   <source type="image/webp" srcset="<%= url_for(att.variant(:medium)) %>">
                   <img class="post__image" alt="Attachment" src="<%= url_for(att) %>">
