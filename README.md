@@ -11,32 +11,20 @@ me and the homies love docker, and it makes it stupid simple, so its highly reco
 1. clone it (duh)
 2. you most likely want a database here, so you can run that with this:
 
-   ```bash
-   docker-compose up -d db
-   ```
-
-3. now to start cookin, run this and it will boot up rails
-
-   ```bash
-   docker-compose run --service-ports web /bin/bash
-   ```
-
-4. now to really turn on the stove, run this (wait a few seconds for stuff to load) and point your browser to `http://localhost:3000`
-
-   ```bash
-   bin/dev
-   ```
-
-5. pull out some instant ramen
+```bash
+docker compose up
+```
+3. visit your personal flavortown at http://localhost:3000. if you get an error about pending migrations, click "run pending migrations".
+3. grab a monster
 
 **random commands you might need**
 
 if you just need to run a command once (eg test migrations or whatever) here is how
 
 ```bash
-docker-compose run web bin/rails db:migrate # please dont do this if you are hooked up to prod
-docker-compose run web bin/rails bundle install
-docker-compose run web bin/lint
+docker compose run web bin/rails db:migrate # please dont do this if you are hooked up to prod
+docker compose run web bin/rails bundle install
+docker compose run web bin/lint
 ```
 
 if its giving you a file not found error and you are on windows, try running these commands. They switch line endings to lf (linux) ones

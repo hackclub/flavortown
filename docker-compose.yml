@@ -1,5 +1,7 @@
 services:
   web:
+    stdin_open:
+      true
     build:
       context: .
       dockerfile: dev.Dockerfile
@@ -12,6 +14,7 @@ services:
       - bundle_cache:/usr/local/bundle
     environment:
       - RAILS_ENV=development
+      - DATABASE_URL=postgres://postgres:pass@db:5432/flavortown_development
     depends_on:
       - db
 
