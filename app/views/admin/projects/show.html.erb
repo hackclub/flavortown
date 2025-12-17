@@ -18,10 +18,18 @@
       <div><b>Created:</b> <%= @project.created_at.strftime("%Y-%m-%d") %></div>
       <div><b>Status:</b> <%= @project.deleted? ? "Deleted" : "Active" %></div>
       <% if @project.repo_url.present? %>
-        <div><b>Repo:</b> <%= link_to @project.repo_url, @project.repo_url, target: "_blank" %></div>
+        <% if (safe_repo_url = safe_external_url(@project.repo_url)) %>
+          <div><b>Repo:</b> <%= link_to @project.repo_url, safe_repo_url, target: "_blank", rel: "noopener noreferrer" %></div>
+        <% else %>
+          <div><b>Repo:</b> <%= @project.repo_url %> <span class="text-warning">(invalid URL)</span></div>
+        <% end %>
       <% end %>
       <% if @project.demo_url.present? %>
-        <div><b>Demo:</b> <%= link_to @project.demo_url, @project.demo_url, target: "_blank" %></div>
+        <% if (safe_demo_url = safe_external_url(@project.demo_url)) %>
+          <div><b>Demo:</b> <%= link_to @project.demo_url, safe_demo_url, target: "_blank", rel: "noopener noreferrer" %></div>
+        <% else %>
+          <div><b>Demo:</b> <%= @project.demo_url %> <span class="text-warning">(invalid URL)</span></div>
+        <% end %>
       <% end %>
     </div>
   </div>
