@@ -54,8 +54,8 @@
                 <% end %>
 
                 <%
-                  tagged_accessories = @accessories.select(&:has_tag?).group_by(&:accessory_tag)
-                  untagged_accessories = @accessories.reject(&:has_tag?)
+                  tagged_accessories = @accessories.select(&:has_tag?).group_by(&:accessory_tag).transform_values { |accessories| accessories.sort_by(&:ticket_cost) }
+                  untagged_accessories = @accessories.reject(&:has_tag?).sort_by(&:ticket_cost)
                 %>
 
                 <% if tagged_accessories.any? || untagged_accessories.any? %>
