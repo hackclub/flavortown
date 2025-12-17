@@ -156,10 +156,19 @@ export default class extends Controller {
       if (charIndex < line.length) {
         this.contentTarget.textContent += line[charIndex];
         charIndex++;
+
+        this.#scrollToBottom();
       } else {
         this.#stopTyping();
         if (this.voiceAudio) this.voiceAudio.pause();
       }
-    }, 30); // 30ms
+    }, 45); // 45ms
+  }
+
+  #scrollToBottom() {
+    const container = this.contentTarget.closest(".dialogue-box__text");
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
   }
 }

@@ -15,7 +15,14 @@
   </div>
 </div>
 
-<%= render partial: "stats", locals: { counts: @c, average_fulfillment_time: @f } %>
+<div style="display: flex; gap: 2em; align-items: flex-start;">
+  <div style="flex: 1;">
+    <%= render partial: "stats", locals: { counts: @c, average_fulfillment_time: @f } %>
+  </div>
+  <div style="flex-shrink: 0;">
+    <%= render partial: "action_leaderboard" %>
+  </div>
+</div>
 
 <div style="margin-bottom: 2em;">
   <% if params[:goob] == "true" %>

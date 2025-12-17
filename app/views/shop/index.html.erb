@@ -1,3 +1,5 @@
+<%= render MusicPlayerComponent.new(audio_url: audio_path("fireentity - shop.mp3")) %>
+
 <div class="shop" data-controller="shop" data-shop-user-region-value="<%= @user_region %>">
   <%= render HeadingComponent.new(title: "Shop", tone: :brown) %>
   <% if @shop_open %>
