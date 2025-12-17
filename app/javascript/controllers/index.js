@@ -60,3 +60,9 @@ application.register("welcome-overlay", WelcomeOverlayController);
 
 import MusicPlayerController from "./music_player_controller";
 application.register("music-player", MusicPlayerController);
+
+import ShopWishlistController from "./shop_wishlist_controller";
+application.register("shop-wishlist", ShopWishlistController);
+
+import ShopGoalsController from "./shop_goals_controller";
+application.register("shop-goals", ShopGoalsController);
