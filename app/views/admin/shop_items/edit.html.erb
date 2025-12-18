@@ -1,5 +1,61 @@
-<h1>Edit Shop Item</h1>
+<div class="shop-item-edit">
+  <div class="shop-item-edit__header">
+    <div class="shop-item-edit__title-row">
+      <h1>Edit Shop Item</h1>
+      <div class="shop-item-edit__meta">
+        <code class="shop-item-edit__id">#<%= @shop_item.id %></code>
+        <span class="shop-item-edit__type"><%= @shop_item.type.to_s.gsub("ShopItem::", "") %></span>
+      </div>
+    </div>
+    <p class="shop-item-edit__name"><%= @shop_item.name %></p>
+  </div>
 
-<%= render 'form', shop_item: @shop_item %>
+  <%= render 'form', shop_item: @shop_item %>
 
-<%= link_to "← back to item", admin_shop_item_path(@shop_item), style: "margin-top: 1rem; display: inline-block;" %>
+  <div class="shop-item-edit__back">
+    <%= link_to "← Back to Item", admin_shop_item_path(@shop_item), class: "btn-secondary" %>
+  </div>
+</div>
+
+<style>
+.shop-item-edit__header {
+  margin-bottom: 1.5rem;
+}
+
+.shop-item-edit__title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.shop-item-edit__title-row h1 {
+  margin: 0;
+}
+
+.shop-item-edit__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shop-item-edit__id,
+.shop-item-edit__type {
+  background: var(--color-tan-400);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.shop-item-edit__name {
+  margin: 0.5rem 0 0 0;
+  color: #6b7280;
+  font-size: 1.125rem;
+}
+
+.shop-item-edit__back {
+  margin-top: 2rem;
+}
+</style>

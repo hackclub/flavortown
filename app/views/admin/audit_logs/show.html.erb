@@ -1,133 +1,298 @@
-<h1>Audit Log Details</h1>
+<div class="audit-log-detail" data-controller="json-highlight">
+  <div class="audit-log-detail__header">
+    <h1>Audit Log Details</h1>
+  </div>
 
-<div class="card">
-  <h2>Event Information</h2>
+  <div class="card">
+    <h3>Event Information</h3>
 
-  <div class="info-rows">
-    <div><b>Timestamp:</b> <%= @version.created_at.strftime("%Y-%m-%d %H:%M:%S %Z") %></div>
-    <div>
-      <b>User:</b>
-      <% if @version.whodunnit.present? %>
-        <% user = User.find_by(id: @version.whodunnit) %>
-        <%= user&.display_name || "User ##{@version.whodunnit}" %>
-        <% if user %>
-          <%= link_to "(View User)", admin_user_path(user), class: "btn-primary slim" %>
-        <% end %>
-      <% else %>
-        <em>System</em>
-      <% end %>
-    </div>
-    <div><b>Action:</b> <span class="badge badge-<%= @version.event %>"><%= @version.event %></span></div>
-    <div><b>Model Type:</b> <%= @version.item_type %></div>
-    <div>
-      <b>Record ID:</b>
-      <% if @version.item_type == 'User' && @version.item_id %>
-        <%= link_to "##{@version.item_id}", admin_user_path(@version.item_id), class: "btn-primary slim" %>
-      <% else %>
-        #<%= @version.item_id %>
-      <% end %>
+    <div class="audit-log-detail__info">
+      <div class="audit-log-detail__row">
+        <span class="audit-log-detail__label">Timestamp</span>
+        <span class="audit-log-detail__value">
+          <%= @version.created_at.strftime("%b %d, %Y at %H:%M:%S %Z") %>
+        </span>
+      </div>
+
+      <div class="audit-log-detail__row">
+        <span class="audit-log-detail__label">User</span>
+        <span class="audit-log-detail__value">
+          <% if @version.whodunnit.present? %>
+            <% user = User.find_by(id: @version.whodunnit) %>
+            <% if user %>
+              <div class="audit-log-detail__user">
+                <img src="<%= user.avatar %>" alt="" class="audit-log-detail__avatar">
+                <span><%= user.display_name %></span>
+                <%= link_to "View User", admin_user_path(user), class: "btn-primary slim" %>
+              </div>
+            <% else %>
+              <span class="audit-log-detail__muted">User #<%= @version.whodunnit %></span>
+            <% end %>
+          <% else %>
+            <span class="audit-log-detail__system-badge">System</span>
+          <% end %>
+        </span>
+      </div>
+
+      <div class="audit-log-detail__row">
+        <span class="audit-log-detail__label">Action</span>
+        <span class="audit-log-detail__value">
+          <span class="badge badge-<%= @version.event %>"><%= @version.event %></span>
+        </span>
+      </div>
+
+      <div class="audit-log-detail__row">
+        <span class="audit-log-detail__label">Model</span>
+        <span class="audit-log-detail__value">
+          <code class="audit-log-detail__model"><%= @version.item_type %></code>
+        </span>
+      </div>
+
+      <div class="audit-log-detail__row">
+        <span class="audit-log-detail__label">Record ID</span>
+        <span class="audit-log-detail__value">
+          <% if @version.item_type == 'User' && @version.item_id %>
+            <%= link_to "##{@version.item_id}", admin_user_path(@version.item_id), class: "btn-primary slim" %>
+          <% else %>
+            <code class="audit-log-detail__id">#<%= @version.item_id %></code>
+          <% end %>
+        </span>
+      </div>
     </div>
   </div>
-</div>
 
-<% if @version.object_changes.present? %>
-  <div class="card">
-    <h2>Changes</h2>
+  <% if @version.object_changes.present? %>
+    <div class="card">
+      <h3>Changes</h3>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Field</th>
-          <th>Old Value</th>
-          <th>New Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        <%
-          raw = @version.object_changes
-          changes = if raw.is_a?(Hash)
-            raw
-          elsif raw.is_a?(String)
-            YAML.safe_load(raw, permitted_classes: [Symbol, Time, Date, DateTime, BigDecimal, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]) rescue {}
-          else
-            {}
-          end
-        %>
-        <% changes.each do |field, values| %>
+      <%
+        raw = @version.object_changes
+        changes = if raw.is_a?(Hash)
+          raw
+        elsif raw.is_a?(String)
+          YAML.safe_load(raw, permitted_classes: [Symbol, Time, Date, DateTime, BigDecimal, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]) rescue {}
+        else
+          {}
+        end
+      %>
+
+      <table class="table-data">
+        <thead>
           <tr>
-            <td><strong><%= field.to_s.humanize %></strong></td>
-            <td>
-              <% if values.is_a?(Array) && values.length == 2 %>
-                <code><%= values[0].inspect %></code>
-              <% else %>
-                <em>N/A</em>
-              <% end %>
-            </td>
-            <td>
-              <% if values.is_a?(Array) && values.length == 2 %>
-                <code><%= values[1].inspect %></code>
-              <% else %>
-                <em>N/A</em>
-              <% end %>
-            </td>
+            <th>Field</th>
+            <th>Before</th>
+            <th>After</th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% changes.each do |field, values| %>
+            <tr>
+              <td><code class="audit-log-detail__field"><%= field %></code></td>
+              <td>
+                <% if values.is_a?(Array) && values.length == 2 %>
+                  <% old_val = values[0] %>
+                  <% if old_val.is_a?(Hash) || old_val.is_a?(Array) %>
+                    <pre class="json-block" data-json-highlight-target="code"><%= JSON.pretty_generate(old_val) %></pre>
+                  <% elsif old_val.nil? %>
+                    <span class="audit-log-detail__null">null</span>
+                  <% else %>
+                    <code class="audit-log-detail__value-code"><%= old_val.inspect %></code>
+                  <% end %>
+                <% else %>
+                  <span class="audit-log-detail__muted">—</span>
+                <% end %>
+              </td>
+              <td>
+                <% if values.is_a?(Array) && values.length == 2 %>
+                  <% new_val = values[1] %>
+                  <% if new_val.is_a?(Hash) || new_val.is_a?(Array) %>
+                    <pre class="json-block" data-json-highlight-target="code"><%= JSON.pretty_generate(new_val) %></pre>
+                  <% elsif new_val.nil? %>
+                    <span class="audit-log-detail__null">null</span>
+                  <% else %>
+                    <code class="audit-log-detail__value-code"><%= new_val.inspect %></code>
+                  <% end %>
+                <% else %>
+                  <span class="audit-log-detail__muted">—</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <% if @version.object.present? %>
+    <div class="card">
+      <h3>Previous State</h3>
+      <p class="audit-log-detail__muted" style="margin: 0 0 1rem 0;">Complete object snapshot before this change</p>
+
+      <%
+        raw_obj = @version.object
+        parsed_obj = if raw_obj.is_a?(Hash)
+          raw_obj
+        elsif raw_obj.is_a?(String)
+          YAML.safe_load(raw_obj, permitted_classes: [Symbol, Time, Date, DateTime, BigDecimal, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]) rescue raw_obj
+        else
+          raw_obj
+        end
+      %>
+      <pre class="json-block json-block--large" data-json-highlight-target="code"><%= parsed_obj.is_a?(Hash) ? JSON.pretty_generate(parsed_obj) : parsed_obj %></pre>
+    </div>
+  <% end %>
+
+  <div style="margin-top: 2rem;">
+    <%= link_to "← Back to Audit Logs", admin_audit_logs_path, class: "btn-secondary" %>
   </div>
-<% end %>
-
-<% if @version.object.present? %>
-  <div class="card">
-    <h2>Previous State (Before Change)</h2>
-
-    <%
-      raw_obj = @version.object
-      parsed_obj = if raw_obj.is_a?(Hash)
-        raw_obj
-      elsif raw_obj.is_a?(String)
-        YAML.safe_load(raw_obj, permitted_classes: [Symbol, Time, Date, DateTime, BigDecimal, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]) rescue raw_obj
-      else
-        raw_obj
-      end
-    %>
-    <pre style="background: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 6px; overflow-x: auto;"><%= parsed_obj.is_a?(Hash) ? JSON.pretty_generate(parsed_obj) : parsed_obj %></pre>
-  </div>
-<% end %>
-
-<div style="margin-top: 2rem;">
-  <%= link_to "← Back to Audit Logs", admin_audit_logs_path, class: "btn-secondary" %>
 </div>
 
 <style>
-.badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+.audit-log-detail__header {
+  margin-bottom: 1.5rem;
+}
+
+.audit-log-detail__header h1 {
+  margin: 0;
+}
+
+.audit-log-detail .card {
+  margin-bottom: 1.5rem;
+}
+
+.audit-log-detail__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.audit-log-detail__row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.audit-log-detail__label {
+  font-weight: 600;
+  min-width: 100px;
+  color: #6b7280;
   font-size: 0.875rem;
+}
+
+.audit-log-detail__user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.audit-log-detail__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.audit-log-detail__system-badge {
+  background: var(--color-tan-400);
+  border: 1px solid var(--color-brown-500);
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
   font-weight: 500;
 }
 
+.audit-log-detail__model,
+.audit-log-detail__id,
+.audit-log-detail__field {
+  background: var(--color-tan-400);
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.audit-log-detail__value-code {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-family: ui-monospace, monospace;
+}
+
+.audit-log-detail__null {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.audit-log-detail__muted {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Badges */
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
 .badge-create {
-  background-color: #10b981;
-  color: white;
+  background-color: #d1fae5;
+  color: #065f46;
 }
 
 .badge-update {
-  background-color: #3b82f6;
-  color: white;
+  background-color: #dbeafe;
+  color: #1e40af;
 }
 
 .badge-destroy {
-  background-color: #ef4444;
-  color: white;
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
-code {
-  background-color: #1f2937;
-  color: #10b981;
-  padding: 0.125rem 0.375rem;
-  border-radius: 3px;
-  font-family: monospace;
-  font-size: 0.875rem;
+/* JSON Code Blocks */
+.json-block {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.json-block--large {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* JSON Syntax Highlighting */
+.json-key {
+  color: #7dd3fc;
+}
+
+.json-string {
+  color: #86efac;
+}
+
+.json-number {
+  color: #fcd34d;
+}
+
+.json-boolean {
+  color: #f9a8d4;
+}
+
+.json-null {
+  color: #9ca3af;
+  font-style: italic;
 }
 </style>
