@@ -1,70 +1,71 @@
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["input", "dropdown", "option", "hiddenField"]
-  static values = { open: Boolean }
+  static targets = ["input", "dropdown", "option", "hiddenField"];
+  static values = { open: Boolean };
 
   connect() {
-    this.openValue = false
-    document.addEventListener("click", this.handleClickOutside.bind(this))
+    this.openValue = false;
+    document.addEventListener("click", this.handleClickOutside.bind(this));
   }
 
   disconnect() {
-    document.removeEventListener("click", this.handleClickOutside.bind(this))
+    document.removeEventListener("click", this.handleClickOutside.bind(this));
   }
 
   handleClickOutside(event) {
     if (!this.element.contains(event.target)) {
-      this.close()
+      this.close();
     }
   }
 
   toggle() {
-    this.openValue = !this.openValue
+    this.openValue = !this.openValue;
   }
 
   open() {
-    this.openValue = true
-    this.inputTarget.focus()
+    this.openValue = true;
+    this.inputTarget.focus();
   }
 
   close() {
-    this.openValue = false
+    this.openValue = false;
   }
 
   openValueChanged() {
     if (this.openValue) {
-      this.dropdownTarget.style.display = "block"
+      this.dropdownTarget.style.display = "block";
     } else {
-      this.dropdownTarget.style.display = "none"
+      this.dropdownTarget.style.display = "none";
     }
   }
 
   filter() {
-    const query = this.inputTarget.value.toLowerCase()
+    const query = this.inputTarget.value.toLowerCase();
 
     this.optionTargets.forEach((option) => {
-      const searchText = option.dataset.searchText || option.textContent.toLowerCase()
+      const searchText =
+        option.dataset.searchText || option.textContent.toLowerCase();
       if (searchText.includes(query)) {
-        option.style.display = "flex"
+        option.style.display = "flex";
       } else {
-        option.style.display = "none"
+        option.style.display = "none";
       }
-    })
+    });
   }
 
   select(event) {
-    const value = event.currentTarget.dataset.value
-    const label = event.currentTarget.dataset.label
+    const value = event.currentTarget.dataset.value;
+    const label = event.currentTarget.dataset.label;
 
-    this.hiddenFieldTarget.value = value
-    this.inputTarget.value = label
-    this.close()
+    this.hiddenFieldTarget.value = value;
+    this.inputTarget.value = label;
+    this.close();
   }
 
   clear() {
-    this.hiddenFieldTarget.value = ""
-    this.inputTarget.value = ""
-    this.filter()
+    this.hiddenFieldTarget.value = "";
+    this.inputTarget.value = "";
+    this.filter();
   }
 }

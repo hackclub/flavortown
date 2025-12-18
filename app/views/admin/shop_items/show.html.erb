@@ -212,7 +212,9 @@
                         end
                       %>
                       <div class="shop-item-detail__audit-changes">
-                        <%= changes.keys.take(3).map { |k| "<code>#{k}</code>" }.join(", ").html_safe %>
+                        <% changes.keys.take(3).each_with_index do |k, i| %>
+                          <code><%= k %></code><%= ", " unless i == [changes.keys.take(3).count - 1, 2].min %>
+                        <% end %>
                         <% if changes.keys.count > 3 %>
                           <span class="shop-item-detail__muted">(+<%= changes.keys.count - 3 %>)</span>
                         <% end %>

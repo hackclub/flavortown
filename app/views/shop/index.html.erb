@@ -2,11 +2,11 @@
 
 <% if current_user&.should_show_shop_tutorial? && session[:tutorial_redirect_url].present? %>
   <%= render DialogueBoxComponent.new(
-  text: [
-    "Welcome back to the kitchen, chef! You're in the shop now. This is where you spend cookies on prizes. I'll explain what cookies are and how to earn more cookies after we grab the stickers.",
-    "I've given you 10 cookies to get started. We'll use them to place your stickers order.",
-    "Before we can ship prizes, I need to confirm that you're a teenager and get your address. I'll redirect you to Hack Club Auth to fill that out. It's secure and open source."
-  ],
+    text: [
+      "Welcome back to the kitchen, chef! You're in the shop now. This is where you spend cookies on prizes. I'll explain what cookies are and how to earn more cookies after we grab the stickers.",
+      "I've given you 10 cookies to get started. We'll use them to place your stickers order.",
+      "Before we can ship prizes, I need to confirm that you're a teenager and get your address. I'll redirect you to Hack Club Auth to fill that out. It's secure and open source."
+    ],
     sticker: "cookie.svg",
     sticker_line_index: 0,
     redirect_url: session[:tutorial_redirect_url]
@@ -37,19 +37,24 @@
       <div class="shop__signup-cta">
         <div class="shop__signup-cta-content">
           <h3>🍪 Want to order something?</h3>
-          <p>Sign in with Slack to start earning cookies and ordering prizes!</p>
+          <p>Join Flavortown to start earning cookies by building personal projects!</p>
         </div>
-        <%= link_to "Sign in to Order", "/", class: "btn btn-cta" %>
+        <div class="shop__signup-cta-buttons">
+          <%= link_to "Get building!", "/start", class: "btn btn-cta" %>
+          <%= form_tag "/auth/hack_club", method: :post, data: { turbo: false }, class: "shop__signin-form" do %>
+            <button type="submit" class="shop__signin-link">Already a member? Sign in</button>
+          <% end %>
+        </div>
       </div>
     <% end %>
 
     <div class="shop__buttons">
       <% if current_user %>
         <%= render ButtonComponent.new(
-              text: "View My Orders",
-              href: "/shop/my_orders",
-              color: :brown,
-              variant: :borderless
+          text: "View My Orders",
+          href: "/shop/my_orders",
+          color: :brown,
+          variant: :borderless
         ) %>
       <% end %>
       <%= render DropdownComponent.new(
@@ -61,7 +66,7 @@
       ) %>
     </div>
     <% if @featured_item %>
-        <%= render partial: "shop/banner", locals: { featured_item: @featured_item, user_region: @user_region } %>
+      <%= render partial: "shop/banner", locals: { featured_item: @featured_item, user_region: @user_region } %>
     <% end %>
     <div class="shop__nav">
       <div class="shop__searchbar">
@@ -78,7 +83,7 @@
               data: { action: "input->shop#search" }
             }
           ) %>
-         <% end %>
+        <% end %>
       </div>
       <div class="shop__filters">
         <%= render DropdownComponent.new(

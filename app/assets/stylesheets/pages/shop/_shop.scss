@@ -63,12 +63,17 @@
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
-    background: linear-gradient(135deg, var(--color-brown-500) 0%, var(--color-brown-600) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-brown-500) 0%,
+      var(--color-brown-600) 100%
+    );
     border-radius: 16px;
     padding: 1.5rem 2rem;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     color: white;
     text-align: left;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 
     h3 {
       font-family: var(--font-family-subtitle);
@@ -82,21 +87,51 @@
       font-size: 1rem;
     }
 
+    .shop__signup-cta-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
     .btn-cta {
-      background: white;
+      background: var(--color-tan-300);
       color: var(--color-brown-700);
       padding: 0.75em 2em;
       border-radius: 12px;
+      border: 2px solid var(--color-brown-700);
       font-family: var(--font-family-text);
       font-size: 1.1rem;
       font-weight: 600;
       white-space: nowrap;
       text-decoration: none;
-      transition: transform 0.1s, box-shadow 0.1s;
+      transition:
+        transform 0.1s,
+        box-shadow 0.1s,
+        background 0.1s;
 
       &:hover {
-        transform: translateY(-2px);
+        background: var(--color-tan-400);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    .shop__signin-form {
+      margin: 0;
+    }
+
+    .shop__signin-link {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.8);
+      font-family: var(--font-family-text);
+      font-size: 0.875rem;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+
+      &:hover {
+        color: white;
       }
     }
 
@@ -106,6 +141,10 @@
 
       .shop__signup-cta-content {
         margin-bottom: 1rem;
+      }
+
+      .shop__signup-cta-buttons {
+        width: 100%;
       }
 
       .btn-cta {
