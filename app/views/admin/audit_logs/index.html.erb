@@ -29,8 +29,7 @@
             value="<%= selected_user&.display_name %>"
             data-searchable-select-target="input"
             data-action="focus->searchable-select#open input->searchable-select#filter"
-            autocomplete="off"
-          >
+            autocomplete="off">
           <div data-searchable-select-target="dropdown" class="searchable-select-dropdown">
             <div
               class="searchable-select-option"
@@ -38,8 +37,7 @@
               data-action="click->searchable-select#clear"
               data-value=""
               data-label=""
-              data-search-text="all"
-            >All</div>
+              data-search-text="all">All</div>
             <% @users.each do |user| %>
               <div
                 class="searchable-select-option"
@@ -47,8 +45,7 @@
                 data-action="click->searchable-select#select"
                 data-value="<%= user.id %>"
                 data-label="<%= user.display_name %>"
-                data-search-text="<%= "#{user.display_name} #{user.id}".downcase %>"
-              >
+                data-search-text="<%= "#{user.display_name} #{user.id}".downcase %>">
                 <img src="<%= user.avatar %>" alt="" class="searchable-select-avatar">
                 <span><%= user.display_name %></span>
                 <span class="searchable-select-id">#<%= user.id %></span>
