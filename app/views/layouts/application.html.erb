@@ -37,7 +37,7 @@
     <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>
 
-  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %>">
+  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %>">
     <% if current_user.present? && !current_user.banned? && !@hide_sidebar %>
       <%= render "shared/sidebar" %>
     <% end %>

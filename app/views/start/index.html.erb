@@ -41,7 +41,10 @@
     "I'll walk you through how the platform works. By the end, you'll earn your first reward and feel right at home here!",
     "Ooo, looks like your first reward just unlocked! Once we finish the tutorial, I'll send you a pack of free, real stickers to your doorstep.",
     "Let's start simple. Choose a display name. This is what other chefs will see around Flavortown, and it doesn't have to be your real name."
-  ], show_sticker: true) %>
+  ],
+    show_sticker: true,
+    sticker_line_index: 2,
+  ) %>
 
 <% elsif @step == "experience" %>
   <%= render DialogueBoxComponent.new(text: [
@@ -52,12 +55,111 @@
   ]) %>
 
 <% elsif @step == "project" %>
-  <%= render DialogueBoxComponent.new(text: [
-    "Great choice! Now let's create your first project.",
-    "On Flavortown, everything starts with a project. It's whatever you're building or working on.",
-    "It could be a game, an app, a website, hardware, or anything else you're making, as long as it's technical.",
-    "Give it a name and a short description. Don't worry, you can always change this later!"
-  ]) %>
+  <% if @experience_level == "unseasoned" && @project_attrs.blank? %>
+    <%= render DialogueBoxComponent.new(text: [
+      "Great! Now let's create your first project.",
+      "On Flavortown, everything starts with a project. It's whatever you're building or working on.",
+      "I've picked out some starter projects that are perfect for beginners.",
+      "Each one comes with clear instructions and a community to help you along the way.",
+      "Pick whichever one sounds interesting to you! Click on a card to get started. You'll be able to customize the name and description after you pick."
+    ]) %>
+  <% elsif @experience_level == "unseasoned" && @project_attrs.present? %>
+      <% if @starter_project_name == "Sprig" %>
+        <%= render DialogueBoxComponent.new(text: [
+          "Ooo, Sprig! Making games is always a blast. Excellent pick!",
+          "I've filled in the project details to get you started. Tweak the name and description however you like.",
+          "Once you're ready, we'll jump into your first devlog. I'm really excited to see the game you make!"
+        ]) %>
+      <% elsif @starter_project_name == "Boba Drops" %>
+        <%= render DialogueBoxComponent.new(text: [
+          "Ooo, boba! You've got great taste. Boba Drops is a fun way to learn web development.",
+          "I've set up the project details for you. Change the name and description to make it yours.",
+          "Next up is your first devlog. Finish it and that boba will be one step closer!"
+        ]) %>
+      <% elsif @starter_project_name == "Fuse Ring" %>
+        <%= render DialogueBoxComponent.new(text: [
+          "Fuse Ring! That's such a cool and useful idea. Love this choice.",
+          "Your project details are ready to go. Feel free to tweak the name and description to match your vibe.",
+          "Up next is your first devlog. I can't wait to see your design take shape!"
+        ]) %>
+    <% else %>
+      <%= render DialogueBoxComponent.new(text: [
+        "Perfect choice! I've pre-filled the project details based on what you selected.",
+        "Feel free to change the name or description to make it your own. Once you're happy with it, click Next and we'll move on to creating your first devlog!",
+        "Don't worry, you can always edit this later if you want to change anything."
+      ]) %>
+    <% end %>
+  <% elsif @experience_level == "seasoned" && @project_attrs.blank? %>
+    <%= render DialogueBoxComponent.new(text: [
+      "Great! Now let's create your first project.",
+      "On Flavortown, everything starts with a project. It's whatever you're building or working on.",
+      "Pick a category that best matches what you're making. Click on a card to get started!",
+      "You'll be able to customize the name and description after you pick."
+    ]) %>
+  <% elsif @experience_level == "seasoned" && @project_attrs.present? %>
+    <% if @starter_project_name == "Web Project" %>
+      <%= render DialogueBoxComponent.new(text: [
+        "Ooo, web development! Building websites is always fun. Great choice!",
+        "I've filled in the project details to get you started. Tweak the name and description however you like.",
+        "Once you're ready, we'll jump into your first devlog. I'm really excited to see what you build!"
+      ]) %>
+    <% elsif @starter_project_name == "Mobile App" %>
+      <%= render DialogueBoxComponent.new(text: [
+        "Ooo, mobile apps! You've got great taste. Mobile development is super exciting.",
+        "I've set up the project details for you. Change the name and description to make it yours.",
+        "Next up is your first devlog. I can't wait to see your app come to life!"
+      ]) %>
+    <% elsif @starter_project_name == "Desktop App" %>
+      <%= render DialogueBoxComponent.new(text: [
+        "Desktop apps! That's such a cool and useful choice. Love this pick!",
+        "Your project details are ready to go. Feel free to tweak the name and description to match your vibe.",
+        "Up next is your first devlog. I'm really excited to see what you create!"
+      ]) %>
+    <% elsif @starter_project_name == "CLI / TUI Tool" %>
+      <%= render DialogueBoxComponent.new(text: [
+        "Ooo, terminal tools! CLI and TUI projects are always so satisfying. Excellent choice!",
+        "I've filled in the project details to get you started. Tweak the name and description however you like.",
+        "Once you're ready, we'll jump into your first devlog. Terminal power!"
+      ]) %>
+    <% elsif @starter_project_name == "Game" %>
+      <%= render DialogueBoxComponent.new(text: [
+        "Ooo, games! Making games is always a blast. Excellent pick!",
+        "I've filled in the project details to get you started. Tweak the name and description however you like.",
+        "Once you're ready, we'll jump into your first devlog. I'm really excited to see the game you make!"
+      ]) %>
+    <% elsif @starter_project_name == "Hardware Project" %>
+      <%= render DialogueBoxComponent.new(text: [
+        "Ooo, hardware! Building with physical components is so cool. Love this choice!",
+        "I've set up the project details for you. Change the name and description to make it yours.",
+        "Next up is your first devlog. I can't wait to see your hardware project take shape!"
+      ]) %>
+    <% elsif @starter_project_name == "ML Project" %>
+      <%= render DialogueBoxComponent.new(text: [
+        "Ooo, machine learning! That's cutting edge stuff. You've got great taste!",
+        "I've filled in the project details to get you started. Tweak the name and description however you like.",
+        "Once you're ready, we'll jump into your first devlog. The future is now!"
+      ]) %>
+    <% elsif @starter_project_name == "Bot" %>
+      <%= render DialogueBoxComponent.new(text: [
+        "Ooo, bots! Automation is always fun. Excellent pick!",
+        "I've set up the project details for you. Change the name and description to make it yours.",
+        "Next up is your first devlog. I'm really excited to see what your bot can do!"
+      ]) %>
+    <% else %>
+      <%= render DialogueBoxComponent.new(text: [
+        "Perfect choice! I've pre-filled the project details based on the category you selected.",
+        "Feel free to change the name or description to make it your own. Once you're happy with it, click Next and we'll move on to creating your first devlog!",
+        "Don't worry, you can always edit this later if you want to change anything."
+      ]) %>
+    <% end %>
+  <% else %>
+    <%= render DialogueBoxComponent.new(text: [
+      "Great! Now let's create your first project.",
+      "On Flavortown, everything starts with a project. It's whatever you're building or working on.",
+      "It could be a game, an app, a website, hardware, or anything else you're making, as long as it's technical.",
+      "Give it a name and a short description. Don't worry, you can always change this later!"
+    ]) %>
+  <% end %>
 
 <% elsif @step == "devlog" %>
   <%= render DialogueBoxComponent.new(text: [
@@ -71,9 +173,9 @@
 <% elsif @step == "signin" %>
   <%= render DialogueBoxComponent.new(text: [
     "You're almost there. Just one last step to claim your reward!",
-    "Before we ship your stickers, we need your address and a quick confirmation that you're a student.",
+    "Before we ship your stickers, we need your address and a quick confirmation that you're a teenager.",
     "You'll be taken off-site briefly to sign in or sign up with a Hack Club account. One account works for all current and future Hack Club programs!",
-    "Alright, chef! See you on the other side. 👋"
+    "Alright, chef! See you in the kitchen!"
   ]) %>
 <% end %>
 </div>

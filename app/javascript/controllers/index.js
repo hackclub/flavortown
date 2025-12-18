@@ -66,3 +66,9 @@ application.register("shop-wishlist", ShopWishlistController);
 
 import ShopGoalsController from "./shop_goals_controller";
 application.register("shop-goals", ShopGoalsController);
+
+import SearchableSelectController from "./searchable_select_controller";
+application.register("searchable-select", SearchableSelectController);
+
+import JsonHighlightController from "./json_highlight_controller";
+application.register("json-highlight", JsonHighlightController);

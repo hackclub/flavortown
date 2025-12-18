@@ -1,0 +1,9 @@
+<div class="starter-project-card <%= 'starter-project-card--featured' if featured %>">
+  <div class="starter-project-card__image" style="<%= image_bg_image.present? ? "background-image: url(#{asset_path(image_bg_image)}); background-size: cover; background-position: center;" : "background: #{image_bg_color};" %>">
+    <%= image_tag image_url, alt: "#{name} image", class: "rounded-lg w-full h-auto object-scale-down aspect-square max-h-48" %>
+  </div>
+  <div class="starter-project-card__content">
+    <h4 class="starter-project-card__title"><%= name %></h4>
+    <div class="starter-project-card__description"><%= description %></div>
+  </div>
+</div>

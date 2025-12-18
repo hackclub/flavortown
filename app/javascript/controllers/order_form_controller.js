@@ -55,7 +55,7 @@ export default class extends Controller {
       this.element.querySelector("#shop-order__quantity-input") || null;
 
     this.accessoryCheckboxes = this.element.querySelectorAll(
-      ".shop-order__accessory-checkbox",
+      ".shop-order__accessory-option-input[type='checkbox']",
     );
     this.accessoryRadios = this.element.querySelectorAll(
       ".shop-order__accessory-option-input",
@@ -120,7 +120,7 @@ export default class extends Controller {
         this.accessoriesListItemsTarget.innerHTML = accessories
           .map(
             (acc) =>
-              `<li>${acc.name} <span>🍪 ${acc.price.toFixed(2)}</span></li>`,
+              `<li>${acc.name} <span>🍪 ${Math.round(acc.price)}</span></li>`,
           )
           .join("");
       } else {
@@ -134,7 +134,7 @@ export default class extends Controller {
     }
 
     if (this.hasSummaryTotalDisplayTarget) {
-      this.summaryTotalDisplayTarget.textContent = `🍪 ${total.toFixed(2)}`;
+      this.summaryTotalDisplayTarget.textContent = `🍪 ${Math.round(total)}`;
     }
 
     if (this.hasSubmitButtonTarget) {

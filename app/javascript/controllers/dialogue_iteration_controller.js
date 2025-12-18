@@ -2,7 +2,13 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static targets = ["content", "character", "sticker", "sprite"];
-  static values = { text: Array, voiceUrl: String, sprites: Array };
+  static values = {
+    text: Array,
+    voiceUrl: String,
+    sprites: Array,
+    redirectUrl: String,
+    stickerLineIndex: Number,
+  };
 
   static SPRITE_INTERVAL = 80; // in ms; time b/w sprite changes
 
@@ -106,10 +112,15 @@ export default class extends Controller {
 
     this.index = nextIndex;
     this.#render();
-
-    // pop up sticker on 3rd line
-    if (nextIndex === 2 && this.hasStickerTarget) {
-      this.stickerTarget.classList.remove("dialogue-box__sticker--hidden");
+    if (this.hasStickerTarget) {
+      const stickerLine = this.hasStickerLineIndexValue
+        ? this.stickerLineIndexValue
+        : 2;
+      if (nextIndex === stickerLine) {
+        this.stickerTarget.classList.remove("dialogue-box__sticker--hidden");
+      } else {
+        this.stickerTarget.classList.add("dialogue-box__sticker--hidden");
+      }
     }
   }
 
@@ -117,6 +128,14 @@ export default class extends Controller {
     this.#stopTyping();
     if (this.voiceAudio) this.voiceAudio.pause();
     this.element.remove();
+
+    if (this.hasRedirectUrlValue && this.redirectUrlValue) {
+      if (this.redirectUrlValue.startsWith(window.location.origin)) {
+        Turbo.visit(this.redirectUrlValue);
+      } else {
+        window.location.href = this.redirectUrlValue;
+      }
+    }
   }
 
   squeakCharacter() {
@@ -147,6 +166,17 @@ export default class extends Controller {
 
     if (!line) return;
 
+    if (this.hasStickerTarget) {
+      const stickerLine = this.hasStickerLineIndexValue
+        ? this.stickerLineIndexValue
+        : 2;
+      if (this.index === stickerLine) {
+        this.stickerTarget.classList.remove("dialogue-box__sticker--hidden");
+      } else {
+        this.stickerTarget.classList.add("dialogue-box__sticker--hidden");
+      }
+    }
+
     this.voiceAudio.currentTime = 0;
     this.voiceAudio.play();
     this.#startSpriteAnimation();
@@ -166,7 +196,7 @@ export default class extends Controller {
   }
 
   #scrollToBottom() {
-    const container = this.contentTarget.closest(".dialogue-box__text");
+    const container = this.contentTarget.closest(".dialogue-box__text-content");
     if (container) {
       container.scrollTop = container.scrollHeight;
     }

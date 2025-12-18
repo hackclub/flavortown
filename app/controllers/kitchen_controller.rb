@@ -14,7 +14,8 @@ class KitchenController < ApplicationController
     @completed_steps = current_user.tutorial_steps
     @tutorial_is_complete = @tutorial_steps - @completed_steps
 
-    @show_welcome_overlay = session.delete(:show_welcome_overlay)
+    show_from_session = session.delete(:show_welcome_overlay)
+    @show_welcome_overlay = show_from_session || current_user.should_show_shop_tutorial?
   end
 
   private

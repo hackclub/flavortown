@@ -40,6 +40,16 @@ body.signed-in {
   }
 }
 
+// Shop page gets the same background even when logged out
+body.shop-page:not(.signed-in) {
+  background-image: url("mask/pattern.webp");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-color: var(--color-bg-2);
+}
+
 .dev-footer {
   text-align: center;
   font-size: 0.75rem;

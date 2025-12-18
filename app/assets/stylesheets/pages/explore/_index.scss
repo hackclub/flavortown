@@ -21,6 +21,7 @@
     color: var(--color-bg);
     font-size: 1.5rem;
     display: flex;
+    justify-content: center;
     gap: 0.4em;
     padding: 0.2em 0.5em;
     border-radius: 8px;
@@ -70,10 +71,10 @@
     justify-content: space-evenly;
 
     .project-card {
-      max-width: 400px;
+      width: 400px;
 
       @media (max-width: 960px) {
-        max-width: 100%;
+        width: 100%;
       }
     }
   }

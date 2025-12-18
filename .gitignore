@@ -51,3 +51,5 @@ db/seeds/shop_items.csv
 wak.toml
 
 /config/*.key
+
+Procfile.assets
