@@ -97,6 +97,10 @@ class User < ApplicationRecord
     update!(tutorial_steps_completed: tutorial_steps - [ slug ]) if tutorial_step_completed?(slug)
   end
 
+  def should_show_shop_tutorial?
+    tutorial_step_completed?(:first_login) && !tutorial_step_completed?(:free_stickers)
+  end
+
   def hackatime_identity
     identities.loaded? ? identities.find { |i| i.provider == "hackatime" } : identities.find_by(provider: "hackatime")
   end

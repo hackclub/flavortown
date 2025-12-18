@@ -8,15 +8,8 @@ class ShopController < ApplicationController
       { label: config[:name], value: code }
     end
 
-    @featured_item = unless user_ordered_free_stickers?
-      ShopItem.where(type: "ShopItem::FreeStickers")
-              .includes(:image_attachment)
-              .select { |item| item.enabled_in_region?(@user_region) }
-              .first
-    end
-    @shop_items = ShopItem.buyable_standalone.includes(:image_attachment)
-    @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if user_ordered_free_stickers?
-    @user_balance = current_user.balance
+    grant_free_stickers_welcome_cookies! if current_user.should_show_shop_tutorial?
+    load_shop_items
   end
 
   def my_orders
@@ -49,26 +42,17 @@ class ShopController < ApplicationController
 
   def update_region
     region = params[:region]&.upcase
-    if Shop::Regionalizable::REGION_CODES.include?(region)
-      current_user.update!(region: region)
+    unless Shop::Regionalizable::REGION_CODES.include?(region)
+      return head :unprocessable_entity
+    end
 
-      @user_region = region
-      @shop_items = ShopItem.buyable_standalone.includes(:image_attachment)
-      @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if user_ordered_free_stickers?
-      @user_balance = current_user.balance
-      @featured_item = unless user_ordered_free_stickers?
-        ShopItem.where(type: "ShopItem::FreeStickers")
-                .includes(:image_attachment)
-                .select { |item| item.enabled_in_region?(@user_region) }
-                .first
-      end
+    current_user.update!(region: region)
+    @user_region = region
+    load_shop_items
 
-      respond_to do |format|
-        format.turbo_stream
-        format.html { head :ok }
-      end
-    else
-      head :unprocessable_entity
+    respond_to do |format|
+      format.turbo_stream
+      format.html { head :ok }
     end
   end
 
@@ -149,9 +133,7 @@ class ShopController < ApplicationController
         end
       end
 
-      if @shop_item.is_a?(ShopItem::FreeStickers)
-        current_user.complete_tutorial_step!(:free_stickers)
-      end
+      handle_free_stickers_order! if @shop_item.is_a?(ShopItem::FreeStickers)
 
       unless current_user.eligible_for_shop?
         @order.queue_for_verification!
@@ -160,18 +142,7 @@ class ShopController < ApplicationController
         return
       end
 
-      if @shop_item.is_a?(ShopItem::FreeStickers)
-        begin
-          @shop_item.fulfill!(@order)
-          @order.mark_stickers_received
-          current_user.complete_tutorial_step! :free_stickers
-        rescue => e
-          Rails.logger.error "Free stickers fulfillment failed: #{e.message}"
-          Sentry.capture_exception(e, extra: { order_id: @order.id, user_id: current_user.id })
-          redirect_to shop_my_orders_path, alert: "Order placed but fulfillment failed. We'll process it shortly."
-          return
-        end
-      end
+      return if @shop_item.is_a?(ShopItem::FreeStickers) && !fulfill_free_stickers!
       redirect_to shop_my_orders_path, notice: "Order placed successfully!"
     rescue ActiveRecord::RecordInvalid => e
       redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{e.record.errors.full_messages.join(', ')}"
@@ -179,6 +150,50 @@ class ShopController < ApplicationController
   end
 
   private
+
+  def load_shop_items
+    excluded_free_stickers = has_ordered_free_stickers?
+    @shop_items = ShopItem.buyable_standalone.includes(:image_attachment)
+    @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if excluded_free_stickers
+    @featured_item = featured_free_stickers_item unless excluded_free_stickers
+    @user_balance = current_user.balance
+  end
+
+  def has_ordered_free_stickers?
+    current_user.has_gotten_free_stickers? ||
+      current_user.shop_orders.joins(:shop_item).where(shop_items: { type: "ShopItem::FreeStickers" }).exists?
+  end
+
+  def featured_free_stickers_item
+    item = ShopItem.find_by(id: 1, type: "ShopItem::FreeStickers")
+    item if item&.enabled_in_region?(@user_region)
+  end
+
+  def grant_free_stickers_welcome_cookies!
+    unless current_user.ledger_entries.exists?(reason: "Free Stickers Welcome Grant")
+      current_user.ledger_entries.create!(
+        amount: 10, reason: "Free Stickers Welcome Grant", created_by: "System", ledgerable: current_user
+      )
+    end
+    order_url = url_for(controller: "shop", action: "order", shop_item_id: 1, only_path: false)
+    session[:tutorial_redirect_url] = HCAService.address_portal_url(return_to: order_url)
+  end
+
+  def handle_free_stickers_order!
+    current_user.complete_tutorial_step!(:free_stickers)
+    session.delete(:tutorial_redirect_url)
+  end
+
+  def fulfill_free_stickers!
+    @shop_item.fulfill!(@order)
+    @order.mark_stickers_received
+    true
+  rescue => e
+    Rails.logger.error "Free stickers fulfillment failed: #{e.message}"
+    Sentry.capture_exception(e, extra: { order_id: @order.id, user_id: current_user.id })
+    redirect_to shop_my_orders_path, alert: "Order placed but fulfillment failed. We'll process it shortly."
+    false
+  end
 
   def user_region
     if current_user
@@ -191,13 +206,6 @@ class ShopController < ApplicationController
     end
 
     Shop::Regionalizable.timezone_to_region(cookies[:timezone])
-  end
-
-  def user_ordered_free_stickers?
-    @user_ordered_free_stickers ||= current_user.shop_orders
-      .joins(:shop_item)
-      .where(shop_items: { type: "ShopItem::FreeStickers" })
-      .exists?
   end
 
   def require_login

@@ -41,7 +41,10 @@
     "I'll walk you through how the platform works. By the end, you'll earn your first reward and feel right at home here!",
     "Ooo, looks like your first reward just unlocked! Once we finish the tutorial, I'll send you a pack of free, real stickers to your doorstep.",
     "Let's start simple. Choose a display name. This is what other chefs will see around Flavortown, and it doesn't have to be your real name."
-  ], show_sticker: true) %>
+  ],
+    show_sticker: true,
+    sticker_line_index: 2,
+  ) %>
 
 <% elsif @step == "experience" %>
   <%= render DialogueBoxComponent.new(text: [
@@ -170,9 +173,9 @@
 <% elsif @step == "signin" %>
   <%= render DialogueBoxComponent.new(text: [
     "You're almost there. Just one last step to claim your reward!",
-    "Before we ship your stickers, we need your address and a quick confirmation that you're a student.",
+    "Before we ship your stickers, we need your address and a quick confirmation that you're a teenager.",
     "You'll be taken off-site briefly to sign in or sign up with a Hack Club account. One account works for all current and future Hack Club programs!",
-    "Alright, chef! See in the kitchen!"
+    "Alright, chef! See you in the kitchen!"
   ]) %>
 <% end %>
 </div>

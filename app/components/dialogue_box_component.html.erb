@@ -3,13 +3,19 @@
   data-dialogue-iteration-text-value='<%= text.to_json %>'
   data-dialogue-iteration-voice-url-value="<%= audio_path('cartoon-yap.mp3') %>"
   data-dialogue-iteration-sprites-value='<%= sprite_urls.to_json %>'
+  <% if sticker.present? %>
+  data-dialogue-iteration-sticker-line-index-value="<%= sticker_line_index %>"
+  <% end %>
+  <% if redirect_url.present? %>
+  data-dialogue-iteration-redirect-url-value="<%= redirect_url %>"
+  <% end %>
   data-action="keydown.enter@window->dialogue-iteration#next click@window->dialogue-iteration#next">
 
   <div class="dialogue-box-backdrop"></div>
 
-  <% if show_sticker %>
+  <% if sticker.present? %>
     <div class="dialogue-box__sticker dialogue-box__sticker--hidden" data-dialogue-iteration-target="sticker">
-      <%= image_tag "free_sticker.png", alt: "Free sticker!", class: "dialogue-box__sticker-image" %>
+      <%= image_tag sticker, alt: "Sticker", class: "dialogue-box__sticker-image" %>
     </div>
   <% end %>
 
