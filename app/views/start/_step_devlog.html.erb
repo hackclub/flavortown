@@ -35,7 +35,7 @@
         attribute: :devlog_attachment_ids,
         color: :green,
         subtitle: "Upload images or videos of your project. Max 50 MB each.",
-        accept: Post::Devlog::ACCEPTED_CONTENT_TYPES.join(","),
+        accept: Post::Devlog::ACCEPTED_UPLOAD_TYPES.join(","),
         multiple: true,
         max_count: 8,
         max_size: 50.megabytes

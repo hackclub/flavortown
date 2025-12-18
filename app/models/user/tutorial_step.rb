@@ -15,7 +15,7 @@ class User
       def satisfied?(completed_steps) = completed_steps.include? slug
     end
 
-    ALL = [
+    self::ALL = [
       new(:first_login, "First login", "log into the platform for the first time!", "user", "/"),
       new(slug: :identity_verified,
           name: "Confirm your age",
@@ -52,17 +52,17 @@ class User
           ])
     ].freeze
 
-    SLUGGED = ALL.index_by(&:slug).freeze
-    ALL_SLUGS = SLUGGED.keys.freeze
+    self::SLUGGED = self::ALL.index_by(&:slug).freeze
+    self::ALL_SLUGS = self::SLUGGED.keys.freeze
 
     class << self
-      def all = ALL
+      def all = self::ALL
 
-      def slugged = SLUGGED
+      def slugged = self::SLUGGED
 
-      def all_slugs = ALL_SLUGS
+      def all_slugs = self::ALL_SLUGS
 
-      def find(slug) = SLUGGED.fetch slug.to_sym
+      def find(slug) = self::SLUGGED.fetch slug.to_sym
 
       # console affordance - don't let me catch you using this in application code
       alias_method :[], :find

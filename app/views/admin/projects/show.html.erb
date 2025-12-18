@@ -1,0 +1,60 @@
+<h1>Project #<%= @project.id %></h1>
+
+<% if @project.deleted? %>
+  <div class="alert alert-warning" style="margin-bottom: 1rem; padding: 1rem; background: #fee2e2; border-radius: 8px; border: 1px solid #dc2626;">
+    <strong>⚠️ This project has been deleted</strong>
+    <span style="margin-left: 0.5rem;">Deleted at: <%= @project.deleted_at.strftime("%Y-%m-%d %H:%M") %></span>
+  </div>
+<% end %>
+
+<div class="flex" style="gap: 1rem; flex-wrap: wrap;">
+  <div class="card">
+    <h2>Details</h2>
+    <div class="info-rows">
+      <div><b>Title:</b> <%= @project.title %></div>
+      <div><b>Description:</b> <%= @project.description.presence || "None" %></div>
+      <div><b>Ship Status:</b> <%= @project.ship_status.titleize %></div>
+      <div><b>Type:</b> <%= @project.project_type.presence || "Not set" %></div>
+      <div><b>Created:</b> <%= @project.created_at.strftime("%Y-%m-%d") %></div>
+      <div><b>Status:</b> <%= @project.deleted? ? "Deleted" : "Active" %></div>
+      <% if @project.repo_url.present? %>
+        <% if (safe_repo_url = safe_external_url(@project.repo_url)) %>
+          <div><b>Repo:</b> <%= link_to @project.repo_url, safe_repo_url, target: "_blank", rel: "noopener noreferrer" %></div>
+        <% else %>
+          <div><b>Repo:</b> <%= @project.repo_url %> <span class="text-warning">(invalid URL)</span></div>
+        <% end %>
+      <% end %>
+      <% if @project.demo_url.present? %>
+        <% if (safe_demo_url = safe_external_url(@project.demo_url)) %>
+          <div><b>Demo:</b> <%= link_to @project.demo_url, safe_demo_url, target: "_blank", rel: "noopener noreferrer" %></div>
+        <% else %>
+          <div><b>Demo:</b> <%= @project.demo_url %> <span class="text-warning">(invalid URL)</span></div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Members</h2>
+    <% if @project.users.any? %>
+      <ul style="margin: 0; padding-left: 1.25rem;">
+        <% @project.users.each do |u| %>
+          <li><%= link_to u.display_name, admin_user_path(u) %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No members.</p>
+    <% end %>
+  </div>
+</div>
+
+<div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+  <%= link_to "← Back", admin_projects_path, class: "btn-secondary" %>
+  <%= link_to "View Public Page", project_path(@project), class: "btn-secondary", target: "_blank" %>
+  <% if @project.deleted? %>
+    <%= button_to "Restore Project", restore_admin_project_path(@project),
+      method: :post,
+      class: "btn-primary",
+      data: { confirm: "Are you sure you want to restore this project?" } %>
+  <% end %>
+</div>

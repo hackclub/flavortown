@@ -37,7 +37,9 @@ Rails.application.routes.draw do
   # Start Flow
   get  "/start",               to: "start#index"
   post "/start/display_name",  to: "start#update_display_name"
+  post "/start/experience",    to: "start#update_experience"
   post "/start/project",       to: "start#update_project"
+  post "/start/prefill_project", to: "start#prefill_project"
   post "/start/devlog",        to: "start#update_devlog"
   post "/start/begin_sign_in", to: "start#begin_sign_in"
 
@@ -133,7 +135,11 @@ Rails.application.routes.draw do
   namespace :helper, constraints: HelperConstraint do
     root to: "application#index"
     resources :users, only: [ :index, :show ]
-    resources :projects, only: [ :index, :show ]
+    resources :projects, only: [ :index, :show ] do
+      member do
+        post :restore
+      end
+    end
     resources :shop_orders, only: [ :index, :show ]
   end
 
@@ -166,7 +172,11 @@ Rails.application.routes.draw do
        end
        resource :magic_link, only: [ :show ]
      end
-    resources :projects, only: [ :index ], shallow: true
+    resources :projects, only: [ :index, :show ], shallow: true do
+      member do
+        post :restore
+      end
+    end
     get "user-perms", to: "users#user_perms"
     get "manage-shop", to: "shop#index"
     post "shop/clear-carousel-cache", to: "shop#clear_carousel_cache", as: :clear_carousel_cache

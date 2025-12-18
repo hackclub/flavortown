@@ -17,23 +17,27 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     # Base query
     orders = ShopOrder.includes(:shop_item, :user, :accessory_orders)
 
-    # Apply view-specific scopes
-    case @view
-    when "shop_orders"
-      # Show pending, rejected, on_hold
-      orders = orders.where(aasm_state: %w[pending rejected on_hold])
-    when "fulfillment"
-      # Show awaiting_periodical_fulfillment and fulfilled
-      orders = orders.where(aasm_state: %w[awaiting_periodical_fulfillment fulfilled])
+    # Apply status filter first if explicitly set (takes priority over view)
+    if params[:status].present?
+      orders = orders.where(aasm_state: params[:status])
+    else
+      # Apply view-specific scopes only if no explicit status filter
+      case @view
+      when "shop_orders"
+        # Show pending, rejected, on_hold
+        orders = orders.where(aasm_state: %w[pending rejected on_hold])
+      when "fulfillment"
+        # Show awaiting_periodical_fulfillment and fulfilled
+        orders = orders.where(aasm_state: %w[awaiting_periodical_fulfillment fulfilled])
+      end
+
+      # Set default status for fraud dept
+      @default_status = "pending" if current_user.fraud_dept? && !current_user.admin?
+      orders = orders.where(aasm_state: @default_status) if @default_status.present?
     end
 
     # Apply filters
     orders = orders.where(shop_item_id: params[:shop_item_id]) if params[:shop_item_id].present?
-
-    # Set default status for fraud dept
-    @default_status = "pending" if current_user.fraud_dept? && !current_user.admin?
-    status_filter = params[:status].presence || @default_status
-    orders = orders.where(aasm_state: status_filter) if status_filter.present?
     orders = orders.where("created_at >= ?", params[:date_from]) if params[:date_from].present?
     orders = orders.where("created_at <= ?", params[:date_to]) if params[:date_to].present?
 

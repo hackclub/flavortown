@@ -1,6 +1,16 @@
 <h1>Project Search</h1>
 
+<div class="tabs" style="margin-bottom: 1rem;">
+  <%= link_to "Active", admin_projects_path(filter: "active", query: params[:query]),
+    class: "btn-#{@filter == 'active' ? 'primary' : 'secondary'} slim" %>
+  <%= link_to "Deleted", admin_projects_path(filter: "deleted", query: params[:query]),
+    class: "btn-#{@filter == 'deleted' ? 'primary' : 'secondary'} slim" %>
+  <%= link_to "All", admin_projects_path(filter: "all", query: params[:query]),
+    class: "btn-#{@filter == 'all' ? 'primary' : 'secondary'} slim" %>
+</div>
+
 <%= form_with url: admin_projects_path, method: :get, local: true do %>
+  <%= hidden_field_tag :filter, @filter %>
   <%= text_field_tag :query, params[:query],
     placeholder: "Search projects by title or other meta info...",
     autocomplete: "off",
@@ -16,6 +26,7 @@
         <th>ID</th>
         <th>Name</th>
         <th>Description</th>
+        <th>Status</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -24,9 +35,16 @@
         <tr>
           <td><%= project.id %></td>
           <td><%= project.title %></td>
-          <td><%= project.description %></td>
+          <td><%= truncate(project.description, length: 60) %></td>
           <td>
-            <%= link_to "View", "/admin/projects/#{project.id}", class: "btn-primary slim" %>
+            <% if project.deleted? %>
+              <span class="badge badge-danger">Deleted</span>
+            <% else %>
+              <span class="badge badge-success">Active</span>
+            <% end %>
+          </td>
+          <td>
+            <%= link_to "View", admin_project_path(project), class: "btn-primary slim" %>
           </td>
         </tr>
       <% end %>
