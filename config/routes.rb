@@ -39,6 +39,7 @@ Rails.application.routes.draw do
   post "/start/display_name",  to: "start#update_display_name"
   post "/start/experience",    to: "start#update_experience"
   post "/start/project",       to: "start#update_project"
+  post "/start/prefill_project", to: "start#prefill_project"
   post "/start/devlog",        to: "start#update_devlog"
   post "/start/begin_sign_in", to: "start#begin_sign_in"
 

@@ -8,11 +8,19 @@ class StartController < ApplicationController
 
   def index
     authorize :start, :index?
+    set_step
+
+    # clr prefill if people go back
+    if params[:clear_prefill] == "true" && @step == "project"
+      session[:start_project_attrs] = nil
+      session[:start_starter_project_name] = nil
+    end
 
     @display_name = session[:start_display_name]
     @email = session[:start_email]
     @experience_level = session[:start_experience_level]
     @project_attrs = session[:start_project_attrs] || {}
+    @starter_project_name = session[:start_starter_project_name]
     @devlog_body = session[:start_devlog_body]
     @devlog_attachment_ids = session[:start_devlog_attachment_ids] || []
   end
@@ -40,6 +48,20 @@ class StartController < ApplicationController
     end
 
     session[:start_experience_level] = experience_level
+    redirect_to start_path(step: "project")
+  end
+
+  def prefill_project
+    name = params.fetch(:name, "").to_s.strip
+    description = params.fetch(:description, "").to_s.strip
+    display_name = session[:start_display_name] || ""
+
+    title = display_name.present? ? "#{display_name}'s #{name}" : name
+    session[:start_project_attrs] = {
+      title: title.strip.first(120),
+      description: description.first(1_000)
+    }
+    session[:start_starter_project_name] = name
     redirect_to start_path(step: "project")
   end
 
