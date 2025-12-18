@@ -96,6 +96,7 @@ class ShopItem < ApplicationRecord
                        saver: { strip: true, quality: 75 }
   end
   validates :name, :description, :ticket_cost, presence: true
+  validates :ticket_cost, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :image, presence: true, on: :create
 
   has_many :shop_orders, dependent: :restrict_with_error

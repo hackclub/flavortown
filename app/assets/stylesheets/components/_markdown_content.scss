@@ -8,36 +8,60 @@
   border-radius: var(--border-radius);
   border: 1px solid var(--color-tan-400);
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-family-subtitle);
     color: var(--color-brown-700);
     margin-top: 1em;
     margin-bottom: 0.5em;
 
-    &:first-child { margin-top: 0; }
+    &:first-child {
+      margin-top: 0;
+    }
   }
 
-  h1 { font-size: 1.5rem; }
-  h2 { font-size: 1.3rem; }
-  h3 { font-size: 1.15rem; }
-  h4, h5, h6 { font-size: 1rem; }
+  h1 {
+    font-size: 1.5rem;
+  }
+  h2 {
+    font-size: 1.3rem;
+  }
+  h3 {
+    font-size: 1.15rem;
+  }
+  h4,
+  h5,
+  h6 {
+    font-size: 1rem;
+  }
 
   p {
     margin-bottom: 0.75em;
-    &:last-child { margin-bottom: 0; }
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 
-  ul, ol {
+  ul,
+  ol {
     margin: 0.5em 0;
     padding-left: 1.5em;
 
-    li { margin-bottom: 0.25em; }
+    li {
+      margin-bottom: 0.25em;
+    }
   }
 
   a {
     color: var(--color-blue-500);
     text-decoration: underline;
-    &:hover { color: var(--color-blue-600); }
+    &:hover {
+      color: var(--color-blue-600);
+    }
   }
 
   code {
@@ -68,8 +92,12 @@
     font-style: italic;
   }
 
-  strong { font-weight: 600; }
-  em { font-style: italic; }
+  strong {
+    font-weight: 600;
+  }
+  em {
+    font-style: italic;
+  }
 
   hr {
     border: none;

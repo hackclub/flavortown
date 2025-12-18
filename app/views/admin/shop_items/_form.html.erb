@@ -64,7 +64,7 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <%= f.label :ticket_cost, class: "form-label" %>
-                <%= f.number_field :ticket_cost, step: 0.01, class: "form-control", id: "shop_item_ticket_cost", required: true %>
+                <%= f.number_field :ticket_cost, step: 1, min: 0, class: "form-control", id: "shop_item_ticket_cost", required: true %>
               </div>
             </div>
             <div class="col-md-6">
