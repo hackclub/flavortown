@@ -1,5 +1,5 @@
 <% if @show_welcome_overlay %>
-  <%= render WelcomeOverlayComponent.new %>
+  <%= render WelcomeOverlayComponent.new(redirect_to_shop_tutorial: current_user.should_show_shop_tutorial?) %>
 <% end %>
 
 <div class="kitchen-index">

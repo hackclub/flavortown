@@ -1,504 +1,773 @@
 <div class="shop-item-form">
-<%= form_with model: shop_item.becomes(ShopItem), url: (shop_item.persisted? ? admin_shop_item_path(shop_item) : admin_shop_items_path), method: (shop_item.persisted? ? :patch : :post), local: true do |f| %>
-  <% if shop_item.errors.any? %>
-    <div class="alert alert-danger">
-      <h4><%= pluralize(shop_item.errors.count, "error") %> prohibited this shop item from being saved:</h4>
-      <ul>
-        <% shop_item.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= form_with model: shop_item.becomes(ShopItem), url: (shop_item.persisted? ? admin_shop_item_path(shop_item) : admin_shop_items_path), method: (shop_item.persisted? ? :patch : :post), local: true do |f| %>
+    <% if shop_item.errors.any? %>
+      <div class="shop-item-form__errors">
+        <h4><%= pluralize(shop_item.errors.count, "error") %> prohibited this shop item from being saved:</h4>
+        <ul>
+          <% shop_item.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-  <div class="row">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header">Basic Information</div>
-        <div class="card-body">
-          <div class="mb-3">
-            <%= f.label :type, class: "form-label" %>
-            <%= f.select :type, @shop_item_types, { include_blank: "Select a type" }, { class: "form-select", id: "shop_item_type" } %>
+    <div class="shop-item-form__grid">
+      <div class="shop-item-form__main">
+        <div class="card">
+          <h3>Basic Information</h3>
+
+          <div class="shop-item-form__field">
+            <%= f.label :type, class: "shop-item-form__label" %>
+            <%= f.select :type, @shop_item_types, { include_blank: "Select a type" }, { class: "form-control", id: "shop_item_type" } %>
           </div>
 
-          <div class="mb-3">
-            <%= f.label :name, class: "form-label" %>
+          <div class="shop-item-form__field">
+            <%= f.label :name, class: "shop-item-form__label" %>
             <%= f.text_field :name, class: "form-control", required: true %>
           </div>
 
-          <div class="mb-3">
-            <%= f.label :description, class: "form-label" %>
+          <div class="shop-item-form__field">
+            <%= f.label :description, class: "shop-item-form__label" %>
             <%= f.text_area :description, rows: 3, class: "form-control", required: true %>
           </div>
 
-          <div class="mb-3">
-            <%= f.label :long_description, "extra detail", class: "form-label" %>
-            <%= f.text_area :long_description, rows: 5, class: "form-control", placeholder: "this field is so big, its bigger than ur mom!" %>
-            <small class="form-text text-muted">shown below the short description on the order page. you can use markdown!</small>
-          </div>
-
-          <div class="mb-3">
-            <%= f.label :internal_description, "Internal Description (admin only)", class: "form-label" %>
+          <div class="shop-item-form__field">
+            <%= f.label :internal_description, "Internal Description (admin only)", class: "shop-item-form__label" %>
             <%= f.text_area :internal_description, rows: 2, class: "form-control" %>
           </div>
 
-          <div class="mb-3">
-            <%= f.label :image, class: "form-label" %>
+          <div class="shop-item-form__field">
+            <%= f.label :image, class: "shop-item-form__label" %>
             <%= f.file_field :image, class: "form-control", required: !shop_item.persisted? %>
             <% if shop_item.persisted? && shop_item.image.attached? %>
-              <div class="mt-2">
-                <small>Current image:</small><br>
-                <%= image_tag shop_item.image, width: 100 %>
+              <div class="shop-item-form__current-image">
+                <span class="shop-item-form__hint">Current image:</span>
+                <%= image_tag shop_item.image.variant(:carousel_sm), class: "shop-item-form__image-preview" %>
               </div>
             <% end %>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header">Pricing & Settings</div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <%= f.label :ticket_cost, class: "form-label" %>
-                <%= f.number_field :ticket_cost, step: 1, min: 0, class: "form-control", id: "shop_item_ticket_cost", required: true %>
-              </div>
+        <div class="card">
+          <h3>Pricing</h3>
+
+          <div class="shop-item-form__row">
+            <div class="shop-item-form__field">
+              <%= f.label :usd_cost, "USD Cost ($)", class: "shop-item-form__label" %>
+              <%= f.number_field :usd_cost, step: 0.01, min: 0, class: "form-control", id: "shop_item_usd_cost", placeholder: "0.00" %>
+              <span class="shop-item-form__hint">Real-world cost of this item</span>
             </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <%= f.label :usd_cost, class: "form-label" %>
-                <%= f.number_field :usd_cost, step: 0.01, class: "form-control", id: "shop_item_usd_cost" %>
-              </div>
+            <div class="shop-item-form__field">
+              <%= f.label :hacker_score, "Hacker Score", class: "shop-item-form__label" %>
+              <%= f.number_field :hacker_score, min: 0, max: 100, value: (shop_item.hacker_score || 50), class: "form-control", id: "shop_item_hacker_score" %>
+              <span class="shop-item-form__hint">0 = easy to buy, 100 = hackers only</span>
             </div>
           </div>
 
-          <div class="mb-3">
-            <%= f.label :sale_percentage, "Sale Percentage (%)", class: "form-label" %>
-            <%= f.number_field :sale_percentage, min: 0, max: 100, class: "form-control", placeholder: "0" %>
-            <small class="form-text text-muted">percent off base price (carries over by region)</small>
-          </div>
-
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label">Estimated Tickets</label>
-                <input type="text" id="estimated_tickets" class="form-control readonly-field" readonly autocomplete="off">
-              </div>
+          <div class="shop-item-form__row">
+            <div class="shop-item-form__field">
+              <%= f.label :ticket_cost, "🍪 Ticket Cost", class: "shop-item-form__label" %>
+              <%= f.number_field :ticket_cost, step: 1, class: "form-control", id: "shop_item_ticket_cost", required: true %>
+              <span class="shop-item-form__hint">Auto-calculated from USD & Hacker Score, or set manually</span>
             </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label">Average Hours Estimated</label>
-                <input type="text" id="average_hours_estimated" class="form-control readonly-field" readonly autocomplete="off">
-              </div>
+            <div class="shop-item-form__field">
+              <%= f.label :sale_percentage, "Sale (%)", class: "shop-item-form__label" %>
+              <%= f.number_field :sale_percentage, min: 0, max: 100, class: "form-control", placeholder: "0" %>
+              <span class="shop-item-form__hint">Discount off base price</span>
             </div>
           </div>
 
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <%= f.label :hacker_score, "Hacker Score (%)", class: "form-label" %>
-                <%= f.number_field :hacker_score, min: 0, max: 100, value: (shop_item.hacker_score || 50), class: "form-control", id: "shop_item_hacker_score" %>
-              </div>
+          <div class="shop-item-form__calculated">
+            <div class="shop-item-form__calc-item">
+              <span class="shop-item-form__calc-label">Suggested Tickets</span>
+              <span class="shop-item-form__calc-value" id="estimated_tickets">—</span>
             </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <%= f.label :max_qty, "Max Quantity", class: "form-label" %>
-                <%= f.number_field :max_qty, class: "form-control" %>
-              </div>
+            <div class="shop-item-form__calc-item">
+              <span class="shop-item-form__calc-label">Est. Hours to Earn</span>
+              <span class="shop-item-form__calc-value" id="average_hours_estimated">—</span>
             </div>
           </div>
+        </div>
 
-          <div class="mb-3">
-            <div class="form-check">
-              <%= f.check_box :show_in_carousel, class: "form-check-input" %>
-              <%= f.label :show_in_carousel, "Show in Carousel", class: "form-check-label" %>
-            </div>
+        <div class="card">
+          <h3>Availability</h3>
+
+          <div class="shop-item-form__toggles">
+            <label class="shop-item-form__toggle">
+              <%= f.check_box :enabled, id: "shop_item_enabled" %>
+              <span class="shop-item-form__toggle-content">
+                <strong>Enabled</strong>
+                <span class="shop-item-form__toggle-desc">Item is visible and purchasable in the shop</span>
+              </span>
+            </label>
+
+            <label class="shop-item-form__toggle">
+              <%= f.check_box :show_in_carousel %>
+              <span class="shop-item-form__toggle-content">
+                <strong>Show in Carousel</strong>
+                <span class="shop-item-form__toggle-desc">Feature this item in the homepage carousel</span>
+              </span>
+            </label>
+
+            <label class="shop-item-form__toggle">
+              <%= f.check_box :one_per_person_ever %>
+              <span class="shop-item-form__toggle-content">
+                <strong>One Per Person</strong>
+                <span class="shop-item-form__toggle-desc">Users can only purchase this item once ever</span>
+              </span>
+            </label>
+
+            <label class="shop-item-form__toggle">
+              <%= f.check_box :limited, id: "shop_item_limited" %>
+              <span class="shop-item-form__toggle-content">
+                <strong>Limited Stock</strong>
+                <span class="shop-item-form__toggle-desc">Enable inventory tracking for this item</span>
+              </span>
+            </label>
           </div>
 
-          <div class="mb-3">
-            <div class="form-check">
-              <%= f.check_box :one_per_person_ever, class: "form-check-input" %>
-              <%= f.label :one_per_person_ever, "One Per Person Ever", class: "form-check-label" %>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <div class="form-check">
-              <%= f.check_box :enabled, class: "form-check-input" %>
-              <%= f.label :enabled, "Enabled", class: "form-check-label" %>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <div class="form-check">
-              <%= f.check_box :limited, class: "form-check-input", id: "shop_item_limited" %>
-              <%= f.label :limited, "Limited Stock", class: "form-check-label" %>
-            </div>
-          </div>
-
-          <div class="mb-3" id="stock_field_container">
-            <%= f.label :stock, "Stock Quantity", class: "form-label" %>
+          <div class="shop-item-form__field" id="stock_field_container">
+            <%= f.label :stock, "Stock Quantity", class: "shop-item-form__label" %>
             <%= f.number_field :stock, min: 0, class: "form-control", id: "shop_item_stock" %>
-            <small class="form-text text-muted">Number of items available for purchase</small>
+            <span class="shop-item-form__hint">Number of items available for purchase</span>
           </div>
 
-          <div id="hack_clubber_settings" style="display: none;">
-            <h5>Hack Clubber Settings</h5>
-            <div class="mb-3">
-              <%= f.label :user_id, "Seller (User ID)", class: "form-label" %>
-              <%= f.number_field :user_id, class: "form-control", placeholder: "User ID" %>
-              <small class="form-text text-muted">The ID of the Hack Clubber selling this item</small>
-            </div>
-             <div class="mb-3">
-              <%= f.label :payout_percentage, "Payout Percentage (%)", class: "form-label" %>
-              <%= f.number_field :payout_percentage, min: 0, max: 100, class: "form-control" %>
-              <small class="form-text text-muted">Percentage of the sale price that goes to the seller</small>
-            </div>
+          <div class="shop-item-form__field">
+            <%= f.label :max_qty, "Max Per Order", class: "shop-item-form__label" %>
+            <%= f.number_field :max_qty, min: 1, class: "form-control", placeholder: "Unlimited" %>
+            <span class="shop-item-form__hint">Maximum quantity a user can add to a single order</span>
           </div>
+        </div>
 
-          <div id="hcb_locks_settings" style="display: none;">
-            <h5>HCB Locks</h5>
-            <div class="mb-3">
-              <%= f.label :hcb_merchant_lock, "HCB Merchant Lock", class: "form-label" %>
-              <%= f.text_field :hcb_merchant_lock, class: "form-control" %>
-            </div>
-
-            <div class="mb-3">
-              <%= f.label :hcb_category_lock, "HCB Category Lock", class: "form-label" %>
-              <%= f.text_field :hcb_category_lock, class: "form-control" %>
-            </div>
-
-            <div class="mb-3">
-              <%= f.label :hcb_keyword_lock, "HCB Keyword Lock", class: "form-label" %>
-              <%= f.text_field :hcb_keyword_lock, class: "form-control" %>
-            </div>
+        <div class="card" id="hack_clubber_settings" style="display: none;">
+          <h3>Hack Clubber Settings</h3>
+          <div class="shop-item-form__field">
+            <%= f.label :user_id, "Seller (User ID)", class: "shop-item-form__label" %>
+            <%= f.number_field :user_id, class: "form-control", placeholder: "User ID" %>
+            <span class="shop-item-form__hint">The ID of the Hack Clubber selling this item</span>
           </div>
+          <div class="shop-item-form__field">
+            <%= f.label :payout_percentage, "Payout Percentage (%)", class: "shop-item-form__label" %>
+            <%= f.number_field :payout_percentage, min: 0, max: 100, class: "form-control" %>
+            <span class="shop-item-form__hint">Percentage of the sale price that goes to the seller</span>
+          </div>
+        </div>
 
-          <div id="hcb_preauth_settings" class="mb-3" style="display: none;">
-            <%= f.label :hcb_preauthorization_instructions, "HCB Preauthorization Instructions", class: "form-label" %>
+        <div class="card" id="hcb_locks_settings" style="display: none;">
+          <h3>HCB Locks</h3>
+          <div class="shop-item-form__field">
+            <%= f.label :hcb_merchant_lock, "HCB Merchant Lock", class: "shop-item-form__label" %>
+            <%= f.text_field :hcb_merchant_lock, class: "form-control" %>
+          </div>
+          <div class="shop-item-form__field">
+            <%= f.label :hcb_category_lock, "HCB Category Lock", class: "shop-item-form__label" %>
+            <%= f.text_field :hcb_category_lock, class: "form-control" %>
+          </div>
+          <div class="shop-item-form__field">
+            <%= f.label :hcb_keyword_lock, "HCB Keyword Lock", class: "shop-item-form__label" %>
+            <%= f.text_field :hcb_keyword_lock, class: "form-control" %>
+          </div>
+        </div>
+
+        <div class="card" id="hcb_preauth_settings" style="display: none;">
+          <h3>HCB Preauthorization</h3>
+          <div class="shop-item-form__field">
+            <%= f.label :hcb_preauthorization_instructions, "Preauthorization Instructions", class: "shop-item-form__label" %>
             <%= f.text_area :hcb_preauthorization_instructions, rows: 3, class: "form-control", placeholder: "Instructions for preauthorized HCB grants" %>
-            <small class="form-text text-muted">Used by HCB Preauth Grant items to provide spending instructions</small>
+            <span class="shop-item-form__hint">Used by HCB Preauth Grant items to provide spending instructions</span>
+          </div>
+        </div>
+
+        <div class="card" id="warehouse_settings" style="display: none;">
+          <h3>Warehouse Settings</h3>
+          <div class="shop-item-form__field">
+            <%= f.label :agh_contents, "AGH Contents (JSON)", class: "shop-item-form__label" %>
+            <%= f.text_area :agh_contents, rows: 4, class: "form-control shop-item-form__code", placeholder: '[{"sku": "ITEM-001", "quantity": 1}]' %>
+            <span class="shop-item-form__hint">List SKUs to include. Quantity selected by user will batch all SKUs together.</span>
+          </div>
+        </div>
+
+        <div class="card" id="accessory_settings" style="display: none;">
+          <h3>Accessory Settings</h3>
+          <label class="shop-item-form__checkbox">
+            <%= f.check_box :buyable_by_self, id: "shop_item_buyable_by_self" %>
+            <span>Buyable By Self</span>
+          </label>
+          <span class="shop-item-form__hint">If unchecked, this accessory can only be purchased with an attached item</span>
+
+          <div class="shop-item-form__field" style="margin-top: 1rem;">
+            <%= f.label :accessory_tag, "Accessory Tag", class: "shop-item-form__label" %>
+            <%= f.text_field :accessory_tag, class: "form-control", placeholder: "e.g., color_item, ram_type" %>
+            <span class="shop-item-form__hint">Accessories with the same tag are mutually exclusive (only one can be selected)</span>
           </div>
 
-          <div id="warehouse_settings" class="mb-3" style="display: none;">
-            <%= f.label :agh_contents, "AGH Contents (JSON)", class: "form-label" %>
-            <%= f.text_area :agh_contents, rows: 4, class: "form-control", placeholder: '[{"sku": "ITEM-001", "quantity": 1}, {"sku": "ITEM-002", "quantity": 2}]', style: "font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;" %>
-            <small class="form-text text-muted">List SKUs to include. Quantity selected by user will batch all SKUs together.</small>
-          </div>
-
-          <div id="accessory_settings" style="display: none;">
-            <h5>Accessory Settings</h5>
-            <div class="mb-3">
-              <div class="form-check">
-                <%= f.check_box :buyable_by_self, class: "form-check-input", id: "shop_item_buyable_by_self" %>
-                <%= f.label :buyable_by_self, "Buyable By Self", class: "form-check-label" %>
-              </div>
-              <small class="form-text text-muted">If unchecked, this accessory can only be purchased with an attached item</small>
-            </div>
-
-            <div class="mb-3">
-              <%= f.label :accessory_tag, "Accessory Tag", class: "form-label" %>
-              <%= f.text_field :accessory_tag, class: "form-control", placeholder: "e.g., color_item, ram_type" %>
-              <small class="form-text text-muted">Accessories with the same tag are mutually exclusive (only one can be selected per order)</small>
-            </div>
-
-            <div class="mb-3">
-              <%= f.label :attached_shop_item_ids, "Attached To (Shop Items)", class: "form-label" %>
+          <div class="shop-item-form__field">
+            <%= f.label :attached_shop_item_ids, "Attached To (Shop Items)", class: "shop-item-form__label" %>
+            <div class="shop-item-form__checkbox-list">
               <%= f.collection_check_boxes :attached_shop_item_ids, ShopItem.where.not(type: "ShopItem::Accessory").order(:name), :id, :name do |b| %>
-                <div class="form-check">
-                  <%= b.check_box class: "form-check-input" %>
-                  <%= b.label class: "form-check-label" %>
-                </div>
+                <label class="shop-item-form__checkbox">
+                  <%= b.check_box %>
+                  <span><%= b.text %></span>
+                </label>
               <% end %>
-              <small class="form-text text-muted">Select items this accessory can be attached to</small>
             </div>
+            <span class="shop-item-form__hint">Select items this accessory can be attached to</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shop-item-form__sidebar">
+        <div class="card">
+          <h3>Actions</h3>
+          <div class="shop-item-form__actions">
+            <%= f.submit shop_item.persisted? ? "Update Item" : "Create Item", class: "btn-primary" %>
+            <%= link_to "Cancel", admin_manage_shop_path, class: "btn-secondary" %>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="row mt-4">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-header">Regional Availability & Pricing</div>
-        <div class="card-body">
-          <div class="alert alert-info mb-3">
-            <strong>💡 Regional Logic:</strong>
-            <br><strong>XX (Rest of World):</strong> Items enabled for XX appear in <em>all</em> regions using XX pricing
-            <br><strong>Specific Regions:</strong> Items enabled for specific regions (US, EU, etc.) only appear in those regions
-            <br><strong>Priority:</strong> Regional pricing takes precedence over XX pricing when both are enabled
-          </div>
-          <div class="table-responsive">
-        <table class="table table-bordered table-striped">
+    <div class="card" style="margin-top: 1.5rem;">
+      <h3>Regional Availability & Pricing</h3>
+
+      <div class="shop-item-form__info-box">
+        <strong>Regional Logic:</strong>
+        <br><strong>XX (Rest of World):</strong> Items enabled for XX appear in <em>all</em> regions using XX pricing
+        <br><strong>Specific Regions:</strong> Items enabled for specific regions (US, EU, etc.) only appear in those
+        regions
+        <br><strong>Priority:</strong> Regional pricing takes precedence over XX pricing when both are enabled
+      </div>
+
+      <div class="shop-item-form__table-wrap">
+        <table class="table-data">
           <thead>
-            <tr>
-              <th>Region</th>
-              <th>Enabled</th>
-              <th>Δ Tickets</th>
-              <th>Δ Hours</th>
-              <th>Δ USD</th>
-              <th>Final Price</th>
-              <th>Est. Hours</th>
-            </tr>
+          <tr>
+            <th>Region</th>
+            <th>Enabled</th>
+            <th>Δ Tickets</th>
+            <th>Δ Hours</th>
+            <th>Δ USD</th>
+            <th>Final Price</th>
+            <th>Est. Hours</th>
+          </tr>
           </thead>
           <tbody>
-            <% Shop::Regionalizable::REGIONS.each do |code, config| %>
-              <tr>
-                <td>
-                  <strong><%= config[:name] %></strong>
-                  <br><small class="text-muted"><%= code %></small>
-                </td>
-                <td>
-                  <div class="form-check">
-                    <%= f.check_box "enabled_#{code.downcase}", class: "form-check-input region-enabled", data: { region: code.downcase } %>
-                  </div>
-                </td>
-                <td>
-                  <div class="input-group input-group-sm">
-                    <%= f.number_field "price_offset_#{code.downcase}", step: 0.01, class: "form-control price-offset", data: { region: code.downcase }, placeholder: "0.00" %>
-                  </div>
-                </td>
-                <td>
-                  <div class="input-group input-group-sm">
-                    <input type="number" step="0.1" class="form-control delta-hours-input" data-region="<%= code.downcase %>" placeholder="0.0" autocomplete="off">
-                    <span class="input-group-text">hrs</span>
-                  </div>
-                </td>
-                <td>
-                  <div class="input-group input-group-sm">
-                    <span class="input-group-text">$</span>
-                    <input type="number" step="0.01" class="form-control delta-dollars-input" data-region="<%= code.downcase %>" placeholder="0.00" autocomplete="off">
-                  </div>
-                </td>
-                <td>
-                  <span class="final-price" data-region="<%= code.downcase %>">
-                    <%= ((shop_item.ticket_cost || 0) + (shop_item.send("price_offset_#{code.downcase}") || 0)).round(2) %>
-                  </span>
-                </td>
-                <td>
-                  <span class="estimated-hours text-muted" data-region="<%= code.downcase %>">0.0</span>
-                  <small class="d-block text-muted">average hours</small>
-                </td>
-              </tr>
-            <% end %>
+          <% Shop::Regionalizable::REGIONS.each do |code, config| %>
+            <%
+              flag = case code
+                     when "US" then "🇺🇸"
+                     when "EU" then "🇪🇺"
+                     when "UK" then "🇬🇧"
+                     when "CA" then "🇨🇦"
+                     when "AU" then "🇦🇺"
+                     when "IN" then "🇮🇳"
+                     when "XX" then "🌍"
+                     else "🏳️"
+                     end
+            %>
+            <tr>
+              <td>
+                <span class="shop-item-form__region-flag"><%= flag %></span>
+                <strong><%= config[:name] %></strong>
+              </td>
+              <td>
+                <%= f.check_box "enabled_#{code.downcase}", class: "region-enabled", data: { region: code.downcase } %>
+              </td>
+              <td>
+                <%= f.number_field "price_offset_#{code.downcase}", step: 1, class: "form-control form-control--sm price-offset", data: { region: code.downcase }, placeholder: "0" %>
+              </td>
+              <td>
+                <input type="number" step="0.1" class="form-control form-control--sm delta-hours-input" data-region="<%= code.downcase %>" placeholder="0.0" autocomplete="off">
+              </td>
+              <td>
+                <input type="number" step="0.01" class="form-control form-control--sm delta-dollars-input" data-region="<%= code.downcase %>" placeholder="0.00" autocomplete="off">
+              </td>
+              <td>
+                <code class="shop-item-form__final-price" data-region="<%= code.downcase %>">
+                  <%= ((shop_item.ticket_cost || 0) + (shop_item.send("price_offset_#{code.downcase}") || 0)).to_i %>
+                </code>
+              </td>
+              <td>
+                <span class="estimated-hours shop-item-form__muted" data-region="<%= code.downcase %>">0.0</span>
+              </td>
+            </tr>
+          <% end %>
           </tbody>
         </table>
-          </div>
-        </div>
       </div>
     </div>
-  </div>
-
-  <div class="actions mt-4">
-    <%= f.submit class: "btn btn-primary" %>
-    <%= link_to 'Cancel', admin_manage_shop_path, class: "btn btn-secondary" %>
-  </div>
-<% end %>
+  <% end %>
 </div>
 
-<script>
-(function() {
-  const gameConstants = {
-    doubloons_per_dollar: <%= Rails.configuration.game_constants.tickets_per_dollar.to_json %>,
-    dollars_per_mean_hour: <%= Rails.configuration.game_constants.dollars_per_mean_hour.to_json %>
-  };
-
-  const usdCostField = document.getElementById('shop_item_usd_cost');
-  const ticketCostField = document.getElementById('shop_item_ticket_cost');
-  const hackerScoreField = document.getElementById('shop_item_hacker_score');
-  const estimatedTicketsDisplay = document.getElementById('estimated_tickets');
-  const averageHoursDisplay = document.getElementById('average_hours_estimated');
-
-  // State to track if user has manually overridden the ticket cost
-  let isTicketCostManuallySet = false;
-
-  if (ticketCostField && ticketCostField.value && parseFloat(ticketCostField.value) !== 0) {
-    isTicketCostManuallySet = true;
-  }
-
-  function calculateEstimatedTickets() {
-    const usdCost = parseFloat(usdCostField.value) || 0;
-    const hackerScore = parseFloat(hackerScoreField.value) || 50;
-    const hackerScorePercent = hackerScore / 100;
-    const estimatedTickets = gameConstants.doubloons_per_dollar * usdCost * (0.5 + (1 - hackerScorePercent));
-    return estimatedTickets;
-  }
-
-  function calculateAverageHours() {
-    const ticketCost = parseFloat(ticketCostField.value) || 0;
-    const averageHours = ticketCost / (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour);
-    return averageHours;
-  }
-
-  function updateCalculations() {
-    const estimatedTickets = calculateEstimatedTickets();
-    const averageHours = calculateAverageHours();
-    if (estimatedTicketsDisplay) estimatedTicketsDisplay.value = estimatedTickets.toFixed(2);
-    if (averageHoursDisplay) averageHoursDisplay.value = averageHours.toFixed(2);
-  }
-
-  function autoFillTicketCost() {
-    if (isTicketCostManuallySet) return;
-
-    const estimatedTickets = calculateEstimatedTickets();
-    if (usdCostField.value) {
-      ticketCostField.value = estimatedTickets.toFixed(2);
-      updateCalculations();
-      updateAllRegionalPricing();
+<style>
+    .shop-item-form__grid {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: 1.5rem;
+        align-items: start;
     }
-  }
 
-  if (usdCostField) {
-    usdCostField.addEventListener('input', function() {
-      updateCalculations();
-      autoFillTicketCost();
-    });
-  }
-
-  if (ticketCostField) {
-    ticketCostField.addEventListener('input', function(e) {
-      if (e.isTrusted) {
-        isTicketCostManuallySet = true;
-        // If user clears the field, reset manual flag to allow autofill again
-        if (this.value === '' || parseFloat(this.value) === 0) {
-           isTicketCostManuallySet = false;
-           autoFillTicketCost();
+    @media (max-width: 900px) {
+        .shop-item-form__grid {
+            grid-template-columns: 1fr;
         }
-      }
-      updateCalculations();
-      updateAllRegionalPricing();
-    });
-  }
-
-  if (hackerScoreField) {
-    hackerScoreField.addEventListener('input', function() {
-      updateCalculations();
-      autoFillTicketCost();
-    });
-  }
-
-  const limitedCheckbox = document.getElementById('shop_item_limited');
-  const stockFieldContainer = document.getElementById('stock_field_container');
-
-  function toggleStockField() {
-    if (limitedCheckbox && stockFieldContainer) {
-      stockFieldContainer.style.display = limitedCheckbox.checked ? 'block' : 'none';
-    }
-  }
-
-  if (limitedCheckbox) {
-    limitedCheckbox.addEventListener('change', toggleStockField);
-    toggleStockField();
-  }
-
-  function updateFromPriceOffset(region, skipHours = false, skipDollars = false) {
-    const basePrice = parseFloat(ticketCostField.value) || 0;
-    const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
-    const offset = parseFloat(offsetField.value) || 0;
-    const finalPrice = basePrice + offset;
-
-    const finalPriceSpan = document.querySelector(`[data-region="${region}"].final-price`);
-    if (finalPriceSpan) finalPriceSpan.textContent = `${finalPrice.toFixed(2)}`;
-
-    const estimatedHours = finalPrice / (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour);
-    const estimatedHoursSpan = document.querySelector(`[data-region="${region}"].estimated-hours`);
-    if (estimatedHoursSpan) estimatedHoursSpan.textContent = `${estimatedHours.toFixed(1)}`;
-
-    if (!skipHours) {
-      const deltaHours = offset / (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour);
-      const deltaHoursInput = document.querySelector(`[data-region="${region}"].delta-hours-input`);
-      if (deltaHoursInput) deltaHoursInput.value = deltaHours.toFixed(1);
     }
 
-    if (!skipDollars) {
-      const deltaDollars = offset / gameConstants.doubloons_per_dollar;
-      const deltaDollarsInput = document.querySelector(`[data-region="${region}"].delta-dollars-input`);
-      if (deltaDollarsInput) deltaDollarsInput.value = deltaDollars.toFixed(2);
-    }
-  }
-
-  function updateFromDeltaHours(region) {
-    const deltaHoursInput = document.querySelector(`[data-region="${region}"].delta-hours-input`);
-    const deltaHours = parseFloat(deltaHoursInput.value) || 0;
-    const offset = deltaHours * (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour);
-    const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
-    if (offsetField) offsetField.value = offset.toFixed(2);
-    updateFromPriceOffset(region, true, false);
-  }
-
-  function updateFromDeltaDollars(region) {
-    const deltaDollarsInput = document.querySelector(`[data-region="${region}"].delta-dollars-input`);
-    const deltaDollars = parseFloat(deltaDollarsInput.value) || 0;
-    const offset = deltaDollars * gameConstants.doubloons_per_dollar;
-    const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
-    if (offsetField) offsetField.value = offset.toFixed(2);
-    updateFromPriceOffset(region, false, true);
-  }
-
-  function updateAllRegionalPricing() {
-    document.querySelectorAll('.price-offset').forEach(offsetField => {
-      updateFromPriceOffset(offsetField.dataset.region);
-    });
-  }
-
-  document.querySelectorAll('.price-offset').forEach(field => {
-    field.addEventListener('input', function() { updateFromPriceOffset(this.dataset.region); });
-  });
-
-  document.querySelectorAll('.delta-hours-input').forEach(field => {
-    field.addEventListener('input', function() { updateFromDeltaHours(this.dataset.region); });
-  });
-
-  document.querySelectorAll('.delta-dollars-input').forEach(field => {
-    field.addEventListener('input', function() { updateFromDeltaDollars(this.dataset.region); });
-  });
-
-  // Run calculations on load
-  updateCalculations();
-  // Try to autofill on load (handles case where we have USD cost but ticket cost is empty/default)
-  autoFillTicketCost();
-  // Also update regional pricing (in case ticket cost was just autofilled)
-  updateAllRegionalPricing();
-
-  // Type selection logic
-  const typeSelect = document.getElementById('shop_item_type');
-  const hackClubberSettings = document.getElementById('hack_clubber_settings');
-  const hcbLocksSettings = document.getElementById('hcb_locks_settings');
-  const hcbPreauthSettings = document.getElementById('hcb_preauth_settings');
-  const warehouseSettings = document.getElementById('warehouse_settings');
-  const accessorySettings = document.getElementById('accessory_settings');
-
-  function updateTypeVisibility() {
-    const selectedType = typeSelect ? typeSelect.value : '';
-
-    if (hackClubberSettings) {
-      hackClubberSettings.style.display = (selectedType === 'ShopItem::HackClubberItem') ? 'block' : 'none';
+    .shop-item-form__main .card {
+        margin-bottom: 1.5rem;
     }
 
-    if (hcbLocksSettings) {
-      hcbLocksSettings.style.display = (selectedType === 'ShopItem::HCBGrant' || selectedType === 'ShopItem::HCBPreauthGrant') ? 'block' : 'none';
+    .shop-item-form__sidebar .card {
+        position: sticky;
+        top: 1rem;
     }
 
-    if (hcbPreauthSettings) {
-      hcbPreauthSettings.style.display = (selectedType === 'ShopItem::HCBPreauthGrant') ? 'block' : 'none';
+    .shop-item-form__errors {
+        background: #fee2e2;
+        border: 1px solid #ef4444;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        color: #991b1b;
     }
 
-    if (warehouseSettings) {
-      warehouseSettings.style.display = (selectedType === 'ShopItem::WarehouseItem' || selectedType === 'ShopItem::PileOfStickersItem') ? 'block' : 'none';
+    .shop-item-form__errors h4 {
+        margin: 0 0 0.5rem 0;
     }
 
-    if (accessorySettings) {
-      accessorySettings.style.display = (selectedType === 'ShopItem::Accessory') ? 'block' : 'none';
+    .shop-item-form__errors ul {
+        margin: 0;
+        padding-left: 1.25rem;
     }
-  }
 
-  if (typeSelect) {
-    typeSelect.addEventListener('change', updateTypeVisibility);
-    updateTypeVisibility(); // Run on load
-  }
-})();
+    .shop-item-form__field {
+        margin-bottom: 1rem;
+    }
+
+    .shop-item-form__label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    .shop-item-form__hint {
+        display: block;
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    .shop-item-form__row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .shop-item-form__readonly {
+        background: var(--color-tan-400) !important;
+        cursor: not-allowed;
+        color: #6b7280 !important;
+    }
+
+    /* Calculated values display */
+    .shop-item-form__calculated {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1rem;
+        background: var(--color-tan-400);
+        border: 1px dashed var(--color-brown-500);
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .shop-item-form__calc-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+    }
+
+    .shop-item-form__calc-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+
+    .shop-item-form__calc-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-brown-700);
+    }
+
+    /* Toggle switches with descriptions */
+    .shop-item-form__toggles {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .shop-item-form__toggle {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: var(--color-tan-400);
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background 0.1s;
+    }
+
+    .shop-item-form__toggle:hover {
+        background: var(--color-tan-500, #d4c4a8);
+    }
+
+    .shop-item-form__toggle input[type="checkbox"] {
+        width: 1.125rem;
+        height: 1.125rem;
+        margin-top: 0.125rem;
+        flex-shrink: 0;
+    }
+
+    .shop-item-form__toggle-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .shop-item-form__toggle-content strong {
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .shop-item-form__toggle-desc {
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    /* Legacy checkboxes (keep for accessory settings) */
+    .shop-item-form__checkboxes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: var(--color-tan-400);
+        border-radius: 0.5rem;
+    }
+
+    .shop-item-form__checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+
+    .shop-item-form__checkbox input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .shop-item-form__checkbox-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 0.5rem;
+        background: var(--color-tan-400);
+        border-radius: 0.5rem;
+    }
+
+    .shop-item-form__current-image {
+        margin-top: 0.5rem;
+    }
+
+    .shop-item-form__image-preview {
+        max-width: 100px;
+        border-radius: 4px;
+        margin-top: 0.25rem;
+    }
+
+    .shop-item-form__code {
+        font-family: ui-monospace, monospace;
+        font-size: 0.8125rem;
+    }
+
+    .shop-item-form__actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .shop-item-form__actions .btn-primary,
+    .shop-item-form__actions .btn-secondary {
+        width: 100%;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+    .shop-item-form__info-box {
+        background: var(--color-tan-400);
+        border: 1px solid var(--color-brown-500);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .shop-item-form__table-wrap {
+        overflow-x: auto;
+    }
+
+    .shop-item-form__region-flag {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+    }
+
+    .shop-item-form__final-price {
+        background: var(--color-tan-400);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .shop-item-form__muted {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .form-control--sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        width: 80px;
+    }
+
+    /* Form controls */
+    .form-control {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--color-brown-500);
+        background: var(--color-tan-400);
+        font-size: 0.875rem;
+        color: inherit;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--color-brown-700);
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<script>
+    (function () {
+        const gameConstants = {
+            doubloons_per_dollar: <%= Rails.configuration.game_constants.tickets_per_dollar.to_json %>,
+            dollars_per_mean_hour: <%= Rails.configuration.game_constants.dollars_per_mean_hour.to_json %>
+        };
+
+        const usdCostField = document.getElementById('shop_item_usd_cost');
+        const ticketCostField = document.getElementById('shop_item_ticket_cost');
+        const hackerScoreField = document.getElementById('shop_item_hacker_score');
+        const estimatedTicketsDisplay = document.getElementById('estimated_tickets');
+        const averageHoursDisplay = document.getElementById('average_hours_estimated');
+
+        let isTicketCostManuallySet = false;
+
+        if (ticketCostField && ticketCostField.value && parseFloat(ticketCostField.value) !== 0) {
+            isTicketCostManuallySet = true;
+        }
+
+        function calculateEstimatedTickets() {
+            const usdCost = parseFloat(usdCostField.value) || 0;
+            const hackerScore = parseFloat(hackerScoreField.value) || 50;
+            const hackerScorePercent = hackerScore / 100;
+            const estimatedTickets = gameConstants.doubloons_per_dollar * usdCost * (0.5 + (1 - hackerScorePercent));
+            return estimatedTickets;
+        }
+
+        function calculateAverageHours() {
+            const ticketCost = parseFloat(ticketCostField.value) || 0;
+            const averageHours = ticketCost / (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour);
+            return averageHours;
+        }
+
+        function updateCalculations() {
+            const estimatedTickets = calculateEstimatedTickets();
+            const averageHours = calculateAverageHours();
+            if (estimatedTicketsDisplay) {
+                estimatedTicketsDisplay.textContent = estimatedTickets > 0 ? Math.round(estimatedTickets) : '—';
+            }
+            if (averageHoursDisplay) {
+                averageHoursDisplay.textContent = averageHours > 0 ? averageHours.toFixed(1) + 'h' : '—';
+            }
+        }
+
+        function autoFillTicketCost() {
+            if (isTicketCostManuallySet) return;
+
+            const estimatedTickets = calculateEstimatedTickets();
+            if (usdCostField.value) {
+                ticketCostField.value = Math.round(estimatedTickets);
+                updateCalculations();
+                updateAllRegionalPricing();
+            }
+        }
+
+        if (usdCostField) {
+            usdCostField.addEventListener('input', function () {
+                updateCalculations();
+                autoFillTicketCost();
+            });
+        }
+
+        if (ticketCostField) {
+            ticketCostField.addEventListener('input', function (e) {
+                if (e.isTrusted) {
+                    isTicketCostManuallySet = true;
+                    if (this.value === '' || parseFloat(this.value) === 0) {
+                        isTicketCostManuallySet = false;
+                        autoFillTicketCost();
+                    }
+                }
+                updateCalculations();
+                updateAllRegionalPricing();
+            });
+        }
+
+        if (hackerScoreField) {
+            hackerScoreField.addEventListener('input', function () {
+                updateCalculations();
+                autoFillTicketCost();
+            });
+        }
+
+        const limitedCheckbox = document.getElementById('shop_item_limited');
+        const stockFieldContainer = document.getElementById('stock_field_container');
+
+        function toggleStockField() {
+            if (limitedCheckbox && stockFieldContainer) {
+                stockFieldContainer.style.display = limitedCheckbox.checked ? 'block' : 'none';
+            }
+        }
+
+        if (limitedCheckbox) {
+            limitedCheckbox.addEventListener('change', toggleStockField);
+            toggleStockField();
+        }
+
+        function updateFromPriceOffset(region, skipHours = false, skipDollars = false) {
+            const basePrice = parseFloat(ticketCostField.value) || 0;
+            const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
+            const offset = parseFloat(offsetField.value) || 0;
+            const finalPrice = basePrice + offset;
+
+            const finalPriceSpan = document.querySelector(`[data-region="${region}"].shop-item-form__final-price`);
+            if (finalPriceSpan) finalPriceSpan.textContent = Math.round(finalPrice);
+
+            const estimatedHours = finalPrice / (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour);
+            const estimatedHoursSpan = document.querySelector(`[data-region="${region}"].estimated-hours`);
+            if (estimatedHoursSpan) estimatedHoursSpan.textContent = estimatedHours.toFixed(1);
+
+            if (!skipHours) {
+                const deltaHours = offset / (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour);
+                const deltaHoursInput = document.querySelector(`[data-region="${region}"].delta-hours-input`);
+                if (deltaHoursInput) deltaHoursInput.value = deltaHours.toFixed(1);
+            }
+
+            if (!skipDollars) {
+                const deltaDollars = offset / gameConstants.doubloons_per_dollar;
+                const deltaDollarsInput = document.querySelector(`[data-region="${region}"].delta-dollars-input`);
+                if (deltaDollarsInput) deltaDollarsInput.value = deltaDollars.toFixed(2);
+            }
+        }
+
+        function updateFromDeltaHours(region) {
+            const deltaHoursInput = document.querySelector(`[data-region="${region}"].delta-hours-input`);
+            const deltaHours = parseFloat(deltaHoursInput.value) || 0;
+            const offset = deltaHours * (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour);
+            const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
+            if (offsetField) offsetField.value = Math.round(offset);
+            updateFromPriceOffset(region, true, false);
+        }
+
+        function updateFromDeltaDollars(region) {
+            const deltaDollarsInput = document.querySelector(`[data-region="${region}"].delta-dollars-input`);
+            const deltaDollars = parseFloat(deltaDollarsInput.value) || 0;
+            const offset = deltaDollars * gameConstants.doubloons_per_dollar;
+            const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
+            if (offsetField) offsetField.value = Math.round(offset);
+            updateFromPriceOffset(region, false, true);
+        }
+
+        function updateAllRegionalPricing() {
+            document.querySelectorAll('.price-offset').forEach(offsetField => {
+                updateFromPriceOffset(offsetField.dataset.region);
+            });
+        }
+
+        document.querySelectorAll('.price-offset').forEach(field => {
+            field.addEventListener('input', function () {
+                updateFromPriceOffset(this.dataset.region);
+            });
+        });
+
+        document.querySelectorAll('.delta-hours-input').forEach(field => {
+            field.addEventListener('input', function () {
+                updateFromDeltaHours(this.dataset.region);
+            });
+        });
+
+        document.querySelectorAll('.delta-dollars-input').forEach(field => {
+            field.addEventListener('input', function () {
+                updateFromDeltaDollars(this.dataset.region);
+            });
+        });
+
+        updateCalculations();
+        autoFillTicketCost();
+        updateAllRegionalPricing();
+
+        const typeSelect = document.getElementById('shop_item_type');
+        const hackClubberSettings = document.getElementById('hack_clubber_settings');
+        const hcbLocksSettings = document.getElementById('hcb_locks_settings');
+        const hcbPreauthSettings = document.getElementById('hcb_preauth_settings');
+        const warehouseSettings = document.getElementById('warehouse_settings');
+        const accessorySettings = document.getElementById('accessory_settings');
+
+        function updateTypeVisibility() {
+            const selectedType = typeSelect ? typeSelect.value : '';
+
+            if (hackClubberSettings) {
+                hackClubberSettings.style.display = (selectedType === 'ShopItem::HackClubberItem') ? 'block' : 'none';
+            }
+
+            if (hcbLocksSettings) {
+                hcbLocksSettings.style.display = (selectedType === 'ShopItem::HCBGrant' || selectedType === 'ShopItem::HCBPreauthGrant') ? 'block' : 'none';
+            }
+
+            if (hcbPreauthSettings) {
+                hcbPreauthSettings.style.display = (selectedType === 'ShopItem::HCBPreauthGrant') ? 'block' : 'none';
+            }
+
+            if (warehouseSettings) {
+                warehouseSettings.style.display = (selectedType === 'ShopItem::WarehouseItem' || selectedType === 'ShopItem::PileOfStickersItem') ? 'block' : 'none';
+            }
+
+            if (accessorySettings) {
+                accessorySettings.style.display = (selectedType === 'ShopItem::Accessory') ? 'block' : 'none';
+            }
+        }
+
+        if (typeSelect) {
+            typeSelect.addEventListener('change', updateTypeVisibility);
+            updateTypeVisibility();
+        }
+    })();
 </script>
