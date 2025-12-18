@@ -5,6 +5,12 @@ module Admin
 
       @versions = PaperTrail::Version.order(created_at: :desc).limit(50)
 
+      # Hide system activities by default (where whodunnit is nil)
+      @show_system = params[:show_system] == "1"
+      unless @show_system
+        @versions = @versions.where.not(whodunnit: nil)
+      end
+
       # Apply filters
       if params[:item_type].present?
         @versions = @versions.where(item_type: params[:item_type])

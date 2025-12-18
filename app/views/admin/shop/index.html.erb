@@ -1,34 +1,310 @@
-<h1>Manage Shop</h1>
+<div class="manage-shop">
+  <div class="manage-shop__header">
+    <h1>Manage Shop</h1>
+    <div class="manage-shop__actions">
+      <%= link_to "New Product", new_admin_shop_item_path, class: "btn-primary" %>
+      <%= button_to "Clear Carousel Cache", admin_clear_carousel_cache_path, method: :post, class: "btn-secondary" %>
+    </div>
+  </div>
 
-<div style="margin-bottom: 1rem;">
-  <%= link_to "New Product", new_admin_shop_item_path, class: "btn-primary" %>
-  <%= button_to "Clear Carousel Cache", admin_clear_carousel_cache_path, method: :post, class: "btn-secondary", style: "display: inline-block; margin-left: 0.5rem;" %>
+  <div class="card">
+    <h3>Filters & Search</h3>
+
+    <%= form_with url: admin_manage_shop_path, method: :get, local: true do |f| %>
+      <div class="manage-shop__filters">
+        <div class="manage-shop__filter-group">
+          <%= f.label :search, "Search", class: "manage-shop__label" %>
+          <%= f.text_field :search, value: params[:search], placeholder: "Name or ID...", class: "form-control", autocomplete: "off" %>
+        </div>
+
+        <div class="manage-shop__filter-group">
+          <%= f.label :type, "Type", class: "manage-shop__label" %>
+          <%= f.select :type, options_for_select(@item_types.map { |t| [t.gsub("ShopItem::", ""), t] }, params[:type]), { include_blank: "All Types" }, class: "form-control" %>
+        </div>
+
+        <div class="manage-shop__filter-group">
+          <%= f.label :enabled, "Status", class: "manage-shop__label" %>
+          <%= f.select :enabled, options_for_select([["Enabled", "true"], ["Disabled", "false"]], params[:enabled]), { include_blank: "All" }, class: "form-control" %>
+        </div>
+
+        <div class="manage-shop__filter-group">
+          <%= f.label :carousel, "Carousel", class: "manage-shop__label" %>
+          <%= f.select :carousel, options_for_select([["In Carousel", "true"], ["Not in Carousel", "false"]], params[:carousel]), { include_blank: "All" }, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="manage-shop__filter-actions">
+        <%= f.submit "Apply Filters", class: "btn-primary slim" %>
+        <%= link_to "Clear All", admin_manage_shop_path, class: "btn-secondary slim" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="card">
+    <div class="manage-shop__results-header">
+      <h3>Items</h3>
+      <span class="manage-shop__count"><%= @shop_items.count %> items</span>
+    </div>
+
+    <% if @shop_items.any? %>
+      <table class="table-data">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th></th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Cookie Cost</th>
+          <th>USD Cost</th>
+          <th>Regions</th>
+          <th>Status</th>
+          <th>Carousel</th>
+          <th>Created</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @shop_items.limit(50).each do |item| %>
+          <tr>
+            <td><code class="manage-shop__id">#<%= item.id %></code></td>
+            <td class="manage-shop__image-cell">
+              <% if item.image.attached? %>
+                <%= image_tag item.image.variant(:carousel_sm), class: "manage-shop__image" %>
+              <% else %>
+                <div class="manage-shop__no-image">—</div>
+              <% end %>
+            </td>
+            <td class="manage-shop__name"><%= item.name %></td>
+            <td><span class="manage-shop__type"><%= item.type.to_s.gsub("ShopItem::", "") %></span></td>
+            <td>🍪 <%= item.ticket_cost.to_i %></td>
+            <td><%= item.usd_cost ? number_to_currency(item.usd_cost) : "—" %></td>
+            <td class="manage-shop__regions">
+              <%
+                regions = []
+                regions << "🇺🇸" if item.enabled_us
+                regions << "🇪🇺" if item.enabled_eu
+                regions << "🇬🇧" if item.enabled_uk
+                regions << "🇨🇦" if item.enabled_ca
+                regions << "🇦🇺" if item.enabled_au
+                regions << "🇮🇳" if item.enabled_in
+                regions << "🌍" if item.enabled_xx
+                all_regions = item.enabled_us && item.enabled_eu && item.enabled_uk && item.enabled_ca && item.enabled_au && item.enabled_in && item.enabled_xx
+              %>
+              <% if all_regions %>
+                <span class="manage-shop__region-globe" title="All regions">🌐</span>
+              <% elsif regions.any? %>
+                <span title="<%= regions.join(" ") %>"><%= regions.join("") %></span>
+              <% else %>
+                <span class="manage-shop__no-regions">—</span>
+              <% end %>
+            </td>
+            <td>
+              <% if item.enabled %>
+                <span class="badge badge-enabled">Enabled</span>
+              <% else %>
+                <span class="badge badge-disabled">Disabled</span>
+              <% end %>
+            </td>
+            <td>
+              <% if item.show_in_carousel %>
+                <span class="manage-shop__carousel-yes">✓</span>
+              <% else %>
+                <span class="manage-shop__carousel-no">—</span>
+              <% end %>
+            </td>
+            <td class="manage-shop__date"><%= item.created_at.strftime("%b %d, %Y") %></td>
+            <td>
+              <%= link_to "View", admin_shop_item_path(item), class: "btn-primary slim" %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+
+      <% if @shop_items.count > 50 %>
+        <p class="manage-shop__more">Showing 50 of <%= @shop_items.count %> items. Use filters to narrow results.</p>
+      <% end %>
+    <% else %>
+      <p class="manage-shop__empty">No items found matching your filters.</p>
+    <% end %>
+  </div>
+
+  <div style="margin-top: 2rem;">
+    <%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
+  </div>
 </div>
 
-<h2>Last 20 Items</h2>
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Ticket Cost</th>
-      <th>USD Cost</th>
-      <th>Enabled</th>
-      <th>Created</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @shop_items.each do |item| %>
-      <tr>
-        <td><%= link_to item.id, admin_shop_item_path(item) %></td>
-        <td><%= link_to item.name, admin_shop_item_path(item) %></td>
-        <td><%= item.type %></td>
-        <td><%= item.ticket_cost %></td>
-        <td><%= item.usd_cost %></td>
-        <td><%= item.enabled ? "✓" : "✗" %></td>
-        <td><%= item.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<style>
+    .manage-shop__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .manage-shop__header h1 {
+        margin: 0;
+    }
+
+    .manage-shop__actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .manage-shop .card {
+        margin-bottom: 1.5rem;
+    }
+
+    .manage-shop__filters {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .manage-shop__filter-group {
+        position: relative;
+    }
+
+    .manage-shop__label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    .manage-shop__filter-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .manage-shop__results-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .manage-shop__results-header h3 {
+        margin: 0;
+    }
+
+    .manage-shop__count {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .manage-shop__id {
+        background: var(--color-tan-400);
+        padding: 0.125rem 0.375rem;
+        border-radius: 4px;
+        font-size: 0.8125rem;
+    }
+
+    .manage-shop__name {
+        font-weight: 500;
+    }
+
+    .manage-shop__type {
+        background: var(--color-tan-400);
+        padding: 0.125rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+
+    .manage-shop__image-cell {
+        width: 48px;
+        padding: 0.25rem !important;
+    }
+
+    .manage-shop__image {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+        display: block;
+    }
+
+    .manage-shop__no-image {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-tan-400);
+        border-radius: 4px;
+        color: #9ca3af;
+        font-size: 0.875rem;
+    }
+
+    .manage-shop__regions {
+        font-size: 1rem;
+        letter-spacing: -0.05em;
+    }
+
+    .manage-shop__region-globe {
+        font-size: 1.125rem;
+    }
+
+    .manage-shop__no-regions {
+        color: #9ca3af;
+    }
+
+    .manage-shop__date {
+        white-space: nowrap;
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .manage-shop__carousel-yes {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+    .manage-shop__carousel-no {
+        color: #9ca3af;
+    }
+
+    .manage-shop__empty,
+    .manage-shop__more {
+        text-align: center;
+        color: #6b7280;
+        padding: 1rem;
+        margin: 0;
+    }
+
+    /* Badges */
+    .badge-enabled {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-disabled {
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
+
+    /* Form controls */
+    .form-control {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--color-brown-500);
+        background: var(--color-tan-400);
+        font-size: 0.875rem;
+        color: inherit;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--color-brown-700);
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: #6b7280;
+    }
+</style>

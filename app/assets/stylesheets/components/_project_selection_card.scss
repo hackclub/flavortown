@@ -1,0 +1,148 @@
+.project-selection-card {
+  --project-selection-card-accent: var(--color-blue-400);
+  background: var(--color-blue-400);
+  border: 10px solid var(--color-blue-300);
+  border-radius: calc(1.2 * var(--border-radius));
+  padding: var(--space-l);
+  position: relative;
+  box-shadow: var(--shadow);
+  text-align: center;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-conic-gradient(
+      from 0deg,
+      rgba(0, 0, 0, 0.02) 0deg 90deg,
+      transparent 90deg 180deg
+    );
+    background-size: 120px 120px;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__image {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 12px;
+    position: relative;
+  }
+
+  &__image-content {
+    height: auto;
+    max-height: 100%;
+    max-width: 100%;
+    padding: 1em;
+    object-fit: contain;
+    position: relative;
+    z-index: 0;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  &__title {
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-xxxl);
+    color: var(--color-bg);
+    margin: 0;
+  }
+
+  &__description {
+    font-family: var(--font-family-jua);
+    color: var(--color-bg);
+    font-size: var(--font-size-xl);
+    margin: 0;
+  }
+
+  &--blue {
+    --project-selection-card-accent: var(--color-blue-400);
+    background: var(--color-blue-400);
+    border-color: #a4dddb;
+
+    .project-selection-card__image {
+      background: var(--color-blue-500);
+    }
+  }
+
+  &--yellow {
+    --project-selection-card-accent: var(--color-yellow-400);
+    background: var(--color-yellow-500);
+    border-color: var(--color-yellow-300);
+
+    .project-selection-card__image {
+      background: var(--color-yellow-600);
+    }
+  }
+
+  &--red {
+    --project-selection-card-accent: var(--color-red-400);
+    background: var(--color-red-400);
+    border-color: var(--color-red-300);
+
+    .project-selection-card__image {
+      background: var(--color-red-500);
+    }
+  }
+
+  &--green {
+    --project-selection-card-accent: var(--color-green-400);
+    background: var(--color-green-400);
+    border-color: var(--color-green-300);
+
+    .project-selection-card__image {
+      background: var(--color-green-500);
+    }
+  }
+}
+
+.project-selection-card__form {
+  width: 100%;
+  height: 100%;
+}
+
+.project-selection-card__button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-8px);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-green);
+    outline-offset: 2px;
+  }
+}

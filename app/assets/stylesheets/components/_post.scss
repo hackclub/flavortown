@@ -329,6 +329,9 @@
       --comments-bg-col: var(--color-red-500);
       --comments-text-col: var(--color-red-300);
     }
+    .comment-form {
+      --comment-box-col: var(--color-red-300);
+    }
   }
 
   &--devlog {
@@ -362,6 +365,9 @@
       --comments-bg-col: var(--color-green-500);
       --comments-text-col: var(--color-green-300);
     }
+    .comment-form {
+      --comment-box-col: var(--color-green-300);
+    }
   }
 
   &--certified {
@@ -394,6 +400,9 @@
     .comments-section {
       --comments-bg-col: var(--color-blue-300);
       --comments-text-col: var(--color-blue-500);
+    }
+    .comment-form {
+      --comment-box-col: var(--color-teal-400);
     }
   }
 
@@ -447,6 +456,9 @@
     .comments-section {
       --comments-bg-col: var(--color-yellow-450);
       --comments-text-col: var(--color-yellow-600);
+    }
+    .comment-form {
+      --comment-box-col: var(--color-yellow-300);
     }
   }
 }

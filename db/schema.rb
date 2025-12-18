@@ -360,6 +360,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_18_023859) do
     t.text "hcb_preauthorization_instructions"
     t.string "internal_description"
     t.boolean "limited"
+    t.text "long_description"
     t.integer "max_qty"
     t.string "name"
     t.integer "old_prices", default: [], array: true
