@@ -1,0 +1,9 @@
+<div class="project-selection-card project-selection-card--<%= @variant %>">
+  <div class="project-selection-card__title"><%= @title %></div>
+  <div class="project-selection-card__image">
+    <%= image_tag @image_url, alt: "#{@title} image", class: "project-selection-card__image-content" %>
+  </div>
+  <div class="project-selection-card__content">
+    <div class="project-selection-card__description"><%= @description %></div>
+  </div>
+</div>
