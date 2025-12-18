@@ -20,6 +20,7 @@
 #  region                      :string
 #  send_votes_to_slack         :boolean          default(FALSE), not null
 #  session_token               :string
+#  slack_balance_notifications :boolean          default(FALSE), not null
 #  synced_at                   :datetime
 #  tutorial_steps_completed    :string           default([]), is an Array
 #  verification_status         :string           default("needs_submission"), not null

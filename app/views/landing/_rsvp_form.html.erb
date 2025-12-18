@@ -17,6 +17,7 @@
 
   <% unless defined?(success_message) && success_message %>
     <%= form_with model: rsvp || Rsvp.new, url: rsvps_path, local: false do |form| %>
+      <%= hidden_field_tag :ref, params[:ref] %>
       <div class="input-red">
         <div>
           <%= inline_svg_tag "icons/mail.svg" %>

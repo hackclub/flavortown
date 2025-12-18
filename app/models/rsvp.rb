@@ -5,6 +5,7 @@
 #  id         :bigint           not null, primary key
 #  email      :string           not null
 #  ip_address :string
+#  ref        :string
 #  synced_at  :datetime
 #  user_agent :string
 #  created_at :datetime         not null
