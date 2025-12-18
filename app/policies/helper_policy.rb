@@ -18,4 +18,8 @@ class HelperPolicy < ApplicationPolicy
   def view_shop_orders?
     access?
   end
+
+  def restore_projects?
+    access?
+  end
 end

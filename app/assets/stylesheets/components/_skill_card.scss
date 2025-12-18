@@ -1,0 +1,153 @@
+.skill-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-l);
+
+  // Make cards wider by breaking out of the container
+  width: 170%;
+  margin-left: -30%;
+
+  @media (max-width: 900px) {
+    width: 100%;
+    margin-left: 0;
+    grid-template-columns: 1fr;
+  }
+}
+
+.skill-card {
+  position: relative;
+  border-radius: var(--space-m);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  &__radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-m) var(--space-l);
+    border-radius: var(--space-m);
+    margin: var(--space-xxs);
+    margin-bottom: 0;
+    min-height: var(--space-xxxxl);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background-image: repeating-conic-gradient(
+        from 0deg,
+        var(--pattern-color, rgba(139, 102, 70, 0.05)) 0deg 90deg,
+        transparent 90deg 180deg
+      );
+      background-size: 100px 100px;
+      z-index: 0;
+      pointer-events: none;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    padding-right: var(--space-s);
+    position: relative;
+    z-index: 2;
+  }
+
+  &__title {
+    font-size: var(--font-size-xxxxl);
+    color: var(--color-bg);
+    margin: 0 0 var(--space-xs) 0;
+  }
+
+  &__subtitle {
+    font-size: var(--font-size-l);
+    color: var(--color-bg);
+    margin: 0;
+    line-height: 1.4;
+    font-weight: 500;
+    max-width: 250px;
+  }
+
+  &__image {
+    position: absolute;
+    right: -20px;
+    bottom: -30px;
+    width: 180px;
+    height: 180px;
+    z-index: 1;
+    pointer-events: none;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  &__description {
+    font-size: var(--font-size-m);
+    margin: 0;
+    padding: var(--space-s) var(--space-m);
+    line-height: 1.4;
+  }
+
+  // Red variant (Unseasoned)
+  &--red {
+    background: #f9b2a0;
+
+    .skill-card__description {
+      color: #7d2b30;
+    }
+
+    .skill-card__inner {
+      background: #be4d54;
+      --pattern-color: rgba(139, 82, 70, 0.15);
+    }
+  }
+
+  // Blue variant (Seasoned)
+  &--blue {
+    background: #a4dddb;
+
+    .skill-card__description {
+      color: #253a5e;
+    }
+
+    .skill-card__inner {
+      background: #4f8fba;
+      --pattern-color: rgba(13, 183, 230, 0.1);
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .skill-card {
+    &__inner {
+      min-height: var(--space-xxl);
+    }
+
+    &__title {
+      font-size: var(--font-size-xl);
+    }
+
+    &__image {
+      width: 120px;
+      height: 120px;
+    }
+  }
+}

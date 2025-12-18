@@ -80,16 +80,13 @@
                   ) %>
             <% end %>
             <% if helpers.policy(project).destroy? %>
-              <%= render ButtonComponent.new(
-                    href: helpers.project_path(project),
+              <%= button_to helpers.project_path(project),
                     method: :delete,
-                    color: :brown,
-                    variant: :borderless,
-                    icon: "icons/trash-bin.svg",
-                    class: "projects-show__icon-btn",
-                    data: { turbo_confirm: "Delete this project?" },
-                    aria: { label: "Delete project" }
-                  ) %>
+                    class: "btn btn--brown btn--borderless projects-show__icon-btn",
+                    data: { confirm: "Delete this project?" },
+                    aria: { label: "Delete project" } do %>
+                <%= helpers.inline_svg_tag "icons/trash-bin.svg" %>
+              <% end %>
             <% end %>
           </div>
         <% end %>

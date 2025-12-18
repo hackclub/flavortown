@@ -5,7 +5,9 @@ export default class extends Controller {
 
   connect() {
     this.index = 0;
-    this.slides = Array.from(this.trackTarget?.children || []);
+    this.slides = this.hasTrackTarget
+      ? Array.from(this.trackTarget.querySelectorAll(":scope > .post__slide"))
+      : [];
     this.count = this.slides.length;
     this.#updateUi(true);
   }
