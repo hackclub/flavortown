@@ -25,7 +25,7 @@ class Airtable::UserSync < ApplicationJob
           "verification_status" => user.verification_status.to_s,
           "created_at" => user.created_at,
           "synced_at" => Time.now,
-          "is_banned" => user.is_banned,
+          "is_banned" => user.banned,
           "flavor_id" => user.id
         })
       end
