@@ -17,7 +17,7 @@ class Airtable::RsvpSync < ApplicationJob
         "email" => rsvp.email,
         "ip" => rsvp&.ip_address,
         "user_agent" => rsvp&.user_agent,
-        # "ref" => rsvp.ref,
+        "ref" => rsvp&.ref,
         "created_at" => rsvp.created_at,
         "synced_at" => Time.now
           # "som_id" => rsvp.id
