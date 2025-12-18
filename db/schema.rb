@@ -221,7 +221,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_18_212126) do
     t.datetime "hackatime_pulled_at"
     t.integer "likes_count", default: 0, null: false
     t.string "scrapbook_url"
-    t.datetime "synced_at"
     t.datetime "updated_at", null: false
   end
 
@@ -240,7 +239,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_18_212126) do
     t.float "hours"
     t.float "multiplier"
     t.float "payout"
-    t.datetime "synced_at"
     t.datetime "updated_at", null: false
     t.integer "votes_count", default: 0, null: false
   end
@@ -298,7 +296,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_18_212126) do
     t.text "repo_url"
     t.string "ship_status", default: "draft"
     t.datetime "shipped_at"
-    t.datetime "synced_at"
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "index_projects_on_deleted_at"
@@ -479,7 +476,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_18_212126) do
     t.string "region"
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
-    t.boolean "slack_balance_notifications", default: false, null: false
     t.string "slack_id"
     t.datetime "synced_at"
     t.string "tutorial_steps_completed", default: [], array: true
