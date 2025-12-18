@@ -55,7 +55,7 @@ export default class extends Controller {
       this.element.querySelector("#shop-order__quantity-input") || null;
 
     this.accessoryCheckboxes = this.element.querySelectorAll(
-      ".shop-order__accessory-checkbox",
+      ".shop-order__accessory-option-input[type='checkbox']",
     );
     this.accessoryRadios = this.element.querySelectorAll(
       ".shop-order__accessory-option-input",
