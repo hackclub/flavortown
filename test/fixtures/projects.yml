@@ -15,6 +15,7 @@
 #  repo_url          :text
 #  ship_status       :string           default("draft")
 #  shipped_at        :datetime
+#  synced_at         :datetime
 #  title             :string           not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
