@@ -1,0 +1,122 @@
+.starter-project-card {
+  background: var(--color-bg);
+  border-radius: 16px;
+  border: 1px solid #f8e8d1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-8px);
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    background-image: repeating-conic-gradient(
+      from 0deg,
+      var(--pattern-color, rgba(139, 102, 70, 0.03)) 0deg 90deg,
+      transparent 90deg 180deg
+    );
+    background-size: 100px 100px;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  &__image {
+    width: 100%;
+    height: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 12px;
+    position: relative;
+
+    img {
+      height: auto;
+      max-height: 100%;
+      max-width: 100%;
+      padding: 1em;
+      object-fit: cover;
+      position: relative;
+      z-index: 0;
+      opacity: 1 !important;
+    }
+  }
+
+  &__content {
+    width: 100%;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  &__title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #4d2b32;
+    font-family: var(--font-family-subtitle);
+    text-align: start;
+    margin-bottom: 0.5rem;
+  }
+
+  &__description {
+    font-size: 1.2rem;
+    color: #a87254;
+    text-align: start;
+    font-family: var(--font-family-text);
+  }
+
+  &--featured {
+    transform: scale(1.05);
+    z-index: 1;
+
+    .starter-project-card__image {
+      height: 280px;
+    }
+
+    .starter-project-card__title {
+      font-size: 2.2rem;
+    }
+
+    &:hover {
+      transform: scale(1.05) translateY(-8px);
+    }
+  }
+}
+
+.starter-project-card__form {
+  width: 100%;
+  height: 100%;
+}
+
+.starter-project-card__button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-green);
+    outline-offset: 2px;
+  }
+}

@@ -13,6 +13,18 @@
     margin: 0 auto;
     display: grid;
     gap: var(--space-xl);
+
+    @media (max-width: 900px) {
+      max-width: 600px;
+    }
+
+    &:has(.start-flow__starter-projects) {
+      max-width: 1400px;
+
+      @media (max-width: 900px) {
+        max-width: 600px;
+      }
+    }
   }
 
   &__progress {
@@ -287,6 +299,21 @@
     svg {
       width: 16px;
       height: 16px;
+    }
+  }
+
+  &__starter-projects {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-l);
+    width: 100%;
+
+    @media (max-width: 900px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
     }
   }
 }

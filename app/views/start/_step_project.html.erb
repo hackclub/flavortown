@@ -1,63 +1,121 @@
-<div class="start-flow__card">
-  <div class="start-flow__ribbon">
-    <%= inline_svg_tag "icons/star_fill.svg" %>
+<% if @experience_level == "unseasoned" && @project_attrs.blank? %>
+  <div class="start-flow__starter-projects">
+      <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "starter-project-card__form" do |f| %>
+        <%= f.hidden_field :name, value: "Sprig" %>
+        <%= f.hidden_field :description, value: "Making my first game with Sprig! Coding in JavaScript, building something cool, and I'll get a real handheld console when I'm done. Weee!! :D" %>
+        <%= f.button type: :submit, class: "starter-project-card__button" do %>
+          <%= render StarterProjectCardComponent.new(
+            name: "Sprig",
+            description: "Make a small game using JavaScript in Sprig's browser editor. Write code, run it, and play instantly. Finish the project and get a handheld console.",
+            image_url: "starter-projects/sprig.png",
+            image_bg_color: "linear-gradient(to bottom, #1C1908, #027A0A)"
+          ) %>
+        <% end %>
+      <% end %>
+
+      <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "starter-project-card__form" do |f| %>
+        <%= f.hidden_field :name, value: "Boba Drops" %>
+        <%= f.hidden_field :description, value: "Building my first website and learning the basics of coding! Plus, I get boba when I finish. :3" %>
+        <%= f.button type: :submit, class: "starter-project-card__button" do %>
+          <%= render StarterProjectCardComponent.new(
+            name: "Boba Drops",
+            description: "A gentle intro to coding. Build a simple website, learn the basics, and get boba for completing it.",
+            image_url: "starter-projects/boba-drops.svg",
+            image_bg_color: "#AB5A07",
+            featured: true
+          ) %>
+        <% end %>
+      <% end %>
+
+      <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "starter-project-card__form" do |f| %>
+        <%= f.hidden_field :name, value: "Fuse Ring" %>
+        <%= f.hidden_field :description, value: "Designing my own keyring with CAD! My friends will be so jealous (^_^)v" %>
+        <%= f.button type: :submit, class: "starter-project-card__button" do %>
+          <%= render StarterProjectCardComponent.new(
+            name: "Fuse Ring",
+            description: "Design a simple keyring using CAD. No experience needed. We'll make it and ship it to you with stickers.",
+            image_url: "starter-projects/FuseringLogo.svg",
+            image_bg_image: "starter-projects/HeroBackground.webp"
+          ) %>
+        <% end %>
+    <% end %>
   </div>
-
-  <div class="start-flow__card-header">
-    <h2>Create Project</h2>
-    <p class="start-flow__card-subtitle">You can change this later</p>
-  </div>
-
-  <%= form_with url: "/start/project", method: :post, class: "start-flow__form", local: true do |f| %>
-    <div class="start-flow__field">
-      <%= render InputComponent.new(
-        label: "Project Title",
-        placeholder: "Give your project a name",
-        form: f,
-        attribute: "project[title]",
-        color: :green,
-        subtitle: "A clear title helps people find your work.",
-        input_html: {
-          value: @project_attrs["title"],
-          maxlength: 120,
-          required: true,
-          autofocus: true
-        }
-      ) %>
-    </div>
-
-    <div class="start-flow__field" style="margin-top: var(--space-xxxl);">
-      <%= render InputComponent.new(
-        label: "Description",
-        placeholder: "Share what the project does, who's working on it, and what's next.",
-        form: f,
-        attribute: "project[description]",
-        color: :red,
-        as: :textarea,
-        subtitle: "Use a few sentences to explain what you're making.",
-        input_html: {
-          value: @project_attrs["description"],
-          rows: 4,
-          maxlength: 1000
-        }
-      ) %>
-    </div>
-
     <div class="start-flow__actions start-flow__actions--center">
-      <%= render ButtonComponent.new(
-        text: "Back",
-        color: :brown,
-        variant: :borderless,
-        size: :md,
-        href: start_path(step: "experience")
-      ) %>
-      <%= render ButtonComponent.new(
-        text: "Next",
-        color: :green,
-        type: :submit,
-        variant: :borderless,
-        icon: "icons/right-arrow.svg"
-      ) %>
+        <%= render ButtonComponent.new(
+          text: "Back",
+          color: :brown,
+          variant: :borderless,
+          size: :md,
+          href: start_path(step: "experience")
+        ) %>
+      </div>
+<% else %>
+  <div class="start-flow__card">
+    <div class="start-flow__ribbon">
+      <%= inline_svg_tag "icons/star_fill.svg" %>
     </div>
-  <% end %>
-</div>
+
+    <div class="start-flow__card-header">
+      <h2>Create Project</h2>
+      <p class="start-flow__card-subtitle">You can change this later</p>
+    </div>
+
+    <%= form_with url: "/start/project", method: :post, class: "start-flow__form", local: true do |f| %>
+      <div class="start-flow__field">
+        <%= render InputComponent.new(
+          label: "Project Title",
+          placeholder: "Give your project a name",
+          form: f,
+          attribute: "project[title]",
+          color: :green,
+          subtitle: "A clear title helps people find your work.",
+          input_html: {
+            value: @project_attrs["title"],
+            maxlength: 120,
+            required: true,
+            autofocus: true
+          }
+        ) %>
+      </div>
+
+      <div class="start-flow__field" style="margin-top: var(--space-xxxl);">
+        <%= render InputComponent.new(
+          label: "Description",
+          placeholder: "Share what the project does, who's working on it, and what's next.",
+          form: f,
+          attribute: "project[description]",
+          color: :red,
+          as: :textarea,
+          subtitle: "Use a few sentences to explain what you're making.",
+          input_html: {
+            value: @project_attrs["description"],
+            rows: 4,
+            maxlength: 1000
+          }
+        ) %>
+      </div>
+
+      <div class="start-flow__actions start-flow__actions--center">
+        <% back_href = if @experience_level == "unseasoned" && @project_attrs.present?
+                         start_path(step: "project", clear_prefill: true)
+                       else
+                         start_path(step: "experience")
+                       end %>
+        <%= render ButtonComponent.new(
+          text: "Back",
+          color: :brown,
+          variant: :borderless,
+          size: :md,
+          href: back_href
+        ) %>
+        <%= render ButtonComponent.new(
+          text: "Next",
+          color: :green,
+          type: :submit,
+          variant: :borderless,
+          icon: "icons/right-arrow.svg"
+        ) %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
