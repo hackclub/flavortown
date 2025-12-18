@@ -118,6 +118,8 @@
 }
 
 .comment-form {
+  --comment-box-col: var(--color-teal-400);
+
   &__form {
     display: flex;
     flex-direction: column;
@@ -126,9 +128,12 @@
 
   &__input {
     width: 100%;
+    background: var(--comment-box-col);
+    color: var(--color-brown-500);
     padding: var(--space-s);
-    border: 2px solid var(--brown-light);
-    border-radius: var(--radius-md);
+    border: none;
+    outline: none;
+    border-radius: 8px;
     font-family: inherit;
     font-size: var(--font-size-sm);
     resize: vertical;
@@ -137,6 +142,11 @@
     &:focus {
       outline: none;
       border-color: var(--brown);
+    }
+
+    &::placeholder {
+      color: var(--color-brown-500);
+      opacity: 0.7;
     }
   }
 
