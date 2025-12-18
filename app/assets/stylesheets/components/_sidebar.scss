@@ -493,6 +493,23 @@
   }
 }
 
+.sidebar__user-logout {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-top: 0.4em;
+}
+
+.sidebar__user-logout-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--color-bg);
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+}
+
 @media (max-width: 1500px) {
   .sidebar {
     --sidebar-collapsed-width: 120px;

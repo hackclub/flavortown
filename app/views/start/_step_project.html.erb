@@ -49,6 +49,134 @@
           href: start_path(step: "experience")
         ) %>
       </div>
+<% elsif @experience_level == "seasoned" && @project_attrs.blank? %>
+  <div class="start-flow__project-selection">
+    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
+      <%= f.hidden_field :name, value: "Web Project" %>
+      <%= f.hidden_field :description, value: "Hehe, I learned about this cool framework called Ruby On Rails and I'm tired of React and Next's vulnerabilities so imma try this out :D" %>
+      <%= f.button type: :submit, class: "project-selection-card__button" do %>
+        <%= render ProjectSelectionCardComponent.new(
+          title: "Web",
+          description: "This includes websites, dashboards, and browser-based apps",
+          image_url: "project-categories/web.png",
+          variant: :red
+        ) %>
+      <% end %>
+    <% end %>
+
+    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
+      <%= f.hidden_field :name, value: "Mobile App" %>
+      <%= f.hidden_field :description, value: "Love the new Material UI API and I think I'm going to cook something for android! >.<" %>
+      <%= f.button type: :submit, class: "project-selection-card__button" do %>
+        <%= render ProjectSelectionCardComponent.new(
+          title: "Mobile",
+          description: "This includes Android and iOS apps",
+          image_url: "project-categories/mobile.png",
+          variant: :green
+        ) %>
+      <% end %>
+    <% end %>
+
+    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
+      <%= f.hidden_field :name, value: "Desktop App" %>
+      <%= f.hidden_field :description, value: "I need to techbro hard and I think I'm going to make a desktop app to run bluesky and x simultaneously (^_^)" %>
+      <%= f.button type: :submit, class: "project-selection-card__button" do %>
+        <%= render ProjectSelectionCardComponent.new(
+          title: "Desktop",
+          description: "This includes installed apps for Windows, macOS, or Linux",
+          image_url: "project-categories/desktop.png",
+          variant: :blue
+        ) %>
+      <% end %>
+    <% end %>
+
+    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
+      <%= f.hidden_field :name, value: "CLI / TUI Tool" %>
+      <%= f.hidden_field :description, value: "I hate the macOS finder and I lowkey feel like building a TUI based file explorer written in Zig O_O" %>
+      <%= f.button type: :submit, class: "project-selection-card__button" do %>
+        <%= render ProjectSelectionCardComponent.new(
+          title: "CLI / TUI",
+          description: "This includes terminal-based tools and text UIs",
+          image_url: "project-categories/cli.png",
+          variant: :yellow
+        ) %>
+      <% end %>
+    <% end %>
+
+    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
+      <%= f.hidden_field :name, value: "Game" %>
+      <%= f.hidden_field :description, value: "I wonder what the Godot hype is all about. Lmk check it out and make a platformer, perhaps. (◕‿◕✿)" %>
+      <%= f.button type: :submit, class: "project-selection-card__button" do %>
+        <%= render ProjectSelectionCardComponent.new(
+          title: "Games",
+          description: "This includes 2D/3D games and interactive experiences",
+          image_url: "project-categories/games.png",
+          variant: :red
+        ) %>
+      <% end %>
+    <% end %>
+
+    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
+      <%= f.hidden_field :name, value: "Hardware Project" %>
+      <%= f.hidden_field :description, value: "I think I'm going to build my custom flight controller! ʕ•ᴥ•ʔ " %>
+      <%= f.button type: :submit, class: "project-selection-card__button" do %>
+        <%= render ProjectSelectionCardComponent.new(
+          title: "Hardware",
+          description: "This includes Arduino, PIs, PCBs and CAD",
+          image_url: "project-categories/hardware.png",
+          variant: :green
+        ) %>
+      <% end %>
+    <% end %>
+
+    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
+      <%= f.hidden_field :name, value: "ML Project" %>
+      <%= f.hidden_field :description, value: "AI AI AI AI AI. Okay, I'm gonna go old school and NOT build a wrapper on top of LLM. Trust. Trust." %>
+      <%= f.button type: :submit, class: "project-selection-card__button" do %>
+        <%= render ProjectSelectionCardComponent.new(
+          title: "ML",
+          description: "This includes machine learning models and AI projects",
+          image_url: "project-categories/ml.png",
+          variant: :blue
+        ) %>
+      <% end %>
+    <% end %>
+
+    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
+      <%= f.hidden_field :name, value: "Bot" %>
+      <%= f.hidden_field :description, value: "Gonna make a slackbot for my personal channel and compete with Zeon and diss on Neon" %>
+      <%= f.button type: :submit, class: "project-selection-card__button" do %>
+        <%= render ProjectSelectionCardComponent.new(
+          title: "Bots",
+          description: "This includes chatbots, Slack Bots, Discord bots, and automated tools",
+          image_url: "project-categories/bots.png",
+          variant: :yellow
+        ) %>
+      <% end %>
+    <% end %>
+
+    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
+      <%= f.hidden_field :name, value: "Project" %>
+      <%= f.hidden_field :description, value: "This is going to be so novel that I'm going to win every science fair and sweep all categories in ISEF and maybe get a Fields, Nobel, Pulitzer, Turing and all that boomer awards." %>
+      <%= f.button type: :submit, class: "project-selection-card__button" do %>
+        <%= render ProjectSelectionCardComponent.new(
+          title: "Others",
+          description: "If your project doesn't fit into any of the listed categories",
+          image_url: "project-categories/other.png",
+          variant: :red
+        ) %>
+      <% end %>
+    <% end %>
+  </div>
+  <div class="start-flow__actions start-flow__actions--center">
+    <%= render ButtonComponent.new(
+      text: "Back",
+      color: :brown,
+      variant: :borderless,
+      size: :md,
+      href: start_path(step: "experience")
+    ) %>
+  </div>
 <% else %>
   <div class="start-flow__card">
     <div class="start-flow__ribbon">
@@ -96,7 +224,7 @@
       </div>
 
       <div class="start-flow__actions start-flow__actions--center">
-        <% back_href = if @experience_level == "unseasoned" && @project_attrs.present?
+        <% back_href = if (@experience_level == "unseasoned" || @experience_level == "seasoned") && @project_attrs.present?
                          start_path(step: "project", clear_prefill: true)
                        else
                          start_path(step: "experience")
