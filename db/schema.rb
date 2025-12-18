@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_17_030959) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_18_212126) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -221,6 +221,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_17_030959) do
     t.datetime "hackatime_pulled_at"
     t.integer "likes_count", default: 0, null: false
     t.string "scrapbook_url"
+    t.datetime "synced_at"
     t.datetime "updated_at", null: false
   end
 
@@ -239,6 +240,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_17_030959) do
     t.float "hours"
     t.float "multiplier"
     t.float "payout"
+    t.datetime "synced_at"
     t.datetime "updated_at", null: false
     t.integer "votes_count", default: 0, null: false
   end
@@ -288,7 +290,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_17_030959) do
     t.datetime "deleted_at"
     t.text "demo_url"
     t.text "description"
-    t.string "fire_letter_id"
     t.datetime "marked_fire_at"
     t.bigint "marked_fire_by_id"
     t.integer "memberships_count", default: 0, null: false
@@ -297,6 +298,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_17_030959) do
     t.text "repo_url"
     t.string "ship_status", default: "draft"
     t.datetime "shipped_at"
+    t.datetime "synced_at"
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "index_projects_on_deleted_at"
@@ -320,6 +322,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_17_030959) do
     t.datetime "created_at", null: false
     t.string "email", null: false
     t.string "ip_address"
+    t.string "ref"
     t.datetime "synced_at"
     t.datetime "updated_at", null: false
     t.string "user_agent"
@@ -476,6 +479,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_17_030959) do
     t.string "region"
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
+    t.boolean "slack_balance_notifications", default: false, null: false
     t.string "slack_id"
     t.datetime "synced_at"
     t.string "tutorial_steps_completed", default: [], array: true
