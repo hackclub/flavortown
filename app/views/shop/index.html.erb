@@ -65,7 +65,7 @@
         color: :brown
       ) %>
     </div>
-    <% if @featured_item %>
+    <% if @featured_item && current_user %>
       <%= render partial: "shop/banner", locals: { featured_item: @featured_item, user_region: @user_region } %>
     <% end %>
     <div class="shop__nav">
