@@ -19,7 +19,7 @@
             </div>
             <h2><%= @shop_item.name %></h2>
             <div class="shop-order__description"><%= md(@shop_item.description) %></div>
-            <%= render MarkdownContentComponent.new(content: @shop_item.long_description) %>
+            <%= render MarkdownContentComponent.new(markdown: @shop_item.long_description) %>
 
             <% if is_warehouse_item?(@shop_item) && @shop_item.agh_contents.present? %>
                 <div class="shop-order__agh-contents">

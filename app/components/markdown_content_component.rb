@@ -1,11 +1,11 @@
 class MarkdownContentComponent < ViewComponent::Base
   include MarkdownHelper
 
-  def initialize(content:)
-    @content = content
+  def initialize(markdown:)
+    @markdown = markdown
   end
 
   def render?
-    @content.present?
+    @markdown.present?
   end
 end
