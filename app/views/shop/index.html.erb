@@ -1,6 +1,6 @@
 <%= render MusicPlayerComponent.new(audio_url: audio_path("fireentity - shop.mp3")) %>
 
-<% if current_user.should_show_shop_tutorial? && session[:tutorial_redirect_url].present? %>
+<% if current_user&.should_show_shop_tutorial? && session[:tutorial_redirect_url].present? %>
   <%= render DialogueBoxComponent.new(
   text: [
     "Welcome back to the kitchen, chef! You're in the shop now. This is where you spend cookies on prizes. I'll explain what cookies are and how to earn more cookies after we grab the stickers.",
@@ -32,13 +32,26 @@
         </div>
       </div>
     <% end %>
+
+    <% unless current_user %>
+      <div class="shop__signup-cta">
+        <div class="shop__signup-cta-content">
+          <h3>🍪 Want to order something?</h3>
+          <p>Sign in with Slack to start earning cookies and ordering prizes!</p>
+        </div>
+        <%= link_to "Sign in to Order", "/", class: "btn btn-cta" %>
+      </div>
+    <% end %>
+
     <div class="shop__buttons">
-      <%= render ButtonComponent.new(
-            text: "View My Orders",
-            href: "/shop/my_orders",
-            color: :brown,
-            variant: :borderless
-      ) %>
+      <% if current_user %>
+        <%= render ButtonComponent.new(
+              text: "View My Orders",
+              href: "/shop/my_orders",
+              color: :brown,
+              variant: :borderless
+        ) %>
+      <% end %>
       <%= render DropdownComponent.new(
         label: "Region",
         options: @region_options,
@@ -116,7 +129,8 @@
               item_type: item.type,
               balance: @user_balance,
               enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
-              regional_price: item.price_for_region(@user_region)
+              regional_price: item.price_for_region(@user_region),
+              logged_in: current_user.present?
             ) %>
           <% end %>
         <% end %>

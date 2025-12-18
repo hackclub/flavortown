@@ -1,14 +1,15 @@
 class ShopController < ApplicationController
-  before_action :require_login
+  before_action :require_login, except: [ :index ]
 
   def index
     @shop_open = true
     @user_region = user_region
+    @body_class = "shop-page"
     @region_options = Shop::Regionalizable::REGIONS.map do |code, config|
       { label: config[:name], value: code }
     end
 
-    grant_free_stickers_welcome_cookies! if current_user.should_show_shop_tutorial?
+    grant_free_stickers_welcome_cookies! if current_user&.should_show_shop_tutorial?
     load_shop_items
   end
 
@@ -152,11 +153,11 @@ class ShopController < ApplicationController
   private
 
   def load_shop_items
-    excluded_free_stickers = has_ordered_free_stickers?
+    excluded_free_stickers = current_user && has_ordered_free_stickers?
     @shop_items = ShopItem.buyable_standalone.includes(:image_attachment)
     @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if excluded_free_stickers
     @featured_item = featured_free_stickers_item unless excluded_free_stickers
-    @user_balance = current_user.balance
+    @user_balance = current_user&.balance || 0
   end
 
   def has_ordered_free_stickers?

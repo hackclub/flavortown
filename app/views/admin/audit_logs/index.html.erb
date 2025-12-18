@@ -1,125 +1,361 @@
-<h1>Audit Logs</h1>
+<div class="audit-logs">
+  <div class="audit-logs__header">
+    <h1>Audit Logs</h1>
+  </div>
 
-<div class="card" style="margin-bottom: 2rem;">
-  <h2>Filters</h2>
+  <div class="card" style="margin-bottom: 2rem;">
+    <h3>Filters & Search</h3>
 
-  <%= form_with url: admin_audit_logs_path, method: :get, local: true do |f| %>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-      <div>
-        <%= f.label :item_type, "Model Type" %>
-        <%= f.select :item_type, options_for_select(@item_types, params[:item_type]), { include_blank: "All" }, class: "form-control" %>
-      </div>
+    <%= form_with url: admin_audit_logs_path, method: :get, local: true do |f| %>
+      <div class="audit-logs__filters">
+        <div class="audit-logs__filter-group">
+          <%= f.label :item_type, "Model Type", class: "audit-logs__label" %>
+          <%= f.select :item_type, options_for_select(@item_types, params[:item_type]), { include_blank: "All" }, class: "form-control" %>
+        </div>
 
-      <div>
-        <%= f.label :event, "Action" %>
-        <%= f.select :event, options_for_select(['create', 'update', 'destroy'], params[:event]), { include_blank: "All" }, class: "form-control" %>
-      </div>
+        <div class="audit-logs__filter-group">
+          <%= f.label :event, "Action", class: "audit-logs__label" %>
+          <%= f.select :event, options_for_select(['create', 'update', 'destroy'], params[:event]), { include_blank: "All" }, class: "form-control" %>
+        </div>
 
-      <div>
-        <%= f.label :whodunnit, "User" %>
-        <%= f.select :whodunnit, options_from_collection_for_select(@users, :id, :display_name, params[:whodunnit]), { include_blank: "All" }, class: "form-control" %>
-      </div>
-
-      <div>
-        <%= f.label :start_date, "Start Date" %>
-        <%= f.date_field :start_date, value: params[:start_date], class: "form-control" %>
-      </div>
-
-      <div>
-        <%= f.label :end_date, "End Date" %>
-        <%= f.date_field :end_date, value: params[:end_date], class: "form-control" %>
-      </div>
-    </div>
-
-    <div>
-      <%= f.submit "Filter", class: "btn-primary" %>
-      <%= link_to "Clear Filters", admin_audit_logs_path, class: "btn-secondary" %>
-    </div>
-  <% end %>
-</div>
-
-<div class="card">
-  <table>
-    <thead>
-      <tr>
-        <th>Timestamp</th>
-        <th>User</th>
-        <th>Action</th>
-        <th>Model</th>
-        <th>Record ID</th>
-        <th>Changes</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @versions.each do |version| %>
-        <tr>
-          <td><%= version.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
-          <td>
-            <% if version.whodunnit.present? %>
-              <% user = User.find_by(id: version.whodunnit) %>
-              <%= user&.display_name || "User ##{version.whodunnit}" %>
-            <% else %>
-              <em>System</em>
+        <div class="audit-logs__filter-group" data-controller="searchable-select">
+          <%= f.label :whodunnit, "User", class: "audit-logs__label" %>
+          <% selected_user = @users.find { |u| u.id.to_s == params[:whodunnit].to_s } %>
+          <%= f.hidden_field :whodunnit, value: params[:whodunnit], data: { searchable_select_target: "hiddenField" } %>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search users..."
+            value="<%= selected_user&.display_name %>"
+            data-searchable-select-target="input"
+            data-action="focus->searchable-select#open input->searchable-select#filter"
+            autocomplete="off"
+          >
+          <div data-searchable-select-target="dropdown" class="searchable-select-dropdown">
+            <div
+              class="searchable-select-option"
+              data-searchable-select-target="option"
+              data-action="click->searchable-select#clear"
+              data-value=""
+              data-label=""
+              data-search-text="all"
+            >All</div>
+            <% @users.each do |user| %>
+              <div
+                class="searchable-select-option"
+                data-searchable-select-target="option"
+                data-action="click->searchable-select#select"
+                data-value="<%= user.id %>"
+                data-label="<%= user.display_name %>"
+                data-search-text="<%= "#{user.display_name} #{user.id}".downcase %>"
+              >
+                <img src="<%= user.avatar %>" alt="" class="searchable-select-avatar">
+                <span><%= user.display_name %></span>
+                <span class="searchable-select-id">#<%= user.id %></span>
+              </div>
             <% end %>
-          </td>
-          <td>
-            <span class="badge badge-<%= version.event %>">
-              <%= version.event %>
-            </span>
-          </td>
-          <td><%= version.item_type %></td>
-          <td>#<%= version.item_id %></td>
-          <td>
-            <% if version.object_changes.present? %>
-              <%
-                raw = version.object_changes
-                changes = if raw.is_a?(Hash)
-                  raw
-                elsif raw.is_a?(String)
-                  YAML.safe_load(raw, permitted_classes: [Time, Date, DateTime, BigDecimal, Symbol]) rescue {}
-                else
-                  {}
-                end
-              %>
-              <%= changes.keys.take(3).join(", ") %>
-              <% if changes.keys.count > 3 %>
-                <em>(+<%= changes.keys.count - 3 %> more)</em>
-              <% end %>
-            <% else %>
-              <em>N/A</em>
-            <% end %>
-          </td>
-          <td>
-            <%= link_to "Details", admin_audit_log_path(version), class: "btn-primary slim" %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+          </div>
+        </div>
 
+        <div class="audit-logs__filter-group">
+          <%= f.label :start_date, "From", class: "audit-logs__label" %>
+          <%= f.date_field :start_date, value: params[:start_date], class: "form-control" %>
+        </div>
+
+        <div class="audit-logs__filter-group">
+          <%= f.label :end_date, "To", class: "audit-logs__label" %>
+          <%= f.date_field :end_date, value: params[:end_date], class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="audit-logs__checkbox">
+        <%= f.check_box :show_system, { checked: @show_system, class: "audit-logs__checkbox-input" }, "1", "0" %>
+        <%= f.label :show_system, "Show system activities", class: "audit-logs__checkbox-label" %>
+      </div>
+
+      <div class="audit-logs__actions">
+        <%= f.submit "Apply Filters", class: "btn-primary slim" %>
+        <%= link_to "Clear All", admin_audit_logs_path, class: "btn-secondary slim" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="card">
+    <% if @versions.any? %>
+      <table class="table-data">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Model</th>
+            <th>Record</th>
+            <th>Changes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @versions.each do |version| %>
+            <tr>
+              <td class="audit-logs__timestamp">
+                <span class="audit-logs__date"><%= version.created_at.strftime("%b %d, %Y") %></span>
+                <span class="audit-logs__time"><%= version.created_at.strftime("%H:%M:%S") %></span>
+              </td>
+              <td>
+                <% if version.whodunnit.present? %>
+                  <% user = User.find_by(id: version.whodunnit) %>
+                  <% if user %>
+                    <div class="audit-logs__user">
+                      <img src="<%= user.avatar %>" alt="" class="audit-logs__user-avatar">
+                      <span><%= user.display_name %></span>
+                    </div>
+                  <% else %>
+                    <span class="audit-logs__muted">User #<%= version.whodunnit %></span>
+                  <% end %>
+                <% else %>
+                  <span class="audit-logs__system-badge">System</span>
+                <% end %>
+              </td>
+              <td>
+                <span class="badge badge-<%= version.event %>">
+                  <%= version.event %>
+                </span>
+              </td>
+              <td><code class="audit-logs__model"><%= version.item_type %></code></td>
+              <td><code class="audit-logs__id">#<%= version.item_id %></code></td>
+              <td>
+                <% if version.object_changes.present? %>
+                  <%
+                    raw_changes = version.object_changes
+                    changes = if raw_changes.is_a?(Hash)
+                      raw_changes
+                    elsif raw_changes.is_a?(String)
+                      YAML.safe_load(raw_changes, permitted_classes: [Time, Date, DateTime, BigDecimal, Symbol]) rescue {}
+                    else
+                      {}
+                    end
+                  %>
+                  <div class="audit-logs__changes">
+                    <%= changes.keys.take(3).map { |k| "<code>#{k}</code>" }.join(", ").html_safe %>
+                    <% if changes.keys.count > 3 %>
+                      <span class="audit-logs__muted">(+<%= changes.keys.count - 3 %> more)</span>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <span class="audit-logs__muted">—</span>
+                <% end %>
+              </td>
+              <td>
+                <%= link_to "Details", admin_audit_log_path(version), class: "btn-primary slim" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="audit-logs__empty">No audit logs found matching your filters.</p>
+    <% end %>
+  </div>
+
+  <div style="margin-top: 2rem;">
+    <%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
+  </div>
 </div>
 
 <style>
-.badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+.audit-logs__header {
+  margin-bottom: 1.5rem;
+}
+
+.audit-logs__header h1 {
+  margin: 0;
+}
+
+.audit-logs__filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.audit-logs__filter-group {
+  position: relative;
+}
+
+.audit-logs__label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
   font-size: 0.875rem;
+}
+
+.audit-logs__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.audit-logs__checkbox-label {
+  font-size: 0.875rem;
+}
+
+.audit-logs__actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.audit-logs__timestamp {
+  white-space: nowrap;
+}
+
+.audit-logs__date {
+  display: block;
   font-weight: 500;
 }
 
+.audit-logs__time {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.audit-logs__user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.audit-logs__user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.audit-logs__system-badge {
+  background: var(--color-tan-400);
+  border: 1px solid var(--color-brown-500);
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.audit-logs__model,
+.audit-logs__id {
+  background: var(--color-tan-400);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+}
+
+.audit-logs__changes code {
+  background: var(--color-tan-400);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.audit-logs__muted {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.audit-logs__empty {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem;
+  margin: 0;
+}
+
+/* Badges */
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
 .badge-create {
-  background-color: #10b981;
-  color: white;
+  background-color: #d1fae5;
+  color: #065f46;
 }
 
 .badge-update {
-  background-color: #3b82f6;
-  color: white;
+  background-color: #dbeafe;
+  color: #1e40af;
 }
 
 .badge-destroy {
-  background-color: #ef4444;
-  color: white;
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Searchable Select */
+.searchable-select-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  background: var(--color-tan-300);
+  border: 1px solid var(--color-brown-500);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  margin-top: 0.25rem;
+}
+
+.searchable-select-option {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.1s;
+}
+
+.searchable-select-option:hover {
+  background: var(--color-tan-400);
+}
+
+.searchable-select-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.searchable-select-id {
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin-left: auto;
+}
+
+/* Form controls */
+.form-control {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-brown-500);
+  background: var(--color-tan-400);
+  font-size: 0.875rem;
+  color: inherit;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-brown-700);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.form-control::placeholder {
+  color: #6b7280;
 }
 </style>

@@ -1,9 +1,9 @@
 class ShopItemCardComponent < ViewComponent::Base
   include MarkdownHelper
 
-  attr_reader :item_id, :name, :description, :hours, :price, :image_url, :item_type, :balance, :enabled_regions, :regional_price
+  attr_reader :item_id, :name, :description, :hours, :price, :image_url, :item_type, :balance, :enabled_regions, :regional_price, :logged_in
 
-  def initialize(item_id:, name:, description:, hours:, price:, image_url:, item_type: nil, balance: nil, enabled_regions: [], regional_price: nil)
+  def initialize(item_id:, name:, description:, hours:, price:, image_url:, item_type: nil, balance: nil, enabled_regions: [], regional_price: nil, logged_in: true)
     @item_id = item_id
     @name = name
     @description = description
@@ -14,6 +14,11 @@ class ShopItemCardComponent < ViewComponent::Base
     @balance = balance
     @enabled_regions = enabled_regions
     @regional_price = regional_price || price
+    @logged_in = logged_in
+  end
+
+  def order_url
+    logged_in ? "/shop/order?shop_item_id=#{item_id}" : "/"
   end
 
   def display_price

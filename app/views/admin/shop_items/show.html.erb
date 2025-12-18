@@ -1,74 +1,595 @@
-<h1><%= @shop_item.name %></h1>
-
-<div class="card">
-  <h2>Details</h2>
-
-  <div class="info-rows">
-    <div><b>ID:</b> <%= @shop_item.id %></div>
-    <div><b>Type:</b> <%= @shop_item.type %></div>
-    <div><b>Name:</b> <%= @shop_item.name %></div>
-    <div><b>Description:</b> <%= @shop_item.description %></div>
-    <div><b>Internal Description:</b> <%= @shop_item.internal_description %></div>
-
-    <% if @shop_item.image.attached? %>
-      <div>
-        <b>Image:</b><br>
-        <%= image_tag @shop_item.image, width: 200 %>
+<div class="shop-item-detail">
+  <div class="shop-item-detail__header">
+    <div class="shop-item-detail__title-row">
+      <h1><%= @shop_item.name %></h1>
+      <div class="shop-item-detail__badges">
+        <% if @shop_item.enabled %>
+          <span class="badge badge-enabled">Enabled</span>
+        <% else %>
+          <span class="badge badge-disabled">Disabled</span>
+        <% end %>
+        <% if @shop_item.show_in_carousel %>
+          <span class="badge badge-carousel">In Carousel</span>
+        <% end %>
+        <% if @shop_item.limited %>
+          <span class="badge badge-limited">Limited</span>
+        <% end %>
       </div>
-    <% end %>
-
-    <div><b>Ticket Cost:</b> <%= @shop_item.ticket_cost %></div>
-    <div><b>USD Cost:</b> <%= @shop_item.usd_cost %></div>
-    <div><b>Sale Percentage:</b> <%= @shop_item.sale_percentage %>%</div>
-    <div><b>Hacker Score:</b> <%= @shop_item.hacker_score %></div>
-    <div><b>Max Quantity:</b> <%= @shop_item.max_qty %></div>
-
-    <div><b>Enabled:</b> <%= @shop_item.enabled ? "Yes" : "No" %></div>
-    <div><b>Show in Carousel:</b> <%= @shop_item.show_in_carousel ? "Yes" : "No" %></div>
-    <div><b>One Per Person Ever:</b> <%= @shop_item.one_per_person_ever ? "Yes" : "No" %></div>
-    <div><b>Limited:</b> <%= @shop_item.limited ? "Yes" : "No" %></div>
-
-    <% if @shop_item.limited %>
-      <div><b>Stock:</b> <%= @shop_item.stock %></div>
-    <% end %>
-
-    <div><b>Created:</b> <%= @shop_item.created_at.strftime("%Y-%m-%d %H:%M") %></div>
-    <div><b>Updated:</b> <%= @shop_item.updated_at.strftime("%Y-%m-%d %H:%M") %></div>
-  </div>
-</div>
-
-<div class="card">
-  <h2>Regional Pricing</h2>
-
-  <div class="info-rows">
-    <% Shop::Regionalizable::REGIONS.each do |code, config| %>
-      <div>
-        <b><%= config[:name] %> (<%= code %>):</b>
-        Enabled: <%= @shop_item.send("enabled_#{code.downcase}") ? "✓" : "✗" %>,
-        Offset: <%= @shop_item.send("price_offset_#{code.downcase}") || 0 %>
-      </div>
-    <% end %>
-  </div>
-</div>
-
-<% if @shop_item.type.in?(["ShopItem::HCBGrant", "ShopItem::HCBPreauthGrant"]) %>
-  <div class="card">
-    <h2>HCB Settings</h2>
-
-    <div class="info-rows">
-      <div><b>Merchant Lock:</b> <%= @shop_item.hcb_merchant_lock %></div>
-      <div><b>Category Lock:</b> <%= @shop_item.hcb_category_lock %></div>
-      <div><b>Keyword Lock:</b> <%= @shop_item.hcb_keyword_lock %></div>
-
-      <% if @shop_item.type == "ShopItem::HCBPreauthGrant" %>
-        <div><b>Preauthorization Instructions:</b><br><%= simple_format(@shop_item.hcb_preauthorization_instructions) %></div>
-      <% end %>
+    </div>
+    <div class="shop-item-detail__meta">
+      <code class="shop-item-detail__id">#<%= @shop_item.id %></code>
+      <span class="shop-item-detail__type"><%= @shop_item.type.to_s.gsub("ShopItem::", "") %></span>
     </div>
   </div>
-<% end %>
 
-<div style="margin-top: 2rem;">
-  <%= link_to "Edit", edit_admin_shop_item_path(@shop_item), class: "btn-primary" %>
-  <%= button_to "Delete", admin_shop_item_path(@shop_item), method: :delete, class: "btn-danger", data: { confirm: "Are you sure you want to delete this item?" }, style: "display: inline-block; margin-left: 0.5rem;" %>
-  <%= link_to "← Back to Shop", admin_manage_shop_path, class: "btn-secondary", style: "margin-left: 0.5rem;" %>
+  <div class="shop-item-detail__grid">
+    <div class="shop-item-detail__main">
+      <div class="card">
+        <h3>Details</h3>
+
+        <div class="shop-item-detail__info">
+          <div class="shop-item-detail__row">
+            <span class="shop-item-detail__label">Description</span>
+            <span class="shop-item-detail__value"><%= @shop_item.description.presence || "—" %></span>
+          </div>
+
+          <% if @shop_item.internal_description.present? %>
+            <div class="shop-item-detail__row">
+              <span class="shop-item-detail__label">Internal Notes</span>
+              <span class="shop-item-detail__value shop-item-detail__internal"><%= @shop_item.internal_description %></span>
+            </div>
+          <% end %>
+
+          <div class="shop-item-detail__row-group">
+            <div class="shop-item-detail__stat">
+              <span class="shop-item-detail__stat-value"><%= @shop_item.ticket_cost.to_i %></span>
+              <span class="shop-item-detail__stat-label">Tickets</span>
+            </div>
+            <div class="shop-item-detail__stat">
+              <span class="shop-item-detail__stat-value"><%= @shop_item.usd_cost ? number_to_currency(@shop_item.usd_cost) : "—" %></span>
+              <span class="shop-item-detail__stat-label">USD Cost</span>
+            </div>
+            <% if @shop_item.sale_percentage.present? && @shop_item.sale_percentage > 0 %>
+              <div class="shop-item-detail__stat">
+                <span class="shop-item-detail__stat-value shop-item-detail__sale"><%= @shop_item.sale_percentage %>%</span>
+                <span class="shop-item-detail__stat-label">Sale</span>
+              </div>
+            <% end %>
+            <% if @shop_item.hacker_score.present? && @shop_item.hacker_score > 0 %>
+              <div class="shop-item-detail__stat">
+                <span class="shop-item-detail__stat-value"><%= @shop_item.hacker_score %></span>
+                <span class="shop-item-detail__stat-label">Hacker Score</span>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="shop-item-detail__row">
+            <span class="shop-item-detail__label">Max Quantity</span>
+            <span class="shop-item-detail__value"><%= @shop_item.max_qty || "Unlimited" %></span>
+          </div>
+
+          <% if @shop_item.limited %>
+            <div class="shop-item-detail__row">
+              <span class="shop-item-detail__label">Stock</span>
+              <span class="shop-item-detail__value"><%= @shop_item.stock %> remaining</span>
+            </div>
+          <% end %>
+
+          <div class="shop-item-detail__row">
+            <span class="shop-item-detail__label">One Per Person</span>
+            <span class="shop-item-detail__value"><%= @shop_item.one_per_person_ever ? "Yes" : "No" %></span>
+          </div>
+
+          <div class="shop-item-detail__row">
+            <span class="shop-item-detail__label">Created</span>
+            <span class="shop-item-detail__value"><%= @shop_item.created_at.strftime("%b %d, %Y at %H:%M") %></span>
+          </div>
+
+          <div class="shop-item-detail__row">
+            <span class="shop-item-detail__label">Updated</span>
+            <span class="shop-item-detail__value"><%= @shop_item.updated_at.strftime("%b %d, %Y at %H:%M") %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Regional Availability</h3>
+
+        <div class="shop-item-detail__regions">
+          <% Shop::Regionalizable::REGIONS.each do |code, config| %>
+            <%
+              enabled = @shop_item.send("enabled_#{code.downcase}")
+              offset = @shop_item.send("price_offset_#{code.downcase}") || 0
+              flag = case code
+                     when "US" then "🇺🇸"
+                     when "EU" then "🇪🇺"
+                     when "UK" then "🇬🇧"
+                     when "CA" then "🇨🇦"
+                     when "AU" then "🇦🇺"
+                     when "IN" then "🇮🇳"
+                     when "XX" then "🌍"
+                     else "🏳️"
+                     end
+            %>
+            <div class="shop-item-detail__region <%= enabled ? '' : 'shop-item-detail__region--disabled' %>">
+              <span class="shop-item-detail__region-flag"><%= flag %></span>
+              <span class="shop-item-detail__region-name"><%= config[:name] %></span>
+              <span class="shop-item-detail__region-status">
+                <% if enabled %>
+                  <span class="shop-item-detail__region-enabled">✓</span>
+                  <% if offset != 0 %>
+                    <span class="shop-item-detail__region-offset"><%= offset >= 0 ? "+#{offset}" : offset %></span>
+                  <% end %>
+                <% else %>
+                  <span class="shop-item-detail__region-disabled-text">Disabled</span>
+                <% end %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @shop_item.type.in?(["ShopItem::HCBGrant", "ShopItem::HCBPreauthGrant"]) %>
+        <div class="card">
+          <h3>HCB Settings</h3>
+
+          <div class="shop-item-detail__info">
+            <div class="shop-item-detail__row">
+              <span class="shop-item-detail__label">Merchant Lock</span>
+              <span class="shop-item-detail__value"><code><%= @shop_item.hcb_merchant_lock.presence || "—" %></code></span>
+            </div>
+            <div class="shop-item-detail__row">
+              <span class="shop-item-detail__label">Category Lock</span>
+              <span class="shop-item-detail__value"><code><%= @shop_item.hcb_category_lock.presence || "—" %></code></span>
+            </div>
+            <div class="shop-item-detail__row">
+              <span class="shop-item-detail__label">Keyword Lock</span>
+              <span class="shop-item-detail__value"><code><%= @shop_item.hcb_keyword_lock.presence || "—" %></code></span>
+            </div>
+
+            <% if @shop_item.type == "ShopItem::HCBPreauthGrant" && @shop_item.hcb_preauthorization_instructions.present? %>
+              <div class="shop-item-detail__row shop-item-detail__row--block">
+                <span class="shop-item-detail__label">Preauthorization Instructions</span>
+                <div class="shop-item-detail__instructions"><%= simple_format(@shop_item.hcb_preauthorization_instructions) %></div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="card">
+        <div class="shop-item-detail__audit-header">
+          <h3>Audit Log</h3>
+          <span class="shop-item-detail__audit-count"><%= @shop_item.versions.count %> changes</span>
+        </div>
+
+        <% if @shop_item.versions.any? %>
+          <table class="table-data">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Changes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @shop_item.versions.order(created_at: :desc).limit(10).each do |version| %>
+                <tr>
+                  <td class="shop-item-detail__audit-date">
+                    <span><%= version.created_at.strftime("%b %d, %Y") %></span>
+                    <span class="shop-item-detail__audit-time"><%= version.created_at.strftime("%H:%M") %></span>
+                  </td>
+                  <td>
+                    <% if version.whodunnit.present? %>
+                      <% user = User.find_by(id: version.whodunnit) %>
+                      <% if user %>
+                        <div class="shop-item-detail__audit-user">
+                          <img src="<%= user.avatar %>" alt="" class="shop-item-detail__audit-avatar">
+                          <span><%= user.display_name %></span>
+                        </div>
+                      <% else %>
+                        <span class="shop-item-detail__muted">User #<%= version.whodunnit %></span>
+                      <% end %>
+                    <% else %>
+                      <span class="shop-item-detail__system-badge">System</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <span class="badge badge-<%= version.event %>"><%= version.event %></span>
+                  </td>
+                  <td>
+                    <% if version.object_changes.present? %>
+                      <%
+                        raw_changes = version.object_changes
+                        changes = if raw_changes.is_a?(Hash)
+                          raw_changes
+                        elsif raw_changes.is_a?(String)
+                          YAML.safe_load(raw_changes, permitted_classes: [Time, Date, DateTime, BigDecimal, Symbol]) rescue {}
+                        else
+                          {}
+                        end
+                      %>
+                      <div class="shop-item-detail__audit-changes">
+                        <%= changes.keys.take(3).map { |k| "<code>#{k}</code>" }.join(", ").html_safe %>
+                        <% if changes.keys.count > 3 %>
+                          <span class="shop-item-detail__muted">(+<%= changes.keys.count - 3 %>)</span>
+                        <% end %>
+                      </div>
+                    <% else %>
+                      <span class="shop-item-detail__muted">—</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <%= link_to "View", admin_audit_log_path(version), class: "btn-primary slim" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+
+          <% if @shop_item.versions.count > 10 %>
+            <p class="shop-item-detail__audit-more">
+              <%= link_to "View all #{@shop_item.versions.count} changes →", admin_audit_logs_path(item_type: "ShopItem", item_id: @shop_item.id) %>
+            </p>
+          <% end %>
+        <% else %>
+          <p class="shop-item-detail__muted">No changes recorded yet.</p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="shop-item-detail__sidebar">
+      <% if @shop_item.image.attached? %>
+        <div class="card">
+          <h3>Image</h3>
+          <div class="shop-item-detail__image-container">
+            <%= image_tag @shop_item.image.variant(:carousel_lg), class: "shop-item-detail__image" %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="card">
+        <h3>Actions</h3>
+        <div class="shop-item-detail__actions">
+          <%= link_to "Edit Item", edit_admin_shop_item_path(@shop_item), class: "btn-primary" %>
+          <%= button_to "Delete", admin_shop_item_path(@shop_item), method: :delete, class: "btn-danger", data: { confirm: "Are you sure you want to delete this item?" } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 2rem;">
+    <%= link_to "← Back to Shop", admin_manage_shop_path, class: "btn-secondary" %>
+  </div>
 </div>
+
+<style>
+.shop-item-detail__header {
+  margin-bottom: 1.5rem;
+}
+
+.shop-item-detail__title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.shop-item-detail__title-row h1 {
+  margin: 0;
+}
+
+.shop-item-detail__badges {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.shop-item-detail__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.shop-item-detail__id,
+.shop-item-detail__type {
+  background: var(--color-tan-400);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.shop-item-detail__grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .shop-item-detail__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.shop-item-detail__main .card {
+  margin-bottom: 1.5rem;
+}
+
+.shop-item-detail__sidebar .card {
+  margin-bottom: 1rem;
+}
+
+.shop-item-detail__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.shop-item-detail__row {
+  display: flex;
+  gap: 1rem;
+}
+
+.shop-item-detail__row--block {
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.shop-item-detail__label {
+  font-weight: 600;
+  min-width: 140px;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.shop-item-detail__value {
+  flex: 1;
+}
+
+.shop-item-detail__internal {
+  background: var(--color-tan-400);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.shop-item-detail__row-group {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-brown-500);
+  border-bottom: 1px solid var(--color-brown-500);
+  margin: 0.5rem 0;
+}
+
+.shop-item-detail__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+
+.shop-item-detail__stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.shop-item-detail__stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.shop-item-detail__sale {
+  color: #ef4444;
+}
+
+.shop-item-detail__regions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.shop-item-detail__region {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-tan-400);
+  border-radius: 4px;
+}
+
+.shop-item-detail__region--disabled {
+  opacity: 0.5;
+}
+
+.shop-item-detail__region-flag {
+  font-size: 1.25rem;
+}
+
+.shop-item-detail__region-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.shop-item-detail__region-status {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.shop-item-detail__region-enabled {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.shop-item-detail__region-offset {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.shop-item-detail__region-disabled-text {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.shop-item-detail__instructions {
+  background: var(--color-tan-400);
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+}
+
+.shop-item-detail__instructions p {
+  margin: 0 0 0.5rem 0;
+}
+
+.shop-item-detail__instructions p:last-child {
+  margin-bottom: 0;
+}
+
+.shop-item-detail__image-container {
+  text-align: center;
+}
+
+.shop-item-detail__image {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.shop-item-detail__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.shop-item-detail__actions .btn-primary,
+.shop-item-detail__actions .btn-danger {
+  width: 100%;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* Badges */
+.badge {
+  padding: 0.375rem 0.5rem 0.3rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  display: inline-block;
+  text-align: center;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.badge-enabled {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-disabled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.badge-carousel {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-limited {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-create {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-update {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-destroy {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Audit Log */
+.shop-item-detail__audit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.shop-item-detail__audit-header h3 {
+  margin: 0;
+}
+
+.shop-item-detail__audit-count {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.shop-item-detail__audit-date {
+  white-space: nowrap;
+}
+
+.shop-item-detail__audit-time {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.shop-item-detail__audit-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shop-item-detail__audit-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.shop-item-detail__system-badge {
+  background: var(--color-tan-400);
+  border: 1px solid var(--color-brown-500);
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.shop-item-detail__muted {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.shop-item-detail__audit-changes code {
+  background: var(--color-tan-400);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.shop-item-detail__audit-more {
+  text-align: center;
+  margin: 1rem 0 0 0;
+  font-size: 0.875rem;
+}
+</style>
