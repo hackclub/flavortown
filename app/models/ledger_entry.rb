@@ -31,6 +31,7 @@ class LedgerEntry < ApplicationRecord
   before_validation :set_user_from_ledgerable
 
   after_create :create_audit_log
+  after_create :notify_balance_change
 
   private
 
@@ -50,5 +51,21 @@ class LedgerEntry < ApplicationRecord
       whodunnit: nil,
       object_changes: { balance: [ new_balance - amount, new_balance ], reason: reason, created_by: created_by }.to_yaml
     )
+  end
+
+  def notify_balance_change
+    return unless user.slack_balance_notifications?
+
+    source = case ledgerable_type
+    when "ShopOrder" then "shop purchase"
+    when "Post::ShipEvent" then "tutorial"
+    when "User" then "user grant"
+    else "unknown"
+    end
+    change_emoji = amount.positive? ? "📈" : "📉"
+    message = "#{change_emoji} Balance #{amount.positive? ? '+' : ''}#{amount} 🍪 (#{source}) → #{user.balance} 🍪"
+
+    SendSlackDmJob.perform_later(user.slack_id, message)
+    SendSlackDmJob.perform_later("C0A3JN1CMNE", "<@#{user.slack_id}>: #{message}")
   end
 end
