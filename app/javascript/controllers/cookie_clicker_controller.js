@@ -119,7 +119,8 @@ export default class extends Controller {
     const effect = document.createElement("span");
     if (isSuperCrit) {
       effect.innerHTML = `+${value} <span class="cookie-clicker__crit-text">crit!</span>`;
-      effect.className = "cookie-clicker__effect cookie-clicker__effect--super-crit";
+      effect.className =
+        "cookie-clicker__effect cookie-clicker__effect--super-crit";
     } else if (isCrit) {
       effect.textContent = `+${value}`;
       effect.className = "cookie-clicker__effect cookie-clicker__effect--crit";
@@ -142,7 +143,10 @@ export default class extends Controller {
       effect.style.position = "absolute";
       effect.style.left = `${event.clientX - rect.left}px`;
       effect.style.top = `${event.clientY - rect.top}px`;
-      effect.style.setProperty("--float-distance", `${event.clientY - rect.top + 50}px`);
+      effect.style.setProperty(
+        "--float-distance",
+        `${event.clientY - rect.top + 50}px`,
+      );
       dialog.appendChild(effect);
     } else {
       effect.style.left = `${event.clientX}px`;

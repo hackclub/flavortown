@@ -12,7 +12,7 @@ export default class extends Controller {
 
   highlightCard() {
     const targetCard = this.cardTargets.find(
-      (card) => card.dataset.slug === this.slugValue
+      (card) => card.dataset.slug === this.slugValue,
     );
     if (targetCard) {
       targetCard.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -22,7 +22,7 @@ export default class extends Controller {
         setTimeout(() => {
           targetCard.classList.remove(
             "achievements__card--highlighted",
-            "achievements__card--fading"
+            "achievements__card--fading",
           );
         }, 500);
       }, 2500);

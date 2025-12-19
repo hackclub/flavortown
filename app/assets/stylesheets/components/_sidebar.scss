@@ -183,7 +183,6 @@
       color: var(--color-brown-500);
       margin-top: 0.25em;
     }
-
   }
 }
 
@@ -248,24 +247,30 @@
     transform: translateY(0);
   }
   15% {
-    transform: translateX(var(--wobble-1, 8px)) translateY(calc(var(--float-distance) * -0.15));
+    transform: translateX(var(--wobble-1, 8px))
+      translateY(calc(var(--float-distance) * -0.15));
   }
   30% {
-    transform: translateX(var(--wobble-2, -6px)) translateY(calc(var(--float-distance) * -0.3));
+    transform: translateX(var(--wobble-2, -6px))
+      translateY(calc(var(--float-distance) * -0.3));
   }
   45% {
-    transform: translateX(var(--wobble-3, 5px)) translateY(calc(var(--float-distance) * -0.45));
+    transform: translateX(var(--wobble-3, 5px))
+      translateY(calc(var(--float-distance) * -0.45));
   }
   60% {
-    transform: translateX(var(--wobble-4, -4px)) translateY(calc(var(--float-distance) * -0.6));
+    transform: translateX(var(--wobble-4, -4px))
+      translateY(calc(var(--float-distance) * -0.6));
   }
   75% {
     opacity: 0.8;
-    transform: translateX(var(--wobble-5, 3px)) translateY(calc(var(--float-distance) * -0.75));
+    transform: translateX(var(--wobble-5, 3px))
+      translateY(calc(var(--float-distance) * -0.75));
   }
   90% {
     opacity: 0.4;
-    transform: translateX(var(--wobble-6, -2px)) translateY(calc(var(--float-distance) * -0.9));
+    transform: translateX(var(--wobble-6, -2px))
+      translateY(calc(var(--float-distance) * -0.9));
   }
   100% {
     opacity: 0;
