@@ -223,6 +223,20 @@
   margin-top: 0.25rem;
 }
 
+.achievement-toast__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-m);
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+  }
+}
+
 .achievement-toast__close {
   position: absolute;
   top: var(--space-xs);

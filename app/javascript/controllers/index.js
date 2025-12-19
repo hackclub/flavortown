@@ -75,3 +75,6 @@ application.register("json-highlight", JsonHighlightController);
 
 import MarkdownPreviewController from "./markdown_preview_controller";
 application.register("markdown-preview", MarkdownPreviewController);
+
+import AchievementHighlightController from "./achievement_highlight_controller";
+application.register("achievement-highlight", AchievementHighlightController);

@@ -238,3 +238,54 @@
     opacity: 0.7;
   }
 }
+
+.achievements__card--highlighted {
+  animation: achievement-highlight-pulse 0.6s ease-in-out 3;
+  position: relative;
+  z-index: 10;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 20px;
+    background: linear-gradient(
+      45deg,
+      var(--color-yellow-400),
+      var(--color-yellow-500),
+      #fff,
+      var(--color-yellow-400)
+    );
+    background-size: 300% 300%;
+    animation: achievement-shimmer 1s ease-in-out infinite;
+    z-index: -1;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+  }
+
+  &.achievements__card--fading::after {
+    opacity: 0;
+  }
+}
+
+@keyframes achievement-highlight-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+@keyframes achievement-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
