@@ -15,7 +15,7 @@
 
       <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_dashboard? %>
 
-      <% sidebar_nav_items << { label: "Helper", path: helper_root_path, icon: "code" } if policy(:helper).access_helper_dashboard? %>
+      <% sidebar_nav_items << { label: "Helper", path: helper_root_path, icon: "help" } if policy(:helper).access_helper_dashboard? %>
 
       <ul class="sidebar__nav-list">
         <% sidebar_nav_items.each do |item| %>
