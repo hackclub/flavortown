@@ -6,6 +6,7 @@
 #  deleted_at        :datetime
 #  demo_url          :text
 #  description       :text
+#  devlogs_count     :integer          default(0), not null
 #  marked_fire_at    :datetime
 #  memberships_count :integer          default(0), not null
 #  project_type      :string
@@ -17,7 +18,6 @@
 #  title             :string           not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
-#  fire_letter_id    :string
 #  marked_fire_by_id :bigint
 #
 # Indexes
@@ -130,11 +130,7 @@ class Project < ApplicationRecord
         OpenStruct.new(hours: hours, minutes: minutes)
     end
 
-    def cached_devlogs_count
-      Rails.cache.fetch("project/#{id}/devlogs_count", expires_in: 10.minutes) do
-        devlogs.count
-      end
-    end
+
 
     def soft_delete!
       update!(deleted_at: Time.current)

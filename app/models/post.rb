@@ -29,6 +29,8 @@ class Post < ApplicationRecord
     delegated_type :postable, types: %w[Post::Devlog Post::ShipEvent Post::FireEvent]
 
     after_commit :invalidate_project_time_cache, on: [ :create, :destroy ]
+    after_commit :increment_devlogs_count, on: :create
+    after_commit :decrement_devlogs_count, on: :destroy
 
     private
 
@@ -36,6 +38,17 @@ class Post < ApplicationRecord
       return unless postable_type == "Post::Devlog"
 
       Rails.cache.delete("project/#{project_id}/time_seconds")
-      Rails.cache.delete("project/#{project_id}/devlogs_count")
+    end
+
+    def increment_devlogs_count
+      return unless postable_type == "Post::Devlog"
+
+      Project.unscoped.where(id: project_id).update_counters(devlogs_count: 1)
+    end
+
+    def decrement_devlogs_count
+      return unless postable_type == "Post::Devlog"
+
+      Project.unscoped.where(id: project_id).update_counters(devlogs_count: -1)
     end
 end
