@@ -117,6 +117,14 @@
         <small class="settings-form__hint">Hide your identity when sharing votes to Slack</small>
       </div>
 
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
+          <%= check_box_tag :slack_balance_notifications, "1", current_user.slack_balance_notifications, id: "slack_balance_notifications" %>
+          <span>Balance change notifications</span>
+        </label>
+        <small class="settings-form__hint">Receive a Slack DM when your cookie balance changes</small>
+      </div>
+
       <div class="modal__actions">
         <%= f.submit "Save", class: "modal__actions-close" %>
         <button type="button" class="modal__actions-close" onclick="document.getElementById('settings-modal').close()">Cancel</button>
