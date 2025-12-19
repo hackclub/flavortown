@@ -29,6 +29,7 @@ class LedgerEntry < ApplicationRecord
   validates :user, presence: true
 
   before_validation :set_user_from_ledgerable
+  before_destroy :prevent_destruction
 
   after_create :create_audit_log
   after_create :notify_balance_change
@@ -37,6 +38,10 @@ class LedgerEntry < ApplicationRecord
 
   def set_user_from_ledgerable
     self.user ||= ledgerable.try(:user)
+  end
+
+  def prevent_destruction
+    raise ActiveRecord::RecordNotDestroyed, "HEY! Ledger entries are immutable and cannot be destroyed. Please create a new offsetting entry instead. we BLOCKCHAIN in this mf!"
   end
 
   def create_audit_log
