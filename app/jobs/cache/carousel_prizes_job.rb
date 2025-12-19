@@ -27,14 +27,14 @@ class Cache::CarouselPrizesJob < ApplicationJob
   end
 
   def build_prize_hash(prize)
-    sm, md, lg, original = generate_image_urls(prize)
+    sm, md, lg = generate_image_urls(prize)
 
     {
       id: prize.id,
       name: prize.name,
       hours_estimated: prize.hours_estimated,
-      image_src: md || sm || lg || original,
-      image_srcset: build_srcset(sm, md, lg, original)
+      image_src: md || sm || lg,
+      image_srcset: build_srcset(sm, md, lg)
     }
   end
 
@@ -44,8 +44,7 @@ class Cache::CarouselPrizesJob < ApplicationJob
     [
       url_for_variant(prize.image.variant(:carousel_sm), url_options),
       url_for_variant(prize.image.variant(:carousel_md), url_options),
-      url_for_variant(prize.image.variant(:carousel_lg), url_options),
-      url_for_blob(prize.image, url_options)
+      url_for_variant(prize.image.variant(:carousel_lg), url_options)
     ]
   end
 
@@ -57,20 +56,11 @@ class Cache::CarouselPrizesJob < ApplicationJob
     )
   end
 
-  def url_for_blob(blob, options)
-    Rails.application.routes.url_helpers.rails_blob_path(
-      blob,
-      only_path: true,
-      **options
-    )
-  end
-
-  def build_srcset(sm, md, lg, original)
+  def build_srcset(sm, md, lg)
     [
       ("#{sm} 160w" if sm),
       ("#{md} 240w" if md),
-      ("#{lg} 360w" if lg),
-      ("#{original} 800w" if original)
+      ("#{lg} 360w" if lg)
     ].compact.join(", ").presence
   end
 end
