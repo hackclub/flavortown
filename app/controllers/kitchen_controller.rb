@@ -1,10 +1,7 @@
 class KitchenController < ApplicationController
   prepend_before_action :load_current_user_with_identities
-  include Achievementable
 
   def index
-    User::Achievement.delete_all
-    grant_achievement! :first_login
     authorize :kitchen, :index?
 
     identities = current_user.identities
