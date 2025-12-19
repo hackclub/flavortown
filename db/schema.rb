@@ -291,6 +291,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_204015) do
     t.text "demo_url"
     t.text "description"
     t.integer "devlogs_count", default: 0, null: false
+    t.string "fire_letter_id"
     t.datetime "marked_fire_at"
     t.bigint "marked_fire_by_id"
     t.integer "memberships_count", default: 0, null: false

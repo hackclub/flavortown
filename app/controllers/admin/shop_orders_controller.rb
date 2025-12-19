@@ -334,7 +334,12 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       )
 
       if assigned_user.present? && assigned_user.slack_id.present?
-        assigned_user.dm_user("📦 You've been assigned to fulfill order ##{@order.id} for #{@order.shop_item.name}. View it here: #{admin_shop_order_url(@order)}")
+        SendSlackDmJob.perform_later(
+          assigned_user.slack_id,
+          nil,
+          blocks_path: "notifications/shop_orders/assigned",
+          locals: { order: @order, admin_url: admin_shop_order_url(@order) }
+        )
       end
 
       redirect_to admin_shop_orders_path(view: "fulfillment"), notice: "Order assigned to #{assigned_user&.display_name || 'nobody'}"
