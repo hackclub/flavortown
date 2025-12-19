@@ -63,6 +63,20 @@ export default class extends Controller {
     this.close();
   }
 
+  selectAndSubmit(event) {
+    const value = event.currentTarget.dataset.value;
+    const label = event.currentTarget.dataset.label;
+
+    this.hiddenFieldTarget.value = value;
+    this.inputTarget.value = label;
+    this.close();
+
+    const form = this.element.querySelector("form");
+    if (form) {
+      form.submit();
+    }
+  }
+
   clear() {
     this.hiddenFieldTarget.value = "";
     this.inputTarget.value = "";

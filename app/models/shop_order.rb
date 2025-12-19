@@ -20,6 +20,7 @@
 #  tracking_number                    :string
 #  created_at                         :datetime         not null
 #  updated_at                         :datetime         not null
+#  assigned_to_user_id                :bigint
 #  parent_order_id                    :bigint
 #  shop_card_grant_id                 :bigint
 #  shop_item_id                       :bigint           not null
@@ -32,6 +33,7 @@
 #  idx_shop_orders_stock_calc                 (shop_item_id,aasm_state)
 #  idx_shop_orders_user_item_state            (user_id,shop_item_id,aasm_state)
 #  idx_shop_orders_user_item_unique           (user_id,shop_item_id)
+#  index_shop_orders_on_assigned_to_user_id   (assigned_to_user_id)
 #  index_shop_orders_on_parent_order_id       (parent_order_id)
 #  index_shop_orders_on_shop_card_grant_id    (shop_card_grant_id)
 #  index_shop_orders_on_shop_item_id          (shop_item_id)
@@ -40,6 +42,7 @@
 #
 # Foreign Keys
 #
+#  fk_rails_...  (assigned_to_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (parent_order_id => shop_orders.id)
 #  fk_rails_...  (shop_item_id => shop_items.id)
 #  fk_rails_...  (user_id => users.id)
@@ -57,6 +60,7 @@ class ShopOrder < ApplicationRecord
   belongs_to :parent_order, class_name: "ShopOrder", optional: true
   has_many :accessory_orders, class_name: "ShopOrder", foreign_key: :parent_order_id, dependent: :destroy
   belongs_to :warehouse_package, class_name: "ShopWarehousePackage", optional: true
+  belongs_to :assigned_to_user, class_name: "User", optional: true
 
   # has_many :payouts, as: :payable, dependent: :destroy
 

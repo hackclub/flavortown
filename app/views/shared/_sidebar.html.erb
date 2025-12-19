@@ -15,6 +15,8 @@
 
       <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_dashboard? %>
 
+      <% sidebar_nav_items << { label: "Fulfil", path: admin_shop_orders_path(view: "fulfillment"), icon: "shopping_cart_1_fill" } if current_user.fulfillment_person? && !current_user.admin? %>
+
       <% sidebar_nav_items << { label: "Helper", path: helper_root_path, icon: "code" } if policy(:helper).access_helper_dashboard? %>
 
       <ul class="sidebar__nav-list">
@@ -66,6 +68,9 @@
       </div>
       <div class="sidebar__user-details">
         <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
+        <% if current_user.fulfillment_person? && current_user.region.present? %>
+          <span class="sidebar__user-region" style="font-size: 0.75rem; opacity: 0.7;">📍 <%= Shop::Regionalizable.region_name(current_user.region) %></span>
+        <% end %>
         <div class="sidebar__user-actions">
           <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
             🍪 <%= current_user.balance %>

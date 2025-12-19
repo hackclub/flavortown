@@ -2,7 +2,10 @@ class AdminConstraint
   def self.matches?(request)
     user = admin_user_for(request)
     return false unless user
-    AdminPolicy.new(user, :admin).access_admin_endpoints?
+
+    policy = AdminPolicy.new(user, :admin)
+    # Allow admins, fraud dept, and fulfillment persons (who have limited access)
+    policy.access_admin_endpoints? || policy.access_fulfillment_view?
   end
 
   def self.admin_user_for(request)
@@ -159,7 +162,7 @@ Rails.application.routes.draw do
       AdminConstraint.allow?(request, :access_jobs?)
     }
 
-    resources :users, only: [ :index, :show ], shallow: true do
+    resources :users, only: [ :index, :show, :update ], shallow: true do
        member do
          post :promote_role
          post :demote_role
@@ -190,6 +193,7 @@ Rails.application.routes.draw do
         post :release_from_hold
         post :mark_fulfilled
         post :update_internal_notes
+        post :assign_user
       end
     end
     resources :audit_logs, only: [ :index, :show ]

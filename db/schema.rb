@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_18_212126) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_19_160443) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -391,6 +391,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_18_212126) do
   create_table "shop_orders", force: :cascade do |t|
     t.string "aasm_state"
     t.bigint "accessory_ids", default: [], array: true
+    t.bigint "assigned_to_user_id"
     t.datetime "awaiting_periodical_fulfillment_at"
     t.datetime "created_at", null: false
     t.string "external_ref"
@@ -411,6 +412,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_18_212126) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.bigint "warehouse_package_id"
+    t.index ["assigned_to_user_id"], name: "index_shop_orders_on_assigned_to_user_id"
     t.index ["parent_order_id"], name: "index_shop_orders_on_parent_order_id"
     t.index ["shop_card_grant_id"], name: "index_shop_orders_on_shop_card_grant_id"
     t.index ["shop_item_id", "aasm_state", "quantity"], name: "idx_shop_orders_item_state_qty"
@@ -547,6 +549,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_18_212126) do
   add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
   add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"
   add_foreign_key "shop_orders", "users"
+  add_foreign_key "shop_orders", "users", column: "assigned_to_user_id", on_delete: :nullify
   add_foreign_key "shop_warehouse_packages", "users"
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
