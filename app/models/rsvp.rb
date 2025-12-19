@@ -14,7 +14,7 @@ class Rsvp < ApplicationRecord
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   before_validation :downcase_email
   after_commit :send_signup_confirmation_email, on: :create
-  after_create :set_event_in_loops
+  # after_create :set_event_in_loops
 
   private
 
