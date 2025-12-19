@@ -198,7 +198,8 @@ class ShopController < ApplicationController
 
   def user_region
     if current_user
-      return current_user.region if current_user.region.present?
+      # For fulfillment persons with regions, return the first one for shop filtering
+      return current_user.regions.first if current_user.has_regions?
 
       primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
       country = primary_address&.dig("country")

@@ -17,7 +17,6 @@
 #  title             :string           not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
-#  fire_letter_id    :string
 #  marked_fire_by_id :bigint
 #
 # Indexes

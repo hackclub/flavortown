@@ -3,9 +3,9 @@
     <%= @view == 'fulfillment' ? 'Pending Fulfillment' : 'Shop Orders' %>
   </h1>
 
-  <% if current_user.fulfillment_person? && !current_user.admin? && current_user.region.present? %>
+  <% if current_user.fulfillment_person? && !current_user.admin? && current_user.has_regions? %>
     <span style="background: #e0f2fe; color: #0369a1; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">
-      📍 <%= Shop::Regionalizable.region_name(current_user.region) %>
+      📍 <%= current_user.regions_display %>
     </span>
   <% end %>
 

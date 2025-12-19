@@ -67,51 +67,23 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       @f = fulfilled_orders.average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))").to_f
     end
 
-    # Apply region filter after stats calculation (converts to array)
-    # Fulfillment persons see orders in their region OR orders assigned to them
-    if current_user.fulfillment_person? && !current_user.admin? && current_user.region.present?
-      orders = orders.to_a.select do |order|
-        # Always show orders assigned to this user
-        next true if order.assigned_to_user_id == current_user.id
-
-        # Otherwise filter by region
-        if order.frozen_address.present?
-          order_region = Shop::Regionalizable.country_to_region(order.frozen_address["country"])
-          order_region == current_user.region
-        else
-          false
-        end
-      end
+    # Apply region filter using database-level query (now that orders have a region column)
+    # Fulfillment persons see orders in their regions OR orders assigned to them
+    if current_user.fulfillment_person? && !current_user.admin? && current_user.has_regions?
+      orders = orders.where(region: current_user.regions)
+                     .or(orders.where(assigned_to_user_id: current_user.id))
     elsif params[:region].present?
-      orders = orders.to_a.select do |order|
-        if order.frozen_address.present?
-          order_region = Shop::Regionalizable.country_to_region(order.frozen_address["country"])
-          order_region == params[:region].upcase
-        else
-          false
-        end
-      end
+      orders = orders.where(region: params[:region].upcase)
     end
 
-    # Sorting - handle both ActiveRecord relation and Array
-    if orders.is_a?(Array)
-      orders = case params[:sort]
-      when "id_asc" then orders.sort_by(&:id)
-      when "id_desc" then orders.sort_by(&:id).reverse
-      when "created_at_asc" then orders.sort_by(&:created_at)
-      when "shells_asc" then orders.sort_by { |o| o.frozen_item_price || 0 }
-      when "shells_desc" then orders.sort_by { |o| o.frozen_item_price || 0 }.reverse
-      else orders.sort_by(&:created_at).reverse
-      end
-    else
-      orders = case params[:sort]
-      when "id_asc" then orders.order(id: :asc)
-      when "id_desc" then orders.order(id: :desc)
-      when "created_at_asc" then orders.order(created_at: :asc)
-      when "shells_asc" then orders.order(frozen_item_price: :asc)
-      when "shells_desc" then orders.order(frozen_item_price: :desc)
-      else orders.order(created_at: :desc)
-      end
+    # Sorting - always uses database ordering now
+    orders = case params[:sort]
+    when "id_asc" then orders.order(id: :asc)
+    when "id_desc" then orders.order(id: :desc)
+    when "created_at_asc" then orders.order(created_at: :asc)
+    when "shells_asc" then orders.order(frozen_item_price: :asc)
+    when "shells_desc" then orders.order(frozen_item_price: :desc)
+    else orders.order(created_at: :desc)
     end
 
     # Grouping
@@ -138,15 +110,10 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
     @order = ShopOrder.find(params[:id])
 
-    # Fulfillment persons can only view orders in their region or assigned to them
+    # Fulfillment persons can only view orders in their regions or assigned to them
     if current_user.fulfillment_person? && !current_user.admin?
-      can_access = false
-      can_access = true if @order.assigned_to_user_id == current_user.id
-
-      if !can_access && current_user.region.present? && @order.frozen_address.present?
-        order_region = Shop::Regionalizable.country_to_region(@order.frozen_address["country"])
-        can_access = true if order_region == current_user.region
-      end
+      can_access = @order.assigned_to_user_id == current_user.id
+      can_access ||= current_user.has_regions? && current_user.has_region?(@order.region)
 
       unless can_access
         redirect_to admin_shop_orders_path(view: "fulfillment"), alert: "You don't have access to this order" and return

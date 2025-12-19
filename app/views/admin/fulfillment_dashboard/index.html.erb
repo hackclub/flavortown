@@ -134,8 +134,8 @@
               <%= image_tag order.assigned_to_user.avatar, alt: order.assigned_to_user.display_name, style: "width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" %>
               <div>
                 <span style="font-size: 0.85rem;"><%= order.assigned_to_user.display_name %></span>
-                <% if order.assigned_to_user.region.present? %>
-                  <br><small class="text-muted"><%= order.assigned_to_user.region %></small>
+                <% if order.assigned_to_user.has_regions? %>
+                  <br><small class="text-muted"><%= order.assigned_to_user.regions.join(", ") %></small>
                 <% end %>
               </div>
             </div>

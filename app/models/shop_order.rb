@@ -15,6 +15,7 @@
 #  internal_notes                     :text
 #  on_hold_at                         :datetime
 #  quantity                           :integer
+#  region                             :string(2)
 #  rejected_at                        :datetime
 #  rejection_reason                   :string
 #  tracking_number                    :string
@@ -35,6 +36,7 @@
 #  idx_shop_orders_user_item_unique           (user_id,shop_item_id)
 #  index_shop_orders_on_assigned_to_user_id   (assigned_to_user_id)
 #  index_shop_orders_on_parent_order_id       (parent_order_id)
+#  index_shop_orders_on_region                (region)
 #  index_shop_orders_on_shop_card_grant_id    (shop_card_grant_id)
 #  index_shop_orders_on_shop_item_id          (shop_item_id)
 #  index_shop_orders_on_user_id               (user_id)
@@ -78,6 +80,7 @@ class ShopOrder < ApplicationRecord
 
   after_create :create_negative_payout
   before_create :freeze_item_price
+  before_create :set_region_from_address
   after_commit :notify_user_of_status_change, if: :saved_change_to_aasm_state?
 
   scope :worth_counting, -> { where.not(aasm_state: %w[rejected refunded]) }
@@ -111,12 +114,10 @@ class ShopOrder < ApplicationRecord
 
     return true if viewer.admin?
 
-    # Fulfillment person can only see addresses in their region
-    if viewer.fulfillment_person? && frozen_address.present?
-      order_region = Shop::Regionalizable.country_to_region(frozen_address["country"])
-      # For now, we assume fulfillment persons can see all regions
-      # You can add user region preferences later
-      return true
+    # Fulfillment person can see addresses in their assigned regions
+    if viewer.fulfillment_person?
+      return true unless viewer.has_regions?
+      return viewer.has_region?(region)
     end
 
     false
@@ -338,5 +339,12 @@ class ShopOrder < ApplicationRecord
       created_by: "System",
       ledgerable: self
     )
+  end
+
+  def set_region_from_address
+    return if region.present?
+    return unless frozen_address.present? && frozen_address["country"].present?
+
+    self.region = Shop::Regionalizable.country_to_region(frozen_address["country"])
   end
 end

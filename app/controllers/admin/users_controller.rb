@@ -228,16 +228,21 @@ class Admin::UsersController < Admin::ApplicationController
     authorize :admin, :manage_users?
     @user = User.find(params[:id])
 
-    old_region = @user.region
+    old_regions = @user.regions.dup
+
+    # Filter out empty strings from regions array
+    if params[:user][:regions].present?
+      params[:user][:regions] = params[:user][:regions].reject(&:blank?)
+    end
 
     if @user.update(user_params)
-      if old_region != @user.region
+      if old_regions != @user.regions
         PaperTrail::Version.create!(
           item_type: "User",
           item_id: @user.id,
-          event: "region_updated",
+          event: "regions_updated",
           whodunnit: current_user.id.to_s,
-          object_changes: { region: [ old_region, @user.region ] }
+          object_changes: { regions: [ old_regions, @user.regions ] }
         )
       end
       flash[:notice] = "User updated successfully."
@@ -251,6 +256,6 @@ class Admin::UsersController < Admin::ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:region)
+    params.require(:user).permit(regions: [])
   end
 end

@@ -17,7 +17,7 @@
 #  magic_link_token            :string
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
-#  region                      :string
+#  regions                     :string           default([]), is an Array
 #  send_votes_to_slack         :boolean          default(FALSE), not null
 #  session_token               :string
 #  slack_balance_notifications :boolean          default(FALSE), not null
@@ -35,7 +35,6 @@
 #
 #  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
-#  index_users_on_region            (region)
 #  index_users_on_session_token     (session_token) UNIQUE
 #  index_users_on_slack_id          (slack_id) UNIQUE
 #

@@ -167,9 +167,9 @@
           <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 0.5rem;">
             <%= image_tag @order.assigned_to_user.avatar, alt: @order.assigned_to_user.display_name, style: "width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" %>
             <span><%= @order.assigned_to_user.display_name %></span>
-            <% if @order.assigned_to_user.region.present? %>
+            <% if @order.assigned_to_user.has_regions? %>
               <span style="background: #e0f2fe; color: #0369a1; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.7rem;">
-                <%= @order.assigned_to_user.region %>
+                <%= @order.assigned_to_user.regions.join(", ") %>
               </span>
             <% end %>
           </div>
@@ -205,11 +205,11 @@
                   data-action="click->searchable-select#selectAndSubmit"
                   data-value="<%= user.id %>"
                   data-label="<%= user.display_name %>"
-                  data-search-text="<%= "#{user.display_name} #{user.region} #{user.id}".downcase %>">
+                  data-search-text="<%= "#{user.display_name} #{user.regions.join(' ')} #{user.id}".downcase %>">
                   <img src="<%= user.avatar %>" alt="" class="searchable-select-avatar">
                   <span><%= user.display_name %></span>
-                  <% if user.region.present? %>
-                    <span style="font-size: 0.7rem; color: #6b7280; margin-left: auto;"><%= user.region %></span>
+                  <% if user.has_regions? %>
+                    <span style="font-size: 0.7rem; color: #6b7280; margin-left: auto;"><%= user.regions.join(", ") %></span>
                   <% end %>
                 </div>
               <% end %>

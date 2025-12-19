@@ -97,11 +97,11 @@
                           data-action="click->searchable-select#selectAndSubmit"
                           data-value="<%= user.id %>"
                           data-label="<%= user.display_name %>"
-                          data-search-text="<%= "#{user.display_name} #{user.id}".downcase %>">
+                          data-search-text="<%= "#{user.display_name} #{user.regions.join(' ')} #{user.id}".downcase %>">
                           <img src="<%= user.avatar %>" alt="" class="searchable-select-avatar">
                           <span><%= user.display_name %></span>
-                          <% if user.region.present? %>
-                            <span style="font-size: 0.65rem; color: #6b7280; margin-left: auto;"><%= user.region %></span>
+                          <% if user.has_regions? %>
+                            <span style="font-size: 0.65rem; color: #6b7280; margin-left: auto;"><%= user.regions.join(", ") %></span>
                           <% end %>
                         </div>
                       <% end %>

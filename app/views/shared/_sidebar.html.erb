@@ -68,8 +68,8 @@
       </div>
       <div class="sidebar__user-details">
         <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
-        <% if current_user.fulfillment_person? && current_user.region.present? %>
-          <span class="sidebar__user-region" style="font-size: 0.75rem; opacity: 0.7;">📍 <%= Shop::Regionalizable.region_name(current_user.region) %></span>
+        <% if current_user.fulfillment_person? && current_user.has_regions? %>
+          <span class="sidebar__user-region" style="font-size: 0.75rem; opacity: 0.7;">📍 <%= current_user.regions_display %></span>
         <% end %>
         <div class="sidebar__user-actions">
           <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">

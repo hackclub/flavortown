@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_19_160443) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_19_183511) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -290,7 +290,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_160443) do
     t.datetime "deleted_at"
     t.text "demo_url"
     t.text "description"
-    t.string "fire_letter_id"
     t.datetime "marked_fire_at"
     t.bigint "marked_fire_by_id"
     t.integer "memberships_count", default: 0, null: false
@@ -405,6 +404,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_160443) do
     t.datetime "on_hold_at"
     t.bigint "parent_order_id"
     t.integer "quantity"
+    t.string "region", limit: 2
     t.datetime "rejected_at"
     t.string "rejection_reason"
     t.bigint "shop_card_grant_id"
@@ -415,6 +415,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_160443) do
     t.bigint "warehouse_package_id"
     t.index ["assigned_to_user_id"], name: "index_shop_orders_on_assigned_to_user_id"
     t.index ["parent_order_id"], name: "index_shop_orders_on_parent_order_id"
+    t.index ["region"], name: "index_shop_orders_on_region"
     t.index ["shop_card_grant_id"], name: "index_shop_orders_on_shop_card_grant_id"
     t.index ["shop_item_id", "aasm_state", "quantity"], name: "idx_shop_orders_item_state_qty"
     t.index ["shop_item_id", "aasm_state"], name: "idx_shop_orders_stock_calc"
@@ -479,7 +480,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_160443) do
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.integer "projects_count"
-    t.string "region"
+    t.string "regions", default: [], array: true
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
     t.boolean "slack_balance_notifications", default: false, null: false
@@ -493,7 +494,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_160443) do
     t.boolean "ysws_eligible", default: false, null: false
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
-    t.index ["region"], name: "index_users_on_region"
     t.index ["session_token"], name: "index_users_on_session_token", unique: true
     t.index ["slack_id"], name: "index_users_on_slack_id", unique: true
   end
