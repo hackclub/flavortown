@@ -46,6 +46,7 @@ class Cache::CarouselPrizesJob < ApplicationJob
   def url_for_variant(variant, options)
     Rails.application.routes.url_helpers.rails_representation_path(
       variant.processed,
+      only_path: true,
       **options
     )
   end
@@ -53,12 +54,9 @@ class Cache::CarouselPrizesJob < ApplicationJob
   def url_for_blob(blob, options)
     Rails.application.routes.url_helpers.rails_blob_path(
       blob,
+      only_path: true,
       **options
     )
-  end
-
-  def default_url_options
-    Rails.application.config.action_mailer.default_url_options || { host: "localhost", port: 3000 }
   end
 
   def build_srcset(sm, md, lg, original)
