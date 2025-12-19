@@ -68,7 +68,7 @@
         <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
         <div class="sidebar__user-actions">
           <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
-            🍪 <%= current_user.balance %>
+            🍪 <%= current_user.cached_balance %>
           </button>
           <button type="button" class="sidebar__user-settings" onclick="document.getElementById('settings-modal').showModal()" aria-label="Settings">
             <%= inline_svg_tag "icons/gear.svg", class: "sidebar__user-settings-icon" %>

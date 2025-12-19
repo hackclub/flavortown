@@ -32,6 +32,7 @@ class LedgerEntry < ApplicationRecord
 
   after_create :create_audit_log
   after_create :notify_balance_change
+  after_create :invalidate_user_balance_cache
 
   private
 
@@ -68,4 +69,6 @@ class LedgerEntry < ApplicationRecord
     SendSlackDmJob.perform_later(user.slack_id, message)
     SendSlackDmJob.perform_later("C0A3JN1CMNE", "<@#{user.slack_id}>: #{message}")
   end
+
+  def invalidate_user_balance_cache = user.invalidate_balance_cache!
 end
