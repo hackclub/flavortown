@@ -180,7 +180,11 @@ Rails.application.routes.draw do
     get "user-perms", to: "users#user_perms"
     get "manage-shop", to: "shop#index"
     post "shop/clear-carousel-cache", to: "shop#clear_carousel_cache", as: :clear_carousel_cache
-    resources :shop_items, only: [ :new, :create, :show, :edit, :update, :destroy ]
+    resources :shop_items, only: [ :new, :create, :show, :edit, :update, :destroy ] do
+      collection do
+        post :preview_markdown
+      end
+    end
     resources :shop_orders, only: [ :index, :show ] do
       member do
         post :reveal_address

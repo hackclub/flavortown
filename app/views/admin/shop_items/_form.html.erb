@@ -31,6 +31,15 @@
             <%= f.text_area :description, rows: 3, class: "form-control", required: true %>
           </div>
 
+          <div class="shop-item-form__field" data-controller="markdown-preview" data-markdown-preview-url-value="<%= preview_markdown_admin_shop_items_path %>">
+            <%= f.label :long_description, "Extended Description (Markdown)", class: "shop-item-form__label" %>
+            <div class="shop-item-form__markdown-editor">
+              <%= f.text_area :long_description, rows: 8, class: "form-control shop-item-form__code", placeholder: "Supports **bold**, *italic*, [links](url), lists, and more...", data: { markdown_preview_target: "input", action: "input->markdown-preview#update" } %>
+              <div class="shop-item-form__markdown-preview" data-markdown-preview-target="preview"></div>
+            </div>
+            <span class="shop-item-form__hint">Detailed description shown on the order page. Supports Markdown formatting.</span>
+          </div>
+
           <div class="shop-item-form__field">
             <%= f.label :internal_description, "Internal Description (admin only)", class: "shop-item-form__label" %>
             <%= f.text_area :internal_description, rows: 2, class: "form-control" %>
@@ -498,6 +507,65 @@
         font-size: 0.8125rem;
     }
 
+    .shop-item-form__markdown-editor {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .shop-item-form__markdown-editor {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .shop-item-form__markdown-preview {
+        background: var(--color-tan-400);
+        border: 1px solid var(--color-brown-500);
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        min-height: 180px;
+        max-height: 300px;
+        overflow-y: auto;
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    .shop-item-form__markdown-preview h1,
+    .shop-item-form__markdown-preview h2,
+    .shop-item-form__markdown-preview h3 {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .shop-item-form__markdown-preview p {
+        margin-bottom: 0.5rem;
+    }
+
+    .shop-item-form__markdown-preview ul,
+    .shop-item-form__markdown-preview ol {
+        margin-left: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .shop-item-form__markdown-preview code {
+        background: rgba(0, 0, 0, 0.1);
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+        font-family: ui-monospace, monospace;
+        font-size: 0.8125rem;
+    }
+
+    .shop-item-form__markdown-preview a {
+        color: var(--color-brown-700);
+        text-decoration: underline;
+    }
+
+    .markdown-preview__empty {
+        color: #9ca3af;
+        font-style: italic;
+    }
+
     .shop-item-form__actions {
         display: flex;
         flex-direction: column;
@@ -582,6 +650,7 @@
 
         if (ticketCostField && ticketCostField.value && parseFloat(ticketCostField.value) !== 0) {
             isTicketCostManuallySet = true;
+            ticketCostField.value = Math.round(parseFloat(ticketCostField.value));
         }
 
         function calculateEstimatedTickets() {
