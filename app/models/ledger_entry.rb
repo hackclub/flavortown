@@ -29,6 +29,7 @@ class LedgerEntry < ApplicationRecord
   validates :user, presence: true
 
   before_validation :set_user_from_ledgerable
+  before_update :prevent_update
   before_destroy :prevent_destruction
 
   after_create :create_audit_log
@@ -38,6 +39,13 @@ class LedgerEntry < ApplicationRecord
 
   def set_user_from_ledgerable
     self.user ||= ledgerable.try(:user)
+  end
+
+  def prevent_update
+    immutable_attrs = %w[amount user_id ledgerable_id ledgerable_type]
+    return unless (changes.keys & immutable_attrs).any?
+
+    raise ActiveRecord::RecordNotSaved, "HEY! Ledger entry amount, user, and ledgerable are immutable. Please create a new offsetting entry instead."
   end
 
   def prevent_destruction
