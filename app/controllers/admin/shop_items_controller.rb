@@ -53,6 +53,13 @@ module Admin
       redirect_to admin_manage_shop_path, notice: "Shop item deleted successfully."
     end
 
+    def preview_markdown
+      authorize :admin, :manage_shop?
+      markdown = params[:markdown].to_s
+      html = markdown.present? ? MarkdownRenderer.render(markdown) : ""
+      render plain: html
+    end
+
     private
 
     def set_shop_item
