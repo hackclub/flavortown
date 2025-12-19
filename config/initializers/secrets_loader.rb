@@ -45,12 +45,6 @@ module Secrets
 end
 
 if secrets_path.exist? && secrets_path.directory?
-  # Autoload models and services from secrets/app/
-  secrets_app = secrets_path.join("app")
-  if secrets_app.exist?
-    Rails.autoloaders.main.push_dir(secrets_app, namespace: Secrets)
-  end
-
   # Load initializers from secrets/initializers/
   secrets_initializers = secrets_path.join("initializers")
   if secrets_initializers.exist?

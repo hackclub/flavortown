@@ -42,6 +42,7 @@
 class User < ApplicationRecord
   has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
   has_many :identities, class_name: "User::Identity", dependent: :destroy
+  has_many :achievements, class_name: "User::Achievement", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
   has_many :projects, through: :memberships
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
@@ -241,6 +242,29 @@ def all_time_coding_seconds
 
   def has_commented?
     comments.exists?
+  end
+
+  def earned_achievement_slugs
+    @earned_achievement_slugs ||= achievements.pluck(:achievement_slug).to_set
+  end
+
+  def earned_achievement?(slug)
+    earned_achievement_slugs.include?(slug.to_s)
+  end
+
+  def award_achievement!(slug)
+    return nil if earned_achievement?(slug)
+
+    achievement = ::Achievement.find(slug)
+    achievements.create!(achievement_slug: slug.to_s, earned_at: Time.current)
+    @earned_achievement_slugs&.add(slug.to_s)
+    achievement
+  end
+
+  def check_and_award_achievements!
+    ::Achievement.all.each do |achievement|
+      award_achievement!(achievement.slug)
+    end
   end
 
   def generate_api_key!
