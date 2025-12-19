@@ -4,7 +4,7 @@
 #
 #  id              :bigint           not null, primary key
 #  amount          :integer
-#  created_by      :string           not null
+#  created_by      :string
 #  ledgerable_type :string           not null
 #  reason          :string
 #  created_at      :datetime         not null
@@ -25,7 +25,6 @@ class LedgerEntry < ApplicationRecord
   belongs_to :ledgerable, polymorphic: true
   belongs_to :user
 
-  validates :created_by, presence: true
   validates :user, presence: true
 
   before_validation :set_user_from_ledgerable
