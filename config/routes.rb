@@ -34,7 +34,7 @@ end
 Rails.application.routes.draw do
   # Landing
   root "landing#index"
-  get "marketing", to: "landing#marketing"
+  # get "marketing", to: "landing#marketing"
   get "login", to: redirect("/?login=1")
 
   # Start Flow
@@ -105,6 +105,7 @@ Rails.application.routes.draw do
   get "my/balance", to: "my#balance"
   patch "my/settings", to: "my#update_settings", as: :my_settings
   post "my/roll_api_key", to: "my#roll_api_key", as: :roll_api_key
+  get "my/achievements", to: "achievements#index"
 
   # Magic Links
   post "magic_links", to: "magic_links#create"

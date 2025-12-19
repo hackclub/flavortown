@@ -124,3 +124,5 @@ gem "activeinsights"
 
 gem "rack-attack"
 gem "query_count"
+
+gem "redis", "~> 5.4"

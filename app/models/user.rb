@@ -41,6 +41,7 @@
 class User < ApplicationRecord
   has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
   has_many :identities, class_name: "User::Identity", dependent: :destroy
+  has_many :achievements, class_name: "User::Achievement", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
   has_many :projects, through: :memberships
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
@@ -121,7 +122,7 @@ class User < ApplicationRecord
     end
   end
 
-  %i[super_admin admin fraud_dept project_certifier ysws_reviewer fulfillment_person helper].each do |role_name|
+  User::Role.all_slugs.each do |role_name|
     define_method "#{role_name}?" do
       has_role?(role_name)
     end
@@ -136,7 +137,7 @@ class User < ApplicationRecord
   end
 
   def has_hackatime?
-    identities.exists?(provider: "hackatime")
+    identities.loaded? ? identities.any? { |i| i.provider == "hackatime" } : identities.exists?(provider: "hackatime")
   end
 
   def has_identity_linked? = !verification_needs_submission?
@@ -196,6 +197,10 @@ class User < ApplicationRecord
 
   def balance = ledger_entries.sum(:amount)
 
+  def cached_balance = Rails.cache.fetch(balance_cache_key) { balance }
+  def balance_cache_key = "user/#{id}/sidebar_balance"
+  def invalidate_balance_cache! = Rails.cache.delete(balance_cache_key)
+
   def ban!(reason: nil)
     update!(banned: true, banned_at: Time.current, banned_reason: reason)
     reject_pending_orders!(reason: reason || "User banned")
@@ -249,6 +254,29 @@ class User < ApplicationRecord
 
   def has_commented?
     comments.exists?
+  end
+
+  def earned_achievement_slugs
+    @earned_achievement_slugs ||= achievements.pluck(:achievement_slug).to_set
+  end
+
+  def earned_achievement?(slug)
+    earned_achievement_slugs.include?(slug.to_s)
+  end
+
+  def award_achievement!(slug)
+    return nil if earned_achievement?(slug)
+
+    achievement = ::Achievement.find(slug)
+    achievements.create!(achievement_slug: slug.to_s, earned_at: Time.current)
+    @earned_achievement_slugs&.add(slug.to_s)
+    achievement
+  end
+
+  def check_and_award_achievements!
+    ::Achievement.all.each do |achievement|
+      award_achievement!(achievement.slug)
+    end
   end
 
   def generate_api_key!

@@ -14,18 +14,18 @@
 class Rsvp < ApplicationRecord
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   before_validation :downcase_email
-  after_commit :send_signup_confirmation_email, on: :create
+  # after_commit :send_signup_confirmation_email, on: :create
 
   private
 
-  def send_signup_confirmation_email
-    mail = RsvpMailer.signup_confirmation(email)
-    if Rails.env.production?
-      mail.deliver_later
-    else
-      mail.deliver_now
-    end
-  end
+  # def send_signup_confirmation_email
+  #   mail = RsvpMailer.signup_confirmation(email)
+  #   if Rails.env.production?
+  #     mail.deliver_later
+  #   else
+  #     mail.deliver_now
+  #   end
+  # end
 
   def downcase_email
     self.email = email.downcase if email.present?

@@ -73,11 +73,14 @@
         <% end %>
         <div class="sidebar__user-actions">
           <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
-            🍪 <%= current_user.balance %>
+            🍪 <%= current_user.cached_balance %>
           </button>
           <button type="button" class="sidebar__user-settings" onclick="document.getElementById('settings-modal').showModal()" aria-label="Settings">
             <%= inline_svg_tag "icons/gear.svg", class: "sidebar__user-settings-icon" %>
           </button>
+          <%= link_to my_achievements_path, class: "sidebar__user-settings", aria: { label: "Achievements" } do %>
+            <%= inline_svg_tag "icons/trophy.svg", class: "sidebar__user-settings-icon" %>
+          <% end %>
           <button type="button" class="sidebar__user-logout" onclick="document.getElementById('logout-form').submit()" aria-label="Logout">
             <%= inline_svg_tag "icons/logout.svg", class: "sidebar__user-logout-icon" %>
           </button>

@@ -84,6 +84,7 @@ class ShopOrder < ApplicationRecord
   after_commit :notify_user_of_status_change, if: :saved_change_to_aasm_state?
 
   scope :worth_counting, -> { where.not(aasm_state: %w[rejected refunded]) }
+  scope :real, -> { without_item_type("ShopItem::FreeStickers") }
   scope :manually_fulfilled, -> { joins(:shop_item).merge(ShopItem.where(type: ShopItem::MANUAL_FULFILLMENT_TYPES)) }
   scope :with_item_type, ->(item_type) { joins(:shop_item).where(shop_items: { type: item_type.to_s }) }
   scope :without_item_type, ->(item_type) { joins(:shop_item).where.not(shop_items: { type: item_type.to_s }) }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_19_183511) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_19_204015) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -191,7 +191,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_183511) do
   create_table "ledger_entries", force: :cascade do |t|
     t.integer "amount"
     t.datetime "created_at", null: false
-    t.string "created_by", null: false
+    t.string "created_by"
     t.bigint "ledgerable_id", null: false
     t.string "ledgerable_type", null: false
     t.string "reason"
@@ -290,6 +290,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_183511) do
     t.datetime "deleted_at"
     t.text "demo_url"
     t.text "description"
+    t.integer "devlogs_count", default: 0, null: false
+    t.string "fire_letter_id"
     t.datetime "marked_fire_at"
     t.bigint "marked_fire_by_id"
     t.integer "memberships_count", default: 0, null: false
@@ -436,6 +438,16 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_183511) do
     t.index ["user_id"], name: "index_shop_warehouse_packages_on_user_id"
   end
 
+  create_table "user_achievements", force: :cascade do |t|
+    t.string "achievement_slug", null: false
+    t.datetime "created_at", null: false
+    t.datetime "earned_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id", "achievement_slug"], name: "index_user_achievements_on_user_id_and_achievement_slug", unique: true
+    t.index ["user_id"], name: "index_user_achievements_on_user_id"
+  end
+
   create_table "user_hackatime_projects", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -552,6 +564,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_183511) do
   add_foreign_key "shop_orders", "users"
   add_foreign_key "shop_orders", "users", column: "assigned_to_user_id", on_delete: :nullify
   add_foreign_key "shop_warehouse_packages", "users"
+  add_foreign_key "user_achievements", "users"
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"

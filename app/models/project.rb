@@ -6,6 +6,7 @@
 #  deleted_at        :datetime
 #  demo_url          :text
 #  description       :text
+#  devlogs_count     :integer          default(0), not null
 #  marked_fire_at    :datetime
 #  memberships_count :integer          default(0), not null
 #  project_type      :string
@@ -60,24 +61,24 @@ class Project < ApplicationRecord
     has_one_attached :demo_video
     # https://github.com/rails/rails/pull/39135
     has_one_attached :banner do |attachable|
-        # using resize_to_fill instead of resize_to_limit because consistency. might change it to resize_to_limit
+        # using resize_to_limit to preserve aspect ratio without cropping
         # we're preprocessing them because its likely going to be used
 
         # for explore and projects#index
         attachable.variant :card,
-                           resize_to_fill: [ 1600, 900 ],
+                           resize_to_limit: [ 1600, 900 ],
                            format: :webp,
                            preprocessed: true,
                            saver: { strip: true, quality: 75 }
 
         #   attachable.variant :not_sure,
-        #     resize_to_fill: [ 1200, 630 ],
+        #     resize_to_limit: [ 1200, 630 ],
         #     format: :webp,
         #     saver: { strip: true, quality: 75 }
 
         # for voting
         attachable.variant :thumb,
-                           resize_to_fill: [ 400, 210 ],
+                           resize_to_limit: [ 400, 210 ],
                            format: :webp,
                            preprocessed: true,
                            saver: { strip: true, quality: 75 }
@@ -119,13 +120,17 @@ class Project < ApplicationRecord
     }
 
     def time
-        total_seconds = Post::Devlog.where(id: posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")).sum(:duration_seconds) || 0
+        total_seconds = Rails.cache.fetch("project/#{id}/time_seconds", expires_in: 10.minutes) do
+          Post::Devlog.where(id: posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")).sum(:duration_seconds) || 0
+        end
         total_hours = total_seconds / 3600.0
         hours = total_hours.to_i
         minutes = ((total_hours - hours) * 60).to_i
 
         OpenStruct.new(hours: hours, minutes: minutes)
     end
+
+
 
     def soft_delete!
       update!(deleted_at: Time.current)

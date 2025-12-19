@@ -4,7 +4,7 @@
 #
 #  id              :bigint           not null, primary key
 #  amount          :integer
-#  created_by      :string           not null
+#  created_by      :string
 #  ledgerable_type :string           not null
 #  reason          :string
 #  created_at      :datetime         not null
@@ -25,18 +25,33 @@ class LedgerEntry < ApplicationRecord
   belongs_to :ledgerable, polymorphic: true
   belongs_to :user
 
-  validates :created_by, presence: true
   validates :user, presence: true
 
   before_validation :set_user_from_ledgerable
+  before_update :prevent_update
+  before_destroy :prevent_destruction
 
   after_create :create_audit_log
   after_create :notify_balance_change
+  after_create :invalidate_user_balance_cache
 
   private
 
   def set_user_from_ledgerable
     self.user ||= ledgerable.try(:user)
+  end
+
+  def prevent_update
+    immutable_attrs = %w[amount user_id ledgerable_id ledgerable_type]
+    return unless (changes.keys & immutable_attrs).any?
+
+    raise ActiveRecord::RecordNotSaved, "HEY! Ledger entry amount, user, and ledgerable are immutable. Please create a new offsetting entry instead."
+  end
+
+  def prevent_destruction
+    return if ledgerable.nil? || ledgerable.destroyed?
+
+    raise ActiveRecord::RecordNotDestroyed, "HEY! Ledger entries are immutable and cannot be destroyed. Please create a new offsetting entry instead. we BLOCKCHAIN in this mf!"
   end
 
   def create_audit_log
@@ -68,4 +83,6 @@ class LedgerEntry < ApplicationRecord
     SendSlackDmJob.perform_later(user.slack_id, message)
     SendSlackDmJob.perform_later("C0A3JN1CMNE", "<@#{user.slack_id}>: #{message}")
   end
+
+  def invalidate_user_balance_cache = user.invalidate_balance_cache!
 end

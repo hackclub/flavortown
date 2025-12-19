@@ -19,8 +19,8 @@ class ApplicationController < ActionController::Base
 
     if session[:user_id]
       scope = User.where(id: session[:user_id])
-      scope = scope.includes(*preloads) unless preloads.empty?
-      @current_user = scope.first
+      scope = scope.eager_load(*Array(preloads)) if preloads.present?
+      @current_user = scope.to_a.first
     end
   end
   helper_method :current_user

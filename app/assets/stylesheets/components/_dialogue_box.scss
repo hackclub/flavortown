@@ -33,6 +33,28 @@
     transform: rotate(5deg) translateY(100px);
     opacity: 0;
   }
+
+  @media (max-width: 1500px) {
+    width: 500px;
+    height: 150px;
+    bottom: -40px;
+    right: -70px;
+  }
+
+  @media (max-width: 1300px) {
+    width: 400px;
+    height: 120px;
+    bottom: -40px;
+    right: -50px;
+  }
+
+  @media (max-width: 1150px) {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    visibility: hidden;
+    border-radius: 100%;
+  }
 }
 
 .dialogue-box__sticker-image {
@@ -46,6 +68,15 @@
 
   .dialogue-box__sticker:not(.dialogue-box__sticker--hidden) & {
     animation: sticker-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  @media (max-width: 1150px) {
+    height: 300px;
+    left: 20px;
+    bottom: 0;
+    border-radius: 100%;
+    visibility: visible;
+    filter: drop-shadow(0 0 10px black);
   }
 }
 
@@ -183,43 +214,12 @@
     }
   }
 
-  // Tablet breakpoint - smaller character, adjusted spacing
   @media (max-width: 960px) {
-    left: 1em;
-    right: 1em;
-    bottom: 1em;
-    max-width: 100%;
-    padding: 0.8em 0.8em 0.8em 10em;
-
-    &__image {
-      height: 180px;
-      width: 180px;
-      left: -3em;
-      bottom: -1.5em;
-      border-width: 0.8em;
-
-      img {
-        height: 170px;
-      }
-    }
-
-    h1 {
-      font-size: 1.6rem;
-    }
-
-    &__text {
-      font-size: 1.2rem;
-      height: 7rem;
-      max-height: 8rem;
-    }
-  }
-
-  // Mobile breakpoint - hide character, full width
-  @media (max-width: 600px) {
     left: 0.5em;
     right: 0.5em;
     bottom: 0.5em;
     padding: 0.8em;
+    max-width: 100%;
 
     &__image {
       display: none;

@@ -154,8 +154,8 @@ class ShopController < ApplicationController
 
   def load_shop_items
     excluded_free_stickers = current_user && has_ordered_free_stickers?
-    @shop_items = ShopItem.buyable_standalone.includes(:image_attachment)
-    @shop_items = @shop_items.where.not(type: "ShopItem::FreeStickers") if excluded_free_stickers
+    @shop_items = ShopItem.cached_buyable_standalone
+    @shop_items = @shop_items.reject { |item| item.type == "ShopItem::FreeStickers" } if excluded_free_stickers
     @featured_item = featured_free_stickers_item unless excluded_free_stickers
     @user_balance = current_user&.balance || 0
   end
