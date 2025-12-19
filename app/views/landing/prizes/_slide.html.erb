@@ -1,34 +1,12 @@
 <div class="prize">
   <div class="image-wrapper">
-    <% record   = prize[:record] %>
-
-    <% variants =
-      if record&.image&.attached?
-        {
-          sm:       url_for(record.image.variant(:carousel_sm)),
-          md:       url_for(record.image.variant(:carousel_md)),
-          lg:       url_for(record.image.variant(:carousel_lg)),
-          original: url_for(record.image)
-        }
-      else
-        prize[:image_variants] || {}
-      end %>
-
-    <% src      = variants[:md] || variants[:sm] || variants[:lg] || variants[:original] %>
-
-    <% srcset_parts = [] %>
-    <% srcset_parts << "#{variants[:sm]} 160w"       if variants[:sm] %>
-    <% srcset_parts << "#{variants[:md]} 240w"       if variants[:md] %>
-    <% srcset_parts << "#{variants[:lg]} 360w"       if variants[:lg] %>
-    <% srcset_parts << "#{variants[:original]} 800w" if variants[:original] %>
-
     <%= image_tag(
-      src,
+      prize[:image_src],
       alt: prize[:name] || "Prize",
       loading: "eager",
       decoding: "async",
-      srcset: srcset_parts.presence&.join(", "),
-      sizes: srcset_parts.present? ? "(max-width: 800px) 144px, 224px" : nil
+      srcset: prize[:image_srcset],
+      sizes: prize[:image_srcset].present? ? "(max-width: 800px) 144px, 224px" : nil
     ) %>
   </div>
 
