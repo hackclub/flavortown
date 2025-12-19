@@ -18,11 +18,7 @@
       <% expose_slug = item[:earned] || achievement.visible? %>
       <div <%= tag.attributes(id: "achievement-#{achievement.slug}") if expose_slug %> class="achievements__card <%= 'achievements__card--earned' if item[:earned] %> <%= 'achievements__card--secret' if is_obscured %>" data-achievement-highlight-target="card" <%= tag.attributes(data: { slug: achievement.slug }) if expose_slug %>>
         <div class="achievements__icon">
-          <% if is_obscured %>
-            <%= inline_svg_tag "icons/question.svg", class: "achievements__icon-svg" %>
-          <% else %>
-            <%= achievement_icon achievement.icon, earned: item[:earned], class: "achievements__icon-svg" %>
-          <% end %>
+          <%= achievement_icon achievement.icon, earned: item[:earned], class: "achievements__icon-svg" %>
         </div>
         <h3 class="achievements__name"><%= achievement.display_name(earned: item[:earned]) %></h3>
         <p class="achievements__description"><%= achievement.display_description(earned: item[:earned]) %></p>
