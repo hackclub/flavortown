@@ -176,7 +176,7 @@
         <% else %>
           <span style="color: #9ca3af; margin-left: 0.5rem;">Unassigned</span>
         <% end %>
-        
+
         <div data-controller="searchable-select" style="position: relative; margin-top: 0.5rem; max-width: 250px;">
           <%= form_with url: assign_user_admin_shop_order_path(@order), method: :post, local: true, data: { turbo: false } do |f| %>
             <%= f.hidden_field :assigned_to_user_id, value: @order.assigned_to_user_id, data: { searchable_select_target: "hiddenField" } %>
