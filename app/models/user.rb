@@ -137,7 +137,7 @@ class User < ApplicationRecord
   end
 
   def has_hackatime?
-    identities.exists?(provider: "hackatime")
+    identities.loaded? ? identities.any? { |i| i.provider == "hackatime" } : identities.exists?(provider: "hackatime")
   end
 
   def has_identity_linked? = !verification_needs_submission?

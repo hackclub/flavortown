@@ -12,7 +12,7 @@ class KitchenController < ApplicationController
       identities = current_user.identities.reload
     end
 
-    @has_hackatime_linked = identities.any? { |i| i.provider == "hackatime" }
+    @has_hackatime_linked = current_user.has_hackatime?
     @has_identity_linked = current_user.identity_verified?
 
     @tutorial_steps = User::TutorialStep.all
