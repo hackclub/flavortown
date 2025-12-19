@@ -1,6 +1,6 @@
 class AddDevlogsCountToProjects < ActiveRecord::Migration[8.1]
   def change
-    add_column :projects, :devlogs_count, :integer, default: 0, null: false
+    add_column :projects, :devlogs_count, :integer, default: 0, null: false, if_not_exists: true
 
     reversible do |dir|
       dir.up do
