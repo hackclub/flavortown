@@ -1,5 +1,5 @@
 class LandingController < ApplicationController
   def index
-    @prizes = Cache::CarouselPrizesJob.perform_now
+    @prizes = Cache::CarouselPrizesJob.fetch
   end
 end

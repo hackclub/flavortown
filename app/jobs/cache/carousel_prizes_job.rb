@@ -4,6 +4,12 @@ class Cache::CarouselPrizesJob < ApplicationJob
   CACHE_KEY = "landing_carousel_prizes"
   CACHE_DURATION = 1.hour
 
+  def self.fetch(force: false)
+    Rails.cache.fetch(CACHE_KEY, expires_in: CACHE_DURATION, force: force) do
+      new.send(:build_prizes_data)
+    end
+  end
+
   def perform(force: false)
     Rails.cache.fetch(CACHE_KEY, expires_in: CACHE_DURATION, force: force) do
       build_prizes_data
