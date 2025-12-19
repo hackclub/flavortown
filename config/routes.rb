@@ -105,6 +105,7 @@ Rails.application.routes.draw do
   get "my/balance", to: "my#balance"
   patch "my/settings", to: "my#update_settings", as: :my_settings
   post "my/roll_api_key", to: "my#roll_api_key", as: :roll_api_key
+  post "my/cookie_click", to: "my#cookie_click", as: :my_cookie_click
   get "my/achievements", to: "achievements#index"
 
   # Magic Links

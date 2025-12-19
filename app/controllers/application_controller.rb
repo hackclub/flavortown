@@ -11,8 +11,9 @@ class ApplicationController < ActionController::Base
   before_action :initialize_cache_counters
   before_action :track_request
 
-  rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
   rescue_from StandardError, with: :handle_error
+  rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
+  rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
 
   def current_user(preloads = [])
     return @current_user if defined?(@current_user)
@@ -42,6 +43,10 @@ class ApplicationController < ActionController::Base
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private
+
+  def render_not_found
+    render file: Rails.root.join("public/404.html"), status: :not_found, layout: false
+  end
 
   def user_not_authorized
     flash[:alert] = "You are not authorized to perform this action."
