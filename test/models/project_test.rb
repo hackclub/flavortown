@@ -15,6 +15,7 @@
 #  shipped_at        :datetime
 #  synced_at         :datetime
 #  title             :string           not null
+#  tutorial          :boolean          default(FALSE), not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  fire_letter_id    :string
