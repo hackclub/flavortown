@@ -153,6 +153,9 @@ class User < ApplicationRecord
   def setup_complete?
     has_hackatime? && has_identity_linked?
   end
+def all_time_coding_seconds
+    try_sync_hackatime_data!&.dig(:projects)&.values&.sum || 0
+  end
 
   def highest_role
     roles.min_by { |r| User::Role.all_slugs.index(r) }&.to_s&.titleize || "User"
@@ -168,7 +171,9 @@ class User < ApplicationRecord
     self.magic_link_token_expires_at = 15.minutes.from_now
     save!
   end
-
+  def has_commented?
+    comments.exists?
+  end
   def magic_link_valid?
     magic_link_token.present? && magic_link_token_expires_at.present? && magic_link_token_expires_at > Time.current
   end
