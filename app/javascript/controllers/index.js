@@ -78,3 +78,6 @@ application.register("markdown-preview", MarkdownPreviewController);
 
 import AchievementHighlightController from "./achievement_highlight_controller";
 application.register("achievement-highlight", AchievementHighlightController);
+
+import CookieClickerController from "./cookie_clicker_controller";
+application.register("cookie-clicker", CookieClickerController);
