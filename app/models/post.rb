@@ -33,6 +33,9 @@ class Post < ApplicationRecord
     private
 
     def invalidate_project_time_cache
-      Rails.cache.delete("project/#{project_id}/time_seconds") if postable_type == "Post::Devlog"
+      return unless postable_type == "Post::Devlog"
+
+      Rails.cache.delete("project/#{project_id}/time_seconds")
+      Rails.cache.delete("project/#{project_id}/devlogs_count")
     end
 end

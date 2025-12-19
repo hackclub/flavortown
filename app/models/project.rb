@@ -130,6 +130,12 @@ class Project < ApplicationRecord
         OpenStruct.new(hours: hours, minutes: minutes)
     end
 
+    def cached_devlogs_count
+      Rails.cache.fetch("project/#{id}/devlogs_count", expires_in: 10.minutes) do
+        devlogs.count
+      end
+    end
+
     def soft_delete!
       update!(deleted_at: Time.current)
     end
