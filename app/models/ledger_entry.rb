@@ -50,7 +50,7 @@ class LedgerEntry < ApplicationRecord
   end
 
   def prevent_destruction
-    return if ledgerable&.destroyed?
+    return if ledgerable.nil? || ledgerable.destroyed?
 
     raise ActiveRecord::RecordNotDestroyed, "HEY! Ledger entries are immutable and cannot be destroyed. Please create a new offsetting entry instead. we BLOCKCHAIN in this mf!"
   end
