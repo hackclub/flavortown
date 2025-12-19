@@ -119,18 +119,6 @@ class Project < ApplicationRecord
         .order("latest_ship.votes_count ASC")
     }
 
-    LOOKING_FOR_VOTES_CACHE_KEY = "projects/looking_for_votes_ids"
-
-    def self.cached_looking_for_votes_ids
-      Rails.cache.fetch(LOOKING_FOR_VOTES_CACHE_KEY, expires_in: 2.minutes) do
-        looking_for_votes.limit(100).pluck(:id)
-      end
-    end
-
-    def self.invalidate_looking_for_votes_cache!
-      Rails.cache.delete(LOOKING_FOR_VOTES_CACHE_KEY)
-    end
-
     def time
         total_seconds = Rails.cache.fetch("project/#{id}/time_seconds", expires_in: 10.minutes) do
           Post::Devlog.where(id: posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")).sum(:duration_seconds) || 0

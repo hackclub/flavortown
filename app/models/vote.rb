@@ -37,7 +37,6 @@ class Vote < ApplicationRecord
   validate :user_cannot_vote_on_own_projects
 
   before_validation :set_ship_event, on: :create
-  after_commit :invalidate_looking_for_votes_cache, on: :create
 
   class Category
     attr_reader :id, :name, :description
@@ -89,9 +88,5 @@ class Vote < ApplicationRecord
 
   def user_cannot_vote_on_own_projects
     errors.add(:user, "cannot vote on own projects") if project.users.exists?(user_id)
-  end
-
-  def invalidate_looking_for_votes_cache
-    Project.invalidate_looking_for_votes_cache!
   end
 end
