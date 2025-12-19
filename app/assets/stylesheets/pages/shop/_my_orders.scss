@@ -7,14 +7,14 @@
 
   &__blurred-when-inactive {
     filter: blur(8px);
-    user-select: none;   
+    user-select: none;
 
     transition: all 0.5s ease-in-out;
     &:hover {
-      filter: blur(0);     
-      opacity: 1;       
-      pointer-events: auto; 
-      user-select: auto;   
+      filter: blur(0);
+      opacity: 1;
+      pointer-events: auto;
+      user-select: auto;
     }
   }
 
