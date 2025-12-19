@@ -33,6 +33,15 @@
             <span class="shop-item-detail__value"><%= @shop_item.description.presence || "—" %></span>
           </div>
 
+          <% if @shop_item.long_description.present? %>
+            <div class="shop-item-detail__row shop-item-detail__row--block">
+              <span class="shop-item-detail__label">Extended Description</span>
+              <div class="shop-item-detail__markdown-content">
+                <%= render MarkdownContentComponent.new(markdown: @shop_item.long_description) %>
+              </div>
+            </div>
+          <% end %>
+
           <% if @shop_item.internal_description.present? %>
             <div class="shop-item-detail__row">
               <span class="shop-item-detail__label">Internal Notes</span>
@@ -359,6 +368,54 @@
   border-radius: 4px;
   font-size: 0.875rem;
   font-style: italic;
+}
+
+.shop-item-detail__markdown-content {
+  background: var(--color-tan-400);
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.shop-item-detail__markdown-content h1,
+.shop-item-detail__markdown-content h2,
+.shop-item-detail__markdown-content h3 {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.shop-item-detail__markdown-content h1:first-child,
+.shop-item-detail__markdown-content h2:first-child,
+.shop-item-detail__markdown-content h3:first-child {
+  margin-top: 0;
+}
+
+.shop-item-detail__markdown-content p {
+  margin-bottom: 0.5rem;
+}
+
+.shop-item-detail__markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.shop-item-detail__markdown-content ul,
+.shop-item-detail__markdown-content ol {
+  margin-left: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.shop-item-detail__markdown-content code {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+}
+
+.shop-item-detail__markdown-content a {
+  color: var(--color-brown-700);
+  text-decoration: underline;
 }
 
 .shop-item-detail__row-group {

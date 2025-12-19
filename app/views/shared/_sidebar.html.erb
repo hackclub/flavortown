@@ -17,7 +17,7 @@
 
       <% sidebar_nav_items << { label: "Fulfil", path: admin_shop_orders_path(view: "fulfillment"), icon: "shopping_cart_1_fill" } if current_user.fulfillment_person? && !current_user.admin? %>
 
-      <% sidebar_nav_items << { label: "Helper", path: helper_root_path, icon: "code" } if policy(:helper).access_helper_dashboard? %>
+      <% sidebar_nav_items << { label: "Helper", path: helper_root_path, icon: "help" } if policy(:helper).access_helper_dashboard? %>
 
       <ul class="sidebar__nav-list">
         <% sidebar_nav_items.each do |item| %>
