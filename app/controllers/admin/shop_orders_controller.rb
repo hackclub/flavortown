@@ -68,9 +68,10 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     # Apply region filter using database-level query (now that orders have a region column)
-    # Fulfillment persons see orders in their regions OR orders assigned to them
+    # Fulfillment persons see orders in their regions OR orders assigned to them OR orders with nil region (legacy/no address)
     if current_user.fulfillment_person? && !current_user.admin? && current_user.has_regions?
       orders = orders.where(region: current_user.regions)
+                     .or(orders.where(region: nil))
                      .or(orders.where(assigned_to_user_id: current_user.id))
     elsif params[:region].present?
       orders = orders.where(region: params[:region].upcase)

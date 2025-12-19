@@ -365,3 +365,58 @@ body {
     pointer-events: none;
   }
 }
+
+/* Searchable Select Dropdown */
+.searchable-select-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  background: var(--color-tan-300);
+  border: 2px solid var(--color-brown-500);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 240px;
+  overflow-y: auto;
+  margin-top: 0.25rem;
+
+  &.is-open {
+    display: block;
+  }
+}
+
+.searchable-select-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--color-text-body);
+  transition: background 0.1s ease;
+
+  &:hover {
+    background: var(--color-tan-400);
+  }
+
+  &:first-child {
+    border-radius: 0.35rem 0.35rem 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 0.35rem 0.35rem;
+  }
+
+  &.is-hidden {
+    display: none;
+  }
+}
+
+.searchable-select-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}

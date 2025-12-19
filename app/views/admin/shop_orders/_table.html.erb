@@ -74,7 +74,7 @@
                     <%= f.hidden_field :assigned_to_user_id, value: order.assigned_to_user_id, data: { searchable_select_target: "hiddenField" } %>
                     <input
                       type="text"
-                      class="form-control"
+                      class="input-primary"
                       placeholder="<%= order.assigned_to_user.present? ? 'Change...' : 'Assign...' %>"
                       style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: 120px;"
                       data-searchable-select-target="input"
