@@ -1,7 +1,13 @@
 <%= turbo_frame_tag "balance_history" do %>
   <div class="balance-history">
-    <h1>My Balance: 🍪 <%= current_user.balance %></h1>
-    <p></p>
+    <div class="balance-history__header"
+         data-controller="cookie-clicker"
+         data-cookie-clicker-clicks-value="<%= current_user.cookie_clicks %>"
+         data-cookie-clicker-post-url-value="<%= my_cookie_click_path %>"
+         data-cookie-clicker-orchestra-url-value="<%= audio_path('Orchestra_hit.ogg') %>"
+         data-cookie-clicker-headshot-url-value="<%= audio_path('headshot.mp3') %>">
+      <h1>My Balance: <span class="cookie-clicker__cookie" data-cookie-clicker-target="cookie" data-action="click->cookie-clicker#click">🍪</span> <%= current_user.balance %></h1>
+    </div>
 
     <% if @balance.any? %>
       <table class="balance-history__table">

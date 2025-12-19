@@ -25,6 +25,12 @@ class MyController < ApplicationController
     redirect_back fallback_location: root_path, notice: "API key rolled"
   end
 
+  def cookie_click
+    clicks = params[:clicks].to_i.clamp(1, 100)
+    current_user.increment!(:cookie_clicks, clicks)
+    head :ok
+  end
+
   private
 
   def require_login

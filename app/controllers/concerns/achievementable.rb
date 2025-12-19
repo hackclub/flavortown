@@ -36,6 +36,7 @@ module Achievementable
     target = flash == :now ? self.flash.now : self.flash
     target[:achievements] ||= []
     target[:achievements] << {
+      "slug" => achievement.slug.to_s,
       "name" => achievement.name,
       "description" => achievement.description,
       "icon" => achievement.icon,
