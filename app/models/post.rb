@@ -21,10 +21,18 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Post < ApplicationRecord
-    belongs_to :project
+    belongs_to :project, touch: true
     # optional because it can be a system post – achievements, milestones, well-done/magic happening, etc –
     # integeration – git remotes – or a user post
     belongs_to :user, optional: true
 
     delegated_type :postable, types: %w[Post::Devlog Post::ShipEvent Post::FireEvent]
+
+    after_commit :invalidate_project_time_cache, on: [ :create, :destroy ]
+
+    private
+
+    def invalidate_project_time_cache
+      Rails.cache.delete("project/#{project_id}/time_seconds") if postable_type == "Post::Devlog"
+    end
 end

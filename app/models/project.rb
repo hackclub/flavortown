@@ -120,7 +120,9 @@ class Project < ApplicationRecord
     }
 
     def time
-        total_seconds = Post::Devlog.where(id: posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")).sum(:duration_seconds) || 0
+        total_seconds = Rails.cache.fetch("project/#{id}/time_seconds", expires_in: 10.minutes) do
+          Post::Devlog.where(id: posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")).sum(:duration_seconds) || 0
+        end
         total_hours = total_seconds / 3600.0
         hours = total_hours.to_i
         minutes = ((total_hours - hours) * 60).to_i

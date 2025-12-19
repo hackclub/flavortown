@@ -1,3 +1,4 @@
+<% cache project do %>
 <%= tag.div id: dom_id(project), class: "project-card" do %>
     <% if project.banner.attached? %>
         <div class="project-card__banner">
@@ -38,4 +39,5 @@
             <%= "#{project.time.hours}hr #{project.time.minutes}min" %>
         </h5>
     </div>
+<% end %>
 <% end %>
