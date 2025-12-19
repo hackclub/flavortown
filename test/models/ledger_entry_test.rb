@@ -4,7 +4,7 @@
 #
 #  id              :bigint           not null, primary key
 #  amount          :integer
-#  created_by      :string
+#  created_by      :string           not null
 #  ledgerable_type :string           not null
 #  reason          :string
 #  created_at      :datetime         not null
