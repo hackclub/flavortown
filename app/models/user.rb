@@ -122,7 +122,7 @@ class User < ApplicationRecord
     end
   end
 
-  %i[super_admin admin fraud_dept project_certifier ysws_reviewer fulfillment_person helper].each do |role_name|
+  User::Role.all_slugs.each do |role_name|
     define_method "#{role_name}?" do
       has_role?(role_name)
     end
