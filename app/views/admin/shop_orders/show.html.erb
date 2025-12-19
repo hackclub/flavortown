@@ -156,10 +156,68 @@
   <% end %>
 </div>
 <% end %>
-<% if @order.fulfilled_by.present? %>
+
 <div class="card">
   <h2>Fulfillment Information</h2>
   <div class="info-rows">
+    <% if current_user.admin? %>
+      <div style="margin-bottom: 1rem;">
+        <b>Assigned To:</b>
+        <% if @order.assigned_to_user.present? %>
+          <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 0.5rem;">
+            <%= image_tag @order.assigned_to_user.avatar, alt: @order.assigned_to_user.display_name, style: "width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" %>
+            <span><%= @order.assigned_to_user.display_name %></span>
+            <% if @order.assigned_to_user.region.present? %>
+              <span style="background: #e0f2fe; color: #0369a1; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.7rem;">
+                <%= @order.assigned_to_user.region %>
+              </span>
+            <% end %>
+          </div>
+        <% else %>
+          <span style="color: #9ca3af; margin-left: 0.5rem;">Unassigned</span>
+        <% end %>
+        
+        <div data-controller="searchable-select" style="position: relative; margin-top: 0.5rem; max-width: 250px;">
+          <%= form_with url: assign_user_admin_shop_order_path(@order), method: :post, local: true, data: { turbo: false } do |f| %>
+            <%= f.hidden_field :assigned_to_user_id, value: @order.assigned_to_user_id, data: { searchable_select_target: "hiddenField" } %>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="<%= @order.assigned_to_user.present? ? 'Change assignee...' : 'Assign someone...' %>"
+              style="padding: 0.4rem 0.75rem; font-size: 0.85rem;"
+              data-searchable-select-target="input"
+              data-action="focus->searchable-select#open input->searchable-select#filter"
+              autocomplete="off">
+            <div data-searchable-select-target="dropdown" class="searchable-select-dropdown">
+              <div
+                class="searchable-select-option"
+                data-searchable-select-target="option"
+                data-action="click->searchable-select#selectAndSubmit"
+                data-value=""
+                data-label=""
+                data-search-text="unassigned none remove">
+                <span style="color: #9ca3af;">Unassign</span>
+              </div>
+              <% @fulfillment_users.each do |user| %>
+                <div
+                  class="searchable-select-option <%= 'selected' if user.id == @order.assigned_to_user_id %>"
+                  data-searchable-select-target="option"
+                  data-action="click->searchable-select#selectAndSubmit"
+                  data-value="<%= user.id %>"
+                  data-label="<%= user.display_name %>"
+                  data-search-text="<%= "#{user.display_name} #{user.region} #{user.id}".downcase %>">
+                  <img src="<%= user.avatar %>" alt="" class="searchable-select-avatar">
+                  <span><%= user.display_name %></span>
+                  <% if user.region.present? %>
+                    <span style="font-size: 0.7rem; color: #6b7280; margin-left: auto;"><%= user.region %></span>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
     <% if @order.external_ref.present? %>
       <div><b>Tracking/External Reference:</b> <%= @order.external_ref %></div>
     <% end %>
@@ -195,7 +253,7 @@
     </div>
   </div>
 <% end %>
-<% end %>
+
 <div class="card" style="margin-top: 0.75rem; padding: 0.4rem; width: 50%;">
 <h2>Buttons!</h2>
   <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.25rem;">
@@ -378,5 +436,63 @@
 .badge-refunded {
   background-color: #a855f7;
   color: white;
+}
+
+/* Searchable Select */
+.searchable-select-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  background: var(--color-tan-300, #faf7f2);
+  border: 1px solid var(--color-brown-500, #8b7355);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  margin-top: 0.25rem;
+}
+
+.searchable-select-option {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.1s;
+}
+
+.searchable-select-option:hover {
+  background: var(--color-tan-400, #f0ebe3);
+}
+
+.searchable-select-option.selected {
+  background: var(--color-tan-400, #f0ebe3);
+}
+
+.searchable-select-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-brown-500, #8b7355);
+  background: var(--color-tan-400, #f0ebe3);
+  font-size: 0.875rem;
+  color: inherit;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-brown-700, #5a4a3a);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
 }
 </style>

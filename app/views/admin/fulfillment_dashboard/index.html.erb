@@ -36,6 +36,39 @@
   <% end %>
 </div>
 
+<% if @regional_stats.present? %>
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <h3 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: #f59e0b;">📍 Amber & Co by Region</h3>
+    <div class="regional-stats-grid">
+      <% @regional_stats.each do |region_code, data| %>
+        <div class="regional-stat-card">
+          <div class="regional-stat-header">
+            <span class="regional-badge"><%= Shop::Regionalizable.region_name(region_code) %></span>
+            <span class="regional-counts">
+              <span class="badge badge-pending" style="font-size: 0.65rem; padding: 0.1rem 0.3rem;"><%= data[:pc] %> P</span>
+              <span class="badge badge-awaiting_periodical_fulfillment" style="font-size: 0.65rem; padding: 0.1rem 0.3rem;"><%= data[:ac] %> A</span>
+            </span>
+          </div>
+          <div class="regional-stat-times">
+            <div class="time-stat">
+              <span class="time-label">Order</span>
+              <span class="time-value <%= data[:aho] > 172800 ? 'text-danger' : '' %>">
+                <%= format_seconds(data[:aho], include_days: true) %>
+              </span>
+            </div>
+            <div class="time-stat">
+              <span class="time-label">Fulfill</span>
+              <span class="time-value <%= data[:ahf] > 172800 ? 'text-danger' : '' %>">
+                <%= format_seconds(data[:ahf], include_days: true) %>
+              </span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
 <div class="actions-bar">
   <%= button_to "Send Letter Mail", send_letter_mail_admin_fulfillment_dashboard_index_path,
                 method: :post, class: "btn-primary slim" %>
@@ -51,6 +84,8 @@
       <th>Price</th>
       <th>Qty</th>
       <th>Status</th>
+      <th>Region</th>
+      <th>Assignee</th>
       <th>Wait Time</th>
       <th>Created</th>
       <th>Actions</th>
@@ -82,6 +117,31 @@
             <span class="badge badge-<%= order.aasm_state %>">
               <%= order.aasm_state.humanize %>
             </span>
+        </td>
+        <td>
+          <% if order.frozen_address.present? %>
+            <% order_region = Shop::Regionalizable.country_to_region(order.frozen_address["country"]) %>
+            <span style="background: #e0f2fe; color: #0369a1; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500;">
+              <%= Shop::Regionalizable.region_name(order_region) %>
+            </span>
+          <% else %>
+            <span class="text-muted">—</span>
+          <% end %>
+        </td>
+        <td>
+          <% if order.assigned_to_user.present? %>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <%= image_tag order.assigned_to_user.avatar, alt: order.assigned_to_user.display_name, style: "width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" %>
+              <div>
+                <span style="font-size: 0.85rem;"><%= order.assigned_to_user.display_name %></span>
+                <% if order.assigned_to_user.region.present? %>
+                  <br><small class="text-muted"><%= order.assigned_to_user.region %></small>
+                <% end %>
+              </div>
+            </div>
+          <% else %>
+            <span class="text-muted">Unassigned</span>
+          <% end %>
         </td>
         <td>
           <div class="time-breakdown">
@@ -226,5 +286,48 @@
         .dashboard-stats {
             grid-template-columns: repeat(2, 1fr);
         }
+    }
+
+    .regional-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .regional-stat-card {
+        background: var(--color-tan-400, #f0ebe3);
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-left: 3px solid #f59e0b;
+    }
+
+    .regional-stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .regional-badge {
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #92400e;
+    }
+
+    .regional-counts {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .regional-stat-times {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        font-size: 0.75rem;
+    }
+
+    .regional-stat-times .time-stat {
+        display: flex;
+        justify-content: space-between;
     }
 </style>

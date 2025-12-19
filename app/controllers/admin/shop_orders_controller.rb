@@ -137,7 +137,28 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       authorize :admin, :access_shop_orders?
     end
     @order = ShopOrder.find(params[:id])
+
+    # Fulfillment persons can only view orders in their region or assigned to them
+    if current_user.fulfillment_person? && !current_user.admin?
+      can_access = false
+      can_access = true if @order.assigned_to_user_id == current_user.id
+
+      if !can_access && current_user.region.present? && @order.frozen_address.present?
+        order_region = Shop::Regionalizable.country_to_region(@order.frozen_address["country"])
+        can_access = true if order_region == current_user.region
+      end
+
+      unless can_access
+        redirect_to admin_shop_orders_path(view: "fulfillment"), alert: "You don't have access to this order" and return
+      end
+    end
+
     @can_view_address = @order.can_view_address?(current_user)
+
+    # Load fulfillment users for assignment (admins only)
+    if current_user.admin?
+      @fulfillment_users = User.where("'fulfillment_person' = ANY(granted_roles)").order(:display_name)
+    end
 
     # Load user's order history for fraud dept or order review
     @user_orders = @order.user.shop_orders.where.not(id: @order.id).order(created_at: :desc).limit(10)
