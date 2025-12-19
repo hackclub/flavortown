@@ -23,11 +23,11 @@ class VotesController < ApplicationController
 
   def new
     authorize :vote, :new?
-    project_id = Project.looking_for_votes
-                        .votable_by(current_user)
-                        .limit(10)
-                        .pluck(:id)
-                        .sample
+    candidate_ids = Project.cached_looking_for_votes_ids
+    user_project_ids = current_user.projects.pluck(:id)
+    voted_project_ids = current_user.votes.distinct.pluck(:project_id)
+    votable_ids = candidate_ids - user_project_ids - voted_project_ids
+    project_id = votable_ids.sample
 
     @project = Project.find_by(id: project_id)
     @devlogs = if @project
