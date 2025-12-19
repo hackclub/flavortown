@@ -62,8 +62,6 @@ class ShopItem < ApplicationRecord
 
   include Shop::Regionalizable
 
-  after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
-
   MANUAL_FULFILLMENT_TYPES = [
     "ShopItem::HCBGrant",
     "ShopItem::HCBPreauthGrant",
@@ -154,15 +152,5 @@ class ShopItem < ApplicationRecord
 
   def has_accessories?
     available_accessories.exists?
-  end
-
-  private
-
-  def carousel_relevant_change?
-    show_in_carousel? || saved_change_to_show_in_carousel?
-  end
-
-  def refresh_carousel_cache
-    Cache::CarouselPrizesJob.perform_later(force: true)
   end
 end
