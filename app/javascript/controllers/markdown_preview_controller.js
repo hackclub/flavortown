@@ -37,7 +37,8 @@ export default class extends Controller {
       if (response.ok) {
         const html = await response.text();
         this.previewTarget.innerHTML =
-          html || '<span class="markdown-preview__empty">Nothing to preview</span>';
+          html ||
+          '<span class="markdown-preview__empty">Nothing to preview</span>';
       }
     } catch (error) {
       console.error("Markdown preview error:", error);
