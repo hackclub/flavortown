@@ -1,27 +1,29 @@
 <div class="section footer">
   <div class="about">
-    <div>
-      <h2>About Hack Club</h2>
-
-      <p>
-        <a href="https://hackclub.com" target="_blank">Hack Club</a> is a nonprofit supporting a global network of over 60,000 teenagers. We believe the best way to learn is by building, so we provide community, resources, and funding to help teens create. We've run programs like <a href="https://highseas.hackclub.com" target="_blank">High Seas</a>, a global coding challenge where over 1,500 teens logged over 70,000 hours of coding and we shipped out 10,000 prizes to 212 countries; <a href="https://juice.hackclub.com" target="_blank">Juice</a>, a two-month game jam where 100 teens created their own video games; <a href="https://trail.hackclub.com" target="_blank">The Trail</a>, a seven-day hike along the Pacific Crest Trail where 30 teens build their own technical hiking equipment.
-      </p>
+    <div class="about__text">
+      <h2>A project by Hack Club</h2>
+      <p>Hack Club is a 501(c)(3) nonprofit and network of 60k+ technical high schoolers. We believe you learn best by building so we're creating community and providing grants so you can make awesome projects. In the past few years, we've partnered with GitHub to run Summer of Making, hosted the world's longest hackathon on land, and ran Canada's largest high school hackathon.</p>
+      <p>At Hack Club, students aren't just learning, they're shipping.</p>
+    </div>
+    <div class="about__links">
+      <div class="about__links-hackclub">
+        <h3>Hack Club</h3>
+        <%= link_to "Philosophy", "https://hackclub.com/philosophy", target: "_blank", rel: "noopener" %>
+        <%= link_to "Our Team & Board", "https://hackclub.com/team", target: "_blank", rel: "noopener" %>
+        <%= link_to "Branding", "https://hackclub.com/branding", target: "_blank", rel: "noopener" %>
+        <%= link_to "Donate", "https://hackclub.com/donate", target: "_blank", rel: "noopener" %>
+      </div>
+      <div class="about__links-resources">
+        <h3>Resources</h3>
+        <%= link_to "Community Events", "https://events.hackclub.com", target: "_blank", rel: "noopener" %>
+        <%= link_to "Jams", "https://jams.hackclub.com", target: "_blank", rel: "noopener" %>
+        <%= link_to "Workshops", "https://workshops.hackclub.com", target: "_blank", rel: "noopener" %>
+        <%= link_to "Code of Conduct", "https://hackclub.com/conduct", target: "_blank", rel: "noopener" %>
+      </div>
     </div>
   </div>
 
   <div class="credits">
-    <h3 class="desktop-h3">Flavortown is built with &lt;3 by Hack Clubbers around the world</h3>
-    <h3 class="mobile-h3">Made with &lt;3 by</h3>
-
-    <div class="people">
-      <%= image_tag "landing/footer/signatures.avif", class: "signatures", alt: "Flavortown contributors", loading: "lazy" %>
-      <%= image_tag "landing/footer/flag-brown.avif", class: "flag", alt: "Hack Club Flag", loading: "lazy" %>
-    </div>
-  </div>
-
-  <div class="links">
-    <%= link_to "Hack Club", "https://hackclub.com", target: "_blank", rel: "noopener" %>
-    <%= link_to "Clubs", "https://hackclub.com/clubs", target: "_blank", rel: "noopener" %>
-    <%= link_to "Hackathons", "https://hackclub.com/hackathons", target: "_blank", rel: "noopener" %>
+    <%= image_tag "landing/footer/footer-image.webp", class: "credits__image", alt: "Hack Club Photo", loading: "lazy" %>
   </div>
 </div>
