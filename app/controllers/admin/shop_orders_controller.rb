@@ -111,9 +111,10 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
     @order = ShopOrder.find(params[:id])
 
-    # Fulfillment persons can only view orders in their regions or assigned to them
+    # Fulfillment persons can only view orders in their regions, assigned to them, or with nil region
     if current_user.fulfillment_person? && !current_user.admin?
       can_access = @order.assigned_to_user_id == current_user.id
+      can_access ||= @order.region.nil?
       can_access ||= current_user.has_regions? && current_user.has_region?(@order.region)
 
       unless can_access
