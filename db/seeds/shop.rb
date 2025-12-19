@@ -28,7 +28,11 @@ parse_int = ->(v) {
   begin
     Integer(v)
   rescue
-    nil
+    begin
+      Float(v).to_i
+    rescue
+      nil
+    end
   end
 }
 
@@ -97,7 +101,7 @@ CSV.foreach(CSV_PATH, headers: true) do |row|
 
   # money / numeric
   attrs[:usd_cost] = parse_decimal.call(raw['usd_cost'])
-  attrs[:ticket_cost] = parse_decimal.call(raw['ticket_cost'])
+  attrs[:ticket_cost] = parse_int.call(raw['ticket_cost'])
   attrs[:hacker_score] = parse_int.call(raw['hacker_score'])
 
   # booleans
