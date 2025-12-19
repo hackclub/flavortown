@@ -14,7 +14,6 @@ class Rsvp < ApplicationRecord
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   before_validation :downcase_email
   after_commit :send_signup_confirmation_email, on: :create
-  # after_create :set_event_in_loops
 
   private
 
@@ -25,10 +24,6 @@ class Rsvp < ApplicationRecord
     else
       mail.deliver_now
     end
-  end
-
-  def set_event_in_loops
-    SetRsvpInLoopsJob.perform_later(self.email)
   end
 
   def downcase_email
