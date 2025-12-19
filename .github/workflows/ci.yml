@@ -50,6 +50,15 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: yarn
+
+      - name: Install JS dependencies
+        run: yarn install --frozen-lockfile
+
       - name: Lint code for consistent style
         run: bin/rubocop -f github
         # need to fix this? bin/rubocop -f github --autocorrect
@@ -57,6 +66,12 @@ jobs:
       - name: Lint ERB templates
         run: bundle exec erb_lint --lint-all
         # need to fix this? bundle exec erb_lint --lint-all --autocorrect
+
+      - name: Check JavaScript/TypeScript formatting
+        run: yarn -s prettier --check "app/javascript/**/*.{js,jsx,ts,tsx}"
+
+      - name: Check SCSS/CSS formatting
+        run: yarn -s prettier --check "app/assets/stylesheets/**/*.{scss,css}"
 
   zeitwerk_check:
     runs-on: ubuntu-latest
