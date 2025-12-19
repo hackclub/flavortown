@@ -1,13 +1,18 @@
 class KitchenController < ApplicationController
+  prepend_before_action :load_current_user_with_identities
+
   def index
     authorize :kitchen, :index?
 
+    identities = current_user.identities
+
     unless current_user.verification_verified? && current_user.ysws_eligible == true
-      @verification_rejection_reason = refresh_verification_status_from_hca!
+      @verification_rejection_reason = refresh_verification_status_from_hca!(identities)
       current_user.reload
+      identities = current_user.identities.reload
     end
 
-    @has_hackatime_linked = current_user.has_hackatime?
+    @has_hackatime_linked = identities.any? { |i| i.provider == "hackatime" }
     @has_identity_linked = current_user.identity_verified?
 
     @tutorial_steps = User::TutorialStep.all
@@ -20,9 +25,13 @@ class KitchenController < ApplicationController
 
   private
 
+  def load_current_user_with_identities
+    current_user(:identities)
+  end
+
   # temp
-  def refresh_verification_status_from_hca!
-    identity = current_user.identities.find_by(provider: "hack_club")
+  def refresh_verification_status_from_hca!(identities)
+    identity = identities.find { |i| i.provider == "hack_club" }
     return unless identity&.access_token.present?
 
     identity_payload = HCAService.identity(identity.access_token)
