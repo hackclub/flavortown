@@ -17,10 +17,10 @@
 #  shipped_at         :datetime
 #  synced_at          :datetime
 #  title              :string           not null
+#  tutorial           :boolean          default(FALSE), not null
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  fire_letter_id     :string
-#  tutorial          :boolean          default(FALSE), not null
 #  marked_fire_by_id  :bigint
 #
 # Indexes
