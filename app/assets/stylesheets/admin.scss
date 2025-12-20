@@ -227,7 +227,8 @@ body {
   line-height: 1;
   vertical-align: middle;
 
-  &.badge-pending, &.badge-awaiting_verification {
+  &.badge-pending,
+  &.badge-awaiting_verification {
     background-color: #fbbf24;
     color: #78350f;
   }
