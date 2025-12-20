@@ -81,3 +81,6 @@ application.register("achievement-highlight", AchievementHighlightController);
 
 import CookieClickerController from "./cookie_clicker_controller";
 application.register("cookie-clicker", CookieClickerController);
+
+import StartDevlogController from "./start_devlog_controller";
+application.register("start-devlog", StartDevlogController);
