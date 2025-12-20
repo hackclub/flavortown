@@ -75,6 +75,7 @@ class LedgerEntry < ApplicationRecord
     when "ShopOrder" then "shop purchase"
     when "Post::ShipEvent" then "tutorial"
     when "User" then "user grant"
+    when "User::Achievement" then reason.presence || "achievement"
     else "unknown"
     end
     change_emoji = amount.positive? ? "📈" : "📉"
