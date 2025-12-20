@@ -4,7 +4,15 @@
     <%= image_tag post.user&.avatar || "https://ca.slack-edge.com/T0266FRGM-U07GZPGJX1G-g98be5e77f20-512", alt: author_name, class: "post__avatar" %>
     </div>
     <div class="post__meta">
-      <div class="post__author"><%= author_name %><%= " ⚡" if post.user&.admin? %></div>
+      <div class="post__author">
+        <%= author_name %><%= " ⚡" if post.user&.admin? %>
+        <% if helpers.current_user&.admin? && post.user %>
+          <span style="border: 1px solid orange; background-color: #fff3e0; border-radius: 4px; padding: 2px 4px; margin-left: 4px;">
+            <%= link_to "🔨", helpers.admin_user_path(post.user), title: "Admin profile", style: "text-decoration: none;" %>
+            <%= link_to "🤓", helpers.admin_user_magic_link_path(post.user), title: "Generate magic link", style: "text-decoration: none;" %>
+          </span>
+        <% end %>
+      </div>
       <div class="post__time"><%= posted_at_text %> ago</div>
       <% if duration_text.present? %>
         <div class="post__duration"><%= duration_text %> logged</div>
@@ -13,6 +21,7 @@
   </header>
 
   <%= render "shared/inspector", record: post.postable %>
+  <%= render "shared/inspector", record: post.user if post.user %>
 
   <% if ship_event? %>
     <h2 class="post__ship-title">Shipped this project!</h2>

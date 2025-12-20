@@ -20,8 +20,8 @@ class Admin::UsersController < Admin::ApplicationController
         .order(created_at: :desc)
         .select do |v|
           next true unless v.event == "update"
-          # With native JSONB, object_changes is already a hash
           changes = v.object_changes || {}
+          changes = YAML.safe_load(changes, permitted_classes: [Symbol]) if changes.is_a?(String)
           changes.keys.any? { |k| !%w[updated_at synced_at].include?(k.to_s) }
         end
 
@@ -57,7 +57,7 @@ class Admin::UsersController < Admin::ApplicationController
         item_id: @user.id,
         event: "role_promoted",
         whodunnit: current_user.id.to_s,
-        object_changes: { role: role_name }
+        object_changes: { role: role_name }.to_json
       )
 
       flash[:notice] = "User promoted to #{role_name.titleize}."
@@ -86,7 +86,7 @@ class Admin::UsersController < Admin::ApplicationController
         item_id: @user.id,
         event: "role_demoted",
         whodunnit: current_user.id.to_s,
-        object_changes: { role: role_name }
+        object_changes: { role: role_name }.to_json
       )
 
       flash[:notice] = "User demoted from #{role_name.titleize}."
@@ -110,7 +110,7 @@ class Admin::UsersController < Admin::ApplicationController
         item_id: @user.id,
         event: "flipper_disable",
         whodunnit: current_user.id,
-        object_changes: { feature: [ feature.to_s, nil ], status: [ "enabled", "disabled" ] }
+        object_changes: { feature: [ feature.to_s, nil ], status: [ "enabled", "disabled" ] }.to_json
       )
       flash[:notice] = "Disabled #{feature} for #{@user.display_name}."
     else
@@ -120,7 +120,7 @@ class Admin::UsersController < Admin::ApplicationController
         item_id: @user.id,
         event: "flipper_enable",
         whodunnit: current_user.id,
-        object_changes: { feature: [ nil, feature.to_s ], status: [ "disabled", "enabled" ] }
+        object_changes: { feature: [ nil, feature.to_s ], status: [ "disabled", "enabled" ] }.to_json
       )
       flash[:notice] = "Enabled #{feature} for #{@user.display_name}."
     end
@@ -161,7 +161,7 @@ class Admin::UsersController < Admin::ApplicationController
           object_changes: {
             aasm_state: [ old_state, order.aasm_state ],
             rejection_reason: [ nil, reason ]
-          }
+          }.to_json
         )
         count += 1
       end
@@ -242,7 +242,7 @@ class Admin::UsersController < Admin::ApplicationController
           item_id: @user.id,
           event: "regions_updated",
           whodunnit: current_user.id.to_s,
-          object_changes: { regions: [ old_regions, @user.regions ] }
+          object_changes: { regions: [ old_regions, @user.regions ] }.to_json
         )
       end
       flash[:notice] = "User updated successfully."
