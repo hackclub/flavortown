@@ -54,10 +54,10 @@
               <% elsif video?(att) %>
                 <video class="post__attachment post__attachment--video" controls src="<%= url_for(att) %>"></video>
               <% else %>
-                <a class="post__attachment post__attachment--file" href="<%= url_for(att) %>" target="_blank" rel="noopener">
+                <%= link_to url_for(att), target: "_blank", rel: "noopener", class: "post__attachment post__attachment--file" do %>
                   <%= helpers.inline_svg_tag("icons/paper.svg") %>
                   <span><%= File.basename(att.filename.to_s) %></span>
-                </a>
+                <% end %>
               <% end %>
             </div>
           <% end %>
