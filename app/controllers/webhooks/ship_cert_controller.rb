@@ -36,7 +36,7 @@ class Webhooks::ShipCertController < ApplicationController
 
     if project_type.present?
       normalized_type = normalize_category(project_type)
-      project.update!(project_categories: [normalized_type])
+      project.update!(project_categories: [ normalized_type ])
     end
 
     Rails.logger.info "Ship cert webhook: project=#{project_id} status=#{status} project_type=#{project_type}"
