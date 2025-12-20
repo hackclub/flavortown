@@ -123,7 +123,6 @@ body {
   justify-content: center;
   gap: 0.5em;
   padding: 1em 2em;
-  margin-top: 1em;
   background: #6b7280;
   color: white;
   border: none;
@@ -138,6 +137,10 @@ body {
 
   &:hover {
     background: #4b5563;
+  }
+
+  &:not(.no-margin) {
+    margin-top: 1em;
   }
 
   &.slim {
