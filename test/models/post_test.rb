@@ -6,7 +6,7 @@
 #  postable_type :string
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
-#  postable_id   :string
+#  postable_id   :bigint
 #  project_id    :bigint           not null
 #  user_id       :bigint
 #

@@ -19,7 +19,7 @@ module Achievementable
   def grant_achievement!(slug, flash: :now)
     return nil unless current_user
 
-    achievement = current_user.award_achievement!(slug)
+    achievement = current_user.award_achievement!(slug, notified: true)
     flash_achievement!(achievement, flash:) if achievement
     achievement
   end
@@ -42,5 +42,15 @@ module Achievementable
       "icon" => achievement.icon,
       "cookie_reward" => achievement.cookie_reward
     }
+  end
+
+  def show_pending_achievement_notifications!
+    return unless current_user&.has_pending_achievements?
+
+    current_user.pending_achievement_notifications.find_each do |user_achievement|
+      flash_achievement!(user_achievement.achievement, flash: :now)
+      user_achievement.update!(notified: true)
+    end
+    current_user.update_column(:has_pending_achievements, false)
   end
 end

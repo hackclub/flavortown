@@ -7,12 +7,13 @@
 #  banned                      :boolean          default(FALSE), not null
 #  banned_at                   :datetime
 #  banned_reason               :text
-#  cookie_clicks               :integer
+#  cookie_clicks               :integer          default(0), not null
 #  display_name                :string
 #  email                       :string
 #  first_name                  :string
 #  granted_roles               :string           default([]), not null, is an Array
 #  has_gotten_free_stickers    :boolean          default(FALSE)
+#  has_pending_achievements    :boolean          default(FALSE), not null
 #  hcb_email                   :string
 #  last_name                   :string
 #  magic_link_token            :string
@@ -261,16 +262,25 @@ class User < ApplicationRecord
     @earned_achievement_slugs ||= achievements.pluck(:achievement_slug).to_set
   end
 
+  def pending_achievement_notifications
+    achievements.where(notified: false)
+  end
+
+  def recalculate_has_pending_achievements!
+    update_column(:has_pending_achievements, achievements.where(notified: false).exists?)
+  end
+
   def earned_achievement?(slug)
     earned_achievement_slugs.include?(slug.to_s)
   end
 
-  def award_achievement!(slug)
+  def award_achievement!(slug, notified: false)
     return nil if earned_achievement?(slug)
 
     achievement = ::Achievement.find(slug)
-    achievements.create!(achievement_slug: slug.to_s, earned_at: Time.current)
+    achievements.create!(achievement_slug: slug.to_s, earned_at: Time.current, notified: notified)
     @earned_achievement_slugs&.add(slug.to_s)
+    update_column(:has_pending_achievements, true) unless notified
     achievement
   end
 

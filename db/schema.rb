@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_19_222810) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_20_010442) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -247,7 +247,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_222810) do
 
   create_table "posts", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.string "postable_id"
+    t.bigint "postable_id"
     t.string "postable_type"
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
@@ -442,6 +442,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_222810) do
     t.string "achievement_slug", null: false
     t.datetime "created_at", null: false
     t.datetime "earned_at", null: false
+    t.boolean "notified", default: false, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id", "achievement_slug"], name: "index_user_achievements_on_user_id_and_achievement_slug", unique: true
@@ -488,6 +489,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_222810) do
     t.string "first_name"
     t.string "granted_roles", default: [], null: false, array: true
     t.boolean "has_gotten_free_stickers", default: false
+    t.boolean "has_pending_achievements", default: false, null: false
     t.string "hcb_email"
     t.string "last_name"
     t.string "magic_link_token"
