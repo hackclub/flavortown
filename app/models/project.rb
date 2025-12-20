@@ -118,9 +118,12 @@ class Project < ApplicationRecord
         ORDER BY posts.created_at DESC
         LIMIT 1
       ) latest_ship ON true")
-        .joins(:users)
-        .where(users: { verification_status: "verified" })
-        .distinct
+        .where("EXISTS (
+          SELECT 1 FROM project_memberships
+          INNER JOIN users ON users.id = project_memberships.user_id
+          WHERE project_memberships.project_id = projects.id
+          AND users.verification_status = 'verified'
+        )")
         .order("latest_ship.votes_count ASC")
     }
 
