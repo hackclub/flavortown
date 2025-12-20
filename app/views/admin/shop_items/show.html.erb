@@ -159,7 +159,7 @@
             <% if @shop_item.type == "ShopItem::HCBPreauthGrant" && @shop_item.hcb_preauthorization_instructions.present? %>
               <div class="shop-item-detail__row shop-item-detail__row--block">
                 <span class="shop-item-detail__label">Preauthorization Instructions</span>
-                <div class="shop-item-detail__instructions"><%= simple_format(@shop_item.hcb_preauthorization_instructions) %></div>
+                <div class="shop-item-detail__instructions"><%= simple_format(sanitize(@shop_item.hcb_preauthorization_instructions)) %></div>
               </div>
             <% end %>
           </div>
