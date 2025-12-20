@@ -11,6 +11,7 @@
 #  likes_count                     :integer          default(0), not null
 #  scrapbook_url                   :string
 #  synced_at                       :datetime
+#  tutorial                        :boolean          default(FALSE), not null
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null
 #

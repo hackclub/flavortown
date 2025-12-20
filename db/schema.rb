@@ -222,6 +222,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_020316) do
     t.integer "likes_count", default: 0, null: false
     t.string "scrapbook_url"
     t.datetime "synced_at"
+    t.boolean "tutorial", default: false, null: false
     t.datetime "updated_at", null: false
   end
 
@@ -303,6 +304,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_020316) do
     t.datetime "shipped_at"
     t.datetime "synced_at"
     t.string "title", null: false
+    t.boolean "tutorial", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "index_projects_on_deleted_at"
     t.index ["marked_fire_by_id"], name: "index_projects_on_marked_fire_by_id"

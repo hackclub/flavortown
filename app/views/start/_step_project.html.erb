@@ -1,183 +1,9 @@
-<% if @experience_level == "unseasoned" && @project_attrs.blank? %>
-  <div class="start-flow__starter-projects">
-      <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "starter-project-card__form" do |f| %>
-        <%= f.hidden_field :name, value: "Sprig" %>
-        <%= f.hidden_field :description, value: "Making my first game with Sprig! Coding in JavaScript, building something cool, and I'll get a real handheld console when I'm done. Weee!! :D" %>
-        <%= f.button type: :submit, class: "starter-project-card__button" do %>
-          <%= render StarterProjectCardComponent.new(
-            name: "Sprig",
-            description: "Make a small game using JavaScript in Sprig's browser editor. Write code, run it, and play instantly. Finish the project and get a handheld console.",
-            image_url: "starter-projects/sprig.png",
-            image_bg_color: "linear-gradient(to bottom, #1C1908, #027A0A)"
-          ) %>
-        <% end %>
-      <% end %>
-
-      <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "starter-project-card__form" do |f| %>
-        <%= f.hidden_field :name, value: "Boba Drops" %>
-        <%= f.hidden_field :description, value: "Building my first website and learning the basics of coding! Plus, I get boba when I finish. :3" %>
-        <%= f.button type: :submit, class: "starter-project-card__button" do %>
-          <%= render StarterProjectCardComponent.new(
-            name: "Boba Drops",
-            description: "A gentle intro to coding. Build a simple website, learn the basics, and get boba for completing it.",
-            image_url: "starter-projects/boba-drops.svg",
-            image_bg_color: "#AB5A07",
-            featured: true
-          ) %>
-        <% end %>
-      <% end %>
-
-      <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "starter-project-card__form" do |f| %>
-        <%= f.hidden_field :name, value: "Fuse Ring" %>
-        <%= f.hidden_field :description, value: "Designing my own keyring with CAD! My friends will be so jealous (^_^)v" %>
-        <%= f.button type: :submit, class: "starter-project-card__button" do %>
-          <%= render StarterProjectCardComponent.new(
-            name: "Fuse Ring",
-            description: "Design a simple keyring using CAD. No experience needed. We'll make it and ship it to you with stickers.",
-            image_url: "starter-projects/FuseringLogo.svg",
-            image_bg_image: "starter-projects/HeroBackground.webp"
-          ) %>
-        <% end %>
-    <% end %>
-  </div>
-    <div class="start-flow__actions start-flow__actions--center">
-        <%= render ButtonComponent.new(
-          text: "Back",
-          color: :brown,
-          variant: :borderless,
-          size: :md,
-          href: start_path(step: "experience")
-        ) %>
-      </div>
-<% elsif @experience_level == "seasoned" && @project_attrs.blank? %>
-  <div class="start-flow__project-selection">
-    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
-      <%= f.hidden_field :name, value: "Web Project" %>
-      <%= f.hidden_field :description, value: "Hehe, I learned about this cool framework called Ruby On Rails and I'm tired of React and Next's vulnerabilities so imma try this out :D" %>
-      <%= f.button type: :submit, class: "project-selection-card__button" do %>
-        <%= render ProjectSelectionCardComponent.new(
-          title: "Web",
-          description: "This includes websites, dashboards, and browser-based apps",
-          image_url: "project-categories/web.png",
-          variant: :red
-        ) %>
-      <% end %>
-    <% end %>
-
-    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
-      <%= f.hidden_field :name, value: "Mobile App" %>
-      <%= f.hidden_field :description, value: "Love the new Material UI API and I think I'm going to cook something for android! >.<" %>
-      <%= f.button type: :submit, class: "project-selection-card__button" do %>
-        <%= render ProjectSelectionCardComponent.new(
-          title: "Mobile",
-          description: "This includes Android and iOS apps",
-          image_url: "project-categories/mobile.png",
-          variant: :green
-        ) %>
-      <% end %>
-    <% end %>
-
-    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
-      <%= f.hidden_field :name, value: "Desktop App" %>
-      <%= f.hidden_field :description, value: "I need to techbro hard and I think I'm going to make a desktop app to run bluesky and x simultaneously (^_^)" %>
-      <%= f.button type: :submit, class: "project-selection-card__button" do %>
-        <%= render ProjectSelectionCardComponent.new(
-          title: "Desktop",
-          description: "This includes installed apps for Windows, macOS, or Linux",
-          image_url: "project-categories/desktop.png",
-          variant: :blue
-        ) %>
-      <% end %>
-    <% end %>
-
-    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
-      <%= f.hidden_field :name, value: "CLI / TUI Tool" %>
-      <%= f.hidden_field :description, value: "I hate the macOS finder and I lowkey feel like building a TUI based file explorer written in Zig O_O" %>
-      <%= f.button type: :submit, class: "project-selection-card__button" do %>
-        <%= render ProjectSelectionCardComponent.new(
-          title: "CLI / TUI",
-          description: "This includes terminal-based tools and text UIs",
-          image_url: "project-categories/cli.png",
-          variant: :yellow
-        ) %>
-      <% end %>
-    <% end %>
-
-    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
-      <%= f.hidden_field :name, value: "Game" %>
-      <%= f.hidden_field :description, value: "I wonder what the Godot hype is all about. Lmk check it out and make a platformer, perhaps. (◕‿◕✿)" %>
-      <%= f.button type: :submit, class: "project-selection-card__button" do %>
-        <%= render ProjectSelectionCardComponent.new(
-          title: "Games",
-          description: "This includes 2D/3D games and interactive experiences",
-          image_url: "project-categories/games.png",
-          variant: :red
-        ) %>
-      <% end %>
-    <% end %>
-
-    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
-      <%= f.hidden_field :name, value: "Hardware Project" %>
-      <%= f.hidden_field :description, value: "I think I'm going to build my custom flight controller! ʕ•ᴥ•ʔ " %>
-      <%= f.button type: :submit, class: "project-selection-card__button" do %>
-        <%= render ProjectSelectionCardComponent.new(
-          title: "Hardware",
-          description: "This includes Arduino, PIs, PCBs and CAD",
-          image_url: "project-categories/hardware.png",
-          variant: :green
-        ) %>
-      <% end %>
-    <% end %>
-
-    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
-      <%= f.hidden_field :name, value: "ML Project" %>
-      <%= f.hidden_field :description, value: "AI AI AI AI AI. Okay, I'm gonna go old school and NOT build a wrapper on top of LLM. Trust. Trust." %>
-      <%= f.button type: :submit, class: "project-selection-card__button" do %>
-        <%= render ProjectSelectionCardComponent.new(
-          title: "ML",
-          description: "This includes machine learning models and AI projects",
-          image_url: "project-categories/ml.png",
-          variant: :blue
-        ) %>
-      <% end %>
-    <% end %>
-
-    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
-      <%= f.hidden_field :name, value: "Bot" %>
-      <%= f.hidden_field :description, value: "Gonna make a slackbot for my personal channel and compete with Zeon and diss on Neon" %>
-      <%= f.button type: :submit, class: "project-selection-card__button" do %>
-        <%= render ProjectSelectionCardComponent.new(
-          title: "Bots",
-          description: "This includes chatbots, Slack Bots, Discord bots, and automated tools",
-          image_url: "project-categories/bots.png",
-          variant: :yellow
-        ) %>
-      <% end %>
-    <% end %>
-
-    <%= form_with url: "/start/prefill_project", method: :post, local: true, class: "project-selection-card__form" do |f| %>
-      <%= f.hidden_field :name, value: "Project" %>
-      <%= f.hidden_field :description, value: "This is going to be so novel that I'm going to win every science fair and sweep all categories in ISEF and maybe get a Fields, Nobel, Pulitzer, Turing and all that boomer awards." %>
-      <%= f.button type: :submit, class: "project-selection-card__button" do %>
-        <%= render ProjectSelectionCardComponent.new(
-          title: "Others",
-          description: "If your project doesn't fit into any of the listed categories",
-          image_url: "project-categories/other.png",
-          variant: :red
-        ) %>
-      <% end %>
-    <% end %>
-  </div>
-  <div class="start-flow__actions start-flow__actions--center">
-    <%= render ButtonComponent.new(
-      text: "Back",
-      color: :brown,
-      variant: :borderless,
-      size: :md,
-      href: start_path(step: "experience")
-    ) %>
-  </div>
-<% else %>
+<%# Experience-based project selection commented out - now always showing the form %>
+<%# if @experience_level == "unseasoned" && @project_attrs.blank? %>
+  <%# ... starter projects ... %>
+<%# elsif @experience_level == "seasoned" && @project_attrs.blank? %>
+  <%# ... project categories ... %>
+<%# else %>
   <div class="start-flow__card">
     <div class="start-flow__ribbon">
       <%= inline_svg_tag "icons/star_fill.svg" %>
@@ -185,7 +11,7 @@
 
     <div class="start-flow__card-header">
       <h2>Create Project</h2>
-      <p class="start-flow__card-subtitle">You can change this later</p>
+      <p class="start-flow__card-subtitle">This is just a dummy project for practice—don't worry about making it perfect!</p>
     </div>
 
     <%= form_with url: "/start/project", method: :post, class: "start-flow__form", local: true do |f| %>
@@ -224,17 +50,12 @@
       </div>
 
       <div class="start-flow__actions start-flow__actions--center">
-        <% back_href = if (@experience_level == "unseasoned" || @experience_level == "seasoned") && @project_attrs.present?
-                         start_path(step: "project", clear_prefill: true)
-                       else
-                         start_path(step: "experience")
-                       end %>
         <%= render ButtonComponent.new(
           text: "Back",
           color: :brown,
           variant: :borderless,
           size: :md,
-          href: back_href
+          href: start_path(step: "name")
         ) %>
         <%= render ButtonComponent.new(
           text: "Next",
@@ -246,4 +67,4 @@
       </div>
     <% end %>
   </div>
-<% end %>
+<%# end %>

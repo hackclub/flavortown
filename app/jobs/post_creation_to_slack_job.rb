@@ -1,9 +1,9 @@
 class PostCreationToSlackJob < ApplicationJob
   queue_as :latency_5m
 
-  CHANNEL_ID = "C0A3WD1B24R"
+  CHANNEL_ID = ""
 
-  SLACK_MENTION_PATTERN = /<!(?:here|channel|everyone|subteam\^[A-Z0-9]+)>|@(?:here|channel|everyone)/i
+  SLACK_MENTION_PATTERN = /<!(?:here|channel|everyone|subteam\^[A-Z0-9]+)(?:\|[^>]+)?>|@(?:here|channel|everyone)/i
 
   include Rails.application.routes.url_helpers
 

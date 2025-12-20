@@ -1,9 +1,110 @@
 <% if @show_welcome_overlay %>
-  <%= render WelcomeOverlayComponent.new(redirect_to_shop_tutorial: current_user.should_show_shop_tutorial?) %>
+  <%= render WelcomeOverlayComponent.new %>
 <% end %>
 
 <div class="kitchen-index">
   <%= render HeadingComponent.new(title: "Kitchen", tone: :blue) %>
+
+  <% if @show_welcome_overlay %>
+    <div class="dialogue-box-container"
+         data-controller="kitchen-dialogue"
+         data-kitchen-dialogue-show-hackatime-tutorial-value="<%= @show_hackatime_tutorial %>"
+         data-kitchen-dialogue-show-slack-tutorial-value="<%= @show_slack_tutorial %>"
+         style="display: none;">
+      <!-- Welcome Dialogue -->
+      <div class="dialogue-box-wrapper dialogue-box-wrapper--welcome"
+        data-dialogue-type="welcome"
+        data-dialogue-iteration-text-value='<%= [
+          "Welcome to the Kitchen, chef! This is your home base on Flavortown.",
+          "The Kitchen is where you'll find your tutorial steps, track your progress, and see what you need to do next.",
+          "You'll see cards for each step you need to complete. Once you finish them all, you'll be fully set up and ready to cook!",
+          "Let's start by checking out the tutorial steps below. They'll guide you through everything you need to know."
+        ].to_json %>'
+        data-dialogue-iteration-voice-url-value="<%= audio_path('cartoon-yap.mp3') %>"
+        data-dialogue-iteration-sprites-value='<%= (1..12).map { |i| image_path("orpheus_sprites/#{i}.png") }.to_json %>'
+        data-action="keydown.enter@window->dialogue-iteration#next click@window->dialogue-iteration#next">
+        <div class="dialogue-box-backdrop"></div>
+        <div class="dialogue-box">
+          <h1>Chef Orpheus</h1>
+          <div class="dialogue-box__image" data-action="click->dialogue-iteration#squeakCharacter" data-dialogue-iteration-target="character">
+            <%= image_tag "orpheus_sprites/1.png", alt: "Chef Orpheus", data: { dialogue_iteration_target: "sprite" } %>
+          </div>
+          <div class="dialogue-box__text">
+            <div class="dialogue-box__text-content">
+              <span data-dialogue-iteration-target="content">Welcome to the Kitchen, chef! This is your home base on Flavortown.</span>
+            </div>
+            <button type="button" class="dialogue-box__text-btn">
+              Click to continue...<span>&#8964;</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <% if @show_hackatime_tutorial %>
+        <!-- Hackatime Tutorial Dialogue -->
+        <div class="dialogue-box-wrapper dialogue-box-wrapper--hackatime"
+          data-dialogue-type="hackatime"
+          style="display: none;"
+          data-dialogue-iteration-text-value='<%= [
+            "On Flavortown, the projects that you build are time tracked!",
+            "You install an extension in your code editor and the time tracking is automatic.",
+            "We need to track how much time you spend to reward you with cookies!",
+            "And that's how you're gonna earn cookies :p!",
+            "Let's connect your Hackatime account so we can start tracking your coding time."
+          ].to_json %>'
+          data-dialogue-iteration-voice-url-value="<%= audio_path('cartoon-yap.mp3') %>"
+          data-dialogue-iteration-sprites-value='<%= (1..12).map { |i| image_path("orpheus_sprites/#{i}.png") }.to_json %>'
+          data-action="keydown.enter@window->dialogue-iteration#next click@window->dialogue-iteration#next">
+          <div class="dialogue-box-backdrop"></div>
+          <div class="dialogue-box">
+            <h1>Chef Orpheus</h1>
+            <div class="dialogue-box__image" data-action="click->dialogue-iteration#squeakCharacter" data-dialogue-iteration-target="character">
+              <%= image_tag "orpheus_sprites/1.png", alt: "Chef Orpheus", data: { dialogue_iteration_target: "sprite" } %>
+            </div>
+            <div class="dialogue-box__text">
+              <div class="dialogue-box__text-content">
+                <span data-dialogue-iteration-target="content">On Flavortown, the projects that you build are time tracked!</span>
+              </div>
+              <button type="button" class="dialogue-box__text-btn">
+                Click to continue...<span>&#8964;</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @show_slack_tutorial %>
+        <!-- Slack Tutorial Dialogue -->
+        <div class="dialogue-box-wrapper dialogue-box-wrapper--slack"
+          data-dialogue-type="slack"
+          style="display: none;"
+          data-dialogue-iteration-text-value='<%= [
+            "One more thing, chef!",
+            "Join our Slack community to connect with other chefs, share your projects, and get help when you need it.",
+            "It's a great place to meet fellow builders and be part of the Flavortown community!"
+          ].to_json %>'
+          data-dialogue-iteration-voice-url-value="<%= audio_path('cartoon-yap.mp3') %>"
+          data-dialogue-iteration-sprites-value='<%= (1..12).map { |i| image_path("orpheus_sprites/#{i}.png") }.to_json %>'
+          data-action="keydown.enter@window->dialogue-iteration#next click@window->dialogue-iteration#next">
+          <div class="dialogue-box-backdrop"></div>
+          <div class="dialogue-box">
+            <h1>Chef Orpheus</h1>
+            <div class="dialogue-box__image" data-action="click->dialogue-iteration#squeakCharacter" data-dialogue-iteration-target="character">
+              <%= image_tag "orpheus_sprites/1.png", alt: "Chef Orpheus", data: { dialogue_iteration_target: "sprite" } %>
+            </div>
+            <div class="dialogue-box__text">
+              <div class="dialogue-box__text-content">
+                <span data-dialogue-iteration-target="content">One more thing, chef!</span>
+              </div>
+              <button type="button" class="dialogue-box__text-btn">
+                Click to continue...<span>&#8964;</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
   <% if current_user&.banned? %>
     <div class="banned-banner">
