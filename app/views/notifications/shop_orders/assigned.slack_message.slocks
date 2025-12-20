@@ -1,0 +1,14 @@
+header "📦 Order #{order.id} Assigned to You!"
+
+section "You've been assigned to fulfill an order.", markdown: true
+
+section "Order Details:",
+  fields: [
+    mrkdwn_text("*Order:* #{order.shop_item.name}"),
+    mrkdwn_text("*Country:* #{order.frozen_address&.dig('country') || 'Unknown'}"),
+    mrkdwn_text("*Recipient:* <@#{order.user.slack_id}>"),
+  ]
+
+actions [
+  button("View Order", url: admin_url)
+]

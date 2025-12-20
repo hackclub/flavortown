@@ -7,17 +7,19 @@
 #  banned                      :boolean          default(FALSE), not null
 #  banned_at                   :datetime
 #  banned_reason               :text
+#  cookie_clicks               :integer          default(0), not null
 #  display_name                :string
 #  email                       :string
 #  first_name                  :string
 #  granted_roles               :string           default([]), not null, is an Array
 #  has_gotten_free_stickers    :boolean          default(FALSE)
+#  has_pending_achievements    :boolean          default(FALSE), not null
 #  hcb_email                   :string
 #  last_name                   :string
 #  magic_link_token            :string
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
-#  region                      :string
+#  regions                     :string           default([]), is an Array
 #  send_votes_to_slack         :boolean          default(FALSE), not null
 #  session_token               :string
 #  slack_balance_notifications :boolean          default(FALSE), not null
@@ -35,13 +37,13 @@
 #
 #  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
-#  index_users_on_region            (region)
 #  index_users_on_session_token     (session_token) UNIQUE
 #  index_users_on_slack_id          (slack_id) UNIQUE
 #
 class User < ApplicationRecord
   has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
   has_many :identities, class_name: "User::Identity", dependent: :destroy
+  has_many :achievements, class_name: "User::Achievement", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
   has_many :projects, through: :memberships
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
@@ -122,7 +124,7 @@ class User < ApplicationRecord
     end
   end
 
-  %i[super_admin admin fraud_dept project_certifier ysws_reviewer fulfillment_person helper].each do |role_name|
+  User::Role.all_slugs.each do |role_name|
     define_method "#{role_name}?" do
       has_role?(role_name)
     end
@@ -137,7 +139,7 @@ class User < ApplicationRecord
   end
 
   def has_hackatime?
-    identities.exists?(provider: "hackatime")
+    identities.loaded? ? identities.any? { |i| i.provider == "hackatime" } : identities.exists?(provider: "hackatime")
   end
 
   def has_identity_linked? = !verification_needs_submission?
@@ -153,7 +155,20 @@ class User < ApplicationRecord
   def setup_complete?
     has_hackatime? && has_identity_linked?
   end
-def all_time_coding_seconds
+
+  def has_regions?
+    regions.present? && regions.any?
+  end
+
+  def has_region?(region_code)
+    regions.include?(region_code.to_s.upcase)
+  end
+
+  def regions_display
+    regions.map { |r| Shop::Regionalizable.region_name(r) }.join(", ")
+  end
+
+  def all_time_coding_seconds
     try_sync_hackatime_data!&.dig(:projects)&.values&.sum || 0
   end
 
@@ -183,6 +198,10 @@ def all_time_coding_seconds
   end
 
   def balance = ledger_entries.sum(:amount)
+
+  def cached_balance = Rails.cache.fetch(balance_cache_key) { balance }
+  def balance_cache_key = "user/#{id}/sidebar_balance"
+  def invalidate_balance_cache! = Rails.cache.delete(balance_cache_key)
 
   def ban!(reason: nil)
     update!(banned: true, banned_at: Time.current, banned_reason: reason)
@@ -237,6 +256,38 @@ def all_time_coding_seconds
 
   def has_commented?
     comments.exists?
+  end
+
+  def earned_achievement_slugs
+    @earned_achievement_slugs ||= achievements.pluck(:achievement_slug).to_set
+  end
+
+  def pending_achievement_notifications
+    achievements.where(notified: false)
+  end
+
+  def recalculate_has_pending_achievements!
+    update_column(:has_pending_achievements, achievements.where(notified: false).exists?)
+  end
+
+  def earned_achievement?(slug)
+    earned_achievement_slugs.include?(slug.to_s)
+  end
+
+  def award_achievement!(slug, notified: false)
+    return nil if earned_achievement?(slug)
+
+    achievement = ::Achievement.find(slug)
+    achievements.create!(achievement_slug: slug.to_s, earned_at: Time.current, notified: notified)
+    @earned_achievement_slugs&.add(slug.to_s)
+    update_column(:has_pending_achievements, true) unless notified
+    achievement
+  end
+
+  def check_and_award_achievements!
+    ::Achievement.all.each do |achievement|
+      award_achievement!(achievement.slug)
+    end
   end
 
   def generate_api_key!

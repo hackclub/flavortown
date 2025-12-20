@@ -9,6 +9,12 @@
           <th>Qty</th>
           <th>Tickets</th>
           <th>Status</th>
+          <% if @view == 'fulfillment' %>
+            <th>Region</th>
+          <% end %>
+          <% if current_user.admin? && @view == 'fulfillment' %>
+            <th>Assignee</th>
+          <% end %>
           <th>Created</th>
           <th>Actions</th>
         </tr>
@@ -41,6 +47,69 @@
                 <br><small style="color: #6b7280;">Shipped to user</small>
               <% end %>
             </td>
+
+            <% if @view == 'fulfillment' %>
+              <td>
+                <% if order.frozen_address.present? %>
+                  <% order_region = Shop::Regionalizable.country_to_region(order.frozen_address["country"]) %>
+                  <span style="background: #e0f2fe; color: #0369a1; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500;">
+                    <%= Shop::Regionalizable.region_name(order_region) %>
+                  </span>
+                <% else %>
+                  <span style="color: #9ca3af;">—</span>
+                <% end %>
+              </td>
+            <% end %>
+
+            <% if current_user.admin? && @view == 'fulfillment' %>
+              <td>
+                <% if order.assigned_to_user.present? %>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <%= image_tag order.assigned_to_user.avatar, alt: order.assigned_to_user.display_name, style: "width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" %>
+                    <span><%= order.assigned_to_user.display_name %></span>
+                  </div>
+                <% end %>
+                <div data-controller="searchable-select" style="position: relative; margin-top: 0.25rem;">
+                  <%= form_with url: assign_user_admin_shop_order_path(order), method: :post, local: true, data: { turbo: false } do |f| %>
+                    <%= f.hidden_field :assigned_to_user_id, value: order.assigned_to_user_id, data: { searchable_select_target: "hiddenField" } %>
+                    <input
+                      type="text"
+                      class="input-primary"
+                      placeholder="<%= order.assigned_to_user.present? ? 'Change...' : 'Assign...' %>"
+                      style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: 120px;"
+                      data-searchable-select-target="input"
+                      data-action="focus->searchable-select#open input->searchable-select#filter"
+                      autocomplete="off">
+                    <div data-searchable-select-target="dropdown" class="searchable-select-dropdown" style="min-width: 200px;">
+                      <div
+                        class="searchable-select-option"
+                        data-searchable-select-target="option"
+                        data-action="click->searchable-select#selectAndSubmit"
+                        data-value=""
+                        data-label=""
+                        data-search-text="unassigned none">
+                        <span style="color: #9ca3af;">Unassign</span>
+                      </div>
+                      <% @fulfillment_users.each do |user| %>
+                        <div
+                          class="searchable-select-option"
+                          data-searchable-select-target="option"
+                          data-action="click->searchable-select#selectAndSubmit"
+                          data-value="<%= user.id %>"
+                          data-label="<%= user.display_name %>"
+                          data-search-text="<%= "#{user.display_name} #{user.regions.join(' ')} #{user.id}".downcase %>">
+                          <img src="<%= user.avatar %>" alt="" class="searchable-select-avatar">
+                          <span><%= user.display_name %></span>
+                          <% if user.has_regions? %>
+                            <span style="font-size: 0.65rem; color: #6b7280; margin-left: auto;"><%= user.regions.join(", ") %></span>
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              </td>
+            <% end %>
 
             <td>
               <%= order.created_at.strftime("%b %d, %Y") %><br>

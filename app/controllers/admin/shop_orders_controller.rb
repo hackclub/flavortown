@@ -4,18 +4,23 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     # Determine view mode
     @view = params[:view] || "shop_orders"
 
-    # Fulfillment team can only access fulfillment view
+    # Fulfillment team can only access fulfillment view - auto-redirect if needed
     if current_user.fulfillment_person? && !current_user.admin?
       if @view != "fulfillment"
-        authorize :admin, :access_fulfillment_view?  # Will raise NotAuthorized
+        redirect_to admin_shop_orders_path(view: "fulfillment") and return
       end
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
     end
 
+    # Load fulfillment users for assignment dropdown (admins only, fulfillment view)
+    if current_user.admin? && @view == "fulfillment"
+      @fulfillment_users = User.where("'fulfillment_person' = ANY(granted_roles)").order(:display_name)
+    end
+
     # Base query
-    orders = ShopOrder.includes(:shop_item, :user, :accessory_orders)
+    orders = ShopOrder.includes(:shop_item, :user, :accessory_orders, :assigned_to_user)
 
     # Apply status filter first if explicitly set (takes priority over view)
     if params[:status].present?
@@ -62,41 +67,24 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       @f = fulfilled_orders.average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))").to_f
     end
 
-    # Apply region filter after stats calculation (converts to array)
-    if current_user.fulfillment_person? && !current_user.admin? && current_user.region.present?
-      orders = orders.to_a.select do |order|
-        if order.frozen_address.present?
-          order_region = Shop::Regionalizable.country_to_region(order.frozen_address["country"])
-          order_region == current_user.region
-        else
-          false
-        end
-      end
+    # Apply region filter using database-level query (now that orders have a region column)
+    # Fulfillment persons see orders in their regions OR orders assigned to them OR orders with nil region (legacy/no address)
+    if current_user.fulfillment_person? && !current_user.admin? && current_user.has_regions?
+      orders = orders.where(region: current_user.regions)
+                     .or(orders.where(region: nil))
+                     .or(orders.where(assigned_to_user_id: current_user.id))
     elsif params[:region].present?
-      orders = orders.to_a.select do |order|
-        if order.frozen_address.present?
-          order_region = Shop::Regionalizable.country_to_region(order.frozen_address["country"])
-          order_region == params[:region].upcase
-        else
-          false
-        end
-      end
+      orders = orders.where(region: params[:region].upcase)
     end
 
-    # Sorting
-    case params[:sort]
-    when "id_asc"
-      orders = orders.order(id: :asc)
-    when "id_desc"
-      orders = orders.order(id: :desc)
-    when "created_at_asc"
-      orders = orders.order(created_at: :asc)
-    when "shells_asc"
-      orders = orders.order(frozen_item_price: :asc)
-    when "shells_desc"
-      orders = orders.order(frozen_item_price: :desc)
-    else
-      orders = orders.order(created_at: :desc)
+    # Sorting - always uses database ordering now
+    orders = case params[:sort]
+    when "id_asc" then orders.order(id: :asc)
+    when "id_desc" then orders.order(id: :desc)
+    when "created_at_asc" then orders.order(created_at: :asc)
+    when "shells_asc" then orders.order(frozen_item_price: :asc)
+    when "shells_desc" then orders.order(frozen_item_price: :desc)
+    else orders.order(created_at: :desc)
     end
 
     # Grouping
@@ -122,7 +110,24 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       authorize :admin, :access_shop_orders?
     end
     @order = ShopOrder.find(params[:id])
+
+    # Fulfillment persons can only view orders in their regions, assigned to them, or with nil region
+    if current_user.fulfillment_person? && !current_user.admin?
+      can_access = @order.assigned_to_user_id == current_user.id
+      can_access ||= @order.region.nil?
+      can_access ||= current_user.has_regions? && current_user.has_region?(@order.region)
+
+      unless can_access
+        redirect_to admin_shop_orders_path(view: "fulfillment"), alert: "You don't have access to this order" and return
+      end
+    end
+
     @can_view_address = @order.can_view_address?(current_user)
+
+    # Load fulfillment users for assignment (admins only)
+    if current_user.admin?
+      @fulfillment_users = User.where("'fulfillment_person' = ANY(granted_roles)").order(:display_name)
+    end
 
     # Load user's order history for fraud dept or order review
     @user_orders = @order.user.shop_orders.where.not(id: @order.id).order(created_at: :desc).limit(10)
@@ -307,6 +312,40 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to admin_shop_order_path(@order), notice: "Internal notes updated"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to update notes"
+    end
+  end
+
+  def assign_user
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+    old_assigned = @order.assigned_to_user_id
+
+    new_assigned_id = params[:assigned_to_user_id].presence
+    assigned_user = new_assigned_id ? User.find_by(id: new_assigned_id) : nil
+
+    if @order.update(assigned_to_user_id: new_assigned_id)
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "assignment_updated",
+        whodunnit: current_user.id,
+        object_changes: {
+          assigned_to_user_id: [ old_assigned, @order.assigned_to_user_id ]
+        }
+      )
+
+      if assigned_user.present? && assigned_user.slack_id.present?
+        SendSlackDmJob.perform_later(
+          assigned_user.slack_id,
+          nil,
+          blocks_path: "notifications/shop_orders/assigned",
+          locals: { order: @order, admin_url: admin_shop_order_url(@order) }
+        )
+      end
+
+      redirect_to admin_shop_orders_path(view: "fulfillment"), notice: "Order assigned to #{assigned_user&.display_name || 'nobody'}"
+    else
+      redirect_to admin_shop_orders_path(view: "fulfillment"), alert: "Failed to assign order"
     end
   end
 end

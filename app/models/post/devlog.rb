@@ -49,19 +49,19 @@ class Post::Devlog < ApplicationRecord
   # only for images – not for videos or gif!
   has_many_attached :attachments do |attachable|
     attachable.variant :large,
-                       resize_to_fill: [ 1600, 900 ],
+                       resize_to_limit: [ 1600, 900 ],
                        format: :webp,
                        preprocessed: true,
                        saver: { strip: true, quality: 75 }
 
     attachable.variant :medium,
-                       resize_to_fill: [ 800, 800 ],
+                       resize_to_limit: [ 800, 800 ],
                        format: :webp,
                        preprocessed: false,
                        saver: { strip: true, quality: 75 }
 
     attachable.variant :thumb,
-                       resize_to_fill: [ 400, 400 ],
+                       resize_to_limit: [ 400, 400 ],
                        format: :webp,
                        preprocessed: false,
                        saver: { strip: true, quality: 75 }

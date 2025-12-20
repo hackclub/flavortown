@@ -223,4 +223,39 @@ class Admin::UsersController < Admin::ApplicationController
     flash[:notice] = "#{@user.display_name} has been unbanned."
     redirect_to admin_user_path(@user)
   end
+
+  def update
+    authorize :admin, :manage_users?
+    @user = User.find(params[:id])
+
+    old_regions = @user.regions.dup
+
+    # Filter out empty strings from regions array
+    if params[:user][:regions].present?
+      params[:user][:regions] = params[:user][:regions].reject(&:blank?)
+    end
+
+    if @user.update(user_params)
+      if old_regions != @user.regions
+        PaperTrail::Version.create!(
+          item_type: "User",
+          item_id: @user.id,
+          event: "regions_updated",
+          whodunnit: current_user.id.to_s,
+          object_changes: { regions: [ old_regions, @user.regions ] }
+        )
+      end
+      flash[:notice] = "User updated successfully."
+    else
+      flash[:alert] = "Failed to update user."
+    end
+
+    redirect_to admin_user_path(@user)
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(regions: [])
+  end
 end
