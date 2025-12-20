@@ -233,7 +233,6 @@ class Post::Devlog < ApplicationRecord
   end
 
   def recalculate_seconds_coded
-    post = posts.first
     return false unless post
 
     project = post.project
@@ -258,7 +257,7 @@ class Post::Devlog < ApplicationRecord
   def find_previous_devlog_time(project)
     Post.joins("INNER JOIN post_devlogs ON posts.postable_id::bigint = post_devlogs.id")
         .where(postable_type: "Post::Devlog", project_id: project.id)
-        .where("posts.created_at < ?", posts.first.created_at)
+        .where("posts.created_at < ?", post.created_at)
         .order(created_at: :desc)
         .first&.created_at
   end
@@ -267,7 +266,7 @@ class Post::Devlog < ApplicationRecord
     return false unless user.hackatime_identity
 
     hackatime_keys = project.hackatime_keys
-    end_time = posts.first.created_at.utc
+    end_time = post.created_at.utc
 
     result = if prev_time.nil?
                HackatimeService.fetch_stats(user.hackatime_identity.uid)

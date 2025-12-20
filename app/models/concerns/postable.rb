@@ -2,6 +2,6 @@ module Postable
   extend ActiveSupport::Concern
 
   included do
-    has_many :posts, as: :postable, dependent: :destroy
+    has_one :post, as: :postable, dependent: :destroy, touch: true
   end
 end

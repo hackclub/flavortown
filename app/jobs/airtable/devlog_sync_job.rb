@@ -4,7 +4,7 @@ class Airtable::DevlogSyncJob < Airtable::BaseSyncJob
   def records = Post::Devlog.includes(:posts)
 
   def field_mapping(devlog)
-    post = devlog.posts.first
+    post = devlog.post
     {
       "body" => devlog.body,
       "duration_seconds" => devlog.duration_seconds,
