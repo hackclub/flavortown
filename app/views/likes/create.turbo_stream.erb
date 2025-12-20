@@ -1,6 +1,3 @@
-<%
-  likeable_type = @likeable.class.name.underscore.gsub("/", "_")
-%>
-<%= turbo_stream.replace "like_button_#{likeable_type}_#{@likeable.id}" do %>
+<%= turbo_stream.replace dom_id(@likeable, :like_button) do %>
   <%= render "likes/button", likeable: @likeable %>
 <% end %>
