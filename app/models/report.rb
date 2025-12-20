@@ -35,7 +35,7 @@ class Report < ApplicationRecord
   validates :details, presence: true, length: { minimum: 20 }
   validates :reporter_id, uniqueness: { scope: :project_id, message: "has already reported this project" }
 
-  validate :reporter_cannot_report_own_project
+  validate :reporter_cannot_report_own_project, unless: -> { Rails.env.development? }
 
   private
 

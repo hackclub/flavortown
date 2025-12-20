@@ -5,12 +5,23 @@
     </div>
     <div class="post__meta">
       <div class="post__author">
-        <%= author_name %><%= " ⚡" if post.user&.admin? %>
-        <% if helpers.current_user&.admin? && post.user %>
+
+        <% if post.user.present? %>
+          <%= link_to author_name, user_path(post.user) %><%= " ⚡" if post.user&.admin? %>
+        <% else %>
+          <%= author_name %><%= " ⚡" if post.user&.admin? %>
+        <% end %>
+         <% if helpers.current_user&.admin? && post.user %>
           <span style="border: 1px solid orange; background-color: #fff3e0; border-radius: 4px; padding: 2px 4px; margin-left: 4px;">
             <%= link_to "🔨", helpers.admin_user_path(post.user), title: "Admin profile", style: "text-decoration: none;" %>
             <%= link_to "🤓", helpers.admin_user_magic_link_path(post.user), title: "Generate magic link", style: "text-decoration: none;" %>
           </span>
+      <% end %>
+        <span style="opacity: 0.8;">worked on</span>
+        <% if project_title.present? %>
+          <%= link_to project_title, project_path(post.project) %>
+        <% else %>
+          <span>something</span>
         <% end %>
       </div>
       <div class="post__time"><%= posted_at_text %> ago</div>
@@ -60,10 +71,10 @@
               <% elsif video?(att) %>
                 <video class="post__attachment post__attachment--video" controls src="<%= url_for(att) %>"></video>
               <% else %>
-                <a class="post__attachment post__attachment--file" href="<%= url_for(att) %>" target="_blank" rel="noopener">
+                <%= link_to url_for(att), class: "post__attachment post__attachment--file", target: "_blank", rel: "noopener" do %>
                   <%= helpers.inline_svg_tag("icons/paper.svg") %>
                   <span><%= File.basename(att.filename.to_s) %></span>
-                </a>
+                <% end %>
               <% end %>
             </div>
           <% end %>

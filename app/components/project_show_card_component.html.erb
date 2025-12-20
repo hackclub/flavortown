@@ -192,9 +192,7 @@
             <source src="<%= ship_feedback_video_url %>" type="video/mp4">
             Your browser does not support the video tag.
           </video>
-          <a href="<%= ship_feedback_video_url %>" target="_blank" rel="noopener" style="display: block; margin-top: 8px; color: var(--color-blue); text-decoration: underline; font-size: 0.85em;">
-            Open in new tab
-          </a>
+          <%= link_to "Open in new tab", ship_feedback_video_url, target: "_blank", rel: "noopener", style: "display: block; margin-top: 8px; color: var(--color-blue); text-decoration: underline; font-size: 0.85em;" %>
         </div>
       <% end %>
     </div>

@@ -12,6 +12,12 @@
     @current_user = current_user
    end
 
+   def project_title
+      if post.project&.title.present?
+        post.project&.title
+      end
+   end
+
    def author_name
      post.user&.display_name.presence || "System"
    end

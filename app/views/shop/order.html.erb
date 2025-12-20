@@ -143,12 +143,12 @@
 
                     </div>
                     <div class="shop-order__edit-address">
-                        <a href="<%= HCAService.address_portal_url(return_to: request.original_url) %>" class="btn btn-order" style="margin-top: 0.5em;">Edit addresses</a>
+                        <%= link_to "Edit addresses", HCAService.address_portal_url(return_to: request.original_url), class: "btn btn-order", style: "margin-top: 0.5em;" %>
                     </div>
                 <% else %>
                     <div class="shop-order__no-address">
                          <p>No shipping address found.</p>
-                         <a href="<%= HCAService.address_portal_url(return_to: request.original_url) %>" class="btn btn-order">Add an address</a>
+                         <%= link_to "Add an address", HCAService.address_portal_url(return_to: request.original_url), class: "btn btn-order" %>
                     </div>
                 <% end %>
             </div>

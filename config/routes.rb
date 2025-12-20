@@ -244,4 +244,7 @@ Rails.application.routes.draw do
     resource :like, only: [ :create, :destroy ]
     resources :comments, only: [ :create, :destroy ]
   end
+
+  # Public user profiles
+  resources :users, only: [ :show ]
 end
