@@ -113,10 +113,14 @@ class Project < ApplicationRecord
         WHERE posts.project_id = projects.id
           AND posts.postable_type = 'Post::ShipEvent'
           AND post_ship_events.payout IS NULL
+          AND post_ship_events.certification_status = 'approved'
           AND post_ship_events.votes_count < #{Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT}
         ORDER BY posts.created_at DESC
         LIMIT 1
       ) latest_ship ON true")
+        .joins(:users)
+        .where(users: { verification_status: "verified" })
+        .distinct
         .order("latest_ship.votes_count ASC")
     }
 
