@@ -68,13 +68,11 @@ input {
     svg {
       width: 2rem;
       fill: var(--color-red-400);
-      opacity: 75%;
       padding: 4px;
     }
 
     input {
       flex: 1;
-      opacity: 75%;
 
       &:hover,
       &:focus {
@@ -83,8 +81,7 @@ input {
       }
 
       &::placeholder {
-        color: var(--color-red-500);
-        opacity: 75%;
+        color: var(--color-red-400);
       }
     }
   }
@@ -1579,13 +1576,13 @@ input {
                 gap: 0.5rem;
                 z-index: 10;
                 background-color: #d5c3a0;
-                padding: 0.3rem 0.8rem;
-                border-radius: 16px;
+                padding: 0.3rem 0.3rem;
+                border-radius: 999px;
                 box-shadow: var(--shadow);
 
                 .dot {
-                  width: 0.6rem;
-                  height: 0.6rem;
+                  width: 24px;
+                  height: 24px;
                   border-radius: 50%;
                   background: var(--color-bg);
                   border: none;
