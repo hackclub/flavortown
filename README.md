@@ -69,3 +69,15 @@ weirdo, but okay, you gotta figure out how to get postgres running yourself buck
    ```
 
 4. have a fire extinguisher at the ready
+
+## image optimization
+
+Static images in `app/assets/images/` are stored as PNG/JPG source files. Optimized webp/avif versions are automatically generated during `assets:precompile` (i.e., on deploy).
+
+To generate optimized images locally:
+
+```bash
+bin/rails images:optimize
+```
+
+This requires libvips to be installed (already a dependency for Active Storage).
