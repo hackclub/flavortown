@@ -6,7 +6,7 @@
     <div class="post__meta">
       <div class="post__author">
         <%= author_name %><%= " ⚡" if post.user&.admin? %>
-        - <a href="<%= project_path(post.project) %>" class="post__project-link"><%= post.project.title %></a>
+        - <%= link_to post.project.title, project_path(post.project), class: "post__project-link" %>
       </div>
       <div class="post__time"><%= posted_at_text %> ago</div>
       <% if duration_text.present? %>
