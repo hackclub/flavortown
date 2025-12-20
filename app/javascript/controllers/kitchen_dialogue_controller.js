@@ -37,7 +37,10 @@ export default class extends Controller {
       );
     }
     if (this.boundOnDialogueComplete) {
-      window.removeEventListener("dialogue:complete", this.boundOnDialogueComplete);
+      window.removeEventListener(
+        "dialogue:complete",
+        this.boundOnDialogueComplete,
+      );
     }
   }
 
@@ -63,7 +66,10 @@ export default class extends Controller {
 
     if (dialogueType === "welcome") {
       // After welcome dialogue, show hackatime tutorial if needed
-      if (this.hasShowHackatimeTutorialValue && this.showHackatimeTutorialValue) {
+      if (
+        this.hasShowHackatimeTutorialValue &&
+        this.showHackatimeTutorialValue
+      ) {
         this.showHackatimeDialogue();
       } else if (
         this.hasShowSlackTutorialValue &&

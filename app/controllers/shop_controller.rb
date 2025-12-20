@@ -11,14 +11,14 @@ class ShopController < ApplicationController
 
     if current_user
       free_stickers_step = User::TutorialStep.find(:free_stickers)
-      @show_shop_tutorial = free_stickers_step.deps_satisfied?(current_user.tutorial_steps) && 
+      @show_shop_tutorial = free_stickers_step.deps_satisfied?(current_user.tutorial_steps) &&
                            !current_user.tutorial_step_completed?(:free_stickers)
-      
+
       grant_free_stickers_welcome_cookies! if @show_shop_tutorial
     else
       @show_shop_tutorial = false
     end
-    
+
     load_shop_items
   end
 

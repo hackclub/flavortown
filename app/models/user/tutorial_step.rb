@@ -52,7 +52,7 @@ class User
           icon: "trash-bin",
           link: ->(_) { shop_path },
           deps: [
-            Dep[:setup_hackatime, "you need to setup hackatime first!"],
+            Dep[:setup_hackatime, "you need to setup hackatime first!"]
           ])
     ].freeze
 

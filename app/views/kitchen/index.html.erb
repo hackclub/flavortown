@@ -6,8 +6,8 @@
   <%= render HeadingComponent.new(title: "Kitchen", tone: :blue) %>
 
   <% if @show_welcome_overlay %>
-    <div class="dialogue-box-container" 
-         data-controller="kitchen-dialogue" 
+    <div class="dialogue-box-container"
+         data-controller="kitchen-dialogue"
          data-kitchen-dialogue-show-hackatime-tutorial-value="<%= @show_hackatime_tutorial %>"
          data-kitchen-dialogue-show-slack-tutorial-value="<%= @show_slack_tutorial %>"
          style="display: none;">
