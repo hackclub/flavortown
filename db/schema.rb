@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_20_010442) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_20_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -498,6 +498,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_010442) do
     t.string "regions", default: [], array: true
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
+    t.string "shop_region"
     t.boolean "slack_balance_notifications", default: false, null: false
     t.string "slack_id"
     t.datetime "synced_at"
