@@ -43,9 +43,10 @@ export default class extends Controller {
     this.#stopAudio();
     this.element.classList.add("welcome-overlay--dismissing");
 
-    // Wait for dismiss animation to complete
+    // Dispatch event to show dialogue box after overlay is dismissed
     setTimeout(() => {
       this.element.remove();
+      window.dispatchEvent(new CustomEvent("welcome-overlay:dismissed"));
     }, 400);
   }
 

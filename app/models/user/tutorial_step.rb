@@ -17,11 +17,6 @@ class User
 
     self::ALL = [
       new(:first_login, "First login", "log into the platform for the first time!", "user", "/"),
-      new(slug: :identity_verified,
-          name: "Confirm your age",
-          description: "you must be under this tall to ride!",
-          icon: "user",
-          link: ->(_) { HCAService.verify_portal_url(return_to: kitchen_url) }),
       new(slug: :create_project,
           name: "Create your first project",
           description: "what are you cooking?",
@@ -35,6 +30,11 @@ class User
           deps: [
             Dep[:create_project, "you need to create a project first!"]
           ]),
+      new(slug: :identity_verified,
+        name: "Confirm your age",
+        description: "You must be a teenager to participate in flavortown",
+        icon: "user",
+        link: ->(_) { HCAService.verify_portal_url(return_to: kitchen_url) }),
       new(slug: :setup_hackatime,
           name: "Setup hackatime",
           description: "Start tracking your time",

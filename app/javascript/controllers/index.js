@@ -84,3 +84,6 @@ application.register("cookie-clicker", CookieClickerController);
 
 import StartDevlogController from "./start_devlog_controller";
 application.register("start-devlog", StartDevlogController);
+
+import KitchenDialogueController from "./kitchen_dialogue_controller";
+application.register("kitchen-dialogue", KitchenDialogueController);
