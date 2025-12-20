@@ -50,10 +50,9 @@ class User
           name: "Get your stickers!",
           description: "get your stickers!",
           icon: "trash-bin",
-          link: ->(_) { shop_order_path(shop_item_id: 1) },
+          link: ->(_) { shop_path },
           deps: [
             Dep[:setup_hackatime, "you need to setup hackatime first!"],
-            Dep[:setup_slack, "you need to join Slack first!"]
           ])
     ].freeze
 

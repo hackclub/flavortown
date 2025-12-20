@@ -21,6 +21,14 @@ class KitchenController < ApplicationController
 
     show_from_session = session.delete(:show_welcome_overlay)
     @show_welcome_overlay = show_from_session
+
+    if @show_welcome_overlay
+      @show_hackatime_tutorial = !current_user.tutorial_step_completed?(:setup_hackatime)
+      @show_slack_tutorial = !current_user.tutorial_step_completed?(:setup_slack)
+    else
+      @show_hackatime_tutorial = false
+      @show_slack_tutorial = false
+    end
   end
 
   private

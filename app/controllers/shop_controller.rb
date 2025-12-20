@@ -9,7 +9,16 @@ class ShopController < ApplicationController
       { label: config[:name], value: code }
     end
 
-    grant_free_stickers_welcome_cookies! if current_user&.should_show_shop_tutorial?
+    if current_user
+      free_stickers_step = User::TutorialStep.find(:free_stickers)
+      @show_shop_tutorial = free_stickers_step.deps_satisfied?(current_user.tutorial_steps) && 
+                           !current_user.tutorial_step_completed?(:free_stickers)
+      
+      grant_free_stickers_welcome_cookies! if @show_shop_tutorial
+    else
+      @show_shop_tutorial = false
+    end
+    
     load_shop_items
   end
 
