@@ -1,9 +1,10 @@
 <%= render MusicPlayerComponent.new(audio_url: audio_path("fireentity - shop.mp3")) %>
 
-<% if current_user&.should_show_shop_tutorial? && session[:tutorial_redirect_url].present? %>
+<% if @show_shop_tutorial && session[:tutorial_redirect_url].present? %>
   <%= render DialogueBoxComponent.new(
     text: [
-      "Welcome back to the kitchen, chef! You're in the shop now. This is where you spend cookies on prizes. I'll explain what cookies are and how to earn more cookies after we grab the stickers.",
+      "You're in the shop now. This is where you spend cookies on prizes.",
+      "Cookies are the currency you use to buy prizes here. You earn cookies by working on your project with your time attached, then voting on other projects.",
       "I've given you 10 cookies to get started. We'll use them to place your stickers order.",
       "Before we can ship prizes, I need to confirm that you're a teenager and get your address. I'll redirect you to Hack Club Auth to fill that out. It's secure and open source."
     ],
