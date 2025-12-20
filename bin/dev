@@ -5,6 +5,10 @@ if gem list --no-installed --exact --silent foreman; then
   gem install foreman
 fi
 
+# Generate optimized images if needed (first run may be slow)
+echo "Generating optimized images (first run may be slow)..."
+bin/rails images:optimize
+
 # Default to port 3000 if not specified
 export PORT="${PORT:-3000}"
 
