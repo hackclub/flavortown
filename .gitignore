@@ -53,4 +53,8 @@ wak.toml
 /config/*.key
 app/assets/images/achievements/silhouettes/
 
+# Generated optimized images (created from PNG/JPG sources during assets:precompile)
+app/assets/images/**/*.webp
+app/assets/images/**/*.avif
+
 Procfile.assets
