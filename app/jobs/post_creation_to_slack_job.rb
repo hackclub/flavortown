@@ -21,7 +21,7 @@ class PostCreationToSlackJob < ApplicationJob
   private
 
   def post_devlog(devlog)
-    post = devlog.posts.first
+    post = devlog.post
     return unless post
 
     project = post.project
@@ -82,7 +82,7 @@ class PostCreationToSlackJob < ApplicationJob
   def resolve_commentable(commentable)
     case commentable
     when Post::Devlog
-      post = commentable.posts.first
+      post = commentable.post
       return nil unless post&.project
 
       [
@@ -90,7 +90,7 @@ class PostCreationToSlackJob < ApplicationJob
         post.project.title
       ]
     when Post::ShipEvent
-      post = commentable.posts.first
+      post = commentable.post
       return nil unless post&.project
 
       [

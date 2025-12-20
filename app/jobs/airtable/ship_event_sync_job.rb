@@ -4,7 +4,7 @@ class Airtable::ShipEventSyncJob < Airtable::BaseSyncJob
   def records = Post::ShipEvent.includes(:posts)
 
   def field_mapping(ship_event)
-    post = ship_event.posts.first
+    post = ship_event.post
     {
       "body" => ship_event.body,
       "certification_status" => ship_event.certification_status,

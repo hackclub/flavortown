@@ -26,7 +26,7 @@ class Post::ShipEvent < ApplicationRecord
   validates :body, presence: { message: "Update message can't be blank" }
 
   def status
-    project = posts.first&.project
+    project = post&.project
     return nil unless project
 
     ShipCertService.get_status(project)
