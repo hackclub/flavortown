@@ -25,7 +25,25 @@ production:
     schedule: every minute
     concurrency: 1
     description: "Sync RSVPs to Airtable every minute with single execution limit"
-    
+
+  sync_devlog_to_airtable:
+    class: Airtable::DevlogSyncJob
+    schedule: every minute
+    concurrency: 1
+    description: "Sync devlogs to Airtable every minute with single execution limit"
+
+  sync_project_to_airtable:
+    class: Airtable::ProjectSyncJob
+    schedule: every minute
+    concurrency: 1
+    description: "Sync projects to Airtable every minute with single execution limit"
+
+  sync_ship_event_to_airtable:
+    class: Airtable::ShipEventSyncJob
+    schedule: every minute
+    concurrency: 1
+    description: "Sync ship events to Airtable every minute with single execution limit"
+
   shop_process_warehouse_orders:
     class: Shop::ProcessWarehouseOrdersJob
     schedule: every 2 days
