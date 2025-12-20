@@ -15,13 +15,13 @@ production:
     schedule: every hour at minute 12
 
   sync_user_to_airtable:
-    class: Airtable::UserSync
+    class: Airtable::UserSyncJob
     schedule: every minute
     concurrency: 1
     description: "Sync user data to Airtable every minute with single execution limit"
 
   sync_rsvp_to_airtable:
-    class: Airtable::RsvpSync
+    class: Airtable::RsvpSyncJob
     schedule: every minute
     concurrency: 1
     description: "Sync RSVPs to Airtable every minute with single execution limit"
