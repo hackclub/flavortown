@@ -77,4 +77,8 @@ class ProjectShowCardComponent < ViewComponent::Base
   def has_feedback?
     ship_status.in?(%w[approved rejected]) && (ship_feedback_video_url.present? || ship_feedback_reason.present?)
   end
+
+  def certifier_viewing_others_project?
+    current_user&.project_certifier? && !owner?
+  end
 end

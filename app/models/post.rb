@@ -12,8 +12,9 @@
 #
 # Indexes
 #
-#  index_posts_on_project_id  (project_id)
-#  index_posts_on_user_id     (user_id)
+#  index_posts_on_postable_type_and_postable_id  (postable_type,postable_id) UNIQUE
+#  index_posts_on_project_id                     (project_id)
+#  index_posts_on_user_id                        (user_id)
 #
 # Foreign Keys
 #

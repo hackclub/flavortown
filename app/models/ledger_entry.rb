@@ -64,7 +64,7 @@ class LedgerEntry < ApplicationRecord
       item_id: ledgerable.id,
       event: "balance_adjustment",
       whodunnit: nil,
-      object_changes: { balance: [ new_balance - amount, new_balance ], reason: reason, created_by: created_by }.to_yaml
+      object_changes: { balance: [ new_balance - amount, new_balance ], reason: reason, created_by: created_by }
     )
   end
 

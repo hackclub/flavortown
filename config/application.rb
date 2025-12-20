@@ -1,6 +1,7 @@
 require_relative "boot"
 
 require "rails/all"
+require_relative "../lib/middleware/serve_avif"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -14,7 +15,7 @@ module Battlemage
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
-    config.autoload_lib(ignore: %w[assets tasks])
+    config.autoload_lib(ignore: %w[assets tasks middleware])
 
     # Autoload secrets submodule models if present
     secrets_models = Rails.root.join("secrets", "app", "models")
@@ -54,5 +55,7 @@ module Battlemage
                          expire_after: 2.months,
                          secure: Rails.env.production?,
                          httponly: true
+
+    config.middleware.insert_before ActionDispatch::Static, ServeAvif
   end
 end

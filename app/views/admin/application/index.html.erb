@@ -8,10 +8,10 @@
 
   <% button_class = Flipper.enabled?(:admin_dark_brown_buttons, current_user) ? "btn-primary-dark" : "btn-primary" %>
   <% if policy(:admin).manage_projects? %>
-    <%= link_to "Projects", "/admin/projects", class: "btn-primary" %>
+    <%= link_to "Projects", admin_projects_path, class: "btn-primary" %>
   <% end %>
   <% if policy(:admin).manage_shop? %>
-    <%= link_to "Manage shop", "/admin/manage-shop", class: button_class %>
+    <%= link_to "Manage shop", admin_manage_shop_path, class: button_class %>
   <% end %>
   <% if policy(:admin).access_audit_logs? %>
     <%= link_to "Audit Logs", admin_audit_logs_path, class: button_class %>

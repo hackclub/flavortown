@@ -1,9 +1,9 @@
 class PostCreationToSlackJob < ApplicationJob
   queue_as :latency_5m
 
-  CHANNEL_ID = "C0A3WD1B24R"
+  CHANNEL_ID = ""
 
-  SLACK_MENTION_PATTERN = /<!(?:here|channel|everyone|subteam\^[A-Z0-9]+)>|@(?:here|channel|everyone)/i
+  SLACK_MENTION_PATTERN = /<!(?:here|channel|everyone|subteam\^[A-Z0-9]+)(?:\|[^>]+)?>|@(?:here|channel|everyone)/i
 
   include Rails.application.routes.url_helpers
 
@@ -21,7 +21,7 @@ class PostCreationToSlackJob < ApplicationJob
   private
 
   def post_devlog(devlog)
-    post = devlog.posts.first
+    post = devlog.post
     return unless post
 
     project = post.project
@@ -82,7 +82,7 @@ class PostCreationToSlackJob < ApplicationJob
   def resolve_commentable(commentable)
     case commentable
     when Post::Devlog
-      post = commentable.posts.first
+      post = commentable.post
       return nil unless post&.project
 
       [
@@ -90,7 +90,7 @@ class PostCreationToSlackJob < ApplicationJob
         post.project.title
       ]
     when Post::ShipEvent
-      post = commentable.posts.first
+      post = commentable.post
       return nil unless post&.project
 
       [

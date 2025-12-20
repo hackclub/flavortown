@@ -317,6 +317,23 @@ class User < ApplicationRecord
     @hackatime_data = result
   end
 
+  def devlog_seconds_total
+    Rails.cache.fetch("user/#{id}/devlog_seconds_total", expires_in: 10.minutes) do
+      devlog_postable_ids = Post.where(user_id: id, postable_type: "Post::Devlog")
+                                .select("postable_id::bigint")
+      Post::Devlog.where(id: devlog_postable_ids).sum(:duration_seconds) || 0
+    end
+  end
+
+  def devlog_seconds_today
+    Rails.cache.fetch("user/#{id}/devlog_seconds_today/#{Time.zone.today}", expires_in: 10.minutes) do
+      devlog_postable_ids = Post.where(user_id: id, postable_type: "Post::Devlog")
+                                .where(created_at: Time.zone.now.beginning_of_day..Time.zone.now.end_of_day)
+                                .select("postable_id::bigint")
+      Post::Devlog.where(id: devlog_postable_ids).sum(:duration_seconds) || 0
+    end
+  end
+
   private
 
   def should_check_verification_eligibility?

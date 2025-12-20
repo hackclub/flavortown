@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_20_120000) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_20_020316) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -222,6 +222,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_120000) do
     t.integer "likes_count", default: 0, null: false
     t.string "scrapbook_url"
     t.datetime "synced_at"
+    t.boolean "tutorial", default: false, null: false
     t.datetime "updated_at", null: false
   end
 
@@ -252,6 +253,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_120000) do
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id"
+    t.index ["postable_type", "postable_id"], name: "index_posts_on_postable_type_and_postable_id", unique: true
     t.index ["project_id"], name: "index_posts_on_project_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
@@ -295,6 +297,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_120000) do
     t.datetime "marked_fire_at"
     t.bigint "marked_fire_by_id"
     t.integer "memberships_count", default: 0, null: false
+    t.string "project_categories", default: [], array: true
     t.string "project_type"
     t.text "readme_url"
     t.text "repo_url"
@@ -302,6 +305,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_120000) do
     t.datetime "shipped_at"
     t.datetime "synced_at"
     t.string "title", null: false
+    t.boolean "tutorial", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "index_projects_on_deleted_at"
     t.index ["marked_fire_by_id"], name: "index_projects_on_marked_fire_by_id"

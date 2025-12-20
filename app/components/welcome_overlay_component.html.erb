@@ -1,9 +1,6 @@
 <div class="welcome-overlay"
   data-controller="welcome-overlay"
   data-welcome-overlay-audio-url-value="<%= audio_path('penne_for_your_thoughts.mp3') %>"
-  <% if redirect_to_shop_tutorial %>
-  data-welcome-overlay-shop-url-value="<%= shop_tutorial_url %>"
-  <% end %>
   data-action="click->welcome-overlay#dismiss keydown.enter@window->welcome-overlay#dismiss keydown.escape@window->welcome-overlay#dismiss">
 
   <div class="welcome-overlay__backdrop"></div>
