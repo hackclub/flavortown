@@ -21,12 +21,18 @@ module Admin
 
     # Use this to protect all admin endpoints
     def authenticate_admin
+      # Must be logged in
+      unless current_user
+        redirect_to root_path, alert: "Please log in first" and return
+      end
+
       # Fulfillment people can only access the shop orders fulfillment endpoint
       # But admins can access everything
-      if current_user&.fulfillment_person? && !current_user&.admin? && !current_user&.fraud_dept?
+      if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
         unless shop_orders_fulfillment?
           raise Pundit::NotAuthorizedError
         end
+        # If shop_orders_fulfillment? is true, allow access without further checks
       else
         authorize :admin, :access_admin_endpoints?  # calls AdminPolicy#access_admin_endpoints?
       end
@@ -37,7 +43,17 @@ module Admin
     end
 
     def shop_orders_fulfillment?
-      controller_name == "shop_orders" && (params[:view] == "fulfillment" || action_name == "show" || action_name == "reveal_address")
+      return false unless controller_name == "shop_orders"
+
+      case action_name
+      when "index"
+        # Allow access to index so controller can redirect to fulfillment view if needed
+        true
+      when "show", "reveal_address", "mark_fulfilled", "update_internal_notes"
+        true
+      else
+        false
+      end
     end
 
     # Handles unauthorized access

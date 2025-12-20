@@ -62,6 +62,21 @@ class ShopItem < ApplicationRecord
 
   include Shop::Regionalizable
 
+  after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
+  after_commit :invalidate_buyable_standalone_cache
+
+  BUYABLE_STANDALONE_CACHE_KEY = "shop_items/buyable_standalone"
+
+  def self.cached_buyable_standalone
+    Rails.cache.fetch(BUYABLE_STANDALONE_CACHE_KEY, expires_in: 5.minutes) do
+      buyable_standalone.includes(image_attachment: :blob).to_a
+    end
+  end
+
+  def self.invalidate_buyable_standalone_cache!
+    Rails.cache.delete(BUYABLE_STANDALONE_CACHE_KEY)
+  end
+
   MANUAL_FULFILLMENT_TYPES = [
     "ShopItem::HCBGrant",
     "ShopItem::HCBPreauthGrant",
@@ -152,5 +167,19 @@ class ShopItem < ApplicationRecord
 
   def has_accessories?
     available_accessories.exists?
+  end
+
+  private
+
+  def carousel_relevant_change?
+    show_in_carousel? || saved_change_to_show_in_carousel?
+  end
+
+  def refresh_carousel_cache
+    Cache::CarouselPrizesJob.perform_later(force: true)
+  end
+
+  def invalidate_buyable_standalone_cache
+    self.class.invalidate_buyable_standalone_cache!
   end
 end

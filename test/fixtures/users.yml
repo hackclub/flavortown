@@ -9,17 +9,19 @@
 #  banned                      :boolean          default(FALSE), not null
 #  banned_at                   :datetime
 #  banned_reason               :text
+#  cookie_clicks               :integer          default(0), not null
 #  display_name                :string
 #  email                       :string
 #  first_name                  :string
 #  granted_roles               :string           default([]), not null, is an Array
 #  has_gotten_free_stickers    :boolean          default(FALSE)
+#  has_pending_achievements    :boolean          default(FALSE), not null
 #  hcb_email                   :string
 #  last_name                   :string
 #  magic_link_token            :string
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer
-#  region                      :string
+#  regions                     :string           default([]), is an Array
 #  send_votes_to_slack         :boolean          default(FALSE), not null
 #  session_token               :string
 #  slack_balance_notifications :boolean          default(FALSE), not null
@@ -37,7 +39,6 @@
 #
 #  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
-#  index_users_on_region            (region)
 #  index_users_on_session_token     (session_token) UNIQUE
 #  index_users_on_slack_id          (slack_id) UNIQUE
 #

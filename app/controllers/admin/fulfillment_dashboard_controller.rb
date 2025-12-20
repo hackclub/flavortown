@@ -40,7 +40,7 @@ module Admin
                        .joins(:shop_item)
 
       if include_associations
-        scope = scope.includes(:user, :shop_item)
+        scope = scope.includes(:user, :shop_item, :assigned_to_user)
                      .order(:awaiting_periodical_fulfillment_at, :created_at)
       end
 
@@ -68,6 +68,47 @@ module Admin
       end
 
       @stats[:all] = generate_type_stats(base_orders)
+
+      # Generate regional stats for third_party (Amber & Co)
+      @regional_stats = generate_regional_stats_for_third_party
+    end
+
+    def generate_regional_stats_for_third_party
+      third_party_orders = base_fulfillment_scope(include_associations: true)
+                            .where(shop_items: { type: "ShopItem::ThirdPartyPhysical" })
+
+      regional_data = {}
+      Shop::Regionalizable::REGION_CODES.each do |region_code|
+        regional_data[region_code] = { pc: 0, ac: 0, aho: 0, ahf: 0, order_times: [], fulfill_times: [] }
+      end
+
+      third_party_orders.each do |order|
+        next unless order.frozen_address.present?
+
+        region = Shop::Regionalizable.country_to_region(order.frozen_address["country"])
+        regional_data[region] ||= { pc: 0, ac: 0, aho: 0, ahf: 0, order_times: [], fulfill_times: [] }
+
+        if order.aasm_state == "pending"
+          regional_data[region][:pc] += 1
+          regional_data[region][:order_times] << (Time.current - order.created_at).to_i
+        elsif order.aasm_state == "awaiting_periodical_fulfillment"
+          regional_data[region][:ac] += 1
+          if order.awaiting_periodical_fulfillment_at
+            regional_data[region][:fulfill_times] << (Time.current - order.awaiting_periodical_fulfillment_at).to_i
+          end
+        end
+      end
+
+      # Calculate averages
+      regional_data.each do |region, data|
+        data[:aho] = data[:order_times].any? ? (data[:order_times].sum / data[:order_times].size) : 0
+        data[:ahf] = data[:fulfill_times].any? ? (data[:fulfill_times].sum / data[:fulfill_times].size) : 0
+        data.delete(:order_times)
+        data.delete(:fulfill_times)
+      end
+
+      # Only return regions with orders
+      regional_data.select { |_, data| data[:pc] > 0 || data[:ac] > 0 }
     end
 
     def generate_type_stats(scope)

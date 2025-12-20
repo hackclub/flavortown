@@ -16,6 +16,14 @@ module Battlemage
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
+    # Autoload secrets submodule models if present
+    secrets_models = Rails.root.join("secrets", "app", "models")
+    config.autoload_paths << secrets_models if secrets_models.exist?
+
+    # Add secrets assets to asset pipeline
+    secrets_images = Rails.root.join("secrets", "assets", "images")
+    config.assets.paths << secrets_images if secrets_images.exist?
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
@@ -26,6 +34,19 @@ module Battlemage
 
     # MissionControl::Jobs.base_controller_class = "Admin::ApplicationController"
     config.mission_control.jobs.http_basic_auth_enabled = false
+
+    ActiveSupport::Notifications.subscribe("cache_read.active_support") do |*args|
+      event = ActiveSupport::Notifications::Event.new(*args)
+      if event.payload[:hit]
+        Thread.current[:cache_hits] += 1
+      else
+        Thread.current[:cache_misses] += 1
+      end
+    end
+
+    ActiveSupport::Notifications.subscribe("cache_fetch_hit.active_support") do |*args|
+      Thread.current[:cache_hits] += 1
+    end
 
     # what do we want? sessions! when do we want em? now!
     config.session_store :cookie_store,

@@ -19,7 +19,7 @@ class Airtable::UserSync < ApplicationJob
           "email" => user.email,
           "slack_id" => user.slack_id,
           "avatar_url" => "http://cachet.dunkirk.sh/users/#{user.slack_id}/r",
-          "has_commented" => user.has_commented,
+          "has_commented" => user.has_commented?,
           "has_some_role_of_access" => user.roles.any?,
           "hours" => user.all_time_coding_seconds&.fdiv(3600),
           "verification_status" => user.verification_status.to_s,

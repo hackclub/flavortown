@@ -5,22 +5,25 @@ class ApplicationController < ActionController::Base
   # Add Policy Pundit
   include Pundit::Authorization
   include Pagy::Method
+  include Achievementable
 
   before_action :enforce_ban
   before_action :refresh_identity_on_portal_return
   before_action :initialize_cache_counters
   before_action :track_request
+  before_action :show_pending_achievement_notifications!
 
-  rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
   rescue_from StandardError, with: :handle_error
+  rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
+  rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
 
   def current_user(preloads = [])
     return @current_user if defined?(@current_user)
 
     if session[:user_id]
       scope = User.where(id: session[:user_id])
-      scope = scope.includes(*preloads) unless preloads.empty?
-      @current_user = scope.first
+      scope = scope.eager_load(*Array(preloads)) if preloads.present?
+      @current_user = scope.to_a.first
     end
   end
   helper_method :current_user
@@ -42,6 +45,10 @@ class ApplicationController < ActionController::Base
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private
+
+  def render_not_found
+    render file: Rails.root.join("public/404.html"), status: :not_found, layout: false
+  end
 
   def user_not_authorized
     flash[:alert] = "You are not authorized to perform this action."

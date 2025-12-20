@@ -68,13 +68,11 @@ input {
     svg {
       width: 2rem;
       fill: var(--color-red-400);
-      opacity: 75%;
       padding: 4px;
     }
 
     input {
       flex: 1;
-      opacity: 75%;
 
       &:hover,
       &:focus {
@@ -83,8 +81,7 @@ input {
       }
 
       &::placeholder {
-        color: var(--color-red-500);
-        opacity: 75%;
+        color: var(--color-red-400);
       }
     }
   }
@@ -1579,13 +1576,13 @@ input {
                 gap: 0.5rem;
                 z-index: 10;
                 background-color: #d5c3a0;
-                padding: 0.3rem 0.8rem;
-                border-radius: 16px;
+                padding: 0.3rem 0.3rem;
+                border-radius: 999px;
                 box-shadow: var(--shadow);
 
                 .dot {
-                  width: 0.6rem;
-                  height: 0.6rem;
+                  width: 24px;
+                  height: 24px;
                   border-radius: 50%;
                   background: var(--color-bg);
                   border: none;
@@ -1736,7 +1733,7 @@ input {
 
     .faq {
       position: relative;
-      background-color: #F8E8D1;
+      background-color: #f8e8d1;
 
       padding: 8rem 1rem 4rem 1rem;
       clip-path: var(--jagged-border-polygon);
@@ -1784,12 +1781,12 @@ input {
           box-shadow: var(--shadow);
           display: flex;
           flex-direction: column;
-          background: #4F8FBA;
+          background: #4f8fba;
           background-image: repeating-conic-gradient(
-                              from 0deg,
-                              rgba(0, 0, 0, 0.02) 0deg 90deg,
-                              transparent 90deg 180deg
-                            );
+            from 0deg,
+            rgba(0, 0, 0, 0.02) 0deg 90deg,
+            transparent 90deg 180deg
+          );
           background-size: 100px 100px;
           background-repeat: repeat;
 
@@ -1834,30 +1831,30 @@ input {
         }
 
         .card-yellow {
-          background-color: #BE772B;
+          background-color: #be772b;
           &::after {
-            background: #E7C06D;
+            background: #e7c06d;
           }
         }
 
         .card-green {
-          background-color: #75A743;
+          background-color: #75a743;
           &::after {
-            background: #D0DA91;
+            background: #d0da91;
           }
         }
 
         .card-blue {
-          background-color: #4F8FBA;
+          background-color: #4f8fba;
           &::after {
-            background: #A4DDDB;
+            background: #a4dddb;
           }
         }
 
         .card-red {
-          background-color: #BE4D54;
+          background-color: #be4d54;
           &::after {
-            background: #F9B2A0;
+            background: #f9b2a0;
           }
         }
       }
@@ -1881,7 +1878,7 @@ input {
 .under-faq {
   width: 100%;
   height: 16px;
-  background-color: #AD7757;
+  background-color: #ad7757;
 }
 
 .footer {
@@ -1902,7 +1899,7 @@ input {
     pointer-events: none;
   }
 
-  background-color: #7A4841;
+  background-color: #7a4841;
   display: flex;
   flex-direction: row;
   gap: 2rem;
