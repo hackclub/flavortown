@@ -201,6 +201,11 @@ input {
       }
     }
 
+    .logo {
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+    }
+
     .rsvp-form {
       display: flex;
       flex-direction: column;
