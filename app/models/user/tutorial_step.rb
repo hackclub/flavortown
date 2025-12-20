@@ -22,12 +22,6 @@ class User
           description: "you must be under this tall to ride!",
           icon: "user",
           link: ->(_) { HCAService.verify_portal_url(return_to: kitchen_url) }),
-      new(slug: :setup_hackatime,
-          name: "Setup hackatime",
-          description: "Start tracking your time",
-          icon: "time",
-          link: "/auth/hackatime",
-          verb: :post),
       new(slug: :create_project,
           name: "Create your first project",
           description: "what are you cooking?",
@@ -41,14 +35,25 @@ class User
           deps: [
             Dep[:create_project, "you need to create a project first!"]
           ]),
+      new(slug: :setup_hackatime,
+          name: "Setup hackatime",
+          description: "Start tracking your time",
+          icon: "time",
+          link: "/auth/hackatime",
+          verb: :post),
+      new(slug: :setup_slack,
+          name: "Join Slack",
+          description: "connect with the community",
+          icon: "slack",
+          link: ->(_) { "https://hackclub.slack.com" }),
       new(slug: :free_stickers,
           name: "Get your stickers!",
           description: "get your stickers!",
           icon: "trash-bin",
           link: ->(_) { shop_order_path(shop_item_id: 1) },
           deps: [
-            Dep[:post_devlog, "you need to dev on your log first!"],
-            Dep[:identity_verified, "you need to verify your identity!"]
+            Dep[:setup_hackatime, "you need to setup hackatime first!"],
+            Dep[:setup_slack, "you need to join Slack first!"]
           ])
     ].freeze
 
