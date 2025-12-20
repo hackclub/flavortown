@@ -186,8 +186,9 @@ class User < ApplicationRecord
     save!
   end
   def has_commented?
-    comments.exists?
+    @has_commented ||= comments.exists?
   end
+
   def magic_link_valid?
     magic_link_token.present? && magic_link_token_expires_at.present? && magic_link_token_expires_at > Time.current
   end
@@ -251,10 +252,6 @@ class User < ApplicationRecord
 
   def dm_user(message)
     SendSlackDmJob.perform_later(slack_id, message)
-  end
-
-  def has_commented?
-    comments.exists?
   end
 
   def earned_achievement_slugs
