@@ -1,0 +1,88 @@
+<div class="user-profile">
+  <div class="user-profile__left">
+    <div class="user-profile__card">
+        <div class="user-profile__identity">
+        <%= image_tag(@user.avatar, alt: @user.display_name, class: "user-profile__avatar") %>
+            <h1><%= @user.display_name %></h1>
+            <h2>Joined <%= @user.created_at.to_date.to_s %></h2>
+        </div>
+        <div class="user-profile__heading">
+            <%= inline_svg "icons/question.svg" %>
+            Stats
+        </div>
+        <div class="user-profile__stats">
+            <div class="user-profile__stat">
+                <h4 style="color: var(--color-blue-600);"><%= @stats[:posts_count] %></h4>
+                <h3>Posts</h3>
+            </div>
+            <div class="user-profile__stat">
+                <h4 style="color: var(--color-green-500);"><%= @stats[:projects_count] %></h4>
+                <h3>Projects</h3>
+            </div>
+            <div class="user-profile__stat">
+                <h4 style="color: var(--color-brown-700);"><%= @stats[:ships_count] %></h4>
+                <h3>Ships</h3>
+            </div>
+            <div class="user-profile__stat">
+                <h4 style="color: var(--color-red-500);"><%= @stats[:votes_count] %></h4>
+                <h3>Votes</h3>
+            </div>
+        </div>
+        <div class="user-profile__heading">
+            <%= inline_svg "icons/time.svg" %>
+            Time logged
+        </div>
+        <div class="user-profile__times">
+            <div class="user-profile__time">
+                <h4>All time:</h4>
+                <h4><%= @stats[:hours_all_time] %> hrs</h4>
+            </div>
+            <div class="user-profile__time">
+                <h4>Today:</h4>
+                <h4><%= @stats[:hours_today] %> hrs</h4>
+            </div>
+        </div>
+    </div>
+    <div class="user-profile__card">
+        <h2 style="text-align: left; font-weight: normal;">Projects</h2>
+        <% if @projects.any? %>
+        <div class="user-profile__projects">
+            <% @projects.each do |project| %>
+                <div class="user-profile__project-card">
+                    <div>
+                        <% if project.banner.attached? %>
+                            <%= image_tag project.banner.variant(:card), alt: "#{project.title} banner", class: "project-banner-title-description__banner-image" %>
+                        <% end %>
+                    </div>
+                    <div class="user-profile__project-stats">
+                        <div class="user-profile__project-card-title">
+                            <h3><%= project.title %></h3>
+                            <h6>Shipped</h6>
+                        </div>
+                        <div style="text-align: left;">
+                            <%= time_ago_in_words(project.created_at.to_date) %> ago •
+                            <%= project.devlogs_count %> devlogs
+                        </div>
+                    </div>
+                </div>
+            <% end %>
+        </div>
+        <% else %>
+        <p>No projects yet.</p>
+        <% end %>
+    </div>
+  </div>
+
+  <section class="user-profile__activity">
+    <h2>Activity</h2>
+    <% if @activity.any? %>
+      <div style="display: grid; gap: var(--space-xl);">
+        <% @activity.each do |post| %>
+          <%= render PostComponent.new(post: post, variant: :devlog, current_user: current_user) %>
+        <% end %>
+      </div>
+    <% else %>
+      <p>No devlogs yet.</p>
+    <% end %>
+  </section>
+</div>
