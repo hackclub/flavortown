@@ -14,7 +14,8 @@ class Airtable::RsvpSyncJob < Airtable::BaseSyncJob
       "user_agent" => rsvp&.user_agent,
       "ref" => rsvp&.ref,
       "created_at" => rsvp.created_at,
-      "synced_at" => Time.now
+      "synced_at" => Time.now,
+      "flavor_id" => rsvp.id
     }
   end
 end
