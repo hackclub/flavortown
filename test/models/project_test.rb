@@ -2,25 +2,26 @@
 #
 # Table name: projects
 #
-#  id                :bigint           not null, primary key
-#  deleted_at        :datetime
-#  demo_url          :text
-#  description       :text
-#  devlogs_count     :integer          default(0), not null
-#  marked_fire_at    :datetime
-#  memberships_count :integer          default(0), not null
-#  project_type      :string
-#  readme_url        :text
-#  repo_url          :text
-#  ship_status       :string           default("draft")
-#  shipped_at        :datetime
-#  synced_at         :datetime
-#  title             :string           not null
-#  tutorial          :boolean          default(FALSE), not null
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  fire_letter_id    :string
-#  marked_fire_by_id :bigint
+#  id                 :bigint           not null, primary key
+#  deleted_at         :datetime
+#  demo_url           :text
+#  description        :text
+#  devlogs_count      :integer          default(0), not null
+#  marked_fire_at     :datetime
+#  memberships_count  :integer          default(0), not null
+#  project_categories :string           default([]), is an Array
+#  project_type       :string
+#  readme_url         :text
+#  repo_url           :text
+#  ship_status        :string           default("draft")
+#  shipped_at         :datetime
+#  synced_at          :datetime
+#  title              :string           not null
+#  tutorial           :boolean          default(FALSE), not null
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  fire_letter_id     :string
+#  marked_fire_by_id  :bigint
 #
 # Indexes
 #
