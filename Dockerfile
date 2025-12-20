@@ -56,7 +56,15 @@ COPY . .
 RUN bundle exec bootsnap precompile app/ lib/
 
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Cache mount persists generated webp/avif images between builds
+RUN --mount=type=cache,target=/tmp/image-cache \
+    if [ -d /tmp/image-cache ] && [ "$(ls -A /tmp/image-cache 2>/dev/null)" ]; then \
+      cd /tmp/image-cache && \
+      find . -type f \( -name "*.webp" -o -name "*.avif" \) -exec cp --parents {} /rails/app/assets/images/ \; ; \
+    fi && \
+    SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && \
+    cd /rails/app/assets/images && \
+    find . -type f \( -name "*.webp" -o -name "*.avif" \) -exec cp --parents {} /tmp/image-cache/ \;
 
 
 

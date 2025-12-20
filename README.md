@@ -81,3 +81,9 @@ bin/rails images:optimize
 ```
 
 This requires libvips to be installed (already a dependency for Active Storage).
+
+To fully clear cached images in production builds (equivalent to `assets:clobber`), you need to clear the BuildKit cache:
+
+```bash
+docker builder prune
+```
