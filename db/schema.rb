@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_20_010442) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_20_020316) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -295,6 +295,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_010442) do
     t.datetime "marked_fire_at"
     t.bigint "marked_fire_by_id"
     t.integer "memberships_count", default: 0, null: false
+    t.string "project_categories", default: [], array: true
     t.string "project_type"
     t.text "readme_url"
     t.text "repo_url"
