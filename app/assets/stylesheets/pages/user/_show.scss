@@ -11,7 +11,7 @@
     gap: 1em;
 
     @media (max-width: 960px) {
-        width: 100%;
+      width: 100%;
     }
   }
 
@@ -36,27 +36,27 @@
     color: var(--color-brown-500);
 
     svg {
-        width: 15px;
-        height: 15px;
+      width: 15px;
+      height: 15px;
     }
   }
 
   &__identity {
     img {
-        width: 75px;
-        height: 75px;
-        border-radius: 100%;
+      width: 75px;
+      height: 75px;
+      border-radius: 100%;
     }
 
     h1 {
-        font-size: 1.6rem;
-        font-weight: normal;
+      font-size: 1.6rem;
+      font-weight: normal;
     }
 
     h2 {
-        font-size: 1rem;
-        color: var(--color-brown-500);
-        font-weight: normal;
+      font-size: 1rem;
+      color: var(--color-brown-500);
+      font-weight: normal;
     }
   }
 
@@ -67,19 +67,19 @@
     gap: 1em;
 
     @media (max-width: 960px) {
-        display: flex;
-        justify-content: space-evenly;
-        flex-wrap: wrap;
+      display: flex;
+      justify-content: space-evenly;
+      flex-wrap: wrap;
     }
 
     h3 {
-        font-size: 1rem;
-        font-weight: normal;
+      font-size: 1rem;
+      font-weight: normal;
     }
 
     h4 {
-        font-weight: normal;
-        font-size: 1.1rem;
+      font-weight: normal;
+      font-size: 1.1rem;
     }
   }
 
@@ -89,8 +89,8 @@
     justify-content: space-between;
 
     h4 {
-        font-weight: normal;
-        color: var(--color-brown-700);
+      font-weight: normal;
+      color: var(--color-brown-700);
     }
   }
 
@@ -103,21 +103,21 @@
     border-radius: 4px;
 
     img {
-        height: 50px;
-        width: 50px;
-        object-fit: cover;
-        border-radius: 4px;
+      height: 50px;
+      width: 50px;
+      object-fit: cover;
+      border-radius: 4px;
     }
 
     h3 {
-        font-weight: normal;
-        text-align: left;
+      font-weight: normal;
+      text-align: left;
     }
 
     &:hover {
-        cursor: pointer;
-        background-color: var(--color-brown-700);
-        color: var(--color-bg);
+      cursor: pointer;
+      background-color: var(--color-brown-700);
+      color: var(--color-bg);
     }
   }
 
