@@ -4,7 +4,10 @@
     <%= image_tag post.user&.avatar || "https://ca.slack-edge.com/T0266FRGM-U07GZPGJX1G-g98be5e77f20-512", alt: author_name, class: "post__avatar" %>
     </div>
     <div class="post__meta">
-      <div class="post__author"><%= author_name %><%= " ⚡" if post.user&.admin? %></div>
+      <div class="post__author">
+        <%= author_name %><%= " ⚡" if post.user&.admin? %>
+        - <a href="<%= project_path(post.project) %>" class="post__project-link"><%= post.project.title %></a>
+      </div>
       <div class="post__time"><%= posted_at_text %> ago</div>
       <% if duration_text.present? %>
         <div class="post__duration"><%= duration_text %> logged</div>
