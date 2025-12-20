@@ -1,0 +1,21 @@
+class Airtable::DevlogSyncJob < Airtable::BaseSyncJob
+  def table_name = "_devlogs"
+
+  def records = Post::Devlog.includes(:posts)
+
+  def field_mapping(devlog)
+    post = devlog.posts.first
+    {
+      "body" => devlog.body,
+      "duration_seconds" => devlog.duration_seconds,
+      "likes_count" => devlog.likes_count,
+      "comments_count" => devlog.comments_count,
+      "scrapbook_url" => devlog.scrapbook_url,
+      "project_id" => post&.project_id,
+      "user_id" => post&.user_id,
+      "created_at" => devlog.created_at,
+      "synced_at" => Time.now,
+      "flavor_id" => devlog.id
+    }
+  end
+end
