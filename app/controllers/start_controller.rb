@@ -24,6 +24,19 @@ class StartController < ApplicationController
     @starter_project_name = session[:start_starter_project_name]
     @devlog_body = session[:start_devlog_body]
     @devlog_attachment_ids = session[:start_devlog_attachment_ids] || []
+
+    if @step == "project" && session[:start_project_attrs].blank?
+      display_name = session[:start_display_name] || ""
+      default_name = "First Project"
+      title = display_name.present? ? "#{display_name}'s #{default_name}" : default_name
+      description = "This is my first project on Flavortown. I'm excited to share my progress!"
+
+      @project_attrs = {
+        "title" => title.strip.first(120),
+        "description" => description.first(1_000)
+      }
+      session[:start_project_attrs] = @project_attrs
+    end
   end
 
   def update_display_name
