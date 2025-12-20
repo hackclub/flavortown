@@ -264,6 +264,7 @@
       <div class="card">
         <h3>Actions</h3>
         <div class="shop-item-detail__actions">
+          <%= link_to "New Item", new_admin_shop_item_path, class: "btn-secondary" %>
           <%= link_to "Edit Item", edit_admin_shop_item_path(@shop_item), class: "btn-primary" %>
           <%= button_to "Delete", admin_shop_item_path(@shop_item), method: :delete, class: "btn-danger", data: { confirm: "Are you sure you want to delete this item?" } %>
         </div>
