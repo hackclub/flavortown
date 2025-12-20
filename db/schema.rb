@@ -10,9 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_20_020316) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_20_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  # Custom types defined in this database.
+  # Note that some types may not work with other database engines. Be careful if changing database.
+  create_enum "shop_region_type", ["US", "EU", "UK", "IN", "CA", "AU", "XX"]
 
   create_table "action_mailbox_inbound_emails", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -502,7 +506,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_020316) do
     t.string "regions", default: [], array: true
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
-    t.string "shop_region"
+    t.enum "shop_region", enum_type: "shop_region_type"
     t.boolean "slack_balance_notifications", default: false, null: false
     t.string "slack_id"
     t.datetime "synced_at"
