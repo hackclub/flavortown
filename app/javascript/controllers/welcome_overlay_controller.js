@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static targets = ["star", "banner", "hint"];
-  static values = { audioUrl: String, shopUrl: String };
+  static values = { audioUrl: String };
 
   connect() {
     this.audio = null;
@@ -46,9 +46,6 @@ export default class extends Controller {
     // Wait for dismiss animation to complete
     setTimeout(() => {
       this.element.remove();
-      if (this.hasShopUrlValue && this.shopUrlValue) {
-        Turbo.visit(this.shopUrlValue);
-      }
     }, 400);
   }
 
