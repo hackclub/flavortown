@@ -23,18 +23,24 @@
       <div><b>Projects:</b> <%= @user.projects_count %></div>
       <% if @user.fulfillment_person? %>
         <div>
-          <b>Region:</b>
-          <form method="post" action="<%= admin_user_path(@user) %>" style="display: inline;">
+          <b>Regions:</b>
+          <form method="post" action="<%= admin_user_path(@user) %>" style="display: inline-block; vertical-align: middle;">
             <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
             <%= hidden_field_tag :_method, "patch" %>
-            <select name="user[region]" onchange="this.form.submit();">
-              <option value="">-- Select Region --</option>
+            <%= hidden_field_tag "user[regions][]", "" %>
+            <div class="region-checkboxes" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem;">
               <% Shop::Regionalizable::REGION_CODES.each do |code| %>
-                <option value="<%= code %>" <%= "selected" if @user.region == code %>>
-                  <%= Shop::Regionalizable.region_name(code) %>
-                </option>
+                <label class="region-checkbox" style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; background: var(--color-tan-400); border: 2px solid var(--color-brown-500); border-radius: 0.5rem; cursor: pointer; font-size: 0.875rem; transition: background 0.1s, border-color 0.1s;">
+                  <input type="checkbox"
+                         name="user[regions][]"
+                         value="<%= code %>"
+                         <%= "checked" if @user.regions.include?(code) %>
+                         style="accent-color: var(--color-brown-500); width: 1rem; height: 1rem;">
+                  <span><%= Shop::Regionalizable.region_name(code) %></span>
+                </label>
               <% end %>
-            </select>
+            </div>
+            <button type="submit" class="btn-primary slim" style="margin-top: 0.5rem;">Save Regions</button>
           </form>
         </div>
       <% end %>

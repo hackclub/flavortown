@@ -15,11 +15,13 @@
 #  internal_notes                     :text
 #  on_hold_at                         :datetime
 #  quantity                           :integer
+#  region                             :string(2)
 #  rejected_at                        :datetime
 #  rejection_reason                   :string
 #  tracking_number                    :string
 #  created_at                         :datetime         not null
 #  updated_at                         :datetime         not null
+#  assigned_to_user_id                :bigint
 #  parent_order_id                    :bigint
 #  shop_card_grant_id                 :bigint
 #  shop_item_id                       :bigint           not null
@@ -32,7 +34,9 @@
 #  idx_shop_orders_stock_calc                 (shop_item_id,aasm_state)
 #  idx_shop_orders_user_item_state            (user_id,shop_item_id,aasm_state)
 #  idx_shop_orders_user_item_unique           (user_id,shop_item_id)
+#  index_shop_orders_on_assigned_to_user_id   (assigned_to_user_id)
 #  index_shop_orders_on_parent_order_id       (parent_order_id)
+#  index_shop_orders_on_region                (region)
 #  index_shop_orders_on_shop_card_grant_id    (shop_card_grant_id)
 #  index_shop_orders_on_shop_item_id          (shop_item_id)
 #  index_shop_orders_on_user_id               (user_id)
@@ -40,6 +44,7 @@
 #
 # Foreign Keys
 #
+#  fk_rails_...  (assigned_to_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (parent_order_id => shop_orders.id)
 #  fk_rails_...  (shop_item_id => shop_items.id)
 #  fk_rails_...  (user_id => users.id)
@@ -57,6 +62,7 @@ class ShopOrder < ApplicationRecord
   belongs_to :parent_order, class_name: "ShopOrder", optional: true
   has_many :accessory_orders, class_name: "ShopOrder", foreign_key: :parent_order_id, dependent: :destroy
   belongs_to :warehouse_package, class_name: "ShopWarehousePackage", optional: true
+  belongs_to :assigned_to_user, class_name: "User", optional: true
 
   # has_many :payouts, as: :payable, dependent: :destroy
 
@@ -74,9 +80,11 @@ class ShopOrder < ApplicationRecord
 
   after_create :create_negative_payout
   before_create :freeze_item_price
+  before_create :set_region_from_address
   after_commit :notify_user_of_status_change, if: :saved_change_to_aasm_state?
 
   scope :worth_counting, -> { where.not(aasm_state: %w[rejected refunded]) }
+  scope :real, -> { without_item_type("ShopItem::FreeStickers") }
   scope :manually_fulfilled, -> { joins(:shop_item).merge(ShopItem.where(type: ShopItem::MANUAL_FULFILLMENT_TYPES)) }
   scope :with_item_type, ->(item_type) { joins(:shop_item).where(shop_items: { type: item_type.to_s }) }
   scope :without_item_type, ->(item_type) { joins(:shop_item).where.not(shop_items: { type: item_type.to_s }) }
@@ -107,12 +115,10 @@ class ShopOrder < ApplicationRecord
 
     return true if viewer.admin?
 
-    # Fulfillment person can only see addresses in their region
-    if viewer.fulfillment_person? && frozen_address.present?
-      order_region = Shop::Regionalizable.country_to_region(frozen_address["country"])
-      # For now, we assume fulfillment persons can see all regions
-      # You can add user region preferences later
-      return true
+    # Fulfillment person can see addresses in their assigned regions
+    if viewer.fulfillment_person?
+      return true unless viewer.has_regions?
+      return viewer.has_region?(region)
     end
 
     false
@@ -298,6 +304,7 @@ class ShopOrder < ApplicationRecord
   end
 
   def check_free_stickers_requirement
+    return if Rails.env.development?
     return if user&.has_gotten_free_stickers?
     return if shop_item.is_a?(ShopItem::FreeStickers)
     return if user.shop_orders.joins(:shop_item).where(shop_items: { type: "ShopItem::FreeStickers" }).worth_counting.exists?
@@ -306,6 +313,7 @@ class ShopOrder < ApplicationRecord
   end
 
   def check_devlog_for_free_stickers
+    return if Rails.env.development?
     return unless shop_item.is_a?(ShopItem::FreeStickers)
     return if Post.where(user: user, postable_type: "Post::Devlog").exists?
 
@@ -332,5 +340,12 @@ class ShopOrder < ApplicationRecord
       created_by: "System",
       ledgerable: self
     )
+  end
+
+  def set_region_from_address
+    return if region.present?
+    return unless frozen_address.present? && frozen_address["country"].present?
+
+    self.region = Shop::Regionalizable.country_to_region(frozen_address["country"])
   end
 end

@@ -2,6 +2,9 @@ class Project::MagicHappeningLetterJob < ApplicationJob
   queue_as :default
 
   def perform(project)
+    unless Rails.env.production?
+      Rails.logger.info "we'd be sending a letter about #{project.to_global_id} (#{project.title}) if we were in prod" and return
+    end
     owner = project.memberships.owner.first&.user
     return unless owner
 
