@@ -3,7 +3,7 @@ class PostCreationToSlackJob < ApplicationJob
 
   CHANNEL_ID = "C0A3WD1B24R"
 
-  SLACK_MENTION_PATTERN = /<!(?:here|channel|everyone|subteam\^[A-Z0-9]+)>|@(?:here|channel|everyone)/i
+  SLACK_MENTION_PATTERN = /<!(?:here|channel|everyone|subteam\^[A-Z0-9]+)(?:\|>)?|@(?:here|channel|everyone)/i
 
   include Rails.application.routes.url_helpers
 
