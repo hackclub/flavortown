@@ -3,6 +3,7 @@
 class StartController < ApplicationController
   STEPS = %w[name experience project devlog signin].freeze
 
+  before_action :redirect_signed_in_user
   before_action :set_step, only: :index
   before_action :enforce_step_order, only: :index
 
@@ -90,6 +91,12 @@ class StartController < ApplicationController
   end
 
   private
+
+  def redirect_signed_in_user
+    return if current_user.blank?
+
+    redirect_to(current_user.setup_complete? ? projects_path : kitchen_path)
+  end
 
   def set_step
     @step = STEPS.include?(params[:step]) ? params[:step] : "name"
