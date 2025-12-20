@@ -31,12 +31,12 @@
 
         <div class="card card-blue">
           <p class="question">Is this legit?</p>
-          <p class="answer">Yup! This summer we ran <a href="https://summer.hackclub.com/">Summer of Making</a>, and before that we ran <a href="https://highseas.hackclub.com/">High Seas</a>—both programs gave out similar prizes for building personal projects.</p>
+          <p class="answer">Yup! This summer we ran <%= link_to "Summer of Making", "https://summer.hackclub.com/" %>, and before that we ran <%= link_to "High Seas", "https://highseas.hackclub.com/" %>—both programs gave out similar prizes for building personal projects.</p>
         </div>
 
         <div class="card card-green">
           <p class="question">I've got more questions...</p>
-          <p class="answer">You can email us at <a href="mailto:flavortown@hackclub.com">flavortown@hackclub.com</a>! We'll try and respond to everything within two days :)</p>
+          <p class="answer">You can email us at <%= mail_to "flavortown@hackclub.com" %>! We'll try and respond to everything within two days :)</p>
         </div>
       </div>
     </div>

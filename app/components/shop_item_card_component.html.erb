@@ -16,7 +16,7 @@
             aria-pressed="false">
       <%= helpers.inline_svg_tag "icons/star_fill.svg" %>
     </button>
-    <a href="<%= order_url %>" class="shop-item-card__link" data-turbo-frame="_top">
+    <%= link_to order_url, class: "shop-item-card__link", data: { turbo_frame: "_top" } do %>
       <div class="shop-item-card__image">
         <%= image_tag image_url, alt: "#{name} image", class: "rounded-lg w-full h-auto object-scale-down aspect-square max-h-48" %>
       </div>
@@ -28,7 +28,7 @@
           <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
         </div>
       </div>
-    </a>
+    <% end %>
     <div class="shop-item-card__order-button">
       <% if balance >= display_price %>
         <%= link_to "Order Now", order_url, class: "btn btn-primary w-full", data: {turbo_frame: "_top"} %>
