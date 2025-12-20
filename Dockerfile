@@ -62,6 +62,7 @@ RUN --mount=type=cache,target=/tmp/image-cache \
       cd /tmp/image-cache && \
       find . -type f \( -name "*.webp" -o -name "*.avif" \) -exec cp --parents {} /rails/app/assets/images/ \; ; \
     fi && \
+    cd /rails && \
     SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && \
     cd /rails/app/assets/images && \
     find . -type f \( -name "*.webp" -o -name "*.avif" \) -exec cp --parents {} /tmp/image-cache/ \;
