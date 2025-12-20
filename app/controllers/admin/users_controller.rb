@@ -21,7 +21,7 @@ class Admin::UsersController < Admin::ApplicationController
         .select do |v|
           next true unless v.event == "update"
           changes = v.object_changes || {}
-          changes = YAML.safe_load(changes, permitted_classes: [Symbol]) if changes.is_a?(String)
+          changes = YAML.safe_load(changes, permitted_classes: [ Symbol ]) if changes.is_a?(String)
           changes.keys.any? { |k| !%w[updated_at synced_at].include?(k.to_s) }
         end
 

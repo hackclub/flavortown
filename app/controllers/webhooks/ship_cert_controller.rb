@@ -12,8 +12,9 @@ class Webhooks::ShipCertController < ApplicationController
     status = body["status"]
     video_url = body["video_url"]
     reason = body["reason"]
+    categories = body["categories"]
 
-    Rails.logger.info "Ship cert webhook received: id=#{project_id} status=#{status}"
+    Rails.logger.info "Ship cert webhook received: id=#{project_id} status=#{status} categories=#{categories}"
 
     project = Project.find_by(id: project_id)
     unless project
@@ -33,11 +34,22 @@ class Webhooks::ShipCertController < ApplicationController
       feedback_reason: reason
     )
 
-    Rails.logger.info "Ship cert webhook: project=#{project_id} status=#{status}"
+    if categories.present?
+      normalized_categories = normalize_categories(categories)
+      project.update!(project_categories: normalized_categories)
+    end
+
+    Rails.logger.info "Ship cert webhook: project=#{project_id} status=#{status} categories=#{categories}"
     render json: { success: true }
   end
 
   private
+
+  def normalize_categories(categories)
+    Array(categories).map do |cat|
+      Project::AVAILABLE_CATEGORIES.include?(cat) ? cat : "Other"
+    end.uniq
+  end
 
   def verify_api_key
     api_key = request.headers["x-api-key"]
