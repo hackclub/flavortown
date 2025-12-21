@@ -77,6 +77,7 @@ class ShopOrder < ApplicationRecord
   validate :check_regional_availability, on: :create
   validate :check_free_stickers_requirement, on: :create
   validate :check_devlog_for_free_stickers, on: :create
+  validate :check_stock, on: :create
 
   after_create :create_negative_payout
   before_create :freeze_item_price
@@ -318,6 +319,19 @@ class ShopOrder < ApplicationRecord
     return if Post.where(user: user, postable_type: "Post::Devlog").exists?
 
     errors.add(:base, "You must post at least one devlog before ordering free stickers!")
+  end
+
+  def check_stock
+    return unless shop_item&.limited? && shop_item&.stock.present?
+
+    remaining = shop_item.remaining_stock
+    return unless remaining.present?
+
+    if remaining <= 0
+      errors.add(:base, "#{shop_item.name} is out of stock.")
+    elsif quantity.present? && quantity > remaining
+      errors.add(:base, "Only #{remaining} #{shop_item.name.pluralize(remaining)} left in stock.")
+    end
   end
 
   def create_negative_payout

@@ -19,6 +19,39 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   }
 
+  &--out-of-stock {
+    opacity: 0.7;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  &__stock-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 10;
+    background: var(--color-green-400);
+    color: var(--color-green-700);
+    font-family: var(--font-family-text);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    &--low {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    &--out {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+  }
+
   &__star {
     position: absolute;
     top: 0.5rem;
