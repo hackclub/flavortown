@@ -9,7 +9,7 @@ namespace :assets do
 
       puts "Converting #{file}..."
       image = Vips::Image.new_from_file(file)
-      image.write_to_file(avif_file, Q: 50)
+      image.write_to_file(avif_file, strip: true, Q: 45, effort: 9, speed: 0)
     end
   end
 end
