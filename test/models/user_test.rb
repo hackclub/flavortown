@@ -22,6 +22,7 @@
 #  regions                     :string           default([]), is an Array
 #  send_votes_to_slack         :boolean          default(FALSE), not null
 #  session_token               :string
+#  shop_region                 :enum
 #  slack_balance_notifications :boolean          default(FALSE), not null
 #  synced_at                   :datetime
 #  tutorial_steps_completed    :string           default([]), is an Array

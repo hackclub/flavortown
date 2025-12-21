@@ -56,7 +56,7 @@ class ShopController < ApplicationController
       return head :unprocessable_entity
     end
 
-    current_user.update!(region: region)
+    current_user.update!(shop_region: region)
     @user_region = region
     load_shop_items
 
@@ -207,6 +207,9 @@ class ShopController < ApplicationController
 
   def user_region
     if current_user
+      # Use explicitly set shop region if available
+      return current_user.shop_region if current_user.shop_region.present?
+
       # For fulfillment persons with regions, return the first one for shop filtering
       return current_user.regions.first if current_user.has_regions?
 

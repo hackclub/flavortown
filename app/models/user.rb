@@ -22,6 +22,7 @@
 #  regions                     :string           default([]), is an Array
 #  send_votes_to_slack         :boolean          default(FALSE), not null
 #  session_token               :string
+#  shop_region                 :enum
 #  slack_balance_notifications :boolean          default(FALSE), not null
 #  synced_at                   :datetime
 #  tutorial_steps_completed    :string           default([]), is an Array
@@ -62,6 +63,16 @@ class User < ApplicationRecord
     verified: "verified",
     ineligible: "ineligible"
   }, default: :needs_submission, prefix: :verification
+
+  enum :shop_region, {
+    US: "US",
+    EU: "EU",
+    UK: "UK",
+    IN: "IN",
+    CA: "CA",
+    AU: "AU",
+    XX: "XX"
+  }
 
   validates :verification_status, presence: true
   validates :slack_id, presence: true, uniqueness: true
