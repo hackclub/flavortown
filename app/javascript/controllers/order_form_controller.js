@@ -58,7 +58,7 @@ export default class extends Controller {
       ".shop-order__accessory-option-input[type='checkbox']",
     );
     this.accessoryRadios = this.element.querySelectorAll(
-      ".shop-order__accessory-option-input",
+      ".shop-order__accessory-option-input[type='radio']",
     );
 
     if (this.quantityInput) {
@@ -85,7 +85,7 @@ export default class extends Controller {
       if (checkbox.checked) {
         const name = checkbox
           .closest("label")
-          .querySelector(".shop-order__accessory-name").textContent;
+          .querySelector(".shop-order__accessory-option-name").textContent;
         const price = parseFloat(checkbox.dataset.price) || 0;
         accessories.push({ name, price });
       }
