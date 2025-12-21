@@ -1,7 +1,7 @@
 class Airtable::ShipEventSyncJob < Airtable::BaseSyncJob
   def table_name = "_ship_events"
 
-  def records = Post::ShipEvent.includes(:posts)
+  def records = Post::ShipEvent.includes(:post)
 
   def field_mapping(ship_event)
     post = ship_event.post

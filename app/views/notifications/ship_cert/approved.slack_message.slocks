@@ -1,0 +1,17 @@
+header "🎉 Your ship has been approved!"
+
+section "Congratulations! Your project *#{project.title}* has been certified and approved by our reviewers.", markdown: true
+
+if video_url.present?
+  section "*Feedback Video:* #{video_url}", markdown: true
+end
+
+if reason.present?
+  section "*Reviewer Notes:* #{reason}", markdown: true
+end
+
+divider
+
+context [
+  mrkdwn_text("Keep building awesome things! 🚀")
+]

@@ -1,7 +1,7 @@
 class Airtable::DevlogSyncJob < Airtable::BaseSyncJob
   def table_name = "_devlogs"
 
-  def records = Post::Devlog.includes(:posts)
+  def records = Post::Devlog.includes(:post)
 
   def field_mapping(devlog)
     post = devlog.post
