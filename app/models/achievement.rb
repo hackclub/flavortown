@@ -39,7 +39,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       name: "Recipe Notes",
       description: "jot down your cooking process",
       icon: "edit",
-      earned_check: ->(user) { user.projects.joins(:posts).exists?(posts: { postable_type: "PostDevlog" }) },
+      earned_check: ->(user) { user.projects.joins(:posts).exists?(posts: { postable_type: "Post::Devlog" }) },
       cookie_reward: 2
     ),
     new(
@@ -82,13 +82,46 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       cookie_reward: 10
     ),
     new(
+      slug: :first_ship,
+      name: "Order Up!",
+      description: "ship your first project to the world",
+      icon: "ship",
+      earned_check: ->(user) { user.projects.where.not(shipped_at: nil).exists? },
+      cookie_reward: 3
+    ),
+    new(
+      slug: :ship_certified,
+      name: "Michelin Star",
+      description: "your dish has been certified by the critics",
+      icon: "trophy",
+      earned_check: ->(user) { user.projects.where(ship_status: "approved").exists? },
+      cookie_reward: 3
+    ),
+    new(
       slug: :ten_devlogs,
       name: "Cookbook Author",
       description: "10 recipes documented - publish that cookbook!",
       icon: "fire",
-      earned_check: ->(user) { Post.joins(:project).where(projects: { id: user.project_ids }, postable_type: "PostDevlog").count >= 10 },
-      progress: ->(user) { { current: Post.joins(:project).where(projects: { id: user.project_ids }, postable_type: "PostDevlog").count, target: 10 } },
+      earned_check: ->(user) { Post.joins(:project).where(projects: { id: user.project_ids }, postable_type: "Post::Devlog").count >= 10 },
+      progress: ->(user) { { current: Post.joins(:project).where(projects: { id: user.project_ids }, postable_type: "Post::Devlog").count, target: 10 } },
       cookie_reward: 15,
+      visibility: :secret
+    ),
+    new(
+      slug: :scrapbook_devlog,
+      name: "Scrapbook usage?!",
+      description: "Used scrapbook in a devlog",
+      icon: "slack",
+      earned_check: ->(user) { Post::Devlog.joins("INNER JOIN posts ON CAST(posts.postable_id AS bigint) = post_devlogs.id AND posts.postable_type = 'Post::Devlog'").where(posts: { project_id: user.project_ids }).where.not(scrapbook_url: nil).exists? },
+      visibility: :secret
+    ),
+    new(
+      slug: :cooking,
+      name: "Cooking",
+      description: "Cooked so hard you ended up making a fire project that made our staff very happy!",
+      icon: "fire",
+      earned_check: ->(user) { user.projects.fire.exists? },
+      cookie_reward: 5,
       visibility: :secret
     )
   ].freeze

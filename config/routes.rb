@@ -40,7 +40,7 @@ Rails.application.routes.draw do
   # Start Flow
   get  "/start",               to: "start#index"
   post "/start/display_name",  to: "start#update_display_name"
-  post "/start/experience",    to: "start#update_experience"
+  # post "/start/experience",    to: "start#update_experience"
   post "/start/project",       to: "start#update_project"
   post "/start/prefill_project", to: "start#prefill_project"
   post "/start/devlog",        to: "start#update_devlog"
@@ -244,4 +244,7 @@ Rails.application.routes.draw do
     resource :like, only: [ :create, :destroy ]
     resources :comments, only: [ :create, :destroy ]
   end
+
+  # Public user profiles
+  resources :users, only: [ :show ]
 end

@@ -2,8 +2,10 @@ class ExploreController < ApplicationController
   VARIANTS = %i[devlog fire certified ship].freeze
 
   def index
+    non_tutorial_devlog_ids = Post::Devlog.where(tutorial: false).select(:id)
     scope = Post.includes(:user, :project, postable: { attachments_attachments: :blob })
                 .where(postable_type: "Post::Devlog")
+                .where("posts.postable_id::bigint IN (?)", non_tutorial_devlog_ids)
                 .where.not(user_id: current_user&.id)
                 .order(created_at: :desc)
 
@@ -32,6 +34,7 @@ class ExploreController < ApplicationController
 
   def gallery
     scope = Project.includes(banner_attachment: :blob)
+                    .where(tutorial: false)
                     .where.not(id: current_user&.projects&.pluck(:id) || [])
                     .order(created_at: :desc)
 
@@ -63,6 +66,7 @@ class ExploreController < ApplicationController
     end
 
     scope = current_user.followed_projects
+                        .where(tutorial: false)
                         .includes(:banner_attachment, posts: :postable)
                         .order(created_at: :desc)
 

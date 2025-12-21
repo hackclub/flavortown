@@ -56,7 +56,11 @@
         <tr>
           <td>#<%= report.id %></td>
           <td>
-            <%= link_to report.project.title, project_path(report.project) %>
+            <% if report.project %>
+              <%= link_to report.project.title, project_path(report.project) %>
+            <% else %>
+              <span class="text-muted">(Deleted Project)</span>
+            <% end %>
           </td>
           <td><%= report.reporter.display_name || report.reporter.email %></td>
           <td><%= report.reason.titleize %></td>

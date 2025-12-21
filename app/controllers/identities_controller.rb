@@ -24,19 +24,19 @@ class IdentitiesController < ApplicationController
     result = current_user.try_sync_hackatime_data!(force: true)
     total_seconds = result&.dig(:projects)&.values&.sum || 0
 
-    if total_seconds > 0
-      duration = helpers.distance_of_time_in_words(total_seconds)
-      tutorial_message [
-        "Waouh! You already have #{duration} tracked on Hackatime — well done!",
-        "Now we will create a project..."
-      ]
-    else
-      tutorial_message [
-        "Oh, it would appear that Hackatime is linked, but you don't have any time tracked yet.",
-        "Don't worry — just install the Hackatime extension in your code editor.",
-        "And then cook up tasty projects here, earn cookies, and get free rewards!"
-      ]
-    end
+    # if total_seconds > 0
+    #   duration = helpers.distance_of_time_in_words(total_seconds)
+    #   tutorial_message [
+    #     "Waouh! You already have #{duration} tracked on Hackatime — well done!",
+    #     "Now we will create a project..."
+    #   ]
+    # else
+    #   tutorial_message [
+    #     "Oh, it would appear that Hackatime is linked, but you don't have any time tracked yet.",
+    #     "Don't worry — just install the Hackatime extension in your code editor.",
+    #     "And then cook up tasty projects here, earn cookies, and get free rewards!"
+    #   ]
+    # end
 
     redirect_to kitchen_path, notice: "Hackatime linked!"
   rescue ActiveRecord::RecordInvalid => e

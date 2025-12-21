@@ -2,24 +2,26 @@
 #
 # Table name: projects
 #
-#  id                :bigint           not null, primary key
-#  deleted_at        :datetime
-#  demo_url          :text
-#  description       :text
-#  devlogs_count     :integer          default(0), not null
-#  marked_fire_at    :datetime
-#  memberships_count :integer          default(0), not null
-#  project_type      :string
-#  readme_url        :text
-#  repo_url          :text
-#  ship_status       :string           default("draft")
-#  shipped_at        :datetime
-#  synced_at         :datetime
-#  title             :string           not null
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  fire_letter_id    :string
-#  marked_fire_by_id :bigint
+#  id                 :bigint           not null, primary key
+#  deleted_at         :datetime
+#  demo_url           :text
+#  description        :text
+#  devlogs_count      :integer          default(0), not null
+#  marked_fire_at     :datetime
+#  memberships_count  :integer          default(0), not null
+#  project_categories :string           default([]), is an Array
+#  project_type       :string
+#  readme_url         :text
+#  repo_url           :text
+#  ship_status        :string           default("draft")
+#  shipped_at         :datetime
+#  synced_at          :datetime
+#  title              :string           not null
+#  tutorial           :boolean          default(FALSE), not null
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  fire_letter_id     :string
+#  marked_fire_by_id  :bigint
 #
 # Indexes
 #
@@ -38,6 +40,12 @@ class Project < ApplicationRecord
     # TODO: reflect the allowed content types in the html accept
     ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
     MAX_BANNER_SIZE = 10.megabytes
+
+    AVAILABLE_CATEGORIES = [
+      "CLI", "Cargo", "Web App", "Chat Bot", "Extension",
+      "Desktop App (Windows)", "Desktop App (Linux)", "Desktop App (macOS)",
+      "Minecraft Mods", "Hardware", "Android App", "iOS App", "Other"
+    ].freeze
 
     scope :kept, -> { where(deleted_at: nil) }
     scope :deleted, -> { where.not(deleted_at: nil) }
@@ -95,6 +103,16 @@ class Project < ApplicationRecord
               content_type: { in: ACCEPTED_CONTENT_TYPES, spoofing_protection: true },
               size: { less_than: MAX_BANNER_SIZE, message: "is too large (max 10 MB)" },
               processable_file: true
+    validate :validate_project_categories
+
+    def validate_project_categories
+      return if project_categories.blank?
+
+      invalid_types = project_categories - AVAILABLE_CATEGORIES
+      if invalid_types.any?
+        errors.add(:project_categories, "contains invalid types: #{invalid_types.join(', ')}")
+      end
+    end
 
     scope :votable_by, ->(user) {
       where.not(id: user.projects.select(:id))
@@ -113,10 +131,17 @@ class Project < ApplicationRecord
         WHERE posts.project_id = projects.id
           AND posts.postable_type = 'Post::ShipEvent'
           AND post_ship_events.payout IS NULL
+          AND post_ship_events.certification_status = 'approved'
           AND post_ship_events.votes_count < #{Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT}
         ORDER BY posts.created_at DESC
         LIMIT 1
       ) latest_ship ON true")
+        .where("EXISTS (
+          SELECT 1 FROM project_memberships
+          INNER JOIN users ON users.id = project_memberships.user_id
+          WHERE project_memberships.project_id = projects.id
+          AND users.verification_status = 'verified'
+        )")
         .order("latest_ship.votes_count ASC")
     }
 

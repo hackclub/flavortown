@@ -127,7 +127,20 @@ export default class extends Controller {
   close() {
     this.#stopTyping();
     if (this.voiceAudio) this.voiceAudio.pause();
+
+    // Get dialogue type from data attribute before removing element
+    const dialogueType = this.element.dataset.dialogueType;
+
     this.element.remove();
+
+    // Dispatch completion event with dialogue type
+    if (dialogueType) {
+      window.dispatchEvent(
+        new CustomEvent("dialogue:complete", {
+          detail: { type: dialogueType },
+        }),
+      );
+    }
 
     if (this.hasRedirectUrlValue && this.redirectUrlValue) {
       if (this.redirectUrlValue.startsWith(window.location.origin)) {

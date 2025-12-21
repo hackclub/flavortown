@@ -13,6 +13,7 @@
 #  first_name                  :string
 #  granted_roles               :string           default([]), not null, is an Array
 #  has_gotten_free_stickers    :boolean          default(FALSE)
+#  has_pending_achievements    :boolean          default(FALSE), not null
 #  hcb_email                   :string
 #  last_name                   :string
 #  magic_link_token            :string

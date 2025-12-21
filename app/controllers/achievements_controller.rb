@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class AchievementsController < ApplicationController
-  include Achievementable
-
   def index
     Achievement.all.each { |a| grant_achievement!(a.slug) if a.earned_by?(current_user) }
 

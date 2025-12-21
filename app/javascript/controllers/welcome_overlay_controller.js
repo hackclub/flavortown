@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static targets = ["star", "banner", "hint"];
-  static values = { audioUrl: String, shopUrl: String };
+  static values = { audioUrl: String };
 
   connect() {
     this.audio = null;
@@ -43,12 +43,10 @@ export default class extends Controller {
     this.#stopAudio();
     this.element.classList.add("welcome-overlay--dismissing");
 
-    // Wait for dismiss animation to complete
+    // Dispatch event to show dialogue box after overlay is dismissed
     setTimeout(() => {
       this.element.remove();
-      if (this.hasShopUrlValue && this.shopUrlValue) {
-        Turbo.visit(this.shopUrlValue);
-      }
+      window.dispatchEvent(new CustomEvent("welcome-overlay:dismissed"));
     }, 400);
   }
 

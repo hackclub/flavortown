@@ -39,7 +39,8 @@ class StartFlowService
 
     project = Project.new(
       title: title,
-      description: project_attrs["description"]
+      description: project_attrs["description"],
+      tutorial: true
     )
 
     unless project.save
@@ -58,7 +59,7 @@ class StartFlowService
 
     return if devlog_body.blank? && attachment_ids.empty?
 
-    devlog = Post::Devlog.new(body: devlog_body)
+    devlog = Post::Devlog.new(body: devlog_body, tutorial: true)
     attach_blobs!(devlog, attachment_ids)
 
     unless devlog.save

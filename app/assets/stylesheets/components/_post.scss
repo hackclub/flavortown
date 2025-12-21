@@ -81,6 +81,16 @@
     color: var(--color-bg);
     font-weight: 700;
     font-size: var(--font-size-xl);
+    font-weight: normal;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 
   &__time {

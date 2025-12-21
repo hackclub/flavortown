@@ -13,6 +13,7 @@
 #  first_name                  :string
 #  granted_roles               :string           default([]), not null, is an Array
 #  has_gotten_free_stickers    :boolean          default(FALSE)
+#  has_pending_achievements    :boolean          default(FALSE), not null
 #  hcb_email                   :string
 #  last_name                   :string
 #  magic_link_token            :string
@@ -261,16 +262,25 @@ class User < ApplicationRecord
     @earned_achievement_slugs ||= achievements.pluck(:achievement_slug).to_set
   end
 
+  def pending_achievement_notifications
+    achievements.where(notified: false)
+  end
+
+  def recalculate_has_pending_achievements!
+    update_column(:has_pending_achievements, achievements.where(notified: false).exists?)
+  end
+
   def earned_achievement?(slug)
     earned_achievement_slugs.include?(slug.to_s)
   end
 
-  def award_achievement!(slug)
+  def award_achievement!(slug, notified: false)
     return nil if earned_achievement?(slug)
 
     achievement = ::Achievement.find(slug)
-    achievements.create!(achievement_slug: slug.to_s, earned_at: Time.current)
+    achievements.create!(achievement_slug: slug.to_s, earned_at: Time.current, notified: notified)
     @earned_achievement_slugs&.add(slug.to_s)
+    update_column(:has_pending_achievements, true) unless notified
     achievement
   end
 
@@ -304,6 +314,23 @@ class User < ApplicationRecord
     end
 
     @hackatime_data = result
+  end
+
+  def devlog_seconds_total
+    Rails.cache.fetch("user/#{id}/devlog_seconds_total", expires_in: 10.minutes) do
+      devlog_postable_ids = Post.where(user_id: id, postable_type: "Post::Devlog")
+                                .select("postable_id::bigint")
+      Post::Devlog.where(id: devlog_postable_ids).sum(:duration_seconds) || 0
+    end
+  end
+
+  def devlog_seconds_today
+    Rails.cache.fetch("user/#{id}/devlog_seconds_today/#{Time.zone.today}", expires_in: 10.minutes) do
+      devlog_postable_ids = Post.where(user_id: id, postable_type: "Post::Devlog")
+                                .where(created_at: Time.zone.now.beginning_of_day..Time.zone.now.end_of_day)
+                                .select("postable_id::bigint")
+      Post::Devlog.where(id: devlog_postable_ids).sum(:duration_seconds) || 0
+    end
   end
 
   private

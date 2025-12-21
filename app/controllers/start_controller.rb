@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 class StartController < ApplicationController
-  STEPS = %w[name experience project devlog signin].freeze
+  STEPS = %w[name project devlog signin].freeze
 
+  before_action :redirect_signed_in_user
   before_action :set_step, only: :index
   before_action :enforce_step_order, only: :index
 
@@ -23,6 +24,19 @@ class StartController < ApplicationController
     @starter_project_name = session[:start_starter_project_name]
     @devlog_body = session[:start_devlog_body]
     @devlog_attachment_ids = session[:start_devlog_attachment_ids] || []
+
+    if @step == "project" && session[:start_project_attrs].blank?
+      display_name = session[:start_display_name] || ""
+      default_name = "First Project"
+      title = display_name.present? ? "#{display_name}'s #{default_name}" : default_name
+      description = "This is my first project on Flavortown. I'm excited to share my progress!"
+
+      @project_attrs = {
+        "title" => title.strip.first(120),
+        "description" => description.first(1_000)
+      }
+      session[:start_project_attrs] = @project_attrs
+    end
   end
 
   def update_display_name
@@ -36,20 +50,20 @@ class StartController < ApplicationController
 
     session[:start_display_name] = display_name
     session[:start_email] = email
-    redirect_to start_path(step: "experience")
-  end
-
-  def update_experience
-    experience_level = params.fetch(:experience_level, "").to_s.strip
-
-    unless %w[unseasoned seasoned].include?(experience_level)
-      redirect_to start_path(step: "experience"), alert: "Please select your experience level."
-      return
-    end
-
-    session[:start_experience_level] = experience_level
     redirect_to start_path(step: "project")
   end
+
+  # def update_experience
+  #   experience_level = params.fetch(:experience_level, "").to_s.strip
+  #
+  #   unless %w[unseasoned seasoned].include?(experience_level)
+  #     redirect_to start_path(step: "experience"), alert: "Please select your experience level."
+  #     return
+  #   end
+  #
+  #   session[:start_experience_level] = experience_level
+  #   redirect_to start_path(step: "project")
+  # end
 
   def prefill_project
     name = params.fetch(:name, "").to_s.strip
@@ -91,6 +105,12 @@ class StartController < ApplicationController
 
   private
 
+  def redirect_signed_in_user
+    return if current_user.blank?
+
+    redirect_to(current_user.setup_complete? ? projects_path : kitchen_path)
+  end
+
   def set_step
     @step = STEPS.include?(params[:step]) ? params[:step] : "name"
   end
@@ -110,7 +130,7 @@ class StartController < ApplicationController
 
   def first_incomplete_step
     return "name"       unless name_complete?
-    return "experience" unless experience_complete?
+    # return "experience" unless experience_complete?
     return "project"    unless project_complete?
     return "devlog"     unless devlog_complete?
     "signin"
@@ -120,9 +140,9 @@ class StartController < ApplicationController
     session[:start_display_name].present? && session[:start_email].present?
   end
 
-  def experience_complete?
-    session[:start_experience_level].present?
-  end
+  # def experience_complete?
+  #   session[:start_experience_level].present?
+  # end
 
   def project_complete?
     session[:start_project_attrs].present? && session[:start_project_attrs].any?
