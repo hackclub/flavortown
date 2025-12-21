@@ -9,7 +9,7 @@
 #  banned                      :boolean          default(FALSE), not null
 #  banned_at                   :datetime
 #  banned_reason               :text
-#  cookie_clicks               :integer
+#  cookie_clicks               :integer          default(0), not null
 #  display_name                :string
 #  email                       :string
 #  first_name                  :string

@@ -481,7 +481,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_222810) do
     t.boolean "banned", default: false, null: false
     t.datetime "banned_at"
     t.text "banned_reason"
-    t.integer "cookie_clicks"
+    t.integer "cookie_clicks", default: 0, null: false
     t.datetime "created_at", null: false
     t.string "display_name"
     t.string "email"
