@@ -9,7 +9,7 @@ class RsvpsController < ApplicationController
 
     respond_to do |format|
       if @rsvp.save
-        @success_message = "We just sent an email - check your inbox!"
+        @success_message = "We'll send an email soon - check your inbox!"
         format.turbo_stream { render :create }
         format.html { redirect_to root_path, notice: @success_message }
       else

@@ -86,7 +86,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       name: "Order Up!",
       description: "ship your first project to the world",
       icon: "ship",
-      earned_check: ->(user) { user.projects.where.not(shipped_at: nil).exists? },
+      earned_check: ->(user) { user.projects.where(ship_status: "submitted").exists? },
       cookie_reward: 3
     ),
     new(
@@ -94,7 +94,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       name: "Michelin Star",
       description: "your dish has been certified by the critics",
       icon: "trophy",
-      earned_check: ->(user) { user.projects.where(ship_status: "approved").exists? },
+      earned_check: ->(user) { Post::ShipEvent.joins(:post).where(posts: { user_id: user.id }, certification_status: "approved").exists? },
       cookie_reward: 3
     ),
     new(

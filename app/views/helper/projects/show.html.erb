@@ -1,9 +1,8 @@
 <h1>Project #<%= @project.id %></h1>
 
 <% if @project.deleted? %>
-  <div class="alert alert-warning" style="margin-bottom: 1rem; padding: 1rem; background: #fee2e2; border-radius: 8px; border: 1px solid #dc2626;">
-    <strong>⚠️ This project has been deleted</strong>
-    <span style="margin-left: 0.5rem;">Deleted at: <%= @project.deleted_at.strftime("%Y-%m-%d %H:%M") %></span>
+  <div class="alert alert-warning" style="margin-bottom: 1.5rem; padding: 1rem; background: #fee2e2; border-radius: 8px; border: 1px solid #dc2626; color: hsl(7, 40%, 25%);">
+    <strong>⚠️ This project was deleted at <%= @project.deleted_at.strftime("%Y-%m-%d %H:%M") %></strong>
   </div>
 <% end %>
 
@@ -41,7 +40,7 @@
 </div>
 
 <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-  <%= link_to "← Back", helper_projects_path, class: "btn-secondary" %>
+  <%= link_to "← Back", helper_projects_path, class: "btn-secondary no-margin" %>
   <% if @project.deleted? %>
     <%= button_to "Restore Project", restore_helper_project_path(@project),
       method: :post,

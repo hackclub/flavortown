@@ -1,4 +1,4 @@
-json.extract! @item, :id, :name, :description, :old_prices, :limited, :stock, :type
+json.extract! @item, :id, :name, :description, :old_prices, :limited, :stock, :type, :show_in_carousel, :accessory_tag, :agh_contents, :attached_shop_item_ids, :buyable_by_self, :long_description, :max_qty, :one_per_person_ever, :sale_percentage
 
 if @item.image.attached?
   json.image_url request.protocol + request.host + url_for(@item.image)

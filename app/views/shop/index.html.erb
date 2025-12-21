@@ -98,12 +98,13 @@
           label: "Price Range",
           options: [
             { label: "None", value: "none" },
-            { label: "🍪0 - 🍪1000", value: "0-1000" },
-            { label: "🍪1000 - 🍪5000", value: "1000-5000" },
-            { label: ">🍪5000", value: "5000+" }
+            { label: "🍪0 - 🍪100", value: "0-100" },
+            { label: "🍪100 - 🍪500", value: "100-500" },
+            { label: "🍪500 - 🍪1000", value: "500-1000" },
+            { label: ">🍪1000", value: "1000+" }
           ],
           selected_option: "None",
-          longest_option_string: "🍪1000 - 🍪5000",
+          longest_option_string: "🍪100 - 🍪500",
           color: :pink
         ) %>
         <%= render DropdownComponent.new(
@@ -136,7 +137,9 @@
               balance: @user_balance,
               enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
               regional_price: item.price_for_region(@user_region),
-              logged_in: current_user.present?
+              logged_in: current_user.present?,
+              remaining_stock: item.remaining_stock,
+              limited: item.limited?
             ) %>
           <% end %>
         <% end %>

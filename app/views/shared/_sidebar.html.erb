@@ -69,7 +69,9 @@
         <% end %>
       </div>
       <div class="sidebar__user-details">
-        <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
+        <%= link_to user_path(current_user) do %>
+          <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
+        <% end %>
         <% if current_user.fulfillment_person? && current_user.has_regions? %>
           <span class="sidebar__user-region" style="font-size: 0.75rem; opacity: 0.7;">📍 <%= current_user.regions_display %></span>
         <% end %>
@@ -104,7 +106,7 @@
   <% end %>
 
   <%= render layout: "shared/modal", locals: { id: "settings-modal", title: "Settings" } do %>
-    <%= form_with url: my_settings_path, method: :patch, local: true, class: "settings-form" do |f| %>
+    <%= form_with url: my_settings_path, method: :patch, local: true, class: "settings-form", id: "settings-form" do |f| %>
       <div class="settings-form__field">
         <label class="settings-form__label" for="hcb_email">HCB Email</label>
         <%= text_field_tag :hcb_email, current_user.hcb_email, id: "hcb_email", class: "settings-form__input", placeholder: current_user.email, autocomplete: "email" %>
@@ -137,7 +139,7 @@
 
       <div class="modal__actions">
         <%= f.submit "Save", class: "modal__actions-close" %>
-        <button type="button" class="modal__actions-close" onclick="document.getElementById('settings-modal').close()">Cancel</button>
+        <button type="button" class="modal__actions-close" onclick="document.getElementById('settings-form').reset(); document.getElementById('settings-modal').close()">Cancel</button>
       </div>
     <% end %>
 

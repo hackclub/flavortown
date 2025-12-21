@@ -103,9 +103,10 @@ export default class extends Controller {
 
   getPriceRange(range) {
     if (range === "none") return [0, Infinity];
-    if (range === "0-1000") return [0, 1000];
-    if (range === "1000-5000") return [1000, 5000];
-    if (range === "5000+") return [5000, Infinity];
+    if (range === "0-100") return [0, 100];
+    if (range === "100-500") return [100, 500];
+    if (range === "500-1000") return [500, 1000];
+    if (range === "1000+") return [1000, Infinity];
     return [0, Infinity];
   }
 

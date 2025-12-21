@@ -152,9 +152,9 @@ class ShopItem < ApplicationRecord
 
   def remaining_stock
     return nil unless limited? && stock.present?
-    # ordered_quantity = shop_orders.worth_counting.sum(:quantity)
-    # stock - ordered_quantity
-    nil
+
+    reserved_quantity = shop_orders.where(aasm_state: %w[pending awaiting_verification awaiting_periodical_fulfillment on_hold fulfilled]).sum(:quantity)
+    stock - reserved_quantity
   end
 
   def out_of_stock?

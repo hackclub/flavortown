@@ -25,9 +25,9 @@
         <tr>
           <td><%= u.id %></td>
           <td><%= u.display_name %></td>
-          <td><%= u.banned? ? "🚫" : "✓" %></td>
+          <td><%= u.banned? ? "✅ Banned" : "❌ Not banned" %></td>
           <td><%= u.verification_status.titleize %></td>
-          <td><%= u.projects_count %></td>
+          <td><%= pluralize(u.projects.size, "project") %></td>
           <td><%= link_to "View", helper_user_path(u), class: "btn-primary slim" %></td>
         </tr>
       <% end %>

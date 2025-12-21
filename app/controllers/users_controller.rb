@@ -8,8 +8,11 @@ class UsersController < ApplicationController
                      .order(created_at: :desc)
                      .includes(banner_attachment: :blob)
 
+    approved_ship_event_ids = Post::ShipEvent.where(certification_status: "approved").pluck(:id)
+
     @activity = Post.includes(:project, :user, postable: [ { attachments_attachments: :blob } ])
                           .where(user_id: @user.id)
+                          .where("postable_type != 'Post::ShipEvent' OR postable_id IN (?)", approved_ship_event_ids.presence || [ 0 ])
                           .order(created_at: :desc)
 
     post_counts_by_type = Post.where(user_id: @user.id).group(:postable_type).count
@@ -26,5 +29,9 @@ class UsersController < ApplicationController
       hours_today: (@user.devlog_seconds_today / 3600.0).round(1),
       hours_all_time: (@user.devlog_seconds_total / 3600.0).round(1)
     }
+
+    achievements_by_slug = Achievement.all.index_by { |a| a.slug.to_s }
+    earned_slugs = @user.achievements.order(earned_at: :desc).pluck(:achievement_slug)
+    @earned_achievements = earned_slugs.filter_map { |slug| achievements_by_slug[slug] }
   end
 end

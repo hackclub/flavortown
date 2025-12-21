@@ -1,0 +1,17 @@
+header "❌ Your ship needs more work"
+
+section "Unfortunately, your project *#{project.title}* was not approved this time.", markdown: true
+
+if video_url.present?
+  section "*Feedback Video:* #{video_url}", markdown: true
+end
+
+if reason.present?
+  section "*Reason:* #{reason}", markdown: true
+end
+
+divider
+
+context [
+  mrkdwn_text("Don't give up! Review the feedback, make improvements, and ship again. 💪")
+]

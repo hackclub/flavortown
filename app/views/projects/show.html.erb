@@ -28,6 +28,33 @@
             REPORT
           </button>
         <% end %>
+
+        <% if policy(@project).resend_webhook? %>
+          <button type="button" class="btn btn--brown" id="resend-webhook-btn" data-project-id="<%= @project.id %>">
+            Resend Webhook (for ship)
+          </button>
+          <script>
+            document.getElementById('resend-webhook-btn').addEventListener('click', function() {
+              if (confirm('Are you sure you want to resend the webhook for this project?')) {
+                fetch("<%= resend_webhook_project_path(@project).to_json %>".replace("&quot;", ""), {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                  }
+                })
+                .then(response => response.json())
+                .then(data => {
+                  alert(data.message);
+                })
+                .catch(error => {
+                  alert('An error occurred while resending the webhook.');
+                  console.error('Error:', error);
+                });
+              }
+            });
+          </script>
+        <% end %>
       </div>
     <% end %>
 

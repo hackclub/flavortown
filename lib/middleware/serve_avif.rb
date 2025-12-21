@@ -1,3 +1,4 @@
+# lib/middleware/serve_avif.rb
 class ServeAvif
   def initialize(app)
     @app = app
@@ -7,7 +8,6 @@ class ServeAvif
     path = env["PATH_INFO"]
     accept = env["HTTP_ACCEPT"] || ""
 
-    # Only intercept asset image requests
     if path =~ %r{^/assets/.+\.(png|jpe?g)$} && accept.include?("image/avif")
       avif_path = File.join(Rails.public_path, "#{path}.avif")
 
@@ -24,6 +24,17 @@ class ServeAvif
       end
     end
 
-    @app.call(env)
+    # Fall through to Rails - but we need to add short cache + Vary header for PNGs
+    status, headers, response = @app.call(env)
+
+    if path =~ %r{^/assets/.+\.(png|jpe?g)$}
+      headers["Vary"] = "Accept"
+      # Short cache if browser wanted AVIF but we don't have it yet
+      if accept.include?("image/avif")
+        headers["Cache-Control"] = "public, max-age=60"
+      end
+    end
+
+    [ status, headers, response ]
   end
 end
