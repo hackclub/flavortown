@@ -5,11 +5,18 @@
     </div>
     <div class="post__meta">
       <div class="post__author">
+
         <% if post.user.present? %>
           <%= link_to author_name, user_path(post.user) %><%= " ⚡" if post.user&.admin? %>
         <% else %>
           <%= author_name %><%= " ⚡" if post.user&.admin? %>
         <% end %>
+         <% if helpers.current_user&.admin? && post.user %>
+          <span style="border: 1px solid orange; background-color: #fff3e0; border-radius: 4px; padding: 2px 4px; margin-left: 4px;">
+            <%= link_to "🔨", helpers.admin_user_path(post.user), title: "Admin profile", style: "text-decoration: none;" %>
+            <%= link_to "🤓", helpers.admin_user_magic_link_path(post.user), title: "Generate magic link", style: "text-decoration: none;" %>
+          </span>
+      <% end %>
         <span style="opacity: 0.8;">worked on</span>
         <% if project_title.present? %>
           <%= link_to project_title, project_path(post.project) %>
@@ -25,6 +32,7 @@
   </header>
 
   <%= render "shared/inspector", record: post.postable %>
+  <%= render "shared/inspector", record: post.user if post.user %>
 
   <% if ship_event? %>
     <h2 class="post__ship-title">Shipped this project!</h2>

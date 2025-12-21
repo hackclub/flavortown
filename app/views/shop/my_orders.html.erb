@@ -11,6 +11,7 @@
   <% else %>
     <div class="my-orders__list">
       <% @orders.each do |order| %>
+        <%= render "shared/inspector", record: order %>
         <div class="my-orders__item">
           <div class="my-orders__header-bar">
             <div class="my-orders__header-item">
