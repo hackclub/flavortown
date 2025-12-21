@@ -164,7 +164,7 @@
 </article>
 
 <% if owner? && has_feedback? %>
-  <div id="ship-feedback-modal-<%= project.id %>" class="modal" data-controller="modal" style="display: none; position: fixed; inset: 0; z-index: 1000; justify-content: center; align-items: center;">
+  <div id="ship-feedback-modal-<%= project.id %>" class="ship-feedback-modal" data-controller="modal" style="display: none; position: fixed; inset: 0; z-index: 1000; justify-content: center; align-items: center;">
     <div data-action="click->modal#close" style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);"></div>
     <div style="background: var(--color-cream, #fef3e2); border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; position: relative; z-index: 1001;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
