@@ -557,6 +557,15 @@
   transition:
     opacity 150ms ease,
     max-width 150ms ease;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .sidebar__user-name {
