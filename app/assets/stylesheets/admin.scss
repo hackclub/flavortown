@@ -139,6 +139,10 @@ body {
     background: #4b5563;
   }
 
+  &:not(.no-margin) {
+    margin-top: 1em;
+  }
+
   &.slim {
     padding: 0.25em 0.5em;
   }
@@ -223,7 +227,8 @@ body {
   line-height: 1;
   vertical-align: middle;
 
-  &.badge-pending {
+  &.badge-pending,
+  &.badge-awaiting_verification {
     background-color: #fbbf24;
     color: #78350f;
   }
@@ -419,4 +424,9 @@ body {
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
+}
+
+.pagy {
+  display: flex;
+  gap: 0.25rem;
 }
