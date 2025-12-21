@@ -137,7 +137,9 @@
               balance: @user_balance,
               enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
               regional_price: item.price_for_region(@user_region),
-              logged_in: current_user.present?
+              logged_in: current_user.present?,
+              remaining_stock: item.remaining_stock,
+              limited: item.limited?
             ) %>
           <% end %>
         <% end %>

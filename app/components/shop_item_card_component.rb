@@ -1,9 +1,9 @@
 class ShopItemCardComponent < ViewComponent::Base
   include MarkdownHelper
 
-  attr_reader :item_id, :name, :description, :hours, :price, :image_url, :item_type, :balance, :enabled_regions, :regional_price, :logged_in
+  attr_reader :item_id, :name, :description, :hours, :price, :image_url, :item_type, :balance, :enabled_regions, :regional_price, :logged_in, :remaining_stock, :limited
 
-  def initialize(item_id:, name:, description:, hours:, price:, image_url:, item_type: nil, balance: nil, enabled_regions: [], regional_price: nil, logged_in: true)
+  def initialize(item_id:, name:, description:, hours:, price:, image_url:, item_type: nil, balance: nil, enabled_regions: [], regional_price: nil, logged_in: true, remaining_stock: nil, limited: false)
     @item_id = item_id
     @name = name
     @description = description
@@ -15,6 +15,8 @@ class ShopItemCardComponent < ViewComponent::Base
     @enabled_regions = enabled_regions
     @regional_price = regional_price || price
     @logged_in = logged_in
+    @remaining_stock = remaining_stock
+    @limited = limited
   end
 
   def order_url
@@ -46,5 +48,17 @@ class ShopItemCardComponent < ViewComponent::Base
       cats << "Made by Hack Clubbers"
     end
     cats
+  end
+
+  def out_of_stock?
+    limited && remaining_stock.present? && remaining_stock <= 0
+  end
+
+  def low_stock?
+    limited && remaining_stock.present? && remaining_stock > 0 && remaining_stock <= 5
+  end
+
+  def show_stock_indicator?
+    limited && remaining_stock.present?
   end
 end

@@ -19,6 +19,15 @@
                 <%= image_tag @shop_item.image, loading: "lazy", decoding: "async" if @shop_item.image.attached? %>
             </div>
             <h2><%= @shop_item.name %></h2>
+            <% if @shop_item.limited? && @shop_item.remaining_stock.present? %>
+                <div class="shop-order__stock-indicator<%= ' shop-order__stock-indicator--low' if @shop_item.remaining_stock <= 5 %><%= ' shop-order__stock-indicator--out' if @shop_item.remaining_stock <= 0 %>">
+                    <% if @shop_item.remaining_stock <= 0 %>
+                        <span>Out of stock</span>
+                    <% else %>
+                        <span><%= @shop_item.remaining_stock %> left in stock</span>
+                    <% end %>
+                </div>
+            <% end %>
             <div class="shop-order__description"><%= md(@shop_item.description) %></div>
             <%= render MarkdownContentComponent.new(markdown: @shop_item.long_description) %>
 
