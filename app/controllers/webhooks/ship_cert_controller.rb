@@ -39,11 +39,28 @@ class Webhooks::ShipCertController < ApplicationController
       project.update!(project_categories: [ normalized_type ])
     end
 
+    notify_project_owner(project, status, video_url, reason)
+
     Rails.logger.info "Ship cert webhook: project=#{project_id} status=#{status} project_type=#{project_type}"
     render json: { success: true }
   end
 
   private
+
+  def notify_project_owner(project, status, video_url, reason)
+    return unless %w[approved rejected].include?(status)
+
+    owner = project.memberships.find_by(role: "owner")&.user
+    return unless owner&.slack_id
+
+    template = status == "approved" ? "notifications/ship_cert/approved" : "notifications/ship_cert/rejected"
+
+    SendSlackDmJob.perform_later(
+      owner.slack_id,
+      blocks_path: template,
+      locals: { project: project, video_url: video_url, reason: reason }
+    )
+  end
 
   def normalize_category(category)
     Project::AVAILABLE_CATEGORIES.include?(category) ? category : "Other"
