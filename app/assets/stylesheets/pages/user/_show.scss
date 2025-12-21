@@ -164,7 +164,51 @@
       text-align: left;
       font-size: 1rem;
       width: fit-content;
+      height: fit-content;
     }
+  }
+
+  &__achievements {
+    margin-top: 0.75rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  &__achievement {
+    width: 100px;
+    background: var(--color-bg);
+    border-radius: 12px;
+    padding: 0.2rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+
+  &__achievement-icon {
+    margin: 0 auto 0.4rem;
+    width: 44px;
+    height: 44px;
+
+    svg,
+    img {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+  }
+
+  &__achievement-title {
+    font-family: var(--font-family-subtitle);
+    font-size: 0.9rem;
+    color: var(--color-brown-700);
+    line-height: 1.2;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
   }
 
   @media (max-width: 960px) {
