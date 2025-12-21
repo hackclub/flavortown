@@ -98,12 +98,13 @@
           label: "Price Range",
           options: [
             { label: "None", value: "none" },
-            { label: "🍪0 - 🍪1000", value: "0-1000" },
-            { label: "🍪1000 - 🍪5000", value: "1000-5000" },
-            { label: ">🍪5000", value: "5000+" }
+            { label: "🍪0 - 🍪100", value: "0-100" },
+            { label: "🍪100 - 🍪500", value: "100-500" },
+            { label: "🍪500 - 🍪1000", value: "500-1000" },
+            { label: ">🍪1000", value: "1000+" }
           ],
           selected_option: "None",
-          longest_option_string: "🍪1000 - 🍪5000",
+          longest_option_string: "🍪100 - 🍪500",
           color: :pink
         ) %>
         <%= render DropdownComponent.new(
