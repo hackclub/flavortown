@@ -1,12 +1,15 @@
 namespace :assets do
   desc "Convert PNG/JPG assets to AVIF"
-  task avif: :environment do
+  task :avif do
+    require "vips"
+
     Dir.glob("public/assets/**/*.{png,jpg,jpeg}").each do |file|
       avif_file = "#{file}.avif"
       next if File.exist?(avif_file)
 
       puts "Converting #{file}..."
-      system("avifenc", "--min", "20", "--max", "25", file, avif_file)
+      image = Vips::Image.new_from_file(file)
+      image.write_to_file(avif_file, Q: 50)
     end
   end
 end
