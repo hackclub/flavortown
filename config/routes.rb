@@ -237,6 +237,7 @@ Rails.application.routes.draw do
       post :follow
       delete :unfollow
       post :resend_webhook
+      post :request_recertification
     end
   end
 

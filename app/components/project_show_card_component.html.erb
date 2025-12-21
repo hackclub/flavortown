@@ -195,6 +195,17 @@
           <%= link_to "Open in new tab", ship_feedback_video_url, target: "_blank", rel: "noopener", style: "display: block; margin-top: 8px; color: var(--color-blue); text-decoration: underline; font-size: 0.85em;" %>
         </div>
       <% end %>
+
+      <% if ship_status == "rejected" %>
+        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--color-brown-300, #ddd);">
+          <%= button_to helpers.request_recertification_project_path(project),
+                method: :post,
+                data: { confirm: "Are you sure you want to request re-certification? This will resubmit your project for review." },
+                style: "width: 100%; padding: 12px 16px; background-color: var(--color-brown-500, #8B5A3C); color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: 600; cursor: pointer;" do %>
+            🔄 Request Re-Certification
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </div>
 <% end %>

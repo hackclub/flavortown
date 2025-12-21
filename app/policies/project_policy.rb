@@ -43,6 +43,10 @@ class ProjectPolicy < ApplicationPolicy
         user&.project_certifier?
     end
 
+    def request_recertification?
+        member?
+    end
+
     private
 
     def member?

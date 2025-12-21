@@ -302,6 +302,43 @@ class ProjectsController < ApplicationController
     end
   end
 
+  def request_recertification
+    @project = Project.find(params[:id])
+    authorize @project
+
+    ship_event = ShipCertService.latest_ship_event(@project)
+
+    unless ship_event&.certification_status == "rejected"
+      flash[:alert] = "Re-certification can only be requested for rejected ships."
+      redirect_to @project and return
+    end
+
+    PaperTrail.request(whodunnit: current_user.id) do
+      begin
+        ShipCertService.ship_to_dash(@project)
+        ship_event.update!(certification_status: "pending")
+
+        PaperTrail::Version.create!(
+          item_type: "Project",
+          item_id: @project.id,
+          event: "request_recertification",
+          whodunnit: current_user.id,
+          object_changes: {
+            user_action: [ nil, "request_recertification" ],
+            triggered_by_id: [ nil, current_user.id ]
+          }
+        )
+
+        flash[:notice] = "Re-certification requested! Your project has been resubmitted for review."
+      rescue => e
+        Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
+        flash[:alert] = "Failed to request re-certification. Please try again later."
+      end
+    end
+
+    redirect_to @project
+  end
+
   private
 
   def load_ship_data

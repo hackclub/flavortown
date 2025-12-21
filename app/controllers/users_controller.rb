@@ -8,8 +8,11 @@ class UsersController < ApplicationController
                      .order(created_at: :desc)
                      .includes(banner_attachment: :blob)
 
+    approved_ship_event_ids = Post::ShipEvent.where(certification_status: "approved").pluck(:id)
+
     @activity = Post.includes(:project, :user, postable: [ { attachments_attachments: :blob } ])
                           .where(user_id: @user.id)
+                          .where("postable_type != 'Post::ShipEvent' OR postable_id IN (?)", approved_ship_event_ids.presence || [ 0 ])
                           .order(created_at: :desc)
 
     post_counts_by_type = Post.where(user_id: @user.id).group(:postable_type).count
