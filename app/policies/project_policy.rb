@@ -39,6 +39,10 @@ class ProjectPolicy < ApplicationPolicy
         member?
     end
 
+    def resend_webhook?
+        user&.project_certifier?
+    end
+
     private
 
     def member?

@@ -158,18 +158,23 @@ class ProjectsController < ApplicationController
       redirect_to ship_project_path(@project, step: 4) and return
     end
 
+    begin
+      ShipCertService.ship_to_dash(@project)
+    rescue => e
+      Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
+      flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
+      redirect_to ship_project_path(@project, step: 4) and return
+    end
+
     ship_event = Post::ShipEvent.new(body: ship_body)
     post = @project.posts.build(user: current_user, postable: ship_event)
 
     @project.with_lock do
-      is_first_ship = @project.ship_posts.empty?
       @project.submit_for_review!
 
       unless post.save
         raise ActiveRecord::Rollback
       end
-
-      ShipCertService.ship_to_dash(@project) if is_first_ship
     end
 
     if post.persisted?
@@ -267,6 +272,33 @@ class ProjectsController < ApplicationController
       redirect_to @project, notice: "You have unfollowed this project."
     else
       redirect_to @project, alert: "Could not unfollow."
+    end
+  end
+
+  def resend_webhook
+    @project = Project.find(params[:id])
+    authorize @project
+
+    PaperTrail.request(whodunnit: current_user.id) do
+      success = ShipCertService.ship_to_dash(@project)
+
+      PaperTrail::Version.create!(
+        item_type: "Project",
+        item_id: @project.id,
+        event: "resend_webhook",
+        whodunnit: current_user.id,
+        object_changes: {
+          admin_action: [ nil, "resend_webhook" ],
+          triggered_by_id: [ nil, current_user.id ],
+          success: [ nil, success ]
+        }
+      )
+
+      if success
+        render json: { message: "Webhook resent successfully" }, status: :ok
+      else
+        render json: { message: "Failed to resend webhook" }, status: :unprocessable_entity
+      end
     end
   end
 

@@ -236,6 +236,7 @@ Rails.application.routes.draw do
       post :unmark_fire
       post :follow
       delete :unfollow
+      post :resend_webhook
     end
   end
 
