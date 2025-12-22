@@ -7,7 +7,7 @@
     <p class="subtitle"><%= @users.count %> users opted in to the leaderboard :D, you can opt in through settings</p>
 
     <div class="users">
-        <% @users.each_with_index do |user, index| %>
+        <% @users.each_with_index.sort_by { |user, _index| -user.cached_balance }.each do |user, index| %>
             <div class="user">
                 <div class="content">
                     <h2>#<%= index + 1 %></h2>
