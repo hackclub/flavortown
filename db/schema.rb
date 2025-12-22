@@ -266,7 +266,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_100745) do
     t.datetime "created_at", null: false
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id"
+    t.bigint "user_id", null: false
     t.index ["project_id"], name: "index_project_follows_on_project_id"
     t.index ["user_id", "project_id"], name: "index_project_follows_on_user_id_and_project_id", unique: true
     t.index ["user_id"], name: "index_project_follows_on_user_id"
