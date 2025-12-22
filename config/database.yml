@@ -105,3 +105,9 @@ production:
     url: <%= ENV['DATABASE_URL'] %>
     migrations_paths: db/cable_migrate
     database: flavortown_cable
+
+  ahoy:
+    <<: *default
+    url: <%= ENV['AHOY_DB_URL'] %>
+    migrations_paths: db/ahoy_migrate
+    database: flavortown_ahoy
