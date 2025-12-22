@@ -27,6 +27,14 @@ class ProjectShowCardComponent < ViewComponent::Base
     project.demo_url.present? || project.repo_url.present? || project.readme_url.present?
   end
 
+  def followers_count
+    @followers_count ||= if project.respond_to?(:project_follows_count) && project.has_attribute?(:project_follows_count)
+      project.project_follows_count
+    else
+      project.followers.size
+    end
+  end
+
   def owner_display_name
     owner = project.memberships.includes(:user).owner.first&.user
     owner&.display_name || project.users.first&.display_name || "Unknown"

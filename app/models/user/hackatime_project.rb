@@ -38,6 +38,9 @@ class User::HackatimeProject < ApplicationRecord
   def project_not_already_linked
     return unless project_id_was.present? && project_id_was != project_id
 
+    previous_project = Project.unscoped.find_by(id: project_id_was)
+    return if previous_project.nil? || previous_project.deleted?
+
     errors.add(:project, "is already linked to another project")
   end
 end

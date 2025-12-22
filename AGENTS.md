@@ -38,3 +38,5 @@
 When making changes/creations towards admin sides of the codebase there needs to be proper papertrail code and audit logging which should be accessible.
 
 DB migrations should always ask for user confirmation.
+
+please do not hand write migrations, always use the rails g cmd for migrations.

@@ -84,7 +84,7 @@
               <%= button_to helpers.project_path(project),
                     method: :delete,
                     class: "btn btn--brown btn--borderless projects-show__icon-btn",
-                    data: { confirm: "Delete this project?" },
+                    form: { onsubmit: "return confirm('Are you sure you want to delete ' + #{project.title.to_json} + '? This action cannot be undone.')" },
                     aria: { label: "Delete project" } do %>
                 <%= helpers.inline_svg_tag "icons/trash-bin.svg" %>
               <% end %>
@@ -106,6 +106,10 @@
             <%= helpers.inline_svg_tag("icons/time.svg") %>
             <span><%= "#{project.time.hours}hr #{project.time.minutes}min" %></span>
           </div>
+          <button type="button" class="project-show-card__stat project-show-card__stat--clickable" data-controller="modal" data-action="click->modal#open" data-modal-target-value="project-followers-modal-<%= project.id %>">
+              <%= helpers.inline_svg_tag("icons/user.svg") %>
+              <span><%= followers_count %> <%= "follower".pluralize(followers_count) %></span>
+            </button>
           <% if (owner? || certifier_viewing_others_project?) && ship_status.present? %>
             <div class="project-show-card__stat">
               <% certifier_border = certifier_viewing_others_project? ? "border: 3px solid orange; box-shadow: 0 0 0 4px rgba(255, 165, 0, 0.3);" : "" %>
@@ -209,3 +213,26 @@
     </div>
   </div>
 <% end %>
+
+<div id="project-followers-modal-<%= project.id %>" class="project-followers-modal" data-controller="modal" style="display: none; position: fixed; inset: 0; z-index: 1000; justify-content: center; align-items: center;">
+  <div data-action="click->modal#close" style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);"></div>
+  <div style="background: var(--color-cream, #fef3e2); border-radius: 12px; padding: 24px; max-width: 400px; width: 90%; position: relative; z-index: 1001; max-height: 80vh; overflow-y: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h2 style="margin: 0; color: var(--color-brown);"><%= followers_count %> <%= "Follower".pluralize(followers_count) %></h2>
+      <button type="button" data-action="click->modal#close" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--color-brown);">&times;</button>
+    </div>
+
+    <% if followers_count > 0 %>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <% project.followers.each do |follower| %>
+          <%= link_to user_path(follower), style: "display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; padding: 8px; border-radius: 8px; transition: background 0.2s;" do %>
+            <%= image_tag follower.avatar, style: "width: 40px; height: 40px; border-radius: 50%; object-fit: cover;", alt: follower.display_name %>
+            <span style="font-weight: 500; color: var(--color-brown);"><%= follower.display_name %></span>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <p style="color: var(--color-brown-600); text-align: center; margin: 0;">No followers yet</p>
+    <% end %>
+  </div>
+</div>
