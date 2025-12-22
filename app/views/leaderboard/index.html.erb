@@ -13,7 +13,9 @@
                     <h2>#<%= @pagy.offset + index + 1 %></h2>
 
                     <%= image_tag user.avatar %>
-                    <h2> <%= user.display_name %></h2>
+                    <h2>
+                        <%= link_to user.display_name, user_path(user) %>
+                    </h2>
 
                     <p><%= user.cached_balance %> 🍪</p>
                 </div>

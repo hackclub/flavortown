@@ -70,6 +70,15 @@ h1 {
       margin: 0 1rem 0 1rem;
     }
 
+    a {
+      color: var(--color-bg);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
     p {
       margin-left: auto;
       font-size: 1.5rem;
