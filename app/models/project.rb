@@ -270,6 +270,8 @@ class Project < ApplicationRecord
         [
             { key: :demo_url, label: "You have an experienceable link (a URL where anyone can try your project now)", passed: demo_url.present? },
             { key: :repo_url, label: "You have a public GitHub URL with all source code", passed: repo_url.present? },
+            { key: :readme_url, label: "You have a README url added to your project", passed: readme_url.present? },
+            { key: :description, label: "You have a description for your project", passed: description.present? },
             { key: :screenshot, label: "You have a screenshot of your project", passed: banner.attached? },
             { key: :devlogs, label: "You have at least one devlog", passed: devlogs.any? }
         ]
