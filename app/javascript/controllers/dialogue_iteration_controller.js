@@ -4,7 +4,6 @@ export default class extends Controller {
   static targets = ["content", "character", "sticker", "sprite"];
   static values = {
     text: Array,
-    voiceUrl: String,
     sprites: Array,
     redirectUrl: String,
     stickerLineIndex: Number,
@@ -14,11 +13,11 @@ export default class extends Controller {
 
   connect() {
     this.index = 0;
-    this.typingInterval = null;
+    this.isTyping = false;
     this.spriteInterval = null;
     this.currentSpriteIndex = 0;
+    this.yapGeneration = 0;
     this.#loadSqueak();
-    this.#loadVoice();
     this.#preloadSprites();
     this.#render();
   }
@@ -36,7 +35,6 @@ export default class extends Controller {
   disconnect() {
     this.#stopTyping();
     this.#stopSpriteAnimation();
-    if (this.voiceAudio) this.voiceAudio.pause();
   }
 
   #startSpriteAnimation() {
@@ -76,17 +74,11 @@ export default class extends Controller {
     }
   }
 
-  #loadVoice() {
-    if (!this.hasVoiceUrlValue || !this.voiceUrlValue) return;
-
-    this.voiceAudio = new Audio(this.voiceUrlValue);
-    this.voiceAudio.volume = 0.5;
-  }
-
   #stopTyping() {
-    if (this.typingInterval) {
-      clearInterval(this.typingInterval);
-      this.typingInterval = null;
+    this.isTyping = false;
+    if (this.cancelYap) {
+      this.cancelYap();
+      this.cancelYap = null;
     }
     this.#stopSpriteAnimation();
   }
@@ -95,7 +87,7 @@ export default class extends Controller {
     event?.preventDefault?.();
     event?.stopPropagation?.();
 
-    if (this.typingInterval) {
+    if (this.isTyping) {
       this.#completeTyping();
       return;
     }
@@ -126,14 +118,11 @@ export default class extends Controller {
 
   close() {
     this.#stopTyping();
-    if (this.voiceAudio) this.voiceAudio.pause();
 
-    // Get dialogue type from data attribute before removing element
     const dialogueType = this.element.dataset.dialogueType;
 
     this.element.remove();
 
-    // Dispatch completion event with dialogue type
     if (dialogueType) {
       window.dispatchEvent(
         new CustomEvent("dialogue:complete", {
@@ -162,7 +151,6 @@ export default class extends Controller {
 
   #completeTyping() {
     this.#stopTyping();
-    if (this.voiceAudio) this.voiceAudio.pause();
     if (!this.hasContentTarget) return;
     const line = this.textValue?.[this.index] ?? "";
     this.contentTarget.textContent = line;
@@ -175,7 +163,6 @@ export default class extends Controller {
     this.contentTarget.textContent = "";
 
     this.#stopTyping();
-    if (this.voiceAudio) this.voiceAudio.pause();
 
     if (!line) return;
 
@@ -190,22 +177,49 @@ export default class extends Controller {
       }
     }
 
-    this.voiceAudio.currentTime = 0;
-    this.voiceAudio.play();
     this.#startSpriteAnimation();
-    let charIndex = 0;
+    this.isTyping = true;
 
-    this.typingInterval = setInterval(() => {
-      if (charIndex < line.length) {
-        this.contentTarget.textContent += line[charIndex];
-        charIndex++;
+    if (typeof yap === "function") {
+      this.yapGeneration++;
+      const currentGeneration = this.yapGeneration;
 
-        this.#scrollToBottom();
-      } else {
-        this.#stopTyping();
-        if (this.voiceAudio) this.voiceAudio.pause();
+      if (this.cancelYap) {
+        this.cancelYap();
       }
-    }, 45); // 45ms
+
+      const yapPromise = new Promise((resolve) => {
+        this.cancelYap = yap(line, {
+          letterCallback: ({ letter }) => {
+            if (this.yapGeneration !== currentGeneration) return;
+            if (!this.isTyping) return;
+            this.contentTarget.textContent += letter;
+            this.#scrollToBottom();
+            resolve("yap");
+          },
+          endCallback: () => {
+            if (this.yapGeneration !== currentGeneration) return;
+            this.#stopTyping();
+          },
+          baseRate: 4.5,
+          rateVariance: 0.8,
+        });
+      });
+
+      const timeoutPromise = new Promise((resolve) =>
+        setTimeout(() => resolve("timeout"), 100),
+      );
+
+      Promise.any([yapPromise, timeoutPromise]).then((winner) => {
+        if (this.yapGeneration !== currentGeneration) return;
+        if (winner === "timeout") {
+          this.#completeTyping();
+        }
+      });
+    } else {
+      this.contentTarget.textContent = line;
+      this.#stopTyping();
+    }
   }
 
   #scrollToBottom() {
