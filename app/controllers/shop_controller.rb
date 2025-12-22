@@ -2,7 +2,7 @@ class ShopController < ApplicationController
   before_action :require_login, except: [ :index ]
 
   def index
-    @shop_open = true
+    @shop_open =  Flipper.enabled?(:shop_open, current_user)
     @user_region = user_region
     @body_class = "shop-page"
     @region_options = Shop::Regionalizable::REGIONS.map do |code, config|
@@ -24,6 +24,7 @@ class ShopController < ApplicationController
 
   def my_orders
     @orders = current_user.shop_orders
+                          .where(enabled: true)
                           .where(parent_order_id: nil)
                           .includes(:accessory_orders, shop_item: { image_attachment: :blob })
                           .order(id: :desc)
@@ -40,7 +41,7 @@ class ShopController < ApplicationController
   end
 
   def order
-    @shop_item = ShopItem.find(params[:shop_item_id])
+    @shop_item = ShopItem.where(enabled: true).find(params[:shop_item_id])
 
     unless @shop_item.buyable_by_self?
       redirect_to shop_path, alert: "This item cannot be ordered on its own."
