@@ -77,7 +77,7 @@ export default class extends Controller {
 
   #stopTyping() {
     this.isTyping = false;
-    if (this.cancelYap) {
+    if (typeof this.cancelYap === "function") {
       this.cancelYap();
       this.cancelYap = null;
     }
@@ -280,7 +280,7 @@ export default class extends Controller {
       this.yapGeneration++;
       const currentGeneration = this.yapGeneration;
 
-      if (this.cancelYap) {
+      if (typeof this.cancelYap === "function") {
         this.cancelYap();
       }
 
