@@ -13,13 +13,7 @@
             item_type: item.type,
             balance: @user_balance,
             enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
-            regional_price: item.price_for_region(@user_region),
-            logged_in: true,
-            remaining_stock: item.remaining_stock,
-            limited: item.limited?,
-            on_sale: item.on_sale?,
-            sale_percentage: item.sale_percentage,
-            original_price: item.ticket_cost
+            regional_price: item.price_for_region(@user_region)
           ) %>
         <% end %>
       <% end %>
