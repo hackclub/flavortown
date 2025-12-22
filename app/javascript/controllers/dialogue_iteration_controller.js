@@ -169,13 +169,16 @@ export default class extends Controller {
       case 35:
         this.#insertLine("BUDDY. PAWS OFF.", true);
         break;
-    case 67:
-            this.#insertLine("how would you like it if i just started clicking you, huh?", true);
+      case 67:
+        this.#insertLine(
+          "how would you like it if i just started clicking you, huh?",
+          true,
+        );
         break;
       case 99:
-          this.#insertLine("click me one more time. i dare you.", true);
-          break;
-    case 100:
+        this.#insertLine("click me one more time. i dare you.", true);
+        break;
+      case 100:
         this.#explode();
         break;
     }
