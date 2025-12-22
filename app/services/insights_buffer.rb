@@ -21,7 +21,7 @@ class InsightsBuffer
       trim_buffer_if_needed(@request_buffer)
       should_schedule_flush?
     end
-    FlushInsightsBufferJob.perform_later if should_flush
+    flush_async! if should_flush
   end
 
   def push_job(attributes)
@@ -30,7 +30,7 @@ class InsightsBuffer
       trim_buffer_if_needed(@job_buffer)
       should_schedule_flush?
     end
-    FlushInsightsBufferJob.perform_later if should_flush
+    flush_async! if should_flush
   end
 
   def flush!
@@ -47,6 +47,12 @@ class InsightsBuffer
 
     insert_requests(requests_to_insert) if requests_to_insert.any?
     insert_jobs(jobs_to_insert) if jobs_to_insert.any?
+  end
+
+  def flush_async!
+    Thread.new do
+      Rails.application.executor.wrap { flush! }
+    end
   end
 
   def buffer_size
