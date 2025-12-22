@@ -54,6 +54,44 @@ export default class extends Controller {
           : "Current file",
       );
     }
+
+    this.#boundHandlePaste = this.#handlePaste.bind(this);
+    document.addEventListener("paste", this.#boundHandlePaste);
+  }
+
+  disconnect() {
+    if (this.#boundHandlePaste) {
+      document.removeEventListener("paste", this.#boundHandlePaste);
+    }
+  }
+
+  #boundHandlePaste = null;
+
+  #handlePaste(event) {
+    const clipboardItems = event.clipboardData?.items;
+    if (!clipboardItems) return;
+
+    const imageFiles = [];
+    for (const item of clipboardItems) {
+      if (item.type.startsWith("image/")) {
+        const file = item.getAsFile();
+        if (file) {
+          const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+          const extension = file.type.split("/")[1] || "png";
+          const renamedFile = new File(
+            [file],
+            `pasted-${timestamp}.${extension}`,
+            { type: file.type },
+          );
+          imageFiles.push(renamedFile);
+        }
+      }
+    }
+
+    if (imageFiles.length > 0) {
+      event.preventDefault();
+      this.#processFiles(imageFiles);
+    }
   }
 
   open(event) {
