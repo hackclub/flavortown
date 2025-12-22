@@ -42,7 +42,7 @@ class ShopController < ApplicationController
 
   def order
     @shop_item = ShopItem.where(enabled: true).find(params[:shop_item_id])
-    
+
     unless @shop_item.buyable_by_self?
       redirect_to shop_path, alert: "This item cannot be ordered on its own."
       return
