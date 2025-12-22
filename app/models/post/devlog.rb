@@ -18,11 +18,6 @@
 class Post::Devlog < ApplicationRecord
   include Postable
 
-  has_many :likes, as: :likeable, dependent: :destroy
-  has_many :comments, as: :commentable, dependent: :destroy
-  validate :minimum_duration
-  SCRAPBOOK_CHANNEL_ID = "C01504DCLVD".freeze
-
   ACCEPTED_CONTENT_TYPES = %w[
     image/jpeg
     image/png
@@ -33,21 +28,15 @@ class Post::Devlog < ApplicationRecord
     video/mp4
     video/quicktime
     video/webm
-    video/x-matroska].freeze
+    video/x-matroska
+  ].freeze
 
-  # File extensions for browser file picker (some browsers need these alongside MIME types)
-  ACCEPTED_FILE_EXTENSIONS = %w[.jpg .jpeg .png .webp .heic .heif .gif .mp4 .mov .webm .mkv].freeze
-  ACCEPTED_UPLOAD_TYPES = (ACCEPTED_CONTENT_TYPES + ACCEPTED_FILE_EXTENSIONS).freeze
+  SCRAPBOOK_CHANNEL_ID = "C01504DCLVD".freeze
 
-  validates :body, presence: true, length: { maximum: 2_000 }
-  validates :scrapbook_url, uniqueness: { message: "has already been used for another devlog" }, allow_blank: true, unless: -> { Rails.env.development? }
-  validate :validate_scrapbook_url
+  has_many :likes, as: :likeable, dependent: :destroy
+  has_many :comments, as: :commentable, dependent: :destroy
 
-  before_validation :populate_from_scrapbook_url
-  after_create :notify_scrapbook_thread
-  after_create :notify_slack_channel
-
-  # only for images – not for videos or gif!
+  # only for images – not for videos or gif!
   has_many_attached :attachments do |attachable|
     attachable.variant :large,
                        resize_to_limit: [ 1600, 900 ],
@@ -72,11 +61,24 @@ class Post::Devlog < ApplicationRecord
             content_type: { in: ACCEPTED_CONTENT_TYPES, spoofing_protection: true },
             size: { less_than: 50.megabytes, message: "is too large (max 50 MB)" },
             processable_file: true
-
   validate :at_least_one_attachment
+  validates :duration_seconds,
+            numericality: { greater_than_or_equal_to: 15.minutes },
+            allow_nil: true
+  validates :body, presence: true, length: { maximum: 2_000 }
+  validates :scrapbook_url,
+            uniqueness: { message: "has already been used for another devlog" },
+            allow_blank: true,
+            unless: -> { Rails.env.development? }
+  validate :validate_scrapbook_url
+
+  before_validation :populate_from_scrapbook_url
+  after_create :notify_scrapbook_thread
+  after_create :notify_slack_channel
 
   def at_least_one_attachment
     return if scrapbook_url.present?
+
     errors.add(:attachments, "must include at least one image or video") unless attachments.attached?
   end
 
@@ -106,6 +108,7 @@ class Post::Devlog < ApplicationRecord
 
   def populate_from_scrapbook_url
     return if scrapbook_url.blank?
+
     @scrapbook_message_fetched = false
 
     channel_id, message_ts = extract_slack_ids_from_url(scrapbook_url)
@@ -185,7 +188,8 @@ class Post::Devlog < ApplicationRecord
 
     SendSlackDmJob.perform_later(
       SCRAPBOOK_CHANNEL_ID,
-      "This scrapbook post has been linked to a Flavortown devlog! :flavortown: https://flavortown.hackclub.com/projects/#{id}",
+      "This scrapbook post has been linked to a Flavortown devlog! :flavortown: " \
+      "https://flavortown.hackclub.com/projects/#{id}",
       thread_ts: @scrapbook_message_ts
     )
   end
@@ -245,10 +249,10 @@ class Post::Devlog < ApplicationRecord
 
     fetch_and_update_duration(user, project, prev_time)
   rescue JSON::ParserError => e
-    Rails.logger.error "JSON parse error in recalculate_seconds_coded for Devlog #{id}: #{e.message}"
+    Rails.logger.error("JSON parse error in recalculate_seconds_coded for Devlog #{id}: #{e.message}")
     false
   rescue => e
-    Rails.logger.error "Unexpected error in recalculate_seconds_coded for Devlog #{id}: #{e.message}"
+    Rails.logger.error("Unexpected error in recalculate_seconds_coded for Devlog #{id}: #{e.message}")
     false
   end
 
@@ -269,27 +273,25 @@ class Post::Devlog < ApplicationRecord
     end_time = post.created_at.utc
 
     result = if prev_time.nil?
-               HackatimeService.fetch_stats(user.hackatime_identity.uid)
+      HackatimeService.fetch_stats(user.hackatime_identity.uid)
     else
-               HackatimeService.fetch_stats(user.hackatime_identity.uid, start_date: prev_time.iso8601, end_date: end_time.iso8601)
+      HackatimeService.fetch_stats(
+        user.hackatime_identity.uid,
+        start_date: prev_time.iso8601,
+        end_date: end_time.iso8601
+      )
     end
 
     return false unless result
 
     seconds = hackatime_keys.sum { |key| result[:projects][key].to_i }
 
-    Rails.logger.info "\tDevlog #{id} duration_seconds: #{seconds}"
+    Rails.logger.info("\tDevlog #{id} duration_seconds: #{seconds}")
     update!(
       duration_seconds: seconds,
       hackatime_pulled_at: Time.current,
       hackatime_projects_key_snapshot: hackatime_keys.join(",")
     )
     true
-  end
-
-  def minimum_duration
-    if duration_seconds.present? && duration_seconds < 900
-      errors.add(:duration_seconds, "must be at least 15 minutes")
-    end
   end
 end
