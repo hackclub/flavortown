@@ -49,7 +49,7 @@ class User
       new(slug: :free_stickers,
           name: "Get your stickers!",
           description: "get your stickers!",
-          icon: "trash-bin",
+          icon: "sticker",
           link: ->(_) { shop_path },
           deps: [
             Dep[:setup_hackatime, "you need to setup hackatime first!"]
