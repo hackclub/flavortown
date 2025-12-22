@@ -172,6 +172,7 @@
     margin-top: 0.75rem;
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 0.75rem;
   }
 
@@ -204,6 +205,54 @@
     font-size: 0.9rem;
     color: var(--color-brown-700);
     line-height: 1.2;
+  }
+
+  &__orders {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    margin-top: 1em;
+  }
+
+  &__order {
+    background-color: var(--color-bg);
+    padding: 0.2em;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+
+    h3 {
+      font-weight: normal;
+      font-size: 1rem;
+    }
+  }
+
+  &__order-item-image {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  .user-profile__order-item-name {
+    &--red {
+      color: var(--color-red-500);
+    }
+
+    &--blue {
+      color: var(--color-blue-500);
+    }
+
+    &--green {
+      color: var(--color-green-500);
+    }
+
+    &--yellow {
+      color: var(--color-yellow-500);
+    }
   }
 
   a {

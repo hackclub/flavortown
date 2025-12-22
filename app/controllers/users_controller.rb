@@ -33,5 +33,11 @@ class UsersController < ApplicationController
     achievements_by_slug = Achievement.all.index_by { |a| a.slug.to_s }
     earned_slugs = @user.achievements.order(earned_at: :desc).pluck(:achievement_slug)
     @earned_achievements = earned_slugs.filter_map { |slug| achievements_by_slug[slug] }
+
+    @fulfilled_orders = @user.shop_orders
+                             .real
+                             .where(aasm_state: "fulfilled")
+                             .includes(:shop_item)
+                             .order(created_at: :desc)
   end
 end
