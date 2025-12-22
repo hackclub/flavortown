@@ -2,6 +2,7 @@ require_relative "boot"
 
 require "rails/all"
 require_relative "../lib/middleware/serve_avif"
+require_relative "../app/middleware/referral_cookie_middleware"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -57,5 +58,6 @@ module Battlemage
                          httponly: true
 
     config.middleware.insert_before ActionDispatch::Static, ServeAvif
+    config.middleware.use ReferralCookieMiddleware
   end
 end
