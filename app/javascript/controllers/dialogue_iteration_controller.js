@@ -17,6 +17,7 @@ export default class extends Controller {
     this.spriteInterval = null;
     this.currentSpriteIndex = 0;
     this.yapGeneration = 0;
+    this.squeakCount = 0;
     this.#loadSqueak();
     this.#preloadSprites();
     this.#render();
@@ -140,13 +141,105 @@ export default class extends Controller {
     }
   }
 
-  squeakCharacter() {
+  squeakCharacter(event) {
+    event?.stopPropagation();
+    if (this.hasExploded) return;
+
     if (this.squeak) {
       this.squeak.play();
     } else if (this.squeakAudio) {
       this.squeakAudio.currentTime = 0;
       this.squeakAudio.play();
     }
+
+    this.squeakCount++;
+    switch (this.squeakCount) {
+      case 7:
+        this.#insertLine("hey, i'd rather you didn't click me...");
+        break;
+      case 14:
+        this.#insertLine("seriously, please stop clicking me.", true);
+        break;
+      case 21:
+        this.#insertLine("I'M TRYING TO TALK TO YOU HERE!", true);
+        break;
+      case 28:
+        this.#insertLine("WOULD YOU PLEASE KNOCK THAT OFF!!!", true);
+        break;
+      case 35:
+        this.#insertLine("BUDDY. PAWS OFF.", true);
+        break;
+    case 67:
+            this.#insertLine("how would you like it if i just started clicking you, huh?", true);
+        break;
+      case 99:
+          this.#insertLine("click me one more time. i dare you.", true);
+          break;
+    case 100:
+        this.#explode();
+        break;
+    }
+  }
+
+  #explode() {
+    const boom = new Audio("/boom.mp3");
+    boom.play();
+
+    this.hasExploded = true;
+
+    if (!document.getElementById("shake-style")) {
+      const style = document.createElement("style");
+      style.id = "shake-style";
+      style.textContent = `
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+          20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    setTimeout(() => {
+      if (this.hasSpriteTarget) {
+        const rect = this.spriteTarget.getBoundingClientRect();
+        const scale = 2;
+        const explosion = document.createElement("img");
+        explosion.src = "/explode.gif";
+        explosion.style.cssText = `
+          position: fixed;
+          top: ${rect.top - (rect.height * (scale - 1)) / 2}px;
+          left: ${rect.left - (rect.width * (scale - 1)) / 2}px;
+          width: ${rect.width * scale}px;
+          height: ${rect.height * scale}px;
+          object-fit: contain;
+          z-index: 99999;
+          pointer-events: none;
+        `;
+        document.body.appendChild(explosion);
+        setTimeout(() => explosion.remove(), 2500);
+      }
+
+      const dialogueBox = this.element.querySelector(".dialogue-box");
+      if (dialogueBox) {
+        dialogueBox.style.animation = "shake 0.5s ease-in-out";
+        setTimeout(() => {
+          dialogueBox.style.animation = "";
+        }, 500);
+      }
+    }, 1871);
+
+    this.#insertLine("...", true);
+  }
+
+  #insertLine(text, isAngry = false) {
+    this.textValue = [
+      ...this.textValue.slice(0, this.index + 1),
+      text,
+      ...this.textValue.slice(this.index + 1),
+    ];
+    this.isAngry = isAngry;
+    this.advance();
   }
 
   #completeTyping() {
@@ -188,6 +281,9 @@ export default class extends Controller {
         this.cancelYap();
       }
 
+      const isAngry = this.isAngry;
+      this.isAngry = false;
+
       const yapPromise = new Promise((resolve) => {
         this.cancelYap = yap(line, {
           letterCallback: ({ letter }) => {
@@ -201,8 +297,8 @@ export default class extends Controller {
             if (this.yapGeneration !== currentGeneration) return;
             this.#stopTyping();
           },
-          baseRate: 4.5,
-          rateVariance: 0.8,
+          baseRate: isAngry ? 6 : 4.5,
+          rateVariance: isAngry ? 0.2 : 0.8,
         });
       });
 
