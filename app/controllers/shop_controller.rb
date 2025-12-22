@@ -47,6 +47,8 @@ class ShopController < ApplicationController
       return
     end
 
+    @user_region = user_region
+    @sale_price = @shop_item.price_for_region(@user_region)
     @accessories = @shop_item.available_accessories.includes(:image_attachment)
   end
 
@@ -102,9 +104,11 @@ class ShopController < ApplicationController
       []
     end
 
-    # Calculate total cost
-    item_total = @shop_item.ticket_cost * quantity
-    accessories_total = @accessories.sum(&:ticket_cost)
+    # Calculate total cost (applying sale discount via price_for_region)
+    region = user_region
+    item_price = @shop_item.price_for_region(region)
+    item_total = item_price * quantity
+    accessories_total = @accessories.sum { |a| a.price_for_region(region) }
     total_cost = item_total + accessories_total
 
     return redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "You need to have an address to make an order!" unless current_user.addresses.any?

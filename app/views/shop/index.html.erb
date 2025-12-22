@@ -139,7 +139,10 @@
               regional_price: item.price_for_region(@user_region),
               logged_in: current_user.present?,
               remaining_stock: item.remaining_stock,
-              limited: item.limited?
+              limited: item.limited?,
+              on_sale: item.on_sale?,
+              sale_percentage: item.sale_percentage,
+              original_price: item.ticket_cost
             ) %>
           <% end %>
         <% end %>

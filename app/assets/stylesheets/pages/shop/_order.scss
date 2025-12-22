@@ -65,6 +65,25 @@
     }
   }
 
+  &__sale-badge {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font-family-text);
+    margin-bottom: 0.5rem;
+    background-color: #dc2626;
+    color: #fff;
+    text-transform: uppercase;
+  }
+
+  &__original-price {
+    text-decoration: line-through;
+    color: #999;
+    margin-right: 0.5rem;
+  }
+
   &__stock-indicator {
     display: inline-block;
     padding: 0.4rem 1rem;

@@ -19,6 +19,11 @@
                 <%= image_tag @shop_item.image, loading: "lazy", decoding: "async" if @shop_item.image.attached? %>
             </div>
             <h2><%= @shop_item.name %></h2>
+            <% if @shop_item.on_sale? %>
+                <div class="shop-order__sale-badge">
+                    <%= @shop_item.sale_percentage %>% OFF SALE
+                </div>
+            <% end %>
             <% if @shop_item.limited? && @shop_item.remaining_stock.present? %>
                 <div class="shop-order__stock-indicator<%= ' shop-order__stock-indicator--low' if @shop_item.remaining_stock <= 5 %><%= ' shop-order__stock-indicator--out' if @shop_item.remaining_stock <= 0 %>">
                     <% if @shop_item.remaining_stock <= 0 %>
@@ -44,7 +49,7 @@
 
             <div class="shop-order__customs-warning" data-customs-warning-target="warning" style="display: none;"></div>
         </div>
-        <div class="shop-order__details" data-controller="order-form" data-order-form-has-addresses-value="<%= current_user.addresses.any? %>" data-order-form-base-ticket-cost-value="<%= @shop_item.ticket_cost || 0 %>" data-order-form-user-balance-value="<%= current_user.balance || 0 %>">
+        <div class="shop-order__details" data-controller="order-form" data-order-form-has-addresses-value="<%= current_user.addresses.any? %>" data-order-form-base-ticket-cost-value="<%= @sale_price || @shop_item.ticket_cost || 0 %>" data-order-form-user-balance-value="<%= current_user.balance || 0 %>">
             <h2>Complete your order:</h2>
             <%= form_with url: shop_order_path(shop_item_id: @shop_item.id), method: :post, local: true, id: "order-form" do |form| %>
                 <% if not @shop_item.one_per_person_ever %>
@@ -170,7 +175,14 @@
                     <div class="shop-order__summary-content">
                         <div class="shop-order__summary-price">
                             <h4>Base Price:</h4>
-                            <h4>🍪 <%= @shop_item.ticket_cost.round %></h4>
+                            <% if @shop_item.on_sale? %>
+                                <h4>
+                                    <span class="shop-order__original-price">🍪 <%= @shop_item.ticket_cost.round %></span>
+                                    🍪 <%= @sale_price.round %>
+                                </h4>
+                            <% else %>
+                                <h4>🍪 <%= @shop_item.ticket_cost.round %></h4>
+                            <% end %>
                         </div>
                         <div class="shop-order__summary-accessories-list" id="shop-order__summary-accessories-list" style="display: none;" data-order-form-target="accessoriesListContainer">
                             <h4>Accessories:</h4>
@@ -182,7 +194,7 @@
                         </div>
                         <div class="shop-order__summary-total">
                             <h4>Total:</h4>
-                            <h4 id="shop-order__summary-total-display" data-order-form-target="summaryTotalDisplay">🍪 <%= @shop_item.ticket_cost.round %></h4>
+                            <h4 id="shop-order__summary-total-display" data-order-form-target="summaryTotalDisplay">🍪 <%= @sale_price.round %></h4>
                         </div>
                     </div>
                 <% end %>
