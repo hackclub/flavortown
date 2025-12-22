@@ -27,6 +27,7 @@ class ShopController < ApplicationController
                           .where(parent_order_id: nil)
                           .includes(:accessory_orders, shop_item: { image_attachment: :blob })
                           .order(id: :desc)
+    @show_tutorial_complete_dialog = session.delete(:show_tutorial_complete_dialog)
   end
 
   def cancel_order
@@ -196,6 +197,7 @@ class ShopController < ApplicationController
   def handle_free_stickers_order!
     current_user.complete_tutorial_step!(:free_stickers)
     session.delete(:tutorial_redirect_url)
+    session[:show_tutorial_complete_dialog] = true
   end
 
   def fulfill_free_stickers!

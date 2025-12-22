@@ -1,3 +1,16 @@
+<% if @show_tutorial_complete_dialog %>
+  <%= render DialogueBoxComponent.new(
+    text: [
+      "Awesome! Your free stickers are on the way!",
+      "We've received your order and will ship it out soon once your identity is verified!",
+      "Tutorial complete! You now know how to tracking time, earn cookies, and order prizes.",
+      "Keep building and earning cookies to unlock more shop items! Need help? Drop a message in #flavortown-help on Slack. Happy Hacking and Keep Cooking!"
+    ],
+    sticker: "free_sticker.png",
+    sticker_line_index: 0
+  ) %>
+<% end %>
+
 <div class="my-orders">
   <div class="my-orders__header">
     <h1 class="my-orders__title">My Orders</h1>
