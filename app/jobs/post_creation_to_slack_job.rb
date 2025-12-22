@@ -1,6 +1,8 @@
 class PostCreationToSlackJob < ApplicationJob
   queue_as :latency_5m
 
+  discard_on ActiveJob::DeserializationError
+
   CHANNEL_ID = ""
 
   SLACK_MENTION_PATTERN = /<!(?:here|channel|everyone|subteam\^[A-Z0-9]+)(?:\|[^>]+)?>|@(?:here|channel|everyone)/i
@@ -42,6 +44,8 @@ class PostCreationToSlackJob < ApplicationJob
   end
 
   def post_project(project)
+    return if project.deleted?
+
     owner = project.memberships.owner.first&.user
     return unless owner
 

@@ -11,11 +11,11 @@ class Airtable::DevlogSyncJob < Airtable::BaseSyncJob
       "likes_count" => devlog.likes_count,
       "comments_count" => devlog.comments_count,
       "scrapbook_url" => devlog.scrapbook_url,
-      "project_id" => post&.project_id,
-      "user_id" => post&.user_id,
+      "project_id" => post&.project_id&.to_s,
+      "user_id" => post&.user_id&.to_s,
       "created_at" => devlog.created_at,
       "synced_at" => Time.now,
-      "flavor_id" => devlog.id
+      "flavor_id" => devlog.id.to_s
     }
   end
 end

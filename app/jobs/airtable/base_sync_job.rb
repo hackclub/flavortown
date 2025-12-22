@@ -56,9 +56,9 @@ class Airtable::BaseSyncJob < ApplicationJob
         records.where(synced_at_field => nil).limit(null_sync_limit)
       else
         remaining = sync_limit - null_count
-        null_sql = records.where(synced_at_field => nil).to_sql
-        non_null_sql = records.where.not(synced_at_field => nil).order("#{synced_at_field} ASC").limit(remaining).to_sql
-        records.from("(#{null_sql} UNION ALL #{non_null_sql}) AS #{records.table_name}")
+        null_sql = records.unscope(:includes).where(synced_at_field => nil).to_sql
+        non_null_sql = records.unscope(:includes).where.not(synced_at_field => nil).order("#{synced_at_field} ASC").limit(remaining).to_sql
+        records.unscope(:includes).from("(#{null_sql} UNION ALL #{non_null_sql}) AS #{records.table_name}")
       end
     end
   end

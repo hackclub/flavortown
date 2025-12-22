@@ -19,7 +19,7 @@ class Airtable::UserSyncJob < Airtable::BaseSyncJob
       "created_at" => user.created_at,
       "synced_at" => Time.now,
       "is_banned" => user.banned,
-      "flavor_id" => user.id,
+      "flavor_id" => user.id.to_s,
       "ref" => user.ref
     }
   end
