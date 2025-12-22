@@ -5,7 +5,7 @@ class Airtable::RsvpSyncJob < Airtable::BaseSyncJob
 
   def primary_key_field = "email"
 
-  def sync_limit = 100
+  def null_sync_limit = 100
 
   def field_mapping(rsvp)
     {
