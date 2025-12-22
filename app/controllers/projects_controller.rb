@@ -53,14 +53,13 @@ class ProjectsController < ApplicationController
       flash[:notice] = "Project created successfully"
       current_user.complete_tutorial_step! :create_project
 
-      FunnelTrackerService.track(
-        event_name: "project_created",
-        user: current_user,
-        properties: {
-          project_id: @project.id,
-          tutorial: @project.tutorial?
-        }
-      )
+      unless @project.tutorial?
+        FunnelTrackerService.track(
+          event_name: "project_created",
+          user: current_user,
+          properties: { project_id: @project.id }
+        )
+      end
 
       project_hours = @project.total_hackatime_hours
       if project_hours > 0
