@@ -12,7 +12,8 @@ export default class extends Controller {
     event.stopPropagation();
     const target = event.currentTarget;
     const img = target.tagName === "IMG" ? target : target.querySelector("img");
-    const src = target.dataset.lightboxSrc || img?.dataset.lightboxSrc || img?.src;
+    const src =
+      target.dataset.lightboxSrc || img?.dataset.lightboxSrc || img?.src;
 
     this.overlay = document.createElement("div");
     this.overlay.className = "lightbox-overlay";
@@ -24,7 +25,10 @@ export default class extends Controller {
     `;
 
     this.overlay.addEventListener("click", (e) => {
-      if (e.target === this.overlay || e.target.classList.contains("lightbox-close")) {
+      if (
+        e.target === this.overlay ||
+        e.target.classList.contains("lightbox-close")
+      ) {
         this.close();
       }
     });
