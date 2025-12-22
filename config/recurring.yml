@@ -10,6 +10,12 @@
 #     schedule: at 5am every day
 
 production:
+  flush_insights_buffer:
+    class: FlushInsightsBufferJob
+    schedule: every 30 seconds
+    concurrency: 1
+    description: "Flush ActiveInsights buffer to database in batches"
+
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
