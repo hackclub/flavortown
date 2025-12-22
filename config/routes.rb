@@ -34,6 +34,7 @@ end
 Rails.application.routes.draw do
   # Landing
   root "landing#index"
+  post "submit_email", to: "landing#submit_email", as: :submit_email
   # get "marketing", to: "landing#marketing"
   get "login", to: redirect("/?login=1")
 
