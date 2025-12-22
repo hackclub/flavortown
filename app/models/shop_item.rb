@@ -69,7 +69,7 @@ class ShopItem < ApplicationRecord
 
   def self.cached_buyable_standalone
     Rails.cache.fetch(BUYABLE_STANDALONE_CACHE_KEY, expires_in: 5.minutes) do
-      enabled.buyable_standalone.includes(image_attachment: :blob).to_a
+      buyable_standalone.includes(image_attachment: :blob).to_a
     end
   end
 
@@ -110,7 +110,7 @@ class ShopItem < ApplicationRecord
                        preprocessed: true,
                        saver: { strip: true, quality: 75 }
   end
-  validates :name, :description, :ticket_cost, :type, presence: true
+  validates :name, :description, :ticket_cost, presence: true
   validates :ticket_cost, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :image, presence: true, on: :create
 
