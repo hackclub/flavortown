@@ -53,6 +53,18 @@ class SessionsController < ApplicationController
     identity.user = user
     identity.save!
 
+    if is_new_user
+      FunnelTrackerService.track(
+        event_name: "first_login",
+        user: user,
+        properties: { referral_code: user.ref }
+      )
+
+      if user.email.present?
+        FunnelTrackerService.link_events_to_user(user, user.email)
+      end
+    end
+
     SyncSlackDisplayNameJob.perform_later(user)
     CheckSlackMembershipJob.perform_later(user)
 
@@ -60,6 +72,12 @@ class SessionsController < ApplicationController
 
     # /start
     if session.delete(:start_flow)
+      FunnelTrackerService.track(
+        event_name: "start_step_completed",
+        user: user,
+        properties: { step: "signin" }
+      )
+
       apply_start_flow_data!(user)
       user.complete_tutorial_step!(:first_login)
       session[:show_welcome_overlay] = true

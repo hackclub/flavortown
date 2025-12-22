@@ -19,6 +19,14 @@ class Project::DevlogsController < ApplicationController
       Post.create!(project: @project, user: current_user, postable: @devlog)
       flash[:notice] = "Devlog created successfully"
 
+      unless @devlog.tutorial?
+        FunnelTrackerService.track(
+          event_name: "devlog_created",
+          user: current_user,
+          properties: { devlog_id: @devlog.id, project_id: @project.id }
+        )
+      end
+
       if current_user.complete_tutorial_step! :post_devlog
         tutorial_message [
           "Yay! You just earned free stickers for posting your first devlog — claim them from the Kitchen!",
