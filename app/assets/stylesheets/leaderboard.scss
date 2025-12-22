@@ -9,6 +9,32 @@ h1 {
   font-size: 2.5rem;
 }
 
+.pagination {
+  margin: 0.5rem 0;
+  display: flex;
+  justify-content: center;
+
+  a {
+    background: var(--color-tan-400);
+    color: black;
+    padding: 0.25em 0.5em;
+    border-radius: 0.25em;
+
+    &::hover {
+      box-shadow: var(--shadow);
+    }
+
+    &::after {
+      content: unset;
+    }
+  }
+
+  .pagy {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+
 .subtitle {
   font-size: 1rem;
 }
