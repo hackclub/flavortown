@@ -24,7 +24,6 @@ class ShopController < ApplicationController
 
   def my_orders
     @orders = current_user.shop_orders
-                          .where(enabled: true)
                           .where(parent_order_id: nil)
                           .includes(:accessory_orders, shop_item: { image_attachment: :blob })
                           .order(id: :desc)
@@ -73,7 +72,7 @@ class ShopController < ApplicationController
       return
     end
 
-    @shop_item = ShopItem.find(params[:shop_item_id])
+    @shop_item = ShopItem.where(enabled:true).find(params[:shop_item_id])
 
     unless @shop_item.buyable_by_self?
       redirect_to shop_path, alert: "This item cannot be ordered on its own."
@@ -176,7 +175,7 @@ class ShopController < ApplicationController
   end
 
   def featured_free_stickers_item
-    item = ShopItem.find_by(id: 1, type: "ShopItem::FreeStickers")
+    item = ShopItem.find_by(id: 1, type: "ShopItem::FreeStickers", enabled: true)
     item if item&.enabled_in_region?(@user_region)
   end
 
