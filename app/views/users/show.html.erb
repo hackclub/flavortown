@@ -92,6 +92,28 @@
         <p>No projects yet.</p>
         <% end %>
     </div>
+    <% if @fulfilled_orders.present? %>
+        <div class="user-profile__card">
+            <h2 style="text-align: left; font-weight: normal;">Orders</h2>
+            <% colors = %w[red green yellow blue] %>
+            <div class="user-profile__orders">
+                <% @fulfilled_orders.each_with_index do |order, index| %>
+                    <div class="user-profile__order">
+                        <% if order.shop_item.image.attached? %>
+                            <%= image_tag order.shop_item.image, alt: order.shop_item.name, class: "user-profile__order-item-image" %>
+                        <% end %>
+                        <h3>
+                            Ordered 
+                            <span class="user-profile__order-item-name--<%= colors[index % colors.size] %>">
+                                <%= order.shop_item.name %>
+                            </span> 
+                            <b><%= order.quantity %> times</b>.
+                        </h3>
+                    </div>
+                <% end %>
+            </div>
+        </div>
+    <% end %>
   </div>
 
   <section class="user-profile__activity">
