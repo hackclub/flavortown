@@ -66,7 +66,7 @@ class KitchenTutorialStepsComponent < ApplicationComponent
 
       div(class: "state-card__cta") do
         if verb == :get
-          a(href: link, class: "btn btn--borderless btn--bg_yellow", data: { turbo: false }) do
+          a(href: link, target: "_blank", class: "btn btn--borderless btn--bg_yellow", data: { turbo: false }) do
             span { "Start" }
             inline_svg_tag("icons/right-arrow.svg")
           end
