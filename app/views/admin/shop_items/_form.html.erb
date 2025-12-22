@@ -148,6 +148,18 @@
           </div>
         </div>
 
+        <div class="card">
+          <h3>Order Assignment</h3>
+          <div class="shop-item-form__field">
+            <%= f.label :default_assignee_id, "Default Assignee", class: "shop-item-form__label" %>
+            <%= f.select :default_assignee_id,
+                  options_from_collection_for_select(@fulfillment_users, :id, :display_name, shop_item.default_assignee_id),
+                  { include_blank: "No default assignee" },
+                  { class: "form-control" } %>
+            <span class="shop-item-form__hint">Orders for this item will be automatically assigned to this user</span>
+          </div>
+        </div>
+
         <div class="card" id="hack_clubber_settings" style="display: none;">
           <h3>Hack Clubber Settings</h3>
           <div class="shop-item-form__field">

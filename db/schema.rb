@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_22_060713) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_22_065605) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -355,6 +355,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_060713) do
     t.bigint "attached_shop_item_ids", default: [], array: true
     t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.bigint "default_assignee_id"
     t.string "description"
     t.boolean "enabled"
     t.boolean "enabled_au"
@@ -395,6 +396,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_060713) do
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"
     t.bigint "user_id"
+    t.index ["default_assignee_id"], name: "index_shop_items_on_default_assignee_id"
     t.index ["user_id"], name: "index_shop_items_on_user_id"
   end
 
@@ -571,6 +573,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_060713) do
   add_foreign_key "shop_card_grants", "shop_items"
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
+  add_foreign_key "shop_items", "users", column: "default_assignee_id"
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
   add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"

@@ -129,10 +129,13 @@ class ShopController < ApplicationController
           shop_item: @shop_item,
           quantity: quantity,
           frozen_address: selected_address,
-          accessory_ids: @accessories.pluck(:id)
+          accessory_ids: @accessories.pluck(:id),
+          assigned_to_user: @shop_item.default_assignee
         )
         @order.aasm_state = "pending" if @order.respond_to?(:aasm_state=)
         @order.save!
+
+        notify_default_assignee_if_present!(@order)
 
         # Create orders for each accessory
         @accessories.each do |accessory|
@@ -228,5 +231,17 @@ class ShopController < ApplicationController
 
   def require_login
     redirect_to root_path, alert: "Please log in first" and return unless current_user
+  end
+
+  def notify_default_assignee_if_present!(order)
+    assignee = order.assigned_to_user
+    return unless assignee&.slack_id.present?
+
+    SendSlackDmJob.perform_later(
+      assignee.slack_id,
+      nil,
+      blocks_path: "notifications/shop_orders/assigned",
+      locals: { order: order, admin_url: Rails.application.routes.url_helpers.admin_shop_order_url(order, host: Rails.application.config.action_mailer.default_url_options[:host]) }
+    )
   end
 end

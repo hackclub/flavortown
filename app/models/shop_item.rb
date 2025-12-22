@@ -90,6 +90,7 @@ class ShopItem < ApplicationRecord
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
 
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
+  belongs_to :default_assignee, class_name: "User", optional: true
 
   has_one_attached :image do |attachable|
     attachable.variant :carousel_sm,
