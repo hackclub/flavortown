@@ -36,7 +36,7 @@
           <script>
             document.getElementById('resend-webhook-btn').addEventListener('click', function() {
               if (confirm('Are you sure you want to resend the webhook for this project?')) {
-                fetch("<%= resend_webhook_project_path(@project).to_json %>".replace("&quot;", ""), {
+                fetch("<%= resend_webhook_project_path(@project).to_json %>".replaceAll("&quot;", ""), {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
