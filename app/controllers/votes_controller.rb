@@ -80,7 +80,7 @@ class VotesController < ApplicationController
       locals: {
         project: votes.first.project,
         reason: reason,
-        anonymous: current_user.vote_anonymously,
+        anonymous: false,
         voter_slack_id: current_user.slack_id
       }
     )
