@@ -24,6 +24,7 @@ class ShopController < ApplicationController
 
   def my_orders
     @orders = current_user.shop_orders
+                          .where(enabled: true)
                           .where(parent_order_id: nil)
                           .includes(:accessory_orders, shop_item: { image_attachment: :blob })
                           .order(id: :desc)
