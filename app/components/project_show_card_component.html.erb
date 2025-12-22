@@ -84,7 +84,7 @@
               <%= button_to helpers.project_path(project),
                     method: :delete,
                     class: "btn btn--brown btn--borderless projects-show__icon-btn",
-                    data: { confirm: "Delete this project?" },
+                    form: { onsubmit: "return confirm('Are you sure you want to delete \"#{helpers.j(project.title)}\"? This action cannot be undone.')" },
                     aria: { label: "Delete project" } do %>
                 <%= helpers.inline_svg_tag "icons/trash-bin.svg" %>
               <% end %>
