@@ -79,17 +79,25 @@
           <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
             🍪 <%= current_user.cached_balance %>
           </button>
+
           <button type="button" class="sidebar__user-settings" onclick="document.getElementById('settings-modal').showModal()" aria-label="Settings">
             <%= inline_svg_tag "icons/gear.svg", class: "sidebar__user-settings-icon" %>
           </button>
+
           <%= link_to my_achievements_path, class: "sidebar__user-settings", aria: { label: "Achievements" } do %>
             <%= inline_svg_tag "icons/trophy.svg", class: "sidebar__user-settings-icon" %>
           <% end %>
+
+          <%= link_to leaderboard_path, class: "sidebar__user-settings", aria: { label: "Leaderboard" } do %>
+            <%= inline_svg_tag "icons/leaderboard.svg", class: "sidebar__user-settings-icon" %>
+          <% end %>
+
           <button type="button" class="sidebar__user-logout" onclick="document.getElementById('logout-form').submit()" aria-label="Logout">
             <%= inline_svg_tag "icons/logout.svg", class: "sidebar__user-logout-icon" %>
           </button>
 
           <%= form_with url: logout_path, method: :delete, id: "logout-form", style: "display: none;" do %>
+
           <% end %>
         </div>
       </div>
@@ -119,6 +127,14 @@
           <span>Send votes to Slack</span>
         </label>
         <small class="settings-form__hint">Share your votes in #flavortown-share-votes to help project creators understand how their work is being received</small>
+      </div>
+
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
+          <%= check_box_tag :leaderboard_optin, "1", current_user.leaderboard_optin, id: "leaderboard_optin" %>
+          <span>Opt in to the leaderboard</span>
+        </label>
+        <small class="settings-form__hint">Check this if you want to be shown on the leaderboard</small>
       </div>
 
       <div class="settings-form__field">
