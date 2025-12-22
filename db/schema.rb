@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_22_100745) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_22_191739) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -178,6 +178,20 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_100745) do
     t.datetime "updated_at", null: false
     t.text "value"
     t.index ["feature_key", "key", "value"], name: "index_flipper_gates_on_feature_key_and_key_and_value", unique: true
+  end
+
+  create_table "funnel_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.string "event_name", null: false
+    t.jsonb "properties", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["created_at"], name: "index_funnel_events_on_created_at"
+    t.index ["email"], name: "index_funnel_events_on_email"
+    t.index ["event_name", "created_at"], name: "index_funnel_events_on_event_name_and_created_at"
+    t.index ["event_name"], name: "index_funnel_events_on_event_name"
+    t.index ["user_id"], name: "index_funnel_events_on_user_id"
   end
 
   create_table "hcb_credentials", force: :cascade do |t|
@@ -499,6 +513,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_100745) do
     t.boolean "has_gotten_free_stickers", default: false
     t.boolean "has_pending_achievements", default: false, null: false
     t.string "hcb_email"
+    t.datetime "introduction_posted_at"
     t.string "last_name"
     t.boolean "leaderboard_optin", default: false, null: false
     t.string "magic_link_token"

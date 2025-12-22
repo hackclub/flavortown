@@ -15,6 +15,7 @@
 #  has_gotten_free_stickers    :boolean          default(FALSE)
 #  has_pending_achievements    :boolean          default(FALSE), not null
 #  hcb_email                   :string
+#  introduction_posted_at      :datetime
 #  last_name                   :string
 #  leaderboard_optin           :boolean          default(FALSE), not null
 #  magic_link_token            :string
@@ -81,6 +82,7 @@ class User < ApplicationRecord
   validates :hcb_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
   after_commit :handle_verification_eligibility_change, if: :should_check_verification_eligibility?
+  after_commit :track_identity_verified, if: :should_track_identity_verified?
 
   def roles = granted_roles&.map(&:to_sym) || []
 
@@ -369,5 +371,16 @@ class User < ApplicationRecord
       end
       order.mark_rejected!(reason)
     end
+  end
+
+  def should_track_identity_verified?
+    saved_change_to_verification_status? && verification_verified?
+  end
+
+  def track_identity_verified
+    FunnelTrackerService.track(
+      event_name: "identity_verified",
+      user: self
+    )
   end
 end
