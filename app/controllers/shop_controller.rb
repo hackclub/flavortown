@@ -2,7 +2,7 @@ class ShopController < ApplicationController
   before_action :require_login, except: [ :index ]
 
   def index
-    @shop_open = true
+    @shop_open =  Flipper.enabled?(:shop_open, current_user)
     @user_region = user_region
     @body_class = "shop-page"
     @region_options = Shop::Regionalizable::REGIONS.map do |code, config|
@@ -24,6 +24,7 @@ class ShopController < ApplicationController
 
   def my_orders
     @orders = current_user.shop_orders
+                          .where(enabled: true)
                           .where(parent_order_id: nil)
                           .includes(:accessory_orders, shop_item: { image_attachment: :blob })
                           .order(id: :desc)
