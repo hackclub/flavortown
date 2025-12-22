@@ -1,5 +1,5 @@
 class ShopController < ApplicationController
-  before_action :require_login, except: [:index]
+  before_action :require_login, except: [ :index ]
 
   def index
     @shop_open = Flipper.enabled?(:shop_open, current_user)
@@ -100,9 +100,9 @@ class ShopController < ApplicationController
     # Validate accessories belong to this item
     @accessories = if accessory_ids.any?
                      @shop_item.available_accessories.where(id: accessory_ids)
-                   else
+    else
                      []
-                   end
+    end
 
     # Calculate total cost (applying sale discount via price_for_region)
     region = user_region
