@@ -190,12 +190,15 @@
     font-size: 0.8rem;
   }
 
-  &__price {
-    color: var(--color-brown-700);
-    font-size: 1.2rem;
+  &__prices {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+  }
+
+  &__price {
+    color: var(--color-brown-700);
+    font-size: 1.2rem;
   }
 
   &__original-price {

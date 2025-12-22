@@ -39,12 +39,12 @@
         <div class="shop-item-card__description"><%= md(description) %></div>
         <div class="shop-item-card__details">
           <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
-          <span class="shop-item-card__price">
+          <div class="shop-item-card__prices">
             <% if on_sale && original_price %>
               <span class="shop-item-card__original-price"><%= number_to_currency(original_price, precision: 0).gsub('$', '🍪') %></span>
             <% end %>
-            <%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %>
-          </span>
+            <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
+          </div>
         </div>
       </div>
     <% end %>
@@ -65,12 +65,12 @@
         <div class="shop-item-card__description"><%= md(description) %></div>
         <div class="shop-item-card__details">
           <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
-          <span class="shop-item-card__price">
+          <div class="shop-item-card__prices">
             <% if on_sale && original_price %>
               <span class="shop-item-card__original-price"><%= number_to_currency(original_price, precision: 0).gsub('$', '🍪') %></span>
             <% end %>
-            <%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %>
-          </span>
+            <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
+          </div>
         </div>
       </div>
     </div>
