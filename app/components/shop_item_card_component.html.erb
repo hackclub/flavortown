@@ -1,4 +1,4 @@
-<div class="shop-item-card<%= ' shop-item-card--out-of-stock' if out_of_stock? %>"
+<div class="shop-item-card<%= ' shop-item-card--out-of-stock' if out_of_stock? %><%= ' shop-item-card--on-sale' if on_sale %>"
      data-categories="<%= categories.join(',') %>"
      data-regions="<%= enabled_regions.join(',') %>"
      data-shop-id="<%= item_id %>"
@@ -7,6 +7,11 @@
      data-shop-wishlist-item-name-value="<%= name %>"
      data-shop-wishlist-item-price-value="<%= display_price %>"
      data-shop-wishlist-item-image-value="<%= url_for(image_url) %>">
+  <% if on_sale %>
+    <div class="shop-item-card__sale-badge">
+      <%= sale_percentage %>% OFF
+    </div>
+  <% end %>
   <% if show_stock_indicator? %>
     <div class="shop-item-card__stock-badge<%= ' shop-item-card__stock-badge--low' if low_stock? %><%= ' shop-item-card__stock-badge--out' if out_of_stock? %>">
       <% if out_of_stock? %>
@@ -34,7 +39,12 @@
         <div class="shop-item-card__description"><%= md(description) %></div>
         <div class="shop-item-card__details">
           <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
-          <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
+          <div class="shop-item-card__prices">
+            <% if on_sale && original_price %>
+              <span class="shop-item-card__original-price"><%= number_to_currency(original_price, precision: 0).gsub('$', '🍪') %></span>
+            <% end %>
+            <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
+          </div>
         </div>
       </div>
     <% end %>
@@ -55,7 +65,12 @@
         <div class="shop-item-card__description"><%= md(description) %></div>
         <div class="shop-item-card__details">
           <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
-          <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
+          <div class="shop-item-card__prices">
+            <% if on_sale && original_price %>
+              <span class="shop-item-card__original-price"><%= number_to_currency(original_price, precision: 0).gsub('$', '🍪') %></span>
+            <% end %>
+            <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
+          </div>
         </div>
       </div>
     </div>

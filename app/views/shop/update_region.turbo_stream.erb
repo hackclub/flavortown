@@ -3,17 +3,24 @@
     <div class="shop__items">
       <% @shop_items.each do |item| %>
         <% if item.image.present? && item.enabled_in_region?(@user_region) %>
+          <% sale_price = item.price_for_region(@user_region) %>
           <%= render ShopItemCardComponent.new(
             item_id: item.id,
             name: item.name,
             description: item.description,
-            hours: item.hours_estimated,
+            hours: item.fixed_estimate(sale_price).to_i,
             price: item.ticket_cost,
             image_url: item.image.variant(:carousel_lg),
             item_type: item.type,
             balance: @user_balance,
             enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
-            regional_price: item.price_for_region(@user_region)
+            regional_price: sale_price,
+            logged_in: true,
+            remaining_stock: item.remaining_stock,
+            limited: item.limited?,
+            on_sale: item.on_sale?,
+            sale_percentage: item.sale_percentage,
+            original_price: item.ticket_cost
           ) %>
         <% end %>
       <% end %>

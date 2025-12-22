@@ -253,7 +253,12 @@ class ShopOrder < ApplicationRecord
   private
 
   def freeze_item_price
-    self.frozen_item_price ||= shop_item.ticket_cost if shop_item
+    return unless shop_item
+    return if frozen_item_price.present?
+
+    # Use price_for_region which applies sale discounts and regional pricing
+    order_region = region.presence || Shop::Regionalizable.country_to_region(frozen_address&.dig("country"))
+    self.frozen_item_price = shop_item.price_for_region(order_region || "XX")
   end
 
   def check_one_per_person_ever_limit

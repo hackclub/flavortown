@@ -27,6 +27,26 @@
     }
   }
 
+  &--on-sale {
+    border: 2px solid #dc2626;
+  }
+
+  &__sale-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 3.5rem;
+    z-index: 10;
+    background: #dc2626;
+    color: #fff;
+    font-family: var(--font-family-text);
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    text-transform: uppercase;
+  }
+
   &__stock-badge {
     position: absolute;
     top: 0.5rem;
@@ -170,9 +190,21 @@
     font-size: 0.8rem;
   }
 
+  &__prices {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
   &__price {
     color: var(--color-brown-700);
     font-size: 1.2rem;
+  }
+
+  &__original-price {
+    color: #999;
+    font-size: 1rem;
+    text-decoration: line-through;
   }
 
   &__title {
