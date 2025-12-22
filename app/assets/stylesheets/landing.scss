@@ -220,6 +220,24 @@ input {
         }
       }
 
+      .sign-back-in-link {
+        text-align: center;
+
+        .link-btn {
+          background: none;
+          border: none;
+          font-size: 0.9rem;
+          color: var(--color-tan-600);
+          cursor: pointer;
+          text-decoration: underline;
+          opacity: 0.8;
+
+          &:hover {
+            opacity: 1;
+          }
+        }
+      }
+
       .success,
       .error {
         color: white;
