@@ -22,9 +22,9 @@ if defined?(RailsPerformance)
     config.mount_at = "/rails/performance"
 
     # protect your Performance Dashboard with HTTP BASIC password
-    config.http_basic_authentication_enabled = true
+    config.http_basic_authentication_enabled = Rails.application.credentials.dig(:rails_performance, :password).present?
     config.http_basic_authentication_user_name = "flavortown"
-    config.http_basic_authentication_password = Rails.application.credentials.dig(:rails_performance, :password)
+    config.http_basic_authentication_password = Rails.application.credentials.dig(:rails_performance, :password) || ""
 
     # if you need an additional rules to check user permissions
     config.verify_access_proc = proc { |controller| true }
