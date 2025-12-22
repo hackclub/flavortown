@@ -17,6 +17,10 @@ class StartController < ApplicationController
       session[:start_starter_project_name] = nil
     end
 
+    if params[:email].present? && valid_email?(params[:email])
+      session[:start_email] = params[:email].to_s.strip.downcase
+    end
+
     @display_name = session[:start_display_name]
     @email = session[:start_email]
     @experience_level = session[:start_experience_level]
