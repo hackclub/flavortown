@@ -54,6 +54,7 @@ class SessionsController < ApplicationController
     identity.save!
 
     SyncSlackDisplayNameJob.perform_later(user)
+    CheckSlackMembershipJob.perform_later(user)
 
     session[:user_id] = user.id
 
