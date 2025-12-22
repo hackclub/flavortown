@@ -16,6 +16,7 @@
 #  has_pending_achievements    :boolean          default(FALSE), not null
 #  hcb_email                   :string
 #  last_name                   :string
+#  leaderboard_optin           :boolean          default(FALSE), not null
 #  magic_link_token            :string
 #  magic_link_token_expires_at :datetime
 #  projects_count              :integer

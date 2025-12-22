@@ -101,6 +101,9 @@ Rails.application.routes.draw do
   # Kitchen
   get "kitchen", to: "kitchen#index"
 
+  # Leaderboard
+  get "leaderboard", to: "leaderboard#index"
+
   # My
   get "my/balance", to: "my#balance"
   patch "my/settings", to: "my#update_settings", as: :my_settings
