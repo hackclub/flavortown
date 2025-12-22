@@ -21,9 +21,19 @@ class LandingController < ApplicationController
     existing_user = User.find_by(email: email)
 
     if existing_user
+      FunnelTrackerService.track(
+        event_name: "landing_email_submitted",
+        email: email,
+        properties: { existing_user: true }
+      )
       session[:hca_login_hint] = email
       render :hca_signin, layout: false
     else
+      FunnelTrackerService.track(
+        event_name: "landing_email_submitted",
+        email: email,
+        properties: { existing_user: false }
+      )
       session[:start_email] = email
       redirect_to start_path(email: email)
     end
