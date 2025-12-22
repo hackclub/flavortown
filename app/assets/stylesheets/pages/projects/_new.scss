@@ -65,10 +65,10 @@
 
   &__time-preview {
     background: var(--color-green-100);
-    border: 2px solid var(--color-green-300);
     border-radius: var(--border-radius);
     padding: var(--space-m) var(--space-l);
     text-align: center;
+    color: var(--color-brown-500);
 
     p {
       margin: 0;
