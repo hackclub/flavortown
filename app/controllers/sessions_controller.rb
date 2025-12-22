@@ -35,6 +35,7 @@ class SessionsController < ApplicationController
     identity.access_token = access_token
 
     user = identity.user || User.find_by(slack_id: slack_id) || User.new
+    is_new_user = user.new_record?
     user.email ||= user_email
     user.display_name = display_name if user.display_name.to_s.strip.blank?
     user.first_name = first_name if first_name.present?
@@ -42,6 +43,11 @@ class SessionsController < ApplicationController
     user.verification_status = verification_status if user.verification_status.to_s != verification_status
     user.ysws_eligible = ysws_eligible if user.ysws_eligible != ysws_eligible
     user.slack_id = slack_id if user.slack_id.to_s != slack_id
+
+    if is_new_user && cookies[:referral_code].present? && cookies[:referral_code].length <= 64
+      user.ref = cookies[:referral_code]
+    end
+
     user.save!
 
     identity.user = user

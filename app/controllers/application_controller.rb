@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
   before_action :initialize_cache_counters
   before_action :track_request
   before_action :show_pending_achievement_notifications!
+  before_action :apply_dev_override_ref
 
   rescue_from StandardError, with: :handle_error
   rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
@@ -87,6 +88,14 @@ class ApplicationController < ActionController::Base
 
   def track_request
     RequestCounter.increment
+  end
+
+  def apply_dev_override_ref
+    return unless Rails.env.development?
+    return unless params[:_override_ref].present? && current_user
+    return if params[:_override_ref].length > 64
+
+    current_user.update!(ref: params[:_override_ref])
   end
 
   def refresh_identity_on_portal_return
