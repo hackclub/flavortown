@@ -47,7 +47,7 @@ class Api::V1::ProjectsController < ApplicationController
         q: q
       )
     end
-    
+
     @pagy, @projects = pagy(projects, items: 100)
   end
 
