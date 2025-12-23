@@ -20,11 +20,19 @@ class Project::DevlogsController < ApplicationController
       flash[:notice] = "Devlog created successfully"
 
       unless @devlog.tutorial?
-        FunnelTrackerService.track(
-          event_name: "devlog_created",
-          user: current_user,
-          properties: { devlog_id: @devlog.id, project_id: @project.id }
-        )
+        # Only track the first non-tutorial devlog
+        existing_non_tutorial_devlogs = Post::Devlog
+          .joins("INNER JOIN posts ON posts.postable_id::bigint = post_devlogs.id AND posts.postable_type = 'Post::Devlog'")
+          .where(posts: { user_id: current_user.id })
+          .where(tutorial: false)
+          .where.not(id: @devlog.id)
+        if existing_non_tutorial_devlogs.empty?
+          FunnelTrackerService.track(
+            event_name: "devlog_created",
+            user: current_user,
+            properties: { devlog_id: @devlog.id, project_id: @project.id }
+          )
+        end
       end
 
       if current_user.complete_tutorial_step! :post_devlog

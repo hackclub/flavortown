@@ -811,3 +811,8 @@
   transition: filter 0.2s;
   filter: blur(8px);
 }
+
+.api-docs-link {
+  text-decoration: underline;
+  color: var(--color-brown-500);
+}

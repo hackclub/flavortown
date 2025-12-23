@@ -61,9 +61,8 @@ class StartController < ApplicationController
     session[:start_email] = email
 
     FunnelTrackerService.track(
-      event_name: "start_step_completed",
-      email: email,
-      properties: { step: "name" }
+      event_name: "start_flow_name",
+      email: email
     )
 
     redirect_to start_path(step: "project")
@@ -103,9 +102,8 @@ class StartController < ApplicationController
     }
 
     FunnelTrackerService.track(
-      event_name: "start_step_completed",
-      email: session[:start_email],
-      properties: { step: "project" }
+      event_name: "start_flow_project",
+      email: session[:start_email]
     )
 
     redirect_to start_path(step: "devlog")
@@ -125,9 +123,8 @@ class StartController < ApplicationController
     session[:start_flow] = true
 
     FunnelTrackerService.track(
-      event_name: "start_step_completed",
-      email: session[:start_email],
-      properties: { step: "devlog" }
+      event_name: "start_flow_devlog",
+      email: session[:start_email]
     )
 
     redirect_to start_path(step: "signin")

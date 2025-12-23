@@ -4,7 +4,7 @@ class FunnelTrackerService
   class << self
     # Track a funnel event
     #
-    # @param event_name [String] The name of the event (e.g., "start_step_completed", "first_login")
+    # @param event_name [String] The name of the event (e.g., "start_flow_name", "start_flow_project", "first_login")
     # @param user [User, nil] The user associated with this event (optional for pre-signup events)
     # @param email [String, nil] The email for pre-signup tracking (required if user is nil)
     # @param properties [Hash] Additional properties to store with the event
