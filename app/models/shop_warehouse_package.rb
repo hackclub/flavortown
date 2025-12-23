@@ -34,6 +34,13 @@ class ShopWarehousePackage < ApplicationRecord
   def send_to_theseus!
     return theseus_package_id if theseus_package_id.present? && !theseus_package_id.start_with?("MANUAL_FIX_NEEDED_")
 
+    if user.email.blank? || frozen_address.blank?
+      Rails.logger.warn(
+        "ShopWarehousePackage #{id} missing email or address — skipping"
+      )
+      return
+    end
+
     headline = []
 
     contents = shop_orders.includes(:shop_item).flat_map do |order|

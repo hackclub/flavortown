@@ -71,17 +71,32 @@ class ShopItem::FreeStickers < ShopItem
   QUEUE_ID = "flavortown-tutorial-stickers"
 
   def fulfill!(shop_order)
+    email   = shop_order.user&.email
+    address = shop_order.frozen_address
+
+    if email.blank? || address.blank?
+      Rails.logger.warn(
+        "FreeStickers order #{shop_order.id} missing email or address — re-enqueuing"
+      )
+
+      # push to end of queue (new job)
+      FulfillShopOrderJob.perform_later(shop_order.id)
+
+      return
+    end
+
     response = TheseusService.create_letter_v1(
       QUEUE_ID,
       {
-        recipient_email: shop_order.user.email,
-        address: shop_order.frozen_address,
+        recipient_email: email,
+        address: address,
         idempotency_key: "flavortown_tutorial_stickers_order_#{Rails.env}_#{shop_order.id}"
       }
     )
+
     shop_order.mark_fulfilled!(response[:id], nil, "System")
   rescue => e
     Rails.logger.error "Failed to fulfill free stickers order #{shop_order.id}: #{e.message}"
-    raise e
+    raise
   end
 end
