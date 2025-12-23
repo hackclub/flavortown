@@ -7,6 +7,13 @@
 #  agh_contents                      :jsonb
 #  attached_shop_item_ids            :bigint           default([]), is an Array
 #  buyable_by_self                   :boolean          default(TRUE)
+#  default_assigned_user_id_au       :bigint
+#  default_assigned_user_id_ca       :bigint
+#  default_assigned_user_id_eu       :bigint
+#  default_assigned_user_id_in       :bigint
+#  default_assigned_user_id_uk       :bigint
+#  default_assigned_user_id_us       :bigint
+#  default_assigned_user_id_xx       :bigint
 #  description                       :string
 #  enabled                           :boolean
 #  enabled_au                        :boolean
@@ -47,14 +54,17 @@
 #  usd_cost                          :decimal(, )
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
+#  default_assigned_user_id          :bigint
 #  user_id                           :bigint
 #
 # Indexes
 #
-#  index_shop_items_on_user_id  (user_id)
+#  index_shop_items_on_default_assigned_user_id  (default_assigned_user_id)
+#  index_shop_items_on_user_id                   (user_id)
 #
 # Foreign Keys
 #
+#  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem < ApplicationRecord
@@ -90,6 +100,21 @@ class ShopItem < ApplicationRecord
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
 
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
+  belongs_to :default_assigned_user, class_name: "User", optional: true
+  belongs_to :default_assigned_user_us, class_name: "User", optional: true
+  belongs_to :default_assigned_user_eu, class_name: "User", optional: true
+  belongs_to :default_assigned_user_uk, class_name: "User", optional: true
+  belongs_to :default_assigned_user_ca, class_name: "User", optional: true
+  belongs_to :default_assigned_user_au, class_name: "User", optional: true
+  belongs_to :default_assigned_user_in, class_name: "User", optional: true
+  belongs_to :default_assigned_user_xx, class_name: "User", optional: true
+
+  def default_assignee_for_region(region)
+    return default_assigned_user_id unless region.present?
+
+    regional_assignee = send("default_assigned_user_id_#{region.downcase}") rescue nil
+    regional_assignee.presence || default_assigned_user_id
+  end
 
   has_one_attached :image do |attachable|
     attachable.variant :carousel_sm,
