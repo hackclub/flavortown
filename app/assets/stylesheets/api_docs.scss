@@ -18,6 +18,8 @@
   border-radius: 1rem;
   padding: 0.5rem;
 
+  height: 40vh;
+
   .content {
     height: 100%;
     background-color: var(--color-blue-400);
@@ -34,6 +36,8 @@
       border-radius: 0.5rem;
       font-family: monospace;
       overflow-x: auto;
+
+      overflow-y: auto;
     }
 
     label {

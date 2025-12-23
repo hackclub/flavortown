@@ -5,6 +5,10 @@
 <div class="main">
     <div class="grid">
         <% Rails.application.routes.routes.select { |r| r.defaults[:controller]&.start_with?("api/v1/") }.each do |route| %>
+            <% if route.path.spec.to_s.starts_with?("/api/v1/docs") %>
+                <% next %>
+            <% end %>
+
             <div class="card">
                 <div class="content">
                     <h2><%= route.verb %> <%= route.path.spec.to_s.gsub("(.:format)", "") %></h2>
