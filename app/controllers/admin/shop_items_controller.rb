@@ -137,6 +137,13 @@ module Admin
         :buyable_by_self,
         :accessory_tag,
         :default_assigned_user_id,
+        :default_assigned_user_id_us,
+        :default_assigned_user_id_eu,
+        :default_assigned_user_id_uk,
+        :default_assigned_user_id_ca,
+        :default_assigned_user_id_au,
+        :default_assigned_user_id_in,
+        :default_assigned_user_id_xx,
         attached_shop_item_ids: []
       )
     end

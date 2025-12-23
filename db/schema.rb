@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_22_233156) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_23_033610) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -370,6 +370,13 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_233156) do
     t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.bigint "default_assigned_user_id"
+    t.bigint "default_assigned_user_id_au"
+    t.bigint "default_assigned_user_id_ca"
+    t.bigint "default_assigned_user_id_eu"
+    t.bigint "default_assigned_user_id_in"
+    t.bigint "default_assigned_user_id_uk"
+    t.bigint "default_assigned_user_id_us"
+    t.bigint "default_assigned_user_id_xx"
     t.string "description"
     t.boolean "enabled"
     t.boolean "enabled_au"

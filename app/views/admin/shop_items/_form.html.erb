@@ -147,46 +147,6 @@
             <span class="shop-item-form__hint">Maximum quantity a user can add to a single order</span>
           </div>
 
-          <div class="shop-item-form__field">
-            <%= f.label :default_assigned_user_id, "Default Assignee", class: "shop-item-form__label" %>
-            <div data-controller="searchable-select" style="position: relative;">
-              <%= f.hidden_field :default_assigned_user_id, data: { searchable_select_target: "hiddenField" } %>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="<%= shop_item.default_assigned_user.present? ? shop_item.default_assigned_user.display_name : 'Select assignee...' %>"
-                data-searchable-select-target="input"
-                data-action="focus->searchable-select#open input->searchable-select#filter"
-                autocomplete="off">
-              <div data-searchable-select-target="dropdown" class="searchable-select-dropdown">
-                <div
-                  class="searchable-select-option"
-                  data-searchable-select-target="option"
-                  data-action="click->searchable-select#select"
-                  data-value=""
-                  data-label=""
-                  data-search-text="none remove unassigned">
-                  <span style="color: #9ca3af;">No default assignee</span>
-                </div>
-                <% @fulfillment_users.each do |user| %>
-                  <div
-                    class="searchable-select-option <%= 'selected' if user.id == shop_item.default_assigned_user_id %>"
-                    data-searchable-select-target="option"
-                    data-action="click->searchable-select#select"
-                    data-value="<%= user.id %>"
-                    data-label="<%= user.display_name %>"
-                    data-search-text="<%= "#{user.display_name} #{user.regions.join(' ')} #{user.id}".downcase %>">
-                    <img src="<%= user.avatar %>" alt="" class="searchable-select-avatar">
-                    <span><%= user.display_name %></span>
-                    <% if user.has_regions? %>
-                      <span style="font-size: 0.7rem; color: #6b7280; margin-left: auto;"><%= user.regions.join(", ") %></span>
-                    <% end %>
-                  </div>
-                <% end %>
-              </div>
-            </div>
-            <span class="shop-item-form__hint">Orders for this item will be automatically assigned to this user</span>
-          </div>
         </div>
 
         <div class="card" id="hack_clubber_settings" style="display: none;">
@@ -294,6 +254,7 @@
           <tr>
             <th>Region</th>
             <th>Enabled</th>
+            <th>Default Assignee</th>
             <th>Δ Tickets</th>
             <th>Δ Hours</th>
             <th>Δ USD</th>
@@ -322,6 +283,12 @@
               </td>
               <td>
                 <%= f.check_box "enabled_#{code.downcase}", class: "region-enabled", data: { region: code.downcase } %>
+              </td>
+              <td>
+                <%= f.select "default_assigned_user_id_#{code.downcase}",
+                    @fulfillment_users.map { |u| [u.display_name, u.id] },
+                    { include_blank: "None", selected: shop_item.send("default_assigned_user_id_#{code.downcase}") },
+                    { class: "form-control form-control--sm", style: "width: 120px;" } %>
               </td>
               <td>
                 <%= f.number_field "price_offset_#{code.downcase}", step: 1, class: "form-control form-control--sm price-offset", data: { region: code.downcase }, placeholder: "0" %>

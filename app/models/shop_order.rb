@@ -375,9 +375,11 @@ class ShopOrder < ApplicationRecord
 
   def assign_default_user
     return if assigned_to_user_id.present?
-    return unless shop_item&.default_assigned_user_id.present?
 
-    update(assigned_to_user_id: shop_item.default_assigned_user_id)
+    assignee_id = shop_item&.default_assignee_for_region(region)
+    return unless assignee_id.present?
+
+    update(assigned_to_user_id: assignee_id)
   end
 
   def notify_assigned_user

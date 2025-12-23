@@ -94,6 +94,20 @@ class ShopItem < ApplicationRecord
 
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
   belongs_to :default_assigned_user, class_name: "User", optional: true
+  belongs_to :default_assigned_user_us, class_name: "User", optional: true
+  belongs_to :default_assigned_user_eu, class_name: "User", optional: true
+  belongs_to :default_assigned_user_uk, class_name: "User", optional: true
+  belongs_to :default_assigned_user_ca, class_name: "User", optional: true
+  belongs_to :default_assigned_user_au, class_name: "User", optional: true
+  belongs_to :default_assigned_user_in, class_name: "User", optional: true
+  belongs_to :default_assigned_user_xx, class_name: "User", optional: true
+
+  def default_assignee_for_region(region)
+    return default_assigned_user_id unless region.present?
+
+    regional_assignee = send("default_assigned_user_id_#{region.downcase}") rescue nil
+    regional_assignee.presence || default_assigned_user_id
+  end
 
   has_one_attached :image do |attachable|
     attachable.variant :carousel_sm,
