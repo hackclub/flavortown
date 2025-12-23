@@ -29,6 +29,8 @@ class ShopWarehousePackage < ApplicationRecord
   validates :frozen_address, presence: true
   validates :theseus_package_id, uniqueness: true, allow_nil: true
 
+  BONUS_STICKER_COUNT = 3
+
   def send_to_theseus!
     return theseus_package_id if theseus_package_id.present? && !theseus_package_id.start_with?("MANUAL_FIX_NEEDED_")
 
@@ -38,6 +40,8 @@ class ShopWarehousePackage < ApplicationRecord
       headline << order.shop_item.name
       order.get_agh_contents
     end
+
+    contents += bonus_stickers
 
     Rails.logger.info "Sending warehouse package #{id} to Theseus for user #{user_id} with orders #{shop_orders.pluck(:id).join(', ')}\nContents: #{contents.inspect}"
 
@@ -109,6 +113,18 @@ class ShopWarehousePackage < ApplicationRecord
       Rails.logger.error "Failed to send pkg #{id} to Theseus: #{e.message}"
       Rails.logger.error e.response&.dig(:body) if e.respond_to?(:response) && e.response&.dig(:body)
       raise
+    end
+  end
+
+  private
+
+  def bonus_stickers
+    pile_of_stickers_item = ShopItem::PileOfStickersItem.find_by(enabled: true)
+    return [] unless pile_of_stickers_item&.agh_contents&.dig("choice").present?
+
+    possible_stickers = pile_of_stickers_item.agh_contents["choice"]
+    possible_stickers.shuffle.take(BONUS_STICKER_COUNT).map do |sku|
+      { sku:, quantity: 1 }
     end
   end
 end
