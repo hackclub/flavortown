@@ -1,43 +1,43 @@
 .main {
-    margin-top: 2rem;
+  margin-top: 2rem;
 }
 
 .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
 
-    @media (max-width: 900px) {
-        grid-template-columns: 1fr;
-    }
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .card {
-    background-color: var(--color-blue-300);
-    box-shadow: var(--shadow);
-    border-radius: 1rem;
+  background-color: var(--color-blue-300);
+  box-shadow: var(--shadow);
+  border-radius: 1rem;
+  padding: 0.5rem;
+
+  .content {
+    height: 100%;
+    background-color: var(--color-blue-400);
     padding: 0.5rem;
+    border-radius: 0.5rem;
+    color: var(--color-bg);
 
-    .content {
-        height: 100%;
-        background-color: var(--color-blue-400);
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-        color: var(--color-bg);
+    display: flex;
+    flex-direction: column;
 
-        display: flex;
-        flex-direction: column;
-
-        pre {
-            background-color: var(--color-blue-500);
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            font-family: monospace;
-            overflow-x: auto;
-        }
-
-        label {
-            margin-top: .5rem;
-        }
+    pre {
+      background-color: var(--color-blue-500);
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      font-family: monospace;
+      overflow-x: auto;
     }
+
+    label {
+      margin-top: 0.5rem;
+    }
+  }
 }

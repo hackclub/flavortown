@@ -6,7 +6,7 @@ class Api::V1::ProjectsController < ApplicationController
 
   self.url_params = {
     index: {
-      page: { type: Integer, desc: "Page number for pagination", required: false },
+      page: { type: Integer, desc: "Page number for pagination", required: false }
     }
   }
 
@@ -23,7 +23,7 @@ class Api::V1::ProjectsController < ApplicationController
         updated_at: String
       }
     ],
-    
+
     show: {
       id: Integer,
       title: String,
