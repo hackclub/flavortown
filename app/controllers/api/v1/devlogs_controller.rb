@@ -35,7 +35,7 @@ class Api::V1::DevlogsController < ApplicationController
       updated_at: String
     }
   }
-  
+
   def index
     @pagy, @devlogs = pagy(
       Post::Devlog
