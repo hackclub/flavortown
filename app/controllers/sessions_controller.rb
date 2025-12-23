@@ -73,9 +73,8 @@ class SessionsController < ApplicationController
     # /start
     if session.delete(:start_flow)
       FunnelTrackerService.track(
-        event_name: "start_step_completed",
-        user: user,
-        properties: { step: "signin" }
+        event_name: "start_flow_signin",
+        user: user
       )
 
       apply_start_flow_data!(user)
