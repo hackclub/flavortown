@@ -18,19 +18,34 @@ module AchievementSilhouettes
   end
 
   def self.silhouette_path(icon_name)
-    source_dirs.each do |source_dir|
-      %w[png svg jpg jpeg gif webp].each do |ext|
-        source_file = source_dir.join("#{icon_name}.#{ext}")
-        next unless source_file.exist?
+    %w[png svg jpg jpeg gif webp].each do |ext|
+      filename = "#{icon_name}.#{ext}"
+      hashed = hashed_name(filename)
 
-        hashed = hashed_name("#{icon_name}.#{ext}")
-        silhouette_dir = source_dir.join("silhouettes")
-        return silhouette_dir.relative_path_from(Rails.root.join("app/assets/images")).join(hashed).to_s if source_dir.to_s.include?("app/assets")
-        return silhouette_dir.relative_path_from(Rails.root.join("secrets/assets/images")).join(hashed).to_s if source_dir.to_s.include?("secrets")
+      # Check app/assets path
+      app_silhouette = "achievements/silhouettes/#{hashed}"
+      if asset_exists?(app_silhouette) || source_file_exists?(Rails.root.join("app/assets/images/achievements", filename))
+        return app_silhouette
+      end
+
+      # Check secrets path
+      secrets_silhouette = "achievements/silhouettes/#{hashed}"
+      if source_file_exists?(Rails.root.join("secrets/assets/images/achievements", filename))
+        return secrets_silhouette
       end
     end
 
     nil
+  end
+
+  def self.asset_exists?(path)
+    return false unless Rails.application.assets
+
+    Rails.application.assets.load_path.find(path).present?
+  end
+
+  def self.source_file_exists?(path)
+    path.exist?
   end
 
   def self.generate!
