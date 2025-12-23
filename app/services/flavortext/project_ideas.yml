@@ -48,12 +48,15 @@ loading_messages:
   - trying to recall some recipe idea on <%= t("weird_internet_accounts") %>
   - mumbling something about the <%= t("restaurant_positions") %>
   - consulting the <%= t("restaurant_positions") %> for advice
-  - blending ideas
+  - blending up ideas
+  - blending up ideas into a nutrient paste
+  - blending up ideas into a thought-smoothie
   - blending up braincells
+  - tossing ideas into a <%= [3..5].sample %>-speed blender
   - baking up some ideas
   - getting baked
   - marinating in half-baked ideas
-  - half-baking a concept
+  - <%= %w[half-baking underbaking] %> a concept
   - reticulating spline sauce
   - repeatedly opening and closing the source
   - forgetting what you asked her about
