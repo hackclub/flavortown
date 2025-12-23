@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_22_191739) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_22_233156) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -369,6 +369,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_191739) do
     t.bigint "attached_shop_item_ids", default: [], array: true
     t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.bigint "default_assigned_user_id"
     t.string "description"
     t.boolean "enabled"
     t.boolean "enabled_au"
@@ -409,6 +410,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_191739) do
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"
     t.bigint "user_id"
+    t.index ["default_assigned_user_id"], name: "index_shop_items_on_default_assigned_user_id"
     t.index ["user_id"], name: "index_shop_items_on_user_id"
   end
 
@@ -513,7 +515,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_191739) do
     t.boolean "has_gotten_free_stickers", default: false
     t.boolean "has_pending_achievements", default: false, null: false
     t.string "hcb_email"
-    t.datetime "introduction_posted_at"
     t.string "last_name"
     t.boolean "leaderboard_optin", default: false, null: false
     t.string "magic_link_token"
@@ -587,6 +588,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_191739) do
   add_foreign_key "shop_card_grants", "shop_items"
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
+  add_foreign_key "shop_items", "users", column: "default_assigned_user_id", on_delete: :nullify
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
   add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"

@@ -10,5 +10,5 @@ section "Order Details:",
   ]
 
 actions [
-  button("View Order", url: admin_url)
+  button("View Order", "view_order", url: admin_url)
 ]
