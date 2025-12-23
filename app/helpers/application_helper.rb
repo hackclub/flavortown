@@ -5,6 +5,25 @@ module ApplicationHelper
     end
   end
 
+  def sign(num)
+    # 1 => "+"
+    # -1 => "-"
+    # 0 => ""
+
+    case (num <=> 0)
+    when 1
+      "+"
+    when -1
+      "-"
+    else
+      ""
+    end
+  end
+
+  def number_with_sign(num)
+    sign(num) + num.abs.to_s
+  end
+
   def format_seconds(seconds, include_days: false)
     return "0s" if seconds.nil? || seconds <= 0
 
@@ -41,8 +60,9 @@ module ApplicationHelper
   end
 
   def achievement_icon(icon_name, earned: true, **options)
+    asset_path = find_achievement_asset(icon_name)
+
     if earned
-      asset_path = find_achievement_asset(icon_name)
       if asset_path
         if asset_path.end_with?(".svg")
           inline_svg_tag(asset_path, **options)
@@ -50,7 +70,7 @@ module ApplicationHelper
           image_tag(asset_path, **options)
         end
       else
-        inline_svg_tag("icons/#{icon_name}.svg", **options)
+        content_tag(:span, "?", class: "achievement-icon-placeholder", **options)
       end
     else
       silhouette_path = AchievementSilhouettes.silhouette_path(icon_name)
@@ -61,8 +81,16 @@ module ApplicationHelper
         else
           image_tag(silhouette_path, **options)
         end
+      elsif asset_path
+        silhouette_style = "filter: brightness(0) opacity(0.4)"
+        merged_style = options[:style] ? "#{options[:style]}; #{silhouette_style}" : silhouette_style
+        if asset_path.end_with?(".svg")
+          inline_svg_tag(asset_path, **options.merge(style: merged_style))
+        else
+          image_tag(asset_path, **options.merge(style: merged_style))
+        end
       else
-        inline_svg_tag("icons/#{icon_name}.svg", **options.merge(style: "filter: brightness(0) opacity(0.4)"))
+        content_tag(:span, "?", class: "achievement-icon-placeholder", style: "filter: brightness(0) opacity(0.4)", **options)
       end
     end
   end
@@ -90,7 +118,13 @@ module ApplicationHelper
   end
 
   def achievement_asset_exists?(path)
-    File.exist?(Rails.root.join("app/assets/images", path)) ||
-      File.exist?(Rails.root.join("secrets/assets/images", path))
+    # In production, check the asset pipeline (Propshaft) for digested assets
+    if Rails.application.assets
+      Rails.application.assets.load_path.find(path).present?
+    else
+      # Fallback to filesystem check for development
+      File.exist?(Rails.root.join("app/assets/images", path)) ||
+        File.exist?(Rails.root.join("secrets/assets/images", path))
+    end
   end
 end
