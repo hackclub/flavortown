@@ -8,9 +8,9 @@ module ApiDocsHelper
     controller_class =
       "#{controller_name.camelize}Controller".safe_constantize
 
-    return {} unless controller_class&.respond_to?(:url_params)
+    return {} unless controller_class&.respond_to?(:url_params_model)
 
-    controller_class.url_params[action.to_sym] || {}
+    controller_class.url_params_model[action.to_sym] || {}
   end
 
   def query_response_for(route)
@@ -22,8 +22,8 @@ module ApiDocsHelper
     controller_class =
       "#{controller_name.camelize}Controller".safe_constantize
 
-    return {} unless controller_class&.respond_to?(:response)
+    return {} unless controller_class&.respond_to?(:response_body_model)
 
-    controller_class.response[action.to_sym] || {}
+    controller_class.response_body_model[action.to_sym] || {}
   end
 end

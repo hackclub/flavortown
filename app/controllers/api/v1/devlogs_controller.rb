@@ -1,16 +1,16 @@
 class Api::V1::DevlogsController < ApplicationController
   include ApiAuthenticatable
 
-  class_attribute :url_params, default: {}
-  class_attribute :response, default: {}
+  class_attribute :url_params_model, default: {}
+  class_attribute :response_body_model, default: {}
 
-  self.url_params = {
+  self.url_params_model = {
     index: {
       page: { type: Integer, desc: "Page number for pagination", required: false }
     }
   }
 
-  self.response = {
+  self.response_body_model = {
     index: [
       {
         id: Integer,

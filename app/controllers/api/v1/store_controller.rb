@@ -1,9 +1,9 @@
 class Api::V1::StoreController < ApplicationController
   include ApiAuthenticatable
 
-  class_attribute :response, default: {}
+  class_attribute :response_body_model, default: {}
 
-  self.response = {
+  self.response_body_model = {
     index: [
       {
         id: Integer,
