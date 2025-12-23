@@ -106,11 +106,11 @@ Rails.application.routes.draw do
   get "leaderboard", to: "leaderboard#index"
 
   # My
-  get "my/balance", to: "my#balance"
+  get "my/balance", to: "my#balance", as: :my_balance
   patch "my/settings", to: "my#update_settings", as: :my_settings
   post "my/roll_api_key", to: "my#roll_api_key", as: :roll_api_key
   post "my/cookie_click", to: "my#cookie_click", as: :my_cookie_click
-  get "my/achievements", to: "achievements#index"
+  get "my/achievements", to: "achievements#index", as: :my_achievements
 
   # Magic Links
   post "magic_links", to: "magic_links#create"

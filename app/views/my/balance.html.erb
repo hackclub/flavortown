@@ -13,6 +13,7 @@
       <table class="balance-history__table">
         <thead>
           <tr>
+            <th>Reason</th>
             <th>Amount</th>
             <th>Date</th>
           </tr>
@@ -20,8 +21,11 @@
         <tbody>
           <% @balance.each do |entry| %>
             <tr>
-              <td class="<%= entry.amount >= 0 ? 'balance-history__amount--positive' : 'balance-history__amount--negative' %>">
-                <%= entry.amount >= 0 ? '+' : '' %><%= entry.amount %>
+              <td>
+                <%= ledger_entry_reason_with_link(entry) %>
+              </td>
+              <td class="balance-history__amount--<%= entry.amount.negative? ? 'negative' : 'positive' %>">
+                <%= number_with_sign(entry.amount) %>
               </td>
               <td class="balance-history__date">
                 <%= entry.created_at.strftime('%b %d, %Y') %>

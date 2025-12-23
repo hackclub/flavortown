@@ -105,7 +105,7 @@
   </div>
 
   <%= render layout: "shared/modal", locals: { id: "balance-modal", title: "Transaction History" } do %>
-    <%= turbo_frame_tag "balance_history", src: "/my/balance", loading: "lazy" do %>
+    <%= turbo_frame_tag "balance_history", src: my_balance_path, loading: "lazy" do %>
       <div class="modal__loading">Loading history...</div>
     <% end %>
     <div class="modal__actions">

@@ -5,6 +5,25 @@ module ApplicationHelper
     end
   end
 
+  def sign(num)
+    # 1 => "+"
+    # -1 => "-"
+    # 0 => ""
+
+    case (num <=> 0)
+    when 1
+      "+"
+    when -1
+      "-"
+    else
+      ""
+    end
+  end
+
+  def number_with_sign(num)
+    sign(num) + num.abs.to_s
+  end
+
   def format_seconds(seconds, include_days: false)
     return "0s" if seconds.nil? || seconds <= 0
 
