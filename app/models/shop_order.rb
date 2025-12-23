@@ -84,7 +84,7 @@ class ShopOrder < ApplicationRecord
   before_create :freeze_item_price
   before_create :set_region_from_address
   after_commit :notify_user_of_status_change, if: :saved_change_to_aasm_state?
-  after_save :notify_assigned_user, if: :saved_change_to_assigned_to_user_id?
+  # after_save :notify_assigned_user, if: :saved_change_to_assigned_to_user_id?
 
   scope :worth_counting, -> { where.not(aasm_state: %w[rejected refunded]) }
   scope :real, -> { without_item_type("ShopItem::FreeStickers") }
