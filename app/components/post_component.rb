@@ -49,6 +49,16 @@
       post.postable.is_a?(Post::FireEvent)
     end
 
+   def author_activity
+     if fire_event?
+       "sent their compliments to the chef of"
+     elsif ship_event?
+       "shipped"
+     else
+       "worked on"
+     end
+   end
+
    def attachments
      return [] unless post.postable.respond_to?(:attachments)
      post.postable.attachments

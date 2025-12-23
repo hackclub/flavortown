@@ -17,7 +17,7 @@
             <%= link_to "🤓", helpers.admin_user_magic_link_path(post.user), title: "Generate magic link", style: "text-decoration: none;" %>
           </span>
       <% end %>
-        <span style="opacity: 0.8;">worked on</span>
+        <span style="opacity: 0.8;"><%= author_activity %></span>
         <% if project_title.present? %>
           <%= link_to project_title, project_path(post.project) %>
         <% else %>
