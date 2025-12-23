@@ -1,0 +1,33 @@
+<%= content_for :stylesheets do %>
+  <%= stylesheet_link_tag "api_docs", "data-turbo-track": "reload" %>
+<% end %>
+
+<div class="main">
+    <div class="grid">
+        <% Rails.application.routes.routes.select { |r| r.defaults[:controller]&.start_with?("api/v1/") }.each do |route| %>
+            <% if route.path.spec.to_s.starts_with?("/api/v1/docs") %>
+                <% next %>
+            <% end %>
+
+            <div class="card">
+                <div class="content">
+                    <h2><%= route.verb %> <%= route.path.spec.to_s.gsub("(.:format)", "") %></h2>
+
+                    <% url_params = query_url_params_for(route) %>
+
+                    <% if url_params.any? %>
+                        <label>URL Params:</label>
+                        <pre><code><%= url_params.map { |k, v| "?#{k} (#{v[:required] ? "required" : "optional"}) - #{v[:desc]} " }.join("\n") %></code></pre>
+                    <% end %>
+
+                    <% response = query_response_for(route) %>
+
+                    <% if response.any? %>
+                        <label>Response:</label>
+                        <pre><code><%= JSON.pretty_generate(response) %></code></pre>
+                    <% end %>
+                </div>
+            </div>
+        <% end %>
+    </div>
+</div>
