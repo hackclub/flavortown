@@ -93,18 +93,21 @@ class ShopItem < ApplicationRecord
 
   has_one_attached :image do |attachable|
     attachable.variant :carousel_sm,
+                       crop_to_content: true,
                        resize_to_limit: [ 160, nil ],
                        format: :webp,
                        preprocessed: true,
                        saver: { strip: true, quality: 75 }
 
     attachable.variant :carousel_md,
+                       crop_to_content: true,
                        resize_to_limit: [ 240, nil ],
                        format: :webp,
                        preprocessed: true,
                        saver: { strip: true, quality: 75 }
 
     attachable.variant :carousel_lg,
+                       crop_to_content: true,
                        resize_to_limit: [ 360, nil ],
                        format: :webp,
                        preprocessed: true,
