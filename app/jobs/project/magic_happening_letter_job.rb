@@ -9,7 +9,14 @@ class Project::MagicHappeningLetterJob < ApplicationJob
     return unless owner
 
     address = owner.addresses.first
-    return unless address.present?
+
+    if owner.email.blank? || address.blank?
+      Rails.logger.warn(
+        "MagicHappeningLetterJob: project #{project.id} missing owner email or address — re-enqueuing"
+      )
+      Project::MagicHappeningLetterJob.perform_later(project)
+      return
+    end
 
     response = TheseusService.create_letter_v1(
       "instant/flavortown-magic-happening",
