@@ -513,7 +513,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_191739) do
     t.boolean "has_gotten_free_stickers", default: false
     t.boolean "has_pending_achievements", default: false, null: false
     t.string "hcb_email"
-    t.datetime "introduction_posted_at"
     t.string "last_name"
     t.boolean "leaderboard_optin", default: false, null: false
     t.string "magic_link_token"
