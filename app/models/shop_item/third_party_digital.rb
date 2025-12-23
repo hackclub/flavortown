@@ -47,14 +47,17 @@
 #  usd_cost                          :decimal(, )
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
+#  default_assigned_user_id          :bigint
 #  user_id                           :bigint
 #
 # Indexes
 #
-#  index_shop_items_on_user_id  (user_id)
+#  index_shop_items_on_default_assigned_user_id  (default_assigned_user_id)
+#  index_shop_items_on_user_id                   (user_id)
 #
 # Foreign Keys
 #
+#  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::ThirdPartyDigital < ShopItem
