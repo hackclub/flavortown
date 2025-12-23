@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class AchievementsController < ApplicationController
+  before_action :require_login
+
   def index
     Achievement.all.each { |a| grant_achievement!(a.slug) if a.earned_by?(current_user) }
 
@@ -22,5 +24,11 @@ class AchievementsController < ApplicationController
       earned: earned_countable,
       total: countable.count
     }
+  end
+
+  private
+
+  def require_login
+    redirect_to root_path, alert: "Please log in first" and return unless current_user
   end
 end

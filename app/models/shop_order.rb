@@ -80,9 +80,11 @@ class ShopOrder < ApplicationRecord
   validate :check_stock, on: :create
 
   after_create :create_negative_payout
+  after_create :assign_default_user
   before_create :freeze_item_price
   before_create :set_region_from_address
   after_commit :notify_user_of_status_change, if: :saved_change_to_aasm_state?
+  # after_save :notify_assigned_user, if: :saved_change_to_assigned_to_user_id?
 
   scope :worth_counting, -> { where.not(aasm_state: %w[rejected refunded]) }
   scope :real, -> { without_item_type("ShopItem::FreeStickers") }
@@ -163,6 +165,9 @@ class ShopOrder < ApplicationRecord
 
     event :queue_for_fulfillment do
       transitions from: :pending, to: :awaiting_periodical_fulfillment
+      after do
+        assign_default_user
+      end
     end
 
     event :mark_rejected do
@@ -366,5 +371,30 @@ class ShopOrder < ApplicationRecord
     return unless frozen_address.present? && frozen_address["country"].present?
 
     self.region = Shop::Regionalizable.country_to_region(frozen_address["country"])
+  end
+
+  def assign_default_user
+    return if assigned_to_user_id.present?
+
+    assignee_id = shop_item&.default_assignee_for_region(region)
+    return unless assignee_id.present?
+
+    update(assigned_to_user_id: assignee_id)
+  end
+
+  def notify_assigned_user
+    return unless assigned_to_user_id.present?
+
+    user = assigned_to_user
+    return unless user&.slack_id.present?
+
+    Rails.logger.info "[ShopOrder] Sending assignment notification to #{user.display_name} (#{user.slack_id})"
+
+    SendSlackDmJob.perform_later(
+      user.slack_id,
+      nil,
+      blocks_path: "notifications/shop_orders/assigned",
+      locals: { order: self, admin_url: Rails.application.routes.url_helpers.admin_shop_order_url(self, host: "flavortown.hackclub.com", protocol: "https") }
+    )
   end
 end

@@ -15,7 +15,6 @@
 #  has_gotten_free_stickers    :boolean          default(FALSE)
 #  has_pending_achievements    :boolean          default(FALSE), not null
 #  hcb_email                   :string
-#  introduction_posted_at      :datetime
 #  last_name                   :string
 #  leaderboard_optin           :boolean          default(FALSE), not null
 #  magic_link_token            :string
@@ -92,7 +91,10 @@ class User < ApplicationRecord
     role = role_name.to_sym
     raise ArgumentError, "Invalid role: #{role_name}" unless User::Role.all_slugs.include?(role)
 
-    update!(granted_roles: roles + [ role ]) unless has_role?(role)
+    return if has_role?(role)
+
+    update!(granted_roles: roles + [ role ])
+    notify_role_granted(role)
   end
 
   def remove_role!(role_name)
@@ -382,5 +384,13 @@ class User < ApplicationRecord
       event_name: "identity_verified",
       user: self
     )
+  end
+
+  def notify_role_granted(role)
+    return unless slack_id.present?
+
+    role_info = User::Role.find(role)
+    message = "🎉 Congratulations! You've been granted the *#{role_info.name.to_s.titleize}* role on Flavortown."
+    dm_user(message)
   end
 end

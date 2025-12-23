@@ -129,6 +129,8 @@ Rails.application.routes.draw do
     get "/", to: "root#index"
 
     namespace :v1 do
+      resources :docs, only: [ :index ]
+
       resources :projects, only: [ :index, :show ] do
         resources :devlogs, only: [ :index, :show ]
       end
