@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Skip loading vips in CI where libvips isn't installed
+return if ENV["CI"]
+
 require "image_processing/vips"
 
 module ImageProcessing
