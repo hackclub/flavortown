@@ -1,5 +1,5 @@
 <dialog id="<%= id %>" class="modal">
-  <h3 class="modal__title"><%= title %></h3>
+  <h3 class="modal__title" style="border-radius: calc(var(--border-radius)*.6);"><%= title %></h3>
   <% if local_assigns[:description] %>
     <p class="modal__description"><%= description %></p>
   <% end %>
