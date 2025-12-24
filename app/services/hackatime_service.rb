@@ -20,7 +20,7 @@ class HackatimeService
   end
 
   def self.fetch_stats(hackatime_uid, start_date: START_DATE, end_date: nil)
-    params = { features: "projects", start_date: start_date }
+    params = { features: "projects", start_date: start_date, test_param: true }
     params[:end_date] = end_date if end_date
 
     response = connection.get("users/#{hackatime_uid}/stats", params)
@@ -40,6 +40,38 @@ class HackatimeService
   rescue => e
     Rails.logger.error "HackatimeService exception: #{e.message}"
     nil
+  end
+
+  def self.sync_devlog_duration(devlog, hackatime_uid, start_date, end_date)
+    params = {
+      features: "projects",
+      start_date: start_date,
+      end_date: end_date,
+      test_param: true,
+      total_seconds: true,
+      filter_by_project: devlog.hackatime_projects_key_snapshot.presence
+    }
+
+    response = connection.get("users/#{hackatime_uid}/stats", params)
+
+    if response.success?
+      data = JSON.parse(response.body)
+      duration_seconds = data["total_seconds"].to_i
+      duration_seconds = nil if duration_seconds < 15.minutes
+
+      devlog.update(
+        duration_seconds: duration_seconds,
+        hackatime_pulled_at: Time.current
+      )
+
+      true
+    else
+      Rails.logger.error "HackatimeService.sync_devlog_duration error: #{response.status} - #{response.body}"
+      false
+    end
+  rescue => e
+    Rails.logger.error "HackatimeService.sync_devlog_duration error for Devlog #{devlog.id}: #{e.message}"
+    false
   end
 
   class << self

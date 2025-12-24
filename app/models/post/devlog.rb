@@ -68,23 +68,18 @@ class Post::Devlog < ApplicationRecord
             uniqueness: { message: "has already been used for another devlog" },
             allow_blank: true,
             unless: -> { Rails.env.development? }
-  validate :validate_scrapbook_url_format
+  validate :validate_scrapbook_url
 
-  after_create :enqueue_scrapbook_population, if: -> { scrapbook_url.present? }
-  after_create :notify_slack_channel
+  after_create_commit :handle_post_creation
 
   def recalculate_seconds_coded
-    return false unless post
+    return false unless post.project.hackatime_keys.present?
+    hackatime_uid = post.user.hackatime_identity&.uid
+    previous_devlog = post.project.devlogs.where("created_at < ?", created_at).order(created_at: :desc).first
+    start_date = previous_devlog&.created_at || [ post.project.created_at, Date.parse(HackatimeService::START_DATE).beginning_of_day ].min
+    end_date = created_at
 
-    project = post.project
-    user = post.user
-    return false unless project && user
-
-    prev_time = find_previous_devlog_time(project)
-
-    return false unless project.hackatime_keys.present?
-
-    fetch_and_update_duration(user, project, prev_time)
+    HackatimeService.sync_devlog_duration(self, hackatime_uid, start_date.iso8601, end_date.iso8601)
   rescue JSON::ParserError => e
     Rails.logger.error("JSON parse error in recalculate_seconds_coded for Devlog #{id}: #{e.message}")
     false
@@ -101,7 +96,7 @@ class Post::Devlog < ApplicationRecord
     errors.add(:attachments, "must include at least one image or video") unless attachments.attached?
   end
 
-  def validate_scrapbook_url_format
+  def validate_scrapbook_url
     return if scrapbook_url.blank?
 
     unless scrapbook_url.include?("hackclub") && scrapbook_url.include?("slack.com")
@@ -125,48 +120,8 @@ class Post::Devlog < ApplicationRecord
     end
   end
 
-  def enqueue_scrapbook_population
-    ScrapbookPopulateDevlogJob.perform_later(id)
-  end
-
-  def notify_slack_channel
+  def handle_post_creation
+    ScrapbookPopulateDevlogJob.perform_later(id) if scrapbook_url.present?
     PostCreationToSlackJob.perform_later(self)
-  end
-
-  def find_previous_devlog_time(project)
-    Post.joins("INNER JOIN post_devlogs ON posts.postable_id::bigint = post_devlogs.id")
-        .where(postable_type: "Post::Devlog", project_id: project.id)
-        .where("posts.created_at < ?", post.created_at)
-        .order(created_at: :desc)
-        .first&.created_at
-  end
-
-  def fetch_and_update_duration(user, project, prev_time)
-    return false unless user.hackatime_identity
-
-    hackatime_keys = project.hackatime_keys
-    end_time = post.created_at.utc
-
-    result = if prev_time.nil?
-      HackatimeService.fetch_stats(user.hackatime_identity.uid)
-    else
-      HackatimeService.fetch_stats(
-        user.hackatime_identity.uid,
-        start_date: prev_time.iso8601,
-        end_date: end_time.iso8601
-      )
-    end
-
-    return false unless result
-
-    seconds = hackatime_keys.sum { |key| result[:projects][key].to_i }
-
-    Rails.logger.info("\tDevlog #{id} duration_seconds: #{seconds}")
-    update!(
-      duration_seconds: seconds,
-      hackatime_pulled_at: Time.current,
-      hackatime_projects_key_snapshot: hackatime_keys.join(",")
-    )
-    true
   end
 end
