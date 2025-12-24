@@ -99,25 +99,8 @@ class Post::Devlog < ApplicationRecord
   def validate_scrapbook_url
     return if scrapbook_url.blank?
 
-    unless scrapbook_url.include?("hackclub") && scrapbook_url.include?("slack.com")
-      errors.add(:scrapbook_url, "must be a Hack Club Slack URL")
-      return
-    end
-
-    channel_id, message_ts = ScrapbookService.extract_slack_ids_from_url(scrapbook_url)
-    unless channel_id && message_ts
-      errors.add(:scrapbook_url, "is not a valid Slack message URL")
-      return
-    end
-
-    unless channel_id == ScrapbookService::SCRAPBOOK_CHANNEL_ID
-      errors.add(:scrapbook_url, "must be from the #scrapbook channel")
-      return
-    end
-
-    unless ScrapbookService.message_exists?(channel_id, message_ts)
-      errors.add(:scrapbook_url, "could not be verified - message not found")
-    end
+    error_key = ScrapbookService.validate_url(scrapbook_url)
+    errors.add(:scrapbook_url, ScrapbookService::VALIDATION_ERRORS[error_key]) if error_key
   end
 
   def handle_post_creation

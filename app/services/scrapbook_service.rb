@@ -1,138 +1,144 @@
 class ScrapbookService
   SCRAPBOOK_CHANNEL_ID = "C01504DCLVD".freeze
 
-  def self.populate_devlog_from_url(devlog_id)
-    devlog = Post::Devlog.find_by(id: devlog_id)
+  VALIDATION_ERRORS = {
+    not_hackclub: "must be a Hack Club Slack URL",
+    invalid_format: "is not a valid Slack message URL",
+    wrong_channel: "must be from the #scrapbook channel",
+    not_found: "could not be verified - message not found"
+  }.freeze
+
+  class << self
+    def populate_devlog_from_url(devlog_id) = new(devlog_id).call
+
+    def extract_ids(url)
+      match = url.to_s.match(%r{/archives/([A-Z0-9]+)/p(\d+)})
+      return [ nil, nil ] unless match
+
+      [ match[1], "#{match[2][0..9]}.#{match[2][10..]}" ]
+    end
+
+    def validate_url(url)
+      return :not_hackclub unless url.to_s.include?("hackclub") && url.to_s.include?("slack.com")
+
+      channel_id, ts = extract_ids(url)
+      return :invalid_format unless channel_id && ts
+      return :wrong_channel unless channel_id == SCRAPBOOK_CHANNEL_ID
+      return :not_found unless message_exists?(channel_id, ts)
+
+      nil
+    end
+
+    def message_exists?(channel_id, ts)
+      slack_client.conversations_replies(channel: channel_id, ts: ts, limit: 1).messages.present?
+    rescue Slack::Web::Api::Errors::SlackError
+      false
+    end
+
+    private
+
+    def slack_client
+      Slack::Web::Client.new(token: Rails.application.credentials.dig(:slack, :bot_token))
+    end
+  end
+
+  def initialize(devlog_id)
+    @devlog = Post::Devlog.find_by(id: devlog_id)
+  end
+
+  def call
     return unless devlog&.scrapbook_url.present?
 
-    channel_id, message_ts = extract_slack_ids_from_url(devlog.scrapbook_url)
-    return unless channel_id && message_ts
-    return unless channel_id == SCRAPBOOK_CHANNEL_ID
+    channel_id, ts = self.class.extract_ids(devlog.scrapbook_url)
+    return unless channel_id == SCRAPBOOK_CHANNEL_ID && ts.present?
 
-    message = fetch_slack_message(channel_id, message_ts)
+    message = fetch_message(channel_id, ts)
     return unless message
 
-    body = message["text"]
-    attach_slack_files(devlog, message, accepted_content_types: Post::Devlog::ACCEPTED_CONTENT_TYPES)
+    attach_files(message)
+    update_body(message)
+    notify_thread(ts)
 
-    devlog.reload
-    devlog.update!(body: body) if body.present?
-
-    notify_thread(message_ts, devlog.id)
+    devlog
   rescue StandardError => e
-    Rails.logger.error("ScrapbookService failed for devlog #{devlog_id}: #{e.message}")
-    Rails.logger.error(e.backtrace.join("\n")) if Rails.env.development?
+    log_error("ScrapbookService failed for devlog #{devlog&.id}", e)
     raise
   end
 
-  def self.extract_slack_ids_from_url(url)
-    match = url.match(%r{/archives/([A-Z0-9]+)/p(\d+)})
-    return nil unless match
+  private
 
-    channel_id = match[1]
-    raw_ts = match[2]
-    message_ts = "#{raw_ts[0..9]}.#{raw_ts[10..]}"
+  attr_reader :devlog
 
-    [ channel_id, message_ts ]
+  def fetch_message(channel_id, ts)
+    resp = slack.conversations_history(
+      channel: channel_id,
+      inclusive: true,
+      oldest: ts,
+      latest: ts,
+      limit: 1
+    )
+
+    debug("Slack response #{channel_id}/#{ts}", resp.to_h)
+    resp.ok && resp.messages&.first
+  rescue Slack::Web::Api::Errors::SlackError => e
+    log_error("Failed to fetch Slack message #{channel_id}/#{ts}", e)
+    nil
   end
 
-  # this does not work properly
-  def self.message_exists?(channel_id, message_ts)
-    fetch_slack_message(channel_id, message_ts).present?
+  def update_body(message)
+    text = message["text"].to_s.strip
+    return if text.blank?
+
+    devlog.update!(body: text)
   end
 
-  class << self
-    private
+  def attach_files(message)
+    Array(message["files"]).each { |f| attach_file(f) }
+  end
 
-    def notify_thread(message_ts, devlog_id)
-      return if message_ts.blank?
+  def attach_file(file)
+    url = file["url_private_download"]
+    type = file["mimetype"]
+    name = file["name"]
 
-      SendSlackDmJob.perform_later(
-        SCRAPBOOK_CHANNEL_ID,
-        "This scrapbook post has been linked to a Flavortown devlog! :flavortown: " \
-        "https://flavortown.hackclub.com/projects/#{devlog_id}",
-        thread_ts: message_ts
-      )
-    end
+    return unless url.present?
+    return unless Post::Devlog::ACCEPTED_CONTENT_TYPES.include?(type)
 
-    def fetch_slack_message(channel_id, message_ts)
-      client = Slack::Web::Client.new(token: Rails.application.credentials.dig(:slack, :bot_token))
+    resp = Faraday.get(url) { |req| req.headers["Authorization"] = "Bearer #{token}" }
+    return unless resp.success?
 
-      response = client.conversations_history(
-        channel: channel_id,
-        oldest: message_ts,
-        latest: message_ts,
-        inclusive: true,
-        limit: 1
-      )
+    devlog.attachments.attach(
+      io: StringIO.new(resp.body),
+      filename: name,
+      content_type: type
+    )
+  rescue StandardError => e
+    log_error("Failed to attach Slack file #{file&.dig("name")}", e)
+  end
 
-      if Rails.env.development?
-        Rails.logger.debug("Slack API response for #{channel_id}/#{message_ts}: #{response.to_h}")
-      end
+  def notify_thread(ts)
+    SendSlackDmJob.perform_later(
+      SCRAPBOOK_CHANNEL_ID,
+      "This scrapbook post has been linked to a Flavortown devlog! :flavortown: " \
+      "https://flavortown.hackclub.com/projects/#{devlog.id}",
+      thread_ts: ts
+    )
+  end
 
-      return nil unless response.ok && response.messages&.any?
+  def slack
+    @slack ||= Slack::Web::Client.new(token: token)
+  end
 
-      response.messages.first
-    rescue Slack::Web::Api::Errors::SlackError => e
-      Rails.logger.error("Failed to fetch Slack message: #{e.message}")
-      Rails.logger.error(e.backtrace.join("\n")) if Rails.env.development?
-      nil
-    rescue StandardError => e
-      Rails.logger.error("Unexpected error fetching Slack message: #{e.message}")
-      Rails.logger.error(e.backtrace.join("\n")) if Rails.env.development?
-      nil
-    end
+  def token
+    Rails.application.credentials.dig(:slack, :bot_token)
+  end
 
-    def attach_slack_files(devlog, message, accepted_content_types:)
-      files = message["files"] || []
+  def debug(label, payload)
+    Rails.logger.debug("#{label}: #{payload}") if Rails.env.development?
+  end
 
-      if Rails.env.development?
-        Rails.logger.debug("Slack message files: #{files.inspect}")
-      end
-
-      if files.empty?
-        Rails.logger.info("No files found in Slack message")
-        return
-      end
-
-      token = Rails.application.credentials.dig(:slack, :bot_token)
-
-      files.each do |file|
-        Rails.logger.debug("Processing file: #{file['name']}, mimetype: #{file['mimetype']}, url: #{file['url_private_download']}") if Rails.env.development?
-
-        unless file["url_private_download"].present?
-          Rails.logger.warn("File #{file['name']} has no url_private_download - bot may need files:read scope")
-          next
-        end
-
-        unless accepted_content_types.include?(file["mimetype"])
-          Rails.logger.debug("Skipping file #{file['name']} - unsupported mimetype #{file['mimetype']}") if Rails.env.development?
-          next
-        end
-
-        url = file["url_private_download"]
-        Rails.logger.debug("Downloading file from: #{url}") if Rails.env.development?
-
-        response = Faraday.get(url) do |req|
-          req.headers["Authorization"] = "Bearer #{token}"
-        end
-
-        unless response.success?
-          Rails.logger.error("Failed to download Slack file #{file['name']}: HTTP #{response.status}")
-          next
-        end
-
-        Rails.logger.debug("Downloaded #{response.body.bytesize} bytes for #{file['name']}") if Rails.env.development?
-
-        devlog.attachments.attach(
-          io: StringIO.new(response.body),
-          filename: file["name"],
-          content_type: file["mimetype"]
-        )
-      rescue StandardError => e
-        Rails.logger.error("Failed to download Slack file #{file['name']}: #{e.message}")
-        Rails.logger.error(e.backtrace.join("\n")) if Rails.env.development?
-      end
-    end
+  def log_error(prefix, err)
+    Rails.logger.error("#{prefix}: #{err.class}: #{err.message}")
+    Rails.logger.error(err.backtrace.join("\n")) if Rails.env.development?
   end
 end
