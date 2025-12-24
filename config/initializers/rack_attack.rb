@@ -7,14 +7,14 @@ Rack::Attack.throttle("api/store_all/auth", limit: 5, period: 1.minute) do |req|
   end
 end
 
-Rack::Attack.throttle("api/projects_all/auth", limit: 5, period: 1.minute) do |req|
+Rack::Attack.throttle("api/projects_all/auth", limit: 50, period: 1.minute) do |req|
   if req.path == "/api/v1/projects" && req.params["query"].blank?
     req.env["HTTP_AUTHORIZATION"]
   end
 end
 
 # this one is fine to query more cause its with search
-Rack::Attack.throttle("api/projects_all_with_query/auth", limit: 20, period: 1.minute) do |req|
+Rack::Attack.throttle("api/projects_all_with_query/auth", limit: 40, period: 1.minute) do |req|
   if req.path == "/api/v1/projects" && req.params["query"].present?
     req.env["HTTP_AUTHORIZATION"]
   end
