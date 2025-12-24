@@ -37,7 +37,6 @@ class Project < ApplicationRecord
 
     after_create :notify_slack_channel
 
-    # TODO: reflect the allowed content types in the html accept
     ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
     MAX_BANNER_SIZE = 10.megabytes
 

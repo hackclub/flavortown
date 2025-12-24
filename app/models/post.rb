@@ -33,6 +33,8 @@ class Post < ApplicationRecord
     after_commit :increment_devlogs_count, on: :create
     after_commit :decrement_devlogs_count, on: :destroy
 
+    scope :devlogs, -> { where(postable_type: "Post::Devlog") }
+
     private
 
     def invalidate_project_time_cache
