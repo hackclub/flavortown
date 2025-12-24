@@ -23,10 +23,10 @@ development:
   <<: *default
   database: battlemage_development
   
-  # url: <%= ENV['DATABASE_URL'] %>
+  url: <%= ENV['DATABASE_URL'] %>
 
   # Uncomment this line to use the production database for development! Must have PROD_DATABASE_URL set in the environment.
-  url: <%= ENV['PROD_DATABASE_URL'] %>
+  # url: <%= ENV['PROD_DATABASE_URL'] %>
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.
@@ -105,3 +105,9 @@ production:
     url: <%= ENV['DATABASE_URL'] %>
     migrations_paths: db/cable_migrate
     database: flavortown_cable
+
+  ahoy:
+    <<: *default
+    url: <%= ENV['AHOY_DB_URL'] %>
+    migrations_paths: db/ahoy_migrate
+    database: flavortown_ahoy

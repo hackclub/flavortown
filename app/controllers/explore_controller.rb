@@ -3,7 +3,7 @@ class ExploreController < ApplicationController
 
   def index
     non_tutorial_devlog_ids = Post::Devlog.where(tutorial: false).select(:id)
-    scope = Post.includes(:user, :project, postable: { attachments_attachments: :blob })
+    scope = Post.includes(:user, :project, postable: { attachments_attachments: :blob, likes: [] })
                 .where(postable_type: "Post::Devlog")
                 .where("posts.postable_id::bigint IN (?)", non_tutorial_devlog_ids)
                 .where.not(user_id: current_user&.id)

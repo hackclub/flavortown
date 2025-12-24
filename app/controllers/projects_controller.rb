@@ -53,6 +53,17 @@ class ProjectsController < ApplicationController
       flash[:notice] = "Project created successfully"
       current_user.complete_tutorial_step! :create_project
 
+      unless @project.tutorial?
+        existing_non_tutorial_projects = current_user.projects.where(tutorial: false).where.not(id: @project.id)
+        if existing_non_tutorial_projects.empty?
+          FunnelTrackerService.track(
+            event_name: "project_created",
+            user: current_user,
+            properties: { project_id: @project.id }
+          )
+        end
+      end
+
       project_hours = @project.total_hackatime_hours
       if project_hours > 0
         tutorial_message [

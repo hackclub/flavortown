@@ -5,7 +5,7 @@ class Airtable::RsvpSyncJob < Airtable::BaseSyncJob
 
   def primary_key_field = "email"
 
-  def sync_limit = 100
+  def null_sync_limit = 100
 
   def field_mapping(rsvp)
     {
@@ -15,7 +15,7 @@ class Airtable::RsvpSyncJob < Airtable::BaseSyncJob
       "ref" => rsvp&.ref,
       "created_at" => rsvp.created_at,
       "synced_at" => Time.now,
-      "flavor_id" => rsvp.id
+      "flavor_id" => rsvp.id.to_s
     }
   end
 end

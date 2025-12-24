@@ -126,3 +126,5 @@ gem "rack-attack"
 gem "query_count"
 
 gem "redis", "~> 5.4"
+
+gem "ahoy_matey"

@@ -7,6 +7,13 @@
 #  agh_contents                      :jsonb
 #  attached_shop_item_ids            :bigint           default([]), is an Array
 #  buyable_by_self                   :boolean          default(TRUE)
+#  default_assigned_user_id_au       :bigint
+#  default_assigned_user_id_ca       :bigint
+#  default_assigned_user_id_eu       :bigint
+#  default_assigned_user_id_in       :bigint
+#  default_assigned_user_id_uk       :bigint
+#  default_assigned_user_id_us       :bigint
+#  default_assigned_user_id_xx       :bigint
 #  description                       :string
 #  enabled                           :boolean
 #  enabled_au                        :boolean
@@ -47,31 +54,49 @@
 #  usd_cost                          :decimal(, )
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
+#  default_assigned_user_id          :bigint
 #  user_id                           :bigint
 #
 # Indexes
 #
-#  index_shop_items_on_user_id  (user_id)
+#  index_shop_items_on_default_assigned_user_id  (default_assigned_user_id)
+#  index_shop_items_on_user_id                   (user_id)
 #
 # Foreign Keys
 #
+#  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::FreeStickers < ShopItem
   QUEUE_ID = "flavortown-tutorial-stickers"
 
   def fulfill!(shop_order)
+    email   = shop_order.user&.email
+    address = shop_order.frozen_address
+
+    if email.blank? || address.blank?
+      Rails.logger.warn(
+        "FreeStickers order #{shop_order.id} missing email or address — re-enqueuing"
+      )
+
+      # push to end of queue (new job)
+      FulfillShopOrderJob.perform_later(shop_order.id)
+
+      return
+    end
+
     response = TheseusService.create_letter_v1(
       QUEUE_ID,
       {
-        recipient_email: shop_order.user.email,
-        address: shop_order.frozen_address,
+        recipient_email: email,
+        address: address,
         idempotency_key: "flavortown_tutorial_stickers_order_#{Rails.env}_#{shop_order.id}"
       }
     )
+
     shop_order.mark_fulfilled!(response[:id], nil, "System")
   rescue => e
     Rails.logger.error "Failed to fulfill free stickers order #{shop_order.id}: #{e.message}"
-    raise e
+    raise
   end
 end

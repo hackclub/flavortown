@@ -33,6 +33,8 @@
         plausible.init()
       </script>
     <% end %>
+    <script src="/howler.js"></script>
+    <script src="/yappingv2.js"></script>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
     <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>

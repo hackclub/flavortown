@@ -105,7 +105,7 @@
   </div>
 
   <%= render layout: "shared/modal", locals: { id: "balance-modal", title: "Transaction History" } do %>
-    <%= turbo_frame_tag "balance_history", src: "/my/balance", loading: "lazy" do %>
+    <%= turbo_frame_tag "balance_history", src: my_balance_path, loading: "lazy" do %>
       <div class="modal__loading">Loading history...</div>
     <% end %>
     <div class="modal__actions">
@@ -126,7 +126,7 @@
           <%= check_box_tag :send_votes_to_slack, "1", current_user.send_votes_to_slack, id: "send_votes_to_slack" %>
           <span>Send votes to Slack</span>
         </label>
-        <small class="settings-form__hint">Share your votes in #flavortown-share-votes to help project creators understand how their work is being received</small>
+        <small class="settings-form__hint">Share your votes in #flavortown-share-votes</small>
       </div>
 
       <div class="settings-form__field">
@@ -135,14 +135,6 @@
           <span>Opt in to the leaderboard</span>
         </label>
         <small class="settings-form__hint">Check this if you want to be shown on the leaderboard</small>
-      </div>
-
-      <div class="settings-form__field">
-        <label class="settings-form__checkbox">
-          <%= check_box_tag :vote_anonymously, "1", current_user.vote_anonymously, id: "vote_anonymously" %>
-          <span>Vote anonymously</span>
-        </label>
-        <small class="settings-form__hint">Hide your identity when sharing votes to Slack</small>
       </div>
 
       <div class="settings-form__field">
@@ -159,7 +151,7 @@
       </div>
     <% end %>
 
-    <div>
+    <div class="api-key-section">
       <label class="settings-form__label">API Key</label>
       <div class="api-key-container">
         <div class="api-key-display" onmouseenter="this.style.filter='blur(0px)'" onmouseleave="this.style.filter='blur(8px)'">
@@ -173,7 +165,7 @@
         <% end %>
       </div>
 
-      <small class="settings-form__hint">Your API key for accessing Flavortown's API. Keep this secret!</small>
+      <small class="settings-form__hint" style="margin-left: 0;">Your API key for accessing <%= link_to "Flavortown's API", api_v1_docs_path, target: "_blank", rel: "noopener", class: "api-docs-link" %>. Keep it secret!</small>
     </div>
   <% end %>
 </aside>

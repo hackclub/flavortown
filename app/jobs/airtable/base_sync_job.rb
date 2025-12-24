@@ -43,8 +43,24 @@ class Airtable::BaseSyncJob < ApplicationJob
     10
   end
 
+  def null_sync_limit
+    sync_limit
+  end
+
   def records_to_sync
-    @records_to_sync ||= records.order("#{synced_at_field} ASC NULLS FIRST").limit(sync_limit)
+    @records_to_sync ||= if null_sync_limit == sync_limit
+      records.order("#{synced_at_field} ASC NULLS FIRST").limit(sync_limit)
+    else
+      null_count = records.where(synced_at_field => nil).count
+      if null_count >= sync_limit
+        records.where(synced_at_field => nil).limit(null_sync_limit)
+      else
+        remaining = sync_limit - null_count
+        null_sql = records.unscope(:includes).where(synced_at_field => nil).to_sql
+        non_null_sql = records.unscope(:includes).where.not(synced_at_field => nil).order("#{synced_at_field} ASC").limit(remaining).to_sql
+        records.unscope(:includes).from("(#{null_sql} UNION ALL #{non_null_sql}) AS #{records.table_name}")
+      end
+    end
   end
 
   def table

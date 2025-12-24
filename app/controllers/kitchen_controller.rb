@@ -15,6 +15,8 @@ class KitchenController < ApplicationController
     @has_hackatime_linked = current_user.has_hackatime?
     @has_identity_linked = current_user.identity_verified?
 
+    CheckSlackMembershipJob.perform_later(current_user) unless current_user.tutorial_step_completed?(:setup_slack)
+
     @tutorial_steps = User::TutorialStep.all
     @completed_steps = current_user.tutorial_steps
     @tutorial_is_complete = @tutorial_steps - @completed_steps

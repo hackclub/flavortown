@@ -20,7 +20,6 @@
           "You'll see cards for each step you need to complete. Once you finish them all, you'll be fully set up and ready to cook!",
           "Let's start by checking out the tutorial steps below. They'll guide you through everything you need to know."
         ].to_json %>'
-        data-dialogue-iteration-voice-url-value="<%= audio_path('cartoon-yap.mp3') %>"
         data-dialogue-iteration-sprites-value='<%= (1..12).map { |i| image_path("orpheus_sprites/#{i}.png") }.to_json %>'
         data-action="keydown.enter@window->dialogue-iteration#next click@window->dialogue-iteration#next">
         <div class="dialogue-box-backdrop"></div>
@@ -52,7 +51,6 @@
             "And that's how you're gonna earn cookies :p!",
             "Let's connect your Hackatime account so we can start tracking your coding time."
           ].to_json %>'
-          data-dialogue-iteration-voice-url-value="<%= audio_path('cartoon-yap.mp3') %>"
           data-dialogue-iteration-sprites-value='<%= (1..12).map { |i| image_path("orpheus_sprites/#{i}.png") }.to_json %>'
           data-action="keydown.enter@window->dialogue-iteration#next click@window->dialogue-iteration#next">
           <div class="dialogue-box-backdrop"></div>
@@ -83,7 +81,6 @@
             "Join our Slack community to connect with other chefs, share your projects, and get help when you need it.",
             "It's a great place to meet fellow builders and be part of the Flavortown community!"
           ].to_json %>'
-          data-dialogue-iteration-voice-url-value="<%= audio_path('cartoon-yap.mp3') %>"
           data-dialogue-iteration-sprites-value='<%= (1..12).map { |i| image_path("orpheus_sprites/#{i}.png") }.to_json %>'
           data-action="keydown.enter@window->dialogue-iteration#next click@window->dialogue-iteration#next">
           <div class="dialogue-box-backdrop"></div>

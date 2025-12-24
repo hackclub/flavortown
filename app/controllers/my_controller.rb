@@ -15,7 +15,6 @@ class MyController < ApplicationController
       hcb_email: params[:hcb_email].presence,
       send_votes_to_slack: params[:send_votes_to_slack] == "1",
       leaderboard_optin: params[:leaderboard_optin] == "1",
-      vote_anonymously: params[:vote_anonymously] == "1",
       slack_balance_notifications: params[:slack_balance_notifications] == "1"
     )
     redirect_back fallback_location: root_path, notice: "Settings saved"

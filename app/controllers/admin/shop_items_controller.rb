@@ -2,6 +2,7 @@ module Admin
   class ShopItemsController < Admin::ApplicationController
     before_action :set_shop_item, only: [ :show, :edit, :update, :destroy ]
     before_action :set_shop_item_types, only: [ :new, :edit ]
+    before_action :set_fulfillment_users, only: [ :new, :edit ]
 
     def show
       authorize :admin, :manage_shop?
@@ -70,6 +71,10 @@ module Admin
       @shop_item_types = available_shop_item_types
     end
 
+    def set_fulfillment_users
+      @fulfillment_users = User.where("'fulfillment_person' = ANY(granted_roles)").order(:display_name)
+    end
+
     def available_shop_item_types
       [
         "ShopItem::Accessory",
@@ -131,6 +136,14 @@ module Admin
         :image,
         :buyable_by_self,
         :accessory_tag,
+        :default_assigned_user_id,
+        :default_assigned_user_id_us,
+        :default_assigned_user_id_eu,
+        :default_assigned_user_id_uk,
+        :default_assigned_user_id_ca,
+        :default_assigned_user_id_au,
+        :default_assigned_user_id_in,
+        :default_assigned_user_id_xx,
         attached_shop_item_ids: []
       )
     end

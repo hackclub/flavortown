@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_22_100745) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_23_033610) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -180,6 +180,20 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_100745) do
     t.index ["feature_key", "key", "value"], name: "index_flipper_gates_on_feature_key_and_key_and_value", unique: true
   end
 
+  create_table "funnel_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.string "event_name", null: false
+    t.jsonb "properties", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["created_at"], name: "index_funnel_events_on_created_at"
+    t.index ["email"], name: "index_funnel_events_on_email"
+    t.index ["event_name", "created_at"], name: "index_funnel_events_on_event_name_and_created_at"
+    t.index ["event_name"], name: "index_funnel_events_on_event_name"
+    t.index ["user_id"], name: "index_funnel_events_on_user_id"
+  end
+
   create_table "hcb_credentials", force: :cascade do |t|
     t.text "access_token_ciphertext"
     t.string "base_url"
@@ -266,7 +280,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_100745) do
     t.datetime "created_at", null: false
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id"
+    t.bigint "user_id", null: false
     t.index ["project_id"], name: "index_project_follows_on_project_id"
     t.index ["user_id", "project_id"], name: "index_project_follows_on_user_id_and_project_id", unique: true
     t.index ["user_id"], name: "index_project_follows_on_user_id"
@@ -355,6 +369,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_100745) do
     t.bigint "attached_shop_item_ids", default: [], array: true
     t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.bigint "default_assigned_user_id"
+    t.bigint "default_assigned_user_id_au"
+    t.bigint "default_assigned_user_id_ca"
+    t.bigint "default_assigned_user_id_eu"
+    t.bigint "default_assigned_user_id_in"
+    t.bigint "default_assigned_user_id_uk"
+    t.bigint "default_assigned_user_id_us"
+    t.bigint "default_assigned_user_id_xx"
     t.string "description"
     t.boolean "enabled"
     t.boolean "enabled_au"
@@ -395,6 +417,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_100745) do
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"
     t.bigint "user_id"
+    t.index ["default_assigned_user_id"], name: "index_shop_items_on_default_assigned_user_id"
     t.index ["user_id"], name: "index_shop_items_on_user_id"
   end
 
@@ -572,6 +595,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_100745) do
   add_foreign_key "shop_card_grants", "shop_items"
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
+  add_foreign_key "shop_items", "users", column: "default_assigned_user_id", on_delete: :nullify
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
   add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"

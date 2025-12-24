@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Signing in...</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <%= csrf_meta_tags %>
+</head>
+<body>
+  <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: system-ui;">
+    <p>Redirecting you to Hack Club Auth</p>
+  </div>
+
+  <%= form_tag "/auth/hack_club", method: :post, id: "hca-signin-form", data: { turbo: false } do %>
+    <%= hidden_field_tag :login_hint, session[:hca_login_hint] %>
+  <% end %>
+
+  <script>
+    document.getElementById("hca-signin-form").submit();
+  </script>
+</body>
+</html>

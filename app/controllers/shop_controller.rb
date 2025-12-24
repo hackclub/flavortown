@@ -2,7 +2,7 @@ class ShopController < ApplicationController
   before_action :require_login, except: [ :index ]
 
   def index
-    @shop_open =  Flipper.enabled?(:shop_open, current_user)
+    @shop_open = Flipper.enabled?(:shop_open, current_user)
     @user_region = user_region
     @body_class = "shop-page"
     @region_options = Shop::Regionalizable::REGIONS.map do |code, config|
@@ -12,7 +12,7 @@ class ShopController < ApplicationController
     if current_user
       free_stickers_step = User::TutorialStep.find(:free_stickers)
       @show_shop_tutorial = free_stickers_step.deps_satisfied?(current_user.tutorial_steps) &&
-                           !current_user.tutorial_step_completed?(:free_stickers)
+                            !current_user.tutorial_step_completed?(:free_stickers)
 
       grant_free_stickers_welcome_cookies! if @show_shop_tutorial
     else
@@ -24,10 +24,10 @@ class ShopController < ApplicationController
 
   def my_orders
     @orders = current_user.shop_orders
-                          .where(enabled: true)
                           .where(parent_order_id: nil)
                           .includes(:accessory_orders, shop_item: { image_attachment: :blob })
                           .order(id: :desc)
+    @show_tutorial_complete_dialog = session.delete(:show_tutorial_complete_dialog)
   end
 
   def cancel_order
@@ -94,15 +94,15 @@ class ShopController < ApplicationController
     accessory_ids = accessory_ids.uniq.reject(&:zero?)
 
     if quantity <= 0
-        redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Quantity must be greater than 0"
-        return
+      redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Quantity must be greater than 0"
+      return
     end
 
     # Validate accessories belong to this item
     @accessories = if accessory_ids.any?
-      @shop_item.available_accessories.where(id: accessory_ids)
+                     @shop_item.available_accessories.where(id: accessory_ids)
     else
-      []
+                     []
     end
 
     # Calculate total cost (applying sale discount via price_for_region)
@@ -197,6 +197,7 @@ class ShopController < ApplicationController
   def handle_free_stickers_order!
     current_user.complete_tutorial_step!(:free_stickers)
     session.delete(:tutorial_redirect_url)
+    session[:show_tutorial_complete_dialog] = true
   end
 
   def fulfill_free_stickers!

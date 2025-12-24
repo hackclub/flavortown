@@ -11,10 +11,18 @@
   <% end %>
 
   <% if current_user.send_votes_to_slack %>
-    <div class="vote-reason">
-      <%= form.label :reason, "Feedback for the creator (optional)", class: "vote-reason__label" %>
-      <%= form.text_area :reason, class: "vote-reason__input", placeholder: "Share your thoughts about this project...", rows: 3 %>
-      <small class="vote-reason__hint">This will be shared to Slack with your vote</small>
+    <style>.votes-new__feedback .input { display: flex; width: 100%; }</style>
+    <div class="votes-new__feedback" style="margin: 2rem 0 3rem;">
+      <%= render InputComponent.new(
+        form: form,
+        attribute: :reason,
+        label: "Feedback for the creator",
+        placeholder: "Share your thoughts about this project...",
+        subtitle: "This will be shared to Slack with your vote",
+        color: :green,
+        as: :text_area,
+        input_html: { required: true }
+      ) %>
     </div>
   <% end %>
 

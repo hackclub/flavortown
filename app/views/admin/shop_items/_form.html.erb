@@ -146,6 +146,7 @@
             <%= f.number_field :max_qty, min: 1, class: "form-control", placeholder: "Unlimited" %>
             <span class="shop-item-form__hint">Maximum quantity a user can add to a single order</span>
           </div>
+
         </div>
 
         <div class="card" id="hack_clubber_settings" style="display: none;">
@@ -253,6 +254,7 @@
           <tr>
             <th>Region</th>
             <th>Enabled</th>
+            <th>Default Assignee</th>
             <th>Δ Tickets</th>
             <th>Δ Hours</th>
             <th>Δ USD</th>
@@ -281,6 +283,12 @@
               </td>
               <td>
                 <%= f.check_box "enabled_#{code.downcase}", class: "region-enabled", data: { region: code.downcase } %>
+              </td>
+              <td>
+                <%= f.select "default_assigned_user_id_#{code.downcase}",
+                    @fulfillment_users.map { |u| [u.display_name, u.id] },
+                    { include_blank: "None", selected: shop_item.send("default_assigned_user_id_#{code.downcase}") },
+                    { class: "form-control form-control--sm", style: "width: 120px;" } %>
               </td>
               <td>
                 <%= f.number_field "price_offset_#{code.downcase}", step: 1, class: "form-control form-control--sm price-offset", data: { region: code.downcase }, placeholder: "0" %>

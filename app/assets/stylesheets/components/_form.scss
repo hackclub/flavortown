@@ -213,6 +213,11 @@
 
 // Settings form (modal)
 .settings-form {
+  &__title {
+    margin-bottom: var(--space-l);
+    border-radius: var(--border-radius);
+  }
+
   &__field {
     margin-bottom: var(--space-l);
   }
@@ -224,58 +229,72 @@
     cursor: pointer;
 
     input[type="checkbox"] {
-      width: 1.25rem;
-      height: 1.25rem;
+      width: 1.5rem;
+      height: 1.5rem;
       cursor: pointer;
       accent-color: var(--color-brown-500);
+      flex-shrink: 0;
     }
 
     span {
-      font-family: var(--font-family-sans);
-      font-size: var(--font-size-m);
+      font-family: var(--font-family-subtitle);
+      font-size: var(--font-size-l);
       color: var(--color-text-body);
     }
   }
 
   &__hint {
     display: block;
-    margin-top: var(--space-xxs);
-    margin-left: calc(1.25rem + var(--space-s));
-    font-family: var(--font-family-sans);
+    margin-top: var(--space-xs);
+    margin-left: calc(1.5rem + var(--space-s));
+    font-family: var(--font-family-text);
     font-size: var(--font-size-s);
     color: var(--color-text-muted);
+    line-height: var(--line-height-body);
   }
 
   &__label {
     display: block;
-    margin-bottom: var(--space-xxs);
-    font-family: var(--font-family-sans);
-    font-size: var(--font-size-m);
-    color: var(--color-text-body);
+    margin-bottom: var(--space-xs);
+    font-family: var(--font-family-subtitle);
+    font-size: var(--font-size-l);
+    color: var(--color-text-header);
   }
 
   &__input {
+    display: block;
     width: 100%;
-    padding: var(--space-s);
-    font-family: var(--font-family-sans);
+    padding: var(--space-s) var(--space-m);
+    border-radius: calc(var(--border-radius) * 0.6);
+    border: solid 2px var(--color-brown-500);
+    font-family: var(--font-family-text);
     font-size: var(--font-size-m);
     color: var(--color-text-body);
-    background: var(--color-bg-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-s);
+    background-color: var(--color-bg);
+    outline: none;
+    transition:
+      border-color 200ms,
+      box-shadow 200ms;
 
     &::placeholder {
       color: var(--color-text-muted);
+      opacity: 0.7;
     }
 
     &:focus {
-      outline: none;
-      border-color: var(--color-brown-500);
+      border-color: var(--color-brown-400);
+      box-shadow: 0 0 0 3px rgba(127, 77, 60, 0.15);
     }
   }
 
   &__field:has(&__input) &__hint {
     margin-left: 0;
+  }
+
+  &__section {
+    margin-top: var(--space-l);
+    padding-top: var(--space-l);
+    border-top: 2px solid var(--color-tan-300);
   }
 }
 

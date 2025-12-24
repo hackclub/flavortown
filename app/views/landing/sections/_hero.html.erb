@@ -34,9 +34,23 @@
       Cook personal projects. Win free prizes.
     </h3>
 
-    <%= render "rsvp_form", rsvp: Rsvp.new %>
+    <div class="rsvp-form">
+      <%= form_with url: submit_email_path, method: :post, local: true do |form| %>
+        <div class="input-red">
+          <div>
+            <%= inline_svg_tag "icons/mail.svg" %>
+            <%= form.email_field :email, placeholder: "Enter your email...", autocomplete: "off", required: true %>
+          </div>
+        </div>
 
-    <h4>Ages 13-18. Starts <u>December 22nd</u>.</h4>
+        <%= form.button type: "submit", class: "btn btn--red btn--striped" do %>
+          <div>Get Started</div>
+        <% end %>
+      <% end %>
+      <%= button_to "or, sign back in", "/auth/hack_club", method: :post, form_class: "sign-back-in-link", class: "link-btn" %>
+    </div>
+
+    <h4>Ages 13-18. <u>Dec 22</u> to <u>March 31</u>.</h4>
 
     <!-- <h5>Over 18? Earn the same prizes by <a class="no-underline" href="https://docs.google.com/document/d/1xiAoYrO6wY1knzZhI1TFYVqCo6q2R7A46he0w5tan90/edit?tab=t.0" target="_blank">getting teens to sign up</a></h5> -->
 

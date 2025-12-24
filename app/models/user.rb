@@ -81,6 +81,7 @@ class User < ApplicationRecord
   validates :hcb_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
   after_commit :handle_verification_eligibility_change, if: :should_check_verification_eligibility?
+  after_commit :track_identity_verified, if: :should_track_identity_verified?
 
   def roles = granted_roles&.map(&:to_sym) || []
 
@@ -90,7 +91,10 @@ class User < ApplicationRecord
     role = role_name.to_sym
     raise ArgumentError, "Invalid role: #{role_name}" unless User::Role.all_slugs.include?(role)
 
-    update!(granted_roles: roles + [ role ]) unless has_role?(role)
+    return if has_role?(role)
+
+    update!(granted_roles: roles + [ role ])
+    notify_role_granted(role)
   end
 
   def remove_role!(role_name)
@@ -369,5 +373,24 @@ class User < ApplicationRecord
       end
       order.mark_rejected!(reason)
     end
+  end
+
+  def should_track_identity_verified?
+    saved_change_to_verification_status? && verification_verified?
+  end
+
+  def track_identity_verified
+    FunnelTrackerService.track(
+      event_name: "identity_verified",
+      user: self
+    )
+  end
+
+  def notify_role_granted(role)
+    return unless slack_id.present?
+
+    role_info = User::Role.find(role)
+    message = "🎉 Congratulations! You've been granted the *#{role_info.name.to_s.titleize}* role on Flavortown."
+    dm_user(message)
   end
 end

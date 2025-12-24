@@ -4,7 +4,6 @@ export default class extends Controller {
   static targets = ["content", "character", "sticker", "sprite"];
   static values = {
     text: Array,
-    voiceUrl: String,
     sprites: Array,
     redirectUrl: String,
     stickerLineIndex: Number,
@@ -14,11 +13,12 @@ export default class extends Controller {
 
   connect() {
     this.index = 0;
-    this.typingInterval = null;
+    this.isTyping = false;
     this.spriteInterval = null;
     this.currentSpriteIndex = 0;
+    this.yapGeneration = 0;
+    this.squeakCount = 0;
     this.#loadSqueak();
-    this.#loadVoice();
     this.#preloadSprites();
     this.#render();
   }
@@ -36,7 +36,6 @@ export default class extends Controller {
   disconnect() {
     this.#stopTyping();
     this.#stopSpriteAnimation();
-    if (this.voiceAudio) this.voiceAudio.pause();
   }
 
   #startSpriteAnimation() {
@@ -76,17 +75,11 @@ export default class extends Controller {
     }
   }
 
-  #loadVoice() {
-    if (!this.hasVoiceUrlValue || !this.voiceUrlValue) return;
-
-    this.voiceAudio = new Audio(this.voiceUrlValue);
-    this.voiceAudio.volume = 0.5;
-  }
-
   #stopTyping() {
-    if (this.typingInterval) {
-      clearInterval(this.typingInterval);
-      this.typingInterval = null;
+    this.isTyping = false;
+    if (typeof this.cancelYap === "function") {
+      this.cancelYap();
+      this.cancelYap = null;
     }
     this.#stopSpriteAnimation();
   }
@@ -95,7 +88,7 @@ export default class extends Controller {
     event?.preventDefault?.();
     event?.stopPropagation?.();
 
-    if (this.typingInterval) {
+    if (this.isTyping) {
       this.#completeTyping();
       return;
     }
@@ -126,14 +119,11 @@ export default class extends Controller {
 
   close() {
     this.#stopTyping();
-    if (this.voiceAudio) this.voiceAudio.pause();
 
-    // Get dialogue type from data attribute before removing element
     const dialogueType = this.element.dataset.dialogueType;
 
     this.element.remove();
 
-    // Dispatch completion event with dialogue type
     if (dialogueType) {
       window.dispatchEvent(
         new CustomEvent("dialogue:complete", {
@@ -151,18 +141,112 @@ export default class extends Controller {
     }
   }
 
-  squeakCharacter() {
+  squeakCharacter(event) {
+    event?.stopPropagation();
+    if (this.hasExploded) return;
+
     if (this.squeak) {
       this.squeak.play();
     } else if (this.squeakAudio) {
       this.squeakAudio.currentTime = 0;
       this.squeakAudio.play();
     }
+
+    this.squeakCount++;
+    switch (this.squeakCount) {
+      case 7:
+        this.#insertLine("hey, i'd rather you didn't click me...");
+        break;
+      case 14:
+        this.#insertLine("seriously, please stop clicking me.", true);
+        break;
+      case 21:
+        this.#insertLine("I'M TRYING TO TALK TO YOU HERE!", true);
+        break;
+      case 28:
+        this.#insertLine("WOULD YOU PLEASE KNOCK THAT OFF!!!", true);
+        break;
+      case 35:
+        this.#insertLine("BUDDY. PAWS OFF.", true);
+        break;
+      case 67:
+        this.#insertLine(
+          "how would you like it if i just started clicking you, huh?",
+          true,
+        );
+        break;
+      case 99:
+        this.#insertLine("click me one more time. i dare you.", true);
+        break;
+      case 100:
+        this.#explode();
+        break;
+    }
+  }
+
+  #explode() {
+    const boom = new Audio("/boom.mp3");
+    boom.play();
+
+    this.hasExploded = true;
+
+    if (!document.getElementById("shake-style")) {
+      const style = document.createElement("style");
+      style.id = "shake-style";
+      style.textContent = `
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+          20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    setTimeout(() => {
+      if (this.hasSpriteTarget) {
+        const rect = this.spriteTarget.getBoundingClientRect();
+        const scale = 2;
+        const explosion = document.createElement("img");
+        explosion.src = "/explode.gif";
+        explosion.style.cssText = `
+          position: fixed;
+          top: ${rect.top - (rect.height * (scale - 1)) / 2}px;
+          left: ${rect.left - (rect.width * (scale - 1)) / 2}px;
+          width: ${rect.width * scale}px;
+          height: ${rect.height * scale}px;
+          object-fit: contain;
+          z-index: 99999;
+          pointer-events: none;
+        `;
+        document.body.appendChild(explosion);
+        setTimeout(() => explosion.remove(), 2500);
+      }
+
+      const dialogueBox = this.element.querySelector(".dialogue-box");
+      if (dialogueBox) {
+        dialogueBox.style.animation = "shake 0.5s ease-in-out";
+        setTimeout(() => {
+          dialogueBox.style.animation = "";
+        }, 500);
+      }
+    }, 1871);
+
+    this.#insertLine("...", true);
+  }
+
+  #insertLine(text, isAngry = false) {
+    this.textValue = [
+      ...this.textValue.slice(0, this.index + 1),
+      text,
+      ...this.textValue.slice(this.index + 1),
+    ];
+    this.isAngry = isAngry;
+    this.advance();
   }
 
   #completeTyping() {
     this.#stopTyping();
-    if (this.voiceAudio) this.voiceAudio.pause();
     if (!this.hasContentTarget) return;
     const line = this.textValue?.[this.index] ?? "";
     this.contentTarget.textContent = line;
@@ -175,7 +259,6 @@ export default class extends Controller {
     this.contentTarget.textContent = "";
 
     this.#stopTyping();
-    if (this.voiceAudio) this.voiceAudio.pause();
 
     if (!line) return;
 
@@ -190,22 +273,52 @@ export default class extends Controller {
       }
     }
 
-    this.voiceAudio.currentTime = 0;
-    this.voiceAudio.play();
     this.#startSpriteAnimation();
-    let charIndex = 0;
+    this.isTyping = true;
 
-    this.typingInterval = setInterval(() => {
-      if (charIndex < line.length) {
-        this.contentTarget.textContent += line[charIndex];
-        charIndex++;
+    if (typeof yap === "function") {
+      this.yapGeneration++;
+      const currentGeneration = this.yapGeneration;
 
-        this.#scrollToBottom();
-      } else {
-        this.#stopTyping();
-        if (this.voiceAudio) this.voiceAudio.pause();
+      if (typeof this.cancelYap === "function") {
+        this.cancelYap();
       }
-    }, 45); // 45ms
+
+      const isAngry = this.isAngry;
+      this.isAngry = false;
+
+      const yapPromise = new Promise((resolve) => {
+        this.cancelYap = yap(line, {
+          letterCallback: ({ letter }) => {
+            if (this.yapGeneration !== currentGeneration) return;
+            if (!this.isTyping) return;
+            this.contentTarget.textContent += letter;
+            this.#scrollToBottom();
+            resolve("yap");
+          },
+          endCallback: () => {
+            if (this.yapGeneration !== currentGeneration) return;
+            this.#stopTyping();
+          },
+          baseRate: isAngry ? 6 : 4.5,
+          rateVariance: isAngry ? 0.2 : 0.8,
+        });
+      });
+
+      const timeoutPromise = new Promise((resolve) =>
+        setTimeout(() => resolve("timeout"), 100),
+      );
+
+      Promise.any([yapPromise, timeoutPromise]).then((winner) => {
+        if (this.yapGeneration !== currentGeneration) return;
+        if (winner === "timeout") {
+          this.#completeTyping();
+        }
+      });
+    } else {
+      this.contentTarget.textContent = line;
+      this.#stopTyping();
+    }
   }
 
   #scrollToBottom() {

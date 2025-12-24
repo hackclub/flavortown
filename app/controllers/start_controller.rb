@@ -17,6 +17,15 @@ class StartController < ApplicationController
       session[:start_starter_project_name] = nil
     end
 
+    if params[:email].present? && valid_email?(params[:email])
+      session[:start_email] = params[:email].to_s.strip.downcase
+      FunnelTrackerService.track(
+        event_name: "start_flow_started",
+        email: session[:start_email],
+        properties: { source: "email_param" }
+      )
+    end
+
     @display_name = session[:start_display_name]
     @email = session[:start_email]
     @experience_level = session[:start_experience_level]
@@ -50,6 +59,12 @@ class StartController < ApplicationController
 
     session[:start_display_name] = display_name
     session[:start_email] = email
+
+    FunnelTrackerService.track(
+      event_name: "start_flow_name",
+      email: email
+    )
+
     redirect_to start_path(step: "project")
   end
 
@@ -85,6 +100,12 @@ class StartController < ApplicationController
       title: permitted[:title].to_s.strip.first(120),
       description: permitted[:description].to_s.strip.first(1_000)
     }
+
+    FunnelTrackerService.track(
+      event_name: "start_flow_project",
+      email: session[:start_email]
+    )
+
     redirect_to start_path(step: "devlog")
   end
 
@@ -100,6 +121,12 @@ class StartController < ApplicationController
     session[:start_devlog_body] = body
     session[:start_devlog_attachment_ids] = attachment_ids
     session[:start_flow] = true
+
+    FunnelTrackerService.track(
+      event_name: "start_flow_devlog",
+      email: session[:start_email]
+    )
+
     redirect_to start_path(step: "signin")
   end
 
