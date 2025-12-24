@@ -10,7 +10,9 @@
         { label: "Explore", path: "/explore", icon: "compass_fill" },
         { label: "Projects", path: projects_path, icon: "projects-icon" },
         { label: "Vote", path: new_vote_path, icon: "star_fill" },
-        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" }
+        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" },
+        { label: "Awards", path: my_achievements_path, icon: "trophy" },
+        { label: "Rankings", path: leaderboard_path, icon: "leaderboard" }
       ] %>
 
       <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_dashboard? %>
@@ -83,14 +85,6 @@
           <button type="button" class="sidebar__user-settings" onclick="document.getElementById('settings-modal').showModal()" aria-label="Settings">
             <%= inline_svg_tag "icons/gear.svg", class: "sidebar__user-settings-icon" %>
           </button>
-
-          <%= link_to my_achievements_path, class: "sidebar__user-settings", aria: { label: "Achievements" } do %>
-            <%= inline_svg_tag "icons/trophy.svg", class: "sidebar__user-settings-icon" %>
-          <% end %>
-
-          <%= link_to leaderboard_path, class: "sidebar__user-settings", aria: { label: "Leaderboard" } do %>
-            <%= inline_svg_tag "icons/leaderboard.svg", class: "sidebar__user-settings-icon" %>
-          <% end %>
 
           <button type="button" class="sidebar__user-logout" onclick="document.getElementById('logout-form').submit()" aria-label="Logout">
             <%= inline_svg_tag "icons/logout.svg", class: "sidebar__user-logout-icon" %>
