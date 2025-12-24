@@ -13,6 +13,7 @@ class ApplicationController < ActionController::Base
   before_action :track_request
   before_action :show_pending_achievement_notifications!
   before_action :apply_dev_override_ref
+  before_action :prevent_scraping_via_json_format
 
   rescue_from StandardError, with: :handle_error
   rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
@@ -117,5 +118,10 @@ class ApplicationController < ActionController::Base
     )
   rescue StandardError => e
     Rails.logger.warn("Portal return identity refresh failed: #{e.class}: #{e.message}")
+  end
+
+  def prevent_scraping_via_json_format
+    return unless request.format.json? && !request.path.starts_with?("/api")
+    render plain: "Do not attempt to scrape this endpoint", status: :forbidden
   end
 end
