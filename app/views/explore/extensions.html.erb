@@ -1,0 +1,54 @@
+<div class="explore" data-controller="load-more" data-load-more-url-value="<%= explore_extensions_path %>">
+  <%= render "explore/explore_nav" %>
+
+  <div class="explore__header">
+    <p class="explore__description">
+      Projects that integrate with Flavortown, ranked by weekly users.
+      More than 10 weekly users needed to show up here.
+    </p>
+  </div>
+
+  <div id="project-list" class="explore__projects-list">
+    <% if @projects_with_counts.empty? %>
+      <p class="explore__empty">No extensions with enough usage yet.</p>
+    <% else %>
+      <% @projects_with_counts.each do |project| %>
+        <div class="project-card project-card--extension">
+          <% if project.banner.attached? %>
+            <div class="project-card__banner">
+              <%= link_to project_path(project), class: "project-card__banner-frame" do %>
+                <%= image_tag project.banner.variant(:card),
+                              alt: "#{project.title} banner",
+                              class: "project-card__banner-image" %>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="project-card__banner project-card__banner--placeholder">
+              <%= link_to project_path(project), class: "project-card__banner-frame project-card__banner-frame--placeholder" do %>
+                <div class="project-card__banner-placeholder">
+                  <p class="project-card__banner-placeholder-text">No banner yet</p>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+          <div class="project-card__content">
+            <h3 class="project-card__title">
+              <%= link_to project.title, project_path(project), class: "project-card__title-link" %>
+            </h3>
+            <% if project.description.present? %>
+              <p class="project-card__description">
+                <%= md truncate(project.description, length: 120) %>
+              </p>
+            <% end %>
+          </div>
+          <div class="project-card__stats">
+            <h5>
+              <%= inline_svg_tag "icons/person.svg", class: "project-card__stats-icon", aria: { hidden: true } %>
+              <%= @weekly_user_counts[project.id] || 0 %> weekly users
+            </h5>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

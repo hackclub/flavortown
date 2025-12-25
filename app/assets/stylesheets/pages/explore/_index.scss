@@ -79,6 +79,30 @@
     }
   }
 
+  &__header {
+    margin: 2em auto;
+    max-width: 600px;
+    text-align: center;
+    background-color: var(--color-brown-200);
+    border-radius: 16px;
+    padding: 1.5em 2em;
+  }
+
+  &__description {
+    font-size: 1.1rem;
+    color: var(--color-brown-600);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__empty {
+    width: 100%;
+    text-align: center;
+    font-size: 1.25rem;
+    color: var(--color-brown-500);
+    padding: 3em 1em;
+  }
+
   &__pagination {
     .btn {
       margin-bottom: 1em;

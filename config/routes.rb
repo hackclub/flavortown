@@ -65,6 +65,7 @@ Rails.application.routes.draw do
   get "explore", to: "explore#index", as: :explore_index
   get "explore/gallery", to: "explore#gallery", as: :explore_gallery
   get "explore/following", to: "explore#following", as: :explore_following
+  get "explore/extensions", to: "explore#extensions", as: :explore_extensions
 
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
