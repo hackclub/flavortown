@@ -24,13 +24,13 @@ class VotesController < ApplicationController
   def new
     authorize :vote, :new?
     redirect_to root_path, alert: "Voting is currently disabled."
-    return
+    nil
   end
 
   def create
     authorize :vote, :create?
     redirect_to root_path, alert: "Voting is currently disabled."
-    return
+    nil
   end
 
   private
