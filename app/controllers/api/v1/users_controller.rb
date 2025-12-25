@@ -41,7 +41,7 @@ class Api::V1::UsersController < Api::BaseController
   }
 
   def index
-    @pagy, @users = pagy(User.all, page: params[:page], items: 100)
+    @pagy, @users = pagy(User.includes(:projects).all, page: params[:page], items: 100)
   end
 
   def show
