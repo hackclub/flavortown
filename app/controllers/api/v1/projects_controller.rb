@@ -1,17 +1,19 @@
 class Api::V1::ProjectsController < ApplicationController
   include ApiAuthenticatable
 
-  class_attribute :url_params_model, default: {}
-  class_attribute :response_body_model, default: {}
+  class_attribute :description, default: {
+    index: "Fetch a list of projects. Ratelimit: 5 reqs/min, 20 reqs/min if searching",
+    show: "Fetch a specific project by ID. Ratelimit: 30 reqs/min"
+  }
 
-  self.url_params_model = {
+  class_attribute :url_params_model, default: {
     index: {
       page: { type: Integer, desc: "Page number for pagination", required: false },
       query: { type: String, desc: "Search projects by title or description", required: false }
     }
   }
 
-  self.response_body_model = {
+  class_attribute :response_body_model, default: {
     index: {
       projects: [
         {

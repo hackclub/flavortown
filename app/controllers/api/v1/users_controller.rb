@@ -1,16 +1,18 @@
 class Api::V1::UsersController < ApplicationController
   include ApiAuthenticatable
 
-  class_attribute :url_params_model, default: {}
-  class_attribute :response_body_model, default: {}
+  class_attribute :description, default: {
+    index: "Fetch a list of users. Ratelimit: 5 reqs/min",
+    show: "Fetch a specific user by ID. Ratelimit: 30 reqs/min"
+  }
 
-  self.url_params_model = {
+  class_attribute :url_params_model, default: {
     index: {
       page: { type: Integer, desc: "Page number for pagination", required: false }
     }
   }
 
-  self.response_body_model = {
+  class_attribute :response_body_model, default: {
     index: {
       users: [
         {
@@ -39,7 +41,7 @@ class Api::V1::UsersController < ApplicationController
   }
 
   def index
-    @pagy, @users = pagy(User.all, page: params[:page])
+    @pagy, @users = pagy(User.all, page: params[:page], items: 100)
   end
 
   def show
