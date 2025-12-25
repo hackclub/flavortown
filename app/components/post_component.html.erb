@@ -42,7 +42,22 @@
     <h2 class="post__fire-title">Tagged your project as well cooked!</h2>
   <% end %>
 
-  <% if post.postable.respond_to?(:body) && post.postable.body.present? %>
+  <% if git_commit? %>
+    <div class="post__git-commit">
+      <div class="post__git-commit-header">
+        <code class="post__git-commit-sha"><%= post.postable.short_sha %></code>
+        <% if post.postable.stats_summary.present? %>
+          <span class="post__git-commit-stats"><%= post.postable.stats_summary %></span>
+        <% end %>
+      </div>
+      <div class="post__git-commit-message"><%= post.postable.title %></div>
+      <% if post.postable.url.present? %>
+        <%= link_to "View commit →", post.postable.url, target: "_blank", rel: "noopener", class: "post__git-commit-link" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if post.postable.respond_to?(:body) && post.postable.body.present? && !git_commit? %>
     <div class="post__body"><%= helpers.md post.postable.body %></div>
   <% end %>
 
