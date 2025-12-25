@@ -144,6 +144,36 @@ class Project < ApplicationRecord
         hackatime_projects.pluck(:name)
     end
 
+    def total_hackatime_hours
+      return 0 if hackatime_projects.empty?
+
+      owner = memberships.owner.first&.user
+      return 0 unless owner
+
+      result = owner.try_sync_hackatime_data!
+      return 0 unless result
+
+      project_times = result[:projects]
+      total_seconds = hackatime_projects.sum { |hp| project_times[hp.name].to_i }
+      (total_seconds / 3600.0).round(1)
+    end
+
+    def hackatime_projects_with_time
+        owner = memberships.owner.first&.user
+        return [] unless owner
+
+        result = owner.try_sync_hackatime_data!
+        return [] unless result
+
+        project_times = result[:projects]
+        hackatime_projects.map do |hp|
+            {
+                name: hp.name,
+                hours: (project_times[hp.name].to_i / 3600.0).round(1)
+            }
+        end
+    end
+
     aasm column: :ship_status do
         state :draft, initial: true
         state :submitted
