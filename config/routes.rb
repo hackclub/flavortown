@@ -130,7 +130,7 @@ Rails.application.routes.draw do
       resources :docs, only: [ :index ]
 
       resources :projects, only: [ :index, :show ] do
-        resources :devlogs, only: [ :index, :show ]
+        resources :devlogs, only: [ :index, :show ], controller: "project_devlogs"
       end
 
       resources :store, only: [ :index, :show ]

@@ -1,4 +1,4 @@
-class Api::V1::DevlogsController < ApplicationController
+class Api::V1::ProjectDevlogsController < ApplicationController
   include ApiAuthenticatable
 
   class_attribute :url_params_model, default: {}
