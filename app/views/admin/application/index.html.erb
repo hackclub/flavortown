@@ -17,7 +17,7 @@
     <%= link_to "Audit Logs", admin_audit_logs_path, class: button_class %>
   <% end %>
   <% if policy(:admin).access_reports? %>
-    <% pending_reports = Report.pending.count %>
+    <% pending_reports = Project::Report.pending.count %>
     <%= link_to admin_reports_path, class: button_class do %>
       Reports
       <% if pending_reports > 0 %>

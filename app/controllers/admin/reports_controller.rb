@@ -5,15 +5,15 @@ module Admin
     def index
       authorize :admin, :access_reports?
 
-      @reports = Report.includes(:reporter, :project).order(created_at: :desc)
+      @reports = Project::Report.includes(:reporter, :project).order(created_at: :desc)
 
       @reports = @reports.where(status: params[:status]) if params[:status].present?
       @reports = @reports.where(reason: params[:reason]) if params[:reason].present?
 
       @counts = {
-        pending: Report.pending.count,
-        reviewed: Report.reviewed.count,
-        dismissed: Report.dismissed.count
+        pending: Project::Report.pending.count,
+        reviewed: Project::Report.reviewed.count,
+        dismissed: Project::Report.dismissed.count
       }
     end
 
@@ -34,7 +34,7 @@ module Admin
     private
 
     def set_report
-      @report = Report.find(params[:id])
+      @report = Project::Report.find(params[:id])
     end
 
     def update_status(new_status, notice_message)
@@ -42,7 +42,7 @@ module Admin
 
       if @report.update(status: new_status)
         PaperTrail::Version.create!(
-          item_type: "Report",
+          item_type: "Project::Report",
           item_id: @report.id,
           event: "update",
           whodunnit: current_user.id,

@@ -1,7 +1,7 @@
-class ReportsController < ApplicationController
+class Project::ReportsController < ApplicationController
   def create
     authorize :report, :create?
-    @project = Project.find(params[:project_id])
+    @project = ::Project.find(params[:project_id])
 
     @report = current_user.reports.build(report_params.merge(project: @project))
 
@@ -14,7 +14,7 @@ class ReportsController < ApplicationController
 
   private
 
-  def report_params
-    params.require(:report).permit(:reason, :details)
-  end
+    def report_params
+      params.require(:project_report).permit(:reason, :details)
+    end
 end

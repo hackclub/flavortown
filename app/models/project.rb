@@ -63,7 +63,7 @@ class Project < ApplicationRecord
     has_many :ship_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
     has_one :latest_ship_post, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
     has_many :votes, dependent: :destroy
-    has_many :reports, dependent: :destroy
+    has_many :reports, class_name: "Project::Report", dependent: :destroy
     has_many :project_follows, dependent: :destroy
     has_many :followers, through: :project_follows, source: :user
 
