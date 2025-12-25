@@ -30,6 +30,10 @@ class Api::V1::UsersController < ApplicationController
       display_name: String,
       avatar: String,
       project_ids: [ Integer ],
+      vote_count: Integer,
+      like_count: Integer,
+      devlog_seconds_total: Integer,
+      devlog_seconds_today: Integer,
       cookies: "Integer || Null"
     }
   }
