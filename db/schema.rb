@@ -250,6 +250,21 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_020344) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "post_git_commits", force: :cascade do |t|
+    t.integer "additions", default: 0
+    t.string "author_email"
+    t.string "author_name"
+    t.datetime "authored_at"
+    t.datetime "created_at", null: false
+    t.integer "deletions", default: 0
+    t.integer "files_changed", default: 0
+    t.text "message"
+    t.string "sha", null: false
+    t.datetime "updated_at", null: false
+    t.string "url"
+    t.index ["sha"], name: "index_post_git_commits_on_sha", unique: true
+  end
+
   create_table "post_ship_events", force: :cascade do |t|
     t.string "body"
     t.string "certification_status", default: "pending"
