@@ -117,6 +117,12 @@ class Project < ApplicationRecord
       end
     end
 
+    def validate_repo_cloneable
+      return false if repo_url.blank?
+
+      GitRepoService.is_cloneable? repo_url
+    end
+
     def time
         total_seconds = Rails.cache.fetch("project/#{id}/time_seconds", expires_in: 10.minutes) do
           Post::Devlog.where(id: posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")).sum(:duration_seconds) || 0
