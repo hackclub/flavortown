@@ -3,12 +3,17 @@ class Project::ReportsController < ApplicationController
     authorize :report, :create?
     @project = ::Project.find(params[:project_id])
 
+    if current_user.reports.exists?(project: @project)
+      redirect_back_or_to project_path(@project), alert: "You have already reported this project."
+      return
+    end
+
     @report = current_user.reports.build(report_params.merge(project: @project))
 
     if @report.save
-      redirect_to new_vote_path, notice: "Report submitted. Thank you for helping us maintain quality."
+      redirect_back_or_to project_path(@project), notice: "Report submitted. Thank you for helping us maintain quality."
     else
-      redirect_to new_vote_path, alert: @report.errors.full_messages.to_sentence
+      redirect_back_or_to project_path(@project), alert: @report.errors.full_messages.to_sentence
     end
   end
 
