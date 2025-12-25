@@ -1,28 +1,32 @@
-class Api::V1::DevlogsController < ApplicationController
+class Api::V1::ProjectDevlogsController < ApplicationController
   include ApiAuthenticatable
 
-  class_attribute :url_params_model, default: {}
-  class_attribute :response_body_model, default: {}
+  class_attribute :description, default: {
+    index: "Fetch a list of devlogs for an project. Ratelimit: 30 reqs/min",
+    show: "Fetch a devlog by ID and project ID. Ratelimit: 30 reqs/min"
+  }
 
-  self.url_params_model = {
+  class_attribute :url_params_model, default: {
     index: {
       page: { type: Integer, desc: "Page number for pagination", required: false }
     }
   }
 
-  self.response_body_model = {
-    index: [
-      {
-        id: Integer,
-        body: String,
-        comments_count: Integer,
-        duration_seconds: Integer,
-        likes_count: Integer,
-        scrapbook_url: String,
-        created_at: String,
-        updated_at: String
-      }
-    ],
+  class_attribute :response_body_model, default: {
+    index: {
+      devlogs: [
+        {
+          id: Integer,
+          body: String,
+          comments_count: Integer,
+          duration_seconds: Integer,
+          likes_count: Integer,
+          scrapbook_url: String,
+          created_at: String,
+          updated_at: String
+        }
+      ]
+    },
 
     show: {
       id: Integer,

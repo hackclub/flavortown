@@ -12,19 +12,22 @@
             <div class="card">
                 <div class="content">
                     <h2><%= route.verb %> <%= route.path.spec.to_s.gsub("(.:format)", "") %></h2>
+                    <p><%= description_for(route) %></p>
 
                     <% url_params = query_url_params_for(route) %>
 
+                    <label>URL Params:</label>
                     <% if url_params.any? %>
-                        <label>URL Params:</label>
-                        <pre><code><%= url_params.map { |k, v| "?#{k} (#{v[:required] ? "required" : "optional"}) - #{v[:desc]} " }.join("\n") %></code></pre>
+                        <pre class="query-params"><code><%= url_params.map { |k, v| "?#{k} (#{v[:required] ? "required" : "optional"}) - #{v[:desc]} " }.join("\n") %></code></pre>
+                    <% else %>
+                        <pre class="query-params"><code>none :D</code></pre>
                     <% end %>
 
                     <% response = query_response_for(route) %>
 
                     <% if response.any? %>
                         <label>Response:</label>
-                        <pre><code><%= JSON.pretty_generate(response) %></code></pre>
+                        <pre class="response"><code><%= JSON.pretty_generate(response) %></code></pre>
                     <% end %>
                 </div>
             </div>

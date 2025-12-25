@@ -28,7 +28,14 @@ Rack::Attack.throttle("api/store/auth", limit: 30, period: 1.minute) do |req|
 end
 
 Rack::Attack.throttle("api/projects/auth", limit: 30, period: 1.minute) do |req|
-  if req.path.start_with?("/api/v1/projects/")
+  if req.path.start_with?("/api/v1/projects/") && !req.path.match?(%r{/api/v1/projects/[^/]+/devlogs})
+    req.env["HTTP_AUTHORIZATION"]
+  end
+end
+
+# seperate limits so you can fetch devlogs without hitting normal ratelimits
+Rack::Attack.throttle("api/projects/devlogs/auth", limit: 30, period: 1.minute) do |req|
+  if req.path.match?(%r{/api/v1/projects/[^/]+/devlogs})
     req.env["HTTP_AUTHORIZATION"]
   end
 end
