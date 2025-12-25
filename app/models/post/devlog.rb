@@ -63,7 +63,7 @@ class Post::Devlog < ApplicationRecord
   validates :duration_seconds,
             numericality: {
               greater_than_or_equal_to: 15.minutes,
-              message: "must be equal to or greater than 15 minutes"
+              message: "error, you must log at least 15 minutes to post a devlog"
             },
             allow_nil: true
   validates :body, presence: true, length: { maximum: 2_000 }, unless: -> { scrapbook_url.present? }
