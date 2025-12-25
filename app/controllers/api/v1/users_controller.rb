@@ -11,16 +11,18 @@ class Api::V1::UsersController < ApplicationController
   }
 
   self.response_body_model = {
-    index: [
-      {
-        id: Integer,
-        slack_id: String,
-        display_name: String,
-        avatar: String,
-        project_ids: [Integer],
-        cookies: "Integer || Null" # only if you are opted into the leaderboard
-      } 
-    ],
+    index: {
+      users: [
+        {
+          id: Integer,
+          slack_id: String,
+          display_name: String,
+          avatar: String,
+          project_ids: [Integer],
+          cookies: "Integer || Null" # only if you are opted into the leaderboard
+        } 
+      ]
+    },
 
     show: {
       id: Integer,

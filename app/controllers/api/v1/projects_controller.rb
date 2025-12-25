@@ -12,18 +12,20 @@ class Api::V1::ProjectsController < ApplicationController
   }
 
   self.response_body_model = {
-    index: [
-      {
-        id: Integer,
-        title: String,
-        description: String,
-        repo_url: String,
-        demo_url: String,
-        readme_url: String,
-        created_at: String,
-        updated_at: String
-      }
-    ],
+    index: {
+      projects: [
+        {
+          id: Integer,
+          title: String,
+          description: String,
+          repo_url: String,
+          demo_url: String,
+          readme_url: String,
+          created_at: String,
+          updated_at: String
+        }
+      ]
+    },
 
     show: {
       id: Integer,

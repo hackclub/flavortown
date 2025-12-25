@@ -11,18 +11,20 @@ class Api::V1::DevlogsController < ApplicationController
   }
 
   self.response_body_model = {
-    index: [
-      {
-        id: Integer,
-        body: String,
-        comments_count: Integer,
-        duration_seconds: Integer,
-        likes_count: Integer,
-        scrapbook_url: String,
-        created_at: String,
-        updated_at: String
-      }
-    ],
+    index: {
+      devlogs: [
+        {
+          id: Integer,
+          body: String,
+          comments_count: Integer,
+          duration_seconds: Integer,
+          likes_count: Integer,
+          scrapbook_url: String,
+          created_at: String,
+          updated_at: String
+        }
+      ]
+    },
 
     show: {
       id: Integer,
