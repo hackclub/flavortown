@@ -233,12 +233,11 @@ Rails.application.routes.draw do
     resources :memberships, only: [ :create, :destroy ], module: :project
     resources :devlogs, only: [ :new, :create ], module: :project
     resources :reports, only: [ :create ], module: :project
+    resources :fire_event, only: [ :create, :destroy], module: :project
     member do
       get :ship
       patch :update_ship
       post :submit_ship
-      post :mark_fire
-      post :unmark_fire
       post :follow
       delete :unfollow
       post :resend_webhook
