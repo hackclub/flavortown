@@ -16,12 +16,15 @@ module ExtensionUsageTrackable
 
     timestamp = Time.current.iso8601
 
-    project_ids.each do |project_id|
-      payload = { project_id: project_id, user_id: current_user.id, recorded_at: timestamp }.to_json
-      Rails.cache.redis.lpush(FlushExtensionUsageJob::BUFFER_KEY, payload)
+    payloads = project_ids.map do |project_id|
+      { project_id: project_id, user_id: current_user.id, recorded_at: timestamp }.to_json
     end
-  rescue Redis::BaseError => e
-    Rails.logger.warn("Extension usage tracking failed: #{e.message}")
+
+    Rails.cache.redis.with do |redis|
+      redis.lpush(FlushExtensionUsageJob::BUFFER_KEY, payloads)
+    end
+  rescue StandardError => e
+    Rails.logger.warn("Extension usage tracking failed: #{e.class}: #{e.message}")
   end
 
   def redis_available?
