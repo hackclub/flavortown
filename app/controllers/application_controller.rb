@@ -6,6 +6,7 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
   include Pagy::Method
   include Achievementable
+  include ExtensionUsageTrackable
 
   before_action :enforce_ban
   before_action :refresh_identity_on_portal_return

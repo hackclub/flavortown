@@ -92,6 +92,31 @@ class ExploreController < ApplicationController
     end
   end
 
+  def extensions
+    min_weekly_users = 10
+    one_week_ago = 1.week.ago
+
+    project_ids_with_usage = ExtensionUsage
+      .where("recorded_at >= ?", one_week_ago)
+      .group(:project_id)
+      .having("COUNT(DISTINCT user_id) >= ?", min_weekly_users)
+      .order(Arel.sql("COUNT(DISTINCT user_id) DESC"))
+      .pluck(:project_id)
+
+    @projects_with_counts = Project
+      .where(id: project_ids_with_usage)
+      .includes(banner_attachment: :blob)
+      .index_by(&:id)
+      .values_at(*project_ids_with_usage)
+      .compact
+
+    @weekly_user_counts = ExtensionUsage
+      .where(project_id: project_ids_with_usage)
+      .where("recorded_at >= ?", one_week_ago)
+      .group(:project_id)
+      .count("DISTINCT user_id")
+  end
+
   private
 
   def devlog_variant(post)
