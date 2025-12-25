@@ -21,7 +21,7 @@ class Api::V1::UsersController < ApplicationController
           display_name: String,
           avatar: String,
           project_ids: [ Integer ],
-          cookies: "Integer || Null" # only if you are opted into the leaderboard
+          cookies: "Integer || Null" # only if they are opted into the leaderboard
         }
       ]
     },
@@ -36,7 +36,7 @@ class Api::V1::UsersController < ApplicationController
       like_count: Integer,
       devlog_seconds_total: Integer,
       devlog_seconds_today: Integer,
-      cookies: "Integer || Null"
+      cookies: "Integer || Null" # only if they are opted into the leaderboard
     }
   }
 
