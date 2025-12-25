@@ -134,6 +134,7 @@ Rails.application.routes.draw do
       end
 
       resources :store, only: [ :index, :show ]
+      resources :users, only: [ :index, :show ]
     end
   end
 
