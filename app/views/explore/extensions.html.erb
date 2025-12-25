@@ -2,10 +2,20 @@
   <%= render "explore/explore_nav" %>
 
   <div class="explore__header">
-    <p class="explore__description">
-      Projects that integrate with Flavortown, ranked by weekly users.
-      More than 10 weekly users needed to show up here.
-    </p>
+      <h2 class="explore__header-title">Extensions</h2>
+      <p class="explore__description">
+          Projects that integrate with Flavortown, shown by usage.
+          At least 2 weekly users needed to show up.
+      </p>
+      <details class="explore__details">
+          <summary>How to register your extension</summary>
+          <div class="explore__details-content">
+              <p>Add a header to your HTTP requests identifying your project:</p>
+              <code class="explore__code">X-Flavortown-Ext-{project_id}: true</code>
+              <p>For example, if your project ID is <strong>42</strong>:</p>
+              <code class="explore__code">X-Flavortown-Ext-42: true</code>
+          </div>
+      </details>
   </div>
 
   <div id="project-list" class="explore__projects-list">

@@ -145,6 +145,17 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       earned_check: ->(user) { user.projects.fire.exists? },
       cookie_reward: 5,
       visibility: :secret
+    ),
+    new(
+      slug: :extension_2_users,
+      name: "Free Sample!",
+      description: "Built an extension that 2+ people are using!",
+      icon: "fork_spoon_fill",
+      earned_check: ->(user) {
+        ExtensionUsage.max_weekly_users_for(user.project_ids) >= 2
+      },
+      progress: ->(user) { { current: ExtensionUsage.max_weekly_users_for(user.project_ids), target: 2 } },
+      cookie_reward: 10
     )
   ].freeze
 
