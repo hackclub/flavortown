@@ -6,26 +6,29 @@ class FlushExtensionUsageJob < ApplicationJob
   def perform
     return unless redis_available?
 
-    records = []
     batch_size = 1000
 
-    while (raw = Rails.cache.redis.lpop(BUFFER_KEY))
-      data = JSON.parse(raw)
-      records << {
-        project_id: data["project_id"],
-        user_id: data["user_id"],
-        recorded_at: data["recorded_at"],
-        created_at: Time.current,
-        updated_at: Time.current
-      }
+    Rails.cache.redis.with do |redis|
+      loop do
+        raw_items = redis.lrange(BUFFER_KEY, 0, batch_size - 1)
+        break if raw_items.empty?
 
-      if records.size >= batch_size
+        redis.ltrim(BUFFER_KEY, raw_items.size, -1)
+
+        records = raw_items.map do |raw|
+          data = JSON.parse(raw)
+          {
+            project_id: data["project_id"],
+            user_id: data["user_id"],
+            recorded_at: data["recorded_at"],
+            created_at: Time.current,
+            updated_at: Time.current
+          }
+        end
+
         insert_batch(records)
-        records = []
       end
     end
-
-    insert_batch(records) if records.any?
   end
 
   private
