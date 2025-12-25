@@ -62,6 +62,7 @@ class Project < ApplicationRecord
     has_many :devlogs, -> { where(postable_type: "Post::Devlog") }, class_name: "Post"
     has_many :ship_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
     has_one :latest_ship_post, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
+    has_one :fire_post, -> { where(postable_type: "Post::FireEvent") }, class_name: "Post"
     has_many :votes, dependent: :destroy
     has_many :reports, class_name: "Project::Report", dependent: :destroy
     has_many :project_follows, dependent: :destroy
@@ -230,11 +231,16 @@ class Project < ApplicationRecord
     end
 
     def mark_fire!(user)
-        update!(marked_fire_at: Time.current, marked_fire_by: user)
+      raise ArgumentError, "Project is already marked as fire" if fire?
+
+      update!(marked_fire_at: Time.current, marked_fire_by: user)
     end
 
     def unmark_fire!
+      transaction do
+        fire_post&.destroy!
         update!(marked_fire_at: nil, marked_fire_by: nil)
+      end
     end
 
     def shipping_validations
