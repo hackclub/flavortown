@@ -1,7 +1,7 @@
 json.users @users do |user|
     json.extract! user, :id, :slack_id, :display_name, :avatar
 
-    json.project_ids user.projects.pluck(:id)
+    json.project_ids user.projects.map(&:id)
 
     if user.leaderboard_optin?
       json.cookies user.cached_balance

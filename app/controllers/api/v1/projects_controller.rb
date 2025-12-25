@@ -44,7 +44,7 @@ class Api::V1::ProjectsController < Api::BaseController
   }
 
   def index
-    projects = Project.where(deleted_at: nil)
+    projects = Project.where(deleted_at: nil).includes(:devlogs)
 
     if params[:query].present?
       q = "%#{ActiveRecord::Base.sanitize_sql_like(params[:query])}%"
