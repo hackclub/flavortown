@@ -1,4 +1,4 @@
-class Api::V1::StoreController < ApplicationController
+class Api::V1::StoreController < Api::BaseController
   include ApiAuthenticatable
 
   class_attribute :description, default: {
