@@ -18,9 +18,9 @@ class Api::V1::UsersController < ApplicationController
           slack_id: String,
           display_name: String,
           avatar: String,
-          project_ids: [Integer],
+          project_ids: [ Integer ],
           cookies: "Integer || Null" # only if you are opted into the leaderboard
-        } 
+        }
       ]
     },
 
@@ -29,7 +29,7 @@ class Api::V1::UsersController < ApplicationController
       slack_id: String,
       display_name: String,
       avatar: String,
-      project_ids: [Integer],
+      project_ids: [ Integer ],
       cookies: "Integer || Null"
     }
   }

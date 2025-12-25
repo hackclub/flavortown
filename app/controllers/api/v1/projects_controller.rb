@@ -21,7 +21,7 @@ class Api::V1::ProjectsController < ApplicationController
           repo_url: String,
           demo_url: String,
           readme_url: String,
-          devlog_ids: [Integer],
+          devlog_ids: [ Integer ],
           created_at: String,
           updated_at: String
         }
@@ -35,7 +35,7 @@ class Api::V1::ProjectsController < ApplicationController
       repo_url: String,
       demo_url: String,
       readme_url: String,
-      devlog_ids: [Integer],
+      devlog_ids: [ Integer ],
       created_at: String,
       updated_at: String
     }
