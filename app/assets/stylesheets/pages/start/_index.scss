@@ -128,6 +128,7 @@
     border: 3px solid rgba(139, 102, 70, 0.2);
     box-shadow: 0 8px 24px rgba(47, 34, 21, 0.15);
     background: var(--color-bg);
+    min-width: 0;
 
     // Subtle checkered pattern overlay
     &::before {
@@ -379,6 +380,18 @@
 
     &__summary-item {
       flex-wrap: wrap;
+    }
+
+    &__card--signin {
+      .start-flow__actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+      }
+
+      .start-flow__actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
     }
   }
 }
