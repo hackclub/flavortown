@@ -471,4 +471,63 @@
       --comment-box-col: var(--color-yellow-300);
     }
   }
+
+  &--git_commit {
+    background-color: var(--color-brown-400);
+    border-color: var(--color-brown-300);
+
+    .post__avatar {
+      background-color: var(--color-brown-300);
+    }
+    &::after {
+      border-color: var(--color-brown-300);
+      background-color: var(--color-brown-500);
+    }
+    &::before {
+      -webkit-mask: url("icons/code.svg") no-repeat center / 40px 40px;
+      mask: url("icons/code.svg") no-repeat center / 40px 40px;
+    }
+  }
+
+  &__git-commit {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  &__git-commit-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+  }
+
+  &__git-commit-sha {
+    background: rgba(0, 0, 0, 0.2);
+    padding: var(--space-xs) var(--space-s);
+    border-radius: calc(var(--border-radius) / 2);
+    font-family: monospace;
+    font-size: var(--font-size-m);
+  }
+
+  &__git-commit-stats {
+    font-size: var(--font-size-m);
+    opacity: 0.8;
+  }
+
+  &__git-commit-message {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+  }
+
+  &__git-commit-link {
+    color: inherit;
+    opacity: 0.8;
+    font-size: var(--font-size-m);
+    text-decoration: none;
+
+    &:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+  }
 }

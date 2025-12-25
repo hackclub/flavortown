@@ -2,13 +2,14 @@
 
  class PostComponent < ViewComponent::Base
   attr_reader :post, :variant
-  VARIANTS = %i[fire devlog certified ship].freeze
+  VARIANTS = %i[fire devlog certified ship git_commit].freeze
 
   def initialize(post:, variant: :devlog, current_user: nil)
     @post = post
     @variant = normalize_variant(variant)
     @variant = :ship if post.postable.is_a?(Post::ShipEvent)
     @variant = :fire if post.postable.is_a?(Post::FireEvent)
+    @variant = :git_commit if post.postable.is_a?(Post::GitCommit)
     @current_user = current_user
    end
 
@@ -49,11 +50,17 @@
       post.postable.is_a?(Post::FireEvent)
     end
 
+   def git_commit?
+      post.postable.is_a?(Post::GitCommit)
+    end
+
    def author_activity
      if fire_event?
        "sent their compliments to the chef of"
      elsif ship_event?
        "shipped"
+     elsif git_commit?
+       "committed to"
      else
        "worked on"
      end
