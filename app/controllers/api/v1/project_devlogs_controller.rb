@@ -1,4 +1,4 @@
-class Api::V1::ProjectDevlogsController < ApplicationController
+class Api::V1::ProjectDevlogsController < Api::BaseController
   include ApiAuthenticatable
 
   class_attribute :description, default: {
