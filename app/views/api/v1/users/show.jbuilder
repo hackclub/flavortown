@@ -12,4 +12,3 @@ if @user.leaderboard_optin?
 else
     json.cookies nil
 end
-
