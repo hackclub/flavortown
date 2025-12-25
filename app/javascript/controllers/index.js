@@ -49,9 +49,6 @@ application.register("load-more", LoadMoreController);
 import DialogueIterationController from "./dialogue_iteration_controller";
 application.register("dialogue-iteration", DialogueIterationController);
 
-import ProjectFireController from "./project_fire_controller";
-application.register("project-fire", ProjectFireController);
-
 import ModalController from "./modal_controller";
 application.register("modal", ModalController);
 
