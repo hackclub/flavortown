@@ -37,14 +37,14 @@
             <% if item[:method] %>
               <%= button_to item[:path], method: item[:method], class: link_classes, aria: (active ? { current: "page" } : {}), form: { class: "sidebar__nav-form" } do %>
                 <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
-                <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
+                  <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
                 </span>
                 <span class="sidebar__nav-label"><%= item[:label] %></span>
               <% end %>
             <% else %>
               <%= link_to item[:path], class: link_classes, aria: (active ? { current: "page" } : {}) do %>
                 <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
-                <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
+                  <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
                 </span>
                 <span class="sidebar__nav-label"><%= item[:label] %></span>
               <% end %>
@@ -60,6 +60,7 @@
       <div class="sidebar__user-avatar">
         <%= image_tag "chef-hat.webp", alt: "Hat", class: "sidebar__user-avatar-hat", aria: { hidden: true } %>
         <%= image_tag "chef-hat-bg.webp", alt: "Hat", class: "sidebar__user-avatar-hat-bg", aria: { hidden: true } %>
+        <%= image_tag "santa-hat.webp", alt: "Santa Hat", class: "sidebar__user-avatar-santa-hat", aria: { hidden: true } %>
         <% if current_user.slack_id.present? %>
           <%= image_tag current_user.avatar, alt: current_user.display_name, class: "sidebar__user-avatar-placeholder", style: "object-fit: cover;" %>
         <% else %>
@@ -118,7 +119,8 @@
       <div class="settings-form__field">
         <label class="settings-form__label" for="hcb_email">HCB Email</label>
         <%= text_field_tag :hcb_email, current_user.hcb_email, id: "hcb_email", class: "settings-form__input", placeholder: current_user.email, autocomplete: "email" %>
-        <small class="settings-form__hint">Email used for receiving HCB grants. Leave blank to use your default email.</small>
+        <small class="settings-form__hint">Email used for receiving HCB grants. Leave blank to use your default
+          email.</small>
       </div>
 
       <div class="settings-form__field">
@@ -159,13 +161,15 @@
         </div>
 
         <%= button_to roll_api_key_path,
-          method: :post,
-          data: { turbo_confirm: "Are you sure? This will invalidate your current API key (if you have one)" } do %>
+                      method: :post,
+                      data: { turbo_confirm: "Are you sure? This will invalidate your current API key (if you have one)" } do %>
           <%= inline_svg_tag "icons/refresh.svg", class: "api-key-generate-icon" %>
         <% end %>
       </div>
 
-      <small class="settings-form__hint" style="margin-left: 0;">Your API key for accessing <%= link_to "Flavortown's API", api_v1_docs_path, target: "_blank", rel: "noopener", class: "api-docs-link" %>. Keep it secret!</small>
+      <small class="settings-form__hint" style="margin-left: 0;">Your API key for
+        accessing <%= link_to "Flavortown's API", api_v1_docs_path, target: "_blank", rel: "noopener", class: "api-docs-link" %>
+        . Keep it secret!</small>
     </div>
   <% end %>
 </aside>
