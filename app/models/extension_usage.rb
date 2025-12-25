@@ -24,4 +24,15 @@
 class ExtensionUsage < ApplicationRecord
   belongs_to :project
   belongs_to :user
+
+  def self.max_weekly_users_for(project_ids)
+    return 0 if project_ids.blank?
+
+    where(project_id: project_ids)
+      .where("recorded_at >= ?", 1.week.ago)
+      .group(:project_id)
+      .count("DISTINCT user_id")
+      .values
+      .max || 0
+  end
 end

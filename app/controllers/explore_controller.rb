@@ -93,7 +93,7 @@ class ExploreController < ApplicationController
   end
 
   def extensions
-    min_weekly_users = 10
+    min_weekly_users = 2
     one_week_ago = 1.week.ago
 
     project_ids_with_usage = ExtensionUsage
