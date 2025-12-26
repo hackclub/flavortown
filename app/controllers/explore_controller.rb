@@ -105,6 +105,7 @@ class ExploreController < ApplicationController
 
     @projects_with_counts = Project
       .where(id: project_ids_with_usage)
+      .where.not(shipped_at: nil)
       .includes(banner_attachment: :blob)
       .index_by(&:id)
       .values_at(*project_ids_with_usage)
