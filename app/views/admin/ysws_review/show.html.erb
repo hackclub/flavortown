@@ -1,0 +1,270 @@
+<h1>Review: <%= @project.title %></h1>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h2>Project Details</h2>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <div>
+      <strong>Creator:</strong>
+      <% owner = @project.users.first %>
+      <% if owner %>
+        <%= link_to owner.display_name || owner.email, admin_user_path(owner) %>
+      <% else %>
+        <em>Unknown</em>
+      <% end %>
+    </div>
+    <div>
+      <strong>Created:</strong> <%= @project.created_at.strftime("%Y-%m-%d") %>
+    </div>
+    <div>
+      <strong>Ship Status:</strong> <%= @project.ship_status.titleize %>
+    </div>
+    <div>
+      <strong>Total Time:</strong>
+      <% time = @project.time %>
+      <%= time.hours %>h <%= time.minutes %>m
+    </div>
+    <div>
+      <strong>Repository:</strong>
+      <% if @project.repo_url.present? %>
+        <%= link_to "View Repo", @project.repo_url, target: "_blank" %>
+      <% else %>
+        <em>Not provided</em>
+      <% end %>
+    </div>
+    <div>
+      <strong>Demo:</strong>
+      <% if @project.demo_url.present? %>
+        <%= link_to "View Demo", @project.demo_url, target: "_blank" %>
+      <% else %>
+        <em>Not provided</em>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @project.description.present? %>
+    <div style="margin-top: 1rem;">
+      <strong>Description:</strong>
+      <p style="background: #f9fafb; padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
+        <%= @project.description %>
+      </p>
+    </div>
+  <% end %>
+</div>
+
+<%= form_with url: admin_ysws_review_path(@project), method: :patch, local: true do |f| %>
+  <div class="card" style="margin-bottom: 2rem;">
+    <h2>Devlog Reviews (<%= @devlogs.count %>)</h2>
+
+    <div style="margin-bottom: 1rem; display: flex; gap: 1rem;">
+      <button type="button" id="approve-all-btn" class="btn-secondary slim">Approve All</button>
+      <button type="button" id="reject-all-btn" class="btn-secondary slim">Reject All</button>
+      <button type="button" id="cap-600-btn" class="btn-secondary slim">Cap All to 600 min</button>
+    </div>
+
+    <% if @devlogs.empty? %>
+      <p style="text-align: center; padding: 2rem; color: #666;">No devlogs found for this project.</p>
+    <% else %>
+      <% @devlogs.each_with_index do |entry, index| %>
+        <% post = entry[:post] %>
+        <% devlog = entry[:devlog] %>
+        <% approval = entry[:approval] %>
+        <% original_minutes = (devlog.duration_seconds || 0) / 60 %>
+
+        <div class="devlog-card" style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+            <h3 style="margin: 0;">Devlog #<%= index + 1 %></h3>
+            <span style="color: #666; font-size: 0.875rem;">
+              <%= post.created_at.strftime("%Y-%m-%d %H:%M") %>
+            </span>
+          </div>
+
+          <div style="background: #f9fafb; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; max-height: 150px; overflow-y: auto;">
+            <%= truncate(devlog.body, length: 500) %>
+          </div>
+
+          <% if devlog.attachments.attached? %>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+              <% devlog.attachments.each do |attachment| %>
+                <% if attachment.content_type.start_with?("image/") %>
+                  <%= image_tag url_for(attachment), style: "max-width: 150px; max-height: 100px; border-radius: 4px;" %>
+                <% elsif attachment.content_type.start_with?("video/") %>
+                  <span class="badge" style="background: #6b7280; color: white;">Video attached</span>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
+            <div>
+              <strong>Original Time:</strong> <%= original_minutes %> minutes
+            </div>
+
+            <div>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <%= check_box_tag "devlog_approvals[#{devlog.id}][approved]", "1",
+                    approval&.approved || false,
+                    class: "approve-checkbox",
+                    data: { devlog_id: devlog.id } %>
+                <span>Approve</span>
+              </label>
+            </div>
+
+            <div>
+              <label for="devlog_approvals_<%= devlog.id %>_approved_minutes">Approved Minutes:</label>
+              <%= number_field_tag "devlog_approvals[#{devlog.id}][approved_minutes]",
+                  approval&.approved_minutes || original_minutes,
+                  min: 0,
+                  class: "input-primary approved-minutes",
+                  id: "devlog_approvals_#{devlog.id}_approved_minutes",
+                  data: { devlog_id: devlog.id, original: original_minutes },
+                  style: "width: 100px;" %>
+            </div>
+
+            <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+              <button type="button" class="btn-secondary slim time-adjust" data-devlog-id="<%= devlog.id %>" data-action="50">50%</button>
+              <button type="button" class="btn-secondary slim time-adjust" data-devlog-id="<%= devlog.id %>" data-action="75">75%</button>
+              <button type="button" class="btn-secondary slim time-adjust" data-devlog-id="<%= devlog.id %>" data-action="-30">-30m</button>
+              <button type="button" class="btn-secondary slim time-adjust" data-devlog-id="<%= devlog.id %>" data-action="-60">-1h</button>
+              <button type="button" class="btn-secondary slim time-adjust" data-devlog-id="<%= devlog.id %>" data-action="reset">Reset</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 1rem;">
+            <label for="devlog_approvals_<%= devlog.id %>_internal_notes">Internal Notes:</label>
+            <%= text_area_tag "devlog_approvals[#{devlog.id}][internal_notes]",
+                approval&.internal_notes,
+                rows: 2,
+                class: "input-primary",
+                id: "devlog_approvals_#{devlog.id}_internal_notes",
+                style: "width: 100%;" %>
+          </div>
+
+          <% if approval&.persisted? && approval.reviewer.present? %>
+            <div style="margin-top: 0.5rem; font-size: 0.875rem; color: #666;">
+              Previously reviewed by <%= approval.reviewer.display_name || approval.reviewer.email %>
+              on <%= approval.reviewed_at&.strftime("%Y-%m-%d %H:%M") %>
+              <% if approval.time_changed? %>
+                (time adjusted from <%= approval.original_minutes %> to <%= approval.approved_minutes %> min)
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+    <%= submit_tag "Complete Review", class: "btn-primary" %>
+    <button type="button" id="return-to-certifier-btn" class="btn-secondary">Return to Ship Certifier</button>
+  </div>
+<% end %>
+
+<!-- Return to Certifier Modal -->
+<div id="return-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+  <div style="background: white; max-width: 500px; margin: 10% auto; padding: 2rem; border-radius: 8px;">
+    <h2>Return to Ship Certifier</h2>
+    <p>Select the reason(s) for returning this project:</p>
+
+    <%= form_with url: return_to_certifier_admin_ysws_review_path(@project), method: :post, local: true do |f| %>
+      <div style="margin-bottom: 1rem;">
+        <% ShipCertification::YSWS_FEEDBACK_REASONS.each do |reason| %>
+          <label style="display: block; margin-bottom: 0.5rem; cursor: pointer;">
+            <%= check_box_tag "feedback_reasons[]", reason, false %>
+            <%= reason %>
+          </label>
+        <% end %>
+      </div>
+
+      <div style="display: flex; gap: 1rem;">
+        <%= submit_tag "Return to Certifier", class: "btn-primary" %>
+        <button type="button" id="cancel-return-btn" class="btn-secondary">Cancel</button>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div style="margin-top: 2em;">
+  <%= link_to "← Back to YSWS Reviews", admin_ysws_reviews_path, class: "btn-secondary" %>
+</div>
+
+<style>
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.devlog-card:hover {
+  border-color: #3b82f6;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Time adjustment buttons
+  document.querySelectorAll(".time-adjust").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      var devlogId = this.dataset.devlogId;
+      var action = this.dataset.action;
+      var input = document.querySelector("#devlog_approvals_" + devlogId + "_approved_minutes");
+      var original = parseInt(input.dataset.original) || 0;
+      var current = parseInt(input.value) || 0;
+
+      if (action === "50") {
+        input.value = Math.floor(original * 0.5);
+      } else if (action === "75") {
+        input.value = Math.floor(original * 0.75);
+      } else if (action === "-30") {
+        input.value = Math.max(0, current - 30);
+      } else if (action === "-60") {
+        input.value = Math.max(0, current - 60);
+      } else if (action === "reset") {
+        input.value = original;
+      }
+    });
+  });
+
+  // Approve all button
+  document.getElementById("approve-all-btn").addEventListener("click", function() {
+    document.querySelectorAll(".approve-checkbox").forEach(function(cb) {
+      cb.checked = true;
+    });
+  });
+
+  // Reject all button
+  document.getElementById("reject-all-btn").addEventListener("click", function() {
+    document.querySelectorAll(".approve-checkbox").forEach(function(cb) {
+      cb.checked = false;
+    });
+    document.querySelectorAll(".approved-minutes").forEach(function(input) {
+      input.value = 0;
+    });
+  });
+
+  // Cap to 600 minutes button
+  document.getElementById("cap-600-btn").addEventListener("click", function() {
+    document.querySelectorAll(".approved-minutes").forEach(function(input) {
+      var current = parseInt(input.value) || 0;
+      if (current > 600) {
+        input.value = 600;
+      }
+    });
+  });
+
+  // Modal controls
+  var modal = document.getElementById("return-modal");
+  document.getElementById("return-to-certifier-btn").addEventListener("click", function() {
+    modal.style.display = "block";
+  });
+  document.getElementById("cancel-return-btn").addEventListener("click", function() {
+    modal.style.display = "none";
+  });
+  modal.addEventListener("click", function(e) {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+});
+</script>

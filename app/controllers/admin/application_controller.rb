@@ -28,6 +28,10 @@ module Admin
         unless shop_orders_fulfillment?
           raise Pundit::NotAuthorizedError
         end
+      elsif current_user&.ysws_reviewer? && !current_user&.admin? && !current_user&.fraud_dept?
+        unless ysws_reviews_access?
+          raise Pundit::NotAuthorizedError
+        end
       else
         authorize :admin, :access_admin_endpoints?  # calls AdminPolicy#access_admin_endpoints?
       end
@@ -39,6 +43,10 @@ module Admin
 
     def shop_orders_fulfillment?
       controller_name == "shop_orders" && (params[:view] == "fulfillment" || action_name == "show" || action_name == "reveal_address")
+    end
+
+    def ysws_reviews_access?
+      controller_name == "ysws_review"
     end
 
     # Handles unauthorized access

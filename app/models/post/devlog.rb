@@ -18,6 +18,8 @@ class Post::Devlog < ApplicationRecord
 
   has_many :likes, as: :likeable, dependent: :destroy
   has_many :comments, as: :commentable, dependent: :destroy
+  has_many :ysws_review_devlog_approvals, class_name: "YswsReviewDevlogApproval",
+           foreign_key: :post_devlog_id, dependent: :destroy
 
   SCRAPBOOK_CHANNEL_ID = "C01504DCLVD".freeze
 

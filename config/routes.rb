@@ -2,8 +2,8 @@ class AdminConstraint
   def self.matches?(request)
     user = admin_user_for(request)
     return false unless user
-    AdminPolicy.new(user, :admin).access_admin_endpoints?
-  end
+    AdminPolicy.new(user, :admin).access_admin_endpoints? || user.ysws_reviewer?
+  end #reminder to check if this allows ysws_reviewers to access other admin views
 
   def self.admin_user_for(request)
     user = User.find_by(id: request.session[:user_id])
@@ -57,6 +57,7 @@ Rails.application.routes.draw do
   # Letter opener web for development email preview
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
+    post "dev_login", to: "dev_sessions#create"
   end
 
   # Action Mailbox for incoming HCB and tracking emails
@@ -156,6 +157,11 @@ Rails.application.routes.draw do
       member do
         post :review
         post :dismiss
+      end
+    end
+    resources :ysws_reviews, only: [ :index, :show, :update ], controller: "ysws_review" do
+      member do
+        post :return_to_certifier
       end
     end
     get "payouts_dashboard", to: "payouts_dashboard#index"

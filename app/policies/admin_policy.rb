@@ -4,7 +4,7 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def index?
-    user.admin? || user.fraud_dept?
+    user.admin? || user.fraud_dept? || user.ysws_reviewer?
   end
 
   def access_blazer?
@@ -68,4 +68,6 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def access_ysws_reviews?
+    user.admin? || user.ysws_reviewer?
+  end
 end
