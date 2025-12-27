@@ -1,13 +1,20 @@
 class CommentsController < ApplicationController
+  include IdempotentCreate
+
   before_action :set_commentable
   before_action :set_comment, only: [ :destroy ]
 
   def create
+    if check_idempotency_token! { redirect_back fallback_location: fallback_path }
+      return
+    end
+
     @comment = @commentable.comments.build(comment_params)
     @comment.user = current_user
     authorize @comment
 
     if @comment.save
+      mark_idempotency_token_used!(params[:idempotency_token])
       respond_to do |format|
         format.turbo_stream
         format.html { redirect_back fallback_location: fallback_path }

@@ -1,4 +1,6 @@
 class Project::DevlogsController < ApplicationController
+  include IdempotentCreate
+
   before_action :set_project
   before_action :require_project_member
   before_action :require_hackatime_project
@@ -11,11 +13,16 @@ class Project::DevlogsController < ApplicationController
   end
 
   def create
+    if check_idempotency_token! { redirect_to @project }
+      return
+    end
+
     @devlog = Post::Devlog.new(devlog_params)
     @devlog.duration_seconds = @preview_seconds
     @devlog.hackatime_projects_key_snapshot = @project.hackatime_keys.join(",")
 
     if @devlog.save
+      mark_idempotency_token_used!(params[:idempotency_token])
       Post.create!(project: @project, user: current_user, postable: @devlog)
       flash[:notice] = "Devlog created successfully"
 

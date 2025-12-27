@@ -3,6 +3,7 @@
     <%= render(HeadingComponent.new(title: "Create a new Project", tone: :brown)) %>
 
     <%= form_with(model: @project, class: "projects-new__form", local: true, data: { controller: "project-form", action: "submit->project-form#onSubmit" }) do |form| %>
+      <%= idempotency_token_field %>
       <div class="projects-new__card">
         <div class="projects-new__field projects-new__field--title">
           <%= render(

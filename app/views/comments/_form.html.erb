@@ -9,6 +9,7 @@
       <%= form_with model: Comment.new,
             url: devlog_comments_path(commentable),
             class: "comment-form__form" do |f| %>
+        <%= idempotency_token_field %>
 
         <%= f.text_area :body,
               placeholder: "Write a comment...",

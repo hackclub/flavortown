@@ -1,4 +1,6 @@
 class ProjectsController < ApplicationController
+  include IdempotentCreate
+
   before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship, :mark_fire, :unmark_fire ]
   before_action :set_project, only: [ :show ]
 
@@ -34,6 +36,10 @@ class ProjectsController < ApplicationController
   end
 
   def create
+    if check_idempotency_token! { redirect_to projects_path }
+      return
+    end
+
     @project = Project.new(project_params)
     authorize @project
 
@@ -54,6 +60,7 @@ class ProjectsController < ApplicationController
     end
 
     if success
+      mark_idempotency_token_used!(params[:idempotency_token])
       flash[:notice] = "Project created successfully"
       current_user.complete_tutorial_step! :create_project
 

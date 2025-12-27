@@ -50,6 +50,10 @@ module ApplicationHelper
     "rotate(#{rand(-3..3)}deg) scale(#{(rand(97..103).to_f / 100).round(2)}) translateY(#{rand(-8..8)}px)"
   end
 
+  def idempotency_token_field
+    hidden_field_tag :idempotency_token, SecureRandom.uuid
+  end
+
   def safe_external_url(url)
     return nil if url.blank?
 

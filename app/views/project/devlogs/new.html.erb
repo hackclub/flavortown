@@ -13,6 +13,7 @@
                   html: { multipart: true },
                   class: "projects-new__form",
                   local: true do |f| %>
+      <%= idempotency_token_field %>
       <div class="projects-new__card">
         <div class="projects-new__field">
           <%= render InputComponent.new(
