@@ -28,7 +28,7 @@ class MarkdownRenderer
                     strikethrough: true,
                     underline: true,
                     table: true
-                },
+                }
             }
         )
     end
