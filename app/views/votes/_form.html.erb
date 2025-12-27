@@ -12,7 +12,7 @@
 
   <% if current_user.send_votes_to_slack %>
     <style>.votes-new__feedback .input { display: flex; width: 100%; }</style>
-    <div class="votes-new__feedback" style="margin: 2rem 0 3rem;">
+    <div class="votes-new__feedback" style="margin: 4rem 0;">
       <%= render InputComponent.new(
         form: form,
         attribute: :reason,
