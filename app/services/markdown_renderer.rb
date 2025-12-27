@@ -4,7 +4,7 @@ class MarkdownRenderer
 
         sanitised = ActionController::Base.helpers.sanitize(
             html,
-            tags: ActionView::Base.sanitized_allowed_tags + ["u"]
+            tags: ActionView::Base.sanitized_allowed_tags + [ "u" ]
         )
 
         doc = Nokogiri::HTML::DocumentFragment.parse(sanitised)
@@ -24,10 +24,10 @@ class MarkdownRenderer
             text,
             options: {
                 parse: { smart: true },
-                extension: { 
+                extension: {
                     strikethrough: true,
                     underline: true,
-                    table: true,
+                    table: true
                 },
                 render: { unsafe: true } # this should be fine as we sanitize later
             }
