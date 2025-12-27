@@ -6,7 +6,9 @@ class LandingController < ApplicationController
     if current_user
       redirect_to kitchen_path
     else
-      render :index
+      respond_to do |format|
+        format.html { render :index }
+      end
     end
   end
 
