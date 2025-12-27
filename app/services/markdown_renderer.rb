@@ -29,7 +29,6 @@ class MarkdownRenderer
                     underline: true,
                     table: true
                 },
-                render: { unsafe: true } # this should be fine as we sanitize later
             }
         )
     end
