@@ -167,6 +167,9 @@
     </div>
   <% end %>
   <% end %>
+  <div class="kitchen-stats">
+    <%= render KitchenStatsComponent.new(user: current_user) %>
+  </div>
   <div class="kitchen-help">
     <%= render KitchenHelpCardsComponent %>
   </div>
