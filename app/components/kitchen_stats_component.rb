@@ -47,7 +47,7 @@ class KitchenStatsComponent < ApplicationComponent
 
   def render_leaderboard_card
     rank = calculate_rank
-    balance = @user.cached_balance
+    balance = @user.balance
 
     div(class: "state-card state-card--neutral kitchen-stats-card") do
       div(class: "kitchen-stats-card__content") do
@@ -78,8 +78,7 @@ class KitchenStatsComponent < ApplicationComponent
   def calculate_rank
     return nil unless @user.leaderboard_optin?
 
-    User.where(leaderboard_optin: true)
-        .where("cached_balance > ?", @user.cached_balance)
-        .count + 1
+    user_balance = @user.balance
+    User.where(leaderboard_optin: true).count { |u| u.balance > user_balance } + 1
   end
 end
