@@ -4,7 +4,7 @@
     You can come back to this page at anytime! Your information will be saved.
   </p>
 <br>
-  <%= form_with(model: @project, url: update_ship_project_path(@project, step: 2), method: :patch, class: "projects-ship__form", local: true) do |form| %>
+  <%= form_with(model: @project, url: update_bake_project_path(@project, step: 2), method: :patch, class: "projects-bake__form", local: true) do |form| %>
     <div class="projects-ship__form-field">
       <%= render(
             FileUploadComponent.new(

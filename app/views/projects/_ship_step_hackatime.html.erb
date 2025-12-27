@@ -18,13 +18,13 @@
       <%= @total_hours %> hours total across all projects
     </div>
 
-    <%= link_to edit_project_path(@project, return_to: ship_project_path(@project, step: 2)), class: "projects-ship__edit-link" do %>
+    <%= link_to edit_project_path(@project, return_to: bake_project_path(@project, step: 2)), class: "projects-bake__edit-link" do %>
       edit projects ✏️
     <% end %>
   <% else %>
     <div class="projects-ship__no-hackatime">
       <p>No Hackatime projects linked yet.</p>
-      <%= link_to "Link Hackatime projects", edit_project_path(@project, return_to: ship_project_path(@project, step: 2)), class: "projects-ship__edit-link" %>
+      <%= link_to "Link Hackatime projects", edit_project_path(@project, return_to: bake_project_path(@project, step: 2)), class: "projects-bake__edit-link" %>
     </div>
   <% end %>
 

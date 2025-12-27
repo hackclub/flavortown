@@ -6,11 +6,11 @@
         <%= image_tag project.banner.variant(:card), class: "project-card__banner-image", alt: "#{project.title} banner" %>
         <% if owner? && (project.draft? || project.can_ship_again?) %>
             <%= render ButtonComponent.new(
-                text: project.draft? ? "Ship" : "Ship Again",
+                text: project.draft? ? "Bake" : "Bake Again",
                 color: :green,
-                icon: "icons/ship.svg",
-                href: ship_project_path(project),
-                class: "project-show-card__ship-btn"
+                icon: "chef-hat.webp",
+                href: bake_project_path(project),
+                class: "project-show-card__bake-btn"
             ) %>
         <% end %>
         <% if helpers.current_user.present? && helpers.policy(:admin).manage_projects? %>
@@ -33,11 +33,11 @@
             <div class="project-card__banner-placeholder-text">No banner uploaded</div>
             <% if owner? && (project.draft? || project.can_ship_again?) %>
               <%= render ButtonComponent.new(
-                text: project.draft? ? "Ship" : "Ship Again",
+                text: project.draft? ? "Bake" : "Bake Again",
                 color: :green,
-                icon: "icons/ship.svg",
-                href: ship_project_path(project),
-                class: "project-show-card__ship-btn",
+                icon: "chef-hat.webp",
+                href: bake_project_path(project),
+                class: "project-show-card__bake-btn",
                 disabled: true
               ) %>
             <% end %>

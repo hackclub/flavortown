@@ -19,18 +19,18 @@
       </h1>
 
       <% if @step == 1 %>
-        <%= render "ship_step_requirements" %>
+        <%= render "bake_step_requirements" %>
       <% elsif @step == 2 %>
-        <%= render "ship_step_details" %>
+        <%= render "bake_step_details" %>
       <% elsif @step == 3 %>
-        <%= render "ship_step_hackatime" %>
+        <%= render "bake_step_hackatime" %>
       <% elsif @step == 4 %>
-        <%= render "ship_step_update" %>
+        <%= render "bake_step_update" %>
       <% end %>
 
       <div class="projects-ship__navigation">
         <% if @step > 1 %>
-          <%= link_to ship_project_path(@project, step: @step - 1), class: "projects-ship__nav-btn projects-ship__nav-btn--prev" do %>
+          <%= link_to bake_project_path(@project, step: @step - 1), class: "projects-bake__nav-btn projects-bake__nav-btn--prev" do %>
             ← Prev
           <% end %>
         <% else %>
@@ -38,7 +38,7 @@
         <% end %>
 
         <% if @step < 4 %>
-          <%= link_to ship_project_path(@project, step: @step + 1), class: "projects-ship__nav-btn projects-ship__nav-btn--next" do %>
+          <%= link_to bake_project_path(@project, step: @step + 1), class: "projects-bake__nav-btn projects-bake__nav-btn--next" do %>
             Next →
           <% end %>
         <% elsif @step == 4 %>

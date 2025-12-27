@@ -460,8 +460,14 @@
       background-color: var(--color-yellow-450);
     }
     &::before {
-      -webkit-mask: url("icons/ship.svg") no-repeat center / 40px 40px;
-      mask: url("icons/ship.svg") no-repeat center / 40px 40px;
+      -webkit-mask-image: url("/assets/chef-hat.webp");
+      mask-image: url("/assets/chef-hat.webp");
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      mask-position: center;
+      -webkit-mask-size: 40px 40px;
+      mask-size: 40px 40px;
     }
     .comments-section {
       --comments-bg-col: var(--color-yellow-450);

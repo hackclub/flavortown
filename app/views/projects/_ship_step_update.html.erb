@@ -7,17 +7,17 @@
   <% unless @project.draft? %>
     <% if @project.has_devlog_since_last_ship? %>
       <div class="projects-ship__reship-info projects-ship__reship-info--success">
-        ✓ You have new devlogs since your last ship - you can ship again!
+        ✓ You have new devlogs since your last bake - you can bake again!
       </div>
     <% else %>
       <div class="projects-ship__reship-info projects-ship__reship-info--warning">
-        ⚠ You need to add at least one devlog since your last ship before you can ship again.
+        ⚠ You need to add at least one devlog since your last bake before you can bake again.
       </div>
     <% end %>
   <% end %>
 
   <%= form_with(url: submit_ship_project_path(@project), method: :post, id: "ship-form", class: "projects-ship__form", local: true) do |form| %>
-    <div class="projects-ship__form-field">
+     <div class="projects-bake__form-field">
       <label class="projects-ship__label">Your ship update</label>
       <p class="projects-ship__hint">Write a few sentences about your project. What did you make? How does it work? What did you learn?</p>
       <%= form.text_area :ship_update,

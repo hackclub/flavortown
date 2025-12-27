@@ -139,7 +139,7 @@ class ProjectsController < ApplicationController
       next_step = step + 1
       next_step = 4 if next_step > 4
 
-      redirect_to ship_project_path(@project, step: next_step)
+      redirect_to bake_project_path(@project, step: next_step)
     else
       @step = params[:step]&.to_i || 1
       load_ship_data
@@ -152,25 +152,25 @@ class ProjectsController < ApplicationController
     authorize @project
 
     unless current_user.eligible_for_shop?
-      redirect_to ship_project_path(@project, step: 1), alert: "You're not eligible to ship projects."
+      redirect_to bake_project_path(@project, step: 1), alert: "You're not eligible to bake projects."
       return
     end
 
     unless @project.shippable?
       flash[:alert] = "Your project doesn't meet all shipping requirements yet."
-      redirect_to ship_project_path(@project, step: 1) and return
+      redirect_to bake_project_path(@project, step: 1) and return
     end
 
     ship_body = params[:ship_update].to_s.strip
 
     if ship_body.blank?
       flash[:alert] = "Please write an update message before shipping."
-      redirect_to ship_project_path(@project, step: 4) and return
+      redirect_to bake_project_path(@project, step: 4) and return
     end
 
     unless @project.can_ship_again?
       flash[:alert] = "You need to add at least one devlog since your last ship before you can ship again."
-      redirect_to ship_project_path(@project, step: 4) and return
+      redirect_to bake_project_path(@project, step: 4) and return
     end
 
     begin
@@ -178,7 +178,7 @@ class ProjectsController < ApplicationController
     rescue => e
       Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
       flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
-      redirect_to ship_project_path(@project, step: 4) and return
+      redirect_to bake_project_path(@project, step: 4) and return
     end
 
     ship_event = Post::ShipEvent.new(body: ship_body)
@@ -197,7 +197,7 @@ class ProjectsController < ApplicationController
     else
       error_messages = (post.errors.full_messages + ship_event.errors.full_messages).uniq
       flash[:alert] = "We couldn't post your ship update: #{error_messages.to_sentence}"
-      redirect_to ship_project_path(@project, step: 4) and return
+      redirect_to bake_project_path(@project, step: 4) and return
     end
 
     redirect_to @project
