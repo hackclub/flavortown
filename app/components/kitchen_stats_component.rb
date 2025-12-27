@@ -76,7 +76,8 @@ class KitchenStatsComponent < ApplicationComponent
   def calculate_rank
     return nil unless @user.leaderboard_optin?
 
-    user_balance = @user.balance
-    User.where(leaderboard_optin: true).count { |u| u.balance > user_balance } + 1
+    User.where(leaderboard_optin: true)
+        .where("(SELECT COALESCE(SUM(amount), 0) FROM ledger_entries WHERE user_id = users.id) > ?", @user.balance)
+        .count + 1
   end
 end
