@@ -381,7 +381,7 @@ class ProjectsController < ApplicationController
   end
 
   def hackatime_project_ids
-    @hackatime_project_ids ||= Array(params[:project][:hackatime_project_ids]).reject(&:blank?)
+    @hackatime_project_ids ||= Array(params[:project][:hackatime_project_ids]).reject(&:blank?).map(&:to_i)
   end
 
   def validate_urls
@@ -476,6 +476,11 @@ class ProjectsController < ApplicationController
   end
 
   def link_hackatime_projects
+    # Unlink hackatime projects that were removed
+    @project.hackatime_projects.where.not(id: hackatime_project_ids).find_each do |hp|
+      hp.update(project: nil)
+    end
+
     return if hackatime_project_ids.empty?
 
     current_user.hackatime_projects.where(id: hackatime_project_ids).find_each do |hp|
