@@ -4,13 +4,11 @@ class KitchenStatsComponent < ApplicationComponent
   end
 
   def view_template
-    div(class: "kitchen-stats") do
       h2(class: "kitchen-stats__title") { "Your Progress" }
       div(class: "kitchen-stats__grid") do
         render_achievements_card
         render_leaderboard_card
       end
-    end
   end
 
   private
