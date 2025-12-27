@@ -39,7 +39,7 @@
     <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>
 
-  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %>">
+  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) %>>
     <% if current_user.present? && !current_user.banned? && !@hide_sidebar %>
       <%= render "shared/sidebar" %>
     <% end %>

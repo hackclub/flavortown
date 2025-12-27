@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_23_033610) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_25_200759) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -164,6 +164,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_23_033610) do
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
+  create_table "extension_usages", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "project_id", null: false
+    t.datetime "recorded_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["project_id", "recorded_at"], name: "index_extension_usages_on_project_id_and_recorded_at"
+    t.index ["project_id"], name: "index_extension_usages_on_project_id"
+    t.index ["recorded_at"], name: "index_extension_usages_on_recorded_at"
+    t.index ["user_id"], name: "index_extension_usages_on_user_id"
+  end
+
   create_table "flipper_features", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "key", null: false
@@ -250,6 +262,21 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_23_033610) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "post_git_commits", force: :cascade do |t|
+    t.integer "additions", default: 0
+    t.string "author_email"
+    t.string "author_name"
+    t.datetime "authored_at"
+    t.datetime "created_at", null: false
+    t.integer "deletions", default: 0
+    t.integer "files_changed", default: 0
+    t.text "message"
+    t.string "sha", null: false
+    t.datetime "updated_at", null: false
+    t.string "url"
+    t.index ["sha"], name: "index_post_git_commits_on_sha", unique: true
+  end
+
   create_table "post_ship_events", force: :cascade do |t|
     t.string "body"
     t.string "certification_status", default: "pending"
@@ -305,6 +332,19 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_23_033610) do
     t.index ["user_id"], name: "index_project_memberships_on_user_id"
   end
 
+  create_table "project_reports", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "details", null: false
+    t.bigint "project_id", null: false
+    t.string "reason", null: false
+    t.bigint "reporter_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_project_reports_on_project_id"
+    t.index ["reporter_id", "project_id"], name: "index_project_reports_on_reporter_id_and_project_id", unique: true
+    t.index ["reporter_id"], name: "index_project_reports_on_reporter_id"
+  end
+
   create_table "projects", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "deleted_at"
@@ -327,19 +367,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_23_033610) do
     t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "index_projects_on_deleted_at"
     t.index ["marked_fire_by_id"], name: "index_projects_on_marked_fire_by_id"
-  end
-
-  create_table "reports", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.text "details", null: false
-    t.bigint "project_id", null: false
-    t.string "reason", null: false
-    t.bigint "reporter_id", null: false
-    t.integer "status", default: 0, null: false
-    t.datetime "updated_at", null: false
-    t.index ["project_id"], name: "index_reports_on_project_id"
-    t.index ["reporter_id", "project_id"], name: "index_reports_on_reporter_id_and_project_id", unique: true
-    t.index ["reporter_id"], name: "index_reports_on_reporter_id"
   end
 
   create_table "rsvps", force: :cascade do |t|
@@ -581,6 +608,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_23_033610) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "comments", "users"
+  add_foreign_key "extension_usages", "projects"
+  add_foreign_key "extension_usages", "users"
   add_foreign_key "ledger_entries", "users"
   add_foreign_key "likes", "users"
   add_foreign_key "posts", "projects"
@@ -589,9 +618,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_23_033610) do
   add_foreign_key "project_follows", "users"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
+  add_foreign_key "project_reports", "projects"
+  add_foreign_key "project_reports", "users", column: "reporter_id"
   add_foreign_key "projects", "users", column: "marked_fire_by_id"
-  add_foreign_key "reports", "projects"
-  add_foreign_key "reports", "users", column: "reporter_id"
   add_foreign_key "shop_card_grants", "shop_items"
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"

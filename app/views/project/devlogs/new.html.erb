@@ -46,7 +46,7 @@
                 attribute: :attachments,
                 color: :green,
                 subtitle: "Supports images, video, and GIF. Max 50 MB.",
-                accept: Post::Devlog::ACCEPTED_UPLOAD_TYPES.join(","),
+                accept: Post::Devlog::ACCEPTED_CONTENT_TYPES.join(","),
                 multiple: true,
                 max_count: 8,
                 max_size: 50.megabytes

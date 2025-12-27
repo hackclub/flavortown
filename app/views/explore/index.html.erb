@@ -1,18 +1,5 @@
 <div class="explore" data-controller="load-more" data-load-more-url-value="<%= explore_index_path %>">
-    <div class="explore__nav">
-        <%= link_to explore_index_path, class: "explore__nav-component selected" do %>
-            <%= inline_svg "icons/globe2.svg" %>
-            Devlogs
-        <% end %>
-        <%= link_to explore_gallery_path, class: "explore__nav-component" do %>
-            <%= inline_svg "icons/globe2.svg" %>
-            Gallery
-        <% end %>
-        <%= link_to explore_following_path, class: "explore__nav-component" do %>
-            <%= inline_svg "icons/globe2.svg" %>
-            Following
-        <% end %>
-    </div>
+    <%= render "explore/explore_nav" %>
 
     <div id="devlog-list" class="explore__list" data-load-more-target="entries">
         <% @devlogs.each do |post| %>

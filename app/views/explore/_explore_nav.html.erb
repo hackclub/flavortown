@@ -1,0 +1,20 @@
+<div class="explore__nav">
+  <%= link_to explore_index_path, class: "explore__nav-component #{'selected' if current_page?(explore_index_path)}" do %>
+    <%= inline_svg "icons/globe2.svg" %>
+    Devlogs
+  <% end %>
+  <%= link_to explore_gallery_path, class: "explore__nav-component #{'selected' if current_page?(explore_gallery_path)}" do %>
+    <%= inline_svg "icons/globe2.svg" %>
+    Gallery
+  <% end %>
+  <%= link_to explore_extensions_path, class: "explore__nav-component #{'selected' if current_page?(explore_extensions_path)}" do %>
+    <%= inline_svg "icons/globe2.svg" %>
+    Extensions
+  <% end %>
+  <% if current_user %>
+    <%= link_to explore_following_path, class: "explore__nav-component #{'selected' if current_page?(explore_following_path)}" do %>
+      <%= inline_svg "icons/globe2.svg" %>
+      Following
+    <% end %>
+  <% end %>
+</div>

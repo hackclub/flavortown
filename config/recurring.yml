@@ -68,3 +68,15 @@ production:
     schedule: every hour
     concurrency: 1
     description: "Refresh carousel prizes cache for landing page"
+
+  sync_git_commits:
+    class: GitCommitSyncJob
+    schedule: every hour
+    concurrency: 1
+    description: "Sync git commits from project repos to timeline"
+
+  flush_extension_usage:
+    class: FlushExtensionUsageJob
+    schedule: every 2 minutes
+    concurrency: 1
+    description: "Flush extension usage from Redis buffer to database"

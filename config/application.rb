@@ -41,10 +41,14 @@ module Battlemage
     ActiveSupport::Notifications.subscribe("cache_read.active_support") do |*args|
       event = ActiveSupport::Notifications::Event.new(*args)
       if event.payload[:hit]
+        Thread.current[:cache_hits] ||=0
         Thread.current[:cache_hits] += 1
       else
+        Thread.current[:cache_misses] ||= 0
         Thread.current[:cache_misses] += 1
       end
+    rescue
+      Rails.logger.warn("Unable to register cache hit")
     end
 
     ActiveSupport::Notifications.subscribe("cache_fetch_hit.active_support") do |*args|

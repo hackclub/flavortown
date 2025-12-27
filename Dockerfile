@@ -16,7 +16,7 @@ WORKDIR /rails
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl wget libjemalloc2 libvips sqlite3 file && \
+    apt-get install --no-install-recommends -y curl wget libjemalloc2 libvips sqlite3 file git && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Set production environment

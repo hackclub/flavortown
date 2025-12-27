@@ -21,6 +21,10 @@ class ProjectsController < ApplicationController
     unless ShipCertService.get_status(@project) == "approved"
       @posts = @posts.where.not(postable_type: "Post::ShipEvent")
     end
+
+    unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
+      @posts = @posts.where.not(postable_type: "Post::GitCommit")
+    end
   end
 
   def new

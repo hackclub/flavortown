@@ -18,11 +18,6 @@
 class Post::Devlog < ApplicationRecord
   include Postable
 
-  has_many :likes, as: :likeable, dependent: :destroy
-  has_many :comments, as: :commentable, dependent: :destroy
-  validate :minimum_duration
-  SCRAPBOOK_CHANNEL_ID = "C01504DCLVD".freeze
-
   ACCEPTED_CONTENT_TYPES = %w[
     image/jpeg
     image/png
@@ -33,21 +28,13 @@ class Post::Devlog < ApplicationRecord
     video/mp4
     video/quicktime
     video/webm
-    video/x-matroska].freeze
+    video/x-matroska
+  ].freeze
 
-  # File extensions for browser file picker (some browsers need these alongside MIME types)
-  ACCEPTED_FILE_EXTENSIONS = %w[.jpg .jpeg .png .webp .heic .heif .gif .mp4 .mov .webm .mkv].freeze
-  ACCEPTED_UPLOAD_TYPES = (ACCEPTED_CONTENT_TYPES + ACCEPTED_FILE_EXTENSIONS).freeze
+  has_many :likes, as: :likeable, dependent: :destroy
+  has_many :comments, as: :commentable, dependent: :destroy
 
-  validates :body, presence: true, length: { maximum: 2_000 }
-  validates :scrapbook_url, uniqueness: { message: "has already been used for another devlog" }, allow_blank: true, unless: -> { Rails.env.development? }
-  validate :validate_scrapbook_url
-
-  before_validation :populate_from_scrapbook_url
-  after_create :notify_scrapbook_thread
-  after_create :notify_slack_channel
-
-  # only for images – not for videos or gif!
+  # only for images – not for videos or gif!
   has_many_attached :attachments do |attachable|
     attachable.variant :large,
                        resize_to_limit: [ 1600, 900 ],
@@ -72,224 +59,55 @@ class Post::Devlog < ApplicationRecord
             content_type: { in: ACCEPTED_CONTENT_TYPES, spoofing_protection: true },
             size: { less_than: 50.megabytes, message: "is too large (max 50 MB)" },
             processable_file: true
-
   validate :at_least_one_attachment
+  validates :duration_seconds,
+            numericality: {
+              greater_than_or_equal_to: 15.minutes,
+              message: "error, you must log at least 15 minutes to post a devlog"
+            },
+            allow_nil: true
+  validates :body, presence: true, length: { maximum: 2_000 }, unless: -> { scrapbook_url.present? }
+  validates :scrapbook_url,
+            uniqueness: { message: "has already been used for another devlog" },
+            allow_blank: true,
+            unless: -> { Rails.env.development? }
+  validate :validate_scrapbook_url
+
+  after_create_commit :handle_post_creation
+
+  def recalculate_seconds_coded
+    return false unless post.project.hackatime_keys.present?
+    hackatime_uid = post.user.hackatime_identity&.uid
+    previous_devlog = post.project.devlogs.where("created_at < ?", created_at).order(created_at: :desc).first
+    start_date = previous_devlog&.created_at || [ post.project.created_at, Date.parse(HackatimeService::START_DATE).beginning_of_day ].min
+    end_date = created_at
+
+    HackatimeService.sync_devlog_duration(self, hackatime_uid, start_date.iso8601, end_date.iso8601)
+  rescue JSON::ParserError => e
+    Rails.logger.error("JSON parse error in recalculate_seconds_coded for Devlog #{id}: #{e.message}")
+    false
+  rescue => e
+    Rails.logger.error("Unexpected error in recalculate_seconds_coded for Devlog #{id}: #{e.message}")
+    false
+  end
+
+  private
 
   def at_least_one_attachment
     return if scrapbook_url.present?
+
     errors.add(:attachments, "must include at least one image or video") unless attachments.attached?
   end
 
   def validate_scrapbook_url
     return if scrapbook_url.blank?
 
-    unless scrapbook_url.include?("hackclub") && scrapbook_url.include?("slack.com")
-      errors.add(:scrapbook_url, "must be a Hack Club Slack URL")
-      return
-    end
-
-    channel_id, message_ts = extract_slack_ids_from_url(scrapbook_url)
-    unless channel_id && message_ts
-      errors.add(:scrapbook_url, "is not a valid Slack message URL")
-      return
-    end
-
-    unless channel_id == SCRAPBOOK_CHANNEL_ID
-      errors.add(:scrapbook_url, "must be from the #scrapbook channel")
-      return
-    end
-
-    unless @scrapbook_message_fetched
-      errors.add(:scrapbook_url, "could not be verified - message not found")
-    end
+    error_key = ScrapbookService.validate_url(scrapbook_url)
+    errors.add(:scrapbook_url, ScrapbookService::VALIDATION_ERRORS[error_key]) if error_key
   end
 
-  def populate_from_scrapbook_url
-    return if scrapbook_url.blank?
-    @scrapbook_message_fetched = false
-
-    channel_id, message_ts = extract_slack_ids_from_url(scrapbook_url)
-    return unless channel_id && message_ts
-    return unless channel_id == SCRAPBOOK_CHANNEL_ID
-
-    message = fetch_slack_message(channel_id, message_ts)
-    return unless message
-
-    @scrapbook_message_fetched = true
-    self.body = message["text"]
-
-    attach_slack_files(message)
-
-    @scrapbook_message_ts = message_ts
-  end
-
-  def attach_slack_files(message)
-    files = message["files"] || []
-
-    if Rails.env.development?
-      Rails.logger.debug("Slack message files: #{files.inspect}")
-    end
-
-    if files.empty?
-      Rails.logger.info("No files found in Slack message")
-      return
-    end
-
-    files.each do |file|
-      Rails.logger.debug("Processing file: #{file['name']}, mimetype: #{file['mimetype']}, url: #{file['url_private_download']}") if Rails.env.development?
-
-      unless file["url_private_download"].present?
-        Rails.logger.warn("File #{file['name']} has no url_private_download - bot may need files:read scope")
-        next
-      end
-
-      unless ACCEPTED_CONTENT_TYPES.include?(file["mimetype"])
-        Rails.logger.debug("Skipping file #{file['name']} - unsupported mimetype #{file['mimetype']}") if Rails.env.development?
-        next
-      end
-
-      download_and_attach_file(file)
-    end
-  end
-
-  def download_and_attach_file(file)
-    url = file["url_private_download"]
-    token = Rails.application.credentials.dig(:slack, :bot_token)
-
-    Rails.logger.debug("Downloading file from: #{url}") if Rails.env.development?
-
-    response = Faraday.get(url) do |req|
-      req.headers["Authorization"] = "Bearer #{token}"
-    end
-
-    unless response.success?
-      Rails.logger.error("Failed to download Slack file #{file['name']}: HTTP #{response.status}")
-      return
-    end
-
-    Rails.logger.debug("Downloaded #{response.body.bytesize} bytes for #{file['name']}") if Rails.env.development?
-
-    attachments.attach(
-      io: StringIO.new(response.body),
-      filename: file["name"],
-      content_type: file["mimetype"]
-    )
-  rescue StandardError => e
-    Rails.logger.error("Failed to download Slack file #{file['name']}: #{e.message}")
-    Rails.logger.error(e.backtrace.join("\n")) if Rails.env.development?
-  end
-
-  def notify_scrapbook_thread
-    return if scrapbook_url.blank?
-    return unless @scrapbook_message_ts
-
-    SendSlackDmJob.perform_later(
-      SCRAPBOOK_CHANNEL_ID,
-      "This scrapbook post has been linked to a Flavortown devlog! :flavortown: https://flavortown.hackclub.com/projects/#{id}",
-      thread_ts: @scrapbook_message_ts
-    )
-  end
-
-  def notify_slack_channel
+  def handle_post_creation
+    ScrapbookPopulateDevlogJob.perform_later(id) if scrapbook_url.present?
     PostCreationToSlackJob.perform_later(self)
-  end
-
-  def extract_slack_ids_from_url(url)
-    match = url.match(%r{/archives/([A-Z0-9]+)/p(\d+)})
-    return nil unless match
-
-    channel_id = match[1]
-    raw_ts = match[2]
-    message_ts = "#{raw_ts[0..9]}.#{raw_ts[10..]}"
-
-    [ channel_id, message_ts ]
-  end
-
-  def fetch_slack_message(channel_id, message_ts)
-    client = Slack::Web::Client.new(token: Rails.application.credentials.dig(:slack, :bot_token))
-
-    response = client.conversations_history(
-      channel: channel_id,
-      oldest: message_ts,
-      latest: message_ts,
-      inclusive: true,
-      limit: 1
-    )
-
-    if Rails.env.development?
-      Rails.logger.debug("Slack API response for #{channel_id}/#{message_ts}: #{response.to_h}")
-    end
-
-    return nil unless response.ok && response.messages&.any?
-    response.messages.first
-  rescue Slack::Web::Api::Errors::SlackError => e
-    Rails.logger.error("Failed to fetch Slack message: #{e.message}")
-    Rails.logger.error(e.backtrace.join("\n")) if Rails.env.development?
-    nil
-  rescue StandardError => e
-    Rails.logger.error("Unexpected error fetching Slack message: #{e.message}")
-    Rails.logger.error(e.backtrace.join("\n")) if Rails.env.development?
-    nil
-  end
-
-  def recalculate_seconds_coded
-    return false unless post
-
-    project = post.project
-    user = post.user
-    return false unless project && user
-
-    prev_time = find_previous_devlog_time(project)
-
-    return false unless project.hackatime_keys.present?
-
-    fetch_and_update_duration(user, project, prev_time)
-  rescue JSON::ParserError => e
-    Rails.logger.error "JSON parse error in recalculate_seconds_coded for Devlog #{id}: #{e.message}"
-    false
-  rescue => e
-    Rails.logger.error "Unexpected error in recalculate_seconds_coded for Devlog #{id}: #{e.message}"
-    false
-  end
-
-  private
-
-  def find_previous_devlog_time(project)
-    Post.joins("INNER JOIN post_devlogs ON posts.postable_id::bigint = post_devlogs.id")
-        .where(postable_type: "Post::Devlog", project_id: project.id)
-        .where("posts.created_at < ?", post.created_at)
-        .order(created_at: :desc)
-        .first&.created_at
-  end
-
-  def fetch_and_update_duration(user, project, prev_time)
-    return false unless user.hackatime_identity
-
-    hackatime_keys = project.hackatime_keys
-    end_time = post.created_at.utc
-
-    result = if prev_time.nil?
-               HackatimeService.fetch_stats(user.hackatime_identity.uid)
-    else
-               HackatimeService.fetch_stats(user.hackatime_identity.uid, start_date: prev_time.iso8601, end_date: end_time.iso8601)
-    end
-
-    return false unless result
-
-    seconds = hackatime_keys.sum { |key| result[:projects][key].to_i }
-
-    Rails.logger.info "\tDevlog #{id} duration_seconds: #{seconds}"
-    update!(
-      duration_seconds: seconds,
-      hackatime_pulled_at: Time.current,
-      hackatime_projects_key_snapshot: hackatime_keys.join(",")
-    )
-    true
-  end
-
-  def minimum_duration
-    if duration_seconds.present? && duration_seconds < 900
-      errors.add(:duration_seconds, "must be at least 15 minutes")
-    end
   end
 end

@@ -37,7 +37,6 @@ class Project < ApplicationRecord
 
     after_create :notify_slack_channel
 
-    # TODO: reflect the allowed content types in the html accept
     ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
     MAX_BANNER_SIZE = 10.megabytes
 
@@ -51,9 +50,10 @@ class Project < ApplicationRecord
     scope :deleted, -> { where.not(deleted_at: nil) }
     scope :fire, -> { where.not(marked_fire_at: nil) }
 
-    belongs_to :marked_fire_by, class_name: "User", optional: true
-
+    # we're soft deleting!
     default_scope { kept }
+
+    belongs_to :marked_fire_by, class_name: "User", optional: true
 
     has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
     has_many :users, through: :memberships
@@ -61,13 +61,16 @@ class Project < ApplicationRecord
     has_many :posts, dependent: :destroy
     has_many :devlogs, -> { where(postable_type: "Post::Devlog") }, class_name: "Post"
     has_many :ship_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
+    has_many :git_commit_posts, -> { where(postable_type: "Post::GitCommit").order(created_at: :desc) }, class_name: "Post"
     has_one :latest_ship_post, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
     has_many :votes, dependent: :destroy
-    has_many :reports, dependent: :destroy
+    has_many :reports, class_name: "Project::Report", dependent: :destroy
     has_many :project_follows, dependent: :destroy
     has_many :followers, through: :project_follows, source: :user
 
+    # needs to be implemented
     has_one_attached :demo_video
+
     # https://github.com/rails/rails/pull/39135
     has_one_attached :banner do |attachable|
         # using resize_to_limit to preserve aspect ratio without cropping
@@ -114,36 +117,11 @@ class Project < ApplicationRecord
       end
     end
 
-    scope :votable_by, ->(user) {
-      where.not(id: user.projects.select(:id))
-        .where("NOT EXISTS (
-          SELECT 1 FROM votes
-          WHERE votes.user_id = ?
-          AND votes.ship_event_id = latest_ship.id
-        )", user.id)
-    }
+    def validate_repo_cloneable
+      return false if repo_url.blank?
 
-    scope :looking_for_votes, -> {
-      joins("INNER JOIN LATERAL (
-        SELECT post_ship_events.id, post_ship_events.votes_count
-        FROM posts
-        INNER JOIN post_ship_events ON post_ship_events.id = posts.postable_id::bigint
-        WHERE posts.project_id = projects.id
-          AND posts.postable_type = 'Post::ShipEvent'
-          AND post_ship_events.payout IS NULL
-          AND post_ship_events.certification_status = 'approved'
-          AND post_ship_events.votes_count < #{Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT}
-        ORDER BY posts.created_at DESC
-        LIMIT 1
-      ) latest_ship ON true")
-        .where("EXISTS (
-          SELECT 1 FROM project_memberships
-          INNER JOIN users ON users.id = project_memberships.user_id
-          WHERE project_memberships.project_id = projects.id
-          AND users.verification_status = 'verified'
-        )")
-        .order("latest_ship.votes_count ASC")
-    }
+      GitRepoService.is_cloneable? repo_url
+    end
 
     def time
         total_seconds = Rails.cache.fetch("project/#{id}/time_seconds", expires_in: 10.minutes) do
@@ -156,8 +134,7 @@ class Project < ApplicationRecord
         OpenStruct.new(hours: hours, minutes: minutes)
     end
 
-
-
+    # this can probaby be better?
     def soft_delete!
       update!(deleted_at: Time.current)
     end
@@ -169,22 +146,23 @@ class Project < ApplicationRecord
     def deleted?
       deleted_at.present?
     end
+
     def hackatime_keys
         hackatime_projects.pluck(:name)
     end
 
     def total_hackatime_hours
-        return 0 if hackatime_projects.empty?
+      return 0 if hackatime_projects.empty?
 
-        owner = memberships.owner.first&.user
-        return 0 unless owner
+      owner = memberships.owner.first&.user
+      return 0 unless owner
 
-        result = owner.try_sync_hackatime_data!
-        return 0 unless result
+      result = owner.try_sync_hackatime_data!
+      return 0 unless result
 
-        project_times = result[:projects]
-        total_seconds = hackatime_projects.sum { |hp| project_times[hp.name].to_i }
-        (total_seconds / 3600.0).round(1)
+      project_times = result[:projects]
+      total_seconds = hackatime_projects.sum { |hp| project_times[hp.name].to_i }
+      (total_seconds / 3600.0).round(1)
     end
 
     def hackatime_projects_with_time

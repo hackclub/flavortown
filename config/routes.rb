@@ -65,9 +65,8 @@ Rails.application.routes.draw do
   get "explore", to: "explore#index", as: :explore_index
   get "explore/gallery", to: "explore#gallery", as: :explore_gallery
   get "explore/following", to: "explore#following", as: :explore_following
+  get "explore/extensions", to: "explore#extensions", as: :explore_extensions
 
-  # Reports
-  resources :reports, only: [ :create ]
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
@@ -132,10 +131,11 @@ Rails.application.routes.draw do
       resources :docs, only: [ :index ]
 
       resources :projects, only: [ :index, :show ] do
-        resources :devlogs, only: [ :index, :show ]
+        resources :devlogs, only: [ :index, :show ], controller: "project_devlogs"
       end
 
       resources :store, only: [ :index, :show ]
+      resources :users, only: [ :index, :show ]
     end
   end
 
@@ -234,6 +234,7 @@ Rails.application.routes.draw do
   resources :projects, shallow: true do
     resources :memberships, only: [ :create, :destroy ], module: :project
     resources :devlogs, only: [ :new, :create ], module: :project
+    resources :reports, only: [ :create ], module: :project
     member do
       get :ship
       patch :update_ship

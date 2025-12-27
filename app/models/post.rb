@@ -27,11 +27,13 @@ class Post < ApplicationRecord
     # integeration – git remotes – or a user post
     belongs_to :user, optional: true
 
-    delegated_type :postable, types: %w[Post::Devlog Post::ShipEvent Post::FireEvent]
+    delegated_type :postable, types: %w[Post::Devlog Post::ShipEvent Post::FireEvent Post::GitCommit]
 
     after_commit :invalidate_project_time_cache, on: [ :create, :destroy ]
     after_commit :increment_devlogs_count, on: :create
     after_commit :decrement_devlogs_count, on: :destroy
+
+    scope :devlogs, -> { where(postable_type: "Post::Devlog") }
 
     private
 
