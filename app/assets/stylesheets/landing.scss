@@ -140,6 +140,7 @@ input {
 
     img {
       width: 125px;
+      height: auto;
     }
 
     @media (max-width: 600px) {
@@ -198,6 +199,11 @@ input {
         color: var(--color-red-600);
         text-decoration: underline;
       }
+    }
+
+    .logo {
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
     }
 
     .rsvp-form {
@@ -463,6 +469,7 @@ input {
 
             img {
               width: 80%;
+              height: auto;
               padding-bottom: 10%;
               border-radius: 12px;
               box-shadow: var(--shadow);
@@ -1069,6 +1076,7 @@ input {
 
         img {
           width: 300px;
+          height: auto;
           border-radius: 16px;
           box-shadow: var(--shadow);
         }
@@ -1221,6 +1229,7 @@ input {
               position: absolute;
               z-index: 2;
               width: 70px;
+              height: auto;
               top: -25%;
               left: 50%;
               transform: translateX(-50%);
@@ -1248,6 +1257,7 @@ input {
 
             img {
               width: 50px;
+              height: auto;
             }
 
             h4 {
@@ -1696,6 +1706,7 @@ input {
         img {
           margin-top: -32px;
           width: 100%;
+          height: auto;
         }
       }
     }
@@ -2002,6 +2013,8 @@ input {
 
     &__image {
       max-height: 500px;
+      width: auto;
+      height: auto;
       margin-top: 2rem;
 
       @media (max-width: 960px) {
