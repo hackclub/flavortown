@@ -1,35 +1,35 @@
 class MarkdownRenderer
-    def self.render(text)
-        html = get_markdown(text)
+  def self.render(text)
+    html = get_markdown(text)
 
-        sanitised = ActionController::Base.helpers.sanitize(
-            html,
-            tags: ActionView::Base.sanitized_allowed_tags + [ "u" ]
-        )
+    sanitised = ActionController::Base.helpers.sanitize(
+      html,
+      tags: ActionView::Base.sanitized_allowed_tags + [ "u" ]
+    )
 
-        doc = Nokogiri::HTML::DocumentFragment.parse(sanitised)
+    doc = Nokogiri::HTML::DocumentFragment.parse(sanitised)
 
-        doc.css("a").each do |link|
-          link["target"] = "_blank"
-          link["rel"] = "noopener noreferrer"
-        end
-
-        doc.to_html
+    doc.css("a").each do |link|
+      link["target"] = "_blank"
+      link["rel"] = "noopener noreferrer"
     end
 
-    private
+    doc.to_html
+  end
 
-    def self.get_markdown(text)
-        Commonmarker.to_html(
-            text,
-            options: {
-                parse: { smart: true },
-                extension: {
-                    strikethrough: true,
-                    underline: true,
-                    table: true
-                }
-            }
-        )
-    end
+  private
+
+  def self.get_markdown(text)
+    Commonmarker.to_html(
+      text,
+      options: {
+        parse: { smart: true },
+        extension: {
+          strikethrough: true,
+          underline: true,
+          table: true
+        }
+      }
+    )
+  end
 end
