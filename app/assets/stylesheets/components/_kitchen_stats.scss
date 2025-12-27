@@ -37,38 +37,3 @@
     gap: var(--space-xl);
   }
 }
-
-.kitchen-stats-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-
-  &__content {
-    flex: 1;
-  }
-
-  &__stat {
-    font-size: 1.5rem;
-    font-weight: 700;
-    font-family: var(--font-family-jua);
-    margin: var(--space-xs) 0;
-  }
-
-  &__count {
-    color: var(--color-text);
-  }
-
-  &__total {
-    color: var(--color-text-muted);
-    font-size: 1rem;
-  }
-
-  &__rank {
-    color: var(--color-text);
-
-    &--unranked {
-      font-size: 1rem;
-      color: var(--color-text-muted);
-    }
-  }
-}
