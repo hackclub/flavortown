@@ -1,3 +1,14 @@
+<% content_for :title, "Leaderboard - Flavortown" %>
+
+<% content_for :head do %>
+  <meta property="og:title" content="Flavortown Leaderboard">
+  <meta property="og:description" content="See who's earning the most cookies on Flavortown!">
+  <meta property="og:url" content="<%= request.original_url %>">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Flavortown Leaderboard">
+  <meta name="twitter:description" content="See who's earning the most cookies on Flavortown!">
+<% end %>
+
 <%= content_for :stylesheets do %>
   <%= stylesheet_link_tag "leaderboard", "data-turbo-track": "reload" %>
 <% end %>
