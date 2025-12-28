@@ -180,6 +180,7 @@ Rails.application.routes.draw do
          post :adjust_balance
          post :ban
          post :unban
+         post :cancel_all_hcb_grants
        end
        resource :magic_link, only: [ :show ]
      end
@@ -206,6 +207,7 @@ Rails.application.routes.draw do
         post :mark_fulfilled
         post :update_internal_notes
         post :assign_user
+        post :cancel_hcb_grant
       end
     end
     resources :audit_logs, only: [ :index, :show ]

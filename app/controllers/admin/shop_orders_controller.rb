@@ -339,4 +339,31 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to admin_shop_orders_path(view: "fulfillment"), alert: "Failed to assign order"
     end
   end
+
+  def cancel_hcb_grant
+    authorize :admin, :manage_users?
+    @order = ShopOrder.find(params[:id])
+
+    unless @order.shop_card_grant.present?
+      redirect_to admin_shop_order_path(@order), alert: "This order has no HCB grant to cancel"
+      return
+    end
+
+    grant = @order.shop_card_grant
+    begin
+      HCBService.cancel_card_grant!(hashid: grant.hcb_grant_hashid)
+
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "hcb_grant_canceled",
+        whodunnit: current_user.id,
+        object_changes: { hcb_grant_hashid: grant.hcb_grant_hashid, canceled_by: current_user.display_name }.to_json
+      )
+
+      redirect_to admin_shop_order_path(@order), notice: "HCB grant canceled successfully"
+    rescue => e
+      redirect_to admin_shop_order_path(@order), alert: "Failed to cancel HCB grant: #{e.message}"
+    end
+  end
 end
