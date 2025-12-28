@@ -1,3 +1,16 @@
+<% content_for :title, "#{@user.display_name} - Flavortown" %>
+
+<% content_for :head do %>
+  <meta property="og:title" content="<%= @user.display_name %> on Flavortown">
+  <meta property="og:description" content="<%= @stats[:projects_count] %> projects · <%= @stats[:ships_count] %> ships · <%= @stats[:posts_count] %> posts">
+  <meta property="og:url" content="<%= request.original_url %>">
+  <meta property="og:image" content="<%= @user.avatar %>">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="<%= @user.display_name %> on Flavortown">
+  <meta name="twitter:description" content="<%= @stats[:projects_count] %> projects · <%= @stats[:ships_count] %> ships · <%= @stats[:posts_count] %> posts">
+  <meta name="twitter:image" content="<%= @user.avatar %>">
+<% end %>
+
 <div class="user-profile">
   <div class="user-profile__left">
     <div class="user-profile__card">
