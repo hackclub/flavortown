@@ -189,6 +189,11 @@ class Admin::UsersController < Admin::ApplicationController
     amount = params[:amount].to_i
     reason = params[:reason].presence
 
+    if fraud_dept_cookie_limit_exceeded?(amount)
+      flash[:alert] = "Fraud department members can only grant up to 1 cookie without the grant_cookies permission."
+      return redirect_to admin_user_path(@user)
+    end
+
     if amount.zero?
       flash[:alert] = "Amount cannot be zero."
       return redirect_to admin_user_path(@user)
@@ -271,12 +276,27 @@ class Admin::UsersController < Admin::ApplicationController
   end
 
   def cannot_adjust_balance_for?(target_user)
-    return false if target_user == current_user
-    return false if current_user.has_role?(:super_admin)
+    return false if current_user.has_role?(:super_admin) || current_user.has_role?(:admin)
+
+    # Non-admins cannot adjust their own balance
+    return true if target_user == current_user
+
+    # Fraud dept cannot modify admin balances at all
+    if current_user.has_role?(:fraud_dept)
+      return true if target_user.has_role?(:admin) || target_user.has_role?(:super_admin)
+    end
 
     protected_roles = [ :admin, :super_admin, :fraud_dept ]
     shared_protected_roles = current_user.roles & protected_roles & target_user.roles
     shared_protected_roles.any?
+  end
+
+  def fraud_dept_cookie_limit_exceeded?(amount)
+    return false unless current_user.has_role?(:fraud_dept)
+    return false if current_user.has_role?(:admin) || current_user.has_role?(:super_admin)
+    return false if Flipper.enabled?(:grant_cookies, current_user)
+
+    amount > 1
   end
 
   def protected_role_name(target_user)
