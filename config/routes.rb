@@ -134,6 +134,8 @@ Rails.application.routes.draw do
         resources :devlogs, only: [ :index, :show ], controller: "project_devlogs"
       end
 
+      resources :devlogs, only: [ :index, :show ]
+
       resources :store, only: [ :index, :show ]
       resources :users, only: [ :index, :show ]
     end
