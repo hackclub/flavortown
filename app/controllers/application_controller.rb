@@ -22,13 +22,34 @@ class ApplicationController < ActionController::Base
   def current_user(preloads = [])
     return @current_user if defined?(@current_user)
 
-    if session[:user_id]
+    if impersonating?
+      scope = User.where(id: session[:impersonated_user_id])
+      scope = scope.eager_load(*Array(preloads)) if preloads.present?
+      @current_user = scope.to_a.first
+    elsif session[:user_id]
       scope = User.where(id: session[:user_id])
       scope = scope.eager_load(*Array(preloads)) if preloads.present?
       @current_user = scope.to_a.first
     end
   end
   helper_method :current_user
+
+  def impersonating?
+    session[:impersonated_user_id].present? && session[:user_id].present?
+  end
+
+  helper_method :impersonating?
+
+  def real_user
+    return nil unless session[:user_id]
+    @real_user ||= User.find_by(id: session[:user_id])
+  end
+
+  helper_method :real_user
+
+  def pundit_user
+    impersonating? ? real_user : current_user
+  end
 
   def tutorial_message(msg)
     flash[:tutorial_messages] ||= []

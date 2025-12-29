@@ -7,6 +7,10 @@ class AdminPolicy < ApplicationPolicy
     user.admin? || user.fraud_dept?
   end
 
+  def impersonate_users?
+    user.admin? || user.super_admin?
+  end
+
   def access_blazer?
     user.admin?
   end

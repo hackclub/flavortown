@@ -180,6 +180,10 @@ Rails.application.routes.draw do
          post :adjust_balance
          post :ban
          post :unban
+         post :impersonate
+       end
+       collection do
+         post :stop_impersonating
        end
        resource :magic_link, only: [ :show ]
      end

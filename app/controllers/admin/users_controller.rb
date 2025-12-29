@@ -11,6 +11,69 @@ class Admin::UsersController < Admin::ApplicationController
       @pagy, @users = pagy(:offset, users.order(:id))
     end
 
+    def impersonate
+      authorize :admin, :impersonate_users?
+
+      @user = User.find(params[:id]) # user to be impersonated
+
+      # you can't impersonate admins unless you're a superadmin. this means that admins won't be able to impersonate other admins
+      if @user.admin? && !current_user.super_admin?
+        flash[:alert] = "Only super admins can impersonate other admins."
+        return redirect_to admin_user_path(@user)
+      end
+
+      if @user.id == current_user.id
+        flash[:alert] = "You cannot impersonate yourself."
+        return redirect_to admin_user_path(@user)
+      end
+
+      session[:impersonated_user_id] = @user.id
+      pundit_reset!
+
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: @user.id,
+        event: "impersonation_started",
+        whodunnit: real_user.id.to_s,
+        object_changes: {
+          impersonated_by: real_user.id,
+          impersonated_by_name: real_user.display_name
+        }.to_json
+      )
+
+      flash[:notice] = "Now impersonating #{@user.display_name}. You can stop impersonation from the banner at the top."
+      redirect_to root_path
+    end
+
+    def stop_impersonating
+      authorize :admin, :impersonate_users?
+
+      impersonated_user_id = session[:impersonated_user_id]
+
+      if impersonated_user_id.present?
+        impersonated_user = User.find_by(id: impersonated_user_id)
+
+        if impersonated_user
+          PaperTrail::Version.create!(
+            item_type: "User",
+            item_id: impersonated_user.id,
+            event: "impersonation_stopped",
+            whodunnit: real_user.id.to_s,
+            object_changes: {
+              stopped_by: real_user.id,
+              stopped_by_name: real_user.display_name
+            }.to_json
+          )
+        end
+
+        session.delete(:impersonated_user_id)
+        pundit_reset!
+        flash[:notice] = "Stopped impersonating #{impersonated_user&.display_name}."
+      end
+
+      redirect_to admin_users_path
+    end
+
     def show
       @user = User.includes(:identities).find(params[:id])
 
