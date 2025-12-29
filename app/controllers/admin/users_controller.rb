@@ -4,8 +4,8 @@ class Admin::UsersController < Admin::ApplicationController
 
       users = User.all
       if @query.present?
-        q = "%#{@query}%"
-        users = users.where("email ILIKE ? OR display_name ILIKE ?", q, q)
+        q = "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%"
+        users = users.where("email ILIKE ? OR display_name ILIKE ? OR slack_id ILIKE ?", q, q, q)
       end
 
       @pagy, @users = pagy(:offset, users.order(:id))

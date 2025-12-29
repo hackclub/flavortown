@@ -47,8 +47,8 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     orders = orders.where("created_at <= ?", params[:date_to]) if params[:date_to].present?
 
     if params[:user_search].present?
-      search = "%#{params[:user_search]}%"
-      orders = orders.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ?", search, search)
+      search = "%#{ActiveRecord::Base.sanitize_sql_like(params[:user_search])}%"
+      orders = orders.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.id::text = ? OR users.slack_id ILIKE ?", search, search, params[:user_search], search)
     end
 
     # Calculate stats before region filter (for database queries)

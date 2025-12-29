@@ -6,8 +6,8 @@ module Helper
 
       u = User.all
       if @q.present?
-        q = "%#{@q}%"
-        u = u.where("display_name ILIKE ?", q)
+        q = "%#{ActiveRecord::Base.sanitize_sql_like(@q)}%"
+        u = u.where("display_name ILIKE ? OR email ILIKE ? OR slack_id ILIKE ?", q, q, q)
       end
 
       @pagy, @users = pagy(:offset, u.order(:id))

@@ -14,7 +14,7 @@ class Admin::ProjectsController < Admin::ApplicationController
     end
 
     if @query.present?
-      q = "%#{@query}%"
+      q = "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%"
       projects = projects.where("title ILIKE ? OR description ILIKE ?", q, q)
     end
 
