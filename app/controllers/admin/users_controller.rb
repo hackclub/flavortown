@@ -38,7 +38,7 @@ class Admin::UsersController < Admin::ApplicationController
 
       if impersonated_user_id.present?
         impersonated_user = User.find_by(id: impersonated_user_id)
-        
+
         if impersonated_user
           PaperTrail::Version.create!(
             item_type: "User",
