@@ -11,6 +11,7 @@ module Admin
     # Optional before_action to enforce admin/fraud dept on all admin controllers
     before_action :prevent_admin_access_while_impersonating
     before_action :authenticate_admin, unless: :mission_control_jobs?
+    before_action :set_paper_trail_whodunnit
 
     # Shared admin dashboard logic
     def index
