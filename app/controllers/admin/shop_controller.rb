@@ -5,7 +5,7 @@ module Admin
       @shop_items = ShopItem.order(created_at: :desc)
 
       if params[:search].present?
-        search_term = "%#{params[:search]}%"
+        search_term = "%#{ActiveRecord::Base.sanitize_sql_like(params[:search])}%"
         @shop_items = @shop_items.where("name ILIKE ? OR id::text = ?", search_term, params[:search])
       end
 

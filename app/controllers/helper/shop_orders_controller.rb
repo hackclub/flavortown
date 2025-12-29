@@ -11,8 +11,8 @@ module Helper
       o = o.where("created_at <= ?", params[:date_to]) if params[:date_to].present?
 
       if params[:user_search].present?
-        s = "%#{params[:user_search]}%"
-        o = o.joins(:user).where("users.display_name ILIKE ?", s)
+        s = "%#{ActiveRecord::Base.sanitize_sql_like(params[:user_search])}%"
+        o = o.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.slack ILIKE ?", s, s, s)
       end
 
       @pagy, @orders = pagy(:offset, o.order(created_at: :desc))
