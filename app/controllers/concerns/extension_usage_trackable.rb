@@ -8,11 +8,10 @@ module ExtensionUsageTrackable
   private
 
   def track_extension_usage
-    return unless current_user
-    return unless redis_available?
-
     project_ids = extract_extension_project_ids
     return if project_ids.empty?
+    return unless redis_available?
+    return unless used_by
 
     timestamp = Time.current.iso8601
 
