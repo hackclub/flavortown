@@ -5,7 +5,7 @@ class ButtonComponent < ViewComponent::Base
   VARIANTS = %i[default striped borderless].freeze
   SIZES = %i[sm md lg].freeze
 
-  attr_reader :text, :color, :variant, :size, :icon, :type, :href, :method, :html_options
+  attr_reader :text, :color, :variant, :size, :icon, :type, :href, :method, :disable_with, :html_options
 
   def initialize(
     text: nil,
@@ -16,6 +16,7 @@ class ButtonComponent < ViewComponent::Base
     type: :button,
     href: nil,
     method: nil,
+    disable_with: nil,
     **html_options
   )
     @text = text
@@ -26,6 +27,7 @@ class ButtonComponent < ViewComponent::Base
     @type = type
     @href = href
     @method = method
+    @disable_with = disable_with
     @html_options = html_options
   end
 
@@ -40,7 +42,12 @@ class ButtonComponent < ViewComponent::Base
   end
 
   def button_attributes
-    html_options.except(:class).merge(class: button_classes)
+    attrs = html_options.except(:class).merge(class: button_classes)
+    if disable_with.present? && type == :submit
+      attrs[:data] ||= {}
+      attrs[:data][:turbo_submits_with] = disable_with
+    end
+    attrs
   end
 
   def link_attributes
