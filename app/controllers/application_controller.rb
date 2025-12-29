@@ -22,12 +22,12 @@ class ApplicationController < ActionController::Base
   def current_user(preloads = [])
     return @current_user if defined?(@current_user)
 
-    if impersonating?
-      scope = User.where(id: session[:impersonated_user_id])
-      scope = scope.eager_load(*Array(preloads)) if preloads.present?
-      @current_user = scope.to_a.first
-    elsif session[:user_id]
-      scope = User.where(id: session[:user_id])
+    if session[:user_id]
+      scope = if impersonating?
+        User.where(id: session[:impersonated_user_id])
+      else
+        User.where(id: session[:user_id])
+      end
       scope = scope.eager_load(*Array(preloads)) if preloads.present?
       @current_user = scope.to_a.first
     end
