@@ -131,14 +131,6 @@ export default class extends Controller {
     // Native file selection: browser REPLACES input.files on each selection.
     // We need to track files ourselves and merge for "add more" to work.
     const newFiles = Array.from(event.target.files || []);
-    console.log(
-      "[FileUpload] handleSelection - new files:",
-      newFiles.map((f) => f.name),
-    );
-    console.log(
-      "[FileUpload] handleSelection - tracked files before:",
-      this.#trackedFiles.map((f) => f.name),
-    );
 
     // Validate new files
     const accepted = newFiles.filter((f) => this.#validateFileSize(f));
@@ -172,11 +164,6 @@ export default class extends Controller {
         "error",
       );
     }
-
-    console.log(
-      "[FileUpload] handleSelection - tracked files after:",
-      this.#trackedFiles.map((f) => f.name),
-    );
 
     // Update input.files with all tracked files
     const dt = new DataTransfer();

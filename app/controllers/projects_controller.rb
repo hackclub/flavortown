@@ -13,10 +13,18 @@ class ProjectsController < ApplicationController
 
   def show
     authorize @project
+    @show_deleted_devlogs = current_user&.can_see_deleted_devlogs?
+
     @posts = @project
       .posts
       .order(created_at: :desc)
-      .includes(:user, postable: [ { attachments_attachments: :blob } ])
+
+    # Eager load with deleted devlogs for admins
+    if @show_deleted_devlogs
+      @posts = @posts.includes(:user, :devlog_with_deleted, postable: [ { attachments_attachments: :blob } ])
+    else
+      @posts = @posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
+    end
 
     unless ShipCertService.get_status(@project) == "approved"
       @posts = @posts.where.not(postable_type: "Post::ShipEvent")
@@ -24,6 +32,12 @@ class ProjectsController < ApplicationController
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
       @posts = @posts.where.not(postable_type: "Post::GitCommit")
+    end
+
+    # Filter out deleted devlogs for users who can't see them
+    unless @show_deleted_devlogs
+      deleted_devlog_ids = Post::Devlog.unscoped.deleted.pluck(:id)
+      @posts = @posts.where.not(postable_type: "Post::Devlog", postable_id: deleted_devlog_ids)
     end
   end
 
@@ -117,10 +131,15 @@ class ProjectsController < ApplicationController
 
   def destroy
     authorize @project
-    @project.soft_delete!
-    current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
-    flash[:notice] = "Project deleted successfully"
-    redirect_to projects_path
+    begin
+      @project.soft_delete!
+      current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
+      flash[:notice] = "Project deleted successfully"
+      redirect_to projects_path
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:alert] = e.record.errors.full_messages.to_sentence
+      redirect_to @project
+    end
   end
 
   def ship
@@ -381,7 +400,7 @@ class ProjectsController < ApplicationController
   end
 
   def hackatime_project_ids
-    @hackatime_project_ids ||= Array(params[:project][:hackatime_project_ids]).reject(&:blank?)
+    @hackatime_project_ids ||= Array(params[:project][:hackatime_project_ids]).reject(&:blank?).map(&:to_i)
   end
 
   def validate_urls
@@ -402,6 +421,11 @@ class ProjectsController < ApplicationController
     validate_url_not_dead(:readme_url, "Readme URL") if @project.readme_url.present? && @project.errors.empty?
   end
 
+  # these links block automated requests, but we're ok with just assuming they're good
+  ALLOWLISTED_DOMAINS = %w[
+    npmjs.com
+  ].freeze
+
   def validate_url_not_dead(attribute, name)
     require "uri"
     require "faraday"
@@ -410,6 +434,11 @@ class ProjectsController < ApplicationController
     return unless @project.send(attribute).present?
 
     uri = URI.parse(@project.send(attribute))
+
+    if ALLOWLISTED_DOMAINS.any? { |domain| uri.host&.end_with?(domain) }
+      return
+    end
+
     conn = Faraday.new(
       url: uri.to_s,
       headers: { "User-Agent" => "Flavortown project validator (https://flavortown.hackclub.com/)" }
@@ -476,6 +505,11 @@ class ProjectsController < ApplicationController
   end
 
   def link_hackatime_projects
+    # Unlink hackatime projects that were removed
+    @project.hackatime_projects.where.not(id: hackatime_project_ids).find_each do |hp|
+      hp.update(project: nil)
+    end
+
     return if hackatime_project_ids.empty?
 
     current_user.hackatime_projects.where(id: hackatime_project_ids).find_each do |hp|

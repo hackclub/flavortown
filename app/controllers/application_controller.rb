@@ -30,6 +30,23 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user
 
+  def impersonating?
+    session[:impersonator_user_id].present? && session[:user_id].present?
+  end
+
+  helper_method :impersonating?
+
+  def real_user
+    return nil unless session[:impersonator_user_id]
+    @real_user ||= User.find_by(id: session[:impersonator_user_id])
+  end
+
+  helper_method :real_user
+
+  def pundit_user
+    impersonating? ? real_user : current_user
+  end
+
   def tutorial_message(msg)
     flash[:tutorial_messages] ||= []
     if msg.is_a?(Array)

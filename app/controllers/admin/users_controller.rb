@@ -1,14 +1,63 @@
 class Admin::UsersController < Admin::ApplicationController
+    skip_before_action :prevent_admin_access_while_impersonating, only: [ :stop_impersonating ]
+
     def index
       @query = params[:query]
 
       users = User.all
       if @query.present?
-        q = "%#{@query}%"
-        users = users.where("email ILIKE ? OR display_name ILIKE ?", q, q)
+        q = "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%"
+        users = users.where("email ILIKE ? OR display_name ILIKE ? OR slack_id ILIKE ?", q, q, q)
       end
 
       @pagy, @users = pagy(:offset, users.order(:id))
+    end
+
+    def impersonate
+      @user = User.find(params[:id]) # user to be impersonated
+      authorize @user
+
+      admin_user = current_user
+      # simple swap
+      session[:impersonator_user_id] = admin_user.id
+      session[:user_id] = @user.id
+      pundit_reset!
+
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: @user.id,
+        event: "impersonation_started",
+        whodunnit: admin_user.id.to_s,
+        object_changes: {
+          impersonated_by: admin_user.id,
+          impersonated_by_name: admin_user.display_name
+        }.to_json
+      )
+
+      flash[:notice] = "Now impersonating #{@user.display_name}. You can stop impersonation from the banner at the top."
+      redirect_to root_path
+    end
+
+    def stop_impersonating
+      if real_user && current_user # current_user is impersonated user
+          PaperTrail::Version.create!(
+            item_type: "User",
+            item_id: current_user.id,
+            event: "impersonation_stopped",
+            whodunnit: real_user.id.to_s,
+            object_changes: {
+              stopped_by: real_user.id,
+              stopped_by_name: real_user.display_name
+            }.to_json
+          )
+      end
+
+        session[:user_id] = real_user.id
+        session.delete(:impersonator_user_id)
+        pundit_reset!
+        flash[:notice] = "Stopped impersonating #{current_user&.display_name}."
+
+      redirect_to admin_users_path
     end
 
     def show
@@ -54,7 +103,6 @@ class Admin::UsersController < Admin::ApplicationController
         return redirect_to admin_user_path(@user)
       end
 
-
       @user.grant_role!(role_name)
 
       # Create explicit audit entry on User
@@ -81,7 +129,6 @@ class Admin::UsersController < Admin::ApplicationController
       flash[:alert] = "Only super admins can demote super admin."
       return redirect_to admin_user_path(@user)
     end
-
 
     if @user.has_role?(role_name)
       @user.remove_role!(role_name)
