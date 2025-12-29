@@ -10,7 +10,7 @@ class UserPolicy < ApplicationPolicy
     # cannot impersonate yourself
     return false if user.id == record.id
 
-    # only super admins can impoersonate admins
+    # only super admins can impersonate admins
     if record.admin? && !user.super_admin?
       return false
     end
