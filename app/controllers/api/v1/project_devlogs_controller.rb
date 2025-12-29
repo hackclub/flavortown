@@ -46,7 +46,7 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
         .joins("INNER JOIN posts ON posts.postable_id::bigint = post_devlogs.id AND posts.postable_type = 'Post::Devlog'")
         .where(posts: { project_id: params[:project_id] })
         .order("post_devlogs.created_at DESC"),
-      items: 100
+      limit: 100
     )
   end
 
