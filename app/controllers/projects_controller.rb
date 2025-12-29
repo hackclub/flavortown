@@ -13,10 +13,18 @@ class ProjectsController < ApplicationController
 
   def show
     authorize @project
+    @show_deleted_devlogs = current_user&.can_see_deleted_devlogs?
+
     @posts = @project
       .posts
       .order(created_at: :desc)
-      .includes(:user, postable: [ { attachments_attachments: :blob } ])
+
+    # Eager load with deleted devlogs for admins
+    if @show_deleted_devlogs
+      @posts = @posts.includes(:user, :devlog_with_deleted, postable: [ { attachments_attachments: :blob } ])
+    else
+      @posts = @posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
+    end
 
     unless ShipCertService.get_status(@project) == "approved"
       @posts = @posts.where.not(postable_type: "Post::ShipEvent")
@@ -24,6 +32,12 @@ class ProjectsController < ApplicationController
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
       @posts = @posts.where.not(postable_type: "Post::GitCommit")
+    end
+
+    # Filter out deleted devlogs for users who can't see them
+    unless @show_deleted_devlogs
+      deleted_devlog_ids = Post::Devlog.unscoped.deleted.pluck(:id)
+      @posts = @posts.where.not(postable_type: "Post::Devlog", postable_id: deleted_devlog_ids)
     end
   end
 
