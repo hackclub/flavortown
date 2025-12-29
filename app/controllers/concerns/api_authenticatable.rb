@@ -23,8 +23,4 @@ module ApiAuthenticatable
       false
     end
   end
-
-  def current_api_user
-    @current_api_user
-  end
 end

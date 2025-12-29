@@ -8,6 +8,12 @@ module ExtensionUsageTrackable
   private
 
   def track_extension_usage
+    api_key = request.headers["Authorization"]&.remove("Bearer ")
+
+    if api_key.present?
+      @current_user = User.find_by(api_key: api_key) if api_key.present?
+    end
+
     return unless current_user
     return unless redis_available?
 
