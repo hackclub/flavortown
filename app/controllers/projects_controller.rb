@@ -131,10 +131,15 @@ class ProjectsController < ApplicationController
 
   def destroy
     authorize @project
-    @project.soft_delete!
-    current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
-    flash[:notice] = "Project deleted successfully"
-    redirect_to projects_path
+    begin
+      @project.soft_delete!
+      current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
+      flash[:notice] = "Project deleted successfully"
+      redirect_to projects_path
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:alert] = e.record.errors.full_messages.to_sentence
+      redirect_to @project
+    end
   end
 
   def ship
