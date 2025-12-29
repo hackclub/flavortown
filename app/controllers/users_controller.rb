@@ -15,6 +15,12 @@ class UsersController < ApplicationController
                           .where("postable_type != 'Post::ShipEvent' OR postable_id IN (?)", approved_ship_event_ids.presence || [ 0 ])
                           .order(created_at: :desc)
 
+    # Filter out deleted devlogs for users who can't see them
+    unless current_user&.can_see_deleted_devlogs?
+      deleted_devlog_ids = Post::Devlog.unscoped.deleted.pluck(:id)
+      @activity = @activity.where.not(postable_type: "Post::Devlog", postable_id: deleted_devlog_ids)
+    end
+
     post_counts_by_type = Post.where(user_id: @user.id).group(:postable_type).count
     posts_count = post_counts_by_type.values.sum
     ships_count = post_counts_by_type["Post::ShipEvent"] || 0

@@ -87,6 +87,10 @@ class User < ApplicationRecord
 
   def has_role?(role_name) = roles.include?(role_name.to_sym)
 
+  def admin? = has_role?(:admin) || has_role?(:super_admin)
+
+  def can_see_deleted_devlogs? = admin? || has_role?(:fraud_dept)
+
   def grant_role!(role_name)
     role = role_name.to_sym
     raise ArgumentError, "Invalid role: #{role_name}" unless User::Role.all_slugs.include?(role)

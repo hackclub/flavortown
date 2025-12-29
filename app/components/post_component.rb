@@ -6,11 +6,15 @@
 
   def initialize(post:, variant: :devlog, current_user: nil)
     @post = post
-    @variant = normalize_variant(variant)
-    @variant = :ship if post.postable.is_a?(Post::ShipEvent)
-    @variant = :fire if post.postable.is_a?(Post::FireEvent)
-    @variant = :git_commit if post.postable.is_a?(Post::GitCommit)
     @current_user = current_user
+    @variant = normalize_variant(variant)
+    @variant = :ship if postable.is_a?(Post::ShipEvent)
+    @variant = :fire if postable.is_a?(Post::FireEvent)
+    @variant = :git_commit if postable.is_a?(Post::GitCommit)
+   end
+
+   def postable
+     @postable ||= post.postable_with_deleted
    end
 
    def project_title
@@ -28,30 +32,30 @@
    end
 
    def duration_text
-     return nil unless post.postable.respond_to?(:duration_seconds)
+      return nil unless postable.respond_to?(:duration_seconds)
 
-     seconds = post.postable.duration_seconds.to_i
-     return nil if seconds.zero?
+      seconds = postable.duration_seconds.to_i
+      return nil if seconds.zero?
 
-     hours = seconds / 3600
-     minutes = (seconds % 3600) / 60
-     "#{hours}h #{minutes}m"
-   end
+      hours = seconds / 3600
+      minutes = (seconds % 3600) / 60
+      "#{hours}h #{minutes}m"
+    end
 
    def ship_event?
-     post.postable.is_a?(Post::ShipEvent)
+     postable.is_a?(Post::ShipEvent)
    end
 
    def devlog?
-      post.postable.is_a?(Post::Devlog)
+      postable.is_a?(Post::Devlog)
     end
 
    def fire_event?
-      post.postable.is_a?(Post::FireEvent)
+      postable.is_a?(Post::FireEvent)
     end
 
    def git_commit?
-      post.postable.is_a?(Post::GitCommit)
+      postable.is_a?(Post::GitCommit)
     end
 
    def author_activity
@@ -67,14 +71,14 @@
    end
 
    def attachments
-     return [] unless post.postable.respond_to?(:attachments)
-     post.postable.attachments
-   end
+      return [] unless postable.respond_to?(:attachments)
+      postable.attachments
+    end
 
    def scrapbook_url
-     return nil unless post.postable.respond_to?(:scrapbook_url)
-     post.postable.scrapbook_url
-   end
+      return nil unless postable.respond_to?(:scrapbook_url)
+      postable.scrapbook_url
+    end
 
    def image?(attachment)
      attachment.content_type.start_with?("image/")
@@ -93,7 +97,29 @@
   end
 
   def commentable
-    post.postable
+    postable
+  end
+
+  def can_edit?
+    devlog? && @current_user.present? && post.user == @current_user && !deleted?
+  end
+
+  def deleted?
+    devlog? && postable.deleted?
+  end
+
+  def can_see_deleted?
+    @current_user&.can_see_deleted_devlogs?
+  end
+
+  def edit_devlog_path
+    return nil unless can_edit?
+    helpers.edit_project_devlog_path(post.project, postable)
+  end
+
+  def delete_devlog_path
+    return nil unless can_edit?
+    helpers.project_devlog_path(post.project, postable)
   end
 
   private

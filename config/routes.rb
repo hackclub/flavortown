@@ -233,7 +233,11 @@ Rails.application.routes.draw do
   # Projects
   resources :projects, shallow: true do
     resources :memberships, only: [ :create, :destroy ], module: :project
-    resources :devlogs, only: [ :new, :create ], module: :project
+    resources :devlogs, only: %i[new create edit update destroy], module: :project, shallow: false do
+      member do
+        get :versions
+      end
+    end
     resources :reports, only: [ :create ], module: :project
     member do
       get :ship

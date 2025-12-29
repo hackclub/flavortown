@@ -1,10 +1,12 @@
 class Project::DevlogsController < ApplicationController
   before_action :set_project
   before_action :require_project_member
-  before_action :require_hackatime_project
-  before_action :sync_hackatime_projects
-  before_action :load_preview_time
-  before_action :require_preview_time
+  before_action :set_devlog, only: %i[edit update destroy versions]
+  before_action :require_devlog_owner, only: %i[edit update destroy]
+  before_action :require_hackatime_project, only: %i[new create]
+  before_action :sync_hackatime_projects, only: %i[new create]
+  before_action :load_preview_time, only: %i[new create]
+  before_action :require_preview_time, only: %i[new create]
 
   def new
     @devlog = Post::Devlog.new
@@ -50,10 +52,52 @@ class Project::DevlogsController < ApplicationController
     end
   end
 
+  def edit
+  end
+
+  def update
+    previous_body = @devlog.body
+
+    if @devlog.update(update_devlog_params)
+      # Create version history if body changed
+      if previous_body != @devlog.body
+        @devlog.create_version!(user: current_user, previous_body: previous_body)
+      end
+
+      redirect_to @project, notice: "Devlog updated successfully"
+    else
+      flash.now[:alert] = @devlog.errors.full_messages.to_sentence
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @devlog.soft_delete!
+    redirect_to @project, notice: "Devlog deleted successfully"
+  end
+
+  def versions
+    @versions = @devlog.versions.order(version_number: :desc)
+  end
+
   private
 
   def set_project
     @project = Project.find(params[:project_id])
+  end
+
+  def set_devlog
+    @devlog = @project.posts
+                      .where(postable_type: "Post::Devlog")
+                      .find_by!(postable_id: params[:id])
+                      .postable
+  end
+
+  def require_devlog_owner
+    post = @project.posts.find_by(postable: @devlog)
+    unless post&.user == current_user
+      redirect_to @project, alert: "You can only edit your own devlogs" and return
+    end
   end
 
   def require_project_member
@@ -90,6 +134,10 @@ class Project::DevlogsController < ApplicationController
 
   def devlog_params
     params.require(:post_devlog).permit(:body, :scrapbook_url, attachments: [])
+  end
+
+  def update_devlog_params
+    params.require(:post_devlog).permit(:body)
   end
 
   def load_preview_time

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_25_200759) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_29_014446) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -164,6 +164,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_200759) do
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
+  create_table "devlog_versions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "devlog_id", null: false
+    t.text "reverse_diff", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.integer "version_number", null: false
+    t.index ["devlog_id", "version_number"], name: "index_devlog_versions_on_devlog_id_and_version_number", unique: true
+    t.index ["devlog_id"], name: "index_devlog_versions_on_devlog_id"
+    t.index ["user_id"], name: "index_devlog_versions_on_user_id"
+  end
+
   create_table "extension_usages", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "project_id", null: false
@@ -246,6 +258,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_200759) do
     t.string "body"
     t.integer "comments_count", default: 0, null: false
     t.datetime "created_at", null: false
+    t.datetime "deleted_at"
     t.integer "duration_seconds"
     t.text "hackatime_projects_key_snapshot"
     t.datetime "hackatime_pulled_at"
@@ -254,6 +267,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_200759) do
     t.datetime "synced_at"
     t.boolean "tutorial", default: false, null: false
     t.datetime "updated_at", null: false
+    t.index ["deleted_at"], name: "index_post_devlogs_on_deleted_at"
   end
 
   create_table "post_fire_events", force: :cascade do |t|
@@ -608,6 +622,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_200759) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "comments", "users"
+  add_foreign_key "devlog_versions", "post_devlogs", column: "devlog_id"
+  add_foreign_key "devlog_versions", "users"
   add_foreign_key "extension_usages", "projects"
   add_foreign_key "extension_usages", "users"
   add_foreign_key "ledger_entries", "users"

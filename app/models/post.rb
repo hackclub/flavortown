@@ -29,6 +29,18 @@ class Post < ApplicationRecord
 
     delegated_type :postable, types: %w[Post::Devlog Post::ShipEvent Post::FireEvent Post::GitCommit]
 
+    # For loading devlogs including soft-deleted ones (for admins)
+    belongs_to :devlog_with_deleted,
+               -> { unscope(where: :deleted_at) },
+               class_name: "Post::Devlog",
+               foreign_key: :postable_id,
+               optional: true
+
+    def postable_with_deleted
+      return postable unless postable_type == "Post::Devlog"
+      devlog_with_deleted
+    end
+
     after_commit :invalidate_project_time_cache, on: [ :create, :destroy ]
     after_commit :increment_devlogs_count, on: :create
     after_commit :decrement_devlogs_count, on: :destroy
