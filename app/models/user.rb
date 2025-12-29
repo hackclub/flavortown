@@ -238,7 +238,9 @@ class User < ApplicationRecord
   end
 
   def soft_delete_projects!
-    projects.find_each(&:soft_delete!)
+    projects.find_each do |project|
+      project.soft_delete!(force: true)
+    end
   end
 
   def unban!

@@ -23,11 +23,10 @@ class Project::DevlogsController < ApplicationController
 
       unless @devlog.tutorial?
         # Only track the first non-tutorial devlog
-        existing_non_tutorial_devlogs = Post::Devlog
-          .joins("INNER JOIN posts ON posts.postable_id::bigint = post_devlogs.id AND posts.postable_type = 'Post::Devlog'")
-          .where(posts: { user_id: current_user.id })
-          .where(tutorial: false)
-          .where.not(id: @devlog.id)
+        existing_non_tutorial_devlogs = Post::Devlog.joins(:post)
+                                                    .where(posts: { user_id: current_user.id })
+                                                    .where(tutorial: false)
+                                                    .where.not(id: @devlog.id)
         if existing_non_tutorial_devlogs.empty?
           FunnelTrackerService.track(
             event_name: "devlog_created",
