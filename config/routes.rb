@@ -1,6 +1,12 @@
 class AdminConstraint
   def self.matches?(request)
-    user = admin_user_for(request)
+    # otherwise admins who impersonated non admins can't stop
+    if request.path == "/admin/users/stop_impersonating" && request.session[:impersonator_user_id].present?
+      user = User.find_by(id: request.session[:impersonator_user_id])
+    else
+      user = admin_user_for(request)
+    end
+
     return false unless user
 
     policy = AdminPolicy.new(user, :admin)
