@@ -7,6 +7,7 @@ export default class extends Controller {
   #processing = false;
   #previews = [];
   #currentIndex = 0;
+  #trackedFiles = []; // Track files ourselves since browser replaces input.files on each selection
 
   static targets = [
     "input",
@@ -127,7 +128,51 @@ export default class extends Controller {
 
   handleSelection(event) {
     if (this.#processing) return;
-    this.#processFiles(event.target.files);
+    // Native file selection: browser REPLACES input.files on each selection.
+    // We need to track files ourselves and merge for "add more" to work.
+    const newFiles = Array.from(event.target.files || []);
+    console.log("[FileUpload] handleSelection - new files:", newFiles.map(f => f.name));
+    console.log("[FileUpload] handleSelection - tracked files before:", this.#trackedFiles.map(f => f.name));
+    
+    // Validate new files
+    const accepted = newFiles.filter((f) => this.#validateFileSize(f));
+    const rejected = newFiles.filter((f) => !this.#validateFileSize(f));
+    
+    if (rejected.length > 0) {
+      this.#showStatus(`Some files were too large and will not be uploaded.`, "error");
+    }
+    
+    if (accepted.length === 0) return;
+    
+    // Add to tracked files (merge for multiple, replace for single)
+    if (this.inputTarget.multiple) {
+      this.#trackedFiles = [...this.#trackedFiles, ...accepted];
+    } else {
+      this.#trackedFiles = accepted;
+    }
+    
+    // Enforce max count
+    if (this.hasMaxCountValue && this.maxCountValue && this.#trackedFiles.length > this.maxCountValue) {
+      this.#trackedFiles = this.#trackedFiles.slice(0, this.maxCountValue);
+      this.#showStatus(`You can upload up to ${this.maxCountValue} files total.`, "error");
+    }
+    
+    console.log("[FileUpload] handleSelection - tracked files after:", this.#trackedFiles.map(f => f.name));
+    
+    // Update input.files with all tracked files
+    const dt = new DataTransfer();
+    this.#trackedFiles.forEach((f) => dt.items.add(f));
+    this.inputTarget.files = dt.files;
+    
+    // Update previews
+    this.#filesToPreviewEntries(this.#trackedFiles).then((entries) => {
+      this.#previews = entries;
+      this.#currentIndex = Math.max(0, entries.length - accepted.length);
+      if (this.inputTarget?.multiple && this.hasAddMoreTarget) {
+        this.addMoreTarget.hidden = false;
+      }
+      this.#renderCurrentPreview();
+    });
   }
 
   uploadInitialize(event) {
@@ -170,7 +215,7 @@ export default class extends Controller {
     }, 1200);
   }
 
-  #processFiles(fileList) {
+  #processFiles(fileList, { dispatchChange = true, mergeWithExisting = true } = {}) {
     const files = Array.from(fileList || []);
     if (files.length === 0) return;
 
@@ -190,7 +235,8 @@ export default class extends Controller {
     if (
       this.inputTarget.multiple &&
       this.hasMaxCountValue &&
-      this.maxCountValue
+      this.maxCountValue &&
+      mergeWithExisting
     ) {
       const existingCount =
         (this.inputTarget.files && this.inputTarget.files.length) || 0;
@@ -215,10 +261,12 @@ export default class extends Controller {
     this.#processing = true;
     try {
       const dt = new DataTransfer();
-      // When multiple, merge existing files with newly accepted files
-      const existing = this.inputTarget.multiple
-        ? Array.from(this.inputTarget.files || [])
-        : [];
+      // When multiple and merging (drop/paste), merge existing files with newly accepted files.
+      // For native file selection, the input already has the correct files so we just use accepted.
+      const existing =
+        this.inputTarget.multiple && mergeWithExisting
+          ? Array.from(this.inputTarget.files || [])
+          : [];
       [...existing, ...accepted].forEach((f) => dt.items.add(f));
       this.inputTarget.files = dt.files;
 
@@ -237,10 +285,48 @@ export default class extends Controller {
         }
         this.#renderCurrentPreview();
       });
-      this.inputTarget.dispatchEvent(new Event("change", { bubbles: true }));
+      // Only dispatch change event for programmatic file additions (drop, paste)
+      // to trigger Active Storage direct uploads. Native file selection already
+      // triggers the change event, so we skip it to avoid duplicate uploads.
+      if (dispatchChange) {
+        this.inputTarget.dispatchEvent(new Event("change", { bubbles: true }));
+      }
     } finally {
       this.#processing = false;
     }
+  }
+
+  // For native file selection only - just update previews without modifying input.files
+  #updatePreviewsOnly(fileList) {
+    const files = Array.from(fileList || []);
+    console.log("[FileUpload] #updatePreviewsOnly - files count:", files.length);
+    if (files.length === 0) return;
+
+    // Validate files and filter
+    const accepted = files.filter((f) => this.#validateFileSize(f));
+    const rejected = files.filter((f) => !this.#validateFileSize(f));
+    console.log("[FileUpload] #updatePreviewsOnly - accepted:", accepted.length, "rejected:", rejected.length);
+
+    if (rejected.length > 0) {
+      this.#showStatus(
+        `Some files were too large and will not be uploaded.`,
+        "error",
+      );
+    }
+
+    if (accepted.length === 0) return;
+
+    // Update previews only - don't touch input.files
+    this.#filesToPreviewEntries(accepted).then((entries) => {
+      console.log("[FileUpload] #updatePreviewsOnly - preview entries:", entries.length);
+      // For native selection, replace previews entirely (user selected a new set)
+      this.#previews = entries;
+      this.#currentIndex = 0;
+      if (this.inputTarget?.multiple && this.hasAddMoreTarget) {
+        this.addMoreTarget.hidden = false;
+      }
+      this.#renderCurrentPreview();
+    });
   }
 
   prev(event) {
@@ -426,6 +512,8 @@ export default class extends Controller {
     this.#clearPreview();
     this.#clearStatus();
     this.#hideProgress();
+    this.#trackedFiles = [];
+    this.#previews = [];
   }
 
   #humanMaxSize() {
