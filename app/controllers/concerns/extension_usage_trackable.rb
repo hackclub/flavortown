@@ -11,7 +11,7 @@ module ExtensionUsageTrackable
     api_key = request.headers["Authorization"]&.remove("Bearer ")
 
     if api_key.present?
-      @current_user = User.find_by(api_key: api_key) if api_key.present?
+      @current_user = User.find_by(api_key: api_key)
     end
 
     return unless current_user
