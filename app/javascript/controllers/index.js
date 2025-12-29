@@ -90,3 +90,6 @@ application.register("kitchen-dialogue", KitchenDialogueController);
 
 import SnowController from "./snow_controller";
 application.register("snow", SnowController);
+
+import UploadFormController from "./upload_form_controller";
+application.register("upload-form", UploadFormController);

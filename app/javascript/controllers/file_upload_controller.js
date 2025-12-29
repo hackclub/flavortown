@@ -7,6 +7,7 @@ export default class extends Controller {
   #processing = false;
   #previews = [];
   #currentIndex = 0;
+  #trackedFiles = []; // Track files ourselves since browser replaces input.files on each selection
 
   static targets = [
     "input",
@@ -127,7 +128,57 @@ export default class extends Controller {
 
   handleSelection(event) {
     if (this.#processing) return;
-    this.#processFiles(event.target.files);
+    // Native file selection: browser REPLACES input.files on each selection.
+    // We need to track files ourselves and merge for "add more" to work.
+    const newFiles = Array.from(event.target.files || []);
+
+    // Validate new files
+    const accepted = newFiles.filter((f) => this.#validateFileSize(f));
+    const rejected = newFiles.filter((f) => !this.#validateFileSize(f));
+
+    if (rejected.length > 0) {
+      this.#showStatus(
+        `Some files were too large and will not be uploaded.`,
+        "error",
+      );
+    }
+
+    if (accepted.length === 0) return;
+
+    // Add to tracked files (merge for multiple, replace for single)
+    if (this.inputTarget.multiple) {
+      this.#trackedFiles = [...this.#trackedFiles, ...accepted];
+    } else {
+      this.#trackedFiles = accepted;
+    }
+
+    // Enforce max count
+    if (
+      this.hasMaxCountValue &&
+      this.maxCountValue &&
+      this.#trackedFiles.length > this.maxCountValue
+    ) {
+      this.#trackedFiles = this.#trackedFiles.slice(0, this.maxCountValue);
+      this.#showStatus(
+        `You can upload up to ${this.maxCountValue} files total.`,
+        "error",
+      );
+    }
+
+    // Update input.files with all tracked files
+    const dt = new DataTransfer();
+    this.#trackedFiles.forEach((f) => dt.items.add(f));
+    this.inputTarget.files = dt.files;
+
+    // Update previews
+    this.#filesToPreviewEntries(this.#trackedFiles).then((entries) => {
+      this.#previews = entries;
+      this.#currentIndex = Math.max(0, entries.length - accepted.length);
+      if (this.inputTarget?.multiple && this.hasAddMoreTarget) {
+        this.addMoreTarget.hidden = false;
+      }
+      this.#renderCurrentPreview();
+    });
   }
 
   uploadInitialize(event) {
@@ -426,6 +477,8 @@ export default class extends Controller {
     this.#clearPreview();
     this.#clearStatus();
     this.#hideProgress();
+    this.#trackedFiles = [];
+    this.#previews = [];
   }
 
   #humanMaxSize() {
