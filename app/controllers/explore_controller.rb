@@ -36,8 +36,7 @@ class ExploreController < ApplicationController
     scope = Project.includes(banner_attachment: :blob)
                     .where(tutorial: false)
                     .where.not(id: current_user&.projects&.pluck(:id) || [])
-                    .order(created_at: :desc)
-
+                    .order(likes_count: :desc, devlog_count: :desc, created_at: :desc)
     @pagy, @projects = pagy(scope)
 
     respond_to do |format|
