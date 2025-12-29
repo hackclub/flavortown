@@ -41,19 +41,12 @@ class Api::V1::DevlogsController < Api::BaseController
   }
 
   def index
-    @pagy, @devlogs = pagy(
-      Post::Devlog
-        .joins("INNER JOIN posts ON posts.postable_id::bigint = post_devlogs.id AND posts.postable_type = 'Post::Devlog'")
-        .order("post_devlogs.created_at DESC"),
-      limit: 100
-    )
+    devlogs = Post::Devlog.joins(:post).order(created_at: :desc)
+    @pagy, @devlogs = pagy(devlogs)
   end
 
   def show
-    @devlog = Post::Devlog
-      .joins("INNER JOIN posts ON posts.postable_id::bigint = post_devlogs.id AND posts.postable_type = 'Post::Devlog'")
-      .find_by!(id: params[:id])
-
+    @devlog = Post::Devlog.joins(:post).find_by!(id: params[:id])
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Devlog not found" }, status: :not_found
   end
