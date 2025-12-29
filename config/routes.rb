@@ -233,7 +233,8 @@ Rails.application.routes.draw do
   # Projects
   resources :projects, shallow: true do
     resources :memberships, only: [ :create, :destroy ], module: :project
-    resources :devlogs, only: [ :new, :create ], module: :project
+    get  "devlogs/new", to: "project/devlogs#new"
+    post "devlogs/new", to: "project/devlogs#create"
     resources :reports, only: [ :create ], module: :project
     member do
       get :ship

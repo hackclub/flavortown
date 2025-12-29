@@ -26,7 +26,7 @@ class User
           name: "Post a devlog",
           description: "dev your log!",
           icon: "edit",
-          link: ->(_) { new_project_devlog_path(current_user.projects.first) },
+          link: ->(_) { project_devlogs_new_path(current_user.projects.first) },
           deps: [
             Dep[:create_project, "you need to create a project first!"]
           ]),

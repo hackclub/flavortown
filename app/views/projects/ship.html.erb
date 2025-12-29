@@ -43,7 +43,7 @@
           <% end %>
         <% elsif @step == 4 %>
           <div class="projects-ship__step4-actions">
-            <%= link_to "Add Devlog", new_project_devlog_path(@project), class: "projects-ship__nav-btn projects-ship__nav-btn--prev" %>
+            <%= link_to "Add Devlog", project_devlogs_new_path(@project), class: "projects-ship__nav-btn projects-ship__nav-btn--prev" %>
             <% can_ship = @project.shippable? && @project.can_ship_again? %>
             <% if can_ship %>
               <button type="submit" form="ship-form" class="projects-ship__nav-btn projects-ship__nav-btn--submit">
