@@ -76,7 +76,7 @@
       <% if policy(:admin).generate_magic_links? %>
         <%= link_to "🔗 Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
       <% end %>
-      <% if policy(:admin).impersonate_users? && !impersonating? && @user.id != current_user.id %>
+      <% if policy(@user).impersonate? && !impersonating? %>
         <%= button_to "Impersonate User",
                       impersonate_admin_user_path(@user),
                       method: :post,

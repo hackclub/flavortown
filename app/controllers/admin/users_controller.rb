@@ -12,20 +12,8 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def impersonate
-      authorize :admin, :impersonate_users?
-
       @user = User.find(params[:id]) # user to be impersonated
-
-      # you can't impersonate admins unless you're a superadmin. this means that admins won't be able to impersonate other admins
-      if @user.admin? && !current_user.super_admin?
-        flash[:alert] = "Only super admins can impersonate other admins."
-        return redirect_to admin_user_path(@user)
-      end
-
-      if @user.id == current_user.id
-        flash[:alert] = "You cannot impersonate yourself."
-        return redirect_to admin_user_path(@user)
-      end
+      authorize @user, :impersonate?
 
       session[:impersonated_user_id] = @user.id
       pundit_reset!
@@ -46,13 +34,11 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def stop_impersonating
-      authorize :admin, :impersonate_users?
-
       impersonated_user_id = session[:impersonated_user_id]
 
       if impersonated_user_id.present?
         impersonated_user = User.find_by(id: impersonated_user_id)
-
+        
         if impersonated_user
           PaperTrail::Version.create!(
             item_type: "User",
