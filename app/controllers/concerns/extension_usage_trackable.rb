@@ -8,16 +8,15 @@ module ExtensionUsageTrackable
   private
 
   def track_extension_usage
-    return unless current_user
-    return unless redis_available?
-
     project_ids = extract_extension_project_ids
     return if project_ids.empty?
+    return unless redis_available?
+    return unless used_by
 
     timestamp = Time.current.iso8601
 
     payloads = project_ids.map do |project_id|
-      { project_id: project_id, user_id: current_user.id, recorded_at: timestamp }.to_json
+      { project_id: project_id, user_id: used_by.id, recorded_at: timestamp }.to_json
     end
 
     Rails.cache.redis.with do |redis|
@@ -29,6 +28,20 @@ module ExtensionUsageTrackable
 
   def redis_available?
     Rails.cache.respond_to?(:redis) && Rails.cache.redis.present?
+  end
+
+  def used_by
+    # if a regular route, use current_user
+    # if an api route, fall back to looking up api key
+    current_user || user_by_api_key
+  end
+
+  def user_by_api_key
+    @user_by_api_key ||= begin
+      api_key = request.headers["Authorization"]&.remove("Bearer ")
+      return nil unless api_key
+      User.find_by(api_key: api_key)
+    end
   end
 
   def extract_extension_project_ids
