@@ -15,7 +15,7 @@ class Admin::UsersController < Admin::ApplicationController
 
     def impersonate
       @user = User.find(params[:id]) # user to be impersonated
-      authorize @user, :impersonate?
+      authorize @user
 
       admin_user = current_user
       # simple swap
