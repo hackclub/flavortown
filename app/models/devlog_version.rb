@@ -12,9 +12,9 @@
 #
 # Indexes
 #
-#  index_devlog_versions_on_devlog_id                    (devlog_id)
-#  index_devlog_versions_on_devlog_id_and_version_number (devlog_id,version_number) UNIQUE
-#  index_devlog_versions_on_user_id                      (user_id)
+#  index_devlog_versions_on_devlog_id                     (devlog_id)
+#  index_devlog_versions_on_devlog_id_and_version_number  (devlog_id,version_number) UNIQUE
+#  index_devlog_versions_on_user_id                       (user_id)
 #
 # Foreign Keys
 #

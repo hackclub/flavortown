@@ -16,6 +16,10 @@
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null
 #
+# Indexes
+#
+#  index_post_devlogs_on_deleted_at  (deleted_at)
+#
 class Post::Devlog < ApplicationRecord
   include Postable
 
