@@ -9,7 +9,7 @@
     </div>
 
     <%= form_with model: @devlog,
-                  url: project_devlogs_path(@project),
+                  url: project_devlogs_new_path(@project),
                   html: { multipart: true },
                   class: "projects-new__form",
                   local: true do |f| %>

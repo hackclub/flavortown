@@ -1,7 +1,7 @@
 <% content_for :title, "Loading Devlog" %>
 
 <% content_for :head do %>
-  <meta http-equiv="refresh" content="3;url=<%= new_project_devlog_path(@project, retry: @retry_count + 1) %>">
+  <meta http-equiv="refresh" content="3;url=<%= project_devlogs_new_path(@project, retry: @retry_count + 1) %>">
 <% end %>
 
 <div class="projects-new">

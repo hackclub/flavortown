@@ -27,7 +27,7 @@
           <%= render ButtonComponent.new(
                 text: "Add Devlog",
                 color: :brown,
-                href: new_project_devlog_path(@project)
+                href: project_devlogs_new_path(@project)
               ) %>
         <% else %>
           <% if current_user.project_follows.exists?(project: @project) %>
