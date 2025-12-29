@@ -137,7 +137,10 @@ export default class extends Controller {
     const rejected = newFiles.filter((f) => !this.#validateFileSize(f));
 
     if (rejected.length > 0) {
-      this.#showStatus(`Some files were too large and will not be uploaded.`, "error");
+      this.#showStatus(
+        `Some files were too large and will not be uploaded.`,
+        "error",
+      );
     }
 
     if (accepted.length === 0) return;
@@ -150,9 +153,16 @@ export default class extends Controller {
     }
 
     // Enforce max count
-    if (this.hasMaxCountValue && this.maxCountValue && this.#trackedFiles.length > this.maxCountValue) {
+    if (
+      this.hasMaxCountValue &&
+      this.maxCountValue &&
+      this.#trackedFiles.length > this.maxCountValue
+    ) {
       this.#trackedFiles = this.#trackedFiles.slice(0, this.maxCountValue);
-      this.#showStatus(`You can upload up to ${this.maxCountValue} files total.`, "error");
+      this.#showStatus(
+        `You can upload up to ${this.maxCountValue} files total.`,
+        "error",
+      );
     }
 
     // Update input.files with all tracked files

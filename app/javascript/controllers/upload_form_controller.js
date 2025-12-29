@@ -14,10 +14,7 @@ export default class extends Controller {
       this.#handleUploadStart,
     );
     this.element.addEventListener("direct-upload:end", this.#handleUploadEnd);
-    this.element.addEventListener(
-      "direct-upload:error",
-      this.#handleUploadEnd,
-    );
+    this.element.addEventListener("direct-upload:error", this.#handleUploadEnd);
 
     // Also prevent form submission while uploads are in progress
     this.element.addEventListener("submit", this.#handleSubmit);
