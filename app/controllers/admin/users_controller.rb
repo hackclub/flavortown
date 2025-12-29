@@ -17,17 +17,20 @@ class Admin::UsersController < Admin::ApplicationController
       @user = User.find(params[:id]) # user to be impersonated
       authorize @user, :impersonate?
 
-      session[:impersonated_user_id] = @user.id
+      admin_user = current_user
+      # simple swap
+      session[:impersonated_user_id] = admin_user.id
+      session[:user_id] = @user.id
       pundit_reset!
 
       PaperTrail::Version.create!(
         item_type: "User",
         item_id: @user.id,
         event: "impersonation_started",
-        whodunnit: real_user.id.to_s,
+        whodunnit: admin_user.id.to_s,
         object_changes: {
-          impersonated_by: real_user.id,
-          impersonated_by_name: real_user.display_name
+          impersonated_by: admin_user.id,
+          impersonated_by_name: admin_user.display_name
         }.to_json
       )
 
@@ -36,15 +39,10 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def stop_impersonating
-      impersonated_user_id = session[:impersonated_user_id]
-
-      if impersonated_user_id.present?
-        impersonated_user = User.find_by(id: impersonated_user_id)
-
-        if impersonated_user
+      if real_user && current_user # current_user is impersonated user
           PaperTrail::Version.create!(
             item_type: "User",
-            item_id: impersonated_user.id,
+            item_id: current_user.id,
             event: "impersonation_stopped",
             whodunnit: real_user.id.to_s,
             object_changes: {
@@ -52,12 +50,12 @@ class Admin::UsersController < Admin::ApplicationController
               stopped_by_name: real_user.display_name
             }.to_json
           )
-        end
+      end
 
+        session[:user_id] = real_user.id
         session.delete(:impersonated_user_id)
         pundit_reset!
-        flash[:notice] = "Stopped impersonating #{impersonated_user&.display_name}."
-      end
+        flash[:notice] = "Stopped impersonating #{current_user&.display_name}."
 
       redirect_to admin_users_path
     end
@@ -105,7 +103,6 @@ class Admin::UsersController < Admin::ApplicationController
         return redirect_to admin_user_path(@user)
       end
 
-
       @user.grant_role!(role_name)
 
       # Create explicit audit entry on User
@@ -132,7 +129,6 @@ class Admin::UsersController < Admin::ApplicationController
       flash[:alert] = "Only super admins can demote super admin."
       return redirect_to admin_user_path(@user)
     end
-
 
     if @user.has_role?(role_name)
       @user.remove_role!(role_name)

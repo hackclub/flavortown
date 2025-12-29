@@ -23,11 +23,7 @@ class ApplicationController < ActionController::Base
     return @current_user if defined?(@current_user)
 
     if session[:user_id]
-      scope = if impersonating?
-        User.where(id: session[:impersonated_user_id])
-      else
-        User.where(id: session[:user_id])
-      end
+      scope = User.where(id: session[:user_id])
       scope = scope.eager_load(*Array(preloads)) if preloads.present?
       @current_user = scope.to_a.first
     end
@@ -41,8 +37,8 @@ class ApplicationController < ActionController::Base
   helper_method :impersonating?
 
   def real_user
-    return nil unless session[:user_id]
-    @real_user ||= User.find_by(id: session[:user_id])
+    return nil unless session[:impersonated_user_id]
+    @real_user ||= User.find_by(id: session[:impersonated_user_id])
   end
 
   helper_method :real_user
