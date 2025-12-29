@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_29_014446) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_29_181643) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -575,6 +575,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_29_014446) do
     t.enum "shop_region", enum_type: "shop_region_type"
     t.boolean "slack_balance_notifications", default: false, null: false
     t.string "slack_id"
+    t.boolean "special_effects_enabled", default: true, null: false
     t.datetime "synced_at"
     t.string "tutorial_steps_completed", default: [], array: true
     t.datetime "updated_at", null: false
