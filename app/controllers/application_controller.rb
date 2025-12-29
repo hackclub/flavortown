@@ -31,14 +31,14 @@ class ApplicationController < ActionController::Base
   helper_method :current_user
 
   def impersonating?
-    session[:impersonated_user_id].present? && session[:user_id].present?
+    session[:impersonator_user_id].present? && session[:user_id].present?
   end
 
   helper_method :impersonating?
 
   def real_user
-    return nil unless session[:impersonated_user_id]
-    @real_user ||= User.find_by(id: session[:impersonated_user_id])
+    return nil unless session[:impersonator_user_id]
+    @real_user ||= User.find_by(id: session[:impersonator_user_id])
   end
 
   helper_method :real_user

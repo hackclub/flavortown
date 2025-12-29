@@ -19,7 +19,7 @@ class Admin::UsersController < Admin::ApplicationController
 
       admin_user = current_user
       # simple swap
-      session[:impersonated_user_id] = admin_user.id
+      session[:impersonator_user_id] = admin_user.id
       session[:user_id] = @user.id
       pundit_reset!
 
@@ -53,7 +53,7 @@ class Admin::UsersController < Admin::ApplicationController
       end
 
         session[:user_id] = real_user.id
-        session.delete(:impersonated_user_id)
+        session.delete(:impersonator_user_id)
         pundit_reset!
         flash[:notice] = "Stopped impersonating #{current_user&.display_name}."
 
