@@ -131,39 +131,58 @@ export default class extends Controller {
     // Native file selection: browser REPLACES input.files on each selection.
     // We need to track files ourselves and merge for "add more" to work.
     const newFiles = Array.from(event.target.files || []);
-    console.log("[FileUpload] handleSelection - new files:", newFiles.map(f => f.name));
-    console.log("[FileUpload] handleSelection - tracked files before:", this.#trackedFiles.map(f => f.name));
-    
+    console.log(
+      "[FileUpload] handleSelection - new files:",
+      newFiles.map((f) => f.name),
+    );
+    console.log(
+      "[FileUpload] handleSelection - tracked files before:",
+      this.#trackedFiles.map((f) => f.name),
+    );
+
     // Validate new files
     const accepted = newFiles.filter((f) => this.#validateFileSize(f));
     const rejected = newFiles.filter((f) => !this.#validateFileSize(f));
-    
+
     if (rejected.length > 0) {
-      this.#showStatus(`Some files were too large and will not be uploaded.`, "error");
+      this.#showStatus(
+        `Some files were too large and will not be uploaded.`,
+        "error",
+      );
     }
-    
+
     if (accepted.length === 0) return;
-    
+
     // Add to tracked files (merge for multiple, replace for single)
     if (this.inputTarget.multiple) {
       this.#trackedFiles = [...this.#trackedFiles, ...accepted];
     } else {
       this.#trackedFiles = accepted;
     }
-    
+
     // Enforce max count
-    if (this.hasMaxCountValue && this.maxCountValue && this.#trackedFiles.length > this.maxCountValue) {
+    if (
+      this.hasMaxCountValue &&
+      this.maxCountValue &&
+      this.#trackedFiles.length > this.maxCountValue
+    ) {
       this.#trackedFiles = this.#trackedFiles.slice(0, this.maxCountValue);
-      this.#showStatus(`You can upload up to ${this.maxCountValue} files total.`, "error");
+      this.#showStatus(
+        `You can upload up to ${this.maxCountValue} files total.`,
+        "error",
+      );
     }
-    
-    console.log("[FileUpload] handleSelection - tracked files after:", this.#trackedFiles.map(f => f.name));
-    
+
+    console.log(
+      "[FileUpload] handleSelection - tracked files after:",
+      this.#trackedFiles.map((f) => f.name),
+    );
+
     // Update input.files with all tracked files
     const dt = new DataTransfer();
     this.#trackedFiles.forEach((f) => dt.items.add(f));
     this.inputTarget.files = dt.files;
-    
+
     // Update previews
     this.#filesToPreviewEntries(this.#trackedFiles).then((entries) => {
       this.#previews = entries;
@@ -215,7 +234,10 @@ export default class extends Controller {
     }, 1200);
   }
 
-  #processFiles(fileList, { dispatchChange = true, mergeWithExisting = true } = {}) {
+  #processFiles(
+    fileList,
+    { dispatchChange = true, mergeWithExisting = true } = {},
+  ) {
     const files = Array.from(fileList || []);
     if (files.length === 0) return;
 
@@ -299,13 +321,21 @@ export default class extends Controller {
   // For native file selection only - just update previews without modifying input.files
   #updatePreviewsOnly(fileList) {
     const files = Array.from(fileList || []);
-    console.log("[FileUpload] #updatePreviewsOnly - files count:", files.length);
+    console.log(
+      "[FileUpload] #updatePreviewsOnly - files count:",
+      files.length,
+    );
     if (files.length === 0) return;
 
     // Validate files and filter
     const accepted = files.filter((f) => this.#validateFileSize(f));
     const rejected = files.filter((f) => !this.#validateFileSize(f));
-    console.log("[FileUpload] #updatePreviewsOnly - accepted:", accepted.length, "rejected:", rejected.length);
+    console.log(
+      "[FileUpload] #updatePreviewsOnly - accepted:",
+      accepted.length,
+      "rejected:",
+      rejected.length,
+    );
 
     if (rejected.length > 0) {
       this.#showStatus(
@@ -318,7 +348,10 @@ export default class extends Controller {
 
     // Update previews only - don't touch input.files
     this.#filesToPreviewEntries(accepted).then((entries) => {
-      console.log("[FileUpload] #updatePreviewsOnly - preview entries:", entries.length);
+      console.log(
+        "[FileUpload] #updatePreviewsOnly - preview entries:",
+        entries.length,
+      );
       // For native selection, replace previews entirely (user selected a new set)
       this.#previews = entries;
       this.#currentIndex = 0;
