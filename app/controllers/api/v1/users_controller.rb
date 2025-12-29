@@ -45,8 +45,11 @@ class Api::V1::UsersController < Api::BaseController
   end
 
   def show
-    @user = User.find(params[:id])
-
+    if params[:id] == "me"
+      @user = @current_api_user
+    else
+      @user = User.find(params[:id])
+    end
   rescue ActiveRecord::RecordNotFound
     render json: { error: "User not found" }, status: :not_found
   end
