@@ -2,8 +2,8 @@ class Api::V1::DevlogsController < Api::BaseController
   include ApiAuthenticatable
 
   class_attribute :description, default: {
-    index: "Fetch all devlogs across all projects. Ratelimit: 30 reqs/min",
-    show: "Fetch a devlog by ID. Ratelimit: 30 reqs/min"
+    index: "Fetch all devlogs across all projects.",
+    show: "Fetch a devlog by ID."
   }
 
   class_attribute :url_params_model, default: {
