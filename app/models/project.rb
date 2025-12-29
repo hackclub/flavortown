@@ -135,8 +135,16 @@ class Project < ApplicationRecord
     end
 
     # this can probaby be better?
-    def soft_delete!
+    def soft_delete!(force: false)
+      if !force && shipped?
+        errors.add(:base, "Cannot delete a project that has been shipped")
+        raise ActiveRecord::RecordInvalid.new(self)
+      end
       update!(deleted_at: Time.current)
+    end
+
+    def shipped?
+      shipped_at.present? || !draft?
     end
 
     def restore!

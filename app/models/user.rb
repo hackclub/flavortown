@@ -238,7 +238,9 @@ class User < ApplicationRecord
   end
 
   def soft_delete_projects!
-    projects.find_each(&:soft_delete!)
+    projects.find_each do |project|
+      project.soft_delete!(force: true)
+    end
   end
 
   def unban!
@@ -331,10 +333,23 @@ class User < ApplicationRecord
     end
 
     result[:projects].each_key do |name|
-      hackatime_projects.find_or_create_by!(name: name)
+      User::HackatimeProject.find_or_create_by!(user_id: id, name: name)
     end
 
     @hackatime_data = result
+  end
+
+  # we're overriding to get latest data + filter out projects w/ 0 secs!
+  def hackatime_projects
+    projects = super
+    synced_data = try_sync_hackatime_data!
+    return projects unless synced_data
+
+    project_times = synced_data[:projects] || {}
+    project_names_with_time = project_times.select { |_name, seconds| seconds.to_i > 0 }.keys
+    return projects.none if project_names_with_time.empty?
+
+    projects.where(name: project_names_with_time)
   end
 
   def devlog_seconds_total
