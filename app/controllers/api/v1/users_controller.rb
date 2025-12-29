@@ -46,7 +46,7 @@ class Api::V1::UsersController < Api::BaseController
 
   def show
     if params[:id] == "me"
-      @user = @current_api_user
+      @user = current_api_user
     else
       @user = User.find(params[:id])
     end
