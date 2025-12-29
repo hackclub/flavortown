@@ -1,0 +1,60 @@
+class Api::V1::DevlogsController < Api::BaseController
+  include ApiAuthenticatable
+
+  class_attribute :description, default: {
+    index: "Fetch all devlogs across all projects. Ratelimit: 30 reqs/min",
+    show: "Fetch a devlog by ID. Ratelimit: 30 reqs/min"
+  }
+
+  class_attribute :url_params_model, default: {
+    index: {
+      page: { type: Integer, desc: "Page number for pagination", required: false }
+    }
+  }
+
+  class_attribute :response_body_model, default: {
+    index: {
+      devlogs: [
+        {
+          id: Integer,
+          body: String,
+          comments_count: Integer,
+          duration_seconds: Integer,
+          likes_count: Integer,
+          scrapbook_url: String,
+          created_at: String,
+          updated_at: String
+        }
+      ]
+    },
+
+    show: {
+      id: Integer,
+      body: String,
+      comments_count: Integer,
+      duration_seconds: Integer,
+      likes_count: Integer,
+      scrapbook_url: String,
+      created_at: String,
+      updated_at: String
+    }
+  }
+
+  def index
+    @pagy, @devlogs = pagy(
+      Post::Devlog
+        .joins("INNER JOIN posts ON posts.postable_id::bigint = post_devlogs.id AND posts.postable_type = 'Post::Devlog'")
+        .order("post_devlogs.created_at DESC"),
+      limit: 100
+    )
+  end
+
+  def show
+    @devlog = Post::Devlog
+      .joins("INNER JOIN posts ON posts.postable_id::bigint = post_devlogs.id AND posts.postable_type = 'Post::Devlog'")
+      .find_by!(id: params[:id])
+
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Devlog not found" }, status: :not_found
+  end
+end
