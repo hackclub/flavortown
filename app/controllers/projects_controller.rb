@@ -402,6 +402,11 @@ class ProjectsController < ApplicationController
     validate_url_not_dead(:readme_url, "Readme URL") if @project.readme_url.present? && @project.errors.empty?
   end
 
+  # these links block automated requests, but we're ok with just assuming they're good
+  ALLOWLISTED_DOMAINS = %w[
+    npmjs.com
+  ].freeze
+
   def validate_url_not_dead(attribute, name)
     require "uri"
     require "faraday"
@@ -410,6 +415,11 @@ class ProjectsController < ApplicationController
     return unless @project.send(attribute).present?
 
     uri = URI.parse(@project.send(attribute))
+
+    if ALLOWLISTED_DOMAINS.any? { |domain| uri.host&.end_with?(domain) }
+      return
+    end
+
     conn = Faraday.new(
       url: uri.to_s,
       headers: { "User-Agent" => "Flavortown project validator (https://flavortown.hackclub.com/)" }
