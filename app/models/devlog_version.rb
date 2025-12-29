@@ -39,4 +39,3 @@ class DevlogVersion < ApplicationRecord
     reverse_diff
   end
 end
-
