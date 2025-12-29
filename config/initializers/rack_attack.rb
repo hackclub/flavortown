@@ -1,43 +1,13 @@
 require "rack/attack"
 
-# these give a lot of data and wont need to be queried often
-Rack::Attack.throttle("api/store_all/auth", limit: 5, period: 1.minute) do |req|
-  if req.path == "/api/v1/store"
-    req.env["HTTP_AUTHORIZATION"]
-  end
+# rate limit the API to 60 req/min...
+Rack::Attack.throttle("api/sustained", limit: 60, period: 1.minute) do |req|
+  (req.env["HTTP_AUTHORIZATION"] || req.ip) if req.path.start_with?("/api/")
 end
 
-Rack::Attack.throttle("api/projects_all/auth", limit: 5, period: 1.minute) do |req|
-  if req.path == "/api/v1/projects" && req.params["query"].blank?
-    req.env["HTTP_AUTHORIZATION"]
-  end
-end
-
-# this one is fine to query more cause its with search
-Rack::Attack.throttle("api/projects_all_with_query/auth", limit: 20, period: 1.minute) do |req|
-  if req.path == "/api/v1/projects" && req.params["query"].present?
-    req.env["HTTP_AUTHORIZATION"]
-  end
-end
-
-# these makes sense to query more often
-Rack::Attack.throttle("api/store/auth", limit: 30, period: 1.minute) do |req|
-  if req.path.start_with?("/api/v1/store/")
-    req.env["HTTP_AUTHORIZATION"]
-  end
-end
-
-Rack::Attack.throttle("api/projects/auth", limit: 30, period: 1.minute) do |req|
-  if req.path.start_with?("/api/v1/projects/") && !req.path.match?(%r{/api/v1/projects/[^/]+/devlogs})
-    req.env["HTTP_AUTHORIZATION"]
-  end
-end
-
-# seperate limits so you can fetch devlogs without hitting normal ratelimits
-Rack::Attack.throttle("api/projects/devlogs/auth", limit: 30, period: 1.minute) do |req|
-  if req.path.match?(%r{/api/v1/projects/[^/]+/devlogs})
-    req.env["HTTP_AUTHORIZATION"]
-  end
+# ...but with a burst of up to 20 reqs per 5 sec
+Rack::Attack.throttle("api/burst", limit: 20, period: 5.seconds) do |req|
+  (req.env["HTTP_AUTHORIZATION"] || req.ip) if req.path.start_with?("/api/")
 end
 
 Rack::Attack.throttled_responder = lambda do |req|
