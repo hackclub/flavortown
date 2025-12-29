@@ -72,9 +72,6 @@ module Admin
     end
 
     def prevent_admin_access_while_impersonating
-      return if controller_name == "users" && action_name == "stop_impersonating"
-
-      # just to be safe, but this callback can be removed.
       if impersonating?
         flash[:alert] = "You cannot access admin panels while impersonating. Stop impersonation first."
         redirect_to root_path

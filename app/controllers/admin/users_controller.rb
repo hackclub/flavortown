@@ -1,4 +1,6 @@
 class Admin::UsersController < Admin::ApplicationController
+    skip_before_action :prevent_admin_access_while_impersonating, only: [ :stop_impersonating ]
+
     def index
       @query = params[:query]
 
