@@ -4,9 +4,8 @@ class ExploreController < ApplicationController
   def index
     # Get non-tutorial devlog IDs, filtering out deleted ones for regular users
     devlog_scope = Post::Devlog.where(tutorial: false)
-    unless current_user&.can_see_deleted_devlogs?
-      devlog_scope = devlog_scope.not_deleted
-    end
+    devlog_scope = devlog_scope.with_deleted if current_user&.can_see_deleted_devlogs?
+
     non_tutorial_devlog_ids = devlog_scope.select(:id)
 
     scope = Post.includes(:user, :project, postable: { attachments_attachments: :blob, likes: [] })
