@@ -114,11 +114,13 @@
 
   def edit_devlog_path
     return nil unless can_edit?
+    return nil unless post.project.present?
     helpers.edit_project_devlog_path(post.project, postable)
   end
 
   def delete_devlog_path
     return nil unless can_edit?
+    return nil unless post.project.present?
     helpers.project_devlog_path(post.project, postable)
   end
 
