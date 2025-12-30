@@ -31,9 +31,9 @@ class ExploreController < ApplicationController
 
   def gallery
     scope = Project.includes(banner_attachment: :blob)
-                    .where(tutorial: false)
-                    .where.not(id: current_user&.projects&.pluck(:id) || [])
-                    .order(created_at: :desc)
+                   .where(tutorial: false)
+                   .excluding_member(current_user)
+                   .order(created_at: :desc)
 
     @pagy, @projects = pagy(scope)
 
