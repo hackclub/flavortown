@@ -20,15 +20,18 @@
       <div><b>Name:</b> <%= @user.display_name %></div>
       <div><b>Balance:</b> <%= @user.balance %> tickets</div>
       <div><b>Roles:</b> <%= @user.roles.map { |r| r.to_s.titleize }.join(", ") %></div>
+      <% user_projects = @user.projects.kept %>
+      <% deleted_projects = @user.projects.deleted %>
       <div>
-        <b>Projects (<%= @user.projects.unscoped.where(user_id: @user.id).count rescue @user.projects_count %>):</b>
+        <b>Projects (<%= user_projects.size + deleted_projects.size %>):</b>
         <ul style="margin: 0.5rem 0 0 1rem; padding: 0; list-style: disc;">
-          <% Project.unscoped.joins(:memberships).where(project_memberships: { user_id: @user.id }).each do |project| %>
+          <% user_projects.each do |project| %>
+            <li><%= link_to project.title, admin_project_path(project), style: "color: #3b82f6;" %></li>
+          <% end %>
+          <% deleted_projects.each do |project| %>
             <li>
               <%= link_to project.title, admin_project_path(project), style: "color: #3b82f6;" %>
-              <% if project.deleted? %>
-                <span style="color: #ef4444; font-weight: 500;">(deleted)</span>
-              <% end %>
+              <span style="color: #ef4444; font-weight: 500;">(deleted)</span>
             </li>
           <% end %>
         </ul>
