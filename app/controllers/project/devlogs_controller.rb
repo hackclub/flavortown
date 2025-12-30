@@ -1,18 +1,19 @@
 class Project::DevlogsController < ApplicationController
   before_action :set_project
-  before_action :require_project_member
   before_action :set_devlog, only: %i[edit update destroy versions]
-  before_action :require_devlog_owner, only: %i[edit update destroy]
   before_action :require_hackatime_project, only: %i[new create]
   before_action :sync_hackatime_projects, only: %i[new create]
   before_action :load_preview_time, only: %i[new create]
   before_action :require_preview_time, only: %i[new create]
 
   def new
+    authorize @project, :create_devlog?
     @devlog = Post::Devlog.new
   end
 
   def create
+    authorize @project, :create_devlog?
+
     @devlog = Post::Devlog.new(devlog_params)
     @devlog.duration_seconds = @preview_seconds
     @devlog.hackatime_projects_key_snapshot = @project.hackatime_keys.join(",")
@@ -52,9 +53,11 @@ class Project::DevlogsController < ApplicationController
   end
 
   def edit
+    authorize @devlog
   end
 
   def update
+    authorize @devlog
     previous_body = @devlog.body
 
     if @devlog.update(update_devlog_params)
@@ -71,6 +74,7 @@ class Project::DevlogsController < ApplicationController
   end
 
   def destroy
+    authorize @devlog
     @devlog.soft_delete!
     redirect_to @project, notice: "Devlog deleted successfully"
   end
@@ -92,18 +96,6 @@ class Project::DevlogsController < ApplicationController
                       .postable
   end
 
-  def require_devlog_owner
-    post = @project.posts.find_by(postable: @devlog)
-    unless post&.user == current_user
-      redirect_to @project, alert: "You can only edit your own devlogs" and return
-    end
-  end
-
-  def require_project_member
-    unless current_user && @project.users.include?(current_user)
-      redirect_to @project, alert: "You must be a project member to add devlogs" and return
-    end
-  end
 
   def require_hackatime_project
     unless @project.hackatime_keys.present?

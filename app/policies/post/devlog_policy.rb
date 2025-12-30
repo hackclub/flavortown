@@ -1,0 +1,36 @@
+class Post::DevlogPolicy < ApplicationPolicy
+    def new?
+        create?
+    end
+
+    def create?
+        logged_in? && project_member?
+    end
+
+    def edit?
+        owns?
+    end
+
+    def update?
+        owns?
+    end
+
+    def destroy?
+        owns?
+    end
+
+    private
+
+    def owns?
+        return false unless user && record
+
+        post = record.post
+        return false unless post
+
+        post.user == user
+    end
+
+    def project_member?
+        record.post.project.users.exists?(user.id)
+    end
+end
