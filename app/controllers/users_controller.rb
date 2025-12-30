@@ -11,7 +11,7 @@ class UsersController < ApplicationController
     approved_ship_event_ids = Post::ShipEvent.where(certification_status: "approved").pluck(:id)
 
     @activity = Post.joins(:project)
-                          .merge(Project.kept)
+                          .merge(Project.not_deleted)
                           .where(user_id: @user.id)
                           .where("postable_type != 'Post::ShipEvent' OR postable_id IN (?)", approved_ship_event_ids.presence || [ 0 ])
                           .order(created_at: :desc)
