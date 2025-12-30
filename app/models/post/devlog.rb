@@ -24,14 +24,6 @@ class Post::Devlog < ApplicationRecord
   include Postable
   include SoftDeletable
 
-  scope :visible_to, ->(user) {
-    if user&.can_see_deleted_devlogs?
-      with_deleted
-    else
-      not_deleted
-    end
-  }
-
   # Version history
   has_many :versions, class_name: "DevlogVersion", foreign_key: :devlog_id, dependent: :destroy
 
