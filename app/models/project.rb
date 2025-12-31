@@ -48,6 +48,7 @@ class Project < ApplicationRecord
 
     scope :kept, -> { where(deleted_at: nil) }
     scope :deleted, -> { where.not(deleted_at: nil) }
+    scope :with_deleted, -> { unscope(where: :deleted_at) }
     scope :fire, -> { where.not(marked_fire_at: nil) }
 
     # we're soft deleting!
