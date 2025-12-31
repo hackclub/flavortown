@@ -41,12 +41,15 @@ class Api::V1::UsersController < Api::BaseController
   }
 
   def index
-    @pagy, @users = pagy(User.includes(:projects).all, page: params[:page], items: 100)
+    @pagy, @users = pagy(User.includes(:projects).all, page: params[:page], limit: 100)
   end
 
   def show
-    @user = User.find(params[:id])
-
+    if params[:id] == "me"
+      @user = current_api_user
+    else
+      @user = User.find(params[:id])
+    end
   rescue ActiveRecord::RecordNotFound
     render json: { error: "User not found" }, status: :not_found
   end

@@ -1,0 +1,14 @@
+<div class="announcement announcement">
+  <%= image_tag "announcement-flag.avif", class: "announcement__flag", alt: "Announcement Flag" %>
+  <div class="announcement__content">
+    <% if image %>
+      <div class="announcement__image">
+        <%= image_tag image, alt: title %>
+      </div>
+    <% end %>
+    <div class="announcement__text">
+      <h2><%= title %></h2>
+      <p><%= description %></p>
+    </div>
+  </div>
+</div>

@@ -39,7 +39,7 @@
 </div>
 
 <div class="card">
-  <table>
+  <table class="reports-table">
     <thead>
       <tr>
         <th>ID</th>
@@ -47,6 +47,7 @@
         <th>Reporter</th>
         <th>Reason</th>
         <th>Status</th>
+        <th>Actioned By</th>
         <th>Created</th>
         <th>Actions</th>
       </tr>
@@ -62,20 +63,37 @@
               <span class="text-muted">(Deleted Project)</span>
             <% end %>
           </td>
-          <td><%= report.reporter.display_name || report.reporter.email %></td>
+          <td>
+            <div class="user-cell">
+              <%= image_tag report.reporter.avatar, class: "avatar-sm", alt: report.reporter.display_name %>
+              <span><%= report.reporter.display_name || report.reporter.email %></span>
+            </div>
+          </td>
           <td><%= report.reason.titleize %></td>
           <td>
             <span class="badge badge-<%= report.status %>">
               <%= report.status %>
             </span>
           </td>
-          <td><%= report.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-          <td style="display: flex; gap: 0.5rem;">
-            <%= link_to "View", admin_report_path(report), class: "btn-primary slim" %>
-            <% if report.pending? %>
-              <%= button_to "Review", review_admin_report_path(report), method: :post, class: "btn-secondary slim" %>
-              <%= button_to "Dismiss", dismiss_admin_report_path(report), method: :post, class: "btn-secondary slim" %>
+          <td>
+            <% if (reviewer = @reviewers_by_report[report.id]) %>
+              <div class="user-cell">
+                <%= image_tag reviewer.avatar, class: "avatar-sm", alt: reviewer.display_name %>
+                <span><%= reviewer.display_name %></span>
+              </div>
+            <% else %>
+              <span class="text-muted">—</span>
             <% end %>
+          </td>
+          <td><%= report.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          <td>
+            <div class="actions-cell">
+              <%= link_to "View", admin_report_path(report), class: "btn-primary slim" %>
+              <% if report.pending? %>
+                <%= button_to "Review", review_admin_report_path(report), method: :post, class: "btn-secondary slim" %>
+                <%= button_to "Dismiss", dismiss_admin_report_path(report), method: :post, class: "btn-secondary slim" %>
+              <% end %>
+            </div>
           </td>
         </tr>
       <% end %>
@@ -92,6 +110,51 @@
 </div>
 
 <style>
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reports-table th,
+.reports-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.reports-table th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.reports-table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.text-muted {
+  color: #9ca3af;
+}
+
 .badge {
   padding: 0.25rem 0.5rem;
   border-radius: 4px;

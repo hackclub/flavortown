@@ -1,6 +1,12 @@
 class AdminConstraint
   def self.matches?(request)
-    user = admin_user_for(request)
+    # otherwise admins who impersonated non admins can't stop
+    if request.path == "/admin/users/stop_impersonating" && request.session[:impersonator_user_id].present?
+      user = User.find_by(id: request.session[:impersonator_user_id])
+    else
+      user = admin_user_for(request)
+    end
+
     return false unless user
 
     policy = AdminPolicy.new(user, :admin)
@@ -128,12 +134,12 @@ Rails.application.routes.draw do
     get "/", to: "root#index"
 
     namespace :v1 do
-      resources :docs, only: [ :index ]
-
       resources :projects, only: [ :index, :show ] do
         resources :devlogs, only: [ :index, :show ], controller: "project_devlogs"
       end
 
+      resources :docs, only: [ :index ]
+      resources :devlogs, only: [ :index, :show ]
       resources :store, only: [ :index, :show ]
       resources :users, only: [ :index, :show ]
     end
@@ -181,6 +187,10 @@ Rails.application.routes.draw do
          post :ban
          post :unban
          post :cancel_all_hcb_grants
+         post :impersonate
+       end
+       collection do
+         post :stop_impersonating
        end
        resource :magic_link, only: [ :show ]
      end
@@ -235,7 +245,11 @@ Rails.application.routes.draw do
   # Projects
   resources :projects, shallow: true do
     resources :memberships, only: [ :create, :destroy ], module: :project
-    resources :devlogs, only: [ :new, :create ], module: :project
+    resources :devlogs, only: %i[new create edit update destroy], module: :project, shallow: false do
+      member do
+        get :versions
+      end
+    end
     resources :reports, only: [ :create ], module: :project
     member do
       get :ship

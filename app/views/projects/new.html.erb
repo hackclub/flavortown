@@ -137,7 +137,7 @@
       </div>
       <div class="projects-new__actions" style="">
         <%= render(ButtonComponent.new(text: "Cancel", href: projects_path, color: :red, size: :md, icon: "icons/close.svg")) %>
-        <%= render(ButtonComponent.new(text: "Create Project", color: :green, size: :md, icon: "icons/plus.svg", type: :submit, data: { "project-form-target": "submit" })) %>
+        <%= render(ButtonComponent.new(text: "Create Project", color: :green, size: :md, icon: "icons/plus.svg", type: :submit, disable_with: "Creating...", data: { "project-form-target": "submit" })) %>
       </div>
     <% end %>
   </div>

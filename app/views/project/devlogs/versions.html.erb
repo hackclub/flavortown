@@ -1,0 +1,32 @@
+<% content_for :title, "Devlog Version History" %>
+
+<div class="projects-new">
+  <div class="projects-new__container">
+    <%= render HeadingComponent.new(title: "Version History", tone: :brown) %>
+
+    <div class="projects-new__card">
+      <h3>Current Version</h3>
+      <div style="padding: 1rem; background: var(--color-bg-secondary); border-radius: 8px; white-space: pre-wrap;">
+        <%= @devlog.body %>
+      </div>
+    </div>
+
+    <% @versions.each do |version| %>
+      <div class="projects-new__card" style="margin-top: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3>Version <%= version.version_number %></h3>
+          <span style="color: var(--color-text-secondary); font-size: 0.875rem;">
+            Edited by <%= version.user.display_name %> on <%= version.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+          </span>
+        </div>
+        <div style="padding: 1rem; background: var(--color-bg-secondary); border-radius: 8px; white-space: pre-wrap;">
+          <%= version.previous_body %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="projects-new__actions" style="margin-top: 2rem;">
+      <%= render ButtonComponent.new(text: "Back to Edit", href: edit_project_devlog_path(@project, @devlog), color: :brown) %>
+    </div>
+  </div>
+</div>

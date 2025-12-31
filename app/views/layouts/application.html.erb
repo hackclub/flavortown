@@ -11,7 +11,7 @@
     <meta name="twitter:creator" content="@hackclub">
     <meta property="og:locale" content="en_US">
     <meta property="og:site_name" content="Flavortown - Hack Club">
-    <meta name="description" content="Flavortown is Hack Club's fiscal sponsorship platform, empowering teen hackers to run their own nonprofit projects with transparent finances.">
+    <meta name="description" content="Build projects, earn cookies, get prizes. A Hack Club program for teen coders.">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <meta name="turbo-prefetch" content="false">
@@ -40,7 +40,24 @@
     <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>
 
-  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) %>>
+  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %>>
+    <% if impersonating? %>
+      <div class="impersonation-banner">
+        <div class="impersonation-content">
+          <div style="display: flex; align-items: center;">
+            <div class="impersonation-text">
+              <strong>IMPERSONATING:</strong> <%= current_user.display_name %>
+              <span class="impersonation-admin">(as <%= real_user.display_name %>)</span>
+            </div>
+          </div>
+          <%= button_to "Stop Impersonating",
+                        stop_impersonating_admin_users_path,
+                        method: :post,
+                        class: "btn-stop-impersonation",
+                        form: { style: "margin: 0;" } %>
+        </div>
+      </div>
+    <% end %>
     <% if current_user.present? && !current_user.banned? && !@hide_sidebar %>
       <%= render "shared/sidebar" %>
     <% end %>

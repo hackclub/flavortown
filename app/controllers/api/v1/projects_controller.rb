@@ -54,7 +54,7 @@ class Api::V1::ProjectsController < Api::BaseController
       )
     end
 
-    @pagy, @projects = pagy(projects, items: 100)
+    @pagy, @projects = pagy(projects, limit: 100)
   end
 
   def show

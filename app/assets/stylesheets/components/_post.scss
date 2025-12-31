@@ -18,6 +18,71 @@
   background-size: 120px 120px;
   box-shadow: var(--shadow);
 
+  &--deleted {
+    border-color: #dc2626;
+    border-width: 6px;
+    box-shadow:
+      0 0 0 4px rgba(220, 38, 38, 0.3),
+      0 0 20px rgba(220, 38, 38, 0.4),
+      inset 0 0 30px rgba(220, 38, 38, 0.1);
+    position: relative;
+
+    &::after {
+      border-color: #dc2626 !important;
+      background-color: #991b1b !important;
+    }
+
+    // Striped overlay for deleted appearance
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 10px,
+        rgba(220, 38, 38, 0.08) 10px,
+        rgba(220, 38, 38, 0.08) 20px
+      );
+      pointer-events: none;
+      z-index: 0;
+      border-radius: inherit;
+    }
+  }
+
+  &__deleted-banner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: var(--space-m) var(--space-l);
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    border: 2px solid #fca5a5;
+    border-radius: var(--border-radius);
+    color: white;
+    margin-bottom: var(--space-m);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    position: relative;
+    z-index: 2;
+
+    strong {
+      font-size: var(--font-size-xl);
+      letter-spacing: 0.05em;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    span {
+      font-size: var(--font-size-s);
+      opacity: 0.9;
+    }
+
+    &-note {
+      font-size: var(--font-size-xs);
+      opacity: 0.75;
+      font-style: italic;
+      margin-top: 0.25rem;
+    }
+  }
+
   &::before {
     content: "";
     position: absolute;
@@ -562,5 +627,42 @@
       opacity: 1;
       text-decoration: underline;
     }
+  }
+
+  &__action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--border-radius);
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    color: var(--color-bg);
+    transition:
+      background-color 0.2s,
+      border-color 0.2s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.4);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    &--danger {
+      background: rgba(180, 60, 60, 0.3);
+      border-color: rgba(180, 60, 60, 0.5);
+
+      &:hover {
+        background: rgba(180, 60, 60, 0.5);
+        border-color: rgba(180, 60, 60, 0.7);
+      }
+    }
+  }
+
+  &__action-icon {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
   }
 }
