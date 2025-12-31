@@ -192,12 +192,14 @@ class ProjectsController < ApplicationController
       redirect_to ship_project_path(@project, step: 4) and return
     end
 
-    begin
-      ShipCertService.ship_to_dash(@project)
-    rescue => e
-      Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
-      flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
-      redirect_to ship_project_path(@project, step: 4) and return
+    if @project.posts.where(postable_type: "Post::ShipEvent").none?
+      begin
+        ShipCertService.ship_to_dash(@project)
+      rescue => e
+        Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
+        flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
+        redirect_to ship_project_path(@project, step: 4) and return
+      end
     end
 
     ship_event = Post::ShipEvent.new(body: ship_body)
