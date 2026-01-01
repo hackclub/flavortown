@@ -162,7 +162,7 @@
 
         <%= button_to roll_api_key_path,
                       method: :post,
-                      data: { turbo_confirm: "Are you sure? This will invalidate your current API key (if you have one)" } do %>
+                      form: { onsubmit: "return confirm(' Are you sure? This will invalidate your current API key (if you have one)')" } do %>
           <%= inline_svg_tag "icons/refresh.svg", class: "api-key-generate-icon" %>
         <% end %>
       </div>
