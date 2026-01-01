@@ -52,7 +52,7 @@ class KitchenStatsComponent < ApplicationComponent
         div(class: "state-card__title") { "Leaderboard" }
         div(class: "kitchen-stats-card__stat") do
           if @user.leaderboard_optin? && rank
-            span(class: "kitchen-stats-card__rank") { "##{rank}" }
+            span(class: "kitchen-stats-card__rank") { "You are ##{rank}" }
           else
             span(class: "kitchen-stats-card__rank kitchen-stats-card__rank--unranked") { "Unranked" }
           end

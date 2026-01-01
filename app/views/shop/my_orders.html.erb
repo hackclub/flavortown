@@ -48,7 +48,7 @@
               <div class="my-orders__order-number-section">
                   <span class="my-orders__header-label">Order # <%= order.id %></span>
                   <% if order.pending? %>
-                    <%= button_to "Cancel Order", cancel_shop_order_path(order_id: order.id), method: :delete, class: "my-orders__cancel-link", form: { data: { turbo_confirm: "Are you sure you want to cancel this order?" } } %>
+                    <%= button_to "Cancel Order", cancel_shop_order_path(order_id: order.id), method: :delete, class: "my-orders__cancel-link", form: { onsubmit: "return confirm('Are you sure you want to cancel this order?')"   } %>
                   <% end %>
                 </div>
             </div>

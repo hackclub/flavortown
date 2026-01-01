@@ -1,14 +1,63 @@
 class Admin::UsersController < Admin::ApplicationController
+    skip_before_action :prevent_admin_access_while_impersonating, only: [ :stop_impersonating ]
+
     def index
       @query = params[:query]
 
       users = User.all
       if @query.present?
-        q = "%#{@query}%"
-        users = users.where("email ILIKE ? OR display_name ILIKE ?", q, q)
+        q = "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%"
+        users = users.where("email ILIKE ? OR display_name ILIKE ? OR slack_id ILIKE ?", q, q, q)
       end
 
       @pagy, @users = pagy(:offset, users.order(:id))
+    end
+
+    def impersonate
+      @user = User.find(params[:id]) # user to be impersonated
+      authorize @user
+
+      admin_user = current_user
+      # simple swap
+      session[:impersonator_user_id] = admin_user.id
+      session[:user_id] = @user.id
+      pundit_reset!
+
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: @user.id,
+        event: "impersonation_started",
+        whodunnit: admin_user.id.to_s,
+        object_changes: {
+          impersonated_by: admin_user.id,
+          impersonated_by_name: admin_user.display_name
+        }.to_json
+      )
+
+      flash[:notice] = "Now impersonating #{@user.display_name}. You can stop impersonation from the banner at the top."
+      redirect_to root_path
+    end
+
+    def stop_impersonating
+      if real_user && current_user # current_user is impersonated user
+          PaperTrail::Version.create!(
+            item_type: "User",
+            item_id: current_user.id,
+            event: "impersonation_stopped",
+            whodunnit: real_user.id.to_s,
+            object_changes: {
+              stopped_by: real_user.id,
+              stopped_by_name: real_user.display_name
+            }.to_json
+          )
+      end
+
+        session[:user_id] = real_user.id
+        session.delete(:impersonator_user_id)
+        pundit_reset!
+        flash[:notice] = "Stopped impersonating #{current_user&.display_name}."
+
+      redirect_to admin_users_path
     end
 
     def show
@@ -55,7 +104,6 @@ class Admin::UsersController < Admin::ApplicationController
         return redirect_to admin_user_path(@user)
       end
 
-
       @user.grant_role!(role_name)
 
       # Create explicit audit entry on User
@@ -82,7 +130,6 @@ class Admin::UsersController < Admin::ApplicationController
       flash[:alert] = "Only super admins can demote super admin."
       return redirect_to admin_user_path(@user)
     end
-
 
     if @user.has_role?(role_name)
       @user.remove_role!(role_name)
@@ -182,8 +229,18 @@ class Admin::UsersController < Admin::ApplicationController
     authorize :admin, :manage_users?
     @user = User.find(params[:id])
 
+    if cannot_adjust_balance_for?(@user)
+      flash[:alert] = "You cannot adjust the balance of another #{protected_role_name(@user)}."
+      return redirect_to admin_user_path(@user)
+    end
+
     amount = params[:amount].to_i
     reason = params[:reason].presence
+
+    if fraud_dept_cookie_limit_exceeded?(amount)
+      flash[:alert] = "Fraud department members can only grant up to 1 cookie without the grant_cookies permission."
+      return redirect_to admin_user_path(@user)
+    end
 
     if amount.zero?
       flash[:alert] = "Amount cannot be zero."
@@ -264,5 +321,39 @@ class Admin::UsersController < Admin::ApplicationController
 
   def user_params
     params.require(:user).permit(regions: [])
+  end
+
+  def cannot_adjust_balance_for?(target_user)
+    return false if current_user.has_role?(:super_admin) || current_user.has_role?(:admin)
+
+    # Non-admins cannot adjust their own balance
+    return true if target_user == current_user
+
+    # Fraud dept cannot modify admin balances at all
+    if current_user.has_role?(:fraud_dept)
+      return true if target_user.has_role?(:admin) || target_user.has_role?(:super_admin)
+    end
+
+    protected_roles = [ :admin, :super_admin, :fraud_dept ]
+    shared_protected_roles = current_user.roles & protected_roles & target_user.roles
+    shared_protected_roles.any?
+  end
+
+  def fraud_dept_cookie_limit_exceeded?(amount)
+    return false unless current_user.has_role?(:fraud_dept)
+    return false if current_user.has_role?(:admin) || current_user.has_role?(:super_admin)
+    return false if Flipper.enabled?(:grant_cookies, current_user)
+
+    amount > 1
+  end
+
+  def protected_role_name(target_user)
+    if target_user.has_role?(:super_admin) || target_user.has_role?(:admin)
+      "admin"
+    elsif target_user.has_role?(:fraud_dept)
+      "fraud department member"
+    else
+      "user"
+    end
   end
 end

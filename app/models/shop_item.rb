@@ -43,6 +43,10 @@
 #  price_offset_uk                   :decimal(10, 2)
 #  price_offset_us                   :decimal(, )
 #  price_offset_xx                   :decimal(, )
+#  required_ships_count              :integer          default(1)
+#  required_ships_end_date           :date
+#  required_ships_start_date         :date
+#  requires_ship                     :boolean          default(FALSE)
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
@@ -138,6 +142,9 @@ class ShopItem < ApplicationRecord
   validates :name, :description, :ticket_cost, :type, presence: true
   validates :ticket_cost, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :image, presence: true, on: :create
+  validates :required_ships_count, numericality: { only_integer: true, greater_than: 0 }, if: :requires_ship?
+  validates :required_ships_start_date, :required_ships_end_date, presence: true, if: :requires_ship?
+  validate :is_range_valid, if: :requires_ship?
 
   has_many :shop_orders, dependent: :restrict_with_error
 
@@ -194,7 +201,22 @@ class ShopItem < ApplicationRecord
     available_accessories.exists?
   end
 
+  def meet_ship_require?(user)
+    return true unless requires_ship?
+    return false unless user.present?
+
+    user.shipped_projects_count_in_range(required_ships_start_date, required_ships_end_date) >= required_ships_count
+  end
+
   private
+
+  def is_range_valid
+    return unless required_ships_start_date.present? && required_ships_end_date.present?
+
+    if required_ships_end_date < required_ships_start_date
+      errors.add(:required_ships_end_date, "must be after start date")
+    end
+  end
 
   def carousel_relevant_change?
     show_in_carousel? || saved_change_to_show_in_carousel?

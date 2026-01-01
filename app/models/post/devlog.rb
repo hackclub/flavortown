@@ -5,6 +5,7 @@
 #  id                              :bigint           not null, primary key
 #  body                            :string
 #  comments_count                  :integer          default(0), not null
+#  deleted_at                      :datetime
 #  duration_seconds                :integer
 #  hackatime_projects_key_snapshot :text
 #  hackatime_pulled_at             :datetime
@@ -15,8 +16,16 @@
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null
 #
+# Indexes
+#
+#  index_post_devlogs_on_deleted_at  (deleted_at)
+#
 class Post::Devlog < ApplicationRecord
   include Postable
+  include SoftDeletable
+
+  # Version history
+  has_many :versions, class_name: "DevlogVersion", foreign_key: :devlog_id, dependent: :destroy
 
   ACCEPTED_CONTENT_TYPES = %w[
     image/jpeg
@@ -89,6 +98,43 @@ class Post::Devlog < ApplicationRecord
   rescue => e
     Rails.logger.error("Unexpected error in recalculate_seconds_coded for Devlog #{id}: #{e.message}")
     false
+  end
+
+  # Soft delete methods
+  def soft_delete!
+    update!(deleted_at: Time.current)
+  end
+
+  def restore!
+    update!(deleted_at: nil)
+  end
+
+  def deleted?
+    deleted_at.present?
+  end
+
+  # Version history methods
+  def current_version_number
+    versions.maximum(:version_number) || 0
+  end
+
+  def create_version!(user:, previous_body:)
+    versions.create!(
+      user: user,
+      reverse_diff: previous_body,
+      version_number: current_version_number + 1
+    )
+  end
+
+  def body_at_version(version_number)
+    return body if version_number > current_version_number
+
+    # Start from current and apply reverse diffs backwards
+    result = body
+    versions.where("version_number > ?", version_number).order(version_number: :desc).each do |version|
+      result = version.previous_body
+    end
+    result
   end
 
   private

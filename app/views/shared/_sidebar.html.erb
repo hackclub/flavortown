@@ -139,6 +139,14 @@
         <small class="settings-form__hint">Receive a Slack DM when your cookie balance changes</small>
       </div>
 
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
+          <%= check_box_tag :special_effects_enabled, "1", current_user.special_effects_enabled, id: "special_effects_enabled" %>
+          <span>Special effects</span>
+        </label>
+        <small class="settings-form__hint">Enable/Disable visual effects during special events</small>
+      </div>
+
       <div class="modal__actions">
         <%= f.submit "Save", class: "modal__actions-close" %>
         <button type="button" class="modal__actions-close" onclick="document.getElementById('settings-form').reset(); document.getElementById('settings-modal').close()">Cancel</button>
@@ -154,7 +162,7 @@
 
         <%= button_to roll_api_key_path,
                       method: :post,
-                      data: { turbo_confirm: "Are you sure? This will invalidate your current API key (if you have one)" } do %>
+                      form: { onsubmit: "return confirm(' Are you sure? This will invalidate your current API key (if you have one)')" } do %>
           <%= inline_svg_tag "icons/refresh.svg", class: "api-key-generate-icon" %>
         <% end %>
       </div>

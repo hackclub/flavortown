@@ -78,6 +78,7 @@ class ShopOrder < ApplicationRecord
   validate :check_free_stickers_requirement, on: :create
   validate :check_devlog_for_free_stickers, on: :create
   validate :check_stock, on: :create
+  validate :check_ship_requirement, on: :create
 
   after_create :create_negative_payout
   after_create :assign_default_user
@@ -342,6 +343,17 @@ class ShopOrder < ApplicationRecord
     elsif quantity.present? && quantity > remaining
       errors.add(:base, "Only #{remaining} #{shop_item.name.pluralize(remaining)} left in stock.")
     end
+  end
+
+  def check_ship_requirement
+    return unless shop_item&.requires_ship?
+    return if shop_item.meet_ship_require?(user)
+
+    s = shop_item.required_ships_start_date.strftime("%B %d, %Y")
+    e = shop_item.required_ships_end_date.strftime("%B %d, %Y")
+    c = shop_item.required_ships_count
+
+    errors.add(:base, "You must have shipped at least #{c} #{'project'.pluralize(count)} between #{s} and #{e} to purchase this item.")
   end
 
   def create_negative_payout

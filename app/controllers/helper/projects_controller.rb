@@ -15,7 +15,7 @@ module Helper
       end
 
       if @q.present?
-        q = "%#{@q}%"
+        q = "%#{ActiveRecord::Base.sanitize_sql_like(@q)}%"
         p = p.where("title ILIKE ? OR description ILIKE ?", q, q)
       end
 

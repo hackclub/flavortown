@@ -1,4 +1,11 @@
-<article class="post <%= variant_class %>">
+<article class="post <%= variant_class %><%= ' post--deleted' if deleted? %>">
+  <% if deleted? %>
+    <div class="post__deleted-banner">
+      <strong>🚨 DELETED DEVLOG</strong>
+      <span>Deleted on <%= postable.deleted_at.strftime("%B %d, %Y at %I:%M %p") %></span>
+      <span class="post__deleted-banner-note">This content is only visible to admins/fraud review</span>
+    </div>
+  <% end %>
   <header class="post__header">
     <div class="post__avatar">
     <%= image_tag post.user&.avatar || "https://ca.slack-edge.com/T0266FRGM-U07GZPGJX1G-g98be5e77f20-512", alt: author_name, class: "post__avatar" %>
@@ -31,7 +38,7 @@
     </div>
   </header>
 
-  <%= render "shared/inspector", record: post.postable %>
+  <%= render "shared/inspector", record: postable %>
   <%= render "shared/inspector", record: post.user if post.user %>
 
   <% if ship_event? %>
@@ -45,20 +52,20 @@
   <% if git_commit? %>
     <div class="post__git-commit">
       <div class="post__git-commit-header">
-        <code class="post__git-commit-sha"><%= post.postable.short_sha %></code>
-        <% if post.postable.stats_summary.present? %>
-          <span class="post__git-commit-stats"><%= post.postable.stats_summary %></span>
+        <code class="post__git-commit-sha"><%= postable.short_sha %></code>
+        <% if postable.stats_summary.present? %>
+          <span class="post__git-commit-stats"><%= postable.stats_summary %></span>
         <% end %>
       </div>
-      <div class="post__git-commit-message"><%= post.postable.title %></div>
-      <% if post.postable.url.present? %>
-        <%= link_to "View commit →", post.postable.url, target: "_blank", rel: "noopener", class: "post__git-commit-link" %>
+      <div class="post__git-commit-message"><%= postable.title %></div>
+      <% if postable.url.present? %>
+        <%= link_to "View commit →", postable.url, target: "_blank", rel: "noopener", class: "post__git-commit-link" %>
       <% end %>
     </div>
   <% end %>
 
-  <% if post.postable.respond_to?(:body) && post.postable.body.present? && !git_commit? %>
-    <div class="post__body"><%= helpers.md post.postable.body %></div>
+  <% if postable.respond_to?(:body) && postable.body.present? && !git_commit? %>
+    <div class="post__body"><%= helpers.md postable.body %></div>
   <% end %>
 
   <% if scrapbook_url.present? %>
@@ -104,12 +111,22 @@
 
   <% if devlog? %>
     <div class="post__interactions">
-      <%= render "likes/button", likeable: post.postable %>
+      <%= render "likes/button", likeable: postable %>
       <div class="comments-count">
         <%= helpers.inline_svg_tag("icons/paper.svg") %>
         <span class="comments-count__count"><%= commentable.comments_count %></span>
       </div>
+      <% if can_edit? %>
+        <div class="post__actions" style="margin-left: auto; display: flex; gap: 0.5rem;">
+          <%= link_to edit_devlog_path, class: "post__action-btn", title: "Edit devlog" do %>
+            <%= helpers.inline_svg_tag("icons/pencil.svg", class: "post__action-icon") %>
+          <% end %>
+          <%= button_to delete_devlog_path, method: :delete, class: "post__action-btn post__action-btn--danger", title: "Delete devlog", form: { onsubmit: "return confirm('Are you sure you want to delete devlog #' + #{postable.id.to_json} + '? This action cannot be undone.')" } do %>
+            <%= helpers.inline_svg_tag("icons/close.svg", class: "post__action-icon") %>
+          <% end %>
+        </div>
+      <% end %>
     </div>
-    <%= render "comments/section", commentable: post.postable %>
+    <%= render "comments/section", commentable: postable %>
   <% end %>
 </article>
