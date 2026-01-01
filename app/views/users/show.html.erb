@@ -134,7 +134,7 @@
     <% if @activity.any? %>
       <div style="display: grid; gap: var(--space-xl);">
         <% @activity.each do |post| %>
-          <%= render PostComponent.new(post: post, variant: :devlog, current_user: current_user) %>
+          <%= render PostComponent.new(post: post, current_user: current_user) %>
         <% end %>
       </div>
     <% else %>
