@@ -35,6 +35,7 @@ class Post::DevlogPolicy < ApplicationPolicy
     end
 
     def project_member?
+        return false unless user && record&.post&.project
         record.post.project.users.exists?(user.id)
     end
 end
