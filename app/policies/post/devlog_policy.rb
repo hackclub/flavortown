@@ -19,6 +19,10 @@ class Post::DevlogPolicy < ApplicationPolicy
         owns?
     end
 
+    def versions?
+        owns?
+    end
+
     private
 
     def owns?

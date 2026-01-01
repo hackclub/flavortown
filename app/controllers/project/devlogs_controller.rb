@@ -80,6 +80,7 @@ class Project::DevlogsController < ApplicationController
   end
 
   def versions
+    authorize @devlog
     @versions = @devlog.versions.order(version_number: :desc)
   end
 
