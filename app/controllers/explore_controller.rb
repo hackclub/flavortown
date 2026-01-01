@@ -64,7 +64,7 @@ class ExploreController < ApplicationController
 
     scope = current_user.followed_projects
                         .where(tutorial: false)
-                        .includes(:banner_attachment, :posts)
+                        .with_attached_banner
                         .order(created_at: :desc)
 
     @pagy, @projects = pagy(scope)
