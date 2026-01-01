@@ -19,16 +19,13 @@ class SessionsController < ApplicationController
 
     user_email, display_name, verification_status, ysws_eligible, slack_id, uid, _, first_name, last_name = extract_identity_fields(identity_data)
     if uid.blank?
-      Sentry.capture_message("Authentication failed: uid is blank", level: :warning, extra: { identity_data: })
-      return redirect_to(root_path, alert: "Authentication failed")
+      return redirect_to(root_path, alert: "Your Hack Club account is broken. Please contact support.")
     end
     if slack_id.blank?
-      Sentry.capture_message("Authentication failed: slack_id is blank", level: :warning, extra: { uid: })
-      return redirect_to(root_path, alert: "Authentication failed")
+      return redirect_to(root_path, alert: "Your Hack Club account is not linked to a Slack account! Please contact support.")
     end
     unless User.verification_statuses.key?(verification_status)
-      Sentry.capture_message("Authentication failed: invalid verification_status", level: :warning, extra: { verification_status: })
-      return redirect_to(root_path, alert: "Authentication failed")
+      return redirect_to(root_path, alert: "Your Hack Club account is broken. Please contact support.")
     end
 
     identity = User::Identity.find_or_initialize_by(provider: "hack_club", uid: uid)
