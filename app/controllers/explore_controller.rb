@@ -2,9 +2,10 @@ class ExploreController < ApplicationController
   VARIANTS = %i[devlog fire certified ship].freeze
 
   def index
-    scope = Post::Devlog.includes(:project, :user, attachments_attachments: :blob)
+    scope = Post::Devlog.includes(:post, attachments_attachments: :blob)
+                        .joins(:post)
                         .where(tutorial: false)
-                        .where.not(user: current_user&.id)
+                        .where.not(posts: { user_id: current_user&.id })
 
     @pagy, @devlogs = pagy(scope)
 
