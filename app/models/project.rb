@@ -58,15 +58,15 @@ class Project < ApplicationRecord
     has_many :users, through: :memberships
     has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :nullify
     has_many :posts, dependent: :destroy
-    has_many :devlogs, -> { where(postable_type: "Post::Devlog").order(created_at: :desc) }, class_name: "Post"
-    has_many :ship_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
+    has_many :devlog_posts, -> { where(postable_type: "Post::Devlog").order(created_at: :desc) }, class_name: "Post"
+    has_many :devlogs, through: :devlog_posts, source: :postable, source_type: "Post::Devlog"
+    has_many :ship_event_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
+    has_many :ship_events, through: :ship_event_posts, source: :postable, source_type: "Post::ShipEvent"
     has_many :git_commit_posts, -> { where(postable_type: "Post::GitCommit").order(created_at: :desc) }, class_name: "Post"
-    has_one :latest_ship_post, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
     has_many :votes, dependent: :destroy
     has_many :reports, class_name: "Project::Report", dependent: :destroy
     has_many :project_follows, dependent: :destroy
     has_many :followers, through: :project_follows, source: :user
-
     # needs to be implemented
     has_one_attached :demo_video
 
@@ -228,7 +228,7 @@ class Project < ApplicationRecord
     end
 
     def last_ship_event
-        posts.where(postable_type: "Post::ShipEvent").order(created_at: :desc).first
+        ship_events.first
     end
 
     def shippable?
