@@ -22,12 +22,15 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Post < ApplicationRecord
+    # Eager load all Post::* classes so Postable.types is populated
+    Dir[Rails.root.join("app/models/post/*.rb")].each { |f| require_dependency f }
+
     belongs_to :project, touch: true
     # optional because it can be a system post – achievements, milestones, well-done/magic happening, etc –
     # integeration – git remotes – or a user post
     belongs_to :user, optional: true
 
-    delegated_type :postable, types: %w[Post::Devlog Post::ShipEvent Post::FireEvent Post::GitCommit]
+    delegated_type :postable, types: Postable.types
 
     # For loading devlogs including soft-deleted ones (for admins)
     belongs_to :devlog_with_deleted,
@@ -45,12 +48,10 @@ class Post < ApplicationRecord
     after_commit :increment_devlogs_count, on: :create
     after_commit :decrement_devlogs_count, on: :destroy
 
-    POSTABLE_TYPES = Post::Postable::TYPES.index_by { |t| t.demodulize.underscore.pluralize.to_sym }.freeze
-
     # These are automatically generated scopes for each postable type:
     # ie. Post.of_devlogs
     # ie. Post.of_devlogs(join: true).where(post_devlogs: { tutorial: false })
-    Post::Postable::TYPES.each do |type_class|
+    Postable.types.each do |type_class|
       scope_name = "of_#{type_class.demodulize.underscore.pluralize}"
       table_name = type_class.constantize.table_name
 
