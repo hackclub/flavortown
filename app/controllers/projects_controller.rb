@@ -12,6 +12,7 @@ class ProjectsController < ApplicationController
 
     @posts = @project.posts
                      .includes(:user, postable: [ { attachments_attachments: :blob } ])
+                     .order(created_at: :desc)
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
       @posts = @posts.where.not(postable_type: "Post::GitCommit")

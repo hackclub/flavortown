@@ -58,7 +58,7 @@ class Project < ApplicationRecord
     has_many :users, through: :memberships
     has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :nullify
     has_many :posts, dependent: :destroy
-    has_many :devlogs, -> { where(postable_type: "Post::Devlog") }, class_name: "Post"
+    has_many :devlogs, -> { where(postable_type: "Post::Devlog").order(created_at: :desc) }, class_name: "Post"
     has_many :ship_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
     has_many :git_commit_posts, -> { where(postable_type: "Post::GitCommit").order(created_at: :desc) }, class_name: "Post"
     has_one :latest_ship_post, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
