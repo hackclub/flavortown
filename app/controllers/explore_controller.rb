@@ -1,22 +1,21 @@
 class ExploreController < ApplicationController
-  VARIANTS = %i[devlog fire certified ship].freeze
-
   def index
-    scope = Post::Devlog.includes(:post, attachments_attachments: :blob)
-                        .joins(:post)
-                        .where(tutorial: false)
-                        .where.not(posts: { user_id: current_user&.id })
+    scope = Post.of_devlogs(join: true)
+                .where(post_devlogs: { tutorial: false })
+                .where.not(user_id: current_user&.id)
+                .includes(:user, :project, postable: { attachments_attachments: :blob })
+                .order(created_at: :desc)
 
-    @pagy, @devlogs = pagy(scope)
+    scope = scope.where(post_devlogs: { deleted_at: nil }) unless current_user&.can_see_deleted_devlogs?
 
-    Rails.logger.debug "Devlogs count: #{@devlogs.size}, IDs: #{@devlogs.map(&:id)}"
+    @pagy, @devlogs = pagy(scope, limit: 30, client_max_limit: 30)
 
     respond_to do |format|
       format.html
       format.json do
         html = @devlogs.map do |post|
           render_to_string(
-            PostComponent.new(post: post, variant: devlog_variant(post), current_user: current_user),
+            PostComponent.new(post: post, current_user: current_user),
             layout: false,
             formats: [ :html ]
           )
@@ -114,11 +113,4 @@ class ExploreController < ApplicationController
       .group(:project_id)
       .count("DISTINCT user_id")
   end
-
-  private
-
-  def devlog_variant(post)
-    VARIANTS[post.id % VARIANTS.length]
-  end
-  helper_method :devlog_variant
 end

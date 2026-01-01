@@ -1,20 +1,27 @@
  # frozen_string_literal: true
 
  class PostComponent < ViewComponent::Base
-  attr_reader :post, :variant
-  VARIANTS = %i[fire devlog certified ship git_commit].freeze
+  with_collection_parameter :post
 
-  def initialize(post:, variant: :devlog, current_user: nil)
+  attr_reader :post
+
+  def initialize(post:, current_user: nil)
     @post = post
     @current_user = current_user
-    @variant = normalize_variant(variant)
-    @variant = :ship if postable.is_a?(Post::ShipEvent)
-    @variant = :fire if postable.is_a?(Post::FireEvent)
-    @variant = :git_commit if postable.is_a?(Post::GitCommit)
-   end
+  end
+
+  def variant
+    @variant ||= case postable
+    when Post::ShipEvent then :ship
+    when Post::FireEvent then :fire
+    when Post::GitCommit then :git_commit
+    when Post::Devlog    then :devlog
+    else nil
+    end
+  end
 
    def postable
-     @postable ||= post.postable_with_deleted
+     @postable ||= post.postable
    end
 
    def project_title
@@ -122,13 +129,5 @@
     return nil unless can_edit?
     return nil unless post.project.present?
     helpers.project_devlog_path(post.project, postable)
-  end
-
-  private
-
-  def normalize_variant(value)
-    symbol = value.to_sym
-    return symbol if VARIANTS.include?(symbol)
-    :devlog
   end
  end

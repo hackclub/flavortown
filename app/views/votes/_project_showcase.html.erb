@@ -51,7 +51,7 @@
   </div>
   <div class="votes-new__devlogs">
     <% devlogs.each do |post| %>
-      <%= render PostComponent.new(post: post, variant: :devlog, current_user: current_user) %>
+      <%= render PostComponent.new(post: post, current_user: current_user) %>
     <% end %>
   </div>
 </div>
