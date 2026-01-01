@@ -35,6 +35,7 @@ class Post < ApplicationRecord
     after_commit :invalidate_project_time_cache, on: [ :create, :destroy ]
     after_commit :increment_devlogs_count, on: :create
     after_commit :decrement_devlogs_count, on: :destroy
+    after_commit :update_project_duration_seconds, on: [ :create, :destroy ]
 
     # These are automatically generated scopes for each postable type:
     # ie. Post.of_devlogs
@@ -77,5 +78,11 @@ class Post < ApplicationRecord
       return unless postable_type == "Post::Devlog"
 
       Project.unscoped.where(id: project_id).update_counters(devlogs_count: -1)
+    end
+
+    def update_project_duration_seconds
+      return unless postable_type == "Post::Devlog"
+
+      project&.recalculate_duration_seconds!
     end
 end
