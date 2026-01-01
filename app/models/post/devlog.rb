@@ -22,20 +22,7 @@
 #
 class Post::Devlog < ApplicationRecord
   include Postable
-
-  # Soft delete: use `deleted` scope to find deleted records, default scope excludes them
-  scope :not_deleted, -> { where(deleted_at: nil) }
-  scope :deleted, -> { where.not(deleted_at: nil) }
-  scope :with_deleted, -> { unscope(where: :deleted_at) }
-  scope :visible_to, ->(user) {
-    if user&.can_see_deleted_devlogs?
-      with_deleted
-    else
-      not_deleted
-    end
-  }
-
-  default_scope { not_deleted }
+  include SoftDeletable
 
   # Version history
   has_many :versions, class_name: "DevlogVersion", foreign_key: :devlog_id, dependent: :destroy

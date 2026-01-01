@@ -8,6 +8,7 @@ export default class extends Controller {
   #previews = [];
   #currentIndex = 0;
   #trackedFiles = []; // Track files ourselves since browser replaces input.files on each selection
+  #externalChange = false; // was this a user or not?
 
   static targets = [
     "input",
@@ -127,6 +128,10 @@ export default class extends Controller {
   }
 
   handleSelection(event) {
+    if (this.#externalChange) {
+      this.#externalChange = false;
+      return;
+    }
     if (this.#processing) return;
     // Native file selection: browser REPLACES input.files on each selection.
     // We need to track files ourselves and merge for "add more" to work.
@@ -288,6 +293,7 @@ export default class extends Controller {
         }
         this.#renderCurrentPreview();
       });
+      this.#externalChange = true;
       this.inputTarget.dispatchEvent(new Event("change", { bubbles: true }));
     } finally {
       this.#processing = false;

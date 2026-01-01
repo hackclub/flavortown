@@ -4,40 +4,17 @@ class ProjectsController < ApplicationController
 
   def index
     authorize Project
-    @projects = current_user.projects
-      .includes(banner_attachment: :blob)
-      .left_joins(:devlogs)
-      .select("projects.*, COUNT(posts.id) AS devlogs_count")
-      .group("projects.id")
+    @projects = current_user.projects.includes(banner_attachment: :blob)
   end
 
   def show
     authorize @project
-    @show_deleted_devlogs = current_user&.can_see_deleted_devlogs?
 
-    @posts = @project
-      .posts
-      .order(created_at: :desc)
-
-    # Eager load with deleted devlogs for admins
-    if @show_deleted_devlogs
-      @posts = @posts.includes(:user, :devlog_with_deleted, postable: [ { attachments_attachments: :blob } ])
-    else
-      @posts = @posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
-    end
-
-    unless ShipCertService.get_status(@project) == "approved"
-      @posts = @posts.where.not(postable_type: "Post::ShipEvent")
-    end
+    @posts = @project.posts
+                     .includes(:user, postable: [ { attachments_attachments: :blob } ])
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
       @posts = @posts.where.not(postable_type: "Post::GitCommit")
-    end
-
-    # Filter out deleted devlogs for users who can't see them
-    unless @show_deleted_devlogs
-      deleted_devlog_ids = Post::Devlog.unscoped.deleted.pluck(:id)
-      @posts = @posts.where.not(postable_type: "Post::Devlog", postable_id: deleted_devlog_ids)
     end
   end
 
@@ -192,12 +169,14 @@ class ProjectsController < ApplicationController
       redirect_to ship_project_path(@project, step: 4) and return
     end
 
-    begin
-      ShipCertService.ship_to_dash(@project)
-    rescue => e
-      Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
-      flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
-      redirect_to ship_project_path(@project, step: 4) and return
+    if @project.posts.where(postable_type: "Post::ShipEvent").none?
+      begin
+        ShipCertService.ship_to_dash(@project)
+      rescue => e
+        Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
+        flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
+        redirect_to ship_project_path(@project, step: 4) and return
+      end
     end
 
     ship_event = Post::ShipEvent.new(body: ship_body)

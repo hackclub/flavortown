@@ -34,6 +34,7 @@
 #
 class Project < ApplicationRecord
     include AASM
+    include SoftDeletable
 
     after_create :notify_slack_channel
 
@@ -46,12 +47,10 @@ class Project < ApplicationRecord
       "Minecraft Mods", "Hardware", "Android App", "iOS App", "Other"
     ].freeze
 
-    scope :kept, -> { where(deleted_at: nil) }
-    scope :deleted, -> { where.not(deleted_at: nil) }
+    scope :excluding_member, ->(user) {
+        user ? where.not(id: user.projects) : all
+    }
     scope :fire, -> { where.not(marked_fire_at: nil) }
-
-    # we're soft deleting!
-    default_scope { kept }
 
     belongs_to :marked_fire_by, class_name: "User", optional: true
 

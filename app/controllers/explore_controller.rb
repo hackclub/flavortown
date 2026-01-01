@@ -2,18 +2,10 @@ class ExploreController < ApplicationController
   VARIANTS = %i[devlog fire certified ship].freeze
 
   def index
-    # Get non-tutorial devlog IDs, filtering out deleted ones for regular users
-    devlog_scope = Post::Devlog.where(tutorial: false)
-    unless current_user&.can_see_deleted_devlogs?
-      devlog_scope = devlog_scope.not_deleted
-    end
-    non_tutorial_devlog_ids = devlog_scope.select(:id)
-
-    scope = Post.includes(:user, :project, postable: { attachments_attachments: :blob, likes: [] })
-                .where(postable_type: "Post::Devlog")
-                .where("posts.postable_id::bigint IN (?)", non_tutorial_devlog_ids)
-                .where.not(user_id: current_user&.id)
-                .order(created_at: :desc)
+    scope = Post::Devlog.includes(:post, attachments_attachments: :blob)
+                        .joins(:post)
+                        .where(tutorial: false)
+                        .where.not(posts: { user_id: current_user&.id })
 
     @pagy, @devlogs = pagy(scope)
 
@@ -40,9 +32,9 @@ class ExploreController < ApplicationController
 
   def gallery
     scope = Project.includes(banner_attachment: :blob)
-                    .where(tutorial: false)
-                    .where.not(id: current_user&.projects&.pluck(:id) || [])
-                    .order(created_at: :desc)
+                   .where(tutorial: false)
+                   .excluding_member(current_user)
+                   .order(created_at: :desc)
 
     @pagy, @projects = pagy(scope)
 

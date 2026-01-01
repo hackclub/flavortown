@@ -51,10 +51,6 @@ group :development, :test do
   # Bullet gem to catch N+1
   gem "bullet"
 
-  # Rack Mini Profiler gem for performance monitoring
-  # gem "rack-mini-profiler"
-  gem "rack-mini-profiler", github: "coalest/rack-mini-profiler", branch: "fix-missing-badge-for-turbo-drive"
-
   # Annoate for annotating, ig.
   gem "annotaterb"
 
@@ -124,6 +120,10 @@ gem "activeinsights"
 
 gem "rack-attack"
 gem "query_count"
+
+# Rack Mini Profiler gem for performance monitoring
+# gem "rack-mini-profiler"
+gem "rack-mini-profiler", github: "coalest/rack-mini-profiler", branch: "fix-missing-badge-for-turbo-drive"
 
 gem "redis", "~> 5.4"
 
