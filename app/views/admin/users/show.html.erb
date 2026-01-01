@@ -20,7 +20,19 @@
       <div><b>Name:</b> <%= @user.display_name %></div>
       <div><b>Balance:</b> <%= @user.balance %> tickets</div>
       <div><b>Roles:</b> <%= @user.roles.map { |r| r.to_s.titleize }.join(", ") %></div>
-      <div><b>Projects:</b> <%= @user.projects_count %></div>
+      <div>
+        <b>Projects (<%= @all_projects.size %>):</b>
+        <ul style="margin: 0.5rem 0 0 1rem; padding: 0; list-style: disc;">
+          <% @all_projects.each do |project| %>
+            <li>
+              <%= link_to project.title, admin_project_path(project), style: "color: #3b82f6;" %>
+              <% if project.deleted? %>
+                <span style="color: #ef4444; font-weight: 500;">(deleted)</span>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
       <% if @user.fulfillment_person? %>
         <div>
           <b>Regions:</b>

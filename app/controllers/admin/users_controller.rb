@@ -85,6 +85,7 @@ class Admin::UsersController < Admin::ApplicationController
 
       # Combine and sort by created_at (role changes are now in user_versions as role_promoted/role_demoted events)
       @user_actions = (user_versions + ledger_entries).sort_by(&:created_at).reverse
+      @all_projects = @user.projects.with_deleted.order(deleted_at: :desc)
     end
 
     def user_perms
