@@ -104,7 +104,7 @@
           </div>
           <div class="project-show-card__stat">
             <%= helpers.inline_svg_tag("icons/time.svg") %>
-            <span><%= "#{project.time.hours}hr #{project.time.minutes}min" %></span>
+            <span><%= helpers.format_seconds(project.duration_seconds) %></span>
           </div>
           <button type="button" class="project-show-card__stat project-show-card__stat--clickable" data-controller="modal" data-action="click->modal#open" data-modal-target-value="project-followers-modal-<%= project.id %>">
               <%= helpers.inline_svg_tag("icons/user.svg") %>
