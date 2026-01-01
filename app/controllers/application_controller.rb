@@ -14,6 +14,7 @@ class ApplicationController < ActionController::Base
   before_action :track_request
   before_action :show_pending_achievement_notifications!
   before_action :apply_dev_override_ref
+  before_action :allow_profiler
 
   rescue_from StandardError, with: :handle_error
   rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
@@ -114,6 +115,13 @@ class ApplicationController < ActionController::Base
     return if params[:_override_ref].length > 64
 
     current_user.update!(ref: params[:_override_ref])
+  end
+
+  def allow_profiler
+    return unless defined?(Rack::MiniProfiler)
+    if current_user&.admin? || Rails.env.development?
+      Rack::MiniProfiler.authorize_request
+    end
   end
 
   def refresh_identity_on_portal_return
