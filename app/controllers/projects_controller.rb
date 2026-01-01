@@ -4,23 +4,14 @@ class ProjectsController < ApplicationController
 
   def index
     authorize Project
-    @projects = current_user.projects
-      .includes(banner_attachment: :blob)
-      .left_joins(:devlogs)
-      .select("projects.*, COUNT(posts.id) AS devlogs_count")
-      .group("projects.id")
+    @projects = current_user.projects.includes(banner_attachment: :blob)
   end
 
   def show
     authorize @project
-    @posts = @project
-      .posts
-      .order(created_at: :desc)
-      .includes(:user, postable: [ { attachments_attachments: :blob } ])
 
-    unless ShipCertService.get_status(@project) == "approved"
-      @posts = @posts.where.not(postable_type: "Post::ShipEvent")
-    end
+    @posts = @project.posts
+                     .includes(:user, postable: [ { attachments_attachments: :blob } ])
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
       @posts = @posts.where.not(postable_type: "Post::GitCommit")
@@ -117,10 +108,15 @@ class ProjectsController < ApplicationController
 
   def destroy
     authorize @project
-    @project.soft_delete!
-    current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
-    flash[:notice] = "Project deleted successfully"
-    redirect_to projects_path
+    begin
+      @project.soft_delete!
+      current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
+      flash[:notice] = "Project deleted successfully"
+      redirect_to projects_path
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:alert] = e.record.errors.full_messages.to_sentence
+      redirect_to @project
+    end
   end
 
   def ship
@@ -173,12 +169,14 @@ class ProjectsController < ApplicationController
       redirect_to ship_project_path(@project, step: 4) and return
     end
 
-    begin
-      ShipCertService.ship_to_dash(@project)
-    rescue => e
-      Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
-      flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
-      redirect_to ship_project_path(@project, step: 4) and return
+    if @project.posts.where(postable_type: "Post::ShipEvent").none?
+      begin
+        ShipCertService.ship_to_dash(@project)
+      rescue => e
+        Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
+        flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
+        redirect_to ship_project_path(@project, step: 4) and return
+      end
     end
 
     ship_event = Post::ShipEvent.new(body: ship_body)
@@ -381,7 +379,7 @@ class ProjectsController < ApplicationController
   end
 
   def hackatime_project_ids
-    @hackatime_project_ids ||= Array(params[:project][:hackatime_project_ids]).reject(&:blank?)
+    @hackatime_project_ids ||= Array(params[:project][:hackatime_project_ids]).reject(&:blank?).map(&:to_i)
   end
 
   def validate_urls
@@ -402,6 +400,11 @@ class ProjectsController < ApplicationController
     validate_url_not_dead(:readme_url, "Readme URL") if @project.readme_url.present? && @project.errors.empty?
   end
 
+  # these links block automated requests, but we're ok with just assuming they're good
+  ALLOWLISTED_DOMAINS = %w[
+    npmjs.com
+  ].freeze
+
   def validate_url_not_dead(attribute, name)
     require "uri"
     require "faraday"
@@ -410,6 +413,11 @@ class ProjectsController < ApplicationController
     return unless @project.send(attribute).present?
 
     uri = URI.parse(@project.send(attribute))
+
+    if ALLOWLISTED_DOMAINS.any? { |domain| uri.host&.end_with?(domain) }
+      return
+    end
+
     conn = Faraday.new(
       url: uri.to_s,
       headers: { "User-Agent" => "Flavortown project validator (https://flavortown.hackclub.com/)" }
@@ -476,6 +484,11 @@ class ProjectsController < ApplicationController
   end
 
   def link_hackatime_projects
+    # Unlink hackatime projects that were removed
+    @project.hackatime_projects.where.not(id: hackatime_project_ids).find_each do |hp|
+      hp.update(project: nil)
+    end
+
     return if hackatime_project_ids.empty?
 
     current_user.hackatime_projects.where(id: hackatime_project_ids).find_each do |hp|

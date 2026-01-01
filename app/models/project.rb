@@ -34,6 +34,7 @@
 #
 class Project < ApplicationRecord
     include AASM
+    include SoftDeletable
 
     after_create :notify_slack_channel
 
@@ -46,12 +47,10 @@ class Project < ApplicationRecord
       "Minecraft Mods", "Hardware", "Android App", "iOS App", "Other"
     ].freeze
 
-    scope :kept, -> { where(deleted_at: nil) }
-    scope :deleted, -> { where.not(deleted_at: nil) }
+    scope :excluding_member, ->(user) {
+        user ? where.not(id: user.projects) : all
+    }
     scope :fire, -> { where.not(marked_fire_at: nil) }
-
-    # we're soft deleting!
-    default_scope { kept }
 
     belongs_to :marked_fire_by, class_name: "User", optional: true
 
@@ -135,8 +134,16 @@ class Project < ApplicationRecord
     end
 
     # this can probaby be better?
-    def soft_delete!
+    def soft_delete!(force: false)
+      if !force && shipped?
+        errors.add(:base, "Cannot delete a project that has been shipped")
+        raise ActiveRecord::RecordInvalid.new(self)
+      end
       update!(deleted_at: Time.current)
+    end
+
+    def shipped?
+      shipped_at.present? || !draft?
     end
 
     def restore!
@@ -248,6 +255,7 @@ class Project < ApplicationRecord
         [
             { key: :demo_url, label: "You have an experienceable link (a URL where anyone can try your project now)", passed: demo_url.present? },
             { key: :repo_url, label: "You have a public GitHub URL with all source code", passed: repo_url.present? },
+            { key: :repo_cloneable, label: "Your GitHub repo is publicly cloneable", passed: validate_repo_cloneable },
             { key: :readme_url, label: "You have a README url added to your project", passed: readme_url.present? },
             { key: :description, label: "You have a description for your project", passed: description.present? },
             { key: :screenshot, label: "You have a screenshot of your project", passed: banner.attached? },

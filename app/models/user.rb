@@ -26,6 +26,7 @@
 #  session_token               :string
 #  shop_region                 :enum
 #  slack_balance_notifications :boolean          default(FALSE), not null
+#  special_effects_enabled     :boolean          default(TRUE), not null
 #  synced_at                   :datetime
 #  tutorial_steps_completed    :string           default([]), is an Array
 #  verification_status         :string           default("needs_submission"), not null
@@ -86,6 +87,10 @@ class User < ApplicationRecord
   def roles = granted_roles&.map(&:to_sym) || []
 
   def has_role?(role_name) = roles.include?(role_name.to_sym)
+
+  def admin? = has_role?(:admin) || has_role?(:super_admin)
+
+  def can_see_deleted_devlogs? = admin? || has_role?(:fraud_dept)
 
   def grant_role!(role_name)
     role = role_name.to_sym
@@ -234,7 +239,9 @@ class User < ApplicationRecord
   end
 
   def soft_delete_projects!
-    projects.find_each(&:soft_delete!)
+    projects.find_each do |project|
+      project.soft_delete!(force: true)
+    end
   end
 
   def unban!
@@ -327,10 +334,23 @@ class User < ApplicationRecord
     end
 
     result[:projects].each_key do |name|
-      hackatime_projects.find_or_create_by!(name: name)
+      User::HackatimeProject.find_or_create_by!(user_id: id, name: name)
     end
 
     @hackatime_data = result
+  end
+
+  # we're overriding to get latest data + filter out projects w/ 0 secs!
+  def hackatime_projects
+    projects = super
+    synced_data = try_sync_hackatime_data!
+    return projects unless synced_data
+
+    project_times = synced_data[:projects] || {}
+    project_names_with_time = project_times.select { |_name, seconds| seconds.to_i > 0 }.keys
+    return projects.none if project_names_with_time.empty?
+
+    projects.where(name: project_names_with_time)
   end
 
   def devlog_seconds_total
@@ -348,6 +368,15 @@ class User < ApplicationRecord
                                 .select("postable_id::bigint")
       Post::Devlog.where(id: devlog_postable_ids).sum(:duration_seconds) || 0
     end
+  end
+
+  def shipped_projects_count_in_range(start_date, end_date)
+    projects
+      .joins(:posts)
+      .where(posts: { postable_type: "Post::ShipEvent" })
+      .where(posts: { created_at: start_date.beginning_of_day..end_date.end_of_day })
+      .distinct
+      .count
   end
 
   private

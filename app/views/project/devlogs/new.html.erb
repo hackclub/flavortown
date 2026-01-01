@@ -10,7 +10,7 @@
 
     <%= form_with model: @devlog,
                   url: project_devlogs_path(@project),
-                  html: { multipart: true },
+                  html: { multipart: true, data: { controller: "upload-form" } },
                   class: "projects-new__form",
                   local: true do |f| %>
       <div class="projects-new__card">
@@ -56,7 +56,7 @@
 
       <div class="projects-new__actions">
         <% if @project.hackatime_keys.present? %>
-          <%= render ButtonComponent.new(text: "Create Devlog", color: :brown, type: :submit) %>
+          <%= render ButtonComponent.new(text: "Create Devlog", color: :brown, type: :submit, disable_with: "Creating...", data: { "upload-form-target": "submit" }) %>
         <% else %>
           <%= render ButtonComponent.new(text: "Create Devlog", color: :brown, type: :submit, disabled: true) %>
           <p class="projects-new__error">You must link at least one Hackatime project before posting a devlog. <%= link_to "Edit project settings", edit_project_path(@project) %></p>

@@ -14,6 +14,7 @@ class ApplicationController < ActionController::Base
   before_action :track_request
   before_action :show_pending_achievement_notifications!
   before_action :apply_dev_override_ref
+  before_action :allow_profiler
 
   rescue_from StandardError, with: :handle_error
   rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
@@ -29,6 +30,23 @@ class ApplicationController < ActionController::Base
     end
   end
   helper_method :current_user
+
+  def impersonating?
+    session[:impersonator_user_id].present? && session[:user_id].present?
+  end
+
+  helper_method :impersonating?
+
+  def real_user
+    return nil unless session[:impersonator_user_id]
+    @real_user ||= User.find_by(id: session[:impersonator_user_id])
+  end
+
+  helper_method :real_user
+
+  def pundit_user
+    impersonating? ? real_user : current_user
+  end
 
   def tutorial_message(msg)
     flash[:tutorial_messages] ||= []
@@ -97,6 +115,13 @@ class ApplicationController < ActionController::Base
     return if params[:_override_ref].length > 64
 
     current_user.update!(ref: params[:_override_ref])
+  end
+
+  def allow_profiler
+    return unless defined?(Rack::MiniProfiler)
+    if current_user&.admin? || Rails.env.development?
+      Rack::MiniProfiler.authorize_request
+    end
   end
 
   def refresh_identity_on_portal_return

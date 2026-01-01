@@ -10,10 +10,18 @@ class UsersController < ApplicationController
 
     approved_ship_event_ids = Post::ShipEvent.where(certification_status: "approved").pluck(:id)
 
-    @activity = Post.includes(:project, :user, postable: [ { attachments_attachments: :blob } ])
+    @activity = Post.joins(:project)
+                          .merge(Project.not_deleted)
                           .where(user_id: @user.id)
                           .where("postable_type != 'Post::ShipEvent' OR postable_id IN (?)", approved_ship_event_ids.presence || [ 0 ])
                           .order(created_at: :desc)
+                          .preload(:project, :user, postable: [ { attachments_attachments: :blob } ])
+
+    # Filter out deleted devlogs for users who can't see them
+    unless current_user&.can_see_deleted_devlogs?
+      deleted_devlog_ids = Post::Devlog.unscoped.deleted.pluck(:id)
+      @activity = @activity.where.not(postable_type: "Post::Devlog", postable_id: deleted_devlog_ids)
+    end
 
     post_counts_by_type = Post.where(user_id: @user.id).group(:postable_type).count
     posts_count = post_counts_by_type.values.sum

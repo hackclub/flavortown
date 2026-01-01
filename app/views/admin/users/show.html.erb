@@ -76,6 +76,15 @@
       <% if policy(:admin).generate_magic_links? %>
         <%= link_to "🔗 Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
       <% end %>
+      <% if policy(@user).impersonate? && !impersonating? %>
+        <%= button_to "Impersonate User",
+                      impersonate_admin_user_path(@user),
+                      method: :post,
+                      class: "btn-primary slim",
+                      data: {
+                        confirm: "Are you sure you want to impersonate #{@user.display_name}? You will see the site as they do."
+                      } %>
+      <% end %>
       <% slack_identity = @user.identities.find { |i| i.provider == "slack" } %>
       <%= button_to "🕰️ Sync Hackatime Data",
                     sync_hackatime_admin_user_path(@user),

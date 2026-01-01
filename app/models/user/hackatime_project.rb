@@ -36,6 +36,7 @@ class User::HackatimeProject < ApplicationRecord
   private
 
   def project_not_already_linked
+    return if project_id.nil? # Allow unlinking (setting project to nil)
     return unless project_id_was.present? && project_id_was != project_id
 
     previous_project = Project.unscoped.find_by(id: project_id_was)

@@ -43,6 +43,8 @@ class HackatimeService
   end
 
   def self.sync_devlog_duration(devlog, hackatime_uid, start_date, end_date)
+    return false if devlog.hackatime_projects_key_snapshot.blank?
+
     params = {
       features: "projects",
       start_date: start_date,

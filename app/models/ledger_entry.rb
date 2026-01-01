@@ -75,7 +75,8 @@ class LedgerEntry < ApplicationRecord
     when "ShopOrder" then "shop purchase"
     when "Post::ShipEvent" then "tutorial"
     when "User" then "user grant"
-    else "unknown"
+    when "User::Achievement" then "achievement: #{ledgerable.achievement.name}"
+    else ledgerable_type.underscore.humanize.downcase
     end
     change_emoji = amount.positive? ? "📈" : "📉"
     message = "#{change_emoji} Balance #{amount.positive? ? '+' : ''}#{amount} 🍪 (#{source}) → #{user.balance} 🍪"
