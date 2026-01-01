@@ -123,6 +123,14 @@ class Project < ApplicationRecord
       GitRepoService.is_cloneable? repo_url
     end
 
+    def calculate_duration_seconds
+        posts.of_devlogs(join: true).sum("post_devlogs.duration_seconds")
+    end
+
+    def recalculate_duration_seconds!
+        update_column(:duration_seconds, calculate_duration_seconds)
+    end
+
     def time
         total_seconds = Rails.cache.fetch("project/#{id}/time_seconds", expires_in: 10.minutes) do
           Post::Devlog.where(id: posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")).sum(:duration_seconds) || 0
