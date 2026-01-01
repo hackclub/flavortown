@@ -7,6 +7,7 @@
 #  demo_url           :text
 #  description        :text
 #  devlogs_count      :integer          default(0), not null
+#  duration_seconds   :integer          default(0), not null
 #  marked_fire_at     :datetime
 #  memberships_count  :integer          default(0), not null
 #  project_categories :string           default([]), is an Array
