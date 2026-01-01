@@ -83,6 +83,7 @@ class Post::Devlog < ApplicationRecord
   validate :validate_scrapbook_url
 
   after_create_commit :handle_post_creation
+  after_update_commit :update_project_duration_if_changed
 
   def recalculate_seconds_coded
     return false unless post.project.hackatime_keys.present?
@@ -155,5 +156,11 @@ class Post::Devlog < ApplicationRecord
   def handle_post_creation
     ScrapbookPopulateDevlogJob.perform_later(id) if scrapbook_url.present?
     PostCreationToSlackJob.perform_later(self)
+  end
+
+  def update_project_duration_if_changed
+    return unless saved_change_to_duration_seconds?
+
+    post&.project&.recalculate_duration_seconds!
   end
 end

@@ -80,3 +80,9 @@ production:
     schedule: every 2 minutes
     concurrency: 1
     description: "Flush extension usage from Redis buffer to database"
+
+  recalculate_project_durations:
+    class: RecalculateProjectDurationsJob
+    schedule: every hour
+    concurrency: 1
+    description: "Recalculate duration_seconds for all projects"
