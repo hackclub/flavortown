@@ -47,6 +47,9 @@ class Project < ApplicationRecord
       "Minecraft Mods", "Hardware", "Android App", "iOS App", "Other"
     ].freeze
 
+    scope :excluding_member, ->(user) {
+        user ? where.not(id: user.projects) : all
+    }
     scope :fire, -> { where.not(marked_fire_at: nil) }
 
     belongs_to :marked_fire_by, class_name: "User", optional: true
