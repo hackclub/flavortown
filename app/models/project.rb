@@ -224,7 +224,7 @@ class Project < ApplicationRecord
         last_ship = last_ship_event
         return true if last_ship.nil?
 
-        devlogs.where("created_at > ?", last_ship.created_at).exists?
+        devlogs.where("post_devlogs.created_at > ?", last_ship.created_at).exists?
     end
 
     def last_ship_event
