@@ -45,7 +45,30 @@ class Post < ApplicationRecord
     after_commit :increment_devlogs_count, on: :create
     after_commit :decrement_devlogs_count, on: :destroy
 
-    scope :devlogs, -> { where(postable_type: "Post::Devlog") }
+    POSTABLE_TYPES = Post::Postable::TYPES.index_by { |t| t.demodulize.underscore.pluralize.to_sym }.freeze
+
+    # These are automatically generated scopes for each postable type:
+    # ie. Post.of_devlogs
+    # ie. Post.of_devlogs(join: true).where(post_devlogs: { tutorial: false })
+    Post::Postable::TYPES.each do |type_class|
+      scope_name = "of_#{type_class.demodulize.underscore.pluralize}"
+      table_name = type_class.constantize.table_name
+
+      define_singleton_method(scope_name) do |join: false|
+        scope = where(postable_type: type_class)
+        scope = scope.joins("INNER JOIN #{table_name} ON posts.postable_id = #{table_name}.id") if join
+        scope
+      end
+    end
+
+    # For multiple types, use .with to create a CTE with UNION ALL:
+    #   Post.with(
+    #     available_posts: [
+    #       Post.of_devlogs(join: true).where(post_devlogs: { tutorial: false }),
+    #       Post.of_ship_events(join: true),
+    #       Post.of_fire_events(join: true)
+    #     ]
+    #   ).from("available_posts AS posts")
 
     private
 
