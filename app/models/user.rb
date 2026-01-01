@@ -416,6 +416,7 @@ class User < ApplicationRecord
   end
 
   def notify_role_granted(role)
+    return if Rails.env.development?
     return unless slack_id.present?
 
     role_info = User::Role.find(role)
