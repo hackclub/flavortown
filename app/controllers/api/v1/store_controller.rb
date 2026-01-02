@@ -26,13 +26,13 @@ class Api::V1::StoreController < Api::BaseController
       image_url: String,
 
       enabled: {
-        au: "Boolean",
-        ca: "Boolean",
-        eu: "Boolean",
-        in: "Boolean",
-        uk: "Boolean",
-        us: "Boolean",
-        xx: "Boolean"
+        enabled_au: "Boolean",
+        enabled_ca: "Boolean",
+        enabled_eu: "Boolean",
+        enabled_in: "Boolean",
+        enabled_uk: "Boolean",
+        enabled_us: "Boolean",
+        enabled_xx: "Boolean"
       },
 
       ticket_cost: {
