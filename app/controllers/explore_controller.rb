@@ -102,7 +102,7 @@ class ExploreController < ApplicationController
 
     @projects_with_counts = Project
       .where(id: project_ids_with_usage)
-      .includes(banner_attachment: :blob)
+      .with_attached_banner
       .index_by(&:id)
       .values_at(*project_ids_with_usage)
       .compact

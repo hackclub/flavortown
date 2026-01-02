@@ -7,7 +7,7 @@ class MyController < ApplicationController
       return
     end
 
-    @balance = current_user.ledger_entries.order(created_at: :desc)
+    @balance = current_user.ledger_entries.includes(:ledgerable).order(created_at: :desc)
   end
 
   def update_settings

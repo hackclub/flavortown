@@ -25,7 +25,7 @@ class ShopController < ApplicationController
   def my_orders
     @orders = current_user.shop_orders
                           .where(parent_order_id: nil)
-                          .includes(:accessory_orders, shop_item: { image_attachment: :blob })
+                          .includes(accessory_orders: { shop_item: { image_attachment: :blob } }, shop_item: { image_attachment: :blob })
                           .order(id: :desc)
     @show_tutorial_complete_dialog = session.delete(:show_tutorial_complete_dialog)
   end
