@@ -83,7 +83,7 @@ class ShopItem < ApplicationRecord
 
   def self.cached_buyable_standalone
     Rails.cache.fetch(BUYABLE_STANDALONE_CACHE_KEY, expires_in: 5.minutes) do
-      enabled.buyable_standalone.includes(image_attachment: :blob).to_a
+      enabled.buyable_standalone.includes(:image_attachment, image_attachment: [:blob, :record]).to_a
     end
   end
 

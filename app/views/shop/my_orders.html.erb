@@ -102,7 +102,7 @@
                   <div class="my-orders__accessories">
                     <span class="my-orders__label">Accessories:</span>
                     <ul class="my-orders__accessory-list">
-                      <% order.accessory_orders.includes(shop_item: { image_attachment: :blob }).each do |acc_order| %>
+                      <% order.accessory_orders.each do |acc_order| %>
                         <li class="my-orders__accessory-item">
                           <% if acc_order.shop_item.image.attached? %>
                             <%= image_tag acc_order.shop_item.image.variant(:carousel_sm), class: "my-orders__accessory-image", loading: "lazy" %>
