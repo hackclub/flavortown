@@ -267,7 +267,7 @@ class User < ApplicationRecord
   end
 
   def avatar
-    "http://cachet.dunkirk.sh/users/#{slack_id}/r"
+    "https://cachet.dunkirk.sh/users/#{slack_id}/r"
   end
 
   def grant_email

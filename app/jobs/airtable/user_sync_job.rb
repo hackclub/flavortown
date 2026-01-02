@@ -11,7 +11,7 @@ class Airtable::UserSyncJob < Airtable::BaseSyncJob
       "last_name" => user.last_name,
       "email" => user.email,
       "slack_id" => user.slack_id,
-      "avatar_url" => "http://cachet.dunkirk.sh/users/#{user.slack_id}/r",
+      "avatar_url" => "https://cachet.dunkirk.sh/users/#{user.slack_id}/r",
       "has_commented" => user.has_commented?,
       "has_some_role_of_access" => user.roles.any?,
       "hours" => user.all_time_coding_seconds&.fdiv(3600),
