@@ -3,7 +3,7 @@ class ExploreController < ApplicationController
     scope = Post.of_devlogs(join: true)
                 .where(post_devlogs: { tutorial: false })
                 .where.not(user_id: current_user&.id)
-                .includes(:user, :project, devlog: [ :comments, { attachments_attachments: :blob } ])
+                .includes(:user, :project, :postable)
                 .order(created_at: :desc)
 
     scope = scope.where(post_devlogs: { deleted_at: nil }) unless current_user&.can_see_deleted_devlogs?
