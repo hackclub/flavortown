@@ -1,5 +1,9 @@
 require "active_support/core_ext/integer/time"
 
+Bullet.enable        = true
+Bullet.sentry        = true
+Bullet.rails_logger  = true
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
