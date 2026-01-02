@@ -1,0 +1,121 @@
+<h1>YSWS Reviews</h1>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h2>Statistics</h2>
+  <div style="display: flex; gap: 2rem;">
+    <div>
+      <strong>Total Projects:</strong> <%= @stats[:total] %>
+    </div>
+    <div>
+      <strong>Pending Review:</strong> <%= @stats[:pending] %>
+    </div>
+    <div>
+      <strong>Reviewed:</strong> <%= @stats[:reviewed] %>
+    </div>
+  </div>
+</div>
+
+<% if @leaderboard.any? %>
+<div class="card" style="margin-bottom: 2rem;">
+  <h2>Reviewer Leaderboard</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Reviewer</th>
+        <th>Reviews Completed</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @leaderboard.each_with_index do |entry, index| %>
+        <tr>
+          <td><%= index + 1 %></td>
+          <td><%= entry[:user].display_name || entry[:user].email %></td>
+          <td><%= entry[:count] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<% end %>
+
+<div class="card">
+  <h2>Projects to Review</h2>
+  <p style="color: #666; margin-bottom: 1rem;">Showing up to 50 random projects</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Creator</th>
+        <th>Devlogs</th>
+        <th>Total Time</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @projects.each do |project| %>
+        <tr>
+          <td>#<%= project.id %></td>
+          <td><%= link_to project.title, project_path(project), target: "_blank" %></td>
+          <td>
+            <% owner = project.users.first %>
+            <% if owner %>
+              <%= link_to owner.display_name || owner.email, admin_user_path(owner) %>
+            <% else %>
+              <em>Unknown</em>
+            <% end %>
+          </td>
+          <td><%= project.devlogs.count %></td>
+          <td>
+            <% time = project.time %>
+            <%= time.hours %>h <%= time.minutes %>m
+          </td>
+          <td>
+            <% if project.ysws_review_submission&.reviewed? %>
+              <span class="badge badge-reviewed">Reviewed</span>
+            <% elsif project.ysws_review_submission&.pending? %>
+              <span class="badge badge-pending">In Progress</span>
+            <% else %>
+              <span class="badge badge-pending">Pending</span>
+            <% end %>
+          </td>
+          <td>
+            <%= link_to "Review", admin_ysws_review_path(project), class: "btn-primary slim" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if @projects.empty? %>
+    <p style="text-align: center; padding: 2rem;">No projects available for review.</p>
+  <% end %>
+</div>
+
+<div style="margin-top: 2em;">
+  <%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
+</div>
+
+<style>
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.badge-pending {
+  background-color: #fbbf24;
+  color: #78350f;
+}
+
+.badge-reviewed {
+  background-color: #10b981;
+  color: white;
+}
+</style>

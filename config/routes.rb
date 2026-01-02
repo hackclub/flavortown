@@ -10,8 +10,8 @@ class AdminConstraint
     return false unless user
 
     policy = AdminPolicy.new(user, :admin)
-    # Allow admins, fraud dept, and fulfillment persons (who have limited access)
-    policy.access_admin_endpoints? || policy.access_fulfillment_view?
+    # Allow admins, fraud dept, fulfillment persons, and ysws_reviewers (who have limited access)
+    policy.access_admin_endpoints? || policy.access_fulfillment_view? || policy.access_ysws_reviews?
   end
 
   def self.admin_user_for(request)
@@ -229,6 +229,11 @@ Rails.application.routes.draw do
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
+      end
+    end
+    resources :ysws_reviews, only: [ :index, :show, :update ], controller: "ysws_review" do
+      member do
+        post :return_to_certifier
       end
     end
   end

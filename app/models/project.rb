@@ -67,6 +67,8 @@ class Project < ApplicationRecord
     has_many :reports, class_name: "Project::Report", dependent: :destroy
     has_many :project_follows, dependent: :destroy
     has_many :followers, through: :project_follows, source: :user
+    has_many :ship_certifications, dependent: :destroy
+    has_one :ysws_review_submission, class_name: "YswsReview::Submission", dependent: :destroy
 
     # needs to be implemented
     has_one_attached :demo_video
