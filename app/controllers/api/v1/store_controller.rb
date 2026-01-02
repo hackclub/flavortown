@@ -16,7 +16,7 @@ class Api::V1::StoreController < Api::BaseController
       type: String,
       show_in_carousel: "Boolean",
       accessory_tag: String,
-      agh_contents: Array,
+      agh_contents: "String || JSON",
       attached_shop_item_ids: Array,
       buyable_by_self: "Boolean",
       long_description: String,
@@ -36,14 +36,14 @@ class Api::V1::StoreController < Api::BaseController
       },
 
       ticket_cost: {
-        base_cost: Integer,
-        au: Integer,
-        ca: Integer,
-        eu: Integer,
-        in: Integer,
-        uk: Integer,
-        us: Integer,
-        xx: Integer
+        base_cost: String,
+        au: String,
+        ca: String,
+        eu: String,
+        in: String,
+        uk: String,
+        us: String,
+        xx: String
       }
     }
 
