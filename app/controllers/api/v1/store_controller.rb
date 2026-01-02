@@ -36,14 +36,14 @@ class Api::V1::StoreController < Api::BaseController
       },
 
       ticket_cost: {
-        base_cost: String,
-        au: String,
-        ca: String,
-        eu: String,
-        in: String,
-        uk: String,
-        us: String,
-        xx: String
+        base_cost: Float,
+        au: Float,
+        ca: Float,
+        eu: Float,
+        in: Float,
+        uk: Float,
+        us: Float,
+        xx: Float
       }
     }
 
