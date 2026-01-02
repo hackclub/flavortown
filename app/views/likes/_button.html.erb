@@ -1,5 +1,9 @@
 <%
-  liked = current_user && likeable.likes.exists?(user: current_user)
+  liked = if current_user && defined?(@liked_devlog_ids) && @liked_devlog_ids.present?
+    @liked_devlog_ids.include?(likeable.id)
+  else
+    current_user && likeable.likes.exists?(user: current_user)
+  end
 %>
 
 <%= turbo_frame_tag dom_id(likeable, :like_button) do %>

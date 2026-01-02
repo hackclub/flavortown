@@ -11,11 +11,18 @@ class ProjectsController < ApplicationController
     authorize @project
 
     @posts = @project.posts
-                     .includes(:user, postable: [ { attachments_attachments: :blob } ])
+                     .includes(:user, postable: [ :attachments_attachments ])
                      .order(created_at: :desc)
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
       @posts = @posts.where.not(postable_type: "Post::GitCommit")
+    end
+
+    if current_user
+      devlog_ids = @posts.select { |p| p.postable_type == "Post::Devlog" }.map(&:postable_id)
+      @liked_devlog_ids = Like.where(user: current_user, likeable_type: "Post::Devlog", likeable_id: devlog_ids).pluck(:likeable_id).to_set
+    else
+      @liked_devlog_ids = Set.new
     end
   end
 
