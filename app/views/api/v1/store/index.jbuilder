@@ -8,7 +8,7 @@ json.array! @items do |item|
   end
 
   json.enabled do
-    json.extract! item, :enabled_au, :enabled_ca, :enabled_eu, :enabled_in, :enabled_uk, :enabled_us, :enabled_xx
+    json.extract! item, :au, :ca, :eu, :in, :uk, :us, :xx
   end
 
   json.ticket_cost do
