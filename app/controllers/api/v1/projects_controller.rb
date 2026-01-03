@@ -27,7 +27,13 @@ class Api::V1::ProjectsController < Api::BaseController
           created_at: String,
           updated_at: String
         }
-      ]
+      ],
+      pagination: {
+        current_page: Integer,
+        total_pages: Integer,
+        total_count: Integer,
+        next_page: Integer
+      }
     },
 
     show: {

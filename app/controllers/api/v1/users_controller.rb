@@ -27,7 +27,13 @@ class Api::V1::UsersController < Api::BaseController
           devlog_seconds_today: Integer,
           cookies: "Integer || Null" # only if they are opted into the leaderboard
         }
-      ]
+      ],
+      pagination: {
+        current_page: Integer,
+        total_pages: Integer,
+        total_count: Integer,
+        next_page: Integer
+      }
     },
 
     show: {
