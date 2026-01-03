@@ -60,7 +60,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Lint code for consistent style
-        run: bin/rubocop -f github --autocorrect
+        run: bin/rubocop -f github
         # need to fix this? bin/rubocop -f github --autocorrect
 
       - name: Lint ERB templates
