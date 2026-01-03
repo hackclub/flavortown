@@ -32,14 +32,13 @@ module ApplicationHelper
     
     minutes = (seconds % 3600) / 60
     secs = seconds % 60
-
+    
     parts = []
     parts << "#{days}d" if include_days && days > 0
     parts << "#{hours}h" if hours > 0 || (!include_days && days > 0)
     parts << "#{minutes}m" if minutes > 0 || parts.any?
-    
     parts << "#{secs}s" if parts.empty?
-
+    
     parts.join(" ")
   end
 
