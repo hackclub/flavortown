@@ -4,7 +4,7 @@ json.users @users do |user|
     json.project_ids user.projects.map(&:id)
     json.vote_count user.votes.count
     json.like_count user.likes.count
-    
+
     json.devlog_seconds_total user.devlog_seconds_total
     json.devlog_seconds_today user.devlog_seconds_today
 
