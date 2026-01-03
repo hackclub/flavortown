@@ -24,7 +24,7 @@ module ApplicationHelper
     sign(num) + num.abs.to_s
   end
 
-  def format_seconds(seconds, include_days = true)
+  def format_seconds(seconds, include_days = false)
     return "0s" if seconds.nil? || seconds <= 0
 
     days = seconds / 86400
