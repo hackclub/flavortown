@@ -23,7 +23,13 @@ class Api::V1::DevlogsController < Api::BaseController
           likes_count: Integer,
           scrapbook_url: String,
           created_at: String,
-          updated_at: String
+          updated_at: String,
+          media: [
+            {
+              url: String,
+              content_type: String
+            }
+          ]
         }
       ],
       pagination: {
