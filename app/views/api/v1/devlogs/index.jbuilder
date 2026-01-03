@@ -1,5 +1,6 @@
 json.devlogs @devlogs do |devlog|
   json.extract! devlog, :id, :body, :comments_count, :duration_seconds, :likes_count, :scrapbook_url, :created_at, :updated_at
+  json.media devlog.attachments.map { |attachment| { url: Rails.application.routes.url_helpers.rails_blob_path(attachment, only_path: true), content_type: attachment.content_type } }
 end
 
 json.pagination do
