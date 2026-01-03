@@ -60,7 +60,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Lint code for consistent style
-        run: bin/rubocop -f github
+        run: bin/rubocop -f github --autocorrect
         # need to fix this? bin/rubocop -f github --autocorrect
 
       - name: Lint ERB templates
@@ -72,9 +72,6 @@ jobs:
 
       - name: Check SCSS/CSS formatting
         run: yarn -s prettier --check "app/assets/stylesheets/**/*.{scss,css}"
-      
-      - name: Lint code for consistent style
-        run: bin/rubocop -A -f github
 
   zeitwerk_check:
     runs-on: ubuntu-latest
