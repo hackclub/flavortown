@@ -2,8 +2,8 @@ json.users @users do |user|
     json.extract! user, :id, :slack_id, :display_name, :avatar
 
     json.project_ids user.projects.map(&:id)
-    json.vote_count user.votes.count
-    json.like_count user.likes.count
+    json.vote_count user.votes.size
+    json.like_count user.likes.size
 
     json.devlog_seconds_total user.devlog_seconds_total
     json.devlog_seconds_today user.devlog_seconds_today
