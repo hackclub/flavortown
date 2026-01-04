@@ -145,6 +145,10 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :internal do
+    post "revoke", to: "revoke#create"
+  end
+
   namespace :user, path: "" do
     resources :tutorial_steps, only: [ :show ]
   end
