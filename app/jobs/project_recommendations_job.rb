@@ -5,12 +5,12 @@ class ProjectRecommendationsJob < ApplicationJob
     recommender = Disco::Recommender.new
     project_views = Ahoy::Event.where(name: "Viewed project")
                                .where.not(user_id: nil)
-                               .group(:user_id)
-                               .group(:project_id)
+                               .where("properties->>'project_id' IS NOT NULL")
+                               .group(:user_id, Arel.sql("properties->>'project_id'"))
                                .count
 
     data = project_views.map do |(user_id, project_id), _|
-        { user_id: user_id, item_id: project_id }
+        { user_id: user_id, item_id: project_id.to_i }
       end
 
     recommender.fit(data)
