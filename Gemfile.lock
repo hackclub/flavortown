@@ -212,6 +212,9 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
+    faiss (0.5.2)
+      numo-narray
+      rice (>= 4.8)
     faker (3.5.3)
       i18n (>= 1.8.11, < 2)
     faraday (2.14.0)
@@ -562,6 +565,7 @@ GEM
     request_store (1.7.0)
       rack (>= 1.4)
     rexml (3.4.4)
+    rice (4.9.0)
     rubocop (1.82.1)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
@@ -751,6 +755,7 @@ DEPENDENCIES
   disco
   dotenv-rails
   erb_lint
+  faiss
   faker (~> 3.5)
   faraday
   flipper
