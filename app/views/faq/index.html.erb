@@ -1,0 +1,295 @@
+<% content_for :title, "FAQ" %>
+
+<div class="faq-index">
+  <%= render HeadingComponent.new(title: "FAQ", tone: :yellow) %>
+
+  <div class="faq-content">
+    <p class="faq-intro">
+      🍪 <strong>Flavortown has begun!</strong> Anything you make now will count towards prizes. Read on for details.
+    </p>
+    <p class="faq-intro">
+      Hack Club Flavortown is happening now at a computer near you! This page should answer most questions you have about the event, but if it doesn't, <strong>#flavortown-help</strong> is the best place to get help.
+    </p>
+
+    <section class="faq-section">
+      <h2>📓 General info</h2>
+
+      <div class="faq-item">
+        <h3>What is Flavortown?</h3>
+        <p>
+          Flavortown (<a href="https://flavortown.hackclub.com" target="_blank" rel="noopener">#flavortown</a>) is a Hack Club event where you'll cook up personal coding projects, share them with fellow hackers, and get prizes (read: free gear!) based on how awesome your project is.
+        </p>
+        <p>
+          Sounds familiar? We've run versions of this concept before, with the most recent one being the Summer of Making, where y'all shipped ~3,300 projects and we shipped ~3,700 prizes!
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How long will Flavortown run for?</h3>
+        <p>
+          Flavortown will be running until the end of March 2026 (March 31st). That's 3.5 months to cook up some spectacular personal projects!
+        </p>
+        <p>
+          <em>(If you're wondering when it started, the beta launched on 19 Dec 2025 and the full launch was 22 Dec 2025)</em>
+        </p>
+      </div>
+    </section>
+
+    <section class="faq-section">
+      <h2>😮 How to participate</h2>
+
+      <div class="faq-item">
+        <h3>How do I track my time spent coding?</h3>
+        <p>
+          Tracking time is crucial, since hours spent working helps determine your cookie payout. During the sign-up process you will have created a Hackatime account. This is a time tracking service by Hack Club (tip: it's compatible with any Wakatime extension). Follow the instructions in the <a href="https://hackatime.hackclub.com/setup" target="_blank" rel="noopener">Hackatime setup guide</a> to install an extension for your code editor (you can also install it for design tools like Figma or KiCad, and any other compatible program you're using to build your project).
+        </p>
+        <p>
+          Hackatime will start tracking your time spent coding (it may take a few minutes for your first time to show up). Check that your time is showing up on the Projects screen and that it's under an actual project name (not "Unknown").
+        </p>
+        <p>
+          <strong>Note:</strong> The Wakatime browser extension is not supported for Flavortown as it can't correctly identify which project you're working on. You should use an extension listed in the documentation instead.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How do project names on Hackatime work?</h3>
+        <p>
+          Most of the time, when coding, your hours will be attributed to a Hackatime project that matches the folder you have open in your editor. For example, in VSCode, you should click <strong>File > Open Folder...</strong> and select your project folder. (This step fixes most project name issues)
+        </p>
+        <p>
+          If you want to customize your project name to be something other than the folder name, you can create a <code>.wakatime-project</code> file. This will only affect future time you spend coding.
+        </p>
+        <p>
+          Don't worry if your time is split across multiple Hackatime projects - you assign them all to your Flavortown project.
+        </p>
+        <p>
+          <strong>Watch out!</strong> If your hours are assigned to "Unknown" or "&lt;&lt;LAST_PROJECT&gt;&gt;", they can't be counted for Flavortown so you'll need to fix your Hackatime setup. #flavortown-help can help if you're stuck!
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>What if there's no Hackatime or Wakatime extension for my editor?</h3>
+        <p>
+          First, you can ask in the help channel to check if there's an extension that isn't listed in the Hackatime docs.
+        </p>
+        <p>
+          Still out of luck? Some Hack Clubbers have developed tools that let you use Hackatime without direct editor support. However, they require some manual setup and are not as reliable as a dedicated extension, so read their documentation twice and proceed at your own risk: <strong>wakapi-anyide</strong> and <strong>bashatime.sh</strong>.
+        </p>
+        <p>
+          Of course, if there's no Hackatime extension for your favorite program, you can make one yourself! Ask around for guidance :)
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Can I track time spent working on hardware projects off my computer?</h3>
+        <p>
+          Well I'm glad you asked such a specific question!
+        </p>
+        <p>
+          We're trialing a tool that lets you record timelapses of you working on projects, share them, and have them count towards your Hackatime hours. However, it's still in development and there will be issues, potentially leading to your timelapse time being lost. Only start using it if you're okay with being an early tester and accept that your time may be unrecoverably lost.
+        </p>
+        <p>
+          Otherwise, you can stick with tracking the time you spend designing and making firmware using Hackatime.
+        </p>
+      </div>
+    </section>
+
+    <section class="faq-section">
+      <h2>🔢 The wonderful details</h2>
+
+      <div class="faq-item">
+        <h3>When will I earn cookies?</h3>
+        <p>
+          <em><strong>ℹ️ Note:</strong> Project voting has not opened yet, so you won't be able to vote or get payouts until the features are launched (which should happen early January). When that happens, they will work as described below.</em>
+        </p>
+        <p>
+          After you ship your project (shipping == letting other people experience your project for real), it will be checked by the Shipwrights to make sure it functions, and then it goes into the voting stage, where other Hack Clubbers in Flavortown will rate your project out of six stars (for three categories). Each project will be voted on by the same number of people.
+        </p>
+        <p>
+          You'll also get to vote on other people's projects! Flavortown will tell you how many ratings you need to complete before you get your shells for each project. Voting fairly makes Flavortown better for everyone, and users making automated votes will be punished.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How many cookies will I get for my project?</h3>
+        <p>
+          <em><strong>ℹ️ Note:</strong> Since payouts are still being developed, these numbers may change (but the concept will stay the same).</em>
+        </p>
+        <p>
+          After shipping your project, it goes into the peer voting stage to be rated by other Hack Clubbers. The cookies you receive depends on:
+        </p>
+        <ul>
+          <li>how well your project did in peer voting</li>
+          <li>how many devlogged hours you spent making your project</li>
+        </ul>
+        <p>
+          You'll receive at least 1 cookie per devlogged hour, but this can be multiplied by up to 30x depending on the ratings your peers give to your project (the average multiplier is 10x).
+        </p>
+        <p>
+          Project quality is factored in more heavily at higher hour counts, to reward projects that have had care and thought put into them and disincentive spending hours and hours making "slop".
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>What prizes are available? Can I suggest prizes?</h3>
+        <p>
+          Take a browse through the <%= link_to "shop", shop_path %>! Click on the items to find out more.
+        </p>
+        <p>
+          More prizes will be added throughout the event. If you think something would be a great fit for the shop, you can suggest it in the Flavortown shop suggestions form.
+        </p>
+      </div>
+    </section>
+
+    <section class="faq-section">
+      <h2>💬 Hack Club</h2>
+
+      <div class="faq-item">
+        <h3>I can't access most Slack channels! // Why is everything a #private-channel?</h3>
+        <p>
+          When you sign up for Flavortown, you automatically get an account in the Hack Club Slack (hackclub.slack.com, i.e. where you are now). It's where the whole community hangs out!
+        </p>
+        <p>
+          To access the whole of the Slack, you've been sent a message from Slackbot: click to open Slackbot, scroll to the top of the DM, read it, and follow the steps!
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Why can't I talk in #flavortown-construction?</h3>
+        <p>
+          #flavortown-construction is used by the Flavortown dev team to coordinate with each other, and having everybody discussing in there would conflict with that. But as part of an effort to let people see what goes on "behind the scenes", the channel is readable by anyone in Hack Club!
+        </p>
+        <p>
+          Of course, #flavortown is available for all sorts of Flavortown-flavored discussion - and yes, staff members do hang out there too!
+        </p>
+      </div>
+    </section>
+
+    <section class="faq-section">
+      <h2>📜 Rules and restrictions</h2>
+
+      <div class="faq-item">
+        <h3>Who's able to take part?</h3>
+        <p>
+          Like other Hack Club events, Flavortown is open to teenagers aged 13–18 years old (inclusive!).
+        </p>
+        <p>
+          Unfortunately, since we get a lot of adults trying to sneak in, we'll need to verify your age using student or Government ID before shipping you prizes.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>What kinds of projects can I make?</h3>
+        <p>
+          Any technical project! Websites, apps, CLIs, PCBs, and hardware designs all count!
+        </p>
+        <p>Your project just needs to be:</p>
+        <ul>
+          <li><strong>Open-source</strong> (you should put your project on GitHub!) (technically: code must be at least source-available on a public git host)</li>
+          <li><strong>Made as a personal project</strong> - school/college/uni projects or paid work don't count!</li>
+          <li><strong>Shippable!</strong> This means that other people can experience your project with a minimal amount of fuss - e.g. by visiting a URL in their web browser, running one pipx command, or downloading a binary from your Releases page. Don't worry, this is easier than it sounds to accomplish :)</li>
+        </ul>
+        <p>
+          Finally, to have your project in the Flavortown, you need to track your time and make devlogs!
+        </p>
+        <p>
+          If you have any question regarding ships, or what makes demo a valid demo - feel free to ask in #ask-the-shipwrights!
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Can I also submit my project to other Hack Club programs?</h3>
+        <p>
+          Hack Club runs other You Ship, We Ship programs over Winter and throughout the year. But Flavortown does not allow double-dipping: you can't submit your Flavortown projects to any other Hack Club programs that give you a reward.
+        </p>
+        <p>
+          If your Flavortown submission builds on a project from another program, that's allowed - just make sure the work you submit to Flavortown doesn't overlap with what you already submitted elsewhere.
+        </p>
+        <p>
+          As always, you're allowed (and encouraged) to post about your work in #scrapbook, and your finished projects in #ship, if you desire!
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Can I contribute to an open-source project for Flavortown?</h3>
+        <p>
+          Yes! If your contribution is meaningful (e.g. adding a new feature, not just fixing the README), you can add it as a Flavortown project. Follow these guidelines for project details:
+        </p>
+        <ul>
+          <li><strong>Project description:</strong> mention that you're contributing to an open-source project (this makes things clearer for voters)</li>
+          <li><strong>Repository link:</strong> link to your own fork, or branch</li>
+          <li>Devlogs and time tracking work as per usual</li>
+        </ul>
+      </div>
+
+      <div class="faq-item">
+        <h3>How much am I allowed to use AI?</h3>
+        <p>
+          Please don't submit projects fully made by AI tools - we want to see real people learning and making projects! In other words, your projects should have your own creative input in there. If you need it, help is always available in #code, on the #flavortown, in Hack Club's guides and jams, as well as in topic-specific channels on the Slack.
+        </p>
+        <p>
+          <em>This AI rule is very much subject to change as we iterate on project quality guidelines. Expect more detail later on!</em>
+        </p>
+      </div>
+    </section>
+
+    <section class="faq-section">
+      <h2>🙋 Helping out behind-the-scenes</h2>
+
+      <div class="faq-item">
+        <h3>How can I help Flavortown?</h3>
+        <p>
+          Aside from shipping great projects?
+        </p>
+        <p>
+          Spread the word! Tell the other teenagers you know about Flavortown. We may have #pyramid-scheme posters that you can put up too...
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Can I help others in #flavortown-help?</h3>
+        <p>
+          Yes, please do! Just follow the golden rule: read the FAQ (as it's the source of truth), and read it again before answering someone else's question!
+        </p>
+        <p>
+          <strong>Tip:</strong> if you're unsure of a fact, it's best to check or not say anything to avoid giving incorrect advice. You can of course give subjective advice and tips but clearly label it as such so that nobody's confused.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How do I join the support team?</h3>
+        <p>
+          Simply help out in the channel as above! If you're helping people, you will be noticed and very likely asked if you'd like to join the support team as a helper! Helpers can mark people's questions as resolved, and get a bit of extra troubleshooting info about users asking questions (but most questions can be answered without needing to be a helper).
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Can I help with the website?</h3>
+        <p>
+          Right now, the core team is moving rapidly and focused on making the first few weeks of Flavortown happen, so reviewing PRs is low priority and yours may get dropped. But if you're okay with that, the codebase is open source on GitHub and you can take a look at the issues list and make a PR :)
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Can I join the Shipwrights?</h3>
+        <p>
+          Shipwrights is an invite-only team, but there's a great message from Nullskulls explaining the reasoning behind it being invite-only and noting some advice on how to get invited!
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Can I join the Fraud Team?</h3>
+        <p>
+          No - due to its nature, the Fraud squad is an invite-only team of people we have to give very high levels of trust.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How can I get involved in [other Flavortown thing]?</h3>
+        <p>
+          Just ask! Either in a relevant channel or a DM. They may well not be looking for anyone to help, but there's a chance they need someone just like you!
+        </p>
+      </div>
+    </section>
+  </div>
+</div>

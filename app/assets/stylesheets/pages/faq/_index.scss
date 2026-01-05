@@ -1,0 +1,119 @@
+.faq-index {
+  margin: var(--space-xxxl) auto;
+  max-width: 900px;
+
+  .ui-heading {
+    margin-bottom: var(--space-xl);
+  }
+}
+
+.faq-content {
+  background: var(--color-tan-300);
+  border-radius: var(--border-radius);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow);
+}
+
+.faq-intro {
+  font-size: var(--font-size-l);
+  color: var(--color-text);
+  margin-bottom: var(--space-m);
+  line-height: 1.6;
+
+  &:last-of-type {
+    margin-bottom: var(--space-xxl);
+    padding-bottom: var(--space-xl);
+    border-bottom: 2px dashed var(--color-brown-400);
+  }
+}
+
+.faq-section {
+  margin-bottom: var(--space-xxl);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  h2 {
+    font-family: var(--font-family-subtitle);
+    font-size: var(--font-size-xxxl);
+    color: var(--color-text-header);
+    margin-bottom: var(--space-l);
+    padding-bottom: var(--space-s);
+    border-bottom: 3px solid var(--color-brown-400);
+  }
+}
+
+.faq-item {
+  margin-bottom: var(--space-xl);
+  padding: var(--space-l);
+  background: var(--color-bg);
+  border-radius: var(--border-radius);
+  border: 2px solid var(--color-brown-300);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  h3 {
+    font-family: var(--font-family-subtitle);
+    font-size: var(--font-size-xl);
+    color: var(--color-text-header);
+    margin-bottom: var(--space-m);
+  }
+
+  p {
+    font-size: var(--font-size-m);
+    color: var(--color-text);
+    line-height: 1.6;
+    margin-bottom: var(--space-m);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  ul {
+    margin: var(--space-m) 0;
+    padding-left: var(--space-xl);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    li {
+      font-size: var(--font-size-m);
+      color: var(--color-text);
+      line-height: 1.6;
+      margin-bottom: var(--space-s);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  a {
+    color: var(--color-blue-500);
+    text-decoration: underline;
+
+    &:hover {
+      color: var(--color-blue-600);
+    }
+  }
+
+  code {
+    background: var(--color-tan-200);
+    padding: 0.125em 0.375em;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  em {
+    color: var(--color-brown-500);
+  }
+
+  strong {
+    color: var(--color-text-header);
+  }
+}
