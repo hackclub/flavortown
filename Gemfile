@@ -121,6 +121,10 @@ gem "activeinsights"
 gem "rack-attack"
 gem "query_count"
 
+# for recommendations
+gem "disco"
+gem "faiss"
+
 # Rack Mini Profiler gem for performance monitoring
 # gem "rack-mini-profiler"
 gem "rack-mini-profiler", github: "coalest/rack-mini-profiler", branch: "fix-missing-badge-for-turbo-drive"
