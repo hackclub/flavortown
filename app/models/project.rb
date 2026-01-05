@@ -37,6 +37,8 @@ class Project < ApplicationRecord
     include AASM
     include SoftDeletable
 
+    has_recommended :projects # more projects like this...
+
     after_create :notify_slack_channel
 
     ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze

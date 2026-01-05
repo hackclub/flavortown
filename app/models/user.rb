@@ -46,6 +46,9 @@
 #
 class User < ApplicationRecord
   has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
+
+  has_recommended :projects # you might like these projects...
+
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
