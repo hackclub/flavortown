@@ -32,6 +32,20 @@ class PostCreationToSlackJob < ApplicationJob
     author = post.user
     return unless project && author
 
+    project.followers.each do |follower|
+      SendSlackDmJob.perform_later(
+        follower.slack_id,
+        "New devlog on #{project.title} by #{author.display_name}!",
+        blocks_path: "notifications/creations/followed_devlog_created",
+        locals: {
+          project_title: sanitize_mentions(project.title),
+          project_url: project_url(project, host: "flavortown.hackclub.com", protocol: "https"),
+          author_name: sanitize_mentions(author.display_name) || "Someone",
+          devlog_body: sanitize_mentions(devlog.body.to_s.truncate(200))
+        }
+      )
+    end
+
     SendSlackDmJob.perform_later(
       CHANNEL_ID,
       nil,
