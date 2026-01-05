@@ -124,7 +124,7 @@ class Project < ApplicationRecord
     end
 
     def calculate_duration_seconds
-        posts.of_devlogs(join: true).sum("post_devlogs.duration_seconds")
+        posts.of_devlogs(join: true).where(post_devlogs: { deleted_at: nil }).sum("post_devlogs.duration_seconds")
     end
 
     def recalculate_duration_seconds!
