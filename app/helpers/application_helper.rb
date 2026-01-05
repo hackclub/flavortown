@@ -25,10 +25,13 @@ module ApplicationHelper
   end
 
   def format_seconds(seconds, include_days: false)
+    # ie: 2h 3m 4s
+    # ie. 37h 15m (if include_days is false)
+    # ie. 1d 13h 15m (if include_days is true)
     return "0s" if seconds.nil? || seconds <= 0
 
     days = seconds / 86400
-    hours = (seconds % 86400) / 3600
+    hours = include_days ? (seconds % 86400) / 3600 : seconds / 3600
     minutes = (seconds % 3600) / 60
     secs = seconds % 60
 
