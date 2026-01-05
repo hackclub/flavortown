@@ -28,7 +28,7 @@ module ApplicationHelper
     return "0s" if seconds.nil? || seconds <= 0
 
     days = seconds / 86400
-    hours = (seconds % 86400) / 3600
+    hours = include_days ? (seconds % 86400) / 3600 : seconds / 3600
     minutes = (seconds % 3600) / 60
     secs = seconds % 60
 
