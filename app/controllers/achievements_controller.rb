@@ -19,7 +19,7 @@ class AchievementsController < ApplicationController
     end
 
     countable = Achievement.countable_for_user(current_user)
-    earned_countable = countable.count { |a| a.earned_by?(current_user) }
+    earned_countable = countable.count { |a| user_achievements_by_slug[a.slug.to_s].present? }
     @achievement_stats = {
       earned: earned_countable,
       total: countable.count
