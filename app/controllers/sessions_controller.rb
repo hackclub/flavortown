@@ -29,20 +29,9 @@ class SessionsController < ApplicationController
     end
 
     identity = User::Identity.find_or_initialize_by(provider: "hack_club", uid: uid)
+    identity.access_token = access_token
 
     user = identity.user || User.find_by(slack_id: slack_id) || User.new
-
-    # If identity is new but user already exists with a hack_club identity (UID changed),
-    # update the existing identity instead of creating a duplicate
-    if identity.new_record? && user.persisted?
-      existing_identity = user.identities.find_by(provider: "hack_club")
-      if existing_identity
-        identity = existing_identity
-        identity.uid = uid
-      end
-    end
-
-    identity.access_token = access_token
     is_new_user = user.new_record?
     user.email ||= user_email
     user.display_name = display_name if user.display_name.to_s.strip.blank?
