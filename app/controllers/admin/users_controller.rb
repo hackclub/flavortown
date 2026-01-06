@@ -104,6 +104,11 @@ class Admin::UsersController < Admin::ApplicationController
         return redirect_to admin_user_path(@user)
       end
 
+      if role_name == "super_admin" && !current_user.super_admin?
+        flash[:alert] = "#{current_user.display_name} is not in the sudoers file."
+        return redirect_to admin_user_path(@user)
+      end
+
       @user.grant_role!(role_name)
 
       # Create explicit audit entry on User

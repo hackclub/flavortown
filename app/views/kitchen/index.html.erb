@@ -167,13 +167,6 @@
     </div>
   <% end %>
   <% end %>
-  <div class="kitchen-announcement">
-    <%= render AnnouncementComponent.new(
-      image: "flavortown_xmas_sticker.avif",
-      title: "More free stickers!",
-      description: "Ship before Jan 2nd, Friday (EST) and we'll send you this cool sticker!"
-    ) %>
-  </div>
   <div class="kitchen-stats">
     <%= render KitchenStatsComponent.new(user: current_user) %>
   </div>

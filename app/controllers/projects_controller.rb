@@ -24,6 +24,8 @@ class ProjectsController < ApplicationController
     else
       @liked_devlog_ids = Set.new
     end
+
+    ahoy.track "Viewed project", project_id: @project.id
   end
 
   def new

@@ -37,6 +37,8 @@ class Project < ApplicationRecord
     include AASM
     include SoftDeletable
 
+    has_recommended :projects # more projects like this...
+
     after_create :notify_slack_channel
 
     ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
@@ -124,7 +126,7 @@ class Project < ApplicationRecord
     end
 
     def calculate_duration_seconds
-        posts.of_devlogs(join: true).sum("post_devlogs.duration_seconds")
+        posts.of_devlogs(join: true).where(post_devlogs: { deleted_at: nil }).sum("post_devlogs.duration_seconds")
     end
 
     def recalculate_duration_seconds!
