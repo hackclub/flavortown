@@ -23,14 +23,6 @@ export default class extends Controller {
       });
     }
 
-    // Prevent Enter key from submitting the form in single-line inputs
-    const form = this.element.closest("form") || this.element;
-    form.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && event.target.tagName === "INPUT") {
-        event.preventDefault();
-      }
-    });
-
     this.updateSubmitState(); // submit button
 
     this.restorReadmeWhenThereIsAError();

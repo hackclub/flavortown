@@ -155,7 +155,7 @@ class Project < ApplicationRecord
     end
 
     def hackatime_keys
-        hackatime_projects.pluck(:name).uniq
+        hackatime_projects.pluck(:name)
     end
 
     def total_hackatime_hours
@@ -168,7 +168,7 @@ class Project < ApplicationRecord
       return 0 unless result
 
       project_times = result[:projects]
-      total_seconds = hackatime_keys.sum { |name| project_times[name].to_i }
+      total_seconds = hackatime_projects.sum { |hp| project_times[hp.name].to_i }
       (total_seconds / 3600.0).round(1)
     end
 
@@ -180,10 +180,10 @@ class Project < ApplicationRecord
         return [] unless result
 
         project_times = result[:projects]
-        hackatime_keys.map do |name|
+        hackatime_projects.map do |hp|
             {
-                name: name,
-                hours: (project_times[name].to_i / 3600.0).round(1)
+                name: hp.name,
+                hours: (project_times[hp.name].to_i / 3600.0).round(1)
             }
         end
     end
