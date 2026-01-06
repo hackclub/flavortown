@@ -5,7 +5,7 @@
     <%= render HeadingComponent.new(title: "Add Devlog", tone: :brown) %>
 
     <div class="projects-new__time-preview">
-      <p>This devlog will log <strong><%= @preview_time %></strong> of work.</p>
+      <p>This devlog will log <strong><%= format_seconds @preview_seconds %></strong> of work.</p>
       <% if @preview_seconds < 900 %>
         <p>⚠️ You need at least 15 minutes of work to submit a devlog. Keep working on your project and come back!</p>
       <% end %>

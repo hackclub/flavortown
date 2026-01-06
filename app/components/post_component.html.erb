@@ -32,8 +32,8 @@
         <% end %>
       </div>
       <div class="post__time"><%= posted_at_text %> ago</div>
-      <% if duration_text.present? %>
-        <div class="post__duration"><%= duration_text %> logged</div>
+      <% if postable.duration_seconds.present? %>
+        <div class="post__duration"><%= format_seconds(postable.duration_seconds) %> logged</div>
       <% end %>
     </div>
   </header>
