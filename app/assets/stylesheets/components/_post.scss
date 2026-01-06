@@ -3,11 +3,6 @@
   border-radius: calc(var(--border-radius) * 1.8);
   background-clip: padding-box;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-m);
-  padding: var(--space-xl);
-  color: var(--color-bg);
   max-width: 800px;
   background: var(--color-brown-500)
     repeating-conic-gradient(
@@ -17,6 +12,14 @@
     );
   background-size: 120px 120px;
   box-shadow: var(--shadow);
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    padding: var(--space-xl);
+    color: var(--color-bg);
+  }
 
   &--deleted {
     border-color: #dc2626;
