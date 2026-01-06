@@ -46,9 +46,12 @@
     .post {
       margin: 0 auto 2em auto;
       position: relative;
-      content-visibility: auto;
-      contain-intrinsic-size: 1px 600px;
-      contain: layout paint style;
+
+      .post__content {
+        content-visibility: auto;
+        contain-intrinsic-size: 1px 600px;
+        contain: layout paint style;
+      }
 
       &::after {
         left: auto;
