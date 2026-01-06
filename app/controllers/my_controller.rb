@@ -16,6 +16,7 @@ class MyController < ApplicationController
       send_votes_to_slack: params[:send_votes_to_slack] == "1",
       leaderboard_optin: params[:leaderboard_optin] == "1",
       slack_balance_notifications: params[:slack_balance_notifications] == "1",
+      send_notifications_for_followed_devlogs: params[:send_notifications_for_followed_devlogs] == "1",
       special_effects_enabled: params[:special_effects_enabled] == "1"
     )
     redirect_back fallback_location: root_path, notice: "Settings saved"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_05_014347) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_05_213638) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -588,6 +588,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_014347) do
     t.integer "projects_count"
     t.string "ref"
     t.string "regions", default: [], array: true
+    t.boolean "send_notifications_for_followed_devlogs", default: true, null: false
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
     t.enum "shop_region", enum_type: "shop_region_type"
