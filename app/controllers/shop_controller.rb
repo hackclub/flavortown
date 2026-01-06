@@ -51,7 +51,7 @@ class ShopController < ApplicationController
     @user_region = user_region
     @sale_price = @shop_item.price_for_region(@user_region)
     @accessories = @shop_item.available_accessories.includes(:image_attachment)
-    Ahoy.track "Viewed shop item", shop_item_id: @shop_item.id
+    ahoy.track "Viewed shop item", shop_item_id: @shop_item.id
   end
 
   def update_region
