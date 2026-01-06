@@ -37,9 +37,9 @@ module ApplicationHelper
 
     parts = []
     parts << "#{days}d" if include_days && days > 0
-    parts << "#{hours}h" if hours > 0 || (include_days && days > 0)
+    parts << "#{hours}h" if hours > 0 || parts.any?
     parts << "#{minutes}m" if minutes > 0 || parts.any?
-    parts << "#{secs}s" if parts.empty?
+    parts << "#{secs}s" if secs > 0
 
     parts.join(" ")
   end
