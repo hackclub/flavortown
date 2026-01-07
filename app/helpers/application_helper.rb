@@ -110,6 +110,11 @@ module ApplicationHelper
     rps == :high_load ? "lots of req/sec" : "#{rps} req/sec"
   end
 
+  def active_users_stats
+    counts = ActiveUserTracker.counts
+    "#{counts[:signed_in]} signed in, #{counts[:anonymous]} visitors"
+  end
+
   private
 
   def find_achievement_asset(icon_name)
