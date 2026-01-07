@@ -66,6 +66,16 @@
         -webkit-mask: url("icons/paper.svg") no-repeat center / 40px 40px;
         mask: url("icons/paper.svg") no-repeat center / 40px 40px;
       }
+
+      @media (max-width: 900px) {
+        &::after {
+          display: none;
+        }
+
+        &::before {
+          display: none;
+        }
+      }
     }
   }
 
