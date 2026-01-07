@@ -74,6 +74,7 @@
           (DB: <%= pluralize(QueryCount::Counter.counter, "query") %>, <%= QueryCount::Counter.counter_cache %> cached)
           (CACHE: <%= cache_stats[:hits] %> hits, <%= cache_stats[:misses] %> misses)
           (<%= requests_per_second %>)
+          (Active: <%= active_users_stats %>)
         </p>
       </footer>
     <% end %>
