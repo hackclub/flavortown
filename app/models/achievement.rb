@@ -75,7 +75,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
     new(
       slug: :flavortown_helper,
       name: "Helping Hand",
-      description: "shared your wisdom in #flavortown-help,, or seeked thy wisdom",
+      description: "shared your wisdom in #flavortown-help, or seeked thy wisdom",
       icon: "help",
       earned_check: ->(user) { SlackChannelService.user_has_posted_in?(user, :flavortown_help) }
     ),
