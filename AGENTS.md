@@ -1,27 +1,29 @@
 # Flavortown Agent Instructions
 
+## Environment
+
+Check with the user if the local setup uses docker. If so run anything using `docker compose run --service-ports web COMMAND`.
+You can't run in an interactive docker shell but you can execute one-off commands.
+
 ## Build & Test Commands
 
 - **Run all tests**: `bin/rails test`
-- **Run single test file**: `bin/rails test test/models/user_test.rb`
-- **Run specific test case**: `bin/rails test test/models/user_test.rb:10`
-- **Lint Ruby**: `bundle exec rubocop`
-- **Lint ERB**: `bundle exec erb_lint --lint-all`
-- **Fix Ruby issues**: `bundle exec rubocop -A`
+- **Lint & Fix**: `bin/lint`
 - **Start dev server**: `bin/dev`
 - **Database setup**: `bin/rails db:prepare`
 
 ## Architecture & Structure
 
-- **Framework**: Ruby on Rails 8.1 using **Hotwire** (Turbo + Stimulus) for frontend.
-- **Database**: PostgreSQL with `solid_queue` (jobs) and `solid_cache` (caching).
+- **Framework**: Ruby on Rails 8.1.
+- **Database**: PostgreSQL with `solid_queue` (jobs).
+- **Caching**: Redis (`redis_cache_store`) in production, `memory_store` in development.
 - **Key Gems**:
   - `pundit` (Authorization)
   - `aasm` (State Machines)
   - `paper_trail` (Versioning)
   - `flipper` (Feature Flags)
   - `view_component` (UI Components)
-- **Deployment**: Kamal (Docker-based).
+- **Deployment**: Coolify (Docker-based), not Kamal.
 
 ## Code Style & Conventions
 
@@ -40,3 +42,5 @@ When making changes/creations towards admin sides of the codebase there needs to
 DB migrations should always ask for user confirmation.
 
 please do not hand write migrations, always use the rails g cmd for migrations.
+
+Bias for rails generators (ie. rails g model/migration) when first creating a file.
