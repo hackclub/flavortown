@@ -1,5 +1,6 @@
 <% if git_commit? %>
   <article class="post post--git_commit">
+    <%= render "shared/inspector", record: postable %>
     <div class="post__git-commit-message">
       <%= link_to postable.title, postable.url, target: "_blank", rel: "noopener" %>
     </div>
