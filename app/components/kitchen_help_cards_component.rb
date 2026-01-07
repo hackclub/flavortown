@@ -38,7 +38,7 @@ class KitchenHelpCardsComponent < ApplicationComponent
         end
       end
       p(class: "kitchen-help__paragraph") do
-        plain "If you're having issues with Slack, you can also send an e-mail to "
+        plain "If you're unable to use Slack, you can also send an e-mail to "
         a(href: "mailto:flavortown@hackclub.com") { "flavortown@hackclub.com" }
         plain "."
       end
