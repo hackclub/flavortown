@@ -43,7 +43,7 @@ class User
           verb: :post),
       new(slug: :setup_slack,
           name: "Join Slack",
-          description: "connect with the community",
+          description: "post in #flavortown-introductions",
           icon: "slack",
           link: ->(_) { "https://hackclub.slack.com" }),
       new(slug: :free_stickers,
