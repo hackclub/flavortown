@@ -1,0 +1,77 @@
+.comic-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+
+    img {
+        margin-top: 0.5em;
+        width: 200px;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+
+        &:hover {
+            transform: scale(1.05);
+            cursor: pointer;
+            box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.5);
+        }
+    }
+
+    h1 {
+        font-size: 1.75rem;
+        font-weight: normal;
+    }
+
+    .modal {
+        position: fixed;
+        z-index: 10;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        
+        &::backdrop {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        background: var(--color-tan-300);
+        padding: 1em;
+        border: 0.25em solid var(--color-brown-500);
+        border-radius: 0.5em;
+        max-width: 400px;
+
+        .modal__actions-close {
+            position: absolute;
+            right: 0.5em;
+            top: 0.5em; 
+            font-size: 1rem;
+            background: transparent;
+            border: none;
+            color: var(--color-brown-500);
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+
+        h3 {
+            font-size: 2rem;
+            color: var(--color-brown-500);
+            margin-bottom: 0.25em;
+        }
+
+        p {
+            font-size: 1.25rem;
+            line-height: 1.1;
+
+            a {
+                color: var(--color-brown-400);
+                text-decoration: none;
+
+                &:hover {
+                    color: var(--color-brown-500);
+                }
+            }
+        }
+    }
+}
