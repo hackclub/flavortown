@@ -710,6 +710,9 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
+    with_advisory_lock (7.0.2)
+      activerecord (>= 7.2)
+      zeitwerk (>= 2.7)
     xpath (3.2.0)
       nokogiri (~> 1.8)
     yaml (0.4.0)
@@ -800,6 +803,7 @@ DEPENDENCIES
   tzinfo-data
   view_component
   web-console
+  with_advisory_lock
 
 BUNDLED WITH
    2.7.2

@@ -118,6 +118,9 @@ gem "norairrecord"
 gem "awesome_print"
 gem "activeinsights"
 
+# Database-level advisory locks for preventing race conditions across processes
+gem "with_advisory_lock"
+
 gem "rack-attack"
 gem "query_count"
 
