@@ -45,7 +45,7 @@ class User
           name: "Join Slack",
           description: "Post in #flavortown-introduction after becoming a full member!",
           icon: "slack",
-          link: ->(_) { "https://slack.com/app_redirect?channel=USLACKBOT&team=T0266FRGM" }),
+          link: ->(_) { "https://hackclub.slack.com/app_redirect?channel=USLACKBOT" }),
       new(slug: :free_stickers,
           name: "Get your stickers!",
           description: "get your stickers!",
