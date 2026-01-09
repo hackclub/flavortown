@@ -8,12 +8,13 @@ module OgImage
     }.freeze
 
     class << self
-      def sample_project(title: "My Awesome Project", devlogs_count: 12, banner: true, owner: "hackclub_dev")
+      def sample_project(title: "floob", devlogs_count: 12, banner: true, owner: "hackclub_dev", hours: 42)
         OpenStruct.new(
           title: title,
           devlogs_count: devlogs_count,
           banner: MockAttachment.new(attached: banner),
-          memberships: MockMemberships.new(owner_name: owner)
+          memberships: MockMemberships.new(owner_name: owner),
+          total_hackatime_hours: hours
         )
       end
     end
@@ -24,69 +25,95 @@ module OgImage
     end
 
     def render
-      create_canvas
+      create_patterned_canvas
 
+      draw_thumbnail
+      draw_hack_club_flag
       draw_title
       draw_subtitle
-      draw_branding
-      draw_thumbnail if @project.banner.attached?
     end
 
     private
 
     def draw_title
-      draw_multiline_text(
+      lines_drawn = draw_multiline_text(
         @project.title,
-        x: 60,
-        y: 180,
-        size: 52,
-        color: "#ffffff",
-        max_chars: 30,
-        max_lines: 3
+        x: 80,
+        y: 140,
+        size: 96,
+        color: "#4d3228",
+        max_chars: 14,
+        max_lines: 2
       )
+      @title_end_y = 140 + (lines_drawn * 96 * 1.4).to_i
     end
 
     def draw_subtitle
-      subtitle = build_subtitle
-      return if subtitle.blank?
+      stats = build_stats
+      return if stats.empty?
 
-      draw_text(
-        truncate_text(subtitle, 50),
-        x: 60,
-        y: 420,
-        size: 28,
-        color: "#aaaaaa"
-      )
-    end
-
-    def draw_branding
-      draw_text(
-        "flavortown.hackclub.com",
-        x: 60,
-        y: 50,
-        size: 24,
-        color: "#666666",
-        gravity: "SouthWest"
-      )
+      start_y = @title_end_y + 20
+      stats.each_with_index do |stat, index|
+        draw_text(
+          stat,
+          x: 80,
+          y: start_y + (index * 58),
+          size: 48,
+          color: "#5c4033"
+        )
+      end
     end
 
     def draw_thumbnail
+      image_source = if @project.banner.attached?
+        @project.banner
+      else
+        logo_path
+      end
+
       place_image(
-        @project.banner,
-        x: 60,
-        y: 0,
+        image_source,
+        x: 80,
+        y: 115,
         width: 400,
         height: 400,
-        gravity: "East"
+        gravity: "NorthEast",
+        rounded: true,
+        radius: 24
       )
     end
 
-    def build_subtitle
+    def logo_path
+      "https://hc-cdn.hel1.your-objectstorage.com/s/v3/288a4173f175618e_img_5401_copy.png"
+    end
+
+    def draw_hack_club_flag
+      place_image(
+        "https://assets.hackclub.com/flag-orpheus-top.png",
+        x: 20,
+        y: 0,
+        width: 300,
+        height: 360,
+        gravity: "NorthWest",
+        cover: false
+      )
+    end
+
+    def build_stats
+      stats = []
       owner = @project.memberships.find_by(role: :owner)&.user
-      parts = []
-      parts << "by #{owner.display_name}" if owner
-      parts << "#{@project.devlogs_count} devlogs" if @project.devlogs_count.positive?
-      parts.join(" · ")
+      stats << "by @#{owner.display_name}" if owner
+      stats << "#{@project.devlogs_count} devlogs" if @project.devlogs_count.positive?
+      stats << "#{hours_logged} hours worked" if hours_logged > 0
+      stats
+    end
+
+    def hours_logged
+      if @project.respond_to?(:total_hackatime_hours)
+        @project.total_hackatime_hours.to_i
+      else
+        0
+      end
     end
   end
 end

@@ -275,5 +275,7 @@ Rails.application.routes.draw do
   end
 
   # Public user profiles
-  resources :users, only: [ :show ]
+  resources :users, only: [ :show ] do
+    resource :og_image, only: [ :show ], module: :users, defaults: { format: :png }
+  end
 end

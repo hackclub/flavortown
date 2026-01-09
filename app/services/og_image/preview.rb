@@ -1,7 +1,14 @@
 module OgImage
   module Preview
     VIEW_CLASSES = [
-      OgImage::Project
+      OgImage::Project,
+      OgImage::Start,
+      OgImage::Home,
+      OgImage::Explore,
+      OgImage::Gallery,
+      OgImage::Extensions,
+      OgImage::Shop,
+      OgImage::User
     ].freeze
 
     class << self
