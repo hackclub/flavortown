@@ -134,7 +134,7 @@ Rails.application.routes.draw do
     get "/", to: "root#index"
 
     namespace :v1 do
-      resources :projects, only: [ :index, :show ] do
+      resources :projects, only: [ :index, :show, :create, :update ] do
         resources :devlogs, only: [ :index, :show ], controller: "project_devlogs"
       end
 

@@ -25,18 +25,21 @@ module ApplicationHelper
   end
 
   def format_seconds(seconds, include_days: false)
+    # ie: 2h 3m 4s
+    # ie. 37h 15m (if include_days is false)
+    # ie. 1d 13h 15m (if include_days is true)
     return "0s" if seconds.nil? || seconds <= 0
 
     days = seconds / 86400
-    hours = (seconds % 86400) / 3600
+    hours = include_days ? (seconds % 86400) / 3600 : seconds / 3600
     minutes = (seconds % 3600) / 60
     secs = seconds % 60
 
     parts = []
     parts << "#{days}d" if include_days && days > 0
-    parts << "#{hours}h" if hours > 0 || (include_days && days > 0)
+    parts << "#{hours}h" if hours > 0 || parts.any?
     parts << "#{minutes}m" if minutes > 0 || parts.any?
-    parts << "#{secs}s" if parts.empty?
+    parts << "#{secs}s" if secs > 0
 
     parts.join(" ")
   end
@@ -107,14 +110,21 @@ module ApplicationHelper
     rps == :high_load ? "lots of req/sec" : "#{rps} req/sec"
   end
 
+  def active_users_stats
+    counts = ActiveUserTracker.counts
+    "#{counts[:signed_in]} signed in, #{counts[:anonymous]} visitors"
+  end
+
   private
 
   def find_achievement_asset(icon_name)
-    %w[png svg jpg jpeg gif webp].each do |ext|
-      path = "achievements/#{icon_name}.#{ext}"
-      return path if achievement_asset_exists?(path)
-    end
-    nil
+    @achievement_asset_cache ||= {}
+    return @achievement_asset_cache[icon_name] if @achievement_asset_cache.key?(icon_name)
+
+    @achievement_asset_cache[icon_name] = %w[achievements icons].product(%w[png svg jpg jpeg gif webp]).each do |folder, ext|
+      path = "#{folder}/#{icon_name}.#{ext}"
+      break path if achievement_asset_exists?(path)
+    end.then { |result| result.is_a?(String) ? result : nil }
   end
 
   def achievement_asset_exists?(path)

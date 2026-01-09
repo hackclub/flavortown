@@ -16,7 +16,7 @@ class ExploreController < ApplicationController
       format.json do
         html = @devlogs.map do |post|
           render_to_string(
-            PostComponent.new(post: post, current_user: current_user),
+            PostComponent.new(post: post, current_user: current_user, theme: :explore_mixed),
             layout: false,
             formats: [ :html ]
           )

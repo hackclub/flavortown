@@ -5,9 +5,10 @@ class PostComponent < ViewComponent::Base
 
   attr_reader :post
 
-  def initialize(post:, current_user: nil)
+  def initialize(post:, current_user: nil, theme: nil)
     @post = post
     @current_user = current_user
+    @theme = theme
   end
 
   def variant
@@ -139,5 +140,13 @@ class PostComponent < ViewComponent::Base
     return nil unless can_edit?
     return nil unless post.project.present?
     helpers.project_devlog_path(post.project, postable)
+  end
+
+  def theme_class
+    return nil unless @theme = :explore_mixed
+
+    themes = %i[devlog ship fire certified]
+    picked = themes[post.id.to_i % themes.length]
+    "post--theme-#{picked}"
   end
 end

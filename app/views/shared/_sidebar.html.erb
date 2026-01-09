@@ -141,6 +141,14 @@
 
       <div class="settings-form__field">
         <label class="settings-form__checkbox">
+          <%= check_box_tag :send_notifications_for_followed_devlogs, "1", current_user.send_notifications_for_followed_devlogs, id: "send_notifications_for_followed_devlogs" %>
+          <span>Followed project notifications</span>
+        </label>
+        <small class="settings-form__hint">Receive a Slack DM when a project you're following has a new devlog</small>
+      </div>
+
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
           <%= check_box_tag :special_effects_enabled, "1", current_user.special_effects_enabled, id: "special_effects_enabled" %>
           <span>Special effects</span>
         </label>

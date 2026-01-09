@@ -16,7 +16,8 @@ class Airtable::ProjectSyncJob < Airtable::BaseSyncJob
       "marked_fire_at" => project.marked_fire_at,
       "created_at" => project.created_at,
       "synced_at" => Time.now,
-      "flavor_id" => project.id.to_s
+      "flavor_id" => project.id.to_s,
+      "creator_id" => project.users.first.id.to_s
     }
   end
 end
