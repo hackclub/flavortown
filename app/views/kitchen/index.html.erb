@@ -167,59 +167,61 @@
     </div>
   <% end %>
   <% end %>
-  <div class="kitchen-comic">
-    <%= image_tag "kitchen_comic/title.avif", alt: "How to Flavortown", class: "kitchen-comic__title" %>
-    <div class="kitchen-comic__cards">
-      <%= render ComicCardComponent.new(
-        image: "kitchen_comic/1.avif",
-        alt: "Get an idea",
-        caption: "Get an idea!",
-        modal_title: "Get an idea!",
-        modal_text: "<p>You can make anything — software or hardware (or both) — as long as you can track it using <a href='https://hackatime.hackclub.com'>Hackatime</a>, our very own software to track time spent hacking!</p>"
-      ) %>
-      <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
-      <%= render ComicCardComponent.new(
-        image: "kitchen_comic/2.avif",
-        alt: "Make your project",
-        caption: "Make your project!",
-        modal_title: "Make your project!",
-        modal_text: "<p>Set up Hackatime using <a href='https://hackatime.hackclub.com/my/wakatime_setup'>these</a> instructions and log your hours using devlogs — simple posts with text + images/videos that you post after making significant progress on your project. Remember to post these devlogs regularly — not posting a devlog after logging over 10 hours might result in your time being lost!</p>"
-      ) %>
-      <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
-      <%= render ComicCardComponent.new(
-        image: "kitchen_comic/3.avif",
-        alt: "Ship your project",
-        caption: "Ship your project!",
-        modal_title: "Ship your project!",
-        modal_text: "<p>Once your project is in a shipable state (i.e. you have a way for others to experience it through a website, app binary, etc.) — ship it! Once shipped, you must wait for your project to be approved by the <a href=\"https://us.review.hackclub.com\">Shipwrights</a>. This can take a few days (check the queue <a href='https://us.review.hackclub.com/queue'>here</a>) but don't worry — all they do is check if your project is shipable with the correct links, and sometimes give you helpful advice to improve it!</p><br><p>Lastly, always remember that while projects have to be demo-ready before being shipped, you can always continue working on them after they have been shipped.</p>"
-      ) %>
-      <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
-      <%= render ComicCardComponent.new(
-        image: "kitchen_comic/4.avif",
-        alt: "Vote on projects",
-        caption: "Vote on projects!",
-        modal_title: "Vote on projects!",
-        modal_text: "<p>You're almost ready to get cookies for the hours you spent on your project — you just have to vote on other's projects to unlock the payout! Voting is done by rating each project on a bunch of simple metrics, and is done so people making good projects get more cookies per hour. For every project shipped, you must vote on 10 projects to get cookies!</p>"
-      ) %>
-      <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
-      <%= render ComicCardComponent.new(
-        image: "kitchen_comic/5.avif",
-        alt: "Earn cookies",
-        caption: "Earn cookies!",
-        modal_title: "Earn cookies!",
-        modal_text: "<p>Congratulations! You're now ready to get cookies for your hard work. You earn anywhere between 1 to 30 cookies per each hour you hack on a project — the better your project does in voting, the more cookies you get! Make sure to ship high quality projects to get bigger payouts.</p>"
-      ) %>
-      <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
-      <%= render ComicCardComponent.new(
-        image: "kitchen_comic/6.avif",
-        alt: "Win prizes",
-        caption: "Win prizes!",
-        modal_title: "Win prizes!",
-        modal_text: %q{<p>Once you've earned enough cookies, you can place an order in the <a href='https://flavortown.hackclub.com/shop'>Shop</a>! You can get anything from domain grants and Raspberry Pi's to iPads and Macbooks.</p><br><p>After placing an order, you must wait again for it to be reviewed by the Fraud Squad — they just check to make sure nothing fishy is going on. Unfortunately, considering the scale at Hack Club operates, we sometimes get bad actors trying to defraud our nonprofit, thus deeming this step necessary, especially for larger prizes. But you can rest easy — if you don't try do anything wrong, you'll never get in trouble!</p><br><p>One last thing: Hack Club always pays for shipping, but some special prizes may incur customs (a charge levied by your country's government on imported goods) if you live outside the US — which we will not be able to cover. Don't worry though, you'll know which items may incur customs so you can make an informed decision!</p>}
-      ) %>
-      <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
+  <% if Flipper.enabled?(:kitchen_comic, current_user) %>
+    <div class="kitchen-comic">
+      <%= image_tag "kitchen_comic/title.avif", alt: "How to Flavortown", class: "kitchen-comic__title" %>
+      <div class="kitchen-comic__cards">
+        <%= render ComicCardComponent.new(
+          image: "kitchen_comic/1.avif",
+          alt: "Get an idea",
+          caption: "Get an idea!",
+          modal_title: "Get an idea!",
+          modal_text: "<p>You can make anything — software or hardware (or both) — as long as you can track it using <a href='https://hackatime.hackclub.com'>Hackatime</a>, our very own software to track time spent hacking!</p>"
+        ) %>
+        <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
+        <%= render ComicCardComponent.new(
+          image: "kitchen_comic/2.avif",
+          alt: "Make your project",
+          caption: "Make your project!",
+          modal_title: "Make your project!",
+          modal_text: "<p>Set up Hackatime using <a href='https://hackatime.hackclub.com/my/wakatime_setup'>these</a> instructions and log your hours using devlogs — simple posts with text + images/videos that you post after making significant progress on your project. Remember to post these devlogs regularly — not posting a devlog after logging over 10 hours might result in your time being lost!</p>"
+        ) %>
+        <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
+        <%= render ComicCardComponent.new(
+          image: "kitchen_comic/3.avif",
+          alt: "Ship your project",
+          caption: "Ship your project!",
+          modal_title: "Ship your project!",
+          modal_text: "<p>Once your project is in a shipable state (i.e. you have a way for others to experience it through a website, app binary, etc.) — ship it! Once shipped, you must wait for your project to be approved by the <a href=\"https://us.review.hackclub.com\">Shipwrights</a>. This can take a few days (check the queue <a href='https://us.review.hackclub.com/queue'>here</a>) but don't worry — all they do is check if your project is shipable with the correct links, and sometimes give you helpful advice to improve it!</p><br><p>Lastly, always remember that while projects have to be demo-ready before being shipped, you can always continue working on them after they have been shipped.</p>"
+        ) %>
+        <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
+        <%= render ComicCardComponent.new(
+          image: "kitchen_comic/4.avif",
+          alt: "Vote on projects",
+          caption: "Vote on projects!",
+          modal_title: "Vote on projects!",
+          modal_text: "<p>You're almost ready to get cookies for the hours you spent on your project — you just have to vote on other's projects to unlock the payout! Voting is done by rating each project on a bunch of simple metrics, and is done so people making good projects get more cookies per hour. For every project shipped, you must vote on 10 projects to get cookies!</p>"
+        ) %>
+        <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
+        <%= render ComicCardComponent.new(
+          image: "kitchen_comic/5.avif",
+          alt: "Earn cookies",
+          caption: "Earn cookies!",
+          modal_title: "Earn cookies!",
+          modal_text: "<p>Congratulations! You're now ready to get cookies for your hard work. You earn anywhere between 1 to 30 cookies per each hour you hack on a project — the better your project does in voting, the more cookies you get! Make sure to ship high quality projects to get bigger payouts.</p>"
+        ) %>
+        <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
+        <%= render ComicCardComponent.new(
+          image: "kitchen_comic/6.avif",
+          alt: "Win prizes",
+          caption: "Win prizes!",
+          modal_title: "Win prizes!",
+          modal_text: %q{<p>Once you've earned enough cookies, you can place an order in the <a href='https://flavortown.hackclub.com/shop'>Shop</a>! You can get anything from domain grants and Raspberry Pi's to iPads and Macbooks.</p><br><p>After placing an order, you must wait again for it to be reviewed by the Fraud Squad — they just check to make sure nothing fishy is going on. Unfortunately, considering the scale at which Hack Club operates, we sometimes get bad actors trying to defraud our nonprofit, thus deeming this step necessary, especially for larger prizes. But you can rest easy — if you don't try do anything wrong, you'll never get in trouble!</p><br><p>One last thing: Hack Club always pays for shipping, but some special prizes may incur customs (a charge levied by your country's government on imported goods) if you live outside the US — which we will not be able to cover. Don't worry though, you'll know which items may incur customs so you can make an informed decision!</p>}
+        ) %>
+        <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
+      </div>
     </div>
-  </div>
+  <% end %>
   <div class="kitchen-stats">
     <%= render KitchenStatsComponent.new(user: current_user) %>
   </div>
