@@ -1,6 +1,7 @@
 <% content_for :title, "Explore" %>
 <% content_for :og_title, "Explore Flavortown" %>
 <% content_for :og_description, "Discover projects and devlogs from teen coders on Flavortown." %>
+<% content_for :og_image, og_image_url('explore', format: :png) %>
 
 <div class="explore" data-controller="load-more" data-load-more-url-value="<%= explore_index_path %>">
     <%= render "explore/explore_nav" %>
