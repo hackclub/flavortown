@@ -249,6 +249,7 @@ Rails.application.routes.draw do
       end
     end
     resources :reports, only: [ :create ], module: :project
+    resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
     member do
       get :ship
       patch :update_ship
