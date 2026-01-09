@@ -1,7 +1,10 @@
-<div class="comic-card" data-controller="comic-card">
+<div class="comic-card">
   <h1 class="comic-card__caption"><%= caption %></h1>
 
-  <div class="comic-card__frame" onclick="document.getElementById('<%= modal_id %>').showModal()">
+  <div class="comic-card__frame" 
+       onclick="document.getElementById('<%= modal_id %>').showModal()"
+       data-controller="card-sound"
+       data-action="click->card-sound#playSound">
     <%= image_tag image_url,
       alt: alt,
       loading: "lazy",
