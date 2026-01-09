@@ -36,15 +36,15 @@
 #  fk_rails_...  (marked_fire_by_id => users.id)
 #
 one:
-  title: MyString
-  description: MyText
-  repo_url: MyText
-  demo_url: MyText
-  readme_url: MyText
+  title: Project One
+  description: A test project
+  repo_url: https://github.com/test/one
+  demo_url: https://example.com/one
+  readme_url: https://github.com/test/one/readme
 
 two:
-  title: MyString
-  description: MyText
-  repo_url: MyText
-  demo_url: MyText
-  readme_url: MyText
+  title: Project Two
+  description: Another test project
+  repo_url: https://github.com/test/two
+  demo_url: https://example.com/two
+  readme_url: https://github.com/test/two/readme

@@ -24,9 +24,11 @@
 #  fk_rails_...  (user_id => users.id)
 #
 one:
-  postable_type: MyString
-  postable_id: MyString
+  project: one
+  user: one
+  postable: one (Post::Devlog)
 
 two:
-  postable_type: MyString
-  postable_id: MyString
+  project: two
+  user: two
+  postable: two (Post::Devlog)

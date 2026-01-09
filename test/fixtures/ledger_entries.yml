@@ -24,15 +24,15 @@
 #  fk_rails_...  (user_id => users.id)
 #
 one:
-  ledgerable: one
-  ledgerable_type: Ledgerable
-  amount: 1
-  reason: MyString
-  created_by: one
+  ledgerable: one (Project)
+  amount: 100
+  reason: Test ledger entry
+  created_by: system
+  user: one
 
 two:
-  ledgerable: two
-  ledgerable_type: Ledgerable
-  amount: 1
-  reason: MyString
-  created_by: two
+  ledgerable: two (Project)
+  amount: 200
+  reason: Another test entry
+  created_by: system
+  user: two

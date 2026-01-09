@@ -23,7 +23,9 @@
 #  index_post_devlogs_on_deleted_at  (deleted_at)
 #
 one:
-  body: MyString
+  body: This is my first devlog post
+  scrapbook_url: https://scrapbook.hackclub.com/test1
 
 two:
-  body: MyString
+  body: This is my second devlog post
+  scrapbook_url: https://scrapbook.hackclub.com/test2

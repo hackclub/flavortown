@@ -48,13 +48,35 @@
 #  index_users_on_slack_id          (slack_id) UNIQUE
 #
 one:
-  email: MyString
-  display_name: MyString
-  projects_count: 1
-  votes_count: 1
+  email: user_one@example.com
+  display_name: User One
+  projects_count: 0
+  votes_count: 0
+  api_key: test_api_key_one
+  slack_id: U00000001
 
 two:
-  email: MyString
-  display_name: MyString
-  projects_count: 1
-  votes_count: 1
+  email: user_two@example.com
+  display_name: User Two
+  projects_count: 0
+  votes_count: 0
+  api_key: test_api_key_two
+  slack_id: U00000002
+
+verified_user:
+  email: verified@example.com
+  display_name: Verified User
+  projects_count: 0
+  votes_count: 0
+  verification_status: verified
+  ysws_eligible: true
+  slack_id: U00000003
+
+ineligible_user:
+  email: ineligible@example.com
+  display_name: Ineligible User
+  projects_count: 0
+  votes_count: 0
+  verification_status: needs_submission
+  ysws_eligible: false
+  slack_id: U00000004
