@@ -48,15 +48,15 @@ group :development, :test do
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 
-  # Bullet gem to catch N+1
-  gem "bullet"
-
   # Annoate for annotating, ig.
   gem "annotaterb"
 
   # Load .env
   gem "dotenv-rails"
 end
+
+# Bullet gem to catch N+1
+gem "bullet"
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
@@ -118,8 +118,15 @@ gem "norairrecord"
 gem "awesome_print"
 gem "activeinsights"
 
+# Database-level advisory locks for preventing race conditions across processes
+gem "with_advisory_lock"
+
 gem "rack-attack"
 gem "query_count"
+
+# for recommendations
+gem "disco"
+gem "faiss"
 
 # Rack Mini Profiler gem for performance monitoring
 # gem "rack-mini-profiler"

@@ -23,7 +23,7 @@ class ShipCertService
           readme: project.readme_url
         },
         metadata: {
-          devTime: project.time ? "#{project.time.hours}h #{project.time.minutes}m" : nil
+          devTime: project.duration_seconds
         }
       }
     }

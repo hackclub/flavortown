@@ -16,7 +16,7 @@ class Api::V1::StoreController < Api::BaseController
       type: String,
       show_in_carousel: "Boolean",
       accessory_tag: String,
-      agh_contents: Array,
+      agh_contents: "String || JSON",
       attached_shop_item_ids: Array,
       buyable_by_self: "Boolean",
       long_description: String,
@@ -26,24 +26,24 @@ class Api::V1::StoreController < Api::BaseController
       image_url: String,
 
       enabled: {
-        au: "Boolean",
-        ca: "Boolean",
-        eu: "Boolean",
-        in: "Boolean",
-        uk: "Boolean",
-        us: "Boolean",
-        xx: "Boolean"
+        enabled_au: "Boolean",
+        enabled_ca: "Boolean",
+        enabled_eu: "Boolean",
+        enabled_in: "Boolean",
+        enabled_uk: "Boolean",
+        enabled_us: "Boolean",
+        enabled_xx: "Boolean"
       },
 
       ticket_cost: {
-        base_cost: Integer,
-        au: Integer,
-        ca: Integer,
-        eu: Integer,
-        in: Integer,
-        uk: Integer,
-        us: Integer,
-        xx: Integer
+        base_cost: Float,
+        au: Float,
+        ca: Float,
+        eu: Float,
+        in: Float,
+        uk: Float,
+        us: Float,
+        xx: Float
       }
     }
 

@@ -93,3 +93,6 @@ application.register("snow", SnowController);
 
 import UploadFormController from "./upload_form_controller";
 application.register("upload-form", UploadFormController);
+
+import CardSoundController from "./card_sound_controller";
+application.register("card-sound", CardSoundController);

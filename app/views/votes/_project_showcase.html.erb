@@ -14,7 +14,7 @@
               </div>
               <div class="votes-new__project-card-stat">
                   <%= inline_svg_tag "icons/time.svg" %>
-                  <span><%= "#{project.time.hours}hr #{project.time.minutes}min" %></span>
+                  <span><%= format_seconds(project.duration_seconds) %></span>
               </div>
           </div>
       </div>

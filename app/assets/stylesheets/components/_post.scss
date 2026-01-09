@@ -3,11 +3,6 @@
   border-radius: calc(var(--border-radius) * 1.8);
   background-clip: padding-box;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-m);
-  padding: var(--space-xl);
-  color: var(--color-bg);
   max-width: 800px;
   background: var(--color-brown-500)
     repeating-conic-gradient(
@@ -17,6 +12,14 @@
     );
   background-size: 120px 120px;
   box-shadow: var(--shadow);
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    padding: var(--space-xl);
+    color: var(--color-bg);
+  }
 
   &--deleted {
     border-color: #dc2626;
@@ -571,61 +574,51 @@
   }
 
   &--git_commit {
-    background-color: var(--color-brown-400);
-    border-color: var(--color-brown-300);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    margin: 0.5em 0;
 
-    .post__avatar {
-      background-color: var(--color-brown-300);
+    .post__git-commit-message a {
+      color: var(--color-brown-500);
+      font-size: 2rem;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 900px) {
+        font-size: 1.5rem;
+      }
     }
+
+    .post__git-commit-details {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.25rem;
+      color: var(--color-brown-400);
+
+      @media (max-width: 900px) {
+        font-size: 1rem;
+      }
+    }
+
     &::after {
-      border-color: var(--color-brown-300);
-      background-color: var(--color-brown-500);
+      border-color: transparent;
+      background-color: var(--color-tan-300);
+      box-shadow: none;
+      top: -0.25em;
+      left: -5.6em;
+      width: 35px;
+      height: 35px;
     }
+
     &::before {
-      -webkit-mask: url("icons/code.svg") no-repeat center / 40px 40px;
-      mask: url("icons/code.svg") no-repeat center / 40px 40px;
-    }
-  }
-
-  &__git-commit {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-s);
-  }
-
-  &__git-commit-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-m);
-  }
-
-  &__git-commit-sha {
-    background: rgba(0, 0, 0, 0.2);
-    padding: var(--space-xs) var(--space-s);
-    border-radius: calc(var(--border-radius) / 2);
-    font-family: monospace;
-    font-size: var(--font-size-m);
-  }
-
-  &__git-commit-stats {
-    font-size: var(--font-size-m);
-    opacity: 0.8;
-  }
-
-  &__git-commit-message {
-    font-size: var(--font-size-xl);
-    font-weight: 600;
-  }
-
-  &__git-commit-link {
-    color: inherit;
-    opacity: 0.8;
-    font-size: var(--font-size-m);
-    text-decoration: none;
-
-    &:hover {
-      opacity: 1;
-      text-decoration: underline;
+      -webkit-mask: url("icons/code.svg") no-repeat center / 30px 30px;
+      mask: url("icons/code.svg") no-repeat center / 30px 30px;
+      background-color: var(--color-brown-400);
+      left: -5.1em;
     }
   }
 
@@ -664,5 +657,134 @@
     width: 16px;
     height: 16px;
     fill: currentColor;
+  }
+
+  // Explore page variants
+  &--theme-fire {
+    background-color: var(--color-red-400);
+    border-color: var(--color-red-300);
+
+    .post__avatar {
+      background-color: var(--color-red-300);
+    }
+    .post__attachment {
+      background: var(--color-red-300);
+    }
+    .post__viewport {
+      background: var(--color-red-300);
+    }
+    .post__chevron {
+      background: var(--color-red-400);
+    }
+    .post__dot.is-active {
+      background: var(--color-red-400);
+    }
+    &::after {
+      border-color: var(--color-red-300);
+      background-color: var(--color-red-450);
+    }
+    .comments-section {
+      --comments-bg-col: var(--color-red-500);
+      --comments-text-col: var(--color-red-300);
+    }
+    .comment-form {
+      --comment-box-col: var(--color-red-300);
+    }
+  }
+
+  &--theme-devlog {
+    background-color: var(--color-green-400);
+    border-color: var(--color-green-300);
+
+    .post__avatar {
+      background-color: var(--color-green-300);
+    }
+    .post__attachment {
+      background: var(--color-green-300);
+    }
+    .post__viewport {
+      background: var(--color-green-300);
+    }
+    .post__chevron {
+      background: var(--color-green-300);
+    }
+    .post__dot.is-active {
+      background: var(--color-green-300);
+    }
+    &::after {
+      border-color: var(--color-green-300);
+      background-color: var(--color-green-450);
+    }
+    .comments-section {
+      --comments-bg-col: var(--color-green-500);
+      --comments-text-col: var(--color-green-300);
+    }
+    .comment-form {
+      --comment-box-col: var(--color-green-300);
+    }
+  }
+
+  &--theme-certified {
+    background-color: var(--color-blue-400);
+    border-color: var(--color-teal-400);
+
+    .post__avatar {
+      background-color: var(--color-blue-300);
+    }
+    .post__attachment {
+      background: var(--color-blue-300);
+    }
+    .post__viewport {
+      background: var(--color-blue-300);
+    }
+    .post__chevron {
+      background: var(--color-blue-400);
+    }
+    .post__dot.is-active {
+      background: var(--color-blue-400);
+    }
+    &::after {
+      border-color: var(--color-teal-400);
+      background-color: var(--color-blue-300);
+    }
+    .comments-section {
+      --comments-bg-col: var(--color-blue-300);
+      --comments-text-col: var(--color-blue-500);
+    }
+    .comment-form {
+      --comment-box-col: var(--color-teal-400);
+    }
+  }
+
+  &--theme-ship {
+    background-color: var(--color-yellow-500);
+    border-color: var(--color-yellow-300);
+
+    .post__avatar {
+      background-color: var(--color-yellow-400);
+    }
+    .post__attachment {
+      background: var(--color-yellow-400);
+    }
+    .post__viewport {
+      background: var(--color-yellow-400);
+    }
+    .post__chevron {
+      background: var(--color-yellow-450);
+    }
+    .post__dot.is-active {
+      background: var(--color-yellow-450);
+    }
+    &::after {
+      border-color: var(--color-yellow-300);
+      background-color: var(--color-yellow-450);
+    }
+    .comments-section {
+      --comments-bg-col: var(--color-yellow-450);
+      --comments-text-col: var(--color-yellow-600);
+    }
+    .comment-form {
+      --comment-box-col: var(--color-yellow-300);
+    }
   }
 }

@@ -7,6 +7,7 @@
 #  demo_url           :text
 #  description        :text
 #  devlogs_count      :integer          default(0), not null
+#  duration_seconds   :integer          default(0), not null
 #  marked_fire_at     :datetime
 #  memberships_count  :integer          default(0), not null
 #  project_categories :string           default([]), is an Array
@@ -35,6 +36,8 @@
 class Project < ApplicationRecord
     include AASM
     include SoftDeletable
+
+    has_recommended :projects # more projects like this...
 
     after_create :notify_slack_channel
 
@@ -122,15 +125,12 @@ class Project < ApplicationRecord
       GitRepoService.is_cloneable? repo_url
     end
 
-    def time
-        total_seconds = Rails.cache.fetch("project/#{id}/time_seconds", expires_in: 10.minutes) do
-          Post::Devlog.where(id: posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")).sum(:duration_seconds) || 0
-        end
-        total_hours = total_seconds / 3600.0
-        hours = total_hours.to_i
-        minutes = ((total_hours - hours) * 60).to_i
+    def calculate_duration_seconds
+        posts.of_devlogs(join: true).where(post_devlogs: { deleted_at: nil }).sum("post_devlogs.duration_seconds")
+    end
 
-        OpenStruct.new(hours: hours, minutes: minutes)
+    def recalculate_duration_seconds!
+        update_column(:duration_seconds, calculate_duration_seconds)
     end
 
     # this can probaby be better?

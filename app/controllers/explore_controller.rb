@@ -3,7 +3,8 @@ class ExploreController < ApplicationController
     scope = Post.of_devlogs(join: true)
                 .where(post_devlogs: { tutorial: false })
                 .where.not(user_id: current_user&.id)
-                .includes(:user, :project, postable: { attachments_attachments: :blob })
+                .includes(:user, :project)
+                .preload(:postable)
                 .order(created_at: :desc)
 
     scope = scope.where(post_devlogs: { deleted_at: nil }) unless current_user&.can_see_deleted_devlogs?
@@ -15,7 +16,7 @@ class ExploreController < ApplicationController
       format.json do
         html = @devlogs.map do |post|
           render_to_string(
-            PostComponent.new(post: post, current_user: current_user),
+            PostComponent.new(post: post, current_user: current_user, theme: :explore_mixed),
             layout: false,
             formats: [ :html ]
           )
@@ -64,7 +65,7 @@ class ExploreController < ApplicationController
 
     scope = current_user.followed_projects
                         .where(tutorial: false)
-                        .includes(:banner_attachment, posts: :postable)
+                        .with_attached_banner
                         .order(created_at: :desc)
 
     @pagy, @projects = pagy(scope)
@@ -102,7 +103,7 @@ class ExploreController < ApplicationController
 
     @projects_with_counts = Project
       .where(id: project_ids_with_usage)
-      .includes(banner_attachment: :blob)
+      .with_attached_banner
       .index_by(&:id)
       .values_at(*project_ids_with_usage)
       .compact

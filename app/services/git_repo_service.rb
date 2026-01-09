@@ -1,7 +1,20 @@
 require "base64"
 
 class GitRepoService
+  # Normalizes GitHub URLs by stripping /tree/, /blob/, /commit/, etc. to get the base repo URL
+  def self.normalize_github_url(url)
+    return url unless url.present?
+
+    # Match GitHub URLs with paths like /tree/branch, /blob/branch/file, /commit/sha, etc.
+    if url =~ %r{\Ahttps?://github\.com/([^/]+)/([^/]+?)(?:\.git)?(?:/(?:tree|blob|commit|pull|issues|releases|actions|wiki)(?:/|$).*)?(?:\.git)?\z}i
+      "https://github.com/#{$1}/#{$2}.git"
+    else
+      url
+    end
+  end
+
   def self.is_cloneable?(repo_url, force: false)
+    repo_url = normalize_github_url(repo_url)
     cache_key = "clone_check_#{Base64.encode64(repo_url)}"
     Rails.cache.delete(cache_key) if force
     Rails.cache.fetch(cache_key, expires_in: 1.minute) do

@@ -23,7 +23,13 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
           likes_count: Integer,
           scrapbook_url: String,
           created_at: String,
-          updated_at: String
+          updated_at: String,
+          media: [
+            {
+              url: String,
+              content_type: String
+            }
+          ]
         }
       ]
     },
@@ -36,12 +42,19 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
       likes_count: Integer,
       scrapbook_url: String,
       created_at: String,
-      updated_at: String
+      updated_at: String,
+      media: [
+        {
+          url: String,
+          content_type: String
+        }
+      ]
     }
   }
 
   def index
     devlogs = Post::Devlog.joins(:post)
+                          .includes(attachments_attachments: :blob)
                           .where(posts: { project_id: params[:project_id] })
                           .order(created_at: :desc)
 
@@ -50,6 +63,7 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
 
   def show
     @devlog = Post::Devlog.joins(:post)
+                          .includes(attachments_attachments: :blob)
                           .where(posts: { project_id: params[:project_id] })
                           .find_by!(id: params[:id])
 

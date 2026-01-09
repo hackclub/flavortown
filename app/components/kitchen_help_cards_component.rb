@@ -4,26 +4,43 @@ class KitchenHelpCardsComponent < ApplicationComponent
       h2(class: "kitchen-help__title") { "Need any help?" }
       div(class: "kitchen-help__grid") do
         div(class: "state-card state-card--neutral kitchen-help-card") do
-          div(class: "state-card__title") { "Help channel on Slack" }
+          div(class: "state-card__status-pill") do
+            div(class: "state-card__icon-circle") do
+              inline_svg_tag("icons/info.svg", alt: "")
+            end
+          end
+          div(class: "state-card__title") { "View the FAQ" }
           div(class: "state-card__description") do
-            "If you're stuck, or have any questions about Flavortown, join our Slack community and ask away in the #flavortown-help channel."
+            "The FAQ (on Slack) answers most questions about Flavortown! Give it a read to find out more about how Flavortown works."
           end
           div(class: "state-card__cta") do
             a(href: "https://hackclub.slack.com/app_redirect?channel=C09MATKQM8C", class: "btn btn--borderless btn--bg_yellow", target: "_blank") do
-              span { "Go to #flavortown-help" }
-              # raw helpers.inline_svg_tag("icons/right-arrow.svg")
+              span { "Go to Flavortown FAQ" }
             end
           end
         end
 
         div(class: "state-card state-card--neutral kitchen-help-card") do
-          div(class: "state-card__title") { "Email support" }
+          div(class: "state-card__status-pill") do
+            div(class: "state-card__icon-circle") do
+              inline_svg_tag("icons/help.svg", alt: "")
+            end
+          end
+          div(class: "state-card__title") { "Help channel on Slack" }
           div(class: "state-card__description") do
-            plain "If you're having issues with Slack (or just prefer email), you can send a message to "
-            a(href: "mailto:flavortown@hackclub.com") { "flavortown@hackclub.com" }
-            plain "."
+            "Still stuck after reading the FAQ? Ask our community in the #flavortown-help channel."
+          end
+          div(class: "state-card__cta") do
+            a(href: "https://hackclub.slack.com/app_redirect?channel=C09MATKQM8C", class: "btn btn--borderless btn--bg_yellow", target: "_blank") do
+              span { "Go to #flavortown-help" }
+            end
           end
         end
+      end
+      p(class: "kitchen-help__paragraph") do
+        plain "If you're unable to use Slack, you can also send an e-mail to "
+        a(href: "mailto:flavortown@hackclub.com") { "flavortown@hackclub.com" }
+        plain "."
       end
     end
   end

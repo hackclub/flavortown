@@ -35,11 +35,13 @@ class Post < ApplicationRecord
     after_commit :invalidate_project_time_cache, on: [ :create, :destroy ]
     after_commit :increment_devlogs_count, on: :create
     after_commit :decrement_devlogs_count, on: :destroy
+    after_commit :update_project_duration_seconds, on: [ :create, :destroy ]
 
-    # These are automatically generated scopes for each postable type:
-    # ie. Post.of_devlogs
-    # ie. Post.of_devlogs(join: true).where(post_devlogs: { tutorial: false })
     Postable.types.each do |type_class|
+      # These are automatically generated scopes for each postable type:
+      # ie. Post.of_devlogs
+      # ie. Post.of_devlogs(join: true).where(post_devlogs: { tutorial: false })
+
       scope_name = "of_#{type_class.demodulize.underscore.pluralize}"
       table_name = type_class.constantize.table_name
 
@@ -48,6 +50,13 @@ class Post < ApplicationRecord
         scope = scope.joins("INNER JOIN #{table_name} ON posts.postable_id = #{table_name}.id") if join
         scope
       end
+
+      # Also define a belongs_to for each type so we can eager load without polymorphic errors.
+      # Use: Post.of_devlogs.includes(devlog: { attachments_attachments: :blob })
+      belongs_to type_class.demodulize.underscore.to_sym,
+                 class_name: type_class,
+                 foreign_key: :postable_id,
+                 optional: true
     end
 
     # For multiple types, use .with to create a CTE with UNION ALL:
@@ -77,5 +86,11 @@ class Post < ApplicationRecord
       return unless postable_type == "Post::Devlog"
 
       Project.unscoped.where(id: project_id).update_counters(devlogs_count: -1)
+    end
+
+    def update_project_duration_seconds
+      return unless postable_type == "Post::Devlog"
+
+      project&.recalculate_duration_seconds!
     end
 end

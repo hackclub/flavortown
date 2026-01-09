@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_01_174716) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_05_213638) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -174,6 +174,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_01_174716) do
     t.index ["devlog_id", "version_number"], name: "index_devlog_versions_on_devlog_id_and_version_number", unique: true
     t.index ["devlog_id"], name: "index_devlog_versions_on_devlog_id"
     t.index ["user_id"], name: "index_devlog_versions_on_user_id"
+  end
+
+  create_table "disco_recommendations", force: :cascade do |t|
+    t.string "context"
+    t.datetime "created_at", null: false
+    t.bigint "item_id"
+    t.string "item_type"
+    t.float "score"
+    t.bigint "subject_id"
+    t.string "subject_type"
+    t.datetime "updated_at", null: false
+    t.index ["item_type", "item_id"], name: "index_disco_recommendations_on_item"
+    t.index ["subject_type", "subject_id"], name: "index_disco_recommendations_on_subject"
   end
 
   create_table "extension_usages", force: :cascade do |t|
@@ -365,6 +378,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_01_174716) do
     t.text "demo_url"
     t.text "description"
     t.integer "devlogs_count", default: 0, null: false
+    t.integer "duration_seconds", default: 0, null: false
     t.string "fire_letter_id"
     t.datetime "marked_fire_at"
     t.bigint "marked_fire_by_id"
@@ -574,6 +588,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_01_174716) do
     t.integer "projects_count"
     t.string "ref"
     t.string "regions", default: [], array: true
+    t.boolean "send_notifications_for_followed_devlogs", default: true, null: false
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
     t.enum "shop_region", enum_type: "shop_region_type"

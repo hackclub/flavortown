@@ -47,6 +47,12 @@
       margin: 0 auto 2em auto;
       position: relative;
 
+      .post__content {
+        content-visibility: auto;
+        contain-intrinsic-size: 1px 600px;
+        contain: layout paint style;
+      }
+
       &::after {
         left: auto;
         right: -2.5em;
@@ -59,6 +65,16 @@
         top: -0.75em;
         -webkit-mask: url("icons/paper.svg") no-repeat center / 40px 40px;
         mask: url("icons/paper.svg") no-repeat center / 40px 40px;
+      }
+
+      @media (max-width: 900px) {
+        &::after {
+          display: none;
+        }
+
+        &::before {
+          display: none;
+        }
       }
     }
   }

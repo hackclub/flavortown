@@ -1,132 +1,135 @@
-<article class="post <%= variant_class %><%= ' post--deleted' if deleted? %>">
-  <% if deleted? %>
-    <div class="post__deleted-banner">
-      <strong>🚨 DELETED DEVLOG</strong>
-      <span>Deleted on <%= postable.deleted_at.strftime("%B %d, %Y at %I:%M %p") %></span>
-      <span class="post__deleted-banner-note">This content is only visible to admins/fraud review</span>
+<% if git_commit? %>
+  <article class="post post--git_commit">
+    <%= render "shared/inspector", record: postable %>
+    <div class="post__git-commit-message">
+      <%= link_to postable.title, postable.url, target: "_blank", rel: "noopener" %>
     </div>
-  <% end %>
-  <header class="post__header">
-    <div class="post__avatar">
-    <%= image_tag post.user&.avatar || "https://ca.slack-edge.com/T0266FRGM-U07GZPGJX1G-g98be5e77f20-512", alt: author_name, class: "post__avatar" %>
+    <div class="post__git-commit-details">
+      <div class="post__git-commit-time"><%= posted_at_text %> ago</div>
+      <code class="post__git-commit-sha">(<%= postable.short_sha %>)</code>
     </div>
-    <div class="post__meta">
-      <div class="post__author">
-
-        <% if post.user.present? %>
-          <%= link_to author_name, user_path(post.user) %><%= " ⚡" if post.user&.admin? %>
-        <% else %>
-          <%= author_name %><%= " ⚡" if post.user&.admin? %>
-        <% end %>
-         <% if helpers.current_user&.admin? && post.user %>
-          <span style="border: 1px solid orange; background-color: #fff3e0; border-radius: 4px; padding: 2px 4px; margin-left: 4px;">
-            <%= link_to "🔨", helpers.admin_user_path(post.user), title: "Admin profile", style: "text-decoration: none;" %>
-            <%= link_to "🤓", helpers.admin_user_magic_link_path(post.user), title: "Generate magic link", style: "text-decoration: none;" %>
-          </span>
-      <% end %>
-        <span style="opacity: 0.8;"><%= author_activity %></span>
-        <% if project_title.present? %>
-          <%= link_to project_title, project_path(post.project) %>
-        <% else %>
-          <span>something</span>
-        <% end %>
-      </div>
-      <div class="post__time"><%= posted_at_text %> ago</div>
-      <% if duration_text.present? %>
-        <div class="post__duration"><%= duration_text %> logged</div>
-      <% end %>
-    </div>
-  </header>
-
-  <%= render "shared/inspector", record: postable %>
-  <%= render "shared/inspector", record: post.user if post.user %>
-
-  <% if ship_event? %>
-    <h2 class="post__ship-title">Shipped this project!</h2>
-  <% end %>
-
-  <% if fire_event? %>
-    <h2 class="post__fire-title">Tagged your project as well cooked!</h2>
-  <% end %>
-
-  <% if git_commit? %>
-    <div class="post__git-commit">
-      <div class="post__git-commit-header">
-        <code class="post__git-commit-sha"><%= postable.short_sha %></code>
-        <% if postable.stats_summary.present? %>
-          <span class="post__git-commit-stats"><%= postable.stats_summary %></span>
-        <% end %>
-      </div>
-      <div class="post__git-commit-message"><%= postable.title %></div>
-      <% if postable.url.present? %>
-        <%= link_to "View commit →", postable.url, target: "_blank", rel: "noopener", class: "post__git-commit-link" %>
-      <% end %>
-    </div>
-  <% end %>
-
-  <% if postable.respond_to?(:body) && postable.body.present? && !git_commit? %>
-    <div class="post__body"><%= helpers.md postable.body %></div>
-  <% end %>
-
-  <% if scrapbook_url.present? %>
-    <%= link_to scrapbook_url, target: "_blank", rel: "noopener", class: "post__scrapbook-link", title: "View on Slack" do %>
-      <%= helpers.inline_svg_tag "icons/slack.svg", class: "post__scrapbook-icon" %>
+    <% if postable.stats_summary.present? %>
+      <span class="post__git-commit-stats"><%= postable.stats_summary %></span>
     <% end %>
-  <% end %>
+  </article>
+<% else %>
+  <article class="post <%= variant_class %> <%= theme_class %><%= ' post--deleted' if deleted? %>">
+    <div class="post__content">
+      <% if deleted? %>
+        <div class="post__deleted-banner">
+          <strong>🚨 DELETED DEVLOG</strong>
+          <span>Deleted on <%= postable.deleted_at.strftime("%B %d, %Y at %I:%M %p") %></span>
+          <span class="post__deleted-banner-note">This content is only visible to admins/fraud review</span>
+        </div>
+      <% end %>
+      <header class="post__header">
+        <div class="post__avatar">
+        <%= image_tag post.user&.avatar || "https://ca.slack-edge.com/T0266FRGM-U07GZPGJX1G-g98be5e77f20-512", alt: author_name, class: "post__avatar" %>
+        </div>
+        <div class="post__meta">
+          <div class="post__author">
 
-  <% if attachments.any? %>
-    <div class="post__attachments" data-controller="post-attachments">
-      <div class="post__viewport">
-        <button type="button" class="post__chevron post__chevron--prev" data-post-attachments-target="prevButton" data-action="post-attachments#prev" aria-label="Previous" hidden>
-          <%= helpers.inline_svg_tag "icons/chevron-down.svg", class: "post__chevron-icon", focusable: "false", aria: { hidden: true } %>
-        </button>
-        <div class="post__track" data-post-attachments-target="track">
-          <% attachments.each do |att| %>
-            <div class="post__slide">
-              <% if gif?(att) %>
-                <img class="post__attachment post__attachment--image post__image" alt="Attachment" src="<%= url_for(att) %>">
-              <% elsif image?(att) %>
-                <picture class="post__attachment post__attachment--image">
-                  <source type="image/webp" srcset="<%= url_for(att.variant(:medium)) %>">
-                  <img class="post__image" alt="Attachment" src="<%= url_for(att) %>">
-                </picture>
-              <% elsif video?(att) %>
-                <video class="post__attachment post__attachment--video" controls src="<%= url_for(att) %>"></video>
-              <% else %>
-                <%= link_to url_for(att), class: "post__attachment post__attachment--file", target: "_blank", rel: "noopener" do %>
-                  <%= helpers.inline_svg_tag("icons/paper.svg") %>
-                  <span><%= File.basename(att.filename.to_s) %></span>
-                <% end %>
+            <% if post.user.present? %>
+              <%= link_to author_name, user_path(post.user) %><%= " ⚡" if post.user&.admin? %>
+            <% else %>
+              <%= author_name %><%= " ⚡" if post.user&.admin? %>
+            <% end %>
+            <% if helpers.current_user&.admin? && post.user %>
+              <span style="border: 1px solid orange; background-color: #fff3e0; border-radius: 4px; padding: 2px 4px; margin-left: 4px;">
+                <%= link_to "🔨", helpers.admin_user_path(post.user), title: "Admin profile", style: "text-decoration: none;" %>
+                <%= link_to "🤓", helpers.admin_user_magic_link_path(post.user), title: "Generate magic link", style: "text-decoration: none;" %>
+              </span>
+          <% end %>
+            <span style="opacity: 0.8;"><%= author_activity %></span>
+            <% if project_title.present? %>
+              <%= link_to project_title, project_path(post.project) %>
+            <% else %>
+              <span>something</span>
+            <% end %>
+          </div>
+          <div class="post__time"><%= posted_at_text %> ago</div>
+          <% if duration_text.present? %>
+            <div class="post__duration"><%= duration_text %> logged</div>
+          <% end %>
+        </div>
+      </header>
+
+      <%= render "shared/inspector", record: postable %>
+      <%= render "shared/inspector", record: post.user if post.user %>
+
+      <% if ship_event? %>
+        <h2 class="post__ship-title">Shipped this project!</h2>
+      <% end %>
+
+      <% if fire_event? %>
+        <h2 class="post__fire-title">Tagged your project as well cooked!</h2>
+      <% end %>
+
+      <% if postable.respond_to?(:body) && postable.body.present? && !git_commit? %>
+        <div class="post__body"><%= helpers.md postable.body %></div>
+      <% end %>
+
+      <% if scrapbook_url.present? %>
+        <%= link_to scrapbook_url, target: "_blank", rel: "noopener", class: "post__scrapbook-link", title: "View on Slack" do %>
+          <%= helpers.inline_svg_tag "icons/slack.svg", class: "post__scrapbook-icon" %>
+        <% end %>
+      <% end %>
+
+      <% if attachments.any? %>
+        <div class="post__attachments" data-controller="post-attachments">
+          <div class="post__viewport">
+            <button type="button" class="post__chevron post__chevron--prev" data-post-attachments-target="prevButton" data-action="post-attachments#prev" aria-label="Previous" hidden>
+              <%= helpers.inline_svg_tag "icons/chevron-down.svg", class: "post__chevron-icon", focusable: "false", aria: { hidden: true } %>
+            </button>
+            <div class="post__track" data-post-attachments-target="track">
+              <% attachments.each do |att| %>
+                <div class="post__slide">
+                  <% if gif?(att) %>
+                    <img class="post__attachment post__attachment--image post__image" alt="Attachment" src="<%= url_for(att) %>">
+                  <% elsif image?(att) %>
+                    <picture class="post__attachment post__attachment--image">
+                      <source type="image/webp" srcset="<%= url_for(att.variant(:medium)) %>">
+                      <img class="post__image" alt="Attachment" src="<%= url_for(att) %>">
+                    </picture>
+                  <% elsif video?(att) %>
+                    <video class="post__attachment post__attachment--video" controls src="<%= url_for(att) %>"></video>
+                  <% else %>
+                    <%= link_to url_for(att), class: "post__attachment post__attachment--file", target: "_blank", rel: "noopener" do %>
+                      <%= helpers.inline_svg_tag("icons/paper.svg") %>
+                      <span><%= File.basename(att.filename.to_s) %></span>
+                    <% end %>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+            <button type="button" class="post__chevron post__chevron--next" data-post-attachments-target="nextButton" data-action="post-attachments#next" aria-label="Next" hidden>
+              <%= helpers.inline_svg_tag "icons/chevron-down.svg", class: "post__chevron-icon", focusable: "false", aria: { hidden: true } %>
+            </button>
+            <div class="post__indicators" data-post-attachments-target="indicators" hidden></div>
+          </div>
+        </div>
+      <% end %>
+
+      <% if devlog? %>
+        <div class="post__interactions">
+          <%= render "likes/button", likeable: postable %>
+          <div class="comments-count">
+            <%= helpers.inline_svg_tag("icons/paper.svg") %>
+            <span class="comments-count__count"><%= commentable.comments_count %></span>
+          </div>
+          <% if can_edit? %>
+            <div class="post__actions" style="margin-left: auto; display: flex; gap: 0.5rem;">
+              <%= link_to edit_devlog_path, class: "post__action-btn", title: "Edit devlog" do %>
+                <%= helpers.inline_svg_tag("icons/pencil.svg", class: "post__action-icon") %>
+              <% end %>
+              <%= button_to delete_devlog_path, method: :delete, class: "post__action-btn post__action-btn--danger", title: "Delete devlog", form: { onsubmit: "return confirm('Are you sure you want to delete devlog #' + #{postable.id.to_json} + '? This action cannot be undone.')" } do %>
+                <%= helpers.inline_svg_tag("icons/close.svg", class: "post__action-icon") %>
               <% end %>
             </div>
           <% end %>
         </div>
-        <button type="button" class="post__chevron post__chevron--next" data-post-attachments-target="nextButton" data-action="post-attachments#next" aria-label="Next" hidden>
-          <%= helpers.inline_svg_tag "icons/chevron-down.svg", class: "post__chevron-icon", focusable: "false", aria: { hidden: true } %>
-        </button>
-        <div class="post__indicators" data-post-attachments-target="indicators" hidden></div>
-      </div>
-    </div>
-  <% end %>
-
-  <% if devlog? %>
-    <div class="post__interactions">
-      <%= render "likes/button", likeable: postable %>
-      <div class="comments-count">
-        <%= helpers.inline_svg_tag("icons/paper.svg") %>
-        <span class="comments-count__count"><%= commentable.comments_count %></span>
-      </div>
-      <% if can_edit? %>
-        <div class="post__actions" style="margin-left: auto; display: flex; gap: 0.5rem;">
-          <%= link_to edit_devlog_path, class: "post__action-btn", title: "Edit devlog" do %>
-            <%= helpers.inline_svg_tag("icons/pencil.svg", class: "post__action-icon") %>
-          <% end %>
-          <%= button_to delete_devlog_path, method: :delete, class: "post__action-btn post__action-btn--danger", title: "Delete devlog", form: { onsubmit: "return confirm('Are you sure you want to delete devlog #' + #{postable.id.to_json} + '? This action cannot be undone.')" } do %>
-            <%= helpers.inline_svg_tag("icons/close.svg", class: "post__action-icon") %>
-          <% end %>
-        </div>
+        <%= render "comments/section", commentable: postable %>
       <% end %>
     </div>
-    <%= render "comments/section", commentable: postable %>
-  <% end %>
-</article>
+  </article>
+<% end %>
