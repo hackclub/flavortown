@@ -1,4 +1,4 @@
-<% content_for :title, "#{@project.title} - Flavortown" %>
+<% content_for :title, @project.title %>
 <% content_for :og_title, @project.title %>
 <% content_for :og_description, truncate(@project.description.to_s, length: 200) %>
 <% content_for :og_image, url_for(@project.banner) if @project.banner.attached? %>
