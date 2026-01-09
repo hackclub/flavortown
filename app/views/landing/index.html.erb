@@ -1,4 +1,5 @@
 <% content_for :twitter_card, "summary_large_image" %>
+<% content_for :og_image, og_image_url('home', format: :png) %>
 
 <%= content_for :stylesheets do %>
   <%= stylesheet_link_tag "landing", "data-turbo-track": "reload" %>

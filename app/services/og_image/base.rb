@@ -16,10 +16,13 @@ module OgImage
     private
 
     def placeholder_image
+      require "open-uri"
+      URI.open("https://cataas.com/cat?width=800&height=600").read
+    rescue StandardError
       path = Rails.root.join("tmp", "mock_banner_#{SecureRandom.hex(4)}.png").to_s
-      MiniMagick::Tool::Convert.new do |convert|
+      MiniMagick::Tool.new("convert") do |convert|
         convert.size("800x600")
-        convert << "gradient:#4a90d9-#357abd"
+        convert << "xc:#e8d5b7"
         convert << path
       end
       data = File.binread(path)
@@ -64,10 +67,25 @@ module OgImage
 
     protected
 
-    def create_canvas(gradient_start: "#1a1a2e", gradient_end: "#16213e")
-      MiniMagick::Tool::Convert.new do |convert|
+    def create_canvas(gradient_start: "#4d3228", gradient_end: "#5c4033")
+      MiniMagick::Tool.new("convert") do |convert|
         convert.size("#{WIDTH}x#{HEIGHT}")
         convert << "gradient:#{gradient_start}-#{gradient_end}"
+        convert << temp_path(:canvas)
+      end
+      @image = MiniMagick::Image.open(temp_path(:canvas))
+    end
+
+    def create_patterned_canvas(bg_color: "#e8d5b7")
+      pattern_path = Rails.root.join("app", "assets", "images", "mask", "pattern.png").to_s
+      MiniMagick::Tool.new("convert") do |convert|
+        convert.size("#{WIDTH}x#{HEIGHT}")
+        convert << "xc:#{bg_color}"
+        convert << pattern_path
+        convert.gravity("Center")
+        convert.resize("#{WIDTH}x#{HEIGHT}!")
+        convert.compose("Multiply")
+        convert.composite
         convert << temp_path(:canvas)
       end
       @image = MiniMagick::Image.open(temp_path(:canvas))
@@ -94,9 +112,13 @@ module OgImage
       lines.size
     end
 
-    def place_image(attachment_or_path, x:, y:, width:, height:, gravity: "NorthWest")
-      thumb = process_image(attachment_or_path, width, height)
+    def place_image(attachment_or_path, x:, y:, width:, height:, gravity: "NorthWest", rounded: false, radius: 20, cover: true)
+      thumb = process_image(attachment_or_path, width, height, cover: cover)
       return unless thumb
+
+      if rounded
+        thumb = apply_rounded_corners(thumb, width, height, radius)
+      end
 
       result = image.composite(thumb) do |c|
         c.gravity gravity
@@ -108,27 +130,60 @@ module OgImage
       Rails.logger.warn("OgImage: Failed to place image: #{e.message}")
     end
 
+    def apply_rounded_corners(img, width, height, radius)
+      mask_path = temp_path("mask_#{SecureRandom.hex(4)}")
+      rounded_path = temp_path("rounded_#{SecureRandom.hex(4)}")
+
+      MiniMagick::Tool.new("convert") do |convert|
+        convert.size("#{width}x#{height}")
+        convert << "xc:none"
+        convert.fill("white")
+        convert.draw("roundrectangle 0,0,#{width - 1},#{height - 1},#{radius},#{radius}")
+        convert << mask_path
+      end
+
+      MiniMagick::Tool.new("convert") do |convert|
+        convert << img.path
+        convert << mask_path
+        convert.alpha("set")
+        convert.compose("DstIn")
+        convert.composite
+        convert << rounded_path
+      end
+
+      MiniMagick::Image.open(rounded_path)
+    end
+
     def font_path
       @font_path ||= Rails.root.join("app", "assets", "fonts", "Jua-Regular.ttf").to_s
     end
 
     private
 
-    def process_image(source, width, height)
-      tempfile = Tempfile.new([ "og_img", ".jpg" ])
+    def process_image(source, width, height, cover: true)
+      tempfile = Tempfile.new([ "og_img", ".png" ])
       tempfile.binmode
 
       if source.respond_to?(:download)
         tempfile.write(source.download)
+      elsif source.is_a?(String) && source.start_with?("http")
+        require "open-uri"
+        tempfile.write(URI.open(source).read)
       else
         tempfile.write(File.binread(source))
       end
       tempfile.rewind
 
       thumb = MiniMagick::Image.open(tempfile.path)
-      thumb.resize("#{width}x#{height}^")
-      thumb.gravity("center")
-      thumb.extent("#{width}x#{height}")
+
+      if cover
+        thumb.resize("#{width}x#{height}^")
+        thumb.gravity("center")
+        thumb.background("none")
+        thumb.extent("#{width}x#{height}")
+      else
+        thumb.resize("#{width}x#{height}")
+      end
 
       @temp_files << tempfile
       thumb

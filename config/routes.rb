@@ -38,6 +38,8 @@ class HelperConstraint
 end
 
 Rails.application.routes.draw do
+  # Static OG images
+  get "og/:page", to: "og_images#show", as: :og_image, defaults: { format: :png }
   # Landing
   root "landing#index"
   post "submit_email", to: "landing#submit_email", as: :submit_email
@@ -85,7 +87,8 @@ Rails.application.routes.draw do
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
 
-    resources :og_image_previews, only: [ :index, :show ], defaults: { format: :png }
+    get "og_image_previews", to: "og_image_previews#index"
+    get "og_image_previews/*id", to: "og_image_previews#show", as: :og_image_preview
   end
 
   # Action Mailbox for incoming HCB and tracking emails
