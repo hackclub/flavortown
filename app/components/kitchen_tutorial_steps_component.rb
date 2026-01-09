@@ -90,7 +90,7 @@ class KitchenTutorialStepsComponent < ApplicationComponent
     end
   end
 
-  def completed_count = @completed_steps.count
+  def completed_count = completed_slugs.count
   def total_count = @tutorial_steps.count
 
   def progress_percentage
@@ -111,7 +111,7 @@ class KitchenTutorialStepsComponent < ApplicationComponent
   end
 
   def completed_slugs
-    @completed_slugs ||= @completed_steps.map { |s| s.is_a?(Symbol) ? s : s.slug }
+    @completed_slugs ||= @completed_steps.map { |s| s.is_a?(Symbol) ? s : s.slug } | [ :first_login ]
   end
 
   def deps_satisfied?(step)
