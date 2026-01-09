@@ -2,7 +2,7 @@
   <h1 class="comic-card__caption"><%= caption %></h1>
 
   <div class="comic-card__frame" 
-       onclick="document.getElementById('<%= modal_id %>').showModal()"
+       onclick="document.getElementById('<%= modal_id %>').showModal(); document.getElementById('<%= modal_id %>').classList.add('modal--visible');"
        data-controller="card-sound"
        data-action="click->card-sound#playSound">
     <%= image_tag image_url,
