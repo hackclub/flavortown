@@ -43,8 +43,9 @@ class Api::V1::UsersController < Api::BaseController
 
   def index
     users = User.includes(:projects).all
-    
+
     if params[:query].present?
+      # TODO: if search becomes slow for any reason, add pg_trgm GIN index for ILIKE performance
       q = "%#{ActiveRecord::Base.sanitize_sql_like(params[:query])}%"
       users = users.where("display_name ILIKE :q OR slack_id ILIKE :q", q: q)
     end
