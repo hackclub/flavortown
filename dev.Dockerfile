@@ -15,7 +15,6 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
     pkg-config \
     curl \
     vim \
-    ffmpeg \
     imagemagick \
     libffi-dev \
     libopenblas-dev \

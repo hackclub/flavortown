@@ -16,7 +16,16 @@ WORKDIR /rails
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl wget libjemalloc2 libvips sqlite3 file git libblas3 liblapack3 && \
+    apt-get install --no-install-recommends -y \
+    curl \
+    wget \
+    libjemalloc2 \
+    libvips \
+    imagemagick \
+    file \
+    git \
+    libopenblas0 \
+    liblapack3 && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Set production environment
@@ -30,7 +39,14 @@ FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config libffi-dev libblas-dev liblapack-dev && \
+    apt-get install --no-install-recommends -y \
+    build-essential \
+    git \
+    libyaml-dev \
+    pkg-config \
+    libffi-dev \
+    libopenblas-dev \
+    liblapack-dev && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install Node.js, npm, and Yarn for jsbundling (esbuild)
