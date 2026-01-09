@@ -133,7 +133,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: url("kitchen_comic/brown-tile.avif") repeat center center / 100px;
+    background: url("kitchen_comic/brown-tile.avif") repeat center center /
+      100px;
     opacity: 0.5;
     z-index: 0;
     border-radius: inherit;
@@ -189,18 +190,42 @@
       transform-origin: 0 0;
     }
 
-    .comic-card:nth-of-type(1)  { transform: translate(-100px, -450px) }
-    .comic-card:nth-of-type(2)  { transform: translate(200px, -300px) }
-    .comic-card:nth-of-type(3)  { transform: translate(200px, 50px) }
-    .comic-card:nth-of-type(4)  { transform: translate(-100px, 200px) }
-    .comic-card:nth-of-type(5)  { transform: translate(-400px, 50px) }
-    .comic-card:nth-of-type(6)  { transform: translate(-400px, -300px) }
+    .comic-card:nth-of-type(1) {
+      transform: translate(-100px, -450px);
+    }
+    .comic-card:nth-of-type(2) {
+      transform: translate(200px, -300px);
+    }
+    .comic-card:nth-of-type(3) {
+      transform: translate(200px, 50px);
+    }
+    .comic-card:nth-of-type(4) {
+      transform: translate(-100px, 200px);
+    }
+    .comic-card:nth-of-type(5) {
+      transform: translate(-400px, 50px);
+    }
+    .comic-card:nth-of-type(6) {
+      transform: translate(-400px, -300px);
+    }
 
-    &__arrow:nth-of-type(1)  { transform: translate(125px, -400px) rotate(0deg); }
-    &__arrow:nth-of-type(2)  { transform: translate(300px, -75px) rotate(45deg); }
-    &__arrow:nth-of-type(3)  { transform: translate(275px, 325px) rotate(105deg); }
-    &__arrow:nth-of-type(4)  { transform: translate(-125px, 425px) rotate(185deg); }
-    &__arrow:nth-of-type(5)  { transform: translate(-300px, 75px) rotate(225deg); }
-    &__arrow:nth-of-type(6)  { transform: translate(-275px, -325px) rotate(300deg); }
+    &__arrow:nth-of-type(1) {
+      transform: translate(125px, -400px) rotate(0deg);
+    }
+    &__arrow:nth-of-type(2) {
+      transform: translate(300px, -75px) rotate(45deg);
+    }
+    &__arrow:nth-of-type(3) {
+      transform: translate(275px, 325px) rotate(105deg);
+    }
+    &__arrow:nth-of-type(4) {
+      transform: translate(-125px, 425px) rotate(185deg);
+    }
+    &__arrow:nth-of-type(5) {
+      transform: translate(-300px, 75px) rotate(225deg);
+    }
+    &__arrow:nth-of-type(6) {
+      transform: translate(-275px, -325px) rotate(300deg);
+    }
   }
 }
