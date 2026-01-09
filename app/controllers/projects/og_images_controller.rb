@@ -5,7 +5,7 @@ class Projects::OgImagesController < ApplicationController
   def show
     skip_authorization
 
-    png_data = OgImageGenerator.for_project(@project)
+    png_data = OgImage::Project.new(@project).to_png
 
     expires_in 1.hour, public: true
     send_data png_data, type: "image/png", disposition: "inline"

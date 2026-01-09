@@ -1,0 +1,22 @@
+<% content_for :title, "OG Image Previews" %>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+  <h1 style="margin-bottom: 2rem;">OG Image Previews</h1>
+  <p style="margin-bottom: 2rem; color: #666;">
+    Preview OpenGraph images without database hits. Click any image to view full size.
+  </p>
+
+  <div style="display: grid; gap: 2rem;">
+    <% @previews.each do |preview_name| %>
+      <div style="border: 1px solid #ddd; border-radius: 8px; padding: 1rem;">
+        <h3 style="margin-bottom: 1rem;"><%= preview_name %></h3>
+        <a href="<%= og_image_preview_path(preview_name, format: :png) %>" target="_blank">
+          <img
+            src="<%= og_image_preview_path(preview_name, format: :png) %>"
+            alt="<%= preview_name %>"
+            style="width: 100%; max-width: 600px; height: auto; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        </a>
+      </div>
+    <% end %>
+  </div>
+</div>

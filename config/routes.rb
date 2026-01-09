@@ -84,6 +84,8 @@ Rails.application.routes.draw do
   # Letter opener web for development email preview
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
+
+    resources :og_image_previews, only: [ :index, :show ], defaults: { format: :png }
   end
 
   # Action Mailbox for incoming HCB and tracking emails
