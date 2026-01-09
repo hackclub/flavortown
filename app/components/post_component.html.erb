@@ -13,7 +13,7 @@
     <% end %>
   </article>
 <% else %>
-  <article class="post <%= variant_class %><%= ' post--deleted' if deleted? %>">
+  <article class="post <%= variant_class %> <%= theme_class %><%= ' post--deleted' if deleted? %>">
     <div class="post__content">
       <% if deleted? %>
         <div class="post__deleted-banner">
