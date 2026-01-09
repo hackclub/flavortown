@@ -60,7 +60,7 @@ class Api::V1::ProjectsController < Api::BaseController
       created_at: String,
       updated_at: String
     },
-    
+
     create: {
       id: Integer,
       title: String,
@@ -108,7 +108,7 @@ class Api::V1::ProjectsController < Api::BaseController
 
   def create
     @project = Project.new(project_params)
-    
+
     ActiveRecord::Base.transaction do
       if @project.save
         @project.memberships.create!(user: current_api_user, role: :owner)
@@ -121,7 +121,7 @@ class Api::V1::ProjectsController < Api::BaseController
 
   def update
     @project = Project.find_by!(id: params[:id], deleted_at: nil)
-    
+
     unless @project.memberships.exists?(user: current_api_user)
       return render json: { error: "You do not have permission to update this project" }, status: :forbidden
     end
