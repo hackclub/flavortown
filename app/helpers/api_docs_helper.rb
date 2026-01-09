@@ -40,4 +40,18 @@ module ApiDocsHelper
 
     controller_class.response_body_model[action.to_sym] || {}
   end
+
+  def query_request_body_for(route)
+    controller_name = route.defaults[:controller]
+    action = route.defaults[:action]
+
+    return {} unless controller_name && action
+
+    controller_class =
+      "#{controller_name.camelize}Controller".safe_constantize
+
+    return {} unless controller_class&.respond_to?(:request_body_model)
+
+    controller_class.request_body_model[action.to_sym] || {}
+  end
 end
