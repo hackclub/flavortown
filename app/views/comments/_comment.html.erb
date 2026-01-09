@@ -1,9 +1,13 @@
 <div id="comment_<%= comment.id %>" class="comment">
-  <img src="<%= comment.user.avatar %>" alt="<%= comment.user.display_name || comment.user.slack_id %>" class="comment__avatar">
+  <%= link_to user_path(comment.user) do %>
+    <img src="<%= comment.user.avatar %>" alt="<%= comment.user.display_name || comment.user.slack_id %>" class="comment__avatar">
+  <% end %>
   <div class="comment__content">
     <div class="comment__header">
       <div class="comment__meta">
-        <span class="comment__author"><%= comment.user.display_name || comment.user.slack_id %></span>
+        <%= link_to user_path(comment.user), class: "comment__author" do %>
+          <%= comment.user.display_name || comment.user.slack_id %>
+        <% end %>
         <span class="comment__time"><%= time_ago_in_words(comment.created_at) %> ago</span>
       </div>
       <% if current_user && (comment.user == current_user || current_user.admin?) %>
