@@ -24,7 +24,13 @@
         data-action="keydown.enter@window->dialogue-iteration#next click@window->dialogue-iteration#next">
         <div class="dialogue-box-backdrop"></div>
         <div class="dialogue-box">
-          <h1>Chef Orpheus</h1>
+          <div class="dialogue-box__header">
+            <h1>Chef Orpheus</h1>
+            <button type="button" class="dialogue-box__mute-btn" data-dialogue-iteration-target="muteButton" data-action="click->dialogue-iteration#toggleMute" aria-label="Toggle sound">
+              <%= inline_svg_tag "icons/volume-on.svg", class: "dialogue-box__mute-icon", data: { dialogue_iteration_target: "volumeOnIcon" } %>
+              <%= inline_svg_tag "icons/volume-off.svg", class: "dialogue-box__mute-icon", data: { dialogue_iteration_target: "volumeOffIcon" }, style: "display: none;" %>
+            </button>
+          </div>
           <div class="dialogue-box__image" data-action="click->dialogue-iteration#squeakCharacter" data-dialogue-iteration-target="character">
             <%= image_tag "orpheus_sprites/1.png", alt: "Chef Orpheus", data: { dialogue_iteration_target: "sprite" } %>
           </div>
@@ -55,7 +61,13 @@
           data-action="keydown.enter@window->dialogue-iteration#next click@window->dialogue-iteration#next">
           <div class="dialogue-box-backdrop"></div>
           <div class="dialogue-box">
-            <h1>Chef Orpheus</h1>
+            <div class="dialogue-box__header">
+              <h1>Chef Orpheus</h1>
+              <button type="button" class="dialogue-box__mute-btn" data-dialogue-iteration-target="muteButton" data-action="click->dialogue-iteration#toggleMute" aria-label="Toggle sound">
+                <%= inline_svg_tag "icons/volume-on.svg", class: "dialogue-box__mute-icon", data: { dialogue_iteration_target: "volumeOnIcon" } %>
+                <%= inline_svg_tag "icons/volume-off.svg", class: "dialogue-box__mute-icon", data: { dialogue_iteration_target: "volumeOffIcon" }, style: "display: none;" %>
+              </button>
+            </div>
             <div class="dialogue-box__image" data-action="click->dialogue-iteration#squeakCharacter" data-dialogue-iteration-target="character">
               <%= image_tag "orpheus_sprites/1.png", alt: "Chef Orpheus", data: { dialogue_iteration_target: "sprite" } %>
             </div>
@@ -85,7 +97,13 @@
           data-action="keydown.enter@window->dialogue-iteration#next click@window->dialogue-iteration#next">
           <div class="dialogue-box-backdrop"></div>
           <div class="dialogue-box">
-            <h1>Chef Orpheus</h1>
+            <div class="dialogue-box__header">
+              <h1>Chef Orpheus</h1>
+              <button type="button" class="dialogue-box__mute-btn" data-dialogue-iteration-target="muteButton" data-action="click->dialogue-iteration#toggleMute" aria-label="Toggle sound">
+                <%= inline_svg_tag "icons/volume-on.svg", class: "dialogue-box__mute-icon", data: { dialogue_iteration_target: "volumeOnIcon" } %>
+                <%= inline_svg_tag "icons/volume-off.svg", class: "dialogue-box__mute-icon", data: { dialogue_iteration_target: "volumeOffIcon" }, style: "display: none;" %>
+              </button>
+            </div>
             <div class="dialogue-box__image" data-action="click->dialogue-iteration#squeakCharacter" data-dialogue-iteration-target="character">
               <%= image_tag "orpheus_sprites/1.png", alt: "Chef Orpheus", data: { dialogue_iteration_target: "sprite" } %>
             </div>

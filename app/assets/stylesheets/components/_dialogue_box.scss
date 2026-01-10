@@ -103,12 +103,41 @@
   padding: 0.8em 0.8em 0.8em 12em;
   border-radius: 16px;
 
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5em;
+  }
+
   h1 {
     margin: 0;
     margin-bottom: 0.2em;
     color: #253a5e;
     font-size: 2rem;
     font-weight: normal;
+  }
+
+  &__mute-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25em;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  &__mute-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: #253a5e;
   }
 
   &__image {
