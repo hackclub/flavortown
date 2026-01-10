@@ -4,12 +4,18 @@ class ExploreController < ApplicationController
                 .where(post_devlogs: { tutorial: false })
                 .where.not(user_id: current_user&.id)
                 .includes(:user, :project)
-                .preload(:postable)
+                .includes(devlog: { attachments_attachments: :blob })
+                .includes(devlog: { comments: :user })
                 .order(created_at: :desc)
 
     scope = scope.where(post_devlogs: { deleted_at: nil }) unless current_user&.can_see_deleted_devlogs?
 
     @pagy, @devlogs = pagy(scope, limit: 30, client_max_limit: 30)
+
+    if current_user
+      devlog_ids = @devlogs.map { |post| post.postable_id }
+      @liked_devlog_ids = Like.where(likeable_type: "Post::Devlog", likeable_id: devlog_ids, user: current_user).pluck(:likeable_id).to_set
+    end
 
     respond_to do |format|
       format.html

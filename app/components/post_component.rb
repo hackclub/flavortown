@@ -22,7 +22,20 @@ class PostComponent < ViewComponent::Base
   end
 
   def postable
-    @postable ||= post.postable
+    @postable ||= begin
+      type_assoc = case post.postable_type
+      when "Post::Devlog" then :devlog
+      when "Post::ShipEvent" then :ship_event
+      when "Post::FireEvent" then :fire_event
+      when "Post::GitCommit" then :git_commit
+      end
+
+      if type_assoc && post.association(type_assoc).loaded?
+        post.public_send(type_assoc)
+      else
+        post.postable
+      end
+    end
   end
 
   def project_title

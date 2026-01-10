@@ -1,17 +1,18 @@
 <%
   commentable_type = commentable.class.name.underscore.gsub("/", "_")
   comments_dom_id = "comments_#{commentable_type}_#{commentable.id}"
+  sorted_comments = commentable.comments.sort_by(&:created_at)
 %>
 
 <div class="comments-section">
   <%= render "comments/form", commentable: commentable %>
 
-  <% if commentable.comments.exists? %>
+  <% if sorted_comments.any? %>
     <h3 class="comments-section__title">Comments</h3>
   <% end %>
 
   <div id="<%= comments_dom_id %>" class="comments-section__list">
-    <% commentable.comments.includes(:user).order(created_at: :asc).each do |comment| %>
+    <% sorted_comments.each do |comment| %>
       <%= render "comments/comment", comment: comment %>
     <% end %>
   </div>
