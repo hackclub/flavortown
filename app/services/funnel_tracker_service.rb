@@ -12,7 +12,7 @@ class FunnelTrackerService
     def track(event_name:, user: nil, email: nil, properties: {})
       normalized_email = normalize_email(email) if email.present?
 
-      FunnelEvent.create(
+      FunnelEvent.find_or_create_by(
         event_name: event_name,
         user_id: user&.id,
         email: normalized_email || user&.email,

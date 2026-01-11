@@ -25,10 +25,22 @@ class Post::ShipEvent < ApplicationRecord
 
   validates :body, presence: { message: "Update message can't be blank" }
 
+  after_create :track_ship_event_funnel
+
   def status
     project = post&.project
     return nil unless project
 
     ShipCertService.get_status(project)
+  end
+
+  private
+
+  def track_ship_event_funnel
+    FunnelTrackerService.track(
+      event_name: "ship_event_created",
+      user: post.user,
+      properties: { ship_event_id: id, project_id: post.project.id }
+    )
   end
 end
