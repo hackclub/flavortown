@@ -86,3 +86,9 @@ production:
     schedule: every hour
     concurrency: 1
     description: "Recalculate duration_seconds for all projects"
+
+  sync_pyramid_enriched_refs:
+    class: SyncPyramidEnrichedRefsJob
+    schedule: every hour
+    concurrency: 1
+    description: "Get valid referral codes from Pyramid Scheme and update records"
