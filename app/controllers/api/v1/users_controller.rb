@@ -22,9 +22,19 @@ class Api::V1::UsersController < Api::BaseController
           display_name: String,
           avatar: String,
           project_ids: [ Integer ],
+          vote_count: Integer,
+          like_count: Integer,
+          devlog_seconds_total: Integer,
+          devlog_seconds_today: Integer,
           cookies: "Integer || Null" # only if they are opted into the leaderboard
         }
-      ]
+      ],
+      pagination: {
+        current_page: Integer,
+        total_pages: Integer,
+        total_count: Integer,
+        next_page: Integer
+      }
     },
 
     show: {
