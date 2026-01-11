@@ -81,6 +81,7 @@ module Admin
         "ShopItem::HCBGrant",
         "ShopItem::HCBPreauthGrant",
         "ShopItem::HQMailItem",
+        "ShopItem::InkthreadableItem",
         "ShopItem::LetterMail",
         "ShopItem::ThirdPartyPhysical",
         "ShopItem::ThirdPartyDigital",
