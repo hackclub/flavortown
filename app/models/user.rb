@@ -10,6 +10,7 @@
 #  cookie_clicks                           :integer          default(0), not null
 #  display_name                            :string
 #  email                                   :string
+#  enriched_ref                            :string
 #  first_name                              :string
 #  granted_roles                           :string           default([]), not null, is an Array
 #  has_gotten_free_stickers                :boolean          default(FALSE)
