@@ -241,6 +241,18 @@
     <h2>Card Grant</h2>
     <div class="info-rows">
       <div><b>Card Grant ID:</b> <%= @order.shop_card_grant_id %></div>
+      <% if @order.shop_card_grant&.hcb_grant_hashid.present? %>
+        <div><b>HCB Grant ID:</b> <%= @order.shop_card_grant.hcb_grant_hashid %></div>
+        <div>
+          <%= link_to "View on HCB", @order.shop_card_grant.hcb_url, target: "_blank", class: "btn-primary", style: "margin-right: 0.5rem;" %>
+          <% if current_user.admin? && @order.fulfilled? %>
+            <form method="post" action="<%= cancel_hcb_grant_admin_shop_order_path(@order) %>" style="display: inline;">
+              <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+              <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to cancel this HCB grant? This cannot be undone.')">Cancel HCB Grant</button>
+            </form>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </div>
 <% end %>
