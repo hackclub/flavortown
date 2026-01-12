@@ -50,7 +50,7 @@
     </div>
   </div>
   <div class="votes-new__devlogs">
-    <% devlogs.each do |post| %>
+    <% posts.each do |post| %>
       <%= render PostComponent.new(post: post, current_user: current_user) %>
     <% end %>
   </div>
