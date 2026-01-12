@@ -447,7 +447,7 @@ GEM
       validate_url
       webfinger (~> 2.0)
     ostruct (0.6.3)
-    pagy (43.2.2)
+    pagy (43.2.3)
       json
       yaml
     paper_trail (17.0.0)
