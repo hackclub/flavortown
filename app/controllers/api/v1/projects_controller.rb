@@ -116,7 +116,11 @@ class Api::V1::ProjectsController < Api::BaseController
       else
         render json: { errors: @project.errors.full_messages }, status: :unprocessable_entity
       end
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
     end
+  rescue StandardError => e
+    render json: { error: e }, status: :unprocessable_entity
   end
 
   def update
@@ -138,6 +142,6 @@ class Api::V1::ProjectsController < Api::BaseController
   private
 
   def project_params
-    params.require(:project).permit(:title, :description, :repo_url, :demo_url, :readme_url)
+    params.permit(:title, :description, :repo_url, :demo_url, :readme_url)
   end
 end

@@ -26,7 +26,7 @@
                     <% request_body = query_request_body_for(route) %>
 
                     <% if request_body.any? %>
-                        <label>Request Body:</label>
+                        <label>Request Body (application/x-www-form-urlencoded):</label>
                         <pre class="request-body"><code><%= request_body.map { |k, v| "#{k} (#{v[:required] ? "required" : "optional"}) - #{v[:desc]}" }.join("\n") %></code></pre>
                     <% end %>
 
