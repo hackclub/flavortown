@@ -3,7 +3,7 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   config.after_initialize do
     Bullet.enable        = true
-    Bullet.sentry        = true
+    Bullet.sentry        = false
     Bullet.rails_logger  = true
     Bullet.add_footer    = true
     Bullet.skip_html_injection = ->(request) do
