@@ -5,10 +5,10 @@ class MarkdownRenderer
     sanitised = ActionController::Base.helpers.sanitize(
       html,
       tags: ActionView::Base.sanitized_allowed_tags + [ "u" ],
-      attributes: ActionView::Base.sanitized_allowed_attributes + ["target", "rel"],
+      attributes: ActionView::Base.sanitized_allowed_attributes + [ "target", "rel" ],
       protocols: {
-        "a" => { "href" => ["http", "https", "mailto"] },
-        "img" => { "src" => ["http", "https"] }
+        "a" => { "href" => [ "http", "https", "mailto" ] },
+        "img" => { "src" => [ "http", "https" ] }
       }
     )
 

@@ -159,7 +159,7 @@
                 color: :brown,
                 variant: :borderless,
                 icon: "icons/paper.svg",
-                onclick: "document.getElementById('project-readme-modal-#{project.id}').showModal()"
+                onclick: "document.getElementById('project-readme-modal-#{project.id.to_json}').showModal()"
               ) %>
         <% end %>
       </div>
