@@ -1,4 +1,6 @@
 class VotesController < ApplicationController
+  before_action :check_voting_enabled
+
   def index
     authorize :vote
     @pagy, @votes = pagy(current_user.votes.includes(:project, :ship_event).order(created_at: :desc))
@@ -33,6 +35,12 @@ class VotesController < ApplicationController
   end
 
   private
+
+  def check_voting_enabled
+    return if current_user && Flipper.enabled?(:voting, current_user)
+
+    redirect_to root_path, alert: "Voting is currently disabled."
+  end
 
   def vote_params
     params.require(:vote).permit(:ship_event_id, :project_id, :reason,
