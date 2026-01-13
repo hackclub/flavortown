@@ -1,13 +1,12 @@
-<%= form_with(url: votes_path, data: { turbo: false, action: "submit->vote-tracker#submit" }) do |form| %>
-  <%= form.hidden_field :project_id, value: project.id %>
+<%= form_with(model: @vote, url: votes_path, data: { turbo: false, action: "submit->vote-tracker#submit" }) do |form| %>
+  <%= form.hidden_field :ship_event_id %>
+  <%= form.hidden_field :project_id %>
   <%= form.hidden_field :time_taken_to_vote, value: 0, data: { vote_tracker_target: "timeField" } %>
   <%= form.hidden_field :repo_url_clicked, value: false, data: { vote_tracker_target: "repoField" } %>
   <%= form.hidden_field :demo_url_clicked, value: false, data: { vote_tracker_target: "demoField" } %>
 
-  <% Vote::Category.all.each do |category| %>
-    <%= fields_for "votes[]", Vote.new, index: category.id do |vote_fields| %>
-      <%= render "category", fields: vote_fields, category: category %>
-    <% end %>
+  <% Vote.enabled_categories.each do |category| %>
+    <%= render "category", form: form, category: category %>
   <% end %>
 
   <% if current_user.send_votes_to_slack %>
