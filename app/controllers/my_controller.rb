@@ -24,7 +24,20 @@ class MyController < ApplicationController
 
   def roll_api_key
     current_user.generate_api_key!
-    redirect_back fallback_location: root_path, notice: "API key rolled"
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "api_key",
+          partial: "users/api_key",
+          locals: { user: current_user, just_generated: true }
+        )
+      end
+
+      format.html do
+        redirect_back fallback_location: root_path, notice: "API key rolled"
+      end
+    end
   end
 
   def cookie_click

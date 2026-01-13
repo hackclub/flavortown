@@ -20,11 +20,11 @@ production:
     concurrency: 1
     description: "Sync user data to Airtable every minute with single execution limit"
 
-  sync_rsvp_to_airtable:
-    class: Airtable::RsvpSyncJob
-    schedule: every minute
-    concurrency: 1
-    description: "Sync RSVPs to Airtable every minute with single execution limit"
+  # sync_rsvp_to_airtable:
+  #   class: Airtable::RsvpSyncJob
+  #   schedule: every minute
+  #   concurrency: 1
+  #   description: "Sync RSVPs to Airtable every minute with single execution limit"
 
   sync_devlog_to_airtable:
     class: Airtable::DevlogSyncJob
@@ -86,3 +86,9 @@ production:
     schedule: every hour
     concurrency: 1
     description: "Recalculate duration_seconds for all projects"
+
+  sync_pyramid_enriched_refs:
+    class: SyncPyramidEnrichedRefsJob
+    schedule: every hour
+    concurrency: 1
+    description: "Get valid referral codes from Pyramid Scheme and update records"

@@ -10,7 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_09_160844) do
+
+ActiveRecord::Schema[8.1].define(version: 2026_01_11_112455) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -592,6 +593,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_09_160844) do
     t.datetime "created_at", null: false
     t.string "display_name"
     t.string "email"
+    t.string "enriched_ref"
     t.string "first_name"
     t.string "granted_roles", default: [], null: false, array: true
     t.boolean "has_gotten_free_stickers", default: false

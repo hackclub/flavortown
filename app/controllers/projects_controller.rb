@@ -367,7 +367,7 @@ class ProjectsController < ApplicationController
   def load_ship_data
     @hackatime_projects = @project.hackatime_projects_with_time
     @total_hours = @project.total_hackatime_hours
-    @devlogs = @project.devlogs.includes(:user, postable: [ { attachments_attachments: :blob } ]).order(created_at: :desc)
+    @devlogs = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
   end
 
   def ship_params
