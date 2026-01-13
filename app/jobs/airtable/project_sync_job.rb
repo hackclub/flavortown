@@ -1,7 +1,7 @@
 class Airtable::ProjectSyncJob < Airtable::BaseSyncJob
   def table_name = "_projects"
 
-  def records = Project.unscoped.where(deleted_at: nil)
+  def records = Project.unscoped
 
   def field_mapping(project)
     creator = project.memberships.first&.user
