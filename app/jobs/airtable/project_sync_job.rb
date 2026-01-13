@@ -4,6 +4,8 @@ class Airtable::ProjectSyncJob < Airtable::BaseSyncJob
   def records = Project.unscoped.where(deleted_at: nil)
 
   def field_mapping(project)
+    creator = project.memberships.owner.first&.user || project.users.first
+
     {
       "title" => project.title,
       "description" => project.description,
@@ -17,7 +19,7 @@ class Airtable::ProjectSyncJob < Airtable::BaseSyncJob
       "created_at" => project.created_at,
       "synced_at" => Time.now,
       "flavor_id" => project.id.to_s,
-      "creator_id" => project.users.first.id.to_s
+      "creator_id" => creator&.id&.to_s
     }
   end
 end
