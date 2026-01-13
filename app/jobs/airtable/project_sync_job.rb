@@ -17,6 +17,7 @@ class Airtable::ProjectSyncJob < Airtable::BaseSyncJob
       "is_fire" => project.marked_fire_at.present?,
       "marked_fire_at" => project.marked_fire_at,
       "created_at" => project.created_at,
+      "deleted_at" => project.deleted_at,
       "synced_at" => Time.now,
       "flavor_id" => project.id.to_s,
       "creator_id" => creator.id.to_s,
