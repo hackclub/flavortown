@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship, :mark_fire, :unmark_fire ]
-  before_action :set_project, only: [ :show ]
+  before_action :set_project, only: [ :show, :readme ]
 
   def index
     authorize Project
@@ -360,6 +360,27 @@ class ProjectsController < ApplicationController
     end
 
     redirect_to @project
+  end
+
+  def readme
+    unless turbo_frame_request?
+      redirect_to @project
+      return
+    end
+
+    set_project
+    authorize @project
+
+    result = ProjectReadmeFetcher.fetch(@project.readme_url)
+
+    @readme_html =
+      if result.markdown.present?
+        MarkdownRenderer.render(result.markdown)
+      end
+
+    @readme_error = result.error
+
+    render "projects/readme", layout: false
   end
 
   private

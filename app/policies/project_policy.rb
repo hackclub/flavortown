@@ -52,6 +52,10 @@ class ProjectPolicy < ApplicationPolicy
         member?
     end
 
+    def readme?
+        member? || owns?
+    end
+
     private
 
     def member?

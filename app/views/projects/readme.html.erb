@@ -1,0 +1,15 @@
+<%= turbo_frame_tag "project-readme-frame-#{@project.id}" do %>
+  <div class="readme-markdown-content">
+    <% if @readme_error.present? %>
+        <p style="color: var(--color-brown-600); margin: 0;">
+        <%= @readme_error %>
+        </p>
+    <% elsif @readme_html.present? %>
+        <%== @readme_html %>
+    <% else %>
+        <p style="color: var(--color-brown-600); margin: 0;">
+        README content is empty.
+        </p>
+    <% end %>
+  </div>
+<% end %>
