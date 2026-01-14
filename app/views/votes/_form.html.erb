@@ -9,24 +9,24 @@
     <%= render "category", form: form, category: category %>
   <% end %>
 
-  <% if current_user.send_votes_to_slack %>
-    <style>.votes-new__feedback .input { display: flex; width: 100%; }</style>
-    <div class="votes-new__feedback" style="margin: 4rem 0;">
-      <%= render InputComponent.new(
-        form: form,
-        attribute: :reason,
-        label: "Feedback for the creator",
-        placeholder: "Share your thoughts about this project...",
-        subtitle: "This will be shared to Slack with your vote",
-        color: :green,
-        as: :text_area,
-        input_html: { required: true }
-      ) %>
-    </div>
-  <% end %>
+  <style>.votes-new__feedback .input { display: flex; width: 100%; }</style>
+  <div class="votes-new__feedback" style="margin: 4rem 0;">
+    <%= render InputComponent.new(
+      form: form,
+      attribute: :reason,
+      label: "Feedback for the creator (Optional)",
+      placeholder: "Share your thoughts about this project...",
+      subtitle: current_user.send_votes_to_slack ? "This will be shared to Slack with your vote" : "This will be shown to the author, but anonymously",
+      color: :yellow,
+      as: :text_area
+    ) %>
+  </div>
 
-  <%= button_tag(type: "submit", class: "btn-submit") do %>
-    <%= inline_svg_tag "icons/tick.svg", class: "btn-submit__icon", aria: { hidden: true } %>
-    Submit
-  <% end %>
+  <%= render ButtonComponent.new(
+    text: "Submit",
+    icon: "icons/tick.svg",
+    type: :submit,
+    color: :brown,
+    class: "btn-submit"
+  ) %>
 <% end %>
