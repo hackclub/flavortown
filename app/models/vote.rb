@@ -48,6 +48,7 @@ class Vote < ApplicationRecord
   validates(*score_columns, inclusion: { in: 1..6, message: "must be between 1 and 6" }, allow_nil: true)
   validate :all_categories_scored
   validate :user_cannot_vote_on_own_projects
+  validate :minimum_time_taken
 
   def category_description(category) = CATEGORIES[category.to_sym]
 
@@ -60,5 +61,13 @@ class Vote < ApplicationRecord
 
   def user_cannot_vote_on_own_projects
     errors.add(:user, "cannot vote on own projects") if project&.users&.exists?(user_id)
+  end
+
+  def minimum_time_taken
+    return if time_taken_to_vote.blank?
+
+    if time_taken_to_vote < 30
+      errors.add(:time_taken_to_vote, "must be at least 30 seconds")
+    end
   end
 end
