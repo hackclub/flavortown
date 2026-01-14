@@ -293,6 +293,31 @@ class Admin::UsersController < Admin::ApplicationController
     redirect_to admin_user_path(@user)
   end
 
+  def shadow_ban
+    authorize :admin, :ban_users?
+    @user = User.find(params[:id])
+    reason = params[:reason].presence
+
+    PaperTrail.request(whodunnit: current_user.id) do
+      @user.shadow_ban!(reason: reason)
+    end
+
+    flash[:notice] = "#{@user.display_name} has been shadow banned."
+    redirect_to admin_user_path(@user)
+  end
+
+  def unshadow_ban
+    authorize :admin, :ban_users?
+    @user = User.find(params[:id])
+
+    PaperTrail.request(whodunnit: current_user.id) do
+      @user.unshadow_ban!
+    end
+
+    flash[:notice] = "#{@user.display_name} has been removed from shadow ban."
+    redirect_to admin_user_path(@user)
+  end
+
   def update
     authorize :admin, :manage_users?
     @user = User.find(params[:id])

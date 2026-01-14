@@ -255,6 +255,14 @@ class User < ApplicationRecord
     update!(banned: false, banned_at: nil, banned_reason: nil)
   end
 
+  def shadow_ban!(reason: nil)
+    update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
+  end
+
+  def unshadow_ban!
+    update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
+  end
+
   def cancel_shop_order(order_id)
     order = shop_orders.find(order_id)
     return { success: false, error: "Your order can not be canceled" } unless order.pending?
