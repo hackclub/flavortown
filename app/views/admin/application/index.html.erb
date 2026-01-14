@@ -18,7 +18,7 @@
   <% end %>
   <% if policy(:admin).access_reports? %>
     <% pending_reports = Project::Report.pending.count %>
-    <%= link_to admin_reports_path, class: button_class do %>
+    <%= link_to "/admin/reports?status=pending", class: button_class do %>
       Reports
       <% if pending_reports > 0 %>
         <span style="background-color: #ef4444; color: white; border-radius: 9999px; padding: 0px 6px; font-size: 0.9em; min-width: 20px; text-align: center;">
@@ -30,7 +30,7 @@
   <% if policy(:admin).access_shop_orders? %>
     <% pending_count = ShopOrder.where(aasm_state: 'pending').count %>
     <% total_shop_count = pending_count %>
-    <%= link_to admin_shop_orders_path(view: 'shop_orders'), class: "btn-primary" do %>
+    <%= link_to "/admin/shop_orders?status=pending&view=shop_orders", class: "btn-primary" do %>
       Shop Orders
       <% if total_shop_count > 0 %>
         <%
@@ -51,7 +51,7 @@
   <% end %>
   <% if current_user.admin? || current_user.fulfillment_person? %>
     <% awaiting_count = ShopOrder.where(aasm_state: 'awaiting_periodical_fulfillment').count %>
-    <%= link_to admin_shop_orders_path(view: 'fulfillment'), class: "btn-primary" do %>
+    <%= link_to "/admin/shop_orders?status=awaiting_periodical_fulfillment&view=fulfillment", class: "btn-primary" do %>
       Pending Fulfillment
       <% if awaiting_count > 0 %>
         <%
