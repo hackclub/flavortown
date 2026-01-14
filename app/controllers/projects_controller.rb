@@ -368,9 +368,6 @@ class ProjectsController < ApplicationController
       return
     end
 
-    set_project
-    authorize @project
-
     result = ProjectReadmeFetcher.fetch(@project.readme_url)
 
     @readme_html =
