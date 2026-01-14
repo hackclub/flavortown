@@ -15,6 +15,9 @@ class Airtable::BaseSyncJob < ApplicationJob
       table.new(field_mapping(record))
     end
 
+    # Deduplicate by primary key field to avoid Airtable "cannot update same record multiple times" error
+    airtable_records = airtable_records.uniq { |r| r.fields[primary_key_field] }
+
     table.batch_upsert(airtable_records, primary_key_field)
   ensure
     records.unscoped
