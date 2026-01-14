@@ -51,7 +51,17 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       orders = orders.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.id::text = ? OR users.slack_id ILIKE ?", search, search, params[:user_search], search)
     end
 
-    # Calculate stats before region filter (for database queries)
+    # Apply region filter using database-level query (now that orders have a region column)
+    # Fulfillment persons see orders in their regions OR orders assigned to them OR orders with nil region (legacy/no address)
+    if current_user.fulfillment_person? && !current_user.admin? && current_user.has_regions?
+      orders = orders.where(region: current_user.regions)
+                     .or(orders.where(region: nil))
+                     .or(orders.where(assigned_to_user_id: current_user.id))
+    elsif params[:region].present?
+      orders = orders.where(region: params[:region].upcase)
+    end
+
+    # Calculate stats after region filter so counts respect user's assigned regions
     stats_orders = orders
     @c = {
       pending: stats_orders.where(aasm_state: "pending").count,
@@ -65,16 +75,6 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     fulfilled_orders = stats_orders.where(aasm_state: "fulfilled").where.not(fulfilled_at: nil)
     if fulfilled_orders.any?
       @f = fulfilled_orders.average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))").to_f
-    end
-
-    # Apply region filter using database-level query (now that orders have a region column)
-    # Fulfillment persons see orders in their regions OR orders assigned to them OR orders with nil region (legacy/no address)
-    if current_user.fulfillment_person? && !current_user.admin? && current_user.has_regions?
-      orders = orders.where(region: current_user.regions)
-                     .or(orders.where(region: nil))
-                     .or(orders.where(assigned_to_user_id: current_user.id))
-    elsif params[:region].present?
-      orders = orders.where(region: params[:region].upcase)
     end
 
     # Sorting - always uses database ordering now

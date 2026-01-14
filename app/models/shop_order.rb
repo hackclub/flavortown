@@ -369,6 +369,7 @@ class ShopOrder < ApplicationRecord
 
   def create_refund_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
+    return if shop_item.is_a?(ShopItem::FreeStickers)
 
     user.ledger_entries.create!(
       amount: total_cost,
