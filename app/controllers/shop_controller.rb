@@ -31,6 +31,11 @@ class ShopController < ApplicationController
   end
 
   def cancel_order
+    @order = current_user.shop_orders.find(params[:order_id])
+    if @order.aasm_state == "fulfilled"
+      redirect_to shop_my_orders_path, alert: "You cannot cancel an already fulfilled order."
+      return
+    end
     result = current_user.cancel_shop_order(params[:order_id])
 
     if result[:success]
