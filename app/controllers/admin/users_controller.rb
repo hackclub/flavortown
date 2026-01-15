@@ -314,7 +314,7 @@ class Admin::UsersController < Admin::ApplicationController
       @user.unshadow_ban!
     end
 
-    flash[:notice] = "#{@user.display_name} has been removed from shadow ban."
+    flash[:notice] = "#{@user.display_name} has been unshadow banned."
     redirect_to admin_user_path(@user)
   end
 
