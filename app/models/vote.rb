@@ -35,7 +35,7 @@ class Vote < ApplicationRecord
     originality: "How distinct it is from common projects?",
     technical: "How much effort did the baker put into the implementation?",
     usability: "Did you like using it? Could you use it at all?",
-    storytelling: "How well does the baker document the development journey through devlogs?"
+    storytelling: "How well does the baker document the development journey through devlogs? Is it well documented?"
   }.freeze
 
   def self.enabled_categories = CATEGORIES.keys
