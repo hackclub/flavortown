@@ -413,6 +413,7 @@ class ProjectsController < ApplicationController
   # these links block automated requests, but we're ok with just assuming they're good
   ALLOWLISTED_DOMAINS = %w[
     npmjs.com
+    crates.io
   ].freeze
 
   def validate_url_not_dead(attribute, name)
