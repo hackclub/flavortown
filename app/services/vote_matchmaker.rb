@@ -55,6 +55,5 @@ class VoteMatchmaker
       .where.not(id: @user.votes.select(:ship_event_id))
       .where.not(projects: { id: @user.projects })
       .where(project_users: { shadow_banned: false })
-      .distinct
   end
 end

@@ -61,10 +61,14 @@ class Project < ApplicationRecord
         .distinct
     }
     scope :visible_to, ->(viewer) {
-      if viewer
-        left_joins(:memberships)
-          .joins("LEFT JOIN users AS project_users ON project_users.id = project_memberships.user_id")
-          .where("project_users.shadow_banned = FALSE OR project_memberships.user_id = ?", viewer.id)
+      if viewer&.shadow_banned?
+        # Shadow-banned users see all projects (so they don't know they're banned)
+        all
+      elsif viewer
+        # Regular users see non-shadow-banned projects + their own projects
+        left_joins(memberships: :user)
+          .where(memberships: { users: { shadow_banned: false } })
+          .or(left_joins(memberships: :user).where(memberships: { user_id: viewer.id }))
           .distinct
       else
         excluding_shadow_banned
