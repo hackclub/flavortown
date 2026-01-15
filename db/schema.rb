@@ -528,22 +528,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_11_112455) do
     t.index ["user_id"], name: "index_shop_warehouse_packages_on_user_id"
   end
 
-  create_table "themes", force: :cascade do |t|
-    t.datetime "approved_at"
-    t.bigint "approved_by_id"
-    t.datetime "created_at", null: false
-    t.text "css_content", null: false
-    t.text "description"
-    t.string "name", null: false
-    t.string "slug", null: false
-    t.string "source_url"
-    t.integer "status", default: 0, null: false
-    t.datetime "updated_at", null: false
-    t.string "version", null: false
-    t.index ["slug"], name: "index_themes_on_slug", unique: true
-    t.index ["status"], name: "index_themes_on_status"
-  end
-
   create_table "user_achievements", force: :cascade do |t|
     t.string "achievement_slug", null: false
     t.datetime "created_at", null: false
@@ -613,7 +597,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_11_112455) do
     t.string "slack_id"
     t.boolean "special_effects_enabled", default: true, null: false
     t.datetime "synced_at"
-    t.string "theme_slug"
     t.string "tutorial_steps_completed", default: [], array: true
     t.datetime "updated_at", null: false
     t.string "verification_status", default: "needs_submission", null: false
@@ -688,7 +671,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_11_112455) do
   add_foreign_key "shop_orders", "users"
   add_foreign_key "shop_orders", "users", column: "assigned_to_user_id", on_delete: :nullify
   add_foreign_key "shop_warehouse_packages", "users"
-  add_foreign_key "themes", "users", column: "approved_by_id"
   add_foreign_key "user_achievements", "users"
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"

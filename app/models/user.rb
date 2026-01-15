@@ -30,7 +30,6 @@
 #  slack_balance_notifications             :boolean          default(FALSE), not null
 #  special_effects_enabled                 :boolean          default(TRUE), not null
 #  synced_at                               :datetime
-#  theme_slug                              :string
 #  tutorial_steps_completed                :string           default([]), is an Array
 #  verification_status                     :string           default("needs_submission"), not null
 #  vote_anonymously                        :boolean          default(FALSE), not null
