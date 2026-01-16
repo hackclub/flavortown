@@ -64,7 +64,7 @@
   }
 
   &__time-preview {
-    background: var(--color-green-100);
+    background: var(--color-green-300);
     border-radius: var(--border-radius);
     padding: var(--space-m) var(--space-l);
     text-align: center;
@@ -73,11 +73,11 @@
     p {
       margin: 0;
       font-size: var(--font-size-l);
-      color: var(--color-green-600);
+      color: var(--color-green-500);
     }
 
     strong {
-      color: var(--color-green-700);
+      color: var(--color-green-500);
     }
   }
 

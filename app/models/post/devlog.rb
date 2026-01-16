@@ -22,20 +22,7 @@
 #
 class Post::Devlog < ApplicationRecord
   include Postable
-
-  # Soft delete: use `deleted` scope to find deleted records, default scope excludes them
-  scope :not_deleted, -> { where(deleted_at: nil) }
-  scope :deleted, -> { where.not(deleted_at: nil) }
-  scope :with_deleted, -> { unscope(where: :deleted_at) }
-  scope :visible_to, ->(user) {
-    if user&.can_see_deleted_devlogs?
-      with_deleted
-    else
-      not_deleted
-    end
-  }
-
-  default_scope { not_deleted }
+  include SoftDeletable
 
   # Version history
   has_many :versions, class_name: "DevlogVersion", foreign_key: :devlog_id, dependent: :destroy
@@ -96,6 +83,7 @@ class Post::Devlog < ApplicationRecord
   validate :validate_scrapbook_url
 
   after_create_commit :handle_post_creation
+  after_update_commit :update_project_duration_if_changed
 
   def recalculate_seconds_coded
     return false unless post.project.hackatime_keys.present?
@@ -168,5 +156,11 @@ class Post::Devlog < ApplicationRecord
   def handle_post_creation
     ScrapbookPopulateDevlogJob.perform_later(id) if scrapbook_url.present?
     PostCreationToSlackJob.perform_later(self)
+  end
+
+  def update_project_duration_if_changed
+    return unless saved_change_to_duration_seconds?
+
+    post&.project&.recalculate_duration_seconds!
   end
 end

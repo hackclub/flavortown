@@ -2,8 +2,8 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
   include ApiAuthenticatable
 
   class_attribute :description, default: {
-    index: "Fetch a list of devlogs for an project. Ratelimit: 30 reqs/min",
-    show: "Fetch a devlog by ID and project ID. Ratelimit: 30 reqs/min"
+    index: "Fetch a list of devlogs for an project.",
+    show: "Fetch a devlog by ID and project ID."
   }
 
   class_attribute :url_params_model, default: {
@@ -23,7 +23,13 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
           likes_count: Integer,
           scrapbook_url: String,
           created_at: String,
-          updated_at: String
+          updated_at: String,
+          media: [
+            {
+              url: String,
+              content_type: String
+            }
+          ]
         }
       ]
     },
@@ -36,25 +42,30 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
       likes_count: Integer,
       scrapbook_url: String,
       created_at: String,
-      updated_at: String
+      updated_at: String,
+      media: [
+        {
+          url: String,
+          content_type: String
+        }
+      ]
     }
   }
 
   def index
-    @pagy, @devlogs = pagy(
-      Post::Devlog
-        .joins("INNER JOIN posts ON posts.postable_id::bigint = post_devlogs.id AND posts.postable_type = 'Post::Devlog'")
-        .where(posts: { project_id: params[:project_id] })
-        .order("post_devlogs.created_at DESC"),
-      limit: 100
-    )
+    devlogs = Post::Devlog.joins(:post)
+                          .includes(attachments_attachments: :blob)
+                          .where(posts: { project_id: params[:project_id] })
+                          .order(created_at: :desc)
+
+    @pagy, @devlogs = pagy(devlogs)
   end
 
   def show
-    @devlog = Post::Devlog
-      .joins("INNER JOIN posts ON posts.postable_id::bigint = post_devlogs.id AND posts.postable_type = 'Post::Devlog'")
-      .where(posts: { project_id: params[:project_id] })
-      .find_by!(id: params[:id])
+    @devlog = Post::Devlog.joins(:post)
+                          .includes(attachments_attachments: :blob)
+                          .where(posts: { project_id: params[:project_id] })
+                          .find_by!(id: params[:id])
 
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Devlog not found" }, status: :not_found

@@ -1,44 +1,35 @@
 class ProjectsController < ApplicationController
   before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship, :mark_fire, :unmark_fire ]
-  before_action :set_project, only: [ :show ]
+  before_action :set_project, only: [ :show, :readme ]
 
   def index
     authorize Project
-    @projects = current_user.projects
-      .includes(banner_attachment: :blob)
-      .left_joins(:devlogs)
-      .select("projects.*, COUNT(posts.id) AS devlogs_count")
-      .group("projects.id")
+    @projects = current_user.projects.includes(banner_attachment: :blob)
   end
 
   def show
     authorize @project
-    @show_deleted_devlogs = current_user&.can_see_deleted_devlogs?
 
-    @posts = @project
-      .posts
-      .order(created_at: :desc)
-
-    # Eager load with deleted devlogs for admins
-    if @show_deleted_devlogs
-      @posts = @posts.includes(:user, :devlog_with_deleted, postable: [ { attachments_attachments: :blob } ])
-    else
-      @posts = @posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
+    if @project.users.where(shadow_banned: true).exists? && !@project.users.include?(current_user)
+      raise ActiveRecord::RecordNotFound
     end
 
-    unless ShipCertService.get_status(@project) == "approved"
-      @posts = @posts.where.not(postable_type: "Post::ShipEvent")
-    end
+    @posts = @project.posts
+                     .includes(:user, postable: [ :attachments_attachments ])
+                     .order(created_at: :desc)
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
       @posts = @posts.where.not(postable_type: "Post::GitCommit")
     end
 
-    # Filter out deleted devlogs for users who can't see them
-    unless @show_deleted_devlogs
-      deleted_devlog_ids = Post::Devlog.unscoped.deleted.pluck(:id)
-      @posts = @posts.where.not(postable_type: "Post::Devlog", postable_id: deleted_devlog_ids)
+    if current_user
+      devlog_ids = @posts.select { |p| p.postable_type == "Post::Devlog" }.map(&:postable_id)
+      @liked_devlog_ids = Like.where(user: current_user, likeable_type: "Post::Devlog", likeable_id: devlog_ids).pluck(:likeable_id).to_set
+    else
+      @liked_devlog_ids = Set.new
     end
+
+    ahoy.track "Viewed project", project_id: @project.id
   end
 
   def new
@@ -131,10 +122,15 @@ class ProjectsController < ApplicationController
 
   def destroy
     authorize @project
-    @project.soft_delete!
-    current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
-    flash[:notice] = "Project deleted successfully"
-    redirect_to projects_path
+    begin
+      @project.soft_delete!
+      current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
+      flash[:notice] = "Project deleted successfully"
+      redirect_to projects_path
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:alert] = e.record.errors.full_messages.to_sentence
+      redirect_to @project
+    end
   end
 
   def ship
@@ -187,12 +183,14 @@ class ProjectsController < ApplicationController
       redirect_to ship_project_path(@project, step: 4) and return
     end
 
-    begin
-      ShipCertService.ship_to_dash(@project)
-    rescue => e
-      Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
-      flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
-      redirect_to ship_project_path(@project, step: 4) and return
+    if @project.posts.where(postable_type: "Post::ShipEvent").none?
+      begin
+        ShipCertService.ship_to_dash(@project)
+      rescue => e
+        Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
+        flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
+        redirect_to ship_project_path(@project, step: 4) and return
+      end
     end
 
     ship_event = Post::ShipEvent.new(body: ship_body)
@@ -368,12 +366,30 @@ class ProjectsController < ApplicationController
     redirect_to @project
   end
 
+  def readme
+    unless turbo_frame_request?
+      redirect_to @project
+      return
+    end
+
+    result = ProjectReadmeFetcher.fetch(@project.readme_url)
+
+    @readme_html =
+      if result.markdown.present?
+        MarkdownRenderer.render(result.markdown)
+      end
+
+    @readme_error = result.error
+
+    render "projects/readme", layout: false
+  end
+
   private
 
   def load_ship_data
     @hackatime_projects = @project.hackatime_projects_with_time
     @total_hours = @project.total_hackatime_hours
-    @devlogs = @project.devlogs.includes(:user, postable: [ { attachments_attachments: :blob } ]).order(created_at: :desc)
+    @devlogs = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
   end
 
   def ship_params
@@ -419,6 +435,7 @@ class ProjectsController < ApplicationController
   # these links block automated requests, but we're ok with just assuming they're good
   ALLOWLISTED_DOMAINS = %w[
     npmjs.com
+    crates.io
   ].freeze
 
   def validate_url_not_dead(attribute, name)

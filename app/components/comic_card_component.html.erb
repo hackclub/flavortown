@@ -1,0 +1,26 @@
+<div class="comic-card">
+  <h1 class="comic-card__caption"><%= caption %></h1>
+
+  <div class="comic-card__frame"
+       onclick="document.getElementById(<%= modal_id.to_json %>).showModal(); document.getElementById(<%= modal_id.to_json %>).classList.add('modal--visible');"
+       data-controller="card-sound"
+       data-action="click->card-sound#playSound">
+    <%= image_tag image_url,
+      alt: alt,
+      loading: "lazy",
+      decoding: "async" %>
+    <% if step_num.present? %>
+      <div class="comic-card__step-num">
+        <%= step_num %>
+      </div>
+    <% end %>
+  </div>
+
+  <% modal_id = @modal_id %>
+
+  <%= render layout: "shared/modal", locals: { id: @modal_id, title: modal_title, description: modal_text_html } do %>
+    <div class="modal__actions">
+      <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= modal_id.to_json %>).close()">X</button>
+    </div>
+  <% end %>
+</div>

@@ -23,6 +23,13 @@
                         <pre class="query-params"><code>none :D</code></pre>
                     <% end %>
 
+                    <% request_body = query_request_body_for(route) %>
+
+                    <% if request_body.any? %>
+                        <label>Request Body (application/x-www-form-urlencoded):</label>
+                        <pre class="request-body"><code><%= request_body.map { |k, v| "#{k} (#{v[:required] ? "required" : "optional"}) - #{v[:desc]}" }.join("\n") %></code></pre>
+                    <% end %>
+
                     <% response = query_response_for(route) %>
 
                     <% if response.any? %>

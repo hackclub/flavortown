@@ -75,7 +75,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
     new(
       slug: :flavortown_helper,
       name: "Helping Hand",
-      description: "shared your wisdom in #flavortown-help,, or seeked thy wisdom",
+      description: "shared your wisdom in #flavortown-help, or seeked thy wisdom",
       icon: "help",
       earned_check: ->(user) { SlackChannelService.user_has_posted_in?(user, :flavortown_help) }
     ),
@@ -134,7 +134,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       name: "Scrapbook usage?!",
       description: "Used scrapbook in a devlog",
       icon: "slack",
-      earned_check: ->(user) { Post::Devlog.joins("INNER JOIN posts ON CAST(posts.postable_id AS bigint) = post_devlogs.id AND posts.postable_type = 'Post::Devlog'").where(posts: { project_id: user.project_ids }).where.not(scrapbook_url: nil).exists? },
+      earned_check: ->(user) { Post::Devlog.joins(:post).where(posts: { project_id: user.project_ids }).where.not(scrapbook_url: nil).exists? },
       visibility: :secret
     ),
     new(

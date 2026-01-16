@@ -147,6 +147,37 @@
             <span class="shop-item-form__hint">Maximum quantity a user can add to a single order</span>
           </div>
 
+          <div class="shop-item-form__toggles" style="margin-top: 1rem;">
+            <label class="shop-item-form__toggle">
+              <%= f.check_box :requires_ship, id: "shop_item_requires_ship" %>
+              <span class="shop-item-form__toggle-content">
+                <strong>Requires Shipped Project</strong>
+                <span class="shop-item-form__toggle-desc">User must have shipped projects in a date range to purchase</span>
+              </span>
+            </label>
+          </div>
+
+          <div id="ship_requirement_fields" style="display: none; margin-top: 1rem;">
+            <div class="shop-item-form__field">
+              <%= f.label :required_ships_count, "Required Ships Count", class: "shop-item-form__label" %>
+              <%= f.number_field :required_ships_count, min: 1, class: "form-control", value: (shop_item.required_ships_count || 1), id: "shop_item_required_ships_count" %>
+              <span class="shop-item-form__hint">Minimum number of projects shipped in the date range</span>
+            </div>
+
+            <div class="shop-item-form__row">
+              <div class="shop-item-form__field">
+                <%= f.label :required_ships_start_date, "Ships Required From", class: "shop-item-form__label" %>
+                <%= f.date_field :required_ships_start_date, class: "form-control", id: "shop_item_required_ships_start_date" %>
+                <span class="shop-item-form__hint">Start of the eligibility date range</span>
+              </div>
+              <div class="shop-item-form__field">
+                <%= f.label :required_ships_end_date, "Ships Required Until", class: "shop-item-form__label" %>
+                <%= f.date_field :required_ships_end_date, class: "form-control", id: "shop_item_required_ships_end_date" %>
+                <span class="shop-item-form__hint">End of the eligibility date range</span>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <div class="card" id="hack_clubber_settings" style="display: none;">
@@ -737,6 +768,20 @@
         if (limitedCheckbox) {
             limitedCheckbox.addEventListener('change', toggleStockField);
             toggleStockField();
+        }
+
+        const requiresShipCheckbox = document.getElementById('shop_item_requires_ship');
+        const shipRequirementFields = document.getElementById('ship_requirement_fields');
+
+        function toggleShipRequirementFields() {
+            if (requiresShipCheckbox && shipRequirementFields) {
+                shipRequirementFields.style.display = requiresShipCheckbox.checked ? 'block' : 'none';
+            }
+        }
+
+        if (requiresShipCheckbox) {
+            requiresShipCheckbox.addEventListener('change', toggleShipRequirementFields);
+            toggleShipRequirementFields();
         }
 
         function updateFromPriceOffset(region, skipHours = false, skipDollars = false) {

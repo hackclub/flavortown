@@ -6,6 +6,9 @@
 
     <div class="projects-new__time-preview">
       <p>This devlog will log <strong><%= @preview_time %></strong> of work.</p>
+      <% if @preview_seconds < 900 %>
+        <p>⚠️ You need at least 15 minutes of work to submit a devlog. Keep working on your project and come back!</p>
+      <% end %>
     </div>
 
     <%= form_with model: @devlog,

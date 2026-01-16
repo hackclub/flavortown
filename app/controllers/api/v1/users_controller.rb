@@ -8,7 +8,8 @@ class Api::V1::UsersController < Api::BaseController
 
   class_attribute :url_params_model, default: {
     index: {
-      page: { type: Integer, desc: "Page number for pagination", required: false }
+      page: { type: Integer, desc: "Page number for pagination", required: false },
+      query: { type: String, desc: "Search users by display name or slack ID", required: false }
     }
   }
 
@@ -41,12 +42,23 @@ class Api::V1::UsersController < Api::BaseController
   }
 
   def index
-    @pagy, @users = pagy(User.includes(:projects).all, page: params[:page], limit: 100)
+    users = User.includes(:projects).all
+
+    if params[:query].present?
+      # TODO: if search becomes slow for any reason, add pg_trgm GIN index for ILIKE performance
+      q = "%#{ActiveRecord::Base.sanitize_sql_like(params[:query])}%"
+      users = users.where("display_name ILIKE :q OR slack_id ILIKE :q", q: q)
+    end
+
+    @pagy, @users = pagy(users, page: params[:page], limit: 100)
   end
 
   def show
-    @user = User.find(params[:id])
-
+    if params[:id] == "me"
+      @user = current_api_user
+    else
+      @user = User.find(params[:id])
+    end
   rescue ActiveRecord::RecordNotFound
     render json: { error: "User not found" }, status: :not_found
   end

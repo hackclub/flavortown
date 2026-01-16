@@ -9,6 +9,7 @@ module Admin
     rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
     # Optional before_action to enforce admin/fraud dept on all admin controllers
+    before_action :prevent_admin_access_while_impersonating
     before_action :authenticate_admin, unless: :mission_control_jobs?
     before_action :set_paper_trail_whodunnit
 
@@ -64,7 +65,14 @@ module Admin
 
     # Track who makes changes in PaperTrail
     def user_for_paper_trail
-      current_user&.id
+      impersonating? ? real_user&.id : current_user&.id
+    end
+
+    def prevent_admin_access_while_impersonating
+      if impersonating?
+        flash[:alert] = "You cannot access admin panels while impersonating. Stop impersonation first."
+        redirect_to root_path
+      end
     end
   end
 end

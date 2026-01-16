@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= content_for(:title) || "Flavortown" %></title>
+    <title><%= content_for?(:title) ? "#{strip_tags(yield(:title))} - Flavortown" : "Flavortown - Hack Club" %></title>
     <%= favicon_link_tag 'favicon.ico' %>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,7 +11,24 @@
     <meta name="twitter:creator" content="@hackclub">
     <meta property="og:locale" content="en_US">
     <meta property="og:site_name" content="Flavortown - Hack Club">
-    <meta name="description" content="Flavortown is Hack Club's fiscal sponsorship platform, empowering teen hackers to run their own nonprofit projects with transparent finances.">
+
+    <% og_title = content_for?(:og_title) ? yield(:og_title) : (content_for?(:title) ? "#{yield(:title)} - Flavortown" : "Flavortown - Hack Club") %>
+    <% og_description = content_for?(:og_description) ? yield(:og_description) : "Build projects, earn cookies, get prizes. A Hack Club program for teen coders." %>
+    <% og_image = content_for?(:og_image) ? yield(:og_image) : image_url("landing/hero/long-image.avif") %>
+    <% og_url = content_for?(:og_url) ? yield(:og_url) : request.original_url %>
+    <% twitter_card = content_for?(:twitter_card) ? yield(:twitter_card) : "summary" %>
+
+    <meta name="description" content="<%= og_description %>">
+    <meta property="og:title" content="<%= og_title %>">
+    <meta property="og:description" content="<%= og_description %>">
+    <meta property="og:url" content="<%= og_url %>">
+    <meta property="og:image" content="<%= og_image %>">
+    <meta name="twitter:card" content="<%= twitter_card %>">
+    <meta name="twitter:title" content="<%= og_title %>">
+    <meta name="twitter:description" content="<%= og_description %>">
+    <meta name="twitter:image" content="<%= og_image %>">
+    <% if content_for?(:og_author) %><meta name="author" content="<%= yield(:og_author) %>"><% end %>
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <meta name="turbo-prefetch" content="false">
@@ -40,7 +57,24 @@
     <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>
 
-  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) %>>
+  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %>>
+    <% if impersonating? %>
+      <div class="impersonation-banner">
+        <div class="impersonation-content">
+          <div style="display: flex; align-items: center;">
+            <div class="impersonation-text">
+              <strong>IMPERSONATING:</strong> <%= current_user.display_name %>
+              <span class="impersonation-admin">(as <%= real_user.display_name %>)</span>
+            </div>
+          </div>
+          <%= button_to "Stop Impersonating",
+                        stop_impersonating_admin_users_path,
+                        method: :post,
+                        class: "btn-stop-impersonation",
+                        form: { style: "margin: 0;" } %>
+        </div>
+      </div>
+    <% end %>
     <% if current_user.present? && !current_user.banned? && !@hide_sidebar %>
       <%= render "shared/sidebar" %>
     <% end %>
@@ -57,6 +91,7 @@
           (DB: <%= pluralize(QueryCount::Counter.counter, "query") %>, <%= QueryCount::Counter.counter_cache %> cached)
           (CACHE: <%= cache_stats[:hits] %> hits, <%= cache_stats[:misses] %> misses)
           (<%= requests_per_second %>)
+          (Active: <%= active_users_stats %>)
         </p>
       </footer>
     <% end %>

@@ -2,42 +2,50 @@
 #
 # Table name: users
 #
-#  id                          :bigint           not null, primary key
-#  api_key                     :string
-#  banned                      :boolean          default(FALSE), not null
-#  banned_at                   :datetime
-#  banned_reason               :text
-#  cookie_clicks               :integer          default(0), not null
-#  display_name                :string
-#  email                       :string
-#  first_name                  :string
-#  granted_roles               :string           default([]), not null, is an Array
-#  has_gotten_free_stickers    :boolean          default(FALSE)
-#  has_pending_achievements    :boolean          default(FALSE), not null
-#  hcb_email                   :string
-#  last_name                   :string
-#  leaderboard_optin           :boolean          default(FALSE), not null
-#  magic_link_token            :string
-#  magic_link_token_expires_at :datetime
-#  projects_count              :integer
-#  ref                         :string
-#  regions                     :string           default([]), is an Array
-#  send_votes_to_slack         :boolean          default(FALSE), not null
-#  session_token               :string
-#  shop_region                 :enum
-#  slack_balance_notifications :boolean          default(FALSE), not null
-#  synced_at                   :datetime
-#  tutorial_steps_completed    :string           default([]), is an Array
-#  verification_status         :string           default("needs_submission"), not null
-#  vote_anonymously            :boolean          default(FALSE), not null
-#  votes_count                 :integer
-#  ysws_eligible               :boolean          default(FALSE), not null
-#  created_at                  :datetime         not null
-#  updated_at                  :datetime         not null
-#  slack_id                    :string
+#  id                                      :bigint           not null, primary key
+#  api_key                                 :string
+#  banned                                  :boolean          default(FALSE), not null
+#  banned_at                               :datetime
+#  banned_reason                           :text
+#  cookie_clicks                           :integer          default(0), not null
+#  display_name                            :string
+#  email                                   :string
+#  enriched_ref                            :string
+#  first_name                              :string
+#  granted_roles                           :string           default([]), not null, is an Array
+#  has_gotten_free_stickers                :boolean          default(FALSE)
+#  has_pending_achievements                :boolean          default(FALSE), not null
+#  hcb_email                               :string
+#  internal_notes                          :text
+#  last_name                               :string
+#  leaderboard_optin                       :boolean          default(FALSE), not null
+#  magic_link_token                        :string
+#  magic_link_token_expires_at             :datetime
+#  projects_count                          :integer
+#  ref                                     :string
+#  regions                                 :string           default([]), is an Array
+#  send_notifications_for_followed_devlogs :boolean          default(TRUE), not null
+#  send_votes_to_slack                     :boolean          default(FALSE), not null
+#  session_token                           :string
+#  shadow_banned                           :boolean          default(FALSE), not null
+#  shadow_banned_at                        :datetime
+#  shadow_banned_reason                    :text
+#  shop_region                             :enum
+#  slack_balance_notifications             :boolean          default(FALSE), not null
+#  special_effects_enabled                 :boolean          default(TRUE), not null
+#  synced_at                               :datetime
+#  tutorial_steps_completed                :string           default([]), is an Array
+#  verification_status                     :string           default("needs_submission"), not null
+#  vote_anonymously                        :boolean          default(FALSE), not null
+#  votes_count                             :integer
+#  ysws_eligible                           :boolean          default(FALSE), not null
+#  created_at                              :datetime         not null
+#  updated_at                              :datetime         not null
+#  slack_id                                :string
 #
 # Indexes
 #
+#  index_users_on_api_key           (api_key) UNIQUE
 #  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #  index_users_on_session_token     (session_token) UNIQUE
@@ -45,6 +53,9 @@
 #
 class User < ApplicationRecord
   has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
+
+  has_recommended :projects # you might like these projects...
+
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
@@ -238,11 +249,21 @@ class User < ApplicationRecord
   end
 
   def soft_delete_projects!
-    projects.find_each(&:soft_delete!)
+    projects.find_each do |project|
+      project.soft_delete!(force: true)
+    end
   end
 
   def unban!
     update!(banned: false, banned_at: nil, banned_reason: nil)
+  end
+
+  def shadow_ban!(reason: nil)
+    update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
+  end
+
+  def unshadow_ban!
+    update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
   end
 
   def cancel_shop_order(order_id)
@@ -264,7 +285,7 @@ class User < ApplicationRecord
   end
 
   def avatar
-    "http://cachet.dunkirk.sh/users/#{slack_id}/r"
+    "https://cachet.dunkirk.sh/users/#{slack_id}/r"
   end
 
   def grant_email
@@ -331,10 +352,23 @@ class User < ApplicationRecord
     end
 
     result[:projects].each_key do |name|
-      hackatime_projects.find_or_create_by!(name: name)
+      User::HackatimeProject.find_or_create_by!(user_id: id, name: name)
     end
 
     @hackatime_data = result
+  end
+
+  # we're overriding to get latest data + filter out projects w/ 0 secs!
+  def hackatime_projects
+    projects = super
+    synced_data = try_sync_hackatime_data!
+    return projects unless synced_data
+
+    project_times = synced_data[:projects] || {}
+    project_names_with_time = project_times.select { |_name, seconds| seconds.to_i > 0 }.keys
+    return projects.none if project_names_with_time.empty?
+
+    projects.where(name: project_names_with_time)
   end
 
   def devlog_seconds_total
@@ -352,6 +386,15 @@ class User < ApplicationRecord
                                 .select("postable_id::bigint")
       Post::Devlog.where(id: devlog_postable_ids).sum(:duration_seconds) || 0
     end
+  end
+
+  def shipped_projects_count_in_range(start_date, end_date)
+    projects
+      .joins(:posts)
+      .where(posts: { postable_type: "Post::ShipEvent" })
+      .where(posts: { created_at: start_date.beginning_of_day..end_date.end_of_day })
+      .distinct
+      .count
   end
 
   private
@@ -391,6 +434,7 @@ class User < ApplicationRecord
   end
 
   def notify_role_granted(role)
+    return if Rails.env.development?
     return unless slack_id.present?
 
     role_info = User::Role.find(role)

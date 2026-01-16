@@ -21,6 +21,10 @@ class Post::ShipEvent < ApplicationRecord
 
   VOTES_REQUIRED_FOR_PAYOUT = 20
 
+  has_one :project, through: :post
+  has_many :project_memberships, through: :project, source: :memberships
+  has_many :project_members, through: :project, source: :users
+
   has_many :votes, foreign_key: :ship_event_id, dependent: :nullify, inverse_of: :ship_event
 
   validates :body, presence: { message: "Update message can't be blank" }

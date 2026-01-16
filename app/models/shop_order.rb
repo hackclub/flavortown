@@ -78,6 +78,7 @@ class ShopOrder < ApplicationRecord
   validate :check_free_stickers_requirement, on: :create
   validate :check_devlog_for_free_stickers, on: :create
   validate :check_stock, on: :create
+  validate :check_ship_requirement, on: :create
 
   after_create :create_negative_payout
   after_create :assign_default_user
@@ -171,7 +172,7 @@ class ShopOrder < ApplicationRecord
     end
 
     event :mark_rejected do
-      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment], to: :rejected
+      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment on_hold], to: :rejected
       before do |rejection_reason|
         self.rejection_reason = rejection_reason
       end
@@ -344,6 +345,17 @@ class ShopOrder < ApplicationRecord
     end
   end
 
+  def check_ship_requirement
+    return unless shop_item&.requires_ship?
+    return if shop_item.meet_ship_require?(user)
+
+    s = shop_item.required_ships_start_date.strftime("%B %d, %Y")
+    e = shop_item.required_ships_end_date.strftime("%B %d, %Y")
+    c = shop_item.required_ships_count
+
+    errors.add(:base, "You must have shipped at least #{c} #{'project'.pluralize(count)} between #{s} and #{e} to purchase this item.")
+  end
+
   def create_negative_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
 
@@ -357,6 +369,7 @@ class ShopOrder < ApplicationRecord
 
   def create_refund_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
+    return if shop_item.is_a?(ShopItem::FreeStickers)
 
     user.ledger_entries.create!(
       amount: total_cost,

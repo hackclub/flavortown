@@ -25,12 +25,17 @@ class ShopController < ApplicationController
   def my_orders
     @orders = current_user.shop_orders
                           .where(parent_order_id: nil)
-                          .includes(:accessory_orders, shop_item: { image_attachment: :blob })
+                          .includes(accessory_orders: { shop_item: { image_attachment: :blob } }, shop_item: { image_attachment: :blob })
                           .order(id: :desc)
     @show_tutorial_complete_dialog = session.delete(:show_tutorial_complete_dialog)
   end
 
   def cancel_order
+    @order = current_user.shop_orders.find(params[:order_id])
+    if @order.aasm_state == "fulfilled"
+      redirect_to shop_my_orders_path, alert: "You cannot cancel an already fulfilled order."
+      return
+    end
     result = current_user.cancel_shop_order(params[:order_id])
 
     if result[:success]
@@ -51,6 +56,7 @@ class ShopController < ApplicationController
     @user_region = user_region
     @sale_price = @shop_item.price_for_region(@user_region)
     @accessories = @shop_item.available_accessories.includes(:image_attachment)
+    ahoy.track "Viewed shop item", shop_item_id: @shop_item.id
   end
 
   def update_region

@@ -7,6 +7,7 @@
 #  demo_url           :text
 #  description        :text
 #  devlogs_count      :integer          default(0), not null
+#  duration_seconds   :integer          default(0), not null
 #  marked_fire_at     :datetime
 #  memberships_count  :integer          default(0), not null
 #  project_categories :string           default([]), is an Array
@@ -34,6 +35,9 @@
 #
 class Project < ApplicationRecord
     include AASM
+    include SoftDeletable
+
+    has_recommended :projects # more projects like this...
 
     after_create :notify_slack_channel
 
@@ -46,12 +50,30 @@ class Project < ApplicationRecord
       "Minecraft Mods", "Hardware", "Android App", "iOS App", "Other"
     ].freeze
 
-    scope :kept, -> { where(deleted_at: nil) }
-    scope :deleted, -> { where.not(deleted_at: nil) }
+    scope :excluding_member, ->(user) {
+        user ? where.not(id: user.projects) : all
+    }
     scope :fire, -> { where.not(marked_fire_at: nil) }
-
-    # we're soft deleting!
-    default_scope { kept }
+    scope :excluding_shadow_banned, -> {
+      joins(:memberships)
+        .joins("INNER JOIN users ON users.id = project_memberships.user_id")
+        .where(users: { shadow_banned: false })
+        .distinct
+    }
+    scope :visible_to, ->(viewer) {
+      if viewer&.shadow_banned?
+        # Shadow-banned users see all projects (so they don't know they're banned)
+        all
+      elsif viewer
+        # Regular users see non-shadow-banned projects + their own projects
+        left_joins(memberships: :user)
+          .where(memberships: { users: { shadow_banned: false } })
+          .or(left_joins(memberships: :user).where(memberships: { user_id: viewer.id }))
+          .distinct
+      else
+        excluding_shadow_banned
+      end
+    }
 
     belongs_to :marked_fire_by, class_name: "User", optional: true
 
@@ -59,15 +81,15 @@ class Project < ApplicationRecord
     has_many :users, through: :memberships
     has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :nullify
     has_many :posts, dependent: :destroy
-    has_many :devlogs, -> { where(postable_type: "Post::Devlog") }, class_name: "Post"
-    has_many :ship_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
+    has_many :devlog_posts, -> { where(postable_type: "Post::Devlog").order(created_at: :desc) }, class_name: "Post"
+    has_many :devlogs, through: :devlog_posts, source: :postable, source_type: "Post::Devlog"
+    has_many :ship_event_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
+    has_many :ship_events, through: :ship_event_posts, source: :postable, source_type: "Post::ShipEvent"
     has_many :git_commit_posts, -> { where(postable_type: "Post::GitCommit").order(created_at: :desc) }, class_name: "Post"
-    has_one :latest_ship_post, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
     has_many :votes, dependent: :destroy
     has_many :reports, class_name: "Project::Report", dependent: :destroy
     has_many :project_follows, dependent: :destroy
     has_many :followers, through: :project_follows, source: :user
-
     # needs to be implemented
     has_one_attached :demo_video
 
@@ -123,20 +145,25 @@ class Project < ApplicationRecord
       GitRepoService.is_cloneable? repo_url
     end
 
-    def time
-        total_seconds = Rails.cache.fetch("project/#{id}/time_seconds", expires_in: 10.minutes) do
-          Post::Devlog.where(id: posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")).sum(:duration_seconds) || 0
-        end
-        total_hours = total_seconds / 3600.0
-        hours = total_hours.to_i
-        minutes = ((total_hours - hours) * 60).to_i
+    def calculate_duration_seconds
+        posts.of_devlogs(join: true).where(post_devlogs: { deleted_at: nil }).sum("post_devlogs.duration_seconds")
+    end
 
-        OpenStruct.new(hours: hours, minutes: minutes)
+    def recalculate_duration_seconds!
+        update_column(:duration_seconds, calculate_duration_seconds)
     end
 
     # this can probaby be better?
-    def soft_delete!
+    def soft_delete!(force: false)
+      if !force && shipped?
+        errors.add(:base, "Cannot delete a project that has been shipped")
+        raise ActiveRecord::RecordInvalid.new(self)
+      end
       update!(deleted_at: Time.current)
+    end
+
+    def shipped?
+      shipped_at.present? || !draft?
     end
 
     def restore!
@@ -217,11 +244,11 @@ class Project < ApplicationRecord
         last_ship = last_ship_event
         return true if last_ship.nil?
 
-        devlogs.where("created_at > ?", last_ship.created_at).exists?
+        devlogs.where("post_devlogs.created_at > ?", last_ship.created_at).exists?
     end
 
     def last_ship_event
-        posts.where(postable_type: "Post::ShipEvent").order(created_at: :desc).first
+        ship_events.first
     end
 
     def shippable?

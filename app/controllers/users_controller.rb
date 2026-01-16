@@ -8,12 +8,18 @@ class UsersController < ApplicationController
                      .order(created_at: :desc)
                      .includes(banner_attachment: :blob)
 
+    if @user.shadow_banned? && @user != current_user
+      @projects = @projects.none
+    end
+
     approved_ship_event_ids = Post::ShipEvent.where(certification_status: "approved").pluck(:id)
 
-    @activity = Post.includes(:project, :user, postable: [ { attachments_attachments: :blob } ])
+    @activity = Post.joins(:project)
+                          .merge(Project.not_deleted)
                           .where(user_id: @user.id)
                           .where("postable_type != 'Post::ShipEvent' OR postable_id IN (?)", approved_ship_event_ids.presence || [ 0 ])
                           .order(created_at: :desc)
+                          .preload(:project, :user, postable: [ { attachments_attachments: :blob } ])
 
     # Filter out deleted devlogs for users who can't see them
     unless current_user&.can_see_deleted_devlogs?

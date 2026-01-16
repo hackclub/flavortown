@@ -12,8 +12,11 @@ class ApplicationController < ActionController::Base
   before_action :refresh_identity_on_portal_return
   before_action :initialize_cache_counters
   before_action :track_request
+  before_action :track_active_user
   before_action :show_pending_achievement_notifications!
   before_action :apply_dev_override_ref
+  before_action :allow_profiler
+  before_action :bullet_for_admins
 
   rescue_from StandardError, with: :handle_error
   rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
@@ -29,6 +32,23 @@ class ApplicationController < ActionController::Base
     end
   end
   helper_method :current_user
+
+  def impersonating?
+    session[:impersonator_user_id].present? && session[:user_id].present?
+  end
+
+  helper_method :impersonating?
+
+  def real_user
+    return nil unless session[:impersonator_user_id]
+    @real_user ||= User.find_by(id: session[:impersonator_user_id])
+  end
+
+  helper_method :real_user
+
+  def pundit_user
+    impersonating? ? real_user : current_user
+  end
 
   def tutorial_message(msg)
     flash[:tutorial_messages] ||= []
@@ -91,12 +111,28 @@ class ApplicationController < ActionController::Base
     RequestCounter.increment
   end
 
+  def track_active_user
+    ActiveUserTracker.track(user_id: current_user&.id, session_id: session.id.to_s)
+  end
+
   def apply_dev_override_ref
     return unless Rails.env.development?
     return unless params[:_override_ref].present? && current_user
     return if params[:_override_ref].length > 64
 
     current_user.update!(ref: params[:_override_ref])
+  end
+
+  def allow_profiler
+    return unless defined?(Rack::MiniProfiler)
+    if current_user&.admin? || Rails.env.development?
+      Rack::MiniProfiler.authorize_request
+    end
+  end
+
+  def bullet_for_admins
+    return unless defined?(Bullet)
+    Bullet.add_footer = current_user&.admin? || Rails.env.development?
   end
 
   def refresh_identity_on_portal_return

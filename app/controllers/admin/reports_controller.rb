@@ -15,6 +15,19 @@ module Admin
         reviewed: Project::Report.reviewed.count,
         dismissed: Project::Report.dismissed.count
       }
+
+      report_ids = @reports.map(&:id)
+      latest_versions = PaperTrail::Version
+        .where(item_type: "Project::Report", item_id: report_ids)
+        .order(:item_id, created_at: :desc)
+        .select("DISTINCT ON (item_id) *")
+
+      reviewer_ids = latest_versions.map(&:whodunnit).compact.uniq
+      reviewers_by_id = User.where(id: reviewer_ids).index_by { |u| u.id.to_s }
+
+      @reviewers_by_report = latest_versions.each_with_object({}) do |version, hash|
+        hash[version.item_id] = reviewers_by_id[version.whodunnit]
+      end
     end
 
     def show
@@ -29,6 +42,12 @@ module Admin
     def dismiss
       authorize :admin, :access_reports?
       update_status(:dismissed, "Report dismissed")
+    end
+
+    def process_demo_broken
+      authorize :admin, :access_reports?
+      ProcessDemoBrokenReportsJob.perform_later
+      redirect_to admin_reports_path, notice: "Demo broken reports processing job has been queued"
     end
 
     private
