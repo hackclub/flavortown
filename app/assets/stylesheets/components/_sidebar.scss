@@ -524,6 +524,24 @@
     height: auto;
     z-index: 1;
   }
+
+  .sidebar__user-avatar-astronaut-hat {
+    position: absolute;
+    top: -1.2em;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3.5em;
+    height: auto;
+    z-index: 3;
+  }
+}
+
+// Launch theme avatar styling - asteroid pod rings (pure CSS)
+.sidebar--launch .sidebar__user-avatar {
+  background-color: #3066C9;
+  border: none;
+  padding: 5px;
+  box-shadow: 0 0 0 8px #27093C;
 }
 
 .sidebar__user-avatar-placeholder {
@@ -982,4 +1000,66 @@
   .sidebar:focus-within & {
     opacity: 1;
   }
+}
+
+// Launch theme stars
+.launch-stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+}
+
+.launch-star {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  opacity: var(--base-opacity, 0.4);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.launch-star--twinkle {
+  opacity: 1 !important;
+  transform: scale(1.5);
+}
+
+// Shooting star
+.shooting-star {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -2;
+  box-shadow:
+    0 0 2px 1px #fff,
+    0 0 8px 2px rgba(255, 200, 150, 0.8);
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 150px;
+    height: 2px;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.9), rgba(255, 200, 150, 0.6) 20%, rgba(255, 150, 100, 0.2) 60%, transparent);
+  }
+}
+
+
+
+// Launch theme ISS background
+.launch-iss {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: auto;
+  max-width: none;
+  pointer-events: none;
+  z-index: -1;
+  object-fit: contain;
+  object-position: left top;
 }
