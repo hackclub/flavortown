@@ -843,10 +843,24 @@
 .sidebar--launch {
   .sidebar__blob {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     background-color: #27093c;
     background-image: none;
     box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.25);
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border-radius: inherit;
+      pointer-events: none;
+      z-index: 0;
+    }
+  }
+
+  .sidebar__launch-rings {
+    clip-path: inset(0 round var(--border-radius));
   }
 
   .sidebar__nav-link {
@@ -858,7 +872,6 @@
 
     &::before {
       background-color: #340c45;
-      background-image: none;
     }
   }
 
@@ -945,42 +958,16 @@
   margin-top: 0.25rem;
 }
 
-// Launch nav item special styling
-.sidebar__nav-link--launch::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 225%;
-  transform: translateX(-50%);
-  z-index: -1;
-
+// Launch nav item special styling - override active colors
+.sidebar--launch .sidebar__nav-link--active::before {
   background-color: #340c45;
   background-image: url("mask/sidebar-active.webp");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-
-  border-radius: calc(var(--border-radius) / 1.5);
-  box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.25);
-
-  transition: width 180ms ease;
-
-  @media (max-width: 1500px) {
-    width: 250%;
-  }
 }
 
-.sidebar:is(:hover, :focus-within) .sidebar__nav-link--launch::before {
-  width: 130%;
-
-  @media (max-width: 1500px) {
-    width: 140%;
-  }
-}
-
-.sidebar__nav-link--launch .sidebar__nav-icon-wrapper {
+.sidebar--launch .sidebar__nav-link--active .sidebar__nav-icon-wrapper {
   background: #27093c;
 }
 
