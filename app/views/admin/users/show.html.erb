@@ -236,9 +236,9 @@
   <form action="<%= admin_user_path(@user) %>" method="post">
     <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
     <%= hidden_field_tag :_method, "patch" %>
-    <%= text_area_tag "user[internal_notes]", @user.internal_notes, 
-        placeholder: "Add internal notes about this user...", 
-        rows: 4, 
+    <%= text_area_tag "user[internal_notes]", @user.internal_notes,
+        placeholder: "Add internal notes about this user...",
+        rows: 4,
         style: "width: 100%; resize: vertical; font-family: inherit; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;" %>
     <button type="submit" class="btn-primary slim" style="margin-top: 0.5rem;">Save Notes</button>
   </form>
