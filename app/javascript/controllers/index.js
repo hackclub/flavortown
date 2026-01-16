@@ -96,3 +96,9 @@ application.register("upload-form", UploadFormController);
 
 import CardSoundController from "./card_sound_controller";
 application.register("card-sound", CardSoundController);
+
+import StarsController from "./stars_controller";
+application.register("stars", StarsController);
+
+import ShootingStarController from "./shooting_star_controller";
+application.register("shooting-star", ShootingStarController);
