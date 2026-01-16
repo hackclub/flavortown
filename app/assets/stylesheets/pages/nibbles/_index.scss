@@ -1,0 +1,33 @@
+.nibbles {
+    &__header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2em;
+
+        img {
+            height: 100px;
+
+            @media (max-width: 600px) {
+                height: 70px;
+            }
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: normal;
+            text-align: center;
+        }
+    }
+
+    &__sidequests {
+        margin-top: 2em;
+        display: flex;
+        flex-direction: row;
+        gap: 2em;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: center;
+    }
+}

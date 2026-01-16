@@ -1,0 +1,87 @@
+.sidequest-card {
+    border: 0.5em solid red;
+    border-radius: 1em;
+    width: 450px;
+    position: relative;
+    padding: 0.75em;
+    background-color: var(--color-bg);
+
+    &__banner {
+        height: 120px;
+        position: absolute;
+        left: -1.5em;
+        top: -0.5em;
+
+        @media (max-width: 500px) {
+            height: 90px;
+        }
+    }
+
+    &__image {
+        width: 100%;
+        margin-top: 110px;
+        border-radius: 1em;
+
+        @media (max-width: 500px) {
+            margin-top: 80px;
+        }
+    }
+
+    h2 {
+        font-family: var(--font-family-text);
+        font-size: 1.2rem;
+        line-height: 1.5;
+        text-align: center;
+        font-weight: normal;
+        margin-top: 0.5em;
+    }
+
+    &__buttons {
+        border: 0.3em dashed rgba(113, 113, 113, 0.429);
+        padding: 0.75em;
+        display: flex;
+        flex-direction: row;
+        gap: 0.5em;
+        margin-top: 1em;
+        border-radius: 1em;
+
+        .btn {
+            border-radius: 0.8em;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-learn-more {
+            background-color: #F2E5CC;
+            color: var(--color-brown-700);
+            border-color: var(--color-brown-700);
+        }
+
+        .btn-submit {
+            background-color: var(--color-red-400);
+            border-color: var(--color-red-500);
+        }
+    }
+
+    @media (max-width: 1200px) {
+        width: 100%;
+    }
+
+    &--purple {
+        border-color: #B46AC7;
+    }
+
+    &--red {
+        border-color: #E04E5F;
+    }
+
+    &--blue {
+        border-color: #4A90E2;
+    }
+
+    &--green {
+        border-color: #7ED321;
+    }
+}

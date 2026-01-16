@@ -1,0 +1,9 @@
+<div class="<%= card_classes %>"> 
+    <%= image_tag banner_image_url, alt: "Sidequest Banner", class: "sidequest-card__banner" %>
+    <%= image_tag image_url, alt: "Sidequest Image", class: "sidequest-card__image" %>
+    <h2><%= description %></h2>
+    <div class="sidequest-card__buttons">
+        <%= link_to "Learn More", learn_more_link, class: "btn btn--blue btn-learn-more", target: "_blank", rel: "noopener" %>
+        <%= link_to "Submit", submit_link, class: "btn btn--green btn-submit", target: "_blank", rel: "noopener" %>
+    </div>
+</div>
