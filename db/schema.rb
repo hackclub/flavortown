@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_14_163329) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_16_020000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -582,6 +582,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_14_163329) do
     t.boolean "has_gotten_free_stickers", default: false
     t.boolean "has_pending_achievements", default: false, null: false
     t.string "hcb_email"
+    t.text "internal_notes"
     t.string "last_name"
     t.boolean "leaderboard_optin", default: false, null: false
     t.string "magic_link_token"

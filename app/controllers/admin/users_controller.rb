@@ -350,7 +350,7 @@ class Admin::UsersController < Admin::ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(regions: [])
+    params.require(:user).permit(:internal_notes, regions: [])
   end
 
   def cannot_adjust_balance_for?(target_user)

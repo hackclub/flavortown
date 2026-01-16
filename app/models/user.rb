@@ -16,6 +16,7 @@
 #  has_gotten_free_stickers                :boolean          default(FALSE)
 #  has_pending_achievements                :boolean          default(FALSE), not null
 #  hcb_email                               :string
+#  internal_notes                          :text
 #  last_name                               :string
 #  leaderboard_optin                       :boolean          default(FALSE), not null
 #  magic_link_token                        :string

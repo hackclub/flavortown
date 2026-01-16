@@ -228,6 +228,22 @@
   </div>
 </div>
 
+<div class="card" style="margin-top: 1rem;">
+  <h2 style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; color: #374151;">
+    📝 Internal Notes
+  </h2>
+  <p style="color: #666; font-size: 0.75rem; margin-bottom: 0.5rem;">Only visible to admins and fraud dept. Changes are audit logged.</p>
+  <form action="<%= admin_user_path(@user) %>" method="post">
+    <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+    <%= hidden_field_tag :_method, "patch" %>
+    <%= text_area_tag "user[internal_notes]", @user.internal_notes,
+        placeholder: "Add internal notes about this user...",
+        rows: 4,
+        style: "width: 100%; resize: vertical; font-family: inherit; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;" %>
+    <button type="submit" class="btn-primary slim" style="margin-top: 0.5rem;">Save Notes</button>
+  </form>
+</div>
+
 <%= render Admin::PastOrdersComponent.new(user: @user, title: "Shop Orders") %>
 
 <% if @user_actions.any? %>
@@ -285,6 +301,7 @@
               admin = User.find_by(id: version.whodunnit)
               is_ban_event = changes["banned"].is_a?(Array) rescue false
               is_magic_link_event = changes["magic_link_token"].is_a?(Array) rescue false
+              is_internal_notes_event = changes["internal_notes"].is_a?(Array) rescue false
             %>
             <tr>
               <td><%= version.created_at.strftime("%Y-%m-%d %H:%M") %></td>
@@ -301,6 +318,8 @@
                   <% end %>
                 <% elsif is_magic_link_event && changes["magic_link_token"]&.last.present? %>
                   <span style="color: #f59e0b; font-weight: 500;">🔗 Magic Link Created</span>
+                <% elsif is_internal_notes_event %>
+                  <span style="color: #6366f1; font-weight: 500;">📝 Internal Notes Updated</span>
                 <% elsif version.event == "address_revealed" %>
                   <span style="color: #f59e0b; font-weight: 500;">📍 Address Revealed</span>
                 <% else %>
@@ -333,6 +352,13 @@
                   <% end %>
                 <% elsif is_magic_link_event && changes["magic_link_token"]&.last.present? %>
                   Expires: <%= changes["magic_link_token_expires_at"]&.last %>
+                <% elsif is_internal_notes_event %>
+                  <% new_notes = changes["internal_notes"]&.last %>
+                  <% if new_notes.present? %>
+                    Changed to: "<%= truncate(new_notes, length: 100) %>"
+                  <% else %>
+                    <em>Notes cleared</em>
+                  <% end %>
                 <% elsif version.event == "address_revealed" %>
                   <% order_id = changes["order_id"] || changes[:order_id] %>
                   <% shop_item_name = changes["shop_item"] || changes[:shop_item] %>
