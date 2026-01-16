@@ -4,6 +4,9 @@
   </div> %>
 
   <div class="sidebar__blob">
+    <% if controller_name == 'launch' %>
+      <%= image_tag "launch-rings.png", class: "sidebar__launch-rings", alt: "", aria: { hidden: true } %>
+    <% end %>
     <nav class="sidebar__nav" aria-label="Primary navigation">
       <% sidebar_nav_items = [
         { label: "Kitchen", path: kitchen_path, icon: "fork_spoon_fill" },
@@ -43,11 +46,23 @@
                 <span class="sidebar__nav-label"><%= item[:label] %></span>
               <% end %>
             <% else %>
-              <%= link_to item[:path], class: link_classes, aria: (active ? { current: "page" } : {}) do %>
-                <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
-                  <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
-                </span>
-                <span class="sidebar__nav-label"><%= item[:label] %></span>
+              <% if item[:label] == "Launch" && controller_name == 'launch' %>
+                <div class="sidebar__nav-launch-wrapper">
+                  <%= link_to item[:path], class: link_classes, aria: { current: "page" } do %>
+                    <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
+                      <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
+                    </span>
+                    <span class="sidebar__nav-label"><%= item[:label] %></span>
+                  <% end %>
+                  <%= inline_svg_tag "launch-underline.svg", class: "sidebar__launch-underline" %>
+                </div>
+              <% else %>
+                <%= link_to item[:path], class: link_classes, aria: (active ? { current: "page" } : {}) do %>
+                  <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
+                    <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
+                  </span>
+                  <span class="sidebar__nav-label"><%= item[:label] %></span>
+                <% end %>
               <% end %>
             <% end %>
           </li>
@@ -58,44 +73,48 @@
 
   <div class="sidebar__user" aria-live="polite">
     <div class="sidebar__user-card">
-      <div class="sidebar__user-avatar">
-        <%= image_tag "chef-hat.webp", alt: "Hat", class: "sidebar__user-avatar-hat", aria: { hidden: true } %>
-        <%= image_tag "chef-hat-bg.webp", alt: "Hat", class: "sidebar__user-avatar-hat-bg", aria: { hidden: true } %>
-        <%= image_tag "santa-hat.webp", alt: "Santa Hat", class: "sidebar__user-avatar-santa-hat", aria: { hidden: true } %>
-        <% if current_user.slack_id.present? %>
-          <%= image_tag current_user.avatar, alt: current_user.display_name, class: "sidebar__user-avatar-placeholder", style: "object-fit: cover;" %>
-        <% else %>
-          <div class="sidebar__user-avatar-placeholder">
-            <%= current_user.display_name.first.upcase %>
-          </div>
-        <% end %>
-      </div>
-      <div class="sidebar__user-details">
-        <%= link_to user_path(current_user) do %>
-          <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
-        <% end %>
-        <% if current_user.fulfillment_person? && current_user.has_regions? %>
-          <span class="sidebar__user-region" style="font-size: 0.75rem; opacity: 0.7;">📍 <%= current_user.regions_display %></span>
-        <% end %>
-        <div class="sidebar__user-actions">
-          <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
-            🍪 <%= current_user.cached_balance %>
-          </button>
-
-          <button type="button" class="sidebar__user-settings" onclick="document.getElementById('settings-modal').showModal()" aria-label="Settings">
-            <%= inline_svg_tag "icons/gear.svg", class: "sidebar__user-settings-icon" %>
-          </button>
-
-          <button type="button" class="sidebar__user-logout" onclick="document.getElementById('logout-form').submit()" aria-label="Logout">
-            <%= inline_svg_tag "icons/logout.svg", class: "sidebar__user-logout-icon" %>
-          </button>
-
-          <%= form_with url: logout_path, method: :delete, id: "logout-form", style: "display: none;" do %>
-
+        <div class="sidebar__user-avatar">
+          <%= image_tag "chef-hat.webp", alt: "Hat", class: "sidebar__user-avatar-hat", aria: { hidden: true } %>
+          <%= image_tag "chef-hat-bg.webp", alt: "Hat", class: "sidebar__user-avatar-hat-bg", aria: { hidden: true } %>
+          <%= image_tag "santa-hat.webp", alt: "Santa Hat", class: "sidebar__user-avatar-santa-hat", aria: { hidden: true } %>
+          <% if current_user.slack_id.present? %>
+            <%= image_tag current_user.avatar, alt: current_user.display_name, class: "sidebar__user-avatar-placeholder", style: "object-fit: cover;" %>
+          <% else %>
+            <div class="sidebar__user-avatar-placeholder">
+              <%= current_user.display_name.first.upcase %>
+            </div>
           <% end %>
         </div>
+        <div class="sidebar__user-details">
+          <%= link_to user_path(current_user) do %>
+            <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
+          <% end %>
+          <% if current_user.fulfillment_person? && current_user.has_regions? %>
+            <span class="sidebar__user-region" style="font-size: 0.75rem; opacity: 0.7;">📍 <%= current_user.regions_display %></span>
+          <% end %>
+          <div class="sidebar__user-actions">
+            <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
+              <% if controller_name == 'launch' %>
+                ▲ <%= current_user.cached_balance %>
+              <% else %>
+                🍪 <%= current_user.cached_balance %>
+              <% end %>
+            </button>
+
+            <button type="button" class="sidebar__user-settings" onclick="document.getElementById('settings-modal').showModal()" aria-label="Settings">
+              <%= inline_svg_tag "icons/gear.svg", class: "sidebar__user-settings-icon" %>
+            </button>
+
+            <button type="button" class="sidebar__user-logout" onclick="document.getElementById('logout-form').submit()" aria-label="Logout">
+              <%= inline_svg_tag "icons/logout.svg", class: "sidebar__user-logout-icon" %>
+            </button>
+
+            <%= form_with url: logout_path, method: :delete, id: "logout-form", style: "display: none;" do %>
+
+            <% end %>
+          </div>
+        </div>
       </div>
-    </div>
   </div>
 
   <%= render layout: "shared/modal", locals: { id: "balance-modal", title: "Transaction History" } do %>
