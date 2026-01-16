@@ -47,13 +47,11 @@ class VoteMatchmaker
 
   def voteable_ship_events
     Post::ShipEvent
-      .joins(post: :project)
-      .joins("INNER JOIN project_memberships ON project_memberships.project_id = projects.id")
-      .joins("INNER JOIN users AS project_users ON project_users.id = project_memberships.user_id")
+      .joins(:project, :project_members)
       .where(certification_status: "approved")
       .where(payout: nil)
       .where.not(id: @user.votes.select(:ship_event_id))
-      .where.not(projects: { id: @user.projects })
-      .where(project_users: { shadow_banned: false })
+      .where.not(project: @user.projects)
+      .where(project_members: { shadow_banned: false })
   end
 end
