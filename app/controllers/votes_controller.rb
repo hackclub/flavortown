@@ -23,6 +23,7 @@ class VotesController < ApplicationController
     @vote = current_user.votes.build(vote_params)
 
     if @vote.save
+      share_vote_to_slack(@vote) if current_user.send_votes_to_slack
       redirect_to new_vote_path, notice: "Vote recorded!"
     else
       @ship_event = @vote.ship_event
@@ -45,5 +46,19 @@ class VotesController < ApplicationController
   def vote_params
     params.require(:vote).permit(:ship_event_id, :project_id, :reason,
       :demo_url_clicked, :repo_url_clicked, :time_taken_to_vote, *Vote.score_columns)
+  end
+
+  def share_vote_to_slack(vote)
+    SendSlackDmJob.perform_later(
+      "C0A2DTFSYSD",
+      nil,
+      blocks_path: "notifications/votes/shared",
+      locals: {
+        project: vote.project,
+        reason: vote.reason,
+        anonymous: current_user.vote_anonymously,
+        voter_slack_id: current_user.slack_id
+      }
+    )
   end
 end
