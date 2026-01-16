@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_11_112455) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_14_163329) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -528,22 +528,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_11_112455) do
     t.index ["user_id"], name: "index_shop_warehouse_packages_on_user_id"
   end
 
-  create_table "themes", force: :cascade do |t|
-    t.datetime "approved_at"
-    t.bigint "approved_by_id"
-    t.datetime "created_at", null: false
-    t.text "css_content", null: false
-    t.text "description"
-    t.string "name", null: false
-    t.string "slug", null: false
-    t.string "source_url"
-    t.integer "status", default: 0, null: false
-    t.datetime "updated_at", null: false
-    t.string "version", null: false
-    t.index ["slug"], name: "index_themes_on_slug", unique: true
-    t.index ["status"], name: "index_themes_on_status"
-  end
-
   create_table "user_achievements", force: :cascade do |t|
     t.string "achievement_slug", null: false
     t.datetime "created_at", null: false
@@ -608,12 +592,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_11_112455) do
     t.boolean "send_notifications_for_followed_devlogs", default: true, null: false
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
+    t.boolean "shadow_banned", default: false, null: false
+    t.datetime "shadow_banned_at"
+    t.text "shadow_banned_reason"
     t.enum "shop_region", enum_type: "shop_region_type"
     t.boolean "slack_balance_notifications", default: false, null: false
     t.string "slack_id"
     t.boolean "special_effects_enabled", default: true, null: false
     t.datetime "synced_at"
-    t.string "theme_slug"
     t.string "tutorial_steps_completed", default: [], array: true
     t.datetime "updated_at", null: false
     t.string "verification_status", default: "needs_submission", null: false
@@ -688,7 +674,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_11_112455) do
   add_foreign_key "shop_orders", "users"
   add_foreign_key "shop_orders", "users", column: "assigned_to_user_id", on_delete: :nullify
   add_foreign_key "shop_warehouse_packages", "users"
-  add_foreign_key "themes", "users", column: "approved_by_id"
   add_foreign_key "user_achievements", "users"
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"

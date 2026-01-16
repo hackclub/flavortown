@@ -26,11 +26,13 @@
 #  send_notifications_for_followed_devlogs :boolean          default(TRUE), not null
 #  send_votes_to_slack                     :boolean          default(FALSE), not null
 #  session_token                           :string
+#  shadow_banned                           :boolean          default(FALSE), not null
+#  shadow_banned_at                        :datetime
+#  shadow_banned_reason                    :text
 #  shop_region                             :enum
 #  slack_balance_notifications             :boolean          default(FALSE), not null
 #  special_effects_enabled                 :boolean          default(TRUE), not null
 #  synced_at                               :datetime
-#  theme_slug                              :string
 #  tutorial_steps_completed                :string           default([]), is an Array
 #  verification_status                     :string           default("needs_submission"), not null
 #  vote_anonymously                        :boolean          default(FALSE), not null
@@ -253,6 +255,14 @@ class User < ApplicationRecord
 
   def unban!
     update!(banned: false, banned_at: nil, banned_reason: nil)
+  end
+
+  def shadow_ban!(reason: nil)
+    update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
+  end
+
+  def unshadow_ban!
+    update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
   end
 
   def cancel_shop_order(order_id)

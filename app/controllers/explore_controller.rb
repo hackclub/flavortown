@@ -3,6 +3,8 @@ class ExploreController < ApplicationController
     scope = Post.of_devlogs(join: true)
                 .where(post_devlogs: { tutorial: false })
                 .where.not(user_id: current_user&.id)
+                .joins(:user)
+                .where(users: { shadow_banned: false })
                 .includes(:user, :project)
                 .preload(:postable)
                 .order(created_at: :desc)
@@ -34,6 +36,7 @@ class ExploreController < ApplicationController
     scope = Project.includes(banner_attachment: :blob)
                    .where(tutorial: false)
                    .excluding_member(current_user)
+                   .excluding_shadow_banned
                    .order(created_at: :desc)
 
     @pagy, @projects = pagy(scope)

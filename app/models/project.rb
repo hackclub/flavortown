@@ -54,6 +54,26 @@ class Project < ApplicationRecord
         user ? where.not(id: user.projects) : all
     }
     scope :fire, -> { where.not(marked_fire_at: nil) }
+    scope :excluding_shadow_banned, -> {
+      joins(:memberships)
+        .joins("INNER JOIN users ON users.id = project_memberships.user_id")
+        .where(users: { shadow_banned: false })
+        .distinct
+    }
+    scope :visible_to, ->(viewer) {
+      if viewer&.shadow_banned?
+        # Shadow-banned users see all projects (so they don't know they're banned)
+        all
+      elsif viewer
+        # Regular users see non-shadow-banned projects + their own projects
+        left_joins(memberships: :user)
+          .where(memberships: { users: { shadow_banned: false } })
+          .or(left_joins(memberships: :user).where(memberships: { user_id: viewer.id }))
+          .distinct
+      else
+        excluding_shadow_banned
+      end
+    }
 
     belongs_to :marked_fire_by, class_name: "User", optional: true
 

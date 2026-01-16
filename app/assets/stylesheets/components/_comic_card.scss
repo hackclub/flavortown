@@ -5,16 +5,40 @@
   justify-content: center;
   width: fit-content;
 
-  img {
-    margin-top: 0.5em;
-    width: 200px;
-    box-shadow: var(--shadow);
+  &__frame {
+    position: relative;
     transition: all 0.3s ease;
+
+    img {
+      margin-top: 0.5em;
+      width: 200px;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+    }
+
+    .comic-card__step-num {
+      position: absolute;
+      bottom: -0.5rem;
+      left: -0.75rem;
+      background-color: #ea5565;
+      color: var(--color-bg);
+      border: 0.12em solid black;
+      border-radius: 50%;
+      font-size: 2rem;
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
     &:hover {
       transform: scale(1.05);
       cursor: pointer;
-      box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.5);
+
+      img {
+        box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.5);
+      }
     }
   }
 
@@ -62,8 +86,8 @@
 
     h3 {
       font-size: 2rem;
-      color: var(--color-brown-500);
-      margin-bottom: 0.25em;
+      color: var(--color-bg);
+      margin-bottom: 0.5em;
     }
 
     p {
@@ -77,6 +101,17 @@
         &:hover {
           color: var(--color-brown-500);
         }
+      }
+    }
+
+    ul {
+      margin-left: 1em;
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+
+      li {
+        font-size: 1.25rem;
+        line-height: 1.1;
       }
     }
 

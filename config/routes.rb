@@ -195,6 +195,8 @@ Rails.application.routes.draw do
          post :adjust_balance
          post :ban
          post :unban
+         post :shadow_ban
+         post :unshadow_ban
          post :impersonate
        end
        collection do
@@ -261,6 +263,7 @@ Rails.application.routes.draw do
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
     member do
       get :ship
+      get :readme
       patch :update_ship
       post :submit_ship
       post :mark_fire
