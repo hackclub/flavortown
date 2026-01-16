@@ -263,6 +263,7 @@ Rails.application.routes.draw do
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
     member do
       get :ship
+      get :readme
       patch :update_ship
       post :submit_ship
       post :mark_fire
