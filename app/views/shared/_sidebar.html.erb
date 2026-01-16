@@ -5,7 +5,9 @@
 
   <div class="sidebar__blob">
     <% if controller_name == 'launch' %>
-      <%= image_tag "launch-rings.png", class: "sidebar__launch-rings", alt: "", aria: { hidden: true } %>
+      <div class="sidebar__launch-rings-clip">
+        <%= image_tag "launch-rings.png", class: "sidebar__launch-rings", alt: "", aria: { hidden: true } %>
+      </div>
     <% end %>
     <nav class="sidebar__nav" aria-label="Primary navigation">
       <% sidebar_nav_items = [
