@@ -1,30 +1,24 @@
 class ExploreController < ApplicationController
-  VARIANTS = %i[devlog fire certified ship].freeze
-
   def index
-    # Get non-tutorial devlog IDs, filtering out deleted ones for regular users
-    devlog_scope = Post::Devlog.where(tutorial: false)
-    unless current_user&.can_see_deleted_devlogs?
-      devlog_scope = devlog_scope.not_deleted
-    end
-    non_tutorial_devlog_ids = devlog_scope.select(:id)
-
-    scope = Post.includes(:user, :project, postable: { attachments_attachments: :blob, likes: [] })
-                .where(postable_type: "Post::Devlog")
-                .where("posts.postable_id::bigint IN (?)", non_tutorial_devlog_ids)
+    scope = Post.of_devlogs(join: true)
+                .where(post_devlogs: { tutorial: false })
                 .where.not(user_id: current_user&.id)
+                .joins(:user)
+                .where(users: { shadow_banned: false })
+                .includes(:user, :project)
+                .preload(:postable)
                 .order(created_at: :desc)
 
-    @pagy, @devlogs = pagy(scope)
+    scope = scope.where(post_devlogs: { deleted_at: nil }) unless current_user&.can_see_deleted_devlogs?
 
-    Rails.logger.debug "Devlogs count: #{@devlogs.size}, IDs: #{@devlogs.map(&:id)}"
+    @pagy, @devlogs = pagy(scope, limit: 30, client_max_limit: 30)
 
     respond_to do |format|
       format.html
       format.json do
         html = @devlogs.map do |post|
           render_to_string(
-            PostComponent.new(post: post, variant: devlog_variant(post), current_user: current_user),
+            PostComponent.new(post: post, current_user: current_user, theme: :explore_mixed),
             layout: false,
             formats: [ :html ]
           )
@@ -40,9 +34,10 @@ class ExploreController < ApplicationController
 
   def gallery
     scope = Project.includes(banner_attachment: :blob)
-                    .where(tutorial: false)
-                    .where.not(id: current_user&.projects&.pluck(:id) || [])
-                    .order(created_at: :desc)
+                   .where(tutorial: false)
+                   .excluding_member(current_user)
+                   .excluding_shadow_banned
+                   .order(created_at: :desc)
 
     @pagy, @projects = pagy(scope)
 
@@ -73,7 +68,7 @@ class ExploreController < ApplicationController
 
     scope = current_user.followed_projects
                         .where(tutorial: false)
-                        .includes(:banner_attachment, posts: :postable)
+                        .with_attached_banner
                         .order(created_at: :desc)
 
     @pagy, @projects = pagy(scope)
@@ -111,7 +106,7 @@ class ExploreController < ApplicationController
 
     @projects_with_counts = Project
       .where(id: project_ids_with_usage)
-      .includes(banner_attachment: :blob)
+      .with_attached_banner
       .index_by(&:id)
       .values_at(*project_ids_with_usage)
       .compact
@@ -122,11 +117,4 @@ class ExploreController < ApplicationController
       .group(:project_id)
       .count("DISTINCT user_id")
   end
-
-  private
-
-  def devlog_variant(post)
-    VARIANTS[post.id % VARIANTS.length]
-  end
-  helper_method :devlog_variant
 end

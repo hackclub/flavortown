@@ -45,6 +45,6 @@
     <%= button_to "Restore Project", restore_helper_project_path(@project),
       method: :post,
       class: "btn-primary",
-      data: { turbo_confirm: "Are you sure you want to restore this project?" } %>
+      form: { onsubmit: "return confirm('Are you sure you want to restore this project?')" } %>
   <% end %>
 </div>

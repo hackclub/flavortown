@@ -1,7 +1,15 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["content", "character", "sticker", "sprite"];
+  static targets = [
+    "content",
+    "character",
+    "sticker",
+    "sprite",
+    "muteButton",
+    "volumeOnIcon",
+    "volumeOffIcon",
+  ];
   static values = {
     text: Array,
     sprites: Array,
@@ -18,9 +26,37 @@ export default class extends Controller {
     this.currentSpriteIndex = 0;
     this.yapGeneration = 0;
     this.squeakCount = 0;
+    this.#loadMuteState();
     this.#loadSqueak();
     this.#preloadSprites();
     this.#render();
+  }
+
+  #loadMuteState() {
+    const stored = localStorage.getItem("orpheus-muted");
+    this.isMuted = stored === "true";
+    if (typeof Howler !== "undefined") {
+      Howler.mute(this.isMuted);
+    }
+    this.#updateMuteUI();
+  }
+
+  #updateMuteUI() {
+    if (this.hasVolumeOnIconTarget && this.hasVolumeOffIconTarget) {
+      this.volumeOnIconTarget.style.display = this.isMuted ? "none" : "block";
+      this.volumeOffIconTarget.style.display = this.isMuted ? "block" : "none";
+    }
+  }
+
+  toggleMute(event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    this.isMuted = !this.isMuted;
+    localStorage.setItem("orpheus-muted", this.isMuted);
+    if (typeof Howler !== "undefined") {
+      Howler.mute(this.isMuted);
+    }
+    this.#updateMuteUI();
   }
 
   #preloadSprites() {

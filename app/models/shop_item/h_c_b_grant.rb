@@ -43,6 +43,10 @@
 #  price_offset_uk                   :decimal(10, 2)
 #  price_offset_us                   :decimal(, )
 #  price_offset_xx                   :decimal(, )
+#  required_ships_count              :integer          default(1)
+#  required_ships_end_date           :date
+#  required_ships_start_date         :date
+#  requires_ship                     :boolean          default(FALSE)
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer

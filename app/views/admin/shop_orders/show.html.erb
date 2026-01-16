@@ -279,11 +279,23 @@
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
         <button type="submit" class="btn-primary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
       </form>
+    <% end %>
+
+    <%# Reject button for all non-fulfilled states %>
+    <% if %w[pending awaiting_verification awaiting_periodical_fulfillment on_hold].include?(@order.aasm_state) %>
       <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="btn-danger" style="width: 100%; padding: 0.2rem 0.4rem;">✗ Reject</button>
       <%= render "reject_modal", order: @order %>
     <% end %>
 
-    <% if (@order.pending? || @order.awaiting_periodical_fulfillment?) && !current_user.fulfillment_person? %>
+    <%# Refresh verification button for awaiting_verification state %>
+    <% if @order.awaiting_verification? %>
+      <form method="post" action="<%= refresh_verification_admin_shop_order_path(@order) %>">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Refresh verification status for this user?')">🔄 Refresh Verification</button>
+      </form>
+    <% end %>
+
+    <% if (@order.pending? || @order.awaiting_verification? || @order.awaiting_periodical_fulfillment?) && !current_user.fulfillment_person? %>
       <form method="post" action="<%= place_on_hold_admin_shop_order_path(@order) %>">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
         <button type="submit" class="btn-secondary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Place this order on hold?')">⏸ Hold</button>

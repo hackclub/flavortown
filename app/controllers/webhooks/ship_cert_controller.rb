@@ -22,7 +22,7 @@ class Webhooks::ShipCertController < ApplicationController
       return
     end
 
-    ship_event = project.ship_posts.order(created_at: :desc).first&.postable
+    ship_event = project.ship_events.first
     unless ship_event.is_a?(Post::ShipEvent)
       render json: { error: "No ship event found" }, status: :not_found
       return

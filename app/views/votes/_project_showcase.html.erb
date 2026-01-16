@@ -14,7 +14,7 @@
               </div>
               <div class="votes-new__project-card-stat">
                   <%= inline_svg_tag "icons/time.svg" %>
-                  <span><%= "#{project.time.hours}hr #{project.time.minutes}min" %></span>
+                  <span><%= format_seconds(project.duration_seconds) %></span>
               </div>
           </div>
       </div>
@@ -27,7 +27,8 @@
           text: "DEMO",
           icon: "icons/globe2.svg",
           aria: { label: "Demo" },
-          target: "_blank"
+          target: "_blank",
+          data: { action: "click->vote-tracker#trackDemoClick" }
         ) %>
         <%= render ButtonComponent.new(
           href: project.repo_url,
@@ -36,7 +37,8 @@
           text: "REPO",
           icon: "icons/code.svg",
           aria: { label: "Repo" },
-          target: "_blank"
+          target: "_blank",
+          data: { action: "click->vote-tracker#trackRepoClick" }
         ) %>
         <%= render ButtonComponent.new(
           color: :yellow,
@@ -50,8 +52,8 @@
     </div>
   </div>
   <div class="votes-new__devlogs">
-    <% devlogs.each do |post| %>
-      <%= render PostComponent.new(post: post, variant: :devlog, current_user: current_user) %>
+    <% posts.each do |post| %>
+      <%= render PostComponent.new(post: post, current_user: current_user) %>
     <% end %>
   </div>
 </div>

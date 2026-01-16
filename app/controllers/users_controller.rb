@@ -8,10 +8,14 @@ class UsersController < ApplicationController
                      .order(created_at: :desc)
                      .includes(banner_attachment: :blob)
 
+    if @user.shadow_banned? && @user != current_user
+      @projects = @projects.none
+    end
+
     approved_ship_event_ids = Post::ShipEvent.where(certification_status: "approved").pluck(:id)
 
     @activity = Post.joins(:project)
-                          .merge(Project.kept)
+                          .merge(Project.not_deleted)
                           .where(user_id: @user.id)
                           .where("postable_type != 'Post::ShipEvent' OR postable_id IN (?)", approved_ship_event_ids.presence || [ 0 ])
                           .order(created_at: :desc)

@@ -4,32 +4,34 @@
   <h1>My Votes</h1>
   <%= link_to "Back to Voting", new_vote_path %>
 
-  <% if @votes_by_project.empty? %>
+  <% if @votes.empty? %>
     <p>You haven't voted on any projects yet.</p>
   <% else %>
     <table>
       <thead>
         <tr>
           <th>Project</th>
-          <th>Category</th>
-          <th>Score</th>
+          <th>Ship Event</th>
+          <% Vote.enabled_categories.each do |category| %>
+            <th><%= category.to_s.humanize %></th>
+          <% end %>
           <th>Actions</th>
         </tr>
       </thead>
-      <% @votes_by_project.each do |project, votes| %>
-        <tbody>
-          <% votes.each do |vote| %>
-            <tr>
-              <td><%= project.title %></td>
-              <td><%= vote.category.humanize %></td>
-              <td><%= vote.score %>/5</td>
-              <td>
-                <%= link_to "View Project", project_path(project), class: "btn btn--brown slim" %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      <% end %>
+      <tbody>
+        <% @votes.each do |vote| %>
+          <tr>
+            <td><%= vote.project.title %></td>
+            <td><%= vote.ship_event.created_at.strftime("%b %d, %Y") %></td>
+            <% Vote.enabled_categories.each do |category| %>
+              <td><%= vote.send(:"#{category}_score") || "-" %>/6</td>
+            <% end %>
+            <td>
+              <%= link_to "View Project", project_path(vote.project), class: "btn btn--brown slim" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
     </table>
 
     <% if @pagy.pages > 1 %>

@@ -23,7 +23,7 @@ class ShipCertService
           readme: project.readme_url
         },
         metadata: {
-          devTime: project.time ? "#{project.time.hours}h #{project.time.minutes}m" : nil
+          devTime: project.duration_seconds
         }
       }
     }
@@ -73,6 +73,6 @@ class ShipCertService
   end
 
   def self.latest_ship_event(project)
-    project.ship_posts.order(created_at: :desc).first&.postable
+    project.ship_events.first
   end
 end

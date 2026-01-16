@@ -1,60 +1,69 @@
 class Project::DevlogsController < ApplicationController
   before_action :set_project
-  before_action :require_project_member
   before_action :set_devlog, only: %i[edit update destroy versions]
-  before_action :require_devlog_owner, only: %i[edit update destroy]
   before_action :require_hackatime_project, only: %i[new create]
   before_action :sync_hackatime_projects, only: %i[new create]
-  before_action :load_preview_time, only: %i[new create]
-  before_action :require_preview_time, only: %i[new create]
+  before_action :load_preview_time, only: %i[new]
+  before_action :require_preview_time, only: %i[new]
 
   def new
+    authorize @project, :create_devlog?
     @devlog = Post::Devlog.new
   end
 
   def create
-    @devlog = Post::Devlog.new(devlog_params)
-    @devlog.duration_seconds = @preview_seconds
-    @devlog.hackatime_projects_key_snapshot = @project.hackatime_keys.join(",")
+    authorize @project, :create_devlog?
 
-    if @devlog.save
-      Post.create!(project: @project, user: current_user, postable: @devlog)
-      flash[:notice] = "Devlog created successfully"
+    current_user.with_advisory_lock("devlog_create", timeout_seconds: 10) do
+      load_preview_time
+      return redirect_to @project, alert: "Could not calculate your coding time. Please try again." unless @preview_time.present?
 
-      unless @devlog.tutorial?
-        # Only track the first non-tutorial devlog
-        existing_non_tutorial_devlogs = Post::Devlog.joins(:post)
-                                                    .where(posts: { user_id: current_user.id })
-                                                    .where(tutorial: false)
-                                                    .where.not(id: @devlog.id)
-        if existing_non_tutorial_devlogs.empty?
-          FunnelTrackerService.track(
-            event_name: "devlog_created",
-            user: current_user,
-            properties: { devlog_id: @devlog.id, project_id: @project.id }
-          )
+      @devlog = Post::Devlog.new(devlog_params)
+      @devlog.duration_seconds = @preview_seconds
+      @devlog.hackatime_projects_key_snapshot = @project.hackatime_keys.join(",")
+
+      if @devlog.save
+        Post.create!(project: @project, user: current_user, postable: @devlog)
+        Rails.cache.delete("user/#{current_user.id}/devlog_seconds_total")
+        Rails.cache.delete("user/#{current_user.id}/devlog_seconds_today/#{Time.zone.today}")
+        flash[:notice] = "Devlog created successfully"
+
+        unless @devlog.tutorial?
+          existing_non_tutorial_devlogs = Post::Devlog.joins(:post)
+                                                      .where(posts: { user_id: current_user.id })
+                                                      .where(tutorial: false)
+                                                      .where.not(id: @devlog.id)
+          if existing_non_tutorial_devlogs.empty?
+            FunnelTrackerService.track(
+              event_name: "devlog_created",
+              user: current_user,
+              properties: { devlog_id: @devlog.id, project_id: @project.id }
+            )
+          end
         end
-      end
 
-      if current_user.complete_tutorial_step! :post_devlog
-        tutorial_message [
-          "Yay! You just earned free stickers for posting your first devlog — claim them from the Kitchen!",
-          "Now ship your project (when it is cooked to your satisfaction) to earn cookies 🍪 and exchange those for stuff in the shop.",
-          "Bonne chance! Remember, anyone can cook — go forth and whip up a storm!"
-        ]
-      end
+        if current_user.complete_tutorial_step! :post_devlog
+          tutorial_message [
+            "Yay! You just earned free stickers for posting your first devlog — claim them from the Kitchen!",
+            "Now ship your project (when it is cooked to your satisfaction) to earn cookies 🍪 and exchange those for stuff in the shop.",
+            "Bonne chance! Remember, anyone can cook — go forth and whip up a storm!"
+          ]
+        end
 
-      redirect_to @project
-    else
-      flash.now[:alert] = @devlog.errors.full_messages.to_sentence
-      render :new, status: :unprocessable_entity
+        return redirect_to @project
+      else
+        flash.now[:alert] = @devlog.errors.full_messages.to_sentence
+        render :new, status: :unprocessable_entity
+      end
     end
   end
 
   def edit
+    authorize @devlog
   end
 
   def update
+    authorize @devlog
     previous_body = @devlog.body
 
     if @devlog.update(update_devlog_params)
@@ -71,11 +80,13 @@ class Project::DevlogsController < ApplicationController
   end
 
   def destroy
+    authorize @devlog
     @devlog.soft_delete!
     redirect_to @project, notice: "Devlog deleted successfully"
   end
 
   def versions
+    authorize @devlog
     @versions = @devlog.versions.order(version_number: :desc)
   end
 
@@ -92,18 +103,6 @@ class Project::DevlogsController < ApplicationController
                       .postable
   end
 
-  def require_devlog_owner
-    post = @project.posts.find_by(postable: @devlog)
-    unless post&.user == current_user
-      redirect_to @project, alert: "You can only edit your own devlogs" and return
-    end
-  end
-
-  def require_project_member
-    unless current_user && @project.users.include?(current_user)
-      redirect_to @project, alert: "You must be a project member to add devlogs" and return
-    end
-  end
 
   def require_hackatime_project
     unless @project.hackatime_keys.present?

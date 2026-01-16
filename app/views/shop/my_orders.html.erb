@@ -3,7 +3,7 @@
     text: [
       "Awesome! Your free stickers are on the way!",
       "We've received your order and will ship it out soon once your identity is verified!",
-      "Tutorial complete! You now know how to tracking time, earn cookies, and order prizes.",
+      "Tutorial complete! You now know how to track time, earn cookies, and order prizes.",
       "Keep building and earning cookies to unlock more shop items! Need help? Drop a message in #flavortown-help on Slack. Happy Hacking and Keep Cooking!"
     ],
     sticker: "free_sticker.png",
@@ -47,8 +47,8 @@
             <div class="my-orders__header-item my-orders__header-item--right">
               <div class="my-orders__order-number-section">
                   <span class="my-orders__header-label">Order # <%= order.id %></span>
-                  <% if order.pending? %>
-                    <%= button_to "Cancel Order", cancel_shop_order_path(order_id: order.id), method: :delete, class: "my-orders__cancel-link", form: { data: { turbo_confirm: "Are you sure you want to cancel this order?" } } %>
+                  <% if order.pending? || order.aasm_state == "awaiting_periodical_fulfillment" %>
+                    <%= button_to "Cancel Order", cancel_shop_order_path(order_id: order.id), method: :delete, class: "my-orders__cancel-link", form: { onsubmit: "return confirm('Are you sure you want to cancel this order?')"   } %>
                   <% end %>
                 </div>
             </div>
@@ -102,7 +102,7 @@
                   <div class="my-orders__accessories">
                     <span class="my-orders__label">Accessories:</span>
                     <ul class="my-orders__accessory-list">
-                      <% order.accessory_orders.includes(shop_item: { image_attachment: :blob }).each do |acc_order| %>
+                      <% order.accessory_orders.each do |acc_order| %>
                         <li class="my-orders__accessory-item">
                           <% if acc_order.shop_item.image.attached? %>
                             <%= image_tag acc_order.shop_item.image.variant(:carousel_sm), class: "my-orders__accessory-image", loading: "lazy" %>

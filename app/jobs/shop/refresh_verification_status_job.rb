@@ -8,9 +8,9 @@ class Shop::RefreshVerificationStatusJob < ApplicationJob
                         .distinct.pluck(:user_id)
 
     User.where(id: user_ids)
-      .includes(:identities)
-      .find_each do |user|
-        refresh_verification_status(user)
+        .includes(:identities)
+        .find_each do |user|
+      refresh_verification_status(user)
     end
   end
 
@@ -31,6 +31,13 @@ class Shop::RefreshVerificationStatusJob < ApplicationJob
     user.verification_status = status
     user.ysws_eligible = ysws_eligible
     user.save!
+
+    if user.eligible_for_shop?
+      Shop::ProcessVerifiedOrdersJob.perform_later(user.id)
+    elsif user.should_reject_orders?
+      user.reject_awaiting_verification_orders!
+    end
+
   rescue StandardError => e
     Rails.logger.error "Failed to refresh verification status for user #{user.id}: #{e.message}"
     Sentry.capture_exception(e, extra: { user_id: user.id })

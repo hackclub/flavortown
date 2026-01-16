@@ -8,13 +8,21 @@ class Airtable::BaseSyncJob < ApplicationJob
   end
 
   def perform
-    airtable_records = records_to_sync.map do |record|
+    synced_records = records_to_sync.to_a
+    @synced_ids = synced_records.map(&:id)
+
+    airtable_records = synced_records.map do |record|
       table.new(field_mapping(record))
     end
 
+    # Deduplicate by primary key field to avoid Airtable "cannot update same record multiple times" error
+    airtable_records = airtable_records.uniq { |r| r.fields[primary_key_field] }
+
     table.batch_upsert(airtable_records, primary_key_field)
   ensure
-    records_to_sync.update_all(synced_at_field => Time.now)
+    records.unscoped
+           .where(id: @synced_ids)
+           .update_all(synced_at_field => Time.now) if @synced_ids.present?
   end
 
   private

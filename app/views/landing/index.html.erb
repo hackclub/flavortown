@@ -1,15 +1,5 @@
-<% content_for :title, "Flavortown - Hack Club" %>
-
-<% content_for :head do %>
-  <meta property="og:title" content="Flavortown - Hack Club">
-  <meta property="og:description" content="Build projects, earn cookies, get prizes. A Hack Club program for teen coders.">
-  <meta property="og:url" content="<%= request.original_url %>">
-  <meta property="og:image" content="<%= image_url('landing/hero/long-image.avif') %>">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Flavortown - Hack Club">
-  <meta name="twitter:description" content="Build projects, earn cookies, get prizes. A Hack Club program for teen coders.">
-  <meta name="twitter:image" content="<%= image_url('landing/hero/long-image.avif') %>">
-<% end %>
+<% content_for :twitter_card, "summary_large_image" %>
+<% content_for :og_image, og_image_url('home', format: :png) %>
 
 <%= content_for :stylesheets do %>
   <%= stylesheet_link_tag "landing", "data-turbo-track": "reload" %>

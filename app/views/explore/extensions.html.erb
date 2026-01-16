@@ -1,3 +1,8 @@
+<% content_for :title, "Extensions" %>
+<% content_for :og_title, "Flavortown Extensions" %>
+<% content_for :og_description, "Discover community-built tools and integrations for Flavortown." %>
+<% content_for :og_image, og_image_url('extensions', format: :png) %>
+
 <div class="explore" data-controller="load-more" data-load-more-url-value="<%= explore_extensions_path %>">
   <%= render "explore/explore_nav" %>
 

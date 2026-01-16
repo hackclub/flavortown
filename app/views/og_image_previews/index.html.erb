@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OG Image Previews</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .description {
+      color: #666;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+
+    .preview-group {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .preview-group-header {
+      background: #fafafa;
+      border-bottom: 1px solid #eee;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+      text-transform: capitalize;
+    }
+
+    .preview-list {
+      list-style: none;
+    }
+
+    .preview-item {
+      border-bottom: 1px solid #eee;
+    }
+    .preview-item:last-child { border-bottom: none; }
+
+    .preview-link {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: #0066cc;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .preview-link:hover {
+      background: #f8f8f8;
+    }
+    .preview-link code {
+      background: #f0f0f0;
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>OG Image Previews</h1>
+    <p class="description">
+      Preview OpenGraph images without database hits. Click any preview to view it.
+    </p>
+
+    <% @previews.each do |class_name, variants| %>
+      <div class="preview-group">
+        <div class="preview-group-header"><%= class_name.titleize %></div>
+        <ul class="preview-list">
+          <% variants.each do |preview_name| %>
+            <li class="preview-item">
+              <a href="<%= og_image_preview_path(preview_name) %>" class="preview-link">
+                <code><%= preview_name.split('/').last %></code>
+              </a>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+</body>
+</html>

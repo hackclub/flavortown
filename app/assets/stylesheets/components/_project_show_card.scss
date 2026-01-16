@@ -156,3 +156,13 @@
     }
   }
 }
+
+.modal {
+  &__title {
+    text-align: center;
+    background-color: var(--color-brown-700);
+    color: var(--color-bg);
+    padding: 0.2em;
+    border-radius: 1.25em;
+  }
+}

@@ -141,6 +141,14 @@
 
       <div class="settings-form__field">
         <label class="settings-form__checkbox">
+          <%= check_box_tag :send_notifications_for_followed_devlogs, "1", current_user.send_notifications_for_followed_devlogs, id: "send_notifications_for_followed_devlogs" %>
+          <span>Followed project notifications</span>
+        </label>
+        <small class="settings-form__hint">Receive a Slack DM when a project you're following has a new devlog</small>
+      </div>
+
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
           <%= check_box_tag :special_effects_enabled, "1", current_user.special_effects_enabled, id: "special_effects_enabled" %>
           <span>Special effects</span>
         </label>
@@ -155,17 +163,10 @@
 
     <div class="api-key-section">
       <label class="settings-form__label">API Key</label>
-      <div class="api-key-container">
-        <div class="api-key-display" onmouseenter="this.style.filter='blur(0px)'" onmouseleave="this.style.filter='blur(8px)'">
-          <%= current_user.api_key.present? ? current_user.api_key : "No API Key, press generate" %>
-        </div>
 
-        <%= button_to roll_api_key_path,
-                      method: :post,
-                      data: { turbo_confirm: "Are you sure? This will invalidate your current API key (if you have one)" } do %>
-          <%= inline_svg_tag "icons/refresh.svg", class: "api-key-generate-icon" %>
-        <% end %>
-      </div>
+      <%= turbo_frame_tag "api_key" do %>
+        <%= render "users/api_key", user: current_user %>
+      <% end %>
 
       <small class="settings-form__hint" style="margin-left: 0;">Your API key for
         accessing <%= link_to "Flavortown's API", api_v1_docs_path, target: "_blank", rel: "noopener", class: "api-docs-link" %>
