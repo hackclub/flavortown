@@ -1,4 +1,4 @@
-<dialog id="reject-modal" style="border: none; border-radius: 8px; padding: 2rem; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+<dialog id="reject-modal">
   <h2>Reject Order #<%= order.id %></h2>
 
   <%= form_with url: reject_admin_shop_order_path(order), method: :post, local: true do |f| %>
