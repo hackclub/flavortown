@@ -233,6 +233,9 @@ Rails.application.routes.draw do
     end
     resources :audit_logs, only: [ :index, :show ]
     resources :reports, only: [ :index, :show ] do
+      collection do
+        post :process_demo_broken
+      end
       member do
         post :review
         post :dismiss
