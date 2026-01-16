@@ -538,10 +538,10 @@
 
 // Launch theme avatar styling - asteroid pod rings (pure CSS)
 .sidebar--launch .sidebar__user-avatar {
-  background-color: #3066C9;
+  background-color: #3066c9;
   border: none;
   padding: 5px;
-  box-shadow: 0 0 0 8px #27093C;
+  box-shadow: 0 0 0 8px #27093c;
 }
 
 .sidebar__user-avatar-placeholder {
@@ -1015,7 +1015,9 @@
   background: #fff;
   border-radius: 50%;
   opacity: var(--base-opacity, 0.4);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .launch-star--twinkle {
@@ -1044,11 +1046,15 @@
     transform: translateY(-50%);
     width: 150px;
     height: 2px;
-    background: linear-gradient(to left, rgba(255, 255, 255, 0.9), rgba(255, 200, 150, 0.6) 20%, rgba(255, 150, 100, 0.2) 60%, transparent);
+    background: linear-gradient(
+      to left,
+      rgba(255, 255, 255, 0.9),
+      rgba(255, 200, 150, 0.6) 20%,
+      rgba(255, 150, 100, 0.2) 60%,
+      transparent
+    );
   }
 }
-
-
 
 // Launch theme ISS background
 .launch-iss {
