@@ -79,11 +79,14 @@
             </span>
           </td>
           <td>
-            <% if (reviewer = @reviewers_by_report[report.id]) %>
+            <% reviewer_info = @reviewers_by_report[report.id] %>
+            <% if reviewer_info.is_a?(User) %>
               <div class="user-cell">
-                <%= image_tag reviewer.avatar, class: "avatar-sm", alt: reviewer.display_name %>
-                <span><%= reviewer.display_name %></span>
+                <%= image_tag reviewer_info.avatar, class: "avatar-sm", alt: reviewer_info.display_name %>
+                <span><%= reviewer_info.display_name %></span>
               </div>
+            <% elsif reviewer_info == :auto %>
+              <span class="badge" style="background: #8b5cf6; color: white;">🤖 Auto</span>
             <% else %>
               <span class="text-muted">—</span>
             <% end %>
