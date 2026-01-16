@@ -10,6 +10,10 @@ class ProjectsController < ApplicationController
   def show
     authorize @project
 
+    if @project.users.where(shadow_banned: true).exists? && !@project.users.include?(current_user)
+      raise ActiveRecord::RecordNotFound
+    end
+
     @posts = @project.posts
                      .includes(:user, postable: [ :attachments_attachments ])
                      .order(created_at: :desc)

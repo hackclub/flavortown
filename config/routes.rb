@@ -195,6 +195,8 @@ Rails.application.routes.draw do
          post :adjust_balance
          post :ban
          post :unban
+         post :shadow_ban
+         post :unshadow_ban
          post :impersonate
        end
        collection do

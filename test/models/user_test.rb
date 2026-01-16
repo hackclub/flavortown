@@ -26,6 +26,9 @@
 #  send_notifications_for_followed_devlogs :boolean          default(TRUE), not null
 #  send_votes_to_slack                     :boolean          default(FALSE), not null
 #  session_token                           :string
+#  shadow_banned                           :boolean          default(FALSE), not null
+#  shadow_banned_at                        :datetime
+#  shadow_banned_reason                    :text
 #  shop_region                             :enum
 #  slack_balance_notifications             :boolean          default(FALSE), not null
 #  special_effects_enabled                 :boolean          default(TRUE), not null
