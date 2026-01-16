@@ -31,39 +31,45 @@
 <div class="card" style="margin-bottom: 2rem;">
   <h2>Reported Project</h2>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-    <div>
-      <strong>Title:</strong> <%= link_to @report.project.title, project_path(@report.project) %>
+  <% if @report.project.present? %>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div>
+        <strong>Title:</strong> <%= link_to @report.project.title, project_path(@report.project) %>
+      </div>
+      <div>
+        <strong>Demo URL:</strong>
+        <% if @report.project.demo_url.present? %>
+          <%= link_to @report.project.demo_url, @report.project.demo_url, target: "_blank" %>
+        <% else %>
+          <em>Not provided</em>
+        <% end %>
+      </div>
+      <div>
+        <strong>Repo URL:</strong>
+        <% if @report.project.repo_url.present? %>
+          <%= link_to @report.project.repo_url, @report.project.repo_url, target: "_blank" %>
+        <% else %>
+          <em>Not provided</em>
+        <% end %>
+      </div>
+      <div>
+        <strong>Members:</strong>
+        <%= @report.project.users.map { |u| u.display_name || u.email }.join(", ") %>
+      </div>
     </div>
-    <div>
-      <strong>Demo URL:</strong>
-      <% if @report.project.demo_url.present? %>
-        <%= link_to @report.project.demo_url, @report.project.demo_url, target: "_blank" %>
-      <% else %>
-        <em>Not provided</em>
-      <% end %>
-    </div>
-    <div>
-      <strong>Repo URL:</strong>
-      <% if @report.project.repo_url.present? %>
-        <%= link_to @report.project.repo_url, @report.project.repo_url, target: "_blank" %>
-      <% else %>
-        <em>Not provided</em>
-      <% end %>
-    </div>
-    <div>
-      <strong>Members:</strong>
-      <%= @report.project.users.map { |u| u.display_name || u.email }.join(", ") %>
-    </div>
-  </div>
 
-  <% if @report.project.description.present? %>
-    <div style="margin-top: 1rem;">
-      <strong>Description:</strong>
-      <p style="background: #f9fafb; padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
-        <%= @report.project.description %>
-      </p>
-    </div>
+    <% if @report.project.description.present? %>
+      <div style="margin-top: 1rem;">
+        <strong>Description:</strong>
+        <p style="background: #f9fafb; padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
+          <%= @report.project.description %>
+        </p>
+      </div>
+    <% end %>
+  <% else %>
+    <p class="text-muted" style="padding: 1rem; background: #f9fafb; border-radius: 6px;">
+      This project has been deleted.
+    </p>
   <% end %>
 </div>
 

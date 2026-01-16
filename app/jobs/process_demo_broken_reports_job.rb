@@ -35,7 +35,19 @@ class ProcessDemoBrokenReportsJob < ApplicationJob
 
   def process_pending_reports(project, pending_reports)
     pending_reports.first(PENDING_THRESHOLD).each do |report|
+      old_status = report.status
       report.update!(status: :reviewed)
+
+      PaperTrail::Version.create!(
+        item_type: "Project::Report",
+        item_id: report.id,
+        event: "update",
+        whodunnit: nil,
+        object_changes: {
+          status: [ old_status, report.status ],
+          auto_processed: [ nil, "ProcessDemoBrokenReportsJob" ]
+        }
+      )
     end
 
     Rails.logger.info "[ProcessDemoBrokenReportsJob] Marked 5 reports as reviewed for project #{project.id}, re-certifying"
