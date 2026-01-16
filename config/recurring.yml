@@ -64,7 +64,7 @@ production:
 
   cache_carousel_prizes:
     class: Cache::CarouselPrizesJob
-    args: [ { force: true } ]
+    args: [{ force: true }]
     schedule: every hour
     concurrency: 1
     description: "Refresh carousel prizes cache for landing page"
@@ -80,3 +80,15 @@ production:
     schedule: every 2 minutes
     concurrency: 1
     description: "Flush extension usage from Redis buffer to database"
+
+  process_demo_broken_reports:
+    class: ProcessDemoBrokenReportsJob
+    schedule: every 30 minutes
+    concurrency: 1
+    description: "Process demo_broken reports: auto-review and re-certify projects with 5+ pending, notify Slack for 15+ total"
+
+  sync_inkthreadable_status:
+    class: Shop::SyncInkthreadableStatusJob
+    schedule: every hour
+    concurrency: 1
+    description: "Poll Inkthreadable API for order status updates and mark shipped orders as fulfilled"
