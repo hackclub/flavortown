@@ -206,30 +206,32 @@
   </div>
   <div class="card">
     <h2>flipper features</h2>
-    <div class="info-rows">
-      <% has_shop_open = Flipper.enabled?(:shop_open, @user) %>
-      <%= button_to (has_shop_open ? "Disable Shop" : "Enable Shop"),
-                    toggle_flipper_admin_user_path(@user),
-                    method: :post,
-                    params: { feature: "shop_open" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
-
-      <% has_admin_green = Flipper.enabled?(:admin_green, @user) %>
-      <%= button_to (has_admin_green ? "Disable Admin Green" : "Enable Admin Green"),
-                    toggle_flipper_admin_user_path(@user),
-                    method: :post,
-                    params: { feature: "admin_green" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
-
-      <% has_admin_dark = Flipper.enabled?(:admin_dark, @user) %>
-      <%= button_to (has_admin_dark ? "Disable Admin Dark Mode" : "Enable Admin Dark Mode"),
-                    toggle_flipper_admin_user_path(@user),
-                    method: :post,
-                    params: { feature: "admin_dark" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
+      <%
+        features = [
+          { key: :shop_open, label: "Shop" },
+          { key: :admin_green, label: "Admin Green" },
+          { key: :admin_dark, label: "Admin Dark" },
+          { key: :scrapbook_devlogs, label: "Devlogs" },
+          { key: :"git_commit_2025-12-25", label: "Git Commit" },
+          { key: :kitchen_comic, label: "Kitchen Comic" },
+          { key: :voting, label: "Voting" },
+          { key: :christmas_theme, label: "Christmas" },
+          { key: :grant_cookies, label: "Grant Cookies" }
+        ]
+      %>
+      <% features.each do |f| %>
+        <% enabled = Flipper.enabled?(f[:key], @user) %>
+        <%= button_to toggle_flipper_admin_user_path(@user),
+                      method: :post,
+                      params: { feature: f[:key].to_s },
+                      class: "btn-primary",
+                      style: "font-size: 0.65rem; padding: 0.2rem 0.4rem; background: #{enabled ? '#22c55e' : '#6b7280'};",
+                      disabled: !current_user&.admin?,
+                      title: "#{enabled ? 'Disable' : 'Enable'} #{f[:label]}" do %>
+          <%= f[:label] %><%= enabled ? " ✓" : "" %>
+        <% end %>
+      <% end %>
     </div>
   </div>
 </div>
