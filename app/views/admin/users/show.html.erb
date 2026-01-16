@@ -104,6 +104,12 @@
                     title: "Sync Hackatime Data",
                     class: "btn-primary slim",
                     style: "font-size: 0.75rem; padding: 0.25rem 0.5rem;" %>
+      <%= button_to "🔄 Refresh Verification",
+                    refresh_verification_admin_user_path(@user),
+                    method: :post,
+                    title: "Refresh verification status from HCA",
+                    class: "btn-primary slim",
+                    data: { confirm: "Refresh verification status for #{@user.display_name}?" } %>
       <%= render 'role_toggle', user: @user, role_icon: '🕵️‍♀️', role_name: 'fraud_dept', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '📦', role_name: 'fulfillment_person', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '🚢', role_name: 'project_certifier', disabled: !current_user&.admin? %>

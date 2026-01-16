@@ -8,6 +8,12 @@
       Pending: <%= counts[:pending] %>
     <% end %>
 
+    <%= link_to admin_shop_orders_path(params.permit(:user_search, :shop_item_id, :date_from, :date_to, :sort, :view, :goob, :region).merge(status: 'awaiting_verification')),
+        class: "badge badge-awaiting_verification status-filter-link #{'active' if params[:status] == 'awaiting_verification'}",
+        style: "text-decoration: none;" do %>
+      Awaiting Verification: <%= counts[:awaiting_verification] %>
+    <% end %>
+
     <%= link_to admin_shop_orders_path(params.permit(:user_search, :shop_item_id, :date_from, :date_to, :sort, :view, :goob, :region).merge(status: 'awaiting_periodical_fulfillment')),
         class: "badge badge-awaiting_periodical_fulfillment status-filter-link #{'active' if params[:status] == 'awaiting_periodical_fulfillment'}",
         style: "text-decoration: none;" do %>

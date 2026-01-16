@@ -198,6 +198,7 @@ Rails.application.routes.draw do
          post :shadow_ban
          post :unshadow_ban
          post :impersonate
+         post :refresh_verification
        end
        collection do
          post :stop_impersonating
@@ -227,6 +228,7 @@ Rails.application.routes.draw do
         post :mark_fulfilled
         post :update_internal_notes
         post :assign_user
+        post :refresh_verification
       end
     end
     resources :audit_logs, only: [ :index, :show ]

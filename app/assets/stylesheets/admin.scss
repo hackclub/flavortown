@@ -430,3 +430,23 @@ body {
   display: flex;
   gap: 0.25rem;
 }
+
+/* Dialog / Modal */
+dialog {
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  background: var(--color-tan-300);
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+}

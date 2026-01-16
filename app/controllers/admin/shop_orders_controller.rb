@@ -29,8 +29,8 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       # Apply view-specific scopes only if no explicit status filter
       case @view
       when "shop_orders"
-        # Show pending, rejected, on_hold
-        orders = orders.where(aasm_state: %w[pending rejected on_hold])
+        # Show pending, awaiting_verification, rejected, on_hold
+        orders = orders.where(aasm_state: %w[pending awaiting_verification rejected on_hold])
       when "fulfillment"
         # Show awaiting_periodical_fulfillment and fulfilled
         orders = orders.where(aasm_state: %w[awaiting_periodical_fulfillment fulfilled])
@@ -65,6 +65,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     stats_orders = orders
     @c = {
       pending: stats_orders.where(aasm_state: "pending").count,
+      awaiting_verification: stats_orders.where(aasm_state: "awaiting_verification").count,
       awaiting_fulfillment: stats_orders.where(aasm_state: "awaiting_periodical_fulfillment").count,
       fulfilled: stats_orders.where(aasm_state: "fulfilled").count,
       rejected: stats_orders.where(aasm_state: "rejected").count,
@@ -338,5 +339,58 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     else
       redirect_to admin_shop_orders_path(view: "fulfillment"), alert: "Failed to assign order"
     end
+  end
+
+  def refresh_verification
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+
+    unless @order.awaiting_verification?
+      redirect_to admin_shop_order_path(@order), alert: "Order is not awaiting verification" and return
+    end
+
+    user = @order.user
+    identity = user.identities.find_by(provider: "hack_club")
+
+    unless identity&.access_token.present?
+      redirect_to admin_shop_order_path(@order), alert: "User has no Hack Club identity token" and return
+    end
+
+    payload = HCAService.identity(identity.access_token)
+    if payload.blank?
+      redirect_to admin_shop_order_path(@order), alert: "Could not fetch verification status from HCA" and return
+    end
+
+    status = payload["verification_status"].to_s
+    ysws_eligible = payload["ysws_eligible"] == true
+
+    old_status = user.verification_status
+    user.verification_status = status if User.verification_statuses.key?(status)
+    user.ysws_eligible = ysws_eligible
+    user.save!
+
+    PaperTrail::Version.create!(
+      item_type: "ShopOrder",
+      item_id: @order.id,
+      event: "verification_refreshed",
+      whodunnit: current_user.id,
+      object_changes: {
+        user_verification_status: [ old_status, user.verification_status ],
+        ysws_eligible: [ !ysws_eligible, ysws_eligible ]
+      }
+    )
+
+    if user.eligible_for_shop?
+      Shop::ProcessVerifiedOrdersJob.perform_later(user.id)
+      redirect_to admin_shop_order_path(@order), notice: "User is now verified. Processing orders..."
+    elsif user.should_reject_orders?
+      user.reject_awaiting_verification_orders!
+      redirect_to admin_shop_order_path(@order), notice: "User verification failed. Orders rejected."
+    else
+      redirect_to admin_shop_order_path(@order), notice: "Verification status updated to: #{user.verification_status}"
+    end
+  rescue StandardError => e
+    Rails.logger.error "Failed to refresh verification status for order #{@order.id}: #{e.message}"
+    redirect_to admin_shop_order_path(@order), alert: "Error refreshing verification: #{e.message}"
   end
 end
