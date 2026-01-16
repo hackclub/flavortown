@@ -46,7 +46,7 @@ class ProcessDemoBrokenReportsJob < ApplicationJob
 
   def notify_slack(project, count)
     message = "🚨 Project '#{project.title}' (ID: #{project.id}) has #{count} demo_broken reports. Please investigate: #{Rails.application.routes.url_helpers.project_url(project, host: default_host)}"
-  #  TODO: migrate to shadow ban the project and notify the fraud dept!
+    #  TODO: migrate to shadow ban the project and notify the fraud dept!
     SendSlackDmJob.perform_later(SLACK_RECIPIENT, message)
   end
 
