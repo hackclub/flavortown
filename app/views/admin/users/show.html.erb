@@ -158,6 +158,25 @@
         <% end %>
       <% end %>
 
+      <% if current_user.admin? %>
+        <% has_grants = @user.shop_card_grants.where.not(hcb_grant_hashid: nil).exists? %>
+        <button type="button" onclick="document.getElementById('cancel-grants-modal').showModal()" class="btn-danger slim" <%= 'disabled style="opacity: 0.5; cursor: not-allowed;"'.html_safe unless has_grants %>>
+          🚫 Cancel All HCB Grants
+        </button>
+        <% if has_grants %>
+          <%= render layout: "shared/modal", locals: { id: "cancel-grants-modal", title: "Cancel All HCB Grants", description: "This will cancel ALL HCB grants for #{@user.display_name}. This action cannot be undone!" } do %>
+            <form action="<%= cancel_all_hcb_grants_admin_user_path(@user) %>" method="post">
+              <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+              <p style="color: #ef4444; font-weight: bold;">⚠️ Warning: This will cancel <%= @user.shop_card_grants.where.not(hcb_grant_hashid: nil).count %> grant(s).</p>
+              <div class="modal__actions">
+                <button type="submit" class="btn-danger slim">Confirm Cancel All Grants</button>
+                <button type="button" onclick="document.getElementById('cancel-grants-modal').close()" class="btn-secondary slim">Cancel</button>
+              </div>
+            </form>
+          <% end %>
+        <% end %>
+      <% end %>
+
       <% if policy(:admin).ban_users? %>
         <% if @user.shadow_banned? %>
           <%= button_to "👁️ Remove Shadow Ban", unshadow_ban_admin_user_path(@user), method: :post, class: "btn-primary slim" %>
