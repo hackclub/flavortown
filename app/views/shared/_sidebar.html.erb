@@ -1,4 +1,4 @@
-<aside class="sidebar" aria-label="Main">
+<aside class="sidebar <%= 'sidebar--launch' if controller_name == 'launch' %>" aria-label="Main">
   <%# <div class="sidebar__header">
     <span class="sidebar__title">Flavortown</span>
   </div> %>
@@ -10,7 +10,8 @@
         { label: "Explore", path: "/explore", icon: "compass_fill" },
         { label: "Projects", path: projects_path, icon: "projects-icon" },
         { label: "Vote", path: new_vote_path, icon: "star_fill" },
-        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" }
+        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" },
+        { label: "Launch", path: launch_path, icon: "rocket" }
       ] %>
 
       <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_dashboard? %>
