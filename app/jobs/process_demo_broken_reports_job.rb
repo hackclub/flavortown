@@ -28,18 +28,19 @@ class ProcessDemoBrokenReportsJob < ApplicationJob
         reports.each do |report|
           report.update!(status: :reviewed)
         end
+        next
       end
-      unless project_id.nil?
-     # if user is banend or shadow banned
-     project = Project.find_by(id: project_id)
-     next unless project
+
+      # if user is banned or shadow banned
+      project = Project.find_by(id: project_id)
+      next unless project
 
       user = project.users.first
       next unless user
-        if user.banned? || user.shadow_banned?
-          reports.each do |report|
-            report.update!(status: :reviewed)
-          end
+
+      if user.banned? || user.shadow_banned?
+        reports.each do |report|
+          report.update!(status: :reviewed)
         end
       end
     end
