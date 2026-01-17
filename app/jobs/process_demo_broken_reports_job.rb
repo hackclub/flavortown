@@ -2,7 +2,7 @@ class ProcessDemoBrokenReportsJob < ApplicationJob
   queue_as :default
 
   SLACK_RECIPIENT = "U07L45W79E1"
-  PENDING_THRESHOLD = 5
+  PENDING_THRESHOLD = 3
   TOTAL_THRESHOLD = 15
 
   def perform
@@ -20,6 +20,27 @@ class ProcessDemoBrokenReportsJob < ApplicationJob
       if total_count >= TOTAL_THRESHOLD && !already_notified?(project)
         notify_slack(project, total_count)
         mark_as_notified(project)
+      end
+    end
+    Project::Report.includes(:project).group_by(&:project_id).each do |project_id, reports|
+      # if project is nil mark report as reviewed
+      if project_id.nil?
+        reports.each do |report|
+          report.update!(status: :reviewed)
+        end
+      end
+      unless project_id.nil?
+     # if user is banend or shadow banned
+     project = Project.find_by(id: project_id)
+     next unless project
+
+      user = project.users.first
+      next unless user
+        if user.banned? || user.shadow_banned?
+          reports.each do |report|
+            report.update!(status: :reviewed)
+          end
+        end
       end
     end
   end
