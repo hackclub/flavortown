@@ -2,6 +2,8 @@
     <div class="nibbles__header">
         <%= image_tag 'nibbles/Nibbles-Banner.avif', alt: 'Nibbles Banner' %>
         <h2>Tackle fun sidequests for extra (bite-sized) challenges and tasty bonuses!</h2>
+        <%= image_tag 'nibbles/Dash-Stickers-L.avif', alt: 'Left Dash Stickers', class: 'nibbles__sticker left' %>
+        <%= image_tag 'nibbles/Dash-Stickers-R.avif', alt: 'Right Dash Stickers', class: 'nibbles__sticker right' %>
     </div>
     <div class="nibbles__sidequests">
         <%= render SidequestCardComponent.new(

@@ -9,6 +9,7 @@
     background-repeat: repeat-x;
     background-position: center 30px;
     background-size: auto 40px;
+    position: relative;
 
     img {
       height: 100px;
@@ -16,6 +17,23 @@
       @media (max-width: 600px) {
         height: 70px;
       }
+    }
+
+    .nibbles__sticker {
+      height: 100px;
+      position: absolute;
+
+      @media (max-width: 1200px) {
+        display: none;
+      }
+    }
+
+    .left {
+      left: 0;
+    }
+
+    .right {
+      right: 0;
     }
 
     h2 {
