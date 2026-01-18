@@ -9,9 +9,7 @@ export default class extends Controller {
   }
 
   disconnect() {
-    if (this.observer) {
-      this.observer.disconnect();
-    }
+    this.disconnectObserver();
   }
 
   setupInfiniteScroll() {
@@ -25,9 +23,7 @@ export default class extends Controller {
           }
         });
       },
-      {
-        rootMargin: "200px",
-      },
+      { rootMargin: "200px" },
     );
 
     this.observer.observe(this.sentinelTarget);
@@ -40,86 +36,105 @@ export default class extends Controller {
   }
 
   async loadMore() {
-    const nextPage = this.hasButtonTarget
-      ? this.buttonTarget.dataset.page
-      : this.sentinelTarget?.dataset.page;
+    const target = this.loadTarget;
+    if (!target || this.loading) return;
 
-    if (!nextPage || this.loading) return;
+    const nextPage = target.dataset.page;
+    if (!nextPage) return;
 
     this.loading = true;
+    this.setLoadingState();
 
+    try {
+      const data = await this.fetchPage(nextPage);
+      this.entriesTarget.insertAdjacentHTML("beforeend", data.html);
+
+      if (data.next_page) {
+        this.updateNextPage(data.next_page);
+      } else {
+        this.showEndMessage();
+      }
+    } catch {
+      this.showError();
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  get loadTarget() {
+    return this.hasButtonTarget
+      ? this.buttonTarget
+      : this.hasSentinelTarget
+        ? this.sentinelTarget
+        : null;
+  }
+
+  async fetchPage(page) {
+    const url = new URL(
+      this.urlValue || window.location.href,
+      window.location.origin,
+    );
+    url.searchParams.set("page", page);
+    url.searchParams.set("format", "json");
+
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
+
+    if (!response.ok) throw new Error("Failed to load");
+    return response.json();
+  }
+
+  setLoadingState() {
     if (this.hasButtonTarget) {
       this.buttonTarget.textContent = "Loading...";
       this.buttonTarget.disabled = true;
     }
+  }
 
-    try {
-      const url = new URL(
-        this.urlValue || window.location.href,
-        window.location.origin,
-      );
-      url.searchParams.set("page", nextPage);
-      url.searchParams.set("format", "json");
+  updateNextPage(page) {
+    if (this.hasButtonTarget) {
+      this.buttonTarget.dataset.page = page;
+      this.buttonTarget.textContent = "Load More Devlogs";
+      this.buttonTarget.disabled = false;
+    }
+    if (this.hasSentinelTarget) {
+      this.sentinelTarget.dataset.page = page;
+    }
+  }
 
-      const response = await fetch(url, {
-        headers: {
-          Accept: "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-      });
+  showEndMessage() {
+    const endElement = Object.assign(document.createElement("p"), {
+      className: "explore__end",
+      textContent: "You've reached the end.",
+    });
 
-      if (!response.ok) throw new Error("Failed to load");
+    if (this.hasButtonTarget) {
+      this.buttonTarget.replaceWith(endElement);
+    } else if (this.hasSentinelTarget) {
+      this.sentinelTarget.replaceWith(endElement);
+      this.disconnectObserver();
+    }
+  }
 
-      const data = await response.json();
+  showError() {
+    if (this.hasButtonTarget) {
+      this.buttonTarget.textContent = "Failed to load. Try again?";
+      this.buttonTarget.disabled = false;
+    } else if (this.hasSentinelTarget) {
+      this.sentinelTarget.textContent = "Failed to load more devlogs.";
+      this.sentinelTarget.classList.add("explore__error");
+      this.disconnectObserver();
+    }
+  }
 
-      this.entriesTarget.insertAdjacentHTML("beforeend", data.html);
-
-      if (data.next_page) {
-        if (this.hasButtonTarget) {
-          this.buttonTarget.dataset.page = data.next_page;
-          this.buttonTarget.textContent = "Load More Devlogs";
-          this.buttonTarget.disabled = false;
-        }
-        if (this.hasSentinelTarget) {
-          this.sentinelTarget.dataset.page = data.next_page;
-        }
-      } else {
-        if (this.hasButtonTarget) {
-          this.buttonTarget.replaceWith(
-            Object.assign(document.createElement("p"), {
-              className: "explore__end",
-              textContent: "You've reached the end.",
-            }),
-          );
-        }
-        if (this.hasSentinelTarget) {
-          this.sentinelTarget.replaceWith(
-            Object.assign(document.createElement("p"), {
-              className: "explore__end",
-              textContent: "You've reached the end.",
-            }),
-          );
-          if (this.observer) {
-            this.observer.disconnect();
-          }
-        }
-      }
-    } catch (error) {
-      if (this.hasButtonTarget) {
-        this.buttonTarget.textContent = "Failed to load. Try again?";
-        this.buttonTarget.disabled = false;
-      }
-      if (this.hasSentinelTarget) {
-        this.sentinelTarget.textContent = "Failed to load more devlogs.";
-        if (this.sentinelTarget.classList) {
-          this.sentinelTarget.classList.add("explore__error");
-        }
-        if (this.observer) {
-          this.observer.disconnect();
-        }
-      }
-    } finally {
-      this.loading = false;
+  disconnectObserver() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
     }
   }
 }
