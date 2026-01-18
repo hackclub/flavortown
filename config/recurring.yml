@@ -64,7 +64,7 @@ production:
 
   cache_carousel_prizes:
     class: Cache::CarouselPrizesJob
-    args: [ { force: true } ]
+    args: [{ force: true }]
     schedule: every hour
     concurrency: 1
     description: "Refresh carousel prizes cache for landing page"
@@ -98,3 +98,9 @@ production:
     schedule: every 30 minutes
     concurrency: 1
     description: "Process demo_broken reports: auto-review and re-certify projects with 5+ pending, notify Slack for 15+ total"
+
+  fraud_daily_summary:
+    class: FraudDailySummaryJob
+    schedule: every day at 8pm
+    concurrency: 1
+    description: "Send daily fraud summary to Slack with stats on shop orders and reports"

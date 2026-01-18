@@ -2,32 +2,36 @@
 #
 # Table name: projects
 #
-#  id                 :bigint           not null, primary key
-#  deleted_at         :datetime
-#  demo_url           :text
-#  description        :text
-#  devlogs_count      :integer          default(0), not null
-#  duration_seconds   :integer          default(0), not null
-#  marked_fire_at     :datetime
-#  memberships_count  :integer          default(0), not null
-#  project_categories :string           default([]), is an Array
-#  project_type       :string
-#  readme_url         :text
-#  repo_url           :text
-#  ship_status        :string           default("draft")
-#  shipped_at         :datetime
-#  synced_at          :datetime
-#  title              :string           not null
-#  tutorial           :boolean          default(FALSE), not null
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  fire_letter_id     :string
-#  marked_fire_by_id  :bigint
+#  id                   :bigint           not null, primary key
+#  deleted_at           :datetime
+#  demo_url             :text
+#  description          :text
+#  devlogs_count        :integer          default(0), not null
+#  duration_seconds     :integer          default(0), not null
+#  marked_fire_at       :datetime
+#  memberships_count    :integer          default(0), not null
+#  project_categories   :string           default([]), is an Array
+#  project_type         :string
+#  readme_url           :text
+#  repo_url             :text
+#  shadow_banned        :boolean          default(FALSE), not null
+#  shadow_banned_at     :datetime
+#  shadow_banned_reason :text
+#  ship_status          :string           default("draft")
+#  shipped_at           :datetime
+#  synced_at            :datetime
+#  title                :string           not null
+#  tutorial             :boolean          default(FALSE), not null
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#  fire_letter_id       :string
+#  marked_fire_by_id    :bigint
 #
 # Indexes
 #
 #  index_projects_on_deleted_at         (deleted_at)
 #  index_projects_on_marked_fire_by_id  (marked_fire_by_id)
+#  index_projects_on_shadow_banned      (shadow_banned)
 #
 # Foreign Keys
 #
@@ -36,6 +40,8 @@
 class Project < ApplicationRecord
     include AASM
     include SoftDeletable
+
+    has_paper_trail only: %i[shadow_banned shadow_banned_at shadow_banned_reason deleted_at]
 
     has_recommended :projects # more projects like this...
 
@@ -55,7 +61,8 @@ class Project < ApplicationRecord
     }
     scope :fire, -> { where.not(marked_fire_at: nil) }
     scope :excluding_shadow_banned, -> {
-      joins(:memberships)
+      where(shadow_banned: false)
+        .joins(:memberships)
         .joins("INNER JOIN users ON users.id = project_memberships.user_id")
         .where(users: { shadow_banned: false })
         .distinct
@@ -67,6 +74,7 @@ class Project < ApplicationRecord
       elsif viewer
         # Regular users see non-shadow-banned projects + their own projects
         left_joins(memberships: :user)
+          .where(shadow_banned: false)
           .where(memberships: { users: { shadow_banned: false } })
           .or(left_joins(memberships: :user).where(memberships: { user_id: viewer.id }))
           .distinct
@@ -281,6 +289,14 @@ class Project < ApplicationRecord
             { key: :screenshot, label: "You have a screenshot of your project", passed: banner.attached? },
             { key: :devlogs, label: "You have at least one devlog", passed: devlogs.any? }
         ]
+    end
+
+    def shadow_ban!(reason: nil)
+      update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
+    end
+
+    def unshadow_ban!
+      update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
     end
 
     private

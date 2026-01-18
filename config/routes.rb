@@ -209,6 +209,8 @@ Rails.application.routes.draw do
     resources :projects, only: [ :index, :show ], shallow: true do
       member do
         post :restore
+        post :shadow_ban
+        post :unshadow_ban
       end
     end
     get "user-perms", to: "users#user_perms"
