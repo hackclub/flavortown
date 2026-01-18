@@ -17,6 +17,23 @@
     <div>
       <span style="font-size: 0.75rem; color: #6b7280; display: block;">User</span>
       <%= link_to @order.user.display_name || "Unknown", admin_user_path(@order.user), style: "font-size: 0.875rem; color: #3b82f6;" %>
+      <div style="font-size: 0.7rem; color: #6b7280; margin-top: 0.25rem;">
+        <% if @order.user.slack_id.present? %>
+          <div>Slack: <code><%= @order.user.slack_id %></code></div>
+        <% end %>
+        <% hackatime_identity = @order.user.identities.find { |i| i.provider == "hackatime" } %>
+        <% if hackatime_identity %>
+          <div>Hackatime: <code><%= hackatime_identity.uid %></code></div>
+        <% end %>
+      </div>
+      <% if current_user.admin? || current_user.fraud_dept? %>
+        <div style="display: flex; gap: 0.25rem; margin-top: 0.25rem;">
+          <% if hackatime_identity %>
+            <%= link_to "Billy", "https://billy.3kh0.net/?u=#{hackatime_identity.uid}", class: "btn-primary slim", target: "_blank", style: "font-size: 0.65rem; padding: 0.15rem 0.3rem;" %>
+            <%= link_to "Joe", "https://dash.fraud.land/profile/#{hackatime_identity.uid}", class: "btn-primary slim", target: "_blank", style: "font-size: 0.65rem; padding: 0.15rem 0.3rem;" %>
+          <% end %>
+        </div>
+      <% end %>
     </div>
 
     <div>
