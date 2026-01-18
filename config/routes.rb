@@ -76,7 +76,7 @@ Rails.application.routes.draw do
   get "explore/extensions", to: "explore#extensions", as: :explore_extensions
 
   # Nibbles
-  get "nibbles", to: "nibbles#index"
+  get "nibbles", to: "nibbles#index", as: :nibbles
 
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
