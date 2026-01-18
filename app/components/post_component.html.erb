@@ -85,14 +85,14 @@
               <% attachments.each do |att| %>
                 <div class="post__slide">
                   <% if gif?(att) %>
-                    <img class="post__attachment post__attachment--image post__image" alt="Attachment" src="<%= url_for(att) %>">
+                    <img class="post__attachment post__attachment--image post__image" alt="Attachment" src="<%= url_for(att) %>" loading="lazy">
                   <% elsif image?(att) %>
                     <picture class="post__attachment post__attachment--image">
                       <source type="image/webp" srcset="<%= url_for(att.variant(:medium)) %>">
-                      <img class="post__image" alt="Attachment" src="<%= url_for(att) %>">
+                      <img class="post__image" alt="Attachment" src="<%= url_for(att) %>" loading="lazy">
                     </picture>
                   <% elsif video?(att) %>
-                    <video class="post__attachment post__attachment--video" controls src="<%= url_for(att) %>"></video>
+                    <video class="post__attachment post__attachment--video" controls src="<%= url_for(att) %>" preload="none" loading="lazy"></video>
                   <% else %>
                     <%= link_to url_for(att), class: "post__attachment post__attachment--file", target: "_blank", rel: "noopener" do %>
                       <%= helpers.inline_svg_tag("icons/paper.svg") %>

@@ -11,7 +11,7 @@ class ExploreController < ApplicationController
 
     scope = scope.where(post_devlogs: { deleted_at: nil }) unless current_user&.can_see_deleted_devlogs?
 
-    @pagy, @devlogs = pagy(scope, limit: 30, client_max_limit: 30)
+    @pagy, @devlogs = pagy(scope, limit: 10, client_max_limit: 10)
 
     respond_to do |format|
       format.html

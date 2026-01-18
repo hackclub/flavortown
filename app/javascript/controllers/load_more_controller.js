@@ -1,21 +1,57 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["entries", "button"];
+  static targets = ["entries", "button", "sentinel"];
   static values = { url: String };
+
+  connect() {
+    this.setupInfiniteScroll();
+  }
+
+  disconnect() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
+  setupInfiniteScroll() {
+    if (!this.hasSentinelTarget) return;
+
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !this.loading) {
+            this.loadMore();
+          }
+        });
+      },
+      {
+        rootMargin: "200px",
+      },
+    );
+
+    this.observer.observe(this.sentinelTarget);
+  }
 
   async load(event) {
     event.preventDefault();
     event.stopPropagation();
+    await this.loadMore();
+  }
 
-    const button = event.currentTarget;
-    const nextPage = button.dataset.page;
+  async loadMore() {
+    const nextPage = this.hasButtonTarget
+      ? this.buttonTarget.dataset.page
+      : this.sentinelTarget?.dataset.page;
 
-    if (!nextPage) return;
+    if (!nextPage || this.loading) return;
 
-    const originalText = button.textContent;
-    button.textContent = "Loading...";
-    button.disabled = true;
+    this.loading = true;
+
+    if (this.hasButtonTarget) {
+      this.buttonTarget.textContent = "Loading...";
+      this.buttonTarget.disabled = true;
+    }
 
     try {
       const url = new URL(
@@ -39,20 +75,42 @@ export default class extends Controller {
       this.entriesTarget.insertAdjacentHTML("beforeend", data.html);
 
       if (data.next_page) {
-        button.dataset.page = data.next_page;
-        button.textContent = originalText;
-        button.disabled = false;
+        if (this.hasButtonTarget) {
+          this.buttonTarget.dataset.page = data.next_page;
+          this.buttonTarget.textContent = "Load More Devlogs";
+          this.buttonTarget.disabled = false;
+        }
+        if (this.hasSentinelTarget) {
+          this.sentinelTarget.dataset.page = data.next_page;
+        }
       } else {
-        button.replaceWith(
-          Object.assign(document.createElement("p"), {
-            className: "explore__end",
-            textContent: "You've reached the end.",
-          }),
-        );
+        if (this.hasButtonTarget) {
+          this.buttonTarget.replaceWith(
+            Object.assign(document.createElement("p"), {
+              className: "explore__end",
+              textContent: "You've reached the end.",
+            }),
+          );
+        }
+        if (this.hasSentinelTarget) {
+          this.sentinelTarget.replaceWith(
+            Object.assign(document.createElement("p"), {
+              className: "explore__end",
+              textContent: "You've reached the end.",
+            }),
+          );
+          if (this.observer) {
+            this.observer.disconnect();
+          }
+        }
       }
     } catch (error) {
-      button.textContent = "Failed to load. Try again?";
-      button.disabled = false;
+      if (this.hasButtonTarget) {
+        this.buttonTarget.textContent = "Failed to load. Try again?";
+        this.buttonTarget.disabled = false;
+      }
+    } finally {
+      this.loading = false;
     }
   }
 }
