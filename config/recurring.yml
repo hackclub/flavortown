@@ -104,3 +104,9 @@ production:
     schedule: every day at 8pm
     concurrency: 1
     description: "Send daily fraud summary to Slack with stats on shop orders and reports"
+
+  ysws_review_sync:
+    class: YswsReviewSyncJob
+    schedule: every hour
+    concurrency: 1
+    description: "Sync completed YSWS reviews to Airtable with user PII"
