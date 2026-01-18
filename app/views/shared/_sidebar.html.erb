@@ -1,9 +1,12 @@
-<aside class="sidebar" aria-label="Main">
+<aside class="sidebar" data-controller="sidebar-pin" data-sidebar-pin-pinned-class="sidebar--pinned" aria-label="Main">
   <%# <div class="sidebar__header">
     <span class="sidebar__title">Flavortown</span>
   </div> %>
 
   <div class="sidebar__blob">
+    <button type="button" class="sidebar__pin-button" data-action="click->sidebar-pin#toggle" data-sidebar-pin-target="button" aria-label="Pin sidebar open">
+      <svg class="sidebar__pin-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor"><path d="M160 96c0-17.7 14.3-32 32-32h256c17.7 0 32 14.3 32 32s-14.3 32-32 32h-29.5l10.3 134.1c37.1 21.2 65.8 56.4 78.2 99.7l3.8 13.4c2.8 9.7.8 20-5.2 28.1S490 416 480 416H160c-10 0-19.5-4.7-25.5-12.7s-8-18.4-5.2-28.1l3.7-13.4c12.4-43.3 41-78.5 78.2-99.7L221.5 128H192c-17.7 0-32-14.3-32-32m128 368h64v112c0 17.7-14.3 32-32 32s-32-14.3-32-32z" /></svg>
+    </button>
     <nav class="sidebar__nav" aria-label="Primary navigation">
       <% sidebar_nav_items = [
         { label: "Kitchen", path: kitchen_path, icon: "fork_spoon_fill" },

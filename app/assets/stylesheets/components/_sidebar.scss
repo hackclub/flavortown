@@ -15,6 +15,9 @@
   transition: width 180ms ease;
   overflow: visible;
 
+  &--pinned,
+  &--pinned:hover,
+  &--pinned:focus-within,
   &:hover,
   &:focus-within {
     width: var(--sidebar-expanded-width);
@@ -32,6 +35,14 @@
       left: 0.7em;
       transform: none;
     }
+
+    .sidebar__pin-button {
+      opacity: 1;
+    }
+  }
+
+  &--pinned .sidebar__pin-icon {
+    transform: rotate(-45deg);
   }
 
   .modal {
@@ -193,6 +204,34 @@
       margin-top: 0.25em;
     }
   }
+}
+
+.sidebar__pin-button {
+  transform: rotate(45deg);
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 180ms ease,
+    background 180ms ease;
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar__pin-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--color-bg);
+  transition:
+    transform 180ms ease,
+    color 180ms ease;
+  pointer-events: none;
 }
 
 .cookie-clicker__effect {
@@ -410,7 +449,8 @@
   }
 }
 
-.sidebar:is(:hover, :focus-within) .sidebar__nav-link--active::before {
+.sidebar:is(:hover, :focus-within) .sidebar__nav-link--active::before,
+.sidebar--pinned .sidebar__nav-link--active::before {
   width: 130%;
 
   @media (max-width: 1500px) {
@@ -453,7 +493,8 @@
   margin-left: 0;
 }
 
-.sidebar:is(:hover, :focus-within) .sidebar__nav-label {
+.sidebar:is(:hover, :focus-within) .sidebar__nav-label,
+.sidebar--pinned .sidebar__nav-label {
   opacity: 1;
   max-width: 240px;
   margin-left: var(--space-s);
@@ -673,6 +714,10 @@
 }
 
 @media (max-width: 960px) {
+  .sidebar__pin-button {
+    display: none;
+  }
+
   .sidebar {
     position: fixed;
     z-index: 100;
