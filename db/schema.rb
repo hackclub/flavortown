@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_16_020000) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -387,6 +387,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_16_020000) do
     t.string "project_type"
     t.text "readme_url"
     t.text "repo_url"
+    t.boolean "shadow_banned", default: false, null: false
+    t.datetime "shadow_banned_at"
+    t.text "shadow_banned_reason"
     t.string "ship_status", default: "draft"
     t.datetime "shipped_at"
     t.datetime "synced_at"
@@ -395,6 +398,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_16_020000) do
     t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "index_projects_on_deleted_at"
     t.index ["marked_fire_by_id"], name: "index_projects_on_marked_fire_by_id"
+    t.index ["shadow_banned"], name: "index_projects_on_shadow_banned"
   end
 
   create_table "rsvps", force: :cascade do |t|

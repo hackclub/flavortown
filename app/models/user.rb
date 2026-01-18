@@ -62,6 +62,7 @@ class User < ApplicationRecord
   has_many :projects, through: :memberships
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
   has_many :shop_orders, dependent: :destroy
+  has_many :shop_card_grants, dependent: :destroy
   has_many :votes, dependent: :destroy
   has_many :reports, class_name: "Project::Report", foreign_key: :reporter_id, dependent: :destroy
   has_many :likes, dependent: :destroy

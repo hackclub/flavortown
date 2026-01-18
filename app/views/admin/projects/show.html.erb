@@ -1,9 +1,21 @@
 <h1>Project #<%= @project.id %></h1>
 
 <% if @project.deleted? %>
-  <div class="alert alert-warning" style="margin-bottom: 1rem; padding: 1rem; background: #fee2e2; border-radius: 8px; border: 1px solid #dc2626;">
+  <div class="alert alert-warning" style="margin-bottom: 1rem; padding: 1rem; background: #dc2626; color: #fff; border-radius: 8px;">
     <strong>⚠️ This project has been deleted</strong>
     <span style="margin-left: 0.5rem;">Deleted at: <%= @project.deleted_at.strftime("%Y-%m-%d %H:%M") %></span>
+  </div>
+<% end %>
+
+<% if @project.shadow_banned? %>
+  <div class="alert" style="margin-bottom: 1rem; padding: 1rem; background: #f59e0b; color: #000; border-radius: 8px;">
+    <strong>👻 This project is shadow banned</strong>
+    <span style="margin-left: 0.5rem;">Since: <%= @project.shadow_banned_at&.strftime("%Y-%m-%d %H:%M") %></span>
+    <% if @project.shadow_banned_reason.present? %>
+      <div style="margin-top: 0.5rem; font-size: 0.875rem;">
+        <strong>Reason:</strong> <%= @project.shadow_banned_reason %>
+      </div>
+    <% end %>
   </div>
 <% end %>
 
@@ -48,7 +60,7 @@
   </div>
 </div>
 
-<div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+<div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
   <%= link_to "← Back", admin_projects_path, class: "btn-secondary" %>
   <%= link_to "View Public Page", project_path(@project), class: "btn-secondary", target: "_blank" %>
   <% if @project.deleted? %>
@@ -56,5 +68,31 @@
       method: :post,
       class: "btn-primary",
       data: { confirm: "Are you sure you want to restore this project?" } %>
+  <% end %>
+
+  <% if policy(:admin).shadow_ban_projects? %>
+    <% if @project.shadow_banned? %>
+      <%= button_to "👁️ Remove Shadow Ban", unshadow_ban_admin_project_path(@project),
+        method: :post,
+        class: "btn-primary",
+        data: { confirm: "Remove shadow ban from this project?" } %>
+    <% else %>
+      <button type="button" onclick="document.getElementById('shadow-ban-project-modal').showModal()" class="btn-secondary">
+        👻 Shadow Ban
+      </button>
+      <%= render layout: "shared/modal", locals: { id: "shadow-ban-project-modal", title: "Shadow Ban Project", description: "This project will be hidden from other users but visible to its members." } do %>
+        <form action="<%= shadow_ban_admin_project_path(@project) %>" method="post">
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <div class="modal__field">
+            <%= label_tag :reason, "Shadow Ban Reason (optional)" %>
+            <%= text_area_tag :reason, "", placeholder: "Enter reason for shadow ban..." %>
+          </div>
+          <div class="modal__actions">
+            <button type="submit" class="btn-secondary">Confirm Shadow Ban</button>
+            <button type="button" onclick="document.getElementById('shadow-ban-project-modal').close()" class="btn-secondary">Cancel</button>
+          </div>
+        </form>
+      <% end %>
+    <% end %>
   <% end %>
 </div>

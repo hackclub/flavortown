@@ -17,6 +17,23 @@
     <div>
       <span style="font-size: 0.75rem; color: #6b7280; display: block;">User</span>
       <%= link_to @order.user.display_name || "Unknown", admin_user_path(@order.user), style: "font-size: 0.875rem; color: #3b82f6;" %>
+      <div style="font-size: 0.7rem; color: #6b7280; margin-top: 0.25rem;">
+        <% if @order.user.slack_id.present? %>
+          <div>Slack: <code><%= @order.user.slack_id %></code></div>
+        <% end %>
+        <% hackatime_identity = @order.user.identities.find { |i| i.provider == "hackatime" } %>
+        <% if hackatime_identity %>
+          <div>Hackatime: <code><%= hackatime_identity.uid %></code></div>
+        <% end %>
+      </div>
+      <% if current_user.admin? || current_user.fraud_dept? %>
+        <div style="display: flex; gap: 0.25rem; margin-top: 0.25rem;">
+          <% if hackatime_identity %>
+            <%= link_to "Billy", "https://billy.3kh0.net/?u=#{hackatime_identity.uid}", class: "btn-primary slim", target: "_blank", style: "font-size: 0.65rem; padding: 0.15rem 0.3rem;" %>
+            <%= link_to "Joe", "https://dash.fraud.land/profile/#{hackatime_identity.uid}", class: "btn-primary slim", target: "_blank", style: "font-size: 0.65rem; padding: 0.15rem 0.3rem;" %>
+          <% end %>
+        </div>
+      <% end %>
     </div>
 
     <div>
@@ -241,6 +258,18 @@
     <h2>Card Grant</h2>
     <div class="info-rows">
       <div><b>Card Grant ID:</b> <%= @order.shop_card_grant_id %></div>
+      <% if @order.shop_card_grant&.hcb_grant_hashid.present? %>
+        <div><b>HCB Grant ID:</b> <%= @order.shop_card_grant.hcb_grant_hashid %></div>
+        <div>
+          <%= link_to "View on HCB", @order.shop_card_grant.hcb_url, target: "_blank", class: "btn-primary", style: "margin-right: 0.5rem;" %>
+          <% if current_user.admin? && @order.fulfilled? %>
+            <form method="post" action="<%= cancel_hcb_grant_admin_shop_order_path(@order) %>" style="display: inline;">
+              <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+              <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to cancel this HCB grant? This cannot be undone.')">Cancel HCB Grant</button>
+            </form>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </div>
 <% end %>

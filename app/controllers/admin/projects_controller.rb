@@ -37,4 +37,43 @@ class Admin::ProjectsController < Admin::ApplicationController
       redirect_to admin_project_path(@project), alert: "Project is not deleted."
     end
   end
+
+  def shadow_ban
+    authorize :admin, :shadow_ban_projects?
+    @project = Project.unscoped.find(params[:id])
+
+    reason = params[:reason].presence
+    @project.shadow_ban!(reason: reason)
+
+    log_to_user_audit(@project, "shadow_banned", reason)
+
+    redirect_to admin_project_path(@project), notice: "Project has been shadow banned."
+  end
+
+  def unshadow_ban
+    authorize :admin, :shadow_ban_projects?
+    @project = Project.unscoped.find(params[:id])
+
+    @project.unshadow_ban!
+
+    log_to_user_audit(@project, "unshadow_banned", nil)
+
+    redirect_to admin_project_path(@project), notice: "Project shadow ban has been removed."
+  end
+
+  private
+
+  def log_to_user_audit(project, action, reason)
+    project.users.each do |user|
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: user.id,
+        event: "update",
+        whodunnit: current_user.id.to_s,
+        object_changes: {
+          project_shadow_ban: [ action, { project_id: project.id, project_title: project.title, reason: reason } ]
+        }
+      )
+    end
+  end
 end
