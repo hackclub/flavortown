@@ -1,0 +1,131 @@
+.comic-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+
+  &__frame {
+    position: relative;
+    transition: all 0.3s ease;
+
+    img {
+      margin-top: 0.5em;
+      width: 200px;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+    }
+
+    .comic-card__step-num {
+      position: absolute;
+      bottom: -0.5rem;
+      left: -0.75rem;
+      background-color: #ea5565;
+      color: var(--color-bg);
+      border: 0.12em solid black;
+      border-radius: 50%;
+      font-size: 2rem;
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &:hover {
+      transform: scale(1.05);
+      cursor: pointer;
+
+      img {
+        box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.5);
+      }
+    }
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: normal;
+  }
+
+  .modal {
+    position: fixed;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.1);
+    transition: transform 0.3s ease;
+
+    &::backdrop {
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    background: var(--color-tan-300);
+    padding: 1em;
+    border: 0.25em solid var(--color-brown-500);
+    border-radius: 0.5em;
+    max-width: 400px;
+
+    &.modal--visible {
+      animation: popIn 0.3s ease-out;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .modal__actions-close {
+      position: absolute;
+      right: 0.5em;
+      top: 0.5em;
+      font-size: 1rem;
+      background: transparent;
+      border: none;
+      color: var(--color-brown-500);
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    h3 {
+      font-size: 2rem;
+      color: var(--color-bg);
+      margin-bottom: 0.5em;
+    }
+
+    p {
+      font-size: 1.25rem;
+      line-height: 1.1;
+
+      a {
+        color: var(--color-brown-400);
+        text-decoration: none;
+
+        &:hover {
+          color: var(--color-brown-500);
+        }
+      }
+    }
+
+    ul {
+      margin-left: 1em;
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+
+      li {
+        font-size: 1.25rem;
+        line-height: 1.1;
+      }
+    }
+
+    @media (max-width: 900px) {
+      width: 90vw;
+    }
+  }
+
+  @keyframes popIn {
+    0% {
+      transform: translate(-50%, -50%) scale(0.8);
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+}

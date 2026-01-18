@@ -110,14 +110,21 @@ module ApplicationHelper
     rps == :high_load ? "lots of req/sec" : "#{rps} req/sec"
   end
 
+  def active_users_stats
+    counts = ActiveUserTracker.counts
+    "#{counts[:signed_in]} signed in, #{counts[:anonymous]} visitors"
+  end
+
   private
 
   def find_achievement_asset(icon_name)
-    %w[png svg jpg jpeg gif webp].each do |ext|
-      path = "achievements/#{icon_name}.#{ext}"
-      return path if achievement_asset_exists?(path)
-    end
-    nil
+    @achievement_asset_cache ||= {}
+    return @achievement_asset_cache[icon_name] if @achievement_asset_cache.key?(icon_name)
+
+    @achievement_asset_cache[icon_name] = %w[achievements icons].product(%w[png svg jpg jpeg gif webp]).each do |folder, ext|
+      path = "#{folder}/#{icon_name}.#{ext}"
+      break path if achievement_asset_exists?(path)
+    end.then { |result| result.is_a?(String) ? result : nil }
   end
 
   def achievement_asset_exists?(path)

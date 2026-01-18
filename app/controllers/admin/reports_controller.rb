@@ -16,17 +16,22 @@ module Admin
         dismissed: Project::Report.dismissed.count
       }
 
-      report_ids = @reports.map(&:id)
+      report_ids = @reports.map { |r| r.id.to_s }
       latest_versions = PaperTrail::Version
         .where(item_type: "Project::Report", item_id: report_ids)
+        .where("object_changes ? 'status'")
         .order(:item_id, created_at: :desc)
         .select("DISTINCT ON (item_id) *")
 
       reviewer_ids = latest_versions.map(&:whodunnit).compact.uniq
-      reviewers_by_id = User.where(id: reviewer_ids).index_by { |u| u.id.to_s }
+      reviewers_by_id = User.where(id: reviewer_ids).index_by(&:id)
 
       @reviewers_by_report = latest_versions.each_with_object({}) do |version, hash|
-        hash[version.item_id] = reviewers_by_id[version.whodunnit]
+        if version.whodunnit.present?
+          hash[version.item_id.to_i] = reviewers_by_id[version.whodunnit.to_i]
+        elsif version.object_changes.is_a?(Hash) && version.object_changes["auto_processed"].present?
+          hash[version.item_id.to_i] = :auto
+        end
       end
     end
 
@@ -44,6 +49,12 @@ module Admin
       update_status(:dismissed, "Report dismissed")
     end
 
+    def process_demo_broken
+      authorize :admin, :access_reports?
+      ProcessDemoBrokenReportsJob.perform_later
+      redirect_to admin_reports_path, notice: "Demo broken reports processing job has been queued"
+    end
+
     private
 
     def set_report
@@ -58,7 +69,7 @@ module Admin
           item_type: "Project::Report",
           item_id: @report.id,
           event: "update",
-          whodunnit: current_user.id,
+          whodunnit: current_user.id.to_s,
           object_changes: {
             status: [ old_status, @report.status ]
           }

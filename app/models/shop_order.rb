@@ -172,7 +172,7 @@ class ShopOrder < ApplicationRecord
     end
 
     event :mark_rejected do
-      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment], to: :rejected
+      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment on_hold], to: :rejected
       before do |rejection_reason|
         self.rejection_reason = rejection_reason
       end
@@ -369,6 +369,7 @@ class ShopOrder < ApplicationRecord
 
   def create_refund_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
+    return if shop_item.is_a?(ShopItem::FreeStickers)
 
     user.ledger_entries.create!(
       amount: total_cost,

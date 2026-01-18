@@ -1,19 +1,13 @@
-<% content_for :title, "Explore - Flavortown" %>
-
-<% content_for :head do %>
-  <meta property="og:title" content="Explore Flavortown">
-  <meta property="og:description" content="Discover projects and devlogs from teen coders on Flavortown.">
-  <meta property="og:url" content="<%= request.original_url %>">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Explore Flavortown">
-  <meta name="twitter:description" content="Discover projects and devlogs from teen coders on Flavortown.">
-<% end %>
+<% content_for :title, "Explore" %>
+<% content_for :og_title, "Explore Flavortown" %>
+<% content_for :og_description, "Discover projects and devlogs from teen coders on Flavortown." %>
+<% content_for :og_image, og_image_url('explore', format: :png) %>
 
 <div class="explore" data-controller="load-more" data-load-more-url-value="<%= explore_index_path %>">
     <%= render "explore/explore_nav" %>
 
     <div id="devlog-list" class="explore__list" data-load-more-target="entries">
-        <%= render PostComponent.with_collection(@devlogs, current_user: current_user) %>
+        <%= render PostComponent.with_collection(@devlogs, current_user: current_user, theme: :explore_mixed) %>
     </div>
 
     <div class="explore__pagination">

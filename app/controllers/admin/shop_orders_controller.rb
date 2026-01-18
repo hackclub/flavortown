@@ -29,8 +29,8 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       # Apply view-specific scopes only if no explicit status filter
       case @view
       when "shop_orders"
-        # Show pending, rejected, on_hold
-        orders = orders.where(aasm_state: %w[pending rejected on_hold])
+        # Show pending, awaiting_verification, rejected, on_hold
+        orders = orders.where(aasm_state: %w[pending awaiting_verification rejected on_hold])
       when "fulfillment"
         # Show awaiting_periodical_fulfillment and fulfilled
         orders = orders.where(aasm_state: %w[awaiting_periodical_fulfillment fulfilled])
@@ -51,10 +51,21 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       orders = orders.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.id::text = ? OR users.slack_id ILIKE ?", search, search, params[:user_search], search)
     end
 
-    # Calculate stats before region filter (for database queries)
+    # Apply region filter using database-level query (now that orders have a region column)
+    # Fulfillment persons see orders in their regions OR orders assigned to them OR orders with nil region (legacy/no address)
+    if current_user.fulfillment_person? && !current_user.admin? && current_user.has_regions?
+      orders = orders.where(region: current_user.regions)
+                     .or(orders.where(region: nil))
+                     .or(orders.where(assigned_to_user_id: current_user.id))
+    elsif params[:region].present?
+      orders = orders.where(region: params[:region].upcase)
+    end
+
+    # Calculate stats after region filter so counts respect user's assigned regions
     stats_orders = orders
     @c = {
       pending: stats_orders.where(aasm_state: "pending").count,
+      awaiting_verification: stats_orders.where(aasm_state: "awaiting_verification").count,
       awaiting_fulfillment: stats_orders.where(aasm_state: "awaiting_periodical_fulfillment").count,
       fulfilled: stats_orders.where(aasm_state: "fulfilled").count,
       rejected: stats_orders.where(aasm_state: "rejected").count,
@@ -65,16 +76,6 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     fulfilled_orders = stats_orders.where(aasm_state: "fulfilled").where.not(fulfilled_at: nil)
     if fulfilled_orders.any?
       @f = fulfilled_orders.average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))").to_f
-    end
-
-    # Apply region filter using database-level query (now that orders have a region column)
-    # Fulfillment persons see orders in their regions OR orders assigned to them OR orders with nil region (legacy/no address)
-    if current_user.fulfillment_person? && !current_user.admin? && current_user.has_regions?
-      orders = orders.where(region: current_user.regions)
-                     .or(orders.where(region: nil))
-                     .or(orders.where(assigned_to_user_id: current_user.id))
-    elsif params[:region].present?
-      orders = orders.where(region: params[:region].upcase)
     end
 
     # Sorting - always uses database ordering now
@@ -338,5 +339,84 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     else
       redirect_to admin_shop_orders_path(view: "fulfillment"), alert: "Failed to assign order"
     end
+  end
+
+  def cancel_hcb_grant
+    authorize :admin, :manage_users?
+    @order = ShopOrder.find(params[:id])
+
+    unless @order.shop_card_grant.present?
+      redirect_to admin_shop_order_path(@order), alert: "This order has no HCB grant to cancel"
+      return
+    end
+
+    grant = @order.shop_card_grant
+    begin
+      HCBService.cancel_card_grant!(hashid: grant.hcb_grant_hashid)
+
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "hcb_grant_canceled",
+        whodunnit: current_user.id,
+        object_changes: { hcb_grant_hashid: grant.hcb_grant_hashid, canceled_by: current_user.display_name }.to_json
+      )
+
+      redirect_to admin_shop_order_path(@order), notice: "HCB grant canceled successfully"
+    rescue => e
+      redirect_to admin_shop_order_path(@order), alert: "Failed to cancel HCB grant: #{e.message}"
+    end
+  end
+  def refresh_verification
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+
+    unless @order.awaiting_verification?
+      redirect_to admin_shop_order_path(@order), alert: "Order is not awaiting verification" and return
+    end
+
+    user = @order.user
+    identity = user.identities.find_by(provider: "hack_club")
+
+    unless identity&.access_token.present?
+      redirect_to admin_shop_order_path(@order), alert: "User has no Hack Club identity token" and return
+    end
+
+    payload = HCAService.identity(identity.access_token)
+    if payload.blank?
+      redirect_to admin_shop_order_path(@order), alert: "Could not fetch verification status from HCA" and return
+    end
+
+    status = payload["verification_status"].to_s
+    ysws_eligible = payload["ysws_eligible"] == true
+
+    old_status = user.verification_status
+    user.verification_status = status if User.verification_statuses.key?(status)
+    user.ysws_eligible = ysws_eligible
+    user.save!
+
+    PaperTrail::Version.create!(
+      item_type: "ShopOrder",
+      item_id: @order.id,
+      event: "verification_refreshed",
+      whodunnit: current_user.id,
+      object_changes: {
+        user_verification_status: [ old_status, user.verification_status ],
+        ysws_eligible: [ !ysws_eligible, ysws_eligible ]
+      }
+    )
+
+    if user.eligible_for_shop?
+      Shop::ProcessVerifiedOrdersJob.perform_later(user.id)
+      redirect_to admin_shop_order_path(@order), notice: "User is now verified. Processing orders..."
+    elsif user.should_reject_orders?
+      user.reject_awaiting_verification_orders!
+      redirect_to admin_shop_order_path(@order), notice: "User verification failed. Orders rejected."
+    else
+      redirect_to admin_shop_order_path(@order), notice: "Verification status updated to: #{user.verification_status}"
+    end
+  rescue StandardError => e
+    Rails.logger.error "Failed to refresh verification status for order #{@order.id}: #{e.message}"
+    redirect_to admin_shop_order_path(@order), alert: "Error refreshing verification: #{e.message}"
   end
 end

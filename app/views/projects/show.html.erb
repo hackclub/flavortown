@@ -1,21 +1,9 @@
-<% content_for :title, "#{@project.title} - Flavortown" %>
-
-<% content_for :head do %>
-  <meta property="og:title" content="<%= @project.title %>">
-  <meta property="og:description" content="<%= truncate(@project.description.to_s, length: 200) %>">
-  <meta property="og:url" content="<%= request.original_url %>">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="<%= @project.title %>">
-  <meta name="twitter:description" content="<%= truncate(@project.description.to_s, length: 200) %>">
-  <% if @project.banner.attached? %>
-    <meta property="og:image" content="<%= url_for(@project.banner) %>">
-    <meta name="twitter:image" content="<%= url_for(@project.banner) %>">
-  <% end %>
-  <% owner = @project.memberships.find_by(role: :owner)&.user %>
-  <% if owner %>
-    <meta name="author" content="<%= owner.display_name %>">
-  <% end %>
-<% end %>
+<% content_for :title, @project.title %>
+<% content_for :og_title, @project.title %>
+<% content_for :og_description, truncate(@project.description.to_s, length: 200) %>
+<% content_for :og_image, project_og_image_url(@project, format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+<% content_for :og_author, @project.memberships.find_by(role: :owner)&.user&.display_name %>
 
 <div class="projects-show">
   <div class="projects-show__container">

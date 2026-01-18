@@ -37,4 +37,16 @@
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--space-xl);
   }
+
+  &__paragraph {
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-xl);
+    color: var(--color-brown-700);
+    margin-top: var(--space-xl);
+
+    & a {
+      color: var(--color-brown-700);
+      text-decoration: underline;
+    }
+  }
 }

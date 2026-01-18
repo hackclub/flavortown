@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_05_014347) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_16_020000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -576,11 +576,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_014347) do
     t.datetime "created_at", null: false
     t.string "display_name"
     t.string "email"
+    t.string "enriched_ref"
     t.string "first_name"
     t.string "granted_roles", default: [], null: false, array: true
     t.boolean "has_gotten_free_stickers", default: false
     t.boolean "has_pending_achievements", default: false, null: false
     t.string "hcb_email"
+    t.text "internal_notes"
     t.string "last_name"
     t.boolean "leaderboard_optin", default: false, null: false
     t.string "magic_link_token"
@@ -588,8 +590,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_014347) do
     t.integer "projects_count"
     t.string "ref"
     t.string "regions", default: [], array: true
+    t.boolean "send_notifications_for_followed_devlogs", default: true, null: false
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
+    t.boolean "shadow_banned", default: false, null: false
+    t.datetime "shadow_banned_at"
+    t.text "shadow_banned_reason"
     t.enum "shop_region", enum_type: "shop_region_type"
     t.boolean "slack_balance_notifications", default: false, null: false
     t.string "slack_id"
@@ -601,6 +607,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_014347) do
     t.boolean "vote_anonymously", default: false, null: false
     t.integer "votes_count"
     t.boolean "ysws_eligible", default: false, null: false
+    t.index ["api_key"], name: "index_users_on_api_key", unique: true
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["session_token"], name: "index_users_on_session_token", unique: true
@@ -621,20 +628,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_014347) do
   end
 
   create_table "votes", force: :cascade do |t|
-    t.integer "category", default: 0, null: false
     t.datetime "created_at", null: false
-    t.boolean "demo_url_clicked"
+    t.boolean "demo_url_clicked", default: false
+    t.integer "originality_score"
     t.bigint "project_id", null: false
     t.text "reason"
-    t.boolean "repo_url_clicked"
-    t.integer "score", null: false
-    t.bigint "ship_event_id"
+    t.boolean "repo_url_clicked", default: false
+    t.bigint "ship_event_id", null: false
+    t.integer "storytelling_score"
+    t.integer "technical_score"
     t.integer "time_taken_to_vote"
     t.datetime "updated_at", null: false
+    t.integer "usability_score"
     t.bigint "user_id", null: false
     t.index ["project_id"], name: "index_votes_on_project_id"
     t.index ["ship_event_id"], name: "index_votes_on_ship_event_id"
-    t.index ["user_id", "ship_event_id", "category"], name: "index_votes_on_user_id_and_ship_event_id_and_category", unique: true
+    t.index ["user_id", "ship_event_id"], name: "index_votes_on_user_id_and_ship_event_id", unique: true
     t.index ["user_id"], name: "index_votes_on_user_id"
   end
 

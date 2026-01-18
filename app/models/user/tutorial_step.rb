@@ -16,15 +16,15 @@ class User
     end
 
     self::ALL = [
-      new(:first_login, "First login", "log into the platform for the first time!", "user", "/"),
+      new(:first_login, "First login", "Log into the platform for the first time!", "user", "/"),
       new(slug: :create_project,
           name: "Create your first project",
-          description: "what are you cooking?",
+          description: "What are you cooking?",
           icon: "fork_spoon_fill",
           link: ->(_) { new_project_path }),
       new(slug: :post_devlog,
           name: "Post a devlog",
-          description: "dev your log!",
+          description: "Dev your log!",
           icon: "edit",
           link: ->(_) { new_project_devlog_path(current_user.projects.first) },
           deps: [
@@ -43,12 +43,12 @@ class User
           verb: :post),
       new(slug: :setup_slack,
           name: "Join Slack",
-          description: "connect with the community",
+          description: "Post in #flavortown-introduction after becoming a full member!",
           icon: "slack",
-          link: ->(_) { "https://hackclub.slack.com" }),
+          link: ->(_) { "https://hackclub.slack.com/app_redirect?channel=USLACKBOT" }),
       new(slug: :free_stickers,
           name: "Get your stickers!",
-          description: "get your stickers!",
+          description: "Get your stickers!",
           icon: "sticker",
           link: ->(_) { shop_path },
           deps: [

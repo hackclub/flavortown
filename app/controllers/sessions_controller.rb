@@ -29,9 +29,22 @@ class SessionsController < ApplicationController
     end
 
     identity = User::Identity.find_or_initialize_by(provider: "hack_club", uid: uid)
-    identity.access_token = access_token
-
     user = identity.user || User.find_by(slack_id: slack_id) || User.new
+
+    if identity.new_record? && user.persisted?
+      existing_identity = user.identities.find_by(provider: "hack_club")
+      if existing_identity
+        Sentry.capture_message(
+          "User UID changed on HCA side",
+          level: :info,
+          extra: { user_id: user.id, old_uid: existing_identity.uid, new_uid: uid, slack_id: slack_id }
+        )
+        identity = existing_identity
+        identity.uid = uid
+      end
+    end
+
+    identity.access_token = access_token
     is_new_user = user.new_record?
     user.email ||= user_email
     user.display_name = display_name if user.display_name.to_s.strip.blank?
@@ -45,10 +58,33 @@ class SessionsController < ApplicationController
       user.ref = cookies[:referral_code]
     end
 
-    user.save!
+    begin
+      user.save!
+    rescue ActiveRecord::RecordInvalid => e
+      Sentry.capture_exception(e, extra: {
+        user_id: user.id,
+        user_errors: user.errors.full_messages,
+        slack_id: slack_id,
+        uid: uid,
+        is_new_user: is_new_user
+      })
+      return redirect_to(root_path, alert: "Unable to save your account. Please contact support.")
+    end
 
     identity.user = user
-    identity.save!
+    begin
+      identity.save!
+    rescue ActiveRecord::RecordInvalid => e
+      Sentry.capture_exception(e, extra: {
+        identity_id: identity.id,
+        identity_errors: identity.errors.full_messages,
+        user_id: user.id,
+        provider: identity.provider,
+        uid: identity.uid,
+        existing_identity_for_user: user.identities.find_by(provider: "hack_club")&.attributes&.except("access_token_ciphertext", "refresh_token_ciphertext")
+      })
+      return redirect_to(root_path, alert: "Unable to link your Hack Club account. Please contact support.")
+    end
 
     if is_new_user
       FunnelTrackerService.track(

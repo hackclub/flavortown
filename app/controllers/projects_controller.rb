@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship, :mark_fire, :unmark_fire ]
-  before_action :set_project, only: [ :show ]
+  before_action :set_project, only: [ :show, :readme ]
 
   def index
     authorize Project
@@ -9,6 +9,10 @@ class ProjectsController < ApplicationController
 
   def show
     authorize @project
+
+    if @project.users.where(shadow_banned: true).exists? && !@project.users.include?(current_user)
+      raise ActiveRecord::RecordNotFound
+    end
 
     @posts = @project.posts
                      .includes(:user, postable: [ :attachments_attachments ])
@@ -362,12 +366,30 @@ class ProjectsController < ApplicationController
     redirect_to @project
   end
 
+  def readme
+    unless turbo_frame_request?
+      redirect_to @project
+      return
+    end
+
+    result = ProjectReadmeFetcher.fetch(@project.readme_url)
+
+    @readme_html =
+      if result.markdown.present?
+        MarkdownRenderer.render(result.markdown)
+      end
+
+    @readme_error = result.error
+
+    render "projects/readme", layout: false
+  end
+
   private
 
   def load_ship_data
     @hackatime_projects = @project.hackatime_projects_with_time
     @total_hours = @project.total_hackatime_hours
-    @devlogs = @project.devlogs.includes(:user, postable: [ { attachments_attachments: :blob } ]).order(created_at: :desc)
+    @devlogs = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
   end
 
   def ship_params
@@ -413,6 +435,7 @@ class ProjectsController < ApplicationController
   # these links block automated requests, but we're ok with just assuming they're good
   ALLOWLISTED_DOMAINS = %w[
     npmjs.com
+    crates.io
   ].freeze
 
   def validate_url_not_dead(attribute, name)

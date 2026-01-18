@@ -40,6 +40,7 @@
 @use "components/music_player";
 @use "components/markdown_content";
 @use "components/announcement_component";
+@use "components/comic_card";
 
 // Themes
 @use "themes/christmas";
@@ -49,6 +50,7 @@
 @use "pages/projects/new";
 @use "pages/projects/show";
 @use "pages/projects/ship";
+@use "pages/projects/readme";
 @use "pages/kitchen/index" as kitchen_index;
 @use "pages/achievements/index" as achievements_index;
 @use "pages/shop/shop";

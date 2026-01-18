@@ -38,6 +38,8 @@ class HelperConstraint
 end
 
 Rails.application.routes.draw do
+  # Static OG images
+  get "og/:page", to: "og_images#show", as: :og_image, defaults: { format: :png }
   # Landing
   root "landing#index"
   post "submit_email", to: "landing#submit_email", as: :submit_email
@@ -84,6 +86,9 @@ Rails.application.routes.draw do
   # Letter opener web for development email preview
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
+
+    get "og_image_previews", to: "og_image_previews#index"
+    get "og_image_previews/*id", to: "og_image_previews#show", as: :og_image_preview
   end
 
   # Action Mailbox for incoming HCB and tracking emails
@@ -134,7 +139,7 @@ Rails.application.routes.draw do
     get "/", to: "root#index"
 
     namespace :v1 do
-      resources :projects, only: [ :index, :show ] do
+      resources :projects, only: [ :index, :show, :create, :update ] do
         resources :devlogs, only: [ :index, :show ], controller: "project_devlogs"
       end
 
@@ -143,6 +148,10 @@ Rails.application.routes.draw do
       resources :store, only: [ :index, :show ]
       resources :users, only: [ :index, :show ]
     end
+  end
+
+  namespace :internal do
+    post "revoke", to: "revoke#create"
   end
 
   namespace :user, path: "" do
@@ -186,7 +195,11 @@ Rails.application.routes.draw do
          post :adjust_balance
          post :ban
          post :unban
+         post :cancel_all_hcb_grants
+         post :shadow_ban
+         post :unshadow_ban
          post :impersonate
+         post :refresh_verification
        end
        collection do
          post :stop_impersonating
@@ -216,10 +229,15 @@ Rails.application.routes.draw do
         post :mark_fulfilled
         post :update_internal_notes
         post :assign_user
+        post :cancel_hcb_grant
+        post :refresh_verification
       end
     end
     resources :audit_logs, only: [ :index, :show ]
     resources :reports, only: [ :index, :show ] do
+      collection do
+        post :process_demo_broken
+      end
       member do
         post :review
         post :dismiss
@@ -249,8 +267,10 @@ Rails.application.routes.draw do
       end
     end
     resources :reports, only: [ :create ], module: :project
+    resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
     member do
       get :ship
+      get :readme
       patch :update_ship
       post :submit_ship
       post :mark_fire
@@ -269,5 +289,7 @@ Rails.application.routes.draw do
   end
 
   # Public user profiles
-  resources :users, only: [ :show ]
+  resources :users, only: [ :show ] do
+    resource :og_image, only: [ :show ], module: :users, defaults: { format: :png }
+  end
 end

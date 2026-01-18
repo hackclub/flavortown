@@ -1,65 +1,64 @@
 class VotesController < ApplicationController
-  before_action :ensure_user_can_vote, only: [ :index, :new, :create ]
+  before_action :check_voting_enabled
 
   def index
-    authorize :vote, :index?
-    # Get distinct project IDs ordered by the user's most recent vote for that project
-    project_ids = Vote.where(user: current_user)
-                      .select("project_id, MAX(created_at) as max_created_at")
-                      .group(:project_id)
-                      .order("max_created_at DESC")
-                      .map(&:project_id)
-
-    # Paginate the array of project IDs
-    @pagy, @project_ids = pagy(:offset, project_ids)
-
-    # Fetch the votes for the paginated project IDs
-    @votes_by_project = Vote.where(user: current_user, project_id: @project_ids)
-                            .includes(:project)
-                            .group_by(&:project)
-                            # Sort by the order of project_ids (most recent first)
-                            .sort_by { |project, _| @project_ids.index(project.id) }
+    authorize :vote
+    @pagy, @votes = pagy(current_user.votes.includes(:project, :ship_event).order(created_at: :desc))
   end
 
   def new
-    authorize :vote, :new?
-    redirect_to root_path, alert: "Voting is currently disabled."
-    nil
+    authorize :vote
+    @ship_event = VoteMatchmaker.new(current_user, user_agent: request.user_agent).next_ship_event
+    return redirect_to root_path, notice: "No more projects to vote on!" unless @ship_event
+
+    @vote = Vote.new(ship_event: @ship_event, project: @ship_event.post.project)
+    @project = @ship_event.post.project
+    @posts = @project.posts.where("created_at <= ?", @ship_event.post.created_at)
+                     .where.not(postable_type: "Post::GitCommit")
+                     .order(created_at: :desc)
   end
 
   def create
-    authorize :vote, :create?
-    redirect_to root_path, alert: "Voting is currently disabled."
-    nil
+    authorize :vote
+    @vote = current_user.votes.build(vote_params)
+
+    if @vote.save
+      share_vote_to_slack(@vote) if current_user.send_votes_to_slack
+      redirect_to new_vote_path, notice: "Vote recorded!"
+    else
+      @ship_event = @vote.ship_event
+      @project = @vote.project
+      @posts = @project.posts.where("created_at <= ?", @ship_event.post.created_at)
+                     .where.not(postable_type: "Post::GitCommit")
+                     .order(created_at: :desc)
+      render :new, status: :unprocessable_entity
+    end
   end
 
   private
 
-  def share_vote_to_slack(votes, reason)
-    return if votes.empty?
+  def check_voting_enabled
+    return if current_user && Flipper.enabled?(:voting, current_user)
 
+    redirect_to root_path, alert: "Voting is currently disabled."
+  end
+
+  def vote_params
+    params.require(:vote).permit(:ship_event_id, :project_id, :reason,
+      :demo_url_clicked, :repo_url_clicked, :time_taken_to_vote, *Vote.score_columns)
+  end
+
+  def share_vote_to_slack(vote)
     SendSlackDmJob.perform_later(
       "C0A2DTFSYSD",
       nil,
       blocks_path: "notifications/votes/shared",
       locals: {
-        project: votes.first.project,
-        reason: reason,
-        anonymous: false,
+        project: vote.project,
+        reason: vote.reason,
+        anonymous: current_user.vote_anonymously,
         voter_slack_id: current_user.slack_id
       }
     )
-  end
-
-  def ensure_user_can_vote
-    unless current_user
-      redirect_to login_path, alert: "You need to log in to vote."
-      return
-    end
-
-    return if current_user.admin? || current_user.verification_verified?
-
-    tutorial_message "Hold on — voting unlocks after your account is verified!"
-    redirect_to kitchen_path
   end
 end
