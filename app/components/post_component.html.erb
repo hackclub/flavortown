@@ -92,7 +92,7 @@
                       <img class="post__image" alt="Attachment" src="<%= url_for(att) %>" loading="lazy">
                     </picture>
                   <% elsif video?(att) %>
-                    <video class="post__attachment post__attachment--video" controls src="<%= url_for(att) %>" preload="none" loading="lazy"></video>
+                    <video class="post__attachment post__attachment--video" controls src="<%= url_for(att) %>" preload="none"></video>
                   <% else %>
                     <%= link_to url_for(att), class: "post__attachment post__attachment--file", target: "_blank", rel: "noopener" do %>
                       <%= helpers.inline_svg_tag("icons/paper.svg") %>

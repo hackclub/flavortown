@@ -109,6 +109,15 @@ export default class extends Controller {
         this.buttonTarget.textContent = "Failed to load. Try again?";
         this.buttonTarget.disabled = false;
       }
+      if (this.hasSentinelTarget) {
+        this.sentinelTarget.textContent = "Failed to load more devlogs.";
+        if (this.sentinelTarget.classList) {
+          this.sentinelTarget.classList.add("explore__error");
+        }
+        if (this.observer) {
+          this.observer.disconnect();
+        }
+      }
     } finally {
       this.loading = false;
     }
