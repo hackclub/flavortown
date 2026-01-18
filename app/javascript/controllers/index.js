@@ -2,97 +2,106 @@
 // Run that command whenever you add a new controller or create them with
 // ./bin/rails generate stimulus controllerName
 
-import { application } from "./application";
+import { application } from "./application"
 
-import FileUploadController from "./file_upload_controller";
-application.register("file-upload", FileUploadController);
+import AchievementHighlightController from "./achievement_highlight_controller"
+application.register("achievement-highlight", AchievementHighlightController)
 
-import FlashController from "./flash_controller";
-application.register("flash", FlashController);
+import AddressSelectController from "./address_select_controller"
+application.register("address-select", AddressSelectController)
 
-import HackatimeProjectSelectorController from "./hackatime_project_selector_controller";
-application.register(
-  "hackatime-project-selector",
-  HackatimeProjectSelectorController,
-);
+import CardSoundController from "./card_sound_controller"
+application.register("card-sound", CardSoundController)
 
-import HelloController from "./hello_controller";
-application.register("hello", HelloController);
+import CookieClickerController from "./cookie_clicker_controller"
+application.register("cookie-clicker", CookieClickerController)
 
-import ProjectFormController from "./project_form_controller";
-application.register("project-form", ProjectFormController);
+import CustomsWarningController from "./customs_warning_controller"
+application.register("customs-warning", CustomsWarningController)
 
-import PostAttachmentsController from "./post_attachments_controller";
-application.register("post-attachments", PostAttachmentsController);
+import DialogueIterationController from "./dialogue_iteration_controller"
+application.register("dialogue-iteration", DialogueIterationController)
 
-import ShopController from "./shop_controller";
-application.register("shop", ShopController);
+import DropdownController from "./dropdown_controller"
+application.register("dropdown", DropdownController)
 
-import VoteTrackerController from "./vote_tracker_controller";
-application.register("vote-tracker", VoteTrackerController);
+import FileUploadController from "./file_upload_controller"
+application.register("file-upload", FileUploadController)
 
-import DropdownController from "./dropdown_controller";
-application.register("dropdown", DropdownController);
+import FlashController from "./flash_controller"
+application.register("flash", FlashController)
 
-import ProjectIdeasController from "./project_ideas_controller";
-application.register("project-ideas", ProjectIdeasController);
+import HackatimeProjectSelectorController from "./hackatime_project_selector_controller"
+application.register("hackatime-project-selector", HackatimeProjectSelectorController)
 
-import AddressSelectController from "./address_select_controller";
-application.register("address-select", AddressSelectController);
+import HelloController from "./hello_controller"
+application.register("hello", HelloController)
 
-import OrderFormController from "./order_form_controller";
-application.register("order-form", OrderFormController);
+import JsonHighlightController from "./json_highlight_controller"
+application.register("json-highlight", JsonHighlightController)
 
-import LoadMoreController from "./load_more_controller";
-application.register("load-more", LoadMoreController);
+import KitchenDialogueController from "./kitchen_dialogue_controller"
+application.register("kitchen-dialogue", KitchenDialogueController)
 
-import DialogueIterationController from "./dialogue_iteration_controller";
-application.register("dialogue-iteration", DialogueIterationController);
+import LightboxController from "./lightbox_controller"
+application.register("lightbox", LightboxController)
 
-import ProjectFireController from "./project_fire_controller";
-application.register("project-fire", ProjectFireController);
+import LoadMoreController from "./load_more_controller"
+application.register("load-more", LoadMoreController)
 
-import ModalController from "./modal_controller";
-application.register("modal", ModalController);
+import MarkdownPreviewController from "./markdown_preview_controller"
+application.register("markdown-preview", MarkdownPreviewController)
 
-import WelcomeOverlayController from "./welcome_overlay_controller";
-application.register("welcome-overlay", WelcomeOverlayController);
+import ModalController from "./modal_controller"
+application.register("modal", ModalController)
 
-import MusicPlayerController from "./music_player_controller";
-application.register("music-player", MusicPlayerController);
+import MusicPlayerController from "./music_player_controller"
+application.register("music-player", MusicPlayerController)
 
-import ShopWishlistController from "./shop_wishlist_controller";
-application.register("shop-wishlist", ShopWishlistController);
+import OrderFormController from "./order_form_controller"
+application.register("order-form", OrderFormController)
 
-import ShopGoalsController from "./shop_goals_controller";
-application.register("shop-goals", ShopGoalsController);
+import PostAttachmentsController from "./post_attachments_controller"
+application.register("post-attachments", PostAttachmentsController)
 
-import SearchableSelectController from "./searchable_select_controller";
-application.register("searchable-select", SearchableSelectController);
+import ProjectFireController from "./project_fire_controller"
+application.register("project-fire", ProjectFireController)
 
-import JsonHighlightController from "./json_highlight_controller";
-application.register("json-highlight", JsonHighlightController);
+import ProjectFormController from "./project_form_controller"
+application.register("project-form", ProjectFormController)
 
-import MarkdownPreviewController from "./markdown_preview_controller";
-application.register("markdown-preview", MarkdownPreviewController);
+import ProjectIdeasController from "./project_ideas_controller"
+application.register("project-ideas", ProjectIdeasController)
 
-import AchievementHighlightController from "./achievement_highlight_controller";
-application.register("achievement-highlight", AchievementHighlightController);
+import SearchableSelectController from "./searchable_select_controller"
+application.register("searchable-select", SearchableSelectController)
 
-import CookieClickerController from "./cookie_clicker_controller";
-application.register("cookie-clicker", CookieClickerController);
+import ShopController from "./shop_controller"
+application.register("shop", ShopController)
 
-import StartDevlogController from "./start_devlog_controller";
-application.register("start-devlog", StartDevlogController);
+import ShopGoalsController from "./shop_goals_controller"
+application.register("shop-goals", ShopGoalsController)
 
-import KitchenDialogueController from "./kitchen_dialogue_controller";
-application.register("kitchen-dialogue", KitchenDialogueController);
+import ShopWishlistController from "./shop_wishlist_controller"
+application.register("shop-wishlist", ShopWishlistController)
 
-import SnowController from "./snow_controller";
-application.register("snow", SnowController);
+import SidebarPinController from "./sidebar_pin_controller"
+application.register("sidebar-pin", SidebarPinController)
 
-import UploadFormController from "./upload_form_controller";
-application.register("upload-form", UploadFormController);
+import SnowController from "./snow_controller"
+application.register("snow", SnowController)
 
-import CardSoundController from "./card_sound_controller";
-application.register("card-sound", CardSoundController);
+import StartDevlogController from "./start_devlog_controller"
+application.register("start-devlog", StartDevlogController)
+
+import TimezoneController from "./timezone_controller"
+application.register("timezone", TimezoneController)
+
+import UploadFormController from "./upload_form_controller"
+application.register("upload-form", UploadFormController)
+
+import VoteTrackerController from "./vote_tracker_controller"
+application.register("vote-tracker", VoteTrackerController)
+
+import WelcomeOverlayController from "./welcome_overlay_controller"
+application.register("welcome-overlay", WelcomeOverlayController)
