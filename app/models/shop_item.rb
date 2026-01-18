@@ -102,6 +102,7 @@ class ShopItem < ApplicationRecord
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
   scope :enabled, -> { where(enabled: true) }
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
+  scope :recently_added, -> { order(created_at: :desc).limit(6) }
 
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
   belongs_to :default_assigned_user, class_name: "User", optional: true
