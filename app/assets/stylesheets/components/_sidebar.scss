@@ -209,11 +209,12 @@
 .sidebar__pin-button {
   transform: rotate(45deg);
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
+  top: var(--space-m);
+  right: var(--space-s);
   border: none;
   background: none;
   cursor: pointer;
+  padding: 0;
   opacity: 0;
   transition:
     opacity 180ms ease,
@@ -345,6 +346,7 @@
 // }
 
 .sidebar__blob {
+  position: relative;
   flex: 1;
   padding: var(--space-xl) var(--space-l);
   border-radius: var(--border-radius);
