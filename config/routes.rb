@@ -266,6 +266,7 @@ Rails.application.routes.draw do
         get :versions
       end
     end
+    post "devlogs/new", to: "project/devlogs#create", as: nil
     resources :reports, only: [ :create ], module: :project
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
     member do
