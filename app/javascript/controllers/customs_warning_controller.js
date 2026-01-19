@@ -26,7 +26,7 @@ export default class extends Controller {
 
     switch (itemType) {
       case "us_origin":
-        shouldShow = country !== null && country !== "United States";
+        shouldShow = country !== null && country !== "US";
         message = this.usOriginMessageValue;
         break;
       case "unknown_origin":
