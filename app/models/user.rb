@@ -16,6 +16,7 @@
 #  has_gotten_free_stickers                :boolean          default(FALSE)
 #  has_pending_achievements                :boolean          default(FALSE), not null
 #  hcb_email                               :string
+#  internal_notes                          :text
 #  last_name                               :string
 #  leaderboard_optin                       :boolean          default(FALSE), not null
 #  magic_link_token                        :string
@@ -26,6 +27,9 @@
 #  send_notifications_for_followed_devlogs :boolean          default(TRUE), not null
 #  send_votes_to_slack                     :boolean          default(FALSE), not null
 #  session_token                           :string
+#  shadow_banned                           :boolean          default(FALSE), not null
+#  shadow_banned_at                        :datetime
+#  shadow_banned_reason                    :text
 #  shop_region                             :enum
 #  slack_balance_notifications             :boolean          default(FALSE), not null
 #  special_effects_enabled                 :boolean          default(TRUE), not null
@@ -58,6 +62,7 @@ class User < ApplicationRecord
   has_many :projects, through: :memberships
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
   has_many :shop_orders, dependent: :destroy
+  has_many :shop_card_grants, dependent: :destroy
   has_many :votes, dependent: :destroy
   has_many :reports, class_name: "Project::Report", foreign_key: :reporter_id, dependent: :destroy
   has_many :likes, dependent: :destroy
@@ -252,6 +257,14 @@ class User < ApplicationRecord
 
   def unban!
     update!(banned: false, banned_at: nil, banned_reason: nil)
+  end
+
+  def shadow_ban!(reason: nil)
+    update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
+  end
+
+  def unshadow_ban!
+    update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
   end
 
   def cancel_shop_order(order_id)

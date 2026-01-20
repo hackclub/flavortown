@@ -1,0 +1,18 @@
+<div class="nibbles">
+    <div class="nibbles__header">
+        <%= image_tag 'nibbles/Nibbles-Banner.avif', alt: 'Nibbles Banner' %>
+        <h1>Tackle fun sidequests for extra (bite-sized) challenges and tasty bonuses!</h1>
+        <%= image_tag 'nibbles/Dash-Stickers-L.avif', alt: 'Left Dash Stickers', class: 'nibbles__sticker left' %>
+        <%= image_tag 'nibbles/Dash-Stickers-R.avif', alt: 'Right Dash Stickers', class: 'nibbles__sticker right' %>
+    </div>
+    <div class="nibbles__sidequests">
+        <%= render SidequestCardComponent.new(
+            banner_image: "nibbles/Hackazine-Banner.avif",
+            image: "nibbles/Hackazine.avif",
+            description: "This January: make a page for your project and get it in the Hack Club 2025 magazine! Join #magazine and submit before January 19th. Projects selected for the magazine receive 50 cookies + stickers!",
+            learn_more_link: "https://magazine.hackclub.com/",
+            submit_link: "https://hackclub.slack.com/app_redirect?channel=C0A8CMWM0CR",
+            variant: :purple
+        ) %>
+    </div>
+</div>

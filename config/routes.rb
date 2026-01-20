@@ -75,6 +75,9 @@ Rails.application.routes.draw do
   get "explore/following", to: "explore#following", as: :explore_following
   get "explore/extensions", to: "explore#extensions", as: :explore_extensions
 
+  # Nibbles
+  get "nibbles", to: "nibbles#index", as: :nibbles
+
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
@@ -198,7 +201,11 @@ Rails.application.routes.draw do
          post :adjust_balance
          post :ban
          post :unban
+         post :cancel_all_hcb_grants
+         post :shadow_ban
+         post :unshadow_ban
          post :impersonate
+         post :refresh_verification
        end
        collection do
          post :stop_impersonating
@@ -208,6 +215,8 @@ Rails.application.routes.draw do
     resources :projects, only: [ :index, :show ], shallow: true do
       member do
         post :restore
+        post :shadow_ban
+        post :unshadow_ban
       end
     end
     get "user-perms", to: "users#user_perms"
@@ -228,10 +237,15 @@ Rails.application.routes.draw do
         post :mark_fulfilled
         post :update_internal_notes
         post :assign_user
+        post :cancel_hcb_grant
+        post :refresh_verification
       end
     end
     resources :audit_logs, only: [ :index, :show ]
     resources :reports, only: [ :index, :show ] do
+      collection do
+        post :process_demo_broken
+      end
       member do
         post :review
         post :dismiss
@@ -260,6 +274,7 @@ Rails.application.routes.draw do
         get :versions
       end
     end
+    post "devlogs/new", to: "project/devlogs#create", as: nil
     resources :reports, only: [ :create ], module: :project
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
     member do

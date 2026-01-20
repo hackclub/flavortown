@@ -9,6 +9,11 @@
       alt: alt,
       loading: "lazy",
       decoding: "async" %>
+    <% if step_num.present? %>
+      <div class="comic-card__step-num">
+        <%= step_num %>
+      </div>
+    <% end %>
   </div>
 
   <% modal_id = @modal_id %>

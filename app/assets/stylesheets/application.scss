@@ -42,6 +42,7 @@
 @use "components/announcement_component";
 @use "components/comic_card";
 @use "components/solar_panel";
+@use "components/sidequest_card";
 
 // Themes
 @use "themes/christmas";
@@ -62,3 +63,4 @@
 @use "pages/explore/index" as explore_index;
 @use "pages/start/index" as start_index;
 @use "pages/user/show" as users_show;
+@use "pages/nibbles/index" as nibbles_index;
