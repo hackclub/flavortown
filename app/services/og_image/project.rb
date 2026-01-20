@@ -103,8 +103,8 @@ module OgImage
       stats = []
       owner = @project.memberships.find_by(role: :owner)&.user
       stats << "by @#{owner.display_name}" if owner
-      stats << "#{@project.devlogs_count} devlogs" if @project.devlogs_count.positive?
-      stats << "#{hours_logged} hours worked" if hours_logged > 0
+      stats << "#{@project.devlogs_count} #{"devlog".pluralize @project.devlogs_count}" if @project.devlogs_count.positive?
+      stats << "#{hours_logged} #{"hour".pluralize hours_logged} worked" if hours_logged > 0
       stats
     end
 
