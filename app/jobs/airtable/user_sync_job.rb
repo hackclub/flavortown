@@ -3,9 +3,14 @@ class Airtable::UserSyncJob < Airtable::BaseSyncJob
 
   def records = User.all
 
-  def primary_key_field = "slack_id"
+  def primary_key_field = "email"
 
   def field_mapping(user)
+    funnel_events = FunnelEvent.where(user_id: user.id)
+                               .or(FunnelEvent.where(email: user.email&.downcase))
+                               .order(:created_at)
+    last_event = funnel_events.last
+
     {
       "first_name" => user.first_name,
       "last_name" => user.last_name,
@@ -20,7 +25,10 @@ class Airtable::UserSyncJob < Airtable::BaseSyncJob
       "synced_at" => Time.now,
       "is_banned" => user.banned,
       "flavor_id" => user.id.to_s,
-      "ref" => user.ref
+      "ref" => user.ref,
+      "last_funnel_event" => last_event&.event_name,
+      "last_funnel_event_at" => last_event&.created_at,
+      "funnel_events" => funnel_events.pluck(:event_name).uniq.join(",")
     }
   end
 end
