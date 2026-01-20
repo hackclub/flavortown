@@ -18,9 +18,9 @@ module OgImage
 
     def build_subtitle(weekly_count, total_count)
       if weekly_count >= MIN_WEEKLY_THRESHOLD
-        "#{weekly_count} projects built this week"
+        "#{weekly_count} #{"project".pluralize weekly_count} built this week"
       elsif total_count >= MIN_TOTAL_THRESHOLD
-        "#{total_count} projects built"
+        "#{total_count} #{"project".pluralize total_count} built"
       end
     end
   end
