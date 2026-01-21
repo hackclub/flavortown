@@ -124,11 +124,13 @@ class YswsReviewSyncJob < ApplicationJob
     approved_time_remaining_minutes = total_approved_minutes % 60
     approved_time_formatted = approved_hours > 0 ? "#{approved_hours}h #{approved_time_remaining_minutes}min" : "#{approved_time_remaining_minutes}min"
 
-    devlog_list = devlogs.map do |d|
+    selected_devlogs = devlogs.count > 4 ? [devlogs.first] + devlogs.last(3) : devlogs
+    devlog_list = selected_devlogs.map do |d|
       title = d["title"].presence || "Untitled Devlog"
       approved = d["approvedMinutes"].to_i
       "#{title}: #{approved} mins"
     end.join("\n")
+    devlog_list += "\nand #{devlogs.count - 4} more devlogs." if devlogs.count > 4
 
     orders_section = build_orders_section(approved_orders)
 
@@ -137,19 +139,18 @@ class YswsReviewSyncJob < ApplicationJob
 
       In this time they wrote #{devlogs.count} devlogs.
 
-      This project was initially ship certified by #{ship_certifier}, who tested to make sure the project was shipped, and included all features mentioned in its readme.
+      This project was initially ship certified by #{ship_certifier}.
 
-      Following this it was reviewed by #{reviewer_username} who looked at the user's git commit history, source code, and end-product, to determine if the time logged for each devlog was representative of the time the user had actually spent working on the features they described in their devlog.
+      Following this it was YSWS reviewed by #{reviewer_username}.
 
-      By the end #{reviewer_username} had recorded:
+      #{reviewer_username} approved:
 
       #{devlog_list}
+      ====================================================
+      You can checkout the Full YSWS Review + devlogs at https://review.hackclub.com/admin/ysws_reviews/#{review_id}
 
-      For a full list of devlogs you can checkout: flavortown.hackclub.com/projects/#{project_id}
-
-      You can checkout the YSWS Review at review.hackclub.com/admin/reviews/#{review_id}
-
-      You can checkout the Ship Cert at review.hackclub.com/admin/ship_certifications/#{ship_cert_id}/edit
+      You can checkout the Ship Cert at https://review.hackclub.com/admin/ship_certifications/#{ship_cert_id}/edit
+      ====================================================
       #{orders_section}
     JUSTIFICATION
   end
@@ -157,7 +158,7 @@ class YswsReviewSyncJob < ApplicationJob
   def build_orders_section(approved_orders)
     return "" if approved_orders.empty?
 
-    orders_list = approved_orders.map do |order|
+    orders_list = approved_orders.last(2).map do |order|
       item_name = order.shop_item.name
       fulfilled_by = order.fulfilled_by.presence || "Unknown"
       fulfilled_at = order.fulfilled_at&.strftime("%Y-%m-%d") || "Unknown date"
@@ -166,9 +167,9 @@ class YswsReviewSyncJob < ApplicationJob
 
     <<~ORDERS
 
-      --- Approved Shop Orders (aka when they were ac fraud checked)---
+      
 
-      This user has #{approved_orders.count} approved shop order(s):
+      This was fraud checked #{approved_orders.count} time(s).
 
       #{orders_list}
     ORDERS
