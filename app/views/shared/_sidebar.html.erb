@@ -23,7 +23,7 @@
 
       <% sidebar_nav_items << { label: "Helper", path: helper_root_path, icon: "help" } if policy(:helper).access_helper_dashboard? %>
 
-      <% sidebar_nav_items << { label: "Certify", path: "https://sw.eryxks.dev", icon: "ship" } if current_user.project_certifier? %>
+      <% sidebar_nav_items << { label: "Certify", path: "https://review.hackclub.com/", icon: "ship" } if current_user.project_certifier? %>
 
       <ul class="sidebar__nav-list">
         <% sidebar_nav_items.each do |item| %>
