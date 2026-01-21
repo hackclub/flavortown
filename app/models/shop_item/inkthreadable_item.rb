@@ -28,6 +28,7 @@
 #  hcb_keyword_lock                  :string
 #  hcb_merchant_lock                 :string
 #  hcb_preauthorization_instructions :text
+#  inkthreadable_config              :jsonb
 #  internal_description              :string
 #  limited                           :boolean
 #  long_description                  :text
@@ -43,6 +44,10 @@
 #  price_offset_uk                   :decimal(10, 2)
 #  price_offset_us                   :decimal(, )
 #  price_offset_xx                   :decimal(, )
+#  required_ships_count              :integer          default(1)
+#  required_ships_end_date           :date
+#  required_ships_start_date         :date
+#  requires_ship                     :boolean          default(FALSE)
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
@@ -74,7 +79,7 @@ class ShopItem::InkthreadableItem < ShopItem
   end
 
   def inkthreadable_config
-    agh_contents || {}
+    super || {}
   end
 
   def product_number

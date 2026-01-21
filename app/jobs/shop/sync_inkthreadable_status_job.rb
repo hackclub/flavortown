@@ -2,6 +2,7 @@ class Shop::SyncInkthreadableStatusJob < ApplicationJob
   queue_as :default
 
   SHIPPED_STATUSES = [ "quality control" ].freeze
+  ALERT_SLACK_ID = "U08FDLWUZM4" # @transcental
 
   def perform
     pending_inkthreadable_orders.find_each do |order|
@@ -38,8 +39,29 @@ class Shop::SyncInkthreadableStatusJob < ApplicationJob
     elsif status == "refunded" || ink_order["deleted"] == "true"
       handle_cancelled(order)
     else
-      Rails.logger.info "[InkthreadableSync] Order #{order.id} status: #{status}"
+      handle_unexpected_status(order, status)
     end
+  end
+
+  def handle_unexpected_status(order, status)
+    message = "[InkthreadableSync] Order #{order.id} has unexpected status: #{status}"
+    Rails.logger.warn message
+
+    Sentry.capture_message(message, level: :warning, extra: { order_id: order.id, status: status })
+
+    send_slack_alert(order, status)
+  end
+
+  def send_slack_alert(order, status)
+    slack_id = order.assigned_to_user&.slack_id || ALERT_SLACK_ID
+    client = Slack::Web::Client.new(token: Rails.application.credentials.dig(:slack, :bot_token))
+
+    client.chat_postMessage(
+      channel: slack_id,
+      text: "⚠️ Inkthreadable order needs attention!\n\nOrder ##{order.id} has unexpected status: *#{status}*\n\nPlease review: #{Rails.application.routes.url_helpers.admin_shop_order_url(order, host: "flavortown.hackclub.com")}"
+    )
+  rescue Slack::Web::Api::Errors::SlackError => e
+    Rails.logger.error "[InkthreadableSync] Failed to send Slack alert: #{e.message}"
   end
 
   def mark_as_fulfilled(order, tracking_number)

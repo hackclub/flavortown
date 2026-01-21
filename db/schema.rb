@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_21_015055) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -450,6 +450,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.string "hcb_keyword_lock"
     t.string "hcb_merchant_lock"
     t.text "hcb_preauthorization_instructions"
+    t.jsonb "inkthreadable_config"
     t.string "internal_description"
     t.boolean "limited"
     t.text "long_description"

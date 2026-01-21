@@ -28,6 +28,7 @@
 #  hcb_keyword_lock                  :string
 #  hcb_merchant_lock                 :string
 #  hcb_preauthorization_instructions :text
+#  inkthreadable_config              :jsonb
 #  internal_description              :string
 #  limited                           :boolean
 #  long_description                  :text
