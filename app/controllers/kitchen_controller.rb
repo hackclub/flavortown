@@ -21,6 +21,10 @@ class KitchenController < ApplicationController
     @completed_steps = current_user.tutorial_steps
     @tutorial_is_complete = @tutorial_steps - @completed_steps
 
+    @recently_added_items = ShopItem.enabled.buyable_standalone.recently_added.includes(:image_attachment)
+    @user_region = current_user.region || "US"
+    @user_balance = current_user.cookies
+
     show_from_session = session.delete(:show_welcome_overlay)
     @show_welcome_overlay = show_from_session
 
