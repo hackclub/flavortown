@@ -113,6 +113,6 @@ production:
 
   ysws_review_sync:
     class: YswsReviewSyncJob
-    schedule: every hour
+    schedule: every 15 minutes
     concurrency: 1
     description: "Sync completed YSWS reviews to Airtable with user PII"
