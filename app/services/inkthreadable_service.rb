@@ -46,11 +46,13 @@ module InkthreadableService
     private
 
     def app_id
-      Rails.application.credentials.dig(:inkthreadable, :app_id)
+      Rails.application.credentials.dig(:inkthreadable, :app_id) ||
+        raise("Missing Inkthreadable app_id in credentials. Set credentials.inkthreadable.app_id")
     end
 
     def secret_key
-      Rails.application.credentials.dig(:inkthreadable, :secret_key)
+      Rails.application.credentials.dig(:inkthreadable, :secret_key) ||
+        raise("Missing Inkthreadable secret_key in credentials. Set credentials.inkthreadable.secret_key")
     end
 
     def generate_signature(request_body)
