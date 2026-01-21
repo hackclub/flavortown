@@ -32,7 +32,8 @@ class Shop::SyncInkthreadableStatusJob < ApplicationJob
     status = ink_order["status"]&.downcase
     shipping = ink_order["shipping"] || {}
     tracking_number = shipping["trackingNumber"]
-    shipped_at = shipping["shiped_at"]
+  # either the docs are wrong or its the brits faults  - neon
+    shipped_at = shipping["shiped_at"] || shipping["shipped_at"]
 
     if shipped_at.present? || tracking_number.present?
       mark_as_fulfilled(order, tracking_number)
