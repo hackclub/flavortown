@@ -353,7 +353,7 @@ class ShopOrder < ApplicationRecord
     e = shop_item.required_ships_end_date.strftime("%B %d, %Y")
     c = shop_item.required_ships_count
 
-    errors.add(:base, "You must have shipped at least #{c} #{'project'.pluralize(count)} between #{s} and #{e} to purchase this item.")
+    errors.add(:base, "You must have shipped at least #{c} #{'project'.pluralize(c)} between #{s} and #{e} to purchase this item.")
   end
 
   def create_negative_payout
