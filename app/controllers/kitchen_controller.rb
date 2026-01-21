@@ -22,8 +22,8 @@ class KitchenController < ApplicationController
     @tutorial_is_complete = @tutorial_steps - @completed_steps
 
     @recently_added_items = ShopItem.enabled.buyable_standalone.recently_added.includes(:image_attachment)
-    @user_region = current_user.region || "US"
-    @user_balance = current_user.cookies
+    @user_region = determine_user_region
+    @user_balance = current_user.balance
 
     show_from_session = session.delete(:show_welcome_overlay)
     @show_welcome_overlay = show_from_session
@@ -41,6 +41,18 @@ class KitchenController < ApplicationController
 
   def load_current_user_with_identities
     current_user(:identities)
+  end
+
+  def determine_user_region
+    return current_user.shop_region if current_user.shop_region.present?
+    return current_user.regions.first if current_user.has_regions?
+
+    primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
+    country = primary_address&.dig("country")
+    region_from_address = Shop::Regionalizable.country_to_region(country)
+    return region_from_address if region_from_address != "XX" || country.present?
+
+    Shop::Regionalizable.timezone_to_region(cookies[:timezone]) || "US"
   end
 
   # temp
