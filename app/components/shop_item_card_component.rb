@@ -30,11 +30,6 @@ class ShopItemCardComponent < ViewComponent::Base
     @regional_price
   end
 
-  def show_customs_warning?
-    return false unless item_type
-    item_type.include?("HQMailItem") || item_type.include?("WarehouseItem") || item_type.include?("ThirdPartyPhysical")
-  end
-
   def categories
     return [] unless item_type
     cats = []
