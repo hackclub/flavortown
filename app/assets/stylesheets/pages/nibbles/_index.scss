@@ -1,0 +1,62 @@
+.nibbles {
+  .ui-heading {
+    width: 100%;
+    margin: 2.5em 0;
+
+    &__title {
+      font-size: 2.25rem;
+    }
+
+    &__stack {
+      width: 50%;
+    }
+
+    &__surface {
+      width: 100%;
+    }
+
+    @media (max-width: 960px) {
+      &__stack {
+        width: 100%;
+      }
+    }
+  }
+
+  &__sidequests {
+    background: var(--color-bg)
+      repeating-conic-gradient(
+        from 0deg,
+        rgba(0, 0, 0, 0.02) 0deg 90deg,
+        transparent 90deg 180deg
+      );
+    background-size: 120px 120px;
+    padding: 3em;
+    outline: 0.4em dashed rgb(220, 191, 164);
+    outline-offset: -1.5em;
+    border-radius: 2em;
+
+    .nibbles__sidequests-subtitle {
+      font-size: 1.3rem;
+      font-weight: normal;
+      text-align: center;
+      font-family: var(--font-family-subtitle);
+      color: var(--color-brown-500);
+      margin-bottom: 1em;
+    }
+
+    .nibbles__sidequests-cards {
+      display: flex;
+      flex-direction: row;
+      gap: 2em;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    @media (max-width: 1200px) {
+      outline: 0.4em solid rgb(220, 191, 164);
+      outline-offset: 0;
+      padding: 1em;
+    }
+  }
+}
