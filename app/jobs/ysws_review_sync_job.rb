@@ -116,8 +116,13 @@ class YswsReviewSyncJob < ApplicationJob
 
     total_original_minutes = devlogs.sum { |d| d["originalMinutes"].to_i }
     total_hours = total_original_minutes / 60
-    remaining_minutes = total_original_minutes % 60
-    time_format = total_hours > 0 ? "#{total_hours}h #{remaining_minutes}min" : "#{remaining_minutes}min"
+    original_time_remaining_minutes = total_original_minutes % 60
+    original_time_formatted = total_hours > 0 ? "#{total_hours}h #{original_time_remaining_minutes}min" : "#{original_time_remaining_minutes}min"
+
+    total_approved_minutes = devlogs.sum { |d| d["approvedMinutes"].to_i }
+    approved_hours = total_approved_minutes / 60
+    approved_time_remaining_minutes = total_approved_minutes % 60
+    approved_time_formatted = approved_hours > 0 ? "#{approved_hours}h #{approved_time_remaining_minutes}min" : "#{approved_time_remaining_minutes}min"
 
     devlog_list = devlogs.map do |d|
       title = d["title"].presence || "Untitled Devlog"
@@ -128,7 +133,7 @@ class YswsReviewSyncJob < ApplicationJob
     orders_section = build_orders_section(approved_orders)
 
     <<~JUSTIFICATION
-      The user logged #{time_format} on hackatime.
+      The user logged #{original_time_formatted} on hackatime. (#{total_original_minutes == total_approved_minutes ? "" : "This was adjusted to #{approved_time_formatted} after review."})
 
       In this time they wrote #{devlogs.count} devlogs.
 
