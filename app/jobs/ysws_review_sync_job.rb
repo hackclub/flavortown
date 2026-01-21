@@ -162,7 +162,7 @@ class YswsReviewSyncJob < ApplicationJob
     <<~ORDERS
 
       --- Approved Shop Orders (aka when they were ac fraud checked)---
-     
+
       This user has #{approved_orders.count} approved shop order(s):
 
       #{orders_list}
