@@ -17,7 +17,7 @@ module YswsReviewService
       conn.request :json
       conn.response :json
       conn.response :raise_error
-      conn.headers["Authorization"] = "Bearer #{api_key}"
+      conn.headers["x-api-key"] = "#{api_key}"
       conn.headers["Accept"] = "application/json"
     end
   end
