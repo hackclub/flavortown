@@ -249,6 +249,41 @@
   <div class="kitchen-stats">
     <%= render KitchenStatsComponent.new(user: current_user) %>
   </div>
+  <% if @recently_added_items.any? %>
+    <section class="kitchen-recently-added">
+      <div class="kitchen-recently-added__header">
+        <h2 class="kitchen-recently-added__title">Recently Added to Shop</h2>
+        <p class="kitchen-recently-added__subtitle">fresh off the shelf, check these out!</p>
+      </div>
+      <div class="kitchen-recently-added__items">
+        <% @recently_added_items.each do |item| %>
+          <% next unless item.image.present? && item.enabled_in_region?(@user_region) %>
+          <% sale_price = item.price_for_region(@user_region) %>
+          <%= render ShopItemCardComponent.new(
+            item_id: item.id,
+            name: item.name,
+            description: item.description,
+            hours: item.fixed_estimate(sale_price).to_i,
+            price: item.ticket_cost,
+            image_url: item.image.variant(:carousel_lg),
+            item_type: item.type,
+            balance: @user_balance,
+            enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
+            regional_price: sale_price,
+            logged_in: current_user.present?,
+            remaining_stock: item.remaining_stock,
+            limited: item.limited?,
+            on_sale: item.on_sale?,
+            sale_percentage: item.sale_percentage,
+            original_price: item.ticket_cost,
+            created_at: item.created_at,
+            show_bow: true,
+            show_time_ago: true
+          ) %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
   <div class="kitchen-help">
     <%= render KitchenHelpCardsComponent %>
   </div>
