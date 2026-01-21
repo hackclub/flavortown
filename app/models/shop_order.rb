@@ -51,7 +51,7 @@
 #  fk_rails_...  (warehouse_package_id => shop_warehouse_packages.id)
 #
 class ShopOrder < ApplicationRecord
-  has_paper_trail ignore: [:frozen_address_ciphertext]
+  has_paper_trail ignore: [ :frozen_address_ciphertext ]
 
   include AASM
   include Ledgerable
@@ -241,12 +241,12 @@ class ShopOrder < ApplicationRecord
     return unless user.slack_id.present?
 
     template = case aasm_state
-               when "rejected" then "notifications/shop_orders/rejected"
-               when "awaiting_verification" then "notifications/shop_orders/awaiting_verification"
-               when "awaiting_periodical_fulfillment" then "notifications/shop_orders/awaiting_fulfillment"
-               when "fulfilled" then "notifications/shop_orders/fulfilled"
-               else "notifications/shop_orders/default"
-               end
+    when "rejected" then "notifications/shop_orders/rejected"
+    when "awaiting_verification" then "notifications/shop_orders/awaiting_verification"
+    when "awaiting_periodical_fulfillment" then "notifications/shop_orders/awaiting_fulfillment"
+    when "fulfilled" then "notifications/shop_orders/fulfilled"
+    else "notifications/shop_orders/default"
+    end
 
     SendSlackDmJob.perform_later(
       user.slack_id,
