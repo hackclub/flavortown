@@ -154,7 +154,12 @@ module Admin
       )
 
       if permitted[:inkthreadable_config].present?
-        permitted[:inkthreadable_config] = JSON.parse(permitted[:inkthreadable_config])
+        begin
+          permitted[:inkthreadable_config] = JSON.parse(permitted[:inkthreadable_config])
+        rescue JSON::ParserError
+          flash.now[:alert] = "Inkthreadable config must be valid JSON."
+          permitted[:inkthreadable_config] = nil
+        end
       end
 
       permitted
