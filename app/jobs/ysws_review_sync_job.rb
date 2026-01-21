@@ -184,7 +184,7 @@ class YswsReviewSyncJob < ApplicationJob
   def table_name
     Rails.application.credentials.dig(:ysws_review, :airtable_table_name) ||
       ENV["YSWS_REVIEW_AIRTABLE_TABLE"] ||
-      "YSWS Reviews"
+      "YSWS Project Submission"
   end
 
   def airtable_api_key
