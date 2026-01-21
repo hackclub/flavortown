@@ -124,7 +124,7 @@ class YswsReviewSyncJob < ApplicationJob
     approved_time_remaining_minutes = total_approved_minutes % 60
     approved_time_formatted = approved_hours > 0 ? "#{approved_hours}h #{approved_time_remaining_minutes}min" : "#{approved_time_remaining_minutes}min"
 
-    selected_devlogs = devlogs.count > 4 ? [devlogs.first] + devlogs.last(3) : devlogs
+    selected_devlogs = devlogs.count > 4 ? [ devlogs.first ] + devlogs.last(3) : devlogs
     devlog_list = selected_devlogs.map do |d|
       title = d["title"].presence || "Untitled Devlog"
       approved = d["approvedMinutes"].to_i
@@ -166,8 +166,6 @@ class YswsReviewSyncJob < ApplicationJob
     end.join("\n")
 
     <<~ORDERS
-
-      
 
       This was fraud checked #{approved_orders.count} time(s).
 
