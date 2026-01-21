@@ -94,7 +94,7 @@ module Admin
     end
 
     def shop_item_params
-      params.require(:shop_item).permit(
+      permitted = params.require(:shop_item).permit(
         :name,
         :type,
         :description,
@@ -149,8 +149,15 @@ module Admin
         :default_assigned_user_id_au,
         :default_assigned_user_id_in,
         :default_assigned_user_id_xx,
+        :inkthreadable_config,
         attached_shop_item_ids: []
       )
+
+      if permitted[:inkthreadable_config].present?
+        permitted[:inkthreadable_config] = JSON.parse(permitted[:inkthreadable_config])
+      end
+
+      permitted
     end
   end
 end

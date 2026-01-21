@@ -410,4 +410,18 @@ class ShopOrder < ApplicationRecord
       locals: { order: self, admin_url: Rails.application.routes.url_helpers.admin_shop_order_url(self, host: "flavortown.hackclub.com", protocol: "https") }
     )
   end
+
+  def send_fulfillment_alert!(message)
+    channel = "C0A9MR0CSNB"
+    client = Slack::Web::Client.new(token: Rails.application.credentials.dig(:slack, :bot_token))
+
+    admin_url = Rails.application.routes.url_helpers.admin_shop_order_url(self, host: "flavortown.hackclub.com", protocol: "https")
+
+    client.chat_postMessage(
+      channel: channel,
+      text: "⚠️ Order ##{id} needs attention!\n\n#{message}\n\nPlease review: #{admin_url}"
+    )
+  rescue Slack::Web::Api::Errors::SlackError => e
+    Rails.logger.error "[ShopOrder] Failed to send fulfillment alert: #{e.message}"
+  end
 end

@@ -228,6 +228,28 @@
           </div>
         </div>
 
+        <div class="card" id="inkthreadable_settings" style="display: none;">
+          <h3>Inkthreadable Settings</h3>
+          <div class="shop-item-form__field">
+            <%= f.label :inkthreadable_config, "Inkthreadable Config (JSON)", class: "shop-item-form__label" %>
+            <%= f.text_area :inkthreadable_config, rows: 8, class: "form-control shop-item-form__code", value: (shop_item.inkthreadable_config.to_json if shop_item.inkthreadable_config.present?), placeholder: '{
+  "pn": "JH001",
+  "designs": {
+    "front": "https://example.com/front.png",
+    "back": "https://example.com/back.png"
+  },
+  "shipping_method": "regular",
+  "brand_name": "Your Brand"
+}' %>
+            <span class="shop-item-form__hint">
+              <strong>pn:</strong> Inkthreadable product number (e.g., JH001)<br>
+              <strong>designs:</strong> Object with print positions and design URLs<br>
+              <strong>shipping_method:</strong> "regular", "recorded", or "courier"<br>
+              <strong>brand_name:</strong> Your brand name on Inkthreadable
+            </span>
+          </div>
+        </div>
+
         <div class="card" id="accessory_settings" style="display: none;">
           <h3>Accessory Settings</h3>
           <label class="shop-item-form__checkbox">
@@ -862,6 +884,7 @@
         const hcbPreauthSettings = document.getElementById('hcb_preauth_settings');
         const warehouseSettings = document.getElementById('warehouse_settings');
         const accessorySettings = document.getElementById('accessory_settings');
+        const inkthreadableSettings = document.getElementById('inkthreadable_settings');
 
         function updateTypeVisibility() {
             const selectedType = typeSelect ? typeSelect.value : '';
@@ -884,6 +907,10 @@
 
             if (accessorySettings) {
                 accessorySettings.style.display = (selectedType === 'ShopItem::Accessory') ? 'block' : 'none';
+            }
+
+            if (inkthreadableSettings) {
+                inkthreadableSettings.style.display = (selectedType === 'ShopItem::InkthreadableItem') ? 'block' : 'none';
             }
         }
 
