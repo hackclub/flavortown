@@ -45,8 +45,7 @@ module YswsReviewService
 
   def hours_since_last_sync
     last = last_synced_at
-    return 24000 if last.nil? #placeholder for first run
-
+    return 24000 if last.nil? # placeholder for 1000 days ago to ensure a full sync on first run
     ((Time.current - last) / 1.hour).ceil
   end
 end
