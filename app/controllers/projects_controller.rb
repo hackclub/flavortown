@@ -126,8 +126,25 @@ class ProjectsController < ApplicationController
 
   def destroy
     authorize @project
+    force = params[:force] == "true" && policy(@project).force_destroy?
+
     begin
-      @project.soft_delete!
+      if force && @project.shipped?
+        PaperTrail::Version.create!(
+          item_type: "Project",
+          item_id: @project.id,
+          event: "force_delete",
+          whodunnit: current_user.id,
+          object_changes: {
+            deleted_at: [ nil, Time.current ],
+            shipped_at: @project.shipped_at,
+            reason: "Admin/Fraud override of ship protection",
+            deleted_by: current_user.id
+          }.to_yaml
+        )
+      end
+
+      @project.soft_delete!(force: force)
       current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
       flash[:notice] = "Project deleted successfully"
       redirect_to projects_path
