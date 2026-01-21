@@ -73,9 +73,9 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::InkthreadableItem < ShopItem
-  def fulfill!(order)
-    Shop::SendInkthreadableOrderJob.perform_later(order.id)
-    order.queue_for_fulfillment!
+  def fulfill!(shop_order)
+    Shop::SendInkthreadableOrderJob.perform_later(shop_order.id)
+    shop_order.queue_for_fulfillment!
   end
 
   def inkthreadable_config
