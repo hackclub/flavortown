@@ -13,11 +13,11 @@ module YswsReviewService
   end
 
   def connection
-    @connection ||= Faraday.new(url: BASE_URL) do |conn|
+    Faraday.new(url: BASE_URL) do |conn|
       conn.request :json
       conn.response :json
       conn.response :raise_error
-      conn.headers["x-api-key"] = "#{api_key}"
+      conn.headers["x-api-key"] = api_key
       conn.headers["Accept"] = "application/json"
     end
   end
