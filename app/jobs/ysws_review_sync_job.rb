@@ -16,7 +16,10 @@ class YswsReviewSyncJob < ApplicationJob
 
     Rails.logger.info "[YswsReviewSyncJob] Found #{reviews.count} reviews to sync"
 
-    reviews.each do |review_summary|
+    approved_reviews = reviews.select { |r| r["totalTime"].to_i > 0 }
+    Rails.logger.info "[YswsReviewSyncJob] #{approved_reviews.count} approved reviews (filtered out #{reviews.count - approved_reviews.count} rejected)"
+
+    approved_reviews.each do |review_summary|
       process_review(review_summary["id"])
     rescue StandardError => e
       Rails.logger.error "[YswsReviewSyncJob] Error processing review #{review_summary['id']}: #{e.message}"
@@ -39,8 +42,9 @@ class YswsReviewSyncJob < ApplicationJob
     return if user.nil?
 
     user_pii = extract_user_pii(user)
+    approved_orders = user.shop_orders.where(aasm_state: "fulfilled").includes(:shop_item)
 
-    create_airtable_record(current_review, user_pii)
+    create_airtable_record(current_review, user_pii, approved_orders)
   end
 
   def extract_user_pii(user)
@@ -52,35 +56,117 @@ class YswsReviewSyncJob < ApplicationJob
       first_name: user.first_name,
       last_name: user.last_name,
       display_name: user.display_name,
-      addresses: addresses
+      addresses: addresses,
+      birthday: user.birthday
     }
   end
 
-  def create_airtable_record(review, user_pii)
-    table.create(build_record_fields(review, user_pii))
+  def create_airtable_record(review, user_pii, approved_orders)
+    table.create(build_record_fields(review, user_pii, approved_orders))
   end
 
-  def build_record_fields(review, user_pii)
+  def build_record_fields(review, user_pii, approved_orders)
     ship_cert = review["shipCert"] || {}
     primary_address = user_pii[:addresses]&.first || {}
+    devlogs = review["devlogs"] || []
 
     {
       "review_id" => review["id"].to_s,
       "slack_id" => user_pii[:slack_id],
-      "email" => user_pii[:email],
-      "first_name" => user_pii[:first_name],
-      "last_name" => user_pii[:last_name],
+      "Email" => user_pii[:email],
+      "First Name" => user_pii[:first_name],
+      "Last Name" => user_pii[:last_name],
       "display_name" => user_pii[:display_name],
-      "address_line_1" => primary_address["line1"],
-      "address_line_2" => primary_address["line2"],
-      "city" => primary_address["city"],
-      "state" => primary_address["state"],
-      "postal_code" => primary_address["postalCode"],
-      "country" => primary_address["country"],
+      "Address (Line 1)" => primary_address["line1"],
+      "Address (Line 2)" => primary_address["line2"],
+      "City" => primary_address["city"],
+      "State / Province" => primary_address["state"],
+      "ZIP / Postal Code" => primary_address["postalCode"],
+      "Country" => primary_address["country"],
+      "Birthday" => user_pii[:birthday],
       "ship_cert_id" => ship_cert["id"].to_s,
       "status" => review["status"],
-      "synced_at" => Time.current.iso8601
+      "synced_at" => Time.current.iso8601,
+      "reviewer" => review.dig("reviewer", "username"),
+      "Code URL" => ship_cert["repoUrl"],
+      "Playable URL" => ship_cert["demoUrl"],
+      "project_readme" => ship_cert["readmeUrl"],
+      "Screenshot" => ship_cert["proofVideoUrl"],
+      "Description" => ship_cert["description"],
+      "Optional - Override Hours Spent" => calculate_total_approved_minutes(devlogs),
+      "Optional - Override Hours Spent Justification" => build_justification(review, devlogs, approved_orders)
     }
+  end
+
+  def calculate_total_approved_minutes(devlogs)
+    return nil if devlogs.empty?
+
+    devlogs.sum { |d| d["approvedMinutes"].to_i }
+  end
+
+  def build_justification(review, devlogs, approved_orders)
+    return nil if devlogs.empty?
+
+    ship_cert = review["shipCert"] || {}
+    reviewer_username = review.dig("reviewer", "username") || "Unknown"
+    ship_certifier = ship_cert["certifierName"] || "a ship certifier"
+    project_id = ship_cert["ftProjectId"]
+    review_id = review["id"]
+    ship_cert_id = ship_cert["id"]
+
+    total_original_minutes = devlogs.sum { |d| d["originalMinutes"].to_i }
+    total_hours = total_original_minutes / 60
+    remaining_minutes = total_original_minutes % 60
+    time_format = total_hours > 0 ? "#{total_hours}h #{remaining_minutes}min" : "#{remaining_minutes}min"
+
+    devlog_list = devlogs.map do |d|
+      title = d["title"].presence || "Untitled Devlog"
+      approved = d["approvedMinutes"].to_i
+      "#{title}: #{approved} mins"
+    end.join("\n")
+
+    orders_section = build_orders_section(approved_orders)
+
+    <<~JUSTIFICATION
+      The user logged #{time_format} on hackatime.
+
+      In this time they wrote #{devlogs.count} devlogs.
+
+      This project was initially ship certified by #{ship_certifier}, who tested to make sure the project was shipped, and included all features mentioned in its readme.
+
+      Following this it was reviewed by #{reviewer_username} who looked at the user's git commit history, source code, and end-product, to determine if the time logged for each devlog was representative of the time the user had actually spent working on the features they described in their devlog.
+
+      By the end #{reviewer_username} had recorded:
+
+      #{devlog_list}
+
+      For a full list of devlogs you can checkout: flavortown.hackclub.com/projects/#{project_id}
+
+      You can checkout the YSWS Review at review.hackclub.com/admin/reviews/#{review_id}
+
+      You can checkout the Ship Cert at review.hackclub.com/admin/ship_certifications/#{ship_cert_id}/edit
+      #{orders_section}
+    JUSTIFICATION
+  end
+
+  def build_orders_section(approved_orders)
+    return "" if approved_orders.empty?
+
+    orders_list = approved_orders.map do |order|
+      item_name = order.shop_item.name
+      fulfilled_by = order.fulfilled_by.presence || "Unknown"
+      fulfilled_at = order.fulfilled_at&.strftime("%Y-%m-%d") || "Unknown date"
+      "#{item_name} (x#{order.quantity}) - approved by #{fulfilled_by} on #{fulfilled_at}"
+    end.join("\n")
+
+    <<~ORDERS
+
+      --- Approved Shop Orders (aka when they were ac fraud checked)---
+     
+      This user has #{approved_orders.count} approved shop order(s):
+
+      #{orders_list}
+    ORDERS
   end
 
   def table
