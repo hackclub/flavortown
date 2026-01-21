@@ -45,7 +45,7 @@ module YswsReviewService
 
   def hours_since_last_sync
     last = last_synced_at
-    return 24 if last.nil?
+    return 24000 if last.nil? #placeholder for first run
 
     ((Time.current - last) / 1.hour).ceil
   end
