@@ -1,9 +1,9 @@
 class ShopItemCardComponent < ViewComponent::Base
   include MarkdownHelper
 
-  attr_reader :item_id, :name, :description, :hours, :price, :image_url, :item_type, :balance, :enabled_regions, :regional_price, :logged_in, :remaining_stock, :limited, :on_sale, :sale_percentage, :original_price
+  attr_reader :item_id, :name, :description, :hours, :price, :image_url, :item_type, :balance, :enabled_regions, :regional_price, :logged_in, :remaining_stock, :limited, :on_sale, :sale_percentage, :original_price, :created_at, :show_bow, :show_time_ago
 
-  def initialize(item_id:, name:, description:, hours:, price:, image_url:, item_type: nil, balance: nil, enabled_regions: [], regional_price: nil, logged_in: true, remaining_stock: nil, limited: false, on_sale: false, sale_percentage: nil, original_price: nil)
+  def initialize(item_id:, name:, description:, hours:, price:, image_url:, item_type: nil, balance: nil, enabled_regions: [], regional_price: nil, logged_in: true, remaining_stock: nil, limited: false, on_sale: false, sale_percentage: nil, original_price: nil, created_at: nil, show_bow: false, show_time_ago: false)
     @item_id = item_id
     @name = name
     @description = description
@@ -20,6 +20,14 @@ class ShopItemCardComponent < ViewComponent::Base
     @on_sale = on_sale
     @sale_percentage = sale_percentage
     @original_price = original_price
+    @created_at = created_at
+    @show_bow = show_bow
+    @show_time_ago = show_time_ago
+  end
+
+  def time_ago_text
+    return nil unless created_at && show_time_ago
+    helpers.time_ago_in_words(created_at) + " ago"
   end
 
   def order_url
