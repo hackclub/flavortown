@@ -1,6 +1,9 @@
 class Shop::SyncInkthreadableStatusJob < ApplicationJob
   queue_as :default
 
+  SHIPPED_STATUSES = [ "quality control" ].freeze
+  ALERT_SLACK_ID = "U054VC2KM9P" # @transcental
+
   def perform
     pending_inkthreadable_orders.find_each do |order|
       sync_order_status(order)
