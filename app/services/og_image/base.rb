@@ -175,9 +175,9 @@ module OgImage
       h = hex.to_s.delete("#")
       r, g, b =
         if h.length == 3
-          [h[0] * 2, h[1] * 2, h[2] * 2].map { |v| v.to_i(16) }
+          [ h[0] * 2, h[1] * 2, h[2] * 2 ].map { |v| v.to_i(16) }
         else
-          [h[0, 2], h[2, 2], h[4, 2]].map { |v| v.to_i(16) }
+          [ h[0, 2], h[2, 2], h[4, 2] ].map { |v| v.to_i(16) }
         end
 
       "rgba(#{r},#{g},#{b},#{alpha})"
@@ -196,7 +196,7 @@ module OgImage
         tempfile.write(File.binread(source))
       end
       tempfile.rewind
-      
+
       output = Tempfile.new([ "og_processed", ".png" ])
       output.binmode
       @temp_files << output
