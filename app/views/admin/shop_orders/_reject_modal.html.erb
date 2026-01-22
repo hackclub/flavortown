@@ -2,6 +2,8 @@
   <h2>Reject Order #<%= order.id %></h2>
 
   <%= form_with url: reject_admin_shop_order_path(order), method: :post, local: true do |f| %>
+    <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
+    <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
     <div style="margin-bottom: 1rem;">
       <%= f.label :reason, "Rejection Reason" %>
       <%= f.text_area :reason, placeholder: "Enter reason for rejection...", rows: 4, style: "width: 100%; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;" %>
