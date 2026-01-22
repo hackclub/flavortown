@@ -19,6 +19,7 @@
     </div>
   </div>
 
+  <div class="ship-event-scores__table-wrap">
   <table class="table-data ship-event-scores__table">
   <thead>
     <tr>
@@ -27,6 +28,9 @@
       <th><%= link_to "Votes", admin_ship_event_scores_path(sort_params("votes_count")) %></th>
       <th><%= link_to "Overall score", admin_ship_event_scores_path(sort_params("overall_score")) %></th>
       <th><%= link_to "Overall percentile", admin_ship_event_scores_path(sort_params("overall_percentile")) %></th>
+      <th><%= link_to "Cookies", admin_ship_event_scores_path(sort_params("payout")) %></th>
+      <th><%= link_to "Hours", admin_ship_event_scores_path(sort_params("hours")) %></th>
+      <th><%= link_to "Multiplier", admin_ship_event_scores_path(sort_params("multiplier")) %></th>
       <th><%= link_to "Originality median", admin_ship_event_scores_path(sort_params("originality_median")) %></th>
       <th><%= link_to "Originality percentile", admin_ship_event_scores_path(sort_params("originality_percentile")) %></th>
       <th><%= link_to "Technical median", admin_ship_event_scores_path(sort_params("technical_median")) %></th>
@@ -54,6 +58,9 @@
         <td><%= ship_event.votes_count %></td>
         <td><%= ship_event.overall_score ? number_with_precision(ship_event.overall_score, precision: 2) : "—" %></td>
         <td><%= ship_event.overall_percentile ? number_with_precision(ship_event.overall_percentile, precision: 2) : "—" %></td>
+        <td><%= ship_event.payout.present? ? number_with_delimiter(ship_event.payout) : "—" %></td>
+        <td><%= ship_event.hours.present? ? number_with_precision(ship_event.hours, precision: 2) : "—" %></td>
+        <td><%= ship_event.multiplier.present? ? number_with_precision(ship_event.multiplier, precision: 4) : "—" %></td>
         <td><%= ship_event.originality_median ? number_with_precision(ship_event.originality_median, precision: 2) : "—" %></td>
         <td><%= ship_event.originality_percentile ? number_with_precision(ship_event.originality_percentile, precision: 2) : "—" %></td>
         <td><%= ship_event.technical_median ? number_with_precision(ship_event.technical_median, precision: 2) : "—" %></td>
@@ -79,6 +86,7 @@
     <% end %>
   </tbody>
   </table>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
