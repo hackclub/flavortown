@@ -23,7 +23,25 @@
     </div>
   </div>
 
-  <div class="credits">
-    <%= image_tag "landing/footer/footer-image.webp", class: "credits__image", alt: "Hack Club Photo", loading: "lazy" %>
+  <div class="credits" data-controller="responsive-image-map">
+    <%= image_tag "landing/footer/footer-image.webp", class: "credits__image", alt: "Hack Club Photo", loading: "lazy", usemap: "#footer-credits-map", data: { "responsive-image-map-target": "image" } %>
+    <map name="footer-credits-map" data-responsive-image-map-target="map">
+      <area target="_blank" alt="" title="" href="https://github.com/ayessaaa" coords="122,342,353,415" shape="rect">
+      <area target="_blank" alt="" title="" href="https://cskartikey.dev" coords="437,345,639,426" shape="rect">
+      <area target="_blank" alt="" title="" href="http://fireentity.space" coords="716,327,929,393" shape="rect">
+      <area target="_blank" alt="" title="" href="https://github.com/3kh0" coords="1002,337,1164,394" shape="rect">
+      <area target="_blank" alt="" title="" href="https://me.slevel.xyz" coords="130,463,336,529" shape="rect">
+      <area target="_blank" alt="" title="" href="https://transcental.dev" coords="426,458,660,525" shape="rect">
+      <area target="_blank" alt="" title="" href="https://cyteon.dev" coords="708,448,879,525" shape="rect">
+      <area target="_blank" alt="" title="" href="https://github.com/dhamariT" coords="911,458,1016,507" shape="rect">
+      <area target="_blank" alt="" title="" href="https://github.com/EDRipper" coords="1035,466,1221,529" shape="rect">
+      <area target="_blank" alt="" title="" href="https://saahild.com/?ref=flavortown-homepage" coords="194,564,421,631" shape="rect">
+      <area target="_blank" alt="" title="" href="https://github.com/deoshreyas" coords="504,547,685,645" shape="rect">
+      <area target="_blank" alt="" title="" href="http://jmeow.net/" coords="743,583,932,642" shape="rect">
+      <area target="_blank" alt="" title="" href="https://r58playz.dev/" coords="986,577,1189,634" shape="rect">
+      <area target="_blank" alt="" title="" href="https://lilia.rocks" coords="110,661,294,731" shape="rect">
+      <area target="_blank" alt="" title="" href="https://instagram.com/e_lee_za.a" coords="385,682,579,779" shape="rect">
+      <area target="_blank" alt="" title="" href="https://ascpixi.dev" coords="142,782,312,843" shape="rect">
+  </map>
   </div>
 </div>

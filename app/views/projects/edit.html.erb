@@ -144,5 +144,24 @@
         <%= render(ButtonComponent.new(text: "Update Project", color: :blue, size: :md, icon: "icons/pencil.svg", type: :submit, data: { "project-form-target": "submit" })) %>
       </div>
     <% end %>
+
+    <% if policy(@project).destroy? %>
+      <div class="projects-new__card" style="margin-top: 2rem; border: 2px solid var(--color-red-500);">
+        <h3 style="color: var(--color-red-700);">Danger Zone</h3>
+        <% if @project.shipped? && !policy(@project).force_destroy? %>
+          <p style="color: var(--color-red-600);">This project has been shipped and cannot be deleted.</p>
+        <% elsif @project.shipped? && policy(@project).force_destroy? %>
+          <p style="color: var(--color-red-600);">⚠️ <strong>ADMIN/FRAUD OVERRIDE:</strong> This project is SHIPPED. Deleting it will override ship protection and will be audit logged.</p>
+          <%= button_to project_path(@project, force: true), method: :delete, class: "btn btn--red", form: { onsubmit: "return confirm('⚠️ ADMIN/FRAUD OVERRIDE ⚠️\\n\\nThis project is SHIPPED. You are about to override ship protection and force delete this project.\\n\\nThis action will be audit logged.\\n\\nAre you absolutely sure?')" } do %>
+            Force Delete Project
+          <% end %>
+        <% else %>
+          <p>Once you delete a project, there is no going back. Please be certain.</p>
+          <%= button_to project_path(@project), method: :delete, class: "btn btn--red", form: { onsubmit: "return confirm('Are you sure you want to delete this project? This action cannot be undone.')" } do %>
+            Delete Project
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </div>

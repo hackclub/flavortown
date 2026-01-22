@@ -81,6 +81,30 @@ class Project::DevlogsController < ApplicationController
 
   def destroy
     authorize @devlog
+    force = params[:force] == "true" && policy(@devlog).force_destroy?
+    project_shipped = @project.shipped?
+
+    if project_shipped && !force
+      flash[:alert] = "Cannot delete a devlog from a shipped project"
+      redirect_to @project and return
+    end
+
+    if force && project_shipped
+      PaperTrail::Version.create!(
+        item_type: "Post::Devlog",
+        item_id: @devlog.id,
+        event: "force_delete",
+        whodunnit: current_user.id,
+        object_changes: {
+          deleted_at: [ nil, Time.current ],
+          project_id: @project.id,
+          project_shipped_at: @project.shipped_at,
+          reason: "Admin/Fraud override of ship protection",
+          deleted_by: current_user.id
+        }.to_yaml
+      )
+    end
+
     @devlog.soft_delete!
     redirect_to @project, notice: "Devlog deleted successfully"
   end
