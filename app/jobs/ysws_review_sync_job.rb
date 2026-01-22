@@ -34,7 +34,7 @@ class YswsReviewSyncJob < ApplicationJob
   def process_review(review_id)
     current_review = YswsReviewService.fetch_review(review_id)
     ship_cert = current_review["shipCert"] || {}
-    slack_id = ship_cert["ftSlackID"]
+    slack_id = ship_cert["ftSlackId"]
 
     return if slack_id.blank?
 
