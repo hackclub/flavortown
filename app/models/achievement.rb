@@ -127,7 +127,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       earned_check: ->(user) {
         Post::GitCommit.joins(:post)
           .where(posts: { project_id: user.project_ids })
-          .exists?(["post_git_commits.message ~* ?", '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+'])
+          .exists?([ "post_git_commits.message ~* ?", '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+' ])
       },
     ),
     new(
@@ -176,7 +176,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       earned_check: ->(user) {
         Post::GitCommit.joins(:post)
           .where(posts: { project_id: user.projects.select(:id) })
-          .exists?(["post_git_commits.message ~* ?", '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+'])
+          .exists?([ "post_git_commits.message ~* ?", '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+' ])
       },
       visibility: :secret
     )
