@@ -637,7 +637,7 @@ GEM
       gli
       hashie
       logger
-    slocks (0.1.0)
+    slocks (0.1.1)
       actionview (>= 6.0)
       activesupport (>= 6.0)
     smart_properties (1.17.0)
