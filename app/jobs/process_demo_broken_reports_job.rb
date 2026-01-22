@@ -75,7 +75,7 @@ class ProcessDemoBrokenReportsJob < ApplicationJob
       "[ProcessDemoBrokenReportsJob] Marked #{ids.size} reports as reviewed for project #{project.id}"
     )
 
-    ShipCertService.ship_to_dash(project)
+    ShipCertService.ship_to_dash(project, type: "demo_fixed", force: true)
   rescue => e
     Rails.logger.error(
       "[ProcessDemoBrokenReportsJob] Failed project #{project.id}: #{e.message}"

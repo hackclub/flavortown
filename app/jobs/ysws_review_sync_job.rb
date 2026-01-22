@@ -1,4 +1,6 @@
 class YswsReviewSyncJob < ApplicationJob
+  include Rails.application.routes.url_helpers
+
   queue_as :default
 
   def self.perform_later(*args)
@@ -16,10 +18,7 @@ class YswsReviewSyncJob < ApplicationJob
 
     Rails.logger.info "[YswsReviewSyncJob] Found #{reviews.count} reviews to sync"
 
-    approved_reviews = reviews.select { |r| r["totalTime"].to_i > 0 }
-    Rails.logger.info "[YswsReviewSyncJob] #{approved_reviews.count} approved reviews (filtered out #{reviews.count - approved_reviews.count} rejected)"
-
-    approved_reviews.each do |review_summary|
+    reviews.each do |review_summary|
       process_review(review_summary["id"])
     rescue StandardError => e
       Rails.logger.error "[YswsReviewSyncJob] Error processing review #{review_summary['id']}: #{e.message}"
@@ -33,6 +32,14 @@ class YswsReviewSyncJob < ApplicationJob
 
   def process_review(review_id)
     current_review = YswsReviewService.fetch_review(review_id)
+    devlogs = current_review["devlogs"] || []
+    total_approved_minutes = calculate_total_approved_minutes(devlogs) || 0
+
+    if total_approved_minutes < 5
+      Rails.logger.info "[YswsReviewSyncJob] Rejecting review #{review_id}: only #{total_approved_minutes} approved minutes (< 5)"
+      return
+    end
+
     ship_cert = current_review["shipCert"] || {}
     slack_id = ship_cert["ftSlackId"]
 
@@ -69,6 +76,7 @@ class YswsReviewSyncJob < ApplicationJob
     ship_cert = review["shipCert"] || {}
     primary_address = user_pii[:addresses]&.first || {}
     devlogs = review["devlogs"] || []
+    banner_url = banner_url_for_project_id(ship_cert["ftProjectId"])
 
     {
       "review_id" => review["id"].to_s,
@@ -91,9 +99,10 @@ class YswsReviewSyncJob < ApplicationJob
       "Code URL" => ship_cert["repoUrl"],
       "Playable URL" => ship_cert["demoUrl"],
       "project_readme" => ship_cert["readmeUrl"],
-      "Screenshot" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
+      "Screenshot" => banner_url.present? ? [ { "url" => banner_url } ] : nil,
+      "proof_video" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
       "Description" => ship_cert["description"],
-      "Optional - Override Hours Spent" => calculate_total_approved_minutes(devlogs),
+      "Optional - Override Hours Spent" => (calculate_total_approved_minutes(devlogs) / 60.0).round(2),
       "Optional - Override Hours Spent Justification" => build_justification(review, devlogs, approved_orders)
     }
   end
@@ -136,7 +145,7 @@ class YswsReviewSyncJob < ApplicationJob
     orders_section = build_orders_section(approved_orders)
 
     <<~JUSTIFICATION
-      The user logged #{original_time_formatted} on hackatime. (#{total_original_minutes == total_approved_minutes ? "" : "This was adjusted to #{approved_time_formatted} after review."})
+      The user logged #{original_time_formatted} on hackatime. #{total_original_minutes == total_approved_minutes ? "" : "(This was adjusted to #{approved_time_formatted} after review.)"}
 
       In this time they wrote #{devlogs.count} devlogs.
 
@@ -197,5 +206,44 @@ class YswsReviewSyncJob < ApplicationJob
   def airtable_base_id
     Rails.application.credentials.dig(:ysws_review, :airtable_base_id) ||
       ENV["YSWS_REVIEW_AIRTABLE_BASE_ID"]
+  end
+
+  def banner_url_for_project_id(ft_project_id)
+    Rails.logger.info("[YswsReviewSyncJob] banner_url_for_project_id: start ft_project_id=#{ft_project_id.inspect} (class=#{ft_project_id.class})")
+
+    if ft_project_id.blank?
+      Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: ft_project_id is blank")
+      return nil
+    end
+
+    project = Project.find_by(id: ft_project_id)
+    if project.nil?
+      Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project not found by id=#{ft_project_id.inspect}")
+      return nil
+    end
+
+    unless project.banner.attached?
+      Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project #{project.id} has no banner attached")
+      return nil
+    end
+
+    host = default_url_host
+    if host.blank?
+      Rails.logger.error("[YswsReviewSyncJob] banner_url_for_project_id: host missing. action_mailer=#{Rails.application.config.action_mailer.default_url_options.inspect} routes=#{Rails.application.routes.default_url_options.inspect} ENV[APP_HOST]=#{ENV['APP_HOST'].inspect}")
+      return nil
+    end
+
+    url = rails_blob_url(project.banner, host: host)
+    Rails.logger.info("[YswsReviewSyncJob] banner_url_for_project_id: success project_id=#{project.id} url=#{url}")
+    url
+  rescue StandardError => e
+    Rails.logger.error("[YswsReviewSyncJob] banner_url_for_project_id: exception project_id=#{ft_project_id.inspect} #{e.class}: #{e.message}")
+    nil
+  end
+
+  def default_url_host
+    Rails.application.config.action_mailer.default_url_options&.fetch(:host, nil) ||
+      Rails.application.routes.default_url_options[:host] ||
+      ENV["APP_HOST"]
   end
 end
