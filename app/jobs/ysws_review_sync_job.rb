@@ -16,10 +16,7 @@ class YswsReviewSyncJob < ApplicationJob
 
     Rails.logger.info "[YswsReviewSyncJob] Found #{reviews.count} reviews to sync"
 
-    approved_reviews = reviews.select { |r| r["totalTime"].to_i > 0 }
-    Rails.logger.info "[YswsReviewSyncJob] #{approved_reviews.count} approved reviews (filtered out #{reviews.count - approved_reviews.count} rejected)"
-
-    approved_reviews.each do |review_summary|
+    reviews.each do |review_summary|
       process_review(review_summary["id"])
     rescue StandardError => e
       Rails.logger.error "[YswsReviewSyncJob] Error processing review #{review_summary['id']}: #{e.message}"
@@ -33,6 +30,14 @@ class YswsReviewSyncJob < ApplicationJob
 
   def process_review(review_id)
     current_review = YswsReviewService.fetch_review(review_id)
+    devlogs = current_review["devlogs"] || []
+    total_approved_minutes = calculate_total_approved_minutes(devlogs) || 0
+
+    if total_approved_minutes < 5
+      Rails.logger.info "[YswsReviewSyncJob] Rejecting review #{review_id}: only #{total_approved_minutes} approved minutes (< 5)"
+      return
+    end
+
     ship_cert = current_review["shipCert"] || {}
     slack_id = ship_cert["ftSlackId"]
 
@@ -93,7 +98,7 @@ class YswsReviewSyncJob < ApplicationJob
       "project_readme" => ship_cert["readmeUrl"],
       "Screenshot" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
       "Description" => ship_cert["description"],
-      "Optional - Override Hours Spent" => calculate_total_approved_minutes(devlogs),
+      "Optional - Override Hours Spent" => (calculate_total_approved_minutes(devlogs)/60).round(2),
       "Optional - Override Hours Spent Justification" => build_justification(review, devlogs, approved_orders)
     }
   end
@@ -136,7 +141,7 @@ class YswsReviewSyncJob < ApplicationJob
     orders_section = build_orders_section(approved_orders)
 
     <<~JUSTIFICATION
-      The user logged #{original_time_formatted} on hackatime. (#{total_original_minutes == total_approved_minutes ? "" : "This was adjusted to #{approved_time_formatted} after review."})
+      The user logged #{original_time_formatted} on hackatime. #{total_original_minutes == total_approved_minutes ? "" : "(This was adjusted to #{approved_time_formatted} after review.)"}
 
       In this time they wrote #{devlogs.count} devlogs.
 
