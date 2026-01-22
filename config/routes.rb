@@ -254,6 +254,7 @@ Rails.application.routes.draw do
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
+        post :process_warehouse_orders
       end
     end
   end

@@ -16,6 +16,11 @@ module Admin
       redirect_to "https://mail.hackclub.com/back_office/letter/queues/flavortown-fulfillment#letters", allow_other_host: true
     end
 
+    def process_warehouse_orders
+      Shop::ProcessWarehouseOrdersJob.perform_later
+      redirect_to admin_fulfillment_dashboard_path(fulfillment_type: "warehouse"), notice: "Warehouse orders job queued."
+    end
+
     private
 
     def fulfillment_type_filters

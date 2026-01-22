@@ -52,9 +52,9 @@ production:
 
   shop_process_warehouse_orders:
     class: Shop::ProcessWarehouseOrdersJob
-    schedule: every 2 days
+    schedule: every 6 hours
     concurrency: 1
-    description: "Process warehouse orders every 2 days with single execution limit"
+    description: "Process warehouse orders every 6 hours with single execution limit"
 
   shop_refresh_verification_status:
     class: Shop::RefreshVerificationStatusJob

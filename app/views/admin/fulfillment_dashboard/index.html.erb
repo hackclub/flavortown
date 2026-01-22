@@ -72,6 +72,8 @@
 <div class="actions-bar">
   <%= button_to "Send Letter Mail", send_letter_mail_admin_fulfillment_dashboard_index_path,
                 method: :post, class: "btn-primary slim" %>
+  <%= button_to "Process Warehouse Orders", process_warehouse_orders_admin_fulfillment_dashboard_index_path,
+                method: :post, class: "btn-primary slim" %>
 </div>
 
 <% if @orders.any? %>
