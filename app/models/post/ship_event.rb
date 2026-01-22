@@ -29,7 +29,7 @@ class Post::ShipEvent < ApplicationRecord
   include Postable
   include Ledgerable
 
-  VOTES_REQUIRED_FOR_PAYOUT = 15
+  VOTES_REQUIRED_FOR_PAYOUT = 12
 
   has_one :project, through: :post
   has_many :project_memberships, through: :project, source: :memberships
@@ -54,8 +54,17 @@ class Post::ShipEvent < ApplicationRecord
     project = post&.project
     return 0 unless project && created_at
 
+    ship_event_post = post
+    previous_ship_event_post = project.posts.of_ship_events
+                                      .where("posts.created_at < ?", ship_event_post.created_at)
+                                      .order("posts.created_at DESC")
+                                      .first
+
+    # created_at if first otherwise use the last ship_event
+    start_time = previous_ship_event_post ? previous_ship_event_post.created_at : project.created_at
+
     seconds = project.posts.of_devlogs(join: true)
-                     .where("posts.created_at <= ?", created_at)
+                     .where("posts.created_at >= ? AND posts.created_at <= ?", start_time, ship_event_post.created_at)
                      .where(post_devlogs: { deleted_at: nil })
                      .sum("post_devlogs.duration_seconds")
     seconds.to_f / 3600
