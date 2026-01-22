@@ -189,7 +189,7 @@ body {
   gap: 1rem;
 }
 
-.info-rows>* {
+.info-rows > * {
   margin: 0.25em;
 }
 
@@ -554,7 +554,6 @@ dialog {
   gap: 0.5rem;
   justify-content: flex-end;
 }
-
 
 .admin-section {
   background: var(--color-tan-300);
