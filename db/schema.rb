@@ -312,9 +312,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.string "feedback_video_url"
     t.float "hours"
     t.float "multiplier"
+    t.decimal "originality_median", precision: 5, scale: 2
+    t.decimal "originality_percentile", precision: 5, scale: 2
+    t.decimal "overall_percentile", precision: 5, scale: 2
+    t.decimal "overall_score", precision: 5, scale: 2
     t.float "payout"
+    t.decimal "storytelling_median", precision: 5, scale: 2
+    t.decimal "storytelling_percentile", precision: 5, scale: 2
     t.datetime "synced_at"
+    t.decimal "technical_median", precision: 5, scale: 2
+    t.decimal "technical_percentile", precision: 5, scale: 2
     t.datetime "updated_at", null: false
+    t.decimal "usability_median", precision: 5, scale: 2
+    t.decimal "usability_percentile", precision: 5, scale: 2
     t.integer "votes_count", default: 0, null: false
   end
 
