@@ -1,10 +1,15 @@
 header ":ft-cookie: Payout issued!"
 
-section "Your ship event payout has been calculated and issued.", markdown: true
-
-if ship_event.post&.project.present?
-  section "Project: *#{ship_event.post.project.title}*", markdown: true
+ship_date = ship_event.post&.created_at&.strftime("%b %-d, %Y")
+ship_event_label = if ship_event.post&.project.present?
+  "*#{ship_event.post.project.title}*"
+else
+  "Ship ##{ship_event.id}"
 end
+
+section "Payout for your ship event has been calculated and issued.", markdown: true
+
+section "Ship event: #{ship_event_label}#{ship_date.present? ? " (shipped #{ship_date})" : ''}", markdown: true
 
 section "Payout details:",
   fields: [
