@@ -22,6 +22,10 @@ class MajorityJudgmentService
       end
 
       ship_event.update_columns(attrs.merge(updated_at: Time.current))
+
+      next unless ship_event.votes_count.to_i >= Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
+
+      ShipEventPayoutCalculator.apply!(ship_event)
     end
   end
 

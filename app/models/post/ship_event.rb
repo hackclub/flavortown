@@ -49,4 +49,25 @@ class Post::ShipEvent < ApplicationRecord
   def majority_judgment
     MajorityJudgmentService.call(self)
   end
+
+  def hours
+    project = post&.project
+    return 0 unless project && created_at
+
+    seconds = project.posts.of_devlogs(join: true)
+                     .where("posts.created_at <= ?", created_at)
+                     .where(post_devlogs: { deleted_at: nil })
+                     .sum("post_devlogs.duration_seconds")
+    seconds.to_f / 3600
+  end
+
+  def payout_eligible?
+    certification_status == "approved" &&
+      payout.blank? &&
+      votes_count.to_i >= VOTES_REQUIRED_FOR_PAYOUT
+  end
+
+  def payout_recipient
+    post&.user
+  end
 end
