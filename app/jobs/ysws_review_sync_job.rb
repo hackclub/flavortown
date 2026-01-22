@@ -98,7 +98,7 @@ class YswsReviewSyncJob < ApplicationJob
       "project_readme" => ship_cert["readmeUrl"],
       "Screenshot" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
       "Description" => ship_cert["description"],
-      "Optional - Override Hours Spent" => (calculate_total_approved_minutes(devlogs)/60).round(2),
+      "Optional - Override Hours Spent" => (calculate_total_approved_minutes(devlogs) / 60.0).round(2),
       "Optional - Override Hours Spent Justification" => build_justification(review, devlogs, approved_orders)
     }
   end
