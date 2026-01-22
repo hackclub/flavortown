@@ -67,20 +67,31 @@ module OgImage
 
     protected
 
-    def create_canvas(gradient_start: "#4d3228", gradient_end: "#5c4033")
-      MiniMagick::Tool.new("convert") do |convert|
-        convert.size("#{WIDTH}x#{HEIGHT}")
-        convert << "gradient:#{gradient_start}-#{gradient_end}"
-        convert << temp_path(:canvas)
+    def draw_rounded_rect(x:, y:, width:, height:, radius: 24, fill: "#ffffff", fill_opacity: 1.0, stroke: nil, stroke_width: 0)
+      image.combine_options do |c|
+        c.fill(hex_to_rgba(fill, fill_opacity))
+        if stroke
+          c.stroke(stroke)
+          c.strokewidth(stroke_width)
+        else
+          c.stroke("none")
+        end
+        c.draw("roundrectangle #{x},#{y},#{x + width - 1},#{y + height - 1},#{radius},#{radius}")
       end
-      @image = MiniMagick::Image.open(temp_path(:canvas))
     end
 
-    def create_patterned_canvas(bg_color: "#e8d5b7")
+    def create_patterned_canvas(
+      frame_color: "#b0805f",
+      card_color: "#7a4b40",
+      inset: 26,
+      card_radius: 42
+    )
       pattern_path = Rails.root.join("app", "assets", "images", "mask", "pattern.png").to_s
       MiniMagick::Tool.new("convert") do |convert|
         convert.size("#{WIDTH}x#{HEIGHT}")
-        convert << "xc:#{bg_color}"
+        convert << "xc:#{frame_color}"
+        convert.fill(card_color)
+        convert.draw("roundrectangle #{inset},#{inset},#{WIDTH - inset - 1},#{HEIGHT - inset - 1},#{card_radius},#{card_radius}")
         convert << pattern_path
         convert.gravity("Center")
         convert.resize("#{WIDTH}x#{HEIGHT}!")
@@ -101,7 +112,7 @@ module OgImage
       end
     end
 
-    def draw_multiline_text(text, x:, y:, size: 48, color: "#ffffff", line_height: 1.4, max_chars: 35, max_lines: 3)
+    def draw_multiline_text(text, x:, y:, size: 48, color: "#ffffff", line_height: 1, max_chars: 35, max_lines: 3)
       lines = wrap_text(text, max_chars).take(max_lines)
       spacing = (size * line_height).to_i
 
@@ -160,6 +171,18 @@ module OgImage
 
     private
 
+    def hex_to_rgba(hex, alpha)
+      h = hex.to_s.delete("#")
+      r, g, b =
+        if h.length == 3
+          [h[0] * 2, h[1] * 2, h[2] * 2].map { |v| v.to_i(16) }
+        else
+          [h[0, 2], h[2, 2], h[4, 2]].map { |v| v.to_i(16) }
+        end
+
+      "rgba(#{r},#{g},#{b},#{alpha})"
+    end
+
     def process_image(source, width, height, cover: true)
       tempfile = Tempfile.new([ "og_img", ".png" ])
       tempfile.binmode
@@ -173,17 +196,26 @@ module OgImage
         tempfile.write(File.binread(source))
       end
       tempfile.rewind
+      
+      output = Tempfile.new([ "og_processed", ".png" ])
+      output.binmode
+      @temp_files << output
 
-      thumb = MiniMagick::Image.open(tempfile.path)
-
-      if cover
-        thumb.resize("#{width}x#{height}^")
-        thumb.gravity("center")
-        thumb.background("none")
-        thumb.extent("#{width}x#{height}")
-      else
-        thumb.resize("#{width}x#{height}")
+      MiniMagick::Tool.new("convert") do |convert|
+        convert.background("none")
+        convert << tempfile.path
+        convert.alpha("on")
+        if cover
+          convert.resize("#{width}x#{height}^")
+          convert.gravity("center")
+          convert.extent("#{width}x#{height}")
+        else
+          convert.resize("#{width}x#{height}")
+        end
+        convert << output.path
       end
+
+      thumb = MiniMagick::Image.open(output.path)
 
       @temp_files << tempfile
       thumb
