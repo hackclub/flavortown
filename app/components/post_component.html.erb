@@ -132,14 +132,18 @@
   method: :delete,
   class: "post__action-btn post__action-btn--danger",
   title: "Force delete devlog (Admin/Fraud)",
-  form: {
-    onsubmit: (
-      "return confirm('⚠️ ADMIN/FRAUD OVERRIDE ⚠️\\n\\n" \
-      "This project is SHIPPED. You are about to override ship protection and force delete devlog ##{postable.id}.\\n\\n" \
-      "This action will be audit logged.\\n\\n" \
-      "Are you absolutely sure?')"
-    ).to_json
+  data: {
+    confirm: <<~MSG
+      ⚠️ ADMIN/FRAUD OVERRIDE ⚠️
+
+      This project is SHIPPED. You are about to override ship protection and force delete devlog ##{postable.id}.
+
+      This action will be audit logged.
+
+      Are you absolutely sure?
+    MSG
   } do %>
+  <%= helpers.inline_svg_tag("icons/close.svg", class: "post__action-icon") %>
 <% end %>
                 <%= helpers.inline_svg_tag("icons/close.svg", class: "post__action-icon") %>
               <% end %>
