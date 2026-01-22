@@ -29,7 +29,7 @@ class Post::ShipEvent < ApplicationRecord
   include Postable
   include Ledgerable
 
-  VOTES_REQUIRED_FOR_PAYOUT = 15
+  VOTES_REQUIRED_FOR_PAYOUT = 12
 
   has_one :project, through: :post
   has_many :project_memberships, through: :project, source: :memberships
@@ -59,7 +59,7 @@ class Post::ShipEvent < ApplicationRecord
                                       .where("posts.created_at < ?", ship_event_post.created_at)
                                       .order("posts.created_at DESC")
                                       .first
-                                      
+
     # created_at if first otherwise use the last ship_event
     start_time = previous_ship_event_post ? previous_ship_event_post.created_at : project.created_at
 
