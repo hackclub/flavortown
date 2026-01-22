@@ -122,6 +122,15 @@ class PostComponent < ViewComponent::Base
     devlog? && @current_user.present? && post.user == @current_user && !deleted?
   end
 
+  def can_force_delete?
+    devlog? && @current_user.present? && !deleted? &&
+      (@current_user.admin? || @current_user.has_role?(:fraud_dept))
+  end
+
+  def project_shipped?
+    post.project&.shipped?
+  end
+
   def deleted?
     devlog? && postable.deleted?
   end
@@ -140,6 +149,12 @@ class PostComponent < ViewComponent::Base
     return nil unless can_edit?
     return nil unless post.project.present?
     helpers.project_devlog_path(post.project, postable)
+  end
+
+  def force_delete_devlog_path
+    return nil unless can_force_delete?
+    return nil unless post.project.present?
+    helpers.project_devlog_path(post.project, postable, force: true)
   end
 
   def theme_class
