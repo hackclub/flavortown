@@ -134,7 +134,7 @@ class YswsReviewSyncJob < ApplicationJob
 
     selected_devlogs = devlogs.count > 4 ? [ devlogs.first ] + devlogs.last(3) : devlogs
     devlog_list = selected_devlogs.map do |d|
-      title = d["title"].presence || "Untitled Devlog"
+      title = d["title"].presence || "devlog ##{d['id']}"
       approved = d["approvedMins"].to_i
       "#{title}: #{approved} mins"
     end.join("\n")
@@ -155,9 +155,11 @@ class YswsReviewSyncJob < ApplicationJob
 
       #{devlog_list}
       ====================================================
-      You can checkout the Full YSWS Review + devlogs at https://review.hackclub.com/admin/ysws_reviews/#{review_id}
+      The flavortown project can be found at https://flavortown.hackclub.com/projects/#{project_id}
 
-      You can checkout the Ship Cert at https://review.hackclub.com/admin/ship_certifications/#{ship_cert_id}/edit
+      The Full YSWS Review + devlogs are at https://review.hackclub.com/admin/ysws_reviews/#{review_id}
+
+      The Ship Cert is at https://review.hackclub.com/admin/ship_certifications/#{ship_cert_id}/edit
       ====================================================
       #{orders_section}
     JUSTIFICATION
