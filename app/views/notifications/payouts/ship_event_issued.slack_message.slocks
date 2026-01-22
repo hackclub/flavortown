@@ -1,0 +1,20 @@
+header ":ft-cookie: Payout issued!"
+
+section "Your ship event payout has been calculated and issued.", markdown: true
+
+if ship_event.post&.project.present?
+  section "Project: *#{ship_event.post.project.title}*", markdown: true
+end
+
+section "Payout details:",
+  fields: [
+    mrkdwn_text("*Hours:* #{ship_event.hours&.round(2) || '—'}"),
+    mrkdwn_text("*Cookies:* :ft-cookie: #{ship_event.payout&.to_i || '—'}"),
+    mrkdwn_text("*Multiplier:* #{ship_event.multiplier&.round(2) || '—'} cookies/hr"),
+  ]
+
+divider
+
+context [
+  mrkdwn_text("Thanks for shipping! Please submit feedback here: <https://forms.hackclub.com/t/7ocg7j1UbPus|feedback form>")
+]

@@ -42,14 +42,27 @@ class ShipEventPayoutCalculator
 
         @ship_event.update!(attrs)
 
-        # payout_user.ledger_entries.create!(
-        #   ledgerable: @ship_event,
-        #   amount: cookies,
-        #   reason: payout_reason,
-        #   created_by: "ship_event_payout"
-        # )
+        payout_user.ledger_entries.create!(
+          ledgerable: @ship_event,
+          amount: cookies,
+          reason: payout_reason,
+          created_by: "ship_event_payout"
+        )
       end
+
+      notify_payout_issued(payout_user)
     end
+  end
+
+  def self.notify_payout_issued(user)
+    return unless user.slack_id.present?
+    @ship_event = Post::ShipEvent.last
+    SendSlackDmJob.perform_later(
+      user.slack_id,
+      nil,
+      blocks_path: "notifications/payouts/ship_event_issued",
+      locals: { ship_event: @ship_event }
+    )
   end
 
   private
