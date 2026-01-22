@@ -1,15 +1,15 @@
-<div class="card" style="margin-top: 1rem;">
+<div class="admin-section">
   <% if collapsible %>
     <details style="cursor: pointer;">
-      <summary style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; user-select: none; color: #374151;">
+      <summary class="admin-section__summary">
         📋 <%= title %> (<%= orders.count %>)
       </summary>
-      <div style="padding-top: 0.5rem;">
+      <div class="admin-section__content">
         <%= render "admin/past_orders_component/orders_table", orders: orders %>
       </div>
     </details>
   <% else %>
-    <h2 style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; color: #374151;">
+    <h2 class="admin-section__header">
       📋 <%= title %> (<%= orders.count %>)
     </h2>
     <%= render "admin/past_orders_component/orders_table", orders: orders %>
