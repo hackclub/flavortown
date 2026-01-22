@@ -1,4 +1,6 @@
 class YswsReviewSyncJob < ApplicationJob
+  include Rails.application.routes.url_helpers
+
   queue_as :default
 
   def self.perform_later(*args)
@@ -74,6 +76,7 @@ class YswsReviewSyncJob < ApplicationJob
     ship_cert = review["shipCert"] || {}
     primary_address = user_pii[:addresses]&.first || {}
     devlogs = review["devlogs"] || []
+    banner_url = banner_url_for_project_id(ship_cert["ftProjectId"])
 
     {
       "review_id" => review["id"].to_s,
@@ -96,7 +99,8 @@ class YswsReviewSyncJob < ApplicationJob
       "Code URL" => ship_cert["repoUrl"],
       "Playable URL" => ship_cert["demoUrl"],
       "project_readme" => ship_cert["readmeUrl"],
-      "Screenshot" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
+      "Screenshot" => banner_url.present? ? [ { "url" => banner_url } ] : nil,
+      "proof_video" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
       "Description" => ship_cert["description"],
       "Optional - Override Hours Spent" => (calculate_total_approved_minutes(devlogs) / 60.0).round(2),
       "Optional - Override Hours Spent Justification" => build_justification(review, devlogs, approved_orders)
@@ -202,5 +206,26 @@ class YswsReviewSyncJob < ApplicationJob
   def airtable_base_id
     Rails.application.credentials.dig(:ysws_review, :airtable_base_id) ||
       ENV["YSWS_REVIEW_AIRTABLE_BASE_ID"]
+  end
+
+  def banner_url_for_project_id(ft_project_id)
+    return nil if ft_project_id.blank?
+
+    project = Project.find_by(id: ft_project_id)
+    return nil unless project&.banner&.attached?
+
+    host = default_url_host
+    return nil if host.blank?
+
+    rails_blob_url(project.banner, host: host)
+  rescue StandardError => e
+    Rails.logger.warn("[YswsReviewSyncJob] Failed to build banner url for project_id=#{ft_project_id}: #{e.class}: #{e.message}")
+    nil
+  end
+
+  def default_url_host
+    Rails.application.config.action_mailer.default_url_options&.fetch(:host, nil) ||
+      Rails.application.routes.default_url_options[:host] ||
+      ENV["APP_HOST"]
   end
 end
