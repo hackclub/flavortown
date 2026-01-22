@@ -48,7 +48,7 @@ class ConsecutiveShipEventsWithoutDevlogFinder
              .each { |p| puts "  ID: #{p.id}, Title: #{p.title}" }
       total = Project.joins(:ship_event_posts).group("projects.id").having("COUNT(posts.id) >= 2").count.size
       puts "\n... and #{total - 10} more" if total > 10
-      return
+      nil
     else
       check_single_project(@project)
     end
@@ -195,7 +195,7 @@ class ConsecutiveShipEventsWithoutDevlogFinder
     return "0 seconds" if secs < 1
 
     parts = []
-    [[86400, "day"], [3600, "hour"], [60, "minute"], [1, "second"]].each do |div, name|
+    [ [ 86400, "day" ], [ 3600, "hour" ], [ 60, "minute" ], [ 1, "second" ] ].each do |div, name|
       next if secs < div
 
       n = secs / div

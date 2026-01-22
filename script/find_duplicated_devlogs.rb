@@ -48,7 +48,7 @@ class DuplicatedDevlogsFinder
         puts "  ID: #{p.id}, Title: #{p.title}"
       end
       puts "\n... and #{Project.count - 10} more" if Project.count > 10
-      return
+      nil
     else
       check_single_project(@project)
     end
@@ -131,12 +131,12 @@ class DuplicatedDevlogsFinder
 
     analyze_devlogs(devlogs)
     result = report_duplicates(silent: silent)
-    
+
     # Delete duplicates if in delete mode
     if @delete && result[:has_duplicates]
       delete_duplicates(silent: silent)
     end
-    
+
     @project_results[project.id] = result
     result
   end
@@ -159,7 +159,7 @@ class DuplicatedDevlogsFinder
          prev_attachments == current_attachments
 
         # Found a duplicate pair (consecutive devlogs with matching body and attachments)
-        @duplicates << [prev_devlog, current_devlog]
+        @duplicates << [ prev_devlog, current_devlog ]
       end
     end
   end
@@ -227,19 +227,19 @@ class DuplicatedDevlogsFinder
     # Collect all devlogs to delete (the second one in each pair)
     # This handles cases where there are multiple consecutive duplicates
     devlogs_to_delete = @duplicates.map { |_prev, current| current }.uniq
-    
+
     deleted_in_project = 0
-    
+
     devlogs_to_delete.each do |devlog|
       # Skip if already deleted (shouldn't happen, but safety check)
       next if devlog.deleted?
-      
+
       begin
         devlog.soft_delete!
         @deleted_count += 1
         @deleted_devlog_ids << devlog.id
         deleted_in_project += 1
-        
+
         unless silent
           puts "✅ Deleted devlog ##{devlog.id} (Post ID: #{devlog.post&.id})"
         end
@@ -249,7 +249,7 @@ class DuplicatedDevlogsFinder
         end
       end
     end
-    
+
     unless silent
       puts "\n🗑️  Deleted #{deleted_in_project} duplicate devlog(s) from this project"
     end
@@ -260,10 +260,10 @@ end
 if __FILE__ == $PROGRAM_NAME
   args = ARGV.dup
   delete_mode = args.delete("--delete")
-  
+
   project_identifier = args[0]
   check_all = project_identifier.nil?
-  
+
   finder = DuplicatedDevlogsFinder.new(
     project_identifier: project_identifier,
     check_all: check_all,
