@@ -96,3 +96,6 @@ application.register("upload-form", UploadFormController);
 
 import CardSoundController from "./card_sound_controller";
 application.register("card-sound", CardSoundController);
+
+import FlagshipModalController from "./flagship_modal_controller";
+application.register("flagship-modal", FlagshipModalController);
