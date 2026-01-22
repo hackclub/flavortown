@@ -214,7 +214,7 @@ GEM
     faiss (0.5.2)
       numo-narray
       rice (>= 4.8)
-    faker (3.5.3)
+    faker (3.6.0)
       i18n (>= 1.8.11, < 2)
     faraday (2.14.0)
       faraday-net_http (>= 2.0, < 3.5)
@@ -759,7 +759,7 @@ DEPENDENCIES
   dotenv-rails
   erb_lint
   faiss
-  faker (~> 3.5)
+  faker (~> 3.6)
   faraday
   flipper
   flipper-active_record
