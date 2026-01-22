@@ -91,7 +91,7 @@ class YswsReviewSyncJob < ApplicationJob
       "Code URL" => ship_cert["repoUrl"],
       "Playable URL" => ship_cert["demoUrl"],
       "project_readme" => ship_cert["readmeUrl"],
-      "Screenshot" => ship_cert["proofVideoUrl"],
+      "Screenshot" => ship_cert["proofVideoUrl"].present? ? [{ "url" => ship_cert["proofVideoUrl"] }] : nil,
       "Description" => ship_cert["description"],
       "Optional - Override Hours Spent" => calculate_total_approved_minutes(devlogs),
       "Optional - Override Hours Spent Justification" => build_justification(review, devlogs, approved_orders)
