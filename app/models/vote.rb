@@ -70,6 +70,6 @@ class Vote < ApplicationRecord
   end
 
   def trigger_payout_calculation
-    OneTime::ShipEventPayoutCalculatorJob.perform_later
+    ShipEventPayoutCalculatorJob.perform_later
   end
 end
