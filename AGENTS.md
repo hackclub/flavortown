@@ -41,6 +41,6 @@ When making changes/creations towards admin sides of the codebase there needs to
 
 DB migrations should always ask for user confirmation.
 
-please do not hand write migrations, always use the rails g cmd for migrations.
+When making code changes that require migrations, always use `bin/rails generate migration` instead of manually creating migration files. Manually creating migrations can cause issues when the AI generates improper migration syntax or timestamps.
 
 Bias for rails generators (ie. rails g model/migration) when first creating a file.
