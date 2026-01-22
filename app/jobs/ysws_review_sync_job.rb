@@ -1,6 +1,4 @@
 class YswsReviewSyncJob < ApplicationJob
-  include Rails.application.routes.url_helpers
-
   queue_as :default
 
   def self.perform_later(*args)
@@ -227,13 +225,7 @@ class YswsReviewSyncJob < ApplicationJob
       return nil
     end
 
-    host = default_url_host
-    if host.blank?
-      Rails.logger.error("[YswsReviewSyncJob] banner_url_for_project_id: host missing. action_mailer=#{Rails.application.config.action_mailer.default_url_options.inspect} routes=#{Rails.application.routes.default_url_options.inspect} ENV[APP_HOST]=#{ENV['APP_HOST'].inspect}")
-      return nil
-    end
-
-    url = rails_blob_url(project.banner, host: host)
+    url = build_banner_url(project)
     Rails.logger.info("[YswsReviewSyncJob] banner_url_for_project_id: success project_id=#{project.id} url=#{url}")
     url
   rescue StandardError => e
@@ -241,9 +233,7 @@ class YswsReviewSyncJob < ApplicationJob
     nil
   end
 
-  def default_url_host
-    Rails.application.config.action_mailer.default_url_options&.fetch(:host, nil) ||
-      Rails.application.routes.default_url_options[:host] ||
-      ENV["APP_HOST"]
+  def build_banner_url(project)
+    project.banner.blob.url
   end
 end
