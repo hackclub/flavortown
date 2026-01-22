@@ -32,6 +32,7 @@ module YswsReviewService
 
   def fetch_review(review_id)
     response = connection.get("/api/admin/ysws_reviews/#{review_id}")
+    Rails.logger.info "[YswsReviewService] fetch_review(#{review_id}): #{response.body.inspect}"
     response.body
   end
 
