@@ -82,10 +82,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script type="application/json" id="ship-event-distribution-data">
+<script id="ship-event-distribution-data">
   <%= @distribution.to_json.html_safe %>
 </script>
-<script type="application/json" id="ship-event-convergence-data">
+<script id="ship-event-convergence-data">
   <%= @convergence_data.to_json.html_safe %>
 </script>
 <script>

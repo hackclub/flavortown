@@ -53,7 +53,7 @@ module Admin
     def bucket_percentiles(values)
       buckets = Array.new(10, 0)
       values.each do |value|
-        index = [(value / 10).floor, 9].min
+        index = [ (value / 10).floor, 9 ].min
         buckets[index] += 1
       end
       buckets
@@ -103,6 +103,5 @@ module Admin
         result[ship_event_id] = series
       end
     end
-
   end
 end
