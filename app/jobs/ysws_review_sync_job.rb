@@ -209,17 +209,35 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def banner_url_for_project_id(ft_project_id)
-    return nil if ft_project_id.blank?
+    Rails.logger.info("[YswsReviewSyncJob] banner_url_for_project_id: start ft_project_id=#{ft_project_id.inspect} (class=#{ft_project_id.class})")
+
+    if ft_project_id.blank?
+      Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: ft_project_id is blank")
+      return nil
+    end
 
     project = Project.find_by(id: ft_project_id)
-    return nil unless project&.banner&.attached?
+    if project.nil?
+      Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project not found by id=#{ft_project_id.inspect}")
+      return nil
+    end
+
+    unless project.banner.attached?
+      Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project #{project.id} has no banner attached")
+      return nil
+    end
 
     host = default_url_host
-    return nil if host.blank?
+    if host.blank?
+      Rails.logger.error("[YswsReviewSyncJob] banner_url_for_project_id: host missing. action_mailer=#{Rails.application.config.action_mailer.default_url_options.inspect} routes=#{Rails.application.routes.default_url_options.inspect} ENV[APP_HOST]=#{ENV['APP_HOST'].inspect}")
+      return nil
+    end
 
-    rails_blob_url(project.banner, host: host)
+    url = rails_blob_url(project.banner, host: host)
+    Rails.logger.info("[YswsReviewSyncJob] banner_url_for_project_id: success project_id=#{project.id} url=#{url}")
+    url
   rescue StandardError => e
-    Rails.logger.warn("[YswsReviewSyncJob] Failed to build banner url for project_id=#{ft_project_id}: #{e.class}: #{e.message}")
+    Rails.logger.error("[YswsReviewSyncJob] banner_url_for_project_id: exception project_id=#{ft_project_id.inspect} #{e.class}: #{e.message}")
     nil
   end
 
