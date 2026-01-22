@@ -8,7 +8,12 @@ class UsersController < ApplicationController
                      .order(created_at: :desc)
                      .includes(banner_attachment: :blob)
 
-    if @user.shadow_banned? && @user != current_user
+    @shadow_banned = @user.shadow_banned?
+    is_self = @user == current_user
+    is_admin = current_user&.admin?
+    @can_view_shadow_banned = is_self || is_admin
+
+    if @shadow_banned && !@can_view_shadow_banned
       @projects = @projects.none
     end
 
