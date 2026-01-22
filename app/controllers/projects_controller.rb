@@ -11,12 +11,12 @@ class ProjectsController < ApplicationController
     authorize @project
 
     is_member = @project.users.include?(current_user)
+    is_admin = current_user&.admin?
     user_shadow_banned = @project.users.where(shadow_banned: true).exists?
     project_shadow_banned = @project.shadow_banned?
 
-    if (user_shadow_banned || project_shadow_banned) && !is_member
-      raise ActiveRecord::RecordNotFound
-    end
+    @shadow_banned = user_shadow_banned || project_shadow_banned
+    @can_view_shadow_banned = is_member || is_admin
 
     @posts = @project.posts
                      .includes(:user, postable: [ :attachments_attachments ])
@@ -207,7 +207,7 @@ class ProjectsController < ApplicationController
 
     if @project.posts.where(postable_type: "Post::ShipEvent").none?
       begin
-        ShipCertService.ship_to_dash(@project)
+        ShipCertService.ship_to_dash(@project, type: "initial")
       rescue => e
         Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
         flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
@@ -329,7 +329,7 @@ class ProjectsController < ApplicationController
     authorize @project
 
     PaperTrail.request(whodunnit: current_user.id) do
-      success = ShipCertService.ship_to_dash(@project)
+      success = ShipCertService.ship_to_dash(@project, type: "resend", force: true)
 
       PaperTrail::Version.create!(
         item_type: "Project",
@@ -364,7 +364,7 @@ class ProjectsController < ApplicationController
 
     PaperTrail.request(whodunnit: current_user.id) do
       begin
-        ShipCertService.ship_to_dash(@project)
+        ShipCertService.ship_to_dash(@project, type: "recertification", force: true)
         ship_event.update!(certification_status: "pending")
 
         PaperTrail::Version.create!(
