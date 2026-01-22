@@ -54,7 +54,7 @@ class Api::V1::StoreController < Api::BaseController
   }
 
   def index
-    @items = ShopItem.enabled.includes(image_attachment: :blob)
+    @items = ShopItem.enabled.listed.includes(image_attachment: :blob)
   end
 
   def show
