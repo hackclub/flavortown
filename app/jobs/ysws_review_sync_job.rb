@@ -77,11 +77,11 @@ class YswsReviewSyncJob < ApplicationJob
       "First Name" => user_pii[:first_name],
       "Last Name" => user_pii[:last_name],
       "display_name" => user_pii[:display_name],
-      "Address (Line 1)" => primary_address["line1"],
-      "Address (Line 2)" => primary_address["line2"],
+      "Address (Line 1)" => primary_address["line_1"],
+      "Address (Line 2)" => primary_address["line_2"],
       "City" => primary_address["city"],
       "State / Province" => primary_address["state"],
-      "ZIP / Postal Code" => primary_address["postalCode"],
+      "ZIP / Postal Code" => primary_address["postal_code"],
       "Country" => primary_address["country"],
       "Birthday" => user_pii[:birthday],
       "ship_cert_id" => ship_cert["id"].to_s,
@@ -101,7 +101,7 @@ class YswsReviewSyncJob < ApplicationJob
   def calculate_total_approved_minutes(devlogs)
     return nil if devlogs.empty?
 
-    devlogs.sum { |d| d["approvedMinutes"].to_i }
+    devlogs.sum { |d| d["approvedMins"].to_i }
   end
 
   def build_justification(review, devlogs, approved_orders)
@@ -114,12 +114,13 @@ class YswsReviewSyncJob < ApplicationJob
     review_id = review["id"]
     ship_cert_id = ship_cert["id"]
 
-    total_original_minutes = devlogs.sum { |d| d["originalMinutes"].to_i }
+    total_original_seconds = devlogs.sum { |d| d["origSecs"].to_i }
+    total_original_minutes = total_original_seconds / 60
     total_hours = total_original_minutes / 60
     original_time_remaining_minutes = total_original_minutes % 60
     original_time_formatted = total_hours > 0 ? "#{total_hours}h #{original_time_remaining_minutes}min" : "#{original_time_remaining_minutes}min"
 
-    total_approved_minutes = devlogs.sum { |d| d["approvedMinutes"].to_i }
+    total_approved_minutes = devlogs.sum { |d| d["approvedMins"].to_i }
     approved_hours = total_approved_minutes / 60
     approved_time_remaining_minutes = total_approved_minutes % 60
     approved_time_formatted = approved_hours > 0 ? "#{approved_hours}h #{approved_time_remaining_minutes}min" : "#{approved_time_remaining_minutes}min"
@@ -127,7 +128,7 @@ class YswsReviewSyncJob < ApplicationJob
     selected_devlogs = devlogs.count > 4 ? [ devlogs.first ] + devlogs.last(3) : devlogs
     devlog_list = selected_devlogs.map do |d|
       title = d["title"].presence || "Untitled Devlog"
-      approved = d["approvedMinutes"].to_i
+      approved = d["approvedMins"].to_i
       "#{title}: #{approved} mins"
     end.join("\n")
     devlog_list += "\nand #{devlogs.count - 4} more devlogs." if devlogs.count > 4
