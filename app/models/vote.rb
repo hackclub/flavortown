@@ -46,6 +46,7 @@ class Vote < ApplicationRecord
   belongs_to :ship_event, class_name: "Post::ShipEvent", counter_cache: true
 
   after_commit :refresh_majority_judgment_scores, on: [ :create, :destroy ]
+  after_commit :trigger_payout_calculation, on: [ :create, :destroy ]
 
   validates(*score_columns, inclusion: { in: 1..6, message: "must be between 1 and 6" }, allow_nil: true)
   validate :all_categories_scored
@@ -66,5 +67,9 @@ class Vote < ApplicationRecord
 
   def refresh_majority_judgment_scores
     ShipEventMajorityJudgmentRefreshJob.perform_later
+  end
+
+  def trigger_payout_calculation
+    OneTime::ShipEventPayoutCalculatorJob.perform_later
   end
 end
