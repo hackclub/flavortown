@@ -527,3 +527,28 @@ dialog {
     margin-bottom: 1rem;
   }
 }
+
+.fulfill-dialog {
+  h3 {
+    margin: 0 0 1rem;
+  }
+  label {
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+  input {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    padding: 0.5rem;
+    border: 1px solid var(--color-brown-500);
+    border-radius: 4px;
+  }
+}
+
+.fulfill-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
