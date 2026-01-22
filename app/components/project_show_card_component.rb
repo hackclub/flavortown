@@ -89,4 +89,8 @@ class ProjectShowCardComponent < ViewComponent::Base
   def certifier_viewing_others_project?
     current_user&.project_certifier? && !owner?
   end
+
+  def can_view_ai_declaration_details?
+    current_user&.admin? || current_user&.fraud_dept?
+  end
 end

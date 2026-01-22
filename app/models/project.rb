@@ -3,6 +3,7 @@
 # Table name: projects
 #
 #  id                   :bigint           not null, primary key
+#  ai_declaration       :text
 #  deleted_at           :datetime
 #  demo_url             :text
 #  description          :text

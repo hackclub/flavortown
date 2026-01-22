@@ -133,6 +133,19 @@
       <div class="project-show-card__description"><%= helpers.md project.description %></div>
     <% end %>
 
+    <% if project.ai_declaration.present? %>
+      <div class="project-show-card__ai-declaration" style="margin-top: 12px; padding: 12px; background-color: var(--color-blue-300); border-radius: 8px; border-left: 4px solid var(--color-blue-500);">
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--color-blue-600);">
+          🤖 This project uses AI
+        </div>
+        <% if can_view_ai_declaration_details? %>
+          <div style="margin-top: 8px; font-size: 0.9em; color: var(--color-blue-600);">
+            <%= helpers.md project.ai_declaration %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
     <% if has_any_links? %>
       <div class="project-show-card__actions">
         <% if project.demo_url.present? %>
