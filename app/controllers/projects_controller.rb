@@ -11,12 +11,12 @@ class ProjectsController < ApplicationController
     authorize @project
 
     is_member = @project.users.include?(current_user)
+    is_admin = current_user&.admin?
     user_shadow_banned = @project.users.where(shadow_banned: true).exists?
     project_shadow_banned = @project.shadow_banned?
 
-    if (user_shadow_banned || project_shadow_banned) && !is_member
-      raise ActiveRecord::RecordNotFound
-    end
+    @shadow_banned = user_shadow_banned || project_shadow_banned
+    @can_view_shadow_banned = is_member || is_admin
 
     @posts = @project.posts
                      .includes(:user, postable: [ :attachments_attachments ])
