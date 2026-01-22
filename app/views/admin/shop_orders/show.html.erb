@@ -320,10 +320,20 @@
     <% end %>
 
     <% if @order.awaiting_periodical_fulfillment? && (current_user.admin? || current_user.fulfillment_person?) %>
-      <form method="post" action="<%= mark_fulfilled_admin_shop_order_path(@order) %>">
-        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Mark this order as fulfilled?')">✔ Fulfilled</button>
-      </form>
+      <% m = 'fulfillment-modal' %>
+      <button type="button" class="btn-primary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="document.getElementById('<%= m %>').showModal()">Mark as Fulfilled</button>
+      <dialog id="<%= m %>" class="fulfill-dialog">
+        <h3>Mark order fulfilled</h3>
+        <form method="post" action="<%= mark_fulfilled_admin_shop_order_path(@order) %>">
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <label>Spent (USD)<input type="number" name="fulfillment_cost" step="0.01" min="0" placeholder="0.00"></label>
+          <label>Order #<input type="text" name="external_ref" placeholder="e.g. ORD-12345"></label>
+          <div class="fulfill-actions">
+            <button type="button" class="btn-secondary" onclick="document.getElementById('<%= m %>').close()">Cancel</button>
+            <button type="submit" class="btn-primary">Mark as Fulfilled</button>
+          </div>
+        </form>
+      </dialog>
     <% end %>
 
     <% if @order.on_hold? %>
