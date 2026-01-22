@@ -212,6 +212,7 @@ Rails.application.routes.draw do
     resources :projects, only: [ :index, :show ], shallow: true do
       member do
         post :restore
+        post :delete
         post :shadow_ban
         post :unshadow_ban
       end
