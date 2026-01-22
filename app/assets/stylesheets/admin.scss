@@ -532,11 +532,13 @@ dialog {
   h3 {
     margin: 0 0 1rem;
   }
+
   label {
     display: block;
     margin-bottom: 1rem;
     font-weight: 500;
   }
+
   input {
     display: block;
     width: 100%;
@@ -551,4 +553,115 @@ dialog {
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
+}
+
+.admin-section {
+  background: var(--color-tan-300);
+  border: 1px solid var(--color-brown-500);
+  border-radius: 0.5rem;
+  padding: var(--space-m);
+  margin-bottom: var(--space-m);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.admin-section__header {
+  color: var(--color-brown-700);
+  font-size: var(--font-size-m);
+  font-weight: 600;
+  margin: 0 0 var(--space-s) 0;
+
+  &--purple {
+    color: #a855f7;
+  }
+
+  &--green {
+    color: #10b981;
+  }
+
+  &--amber {
+    color: #f59e0b;
+  }
+}
+
+.admin-button-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-xs);
+}
+
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 0.5rem 1rem;
+  min-height: 2.25rem;
+  border: none;
+  border-radius: 0.5em;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.1s,
+    box-shadow 0.1s;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+
+  &::after {
+    content: unset;
+  }
+
+  &--primary {
+    background: var(--color-brown-500);
+    color: white;
+
+    &:hover {
+      background: var(--color-brown-400);
+      box-shadow: var(--shadow);
+    }
+  }
+
+  &--secondary {
+    background: #6b7280;
+    color: white;
+
+    &:hover {
+      background: #4b5563;
+      box-shadow: var(--shadow);
+    }
+  }
+
+  &--danger {
+    background: #ef4444;
+    color: white;
+
+    &:hover {
+      background: #dc2626;
+      box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+    }
+  }
+
+  &:disabled {
+    background: #999;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.admin-section__summary {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: var(--space-xxs) 0;
+  user-select: none;
+  color: var(--color-brown-700);
+  cursor: pointer;
+}
+
+.admin-section__content {
+  padding-top: var(--space-xs);
 }
