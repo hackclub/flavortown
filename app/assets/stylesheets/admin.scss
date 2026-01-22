@@ -213,6 +213,60 @@ body {
   }
 }
 
+/* Ship Event Scores */
+.ship-event-scores {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ship-event-scores__note {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.ship-event-scores__charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+.ship-event-scores__chart-wrap {
+  height: 240px;
+}
+
+.ship-event-scores__chart-wrap canvas {
+  max-height: 240px;
+}
+
+.ship-event-scores__table {
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: var(--color-tan-300);
+}
+
+.ship-event-scores__table th,
+.ship-event-scores__table td {
+  background: var(--color-tan-300);
+}
+
+.ship-event-scores__table thead th {
+  background: var(--color-tan-400);
+}
+
+.ship-event-scores__details summary {
+  cursor: pointer;
+  color: var(--color-link, #2563eb);
+}
+
+.ship-event-scores__details summary:hover {
+  text-decoration: underline;
+}
+
+.ship-event-scores__muted {
+  color: var(--color-text-muted);
+}
+
 /* Shop Item Form Styles - uses default card/form styles */
 
 /* Status Badges */

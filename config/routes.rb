@@ -249,6 +249,7 @@ Rails.application.routes.draw do
       end
     end
     get "payouts_dashboard", to: "payouts_dashboard#index"
+    get "ship_event_scores", to: "ship_event_scores#index"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
