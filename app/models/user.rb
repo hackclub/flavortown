@@ -57,6 +57,8 @@ class User < ApplicationRecord
 
   has_recommended :projects # you might like these projects...
 
+  DISMISSIBLE_THINGS = %w[flagship_ad].freeze
+
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
@@ -132,6 +134,22 @@ class User < ApplicationRecord
 
   def revoke_tutorial_step!(slug)
     update!(tutorial_steps_completed: tutorial_steps - [ slug ]) if tutorial_step_completed?(slug)
+  end
+
+  def has_dismissed?(thing_name) = things_dismissed.include?(thing_name.to_s)
+
+  def dismiss_thing!(thing_name)
+    thing_name_str = thing_name.to_s
+    raise ArgumentError, "Invalid thing to dismiss: #{thing_name_str}" unless DISMISSIBLE_THINGS.include?(thing_name_str)
+
+    update!(things_dismissed: things_dismissed + [ thing_name_str ]) unless has_dismissed?(thing_name_str)
+  end
+
+  def undismiss_thing!(thing_name)
+    thing_name_str = thing_name.to_s
+    raise ArgumentError, "Invalid thing to dismiss: #{thing_name_str}" unless DISMISSIBLE_THINGS.include?(thing_name_str)
+
+    update!(things_dismissed: things_dismissed - [ thing_name_str ]) if has_dismissed?(thing_name_str)
   end
 
   def should_show_shop_tutorial?
