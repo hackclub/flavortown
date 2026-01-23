@@ -129,9 +129,6 @@ Rails.application.routes.draw do
   post "magic_links", to: "magic_links#create"
   get "magic_links/verify", to: "magic_links#verify"
 
-  # This will be an link for people in the slack
-  # Not hidden, but wont be shared and only announced in slack
-  get "hidden_login", to: "hidden_login#index"
 
   # API
   namespace :webhooks do
@@ -250,6 +247,7 @@ Rails.application.routes.draw do
       end
     end
     get "payouts_dashboard", to: "payouts_dashboard#index"
+    get "fraud_dashboard", to: "fraud_dashboard#index"
     get "ship_event_scores", to: "ship_event_scores#index"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
@@ -257,6 +255,8 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  get "queue", to: "queue#index"
 
   # Project Ideas
   resources :project_ideas, only: [] do

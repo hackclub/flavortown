@@ -383,6 +383,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_041921) do
   end
 
   create_table "projects", force: :cascade do |t|
+    t.text "ai_declaration"
     t.datetime "created_at", null: false
     t.datetime "deleted_at"
     t.text "demo_url"

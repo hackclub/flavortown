@@ -71,7 +71,7 @@
 
             <%= render InputComponent.new(
                   label: "Demo Link",
-                  placeholder: "https://flavortown.cooked.selfhosted.hackclub.com/projects",
+                  placeholder: "https://flavortown.hackclub.com/projects",
                   form: form,
                   attribute: :demo_url,
                   color: :blue,
@@ -134,6 +134,21 @@
                   projects: current_user.hackatime_projects,
                   project_times: @project_times,
                   subtitle: "Link this project to your Hackatime projects."
+                )
+              ) %>
+        </div>
+
+        <div class="projects-new__field projects-new__field--ai-declaration">
+          <%= render(
+                InputComponent.new(
+                  label: "AI Declaration",
+                  placeholder: "Describe how you used AI in this project (e.g., 'Used ChatGPT for debugging', 'GitHub Copilot for code completion')",
+                  form: form,
+                  attribute: :ai_declaration,
+                  color: :blue,
+                  as: :textarea,
+                  input_html: { rows: 3 },
+                  subtitle: "Optional: If you used AI tools, please declare what you used them for."
                 )
               ) %>
         </div>

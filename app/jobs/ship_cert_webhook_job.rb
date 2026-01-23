@@ -1,5 +1,8 @@
 class ShipCertWebhookJob < ApplicationJob
   queue_as :default
+  retry_on StandardError, wait: :polynomially_longer, attempts: 5 do |job, error|
+    Rails.logger.error("[ShipCertWebhookJob] Failed after retries: #{error.message}")
+  end
 
   def perform(ship_event_id:, type: nil, force: false)
     return if !force && already_processed?(ship_event_id)
@@ -10,9 +13,8 @@ class ShipCertWebhookJob < ApplicationJob
     project = ship_event.project
     return unless project
 
-    mark_as_processed!(ship_event_id)
-
     ShipCertService.send_webhook(project, type: type, ship_event: ship_event)
+    mark_as_processed!(ship_event_id)
   end
 
   private
