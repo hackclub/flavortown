@@ -45,6 +45,6 @@ module YswsReviewService
   end
 
   def hours_since_last_sync
-    return 240000
+    240000
   end
 end
