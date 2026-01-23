@@ -51,7 +51,7 @@ class ShopWarehousePackage < ApplicationRecord
     contents += bonus_stickers
     contents << {
       sku: "Pri/Fla/4x6/1st",
-      quantity: 1
+      quantity: 10
     }
 
     Rails.logger.info "Sending warehouse package #{id} to Theseus for user #{user_id} with orders #{shop_orders.pluck(:id).join(', ')}\nContents: #{contents.inspect}"
@@ -64,7 +64,7 @@ class ShopWarehousePackage < ApplicationRecord
       response = TheseusService.create_warehouse_order({
                                                          address: frozen_address.compact_blank,
                                                          contents: contents,
-                                                         tags: [ "flavortown", "YSWS", "flavortown-warehouse-prize" ],
+                                                         tags: ["flavortown", "YSWS", "flavortown-warehouse-prize"],
                                                          recipient_email: user.email,
                                                          user_facing_title: "Flavortown - #{headline.join ', '}",
                                                          idempotency_key:,
