@@ -80,8 +80,7 @@ export default class extends Controller {
         break;
       case "custom_region":
         shouldShow =
-          country !== null &&
-          !this.ccRegion(country, this.sourceRegionValue);
+          country !== null && !this.ccRegion(country, this.sourceRegionValue);
         message = this.customRegionMessageValue;
         break;
       default:
@@ -99,8 +98,7 @@ export default class extends Controller {
   ccRegion(countryCode, regionCode) {
     if (!regionCode) return true;
 
-    const countries =
-      this.constructor.c[regionCode.toUpperCase()];
+    const countries = this.constructor.c[regionCode.toUpperCase()];
     if (!countries) return false;
 
     return countries.includes(countryCode.toUpperCase());
