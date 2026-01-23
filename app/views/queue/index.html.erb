@@ -11,15 +11,15 @@
     <h2>Queue Status</h2>
     <div class="fraud-stats">
       <div class="fraud-stat fraud-stat--warning">
-        <span class="fraud-stat__value"><%= @pending_orders.count %></span>
+        <span class="fraud-stat__value"><%= @pending_count %></span>
         <span class="fraud-stat__label">Pending</span>
       </div>
       <div class="fraud-stat">
-        <span class="fraud-stat__value"><%= @on_hold_orders.count %></span>
+        <span class="fraud-stat__value"><%= @on_hold_count %></span>
         <span class="fraud-stat__label">On Hold</span>
       </div>
       <div class="fraud-stat fraud-stat--warning">
-        <span class="fraud-stat__value"><%= @pending_orders.count + @on_hold_orders.count %></span>
+        <span class="fraud-stat__value"><%= @pending_count + @on_hold_count %></span>
         <span class="fraud-stat__label">Total Backlog</span>
       </div>
     </div>

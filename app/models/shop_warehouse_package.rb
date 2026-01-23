@@ -64,7 +64,7 @@ class ShopWarehousePackage < ApplicationRecord
       response = TheseusService.create_warehouse_order({
                                                          address: frozen_address.compact_blank,
                                                          contents: contents,
-                                                         tags: ["flavortown", "YSWS", "flavortown-warehouse-prize"],
+                                                         tags: [ "flavortown", "YSWS", "flavortown-warehouse-prize" ],
                                                          recipient_email: user.email,
                                                          user_facing_title: "Flavortown - #{headline.join ', '}",
                                                          idempotency_key:,
