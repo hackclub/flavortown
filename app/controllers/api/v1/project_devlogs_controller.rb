@@ -1,6 +1,9 @@
 class Api::V1::ProjectDevlogsController < Api::BaseController
   include ApiAuthenticatable
 
+  # we have these limits in the app/models/post/devlog file
+  MAX_ATTACHMENT_COUNT = 8
+
   class_attribute :description, default: {
     index: "Fetch a list of devlogs for an project.",
     show: "Fetch a devlog by ID and project ID.",
@@ -206,10 +209,13 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
   end
 
   def attach_attachments!(devlog, attachments)
-    Array(attachments).each do |uploaded|
-      unless Post::Devlog::ACCEPTED_CONTENT_TYPES.include?(uploaded.content_type)
-        raise ActiveRecord::RecordInvalid.new(devlog), "Invalid attachment content type"
-      end
+    files = Array(attachments)
+
+    if files.size > MAX_ATTACHMENT_COUNT
+      raise ActiveRecord::RecordInvalid.new(devlog), "Too many attachments (maximum is #{MAX_ATTACHMENT_COUNT})"
+    end
+
+    files.each do |uploaded|
       devlog.attachments.attach(
         io: uploaded.tempfile,
         filename: uploaded.original_filename,
