@@ -860,10 +860,13 @@
   color: var(--color-text-body);
   transition: filter 0.2s;
   filter: blur(8px);
-  cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  &[onclick] {
+    cursor: pointer;
+  }
 }
 
 .api-docs-link {
