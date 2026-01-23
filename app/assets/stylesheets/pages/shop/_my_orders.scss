@@ -246,6 +246,22 @@
     font-family: var(--font-family-text);
     font-size: var(--font-size-xs);
     color: var(--color-text-muted);
+    max-width: 280px;
+    text-align: right;
+
+    a {
+      color: var(--color-blue-400);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    @media (max-width: 768px) {
+      max-width: 100%;
+      text-align: left;
+    }
   }
 
   &__status {
