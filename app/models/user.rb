@@ -225,7 +225,6 @@ class User < ApplicationRecord
   end
 
   def has_logged_one_hour?
-    return true
     all_time_coding_seconds >= 3600
   end
 
