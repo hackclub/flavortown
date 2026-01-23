@@ -41,11 +41,10 @@
           data: { action: "click->vote-tracker#trackRepoClick" }
         ) %>
         <%= render ButtonComponent.new(
-          color: :yellow,
+          color: :red,
           variant: :borderless,
           text: "REPORT",
           icon: "icons/flag.svg",
-          class: "report-btn",
           aria: { label: "Report" },
           onclick: "document.getElementById('report-modal').showModal()"
         ) %>

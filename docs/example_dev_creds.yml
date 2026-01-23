@@ -1,7 +1,9 @@
-secret_key_base: run rails secret
+# Run `rails secret`, or copy this from your `.env` file.
+secret_key_base: 91a016c2f22f34fcc57179e7f50fb74c4d7642f61be81b5044b544a008b67e1ce421cb0b7a357d62e262ac969654b9e71d98b32e5ca162072032a86720892ecc
 
+# Run `Lockbox.generate_key` in `rails console`, or copy this from your `.env` file.
 lockbox:
-  master_key: "0000000000000000000000000000000000000000000000000000000000000000"
+  master_key: "7a5899bf15772d40bbba24d44886919ee83b2d62f59654552255890cb0065574"
 
 slack:
   bot_token: "xoxb-"
