@@ -10,9 +10,8 @@ class ShipCertWebhookJob < ApplicationJob
     project = ship_event.project
     return unless project
 
-    mark_as_processed!(ship_event_id)
-
     ShipCertService.send_webhook(project, type: type, ship_event: ship_event)
+    mark_as_processed!(ship_event_id)
   end
 
   private

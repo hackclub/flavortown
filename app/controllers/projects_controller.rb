@@ -209,15 +209,7 @@ class ProjectsController < ApplicationController
       redirect_to ship_project_path(@project, step: 4) and return
     end
 
-    if @project.posts.where(postable_type: "Post::ShipEvent").none?
-      begin
-        ShipCertService.ship_to_dash(@project, type: "initial")
-      rescue => e
-        Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
-        flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
-        redirect_to ship_project_path(@project, step: 4) and return
-      end
-    end
+    is_initial_ship = @project.posts.where(postable_type: "Post::ShipEvent").none?
 
     ship_event = Post::ShipEvent.new(body: ship_body)
     post = @project.posts.build(user: current_user, postable: ship_event)
@@ -230,14 +222,24 @@ class ProjectsController < ApplicationController
       end
     end
 
-    if post.persisted?
-      flash[:notice] = "🚀 Congratulations! Your project has been submitted for review!"
-    else
+    unless post.persisted?
       error_messages = (post.errors.full_messages + ship_event.errors.full_messages).uniq
       flash[:alert] = "We couldn't post your ship update: #{error_messages.to_sentence}"
       redirect_to ship_project_path(@project, step: 4) and return
     end
 
+    if is_initial_ship
+      begin
+        ShipCertWebhookJob.perform_later(ship_event_id: ship_event.id, type: "initial", force: false)
+      rescue => e
+        Rails.logger.error "Failed to enqueue ship webhook for project #{@project.id}: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
+        flash[:notice] = "🚀 Your project has been submitted for review, but we couldn't notify the dashboard. Please contact #ask-the-shipwrights if this persists."
+        redirect_to @project and return
+      end
+    end
+
+    flash[:notice] = "🚀 Congratulations! Your project has been submitted for review!"
     redirect_to @project
   end
 
