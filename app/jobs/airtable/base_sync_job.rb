@@ -33,7 +33,7 @@ class Airtable::BaseSyncJob < ApplicationJob
 
       Rails.logger.warn("[#{self.class.name}] Duplicate records in Airtable for #{primary_key_field}, syncing one at a time")
       airtable_records.each do |record|
-        table.batch_upsert([ record ], primary_key_field)
+        table.batch_upsert([record], primary_key_field)
       rescue Norairrecord::Error => individual_error
         Rails.logger.error("[#{self.class.name}] Failed to sync record #{record.fields[primary_key_field]}: #{individual_error.message}")
       end
