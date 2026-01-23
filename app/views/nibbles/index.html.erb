@@ -1,5 +1,5 @@
 <div class="nibbles">
-    <%= render HeadingComponent.new(title: "Nibbles", tone: :blue) %>
+    <%= render HeadingComponent.new(title: "Nibbles", tone: :blue, size: :full) %>
     <div class="nibbles__sidequests">
         <h1 class="nibbles__sidequests-subtitle">Tackle fun sidequests for extra (bite-sized) challenges and tasty bonuses!</h1>
         <div class="nibbles__sidequests-cards">
@@ -11,6 +11,14 @@
                 learn_more_link: "https://magazine.hackclub.com/",
                 submit_link: "https://hackclub.slack.com/app_redirect?channel=C0A8CMWM0CR",
                 variant: :red
+            ) %>
+            <%= render SidequestCardComponent.new(
+                title: "Borked UI Jam",
+                image: "nibbles/Borked-UI-Jam.avif",
+                description: "Running until January 25th — make a project with delightfully broken UI/UX and submit it for the Borked UI Jam! The top 5 best (worst) projects will receive cookies + other prizes. Check out #borked for more details.",
+                learn_more_link: "https://hackclub.slack.com/app_redirect?channel=C0A278BH8UA",
+                submit_link: "https://borked.irtaza.xyz/",
+                variant: :green
             ) %>
         </div>
     </div>

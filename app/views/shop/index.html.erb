@@ -20,7 +20,7 @@
 <% end %>
 
 <div class="shop" data-controller="shop" data-shop-user-region-value="<%= @user_region %>">
-  <%= render HeadingComponent.new(title: "Shop", tone: :brown) %>
+  <%= render HeadingComponent.new(title: "Shop", tone: :blue, size: :full) %>
 
   <div class="shop-goals" data-controller="shop-goals" data-shop-goals-balance-value="<%= @user_balance %>">
     <div class="shop-goals__container" data-shop-goals-target="container" style="display: none;">

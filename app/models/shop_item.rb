@@ -50,10 +50,12 @@
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
+#  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
 #  ticket_cost                       :decimal(, )
 #  type                              :string
+#  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
 #  created_at                        :datetime         not null
@@ -83,7 +85,7 @@ class ShopItem < ApplicationRecord
 
   def self.cached_buyable_standalone
     Rails.cache.fetch(BUYABLE_STANDALONE_CACHE_KEY, expires_in: 5.minutes) do
-      enabled.buyable_standalone.includes(:image_attachment, image_attachment: [ :blob, :record ]).to_a
+      enabled.listed.buyable_standalone.includes(:image_attachment, image_attachment: [ :blob, :record ]).to_a
     end
   end
 
@@ -101,6 +103,7 @@ class ShopItem < ApplicationRecord
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
   scope :enabled, -> { where(enabled: true) }
+  scope :listed, -> { where(unlisted: [ nil, false ]) }
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
   scope :recently_added, -> { order(created_at: :desc).limit(6) }
 

@@ -10,7 +10,13 @@ section "Order Details:",
     mrkdwn_text("*Total:* 🍪 #{order.total_cost}"),
   ]
 
-section "*Tracking:* #{order.external_ref}", markdown: true unless order.external_ref.blank?
+if order.external_ref.present?
+  if order.external_ref.start_with?("pkg!", "ltr!")
+    section "*Tracking:* <https://mail.hackclub.com/#{order.external_ref}|#{order.external_ref}>", markdown: true
+  else
+    section "*Tracking:* #{order.external_ref}", markdown: true
+  end
+end
 
 divider
 

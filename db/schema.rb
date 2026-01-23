@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_23_041921) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -482,10 +482,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.integer "sale_percentage"
     t.boolean "show_in_carousel"
     t.integer "site_action"
+    t.string "source_region"
     t.boolean "special"
     t.integer "stock"
     t.decimal "ticket_cost"
     t.string "type"
+    t.boolean "unlisted", default: false
     t.date "unlock_on"
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"

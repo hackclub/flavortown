@@ -3,41 +3,106 @@
 <% end %>
 
 <div class="main">
-    <div class="grid">
-        <% Rails.application.routes.routes.select { |r| r.defaults[:controller]&.start_with?("api/v1/") }.each do |route| %>
-            <% if route.path.spec.to_s.starts_with?("/api/v1/docs") %>
-                <% next %>
-            <% end %>
+  <div class="card" style="margin-bottom: 2rem;">
+    <div class="content">
+      <h1>Flavortown API v1</h1>
+      <p>Base URL: <code><%= request.protocol %><%= request.host_with_port %>/api/v1</code></p>
 
-            <div class="card">
-                <div class="content">
-                    <h2><%= route.verb %> <%= route.path.spec.to_s.gsub("(.:format)", "") %></h2>
-                    <p><%= description_for(route) %></p>
+      <h2 style="margin-top: 0.5rem;">Authentication</h2>
+      <p>All endpoints require authentication via API key. Include the following header with every request:</p>
+      <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
+      <p style="margin-top: 0.25rem;">You can find or regenerate your API key in your account settings.</p>
 
-                    <% url_params = query_url_params_for(route) %>
+      <h3 style="margin-top: 0.5rem;">Example Request</h3>
+      <pre><code>curl -X GET "<%= request.protocol %><%= request.host_with_port %>/api/v1/users/me" \
+  -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
 
-                    <label>URL Params:</label>
-                    <% if url_params.any? %>
-                        <pre class="query-params"><code><%= url_params.map { |k, v| "?#{k} (#{v[:required] ? "required" : "optional"}) - #{v[:desc]} " }.join("\n") %></code></pre>
-                    <% else %>
-                        <pre class="query-params"><code>none :D</code></pre>
-                    <% end %>
+      <h2 style="margin-top: 0.5rem;">Error Responses</h2>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;">
+        <tr style="border-bottom: 1px solid #ccc;">
+          <th style="text-align: left; padding: 0.5rem;">Status</th>
+          <th style="text-align: left; padding: 0.5rem;">Meaning</th>
+          <th style="text-align: left; padding: 0.5rem;">Response</th>
+        </tr>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 0.5rem;"><code>401</code></td>
+          <td style="padding: 0.5rem;">Missing or invalid API key</td>
+          <td style="padding: 0.5rem;"><code>{ "error": "Missing Authorization header" }</code> or <code>{ "error": "Invalid API key" }</code></td>
+        </tr>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 0.5rem;"><code>403</code></td>
+          <td style="padding: 0.5rem;">Permission denied</td>
+          <td style="padding: 0.5rem;"><code>{ "error": "You do not have permission to..." }</code></td>
+        </tr>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 0.5rem;"><code>404</code></td>
+          <td style="padding: 0.5rem;">Resource not found</td>
+          <td style="padding: 0.5rem;"><code>{ "error": "Resource not found" }</code></td>
+        </tr>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 0.5rem;"><code>422</code></td>
+          <td style="padding: 0.5rem;">Validation failed</td>
+          <td style="padding: 0.5rem;"><code>{ "errors": ["Title can't be blank", ...] }</code></td>
+        </tr>
+        <tr>
+          <td style="padding: 0.5rem;"><code>500</code></td>
+          <td style="padding: 0.5rem;">Server error</td>
+          <td style="padding: 0.5rem;"><code>{ "error": "An unexpected error occurred" }</code></td>
+        </tr>
+      </table>
 
-                    <% request_body = query_request_body_for(route) %>
-
-                    <% if request_body.any? %>
-                        <label>Request Body (application/x-www-form-urlencoded):</label>
-                        <pre class="request-body"><code><%= request_body.map { |k, v| "#{k} (#{v[:required] ? "required" : "optional"}) - #{v[:desc]}" }.join("\n") %></code></pre>
-                    <% end %>
-
-                    <% response = query_response_for(route) %>
-
-                    <% if response.any? %>
-                        <label>Response:</label>
-                        <pre class="response"><code><%= JSON.pretty_generate(response) %></code></pre>
-                    <% end %>
-                </div>
-            </div>
-        <% end %>
+      <h2 style="margin-top: 0.5rem;">Pagination</h2>
+      <p>List endpoints return paginated results with a <code>pagination</code> object:</p>
+      <pre><code>{
+  "items": [...],
+  "pagination": {
+    "current_page": 1,
+    "total_pages": 5,
+    "total_count": 42,
+    "next_page": 2
+  }
+}</code></pre>
+      <p style="margin-top: 0.25rem;">Use <code>?page=N</code> query parameter to fetch additional pages.</p>
     </div>
+  </div>
+
+  <h2 style="margin-bottom: 1rem;">Endpoints</h2>
+
+  <div class="grid">
+    <% Rails.application.routes.routes.select { |r| r.defaults[:controller]&.start_with?("api/v1/") }.each do |route| %>
+      <% if route.path.spec.to_s.starts_with?("/api/v1/docs") %>
+        <% next %>
+      <% end %>
+
+      <div class="card">
+        <div class="content">
+          <h2><%= route.verb %> <%= route.path.spec.to_s.gsub("(.:format)", "") %></h2>
+          <p><%= description_for(route) %></p>
+
+          <% url_params = query_url_params_for(route) %>
+
+          <label>URL Params:</label>
+          <% if url_params.any? %>
+            <pre class="query-params"><code><%= url_params.map { |k, v| "?#{k} (#{v[:required] ? "required" : "optional"}) - #{v[:desc]} " }.join("\n") %></code></pre>
+          <% else %>
+            <pre class="query-params"><code>none :D</code></pre>
+          <% end %>
+
+          <% request_body = query_request_body_for(route) %>
+
+          <% if request_body.any? %>
+            <label>Request Body (application/x-www-form-urlencoded):</label>
+            <pre class="request-body"><code><%= request_body.map { |k, v| "#{k} (#{v[:required] ? "required" : "optional"}) - #{v[:desc]}" }.join("\n") %></code></pre>
+          <% end %>
+
+          <% response = query_response_for(route) %>
+
+          <% if response.any? %>
+            <label>Response:</label>
+            <pre class="response"><code><%= JSON.pretty_generate(response) %></code></pre>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div>

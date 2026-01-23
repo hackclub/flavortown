@@ -1,7 +1,8 @@
 class Airtable::UserSyncJob < Airtable::BaseSyncJob
   def table_name = "_users"
 
-  def records = User.all
+  # Only sync users with emails to avoid duplicate nil key issues in Airtable
+  def records = User.where.not(email: [ nil, "" ])
 
   def primary_key_field = "email"
 

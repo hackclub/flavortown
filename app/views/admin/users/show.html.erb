@@ -82,9 +82,12 @@
       <% end %>
     </div>
   </div>
+</div>
+
+<div class="flex">
   <div class="card">
     <h2>actions</h2>
-    <div class="info-rows" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+    <div class="admin-actions-wrap">
       <% if policy(:admin).generate_magic_links? %>
         <%= link_to "🔗 Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
       <% end %>
@@ -102,8 +105,7 @@
                     sync_hackatime_admin_user_path(@user),
                     method: :post,
                     title: "Sync Hackatime Data",
-                    class: "btn-primary slim",
-                    style: "font-size: 0.75rem; padding: 0.25rem 0.5rem;" %>
+                    class: "btn-primary slim" %>
       <%= button_to "🔄 Refresh Verification",
                     refresh_verification_admin_user_path(@user),
                     method: :post,
@@ -225,7 +227,7 @@
   </div>
   <div class="card">
     <h2>flipper features</h2>
-    <div style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
+    <div class="flipper-features-wrap">
       <%
         features = [
           { key: :shop_open, label: "Shop" },
@@ -244,8 +246,7 @@
         <%= button_to toggle_flipper_admin_user_path(@user),
                       method: :post,
                       params: { feature: f[:key].to_s },
-                      class: "btn-primary",
-                      style: "font-size: 0.65rem; padding: 0.2rem 0.4rem; background: #{enabled ? '#22c55e' : '#6b7280'};",
+                      class: "flipper-toggle #{enabled ? 'flipper-toggle--enabled' : ''}",
                       disabled: !current_user&.admin?,
                       title: "#{enabled ? 'Disable' : 'Enable'} #{f[:label]}" do %>
           <%= f[:label] %><%= enabled ? " ✓" : "" %>
@@ -255,27 +256,25 @@
   </div>
 </div>
 
-<div class="card" style="margin-top: 1rem;">
-  <h2 style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; color: #374151;">
-    📝 Internal Notes
-  </h2>
-  <p style="color: #666; font-size: 0.75rem; margin-bottom: 0.5rem;">Only visible to admins and fraud dept. Changes are audit logged.</p>
+<div class="admin-section">
+  <h2 class="admin-section__header">📝 Internal Notes</h2>
+  <p class="admin-section__note">Only visible to admins and fraud dept. Changes are audit logged.</p>
   <form action="<%= admin_user_path(@user) %>" method="post">
     <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
     <%= hidden_field_tag :_method, "patch" %>
     <%= text_area_tag "user[internal_notes]", @user.internal_notes,
         placeholder: "Add internal notes about this user...",
         rows: 4,
-        style: "width: 100%; resize: vertical; font-family: inherit; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;" %>
-    <button type="submit" class="btn-primary slim" style="margin-top: 0.5rem;">Save Notes</button>
+        class: "admin-textarea" %>
+    <button type="submit" class="btn-primary slim">Save Notes</button>
   </form>
 </div>
 
 <%= render Admin::PastOrdersComponent.new(user: @user, title: "Shop Orders") %>
 
 <% if @user_actions.any? %>
-  <div class="card" style="margin-top: 1.5rem;">
-    <h2>Action History</h2>
+  <div class="admin-section">
+    <h2 class="admin-section__header">Action History</h2>
     <table>
       <thead>
         <tr>
@@ -457,6 +456,6 @@
       </tbody>
     </table>
 
-    <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User", item_id: @user.id), class: "btn-secondary", style: "margin-top: 1rem; display: inline-block;" %>
+    <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User", item_id: @user.id), class: "btn-secondary slim" %>
   </div>
 <% end %>

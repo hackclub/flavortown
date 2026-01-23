@@ -50,10 +50,12 @@
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
+#  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
 #  ticket_cost                       :decimal(, )
 #  type                              :string
+#  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
 #  created_at                        :datetime         not null

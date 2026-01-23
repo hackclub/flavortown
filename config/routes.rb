@@ -129,9 +129,6 @@ Rails.application.routes.draw do
   post "magic_links", to: "magic_links#create"
   get "magic_links/verify", to: "magic_links#verify"
 
-  # This will be an link for people in the slack
-  # Not hidden, but wont be shared and only announced in slack
-  get "hidden_login", to: "hidden_login#index"
 
   # API
   namespace :webhooks do
@@ -143,7 +140,7 @@ Rails.application.routes.draw do
 
     namespace :v1 do
       resources :projects, only: [ :index, :show, :create, :update ] do
-        resources :devlogs, only: [ :index, :show ], controller: "project_devlogs"
+        resources :devlogs, only: [ :index, :show, :create, :update, :destroy ], controller: "project_devlogs"
       end
 
       resources :docs, only: [ :index ]

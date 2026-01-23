@@ -245,7 +245,10 @@ class Project < ApplicationRecord
 
     def can_ship_again?
         return true if draft?
-        has_devlog_since_last_ship?
+        return false unless has_devlog_since_last_ship?
+        return false unless previous_ship_event_has_payout?
+
+        true
     end
 
     def has_devlog_since_last_ship?
@@ -253,6 +256,13 @@ class Project < ApplicationRecord
         return true if last_ship.nil?
 
         devlogs.where("post_devlogs.created_at > ?", last_ship.created_at).exists?
+    end
+
+    def previous_ship_event_has_payout?
+        last_ship = last_ship_event
+        return true if last_ship.nil?
+
+        last_ship.payout.present? && last_ship.payout > 0
     end
 
     def last_ship_event
