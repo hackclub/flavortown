@@ -1,7 +1,7 @@
 <% content_for :title, "My Votes" %>
 
 <div class="my-votes">
-  <h1>My Votes</h1>
+  <%= render HeadingComponent.new(title: "My Votes", tone: :blue, size: :full) %>
   <%= link_to "Back to Voting", new_vote_path %>
 
   <% if @votes.empty? %>
