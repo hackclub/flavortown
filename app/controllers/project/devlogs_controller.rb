@@ -169,10 +169,10 @@ class Project::DevlogsController < ApplicationController
 
     Rails.logger.info "DevlogsController#load_preview_time: project=#{@project.id}, hackatime_keys=#{hackatime_keys.inspect}"
 
-    return unless hackatime_keys.present?
+    return @preview_time = nil unless hackatime_keys.present?
 
     result = current_user.try_sync_hackatime_data!
-    return unless result
+    return @preview_time = nil unless result
 
     project_times = result[:projects]
     total_seconds = hackatime_keys.sum { |key| project_times[key].to_i }
@@ -182,7 +182,11 @@ class Project::DevlogsController < ApplicationController
     ).sum(:duration_seconds) || 0
 
     @preview_seconds = [ total_seconds - already_logged, 0 ].max
+    hours = @preview_seconds / 3600
+    minutes = (@preview_seconds % 3600) / 60
+    @preview_time = "#{hours}h #{minutes}m"
   rescue => e
     Rails.logger.error "Failed to load preview time: #{e.message}"
+    @preview_time = nil
   end
 end

@@ -39,6 +39,17 @@ class PostComponent < ViewComponent::Base
     helpers.time_ago_in_words(post.created_at)
   end
 
+  def duration_text
+    return nil unless postable.respond_to?(:duration_seconds)
+
+    seconds = postable.duration_seconds.to_i
+    return nil if seconds.zero?
+
+    hours = seconds / 3600
+    minutes = (seconds % 3600) / 60
+    "#{hours}h #{minutes}m"
+  end
+
   def ship_event?
     postable.is_a?(Post::ShipEvent)
   end

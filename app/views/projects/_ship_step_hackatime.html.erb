@@ -44,9 +44,11 @@
               <%= truncate(post.postable.body, length: 200) %>
             </div>
           <% end %>
-          <div class="projects-ship__devlog-duration">
-            <%= format_seconds(post.postable.duration_seconds) %> logged
-          </div>
+          <% if post.postable.respond_to?(:duration_seconds) && post.postable.duration_seconds.present? %>
+            <div class="projects-ship__devlog-duration">
+              <%= (post.postable.duration_seconds / 3600.0).round(1) %> hours logged
+            </div>
+          <% end %>
         </div>
       <% end %>
     </div>
