@@ -48,8 +48,8 @@
             <% end %>
           </div>
           <div class="post__time"><%= posted_at_text %> ago</div>
-          <% if postable.respond_to?(:duration_seconds) && postable.duration_seconds.to_i > 0 %>
-            <div class="post__duration"><%= helpers.format_seconds(postable.duration_seconds) %> logged</div>
+          <% if duration_text.present? %>
+            <div class="post__duration"><%= duration_text %> logged</div>
           <% end %>
         </div>
       </header>
