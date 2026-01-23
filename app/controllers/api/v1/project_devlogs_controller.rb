@@ -70,7 +70,6 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
     return render json: { error: "You must link at least one Hackatime project before posting a devlog" }, status: :unprocessable_entity unless @project.hackatime_keys.present?
 
     @devlog = Post::Devlog.new(devlog_params)
-    attach_attachments!(@devlog, params[:attachments]) if params[:attachments].present?
 
     load_preview_time
     return render json: { error: "Could not get hackatime time" }, status: :unprocessable_entity unless @preview_seconds
@@ -78,6 +77,9 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
 
     @devlog.duration_seconds = @preview_seconds
     ActiveRecord::Base.transaction do
+      @devlog.save!(validate: false)
+      attach_attachments!(@devlog, params[:attachments]) if params[:attachments].present?
+      @devlog.validate!
       @devlog.save!
       Post.create!(project: @project, user: current_api_user, postable: @devlog)
     end
