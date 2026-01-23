@@ -486,12 +486,12 @@
     }
 
     &:hover,
-    &:hover~.vote-category__star {
+    &:hover ~ .vote-category__star {
       color: var(--color-yellow-450);
     }
   }
 
-  &__input:checked~.vote-category__star {
+  &__input:checked ~ .vote-category__star {
     color: var(--color-yellow-450);
   }
 
