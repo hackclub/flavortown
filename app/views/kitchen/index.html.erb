@@ -5,12 +5,14 @@
 <div class="kitchen-index">
   <div class="kitchen-index__header">
     <%= render HeadingComponent.new(title: "Kitchen", tone: :blue, size: :full) %>
-    <button class="kitchen-index__ad" type="button" data-controller="flagship-modal" data-action="click->flagship-modal#open">
-      <span class="kitchen-index__ad-bg"></span>
-      <%= image_tag "creators.png", alt: "Campfire Flagship", class: "kitchen-index__ad-image" %>
-      <span class="kitchen-index__ad-badge">!</span>
-      <span class="kitchen-index__ad-close" data-action="click->flagship-modal#close">x</span>
-    </button>
+    <% if @show_flagship_ad %>
+      <button class="kitchen-index__ad" type="button" data-controller="flagship-modal" data-action="click->flagship-modal#open">
+        <span class="kitchen-index__ad-bg"></span>
+        <%= image_tag "creators.png", alt: "Campfire Flagship", class: "kitchen-index__ad-image" %>
+        <span class="kitchen-index__ad-badge">!</span>
+        <button class="kitchen-index__ad-close" type="button" data-action="click->flagship-modal#close" aria-label="Dismiss ad">×</button>
+      </button>
+    <% end %>
 
     <dialog id="flagship-modal" class="flagship-modal" data-controller="flagship-modal">
       <div class="flagship-modal__content">
