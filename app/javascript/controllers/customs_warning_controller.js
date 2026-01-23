@@ -5,6 +5,7 @@ export default class extends Controller {
   static values = {
     itemType: String,
     usOriginMessage: String,
+    ukOriginMessage: String,
     unknownOriginMessage: String,
   };
 
@@ -28,6 +29,10 @@ export default class extends Controller {
       case "us_origin":
         shouldShow = country !== null && country !== "US";
         message = this.usOriginMessageValue;
+        break;
+      case "uk_origin":
+        shouldShow = country !== null && country !== "UK";
+        message = this.ukOriginMessageValue;
         break;
       case "unknown_origin":
         shouldShow = true;

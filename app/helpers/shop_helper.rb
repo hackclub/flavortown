@@ -4,6 +4,7 @@ module ShopHelper
     ShopItem::HQMailItem
     ShopItem::HackClubberItem
     ShopItem::ThirdPartyPhysical
+    ShopItem::Inkthreadable
   ].freeze
 
   def should_show_customs_warning?(shop_item, address_country = nil)
@@ -14,6 +15,8 @@ module ShopHelper
       address_country.present? && address_country != "United States"
     when "ShopItem::HQMailItem", "ShopItem::HackClubberItem"
       true
+    when "ShopItem::Inkthreadable"
+      address_country.present? && address_country != "United Kingdom"
     else
       false
     end
@@ -27,6 +30,8 @@ module ShopHelper
       "⚠️ This item is shipped from the United States. Customs fees may apply if the destination country is not the United States."
     when "ShopItem::HackClubberItem"
       "⚠️ Origin unknown - Customs fees may apply depending on destination country. Check the description for more details."
+    when "ShopItem::Inkthreadable"
+      "⚠️ This item is shipped from the United Kingdom. Customs fees may apply if the destination country is not the United Kingdom."
     end
   end
 
@@ -42,6 +47,8 @@ module ShopHelper
     case shop_item.type
     when "ShopItem::WarehouseItem", "ShopItem::HQMailItem"
       "us_origin"
+    when "ShopItem::Inkthreadable"
+      "uk_origin"
     when "ShopItem::HackClubberItem"
       "unknown_origin"
     else
