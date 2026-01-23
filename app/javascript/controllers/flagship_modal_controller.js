@@ -32,18 +32,26 @@ export default class extends Controller {
     if (modal) {
       modal.close();
       document.body.style.overflow = "";
-      this.dismissAd();
     }
+    this.dismissAd();
   }
 
   dismissAd() {
+    // Hide the ad button immediately
+    const adButton = document.querySelector(".kitchen-index__ad");
+    if (adButton) {
+      adButton.style.display = "none";
+    }
+
+    const formData = new FormData();
+    formData.append("thing_name", "flagship_ad");
+
     fetch("/my/dismiss_thing", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         "X-CSRF-Token": this.getCsrfToken(),
       },
-      body: JSON.stringify({ thing_name: "flagship_ad" }),
+      body: formData,
     }).catch((error) => console.error("Error dismissing ad:", error));
   }
 
