@@ -1,5 +1,4 @@
 class QueueController < ApplicationController
-
   def index
     @pending_orders = ShopOrder.pending.order(created_at: :asc)
     @on_hold_orders = ShopOrder.on_hold.order(created_at: :asc)
