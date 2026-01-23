@@ -223,8 +223,6 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
       @project.reload
       hackatime_keys = @project.hackatime_keys
 
-      Rails.logger.info "DevlogsController#load_preview_time: project=#{@project.id}, hackatime_keys=#{hackatime_keys.inspect}"
-
       return @preview_seconds = nil unless hackatime_keys.present?
 
       result = current_api_user.try_sync_hackatime_data!
