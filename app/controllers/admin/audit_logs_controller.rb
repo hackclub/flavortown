@@ -59,19 +59,27 @@ module Admin
 
     private
 
-    # Only allow looking up records for known audited models
-    ALLOWED_ITEM_TYPES = %w[
-      User Project ShopOrder ShopItem Post Post::Devlog Post::ShipEvent
-      Comment LedgerEntry ProjectMembership
-    ].freeze
+    # Map of allowed item types to their classes for safe lookup
+    ALLOWED_ITEM_CLASSES = {
+      "User" => User,
+      "Project" => Project,
+      "ShopOrder" => ShopOrder,
+      "ShopItem" => ShopItem,
+      "Post" => Post,
+      "Post::Devlog" => Post::Devlog,
+      "Post::ShipEvent" => Post::ShipEvent,
+      "Comment" => Comment,
+      "LedgerEntry" => LedgerEntry
+    }.freeze
 
     def find_affected_record
       return nil unless params[:item_type].present? && params[:item_id].present?
-      return nil unless params[:item_type].in?(ALLOWED_ITEM_TYPES)
 
-      klass = params[:item_type].constantize
+      klass = ALLOWED_ITEM_CLASSES[params[:item_type]]
+      return nil unless klass
+
       klass.find_by(id: params[:item_id])
-    rescue NameError, StandardError
+    rescue StandardError
       nil
     end
   end
