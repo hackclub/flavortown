@@ -84,10 +84,12 @@
     background-color: #624596;
     border: 3px solid transparent;
     border-radius: 50%;
-    background-image: linear-gradient(#624596, #624596), linear-gradient(to top, #FFF8CF, #FFDE96);
+    background-image:
+      linear-gradient(#624596, #624596),
+      linear-gradient(to top, #fff8cf, #ffde96);
     background-origin: border-box;
     background-clip: padding-box, border-box;
-    color: #FFDE96;
+    color: #ffde96;
     font-size: 1.3rem;
     font-weight: 700;
     line-height: 1;
@@ -499,7 +501,7 @@
       color: white;
 
       .highlight {
-        color: #FBF1B3;
+        color: #fbf1b3;
       }
     }
   }
@@ -517,7 +519,7 @@
 
   &__button {
     background-color: #443268;
-    color: #E3D6FF;
+    color: #e3d6ff;
     padding: 1rem 4.5rem 1rem 1.75rem;
     border-radius: calc(var(--border-radius) * 0.6);
     text-decoration: none;
@@ -550,7 +552,7 @@
     color: white;
 
     a {
-      color: #FBF1B3;
+      color: #fbf1b3;
       text-decoration: underline;
       transition: color 0.2s ease;
 
