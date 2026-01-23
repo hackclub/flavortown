@@ -10,11 +10,14 @@
     </div>
     <div class="shop-order__content">
         <div class="shop-order__view"
-             data-controller="customs-warning"
-             data-customs-warning-item-type-value="<%= customs_warning_item_type(@shop_item) %>"
-             data-customs-warning-us-origin-message-value="⚠️ Shipped from US - Customs fees may apply if shipping outside the US"
-             data-customs-warning-unknown-origin-message-value="⚠️ Origin unknown - Customs fees may apply depending on destination country"
-             data-action="address-select:change@document->customs-warning#addressChanged">
+         data-controller="customs-warning"
+         data-customs-warning-item-type-value="<%= customs_warning_item_type(@shop_item) %>"
+         data-customs-warning-us-origin-message-value="⚠️ Shipped from US - Customs fees may apply if shipping outside the US"
+         data-customs-warning-uk-origin-message-value="⚠️ Shipped from UK - Customs fees may apply if shipping outside the UK"
+         data-customs-warning-unknown-origin-message-value="⚠️ Origin unknown - Customs fees may apply depending on destination country"
+         data-customs-warning-custom-region-message-value="<%= customs_warning_message(@shop_item) %>"
+         data-customs-warning-source-region-value="<%= customs_warning_source_region(@shop_item) %>"
+         data-action="address-select:change@document->customs-warning#addressChanged">
             <div class="shop-order__image">
                 <%= image_tag @shop_item.image, loading: "lazy", decoding: "async" if @shop_item.image.attached? %>
             </div>
@@ -35,17 +38,6 @@
             <% end %>
             <div class="shop-order__description"><%= md(@shop_item.description) %></div>
             <%= render MarkdownContentComponent.new(markdown: @shop_item.long_description) %>
-
-            <% if is_warehouse_item?(@shop_item) && @shop_item.agh_contents.present? %>
-                <div class="shop-order__agh-contents">
-                    <h4>Package Contents:</h4>
-                    <ul>
-                        <% @shop_item.agh_contents.each do |item| %>
-                            <li><%= item["quantity"] %>x <%= item["sku"] %></li>
-                        <% end %>
-                    </ul>
-                </div>
-            <% end %>
 
             <div class="shop-order__customs-warning" data-customs-warning-target="warning" style="display: none;"></div>
         </div>

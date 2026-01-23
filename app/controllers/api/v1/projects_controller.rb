@@ -32,58 +32,22 @@ class Api::V1::ProjectsController < Api::BaseController
     }
   }
 
+  PROJECT_SCHEMA = {
+    id: Integer, title: String, description: String, repo_url: String,
+    demo_url: String, readme_url: String, ship_status: String,
+    devlog_ids: [ Integer ], created_at: String, updated_at: String
+  }.freeze
+
+  PAGINATION_SCHEMA = {
+    current_page: Integer, total_pages: Integer,
+    total_count: Integer, next_page: "Integer || Null"
+  }.freeze
+
   class_attribute :response_body_model, default: {
-    index: {
-      projects: [
-        {
-          id: Integer,
-          title: String,
-          description: String,
-          repo_url: String,
-          demo_url: String,
-          readme_url: String,
-          devlog_ids: [ Integer ],
-          created_at: String,
-          updated_at: String
-        }
-      ]
-    },
-
-    show: {
-      id: Integer,
-      title: String,
-      description: String,
-      repo_url: String,
-      demo_url: String,
-      readme_url: String,
-      devlog_ids: [ Integer ],
-      created_at: String,
-      updated_at: String
-    },
-
-    create: {
-      id: Integer,
-      title: String,
-      description: String,
-      repo_url: String,
-      demo_url: String,
-      readme_url: String,
-      devlog_ids: [ Integer ],
-      created_at: String,
-      updated_at: String
-    },
-
-    update: {
-      id: Integer,
-      title: String,
-      description: String,
-      repo_url: String,
-      demo_url: String,
-      readme_url: String,
-      devlog_ids: [ Integer ],
-      created_at: String,
-      updated_at: String
-    }
+    index: { projects: [ PROJECT_SCHEMA ], pagination: PAGINATION_SCHEMA },
+    show: PROJECT_SCHEMA,
+    create: PROJECT_SCHEMA,
+    update: PROJECT_SCHEMA
   }
 
   def index
@@ -102,8 +66,6 @@ class Api::V1::ProjectsController < Api::BaseController
 
   def show
     @project = Project.find_by!(id: params[:id], deleted_at: nil)
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: "Project not found" }, status: :not_found
   end
 
   def create
@@ -116,11 +78,7 @@ class Api::V1::ProjectsController < Api::BaseController
       else
         render json: { errors: @project.errors.full_messages }, status: :unprocessable_entity
       end
-    rescue ActiveRecord::RecordInvalid => e
-      render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
     end
-  rescue StandardError => e
-    render json: { error: e }, status: :unprocessable_entity
   end
 
   def update
@@ -135,8 +93,6 @@ class Api::V1::ProjectsController < Api::BaseController
     else
       render json: { errors: @project.errors.full_messages }, status: :unprocessable_entity
     end
-  rescue ActiveRecord::RecordNotFound
-     render json: { error: "Project not found" }, status: :not_found
   end
 
   private

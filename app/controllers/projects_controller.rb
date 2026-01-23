@@ -201,7 +201,11 @@ class ProjectsController < ApplicationController
     end
 
     unless @project.can_ship_again?
-      flash[:alert] = "You need to add at least one devlog since your last ship before you can ship again."
+      if @project.last_ship_event && !@project.previous_ship_event_has_payout?
+        flash[:alert] = "You cannot ship again until your previous ship event has received a payout."
+      else
+        flash[:alert] = "You need to add at least one devlog since your last ship before you can ship again."
+      end
       redirect_to ship_project_path(@project, step: 4) and return
     end
 

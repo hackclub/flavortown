@@ -1,7 +1,7 @@
 <div class="projects-board">
+  <%= render HeadingComponent.new(title: "My Projects", tone: :blue, size: :full) %>
   <header class="projects-board__header">
     <div class="projects-board__heading">
-      <h1 class="projects-board__title">My Projects</h1>
       <p class="projects-board__subtitle">What'ya cookin'?</p>
     </div>
     <button class="btn btn--red" data-action="click->project-ideas#toggle" data-controller="project-ideas">

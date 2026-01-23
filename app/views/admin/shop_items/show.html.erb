@@ -166,6 +166,25 @@
         </div>
       <% end %>
 
+      <% if @shop_item.type.in?(["ShopItem::HackClubberItem", "ShopItem::ThirdPartyDigital", "ShopItem::HQMailItem"]) %>
+        <div class="card">
+          <h3>Source Region</h3>
+          <div class="shop-item-detail__info">
+            <div class="shop-item-detail__row">
+              <span class="shop-item-detail__label">Source Region</span>
+              <span class="shop-item-detail__value">
+                <% if @shop_item.source_region.present? %>
+                  <% region_config = Shop::Regionalizable::REGIONS[@shop_item.source_region] %>
+                  <%= region_config ? region_config[:name] : @shop_item.source_region %>
+                <% else %>
+                  <span class="shop-item-detail__muted">Not set (using default behavior)</span>
+                <% end %>
+              </span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
       <div class="card">
         <div class="shop-item-detail__audit-header">
           <h3>Audit Log</h3>

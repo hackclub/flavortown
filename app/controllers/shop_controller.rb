@@ -177,7 +177,7 @@ class ShopController < ApplicationController
     @shop_items = ShopItem.cached_buyable_standalone
     @shop_items = @shop_items.reject { |item| item.type == "ShopItem::FreeStickers" } if excluded_free_stickers
     @featured_item = featured_free_stickers_item unless excluded_free_stickers
-    @recently_added_items = ShopItem.enabled.buyable_standalone.recently_added.includes(:image_attachment)
+    @recently_added_items = ShopItem.enabled.listed.buyable_standalone.recently_added.includes(:image_attachment)
     @user_balance = current_user&.balance || 0
   end
 

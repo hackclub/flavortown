@@ -2,7 +2,11 @@
   <div class="api-key-display"
        style="<%= 'filter: blur(0px);' if local_assigns[:just_generated] %>"
        onmouseenter="this.style.filter='blur(0px)'"
-       onmouseleave="<%= local_assigns[:just_generated] ? '' : "this.style.filter='blur(8px)'" %>">
+       onmouseleave="<%= local_assigns[:just_generated] ? '' : "this.style.filter='blur(8px)'" %>"
+       <% if user.api_key.present? %>
+       onclick="navigator.clipboard.writeText(this.textContent.trim()); this.dataset.originalText = this.textContent; this.textContent = 'Copied!'; setTimeout(() => this.textContent = this.dataset.originalText, 1500);"
+       title="Click to copy"
+       <% end %>>
     <%= user.api_key.present? ? user.api_key : "No API Key, press generate!" %>
   </div>
 

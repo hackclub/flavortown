@@ -1,4 +1,4 @@
-<h1 style="<%= 'border: 3px solid green; padding: 10px;' if Flipper.enabled?(:admin_green, current_user) %>">Hello there <%= current_user.highest_role %>!</h1>
+<%= render HeadingComponent.new(title: "Admin", tone: :blue, size: :full) %>
 
 <h2>tasks</h2>
 <div class="button-grid">

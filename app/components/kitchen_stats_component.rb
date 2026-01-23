@@ -14,8 +14,9 @@ class KitchenStatsComponent < ApplicationComponent
   private
 
   def render_achievements_card
-    countable = Achievement.countable_for_user(@user)
-    earned_count = countable.count { |a| a.earned_by?(@user) }
+    user_achievement_slugs = @user.achievements.pluck(:achievement_slug).to_set
+    countable = Achievement.countable.select { |a| a.shown_to?(@user, earned: user_achievement_slugs.include?(a.slug.to_s)) }
+    earned_count = countable.count { |a| user_achievement_slugs.include?(a.slug.to_s) }
     total_count = countable.count
 
     div(class: "state-card state-card--neutral kitchen-stats-card") do
