@@ -50,7 +50,13 @@
                 Ship It! 🚀
               </button>
             <% else %>
-              <% reason = !@project.shippable? ? "Complete all requirements first" : "Add a devlog first" %>
+              <% reason = if !@project.shippable?
+                            "Complete all requirements first"
+                          elsif @project.last_ship_event && !@project.previous_ship_event_has_payout?
+                            "Wait for your previous ship event to receive a payout"
+                          else
+                            "Add a devlog first"
+                          end %>
               <button type="button" class="projects-ship__nav-btn projects-ship__nav-btn--disabled" disabled title="<%= reason %>">
                 Ship It! 🚀
               </button>

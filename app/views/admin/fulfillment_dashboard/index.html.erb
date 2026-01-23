@@ -93,8 +93,6 @@
     </thead>
     <tbody>
     <% @orders.each do |order| %>
-      <% seconds_since_order = (Time.current - order.created_at).to_i %>
-      <% seconds_since_fulfillment = order.awaiting_periodical_fulfillment_at ? (Time.current - order.awaiting_periodical_fulfillment_at).to_i : nil %>
       <tr>
         <td><%= order.id %></td>
         <td>
@@ -147,15 +145,15 @@
           <div class="time-breakdown">
             <div>
               <small class="text-muted">Total:</small>
-              <span class="time-value <%= seconds_since_order > 172800 ? 'text-danger' : '' %>">
-                <%= format_seconds(seconds_since_order, include_days: true) %>
+              <span class="time-value <%= (Time.current - order.created_at) > 2.days ? 'text-danger' : '' %>">
+                <%= time_ago_in_words(order.created_at) %> ago
               </span>
             </div>
-            <% if seconds_since_fulfillment %>
+            <% if order.awaiting_periodical_fulfillment_at %>
               <div>
                 <small class="text-muted">Since approved:</small>
-                <span class="time-value <%= seconds_since_fulfillment > 172800 ? 'text-danger' : '' %>">
-                  <%= format_seconds(seconds_since_fulfillment, include_days: true) %>
+                <span class="time-value <%= (Time.current - order.awaiting_periodical_fulfillment_at) > 2.days ? 'text-danger' : '' %>">
+                  <%= time_ago_in_words(order.awaiting_periodical_fulfillment_at) %> ago
                 </span>
               </div>
             <% end %>

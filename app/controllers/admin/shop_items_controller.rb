@@ -150,6 +150,7 @@ module Admin
         :default_assigned_user_id_in,
         :default_assigned_user_id_xx,
         :inkthreadable_config,
+        :unlisted,
         attached_shop_item_ids: []
       )
 

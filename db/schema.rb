@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_21_015055) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_22_224210) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -312,9 +312,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_015055) do
     t.string "feedback_video_url"
     t.float "hours"
     t.float "multiplier"
+    t.decimal "originality_median", precision: 5, scale: 2
+    t.decimal "originality_percentile", precision: 5, scale: 2
+    t.decimal "overall_percentile", precision: 5, scale: 2
+    t.decimal "overall_score", precision: 5, scale: 2
     t.float "payout"
+    t.decimal "storytelling_median", precision: 5, scale: 2
+    t.decimal "storytelling_percentile", precision: 5, scale: 2
     t.datetime "synced_at"
+    t.decimal "technical_median", precision: 5, scale: 2
+    t.decimal "technical_percentile", precision: 5, scale: 2
     t.datetime "updated_at", null: false
+    t.decimal "usability_median", precision: 5, scale: 2
+    t.decimal "usability_percentile", precision: 5, scale: 2
     t.integer "votes_count", default: 0, null: false
   end
 
@@ -477,6 +487,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_015055) do
     t.integer "stock"
     t.decimal "ticket_cost"
     t.string "type"
+    t.boolean "unlisted", default: false
     t.date "unlock_on"
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"

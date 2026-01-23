@@ -31,6 +31,119 @@
     border: 2px solid #dc2626;
   }
 
+  &--with-bow {
+    overflow: visible;
+  }
+
+  &__bow {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    z-index: 15;
+    pointer-events: none;
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #e74c3c;
+      border-radius: 50%;
+    }
+
+    &::before {
+      box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    &::after {
+      box-shadow: inset 2px -2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    &--top-left {
+      top: -8px;
+      left: -8px;
+
+      &::before {
+        top: 6px;
+        left: 0;
+        transform: rotate(-45deg);
+      }
+
+      &::after {
+        top: 0;
+        left: 6px;
+        transform: rotate(45deg);
+      }
+    }
+
+    &--top-right {
+      top: -8px;
+      right: -8px;
+
+      &::before {
+        top: 0;
+        right: 6px;
+        transform: rotate(-45deg);
+      }
+
+      &::after {
+        top: 6px;
+        right: 0;
+        transform: rotate(45deg);
+      }
+    }
+
+    &--bottom-left {
+      bottom: -8px;
+      left: -8px;
+
+      &::before {
+        bottom: 0;
+        left: 6px;
+        transform: rotate(-45deg);
+      }
+
+      &::after {
+        bottom: 6px;
+        left: 0;
+        transform: rotate(45deg);
+      }
+    }
+
+    &--bottom-right {
+      bottom: -8px;
+      right: -8px;
+
+      &::before {
+        bottom: 6px;
+        right: 0;
+        transform: rotate(-45deg);
+      }
+
+      &::after {
+        bottom: 0;
+        right: 6px;
+        transform: rotate(45deg);
+      }
+    }
+  }
+
+  &__time-ago {
+    position: absolute;
+    bottom: 4.5rem;
+    left: 0.5rem;
+    z-index: 10;
+    background: var(--color-blue-500, #3b82f6);
+    color: #fff;
+    font-family: var(--font-family-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+
   &__sale-badge {
     position: absolute;
     top: 0.5rem;

@@ -20,6 +20,12 @@ production:
     concurrency: 1
     description: "Sync user data to Airtable every minute with single execution limit"
 
+  sync_pre_signup_leads_to_airtable:
+    class: Airtable::PreSignupLeadSyncJob
+    schedule: every hour
+    concurrency: 1
+    description: "Full sync of pre-signup leads to Airtable"
+
   # sync_rsvp_to_airtable:
   #   class: Airtable::RsvpSyncJob
   #   schedule: every minute
@@ -109,3 +115,9 @@ production:
     schedule: every day at 8pm
     concurrency: 1
     description: "Send daily fraud summary to Slack with stats on shop orders and reports"
+
+  ysws_review_sync:
+    class: YswsReviewSyncJob
+    schedule: every 15 minutes
+    concurrency: 1
+    description: "Sync completed YSWS reviews to Airtable with user PII"

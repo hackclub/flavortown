@@ -111,6 +111,14 @@
             </label>
 
             <label class="shop-item-form__toggle">
+              <%= f.check_box :unlisted %>
+              <span class="shop-item-form__toggle-content">
+                <strong>Unlisted</strong>
+                <span class="shop-item-form__toggle-desc">Hidden from shop and API, but accessible via direct link</span>
+              </span>
+            </label>
+
+            <label class="shop-item-form__toggle">
               <%= f.check_box :show_in_carousel %>
               <span class="shop-item-form__toggle-content">
                 <strong>Show in Carousel</strong>

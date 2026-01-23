@@ -134,9 +134,9 @@ module OgImage
 
     def build_stats
       stats = []
-      stats << "#{projects_count} projects" if projects_count > 0
-      stats << "#{cookies_earned} cookies earned" if cookies_earned > 0
-      stats << "#{hours_logged} hours worked" if hours_logged > 0
+      stats << "#{projects_count} #{"project".pluralize projects_count}" if projects_count > 0
+      stats << "#{cookies_earned} #{"cookie".pluralize cookies_earned} earned" if cookies_earned > 0
+      stats << "#{hours_logged} #{"hour".pluralize hours_logged} worked" if hours_logged > 0
       stats << "Joined #{joined_ago}"
       stats
     end

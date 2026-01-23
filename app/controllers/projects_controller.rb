@@ -11,19 +11,20 @@ class ProjectsController < ApplicationController
     authorize @project
 
     is_member = @project.users.include?(current_user)
+    is_admin = current_user&.admin?
     user_shadow_banned = @project.users.where(shadow_banned: true).exists?
     project_shadow_banned = @project.shadow_banned?
 
-    if (user_shadow_banned || project_shadow_banned) && !is_member
-      raise ActiveRecord::RecordNotFound
-    end
+    @shadow_banned = user_shadow_banned || project_shadow_banned
+    @can_view_shadow_banned = is_member || is_admin
 
     @posts = @project.posts
                      .includes(:user, postable: [ :attachments_attachments ])
                      .order(created_at: :desc)
+                     .select { |post| post.postable.present? }
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
-      @posts = @posts.where.not(postable_type: "Post::GitCommit")
+      @posts = @posts.reject { |post| post.postable_type == "Post::GitCommit" }
     end
 
     if current_user
@@ -126,8 +127,25 @@ class ProjectsController < ApplicationController
 
   def destroy
     authorize @project
+    force = params[:force] == "true" && policy(@project).force_destroy?
+
     begin
-      @project.soft_delete!
+      if force && @project.shipped?
+        PaperTrail::Version.create!(
+          item_type: "Project",
+          item_id: @project.id,
+          event: "force_delete",
+          whodunnit: current_user.id,
+          object_changes: {
+            deleted_at: [ nil, Time.current ],
+            shipped_at: @project.shipped_at,
+            reason: "Admin/Fraud override of ship protection",
+            deleted_by: current_user.id
+          }.to_yaml
+        )
+      end
+
+      @project.soft_delete!(force: force)
       current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
       flash[:notice] = "Project deleted successfully"
       redirect_to projects_path
@@ -183,13 +201,17 @@ class ProjectsController < ApplicationController
     end
 
     unless @project.can_ship_again?
-      flash[:alert] = "You need to add at least one devlog since your last ship before you can ship again."
+      if @project.last_ship_event && !@project.previous_ship_event_has_payout?
+        flash[:alert] = "You cannot ship again until your previous ship event has received a payout."
+      else
+        flash[:alert] = "You need to add at least one devlog since your last ship before you can ship again."
+      end
       redirect_to ship_project_path(@project, step: 4) and return
     end
 
     if @project.posts.where(postable_type: "Post::ShipEvent").none?
       begin
-        ShipCertService.ship_to_dash(@project)
+        ShipCertService.ship_to_dash(@project, type: "initial")
       rescue => e
         Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
         flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
@@ -311,7 +333,7 @@ class ProjectsController < ApplicationController
     authorize @project
 
     PaperTrail.request(whodunnit: current_user.id) do
-      success = ShipCertService.ship_to_dash(@project)
+      success = ShipCertService.ship_to_dash(@project, type: "resend", force: true)
 
       PaperTrail::Version.create!(
         item_type: "Project",
@@ -346,7 +368,7 @@ class ProjectsController < ApplicationController
 
     PaperTrail.request(whodunnit: current_user.id) do
       begin
-        ShipCertService.ship_to_dash(@project)
+        ShipCertService.ship_to_dash(@project, type: "recertification", force: true)
         ship_event.update!(certification_status: "pending")
 
         PaperTrail::Version.create!(

@@ -126,6 +126,26 @@
                 <%= helpers.inline_svg_tag("icons/close.svg", class: "post__action-icon") %>
               <% end %>
             </div>
+          <% elsif can_force_delete? %>
+            <div class="post__actions" style="margin-left: auto; display: flex; gap: 0.5rem;">
+        <%= button_to force_delete_devlog_path,
+  method: :delete,
+  class: "post__action-btn post__action-btn--danger",
+  title: "Force delete devlog (Admin/Fraud)",
+  data: {
+    confirm: <<~MSG
+      ⚠️ ADMIN/FRAUD OVERRIDE ⚠️
+
+      This project is SHIPPED. You are about to override ship protection and force delete devlog ##{postable.id}.
+
+      This action will be audit logged.
+
+      Are you absolutely sure?
+    MSG
+  } do %>
+                <%= helpers.inline_svg_tag("icons/close.svg", class: "post__action-icon") %>
+              <% end %>
+            </div>
           <% end %>
         </div>
         <%= render "comments/section", commentable: postable %>

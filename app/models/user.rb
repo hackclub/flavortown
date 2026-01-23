@@ -284,7 +284,18 @@ class User < ApplicationRecord
     identity_payload = HCAService.identity(identity.access_token)
     identity_payload["addresses"] || []
   end
+  def birthday
+    identity = identities.find_by(provider: "hack_club")
+    return nil unless identity&.access_token.present?
 
+    identity_payload = HCAService.identity(identity.access_token)
+    birthday_str = identity_payload["birthday"]
+    return nil if birthday_str.blank?
+
+    Date.parse(birthday_str)
+  rescue ArgumentError
+    nil
+  end
   def avatar
     "https://cachet.dunkirk.sh/users/#{slack_id}/r"
   end
