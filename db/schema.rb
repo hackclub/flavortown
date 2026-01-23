@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_23_041921) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_23_213750) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -312,19 +312,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_041921) do
     t.string "feedback_video_url"
     t.float "hours"
     t.float "multiplier"
-    t.decimal "originality_median", precision: 5, scale: 2
-    t.decimal "originality_percentile", precision: 5, scale: 2
-    t.decimal "overall_percentile", precision: 5, scale: 2
-    t.decimal "overall_score", precision: 5, scale: 2
     t.float "payout"
-    t.decimal "storytelling_median", precision: 5, scale: 2
-    t.decimal "storytelling_percentile", precision: 5, scale: 2
     t.datetime "synced_at"
-    t.decimal "technical_median", precision: 5, scale: 2
-    t.decimal "technical_percentile", precision: 5, scale: 2
     t.datetime "updated_at", null: false
-    t.decimal "usability_median", precision: 5, scale: 2
-    t.decimal "usability_percentile", precision: 5, scale: 2
     t.integer "votes_count", default: 0, null: false
   end
 
@@ -397,9 +387,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_041921) do
     t.string "project_type"
     t.text "readme_url"
     t.text "repo_url"
-    t.boolean "shadow_banned", default: false, null: false
-    t.datetime "shadow_banned_at"
-    t.text "shadow_banned_reason"
     t.string "ship_status", default: "draft"
     t.datetime "shipped_at"
     t.datetime "synced_at"
@@ -408,7 +395,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_041921) do
     t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "index_projects_on_deleted_at"
     t.index ["marked_fire_by_id"], name: "index_projects_on_marked_fire_by_id"
-    t.index ["shadow_banned"], name: "index_projects_on_shadow_banned"
   end
 
   create_table "rsvps", force: :cascade do |t|
@@ -482,12 +468,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_041921) do
     t.integer "sale_percentage"
     t.boolean "show_in_carousel"
     t.integer "site_action"
-    t.string "source_region"
     t.boolean "special"
     t.integer "stock"
     t.decimal "ticket_cost"
     t.string "type"
-    t.boolean "unlisted", default: false
     t.date "unlock_on"
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"
@@ -617,6 +601,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_041921) do
     t.string "slack_id"
     t.boolean "special_effects_enabled", default: true, null: false
     t.datetime "synced_at"
+    t.string "things_dismissed", default: [], null: false, array: true
     t.string "tutorial_steps_completed", default: [], array: true
     t.datetime "updated_at", null: false
     t.string "verification_status", default: "needs_submission", null: false
