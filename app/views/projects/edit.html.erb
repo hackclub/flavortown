@@ -137,6 +137,21 @@
                 )
               ) %>
         </div>
+
+        <div class="projects-new__field projects-new__field--ai-declaration">
+          <%= render(
+                InputComponent.new(
+                  label: "AI Declaration",
+                  placeholder: "Describe how you used AI in this project (e.g., 'Used ChatGPT for debugging', 'GitHub Copilot for code completion')",
+                  form: form,
+                  attribute: :ai_declaration,
+                  color: :blue,
+                  as: :textarea,
+                  input_html: { rows: 3 },
+                  subtitle: "Optional: If you used AI tools, please declare what you used them for."
+                )
+              ) %>
+        </div>
       </div>
 
       <div class="projects-new__actions">

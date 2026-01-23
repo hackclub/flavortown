@@ -3,6 +3,7 @@
 # Table name: projects
 #
 #  id                   :bigint           not null, primary key
+#  ai_declaration       :text
 #  deleted_at           :datetime
 #  demo_url             :text
 #  description          :text
@@ -128,6 +129,7 @@ class Project < ApplicationRecord
 
     validates :title, presence: true, length: { maximum: 120 }
     validates :description, length: { maximum: 1_000 }, allow_blank: true
+    validates :ai_declaration, length: { maximum: 1_000 }, allow_blank: true
     validates :demo_url, :repo_url, :readme_url,
               length: { maximum: 2_048 },
               format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]) },
@@ -137,7 +139,6 @@ class Project < ApplicationRecord
               size: { less_than: MAX_BANNER_SIZE, message: "is too large (max 10 MB)" },
               processable_file: true
     validate :validate_project_categories
-
     def validate_project_categories
       return if project_categories.blank?
 
