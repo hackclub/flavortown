@@ -7,14 +7,14 @@ export default class extends Controller {
     if (modal) {
       modal.showModal();
       document.body.style.overflow = "hidden";
-      
+
       // Handle backdrop click
       modal.addEventListener("click", (e) => {
         if (e.target === modal) {
           this.close(e);
         }
       });
-      
+
       // Handle escape key
       modal.addEventListener("cancel", (e) => {
         e.preventDefault();
