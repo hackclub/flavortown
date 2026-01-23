@@ -120,17 +120,6 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       cookie_reward: 3
     ),
     new(
-      slug: :conventional_commit,
-      name: "By the Book",
-      description: "wrote a commit message following conventional commits (https://www.conventionalcommits.org/en/v1.0.0/)",
-      icon: "book",
-      earned_check: ->(user) {
-        Post::GitCommit.joins(:post)
-          .where(posts: { project_id: user.project_ids })
-          .exists?([ "post_git_commits.message ~* ?", '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+' ])
-      },
-    ),
-    new(
       slug: :ten_devlogs,
       name: "Cookbook Author",
       description: "10 recipes documented - publish that cookbook!",
