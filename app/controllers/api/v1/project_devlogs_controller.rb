@@ -146,17 +146,16 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
 
     # save the devlog
     ActiveRecord::Base.transaction do
-      if @devlog.save
-        Post.create!(project: @project, user: current_api_user, postable: @devlog)
-        render :show, status: :created
-      else
-        render json: { errors: @devlog.errors.full_messages }, status: :unprocessable_entity
-      end
-    rescue ActiveRecord::RecordInvalid => e
-      render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+      @devlog.save!
+      Post.create!(project: @project, user: current_api_user, postable: @devlog)
     end
+    render :show, status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   rescue StandardError => e
-    render json: { error: e }, status: :unprocessable_entity
+    Sentry.capture_exception(e)
+    Rails.logger.error("[ProjectDevlogsController#create] #{e.class}: #{e.message}")
+    render json: { error: "An unexpected error occurred" }, status: :internal_server_error
   end
 
   def update
@@ -182,7 +181,9 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
   rescue ActiveRecord::RecordInvalid => e
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   rescue StandardError => e
-    render json: { error: e }, status: :unprocessable_entity
+    Sentry.capture_exception(e)
+    Rails.logger.error("[ProjectDevlogsController#update] #{e.class}: #{e.message}")
+    render json: { error: "An unexpected error occurred" }, status: :internal_server_error
   end
 
   def destroy
@@ -199,7 +200,9 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Devlog not found" }, status: :not_found
   rescue StandardError => e
-    render json: { error: e }, status: :unprocessable_entity
+    Sentry.capture_exception(e)
+    Rails.logger.error("[ProjectDevlogsController#destroy] #{e.class}: #{e.message}")
+    render json: { error: "An unexpected error occurred" }, status: :internal_server_error
   end
 
   private
@@ -244,6 +247,7 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
       @preview_seconds = [ total_seconds - already_logged, 0 ].max
     end
   rescue => e
+    Sentry.capture_exception(e)
     Rails.logger.error "Failed to load preview time: #{e.message}"
     @preview_seconds = nil
   end
