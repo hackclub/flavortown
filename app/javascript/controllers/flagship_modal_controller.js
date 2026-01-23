@@ -33,7 +33,6 @@ export default class extends Controller {
       modal.close();
       document.body.style.overflow = "";
     }
-    this.dismissAd();
   }
 
   dismissAd() {
