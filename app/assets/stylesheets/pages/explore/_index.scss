@@ -179,4 +179,28 @@
       font-family: var(--font-family-text);
     }
   }
+
+  &__sentinel {
+    display: flex;
+    justify-content: center;
+    padding: 2em;
+    min-height: 100px;
+  }
+
+  &__loading-indicator {
+    color: var(--color-brown-500);
+    font-size: 1.1rem;
+    font-family: var(--font-family-text);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
 }

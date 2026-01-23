@@ -75,6 +75,9 @@ Rails.application.routes.draw do
   get "explore/following", to: "explore#following", as: :explore_following
   get "explore/extensions", to: "explore#extensions", as: :explore_extensions
 
+  # Nibbles
+  get "nibbles", to: "nibbles#index", as: :nibbles
+
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
@@ -209,6 +212,9 @@ Rails.application.routes.draw do
     resources :projects, only: [ :index, :show ], shallow: true do
       member do
         post :restore
+        post :delete
+        post :shadow_ban
+        post :unshadow_ban
       end
     end
     get "user-perms", to: "users#user_perms"
@@ -244,6 +250,7 @@ Rails.application.routes.draw do
       end
     end
     get "payouts_dashboard", to: "payouts_dashboard#index"
+    get "ship_event_scores", to: "ship_event_scores#index"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
@@ -266,6 +273,7 @@ Rails.application.routes.draw do
         get :versions
       end
     end
+    post "devlogs/new", to: "project/devlogs#create", as: nil
     resources :reports, only: [ :create ], module: :project
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
     member do

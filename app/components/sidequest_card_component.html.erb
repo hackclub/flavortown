@@ -1,0 +1,16 @@
+<div class="<%= card_classes %>">
+    <div class="sidequest-card__content">
+        <h1 class="sidequest-card__title"><%= title %></h1>
+        <div class="sidequest-card__image-container">
+            <%= image_tag image_url, alt: "Sidequest Image", class: "sidequest-card__image" %>
+            <% if sticker_image_url.present? %>
+                <%= image_tag sticker_image_url, alt: "Sidequest Sticker Image", class: "sidequest-card__sticker-image" %>
+            <% end %>
+        </div>
+        <h2><%= description %></h2>
+    </div>
+    <div class="sidequest-card__buttons">
+        <%= link_to "Learn More", learn_more_link, class: "btn btn--blue btn-learn-more", target: "_blank", rel: "noopener" %>
+        <%= link_to "Submit", submit_link, class: "btn btn--green btn-submit", target: "_blank", rel: "noopener" %>
+    </div>
+</div>

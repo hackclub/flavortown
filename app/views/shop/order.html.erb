@@ -36,17 +36,6 @@
             <div class="shop-order__description"><%= md(@shop_item.description) %></div>
             <%= render MarkdownContentComponent.new(markdown: @shop_item.long_description) %>
 
-            <% if is_warehouse_item?(@shop_item) && @shop_item.agh_contents.present? %>
-                <div class="shop-order__agh-contents">
-                    <h4>Package Contents:</h4>
-                    <ul>
-                        <% @shop_item.agh_contents.each do |item| %>
-                            <li><%= item["quantity"] %>x <%= item["sku"] %></li>
-                        <% end %>
-                    </ul>
-                </div>
-            <% end %>
-
             <div class="shop-order__customs-warning" data-customs-warning-target="warning" style="display: none;"></div>
         </div>
         <div class="shop-order__details" data-controller="order-form" data-order-form-has-addresses-value="<%= current_user.addresses.any? %>" data-order-form-base-ticket-cost-value="<%= @sale_price || @shop_item.ticket_cost || 0 %>" data-order-form-user-balance-value="<%= current_user.balance || 0 %>">

@@ -25,7 +25,12 @@ module OgImage
     end
 
     def render
-      create_patterned_canvas
+      create_patterned_canvas(
+        frame_color: "#b0805f",
+        card_color: "#7a4b40",
+        inset: 26,
+        card_radius: 42
+      )
 
       draw_thumbnail
       draw_hack_club_flag
@@ -39,13 +44,13 @@ module OgImage
       lines_drawn = draw_multiline_text(
         @project.title,
         x: 80,
-        y: 140,
-        size: 96,
-        color: "#4d3228",
-        max_chars: 14,
-        max_lines: 2
+        y: 170,
+        size: 72,
+        color: "#fde8d1",
+        max_chars: 18,
+        max_lines: 3
       )
-      @title_end_y = 140 + (lines_drawn * 96 * 1.4).to_i
+      @title_end_y = 170 + (lines_drawn * 54 * 1.25).to_i
     end
 
     def draw_subtitle
@@ -53,13 +58,41 @@ module OgImage
       return if stats.empty?
 
       start_y = @title_end_y + 20
-      stats.each_with_index do |stat, index|
+      author = stats.shift
+
+      if author && author[:text]
         draw_text(
-          stat,
+          author[:text],
           x: 80,
-          y: start_y + (index * 58),
-          size: 48,
-          color: "#5c4033"
+          y: start_y,
+          size: 42,
+          color: "#e3d0ab"
+        )
+      end
+
+      stats_start_y = start_y + 80
+      stats.each_with_index do |stat, index|
+        icon_x = 80
+        icon_y = stats_start_y + (index * 52)
+        text_x = icon_x + 50
+
+        if stat[:icon]
+          icon_path = Rails.root.join("app", "assets", "images", "icons", stat[:icon])
+          place_image(
+            icon_path.to_s,
+            x: icon_x,
+            y: icon_y,
+            width: 42,
+            height: 42
+          )
+        end
+
+        draw_text(
+          stat[:text],
+          x: text_x,
+          y: stats_start_y + (index * 52),
+          size: 42,
+          color: "#d0ad8b"
         )
       end
     end
@@ -89,11 +122,11 @@ module OgImage
 
     def draw_hack_club_flag
       place_image(
-        "https://assets.hackclub.com/flag-orpheus-top.png",
-        x: 20,
-        y: 0,
-        width: 300,
-        height: 360,
+        "https://assets.hackclub.com/flag-standalone.png",
+        x: 80,
+        y: 60,
+        width: 180,
+        height: 80,
         gravity: "NorthWest",
         cover: false
       )
@@ -102,9 +135,9 @@ module OgImage
     def build_stats
       stats = []
       owner = @project.memberships.find_by(role: :owner)&.user
-      stats << "by @#{owner.display_name}" if owner
-      stats << "#{@project.devlogs_count} devlogs" if @project.devlogs_count.positive?
-      stats << "#{hours_logged} hours worked" if hours_logged > 0
+      stats << { text: "by @#{owner.display_name}", icon: nil } if owner
+      stats << { text: "#{@project.devlogs_count} #{"devlog".pluralize @project.devlogs_count}", icon: "paper.png" } if @project.devlogs_count.positive?
+      stats << { text: "#{hours_logged} #{"hour".pluralize hours_logged} worked", icon: "time.png" } if hours_logged > 0
       stats
     end
 

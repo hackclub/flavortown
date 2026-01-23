@@ -42,7 +42,7 @@ export default class extends Controller {
   renderItem(item) {
     const balance = this.balanceValue;
     const progress = Math.min((balance / item.price) * 100, 100);
-    const remaining = Math.max(item.price - balance, 0);
+    const remaining = Math.round(Math.max(item.price - balance, 0));
     const canAfford = balance >= item.price;
 
     return `

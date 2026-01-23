@@ -1,0 +1,212 @@
+<div class="ship-event-scores">
+  <div>
+    <h1>Ship Event Majority Judgment Scores</h1>
+    <p class="ship-event-scores__note">Only ship events with more than 10 votes are shown.</p>
+  </div>
+
+  <div class="ship-event-scores__charts">
+    <div class="card ship-event-scores__card">
+      <h3>Overall percentile distribution</h3>
+      <div class="ship-event-scores__chart-wrap">
+        <canvas id="overallPercentileChart"></canvas>
+      </div>
+    </div>
+    <div class="card ship-event-scores__card">
+      <h3>Overall score distribution (avg of medians)</h3>
+      <div class="ship-event-scores__chart-wrap">
+        <canvas id="overallScoreChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="ship-event-scores__table-wrap">
+  <table class="table-data ship-event-scores__table">
+  <thead>
+    <tr>
+      <th>Ship Event</th>
+      <th>Project</th>
+      <th><%= link_to "Votes", admin_ship_event_scores_path(sort_params("votes_count")) %></th>
+      <th><%= link_to "Overall score", admin_ship_event_scores_path(sort_params("overall_score")) %></th>
+      <th><%= link_to "Overall percentile", admin_ship_event_scores_path(sort_params("overall_percentile")) %></th>
+      <th><%= link_to "Cookies", admin_ship_event_scores_path(sort_params("payout")) %></th>
+      <th><%= link_to "Hours", admin_ship_event_scores_path(sort_params("hours")) %></th>
+      <th><%= link_to "Multiplier", admin_ship_event_scores_path(sort_params("multiplier")) %></th>
+      <th><%= link_to "Originality median", admin_ship_event_scores_path(sort_params("originality_median")) %></th>
+      <th><%= link_to "Originality percentile", admin_ship_event_scores_path(sort_params("originality_percentile")) %></th>
+      <th><%= link_to "Technical median", admin_ship_event_scores_path(sort_params("technical_median")) %></th>
+      <th><%= link_to "Technical percentile", admin_ship_event_scores_path(sort_params("technical_percentile")) %></th>
+      <th><%= link_to "Usability median", admin_ship_event_scores_path(sort_params("usability_median")) %></th>
+      <th><%= link_to "Usability percentile", admin_ship_event_scores_path(sort_params("usability_percentile")) %></th>
+      <th><%= link_to "Storytelling median", admin_ship_event_scores_path(sort_params("storytelling_median")) %></th>
+      <th><%= link_to "Storytelling percentile", admin_ship_event_scores_path(sort_params("storytelling_percentile")) %></th>
+      <th><%= link_to "Created", admin_ship_event_scores_path(sort_params("created_at")) %></th>
+      <th>Convergence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @ship_events.each do |ship_event| %>
+      <tr>
+        <td><%= ship_event.id %></td>
+        <td>
+          <% project = ship_event.post&.project %>
+          <% if project %>
+            <%= link_to project.title, admin_project_path(project) %>
+          <% else %>
+            —
+          <% end %>
+        </td>
+        <td><%= ship_event.votes_count %></td>
+        <td><%= ship_event.overall_score ? number_with_precision(ship_event.overall_score, precision: 2) : "—" %></td>
+        <td><%= ship_event.overall_percentile ? number_with_precision(ship_event.overall_percentile, precision: 2) : "—" %></td>
+        <td><%= ship_event.payout.present? ? number_with_delimiter(ship_event.payout) : "—" %></td>
+        <td><%= ship_event.hours.present? ? number_with_precision(ship_event.hours, precision: 2) : "—" %></td>
+        <td><%= ship_event.multiplier.present? ? number_with_precision(ship_event.multiplier, precision: 4) : "—" %></td>
+        <td><%= ship_event.originality_median ? number_with_precision(ship_event.originality_median, precision: 2) : "—" %></td>
+        <td><%= ship_event.originality_percentile ? number_with_precision(ship_event.originality_percentile, precision: 2) : "—" %></td>
+        <td><%= ship_event.technical_median ? number_with_precision(ship_event.technical_median, precision: 2) : "—" %></td>
+        <td><%= ship_event.technical_percentile ? number_with_precision(ship_event.technical_percentile, precision: 2) : "—" %></td>
+        <td><%= ship_event.usability_median ? number_with_precision(ship_event.usability_median, precision: 2) : "—" %></td>
+        <td><%= ship_event.usability_percentile ? number_with_precision(ship_event.usability_percentile, precision: 2) : "—" %></td>
+        <td><%= ship_event.storytelling_median ? number_with_precision(ship_event.storytelling_median, precision: 2) : "—" %></td>
+        <td><%= ship_event.storytelling_percentile ? number_with_precision(ship_event.storytelling_percentile, precision: 2) : "—" %></td>
+        <td><%= ship_event.created_at.strftime("%Y-%m-%d") %></td>
+        <td>
+          <% if @convergence_data[ship_event.id].present? %>
+            <details class="ship-event-scores__details" data-ship-event-id="<%= ship_event.id %>">
+              <summary>View</summary>
+              <div class="ship-event-scores__chart-wrap">
+                <canvas id="convergence-chart-<%= ship_event.id %>"></canvas>
+              </div>
+            </details>
+          <% else %>
+            <span class="ship-event-scores__muted">No data</span>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+  </table>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="ship-event-distribution-data">
+  <%= @distribution.to_json.html_safe %>
+</script>
+<script id="ship-event-convergence-data">
+  <%= @convergence_data.to_json.html_safe %>
+</script>
+<script>
+  (() => {
+    const distributionData = JSON.parse(document.getElementById('ship-event-distribution-data').textContent);
+    const convergenceData = JSON.parse(document.getElementById('ship-event-convergence-data').textContent);
+
+    const percentileBuckets = ['0-10', '10-20', '20-30', '30-40', '40-50', '50-60', '60-70', '70-80', '80-90', '90-100'];
+    const scoreBuckets = ['1', '2', '3', '4', '5', '6'];
+
+    const percentileCtx = document.getElementById('overallPercentileChart');
+    if (percentileCtx) {
+      new Chart(percentileCtx, {
+        type: 'bar',
+        data: {
+          labels: percentileBuckets,
+          datasets: [{
+            label: 'Ship events',
+            data: distributionData.overall_percentile,
+            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: 'Overall percentile' } },
+            y: { title: { display: true, text: 'Ship events' }, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    const scoreCtx = document.getElementById('overallScoreChart');
+    if (scoreCtx) {
+      new Chart(scoreCtx, {
+        type: 'bar',
+        data: {
+          labels: scoreBuckets,
+          datasets: [{
+            label: 'Ship events',
+            data: distributionData.overall_score,
+            backgroundColor: 'rgba(16, 185, 129, 0.6)',
+            borderColor: 'rgba(16, 185, 129, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: 'Overall score (avg of medians)' } },
+            y: { title: { display: true, text: 'Ship events' }, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    const charts = new Map();
+    document.querySelectorAll('.ship-event-scores__details').forEach((detail) => {
+      detail.addEventListener('toggle', () => {
+        if (!detail.open) return;
+
+        const shipEventId = detail.dataset.shipEventId;
+        if (charts.has(shipEventId)) return;
+
+        const canvas = detail.querySelector('canvas');
+        const series = convergenceData[shipEventId] || [];
+
+        charts.set(shipEventId, new Chart(canvas, {
+          type: 'line',
+          data: {
+            datasets: [{
+              label: 'Average median',
+              data: series,
+              borderColor: 'rgba(99, 102, 241, 1)',
+              backgroundColor: 'rgba(99, 102, 241, 0.1)',
+              borderWidth: 2,
+              pointRadius: 2,
+              pointHoverRadius: 4,
+              tension: 0.2,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            parsing: true,
+            scales: {
+              x: {
+                type: 'linear',
+                title: { display: true, text: 'Vote count' },
+                min: 1
+              },
+              y: {
+                title: { display: true, text: 'Average median (1-6)' },
+                min: 1,
+                max: 6
+              }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  title: (items) => `Vote #${items[0].parsed.x}`,
+                  label: (item) => `Average median: ${item.parsed.y}`
+                }
+              }
+            }
+          }
+        }));
+      });
+    });
+  })();
+</script>

@@ -85,14 +85,14 @@
               <% attachments.each do |att| %>
                 <div class="post__slide">
                   <% if gif?(att) %>
-                    <img class="post__attachment post__attachment--image post__image" alt="Attachment" src="<%= url_for(att) %>">
+                    <img class="post__attachment post__attachment--image post__image" alt="Attachment" src="<%= url_for(att) %>" loading="lazy">
                   <% elsif image?(att) %>
                     <picture class="post__attachment post__attachment--image">
                       <source type="image/webp" srcset="<%= url_for(att.variant(:medium)) %>">
-                      <img class="post__image" alt="Attachment" src="<%= url_for(att) %>">
+                      <img class="post__image" alt="Attachment" src="<%= url_for(att) %>" loading="lazy">
                     </picture>
                   <% elsif video?(att) %>
-                    <video class="post__attachment post__attachment--video" controls src="<%= url_for(att) %>"></video>
+                    <video class="post__attachment post__attachment--video" controls src="<%= url_for(att) %>" preload="none"></video>
                   <% else %>
                     <%= link_to url_for(att), class: "post__attachment post__attachment--file", target: "_blank", rel: "noopener" do %>
                       <%= helpers.inline_svg_tag("icons/paper.svg") %>
@@ -123,6 +123,26 @@
                 <%= helpers.inline_svg_tag("icons/pencil.svg", class: "post__action-icon") %>
               <% end %>
               <%= button_to delete_devlog_path, method: :delete, class: "post__action-btn post__action-btn--danger", title: "Delete devlog", form: { onsubmit: "return confirm('Are you sure you want to delete devlog #' + #{postable.id.to_json} + '? This action cannot be undone.')" } do %>
+                <%= helpers.inline_svg_tag("icons/close.svg", class: "post__action-icon") %>
+              <% end %>
+            </div>
+          <% elsif can_force_delete? %>
+            <div class="post__actions" style="margin-left: auto; display: flex; gap: 0.5rem;">
+        <%= button_to force_delete_devlog_path,
+  method: :delete,
+  class: "post__action-btn post__action-btn--danger",
+  title: "Force delete devlog (Admin/Fraud)",
+  data: {
+    confirm: <<~MSG
+      ⚠️ ADMIN/FRAUD OVERRIDE ⚠️
+
+      This project is SHIPPED. You are about to override ship protection and force delete devlog ##{postable.id}.
+
+      This action will be audit logged.
+
+      Are you absolutely sure?
+    MSG
+  } do %>
                 <%= helpers.inline_svg_tag("icons/close.svg", class: "post__action-icon") %>
               <% end %>
             </div>

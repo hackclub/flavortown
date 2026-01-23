@@ -4,6 +4,27 @@
 
 import { application } from "./application";
 
+import AchievementHighlightController from "./achievement_highlight_controller";
+application.register("achievement-highlight", AchievementHighlightController);
+
+import AddressSelectController from "./address_select_controller";
+application.register("address-select", AddressSelectController);
+
+import CardSoundController from "./card_sound_controller";
+application.register("card-sound", CardSoundController);
+
+import CookieClickerController from "./cookie_clicker_controller";
+application.register("cookie-clicker", CookieClickerController);
+
+import CustomsWarningController from "./customs_warning_controller";
+application.register("customs-warning", CustomsWarningController);
+
+import DialogueIterationController from "./dialogue_iteration_controller";
+application.register("dialogue-iteration", DialogueIterationController);
+
+import DropdownController from "./dropdown_controller";
+application.register("dropdown", DropdownController);
+
 import FileUploadController from "./file_upload_controller";
 application.register("file-upload", FileUploadController);
 
@@ -19,80 +40,74 @@ application.register(
 import HelloController from "./hello_controller";
 application.register("hello", HelloController);
 
-import ProjectFormController from "./project_form_controller";
-application.register("project-form", ProjectFormController);
-
-import PostAttachmentsController from "./post_attachments_controller";
-application.register("post-attachments", PostAttachmentsController);
-
-import ShopController from "./shop_controller";
-application.register("shop", ShopController);
-
-import VoteTrackerController from "./vote_tracker_controller";
-application.register("vote-tracker", VoteTrackerController);
-
-import DropdownController from "./dropdown_controller";
-application.register("dropdown", DropdownController);
-
-import ProjectIdeasController from "./project_ideas_controller";
-application.register("project-ideas", ProjectIdeasController);
-
-import AddressSelectController from "./address_select_controller";
-application.register("address-select", AddressSelectController);
-
-import OrderFormController from "./order_form_controller";
-application.register("order-form", OrderFormController);
-
-import LoadMoreController from "./load_more_controller";
-application.register("load-more", LoadMoreController);
-
-import DialogueIterationController from "./dialogue_iteration_controller";
-application.register("dialogue-iteration", DialogueIterationController);
-
-import ProjectFireController from "./project_fire_controller";
-application.register("project-fire", ProjectFireController);
-
-import ModalController from "./modal_controller";
-application.register("modal", ModalController);
-
-import WelcomeOverlayController from "./welcome_overlay_controller";
-application.register("welcome-overlay", WelcomeOverlayController);
-
-import MusicPlayerController from "./music_player_controller";
-application.register("music-player", MusicPlayerController);
-
-import ShopWishlistController from "./shop_wishlist_controller";
-application.register("shop-wishlist", ShopWishlistController);
-
-import ShopGoalsController from "./shop_goals_controller";
-application.register("shop-goals", ShopGoalsController);
-
-import SearchableSelectController from "./searchable_select_controller";
-application.register("searchable-select", SearchableSelectController);
-
 import JsonHighlightController from "./json_highlight_controller";
 application.register("json-highlight", JsonHighlightController);
-
-import MarkdownPreviewController from "./markdown_preview_controller";
-application.register("markdown-preview", MarkdownPreviewController);
-
-import AchievementHighlightController from "./achievement_highlight_controller";
-application.register("achievement-highlight", AchievementHighlightController);
-
-import CookieClickerController from "./cookie_clicker_controller";
-application.register("cookie-clicker", CookieClickerController);
-
-import StartDevlogController from "./start_devlog_controller";
-application.register("start-devlog", StartDevlogController);
 
 import KitchenDialogueController from "./kitchen_dialogue_controller";
 application.register("kitchen-dialogue", KitchenDialogueController);
 
+import LightboxController from "./lightbox_controller";
+application.register("lightbox", LightboxController);
+
+import LoadMoreController from "./load_more_controller";
+application.register("load-more", LoadMoreController);
+
+import MarkdownPreviewController from "./markdown_preview_controller";
+application.register("markdown-preview", MarkdownPreviewController);
+
+import ModalController from "./modal_controller";
+application.register("modal", ModalController);
+
+import MusicPlayerController from "./music_player_controller";
+application.register("music-player", MusicPlayerController);
+
+import OrderFormController from "./order_form_controller";
+application.register("order-form", OrderFormController);
+
+import PostAttachmentsController from "./post_attachments_controller";
+application.register("post-attachments", PostAttachmentsController);
+
+import ProjectFireController from "./project_fire_controller";
+application.register("project-fire", ProjectFireController);
+
+import ProjectFormController from "./project_form_controller";
+application.register("project-form", ProjectFormController);
+
+import ProjectIdeasController from "./project_ideas_controller";
+application.register("project-ideas", ProjectIdeasController);
+
+import SearchableSelectController from "./searchable_select_controller";
+application.register("searchable-select", SearchableSelectController);
+
+import ShopController from "./shop_controller";
+application.register("shop", ShopController);
+
+import ShopGoalsController from "./shop_goals_controller";
+application.register("shop-goals", ShopGoalsController);
+
+import ShopWishlistController from "./shop_wishlist_controller";
+application.register("shop-wishlist", ShopWishlistController);
+
+import SidebarPinController from "./sidebar_pin_controller";
+application.register("sidebar-pin", SidebarPinController);
+
 import SnowController from "./snow_controller";
 application.register("snow", SnowController);
+
+import StartDevlogController from "./start_devlog_controller";
+application.register("start-devlog", StartDevlogController);
+
+import TimezoneController from "./timezone_controller";
+application.register("timezone", TimezoneController);
 
 import UploadFormController from "./upload_form_controller";
 application.register("upload-form", UploadFormController);
 
-import CardSoundController from "./card_sound_controller";
-application.register("card-sound", CardSoundController);
+import VoteTrackerController from "./vote_tracker_controller";
+application.register("vote-tracker", VoteTrackerController);
+
+import WelcomeOverlayController from "./welcome_overlay_controller";
+application.register("welcome-overlay", WelcomeOverlayController);
+
+import ResponsiveImageMapController from "./responsive_image_map_controller";
+application.register("responsive-image-map", ResponsiveImageMapController);

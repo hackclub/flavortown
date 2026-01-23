@@ -4,6 +4,7 @@
 <% content_for :og_image, og_image_url('explore', format: :png) %>
 
 <div class="explore" data-controller="load-more" data-load-more-url-value="<%= explore_index_path %>">
+    <%= render HeadingComponent.new(title: "Explore", tone: :blue, size: :full) %>
     <%= render "explore/explore_nav" %>
 
     <div id="devlog-list" class="explore__list" data-load-more-target="entries">
@@ -12,16 +13,12 @@
 
     <div class="explore__pagination">
         <% if @pagy.next %>
-            <button
-                type="button"
-                class="btn btn--brown"
-                data-load-more-target="button"
-                data-load-more-url-value="<%= explore_index_path %>"
-                data-turbo="false"
-                data-action="load-more#load"
+            <div
+                class="explore__sentinel"
+                data-load-more-target="sentinel"
                 data-page="<%= @pagy.next %>">
-                Load More Devlogs
-            </button>
+                <span class="explore__loading-indicator">Loading more devlogs...</span>
+            </div>
         <% else %>
             <p class="explore__end">You've reached the end.</p>
         <% end %>

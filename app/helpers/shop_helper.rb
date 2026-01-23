@@ -22,55 +22,11 @@ module ShopHelper
   def customs_warning_message(shop_item)
     case shop_item.type
     when "ShopItem::WarehouseItem"
-      "⚠️ Shipped from US - Customs fees may apply if shipping outside the US"
-    when "ShopItem::ThirdPartyPhysical"
-      "⚠️ Shipped from US - Customs fees may apply if shipping outside the US"
+      "⚠️ This item is shipped from the United States. Customs fees may apply if the destination country is not the United States."
     when "ShopItem::HQMailItem"
-      "⚠️ Origin unknown - Customs fees may apply depending on destination country"
+      "⚠️ This item is shipped from the United States. Customs fees may apply if the destination country is not the United States."
     when "ShopItem::HackClubberItem"
-      "⚠️ Origin unknown - Customs fees may apply depending on destination country"
-    end
-  end
-
-  def fulfillment_source_text(shop_item)
-    case shop_item.type
-    when "ShopItem::WarehouseItem"
-      "Fulfilled by AGH Warehouse"
-    when "ShopItem::HQMailItem"
-      "Shipped from Hack Club HQ"
-    when "ShopItem::HackClubberItem"
-      "Made by Hack Clubber"
-    when "ShopItem::HCBGrant", "ShopItem::HCBPreauthGrant"
-      "Digital Grant"
-    when "ShopItem::ThirdPartyDigital"
-      "Third Party Digital"
-    when "ShopItem::ThirdPartyPhysical"
-      "Third Party Physical"
-    when "ShopItem::FreeStickers"
-      "Free Stickers"
-    when "ShopItem::Accessory"
-      "Accessory"
-    else
-      "Shop Item"
-    end
-  end
-
-  def fulfillment_badge_color(shop_item)
-    case shop_item.type
-    when "ShopItem::WarehouseItem"
-      "blue"
-    when "ShopItem::HQMailItem"
-      "red"
-    when "ShopItem::HackClubberItem"
-      "green"
-    when "ShopItem::HCBGrant", "ShopItem::HCBPreauthGrant"
-      "purple"
-    when "ShopItem::ThirdPartyDigital", "ShopItem::ThirdPartyPhysical"
-      "brown"
-    when "ShopItem::FreeStickers"
-      "tan"
-    else
-      "brown"
+      "⚠️ Origin unknown - Customs fees may apply depending on destination country. Check the description for more details."
     end
   end
 
@@ -84,9 +40,9 @@ module ShopHelper
 
   def customs_warning_item_type(shop_item)
     case shop_item.type
-    when "ShopItem::WarehouseItem", "ShopItem::ThirdPartyPhysical"
+    when "ShopItem::WarehouseItem", "ShopItem::HQMailItem"
       "us_origin"
-    when "ShopItem::HQMailItem", "ShopItem::HackClubberItem"
+    when "ShopItem::HackClubberItem"
       "unknown_origin"
     else
       "none"

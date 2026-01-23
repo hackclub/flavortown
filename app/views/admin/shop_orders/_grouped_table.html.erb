@@ -40,7 +40,7 @@
             </td>
             <td><%= order.created_at.strftime("%b %d, %Y") %></td>
             <td>
-              <%= link_to "Inspect", admin_shop_order_path(order), class: "btn-primary slim" %>
+              <%= link_to "Inspect", admin_shop_order_path(order, return_view: params[:view], return_status: params[:status]), class: "btn-primary slim" %>
             </td>
           </tr>
         <% end %>

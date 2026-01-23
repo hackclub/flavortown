@@ -54,11 +54,11 @@ class Api::V1::StoreController < Api::BaseController
   }
 
   def index
-    @items = ShopItem.enabled.includes(image_attachment: :blob)
+    @items = ShopItem.enabled.listed.includes(image_attachment: :blob)
   end
 
   def show
-    @item = ShopItem.enabled.find_by!(id: params[:id])
+    @item = ShopItem.enabled.listed.find_by!(id: params[:id])
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Item not found" }, status: :not_found
   end
