@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_23_041921) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_23_231044) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -380,6 +380,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_041921) do
     t.index ["project_id"], name: "index_project_reports_on_project_id"
     t.index ["reporter_id", "project_id"], name: "index_project_reports_on_reporter_id_and_project_id", unique: true
     t.index ["reporter_id"], name: "index_project_reports_on_reporter_id"
+    t.index ["status", "created_at"], name: "idx_project_reports_status_created_at_desc", order: { created_at: :desc }
   end
 
   create_table "projects", force: :cascade do |t|
@@ -522,6 +523,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_041921) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.bigint "warehouse_package_id"
+    t.index ["aasm_state", "created_at"], name: "idx_shop_orders_aasm_state_created_at_desc", order: { created_at: :desc }
     t.index ["assigned_to_user_id"], name: "index_shop_orders_on_assigned_to_user_id"
     t.index ["parent_order_id"], name: "index_shop_orders_on_parent_order_id"
     t.index ["region"], name: "index_shop_orders_on_region"
@@ -639,6 +641,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_041921) do
     t.jsonb "object", default: {}
     t.jsonb "object_changes", default: {}
     t.string "whodunnit"
+    t.index ["item_id", "created_at"], name: "idx_versions_project_report_status", where: "(((item_type)::text = 'Project::Report'::text) AND (object_changes ? 'status'::text))"
+    t.index ["item_id", "created_at"], name: "idx_versions_shop_order_aasm_state", where: "(((item_type)::text = 'ShopOrder'::text) AND (object_changes ? 'aasm_state'::text))"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
     t.index ["object"], name: "index_versions_on_object", using: :gin
     t.index ["object_changes"], name: "index_versions_on_object_changes", using: :gin

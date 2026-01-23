@@ -79,21 +79,35 @@ module Admin
       sorted.map { |k, c| { name: users[k.to_i]&.display_name || "User ##{k}", count: c } }
     end
 
+    TABLES = %w[project_reports shop_orders].freeze
+    FIELDS = %w[status aasm_state].freeze
+    TYPES = %w[Project::Report ShopOrder].freeze
     def avg_response(table, type, field, states)
-      sql = <<~SQL.squish
-        WITH recent AS (
-          SELECT id, created_at FROM #{table}
-          WHERE #{field} IN (#{states.map { |s| "'#{s}'" }.join(",")})
-            AND created_at > NOW() - INTERVAL '30 days' LIMIT 100
-        ),
-        first_changes AS (
-          SELECT DISTINCT ON (v.item_id) v.item_id,
-            v.created_at AS v_at, r.created_at AS r_at
-          FROM versions v JOIN recent r ON r.id = v.item_id
-          WHERE v.item_type = '#{type}' AND jsonb_exists(v.object_changes, '#{field}')
-          ORDER BY v.item_id, v.created_at
-        )
-        SELECT AVG(EXTRACT(EPOCH FROM (v_at - r_at)) / 3600) AS avg_hours FROM first_changes
+      raise ArgumentError unless TABLES.include?(table) && FIELDS.include?(field) && TYPES.include?(type)
+      quoted_table = ActiveRecord::Base.connection.quote_table_name(table)
+      quoted_field = ActiveRecord::Base.connection.quote_column_name(field)
+
+      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL.squish, states, type, field, field, states ])
+        SELECT AVG(EXTRACT(EPOCH FROM (v.v_at - r.r_at)) / 3600.0) AS avg_hours
+        FROM (
+          SELECT r.id, r.created_at AS r_at
+          FROM #{quoted_table} r
+          WHERE r.#{quoted_field} = ANY (?)
+            AND r.created_at > NOW() - INTERVAL '30 days'
+          ORDER BY r.created_at DESC
+          LIMIT 100
+        ) r
+        JOIN LATERAL (
+          SELECT v.created_at AS v_at
+          FROM versions v
+          WHERE v.item_type = ?
+            AND v.item_id = r.id
+            AND (v.object_changes ? ?)
+            AND v.created_at >= r.r_at
+            AND (v.object_changes -> ? ->> 1) = ANY (?)
+          ORDER BY v.created_at ASC
+          LIMIT 1
+        ) v ON true
       SQL
       ActiveRecord::Base.connection.select_one(sql)&.dig("avg_hours")&.to_f&.round(1)
     end
