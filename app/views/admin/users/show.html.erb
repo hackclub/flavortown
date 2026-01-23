@@ -82,9 +82,12 @@
       <% end %>
     </div>
   </div>
+</div>
+
+<div class="flex">
   <div class="card">
     <h2>actions</h2>
-    <div class="info-rows" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+    <div class="admin-actions-wrap">
       <% if policy(:admin).generate_magic_links? %>
         <%= link_to "🔗 Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
       <% end %>
@@ -102,8 +105,13 @@
                     sync_hackatime_admin_user_path(@user),
                     method: :post,
                     title: "Sync Hackatime Data",
+                    class: "btn-primary slim" %>
+      <%= button_to "🔄 Refresh Verification",
+                    refresh_verification_admin_user_path(@user),
+                    method: :post,
+                    title: "Refresh verification status from HCA",
                     class: "btn-primary slim",
-                    style: "font-size: 0.75rem; padding: 0.25rem 0.5rem;" %>
+                    data: { confirm: "Refresh verification status for #{@user.display_name}?" } %>
       <%= render 'role_toggle', user: @user, role_icon: '🕵️‍♀️', role_name: 'fraud_dept', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '📦', role_name: 'fulfillment_person', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '🚢', role_name: 'project_certifier', disabled: !current_user&.admin? %>
@@ -152,7 +160,47 @@
         <% end %>
       <% end %>
 
+      <% if current_user.admin? %>
+        <% has_grants = @user.shop_card_grants.where.not(hcb_grant_hashid: nil).exists? %>
+        <button type="button" onclick="document.getElementById('cancel-grants-modal').showModal()" class="btn-danger slim" <%= 'disabled style="opacity: 0.5; cursor: not-allowed;"'.html_safe unless has_grants %>>
+          🚫 Cancel All HCB Grants
+        </button>
+        <% if has_grants %>
+          <%= render layout: "shared/modal", locals: { id: "cancel-grants-modal", title: "Cancel All HCB Grants", description: "This will cancel ALL HCB grants for #{@user.display_name}. This action cannot be undone!" } do %>
+            <form action="<%= cancel_all_hcb_grants_admin_user_path(@user) %>" method="post">
+              <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+              <p style="color: #ef4444; font-weight: bold;">⚠️ Warning: This will cancel <%= @user.shop_card_grants.where.not(hcb_grant_hashid: nil).count %> grant(s).</p>
+              <div class="modal__actions">
+                <button type="submit" class="btn-danger slim">Confirm Cancel All Grants</button>
+                <button type="button" onclick="document.getElementById('cancel-grants-modal').close()" class="btn-secondary slim">Cancel</button>
+              </div>
+            </form>
+          <% end %>
+        <% end %>
+      <% end %>
+
       <% if policy(:admin).ban_users? %>
+        <% if @user.shadow_banned? %>
+          <%= button_to "👁️ Remove Shadow Ban", unshadow_ban_admin_user_path(@user), method: :post, class: "btn-primary slim" %>
+        <% else %>
+          <button type="button" onclick="document.getElementById('shadow-ban-modal').showModal()" class="btn-secondary slim">
+            👻 Shadow Ban
+          </button>
+          <%= render layout: "shared/modal", locals: { id: "shadow-ban-modal", title: "Shadow Ban User", description: "This will hide #{@user.display_name}'s projects from voting, explore, and API without notifying them." } do %>
+            <form action="<%= shadow_ban_admin_user_path(@user) %>" method="post">
+              <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+              <div class="modal__field">
+                <%= label_tag :reason, "Shadow Ban Reason (optional)" %>
+                <%= text_area_tag :reason, "", placeholder: "Enter reason for shadow ban..." %>
+              </div>
+              <div class="modal__actions">
+                <button type="submit" class="btn-secondary slim">Confirm Shadow Ban</button>
+                <button type="button" onclick="document.getElementById('shadow-ban-modal').close()" class="btn-secondary slim">Cancel</button>
+              </div>
+            </form>
+          <% end %>
+        <% end %>
+
         <% if @user.banned? %>
           <%= button_to "🔓 Unban User", unban_admin_user_path(@user), method: :post, class: "btn-primary slim" %>
         <% else %>
@@ -179,39 +227,54 @@
   </div>
   <div class="card">
     <h2>flipper features</h2>
-    <div class="info-rows">
-      <% has_shop_open = Flipper.enabled?(:shop_open, @user) %>
-      <%= button_to (has_shop_open ? "Disable Shop" : "Enable Shop"),
-                    toggle_flipper_admin_user_path(@user),
-                    method: :post,
-                    params: { feature: "shop_open" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
-
-      <% has_admin_green = Flipper.enabled?(:admin_green, @user) %>
-      <%= button_to (has_admin_green ? "Disable Admin Green" : "Enable Admin Green"),
-                    toggle_flipper_admin_user_path(@user),
-                    method: :post,
-                    params: { feature: "admin_green" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
-
-      <% has_admin_dark = Flipper.enabled?(:admin_dark, @user) %>
-      <%= button_to (has_admin_dark ? "Disable Admin Dark Mode" : "Enable Admin Dark Mode"),
-                    toggle_flipper_admin_user_path(@user),
-                    method: :post,
-                    params: { feature: "admin_dark" },
-                    class: "btn-primary slim",
-                    disabled: !current_user&.admin? %>
+    <div class="flipper-features-wrap">
+      <%
+        features = [
+          { key: :shop_open, label: "Shop" },
+          { key: :admin_green, label: "Admin Green" },
+          { key: :admin_dark, label: "Admin Dark" },
+          { key: :scrapbook_devlogs, label: "Devlogs" },
+          { key: :"git_commit_2025-12-25", label: "Git Commit" },
+          { key: :kitchen_comic, label: "Kitchen Comic" },
+          { key: :voting, label: "Voting" },
+          { key: :christmas_theme, label: "Christmas" },
+          { key: :grant_cookies, label: "Grant Cookies" }
+        ]
+      %>
+      <% features.each do |f| %>
+        <% enabled = Flipper.enabled?(f[:key], @user) %>
+        <%= button_to toggle_flipper_admin_user_path(@user),
+                      method: :post,
+                      params: { feature: f[:key].to_s },
+                      class: "flipper-toggle #{enabled ? 'flipper-toggle--enabled' : ''}",
+                      disabled: !current_user&.admin?,
+                      title: "#{enabled ? 'Disable' : 'Enable'} #{f[:label]}" do %>
+          <%= f[:label] %><%= enabled ? " ✓" : "" %>
+        <% end %>
+      <% end %>
     </div>
   </div>
+</div>
+
+<div class="admin-section">
+  <h2 class="admin-section__header">📝 Internal Notes</h2>
+  <p class="admin-section__note">Only visible to admins and fraud dept. Changes are audit logged.</p>
+  <form action="<%= admin_user_path(@user) %>" method="post">
+    <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+    <%= hidden_field_tag :_method, "patch" %>
+    <%= text_area_tag "user[internal_notes]", @user.internal_notes,
+        placeholder: "Add internal notes about this user...",
+        rows: 4,
+        class: "admin-textarea" %>
+    <button type="submit" class="btn-primary slim">Save Notes</button>
+  </form>
 </div>
 
 <%= render Admin::PastOrdersComponent.new(user: @user, title: "Shop Orders") %>
 
 <% if @user_actions.any? %>
-  <div class="card" style="margin-top: 1.5rem;">
-    <h2>Action History</h2>
+  <div class="admin-section">
+    <h2 class="admin-section__header">Action History</h2>
     <table>
       <thead>
         <tr>
@@ -264,6 +327,7 @@
               admin = User.find_by(id: version.whodunnit)
               is_ban_event = changes["banned"].is_a?(Array) rescue false
               is_magic_link_event = changes["magic_link_token"].is_a?(Array) rescue false
+              is_internal_notes_event = changes["internal_notes"].is_a?(Array) rescue false
             %>
             <tr>
               <td><%= version.created_at.strftime("%Y-%m-%d %H:%M") %></td>
@@ -280,6 +344,8 @@
                   <% end %>
                 <% elsif is_magic_link_event && changes["magic_link_token"]&.last.present? %>
                   <span style="color: #f59e0b; font-weight: 500;">🔗 Magic Link Created</span>
+                <% elsif is_internal_notes_event %>
+                  <span style="color: #6366f1; font-weight: 500;">📝 Internal Notes Updated</span>
                 <% elsif version.event == "address_revealed" %>
                   <span style="color: #f59e0b; font-weight: 500;">📍 Address Revealed</span>
                 <% else %>
@@ -312,6 +378,13 @@
                   <% end %>
                 <% elsif is_magic_link_event && changes["magic_link_token"]&.last.present? %>
                   Expires: <%= changes["magic_link_token_expires_at"]&.last %>
+                <% elsif is_internal_notes_event %>
+                  <% new_notes = changes["internal_notes"]&.last %>
+                  <% if new_notes.present? %>
+                    Changed to: "<%= truncate(new_notes, length: 100) %>"
+                  <% else %>
+                    <em>Notes cleared</em>
+                  <% end %>
                 <% elsif version.event == "address_revealed" %>
                   <% order_id = changes["order_id"] || changes[:order_id] %>
                   <% shop_item_name = changes["shop_item"] || changes[:shop_item] %>
@@ -383,6 +456,6 @@
       </tbody>
     </table>
 
-    <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User", item_id: @user.id), class: "btn-secondary", style: "margin-top: 1rem; display: inline-block;" %>
+    <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User", item_id: @user.id), class: "btn-secondary slim" %>
   </div>
 <% end %>

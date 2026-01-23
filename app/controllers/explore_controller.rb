@@ -3,20 +3,22 @@ class ExploreController < ApplicationController
     scope = Post.of_devlogs(join: true)
                 .where(post_devlogs: { tutorial: false })
                 .where.not(user_id: current_user&.id)
+                .joins(:user)
+                .where(users: { shadow_banned: false })
                 .includes(:user, :project)
                 .preload(:postable)
                 .order(created_at: :desc)
 
     scope = scope.where(post_devlogs: { deleted_at: nil }) unless current_user&.can_see_deleted_devlogs?
 
-    @pagy, @devlogs = pagy(scope, limit: 30, client_max_limit: 30)
+    @pagy, @devlogs = pagy(scope, limit: 20, client_max_limit: 20)
 
     respond_to do |format|
       format.html
       format.json do
         html = @devlogs.map do |post|
           render_to_string(
-            PostComponent.new(post: post, current_user: current_user),
+            PostComponent.new(post: post, current_user: current_user, theme: :explore_mixed),
             layout: false,
             formats: [ :html ]
           )
@@ -34,6 +36,7 @@ class ExploreController < ApplicationController
     scope = Project.includes(banner_attachment: :blob)
                    .where(tutorial: false)
                    .excluding_member(current_user)
+                   .excluding_shadow_banned
                    .order(created_at: :desc)
 
     @pagy, @projects = pagy(scope)

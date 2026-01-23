@@ -1,4 +1,4 @@
-<div class="shop-item-card<%= ' shop-item-card--out-of-stock' if out_of_stock? %><%= ' shop-item-card--on-sale' if on_sale %>"
+<div class="shop-item-card<%= ' shop-item-card--out-of-stock' if out_of_stock? %><%= ' shop-item-card--on-sale' if on_sale %><%= ' shop-item-card--with-bow' if show_bow %>"
      data-categories="<%= categories.join(',') %>"
      data-regions="<%= enabled_regions.join(',') %>"
      data-shop-id="<%= item_id %>"
@@ -7,6 +7,17 @@
      data-shop-wishlist-item-name-value="<%= name %>"
      data-shop-wishlist-item-price-value="<%= display_price %>"
      data-shop-wishlist-item-image-value="<%= url_for(image_url) %>">
+  <% if show_bow %>
+    <div class="shop-item-card__bow shop-item-card__bow--top-left"></div>
+    <div class="shop-item-card__bow shop-item-card__bow--top-right"></div>
+    <div class="shop-item-card__bow shop-item-card__bow--bottom-left"></div>
+    <div class="shop-item-card__bow shop-item-card__bow--bottom-right"></div>
+  <% end %>
+  <% if time_ago_text %>
+    <div class="shop-item-card__time-ago">
+      Added <%= time_ago_text %>
+    </div>
+  <% end %>
   <% if on_sale %>
     <div class="shop-item-card__sale-badge">
       <%= sale_percentage %>% OFF

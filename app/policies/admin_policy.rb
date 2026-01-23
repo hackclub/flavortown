@@ -55,6 +55,10 @@ class AdminPolicy < ApplicationPolicy
     user.admin? || user.fraud_dept?
   end
 
+  def access_fraud_dashboard?
+    user.admin? || user.fraud_dept?
+  end
+
   def access_fulfillment_dashboard?
     user.admin? || user.fulfillment_person?
   end
@@ -69,5 +73,9 @@ class AdminPolicy < ApplicationPolicy
 
   def generate_magic_links?
     user.admin?
+  end
+
+  def shadow_ban_projects?
+    user.admin? || user.fraud_dept?
   end
 end

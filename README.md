@@ -2,6 +2,8 @@
 
 what's cooking in the hack club kitchen :fire:
 
+check out [CONTRIBUTING.md](./CONTRIBUTING.md) for a more detailed guide on how to get up and running with this repo!
+
 ## non-exhaustive list of setup steps
 
 ### docker
@@ -69,3 +71,21 @@ weirdo, but okay, you gotta figure out how to get postgres running yourself buck
    ```
 
 4. have a fire extinguisher at the ready
+
+## production deployment
+
+We deploy to Coolify using Docker. Both the web and worker services use the same `Dockerfile`.
+
+### web service
+
+Just run it-- the entrypoint should trigger
+```
+./bin/thrust ./bin/rails server
+```
+
+### worker service
+
+In the worker resource's **General** tab, add this to **Custom Docker Options**:
+```
+--entrypoint "./bin/rails solid_queue:start"
+```

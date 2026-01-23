@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
   before_action :refresh_identity_on_portal_return
   before_action :initialize_cache_counters
   before_action :track_request
+  before_action :track_active_user
   before_action :show_pending_achievement_notifications!
   before_action :apply_dev_override_ref
   before_action :allow_profiler
@@ -108,6 +109,10 @@ class ApplicationController < ActionController::Base
 
   def track_request
     RequestCounter.increment
+  end
+
+  def track_active_user
+    ActiveUserTracker.track(user_id: current_user&.id, session_id: session.id.to_s)
   end
 
   def apply_dev_override_ref

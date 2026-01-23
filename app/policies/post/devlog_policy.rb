@@ -16,7 +16,11 @@ class Post::DevlogPolicy < ApplicationPolicy
     end
 
     def destroy?
-        owns?
+        owns? || user&.admin? || user&.has_role?(:fraud_dept)
+    end
+
+    def force_destroy?
+        user&.admin? || user&.has_role?(:fraud_dept)
     end
 
     def versions?

@@ -2003,7 +2003,6 @@ input {
 
   .credits {
     width: 50%;
-    pointer-events: none;
     display: flex;
     justify-content: center;
 
@@ -2016,6 +2015,8 @@ input {
       width: auto;
       height: auto;
       margin-top: 2rem;
+      pointer-events: auto;
+      display: block;
 
       @media (max-width: 960px) {
         max-height: none;

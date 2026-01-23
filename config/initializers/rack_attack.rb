@@ -10,6 +10,11 @@ Rack::Attack.throttle("api/burst", limit: 20, period: 5.seconds) do |req|
   (req.env["HTTP_AUTHORIZATION"] || req.ip) if req.path.start_with?("/api/")
 end
 
+# rate limit internal revoke endpoint to 500 req/hr
+Rack::Attack.throttle("internal/revoke", limit: 500, period: 1.hour) do |req|
+  req.ip if req.path == "/internal/revoke" && req.post?
+end
+
 Rack::Attack.throttled_responder = lambda do |req|
   body = {
     error: "rate_limited",

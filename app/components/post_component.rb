@@ -5,9 +5,10 @@ class PostComponent < ViewComponent::Base
 
   attr_reader :post
 
-  def initialize(post:, current_user: nil)
+  def initialize(post:, current_user: nil, theme: nil)
     @post = post
     @current_user = current_user
+    @theme = theme
   end
 
   def variant
@@ -110,6 +111,15 @@ class PostComponent < ViewComponent::Base
     devlog? && @current_user.present? && post.user == @current_user && !deleted?
   end
 
+  def can_force_delete?
+    devlog? && @current_user.present? && !deleted? &&
+      (@current_user.admin? || @current_user.has_role?(:fraud_dept))
+  end
+
+  def project_shipped?
+    post.project&.shipped?
+  end
+
   def deleted?
     devlog? && postable.deleted?
   end
@@ -128,5 +138,19 @@ class PostComponent < ViewComponent::Base
     return nil unless can_edit?
     return nil unless post.project.present?
     helpers.project_devlog_path(post.project, postable)
+  end
+
+  def force_delete_devlog_path
+    return nil unless can_force_delete?
+    return nil unless post.project.present?
+    helpers.project_devlog_path(post.project, postable, force: true)
+  end
+
+  def theme_class
+    return nil unless @theme = :explore_mixed
+
+    themes = %i[devlog ship fire certified]
+    picked = themes[post.id.to_i % themes.length]
+    "post--theme-#{picked}"
   end
 end

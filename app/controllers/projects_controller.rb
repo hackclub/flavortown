@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship, :mark_fire, :unmark_fire ]
-  before_action :set_project, only: [ :show ]
+  before_action :set_project, only: [ :show, :readme ]
 
   def index
     authorize Project
@@ -10,12 +10,21 @@ class ProjectsController < ApplicationController
   def show
     authorize @project
 
+    is_member = @project.users.include?(current_user)
+    is_admin = current_user&.admin?
+    user_shadow_banned = @project.users.where(shadow_banned: true).exists?
+    project_shadow_banned = @project.shadow_banned?
+
+    @shadow_banned = user_shadow_banned || project_shadow_banned
+    @can_view_shadow_banned = is_member || is_admin
+
     @posts = @project.posts
                      .includes(:user, postable: [ :attachments_attachments ])
                      .order(created_at: :desc)
+                     .select { |post| post.postable.present? }
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
-      @posts = @posts.where.not(postable_type: "Post::GitCommit")
+      @posts = @posts.reject { |post| post.postable_type == "Post::GitCommit" }
     end
 
     if current_user
@@ -118,8 +127,25 @@ class ProjectsController < ApplicationController
 
   def destroy
     authorize @project
+    force = params[:force] == "true" && policy(@project).force_destroy?
+
     begin
-      @project.soft_delete!
+      if force && @project.shipped?
+        PaperTrail::Version.create!(
+          item_type: "Project",
+          item_id: @project.id,
+          event: "force_delete",
+          whodunnit: current_user.id,
+          object_changes: {
+            deleted_at: [ nil, Time.current ],
+            shipped_at: @project.shipped_at,
+            reason: "Admin/Fraud override of ship protection",
+            deleted_by: current_user.id
+          }.to_yaml
+        )
+      end
+
+      @project.soft_delete!(force: force)
       current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
       flash[:notice] = "Project deleted successfully"
       redirect_to projects_path
@@ -175,19 +201,15 @@ class ProjectsController < ApplicationController
     end
 
     unless @project.can_ship_again?
-      flash[:alert] = "You need to add at least one devlog since your last ship before you can ship again."
+      if @project.last_ship_event && !@project.previous_ship_event_has_payout?
+        flash[:alert] = "You cannot ship again until your previous ship event has received a payout."
+      else
+        flash[:alert] = "You need to add at least one devlog since your last ship before you can ship again."
+      end
       redirect_to ship_project_path(@project, step: 4) and return
     end
 
-    if @project.posts.where(postable_type: "Post::ShipEvent").none?
-      begin
-        ShipCertService.ship_to_dash(@project)
-      rescue => e
-        Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
-        flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
-        redirect_to ship_project_path(@project, step: 4) and return
-      end
-    end
+    is_initial_ship = @project.posts.where(postable_type: "Post::ShipEvent").none?
 
     ship_event = Post::ShipEvent.new(body: ship_body)
     post = @project.posts.build(user: current_user, postable: ship_event)
@@ -200,14 +222,24 @@ class ProjectsController < ApplicationController
       end
     end
 
-    if post.persisted?
-      flash[:notice] = "🚀 Congratulations! Your project has been submitted for review!"
-    else
+    unless post.persisted?
       error_messages = (post.errors.full_messages + ship_event.errors.full_messages).uniq
       flash[:alert] = "We couldn't post your ship update: #{error_messages.to_sentence}"
       redirect_to ship_project_path(@project, step: 4) and return
     end
 
+    if is_initial_ship
+      begin
+        ShipCertWebhookJob.perform_later(ship_event_id: ship_event.id, type: "initial", force: false)
+      rescue => e
+        Rails.logger.error "Failed to enqueue ship webhook for project #{@project.id}: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
+        flash[:notice] = "🚀 Your project has been submitted for review, but we couldn't notify the dashboard. Please contact #ask-the-shipwrights if this persists."
+        redirect_to @project and return
+      end
+    end
+
+    flash[:notice] = "🚀 Congratulations! Your project has been submitted for review!"
     redirect_to @project
   end
 
@@ -303,7 +335,7 @@ class ProjectsController < ApplicationController
     authorize @project
 
     PaperTrail.request(whodunnit: current_user.id) do
-      success = ShipCertService.ship_to_dash(@project)
+      success = ShipCertService.ship_to_dash(@project, type: "resend", force: true)
 
       PaperTrail::Version.create!(
         item_type: "Project",
@@ -338,7 +370,7 @@ class ProjectsController < ApplicationController
 
     PaperTrail.request(whodunnit: current_user.id) do
       begin
-        ShipCertService.ship_to_dash(@project)
+        ShipCertService.ship_to_dash(@project, type: "recertification", force: true)
         ship_event.update!(certification_status: "pending")
 
         PaperTrail::Version.create!(
@@ -362,12 +394,30 @@ class ProjectsController < ApplicationController
     redirect_to @project
   end
 
+  def readme
+    unless turbo_frame_request?
+      redirect_to @project
+      return
+    end
+
+    result = ProjectReadmeFetcher.fetch(@project.readme_url)
+
+    @readme_html =
+      if result.markdown.present?
+        MarkdownRenderer.render(result.markdown)
+      end
+
+    @readme_error = result.error
+
+    render "projects/readme", layout: false
+  end
+
   private
 
   def load_ship_data
     @hackatime_projects = @project.hackatime_projects_with_time
     @total_hours = @project.total_hackatime_hours
-    @devlogs = @project.devlogs.includes(:user, postable: [ { attachments_attachments: :blob } ]).order(created_at: :desc)
+    @devlogs = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
   end
 
   def ship_params
@@ -413,6 +463,7 @@ class ProjectsController < ApplicationController
   # these links block automated requests, but we're ok with just assuming they're good
   ALLOWLISTED_DOMAINS = %w[
     npmjs.com
+    crates.io
   ].freeze
 
   def validate_url_not_dead(attribute, name)

@@ -1,0 +1,9 @@
+<% if reviewers.any? %>
+  <ul class="fraud-leaderboard">
+    <% reviewers.each_with_index do |r, i| %>
+      <li><span><%= medals[i] %> <%= r[:name] %></span><span><%= r[:count] %></span></li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="fraud-note">No activity yet today</p>
+<% end %>

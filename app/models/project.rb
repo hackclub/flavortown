@@ -2,32 +2,36 @@
 #
 # Table name: projects
 #
-#  id                 :bigint           not null, primary key
-#  deleted_at         :datetime
-#  demo_url           :text
-#  description        :text
-#  devlogs_count      :integer          default(0), not null
-#  duration_seconds   :integer          default(0), not null
-#  marked_fire_at     :datetime
-#  memberships_count  :integer          default(0), not null
-#  project_categories :string           default([]), is an Array
-#  project_type       :string
-#  readme_url         :text
-#  repo_url           :text
-#  ship_status        :string           default("draft")
-#  shipped_at         :datetime
-#  synced_at          :datetime
-#  title              :string           not null
-#  tutorial           :boolean          default(FALSE), not null
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  fire_letter_id     :string
-#  marked_fire_by_id  :bigint
+#  id                   :bigint           not null, primary key
+#  deleted_at           :datetime
+#  demo_url             :text
+#  description          :text
+#  devlogs_count        :integer          default(0), not null
+#  duration_seconds     :integer          default(0), not null
+#  marked_fire_at       :datetime
+#  memberships_count    :integer          default(0), not null
+#  project_categories   :string           default([]), is an Array
+#  project_type         :string
+#  readme_url           :text
+#  repo_url             :text
+#  shadow_banned        :boolean          default(FALSE), not null
+#  shadow_banned_at     :datetime
+#  shadow_banned_reason :text
+#  ship_status          :string           default("draft")
+#  shipped_at           :datetime
+#  synced_at            :datetime
+#  title                :string           not null
+#  tutorial             :boolean          default(FALSE), not null
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#  fire_letter_id       :string
+#  marked_fire_by_id    :bigint
 #
 # Indexes
 #
 #  index_projects_on_deleted_at         (deleted_at)
 #  index_projects_on_marked_fire_by_id  (marked_fire_by_id)
+#  index_projects_on_shadow_banned      (shadow_banned)
 #
 # Foreign Keys
 #
@@ -36,6 +40,8 @@
 class Project < ApplicationRecord
     include AASM
     include SoftDeletable
+
+    has_paper_trail only: %i[shadow_banned shadow_banned_at shadow_banned_reason deleted_at]
 
     has_recommended :projects # more projects like this...
 
@@ -54,6 +60,28 @@ class Project < ApplicationRecord
         user ? where.not(id: user.projects) : all
     }
     scope :fire, -> { where.not(marked_fire_at: nil) }
+    scope :excluding_shadow_banned, -> {
+      where(shadow_banned: false)
+        .joins(:memberships)
+        .joins("INNER JOIN users ON users.id = project_memberships.user_id")
+        .where(users: { shadow_banned: false })
+        .distinct
+    }
+    scope :visible_to, ->(viewer) {
+      if viewer&.shadow_banned?
+        # Shadow-banned users see all projects (so they don't know they're banned)
+        all
+      elsif viewer
+        # Regular users see non-shadow-banned projects + their own projects
+        left_joins(memberships: :user)
+          .where(shadow_banned: false)
+          .where(memberships: { users: { shadow_banned: false } })
+          .or(left_joins(memberships: :user).where(memberships: { user_id: viewer.id }))
+          .distinct
+      else
+        excluding_shadow_banned
+      end
+    }
 
     belongs_to :marked_fire_by, class_name: "User", optional: true
 
@@ -61,15 +89,15 @@ class Project < ApplicationRecord
     has_many :users, through: :memberships
     has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :nullify
     has_many :posts, dependent: :destroy
-    has_many :devlogs, -> { where(postable_type: "Post::Devlog").order(created_at: :desc) }, class_name: "Post"
-    has_many :ship_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
+    has_many :devlog_posts, -> { where(postable_type: "Post::Devlog").order(created_at: :desc) }, class_name: "Post"
+    has_many :devlogs, through: :devlog_posts, source: :postable, source_type: "Post::Devlog"
+    has_many :ship_event_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
+    has_many :ship_events, through: :ship_event_posts, source: :postable, source_type: "Post::ShipEvent"
     has_many :git_commit_posts, -> { where(postable_type: "Post::GitCommit").order(created_at: :desc) }, class_name: "Post"
-    has_one :latest_ship_post, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
     has_many :votes, dependent: :destroy
     has_many :reports, class_name: "Project::Report", dependent: :destroy
     has_many :project_follows, dependent: :destroy
     has_many :followers, through: :project_follows, source: :user
-
     # needs to be implemented
     has_one_attached :demo_video
 
@@ -217,18 +245,28 @@ class Project < ApplicationRecord
 
     def can_ship_again?
         return true if draft?
-        has_devlog_since_last_ship?
+        return false unless has_devlog_since_last_ship?
+        return false unless previous_ship_event_has_payout?
+
+        true
     end
 
     def has_devlog_since_last_ship?
         last_ship = last_ship_event
         return true if last_ship.nil?
 
-        devlogs.where("created_at > ?", last_ship.created_at).exists?
+        devlogs.where("post_devlogs.created_at > ?", last_ship.created_at).exists?
+    end
+
+    def previous_ship_event_has_payout?
+        last_ship = last_ship_event
+        return true if last_ship.nil?
+
+        last_ship.payout.present? && last_ship.payout > 0
     end
 
     def last_ship_event
-        posts.where(postable_type: "Post::ShipEvent").order(created_at: :desc).first
+        ship_events.first
     end
 
     def shippable?
@@ -261,6 +299,14 @@ class Project < ApplicationRecord
             { key: :screenshot, label: "You have a screenshot of your project", passed: banner.attached? },
             { key: :devlogs, label: "You have at least one devlog", passed: devlogs.any? }
         ]
+    end
+
+    def shadow_ban!(reason: nil)
+      update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
+    end
+
+    def unshadow_ban!
+      update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
     end
 
     private

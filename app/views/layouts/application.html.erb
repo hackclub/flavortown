@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= content_for(:title) || "Flavortown" %></title>
+    <title><%= content_for?(:title) ? "#{strip_tags(yield(:title))} - Flavortown" : "Flavortown - Hack Club" %></title>
     <%= favicon_link_tag 'favicon.ico' %>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,7 +11,24 @@
     <meta name="twitter:creator" content="@hackclub">
     <meta property="og:locale" content="en_US">
     <meta property="og:site_name" content="Flavortown - Hack Club">
-    <meta name="description" content="Build projects, earn cookies, get prizes. A Hack Club program for teen coders.">
+
+    <% og_title = content_for?(:og_title) ? yield(:og_title) : (content_for?(:title) ? "#{yield(:title)} - Flavortown" : "Flavortown - Hack Club") %>
+    <% og_description = content_for?(:og_description) ? yield(:og_description) : "Build projects, earn cookies, get prizes. A Hack Club program for teen coders." %>
+    <% og_image = content_for?(:og_image) ? yield(:og_image) : image_url("landing/hero/long-image.avif") %>
+    <% og_url = content_for?(:og_url) ? yield(:og_url) : request.original_url %>
+    <% twitter_card = content_for?(:twitter_card) ? yield(:twitter_card) : "summary" %>
+
+    <meta name="description" content="<%= og_description %>">
+    <meta property="og:title" content="<%= og_title %>">
+    <meta property="og:description" content="<%= og_description %>">
+    <meta property="og:url" content="<%= og_url %>">
+    <meta property="og:image" content="<%= og_image %>">
+    <meta name="twitter:card" content="<%= twitter_card %>">
+    <meta name="twitter:title" content="<%= og_title %>">
+    <meta name="twitter:description" content="<%= og_description %>">
+    <meta name="twitter:image" content="<%= og_image %>">
+    <% if content_for?(:og_author) %><meta name="author" content="<%= yield(:og_author) %>"><% end %>
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <meta name="turbo-prefetch" content="false">
@@ -74,6 +91,7 @@
           (DB: <%= pluralize(QueryCount::Counter.counter, "query") %>, <%= QueryCount::Counter.counter_cache %> cached)
           (CACHE: <%= cache_stats[:hits] %> hits, <%= cache_stats[:misses] %> misses)
           (<%= requests_per_second %>)
+          (Active: <%= active_users_stats %>)
         </p>
       </footer>
     <% end %>

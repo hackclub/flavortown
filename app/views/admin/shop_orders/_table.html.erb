@@ -116,7 +116,7 @@
               <small style="color: #6b7280;"><%= order.created_at.strftime("%l:%M %p") %></small>
             </td>
             <td>
-              <%= link_to "Inspect", admin_shop_order_path(order), class: "btn-primary slim" %>
+              <%= link_to "Inspect", admin_shop_order_path(order, return_view: params[:view], return_status: params[:status]), class: "btn-primary slim" %>
             </td>
           </tr>
         <% end %>

@@ -1,19 +1,20 @@
 <% theme = {
-     originality: "vote-category--red",
-     technical:   "vote-category--yellow",
-     usability:   "vote-category--blue"
-   }.fetch(category.name.to_sym, "") %>
+   originality: "vote-category--red",
+   technical: "vote-category--yellow",
+   usability: "vote-category--blue",
+   storytelling: "vote-category--green"
+ }.fetch(category.to_sym, "") %>
 
 <div class="vote-category <%= theme %>">
   <div class="vote-category__header">
-    <%= category.name.to_s.humanize %>
+    <%= category.to_s.humanize %>
   </div>
 
   <div class="vote-category__body">
     <div class="vote-category__stars">
-      <% 5.downto(1) do |i| %>
-        <%= fields.radio_button :score, i, class: "vote-category__input", id: "#{fields.object_name.gsub(/[\[\]]+/, '_')}_#{category.name}_#{i}" %>
-        <%= fields.label :score, value: i, for: "#{fields.object_name.gsub(/[\[\]]+/, '_')}_#{category.name}_#{i}", class: "vote-category__star" do %>
+      <% 6.downto(1) do |i| %>
+        <%= form.radio_button :"#{category}_score", i, class: "vote-category__input", id: "vote_#{category}_score_#{i}" %>
+        <%= form.label :"#{category}_score", value: i, for: "vote_#{category}_score_#{i}", class: "vote-category__star" do %>
           <%= inline_svg_tag "icons/star_fill.svg" %>
         <% end %>
       <% end %>
@@ -21,7 +22,6 @@
   </div>
 
   <div class="vote-category__footer">
-    <%= category.description %>
+    <%= Vote.new.category_description(category) %>
   </div>
-  <%= fields.hidden_field :category, value: category.name %>
 </div>

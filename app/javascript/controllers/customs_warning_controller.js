@@ -5,15 +5,56 @@ export default class extends Controller {
   static values = {
     itemType: String,
     usOriginMessage: String,
+    ukOriginMessage: String,
     unknownOriginMessage: String,
+    customRegionMessage: String,
+    sourceRegion: String,
+  };
+
+  static c = {
+    US: ["US"],
+    EU: [
+      "AT",
+      "BE",
+      "BG",
+      "HR",
+      "CY",
+      "CZ",
+      "DK",
+      "EE",
+      "FI",
+      "FR",
+      "DE",
+      "GR",
+      "HU",
+      "IE",
+      "IT",
+      "LV",
+      "LT",
+      "LU",
+      "MT",
+      "NL",
+      "PL",
+      "PT",
+      "RO",
+      "SK",
+      "SI",
+      "ES",
+      "SE",
+    ],
+    UK: ["GB"],
+    IN: ["IN"],
+    CA: ["CA"],
+    AU: ["AU", "NZ"],
+    XX: [],
   };
 
   connect() {
-    this.updateWarning("US");
+    this.updateWarning(null);
   }
 
   addressChanged(event) {
-    const country = event.detail?.country || "US";
+    const country = event.detail?.country || null;
     this.updateWarning(country);
   }
 
@@ -26,12 +67,21 @@ export default class extends Controller {
 
     switch (itemType) {
       case "us_origin":
-        shouldShow = country !== "US";
+        shouldShow = country !== null && country !== "US";
         message = this.usOriginMessageValue;
+        break;
+      case "uk_origin":
+        shouldShow = country !== null && country !== "UK";
+        message = this.ukOriginMessageValue;
         break;
       case "unknown_origin":
         shouldShow = true;
         message = this.unknownOriginMessageValue;
+        break;
+      case "custom_region":
+        shouldShow =
+          country !== null && !this.ccRegion(country, this.sourceRegionValue);
+        message = this.customRegionMessageValue;
         break;
       default:
         shouldShow = false;
@@ -43,5 +93,14 @@ export default class extends Controller {
     } else {
       this.warningTarget.style.display = "none";
     }
+  }
+
+  ccRegion(countryCode, regionCode) {
+    if (!regionCode) return true;
+
+    const countries = this.constructor.c[regionCode.toUpperCase()];
+    if (!countries) return false;
+
+    return countries.includes(countryCode.toUpperCase());
   }
 }

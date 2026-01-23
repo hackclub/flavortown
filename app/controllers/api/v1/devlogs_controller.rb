@@ -12,32 +12,18 @@ class Api::V1::DevlogsController < Api::BaseController
     }
   }
 
-  class_attribute :response_body_model, default: {
-    index: {
-      devlogs: [
-        {
-          id: Integer,
-          body: String,
-          comments_count: Integer,
-          duration_seconds: Integer,
-          likes_count: Integer,
-          scrapbook_url: String,
-          created_at: String,
-          updated_at: String
-        }
-      ]
-    },
+  DEVLOG_SCHEMA = {
+    id: Integer, body: String, comments_count: Integer, duration_seconds: Integer,
+    likes_count: Integer, scrapbook_url: String, created_at: String, updated_at: String
+  }.freeze
+  PAGINATION_SCHEMA = {
+    current_page: Integer, total_pages: Integer,
+    total_count: Integer, next_page: "Integer || Null"
+  }.freeze
 
-    show: {
-      id: Integer,
-      body: String,
-      comments_count: Integer,
-      duration_seconds: Integer,
-      likes_count: Integer,
-      scrapbook_url: String,
-      created_at: String,
-      updated_at: String
-    }
+  class_attribute :response_body_model, default: {
+    index: { devlogs: [ DEVLOG_SCHEMA ], pagination: PAGINATION_SCHEMA },
+    show: DEVLOG_SCHEMA
   }
 
   def index
@@ -47,7 +33,5 @@ class Api::V1::DevlogsController < Api::BaseController
 
   def show
     @devlog = Post::Devlog.joins(:post).find_by!(id: params[:id])
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: "Devlog not found" }, status: :not_found
   end
 end

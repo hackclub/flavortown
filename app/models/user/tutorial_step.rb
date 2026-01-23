@@ -16,43 +16,43 @@ class User
     end
 
     self::ALL = [
-      new(:first_login, "First login", "log into the platform for the first time!", "user", "/"),
+      new(:first_login, "First login", "Log into the platform for the first time!", "user", "/"),
       new(slug: :create_project,
           name: "Create your first project",
-          description: "what are you cooking?",
+          description: "What are you cooking?",
           icon: "fork_spoon_fill",
           link: ->(_) { new_project_path }),
       new(slug: :post_devlog,
           name: "Post a devlog",
-          description: "dev your log!",
+          description: "Dev your log!",
           icon: "edit",
           link: ->(_) { new_project_devlog_path(current_user.projects.first) },
           deps: [
-            Dep[:create_project, "you need to create a project first!"]
+            Dep[:create_project, "You need to create a project first!"]
           ]),
       new(slug: :identity_verified,
         name: "Confirm your age",
-        description: "You must be a teenager to participate in flavortown",
+        description: "You must be a teenager to participate in Flavortown",
         icon: "user",
         link: ->(_) { HCAService.verify_portal_url(return_to: kitchen_url) }),
       new(slug: :setup_hackatime,
-          name: "Setup hackatime",
+          name: "Setup Hackatime",
           description: "Start tracking your time",
           icon: "time",
           link: "/auth/hackatime",
           verb: :post),
       new(slug: :setup_slack,
           name: "Join Slack",
-          description: "connect with the community",
+          description: "Post in #flavortown-introduction after becoming a full member!",
           icon: "slack",
-          link: ->(_) { "https://hackclub.slack.com" }),
+          link: ->(_) { "https://hackclub.slack.com/app_redirect?channel=USLACKBOT" }),
       new(slug: :free_stickers,
           name: "Get your stickers!",
-          description: "get your stickers!",
+          description: "Get your stickers!",
           icon: "sticker",
           link: ->(_) { shop_path },
           deps: [
-            Dep[:setup_hackatime, "you need to setup hackatime first!"]
+            Dep[:setup_hackatime, "You need to setup Hackatime first!"]
           ])
     ].freeze
 

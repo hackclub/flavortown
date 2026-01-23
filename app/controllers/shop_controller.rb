@@ -31,6 +31,11 @@ class ShopController < ApplicationController
   end
 
   def cancel_order
+    @order = current_user.shop_orders.find(params[:order_id])
+    if @order.aasm_state == "fulfilled"
+      redirect_to shop_my_orders_path, alert: "You cannot cancel an already fulfilled order."
+      return
+    end
     result = current_user.cancel_shop_order(params[:order_id])
 
     if result[:success]
@@ -51,7 +56,7 @@ class ShopController < ApplicationController
     @user_region = user_region
     @sale_price = @shop_item.price_for_region(@user_region)
     @accessories = @shop_item.available_accessories.includes(:image_attachment)
-    Ahoy.track "Viewed shop item", shop_item_id: @shop_item.id
+    ahoy.track "Viewed shop item", shop_item_id: @shop_item.id
   end
 
   def update_region
@@ -172,6 +177,7 @@ class ShopController < ApplicationController
     @shop_items = ShopItem.cached_buyable_standalone
     @shop_items = @shop_items.reject { |item| item.type == "ShopItem::FreeStickers" } if excluded_free_stickers
     @featured_item = featured_free_stickers_item unless excluded_free_stickers
+    @recently_added_items = ShopItem.enabled.listed.buyable_standalone.recently_added.includes(:image_attachment)
     @user_balance = current_user&.balance || 0
   end
 
