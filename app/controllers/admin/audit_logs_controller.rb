@@ -59,14 +59,19 @@ module Admin
 
     private
 
+    # Only allow looking up records for known audited models
+    ALLOWED_ITEM_TYPES = %w[
+      User Project ShopOrder ShopItem Post Post::Devlog Post::ShipEvent
+      Comment LedgerEntry ProjectMembership
+    ].freeze
+
     def find_affected_record
       return nil unless params[:item_type].present? && params[:item_id].present?
+      return nil unless params[:item_type].in?(ALLOWED_ITEM_TYPES)
 
-      klass = params[:item_type].safe_constantize
-      return nil unless klass
-
+      klass = params[:item_type].constantize
       klass.find_by(id: params[:item_id])
-    rescue
+    rescue NameError, StandardError
       nil
     end
   end
