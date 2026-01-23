@@ -59,7 +59,5 @@ class Api::V1::StoreController < Api::BaseController
 
   def show
     @item = ShopItem.enabled.listed.find_by!(id: params[:id])
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: "Item not found" }, status: :not_found
   end
 end

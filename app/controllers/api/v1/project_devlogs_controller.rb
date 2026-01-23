@@ -1,14 +1,17 @@
 class Api::V1::ProjectDevlogsController < Api::BaseController
   include ApiAuthenticatable
 
-  # we have these limits in the app/models/post/devlog file
+  before_action :set_project, only: %i[create update destroy]
+  before_action :check_perm!, only: %i[create update destroy]
+
   MAX_ATTACHMENT_COUNT = 8
 
   class_attribute :description, default: {
     index: "Fetch a list of devlogs for an project.",
     show: "Fetch a devlog by ID and project ID.",
     create: "Create a new devlog for a project.",
-    update: "Update an existing devlog for a project."
+    update: "Update an existing devlog for a project.",
+    destroy: "Delete a devlog from a project."
   }
 
   class_attribute :url_params_model, default: {
@@ -28,78 +31,23 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
     }
   }
 
+  MEDIA_SCHEMA = { url: String, content_type: String }.freeze
+  DEVLOG_SCHEMA = {
+    id: Integer, body: String, comments_count: Integer, duration_seconds: Integer,
+    likes_count: Integer, scrapbook_url: String, created_at: String, updated_at: String,
+    media: [ MEDIA_SCHEMA ]
+  }.freeze
+  PAGINATION_SCHEMA = {
+    current_page: Integer, total_pages: Integer,
+    total_count: Integer, next_page: "Integer || Null"
+  }.freeze
+
   class_attribute :response_body_model, default: {
-    index: {
-      devlogs: [
-        {
-          id: Integer,
-          body: String,
-          comments_count: Integer,
-          duration_seconds: Integer,
-          likes_count: Integer,
-          scrapbook_url: String,
-          created_at: String,
-          updated_at: String,
-          media: [
-            {
-              url: String,
-              content_type: String
-            }
-          ]
-        }
-      ]
-    },
-
-    show: {
-      id: Integer,
-      body: String,
-      comments_count: Integer,
-      duration_seconds: Integer,
-      likes_count: Integer,
-      scrapbook_url: String,
-      created_at: String,
-      updated_at: String,
-      media: [
-        {
-          url: String,
-          content_type: String
-        }
-      ]
-    },
-
-    create: {
-      id: Integer,
-      body: String,
-      comments_count: Integer,
-      duration_seconds: Integer,
-      likes_count: Integer,
-      scrapbook_url: String,
-      created_at: String,
-      updated_at: String,
-      media: [
-        {
-          url: String,
-          content_type: String
-        }
-      ]
-    },
-
-    update: {
-      id: Integer,
-      body: String,
-      comments_count: Integer,
-      duration_seconds: Integer,
-      likes_count: Integer,
-      scrapbook_url: String,
-      created_at: String,
-      updated_at: String,
-      media: [
-        {
-          url: String,
-          content_type: String
-        }
-      ]
-    }
+    index: { devlogs: [ DEVLOG_SCHEMA ], pagination: PAGINATION_SCHEMA },
+    show: DEVLOG_SCHEMA,
+    create: DEVLOG_SCHEMA,
+    update: DEVLOG_SCHEMA,
+    destroy: { message: String }
   }
 
   def index
@@ -116,96 +64,54 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
                           .includes(attachments_attachments: :blob)
                           .where(posts: { project_id: params[:project_id] })
                           .find_by!(id: params[:id])
-
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: "Devlog not found" }, status: :not_found
   end
 
   def create
-    @project = Project.find_by!(id: params[:project_id], deleted_at: nil)
-
-    # check permissions
-    unless @project.memberships.exists?(user: current_api_user)
-      render json: { error: "You do not have permission to add a devlog for this project" }, status: :forbidden
-      return
-    end
-
-    attachments_param = params[:attachments]
+    return render json: { error: "You must link at least one Hackatime project before posting a devlog" }, status: :unprocessable_entity unless @project.hackatime_keys.present?
 
     @devlog = Post::Devlog.new(devlog_params)
-    attach_attachments!(@devlog, attachments_param) if attachments_param.present?
+    attach_attachments!(@devlog, params[:attachments]) if params[:attachments].present?
 
-    # get hackatime time
-    render json: { error: "You must link at least one Hackatime project before posting a devlog" }, status: :unprocessable_entity and return unless @project.hackatime_keys.present?
     load_preview_time
-    @devlog.duration_seconds = @preview_seconds
-    unless @preview_seconds
-      render json: { error: "Could not get hackatime time" }, status: :unprocessable_entity and return
-    end
-    render json: { error: "You must have at least 15 minutes of coding time logged in Hackatime to create a devlog" }, status: :unprocessable_entity and return if @devlog.duration_seconds < 900
+    return render json: { error: "Could not get hackatime time" }, status: :unprocessable_entity unless @preview_seconds
+    return render json: { error: "You must have at least 15 minutes of coding time logged in Hackatime to create a devlog" }, status: :unprocessable_entity if @preview_seconds < 900
 
-    # save the devlog
+    @devlog.duration_seconds = @preview_seconds
     ActiveRecord::Base.transaction do
       @devlog.save!
       Post.create!(project: @project, user: current_api_user, postable: @devlog)
     end
     render :show, status: :created
-  rescue ActiveRecord::RecordInvalid => e
-    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
-  rescue StandardError => e
-    Sentry.capture_exception(e)
-    Rails.logger.error("[ProjectDevlogsController#create] #{e.class}: #{e.message}")
-    render json: { error: "An unexpected error occurred" }, status: :internal_server_error
   end
 
   def update
-    @project = Project.find_by!(id: params[:project_id], deleted_at: nil)
     @devlog = Post::Devlog.joins(:post).find_by!(id: params[:id], posts: { project_id: @project.id })
-    previous_body = @devlog.body
-
-    unless @project.memberships.exists?(user: current_api_user)
-      render json: { error: "You do not have permission to edit the devlogs for this project" }, status: :forbidden
-      return
-    end
+    prev = @devlog.body
 
     if @devlog.update(devlog_params)
-      if previous_body != @devlog.body
-        @devlog.create_version!(user: current_api_user, previous_body: previous_body)
-      end
+      @devlog.create_version!(user: current_api_user, previous_body: prev) if prev != @devlog.body
       render :show
     else
       render json: { errors: @devlog.errors.full_messages }, status: :unprocessable_entity
     end
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: "Devlog not found" }, status: :not_found
-  rescue ActiveRecord::RecordInvalid => e
-    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
-  rescue StandardError => e
-    Sentry.capture_exception(e)
-    Rails.logger.error("[ProjectDevlogsController#update] #{e.class}: #{e.message}")
-    render json: { error: "An unexpected error occurred" }, status: :internal_server_error
   end
 
   def destroy
-    @project = Project.find_by!(id: params[:project_id], deleted_at: nil)
     @devlog = Post::Devlog.joins(:post).find_by!(id: params[:id], posts: { project_id: @project.id })
-
-    unless @project.memberships.exists?(user: current_api_user)
-      render json: { error: "You do not have permission to delete devlogs for this project" }, status: :forbidden
-      return
-    end
-
     @devlog.soft_delete!
     render json: { message: "Devlog deleted successfully" }, status: :ok
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: "Devlog not found" }, status: :not_found
-  rescue StandardError => e
-    Sentry.capture_exception(e)
-    Rails.logger.error("[ProjectDevlogsController#destroy] #{e.class}: #{e.message}")
-    render json: { error: "An unexpected error occurred" }, status: :internal_server_error
   end
 
   private
+
+  def set_project
+    @project = Project.find_by!(id: params[:project_id], deleted_at: nil)
+  end
+
+  def check_perm!
+    return if @project.memberships.exists?(user: current_api_user)
+    render json: { error: "You do not have permission to modify devlogs for this project" }, status: :forbidden
+  end
 
   def devlog_params
     params.permit(:body)
@@ -246,9 +152,5 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
 
       @preview_seconds = [ total_seconds - already_logged, 0 ].max
     end
-  rescue => e
-    Sentry.capture_exception(e)
-    Rails.logger.error "Failed to load preview time: #{e.message}"
-    @preview_seconds = nil
   end
 end
