@@ -3,34 +3,66 @@ import { Controller } from "@hotwired/stimulus";
 export default class extends Controller {
   static values = { target: String };
 
+  connect() {
+    this._boundBackdropClick = this.backdropClick.bind(this);
+
+    this.element.addEventListener("click", this._boundBackdropClick);
+  }
+
+  disconnect() {
+    this.element.removeEventListener("click", this._boundBackdropClick);
+  }
+
   open() {
     const modal = document.getElementById(this.targetValue);
-    if (modal) {
+    if (!modal) return;
+
+    if (modal.tagName === "DIALOG") {
+      modal.showModal();
+    } else {
       modal.style.display = "flex";
-      document.body.style.overflow = "hidden";
     }
+
+    document.body.style.overflow = "hidden";
   }
 
   close() {
+    if (this.element.tagName === "DIALOG") {
+      this.element.close();
+      document.body.style.overflow = "";
+      return;
+    }
+
+    if (this.hasTargetValue) {
+      const modal = document.getElementById(this.targetValue);
+      if (modal) {
+        if (modal.tagName === "DIALOG") {
+          modal.close();
+        } else {
+          modal.style.display = "none";
+        }
+      }
+      document.body.style.overflow = "";
+      return;
+    }
+
     this.element.style.display = "none";
     document.body.style.overflow = "";
   }
 
-  closeOnEscape(event) {
-    if (event.key === "Escape") {
-      this.close();
+  backdropClick(event) {
+    if (this.element.tagName !== "DIALOG") {
+      if (event.target === this.element) this.close();
+      return;
     }
-  }
 
-  connect() {
-    if (this.element.classList.contains("modal")) {
-      document.addEventListener("keydown", this.closeOnEscape.bind(this));
-    }
-  }
+    const rect = this.element.getBoundingClientRect();
+    const clickedInside =
+      event.clientX >= rect.left &&
+      event.clientX <= rect.right &&
+      event.clientY >= rect.top &&
+      event.clientY <= rect.bottom;
 
-  disconnect() {
-    if (this.element.classList.contains("modal")) {
-      document.removeEventListener("keydown", this.closeOnEscape.bind(this));
-    }
+    if (!clickedInside) this.close();
   }
 }
