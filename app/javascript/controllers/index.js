@@ -28,9 +28,6 @@ application.register("dropdown", DropdownController);
 import FileUploadController from "./file_upload_controller";
 application.register("file-upload", FileUploadController);
 
-import FlagshipModalController from "./flagship_modal_controller";
-application.register("flagship-modal", FlagshipModalController);
-
 import FlashController from "./flash_controller";
 application.register("flash", FlashController);
 
