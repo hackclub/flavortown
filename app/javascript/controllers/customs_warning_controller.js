@@ -7,6 +7,46 @@ export default class extends Controller {
     usOriginMessage: String,
     ukOriginMessage: String,
     unknownOriginMessage: String,
+    customRegionMessage: String,
+    sourceRegion: String,
+  };
+
+  static c = {
+    US: ["US"],
+    EU: [
+      "AT",
+      "BE",
+      "BG",
+      "HR",
+      "CY",
+      "CZ",
+      "DK",
+      "EE",
+      "FI",
+      "FR",
+      "DE",
+      "GR",
+      "HU",
+      "IE",
+      "IT",
+      "LV",
+      "LT",
+      "LU",
+      "MT",
+      "NL",
+      "PL",
+      "PT",
+      "RO",
+      "SK",
+      "SI",
+      "ES",
+      "SE",
+    ],
+    UK: ["GB"],
+    IN: ["IN"],
+    CA: ["CA"],
+    AU: ["AU", "NZ"],
+    XX: [],
   };
 
   connect() {
@@ -38,6 +78,11 @@ export default class extends Controller {
         shouldShow = true;
         message = this.unknownOriginMessageValue;
         break;
+      case "custom_region":
+        shouldShow =
+          country !== null && !this.ccRegion(country, this.sourceRegionValue);
+        message = this.customRegionMessageValue;
+        break;
       default:
         shouldShow = false;
     }
@@ -48,5 +93,14 @@ export default class extends Controller {
     } else {
       this.warningTarget.style.display = "none";
     }
+  }
+
+  ccRegion(countryCode, regionCode) {
+    if (!regionCode) return true;
+
+    const countries = this.constructor.c[regionCode.toUpperCase()];
+    if (!countries) return false;
+
+    return countries.includes(countryCode.toUpperCase());
   }
 }
