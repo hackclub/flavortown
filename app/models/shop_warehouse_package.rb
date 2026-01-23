@@ -49,6 +49,10 @@ class ShopWarehousePackage < ApplicationRecord
     end
 
     contents += bonus_stickers
+    contents += {
+      "sku": "Pri/Fla/4x6/1st",
+      "quantity": 10
+    }
 
     Rails.logger.info "Sending warehouse package #{id} to Theseus for user #{user_id} with orders #{shop_orders.pluck(:id).join(', ')}\nContents: #{contents.inspect}"
 
