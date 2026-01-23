@@ -5,7 +5,8 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @view = params[:view] || "shop_orders"
 
     # Fulfillment team can only access fulfillment view - auto-redirect if needed
-    if current_user.fulfillment_person? && !current_user.admin?
+    # But fraud_dept members with fulfillment_person role should have full access
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       if @view != "fulfillment"
         redirect_to admin_shop_orders_path(view: "fulfillment") and return
       end
@@ -53,7 +54,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     # Apply region filter using database-level query (now that orders have a region column)
     # Fulfillment persons see orders in their regions OR orders assigned to them OR orders with nil region (legacy/no address)
-    if current_user.fulfillment_person? && !current_user.admin? && current_user.has_regions?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept? && current_user.has_regions?
       orders = orders.where(region: current_user.regions)
                      .or(orders.where(region: nil))
                      .or(orders.where(assigned_to_user_id: current_user.id))
@@ -105,7 +106,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def show
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -113,7 +114,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @order = ShopOrder.find(params[:id])
 
     # Fulfillment persons can only view orders in their regions, assigned to them, or with nil region
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       can_access = @order.assigned_to_user_id == current_user.id
       can_access ||= @order.region.nil?
       can_access ||= current_user.has_regions? && current_user.has_region?(@order.region)
@@ -147,7 +148,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def reveal_address
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -267,7 +268,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def mark_fulfilled
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -292,7 +293,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def update_internal_notes
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?

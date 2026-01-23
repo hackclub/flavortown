@@ -236,7 +236,14 @@
       </div>
     <% end %>
     <% if @order.external_ref.present? %>
-      <div><b>Tracking/External Reference:</b> <%= @order.external_ref %></div>
+      <div>
+        <b>Tracking/External Reference:</b>
+        <% if @order.shop_item.type.in?(%w[ShopItem::LetterMail ShopItem::FreeStickers]) %>
+          <a href="https://mail.hackclub.com/back_office/letters/#{@order.external_ref}" target="_blank"><%= @order.external_ref %></a>
+        <% else %>
+          <%= @order.external_ref %>
+        <% end %>
+      </div>
     <% end %>
     <% if @order.fulfilled_by.present? %>
       <div><b>Fulfilled By:</b> <%= @order.fulfilled_by %></div>
