@@ -34,66 +34,11 @@ class Api::V1::ProjectsController < Api::BaseController
     }
   }
 
-  class_attribute :response_body_model, default: {
-    index: {
-      projects: [
-        {
-          id: Integer,
-          title: String,
-          description: String,
-          repo_url: String,
-          demo_url: String,
-          readme_url: String,
-          ai_declaration: String,
-          devlog_ids: [ Integer ],
-          created_at: String,
-          updated_at: String
-        }
-      ]
-    },
-
-    show: {
-      id: Integer,
-      title: String,
-      description: String,
-      repo_url: String,
-      demo_url: String,
-      readme_url: String,
-      ai_declaration: String,
-      devlog_ids: [ Integer ],
-      created_at: String,
-      updated_at: String
-    },
-
-    create: {
-      id: Integer,
-      title: String,
-      description: String,
-      repo_url: String,
-      demo_url: String,
-      readme_url: String,
-      ai_declaration: String,
-      devlog_ids: [ Integer ],
-      created_at: String,
-      updated_at: String
-    },
-
-    update: {
-      id: Integer,
-      title: String,
-      description: String,
-      repo_url: String,
-      demo_url: String,
-      readme_url: String,
-      ai_declaration: String,
-      devlog_ids: [ Integer ],
-      created_at: String,
-      updated_at: String
-    }
   PROJECT_SCHEMA = {
     id: Integer, title: String, description: String, repo_url: String,
-    demo_url: String, readme_url: String, ship_status: String,
-    devlog_ids: [ Integer ], created_at: String, updated_at: String
+    demo_url: String, readme_url: String, ai_declaration: String,
+    ship_status: String, devlog_ids: [ Integer ], created_at: String,
+    updated_at: String
   }.freeze
 
   PAGINATION_SCHEMA = {
