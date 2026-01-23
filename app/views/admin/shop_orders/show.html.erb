@@ -1,6 +1,6 @@
-<h1 style="font-size: 1.5rem; margin-bottom: 1rem;">Order #<%= @order.id %></h1>
+<h1 class="admin-section__header" style="font-size: 1.5rem; margin-bottom: 1rem;">Order #<%= @order.id %></h1>
 
-<div class="card" style="padding: 1rem; margin-bottom: 1rem;">
+<div class="admin-section">
   <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
     <div>
       <span style="font-size: 0.75rem; color: #6b7280; display: block;">Status</span>
@@ -52,8 +52,8 @@
 </div>
 
 <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-  <div class="card" style="flex: 1; padding: 1rem;">
-    <h2 style="color: #a855f7; font-size: 1rem; margin-bottom: 0.75rem;">Shop Orders Summary</h2>
+  <div class="admin-section" style="flex: 1; margin-bottom: 0;">
+    <h2 class="admin-section__header admin-section__header--purple">Shop Orders Summary</h2>
     <div style="font-size: 0.875rem; line-height: 1.6;">
       <div><strong>Total Orders:</strong> <%= @user_order_stats[:total] %></div>
       <div><strong>Fulfilled:</strong> <%= @user_order_stats[:fulfilled] %></div>
@@ -79,8 +79,8 @@
     <% end %>
   </div>
 
-  <div class="card" style="flex: 1; padding: 1rem;">
-    <h2 style="color: #a855f7; font-size: 1rem; margin-bottom: 0.75rem;">shop item</h2>
+  <div class="admin-section" style="flex: 1; margin-bottom: 0;">
+    <h2 class="admin-section__header admin-section__header--purple">Shop Item</h2>
     <% item = @order.shop_item %>
     <%= link_to item.name, "#", style: "color: #60a5fa; font-size: 0.95rem; text-decoration: underline;" %>
     <div style="font-size: 0.875rem; line-height: 1.6; margin-top: 0.5rem;">
@@ -99,8 +99,8 @@
 </div>
 
 <% if @order.parent_order.present? %>
-<div class="card" style="padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #f59e0b;">
-  <h2 style="color: #f59e0b; font-size: 1rem; margin-bottom: 0.5rem;">🔗 This is an Accessory Order</h2>
+<div class="admin-section" style="border-left: 4px solid #f59e0b;">
+  <h2 class="admin-section__header admin-section__header--amber">🔗 This is an Accessory Order</h2>
   <div style="font-size: 0.875rem;">
     <p style="margin: 0;">This accessory was ordered with:</p>
     <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 0.5rem; padding: 0.5rem; background: #fffbeb; border-radius: 4px;">
@@ -118,8 +118,8 @@
 <% end %>
 
 <% if @order.accessory_orders.any? %>
-<div class="card" style="padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #10b981;">
-  <h2 style="color: #10b981; font-size: 1rem; margin-bottom: 0.75rem;">🎁 Accessories Ordered</h2>
+<div class="admin-section" style="border-left: 4px solid #10b981;">
+  <h2 class="admin-section__header admin-section__header--green">🎁 Accessories Ordered</h2>
   <div style="display: flex; flex-direction: column; gap: 0.5rem;">
     <% @order.accessory_orders.includes(shop_item: { image_attachment: :blob }).each do |acc_order| %>
       <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; background: #f0fdf4; border-radius: 4px;">
@@ -146,8 +146,8 @@
 <% end %>
 
 <% if @can_view_address %>
-<div class="card">
-  <h2>Shipping Address</h2>
+<div class="admin-section">
+  <h2 class="admin-section__header">Shipping Address</h2>
   <% if @can_view_address %>
     <div id="address-container">
 
@@ -174,8 +174,8 @@
 </div>
 <% end %>
 
-<div class="card">
-  <h2>Fulfillment Information</h2>
+<div class="admin-section">
+  <h2 class="admin-section__header">Fulfillment Information</h2>
   <div class="info-rows">
     <% if current_user.admin? %>
       <div style="margin-bottom: 1rem;">
@@ -254,8 +254,8 @@
 </div>
 
 <% if @order.shop_card_grant_id.present? %>
-  <div class="card">
-    <h2>Card Grant</h2>
+  <div class="admin-section">
+    <h2 class="admin-section__header">Card Grant</h2>
     <div class="info-rows">
       <div><b>Card Grant ID:</b> <%= @order.shop_card_grant_id %></div>
       <% if @order.shop_card_grant&.hcb_grant_hashid.present? %>
@@ -275,32 +275,32 @@
 <% end %>
 
 <% if @order.warehouse_package_id.present? %>
-  <div class="card">
-    <h2>Warehouse Package</h2>
+  <div class="admin-section">
+    <h2 class="admin-section__header">Warehouse Package</h2>
     <div class="info-rows">
       <div><b>Package ID:</b> <%= @order.warehouse_package_id %></div>
     </div>
   </div>
 <% end %>
 
-<div class="card" style="margin-top: 0.75rem; padding: 0.4rem; width: 50%;">
-<h2>Buttons!</h2>
-  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.25rem;">
-    <%= link_to "← Back", admin_shop_orders_path, class: "btn-secondary", style: "text-align: center; padding: 0.2rem 0.4rem;" %>
+<div class="admin-section" style="width: 50%;">
+  <h2 class="admin-section__header">Actions</h2>
+  <div class="admin-button-grid">
+    <%= link_to "← Back", admin_shop_orders_path, class: "admin-btn admin-btn--secondary" %>
     <% unless current_user.fulfillment_person? %>
-      <%= link_to "View User", admin_user_path(@order.user), class: "btn-primary", style: "text-align: center; padding: 0.2rem 0.4rem;" %>
+      <%= link_to "View User", admin_user_path(@order.user), class: "admin-btn admin-btn--primary" %>
     <% end %>
 
     <% if @order.pending? %>
       <form method="post" action="<%= approve_admin_shop_order_path(@order) %>">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
+        <button type="submit" class="admin-btn admin-btn--primary" onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
       </form>
     <% end %>
 
     <%# Reject button for all non-fulfilled states %>
     <% if %w[pending awaiting_verification awaiting_periodical_fulfillment on_hold].include?(@order.aasm_state) %>
-      <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="btn-danger" style="width: 100%; padding: 0.2rem 0.4rem;">✗ Reject</button>
+      <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="admin-btn admin-btn--danger">✗ Reject</button>
       <%= render "reject_modal", order: @order %>
     <% end %>
 
@@ -308,39 +308,49 @@
     <% if @order.awaiting_verification? %>
       <form method="post" action="<%= refresh_verification_admin_shop_order_path(@order) %>">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Refresh verification status for this user?')">🔄 Refresh Verification</button>
+        <button type="submit" class="admin-btn admin-btn--primary" onclick="return confirm('Refresh verification status for this user?')">🔄 Refresh Verification</button>
       </form>
     <% end %>
 
     <% if (@order.pending? || @order.awaiting_verification? || @order.awaiting_periodical_fulfillment?) && !current_user.fulfillment_person? %>
       <form method="post" action="<%= place_on_hold_admin_shop_order_path(@order) %>">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <button type="submit" class="btn-secondary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Place this order on hold?')">⏸ Hold</button>
+        <button type="submit" class="admin-btn admin-btn--secondary" onclick="return confirm('Place this order on hold?')">⏸ Hold</button>
       </form>
     <% end %>
 
     <% if @order.awaiting_periodical_fulfillment? && (current_user.admin? || current_user.fulfillment_person?) %>
-      <form method="post" action="<%= mark_fulfilled_admin_shop_order_path(@order) %>">
-        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Mark this order as fulfilled?')">✔ Fulfilled</button>
-      </form>
+      <% m = 'fulfillment-modal' %>
+      <button type="button" class="admin-btn admin-btn--primary" onclick="document.getElementById(<%= m.to_json %>).showModal()">Mark as Fulfilled</button>
+      <dialog id="<%= m %>" class="fulfill-dialog">
+        <h3>Mark order fulfilled</h3>
+        <form method="post" action="<%= mark_fulfilled_admin_shop_order_path(@order) %>">
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <label>Spent (USD)<input type="number" name="fulfillment_cost" step="0.01" min="0" placeholder="0.00" autocomplete="off"></label>
+          <label>Order #<input type="text" name="external_ref" placeholder="e.g. ORD-12345" autocomplete="off"></label>
+          <div class="fulfill-actions">
+            <button type="button" class="btn-secondary" onclick="document.getElementById(<%= m.to_json %>).close()">Cancel</button>
+            <button type="submit" class="btn-primary">Mark as Fulfilled</button>
+          </div>
+        </form>
+      </dialog>
     <% end %>
 
     <% if @order.on_hold? %>
       <form method="post" action="<%= release_from_hold_admin_shop_order_path(@order) %>">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.2rem 0.4rem;" onclick="return confirm('Release this order from hold?')">▶ Release</button>
+        <button type="submit" class="admin-btn admin-btn--primary" onclick="return confirm('Release this order from hold?')">▶ Release</button>
       </form>
     <% end %>
   </div>
 </div>
 
-<div class="card" style="margin-top: 1rem;">
+<div class="admin-section">
   <details style="cursor: pointer;">
-    <summary style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; user-select: none; color: #374151;">
+    <summary class="admin-section__summary">
       📝 Internal Notes
     </summary>
-    <div style="padding-top: 0.5rem;">
+    <div class="admin-section__content">
       <form method="post" action="<%= update_internal_notes_admin_shop_order_path(@order) %>">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
         <textarea name="internal_notes" rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; resize: vertical;"><%= @order.internal_notes %></textarea>
@@ -352,13 +362,13 @@
 
 <%= render Admin::PastOrdersComponent.new(user: @order.user, orders: @user_orders) %>
 
-<div class="card" style="margin-top: 2rem;">
+<div class="admin-section">
   <% versions = @order.versions.order(created_at: :desc) %>
   <details style="cursor: pointer;">
-    <summary style="font-size: 0.875rem; font-weight: 600; padding: 0.25rem 0; user-select: none; color: #374151;">
+    <summary class="admin-section__summary">
       📜 Audit Log (<%= versions.count %>)
     </summary>
-    <div style="padding-top: 0.5rem;">
+    <div class="admin-section__content">
   <% if versions.any? %>
     <ul style="list-style: none; padding: 0; margin: 0;">
       <% versions.each do |version| %>

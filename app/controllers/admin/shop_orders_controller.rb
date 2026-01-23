@@ -275,7 +275,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @order = ShopOrder.find(params[:id])
     old_state = @order.aasm_state
 
-    if @order.mark_fulfilled && @order.save
+    if @order.mark_fulfilled(params[:external_ref].presence, params[:fulfillment_cost].presence, current_user.display_name) && @order.save
       PaperTrail::Version.create!(
         item_type: "ShopOrder",
         item_id: @order.id,
