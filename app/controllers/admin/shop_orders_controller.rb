@@ -98,7 +98,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           total_shells: user_orders.sum { |o| o.total_cost || 0 },
           address: user_orders.first&.decrypted_address_for(current_user)
         }
-      end
+      end.sort_by { |g| -g[:orders].size }
     else
       @shop_orders = orders
     end
@@ -182,7 +182,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     if @order.shop_item.respond_to?(:fulfill!)
       @order.approve!
-      redirect_to admin_shop_orders_path, notice: "Order approved and fulfilled" and return
+      redirect_to shop_orders_return_path, notice: "Order approved and fulfilled" and return
     end
 
     if @order.queue_for_fulfillment && @order.save
@@ -195,7 +195,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           aasm_state: [ old_state, @order.aasm_state ]
         }
       )
-      redirect_to admin_shop_orders_path, notice: "Order approved for fulfillment"
+      redirect_to shop_orders_return_path, notice: "Order approved for fulfillment"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to approve order: #{@order.errors.full_messages.join(', ')}"
     end
@@ -218,7 +218,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           rejection_reason: [ nil, reason ]
         }
       )
-      redirect_to admin_shop_orders_path, notice: "Order rejected"
+      redirect_to shop_orders_return_path, notice: "Order rejected"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to reject order: #{@order.errors.full_messages.join(', ')}"
     end
@@ -239,7 +239,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           aasm_state: [ old_state, @order.aasm_state ]
         }
       )
-      redirect_to admin_shop_orders_path, notice: "Order placed on hold"
+      redirect_to shop_orders_return_path, notice: "Order placed on hold"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to place order on hold: #{@order.errors.full_messages.join(', ')}"
     end
@@ -260,7 +260,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           aasm_state: [ old_state, @order.aasm_state ]
         }
       )
-      redirect_to admin_shop_orders_path, notice: "Order released from hold"
+      redirect_to shop_orders_return_path, notice: "Order released from hold"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to release order from hold: #{@order.errors.full_messages.join(', ')}"
     end
@@ -367,6 +367,18 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to admin_shop_order_path(@order), alert: "Failed to cancel HCB grant: #{e.message}"
     end
   end
+  private
+
+  def shop_orders_return_path
+    # Preserve the view and status params for redirecting back to the list
+    params_to_keep = {}
+    params_to_keep[:view] = params[:return_view] if params[:return_view].present?
+    params_to_keep[:status] = params[:return_status] if params[:return_status].present?
+    admin_shop_orders_path(params_to_keep)
+  end
+
+  public
+
   def refresh_verification
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
