@@ -46,8 +46,14 @@ class YswsReviewSyncJob < ApplicationJob
     user = User.find_by(slack_id: slack_id)
     return if user.nil?
 
-    user_pii = extract_user_pii(user)
     approved_orders = user.shop_orders.where(aasm_state: "fulfilled").includes(:shop_item)
+
+    if approved_orders.count < 2
+      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: user #{slack_id} has only #{approved_orders.count} fulfilled order(s) (< 2)"
+      return
+    end
+
+    user_pii = extract_user_pii(user)
 
     create_airtable_record(current_review, user_pii, approved_orders)
   end
