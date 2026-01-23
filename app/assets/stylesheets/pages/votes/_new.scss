@@ -12,11 +12,6 @@
     width: 100%;
     margin-bottom: 2em;
 
-    &__title {
-      font-size: 2.5rem;
-      font-family: var(--font-family-text);
-    }
-
     &__stack {
       width: 50%;
     }
@@ -491,12 +486,12 @@
     }
 
     &:hover,
-    &:hover ~ .vote-category__star {
+    &:hover~.vote-category__star {
       color: var(--color-yellow-450);
     }
   }
 
-  &__input:checked ~ .vote-category__star {
+  &__input:checked~.vote-category__star {
     color: var(--color-yellow-450);
   }
 
