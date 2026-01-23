@@ -2,17 +2,14 @@
 
 <div class="queue-summary">
   <div class="queue-stat queue-stat--warning">
-    <span class="queue-stat__value"><%= @pending_orders.count %></span>
+    <span class="queue-stat__value"><%= @pending_orders.count + @on_hold_orders.count %></span>
     <span class="queue-stat__label">Pending</span>
-  </div>
-  <div class="queue-stat queue-stat--info">
-    <span class="queue-stat__value"><%= @on_hold_orders.count %></span>
-    <span class="queue-stat__label">On Hold</span>
   </div>
 </div>
 
+<% all_orders = @pending_orders + @on_hold_orders %>
 <h2>Pending Orders</h2>
-<% if @pending_orders.any? %>
+<% if all_orders.any? %>
   <table class="queue-table">
     <thead>
       <tr>
@@ -23,7 +20,7 @@
       </tr>
     </thead>
     <tbody>
-      <% @pending_orders.each do |order| %>
+      <% all_orders.sort_by(&:created_at).each do |order| %>
         <tr>
           <td><%= order.id %></td>
           <td><%= order.user&.display_name || "Unknown" %></td>
@@ -34,33 +31,7 @@
     </tbody>
   </table>
 <% else %>
-  <p class="queue-empty">No pending orders 🎉</p>
-<% end %>
-
-<h2>On Hold</h2>
-<% if @on_hold_orders.any? %>
-  <table class="queue-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>User</th>
-        <th>Created</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @on_hold_orders.each do |order| %>
-        <tr>
-          <td><%= order.id %></td>
-          <td><%= order.user&.display_name || "Unknown" %></td>
-          <td><%= time_ago_in_words(order.created_at) %> ago</td>
-          <td><%= link_to "Review", admin_shop_order_path(order), class: "btn-primary slim" %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-<% else %>
-  <p class="queue-empty">No orders on hold</p>
+  <p class="queue-empty">No orders 🎉</p>
 <% end %>
 
 <%= link_to "← Back to Dashboard", admin_fraud_dashboard_path, class: "btn-secondary" %>
