@@ -136,13 +136,11 @@
     <% if project.ai_declaration.present? %>
       <div class="project-show-card__ai-declaration">
         <div class="project-show-card__ai-declaration-header">
-          🤖 This project uses AI
+          <span aria-hidden="true">🤖</span> <span>This project uses AI</span>
         </div>
-        <% if can_view_ai_declaration_details? %>
-          <div class="project-show-card__ai-declaration-body">
-            <%= helpers.md project.ai_declaration %>
-          </div>
-        <% end %>
+        <div style="margin-top: 8px; font-size: 0.9em; color: var(--color-blue-600);">
+          <%= helpers.md project.ai_declaration %>
+        </div>
       </div>
     <% end %>
 
