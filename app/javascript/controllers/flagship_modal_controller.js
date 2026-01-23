@@ -32,6 +32,23 @@ export default class extends Controller {
     if (modal) {
       modal.close();
       document.body.style.overflow = "";
+      this.dismissAd();
     }
+  }
+
+  dismissAd() {
+    fetch("/my/dismiss_thing", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": this.getCsrfToken(),
+      },
+      body: JSON.stringify({ thing_name: "flagship_ad" }),
+    }).catch((error) => console.error("Error dismissing ad:", error));
+  }
+
+  getCsrfToken() {
+    const token = document.querySelector('meta[name="csrf-token"]');
+    return token ? token.getAttribute("content") : "";
   }
 }

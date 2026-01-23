@@ -224,6 +224,11 @@ class User < ApplicationRecord
     try_sync_hackatime_data!&.dig(:projects)&.values&.sum || 0
   end
 
+  def has_logged_one_hour?
+    return true
+    all_time_coding_seconds >= 3600
+  end
+
   def highest_role
     roles.min_by { |r| User::Role.all_slugs.index(r) }&.to_s&.titleize || "User"
   end

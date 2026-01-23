@@ -4,44 +4,44 @@
 
 <div class="kitchen-index">
 <div class="kitchen-index__header">
-  <%= render HeadingComponent.new(title: "Kitchen", tone: :blue, size: :full) %>
+  <%= render HeadingComponent.new(title: "Kitchen", tone: :blue) %>
   <% if @show_flagship_ad %>
     <button class="kitchen-index__ad" type="button" data-controller="flagship-modal" data-action="click->flagship-modal#open">
       <span class="kitchen-index__ad-bg"></span>
       <%= image_tag "creators.png", alt: "Campfire Flagship", class: "kitchen-index__ad-image" %>
       <span class="kitchen-index__ad-badge">!</span>
-      <span class="kitchen-index__ad-close" data-action="click->flagship-modal#close">×</span>
+      <button class="kitchen-index__ad-close" type="button" data-action="click->flagship-modal#close" aria-label="Dismiss ad">×</button>
     </button>
-
-    <dialog id="flagship-modal" class="flagship-modal" data-controller="flagship-modal">
-      <div class="flagship-modal__content">
-        <button type="button" class="flagship-modal__close" data-action="click->flagship-modal#close" aria-label="Close modal">×</button>
-
-        <div class="flagship-modal__header">
-          <%= image_tag "campfire-flagship-logo.png", alt: "Campfire Flagship", class: "flagship-modal__logo" %>
-        </div>
-
-        <div class="flagship-modal__body">
-          <p class="flagship-modal__headline">We're running an IRL game jam with <a href="https://www.youtube.com/@MichaelReeves" target="_blank" rel="noopener noreferrer">Michael Reeves</a>, <a href="https://www.youtube.com/@williamosman" target="_blank" rel="noopener noreferrer">William Osman</a>, and more!</p>
-
-          <h3 class="flagship-modal__subheading">Here's how it works:</h3>
-
-          <ul class="flagship-modal__list">
-            <li><span class="highlight">Spend 30-60 hours</span> making a game</li>
-            <li>Join workshops and community events, and learn together</li>
-            <li><span class="highlight">Get flown out to Los Angeles on February 20th</span> along with 150 other teenage game developers!</li>
-          </ul>
-
-          <div class="flagship-modal__cta-section">
-            <a href="https://flagship.hackclub.com?utm_source=flavortown-ad" class="flagship-modal__button" target="_blank" rel="noopener noreferrer">Sign up and get free stickers!</a>
-            <%= image_tag "sticker.png", alt: "Sticker", class: "flagship-modal__sticker" %>
-          </div>
-
-          <p class="flagship-modal__footer">Made a game before? <a href="https://forms.hackclub.com/cf-flagship-cool-game-app" target="_blank" rel="noopener noreferrer">Fill out this form</a> and get a 5-hour starting boost!</p>
-        </div>
-      </div>
-    </dialog>
   <% end %>
+  
+  <dialog id="flagship-modal" class="flagship-modal" data-controller="flagship-modal">
+    <div class="flagship-modal__content">
+      <button type="button" class="flagship-modal__close" data-action="click->flagship-modal#close" aria-label="Close modal">×</button>
+      
+      <div class="flagship-modal__header">
+        <%= image_tag "campfire-flagship-logo.png", alt: "Campfire Flagship", class: "flagship-modal__logo" %>
+      </div>
+      
+      <div class="flagship-modal__body">
+        <p class="flagship-modal__headline">We're running an IRL game jam with <a href="https://www.youtube.com/@MichaelReeves" target="_blank" rel="noopener noreferrer">Michael Reeves</a>, <a href="https://www.youtube.com/@williamosman" target="_blank" rel="noopener noreferrer">William Osman</a>, and more!</p>
+        
+        <h3 class="flagship-modal__subheading">Here's how it works:</h3>
+        
+        <ul class="flagship-modal__list">
+          <li><span class="highlight">Spend 30-60 hours</span> making a game</li>
+          <li>Join workshops and community events, and learn together</li>
+          <li><span class="highlight">Get flown out to Los Angeles on February 20th</span> along with 150 other teenage game developers!</li>
+        </ul>
+        
+        <div class="flagship-modal__cta-section">
+          <a href="https://flagship.hackclub.com?utm_source=flavortown-ad" class="flagship-modal__button" target="_blank" rel="noopener noreferrer">Sign up and get free stickers!</a>
+          <%= image_tag "sticker.png", alt: "Sticker", class: "flagship-modal__sticker" %>
+        </div>
+        
+        <p class="flagship-modal__footer">Made a game before? <a href="https://forms.hackclub.com/cf-flagship-cool-game-app" target="_blank" rel="noopener noreferrer">Fill out this form</a> and get a 5-hour starting boost!</p>
+      </div>
+    </div>
+  </dialog>
 </div>
 
   <% if @show_welcome_overlay %>
@@ -288,41 +288,6 @@
   <div class="kitchen-stats">
     <%= render KitchenStatsComponent.new(user: current_user) %>
   </div>
-  <% if @recently_added_items.any? %>
-    <section class="kitchen-recently-added">
-      <div class="kitchen-recently-added__header">
-        <h2 class="kitchen-recently-added__title">Recently Added to Shop</h2>
-        <p class="kitchen-recently-added__subtitle">fresh off the shelf, check these out!</p>
-      </div>
-      <div class="kitchen-recently-added__items">
-        <% @recently_added_items.each do |item| %>
-          <% next unless item.image.present? && item.enabled_in_region?(@user_region) %>
-          <% sale_price = item.price_for_region(@user_region) %>
-          <%= render ShopItemCardComponent.new(
-            item_id: item.id,
-            name: item.name,
-            description: item.description,
-            hours: item.fixed_estimate(sale_price).to_i,
-            price: item.ticket_cost,
-            image_url: item.image.variant(:carousel_lg),
-            item_type: item.type,
-            balance: @user_balance,
-            enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
-            regional_price: sale_price,
-            logged_in: current_user.present?,
-            remaining_stock: item.remaining_stock,
-            limited: item.limited?,
-            on_sale: item.on_sale?,
-            sale_percentage: item.sale_percentage,
-            original_price: item.ticket_cost,
-            created_at: item.created_at,
-            show_bow: true,
-            show_time_ago: true
-          ) %>
-        <% end %>
-      </div>
-    </section>
-  <% end %>
   <div class="kitchen-help">
     <%= render KitchenHelpCardsComponent %>
   </div>
