@@ -256,6 +256,8 @@ Rails.application.routes.draw do
     end
   end
 
+  get "queue", to: "queue#index"
+
   # Project Ideas
   resources :project_ideas, only: [] do
     collection do
