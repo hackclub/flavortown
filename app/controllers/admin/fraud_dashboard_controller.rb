@@ -102,7 +102,7 @@ module Admin
           FROM versions v
           WHERE v.item_type = ?
             AND v.item_id = r.id
-            AND (v.object_changes ? ?)
+            AND (v.object_changes ?? ?)
             AND v.created_at >= r.r_at
             AND (v.object_changes -> ? ->> 1) = ANY (?)
           ORDER BY v.created_at ASC
