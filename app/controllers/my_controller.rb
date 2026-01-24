@@ -46,6 +46,17 @@ class MyController < ApplicationController
     head :ok
   end
 
+  def dismiss_thing
+    thing_name = params[:thing_name]
+    return head :bad_request unless thing_name.present?
+
+    current_user.dismiss_thing!(thing_name)
+    head :ok
+  rescue StandardError => e
+    Rails.logger.error("Error dismissing thing: #{e.message}")
+    head :internal_server_error
+  end
+
   private
 
   def require_login
