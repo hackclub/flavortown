@@ -35,6 +35,8 @@ class KitchenController < ApplicationController
       @show_hackatime_tutorial = false
       @show_slack_tutorial = false
     end
+
+    @show_flagship_ad = current_user.has_logged_one_hour? && !current_user.has_dismissed?(:flagship_ad)
   end
 
   private
