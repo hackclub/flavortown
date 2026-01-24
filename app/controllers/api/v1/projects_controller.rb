@@ -21,21 +21,24 @@ class Api::V1::ProjectsController < Api::BaseController
       description: { type: String, desc: "Project description", required: true },
       repo_url: { type: String, desc: "URL to the source code repository", required: false },
       demo_url: { type: String, desc: "URL to the live demo", required: false },
-      readme_url: { type: String, desc: "URL to the README", required: false }
+      readme_url: { type: String, desc: "URL to the README", required: false },
+      ai_declaration: { type: String, desc: "Declaration of AI tools used in this project", required: false }
     },
     update: {
       title: { type: String, desc: "Project title", required: false },
       description: { type: String, desc: "Project description", required: false },
       repo_url: { type: String, desc: "URL to the source code repository", required: false },
       demo_url: { type: String, desc: "URL to the live demo", required: false },
-      readme_url: { type: String, desc: "URL to the README", required: false }
+      readme_url: { type: String, desc: "URL to the README", required: false },
+      ai_declaration: { type: String, desc: "Declaration of AI tools used in this project", required: false }
     }
   }
 
   PROJECT_SCHEMA = {
     id: Integer, title: String, description: String, repo_url: String,
-    demo_url: String, readme_url: String, ship_status: String,
-    devlog_ids: [ Integer ], created_at: String, updated_at: String
+    demo_url: String, readme_url: String, ai_declaration: String,
+    ship_status: String, devlog_ids: [ Integer ], created_at: String,
+    updated_at: String
   }.freeze
 
   PAGINATION_SCHEMA = {
@@ -98,6 +101,6 @@ class Api::V1::ProjectsController < Api::BaseController
   private
 
   def project_params
-    params.permit(:title, :description, :repo_url, :demo_url, :readme_url)
+    params.permit(:title, :description, :repo_url, :demo_url, :readme_url, :ai_declaration)
   end
 end

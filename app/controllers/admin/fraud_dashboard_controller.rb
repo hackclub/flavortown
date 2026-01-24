@@ -2,135 +2,114 @@ module Admin
   class FraudDashboardController < ApplicationController
     def index
       authorize :admin, :access_fraud_dashboard?
-      @today = Time.current.beginning_of_day..Time.current.end_of_day
-      generate_report_stats
-      generate_ban_stats
-      generate_order_stats
+      today = Time.current.beginning_of_day..Time.current.end_of_day
+
+      s = Project::Report.group(:status).count
+      report_versions = versions_today("Project::Report", "status", today)
+      @reports = {
+        pending: s["pending"] || 0, reviewed: s["reviewed"] || 0, dismissed: s["dismissed"] || 0,
+        new_today: Project::Report.where(created_at: today).count,
+        reasons: Project::Report.group(:reason).count,
+        by_status: { pending: s["pending"] || 0, reviewed: s["reviewed"] || 0, dismissed: s["dismissed"] || 0 },
+        top_reviewers: top_performers(report_versions, "status", %w[reviewed dismissed]),
+        avg_response_hours: avg_response("project_reports", "Project::Report", "status", %w[reviewed dismissed])
+      }
+
+      # Ban stats
+      bc = User.where("banned = ? OR shadow_banned = ?", true, true).group(:banned, :shadow_banned).count
+      @bans = {
+        banned: bc.sum { |(b, _), c| b ? c : 0 },
+        shadow_banned_users: bc.sum { |(_, sb), c| sb ? c : 0 },
+        shadow_banned_projects: Project.where(shadow_banned: true).count,
+        bans_today: changes_count("User", "banned", true, today),
+        unbans_today: changes_count("User", "banned", false, today),
+        shadow_bans_today: changes_count("User", "shadow_banned", true, today),
+        unshadow_bans_today: changes_count("User", "shadow_banned", false, today),
+        project_shadow_today: changes_count("Project", "shadow_banned", true, today),
+        project_unshadow_today: changes_count("Project", "shadow_banned", false, today)
+      }
+
+      # Order stats
+      o = ShopOrder.group(:aasm_state).count
+      pending, awaiting = o["pending"] || 0, o["awaiting_periodical_fulfillment"] || 0
+      order_versions = versions_today("ShopOrder", "aasm_state", today)
+      order_states = %w[awaiting_periodical_fulfillment rejected on_hold fulfilled]
+      @orders = {
+        pending: pending, on_hold: o["on_hold"] || 0, rejected: o["rejected"] || 0,
+        awaiting: awaiting, backlog: pending + awaiting,
+        new_today: ShopOrder.where(created_at: today).count,
+        top_reviewers: top_performers(order_versions, "aasm_state", order_states),
+        all_time: all_time_performers(order_states),
+        avg_response_hours: avg_response("shop_orders", "ShopOrder", "aasm_state", %w[awaiting_periodical_fulfillment rejected fulfilled])
+      }
     end
 
     private
 
-    def generate_report_stats
-      @reports = {
-        pending: Project::Report.pending.count,
-        reviewed: Project::Report.reviewed.count,
-        dismissed: Project::Report.dismissed.count,
-        new_today: Project::Report.where(created_at: @today).count,
-        reasons: Project::Report.group(:reason).count
-      }
-      @reports[:by_status] = {
-        pending: @reports[:pending],
-        reviewed: @reports[:reviewed],
-        dismissed: @reports[:dismissed]
-      }
-
-      versions = PaperTrail::Version
-        .where(item_type: "Project::Report", created_at: @today)
-        .where.not(whodunnit: nil)
-        .where("jsonb_exists(object_changes, ?)", "status")
-      @reports[:top_reviewers] = top_performers(versions, "status", %w[reviewed dismissed])
-      @reports[:avg_response_hours] = avg_response_reports
+    def versions_today(type, field, today)
+      PaperTrail::Version.where(item_type: type, created_at: today)
+        .where.not(whodunnit: nil).where("jsonb_exists(object_changes, ?)", field).to_a
     end
 
-    def generate_ban_stats
-      @bans = {
-        banned: User.where(banned: true).count,
-        shadow_banned_users: User.where(shadow_banned: true).count,
-        shadow_banned_projects: Project.where(shadow_banned: true).count
-      }
-
-      ban_versions = user_versions_for_field("banned")
-      shadow_versions = user_versions_for_field("shadow_banned")
-      project_shadow = project_versions_for_field("shadow_banned")
-
-      @bans[:bans_today] = count_changes(ban_versions, "banned", true)
-      @bans[:unbans_today] = count_changes(ban_versions, "banned", false)
-      @bans[:shadow_bans_today] = count_changes(shadow_versions, "shadow_banned", true)
-      @bans[:unshadow_bans_today] = count_changes(shadow_versions, "shadow_banned", false)
-      @bans[:project_shadow_today] = count_changes(project_shadow, "shadow_banned", true)
-      @bans[:project_unshadow_today] = count_changes(project_shadow, "shadow_banned", false)
+    def changes_count(type, field, val, today)
+      json_val = val.is_a?(String) ? "\"#{val}\"" : val.to_s
+      PaperTrail::Version.where(item_type: type, created_at: today)
+        .where("object_changes -> ? ->> 1 = ?", field, json_val).count
     end
 
-    def generate_order_stats
-      states = ShopOrder.group(:aasm_state).count
-      pending = states["pending"] || 0
-      awaiting = states["awaiting_periodical_fulfillment"] || 0
-
-      @orders = {
-        pending: pending,
-        on_hold: states["on_hold"] || 0,
-        rejected: states["rejected"] || 0,
-        awaiting: awaiting,
-        backlog: pending + awaiting,
-        new_today: ShopOrder.where(created_at: @today).count
-      }
-
-      versions = PaperTrail::Version
-        .where(item_type: "ShopOrder", created_at: @today)
-        .where.not(whodunnit: nil)
-        .where("jsonb_exists(object_changes, ?)", "aasm_state")
-      @orders[:top_reviewers] = top_performers(versions, "aasm_state", %w[awaiting_periodical_fulfillment rejected on_hold fulfilled])
-
-      all_versions = PaperTrail::Version
-        .where(item_type: "ShopOrder")
-        .where.not(whodunnit: nil)
-        .where("jsonb_exists(object_changes, ?)", "aasm_state")
-      @orders[:all_time] = top_performers(all_versions, "aasm_state", %w[awaiting_periodical_fulfillment rejected on_hold fulfilled], 10)
-      @orders[:avg_response_hours] = avg_response_orders
-    end
-
-    def top_performers(versions, field, valid_states, limit = 3)
+    def top_performers(versions, field, states, limit = 3)
       counts = versions.each_with_object(Hash.new(0)) do |v, h|
         uid = v.whodunnit.to_i
         next if uid.zero?
-        changes = v.object_changes || {}
-        arr = changes[field]
-        next unless arr.is_a?(Array) && arr.length == 2 && valid_states.include?(arr[1])
-        h[uid] += 1
+        arr = (v.object_changes || {})[field]
+        h[uid] += 1 if arr.is_a?(Array) && arr.length == 2 && states.include?(arr[1])
       end
-
       ids = counts.sort_by { |_, c| -c }.first(limit).map(&:first)
-      users = User.where(id: ids).index_by(&:id)
+      users = User.where(id: ids).select(:id, :display_name).index_by(&:id)
       ids.map { |id| { name: users[id]&.display_name || "User ##{id}", count: counts[id] } }
     end
 
-    def user_versions_for_field(field)
-      PaperTrail::Version.where(item_type: "User", created_at: @today).where("jsonb_exists(object_changes, ?)", field)
+    def all_time_performers(states)
+      counts = PaperTrail::Version.where(item_type: "ShopOrder").where.not(whodunnit: nil)
+        .where("jsonb_exists(object_changes, ?)", "aasm_state")
+        .where("object_changes -> 'aasm_state' ->> 1 IN (?)", states).group(:whodunnit).count
+      sorted = counts.sort_by { |_, c| -c }.first(10)
+      ids = sorted.map { |k, _| k.to_i }
+      users = User.where(id: ids).select(:id, :display_name).index_by(&:id)
+      sorted.map { |k, c| { name: users[k.to_i]&.display_name || "User ##{k}", count: c } }
     end
 
-    def project_versions_for_field(field)
-      PaperTrail::Version.where(item_type: "Project", created_at: @today).where("jsonb_exists(object_changes, ?)", field)
-    end
+    TABLES = %w[project_reports shop_orders].freeze
+    FIELDS = %w[status aasm_state].freeze
+    TYPES = %w[Project::Report ShopOrder].freeze
+    def avg_response(table, type, field, states)
+      raise ArgumentError unless TABLES.include?(table) && FIELDS.include?(field) && TYPES.include?(type)
+      quoted_table = ActiveRecord::Base.connection.quote_table_name(table)
+      quoted_field = ActiveRecord::Base.connection.quote_column_name(field)
 
-    def count_changes(versions, field, target_value)
-      versions.count do |v|
-        arr = (v.object_changes || {})[field]
-        arr.is_a?(Array) && arr.length == 2 && arr[1] == target_value
-      end
-    end
-
-    def avg_response_reports
-      reports = Project::Report.where(status: %w[reviewed dismissed]).where("created_at > ?", 30.days.ago).limit(100)
-      return nil if reports.empty?
-
-      total = reports.sum do |r|
-        v = PaperTrail::Version.where(item_type: "Project::Report", item_id: r.id)
-                               .where("jsonb_exists(object_changes, ?)", "status").order(:created_at).first
-        v ? (v.created_at - r.created_at) / 1.hour : 0
-      end
-      (total / reports.count).round(1)
-    end
-
-    def avg_response_orders
-      orders = ShopOrder.where(aasm_state: %w[awaiting_periodical_fulfillment rejected fulfilled])
-                        .where("created_at > ?", 30.days.ago).limit(100)
-      return nil if orders.empty?
-
-      total = orders.sum do |o|
-        v = o.versions.find { |ver| ver.object_changes&.dig("aasm_state")&.last.in?(%w[awaiting_periodical_fulfillment rejected]) }
-        v ? (v.created_at - o.created_at) / 1.hour : 0
-      end
-      (total / orders.count).round(1)
+      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL.squish, states, type, field, field, states ])
+        SELECT AVG(EXTRACT(EPOCH FROM (v.v_at - r.r_at)) / 3600.0) AS avg_hours
+        FROM (
+          SELECT r.id, r.created_at AS r_at
+          FROM #{quoted_table} r
+          WHERE r.#{quoted_field} = ANY (?)
+            AND r.created_at > NOW() - INTERVAL '30 days'
+          ORDER BY r.created_at DESC
+          LIMIT 100
+        ) r
+        JOIN LATERAL (
+          SELECT v.created_at AS v_at
+          FROM versions v
+          WHERE v.item_type = ?
+            AND v.item_id = r.id
+            AND (v.object_changes ?? ?)
+            AND v.created_at >= r.r_at
+            AND (v.object_changes -> ? ->> 1) = ANY (?)
+          ORDER BY v.created_at ASC
+          LIMIT 1
+        ) v ON true
+      SQL
+      ActiveRecord::Base.connection.select_one(sql)&.dig("avg_hours")&.to_f&.round(1)
     end
   end
 end
