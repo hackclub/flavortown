@@ -620,6 +620,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_231044) do
     t.string "slack_id"
     t.boolean "special_effects_enabled", default: true, null: false
     t.datetime "synced_at"
+    t.string "things_dismissed", default: [], null: false, array: true
     t.string "tutorial_steps_completed", default: [], array: true
     t.datetime "updated_at", null: false
     t.string "verification_status", default: "needs_submission", null: false

@@ -3,7 +3,48 @@
 <% end %>
 
 <div class="kitchen-index">
-  <%= render HeadingComponent.new(title: "Kitchen", tone: :blue, size: :full) %>
+  <div class="kitchen-index__header">
+    <%= render HeadingComponent.new(title: "Kitchen", tone: :blue, size: :full) %>
+    <% if @show_flagship_ad %>
+      <div data-controller="flagship-modal">
+        <button class="kitchen-index__ad" type="button" data-action="click->flagship-modal#open">
+          <span class="kitchen-index__ad-bg"></span>
+          <%= image_tag "creators.png", alt: "Campfire Flagship", class: "kitchen-index__ad-image" %>
+          <span class="kitchen-index__ad-badge">!</span>
+          <span class="kitchen-index__ad-close" data-action="click->flagship-modal#dismissAd:stop">×</span>
+        </button>
+
+        <dialog id="flagship-modal" class="flagship-modal">
+          <div class="flagship-modal__content">
+            <button type="button" class="flagship-modal__close" data-action="click->flagship-modal#close" aria-label="Close modal">×</button>
+
+            <div class="flagship-modal__header">
+              <%= image_tag "campfire-flagship-logo.png", alt: "Campfire Flagship", class: "flagship-modal__logo" %>
+            </div>
+
+            <div class="flagship-modal__body">
+              <p class="flagship-modal__headline">We're running an IRL game jam with <a href="https://www.youtube.com/@MichaelReeves" target="_blank" rel="noopener noreferrer">Michael Reeves</a>, <a href="https://www.youtube.com/@williamosman" target="_blank" rel="noopener noreferrer">William Osman</a>, and more!</p>
+
+              <h3 class="flagship-modal__subheading">Here's how it works:</h3>
+
+              <ul class="flagship-modal__list">
+                <li><span class="highlight">Spend 30-60 hours</span> making a game</li>
+                <li>Join workshops and community events, and learn together</li>
+                <li><span class="highlight">Get flown out to Los Angeles on February 20th</span> along with 150 other teenage game developers!</li>
+              </ul>
+
+              <div class="flagship-modal__cta-section">
+                <a href="https://flagship.hackclub.com?utm_source=flavortown-ad" class="flagship-modal__button" target="_blank" rel="noopener noreferrer">Sign up and get free stickers!</a>
+                <%= image_tag "sticker.png", alt: "Sticker", class: "flagship-modal__sticker" %>
+              </div>
+
+              <p class="flagship-modal__footer">Made a game before? <a href="https://forms.hackclub.com/cf-flagship-cool-game-app" target="_blank" rel="noopener noreferrer">Fill out this form</a> and get a 5-hour starting boost!</p>
+            </div>
+          </div>
+        </dialog>
+      </div>
+    <% end %>
+  </div>
 
   <% if @show_welcome_overlay %>
     <div class="dialogue-box-container"
@@ -125,6 +166,7 @@
     <div class="banned-banner">
       <div class="banned-banner__content">
         <h2 class="banned-banner__title">Account Banned</h2>
+
         <p class="banned-banner__message">Your account has been banned and you cannot access other parts of the site.</p>
         <% if current_user.banned_reason.present? %>
           <p class="banned-banner__reason"><strong>Reason:</strong> <%= current_user.banned_reason %></p>
