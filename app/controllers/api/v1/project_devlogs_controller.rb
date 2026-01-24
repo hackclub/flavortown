@@ -79,7 +79,6 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
     ActiveRecord::Base.transaction do
       @devlog.save!(validate: false)
       attach_attachments!(@devlog, params[:attachments]) if params[:attachments].present?
-      @devlog.validate!
       @devlog.save!
       Post.create!(project: @project, user: current_api_user, postable: @devlog)
     end
