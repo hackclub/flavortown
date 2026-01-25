@@ -8,25 +8,31 @@
                 image: "nibbles/Hackazine.avif",
                 sticker_image: "nibbles/Hackazine-Sticker.avif",
                 description: "This January: make a page for your project and get it in the Hack Club 2025 magazine! Join #magazine and submit before January 22nd. Projects selected for the magazine receive 50 cookies + stickers! Please note, magazine submissions have 0% AI tolerance.",
-                learn_more_link: "https://magazine.hackclub.com/",
-                submit_link: "https://hackclub.slack.com/app_redirect?channel=C0A8CMWM0CR",
+                button_one_text: "Learn More",
+                button_one_link: "https://magazine.hackclub.com/",
+                button_two_text: "Submit",
+                button_two_link: "https://hackclub.slack.com/app_redirect?channel=C0A8CMWM0CR",
                 variant: :red
             ) %>
             <%= render SidequestCardComponent.new(
                 title: "Borked UI Jam",
                 image: "nibbles/Borked-UI-Jam.avif",
                 description: "Running until January 25th — make a project with delightfully broken UI/UX and submit it for the Borked UI Jam! The top 5 best (worst) projects will receive cookies + other prizes. Check out #borked for more details.",
-                learn_more_link: "https://hackclub.slack.com/app_redirect?channel=C0A278BH8UA",
-                submit_link: "https://borked.irtaza.xyz/",
+                button_one_text: "Learn More",
+                button_one_link: "https://hackclub.slack.com/app_redirect?channel=C0A278BH8UA",
+                button_two_text: "Submit",
+                button_two_link: "https://borked.irtaza.xyz/",
                 variant: :green
             ) %>
             <%= render SidequestCardComponent.new(
-                            title: "Show and Tell",
-                            image: "nibbles/ShowandTell.avif",
-                            description: "Show off a project you've been working on for Flavortown, and see what everyone else has been making too! Everyone who presents a project gets 25 cookies and at the end you'll vote on a winner who'll snag an additional 25 cookies.",
-                            learn_more_link: "https://events.hackclub.com/",
-                            submit_link: nil,
-                            variant: :blue
+                title: "Show and Tell",
+                image: "nibbles/ShowandTell.avif",
+                description: "Show off a project you've been working on for Flavortown, and see what everyone else has been making too! Everyone who presents a project gets 25 cookies and at the end you'll vote on a winner who'll snag an additional 25 cookies.",
+                button_one_text: "See Events",
+                button_one_link: "https://events.hackclub.com/",
+                button_two_text: nil,
+                button_two_link: nil,
+                variant: :blue
             ) %>
         </div>
     </div>
