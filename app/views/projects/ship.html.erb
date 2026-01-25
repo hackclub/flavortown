@@ -47,7 +47,7 @@
             <% can_ship = @project.shippable? && @project.can_ship_again? %>
             <% if can_ship %>
               <button type="submit" form="ship-form" class="projects-ship__nav-btn projects-ship__nav-btn--submit">
-                Ship It! 🚀
+                Ship It!
               </button>
             <% else %>
               <% reason = if !@project.shippable?
@@ -58,7 +58,7 @@
                             "Add a devlog first"
                           end %>
               <button type="button" class="projects-ship__nav-btn projects-ship__nav-btn--disabled" disabled title="<%= reason %>">
-                Ship It! 🚀
+                Ship It!
               </button>
             <% end %>
           </div>

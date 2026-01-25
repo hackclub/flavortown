@@ -234,12 +234,12 @@ class ProjectsController < ApplicationController
       rescue => e
         Rails.logger.error "Failed to enqueue ship webhook for project #{@project.id}: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
-        flash[:notice] = "🚀 Your project has been submitted for review, but we couldn't notify the dashboard. Please contact #ask-the-shipwrights if this persists."
+        flash[:notice] = "Your project has been submitted for review, but we couldn't notify the dashboard. Please contact #ask-the-shipwrights if this persists."
         redirect_to @project and return
       end
     end
 
-    flash[:notice] = "🚀 Congratulations! Your project has been submitted for review!"
+    flash[:notice] = "Congratulations! Your project has been submitted for review!"
     redirect_to @project
   end
 
