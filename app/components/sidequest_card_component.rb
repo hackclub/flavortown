@@ -5,7 +5,7 @@ class SidequestCardComponent < ViewComponent::Base
 
   attr_reader :title, :description, :variant, :button_one_text, :button_one_link, :button_two_text, :button_two_link
 
-  def initialize(title:, image:, sticker_image: nil, description:, button_one_text:, button_one_link:, button_two_text:, button_two_link:, variant: :red)
+  def initialize(title:, image:, sticker_image: nil, description:, button_one_text: nil, button_one_link: nil, button_two_text: nil, button_two_link: nil, variant: :red)
     @title = title
     @image_path = image
     @sticker_image_path = sticker_image
