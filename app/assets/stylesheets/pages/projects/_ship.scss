@@ -184,9 +184,9 @@
 
   &__navigation {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    gap: var(--space-m);
+    gap: var(--space-s);
     margin-top: var(--space-l);
   }
 

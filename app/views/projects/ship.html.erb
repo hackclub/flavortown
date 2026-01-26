@@ -2,7 +2,7 @@
   <div class="projects-ship__container">
     <div class="projects-ship__content">
       <%= render ButtonComponent.new(
-            text: "← Back",
+            text: "← Back to Project",
             color: :brown,
             variant: :borderless,
             size: :sm,
@@ -30,25 +30,20 @@
           <%= render ButtonComponent.new(
                 text: "Prev",
                 color: :red,
+                variant: :borderless,
                 href: ship_project_path(@project, step: @step - 1)
               ) %>
-        <% else %>
-          <div></div>
         <% end %>
 
         <% if @step < 4 %>
           <%= render ButtonComponent.new(
                 text: "Next",
                 color: :blue,
+                variant: :borderless,
                 href: ship_project_path(@project, step: @step + 1)
               ) %>
         <% elsif @step == 4 %>
           <div class="projects-ship__actions">
-            <%= render ButtonComponent.new(
-                  text: "Add Devlog",
-                  color: :brown,
-                  href: new_project_devlog_path(@project)
-                ) %>
             <% can_ship = @project.shippable? && @project.can_ship_again? %>
             <% if can_ship %>
               <%= render ButtonComponent.new(
