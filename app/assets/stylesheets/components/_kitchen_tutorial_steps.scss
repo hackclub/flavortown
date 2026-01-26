@@ -234,7 +234,7 @@
     justify-content: center;
 
     &:hover {
-      background: lighten(#253b5f, 10%);
+      background: color.adjust(#253b5f, $lightness: 10%);
     }
 
     &--corner {
