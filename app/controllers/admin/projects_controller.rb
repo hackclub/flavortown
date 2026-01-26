@@ -70,14 +70,20 @@ class Admin::ProjectsController < Admin::ApplicationController
 
     @project.shadow_ban!(reason: reason)
 
+    # Resolve all pending reports on the project
+    @project.reports.pending.update_all(
+      status: Project::Report.statuses[:reviewed],
+      updated_at: Time.current
+    )
+
     @project.memberships.each do |member|
       next unless member.user&.slack_id.present?
 
       parts = []
       parts << "Hey! After review, your project won't be going into voting this time."
       parts << "Reason: #{reason}" if reason.present?
-      parts << "We issued a minimum payout for your work." if issued_min_payout
-      parts << "Keep building – you can ship again anytime!"
+      parts << "We've issued a minimum payout for your work on this ship." if issued_min_payout
+      parts << "If you have questions, reach out in #flavortown-help. Keep building – you can ship again anytime!"
       SendSlackDmJob.perform_later(member.user.slack_id, parts.join("\n\n"))
     end
 
