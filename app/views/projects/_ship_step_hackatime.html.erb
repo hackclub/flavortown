@@ -4,30 +4,6 @@
     Make sure this information looks accurate!
   </p>
 
-  <% if @hackatime_projects.any? %>
-    <div class="projects-ship__hackatime-list">
-      <% @hackatime_projects.each do |hp| %>
-        <div class="projects-ship__hackatime-item">
-          <div class="projects-ship__hackatime-name"><%= hp[:name] %></div>
-          <div class="projects-ship__hackatime-hours"><%= hp[:hours] %> hours</div>
-        </div>
-      <% end %>
-    </div>
-
-    <div class="projects-ship__hackatime-total">
-      <%= @total_hours %> hours total across all projects
-    </div>
-
-    <%= link_to edit_project_path(@project, return_to: ship_project_path(@project, step: 2)), class: "projects-ship__edit-link" do %>
-      edit projects
-    <% end %>
-  <% else %>
-    <div class="projects-ship__no-hackatime">
-      <p>No Hackatime projects linked yet.</p>
-      <%= link_to "Link Hackatime projects", edit_project_path(@project, return_to: ship_project_path(@project, step: 2)), class: "projects-ship__edit-link" %>
-    </div>
-  <% end %>
-
   <% if @devlogs.any? %>
     <h2 class="projects-ship__section-title" style="margin-top: var(--space-xl);">Devlogs</h2>
     <p class="projects-ship__section-desc">Your project's development history.</p>

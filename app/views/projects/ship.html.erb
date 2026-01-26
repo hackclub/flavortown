@@ -1,16 +1,5 @@
 <div class="projects-ship">
   <div class="projects-ship__container">
-    <div class="projects-ship__sidebar">
-      <div class="projects-ship__preview-card">
-        <% if @project.banner.attached? %>
-          <%= image_tag @project.banner, alt: @project.title, class: "projects-ship__preview-image" %>
-        <% else %>
-          <div class="projects-ship__preview-placeholder">No screenshot</div>
-        <% end %>
-        <h3><%= @project.title %></h3>
-      </div>
-    </div>
-
     <div class="projects-ship__content">
       <%= link_to "← Back", @project, class: "projects-ship__back-link" %>
 
@@ -30,17 +19,21 @@
 
       <div class="projects-ship__navigation">
         <% if @step > 1 %>
-          <%= link_to ship_project_path(@project, step: @step - 1), class: "projects-ship__nav-btn projects-ship__nav-btn--prev" do %>
-            ← Prev
-          <% end %>
+          <%= render ButtonComponent.new(
+                text: "Prev",
+                color: :red,
+                href: ship_project_path(@project, step: @step - 1),
+              ) %>
         <% else %>
           <div></div>
         <% end %>
 
         <% if @step < 4 %>
-          <%= link_to ship_project_path(@project, step: @step + 1), class: "projects-ship__nav-btn projects-ship__nav-btn--next" do %>
-            Next →
-          <% end %>
+          <%= render ButtonComponent.new(
+                text: "Next",
+                color: :blue,
+                href: ship_project_path(@project, step: @step + 1)
+              ) %>
         <% elsif @step == 4 %>
           <div class="projects-ship__step4-actions">
             <%= link_to "Add Devlog", new_project_devlog_path(@project), class: "projects-ship__nav-btn projects-ship__nav-btn--prev" %>
