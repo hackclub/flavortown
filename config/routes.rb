@@ -278,7 +278,6 @@ Rails.application.routes.draw do
     member do
       get :ship
       get :readme
-      patch :update_ship
       post :submit_ship
       post :mark_fire
       post :unmark_fire

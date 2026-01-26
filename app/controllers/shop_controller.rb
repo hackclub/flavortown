@@ -112,10 +112,11 @@ class ShopController < ApplicationController
     end
 
     # Calculate total cost (applying sale discount via price_for_region)
+    # Accessories are multiplied by quantity (e.g., 10 RPis with 8GB RAM = 10 accessories)
     region = user_region
     item_price = @shop_item.price_for_region(region)
     item_total = item_price * quantity
-    accessories_total = @accessories.sum { |a| a.price_for_region(region) }
+    accessories_total = @accessories.sum { |a| a.price_for_region(region) } * quantity
     total_cost = item_total + accessories_total
 
     return redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "You need to have an address to make an order!" unless current_user.addresses.any?
@@ -141,11 +142,11 @@ class ShopController < ApplicationController
         @order.aasm_state = "pending" if @order.respond_to?(:aasm_state=)
         @order.save!
 
-        # Create orders for each accessory
+        # Create orders for each accessory (matching main item quantity)
         @accessories.each do |accessory|
           accessory_order = current_user.shop_orders.new(
             shop_item: accessory,
-            quantity: 1,
+            quantity: quantity,
             frozen_address: selected_address,
             parent_order_id: @order.id
           )

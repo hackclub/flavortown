@@ -20,9 +20,10 @@
       </thead>
       <tbody>
         <% @votes.each do |vote| %>
+          <% next unless vote.project %>
           <tr>
             <td><%= vote.project.title %></td>
-            <td><%= vote.ship_event.created_at.strftime("%b %d, %Y") %></td>
+            <td><%= vote.ship_event&.created_at&.strftime("%b %d, %Y") || "-" %></td>
             <% Vote.enabled_categories.each do |category| %>
               <td><%= vote.send(:"#{category}_score") || "-" %>/6</td>
             <% end %>
