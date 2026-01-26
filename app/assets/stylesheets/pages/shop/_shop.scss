@@ -87,6 +87,10 @@
       font-size: 1rem;
     }
 
+    a {
+      color: var(--color-bg);
+    }
+
     .shop__signup-cta-buttons {
       display: flex;
       flex-direction: column;
