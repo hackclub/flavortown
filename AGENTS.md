@@ -47,4 +47,4 @@ Bias for rails generators (ie. rails g model/migration) when first creating a fi
 
 We want maintainable code! Please use proper code formatting and naming conventions, also please use css classes instead of raw `style=` attributes, if possible use already existing components or partials.
 
-When coding please do not produce unnecssary code or any dead code, if u make dead code please make sure to remove it and clean it up!
+When coding please do not produce unnecessary code or any dead code, if u make dead code please make sure to remove it and clean it up!
