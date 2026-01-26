@@ -1,0 +1,84 @@
+<div class="cookie-transfer">
+  <div class="cookie-transfer__header">
+    <h1>🍪 Transfer Cookies</h1>
+    <p class="cookie-transfer__balance">Your balance: <strong><%= current_user.balance %></strong> cookies</p>
+  </div>
+
+  <% if @cookie_transfer.errors.any? %>
+    <div class="cookie-transfer__errors">
+      <ul>
+        <% @cookie_transfer.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: @cookie_transfer, url: cookie_transfers_path, local: true, class: "cookie-transfer__form" do |form| %>
+    <% users_for_select = User.where.not(id: current_user.id).where(banned: false).order(:display_name).limit(500).pluck(:display_name, :id) %>
+    <div class="cookie-transfer__field" data-controller="searchable-select">
+      <div class="input input--blue">
+        <label class="input__label">Recipient</label>
+        <%= form.hidden_field :recipient_id, data: { searchable_select_target: "hiddenField" } %>
+        <input type="text"
+               class="input__field"
+               placeholder="Search for a user..."
+               data-searchable-select-target="input"
+               data-action="focus->searchable-select#open input->searchable-select#filter"
+               autocomplete="off">
+        <div class="input__subtitle">Who do you want to send cookies to?</div>
+      </div>
+      <div class="searchable-select__dropdown" data-searchable-select-target="dropdown" style="display: none;">
+        <% users_for_select.each do |name, id| %>
+          <div class="searchable-select__option"
+               data-searchable-select-target="option"
+               data-value="<%= id %>"
+               data-label="<%= name %>"
+               data-search-text="<%= name.downcase %>"
+               data-action="click->searchable-select#select">
+            <%= name %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="cookie-transfer__field">
+      <%= render InputComponent.new(
+        label: "Amount",
+        placeholder: "Enter amount",
+        form: form,
+        attribute: :amount,
+        color: :green,
+        as: :number_field,
+        input_html: { min: 1, max: current_user.balance, step: 1 },
+        subtitle: "How many cookies to send (max: #{current_user.balance})"
+      ) %>
+    </div>
+
+    <div class="cookie-transfer__field">
+      <%= render InputComponent.new(
+        label: "Note (optional)",
+        placeholder: "Add a message...",
+        form: form,
+        attribute: :note,
+        color: :yellow,
+        as: :text_field,
+        input_html: { maxlength: 200 },
+        subtitle: "Max 200 characters"
+      ) %>
+    </div>
+
+    <div class="cookie-transfer__actions">
+      <%= render ButtonComponent.new(
+        text: "← Cancel",
+        href: my_balance_path,
+        color: :brown,
+        variant: :borderless
+      ) %>
+
+      <button type="submit" class="btn btn--green">
+        Send Cookies 🍪
+      </button>
+    </div>
+  <% end %>
+</div>

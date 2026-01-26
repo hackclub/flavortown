@@ -1,0 +1,14 @@
+# == Schema Information
+#
+# Table name: cookie_transfers
+#
+#  id           :bigint           not null, primary key
+#  sender_id    :bigint           not null
+#  recipient_id :bigint           not null
+#  amount       :integer          not null
+#  note         :string
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#
+
+# Empty fixture - transfers are created in tests

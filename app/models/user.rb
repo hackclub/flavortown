@@ -74,6 +74,8 @@ class User < ApplicationRecord
   has_many :ledger_entries, dependent: :destroy
   has_many :project_follows, dependent: :destroy
   has_many :followed_projects, through: :project_follows, source: :project
+  has_many :sent_cookie_transfers, class_name: "CookieTransfer", foreign_key: :sender_id, dependent: :destroy
+  has_many :received_cookie_transfers, class_name: "CookieTransfer", foreign_key: :recipient_id, dependent: :destroy
 
   enum :verification_status, {
     needs_submission: "needs_submission",

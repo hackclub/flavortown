@@ -13,6 +13,10 @@ module LedgerEntriesHelper
       end
     when ShopOrder
       link_to entry.reason, shop_my_orders_path, data: { turbo_frame: "_top" }
+    when CookieTransfer
+      transfer = entry.ledgerable
+      other_user = entry.amount.positive? ? transfer.sender : transfer.recipient
+      link_to entry.reason, user_path(other_user), data: { turbo_frame: "_top" }
     else
       entry.reason
     end

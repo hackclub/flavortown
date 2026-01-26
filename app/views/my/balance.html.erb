@@ -7,6 +7,9 @@
          data-cookie-clicker-orchestra-url-value="<%= audio_path('Orchestra_hit.ogg') %>"
          data-cookie-clicker-headshot-url-value="<%= audio_path('headshot.mp3') %>">
       <h1>My Balance: <span class="cookie-clicker__cookie" data-cookie-clicker-target="cookie" data-action="click->cookie-clicker#click">🍪</span> <%= current_user.balance %></h1>
+      <% if Flipper.enabled?(:cookie_transfers, current_user) %>
+        <%= link_to "Transfer Cookies", new_cookie_transfer_path, class: "btn btn--small", data: { turbo_frame: "_top" } %>
+      <% end %>
     </div>
 
     <% if @balance.any? %>
