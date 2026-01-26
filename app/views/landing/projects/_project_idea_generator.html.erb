@@ -1,36 +1,47 @@
 <script src="/howler.js"></script>
 <script src="/yappingv2.js"></script>
 
+<%
+  shop_icons = {
+    think: image_path('idea/thinking.png'),
+    freaking: image_path('idea/freaking.png'),
+    ded: image_path('idea/ded.png'),
+    info: image_path('idea/info.png'),
+    peefest: image_path('idea/pf.png'),
+    threat: image_path('idea/threatened.png'),
+    reading: image_path('idea/reading.png'),
+    reading2: image_path('idea/reading2.png'),
+    search: image_path('idea/searching.png'),
+    search2: image_path('idea/searching2.png'),
+    question: image_path('idea/question.png'),
+    cute: image_path('idea/cute.png'),
+    tinfoil: image_path('idea/tinfoil.png'),
+    woah: image_path('idea/woah.png'),
+    thumbs: image_path('idea/thumbs.png'),
+    fluster: image_path('idea/fluster.gif')
+  }
+%>
+
+<div id="project-idea-config"
+     data-squeak-audio="<%= audio_path('squeak_audio.mp4') %>"
+     data-background-music="<%= audio_path('penne_for_your_thoughts.mp3') %>"
+     data-bell-audio="<%= audio_path('bell.wav') %>"
+     data-loading-message="<%= FlavortextService.project_ideas('loading_messages') %>"
+     data-shop-icons="<%= shop_icons.to_json %>"
+     style="display: none;"></div>
+
 <script>
+  const configEl = document.getElementById('project-idea-config');
   let sounds = {
     squeak: new Howl({
-      src: ["<%= audio_path('squeak_audio.mp4') %>"],
+      src: [configEl.dataset.squeakAudio],
     })
   }
-  let nextLoadingMessage = <%= FlavortextService.project_ideas('loading_messages').to_json.html_safe %>
+  let nextLoadingMessage = configEl.dataset.loadingMessage;
+  const shopIcons = JSON.parse(configEl.dataset.shopIcons);
 
-  const shopIcons = {
-    think: '<%= image_path('idea/thinking.png') %>',
-    freaking: '<%= image_path('idea/freaking.png') %>',
-    ded: '<%= image_path('idea/ded.png') %>',
-    info: '<%= image_path('idea/info.png') %>',
-    peefest: '<%= image_path('idea/pf.png') %>',
-    threat: '<%= image_path('idea/threatened.png') %>',
-    reading: '<%= image_path('idea/reading.png') %>',
-    reading2: '<%= image_path('idea/reading2.png') %>',
-    search: '<%= image_path('idea/searching.png') %>',
-    search2: '<%= image_path('idea/searching2.png') %>',
-    question: '<%= image_path('idea/question.png') %>',
-    cute: '<%= image_path('idea/cute.png') %>',
-    tinfoil: '<%= image_path('idea/tinfoil.png') %>',
-    woah: '<%= image_path('idea/woah.png') %>',
-    thumbs: '<%= image_path('idea/thumbs.png') %>',
-    fluster: '<%= image_path('idea/fluster.gif') %>',
-  }
-
-  // Background music setup
   const backgroundMusic = new Howl({
-    src: ["<%= audio_path('penne_for_your_thoughts.mp3') %>"],
+    src: [configEl.dataset.backgroundMusic],
     loop: true,
     rate: 0.5,
     volume: 0.1
@@ -53,9 +64,8 @@
     }
   }
 
-  // Thinking sound
   const thinkingSound = new Howl({
-    src: ['<%= audio_path('bell.wav') %>'],
+    src: [configEl.dataset.bellAudio],
     volume: 0.3
   })
 </script>
