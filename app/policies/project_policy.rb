@@ -36,7 +36,7 @@ class ProjectPolicy < ApplicationPolicy
     end
 
     def submit_ship?
-        member?
+        member? && user&.eligible_for_shop?
     end
 
     def resend_webhook?

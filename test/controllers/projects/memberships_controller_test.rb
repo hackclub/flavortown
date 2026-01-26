@@ -1,6 +1,6 @@
 require "test_helper"
 
-class Project::MembershipsControllerTest < ActionDispatch::IntegrationTest
+class Projects::MembershipsControllerTest < ActionDispatch::IntegrationTest
   test "should get create" do
     get project_memberships_create_url
     assert_response :success

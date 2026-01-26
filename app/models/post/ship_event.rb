@@ -40,6 +40,7 @@ class Post::ShipEvent < ApplicationRecord
   after_commit :decrement_user_vote_balance, on: :create
 
   validates :body, presence: { message: "Update message can't be blank" }
+  validate :project_can_be_shipped, on: :create
 
   def status
     project = post&.project
@@ -89,6 +90,11 @@ class Post::ShipEvent < ApplicationRecord
   end
 
   private
+
+  def project_can_be_shipped
+    return unless project
+    project.ship_blocking_errors.each { |msg| errors.add(:base, msg) }
+  end
 
   def decrement_user_vote_balance
     return unless post&.user
