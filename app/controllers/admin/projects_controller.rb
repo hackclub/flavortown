@@ -57,12 +57,11 @@ class Admin::ProjectsController < Admin::ApplicationController
     reason = params[:reason].presence
 
     # Issue minimum payout if no payout exists for latest ship
-    ship = @project.ship_events.order(:created_at).last
+    ship = @project.ship_events.first
     issued_min_payout = false
-    if ship.present? && ship.payouts.none?
-      hours = ship.hours_covered
-      min_multiplier = 1.0
-      amount = (min_multiplier * hours).ceil
+    if ship.present? && ship.ledger_entries.none?
+      hours = ship.hours
+      amount = (hours * game_constants.lowerst_dollar_per_hour * game_constants.tickets_per_dollar).round
       if amount > 0
         Payout.create!(amount: amount, payable: ship, user: @project.user, reason: "Minimum payout (shadow banned)", escrowed: false)
         issued_min_payout = true
@@ -71,8 +70,8 @@ class Admin::ProjectsController < Admin::ApplicationController
 
     @project.shadow_ban!(reason: reason)
 
-    @project.members.each do |member|
-      next if member.user&.slack_id.nil?
+    @project.memberships.each do |member|
+      next unless member.user&.slack_id.present?
 
       parts = []
       parts << "Hey! After review, your project won't be going into voting this time."
