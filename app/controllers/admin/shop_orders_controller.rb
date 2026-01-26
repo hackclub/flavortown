@@ -3,7 +3,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   def index
     # Determine view mode
     @view = params[:view] || "shop_orders"
-    @show_spammy_stuff = params[:show_spammy_stuff] || false
+    @show_spammy_stuff = ActiveModel::Type::Boolean.new.cast(params[:show_spammy_stuff])
     # Fulfillment team can only access fulfillment view - auto-redirect if needed
     # But fraud_dept members with fulfillment_person role should have full access
     if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
