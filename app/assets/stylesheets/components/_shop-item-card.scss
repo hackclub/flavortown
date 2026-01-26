@@ -160,9 +160,33 @@
     text-transform: uppercase;
   }
 
-  &__stock-badge {
+  &__new-badge,
+  &__purchased-badge {
     position: absolute;
     top: 0.5rem;
+    left: 0.5rem;
+    z-index: 10;
+    color: #fff;
+    font-family: var(--font-family-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  &__new-badge {
+    background: var(--color-green-500, #22c55e);
+    text-transform: uppercase;
+  }
+
+  &__purchased-badge {
+    background: var(--color-purple-500, #a855f7);
+  }
+
+  &__stock-badge {
+    position: absolute;
+    top: 2rem;
     left: 0.5rem;
     z-index: 10;
     background: var(--color-green-400);
