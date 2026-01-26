@@ -233,7 +233,30 @@ class ShopController < ApplicationController
       return region_from_address if region_from_address != "XX" || country.present?
     end
 
+    geoip = geoip_region
+    return geoip if geoip.present? && geoip != "XX"
+
     Shop::Regionalizable.timezone_to_region(cookies[:timezone])
+  end
+
+  def geoip_region
+    cache = cookies[:geoip_region]
+    return cache if cache.present? && Shop::Regionalizable::REGION_CODES.include?(cache)
+
+    return nil unless ENV["GEOCODER_HC_API_KEY"].present?
+
+    # cloudflare go brrr
+    client_ip = request.headers["X-Forwarded-For"]&.split(",")&.first&.strip.presence || request.remote_ip
+
+    return nil if client_ip.blank? || client_ip.match?(/\A(127\.|::1|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/)
+
+    res = HackclubGeocoder.geocode_ip(client_ip)
+    return nil unless res&.dig(:country).present?
+
+    region = Shop::Regionalizable.country_to_region(res[:country])
+    cookies[:geoip_region] = { value: region, expires: 24.hours.from_now }
+
+    region
   end
 
   def require_login
