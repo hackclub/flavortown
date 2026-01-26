@@ -1,19 +1,25 @@
-<div class="projects-ship__step">
-  <h2 class="projects-ship__section-title">Before You Ship</h2>
-  <p class="projects-ship__section-desc">
-    Make sure your project meets these requirements to qualify for a payout.
-  </p>
+<div class="projects-ship__step projects-ship__step--with-video">
+  <div class="projects-ship__step-main">
+    <h2 class="projects-ship__section-title">Before You Ship</h2>
+    <p class="projects-ship__section-desc">
+      Make sure your project meets these requirements to qualify for a payout.
+    </p>
 
-  <div class="projects-ship__validations">
-    <% @project.shipping_requirements.each do |validation| %>
-      <div class="projects-ship__validation <%= 'projects-ship__validation--passed' if validation[:passed] %>">
-        <span class="projects-ship__validation-icon">
-          <% if validation[:passed] %>
-            <%= inline_svg_tag("icons/check_thick.svg") %>
-          <% end %>
-        </span>
-        <span class="projects-ship__validation-label"><%= validation[:label] %></span>
-      </div>
-    <% end %>
+    <div class="projects-ship__validations">
+      <% @project.shipping_requirements.each do |validation| %>
+        <div class="projects-ship__validation <%= 'projects-ship__validation--passed' if validation[:passed] %>">
+          <span class="projects-ship__validation-icon">
+            <% if validation[:passed] %>
+              <%= inline_svg_tag("icons/check_thick.svg") %>
+            <% end %>
+          </span>
+          <span class="projects-ship__validation-label"><%= validation[:label] %></span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="projects-ship__video-section">
+    <%= render VimeoEmbedComponent.new(video: :what_is_a_ship) %>
   </div>
 </div>

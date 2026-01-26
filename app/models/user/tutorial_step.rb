@@ -61,7 +61,7 @@ class User
           icon: "ship",
           link: "#tutorial-video-modal",
           verb: :modal,
-          video_url: "https://player.vimeo.com/video/1157267554?h=664d0fac8e"
+          video_url: VimeoEmbedComponent.video_url(:what_is_a_ship)
         )
     ].freeze
 
