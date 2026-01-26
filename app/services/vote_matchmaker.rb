@@ -2,8 +2,13 @@ class VoteMatchmaker
   EXCLUDED_CATEGORIES_BY_OS = {
     windows: [ "Desktop App (Linux)", "Desktop App (macOS)" ],
     mac: [ "Desktop App (Windows)" ],
-    linux: [ "Desktop App (Windows)" ]
+    linux: [ "Desktop App (Windows)" ],
+    android: [ "Desktop App (Windows)", "Desktop App (Linux)", "Desktop App (macOS)", "iOS App" ],
+    ios: [ "Desktop App (Windows)", "Desktop App (Linux)", "Desktop App (macOS)", "Android App" ]
   }.freeze
+
+  EARLIEST_WEIGHT = 60
+  NEAR_PAYOUT_WEIGHT = 40
 
   def initialize(user, user_agent: nil)
     @user = user
@@ -11,47 +16,50 @@ class VoteMatchmaker
   end
 
   def next_ship_event
-    find_ship_event_for_category(next_category) || find_any_ship_event
+    if rand(100) < EARLIEST_WEIGHT
+      find_earliest_ship_event || find_near_payout_ship_event
+    else
+      find_near_payout_ship_event || find_earliest_ship_event
+    end
   end
 
   private
 
   def detect_os(ua)
     return nil unless ua
+    return :android if ua.include?("Android")
+    return :ios if ua.include?("iPhone") || ua.include?("iPad")
     return :windows if ua.include?("Windows")
     return :mac if ua.include?("Macintosh")
-    return :linux if ua.include?("Linux") && !ua.include?("Android")
+    return :linux if ua.include?("Linux")
     nil
   end
 
-  def available_categories
-    Project::AVAILABLE_CATEGORIES - (EXCLUDED_CATEGORIES_BY_OS[@os] || [])
+  def excluded_categories
+    EXCLUDED_CATEGORIES_BY_OS[@os] || []
   end
 
-  def next_category
-    # very dumb way to ensure categories are cycled and people don't vote on the same category all the time
-    # the caveat: only works if the user votes.
-    available_categories[@user.votes.count % available_categories.size]
+  def find_earliest_ship_event
+    voteable_ship_events.order(:created_at, "RANDOM()").first
   end
 
-  def find_ship_event_for_category(category)
-    voteable_ship_events
-      .where("? = ANY(projects.project_categories)", category)
-      .order(:votes_count, "RANDOM()")
-      .first
-  end
-
-  def find_any_ship_event
-    voteable_ship_events.order(:votes_count, "RANDOM()").first
+  def find_near_payout_ship_event
+    voteable_ship_events.order(votes_count: :desc, created_at: :asc).first
   end
 
   def voteable_ship_events
-    Post::ShipEvent
+    scope = Post::ShipEvent
       .joins(:project, :project_members)
       .where(certification_status: "approved")
       .where(payout: nil)
       .where.not(id: @user.votes.select(:ship_event_id))
       .where.not(projects: { id: @user.projects })
       .where(project_members: { shadow_banned: false })
+
+    excluded_categories.each do |category|
+      scope = scope.where.not("? = ANY(projects.project_categories)", category)
+    end
+
+    scope
   end
 end
