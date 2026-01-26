@@ -1,11 +1,11 @@
 <div class="projects-ship__step">
-  <h2 class="projects-ship__section-title">Hackatime Projects</h2>
+  <h2 class="projects-ship__section-title">Review Your Progress</h2>
   <p class="projects-ship__section-desc">
     Make sure this information looks accurate!
   </p>
 
   <% if @devlogs.any? %>
-    <h2 class="projects-ship__section-title" style="margin-top: var(--space-xl);">Devlogs</h2>
+    <h2 class="projects-ship__section-title projects-ship__section-title--spaced">Devlogs</h2>
     <p class="projects-ship__section-desc">Your project's development history.</p>
 
     <div class="projects-ship__devlogs">
@@ -29,7 +29,7 @@
       <% end %>
     </div>
   <% else %>
-    <div class="projects-ship__no-devlogs" style="margin-top: var(--space-xl);">
+    <div class="projects-ship__empty-state projects-ship__section-title--spaced">
       <p>No devlogs yet. Add some devlogs to document your progress!</p>
     </div>
   <% end %>

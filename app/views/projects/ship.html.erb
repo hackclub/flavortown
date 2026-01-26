@@ -1,19 +1,27 @@
 <div class="projects-ship">
   <div class="projects-ship__container">
     <div class="projects-ship__content">
-      <%= link_to "← Back", @project, class: "projects-ship__back-link" %>
+      <%= render ButtonComponent.new(
+            text: "← Back",
+            color: :brown,
+            variant: :borderless,
+            size: :sm,
+            href: project_path(@project),
+            class: "projects-ship__back"
+          ) %>
 
       <h1 class="projects-ship__title">
         Ready to submit <span class="projects-ship__project-name"><%= @project.title %></span>?
       </h1>
 
-      <% if @step == 1 %>
+      <% case @step %>
+      <% when 1 %>
         <%= render "ship_step_requirements" %>
-      <% elsif @step == 2 %>
+      <% when 2 %>
         <%= render "ship_step_details" %>
-      <% elsif @step == 3 %>
+      <% when 3 %>
         <%= render "ship_step_hackatime" %>
-      <% elsif @step == 4 %>
+      <% when 4 %>
         <%= render "ship_step_update" %>
       <% end %>
 
@@ -22,7 +30,7 @@
           <%= render ButtonComponent.new(
                 text: "Prev",
                 color: :red,
-                href: ship_project_path(@project, step: @step - 1),
+                href: ship_project_path(@project, step: @step - 1)
               ) %>
         <% else %>
           <div></div>
@@ -35,13 +43,21 @@
                 href: ship_project_path(@project, step: @step + 1)
               ) %>
         <% elsif @step == 4 %>
-          <div class="projects-ship__step4-actions">
-            <%= link_to "Add Devlog", new_project_devlog_path(@project), class: "projects-ship__nav-btn projects-ship__nav-btn--prev" %>
+          <div class="projects-ship__actions">
+            <%= render ButtonComponent.new(
+                  text: "Add Devlog",
+                  color: :brown,
+                  href: new_project_devlog_path(@project)
+                ) %>
             <% can_ship = @project.shippable? && @project.can_ship_again? %>
             <% if can_ship %>
-              <button type="submit" form="ship-form" class="projects-ship__nav-btn projects-ship__nav-btn--submit">
-                Ship It!
-              </button>
+              <%= render ButtonComponent.new(
+                    text: "Ship It!",
+                    color: :green,
+                    type: :submit,
+                    form: "ship-form",
+                    disable_with: "Shipping..."
+                  ) %>
             <% else %>
               <% reason = if !@project.shippable?
                             "Complete all requirements first"
@@ -50,9 +66,12 @@
                           else
                             "Add a devlog first"
                           end %>
-              <button type="button" class="projects-ship__nav-btn projects-ship__nav-btn--disabled" disabled title="<%= reason %>">
-                Ship It!
-              </button>
+              <%= render ButtonComponent.new(
+                    text: "Ship It!",
+                    color: :brown,
+                    disabled: true,
+                    title: reason
+                  ) %>
             <% end %>
           </div>
         <% end %>
