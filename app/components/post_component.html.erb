@@ -122,8 +122,8 @@
               <%= link_to edit_devlog_path, class: "post__action-btn", title: "Edit devlog" do %>
                 <%= helpers.inline_svg_tag("icons/pencil.svg", class: "post__action-icon") %>
               <% end %>
-              <%= button_to delete_devlog_path, method: :delete, class: "post__action-btn post__action-btn--danger", title: "Delete devlog", form: { onsubmit: "return confirm('Are you sure you want to delete devlog #' + #{postable.id.to_json} + '? This action cannot be undone.')" } do %>
-                <%= helpers.inline_svg_tag("icons/close.svg", class: "post__action-icon") %>
+              <%= button_to delete_devlog_path, method: :delete, class: "post__action-btn post__action-btn--danger", title: "Delete devlog", form: { onsubmit: "return confirm('Are you sure you want to delete this devlog? This action cannot be undone.')" } do %>
+                <%= helpers.inline_svg_tag("icons/trash-bin.svg", class: "post__action-icon") %>
               <% end %>
             </div>
           <% elsif can_force_delete? %>
@@ -132,18 +132,8 @@
   method: :delete,
   class: "post__action-btn post__action-btn--danger",
   title: "Force delete devlog (Admin/Fraud)",
-  data: {
-    confirm: <<~MSG
-      ⚠️ ADMIN/FRAUD OVERRIDE ⚠️
-
-      This project is SHIPPED. You are about to override ship protection and force delete devlog ##{postable.id}.
-
-      This action will be audit logged.
-
-      Are you absolutely sure?
-    MSG
-  } do %>
-                <%= helpers.inline_svg_tag("icons/close.svg", class: "post__action-icon") %>
+  form: { onsubmit: "return confirm('⚠️ ADMIN/FRAUD OVERRIDE ⚠️\\n\\nThis project is SHIPPED. You are about to override ship protection and force delete this devlog.\\n\\nThis action will be audit logged.\\n\\nAre you absolutely sure?')" } do %>
+                <%= helpers.inline_svg_tag("icons/trash-bin.svg", class: "post__action-icon") %>
               <% end %>
             </div>
           <% end %>
