@@ -18,7 +18,7 @@ class Projects::ShipsController < ApplicationController
     ShipCertWebhookJob.perform_later(ship_event_id: @post.postable_id, type: "initial", force: false) if initial_ship?
     redirect_to @project, notice: "Congratulations! Your project has been submitted for review!"
   rescue ActiveRecord::RecordInvalid => e
-    redirect_back fallback_location: new_project_ship_path(@project), alert: e.record.errors.full_messages.to_sentence
+    redirect_back fallback_location: new_project_ships_path(@project), alert: e.record.errors.full_messages.to_sentence
   end
 
   private

@@ -4,7 +4,7 @@
     Double-check your project info. Reviewers will use this to evaluate your ship.
   </p>
 
-  <%= form_with(model: @project, url: project_path(@project, return_to: new_project_ship_path(@project, step: 3)), method: :patch, id: "ship-details-form", local: true) do |form| %>
+  <%= form_with(model: @project, url: project_path(@project, return_to: new_project_ships_path(@project, step: 3)), method: :patch, id: "ship-details-form", local: true) do |form| %>
     <%= render "projects/project_form_fields", form: form %>
   <% end %>
 </div>

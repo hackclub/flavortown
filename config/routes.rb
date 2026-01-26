@@ -274,7 +274,7 @@ Rails.application.routes.draw do
     end
     resources :reports, only: [ :create ], module: :projects
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
-    resource :ship, only: [ :new, :create ], module: :projects
+    resource :ships, only: [ :new, :create ], module: :projects
     member do
       get :readme
       post :mark_fire
