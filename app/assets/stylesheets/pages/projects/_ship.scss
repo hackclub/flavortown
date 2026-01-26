@@ -78,10 +78,6 @@
   &__section-title {
     margin: 0 0 var(--space-2xs) 0;
     font-size: 1.3rem;
-
-    &--spaced {
-      margin-top: var(--space-xl);
-    }
   }
 
   &__section-desc {
@@ -157,15 +153,5 @@
     align-items: center;
     gap: var(--space-s);
     margin-top: var(--space-s);
-  }
-
-  &__actions {
-    display: flex;
-    gap: var(--space-m);
-    align-items: center;
-  }
-
-  &__form-actions {
-    margin-top: var(--space-l);
   }
 }
