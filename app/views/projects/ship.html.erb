@@ -26,7 +26,7 @@
 
       <div class="projects-ship__navigation">
         <% if @step > 1 %>
-          <%= render ButtonComponent.new(text: "Prev", color: :red, variant: :borderless, href: ship_project_path(@project, step: @step - 1)) %>
+          <%= render ButtonComponent.new(text: "Back", color: :red, variant: :borderless, href: ship_project_path(@project, step: @step - 1)) %>
         <% end %>
 
         <% case @step %>
@@ -42,7 +42,7 @@
           <% if @project.shippable? && @project.can_ship_again? %>
             <%= render ButtonComponent.new(text: "Ship It!", color: :green, variant: :borderless, type: :submit, form: "ship-form", disable_with: "Shipping...") %>
           <% else %>
-            <%= render ButtonComponent.new(text: "Ship It!", color: :brown, variant: :borderless, disabled: true) %>
+            <%= render ButtonComponent.new(text: "Ship It!", color: :green, variant: :borderless, disabled: true) %>
           <% end %>
         <% end %>
       </div>
