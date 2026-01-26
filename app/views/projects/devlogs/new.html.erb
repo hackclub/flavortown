@@ -12,6 +12,7 @@
     </div>
 
     <%= form_with model: [@project, @devlog],
+                  url: project_devlogs_path(@project),
                   html: { multipart: true, data: { controller: "upload-form" } },
                   class: "projects-new__form",
                   local: true do |f| %>
