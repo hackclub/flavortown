@@ -275,10 +275,9 @@ Rails.application.routes.draw do
     post "devlogs/new", to: "project/devlogs#create", as: nil
     resources :reports, only: [ :create ], module: :project
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
+    resource :ship, only: [ :new, :create ], module: :projects
     member do
-      get :ship
       get :readme
-      post :submit_ship
       post :mark_fire
       post :unmark_fire
       post :follow

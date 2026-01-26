@@ -5,7 +5,7 @@
   </p>
 
   <div class="projects-ship__validations">
-    <% @project.shipping_validations.each do |validation| %>
+    <% @project.shipping_requirements.each do |validation| %>
       <div class="projects-ship__validation <%= 'projects-ship__validation--passed' if validation[:passed] %>">
         <span class="projects-ship__validation-icon">
           <% if validation[:passed] %>

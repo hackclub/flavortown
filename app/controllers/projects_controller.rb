@@ -1,5 +1,5 @@
 class ProjectsController < ApplicationController
-  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :submit_ship, :mark_fire, :unmark_fire ]
+  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :mark_fire, :unmark_fire ]
   before_action :set_project, only: [ :show, :readme ]
 
   def index
@@ -152,77 +152,6 @@ class ProjectsController < ApplicationController
       flash[:alert] = e.record.errors.full_messages.to_sentence
       redirect_to @project
     end
-  end
-
-  def ship
-    authorize @project
-    @step = params[:step]&.to_i || 1
-    @step = 1 if @step < 1 || @step > 4
-
-    load_ship_data
-  end
-
-  def submit_ship
-    authorize @project
-
-    unless current_user.eligible_for_shop?
-      redirect_to ship_project_path(@project, step: 1), alert: "You're not eligible to ship projects."
-      return
-    end
-
-    unless @project.shippable?
-      flash[:alert] = "Your project doesn't meet all shipping requirements yet."
-      redirect_to ship_project_path(@project, step: 1) and return
-    end
-
-    ship_body = params[:ship_update].to_s.strip
-
-    if ship_body.blank?
-      flash[:alert] = "Please write an update message before shipping."
-      redirect_to ship_project_path(@project, step: 4) and return
-    end
-
-    unless @project.can_ship_again?
-      if @project.last_ship_event && !@project.previous_ship_event_has_payout?
-        flash[:alert] = "You cannot ship again until your previous ship event has received a payout."
-      else
-        flash[:alert] = "You need to add at least one devlog since your last ship before you can ship again."
-      end
-      redirect_to ship_project_path(@project, step: 4) and return
-    end
-
-    is_initial_ship = @project.posts.where(postable_type: "Post::ShipEvent").none?
-
-    ship_event = Post::ShipEvent.new(body: ship_body)
-    post = @project.posts.build(user: current_user, postable: ship_event)
-
-    @project.with_lock do
-      @project.submit_for_review!
-
-      unless post.save
-        raise ActiveRecord::Rollback
-      end
-    end
-
-    unless post.persisted?
-      error_messages = (post.errors.full_messages + ship_event.errors.full_messages).uniq
-      flash[:alert] = "We couldn't post your ship update: #{error_messages.to_sentence}"
-      redirect_to ship_project_path(@project, step: 4) and return
-    end
-
-    if is_initial_ship
-      begin
-        ShipCertWebhookJob.perform_later(ship_event_id: ship_event.id, type: "initial", force: false)
-      rescue => e
-        Rails.logger.error "Failed to enqueue ship webhook for project #{@project.id}: #{e.message}"
-        Rails.logger.error e.backtrace.join("\n")
-        flash[:notice] = "Your project has been submitted for review, but we couldn't notify the dashboard. Please contact #ask-the-shipwrights if this persists."
-        redirect_to @project and return
-      end
-    end
-
-    flash[:notice] = "Congratulations! Your project has been submitted for review!"
-    redirect_to @project
   end
 
   def mark_fire
@@ -395,22 +324,6 @@ class ProjectsController < ApplicationController
   end
 
   private
-
-  def load_ship_data
-    @hackatime_projects = @project.hackatime_projects_with_time
-    @total_hours = @project.total_hackatime_hours
-    @last_ship = @project.last_ship_event
-    @devlogs_for_ship = devlogs_since_last_ship
-  end
-
-  def devlogs_since_last_ship
-    devlogs = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
-    if @last_ship
-      devlogs.where("posts.created_at > ?", @last_ship.created_at)
-    else
-      devlogs
-    end
-  end
 
   # These are the same today, but they'll be different tomorrow.
 
