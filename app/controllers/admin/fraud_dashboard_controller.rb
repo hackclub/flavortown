@@ -87,12 +87,13 @@ module Admin
       quoted_table = ActiveRecord::Base.connection.quote_table_name(table)
       quoted_field = ActiveRecord::Base.connection.quote_column_name(field)
 
-      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL.squish, states, type, field, field, states ])
+      states_array = "{#{states.join(',')}}"
+      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL.squish, states_array, type, field, field, states_array ])
         SELECT AVG(EXTRACT(EPOCH FROM (v.v_at - r.r_at)) / 3600.0) AS avg_hours
         FROM (
           SELECT r.id, r.created_at AS r_at
           FROM #{quoted_table} r
-          WHERE r.#{quoted_field} = ANY (?)
+          WHERE r.#{quoted_field} = ANY (?::text[])
             AND r.created_at > NOW() - INTERVAL '30 days'
           ORDER BY r.created_at DESC
           LIMIT 100
@@ -104,7 +105,7 @@ module Admin
             AND v.item_id = r.id
             AND jsonb_exists(v.object_changes, ?)
             AND v.created_at >= r.r_at
-            AND (v.object_changes -> ? ->> 1) = ANY (?)
+            AND (v.object_changes -> ? ->> 1) = ANY (?::text[])
           ORDER BY v.created_at ASC
           LIMIT 1
         ) v ON true
