@@ -40,6 +40,7 @@
 #  tutorial_steps_completed                :string           default([]), is an Array
 #  verification_status                     :string           default("needs_submission"), not null
 #  vote_anonymously                        :boolean          default(FALSE), not null
+#  vote_balance                            :integer          default(0), not null
 #  votes_count                             :integer
 #  ysws_eligible                           :boolean          default(FALSE), not null
 #  created_at                              :datetime         not null
