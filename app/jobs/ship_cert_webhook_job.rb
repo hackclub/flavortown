@@ -1,8 +1,6 @@
 class ShipCertWebhookJob < ApplicationJob
   queue_as :default
-  retry_on StandardError, wait: :polynomially_longer, attempts: 5 do |job, error|
-    Rails.logger.error("[ShipCertWebhookJob] Failed after retries: #{error.message}")
-  end
+  retry_on StandardError, wait: :polynomially_longer, attempts: Float::INFINITY
 
   def perform(ship_event_id:, type: nil, force: false)
     return if !force && already_processed?(ship_event_id)
