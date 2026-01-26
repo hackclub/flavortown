@@ -43,6 +43,13 @@
     outline-offset: 2px;
   }
 
+  &:disabled,
+  &--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
   &--red {
     --btn-bg: var(--color-red-400);
     --btn-bg-dark: var(--color-red-500);
