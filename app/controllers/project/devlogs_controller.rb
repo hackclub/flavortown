@@ -66,6 +66,20 @@ class Project::DevlogsController < ApplicationController
     authorize @devlog
     previous_body = @devlog.body
 
+    # Remove selected attachments first
+    if params[:remove_attachment_ids].present?
+      attachments_to_remove = @devlog.attachments.where(id: params[:remove_attachment_ids])
+      remaining_count = @devlog.attachments.count - attachments_to_remove.count
+      new_attachments_count = update_devlog_params[:attachments]&.count || 0
+
+      if remaining_count + new_attachments_count < 1
+        flash.now[:alert] = "Devlog must have at least one attachment"
+        return render :edit, status: :unprocessable_entity
+      end
+
+      attachments_to_remove.each(&:purge_later)
+    end
+
     if @devlog.update(update_devlog_params)
       # Create version history if body changed
       if previous_body != @devlog.body
@@ -159,7 +173,7 @@ class Project::DevlogsController < ApplicationController
   end
 
   def update_devlog_params
-    params.require(:post_devlog).permit(:body)
+    params.require(:post_devlog).permit(:body, attachments: [])
   end
 
   def load_preview_time
