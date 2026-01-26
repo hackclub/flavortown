@@ -1,5 +1,5 @@
 class ProjectsController < ApplicationController
-  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship, :mark_fire, :unmark_fire ]
+  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :submit_ship, :mark_fire, :unmark_fire ]
   before_action :set_project, only: [ :show, :readme ]
 
   def index
@@ -117,11 +117,10 @@ class ProjectsController < ApplicationController
     # 2nd check w/ @project.errors.empty? is not redudant. this is ensures that hackatime is linked!
     if success && @project.errors.empty?
       flash[:notice] = "Project updated successfully"
-      redirect_to params[:return_to].presence || @project
+      redirect_to url_from(params[:return_to]) || @project
     else
       flash[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
-      load_project_times
-      render :edit, status: :unprocessable_entity
+      redirect_back_or_to edit_project_path(@project)
     end
   end
 
@@ -161,23 +160,6 @@ class ProjectsController < ApplicationController
     @step = 1 if @step < 1 || @step > 4
 
     load_ship_data
-  end
-
-  def update_ship
-    authorize @project
-
-    if @project.update(ship_params)
-      step = params[:step]&.to_i || 1
-      next_step = step + 1
-      next_step = 4 if next_step > 4
-
-      redirect_to ship_project_path(@project, step: next_step)
-    else
-      @step = params[:step]&.to_i || 1
-      load_ship_data
-      flash.now[:alert] = "Failed to save: #{@project.errors.full_messages.join(', ')}"
-      render :ship, status: :unprocessable_entity
-    end
   end
 
   def submit_ship
@@ -234,12 +216,12 @@ class ProjectsController < ApplicationController
       rescue => e
         Rails.logger.error "Failed to enqueue ship webhook for project #{@project.id}: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
-        flash[:notice] = "🚀 Your project has been submitted for review, but we couldn't notify the dashboard. Please contact #ask-the-shipwrights if this persists."
+        flash[:notice] = "Your project has been submitted for review, but we couldn't notify the dashboard. Please contact #ask-the-shipwrights if this persists."
         redirect_to @project and return
       end
     end
 
-    flash[:notice] = "🚀 Congratulations! Your project has been submitted for review!"
+    flash[:notice] = "Congratulations! Your project has been submitted for review!"
     redirect_to @project
   end
 
@@ -417,11 +399,17 @@ class ProjectsController < ApplicationController
   def load_ship_data
     @hackatime_projects = @project.hackatime_projects_with_time
     @total_hours = @project.total_hackatime_hours
-    @devlogs = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
+    @last_ship = @project.last_ship_event
+    @devlogs_for_ship = devlogs_since_last_ship
   end
 
-  def ship_params
-    params.require(:project).permit(:title, :description, :demo_url, :repo_url, :readme_url, :banner, :project_type)
+  def devlogs_since_last_ship
+    devlogs = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
+    if @last_ship
+      devlogs.where("posts.created_at > ?", @last_ship.created_at)
+    else
+      devlogs
+    end
   end
 
   # These are the same today, but they'll be different tomorrow.
