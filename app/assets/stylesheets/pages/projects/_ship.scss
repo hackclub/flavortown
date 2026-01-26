@@ -14,65 +14,10 @@
     }
   }
 
-  &__sidebar {
-    @media (max-width: 768px) {
-      display: none;
-    }
-  }
-
-  &__preview-card {
-    background: var(--color-brown-500);
-    border-radius: var(--border-radius);
-    padding: var(--space-m);
-    color: var(--color-bg);
-    position: sticky;
-    top: var(--space-l);
-
-    h3 {
-      margin: var(--space-s) 0 0 0;
-      font-size: 1.1rem;
-      text-align: center;
-    }
-  }
-
-  &__preview-image {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    border-radius: calc(var(--border-radius) * 0.5);
-  }
-
-  &__preview-placeholder {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    background: var(--color-brown-600);
-    border-radius: calc(var(--border-radius) * 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-brown-300);
-  }
-
   &__content {
     display: flex;
     flex-direction: column;
     gap: 1em;
-  }
-
-  &__back-link {
-    color: var(--color-text-muted);
-    text-decoration: none;
-    font-size: 0.9rem;
-
-    &:hover {
-      color: var(--color-text-body);
-    }
-  }
-
-  &__title {
-    font-size: 2rem;
-    margin: 0;
-    line-height: 1.2;
   }
 
   &__project-name {
@@ -326,46 +271,5 @@
     display: flex;
     gap: var(--space-m);
     align-items: center;
-  }
-
-  &__nav-btn {
-    padding: var(--space-s) var(--space-l);
-    border-radius: var(--border-radius);
-    font-size: 1rem;
-    text-decoration: none;
-    border: 2px solid var(--color-brown-500);
-    background: var(--color-brown-400);
-    color: var(--color-bg);
-    cursor: pointer;
-
-    &:hover {
-      filter: brightness(1.1);
-    }
-
-    &--prev {
-      background: var(--color-brown-300);
-      color: var(--color-text-body);
-    }
-
-    &--next {
-      background: var(--color-red-500);
-      border-color: var(--color-red-700);
-    }
-
-    &--submit {
-      background: #16a34a;
-      border-color: #15803d;
-    }
-
-    &--disabled {
-      background: var(--color-brown-300);
-      color: var(--color-text-muted);
-      cursor: not-allowed;
-      opacity: 0.7;
-
-      &:hover {
-        filter: none;
-      }
-    }
   }
 }
