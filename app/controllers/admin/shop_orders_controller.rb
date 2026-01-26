@@ -90,7 +90,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     else orders.order(created_at: :desc)
     end
 
-    # Grouping
+    # Grouping or pagination
     if params[:goob] == "true"
       @grouped_orders = orders.group_by(&:user).map do |user, user_orders|
         {
@@ -102,7 +102,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         }
       end.sort_by { |g| -g[:orders].size }
     else
-      @shop_orders = orders
+      @pagy, @shop_orders = pagy(:offset, orders, limit: params[:limit] || 25)
     end
   end
 
