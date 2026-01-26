@@ -82,18 +82,32 @@ module Admin
     TABLES = %w[project_reports shop_orders].freeze
     FIELDS = %w[status aasm_state].freeze
     TYPES = %w[Project::Report ShopOrder].freeze
+    ENUM_MAPS = {
+      "Project::Report" => { "status" => Project::Report.statuses },
+      "ShopOrder" => { "aasm_state" => nil }
+    }.freeze
     def avg_response(table, type, field, states)
       raise ArgumentError unless TABLES.include?(table) && FIELDS.include?(field) && TYPES.include?(type)
       quoted_table = ActiveRecord::Base.connection.quote_table_name(table)
       quoted_field = ActiveRecord::Base.connection.quote_column_name(field)
 
-      states_array = "{#{states.join(',')}}"
-      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL.squish, states_array, type, field, field, states_array ])
+      enum_map = ENUM_MAPS.dig(type, field)
+      if enum_map
+        db_values = states.map { |s| enum_map[s] }
+        db_array = "{#{db_values.join(',')}}"
+        db_cast = "integer[]"
+      else
+        db_array = "{#{states.join(',')}}"
+        db_cast = "text[]"
+      end
+      states_text_array = "{#{states.join(',')}}"
+
+      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL.squish, db_array, type, field, field, states_text_array ])
         SELECT AVG(EXTRACT(EPOCH FROM (v.v_at - r.r_at)) / 3600.0) AS avg_hours
         FROM (
           SELECT r.id, r.created_at AS r_at
           FROM #{quoted_table} r
-          WHERE r.#{quoted_field} = ANY (?::text[])
+          WHERE r.#{quoted_field} = ANY (?::#{db_cast})
             AND r.created_at > NOW() - INTERVAL '30 days'
           ORDER BY r.created_at DESC
           LIMIT 100
@@ -102,7 +116,7 @@ module Admin
           SELECT v.created_at AS v_at
           FROM versions v
           WHERE v.item_type = ?
-            AND v.item_id = r.id
+            AND v.item_id = r.id::text
             AND jsonb_exists(v.object_changes, ?)
             AND v.created_at >= r.r_at
             AND (v.object_changes -> ? ->> 1) = ANY (?::text[])
