@@ -88,6 +88,9 @@
 <% if policy(:admin).access_jobs? %>
 <%= link_to "Job queue", "/admin/jobs", class: button_class %>
 <% end %>
+  <% if policy(:admin).access_super_mega_dashboard? %>
+  <%= link_to "Super Mega Dashboard", "/admin/super_mega_dashboard", class: button_class %>
+<% end %>
   <% if policy(:admin).access_payouts_dashboard? %>
   <%= link_to "Payouts Dashboard", "/admin/payouts_dashboard", class: button_class %>
 <% end %>

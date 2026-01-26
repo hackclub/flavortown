@@ -1,0 +1,151 @@
+<div class="super-mega-dashboard">
+  <%= render HeadingComponent.new(title: "Super Mega Dashboard", tone: :red, size: :full) %>
+  
+  <h2>COMICALLY LARGE TEXT THANKING ROWAN AND SHREYAS</h2>
+  <h3>(prob remove before merging in prod)</h3>
+
+  <div class="super-mega-dashboard__dashboards">
+    <div class="super-mega-dashboard__dashboard">
+      <div class="super-mega-dashboard__header super-mega-dashboard__header--fraud">
+        <h2>Fraud Overview</h2>
+        <%= link_to "View Full Dashboard →", admin_fraud_dashboard_path, class: "super-mega-link" %>
+      </div>
+
+      <div class="super-mega-dashboard__cards">
+        <div class="super-mega-dashboard__card">
+          <h3>Reports</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--info">
+              <span class="super-mega-dashboard__stat--value blue"><%= @fraud_reports[:new_today] %></span>
+              <span class="super-mega-dashboard__stat--label">New Today</span>
+            </div>
+            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--warning">
+              <span class="super-mega-dashboard__stat--value yellow"><%= @fraud_reports[:pending] %></span>
+              <span class="super-mega-dashboard__stat--label">Pending</span>
+            </div>
+            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--success">
+              <span class="super-mega-dashboard__stat--value red"><%= @fraud_reports[:reviewed] %></span>
+              <span class="super-mega-dashboard__stat--label">Reviewed</span>
+            </div>
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value green"><%= @fraud_reports[:dismissed] %></span>
+              <span class="super-mega-dashboard__stat--label">Dismissed</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Bans</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--danger">
+              <span class="super-mega-dashboard__stat--value red"><%= @fraud_bans[:banned] %></span>
+              <span class="super-mega-dashboard__stat--label">Banned</span>
+            </div>
+            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--purple">
+              <span class="super-mega-dashboard__stat--value purple"><%= @fraud_bans[:shadow_banned_users] %></span>
+              <span class="super-mega-dashboard__stat--label">Shadow Banned</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Order Queue</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--warning">
+              <span class="super-mega-dashboard__stat--value yellow"><%= @fraud_orders[:pending] %></span>
+              <span class="super-mega-dashboard__stat--label">Pending</span>
+            </div>
+            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--info">
+              <span class="super-mega-dashboard__stat--value blue"><%= @fraud_orders[:awaiting] %></span>
+              <span class="super-mega-dashboard__stat--label">Awaiting</span>
+            </div>
+            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--danger">
+              <span class="super-mega-dashboard__stat--value red"><%= @fraud_orders[:backlog] %></span>
+              <span class="super-mega-dashboard__stat--label">Total Backlog</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="super-mega-dashboard__dashboard">
+      <div class="super-mega-dashboard__header super-mega-dashboard__header--payouts">
+        <h2>Payouts Overview</h2>
+        <%= link_to "View Full Dashboard →", admin_payouts_dashboard_path, class: "super-mega-link" %>
+      </div>
+
+      <div class="super-mega-dashboard__cards">
+        <div class="super-mega-dashboard__card">
+          <h3>Total Circulation</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@payouts_cap) %></span>
+              <span class="super-mega-dashboard__stat--label yellow">Cookies</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Last 24 Hours</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value">+<%= number_with_delimiter(@payouts[:created]) %></span>
+              <span class="super-mega-dashboard__stat--label green">Created</span>
+            </div>
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value">-<%= number_with_delimiter(@payouts[:destroyed]) %></span>
+              <span class="super-mega-dashboard__stat--label red">Destroyed</span>
+            </div>
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@payouts[:txns]) %></span>
+              <span class="super-mega-dashboard__stat--label blue">Transactions</span>
+            </div>
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@payouts[:volume]) %></span>
+              <span class="super-mega-dashboard__stat--label purple">Volume</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="super-mega-dashboard__dashboard">
+      <div class="super-mega-dashboard__header super-mega-dashboard__header--fulfillment">
+        <h2>Fulfillment Overview</h2>
+        <%= link_to "View Full Dashboard →", admin_fulfillment_dashboard_index_path, class: "super-mega-link" %>
+      </div>
+
+      <div class="super-mega-dashboard__cards">
+        <% [
+          [:all, "All"],
+          [:hq_mail, "HQ Stuff"],
+          [:third_party, "Amber & Co"],
+          [:warehouse, "Warehouse"],
+          [:other, "Other"]
+        ].each do |key, label| %>
+          <div class="super-mega-dashboard__card">
+            <h3><%= label %></h3>
+            <div class="super-mega-dashboard__stats">
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value"><%= @fulfillment[key][:pending] %></span>
+                <span class="super-mega-dashboard__stat--label red">Pending</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value"><%= @fulfillment[key][:awaiting] %></span>
+                <span class="super-mega-dashboard__stat--label yellow">Awaiting</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value"><%= @fulfillment[key][:total] %></span>
+                <span class="super-mega-dashboard__stat--label green">Total</span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="super-mega-dashboard__actions">
+    <%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
+  </div>
+</div>
