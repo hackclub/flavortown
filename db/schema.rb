@@ -626,6 +626,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_26_060540) do
     t.datetime "updated_at", null: false
     t.string "verification_status", default: "needs_submission", null: false
     t.boolean "vote_anonymously", default: false, null: false
+    t.integer "vote_balance", default: 0, null: false
     t.integer "votes_count"
     t.boolean "ysws_eligible", default: false, null: false
     t.index ["api_key"], name: "index_users_on_api_key", unique: true

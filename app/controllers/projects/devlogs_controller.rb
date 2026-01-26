@@ -1,4 +1,4 @@
-class Project::DevlogsController < ApplicationController
+class Projects::DevlogsController < ApplicationController
   before_action :set_project
   before_action :set_devlog, only: %i[edit update destroy versions]
   before_action :require_hackatime_project, only: %i[new create]

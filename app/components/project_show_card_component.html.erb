@@ -4,12 +4,12 @@
     <div class="project-card__banner-frame">
       <% if banner_variant.present? %>
         <%= image_tag project.banner.variant(:card), class: "project-card__banner-image", alt: "#{project.title} banner" %>
-        <% if owner? && (project.draft? || project.can_ship_again?) %>
+        <% if owner? && (project.draft? || project.shippable?) %>
             <%= render ButtonComponent.new(
                 text: project.draft? ? "Ship" : "Ship Again",
                 color: :green,
                 icon: "icons/ship.svg",
-                href: ship_project_path(project),
+                href: new_project_ships_path(project),
                 class: "project-show-card__ship-btn"
             ) %>
         <% end %>
@@ -28,35 +28,30 @@
           ) %>
         <% end %>
       <% else %>
-        <div class="project-card__banner-frame project-card__banner-frame--placeholder">
-          <div class="project-card__banner-placeholder">
-            <div class="project-card__banner-placeholder-text">No banner uploaded</div>
-            <% if owner? && (project.draft? || project.can_ship_again?) %>
-              <%= render ButtonComponent.new(
+        <%= image_tag "default-banner.png", class: "project-card__banner-image", alt: "#{project.title} banner" %>
+        <% if owner? && (project.draft? || project.shippable?) %>
+            <%= render ButtonComponent.new(
                 text: project.draft? ? "Ship" : "Ship Again",
                 color: :green,
                 icon: "icons/ship.svg",
-                href: ship_project_path(project),
-                class: "project-show-card__ship-btn",
-                disabled: true
-              ) %>
-            <% end %>
-            <% if helpers.current_user.present? && helpers.policy(:admin).manage_projects? %>
-              <%= render ButtonComponent.new(
-                  text: project.fire? ? "Unmark 🔥" : "Mark as 🔥",
-                  color: :green,
-                  icon: "icons/fire.svg",
-                  class: "project-show-card__fire-btn",
-                  data: {
-                    controller: "project-fire",
-                    action: "click->project-fire#toggle",
-                    project_fire_project_id_value: project.id,
-                    project_fire_is_fire_value: project.fire?
-                  }
-              ) %>
-            <% end %>
-          </div>
-        </div>
+                href: new_project_ships_path(project),
+                class: "project-show-card__ship-btn"
+            ) %>
+        <% end %>
+        <% if helpers.current_user.present? && helpers.policy(:admin).manage_projects? %>
+          <%= render ButtonComponent.new(
+              text: project.fire? ? "Unmark 🔥" : "Mark as 🔥",
+              color: :green,
+              icon: "icons/fire.svg",
+              class: "project-show-card__fire-btn",
+              data: {
+                controller: "project-fire",
+                action: "click->project-fire#toggle",
+                project_fire_project_id_value: project.id,
+                project_fire_is_fire_value: project.fire?
+              }
+          ) %>
+        <% end %>
       <% end %>
     </div>
   </div>

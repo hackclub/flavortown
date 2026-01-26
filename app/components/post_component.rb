@@ -3,12 +3,17 @@
 class PostComponent < ViewComponent::Base
   with_collection_parameter :post
 
-  attr_reader :post
+  attr_reader :post, :compact
 
-  def initialize(post:, current_user: nil, theme: nil)
+  def initialize(post:, current_user: nil, theme: nil, compact: false)
     @post = post
     @current_user = current_user
     @theme = theme
+    @compact = compact
+  end
+
+  def compact?
+    @compact
   end
 
   def variant

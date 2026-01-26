@@ -1,4 +1,4 @@
-class Project::ReportsController < ApplicationController
+class Projects::ReportsController < ApplicationController
   def create
     authorize :report, :create?
     @project = ::Project.find(params[:project_id])
