@@ -133,47 +133,10 @@
     line-height: 1.4;
   }
 
-  &__devlogs {
+  &__posts {
     display: flex;
     flex-direction: column;
     gap: var(--space-m);
-  }
-
-  &__devlog {
-    background: var(--color-brown-300);
-    padding: var(--space-m);
-    border-radius: var(--border-radius);
-  }
-
-  &__devlog-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-xs);
-  }
-
-  &__devlog-author {
-    font-weight: 600;
-  }
-
-  &__devlog-date {
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
-  }
-
-  &__devlog-body {
-    color: var(--color-text-body);
-    line-height: 1.5;
-    margin-bottom: var(--space-xs);
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    word-break: break-word;
-    overflow: hidden;
-  }
-
-  &__devlog-duration {
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
   }
 
   &__empty-state {

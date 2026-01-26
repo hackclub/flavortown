@@ -1,36 +1,20 @@
 <div class="projects-ship__step">
-  <h2 class="projects-ship__section-title">Review Your Progress</h2>
+    <h2 class="projects-ship__section-title">What's Being Shipped</h2>
   <p class="projects-ship__section-desc">
-    Make sure this information looks accurate!
+    <% if @last_ship %>
+      These devlogs will be included in this ship (since your last ship on <%= @last_ship.created_at.strftime("%B %d, %Y") %>).
+    <% else %>
+      These devlogs will be included in your first ship.
+    <% end %>
   </p>
 
-  <% if @devlogs.any? %>
-    <h2 class="projects-ship__section-title projects-ship__section-title--spaced">Devlogs</h2>
-    <p class="projects-ship__section-desc">Your project's development history.</p>
-
-    <div class="projects-ship__devlogs">
-      <% @devlogs.each do |post| %>
-        <div class="projects-ship__devlog">
-          <div class="projects-ship__devlog-header">
-            <span class="projects-ship__devlog-author"><%= post.user.display_name %></span>
-            <span class="projects-ship__devlog-date"><%= post.created_at.strftime("%B %d, %Y") %></span>
-          </div>
-          <% if post.postable.respond_to?(:body) && post.postable.body.present? %>
-            <div class="projects-ship__devlog-body">
-              <%= truncate(post.postable.body, length: 200) %>
-            </div>
-          <% end %>
-          <% if post.postable.respond_to?(:duration_seconds) && post.postable.duration_seconds.present? %>
-            <div class="projects-ship__devlog-duration">
-              <%= (post.postable.duration_seconds / 3600.0).round(1) %> hours logged
-            </div>
-          <% end %>
-        </div>
-      <% end %>
+  <% if @devlogs_for_ship.any? %>
+    <div class="projects-ship__posts">
+      <%= render PostComponent.with_collection(@devlogs_for_ship, current_user: current_user, compact: true) %>
     </div>
   <% else %>
-    <div class="projects-ship__empty-state projects-ship__section-title--spaced">
-      <p>No devlogs yet. Add some devlogs to document your progress!</p>
+    <div class="projects-ship__empty-state">
+      <p>No new devlogs since your last ship. Add a devlog to document your progress!</p>
     </div>
   <% end %>
 </div>

@@ -417,7 +417,17 @@ class ProjectsController < ApplicationController
   def load_ship_data
     @hackatime_projects = @project.hackatime_projects_with_time
     @total_hours = @project.total_hackatime_hours
-    @devlogs = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
+    @last_ship = @project.last_ship_event
+    @devlogs_for_ship = devlogs_since_last_ship
+  end
+
+  def devlogs_since_last_ship
+    devlogs = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
+    if @last_ship
+      devlogs.where("posts.created_at > ?", @last_ship.created_at)
+    else
+      devlogs
+    end
   end
 
   def ship_params
