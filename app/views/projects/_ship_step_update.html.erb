@@ -4,18 +4,6 @@
     Tell everyone what you built, what you learned, and how it went. This will appear on your project's timeline.
   </p>
 
-  <% unless @project.draft? %>
-    <% if @project.has_devlog_since_last_ship? %>
-      <div class="projects-ship__reship-notice projects-ship__reship-notice--success">
-        You have new devlogs since your last ship - you can ship again!
-      </div>
-    <% else %>
-      <div class="projects-ship__reship-notice projects-ship__reship-notice--warning">
-        You need to add at least one devlog since your last ship before you can ship again.
-      </div>
-    <% end %>
-  <% end %>
-
   <%= form_with(url: submit_ship_project_path(@project), method: :post, id: "ship-form", local: true) do |form| %>
     <%= render InputComponent.new(
           label: "Your ship update",
