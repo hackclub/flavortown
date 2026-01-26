@@ -11,9 +11,7 @@
       <% end %>
     </div>
 
-    <%= form_with model: @devlog,
-                  url: new_project_devlog_path(@project),
-                  method: :post,
+    <%= form_with model: [@project, @devlog],
                   html: { multipart: true, data: { controller: "upload-form" } },
                   class: "projects-new__form",
                   local: true do |f| %>

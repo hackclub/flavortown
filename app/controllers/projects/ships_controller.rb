@@ -1,4 +1,4 @@
-class Projects::ShipController < ApplicationController
+class Projects::ShipsController < ApplicationController
   before_action :set_project
 
   def new
