@@ -198,6 +198,17 @@ class ShopItem < ApplicationRecord
     limited? && remaining_stock && remaining_stock <= 0
   end
 
+  def current_event_purchases
+    shop_orders.where(aasm_state: %w[awaiting_fulfillment fulfilled]).sum(:quantity)
+  end
+
+  def display_purchase_count
+    c = current_event_purchases
+    c > 2 ? c : (past_purchases.to_i > 2 ? past_purchases : nil)
+  end
+
+  def new_item? = created_at.present? && created_at > 7.days.ago
+
   def available_accessories
     ShopItem::Accessory.where("? = ANY(attached_shop_item_ids)", id).where(enabled: true)
   end
