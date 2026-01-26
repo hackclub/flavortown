@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_23_231044) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_26_060540) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -469,6 +469,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_231044) do
     t.string "name"
     t.integer "old_prices", default: [], array: true
     t.boolean "one_per_person_ever"
+    t.integer "past_purchases", default: 0
     t.integer "payout_percentage", default: 0
     t.decimal "price_offset_au"
     t.decimal "price_offset_ca"
