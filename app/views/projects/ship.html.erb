@@ -35,7 +35,16 @@
               ) %>
         <% end %>
 
-        <% if @step < 4 %>
+        <% if @step == 2 %>
+          <%= render ButtonComponent.new(
+                text: "Save & Continue",
+                color: :blue,
+                variant: :borderless,
+                type: :submit,
+                form: "ship-details-form",
+                disable_with: "Saving..."
+              ) %>
+        <% elsif @step < 4 %>
           <%= render ButtonComponent.new(
                 text: "Next",
                 color: :blue,

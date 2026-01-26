@@ -4,11 +4,7 @@
     You can come back to this page at anytime! Your information will be saved.
   </p>
 
-  <%= form_with(model: @project, url: update_ship_project_path(@project, step: 2), method: :patch, local: true) do |form| %>
+  <%= form_with(model: @project, url: update_ship_project_path(@project, step: 2), method: :patch, id: "ship-details-form", local: true) do |form| %>
     <%= render "project_form_fields", form: form %>
-
-    <div class="projects-ship__form-actions">
-      <%= render ButtonComponent.new(text: "Save & Continue", color: :green, type: :submit, disable_with: "Saving...") %>
-    </div>
   <% end %>
 </div>
