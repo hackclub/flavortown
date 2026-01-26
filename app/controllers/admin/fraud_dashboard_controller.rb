@@ -91,12 +91,12 @@ module Admin
 
     def batch_changes_count(today)
       sql = PaperTrail::Version.sanitize_sql_array([
-        "SELECT item_type, 
-                CASE 
+        "SELECT item_type,
+                CASE
                   WHEN jsonb_exists(object_changes, 'banned') THEN 'banned'
                   WHEN jsonb_exists(object_changes, 'shadow_banned') THEN 'shadow_banned'
                 END AS field,
-                CASE 
+                CASE
                   WHEN jsonb_exists(object_changes, 'banned') THEN object_changes -> 'banned' ->> 1
                   WHEN jsonb_exists(object_changes, 'shadow_banned') THEN object_changes -> 'shadow_banned' ->> 1
                 END AS new_value,
@@ -165,9 +165,9 @@ module Admin
 
       db_values = if table == "project_reports" && field == "status"
                     states.map { |s| Project::Report.statuses[s] }
-                  else
+      else
                     states
-                  end
+      end
       pg_array = "{#{db_values.join(',')}}"
 
       sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL.squish, pg_array, type, field, field, pg_array ])
