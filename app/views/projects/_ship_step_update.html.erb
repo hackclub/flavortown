@@ -7,11 +7,11 @@
   <% unless @project.draft? %>
     <% if @project.has_devlog_since_last_ship? %>
       <div class="projects-ship__reship-notice projects-ship__reship-notice--success">
-        ✓ You have new devlogs since your last ship - you can ship again!
+        You have new devlogs since your last ship - you can ship again!
       </div>
     <% else %>
       <div class="projects-ship__reship-notice projects-ship__reship-notice--warning">
-        ⚠ You need to add at least one devlog since your last ship before you can ship again.
+        You need to add at least one devlog since your last ship before you can ship again.
       </div>
     <% end %>
   <% end %>
