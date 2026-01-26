@@ -117,7 +117,7 @@ class ProjectsController < ApplicationController
     # 2nd check w/ @project.errors.empty? is not redudant. this is ensures that hackatime is linked!
     if success && @project.errors.empty?
       flash[:notice] = "Project updated successfully"
-      redirect_to params[:return_to].presence || @project
+      redirect_to url_from(params[:return_to]) || @project
     else
       flash[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
       redirect_back_or_to edit_project_path(@project)
