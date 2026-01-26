@@ -6,12 +6,10 @@
 
   <div class="projects-ship__validations">
     <% @project.shipping_validations.each do |validation| %>
-      <div class="projects-ship__validation <%= validation[:passed] ? 'projects-ship__validation--passed' : 'projects-ship__validation--failed' %>">
+      <div class="projects-ship__validation <%= 'projects-ship__validation--passed' if validation[:passed] %>">
         <span class="projects-ship__validation-icon">
           <% if validation[:passed] %>
-            ✓
-          <% else %>
-            ✗
+            <%= inline_svg_tag("icons/check_thick.svg") %>
           <% end %>
         </span>
         <span class="projects-ship__validation-label"><%= validation[:label] %></span>
