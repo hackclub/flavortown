@@ -5,7 +5,6 @@
             text: "← Back to Project",
             color: :brown,
             variant: :borderless,
-            size: :sm,
             href: project_path(@project),
             class: "projects-ship__back"
           ) %>
@@ -27,57 +26,24 @@
 
       <div class="projects-ship__navigation">
         <% if @step > 1 %>
-          <%= render ButtonComponent.new(
-                text: "Prev",
-                color: :red,
-                variant: :borderless,
-                href: ship_project_path(@project, step: @step - 1)
-              ) %>
+          <%= render ButtonComponent.new(text: "Prev", color: :red, variant: :borderless, href: ship_project_path(@project, step: @step - 1)) %>
         <% end %>
 
-        <% if @step == 2 %>
-          <%= render ButtonComponent.new(
-                text: "Save & Continue",
-                color: :blue,
-                variant: :borderless,
-                type: :submit,
-                form: "ship-details-form",
-                disable_with: "Saving..."
-              ) %>
-        <% elsif @step < 4 %>
-          <%= render ButtonComponent.new(
-                text: "Next",
-                color: :blue,
-                variant: :borderless,
-                href: ship_project_path(@project, step: @step + 1)
-              ) %>
-        <% elsif @step == 4 %>
-          <div class="projects-ship__actions">
-            <% can_ship = @project.shippable? && @project.can_ship_again? %>
-            <% if can_ship %>
-              <%= render ButtonComponent.new(
-                    text: "Ship It!",
-                    color: :green,
-                    type: :submit,
-                    form: "ship-form",
-                    disable_with: "Shipping..."
-                  ) %>
-            <% else %>
-              <% reason = if !@project.shippable?
-                            "Complete all requirements first"
-                          elsif @project.last_ship_event && !@project.previous_ship_event_has_payout?
-                            "Wait for your previous ship event to receive a payout"
-                          else
-                            "Add a devlog first"
-                          end %>
-              <%= render ButtonComponent.new(
-                    text: "Ship It!",
-                    color: :brown,
-                    disabled: true,
-                    title: reason
-                  ) %>
-            <% end %>
-          </div>
+        <% case @step %>
+        <% when 1, 3 %>
+          <%= render ButtonComponent.new(color: :blue, variant: :borderless, href: ship_project_path(@project, step: @step + 1)) do %>
+            Continue <%= inline_svg_tag("icons/next.svg") %>
+          <% end %>
+        <% when 2 %>
+          <%= render ButtonComponent.new(color: :blue, variant: :borderless, type: :submit, form: "ship-details-form", disable_with: "Saving...") do %>
+            Save & Continue <%= inline_svg_tag("icons/next.svg") %>
+          <% end %>
+        <% when 4 %>
+          <% if @project.shippable? && @project.can_ship_again? %>
+            <%= render ButtonComponent.new(text: "Ship It!", color: :green, variant: :borderless, type: :submit, form: "ship-form", disable_with: "Shipping...") %>
+          <% else %>
+            <%= render ButtonComponent.new(text: "Ship It!", color: :brown, variant: :borderless, disabled: true) %>
+          <% end %>
         <% end %>
       </div>
     </div>
