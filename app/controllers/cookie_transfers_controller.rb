@@ -1,6 +1,7 @@
 class CookieTransfersController < ApplicationController
   before_action :require_login
   before_action :require_feature_enabled
+  before_action :require_verified_sender, only: [ :new, :create ]
 
   def new
     authorize CookieTransfer
@@ -13,7 +14,7 @@ class CookieTransfersController < ApplicationController
     @cookie_transfer.sender = current_user
 
     if @cookie_transfer.save
-      flash[:notice] = "Successfully transferred #{@cookie_transfer.amount} cookies to #{@cookie_transfer.recipient.display_name}!"
+      flash[:notice] = "Your transfer of #{@cookie_transfer.amount} cookies to #{@cookie_transfer.recipient.display_name} is pending approval."
       redirect_to my_balance_path
     else
       render :new, status: :unprocessable_entity
@@ -33,6 +34,13 @@ class CookieTransfersController < ApplicationController
     unless Flipper.enabled?(:cookie_transfers, current_user)
       flash[:alert] = "Cookie transfers are not available yet."
       redirect_to root_path
+    end
+  end
+
+  def require_verified_sender
+    unless current_user.verification_verified?
+      flash[:alert] = "You must complete identity verification to transfer cookies."
+      redirect_to my_balance_path
     end
   end
 

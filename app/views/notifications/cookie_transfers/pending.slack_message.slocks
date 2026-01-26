@@ -1,0 +1,13 @@
+header ":ft-cookie: Transfer pending approval"
+
+section "Your transfer of *#{transfer.amount}* :ft-cookie: to *#{transfer.recipient.display_name}* is pending review.", markdown: true
+
+if transfer.note.present?
+  section "_\"#{transfer.note}\"_", markdown: true
+end
+
+divider
+
+context [
+  mrkdwn_text("You'll be notified when it's approved or rejected.")
+]

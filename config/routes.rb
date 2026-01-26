@@ -251,6 +251,12 @@ Rails.application.routes.draw do
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
     get "ship_event_scores", to: "ship_event_scores#index"
+    resources :cookie_transfers, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+    end
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail

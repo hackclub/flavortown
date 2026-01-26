@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_26_181925) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_26_185705) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -165,12 +165,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_26_181925) do
   end
 
   create_table "cookie_transfers", force: :cascade do |t|
+    t.string "aasm_state", default: "pending", null: false
     t.integer "amount", null: false
     t.datetime "created_at", null: false
     t.string "note"
     t.bigint "recipient_id", null: false
+    t.string "rejection_reason"
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
     t.bigint "sender_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["aasm_state"], name: "index_cookie_transfers_on_aasm_state"
     t.index ["recipient_id"], name: "index_cookie_transfers_on_recipient_id"
     t.index ["sender_id"], name: "index_cookie_transfers_on_sender_id"
   end
@@ -686,6 +691,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_26_181925) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "comments", "users"
   add_foreign_key "cookie_transfers", "users", column: "recipient_id"
+  add_foreign_key "cookie_transfers", "users", column: "reviewed_by_id"
   add_foreign_key "cookie_transfers", "users", column: "sender_id"
   add_foreign_key "devlog_versions", "post_devlogs", column: "devlog_id"
   add_foreign_key "devlog_versions", "users"

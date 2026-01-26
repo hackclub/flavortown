@@ -1,0 +1,196 @@
+<h1>Cookie Transfers</h1>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h2>Stats</h2>
+  <div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
+    <div>
+      <span class="badge badge-pending"><strong><%= @counts[:pending] %></strong> Pending</span>
+    </div>
+    <div>
+      <span class="badge badge-approved"><strong><%= @counts[:approved] %></strong> Approved</span>
+    </div>
+    <div>
+      <span class="badge badge-rejected"><strong><%= @counts[:rejected] %></strong> Rejected</span>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h2>Filters</h2>
+
+  <%= form_with url: admin_cookie_transfers_path, method: :get, local: true do |f| %>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+      <div>
+        <%= f.label :status, "Status" %>
+        <%= f.select :status, options_for_select([["Pending", "pending"], ["Approved", "approved"], ["Rejected", "rejected"]], params[:status]), { include_blank: "All" }, class: "form-control" %>
+      </div>
+
+      <div>
+        <%= f.label :user_search, "User Search" %>
+        <%= f.text_field :user_search, value: params[:user_search], placeholder: "Search sender or recipient...", class: "form-control" %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.submit "Filter", class: "btn-primary" %>
+      <%= link_to "Clear Filters", admin_cookie_transfers_path, class: "btn-secondary" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="card">
+  <table class="transfers-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Sender</th>
+        <th>Recipient</th>
+        <th>Amount</th>
+        <th>Note</th>
+        <th>Status</th>
+        <th>Reviewed By</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @transfers.each do |transfer| %>
+        <tr>
+          <td>#<%= transfer.id %></td>
+          <td>
+            <div class="user-cell">
+              <%= image_tag transfer.sender.avatar, class: "avatar-sm", alt: transfer.sender.display_name %>
+              <span><%= transfer.sender.display_name %></span>
+            </div>
+          </td>
+          <td>
+            <div class="user-cell">
+              <%= image_tag transfer.recipient.avatar, class: "avatar-sm", alt: transfer.recipient.display_name %>
+              <span><%= transfer.recipient.display_name %></span>
+            </div>
+          </td>
+          <td><strong><%= transfer.amount %></strong> 🍪</td>
+          <td class="note-cell"><%= truncate(transfer.note, length: 30) if transfer.note.present? %></td>
+          <td>
+            <span class="badge badge-<%= transfer.aasm_state %>">
+              <%= transfer.aasm_state %>
+            </span>
+          </td>
+          <td>
+            <% if transfer.reviewed_by %>
+              <div class="user-cell">
+                <%= image_tag transfer.reviewed_by.avatar, class: "avatar-sm", alt: transfer.reviewed_by.display_name %>
+                <span><%= transfer.reviewed_by.display_name %></span>
+              </div>
+            <% else %>
+              <span class="text-muted">—</span>
+            <% end %>
+          </td>
+          <td><%= transfer.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          <td>
+            <div class="actions-cell">
+              <%= link_to "View", admin_cookie_transfer_path(transfer), class: "btn-primary slim" %>
+              <% if transfer.pending? %>
+                <%= button_to "Approve", approve_admin_cookie_transfer_path(transfer), method: :post, class: "btn-secondary slim", style: "background: #10b981; color: white;" %>
+                <%= button_to "Reject", reject_admin_cookie_transfer_path(transfer), method: :post, class: "btn-secondary slim", style: "background: #ef4444; color: white;", data: { confirm: "Reject this transfer?" } %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if @transfers.empty? %>
+    <p style="text-align: center; padding: 2rem;">No transfers found.</p>
+  <% end %>
+</div>
+
+<div style="margin-top: 2em;">
+  <%= link_to "← Back", admin_root_path, class: "btn-secondary" %>
+</div>
+
+<style>
+.transfers-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transfers-table th,
+.transfers-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.transfers-table th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.transfers-table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.note-cell {
+  max-width: 150px;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.text-muted {
+  color: #9ca3af;
+}
+
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.badge-pending {
+  background-color: #fbbf24;
+  color: #78350f;
+}
+
+.badge-approved {
+  background-color: #10b981;
+  color: white;
+}
+
+.badge-rejected {
+  background-color: #ef4444;
+  color: white;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5em;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: white;
+}
+</style>

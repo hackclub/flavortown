@@ -15,7 +15,7 @@
   <% end %>
 
   <%= form_with model: @cookie_transfer, url: cookie_transfers_path, local: true, class: "cookie-transfer__form" do |form| %>
-    <% users_for_select = User.where.not(id: current_user.id).where(banned: false).order(:display_name).limit(500).pluck(:display_name, :id) %>
+    <% users_for_select = User.where.not(id: current_user.id).where(banned: false, verification_status: :verified).order(:display_name).limit(500).pluck(:display_name, :id) %>
     <div class="cookie-transfer__field" data-controller="searchable-select">
       <div class="input input--blue">
         <label class="input__label">Recipient</label>

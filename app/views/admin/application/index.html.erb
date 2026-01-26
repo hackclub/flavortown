@@ -27,6 +27,17 @@
       <% end %>
     <% end %>
   <% end %>
+  <% if policy(:admin).access_cookie_transfers? %>
+    <% pending_transfers = CookieTransfer.where(aasm_state: 'pending').count %>
+    <%= link_to admin_cookie_transfers_path(status: 'pending'), class: button_class do %>
+      Cookie Transfers
+      <% if pending_transfers > 0 %>
+        <span style="background-color: #fbbf24; color: #78350f; border-radius: 9999px; padding: 0px 6px; font-size: 0.9em; min-width: 20px; text-align: center;">
+          <%= pending_transfers %>
+        </span>
+      <% end %>
+    <% end %>
+  <% end %>
   <% if policy(:admin).access_shop_orders? %>
     <% pending_count = ShopOrder.where(aasm_state: 'pending').count %>
     <% total_shop_count = pending_count %>

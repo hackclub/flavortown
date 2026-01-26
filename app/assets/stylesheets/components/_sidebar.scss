@@ -133,6 +133,22 @@
       text-align: center;
     }
 
+    &__transfer-link {
+      text-align: center;
+      margin: 0 0 1em;
+      font-size: 0.85rem;
+
+      a {
+        color: var(--color-brown-500);
+        text-decoration: none;
+
+        &:hover {
+          color: var(--color-brown-700);
+          text-decoration: underline;
+        }
+      }
+    }
+
     &__table {
       width: 100%;
       border-collapse: collapse;

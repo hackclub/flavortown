@@ -125,6 +125,26 @@
     <h2>Order Reviewers (All-Time)</h2>
     <%= render "leaderboard", reviewers: o[:all_time], medals: (1..10).map { |i| "##{i}" } %>
   </div>
+
+  <div class="card fraud-card">
+    <h2>Cookie Transfers</h2>
+    <% pending_transfers = CookieTransfer.where(aasm_state: "pending").count %>
+    <div class="fraud-stats">
+      <div class="fraud-stat fraud-stat--warning">
+        <span class="fraud-stat__value"><%= pending_transfers %></span>
+        <span class="fraud-stat__label">Pending</span>
+      </div>
+      <div class="fraud-stat fraud-stat--success">
+        <span class="fraud-stat__value"><%= CookieTransfer.where(aasm_state: "approved").count %></span>
+        <span class="fraud-stat__label">Approved</span>
+      </div>
+      <div class="fraud-stat fraud-stat--danger">
+        <span class="fraud-stat__value"><%= CookieTransfer.where(aasm_state: "rejected").count %></span>
+        <span class="fraud-stat__label">Rejected</span>
+      </div>
+    </div>
+    <%= link_to "Review Transfers →", admin_cookie_transfers_path(status: "pending"), class: "btn-primary slim" %>
+  </div>
 </div>
 
 <%= link_to "← Back", admin_root_path, class: "btn-secondary" %>
