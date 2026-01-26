@@ -21,7 +21,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     # Base query
-    orders = ShopOrder.includes(:shop_item, :user, :accessory_orders, :assigned_to_user)
+    orders = ShopOrder.joins(:shop_item).includes(:shop_item, :user, :accessory_orders, :assigned_to_user)
     unless @show_spammy_stuff
       orders = orders.where.not(shop_item: { type: %w[ShopItem::FreeStickers ShopItem::WarehouseItem] })
     end
