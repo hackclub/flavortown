@@ -1,10 +1,10 @@
 <div class="projects-ship__step">
-  <h2 class="projects-ship__section-title">Fill out this information and make sure it looks correct</h2>
+  <h2 class="projects-ship__section-title">Project Details</h2>
   <p class="projects-ship__section-desc">
-    You can come back to this page at anytime! Your information will be saved.
+    Double-check your project info. Reviewers will use this to evaluate your ship.
   </p>
 
-  <%= form_with(model: @project, url: update_ship_project_path(@project, step: 2), method: :patch, id: "ship-details-form", local: true) do |form| %>
+  <%= form_with(model: @project, url: project_path(@project, return_to: ship_project_path(@project, step: 3)), method: :patch, id: "ship-details-form", local: true) do |form| %>
     <%= render "project_form_fields", form: form %>
   <% end %>
 </div>

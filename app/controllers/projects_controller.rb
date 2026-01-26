@@ -1,5 +1,5 @@
 class ProjectsController < ApplicationController
-  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship, :mark_fire, :unmark_fire ]
+  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :submit_ship, :mark_fire, :unmark_fire ]
   before_action :set_project, only: [ :show, :readme ]
 
   def index
@@ -120,8 +120,7 @@ class ProjectsController < ApplicationController
       redirect_to params[:return_to].presence || @project
     else
       flash[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
-      load_project_times
-      render :edit, status: :unprocessable_entity
+      redirect_back_or_to edit_project_path(@project)
     end
   end
 
@@ -161,23 +160,6 @@ class ProjectsController < ApplicationController
     @step = 1 if @step < 1 || @step > 4
 
     load_ship_data
-  end
-
-  def update_ship
-    authorize @project
-
-    if @project.update(ship_params)
-      step = params[:step]&.to_i || 1
-      next_step = step + 1
-      next_step = 4 if next_step > 4
-
-      redirect_to ship_project_path(@project, step: next_step)
-    else
-      @step = params[:step]&.to_i || 1
-      load_ship_data
-      flash.now[:alert] = "Failed to save: #{@project.errors.full_messages.join(', ')}"
-      render :ship, status: :unprocessable_entity
-    end
   end
 
   def submit_ship
@@ -428,10 +410,6 @@ class ProjectsController < ApplicationController
     else
       devlogs
     end
-  end
-
-  def ship_params
-    params.require(:project).permit(:title, :description, :demo_url, :repo_url, :readme_url, :banner, :project_type)
   end
 
   # These are the same today, but they'll be different tomorrow.

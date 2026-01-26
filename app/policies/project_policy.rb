@@ -35,10 +35,6 @@ class ProjectPolicy < ApplicationPolicy
         member?
     end
 
-    def update_ship?
-        member?
-    end
-
     def submit_ship?
         member?
     end

@@ -1,10 +1,10 @@
 <div class="projects-ship__step">
-    <h2 class="projects-ship__section-title">What's Being Shipped</h2>
+  <h2 class="projects-ship__section-title">Review Your Work</h2>
   <p class="projects-ship__section-desc">
     <% if @last_ship %>
-      These devlogs will be included in this ship (since your last ship on <%= @last_ship.created_at.strftime("%B %d, %Y") %>).
+      Here's what you've logged since your last ship on <%= @last_ship.created_at.strftime("%B %d") %>.
     <% else %>
-      These devlogs will be included in your first ship.
+      Here's the work you've logged for this project.
     <% end %>
   </p>
 
@@ -14,7 +14,7 @@
     </div>
   <% else %>
     <div class="projects-ship__empty-state">
-      <p>No new devlogs since your last ship. Add a devlog to document your progress!</p>
+      <p>No devlogs yet! Add a devlog to show what you've been working on.</p>
     </div>
   <% end %>
 </div>
