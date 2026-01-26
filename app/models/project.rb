@@ -225,7 +225,7 @@ class Project < ApplicationRecord
         state :rejected
 
         event :submit_for_review do
-            transitions from: [ :draft, :submitted, :under_review, :approved, :rejected ], to: :submitted, guard: :can_ship_again?
+            transitions from: [ :draft, :submitted, :under_review, :approved, :rejected ], to: :submitted, guard: :shippable?
             after do
                 self.shipped_at = Time.current
             end
@@ -260,8 +260,6 @@ class Project < ApplicationRecord
 
     def shippable? = shipping_requirements.all? { |r| r[:passed] }
     def ship_blocking_errors = shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:label] }
-
-    def can_ship_again? = shippable?
 
     def last_ship_event
         ship_events.first
