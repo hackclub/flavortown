@@ -43,6 +43,13 @@
     outline-offset: 2px;
   }
 
+  &:disabled,
+  &--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
   &--red {
     --btn-bg: var(--color-red-400);
     --btn-bg-dark: var(--color-red-500);
@@ -174,10 +181,31 @@
 
   &--borderless {
     border: none;
+    font-size: var(--font-size-xxl);
+  }
+
+  &--sm {
+    padding: var(--space-xxs) var(--space-s);
+    font-size: var(--font-size-m);
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  &--sm.btn--striped div {
+    padding: var(--space-xxs) var(--space-m);
   }
 
   &--lg {
     padding: var(--space-l) var(--space-xxl);
+    font-size: var(--font-size-xxl);
+
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
   }
 
   &--lg.btn--striped div {

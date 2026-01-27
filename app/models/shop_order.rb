@@ -30,17 +30,18 @@
 #
 # Indexes
 #
-#  idx_shop_orders_item_state_qty             (shop_item_id,aasm_state,quantity)
-#  idx_shop_orders_stock_calc                 (shop_item_id,aasm_state)
-#  idx_shop_orders_user_item_state            (user_id,shop_item_id,aasm_state)
-#  idx_shop_orders_user_item_unique           (user_id,shop_item_id)
-#  index_shop_orders_on_assigned_to_user_id   (assigned_to_user_id)
-#  index_shop_orders_on_parent_order_id       (parent_order_id)
-#  index_shop_orders_on_region                (region)
-#  index_shop_orders_on_shop_card_grant_id    (shop_card_grant_id)
-#  index_shop_orders_on_shop_item_id          (shop_item_id)
-#  index_shop_orders_on_user_id               (user_id)
-#  index_shop_orders_on_warehouse_package_id  (warehouse_package_id)
+#  idx_shop_orders_aasm_state_created_at_desc  (aasm_state,created_at DESC)
+#  idx_shop_orders_item_state_qty              (shop_item_id,aasm_state,quantity)
+#  idx_shop_orders_stock_calc                  (shop_item_id,aasm_state)
+#  idx_shop_orders_user_item_state             (user_id,shop_item_id,aasm_state)
+#  idx_shop_orders_user_item_unique            (user_id,shop_item_id)
+#  index_shop_orders_on_assigned_to_user_id    (assigned_to_user_id)
+#  index_shop_orders_on_parent_order_id        (parent_order_id)
+#  index_shop_orders_on_region                 (region)
+#  index_shop_orders_on_shop_card_grant_id     (shop_card_grant_id)
+#  index_shop_orders_on_shop_item_id           (shop_item_id)
+#  index_shop_orders_on_user_id                (user_id)
+#  index_shop_orders_on_warehouse_package_id   (warehouse_package_id)
 #
 # Foreign Keys
 #
@@ -124,6 +125,9 @@ class ShopOrder < ApplicationRecord
       return true unless viewer.has_regions?
       return viewer.has_region?(region)
     end
+
+    # Fraud dept + fulfillment person can see addresses
+    return true if viewer.fraud_dept? && viewer.fulfillment_person?
 
     false
   end

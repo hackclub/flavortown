@@ -155,15 +155,6 @@
       }
     }
 
-    .report-btn {
-      background-color: transparent;
-      opacity: 0.5;
-
-      &:hover {
-        opacity: 1;
-      }
-    }
-
     @media (max-width: 1500px) {
       flex-direction: row;
       width: 100%;

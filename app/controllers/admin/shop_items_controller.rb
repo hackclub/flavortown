@@ -119,6 +119,7 @@ module Admin
         :limited,
         :stock,
         :max_qty,
+        :past_purchases,
         :one_per_person_ever,
         :show_in_carousel,
         :special,

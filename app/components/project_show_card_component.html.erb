@@ -4,14 +4,30 @@
     <div class="project-card__banner-frame">
       <% if banner_variant.present? %>
         <%= image_tag project.banner.variant(:card), class: "project-card__banner-image", alt: "#{project.title} banner" %>
-        <% if owner? && (project.draft? || project.can_ship_again?) %>
-            <%= render ButtonComponent.new(
-                text: project.draft? ? "Ship" : "Ship Again",
-                color: :green,
-                icon: "icons/ship.svg",
-                href: ship_project_path(project),
-                class: "project-show-card__ship-btn"
-            ) %>
+        <% if owner? %>
+            <% can_ship = project.draft? || project.shippable? %>
+            <%= render PopoverComponent.new(position: :left, class: "project-show-card__ship-wrapper") do |popover| %>
+              <% popover.with_trigger do %>
+                <%= render ButtonComponent.new(
+                    text: project.draft? ? "Ship" : "Ship Again",
+                    color: :green,
+                    icon: "icons/ship.svg",
+                    href: can_ship ? new_project_ships_path(project) : nil,
+                    disabled: !can_ship,
+                    class: "project-show-card__ship-btn"
+                ) %>
+              <% end %>
+              <% unless can_ship %>
+                <% popover.with_popover_content do %>
+                  <strong>Cannot ship yet:</strong>
+                  <ul>
+                    <% ship_disabled_reasons.each do |reason| %>
+                      <li><%= reason %></li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              <% end %>
+            <% end %>
         <% end %>
         <% if helpers.current_user.present? && helpers.policy(:admin).manage_projects? %>
           <%= render ButtonComponent.new(
@@ -28,35 +44,46 @@
           ) %>
         <% end %>
       <% else %>
-        <div class="project-card__banner-frame project-card__banner-frame--placeholder">
-          <div class="project-card__banner-placeholder">
-            <div class="project-card__banner-placeholder-text">No banner uploaded</div>
-            <% if owner? && (project.draft? || project.can_ship_again?) %>
-              <%= render ButtonComponent.new(
-                text: project.draft? ? "Ship" : "Ship Again",
-                color: :green,
-                icon: "icons/ship.svg",
-                href: ship_project_path(project),
-                class: "project-show-card__ship-btn",
-                disabled: true
-              ) %>
+        <%= image_tag "default-banner.png", class: "project-card__banner-image", alt: "#{project.title} banner" %>
+        <% if owner? %>
+            <% can_ship = project.draft? || project.shippable? %>
+            <%= render PopoverComponent.new(position: :left, class: "project-show-card__ship-wrapper") do |popover| %>
+              <% popover.with_trigger do %>
+                <%= render ButtonComponent.new(
+                    text: project.draft? ? "Ship" : "Ship Again",
+                    color: :green,
+                    icon: "icons/ship.svg",
+                    href: can_ship ? new_project_ships_path(project) : nil,
+                    disabled: !can_ship,
+                    class: "project-show-card__ship-btn"
+                ) %>
+              <% end %>
+              <% unless can_ship %>
+                <% popover.with_popover_content do %>
+                  <strong>Cannot ship yet:</strong>
+                  <ul>
+                    <% ship_disabled_reasons.each do |reason| %>
+                      <li><%= reason %></li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              <% end %>
             <% end %>
-            <% if helpers.current_user.present? && helpers.policy(:admin).manage_projects? %>
-              <%= render ButtonComponent.new(
-                  text: project.fire? ? "Unmark 🔥" : "Mark as 🔥",
-                  color: :green,
-                  icon: "icons/fire.svg",
-                  class: "project-show-card__fire-btn",
-                  data: {
-                    controller: "project-fire",
-                    action: "click->project-fire#toggle",
-                    project_fire_project_id_value: project.id,
-                    project_fire_is_fire_value: project.fire?
-                  }
-              ) %>
-            <% end %>
-          </div>
-        </div>
+        <% end %>
+        <% if helpers.current_user.present? && helpers.policy(:admin).manage_projects? %>
+          <%= render ButtonComponent.new(
+              text: project.fire? ? "Unmark 🔥" : "Mark as 🔥",
+              color: :green,
+              icon: "icons/fire.svg",
+              class: "project-show-card__fire-btn",
+              data: {
+                controller: "project-fire",
+                action: "click->project-fire#toggle",
+                project_fire_project_id_value: project.id,
+                project_fire_is_fire_value: project.fire?
+              }
+          ) %>
+        <% end %>
       <% end %>
     </div>
   </div>
@@ -131,6 +158,17 @@
 
     <% if project.description.present? %>
       <div class="project-show-card__description"><%= helpers.md project.description %></div>
+    <% end %>
+
+    <% if project.ai_declaration.present? %>
+      <div class="project-show-card__ai-declaration">
+        <div class="project-show-card__ai-declaration-header">
+          <span aria-hidden="true">🤖</span> <span>This project uses AI</span>
+        </div>
+        <div style="margin-top: 8px; font-size: 0.9em; color: var(--color-blue-600);">
+          <%= helpers.md project.ai_declaration %>
+        </div>
+      </div>
     <% end %>
 
     <% if has_any_links? %>

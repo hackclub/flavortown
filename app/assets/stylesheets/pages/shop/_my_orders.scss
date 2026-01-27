@@ -273,7 +273,8 @@
     font-weight: 500;
     white-space: nowrap;
 
-    &--pending {
+    &--pending,
+    &--awaiting_verification {
       background-color: var(--color-yellow-300);
       color: var(--color-yellow-600);
     }
@@ -291,11 +292,6 @@
     &--rejected {
       background-color: var(--color-red-300);
       color: var(--color-red-500);
-    }
-
-    &--on_hold {
-      background-color: var(--color-yellow-300);
-      color: var(--color-yellow-600);
     }
 
     &--refunded {

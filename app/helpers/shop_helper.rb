@@ -93,42 +93,53 @@ module ShopHelper
     country_name == region_name || country_codes.any? { |code| country_name_matches_code?(country_name, code) }
   end
 
+  COUNTRY_CODES = {
+    "US" => "United States",
+    "GB" => "United Kingdom",
+    "CA" => "Canada",
+    "AU" => "Australia",
+    "NZ" => "New Zealand",
+    "IN" => "India",
+    "DE" => "Germany",
+    "FR" => "France",
+    "IT" => "Italy",
+    "ES" => "Spain",
+    "NL" => "Netherlands",
+    "BE" => "Belgium",
+    "AT" => "Austria",
+    "SE" => "Sweden",
+    "DK" => "Denmark",
+    "FI" => "Finland",
+    "PL" => "Poland",
+    "CZ" => "Czech Republic",
+    "HU" => "Hungary",
+    "GR" => "Greece",
+    "PT" => "Portugal",
+    "IE" => "Ireland",
+    "RO" => "Romania",
+    "BG" => "Bulgaria",
+    "HR" => "Croatia",
+    "SK" => "Slovakia",
+    "SI" => "Slovenia",
+    "LT" => "Lithuania",
+    "LV" => "Latvia",
+    "EE" => "Estonia",
+    "CY" => "Cyprus",
+    "MT" => "Malta",
+    "LU" => "Luxembourg",
+    "JP" => "Japan",
+    "KR" => "South Korea",
+    "CN" => "China",
+    "BR" => "Brazil",
+    "MX" => "Mexico",
+    "SG" => "Singapore"
+  }.freeze
+
+  def country_name_from_code(code)
+    COUNTRY_CODES[code&.upcase] || code
+  end
+
   def country_name_matches_code?(country_name, country_code)
-    country_mapping = {
-      "US" => "United States",
-      "GB" => "United Kingdom",
-      "CA" => "Canada",
-      "AU" => "Australia",
-      "NZ" => "New Zealand",
-      "IN" => "India",
-      "DE" => "Germany",
-      "FR" => "France",
-      "IT" => "Italy",
-      "ES" => "Spain",
-      "NL" => "Netherlands",
-      "BE" => "Belgium",
-      "AT" => "Austria",
-      "SE" => "Sweden",
-      "DK" => "Denmark",
-      "FI" => "Finland",
-      "PL" => "Poland",
-      "CZ" => "Czech Republic",
-      "HU" => "Hungary",
-      "GR" => "Greece",
-      "PT" => "Portugal",
-      "IE" => "Ireland",
-      "RO" => "Romania",
-      "BG" => "Bulgaria",
-      "HR" => "Croatia",
-      "SK" => "Slovakia",
-      "SI" => "Slovenia",
-      "LT" => "Lithuania",
-      "LV" => "Latvia",
-      "EE" => "Estonia",
-      "CY" => "Cyprus",
-      "MT" => "Malta",
-      "LU" => "Luxembourg"
-    }
-    country_name == country_mapping[country_code]
+    country_name == COUNTRY_CODES[country_code]
   end
 end

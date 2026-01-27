@@ -1,11 +1,12 @@
 class User
-  TutorialStep = Data.define(:slug, :name, :description, :icon, :link, :deps, :verb) do
+  TutorialStep = Data.define(:slug, :name, :description, :icon, :link, :deps, :verb, :video_url) do
     include ActiveModel::Conversion
     extend ActiveModel::Naming
 
     def initialize(params = {})
       params[:deps] ||= nil
       params[:verb] ||= :get
+      params[:video_url] ||= nil
       super(**params)
     end
 
@@ -53,7 +54,15 @@ class User
           link: ->(_) { shop_path },
           deps: [
             Dep[:setup_hackatime, "You need to setup Hackatime first!"]
-          ])
+          ]),
+      new(slug: :learn_what_is_a_ship,
+          name: "Learn what's a ship",
+          description: "Watch a quick video on how to ship!",
+          icon: "ship",
+          link: "#tutorial-video-modal",
+          verb: :modal,
+          video_url: VimeoEmbedComponent.video_url(:what_is_a_ship)
+        )
     ].freeze
 
     self::SLUGGED = self::ALL.index_by(&:slug).freeze

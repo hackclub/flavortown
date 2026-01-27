@@ -123,6 +123,7 @@ Rails.application.routes.draw do
   patch "my/settings", to: "my#update_settings", as: :my_settings
   post "my/roll_api_key", to: "my#roll_api_key", as: :roll_api_key
   post "my/cookie_click", to: "my#cookie_click", as: :my_cookie_click
+  post "my/dismiss_thing", to: "my#dismiss_thing", as: :dismiss_thing
   get "my/achievements", to: "achievements#index", as: :my_achievements
 
   # Magic Links
@@ -139,9 +140,7 @@ Rails.application.routes.draw do
     get "/", to: "root#index"
 
     namespace :v1 do
-      resources :projects, only: [ :index, :show, :create, :update ] do
-        resources :devlogs, only: [ :index, :show, :create, :update, :destroy ], controller: "project_devlogs"
-      end
+      resources :projects, only: [ :index, :show, :create, :update ]
 
       resources :docs, only: [ :index ]
       resources :devlogs, only: [ :index, :show ]
@@ -155,7 +154,11 @@ Rails.application.routes.draw do
   end
 
   namespace :user, path: "" do
-    resources :tutorial_steps, only: [ :show ]
+    resources :tutorial_steps, only: [ :show ] do
+      member do
+        post :complete
+      end
+    end
   end
 
   namespace :helper, constraints: HelperConstraint do
@@ -247,13 +250,17 @@ Rails.application.routes.draw do
       end
     end
     get "payouts_dashboard", to: "payouts_dashboard#index"
+    get "fraud_dashboard", to: "fraud_dashboard#index"
     get "ship_event_scores", to: "ship_event_scores#index"
+    get "super_mega_dashboard", to: "super_mega_dashboard#index"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
       end
     end
   end
+
+  get "queue", to: "queue#index"
 
   # Project Ideas
   resources :project_ideas, only: [] do
@@ -264,20 +271,17 @@ Rails.application.routes.draw do
 
   # Projects
   resources :projects, shallow: true do
-    resources :memberships, only: [ :create, :destroy ], module: :project
-    resources :devlogs, only: %i[new create edit update destroy], module: :project, shallow: false do
+    resources :memberships, only: [ :create, :destroy ], module: :projects
+    resources :devlogs, only: %i[new create edit update destroy], module: :projects, shallow: false do
       member do
         get :versions
       end
     end
-    post "devlogs/new", to: "project/devlogs#create", as: nil
-    resources :reports, only: [ :create ], module: :project
+    resources :reports, only: [ :create ], module: :projects
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
+    resource :ships, only: [ :new, :create ], module: :projects
     member do
-      get :ship
       get :readme
-      patch :update_ship
-      post :submit_ship
       post :mark_fire
       post :unmark_fire
       post :follow

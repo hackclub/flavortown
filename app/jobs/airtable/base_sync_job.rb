@@ -1,5 +1,8 @@
 class Airtable::BaseSyncJob < ApplicationJob
   queue_as :literally_whenever
+  retry_on Norairrecord::Error, wait: :polynomially_longer, attempts: 3 do |job, error|
+    Rails.logger.error("[#{job.class.name}] Failed after retries: #{error.message}")
+  end
 
   def self.perform_later(*args)
     return if SolidQueue::Job.where(class_name: name, finished_at: nil).exists?
@@ -23,7 +26,18 @@ class Airtable::BaseSyncJob < ApplicationJob
 
     return if airtable_records.empty?
 
-    table.batch_upsert(airtable_records, primary_key_field)
+    begin
+      table.batch_upsert(airtable_records, primary_key_field)
+    rescue Norairrecord::Error => e
+      raise unless e.message.include?("INVALID_VALUE_FOR_COLUMN") && e.message.include?("more than one record")
+
+      Rails.logger.warn("[#{self.class.name}] Duplicate records in Airtable for #{primary_key_field}, syncing one at a time")
+      airtable_records.each do |record|
+        table.batch_upsert([ record ], primary_key_field)
+      rescue Norairrecord::Error => individual_error
+        Rails.logger.error("[#{self.class.name}] Failed to sync record #{record.fields[primary_key_field]}: #{individual_error.message}")
+      end
+    end
   ensure
     records.unscoped
            .where(id: @synced_ids)

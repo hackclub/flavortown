@@ -7,6 +7,7 @@ class ProjectReadmeFetcher
     raw.githubusercontent.com
     github.com
     gitlab.com
+    git.gay
   ].freeze
 
   TIMEOUT_SECONDS = 10
