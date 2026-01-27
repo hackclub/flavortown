@@ -379,6 +379,7 @@ class ProjectsController < ApplicationController
   ALLOWLISTED_DOMAINS = %w[
     npmjs.com
     crates.io
+    curseforge.com
   ].freeze
 
   def validate_url_not_dead(attribute, name)
