@@ -24,6 +24,14 @@ module ApplicationHelper
     sign(num) + num.abs.to_s
   end
 
+  def format_minutes_as_time(minutes)
+    return "0:00" if minutes.nil? || minutes <= 0
+
+    hours = minutes / 60
+    mins = minutes % 60
+    format("%d:%02d", hours, mins)
+  end
+
   def format_seconds(seconds, include_days: false)
     # ie: 2h 3m 4s
     # ie. 37h 15m (if include_days is false)

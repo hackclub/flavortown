@@ -9,10 +9,15 @@ class ShipEventPayoutCalculator
   end
 
   def apply!
-    return unless payout_eligible?
-
     payout_user = @ship_event.payout_recipient
     return unless payout_user
+
+    unless payout_eligible?
+      if payout_user.vote_balance < 0
+        notify_vote_deficit(payout_user, payout_user.vote_balance.abs)
+      end
+      return
+    end
 
     @ship_event.with_lock do
       return unless payout_eligible?
@@ -96,6 +101,24 @@ class ShipEventPayoutCalculator
       nil,
       blocks_path: "notifications/payouts/ship_event_issued",
       locals: { ship_event: @ship_event }
+    )
+  end
+
+  def notify_vote_deficit(user, votes_needed)
+    return unless user.slack_id.present?
+
+    project = @ship_event.post&.project
+    project_title = project&.title
+
+    SendSlackDmJob.perform_later(
+      user.slack_id,
+      nil,
+      blocks_path: "notifications/payouts/vote_deficit_blocked",
+      locals: {
+        ship_event: @ship_event,
+        votes_needed: votes_needed,
+        project_title: project_title
+      }
     )
   end
 end

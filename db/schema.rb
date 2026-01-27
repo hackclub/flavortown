@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_23_231044) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_27_025655) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -469,6 +469,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_231044) do
     t.string "name"
     t.integer "old_prices", default: [], array: true
     t.boolean "one_per_person_ever"
+    t.integer "past_purchases", default: 0
     t.integer "payout_percentage", default: 0
     t.decimal "price_offset_au"
     t.decimal "price_offset_ca"
@@ -610,6 +611,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_231044) do
     t.string "ref"
     t.string "regions", default: [], array: true
     t.boolean "send_notifications_for_followed_devlogs", default: true, null: false
+    t.boolean "send_notifications_for_new_comments", default: true, null: false
+    t.boolean "send_notifications_for_new_followers", default: true, null: false
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
     t.boolean "shadow_banned", default: false, null: false
@@ -625,6 +628,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_231044) do
     t.datetime "updated_at", null: false
     t.string "verification_status", default: "needs_submission", null: false
     t.boolean "vote_anonymously", default: false, null: false
+    t.integer "vote_balance", default: 0, null: false
     t.integer "votes_count"
     t.boolean "ysws_eligible", default: false, null: false
     t.index ["api_key"], name: "index_users_on_api_key", unique: true

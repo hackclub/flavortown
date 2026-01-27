@@ -75,6 +75,8 @@
                         <div>
                             <% if project.banner.attached? %>
                                 <%= image_tag project.banner.variant(:card), alt: "#{project.title} banner", class: "project-banner-title-description__banner-image" %>
+                            <% else %>
+                                <%= image_tag "default-banner.png", alt: "#{project.title} banner", class: "project-banner-title-description__banner-image" %>
                             <% end %>
                         </div>
                         <div class="user-profile__project-stats">
@@ -112,7 +114,7 @@
                             <span class="user-profile__order-item-name--<%= colors[index % colors.size] %>">
                                 <%= order.shop_item.name %>
                             </span>
-                            <b><%= order.quantity %> times</b>.
+                            <b><%= pluralize(order.quantity, "time") %></b>.
                         </h3>
                     </div>
                 <% end %>

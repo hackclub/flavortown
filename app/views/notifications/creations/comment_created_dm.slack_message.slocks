@@ -1,0 +1,7 @@
+context [
+  plain_text("💬 New comment!")
+]
+
+section "*<#{commentable_url}|#{commentable_title}>*", markdown: true
+
+section "_#{author_name}_ commented:\n> #{comment_body}", markdown: true
