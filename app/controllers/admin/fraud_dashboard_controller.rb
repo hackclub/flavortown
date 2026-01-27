@@ -133,14 +133,13 @@ module Admin
     end
 
     def all_time_performers(states)
-      pg_states = states.map { |s| "'#{s}'" }.join(", ")
-      sql = <<~SQL
+      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL, states ])
         SELECT whodunnit, COUNT(*) AS cnt
         FROM versions
         WHERE item_type = 'ShopOrder'
           AND whodunnit IS NOT NULL
           AND jsonb_exists(object_changes, 'aasm_state')
-          AND (object_changes -> 'aasm_state' ->> 1) IN (#{pg_states})
+          AND (object_changes -> 'aasm_state' ->> 1) = ANY (?)
         GROUP BY whodunnit
         ORDER BY cnt DESC
         LIMIT 10
@@ -164,18 +163,21 @@ module Admin
       quoted_field = ActiveRecord::Base.connection.quote_column_name(field)
 
       db_values = if table == "project_reports" && field == "status"
-                    states.map { |s| Project::Report.statuses[s] }
+                    states.map { |s| Project::Report.statuses.fetch(s) }
       else
                     states
       end
-      pg_array = "{#{db_values.join(',')}}"
 
-      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL.squish, pg_array, type, field, field, pg_array ])
+      record_cast = (table == "project_reports" && field == "status") ? "int[]" : "text[]"
+      record_pg_array = "{#{db_values.join(',')}}"
+      version_pg_array = "{#{db_values.map(&:to_s).join(',')}}"
+
+      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL.squish, record_pg_array, type, field, field, version_pg_array ])
         SELECT AVG(EXTRACT(EPOCH FROM (v.v_at - r.r_at)) / 3600.0) AS avg_hours
         FROM (
           SELECT r.id, r.created_at AS r_at
           FROM #{quoted_table} r
-          WHERE r.#{quoted_field} = ANY (?::#{db_cast})
+          WHERE r.#{quoted_field} = ANY (?::#{record_cast})
             AND r.created_at > NOW() - INTERVAL '30 days'
           ORDER BY r.created_at DESC
           LIMIT 100
