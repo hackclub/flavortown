@@ -47,7 +47,7 @@ class ProjectShowCardComponent < ViewComponent::Base
     ordered_users = [ owner_user, *other_users ].compact
     names = ordered_users.map(&:display_name).reject(&:blank?).uniq
     return "" if names.empty?
-    "Created by: #{names.join(', ')}"
+    "Created by: #{names.map.with_index { |x, i| "<a href=\"/users/#{ordered_users[i].id}\">#{html_escape(x)}</a>" }.join(', ')}".html_safe
   end
 
   def ship_feedback
