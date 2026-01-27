@@ -1116,3 +1116,15 @@
   object-fit: contain;
   object-position: left top;
 }
+
+// Launch theme moon
+.launch-moon {
+  position: fixed;
+  top: -5%;
+  right: -10%;
+  width: 55%;
+  max-width: 850px;
+  height: auto;
+  pointer-events: none;
+  z-index: -2;
+}

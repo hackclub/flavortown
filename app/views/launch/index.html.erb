@@ -1,12 +1,13 @@
 <% content_for :title, "Launch" %>
 
-<div class="solar-panel-wrapper">
-  <div class="solar-panel">
-    <div class="solar-panel__bg">
-      <%= image_tag "solar-panel.svg", alt: "" %>
-    </div>
-    <div class="solar-panel__content">
-      <!-- Launch page content goes here -->
-    </div>
-  </div>
+<%# Background elements %>
+<div class="launch-stars-bg" aria-hidden="true">
+  <%= image_tag "launch/launch-stars.svg", alt: "" %>
+</div>
+<div class="launch-moon" aria-hidden="true">
+  <%= image_tag "launch/launch-moon.svg", alt: "" %>
+</div>
+<%# Main content %>
+<div class="launch-content">
+  <!-- Launch page content goes here -->
 </div>

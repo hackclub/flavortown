@@ -41,9 +41,11 @@
 @use "components/markdown_content";
 @use "components/announcement_component";
 @use "components/comic_card";
-@use "components/solar_panel";
+
+@use "components/launch_background";
 @use "components/sidequest_card";
 @use "components/launch_collab_badge";
+@use "components/rocket_launch";
 
 // Themes
 @use "themes/christmas";

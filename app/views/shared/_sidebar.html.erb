@@ -1,4 +1,4 @@
-<aside class="sidebar <%= 'sidebar--launch' if controller_name == 'launch' %>" data-controller="sidebar-pin" data-sidebar-pin-pinned-class="sidebar--pinned" aria-label="Main">
+<aside class="sidebar <%= 'sidebar--launch' if controller_name == 'launch' %>" data-controller="sidebar-pin rocket-launch" data-sidebar-pin-pinned-class="sidebar--pinned" aria-label="Main">
   <%# <div class="sidebar__header">
     <span class="sidebar__title">Flavortown</span>
   </div> %>
@@ -6,7 +6,7 @@
   <div class="sidebar__blob">
     <% if controller_name == 'launch' %>
       <div class="sidebar__launch-rings-clip">
-        <%= image_tag "launch-rings.png", class: "sidebar__launch-rings", alt: "", aria: { hidden: true } %>
+        <%= image_tag "launch/launch-rings.png", class: "sidebar__launch-rings", alt: "", aria: { hidden: true } %>
       </div>
     <% end %>
     <button type="button" class="sidebar__pin-button" data-action="click->sidebar-pin#toggle" data-sidebar-pin-target="button" aria-label="Pin sidebar open">
@@ -60,8 +60,16 @@
                     </span>
                     <span class="sidebar__nav-label"><%= item[:label] %></span>
                   <% end %>
-                  <%= inline_svg_tag "launch-underline.svg", class: "sidebar__launch-underline" %>
+                  <%= inline_svg_tag "launch/launch-underline.svg", class: "sidebar__launch-underline" %>
                 </div>
+              <% elsif item[:label] == "Launch" && controller_name != 'launch' %>
+                <%# Launch link with rocket animation trigger %>
+                <%= link_to item[:path], class: link_classes, data: { action: "click->rocket-launch#launch" } do %>
+                  <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
+                    <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
+                  </span>
+                  <span class="sidebar__nav-label"><%= item[:label] %></span>
+                <% end %>
               <% else %>
                 <%= link_to item[:path], class: link_classes, aria: (active ? { current: "page" } : {}) do %>
                   <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
