@@ -126,6 +126,9 @@ Rails.application.routes.draw do
   post "my/dismiss_thing", to: "my#dismiss_thing", as: :dismiss_thing
   get "my/achievements", to: "achievements#index", as: :my_achievements
 
+  # Cookie Transfers
+  resources :cookie_transfers, only: [ :new, :create ]
+
   # Magic Links
   post "magic_links", to: "magic_links#create"
   get "magic_links/verify", to: "magic_links#verify"
@@ -248,6 +251,12 @@ Rails.application.routes.draw do
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
     get "ship_event_scores", to: "ship_event_scores#index"
+    resources :cookie_transfers, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+    end
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail

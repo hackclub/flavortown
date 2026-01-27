@@ -1,0 +1,210 @@
+<h1>Cookie Transfer #<%= @transfer.id %></h1>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h2>Transfer Details</h2>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+    <div>
+      <strong>Status:</strong>
+      <span class="badge badge-<%= @transfer.aasm_state %>"><%= @transfer.aasm_state %></span>
+    </div>
+    <div>
+      <strong>Amount:</strong> <span style="font-size: 1.25rem;"><%= @transfer.amount %> 🍪</span>
+    </div>
+    <div>
+      <strong>Created:</strong> <%= @transfer.created_at.strftime("%Y-%m-%d %H:%M:%S") %>
+    </div>
+    <% if @transfer.reviewed_at %>
+      <div>
+        <strong>Reviewed:</strong> <%= @transfer.reviewed_at.strftime("%Y-%m-%d %H:%M:%S") %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @transfer.note.present? %>
+    <div style="margin-top: 1rem;">
+      <strong>Note:</strong>
+      <p style="background: #f9fafb; padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
+        <%= @transfer.note %>
+      </p>
+    </div>
+  <% end %>
+
+  <% if @transfer.rejected? && @transfer.rejection_reason.present? %>
+    <div style="margin-top: 1rem;">
+      <strong>Rejection Reason:</strong>
+      <p style="background: #fef2f2; padding: 1rem; border-radius: 6px; margin-top: 0.5rem; color: #991b1b;">
+        <%= @transfer.rejection_reason %>
+      </p>
+    </div>
+  <% end %>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+  <div class="card">
+    <h2>Sender</h2>
+    <div class="user-info">
+      <%= image_tag @transfer.sender.avatar, class: "avatar-lg" %>
+      <div>
+        <p><strong><%= link_to @transfer.sender.display_name, admin_user_path(@transfer.sender) %></strong></p>
+        <p>Balance: <strong><%= @transfer.sender.balance %></strong> 🍪</p>
+        <p>Verification: <span class="badge badge-<%= @transfer.sender.verification_status %>"><%= @transfer.sender.verification_status %></span></p>
+      </div>
+    </div>
+
+    <% if @sender_transfers.any? %>
+      <h3 style="margin-top: 1rem;">Recent Transfers (as sender)</h3>
+      <ul class="transfer-list">
+        <% @sender_transfers.each do |t| %>
+          <li>
+            <%= link_to "##{t.id}", admin_cookie_transfer_path(t) %>:
+            <%= t.amount %> 🍪 → <%= t.recipient.display_name %>
+            <span class="badge badge-<%= t.aasm_state %> badge-sm"><%= t.aasm_state %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+
+  <div class="card">
+    <h2>Recipient</h2>
+    <div class="user-info">
+      <%= image_tag @transfer.recipient.avatar, class: "avatar-lg" %>
+      <div>
+        <p><strong><%= link_to @transfer.recipient.display_name, admin_user_path(@transfer.recipient) %></strong></p>
+        <p>Balance: <strong><%= @transfer.recipient.balance %></strong> 🍪</p>
+        <p>Verification: <span class="badge badge-<%= @transfer.recipient.verification_status %>"><%= @transfer.recipient.verification_status %></span></p>
+      </div>
+    </div>
+
+    <% if @recipient_transfers.any? %>
+      <h3 style="margin-top: 1rem;">Recent Transfers (as recipient)</h3>
+      <ul class="transfer-list">
+        <% @recipient_transfers.each do |t| %>
+          <li>
+            <%= link_to "##{t.id}", admin_cookie_transfer_path(t) %>:
+            <%= t.amount %> 🍪 ← <%= t.sender.display_name %>
+            <span class="badge badge-<%= t.aasm_state %> badge-sm"><%= t.aasm_state %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+</div>
+
+<% if @transfer.reviewed_by %>
+  <div class="card" style="margin-bottom: 2rem;">
+    <h2>Reviewed By</h2>
+    <div class="user-info">
+      <%= image_tag @transfer.reviewed_by.avatar, class: "avatar-lg" %>
+      <div>
+        <p><strong><%= @transfer.reviewed_by.display_name %></strong></p>
+        <p>Role: <%= @transfer.reviewed_by.highest_role %></p>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+  <% if @transfer.pending? %>
+    <% if @transfer.sender.balance >= @transfer.amount %>
+      <%= button_to "Approve Transfer", approve_admin_cookie_transfer_path(@transfer), method: :post, class: "btn-primary", style: "background: #10b981;" %>
+    <% else %>
+      <span class="badge" style="background: #fef3c7; color: #92400e; padding: 0.5rem 1rem;">
+        ⚠️ Sender balance (<%= @transfer.sender.balance %>) is less than transfer amount
+      </span>
+    <% end %>
+
+    <%= form_with url: reject_admin_cookie_transfer_path(@transfer), method: :post, local: true, style: "display: flex; gap: 0.5rem; align-items: center;" do |f| %>
+      <%= f.text_field :reason, placeholder: "Rejection reason...", class: "form-control", style: "width: 200px;" %>
+      <%= f.submit "Reject Transfer", class: "btn-secondary", style: "background: #ef4444; color: white;" %>
+    <% end %>
+  <% elsif @transfer.approved? %>
+    <span class="badge badge-approved" style="padding: 0.5rem 1rem;">✓ Approved</span>
+  <% elsif @transfer.rejected? %>
+    <span class="badge badge-rejected" style="padding: 0.5rem 1rem;">✕ Rejected</span>
+  <% end %>
+</div>
+
+<div>
+  <%= link_to "← Back to Transfers", admin_cookie_transfers_path, class: "btn-secondary" %>
+</div>
+
+<style>
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar-lg {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.transfer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+}
+
+.transfer-list li {
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.badge-sm {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.375rem;
+}
+
+.badge-pending {
+  background-color: #fbbf24;
+  color: #78350f;
+}
+
+.badge-approved {
+  background-color: #10b981;
+  color: white;
+}
+
+.badge-rejected {
+  background-color: #ef4444;
+  color: white;
+}
+
+.badge-verified {
+  background-color: #10b981;
+  color: white;
+}
+
+.badge-needs_submission,
+.badge-pending {
+  background-color: #fbbf24;
+  color: #78350f;
+}
+
+.badge-ineligible {
+  background-color: #ef4444;
+  color: white;
+}
+
+.form-control {
+  padding: 0.5em;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: white;
+}
+</style>

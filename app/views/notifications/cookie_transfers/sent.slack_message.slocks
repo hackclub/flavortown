@@ -1,0 +1,13 @@
+header ":ft-cookie: Cookies sent!"
+
+section "You sent *#{transfer.amount}* :ft-cookie: to *#{transfer.recipient.display_name}*", markdown: true
+
+if transfer.note.present?
+  section "_\"#{transfer.note}\"_", markdown: true
+end
+
+divider
+
+context [
+  mrkdwn_text("Your new balance: #{transfer.sender.balance} :ft-cookie:")
+]

@@ -78,4 +78,8 @@ class AdminPolicy < ApplicationPolicy
   def shadow_ban_projects?
     user.admin? || user.fraud_dept?
   end
+
+  def access_cookie_transfers?
+    user.admin? || user.fraud_dept?
+  end
 end

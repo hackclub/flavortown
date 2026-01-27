@@ -56,13 +56,15 @@
 #  index_users_on_slack_id          (slack_id) UNIQUE
 #
 one:
-  email: MyString
-  display_name: MyString
+  email: user_one@example.com
+  display_name: User One
+  slack_id: U12345ONE
   projects_count: 1
   votes_count: 1
 
 two:
-  email: MyString
-  display_name: MyString
+  email: user_two@example.com
+  display_name: User Two
+  slack_id: U12345TWO
   projects_count: 1
   votes_count: 1

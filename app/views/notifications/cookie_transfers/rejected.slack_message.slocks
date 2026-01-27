@@ -1,0 +1,13 @@
+header ":x: Transfer rejected"
+
+section "Your transfer of *#{transfer.amount}* :ft-cookie: to *#{transfer.recipient.display_name}* was rejected.", markdown: true
+
+if transfer.rejection_reason.present?
+  section "*Reason:* #{transfer.rejection_reason}", markdown: true
+end
+
+divider
+
+context [
+  mrkdwn_text("Your balance was not changed.")
+]
