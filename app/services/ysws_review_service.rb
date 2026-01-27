@@ -5,6 +5,8 @@ module YswsReviewService
 
   module_function
 
+  DISABLED = true # Set to false to re-enable the service
+
   BASE_URL = "https://review.hackclub.com"
   LAST_SYNC_CACHE_KEY = "ysws_review_sync:last_fetched_at"
 
@@ -23,6 +25,8 @@ module YswsReviewService
   end
 
   def fetch_reviews(hours:, status: "done")
+    return [] if DISABLED
+
     response = connection.get("/api/admin/ysws_reviews", {
       hours: hours,
       status: status
@@ -31,6 +35,8 @@ module YswsReviewService
   end
 
   def fetch_review(review_id)
+    return nil if DISABLED
+
     response = connection.get("/api/admin/ysws_reviews/#{review_id}")
     Rails.logger.info "[YswsReviewService] fetch_review(#{review_id}) response status: #{response.status}"
     response.body
