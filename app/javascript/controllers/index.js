@@ -114,3 +114,6 @@ application.register("vote-tracker", VoteTrackerController);
 
 import WelcomeOverlayController from "./welcome_overlay_controller";
 application.register("welcome-overlay", WelcomeOverlayController);
+
+import RocketLaunchController from "./rocket_launch_controller";
+application.register("rocket-launch", RocketLaunchController);

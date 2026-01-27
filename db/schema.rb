@@ -392,6 +392,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.text "shadow_banned_reason"
     t.string "ship_status", default: "draft"
     t.datetime "shipped_at"
+    t.string "sidequest"
     t.datetime "synced_at"
     t.string "title", null: false
     t.boolean "tutorial", default: false, null: false
@@ -409,6 +410,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.datetime "synced_at"
     t.datetime "updated_at", null: false
     t.string "user_agent"
+  end
+
+  create_table "ship_certifications", force: :cascade do |t|
+    t.string "aasm_state", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "decided_at"
+    t.text "feedback"
+    t.bigint "project_id", null: false
+    t.bigint "reviewer_id"
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "created_at"], name: "index_ship_certifications_on_project_id_and_created_at"
+    t.index ["project_id"], name: "index_ship_certifications_on_project_id"
+    t.index ["reviewer_id"], name: "index_ship_certifications_on_reviewer_id"
   end
 
   create_table "shop_card_grants", force: :cascade do |t|
@@ -669,6 +683,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
   add_foreign_key "project_reports", "projects"
   add_foreign_key "project_reports", "users", column: "reporter_id"
   add_foreign_key "projects", "users", column: "marked_fire_by_id"
+  add_foreign_key "ship_certifications", "projects"
+  add_foreign_key "ship_certifications", "users", column: "reviewer_id"
   add_foreign_key "shop_card_grants", "shop_items"
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
