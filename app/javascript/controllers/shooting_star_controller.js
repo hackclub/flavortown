@@ -38,6 +38,9 @@ export default class extends Controller {
     this.shootingStar = document.createElement("div");
     this.shootingStar.className = "shooting-star";
     this.shootingStar.setAttribute("aria-hidden", "true");
+    // Hide initially until positioned
+    this.shootingStar.style.opacity = "0";
+    this.shootingStar.style.visibility = "hidden";
     document.body.appendChild(this.shootingStar);
   }
 
@@ -82,6 +85,7 @@ export default class extends Controller {
       x: startX,
       y: startY,
       opacity: 1,
+      visibility: "visible",
       rotation: angle,
     });
 
