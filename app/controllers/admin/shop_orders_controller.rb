@@ -3,9 +3,10 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   def index
     # Determine view mode
     @view = params[:view] || "shop_orders"
-
+    @show_spammy_stuff = ActiveModel::Type::Boolean.new.cast(params[:show_spammy_stuff])
     # Fulfillment team can only access fulfillment view - auto-redirect if needed
-    if current_user.fulfillment_person? && !current_user.admin?
+    # But fraud_dept members with fulfillment_person role should have full access
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       if @view != "fulfillment"
         redirect_to admin_shop_orders_path(view: "fulfillment") and return
       end
@@ -20,8 +21,10 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     # Base query
-    orders = ShopOrder.includes(:shop_item, :user, :accessory_orders, :assigned_to_user)
-
+    orders = ShopOrder.joins(:shop_item).includes(:shop_item, :user, :accessory_orders, :assigned_to_user)
+    unless @show_spammy_stuff
+      orders = orders.where.not(shop_item: { type: %w[ShopItem::FreeStickers ShopItem::WarehouseItem] })
+    end
     # Apply status filter first if explicitly set (takes priority over view)
     if params[:status].present?
       orders = orders.where(aasm_state: params[:status])
@@ -37,15 +40,21 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       end
 
       # Set default status for fraud dept
-      @default_status = "pending" if current_user.fraud_dept? && !current_user.admin?
+      @default_status = "pending" if current_user.fraud_dept? && !current_user.admin? && @view === "shop_orders"
       orders = orders.where(aasm_state: @default_status) if @default_status.present?
     end
 
     # Apply filters
     orders = orders.where(shop_item_id: params[:shop_item_id]) if params[:shop_item_id].present?
-    orders = orders.where("created_at >= ?", params[:date_from]) if params[:date_from].present?
-    orders = orders.where("created_at <= ?", params[:date_to]) if params[:date_to].present?
-
+    if params[:date_from].present? || params[:date_to].present?
+      if params[:date_from].present? && params[:date_to].present?
+        orders = orders.where(created_at: params[:date_from]..params[:date_to])
+      elsif params[:date_from].present?
+        orders = orders.where("created_at >= ?", params[:date_from])
+      else
+        orders = orders.where("created_at <= ?", params[:date_to])
+      end
+    end
     if params[:user_search].present?
       search = "%#{ActiveRecord::Base.sanitize_sql_like(params[:user_search])}%"
       orders = orders.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.id::text = ? OR users.slack_id ILIKE ?", search, search, params[:user_search], search)
@@ -53,7 +62,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     # Apply region filter using database-level query (now that orders have a region column)
     # Fulfillment persons see orders in their regions OR orders assigned to them OR orders with nil region (legacy/no address)
-    if current_user.fulfillment_person? && !current_user.admin? && current_user.has_regions?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept? && current_user.has_regions?
       orders = orders.where(region: current_user.regions)
                      .or(orders.where(region: nil))
                      .or(orders.where(assigned_to_user_id: current_user.id))
@@ -61,22 +70,23 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       orders = orders.where(region: params[:region].upcase)
     end
 
-    # Calculate stats after region filter so counts respect user's assigned regions
-    stats_orders = orders
+    # Calculate stats with a single GROUP BY query instead of 6 separate count queries
+    stats_orders = @view == "shop_orders" ? ShopOrder.where(aasm_state: %w[pending awaiting_verification awaiting_periodical_fulfillment rejected on_hold fulfilled]) : orders
+    counts_by_state = stats_orders.group(:aasm_state).count
     @c = {
-      pending: stats_orders.where(aasm_state: "pending").count,
-      awaiting_verification: stats_orders.where(aasm_state: "awaiting_verification").count,
-      awaiting_fulfillment: stats_orders.where(aasm_state: "awaiting_periodical_fulfillment").count,
-      fulfilled: stats_orders.where(aasm_state: "fulfilled").count,
-      rejected: stats_orders.where(aasm_state: "rejected").count,
-      on_hold: stats_orders.where(aasm_state: "on_hold").count
+      pending: counts_by_state["pending"] || 0,
+      awaiting_verification: counts_by_state["awaiting_verification"] || 0,
+      awaiting_fulfillment: counts_by_state["awaiting_periodical_fulfillment"] || 0,
+      fulfilled: counts_by_state["fulfilled"] || 0,
+      rejected: counts_by_state["rejected"] || 0,
+      on_hold: counts_by_state["on_hold"] || 0
     }
 
-    # Calculate average times
-    fulfilled_orders = stats_orders.where(aasm_state: "fulfilled").where.not(fulfilled_at: nil)
-    if fulfilled_orders.any?
-      @f = fulfilled_orders.average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))").to_f
-    end
+    # Calculate average fulfillment time in a single query (returns nil if no rows)
+    @f = stats_orders
+      .where(aasm_state: "fulfilled")
+      .where.not(fulfilled_at: nil)
+      .average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))")&.to_f
 
     # Sorting - always uses database ordering now
     orders = case params[:sort]
@@ -88,7 +98,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     else orders.order(created_at: :desc)
     end
 
-    # Grouping
+    # Grouping or pagination
     if params[:goob] == "true"
       @grouped_orders = orders.group_by(&:user).map do |user, user_orders|
         {
@@ -98,14 +108,14 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           total_shells: user_orders.sum { |o| o.total_cost || 0 },
           address: user_orders.first&.decrypted_address_for(current_user)
         }
-      end
+      end.sort_by { |g| -g[:orders].size }
     else
-      @shop_orders = orders
+      @pagy, @shop_orders = pagy(:offset, orders, limit: params[:limit] || 25)
     end
   end
 
   def show
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -113,7 +123,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @order = ShopOrder.find(params[:id])
 
     # Fulfillment persons can only view orders in their regions, assigned to them, or with nil region
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       can_access = @order.assigned_to_user_id == current_user.id
       can_access ||= @order.region.nil?
       can_access ||= current_user.has_regions? && current_user.has_region?(@order.region)
@@ -147,7 +157,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def reveal_address
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -182,7 +192,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     if @order.shop_item.respond_to?(:fulfill!)
       @order.approve!
-      redirect_to admin_shop_orders_path, notice: "Order approved and fulfilled" and return
+      redirect_to shop_orders_return_path, notice: "Order approved and fulfilled" and return
     end
 
     if @order.queue_for_fulfillment && @order.save
@@ -195,7 +205,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           aasm_state: [ old_state, @order.aasm_state ]
         }
       )
-      redirect_to admin_shop_orders_path, notice: "Order approved for fulfillment"
+      redirect_to shop_orders_return_path, notice: "Order approved for fulfillment"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to approve order: #{@order.errors.full_messages.join(', ')}"
     end
@@ -218,7 +228,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           rejection_reason: [ nil, reason ]
         }
       )
-      redirect_to admin_shop_orders_path, notice: "Order rejected"
+      redirect_to shop_orders_return_path, notice: "Order rejected"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to reject order: #{@order.errors.full_messages.join(', ')}"
     end
@@ -239,7 +249,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           aasm_state: [ old_state, @order.aasm_state ]
         }
       )
-      redirect_to admin_shop_orders_path, notice: "Order placed on hold"
+      redirect_to shop_orders_return_path, notice: "Order placed on hold"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to place order on hold: #{@order.errors.full_messages.join(', ')}"
     end
@@ -260,14 +270,14 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           aasm_state: [ old_state, @order.aasm_state ]
         }
       )
-      redirect_to admin_shop_orders_path, notice: "Order released from hold"
+      redirect_to shop_orders_return_path, notice: "Order released from hold"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to release order from hold: #{@order.errors.full_messages.join(', ')}"
     end
   end
 
   def mark_fulfilled
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -292,7 +302,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def update_internal_notes
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -367,6 +377,18 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to admin_shop_order_path(@order), alert: "Failed to cancel HCB grant: #{e.message}"
     end
   end
+  private
+
+  def shop_orders_return_path
+    # Preserve the view and status params for redirecting back to the list
+    params_to_keep = {}
+    params_to_keep[:view] = params[:return_view] if params[:return_view].present?
+    params_to_keep[:status] = params[:return_status] if params[:return_status].present?
+    admin_shop_orders_path(params_to_keep)
+  end
+
+  public
+
   def refresh_verification
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])

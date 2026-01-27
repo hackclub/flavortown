@@ -20,13 +20,19 @@
 <% end %>
 
 <div class="shop" data-controller="shop" data-shop-user-region-value="<%= @user_region %>">
-  <%= render HeadingComponent.new(title: "Shop", tone: :brown) %>
+  <%= render HeadingComponent.new(title: "Shop", tone: :blue, size: :full) %>
 
   <div class="shop-goals" data-controller="shop-goals" data-shop-goals-balance-value="<%= @user_balance %>">
     <div class="shop-goals__container" data-shop-goals-target="container" style="display: none;">
       <h3 class="shop-goals__title"><%= inline_svg_tag "icons/star_fill.svg" %> My Goal Items</h3>
       <div class="shop-goals__items" data-shop-goals-target="items"></div>
     </div>
+    <script>
+      try {
+        var w = JSON.parse(localStorage.getItem("shop_wishlist"));
+        if (w && Object.keys(w).length) document.currentScript.previousElementSibling.style.display = "block";
+      } catch (e) {}
+    </script>
   </div>
 
   <% if @shop_open %>
@@ -149,7 +155,9 @@
               limited: item.limited?,
               on_sale: item.on_sale?,
               sale_percentage: item.sale_percentage,
-              original_price: item.ticket_cost
+              original_price: item.ticket_cost,
+              purchase_count: item.display_purchase_count,
+              is_new: item.new_item?
             ) %>
           <% end %>
         <% end %>

@@ -112,7 +112,7 @@ production:
     description: "Poll Inkthreadable API for order status updates and mark shipped orders as fulfilled"
   fraud_daily_summary:
     class: FraudDailySummaryJob
-    schedule: every day at 8pm
+    schedule: every day at 8pm America/New_York
     concurrency: 1
     description: "Send daily fraud summary to Slack with stats on shop orders and reports"
 

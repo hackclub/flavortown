@@ -2,6 +2,8 @@ Rails.application.config.to_prepare do
     ActiveStorage::DirectUploadsController.class_eval do
       private
 
+      alias_method :original_blob_args, :blob_args unless method_defined?(:original_blob_args)
+
       def blob_args
         # Parse JSON body if Content-Type is JSON and params[:blob] is missing because I'm dumb and I can't figure out what's fucked!
         if request.content_type == "application/json" && params[:blob].blank?
@@ -13,7 +15,7 @@ Rails.application.config.to_prepare do
           return parsed if parsed.present?
         end
 
-        super
+        original_blob_args
       end
     end
   end

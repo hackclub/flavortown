@@ -3,6 +3,8 @@
     <div class="votes-new__project-details">
       <% if project.banner.attached? %>
         <%= image_tag project.banner, alt: "#{project.title} banner", class: "votes-new__project-banner-image" %>
+      <% else %>
+        <%= image_tag "default-banner.png", alt: "#{project.title} banner", class: "votes-new__project-banner-image" %>
       <% end %>
       <div class="votes-new__project-card-content">
           <h1><%= project.title %></h1>
@@ -41,11 +43,10 @@
           data: { action: "click->vote-tracker#trackRepoClick" }
         ) %>
         <%= render ButtonComponent.new(
-          color: :yellow,
+          color: :red,
           variant: :borderless,
           text: "REPORT",
           icon: "icons/flag.svg",
-          class: "report-btn",
           aria: { label: "Report" },
           onclick: "document.getElementById('report-modal').showModal()"
         ) %>

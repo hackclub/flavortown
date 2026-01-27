@@ -26,11 +26,14 @@
       aspect-ratio: 21 / 7;
     }
 
-    .project-show-card__ship-btn {
+    .project-show-card__ship-wrapper {
       position: absolute;
-      z-index: 10;
+      z-index: 100;
       top: 1em;
       right: 1.15em;
+    }
+
+    .project-show-card__ship-btn {
       font-size: 1.4rem;
       border: none;
       padding: 0.4em 1em;

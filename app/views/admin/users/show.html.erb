@@ -61,6 +61,15 @@
   <div class="card">
     <h2>identities</h2>
     <div class="info-rows">
+      <div>
+        <b>slack_id:</b>
+        <% if @user.slack_id.present? %>
+          <%= @user.slack_id %>
+          <%= link_to "go to slack", "https://hackclub.slack.com/team/#{@user.slack_id}", class: "btn-primary slim", target: "_blank" %>
+        <% else %>
+          <span style="color: #9ca3af;">N/A</span>
+        <% end %>
+      </div>
       <% @user.identities.each do |identity| %>
         <div>
           <b><%= identity.provider %>:</b>
@@ -82,6 +91,9 @@
       <% end %>
     </div>
   </div>
+</div>
+
+<div class="flex">
   <div class="card">
     <h2>actions</h2>
     <div class="admin-actions-wrap">

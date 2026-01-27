@@ -5,7 +5,7 @@ class ButtonComponent < ViewComponent::Base
   VARIANTS = %i[default striped borderless].freeze
   SIZES = %i[sm md lg].freeze
 
-  attr_reader :text, :color, :variant, :size, :icon, :type, :href, :method, :disable_with, :html_options
+  attr_reader :text, :color, :variant, :size, :icon, :type, :href, :method, :disable_with, :disabled, :html_options
 
   def initialize(
     text: nil,
@@ -17,6 +17,7 @@ class ButtonComponent < ViewComponent::Base
     href: nil,
     method: nil,
     disable_with: nil,
+    disabled: false,
     **html_options
   )
     @text = text
@@ -28,6 +29,7 @@ class ButtonComponent < ViewComponent::Base
     @href = href
     @method = method
     @disable_with = disable_with
+    @disabled = disabled
     @html_options = html_options
   end
 
@@ -36,7 +38,8 @@ class ButtonComponent < ViewComponent::Base
       "btn" => true,
       "btn--#{color}" => color.present?,
       "btn--#{variant}" => variant != :default,
-      "btn--#{size}" => size != :md
+      "btn--#{size}" => size != :md,
+      "btn--disabled" => disabled
     }
     class_names(classes, html_options[:class])
   end
@@ -47,6 +50,7 @@ class ButtonComponent < ViewComponent::Base
       attrs[:data] ||= {}
       attrs[:data][:turbo_submits_with] = disable_with
     end
+    attrs[:disabled] = true if disabled
     attrs
   end
 

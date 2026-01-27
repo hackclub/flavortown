@@ -169,6 +169,11 @@ body {
 .flex {
   display: flex;
   gap: 0.5rem;
+  margin-bottom: var(--space-m);
+
+  > .card {
+    flex: 1;
+  }
 }
 
 /* Cards */

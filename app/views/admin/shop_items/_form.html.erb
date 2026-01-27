@@ -155,6 +155,12 @@
             <span class="shop-item-form__hint">Maximum quantity a user can add to a single order</span>
           </div>
 
+          <div class="shop-item-form__field">
+            <%= f.label :past_purchases, "Past Purchases", class: "shop-item-form__label" %>
+            <%= f.number_field :past_purchases, min: 0, class: "form-control", placeholder: "0" %>
+            <span class="shop-item-form__hint">Historical purchase numbers (if we got em)</span>
+          </div>
+
           <div class="shop-item-form__toggles" style="margin-top: 1rem;">
             <label class="shop-item-form__toggle">
               <%= f.check_box :requires_ship, id: "shop_item_requires_ship" %>
@@ -255,6 +261,15 @@
               <strong>shipping_method:</strong> "regular", "recorded", or "courier"<br>
               <strong>brand_name:</strong> Your brand name on Inkthreadable
             </span>
+        <div class="card" id="source_region_settings" style="display: none;">
+          <h3>Source Region</h3>
+          <div class="shop-item-form__field">
+            <%= f.label :source_region, "Source Region", class: "shop-item-form__label" %>
+            <%= f.select :source_region,
+              [["None (use default behavior)", ""]] + Shop::Regionalizable::REGIONS.map { |code, config| [config[:name], code] },
+              {},
+              { class: "form-control" } %>
+            <span class="shop-item-form__hint">If you set this, people will get a scary warning if the selected address is outside this region.</span>
           </div>
         </div>
 
@@ -893,6 +908,10 @@
         const warehouseSettings = document.getElementById('warehouse_settings');
         const accessorySettings = document.getElementById('accessory_settings');
         const inkthreadableSettings = document.getElementById('inkthreadable_settings');
+        const sourceSettings = document.getElementById('source_region_settings');
+
+        const SOURCE_REGION_TYPES = ['ShopItem::HackClubberItem', 'ShopItem::ThirdPartyDigital', 'ShopItem::HQMailItem'];
+        // we can add more later, but for now, just these three
 
         function updateTypeVisibility() {
             const selectedType = typeSelect ? typeSelect.value : '';
@@ -919,6 +938,8 @@
 
             if (inkthreadableSettings) {
                 inkthreadableSettings.style.display = (selectedType === 'ShopItem::InkthreadableItem') ? 'block' : 'none';
+            if (sourceSettings) {
+                sourceSettings.style.display = SOURCE_REGION_TYPES.includes(selectedType) ? 'block' : 'none';
             }
         }
 

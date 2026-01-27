@@ -51,9 +51,8 @@
             <% if @view == 'fulfillment' %>
               <td>
                 <% if order.frozen_address.present? %>
-                  <% order_region = Shop::Regionalizable.country_to_region(order.frozen_address["country"]) %>
                   <span style="background: #e0f2fe; color: #0369a1; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500;">
-                    <%= Shop::Regionalizable.region_name(order_region) %>
+                    <%= country_name_from_code(order.frozen_address["country"]) %>
                   </span>
                 <% else %>
                   <span style="color: #9ca3af;">—</span>
@@ -116,7 +115,7 @@
               <small style="color: #6b7280;"><%= order.created_at.strftime("%l:%M %p") %></small>
             </td>
             <td>
-              <%= link_to "Inspect", admin_shop_order_path(order), class: "btn-primary slim" %>
+              <%= link_to "Inspect", admin_shop_order_path(order, return_view: params[:view], return_status: params[:status]), class: "btn-primary slim" %>
             </td>
           </tr>
         <% end %>

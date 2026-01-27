@@ -115,6 +115,13 @@
     z-index: 1;
   }
 
+  &--compact {
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+
   &__header {
     display: flex;
     align-items: center;

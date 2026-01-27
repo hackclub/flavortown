@@ -2,6 +2,8 @@
 
 what's cooking in the hack club kitchen :fire:
 
+check out [CONTRIBUTING.md](./CONTRIBUTING.md) for a more detailed guide on how to get up and running with this repo!
+
 ## non-exhaustive list of setup steps
 
 ### docker

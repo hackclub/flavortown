@@ -111,3 +111,6 @@ application.register("welcome-overlay", WelcomeOverlayController);
 
 import ResponsiveImageMapController from "./responsive_image_map_controller";
 application.register("responsive-image-map", ResponsiveImageMapController);
+
+import FlagshipModalController from "./flagship_modal_controller";
+application.register("flagship-modal", FlagshipModalController);

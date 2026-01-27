@@ -36,6 +36,7 @@
 #  name                              :string
 #  old_prices                        :integer          default([]), is an Array
 #  one_per_person_ever               :boolean
+#  past_purchases                    :integer          default(0)
 #  payout_percentage                 :integer          default(0)
 #  price_offset_au                   :decimal(, )
 #  price_offset_ca                   :decimal(, )
@@ -51,6 +52,7 @@
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
+#  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
 #  ticket_cost                       :decimal(, )
@@ -196,6 +198,17 @@ class ShopItem < ApplicationRecord
   def out_of_stock?
     limited? && remaining_stock && remaining_stock <= 0
   end
+
+  def current_event_purchases
+    shop_orders.where(aasm_state: %w[awaiting_fulfillment fulfilled]).sum(:quantity)
+  end
+
+  def display_purchase_count
+    c = current_event_purchases
+    c > 2 ? c : (past_purchases.to_i > 2 ? past_purchases : nil)
+  end
+
+  def new_item? = created_at.present? && created_at > 7.days.ago
 
   def available_accessories
     ShopItem::Accessory.where("? = ANY(attached_shop_item_ids)", id).where(enabled: true)

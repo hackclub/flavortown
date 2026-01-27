@@ -1,4 +1,4 @@
-<h1 style="<%= 'border: 3px solid green; padding: 10px;' if Flipper.enabled?(:admin_green, current_user) %>">Hello there <%= current_user.highest_role %>!</h1>
+<%= render HeadingComponent.new(title: "Admin", tone: :blue, size: :full) %>
 
 <h2>tasks</h2>
 <div class="button-grid">
@@ -90,6 +90,9 @@
 <% end %>
   <% if policy(:admin).access_payouts_dashboard? %>
   <%= link_to "Payouts Dashboard", "/admin/payouts_dashboard", class: button_class %>
+<% end %>
+<% if policy(:admin).access_fraud_dashboard? %>
+  <%= link_to "Fraud Dashboard", "/admin/fraud_dashboard", class: button_class %>
 <% end %>
 <% if policy(:admin).access_admin_endpoints? %>
   <%= link_to "Ship Event Scores", "/admin/ship_event_scores", class: button_class %>

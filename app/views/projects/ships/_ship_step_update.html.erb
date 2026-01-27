@@ -1,0 +1,19 @@
+<div class="projects-ship__step">
+  <h2 class="projects-ship__section-title">Write Your Ship Message</h2>
+  <p class="projects-ship__section-desc">
+    This is your moment! Tell the community what you built and what you learned.
+  </p>
+
+  <%= form_with(url: project_ships_path(@project), method: :post, id: "ship-form", local: true) do |form| %>
+    <%= render InputComponent.new(
+          label: "Ship message",
+          placeholder: "I built a thing that does X! The hardest part was Y, but I figured it out by Z. Really happy with how it turned out :)",
+          form: form,
+          attribute: :ship_update,
+          color: :yellow,
+          subtitle: "What did you make? What was challenging? What are you proud of?",
+          as: :text_area,
+          input_html: { rows: 6 }
+        ) %>
+  <% end %>
+</div>

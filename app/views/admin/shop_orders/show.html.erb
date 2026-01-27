@@ -1,4 +1,8 @@
-<h1 class="admin-section__header" style="font-size: 1.5rem; margin-bottom: 1rem;">Order #<%= @order.id %></h1>
+<h1 class="admin-section__header" style="font-size: 1.5rem; margin-bottom: 1rem;">
+  <span
+    title="ID: <%= @order.id %>&#10;User: <%= @order.user.display_name %> (Slack: <%= @order.user.slack_id || 'N/A' %>)&#10;Item: <%= @order.shop_item.name %>&#10;Qty: <%= @order.quantity %> × <%= @order.frozen_item_price %> = <%= @order.total_cost %> tickets&#10;Status: <%= @order.aasm_state.humanize %>&#10;Created: <%= @order.created_at.strftime('%Y-%m-%d %H:%M') %><%= @order.assigned_to_user.present? ? "&#10;Assigned: #{@order.assigned_to_user.display_name}" : '' %>"
+    style="cursor: help;">Order #<%= @order.id %></span>
+</h1>
 
 <div class="admin-section">
   <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
@@ -18,12 +22,14 @@
       <span style="font-size: 0.75rem; color: #6b7280; display: block;">User</span>
       <%= link_to @order.user.display_name || "Unknown", admin_user_path(@order.user), style: "font-size: 0.875rem; color: #3b82f6;" %>
       <div style="font-size: 0.7rem; color: #6b7280; margin-top: 0.25rem;">
-        <% if @order.user.slack_id.present? %>
-          <div>Slack: <code><%= @order.user.slack_id %></code></div>
-        <% end %>
+        <div>Slack: <% if @order.user.slack_id.present? %><a href="https://hackclub.slack.com/team/<%= @order.user.slack_id %>" target="_blank" style="color: #3b82f6;"><code><%= @order.user.slack_id %></code></a><% else %><span style="color: #9ca3af;">N/A</span><% end %></div>
         <% hackatime_identity = @order.user.identities.find { |i| i.provider == "hackatime" } %>
         <% if hackatime_identity %>
           <div>Hackatime: <code><%= hackatime_identity.uid %></code></div>
+        <% end %>
+        <% hack_club_identity = @order.user.identities.find { |i| i.provider == "hack_club" } %>
+        <% if hack_club_identity %>
+          <div>Hack Club: <code><%= hack_club_identity.uid %></code></div>
         <% end %>
       </div>
       <% if current_user.admin? || current_user.fraud_dept? %>
@@ -236,7 +242,14 @@
       </div>
     <% end %>
     <% if @order.external_ref.present? %>
-      <div><b>Tracking/External Reference:</b> <%= @order.external_ref %></div>
+      <div>
+        <b>Tracking/External Reference:</b>
+        <% if @order.shop_item.type.in?(%w[ShopItem::LetterMail ShopItem::FreeStickers]) %>
+          <a href="https://mail.hackclub.com/back_office/letters/#{@order.external_ref}" target="_blank"><%= @order.external_ref %></a>
+        <% else %>
+          <%= @order.external_ref %>
+        <% end %>
+      </div>
     <% end %>
     <% if @order.fulfilled_by.present? %>
       <div><b>Fulfilled By:</b> <%= @order.fulfilled_by %></div>
@@ -294,6 +307,8 @@
     <% if @order.pending? %>
       <form method="post" action="<%= approve_admin_shop_order_path(@order) %>">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
+        <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
         <button type="submit" class="admin-btn admin-btn--primary" onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
       </form>
     <% end %>
@@ -315,6 +330,8 @@
     <% if (@order.pending? || @order.awaiting_verification? || @order.awaiting_periodical_fulfillment?) && !current_user.fulfillment_person? %>
       <form method="post" action="<%= place_on_hold_admin_shop_order_path(@order) %>">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
+        <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
         <button type="submit" class="admin-btn admin-btn--secondary" onclick="return confirm('Place this order on hold?')">⏸ Hold</button>
       </form>
     <% end %>
@@ -339,6 +356,8 @@
     <% if @order.on_hold? %>
       <form method="post" action="<%= release_from_hold_admin_shop_order_path(@order) %>">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
+        <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
         <button type="submit" class="admin-btn admin-btn--primary" onclick="return confirm('Release this order from hold?')">▶ Release</button>
       </form>
     <% end %>

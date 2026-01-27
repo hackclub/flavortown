@@ -56,6 +56,10 @@ class ProjectShowCardComponent < ViewComponent::Base
     @ship_feedback ||= ShipCertService.get_feedback(project)
   end
 
+  def ship_disabled_reasons
+    project.shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:label] }
+  end
+
   def ship_status
     return nil if project.draft?
 

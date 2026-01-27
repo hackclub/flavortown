@@ -49,6 +49,10 @@ class ShopWarehousePackage < ApplicationRecord
     end
 
     contents += bonus_stickers
+    contents << {
+      sku: "Pri/Fla/4x6/1st",
+      quantity: 10
+    }
 
     Rails.logger.info "Sending warehouse package #{id} to Theseus for user #{user_id} with orders #{shop_orders.pluck(:id).join(', ')}\nContents: #{contents.inspect}"
 
@@ -58,23 +62,23 @@ class ShopWarehousePackage < ApplicationRecord
     retries = 0
     begin
       response = TheseusService.create_warehouse_order({
-        address: frozen_address.compact_blank,
-        contents: contents,
-        tags: [ "flavortown", "YSWS", "flavortown-warehouse-prize" ],
-        recipient_email: user.email,
-        user_facing_title: "Flavortown - #{headline.join ', '}",
-        idempotency_key:,
-        metadata: {
-          flavortown_user: user.id,
-          orders: shop_orders.map do |order|
-            {
-              id: order.id,
-              item_name: order.shop_item.name,
-              quantity: order.quantity
-            }
-          end
-        }
-      })
+                                                         address: frozen_address.compact_blank,
+                                                         contents: contents,
+                                                         tags: [ "flavortown", "YSWS", "flavortown-warehouse-prize" ],
+                                                         recipient_email: user.email,
+                                                         user_facing_title: "Flavortown - #{headline.join ', '}",
+                                                         idempotency_key:,
+                                                         metadata: {
+                                                           flavortown_user: user.id,
+                                                           orders: shop_orders.map do |order|
+                                                             {
+                                                               id: order.id,
+                                                               item_name: order.shop_item.name,
+                                                               quantity: order.quantity
+                                                             }
+                                                           end
+                                                         }
+                                                       })
       theseus_id = response.dig("warehouse_order", "id")
       raise "Theseus response missing warehouse_order.id for package #{id}" if theseus_id.blank?
 
