@@ -114,13 +114,7 @@
                             <span class="user-profile__order-item-name--<%= colors[index % colors.size] %>">
                                 <%= order.shop_item.name %>
                             </span>
-                            <% if order_quantity == 1 %>
-                            <b>once</b>.
-                            <% elsif order_quantity == 2 %>
-                            <b>twice</b>.
-                            <% else %>
-                            <b><%= order.quantity %> times</b>.
-                            <% end %>
+                            <b><%= pluralize(order_quantity, "time") %></b>.
                         </h3>
                     </div>
                 <% end %>
