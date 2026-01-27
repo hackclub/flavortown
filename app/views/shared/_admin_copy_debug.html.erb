@@ -1,0 +1,14 @@
+<% if current_user&.admin? %>
+  <button
+    type="button"
+    class="btn btn--brown btn--small"
+    data-controller="copy-debug"
+    data-action="click->copy-debug#copy"
+    data-copy-debug-record-type-value="<%= record_type %>"
+    data-copy-debug-record-id-value="<%= record.id %>"
+    data-copy-debug-created-at-value="<%= record.created_at.utc.strftime('%Y-%m-%d %H:%M:%S UTC') %>"
+    data-copy-debug-url-value="<%= url %>"
+    title="Copy debug info">
+    📋
+  </button>
+<% end %>

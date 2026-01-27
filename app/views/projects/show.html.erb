@@ -15,6 +15,7 @@
           <%= link_to admin_project_path(@project), class: "btn btn--brown", style: "display: flex; align-items: center; gap: 0.25rem;" do %>
             🔨 Admin
           <% end %>
+          <%= render "shared/admin_copy_debug", record: @project, record_type: "Project", url: project_url(@project, host: "flavortown.hackclub.com", protocol: "https") %>
         <% end %>
         <% if @project.users.include?(current_user) %>
           <%= render ButtonComponent.new(
