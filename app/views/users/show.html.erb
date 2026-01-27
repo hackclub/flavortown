@@ -114,7 +114,7 @@
                             <span class="user-profile__order-item-name--<%= colors[index % colors.size] %>">
                                 <%= order.shop_item.name %>
                             </span>
-                            <b><%= order.quantity %> times</b>.
+                            <b><%= pluralize(order_quantity, "time") %></b>.
                         </h3>
                     </div>
                 <% end %>
