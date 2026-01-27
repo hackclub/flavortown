@@ -1,4 +1,4 @@
-class Project::DevlogsController < ApplicationController
+class Projects::DevlogsController < ApplicationController
   before_action :set_project
   before_action :set_devlog, only: %i[edit update destroy versions]
   before_action :require_hackatime_project, only: %i[new create]
@@ -66,7 +66,30 @@ class Project::DevlogsController < ApplicationController
     authorize @devlog
     previous_body = @devlog.body
 
-    if @devlog.update(update_devlog_params)
+    # Remove selected attachments first
+    if params[:remove_attachment_ids].present?
+      attachments_to_remove = @devlog.attachments.where(id: params[:remove_attachment_ids])
+      remaining_count = @devlog.attachments.count - attachments_to_remove.count
+      new_attachments_count = update_devlog_params[:attachments]&.count || 0
+
+      if remaining_count + new_attachments_count < 1
+        flash.now[:alert] = "Devlog must have at least one attachment"
+        return render :edit, status: :unprocessable_entity
+      end
+
+      attachments_to_remove.each(&:purge_later)
+    end
+
+    # Extract new attachments to append separately (don't replace existing)
+    new_attachments = update_devlog_params[:attachments]
+    body_params = update_devlog_params.except(:attachments)
+
+    if @devlog.update(body_params)
+      # Append new attachments instead of replacing
+      if new_attachments.present?
+        @devlog.attachments.attach(new_attachments)
+      end
+
       # Create version history if body changed
       if previous_body != @devlog.body
         @devlog.create_version!(user: current_user, previous_body: previous_body)
@@ -159,7 +182,7 @@ class Project::DevlogsController < ApplicationController
   end
 
   def update_devlog_params
-    params.require(:post_devlog).permit(:body)
+    params.require(:post_devlog).permit(:body, attachments: [])
   end
 
   def load_preview_time

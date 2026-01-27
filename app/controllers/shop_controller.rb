@@ -112,10 +112,11 @@ class ShopController < ApplicationController
     end
 
     # Calculate total cost (applying sale discount via price_for_region)
+    # Accessories are multiplied by quantity (e.g., 10 RPis with 8GB RAM = 10 accessories)
     region = user_region
     item_price = @shop_item.price_for_region(region)
     item_total = item_price * quantity
-    accessories_total = @accessories.sum { |a| a.price_for_region(region) }
+    accessories_total = @accessories.sum { |a| a.price_for_region(region) } * quantity
     total_cost = item_total + accessories_total
 
     return redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "You need to have an address to make an order!" unless current_user.addresses.any?
@@ -141,11 +142,11 @@ class ShopController < ApplicationController
         @order.aasm_state = "pending" if @order.respond_to?(:aasm_state=)
         @order.save!
 
-        # Create orders for each accessory
+        # Create orders for each accessory (matching main item quantity)
         @accessories.each do |accessory|
           accessory_order = current_user.shop_orders.new(
             shop_item: accessory,
-            quantity: 1,
+            quantity: quantity,
             frozen_address: selected_address,
             parent_order_id: @order.id
           )
@@ -232,7 +233,30 @@ class ShopController < ApplicationController
       return region_from_address if region_from_address != "XX" || country.present?
     end
 
+    geoip = geoip_region
+    return geoip if geoip.present? && geoip != "XX"
+
     Shop::Regionalizable.timezone_to_region(cookies[:timezone])
+  end
+
+  def geoip_region
+    cache = cookies[:geoip_region]
+    return cache if cache.present? && Shop::Regionalizable::REGION_CODES.include?(cache)
+
+    return nil unless ENV["GEOCODER_HC_API_KEY"].present?
+
+    # cloudflare go brrr
+    client_ip = request.headers["X-Forwarded-For"]&.split(",")&.first&.strip.presence || request.remote_ip
+
+    return nil if client_ip.blank? || client_ip.match?(/\A(127\.|::1|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/)
+
+    res = HackclubGeocoder.geocode_ip(client_ip)
+    return nil unless res&.dig(:country).present?
+
+    region = Shop::Regionalizable.country_to_region(res[:country])
+    cookies[:geoip_region] = { value: region, expires: 24.hours.from_now }
+
+    region
   end
 
   def require_login

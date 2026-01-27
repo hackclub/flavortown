@@ -225,7 +225,7 @@ class Project < ApplicationRecord
         state :rejected
 
         event :submit_for_review do
-            transitions from: [ :draft, :submitted, :under_review, :approved, :rejected ], to: :submitted, guard: :can_ship_again?
+            transitions from: [ :draft, :submitted, :under_review, :approved, :rejected ], to: :submitted, guard: :shippable?
             after do
                 self.shipped_at = Time.current
             end
@@ -244,38 +244,25 @@ class Project < ApplicationRecord
         end
     end
 
-    def can_ship_again?
-        return true if draft?
-        return false unless has_devlog_since_last_ship?
-        return false unless previous_ship_event_has_payout?
-
-        true
+    def shipping_requirements
+        [
+            { key: :demo_url, label: "You have an experienceable link (a URL where anyone can try your project now)", passed: demo_url.present? },
+            { key: :repo_url, label: "You have a public GitHub URL with all source code", passed: repo_url.present? },
+            { key: :repo_cloneable, label: "Your GitHub repo is publicly cloneable", passed: validate_repo_cloneable },
+            { key: :readme_url, label: "You have a README URL added to your project", passed: readme_url.present? },
+            { key: :description, label: "You have a description for your project", passed: description.present? },
+            { key: :banner, label: "You have a banner of your project", passed: banner.attached? },
+            { key: :devlog, label: "You have at least one devlog since your last ship", passed: has_devlog_since_last_ship? },
+            { key: :payout, label: "Your previous ship has been paid out", passed: previous_ship_event_has_payout? },
+            { key: :vote_balance, label: "You have a non-negative vote balance", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 }
+        ]
     end
 
-    def has_devlog_since_last_ship?
-        last_ship = last_ship_event
-        return true if last_ship.nil?
-
-        devlogs.where("post_devlogs.created_at > ?", last_ship.created_at).exists?
-    end
-
-    def previous_ship_event_has_payout?
-        last_ship = last_ship_event
-        return true if last_ship.nil?
-
-        last_ship.payout.present? && last_ship.payout > 0
-    end
+    def shippable? = shipping_requirements.all? { |r| r[:passed] }
+    def ship_blocking_errors = shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:label] }
 
     def last_ship_event
         ship_events.first
-    end
-
-    def shippable?
-        demo_url.present? &&
-        repo_url.present? &&
-        banner.attached? &&
-        description.present? &&
-        devlogs.any?
     end
 
     def fire?
@@ -290,27 +277,25 @@ class Project < ApplicationRecord
         update!(marked_fire_at: nil, marked_fire_by: nil)
     end
 
-    def shipping_validations
-        [
-            { key: :demo_url, label: "You have an experienceable link (a URL where anyone can try your project now)", passed: demo_url.present? },
-            { key: :repo_url, label: "You have a public GitHub URL with all source code", passed: repo_url.present? },
-            { key: :repo_cloneable, label: "Your GitHub repo is publicly cloneable", passed: validate_repo_cloneable },
-            { key: :readme_url, label: "You have a README url added to your project", passed: readme_url.present? },
-            { key: :description, label: "You have a description for your project", passed: description.present? },
-            { key: :screenshot, label: "You have a screenshot of your project", passed: banner.attached? },
-            { key: :devlogs, label: "You have at least one devlog", passed: devlogs.any? }
-        ]
-    end
-
     def shadow_ban!(reason: nil)
-      update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
+        update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
     end
 
     def unshadow_ban!
-      update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
+        update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
     end
 
     private
+
+    def has_devlog_since_last_ship?
+        return true if draft? || last_ship_event.nil?
+        devlogs.where("post_devlogs.created_at > ?", last_ship_event.created_at).exists?
+    end
+
+    def previous_ship_event_has_payout?
+        return true if last_ship_event.nil?
+        last_ship_event.payout.present? && last_ship_event.payout > 0
+    end
 
     def notify_slack_channel
         PostCreationToSlackJob.perform_later(self)

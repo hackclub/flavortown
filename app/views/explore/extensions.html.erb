@@ -38,11 +38,11 @@
               <% end %>
             </div>
           <% else %>
-            <div class="project-card__banner project-card__banner--placeholder">
-              <%= link_to project_path(project), class: "project-card__banner-frame project-card__banner-frame--placeholder" do %>
-                <div class="project-card__banner-placeholder">
-                  <p class="project-card__banner-placeholder-text">No banner yet</p>
-                </div>
+            <div class="project-card__banner">
+              <%= link_to project_path(project), class: "project-card__banner-frame" do %>
+                <%= image_tag "default-banner.png",
+                              alt: "#{project.title} banner",
+                              class: "project-card__banner-image" %>
               <% end %>
             </div>
           <% end %>

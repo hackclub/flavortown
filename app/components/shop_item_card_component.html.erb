@@ -18,6 +18,11 @@
       Added <%= time_ago_text %>
     </div>
   <% end %>
+  <% if purchase_count %>
+    <div class="shop-item-card__purchased-badge"><%= purchase_count %> bought</div>
+  <% elsif is_new %>
+    <div class="shop-item-card__new-badge">New</div>
+  <% end %>
   <% if on_sale %>
     <div class="shop-item-card__sale-badge">
       <%= sale_percentage %>% OFF

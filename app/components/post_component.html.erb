@@ -13,7 +13,7 @@
     <% end %>
   </article>
 <% else %>
-  <article class="post <%= variant_class %> <%= theme_class %><%= ' post--deleted' if deleted? %>">
+  <article class="post <%= variant_class %> <%= theme_class %><%= ' post--deleted' if deleted? %><%= ' post--compact' if compact? %>">
     <div class="post__content">
       <% if deleted? %>
         <div class="post__deleted-banner">
@@ -34,7 +34,7 @@
             <% else %>
               <%= author_name %><%= " ⚡" if post.user&.admin? %>
             <% end %>
-            <% if helpers.current_user&.admin? && post.user %>
+            <% if (helpers.current_user&.admin? || helpers.current_user&.fraud_dept?) && post.user %>
               <span style="border: 1px solid orange; background-color: #fff3e0; border-radius: 4px; padding: 2px 4px; margin-left: 4px;">
                 <%= link_to "🔨", helpers.admin_user_path(post.user), title: "Admin profile", style: "text-decoration: none;" %>
                 <%= link_to "🤓", helpers.admin_user_magic_link_path(post.user), title: "Generate magic link", style: "text-decoration: none;" %>
@@ -110,7 +110,7 @@
         </div>
       <% end %>
 
-      <% if devlog? %>
+      <% if devlog? && !compact? %>
         <div class="post__interactions">
           <%= render "likes/button", likeable: postable %>
           <div class="comments-count">
