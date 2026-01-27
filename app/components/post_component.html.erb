@@ -59,6 +59,43 @@
 
       <% if ship_event? %>
         <h2 class="post__ship-title">Shipped this project!</h2>
+        <% if show_ship_event_payout_footer? %>
+          <% if postable.payout.present? %>
+            <div class="post__payout-footer">
+              <div class="post__payout-item">
+                <span class="post__payout-label">Hours:</span>
+                <span class="post__payout-value"><%= postable.hours&.round(2) || '—' %></span>
+              </div>
+              <div class="post__payout-item">
+                <span class="post__payout-label">Cookies:</span>
+                <span class="post__payout-value">🍪 <%= postable.payout.to_i %></span>
+              </div>
+              <div class="post__payout-item">
+                <span class="post__payout-label">Multiplier:</span>
+                <span class="post__payout-value"><%= postable.multiplier&.round(2) || '—' %> cookies/hr</span>
+              </div>
+            </div>
+          <% else %>
+            <% estimate = estimated_payout_data %>
+            <div class="post__payout-footer post__payout-footer--estimate">
+              <div class="post__payout-item">
+                <span class="post__payout-label">Hours:</span>
+                <span class="post__payout-value"><%= estimate&.dig(:hours) || '—' %></span>
+              </div>
+              <div class="post__payout-item">
+                <span class="post__payout-label">Cookies:</span>
+                <span class="post__payout-value">🍪 ~<%= estimate&.dig(:cookies) || '—' %></span>
+              </div>
+              <div class="post__payout-item">
+                <span class="post__payout-label">Multiplier:</span>
+                <span class="post__payout-value"><%= estimate&.dig(:multiplier) || '—' %> cookies/hr</span>
+              </div>
+              <div class="post__payout-estimate-notice">
+                <small>⏳ Estimated (payout not issued yet)</small>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
       <% end %>
 
       <% if fire_event? %>
