@@ -143,6 +143,75 @@
         <% end %>
       </div>
     </div>
+
+    <% if @support %>
+      <div class="super-mega-dashboard__dashboard">
+        <div class="super-mega-dashboard__header super-mega-dashboard__header--support">
+          <h2>Support Overview</h2>
+          <%= link_to "View Full Dashboard →", "https://grafana.slevel.xyz/public-dashboards/8441a22c6a714f53a38a65892a44748f", class: "super-mega-link", target: "_blank" %>
+        </div>
+
+        <div class="super-mega-dashboard__cards">
+          <div class="super-mega-dashboard__card">
+            <h3>All Time</h3>
+            <div class="super-mega-dashboard__stats">
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value blue"><%= number_with_delimiter(@support[:total]) %></span>
+                <span class="super-mega-dashboard__stat--label">Total</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value yellow"><%= @support[:open] %></span>
+                <span class="super-mega-dashboard__stat--label">Open</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value purple"><%= @support[:in_progress] %></span>
+                <span class="super-mega-dashboard__stat--label">In Progress</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value green"><%= number_with_delimiter(@support[:closed]) %></span>
+                <span class="super-mega-dashboard__stat--label">Closed</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="super-mega-dashboard__card">
+            <h3>Last 24 Hours</h3>
+            <div class="super-mega-dashboard__stats">
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value blue"><%= @support[:prev_day][:total] %></span>
+                <span class="super-mega-dashboard__stat--label">Total</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value yellow"><%= @support[:prev_day][:open] %></span>
+                <span class="super-mega-dashboard__stat--label">Open</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value purple"><%= @support[:prev_day][:in_progress] %></span>
+                <span class="super-mega-dashboard__stat--label">In Progress</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value green"><%= @support[:prev_day][:closed] %></span>
+                <span class="super-mega-dashboard__stat--label">Closed</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="super-mega-dashboard__card">
+            <h3>Response Times</h3>
+            <div class="super-mega-dashboard__stats">
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value red"><%= format_minutes_as_time(@support[:avg_hang_time]) %></span>
+                <span class="super-mega-dashboard__stat--label">Avg Hang Time</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value green"><%= format_minutes_as_time(@support[:resolution_time]) %></span>
+                <span class="super-mega-dashboard__stat--label">Avg Resolution</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <div class="super-mega-dashboard__actions">

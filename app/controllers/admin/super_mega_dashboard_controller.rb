@@ -8,6 +8,7 @@ module Admin
       load_fraud_stats
       load_payouts_stats
       load_fulfillment_stats
+      load_support_stats
     end
 
     private
@@ -96,6 +97,30 @@ module Admin
       end
 
       { pending: pending, awaiting: awaiting, total: pending + awaiting }
+    end
+
+    def load_support_stats
+      response = Faraday.get("https://flavortown.nephthys.hackclub.com/api/stats")
+      data = JSON.parse(response.body)
+
+      @support = {
+        total: data["total_tickets"],
+        open: data["total_open"],
+        in_progress: data["total_in_progress"],
+        closed: data["total_closed"],
+        avg_hang_time: data["average_hang_time_minutes"]&.round,
+        resolution_time: data["mean_resolution_time_minutes"]&.round,
+        prev_day: {
+          total: data["prev_day_total"],
+          open: data["prev_day_open"],
+          in_progress: data["prev_day_in_progress"],
+          closed: data["prev_day_closed"],
+          avg_hang_time: data["prev_day_average_hang_time_minutes"]&.round,
+          resolution_time: data["prev_day_mean_resolution_time_minutes"]&.round
+        }
+      }
+    rescue Faraday::Error, JSON::ParserError
+      @support = nil
     end
   end
 end
