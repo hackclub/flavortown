@@ -126,6 +126,9 @@ class ShopOrder < ApplicationRecord
       return viewer.has_region?(region)
     end
 
+    # Fraud dept + fulfillment person can see addresses
+    return true if viewer.fraud_dept? && viewer.fulfillment_person?
+
     false
   end
 
