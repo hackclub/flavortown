@@ -88,7 +88,7 @@ class PostCreationToSlackJob < ApplicationJob
     commentable_url, commentable_title, commentable_users = resolve_commentable(commentable)
     return unless commentable_url
     commentable_users.each do |member|
-      if member.slack_id
+      if member.slack_id && member.send_notifications_for_new_comments
         SendSlackDmJob.perform_later(
           member.slack_id,
           "New comment on your project #{commentable_title} by #{author.display_name || "Someone"}",
