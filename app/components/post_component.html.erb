@@ -13,7 +13,7 @@
     <% end %>
   </article>
 <% else %>
-  <article class="post <%= variant_class %> <%= theme_class %><%= ' post--deleted' if deleted? %>">
+  <article class="post <%= variant_class %> <%= theme_class %><%= ' post--deleted' if deleted? %><%= ' post--compact' if compact? %>">
     <div class="post__content">
       <% if deleted? %>
         <div class="post__deleted-banner">
@@ -110,7 +110,7 @@
         </div>
       <% end %>
 
-      <% if devlog? %>
+      <% if devlog? && !compact? %>
         <div class="post__interactions">
           <%= render "likes/button", likeable: postable %>
           <div class="comments-count">

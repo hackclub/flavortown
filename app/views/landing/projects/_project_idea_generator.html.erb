@@ -1,38 +1,47 @@
 <script src="/howler.js"></script>
 <script src="/yappingv2.js"></script>
 
+<%
+  shop_icons = {
+    think: image_path('idea/thinking.png'),
+    freaking: image_path('idea/freaking.png'),
+    ded: image_path('idea/ded.png'),
+    info: image_path('idea/info.png'),
+    peefest: image_path('idea/pf.png'),
+    threat: image_path('idea/threatened.png'),
+    reading: image_path('idea/reading.png'),
+    reading2: image_path('idea/reading2.png'),
+    search: image_path('idea/searching.png'),
+    search2: image_path('idea/searching2.png'),
+    question: image_path('idea/question.png'),
+    cute: image_path('idea/cute.png'),
+    tinfoil: image_path('idea/tinfoil.png'),
+    woah: image_path('idea/woah.png'),
+    thumbs: image_path('idea/thumbs.png'),
+    fluster: image_path('idea/fluster.gif')
+  }
+%>
+
+<div id="project-idea-config"
+     data-squeak-audio="<%= audio_path('squeak_audio.mp4') %>"
+     data-background-music="<%= audio_path('penne_for_your_thoughts.mp3') %>"
+     data-bell-audio="<%= audio_path('bell.wav') %>"
+     data-loading-message="<%= FlavortextService.project_ideas('loading_messages') %>"
+     data-shop-icons="<%= shop_icons.to_json %>"
+     style="display: none;"></div>
+
 <script>
+  const configEl = document.getElementById('project-idea-config');
   let sounds = {
     squeak: new Howl({
-      src: ["https://hc-cdn.hel1.your-objectstorage.com/s/v3/ff2d5691f663fc471761f4407856a26291926baf_squeak_audio.mp4"],
+      src: [configEl.dataset.squeakAudio],
     })
   }
-  let nextLoadingMessage = <%= FlavortextService.project_ideas('loading_messages').to_json.html_safe %>
+  let nextLoadingMessage = configEl.dataset.loadingMessage;
+  const shopIcons = JSON.parse(configEl.dataset.shopIcons);
 
-  const shopIcons = {
-    think: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/3d3828fd60ed8b1b_thinking_rac_360.png',
-    freaking: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/9b1e350fbdb63c3b_freaking.png',
-    ded: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/acff249570a19122_ded.png',
-    info: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/95f2a76ec90b572d_info.png',
-    peefest: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/d09389c84cd5bb5c_pf.png',
-    threat: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/dd597dde34626e47_threatened.png',
-    reading: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/0204ed66004d35d8_reading_2.png',
-    reading2: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/13d80b5838a5a2c0_reading.png',
-    search: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/af5a25c2802ec9f3_searching_2.png',
-    search2: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/b4b3c89446f25e0c_searching.png',
-    question: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/a1bf8d1675854ee7_000.png',
-    cute: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/e06b75e2757ccb39_003.png',
-    tinfoil: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/09118abc827feba6_004.png',
-    holding_ears: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/09118abc827feba6_004.png',
-    not_amused: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/09118abc827feba6_004.png',
-    woah: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/70c71016f763c69e_003.png',
-    thumbs: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/99f6c56efbfc7f63_001.png',
-    fluster: 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/c2d0826f3061a1e5_untitled_artwork.gif',
-  }
-
-  // Background music setup
   const backgroundMusic = new Howl({
-    src: ["<%= audio_path('penne_for_your_thoughts.mp3').to_json %>"],
+    src: [configEl.dataset.backgroundMusic],
     loop: true,
     rate: 0.5,
     volume: 0.1
@@ -55,9 +64,8 @@
     }
   }
 
-  // Thinking sound
   const thinkingSound = new Howl({
-    src: ['https://raw.githubusercontent.com/maxwofford/shopkeepers/main/audio/bell.wav'],
+    src: [configEl.dataset.bellAudio],
     volume: 0.3
   })
 </script>

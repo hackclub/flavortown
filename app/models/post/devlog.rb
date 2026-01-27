@@ -74,13 +74,14 @@ class Post::Devlog < ApplicationRecord
               greater_than_or_equal_to: 15.minutes,
               message: "error, you must log at least 15 minutes to post a devlog"
             },
-            allow_nil: true
+            allow_nil: true,
+            on: :create
   validates :body, presence: true, length: { maximum: 2_000 }, unless: -> { scrapbook_url.present? }
   validates :scrapbook_url,
             uniqueness: { message: "has already been used for another devlog" },
             allow_blank: true,
             unless: -> { Rails.env.development? }
-  validate :validate_scrapbook_url
+  validate :validate_scrapbook_url, on: :create
 
   after_create_commit :handle_post_creation
   after_update_commit :update_project_duration_if_changed

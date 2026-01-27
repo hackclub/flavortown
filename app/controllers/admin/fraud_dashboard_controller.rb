@@ -175,7 +175,7 @@ module Admin
         FROM (
           SELECT r.id, r.created_at AS r_at
           FROM #{quoted_table} r
-          WHERE r.#{quoted_field} = ANY (?)
+          WHERE r.#{quoted_field} = ANY (?::#{db_cast})
             AND r.created_at > NOW() - INTERVAL '30 days'
           ORDER BY r.created_at DESC
           LIMIT 100
@@ -187,7 +187,7 @@ module Admin
             AND v.item_id = r.id::text
             AND jsonb_exists(v.object_changes, ?)
             AND v.created_at >= r.r_at
-            AND (v.object_changes -> ? ->> 1) = ANY (?)
+            AND (v.object_changes -> ? ->> 1) = ANY (?::text[])
           ORDER BY v.created_at ASC
           LIMIT 1
         ) v ON true

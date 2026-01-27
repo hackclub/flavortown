@@ -37,7 +37,10 @@ class Post::ShipEvent < ApplicationRecord
 
   has_many :votes, foreign_key: :ship_event_id, dependent: :nullify, inverse_of: :ship_event
 
+  after_commit :decrement_user_vote_balance, on: :create
+
   validates :body, presence: { message: "Update message can't be blank" }
+  validate :project_can_be_shipped, on: :create
 
   def status
     project = post&.project
@@ -71,12 +74,31 @@ class Post::ShipEvent < ApplicationRecord
   end
 
   def payout_eligible?
-    certification_status == "approved" &&
-      payout.blank? &&
-      votes_count.to_i >= VOTES_REQUIRED_FOR_PAYOUT
+    return false unless certification_status == "approved"
+    return false unless payout.blank?
+    return false unless votes_count.to_i >= VOTES_REQUIRED_FOR_PAYOUT
+
+    payout_user = payout_recipient
+    return false unless payout_user
+    return false if payout_user.vote_balance < 0
+
+    true
   end
 
   def payout_recipient
     post&.user
+  end
+
+  private
+
+  def project_can_be_shipped
+    return unless project
+    project.ship_blocking_errors.each { |msg| errors.add(:base, msg) }
+  end
+
+  def decrement_user_vote_balance
+    return unless post&.user
+
+    post.user.increment!(:vote_balance, -15)
   end
 end

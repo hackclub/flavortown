@@ -98,16 +98,13 @@ export default class extends Controller {
   }
 
   #loadSqueak() {
+    const squeakUrl = "/assets/squeak_audio.mp4";
     if (typeof Howl !== "undefined") {
       this.squeak = new Howl({
-        src: [
-          "https://hc-cdn.hel1.your-objectstorage.com/s/v3/ff2d5691f663fc471761f4407856a26291926baf_squeak_audio.mp4",
-        ],
+        src: [squeakUrl],
       });
     } else {
-      this.squeakAudio = new Audio(
-        "https://hc-cdn.hel1.your-objectstorage.com/s/v3/ff2d5691f663fc471761f4407856a26291926baf_squeak_audio.mp4",
-      );
+      this.squeakAudio = new Audio(squeakUrl);
     }
   }
 

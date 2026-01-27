@@ -70,7 +70,7 @@
     );
     border-radius: 16px;
     padding: 1.5rem 2rem;
-    margin-bottom: 2rem;
+    margin-bottom: 4rem;
     color: white;
     text-align: left;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -85,6 +85,10 @@
       margin: 0;
       opacity: 0.9;
       font-size: 1rem;
+    }
+
+    a {
+      color: var(--color-bg);
     }
 
     .shop__signup-cta-buttons {
@@ -447,7 +451,7 @@
   }
 
   .shop__items {
-    margin: 1em 0;
+    margin: 2em 0;
     width: 100%;
     display: grid;
     gap: 2rem;
