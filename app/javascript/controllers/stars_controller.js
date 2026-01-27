@@ -98,12 +98,6 @@ export default class extends Controller {
     this.renderStars();
   }
 
-  disconnect() {
-    if (this.starsContainer) {
-      this.starsContainer.remove();
-    }
-  }
-
   createStarsContainer() {
     this.starsContainer = document.createElement("div");
     this.starsContainer.className = "launch-stars";
