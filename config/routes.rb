@@ -154,7 +154,11 @@ Rails.application.routes.draw do
   end
 
   namespace :user, path: "" do
-    resources :tutorial_steps, only: [ :show ]
+    resources :tutorial_steps, only: [ :show ] do
+      member do
+        post :complete
+      end
+    end
   end
 
   namespace :helper, constraints: HelperConstraint do
