@@ -12,6 +12,7 @@ class QueueController < ApplicationController
     @avg_wait = cached_data[:avg_wait]
     @by_item_type = cached_data[:by_item_type]
     @avg_response_hours = cached_data[:avg_response_hours]
+    @pending_orders = cached_data[:pending_orders] || []
   end
 
   private
@@ -42,7 +43,8 @@ class QueueController < ApplicationController
       newest_waiting: newest_waiting,
       avg_wait: avg_wait,
       by_item_type: by_item_type,
-      avg_response_hours: avg_response_hours
+      avg_response_hours: avg_response_hours,
+      pending_orders: backlog
     }
   end
 

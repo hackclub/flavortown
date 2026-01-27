@@ -133,13 +133,14 @@ module Admin
     end
 
     def all_time_performers(states)
-      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL, states ])
+      pg_array = "{#{states.join(',')}}"
+      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL, pg_array ])
         SELECT whodunnit, COUNT(*) AS cnt
         FROM versions
         WHERE item_type = 'ShopOrder'
           AND whodunnit IS NOT NULL
           AND jsonb_exists(object_changes, 'aasm_state')
-          AND (object_changes -> 'aasm_state' ->> 1) = ANY (?)
+          AND (object_changes -> 'aasm_state' ->> 1) = ANY (?::text[])
         GROUP BY whodunnit
         ORDER BY cnt DESC
         LIMIT 10
