@@ -80,7 +80,16 @@ class Projects::DevlogsController < ApplicationController
       attachments_to_remove.each(&:purge_later)
     end
 
-    if @devlog.update(update_devlog_params)
+    # Extract new attachments to append separately (don't replace existing)
+    new_attachments = update_devlog_params[:attachments]
+    body_params = update_devlog_params.except(:attachments)
+
+    if @devlog.update(body_params)
+      # Append new attachments instead of replacing
+      if new_attachments.present?
+        @devlog.attachments.attach(new_attachments)
+      end
+
       # Create version history if body changed
       if previous_body != @devlog.body
         @devlog.create_version!(user: current_user, previous_body: previous_body)
