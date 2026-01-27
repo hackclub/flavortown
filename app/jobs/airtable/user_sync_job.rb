@@ -35,10 +35,10 @@ class Airtable::UserSyncJob < Airtable::BaseSyncJob
 
     if address.present?
       fields.merge!(
-        "address_line_1" => address["address_line_1"],
-        "address_line_2" => address["address_line_2"],
+        "address_line_1" => address["line_1"],
+        "address_line_2" => address["line_2"],
         "address_city" => address["city"],
-        "address_state" => address["state_province"],
+        "address_state" => address["state"],
         "address_postal_code" => address["postal_code"],
         "address_country" => address["country"]
       )
