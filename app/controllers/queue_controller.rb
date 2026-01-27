@@ -59,6 +59,7 @@ class QueueController < ApplicationController
     total = orders.sum do |o|
       v = o.versions.find do |ver|
         changes = ver.object_changes
+        next if changes.is_a?(String) && changes.start_with?("---")
         changes = JSON.parse(changes) if changes.is_a?(String)
         changes&.dig("aasm_state")&.last.in?(target_states)
       end
