@@ -44,11 +44,6 @@
   <%= render partial: "grouped_table", locals: { grouped_orders: @grouped_orders } %>
 <% elsif @shop_orders %>
   <%= render partial: "table", locals: { orders: @shop_orders } %>
-  <% if @pagy && @pagy.pages > 1 %>
-    <div class="pagination-container">
-      <%== @pagy.series_nav %>
-    </div>
-  <% end %>
 <% end %>
 
 <div style="margin-top: 2em;">
@@ -139,11 +134,5 @@
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
-}
-
-.pagination-container {
-  margin-top: 1.5em;
-  display: flex;
-  justify-content: center;
 }
 </style>
