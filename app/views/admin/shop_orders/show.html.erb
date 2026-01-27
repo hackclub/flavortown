@@ -1,8 +1,7 @@
 <h1 class="admin-section__header" style="font-size: 1.5rem; margin-bottom: 1rem;">
   <span
     title="ID: <%= @order.id %>&#10;User: <%= @order.user.display_name %> (Slack: <%= @order.user.slack_id || 'N/A' %>)&#10;Item: <%= @order.shop_item.name %>&#10;Qty: <%= @order.quantity %> × <%= @order.frozen_item_price %> = <%= @order.total_cost %> tickets&#10;Status: <%= @order.aasm_state.humanize %>&#10;Created: <%= @order.created_at.strftime('%Y-%m-%d %H:%M') %><%= @order.assigned_to_user.present? ? "&#10;Assigned: #{@order.assigned_to_user.display_name}" : '' %>"
-    style="cursor: help;"
-  >Order #<%= @order.id %></span>
+    style="cursor: help;">Order #<%= @order.id %></span>
 </h1>
 
 <div class="admin-section">
