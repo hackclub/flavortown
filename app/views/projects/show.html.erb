@@ -6,7 +6,8 @@
 <% content_for :og_author, @project.memberships.find_by(role: :owner)&.user&.display_name %>
 
 <div class="projects-show">
-  <div class="projects-show__container">
+  <div class="projects-show__container" style="position: relative;">
+    <%= render "shared/debug_info", record: @project %>
     <%= render ProjectShowCardComponent.new(project: @project, current_user: current_user) %>
 
     <% if current_user.present? %>

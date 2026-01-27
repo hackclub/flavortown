@@ -56,6 +56,7 @@
 
       <%= render "shared/inspector", record: postable %>
       <%= render "shared/inspector", record: post.user if post.user %>
+      <%= render "shared/debug_info", record: postable %>
 
       <% if ship_event? %>
         <h2 class="post__ship-title">Shipped this project!</h2>
