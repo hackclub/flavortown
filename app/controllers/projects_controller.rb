@@ -221,6 +221,20 @@ class ProjectsController < ApplicationController
 
     follow = current_user.project_follows.build(project: @project)
     if follow.save
+      @project.users.each do |member|
+        if member.send_notifications_for_new_followers && current_user.slack_id && member.slack_id
+          SendSlackDmJob.perform_later(
+            member.slack_id,
+            "#{current_user.display_name} is now following your project #{@project.title}!",
+            blocks_path: "notifications/new_follower",
+            locals: {
+              project_title: @project.title,
+              project_url: project_url(@project, host: "flavortown.hackclub.com", protocol: "https"),
+              follower_id: current_user.slack_id
+            }
+          )
+        end
+      end
       redirect_to @project, notice: "You are now following this project."
     else
       redirect_to @project, alert: follow.errors.full_messages.to_sentence
