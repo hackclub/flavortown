@@ -119,6 +119,28 @@ export default class extends Controller {
 
     this.createStarsContainer();
     this.renderStars();
+    this.setupScrollFade();
+  }
+
+  setupScrollFade() {
+    this.boundHandleScroll = this.handleScroll.bind(this);
+    window.addEventListener("scroll", this.boundHandleScroll, { passive: true });
+    this.handleScroll();
+  }
+
+  handleScroll() {
+    if (!this.svgContainer) return;
+
+    const scrollY = window.scrollY;
+    const fadeStart = 100;
+    const fadeEnd = 400;
+
+    let opacity = 1;
+    if (scrollY > fadeStart) {
+      opacity = Math.max(0, 1 - (scrollY - fadeStart) / (fadeEnd - fadeStart));
+    }
+
+    this.svgContainer.style.opacity = String(opacity);
   }
 
   createStarsContainer() {
@@ -290,6 +312,9 @@ export default class extends Controller {
   disconnect() {
     if (this.twinkleIntervals) {
       this.twinkleIntervals.forEach((interval) => clearInterval(interval));
+    }
+    if (this.boundHandleScroll) {
+      window.removeEventListener("scroll", this.boundHandleScroll);
     }
     if (this.svgContainer) {
       this.svgContainer.remove();
