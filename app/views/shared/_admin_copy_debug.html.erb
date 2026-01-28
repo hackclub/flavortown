@@ -1,4 +1,4 @@
-<% if current_user&.admin? %>
+<% if current_user&.admin? || current_user&.fraud_dept? %>
   <button
     type="button"
     class="admin-tool-btn"

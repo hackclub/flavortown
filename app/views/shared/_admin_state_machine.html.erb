@@ -1,4 +1,4 @@
-<% if current_user&.admin? && record.respond_to?(:aasm) %>
+<% if (current_user&.admin? || current_user&.fraud_dept?) && record.respond_to?(:aasm) %>
   <% current_state = record.aasm.current_state %>
   <% available_events = record.aasm.events(permitted: true) %>
 

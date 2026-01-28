@@ -83,7 +83,7 @@
       <%= render DialogueBoxComponent.new(text: tutorial_messages) %>
     <% end %>
     <%= yield %>
-    <% if current_user&.admin? %>
+    <% if current_user&.admin? || current_user&.fraud_dept? %>
       <div data-controller="debug-overlay">
         <button type="button" class="debug-toggle-btn" data-action="debug-overlay#toggle">
           DEBUG
