@@ -1,7 +1,8 @@
 <% if current_user&.admin? %>
   <button
     type="button"
-    class="btn btn--brown btn--small"
+    class="admin-tool-btn"
+    style="background: #ff9500; color: white; border: 1px solid #cc7700; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;"
     data-controller="copy-debug"
     data-action="click->copy-debug#copy"
     data-copy-debug-record-type-value="<%= record_type %>"

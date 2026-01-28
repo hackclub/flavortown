@@ -9,8 +9,8 @@
   z-index: 9999;
   min-width: 200px;
   padding: var(--space-s, 0.75rem);
-  background: #3d2424;
-  border: 2px solid #b87333;
+  background: #1a1a1a;
+  border: 2px solid #ff9500;
   border-radius: var(--border-radius, 8px);
   color: #fff;
   font-size: 0.8rem;
@@ -37,7 +37,7 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 0.25rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 149, 0, 0.2);
 
     &:last-child {
       border-bottom: none;
@@ -45,7 +45,7 @@
   }
 
   &__label {
-    color: #b87333;
+    color: #ff9500;
     font-weight: 500;
   }
 

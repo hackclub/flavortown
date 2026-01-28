@@ -9,8 +9,9 @@ body.debug-mode .debug-info {
   padding: 4px 8px;
   font-size: 10px;
   font-family: monospace;
-  background: rgba(0, 0, 0, 0.7);
-  color: #0f0;
+  background: rgba(0, 0, 0, 0.85);
+  color: #ff9500;
+  border: 1px solid #ff9500;
   border-radius: 2px;
   white-space: nowrap;
   pointer-events: none;
@@ -24,13 +25,13 @@ body.debug-mode .debug-info {
   padding: 6px 10px;
   font-size: 11px;
   font-family: monospace;
-  background: rgba(0, 0, 0, 0.8);
-  color: #0f0;
-  border: 1px solid #0f0;
+  background: rgba(0, 0, 0, 0.85);
+  color: #ff9500;
+  border: 1px solid #ff9500;
   border-radius: 4px;
   cursor: pointer;
 
   &:hover {
-    background: rgba(0, 50, 0, 0.9);
+    background: rgba(50, 30, 0, 0.95);
   }
 }

@@ -14,7 +14,7 @@
     <% if current_user.present? %>
       <div class="mt-4" style="display: flex; gap: var(--space-m); align-items: center;">
         <% if current_user.admin? %>
-          <%= link_to admin_project_path(@project), class: "btn btn--brown", style: "display: flex; align-items: center; gap: 0.25rem;" do %>
+          <%= link_to admin_project_path(@project), style: "background: #ff9500; color: white; border: 1px solid #cc7700; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 0.25rem;" do %>
             🔨 Admin
           <% end %>
           <%= render "shared/admin_copy_debug", record: @project, record_type: "Project", url: project_url(@project, host: "flavortown.hackclub.com", protocol: "https") %>
