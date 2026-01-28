@@ -10,12 +10,10 @@
     position: fixed;
     inset: 0;
     z-index: -10;
-    background: linear-gradient(
-      180deg,
-      #170625 0%,
-      #250c41 37.825%,
-      #301361 100%
-    );
+    background: linear-gradient(180deg,
+        #170625 0%,
+        #250c41 37.825%,
+        #301361 100%);
   }
 }
 
@@ -151,4 +149,42 @@
 // Hide old ISS SVG
 .launch-iss {
   display: none;
+}
+
+// Wrapper to position connector + main panel as one unit
+.launch-panel-wrapper {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 5; // Behind sidebar (z-index: 10)
+  
+  // Use flex to anchor panel to connector
+  display: flex;
+  align-items: center;
+  height: 80vh;
+}
+
+// Side panel connector (tucked menu handle)
+.launch-connector {
+  flex-shrink: 0;
+  height: 130%;
+
+  img {
+    height: 100%;
+    width: auto;
+  }
+}
+
+// Main content panel (blue grid)
+.launch-main-panel {
+  flex-shrink: 0;
+  margin-left: -280px; // Pull left to connect with connector tabs
+  height: 90%;
+
+  img {
+    height: 100%;
+    width: auto;
+  }
 }

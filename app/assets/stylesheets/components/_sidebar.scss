@@ -955,46 +955,117 @@
   }
 }
 
-// Launch user bubble styles
-.sidebar__user-card--launch {
+// Launch theme user section with hexagon avatar and rank badge
+.sidebar__launch-user {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  padding-bottom: 1rem;
+}
+
+.sidebar__launch-avatar-wrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+// Hexagon frame PNG with textures
+.sidebar__launch-hexagon {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+// Avatar centered on hexagon
+.sidebar__launch-avatar-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  z-index: 1;
+  border: 3px solid #340c45;
+  box-shadow: 0 0 0 2px #3066c9;
+}
+
+.sidebar__launch-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sidebar__launch-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #3066c9;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
+  justify-content: center;
+  font-family: var(--font-family-jua);
+  font-size: 1.25rem;
+  color: #f8e8d1;
 }
 
-.sidebar__user-avatar--launch {
+// Rank badge
+.sidebar__launch-rank {
   position: relative;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: 3px solid #6c5ce7;
-  overflow: hidden;
+  width: 110px;
+  height: 48px;
   flex-shrink: 0;
-
-  .sidebar__user-avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-  }
 }
 
-.sidebar__user-details--launch {
+.sidebar__launch-rank-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar__launch-rank-content {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  opacity: 0;
-  max-width: 0;
-  overflow: hidden;
-  transition:
-    opacity 180ms ease,
-    max-width 180ms ease;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0.25rem 0.5rem;
+  transform: rotate(0.5deg) skewX(-1deg);
+}
 
-  .sidebar:hover &,
-  .sidebar:focus-within & {
-    opacity: 1;
-    max-width: 100px;
-  }
+.sidebar__launch-rank-title {
+  font-family: var(--font-family-jua);
+  font-size: 1.25rem;
+  color: #f8e8d1;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.sidebar__launch-rank-score {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sidebar__launch-rank-arrow {
+  width: 12px;
+  height: 8px;
+}
+
+.sidebar__launch-rank-points {
+  font-family: var(--font-family-jua);
+  font-size: 0.9rem;
+  color: #f8e8d1;
+  line-height: 1;
 }
 
 .sidebar__user-rank {

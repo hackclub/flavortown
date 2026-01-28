@@ -86,13 +86,42 @@
   </div>
 
   <div class="sidebar__user" aria-live="polite">
-    <div class="sidebar__user-card">
+    <% if controller_name == 'launch' %>
+      <%# Launch theme: Hexagonal avatar with rank badge %>
+      <div class="sidebar__launch-user">
+        <div class="sidebar__launch-avatar-wrapper">
+          <%# Hexagon frame with textures %>
+          <%= image_tag "launch/launch-hexagon-frame.png", class: "sidebar__launch-hexagon", alt: "", aria: { hidden: true } %>
+          <%# User avatar centered %>
+          <div class="sidebar__launch-avatar-ring">
+            <% if current_user.slack_id.present? %>
+              <%= image_tag current_user.avatar, alt: current_user.display_name, class: "sidebar__launch-avatar-img" %>
+            <% else %>
+              <div class="sidebar__launch-avatar-placeholder">
+                <%= current_user.display_name.first.upcase %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <%# Rank badge %>
+        <div class="sidebar__launch-rank">
+          <%= inline_svg_tag "launch/launch-rank-badge.svg", class: "sidebar__launch-rank-bg", aria: { hidden: true } %>
+          <div class="sidebar__launch-rank-content">
+            <span class="sidebar__launch-rank-title">cadet</span>
+            <div class="sidebar__launch-rank-score">
+              <%= inline_svg_tag "launch/launch-rank-arrow.svg", class: "sidebar__launch-rank-arrow", aria: { hidden: true } %>
+              <span class="sidebar__launch-rank-points"><%= current_user.cached_balance %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <%# Default theme %>
+      <div class="sidebar__user-card">
         <div class="sidebar__user-avatar">
-          <% unless controller_name == 'launch' %>
-            <%= image_tag "chef-hat.webp", alt: "Hat", class: "sidebar__user-avatar-hat", aria: { hidden: true } %>
-            <%= image_tag "chef-hat-bg.webp", alt: "Hat", class: "sidebar__user-avatar-hat-bg", aria: { hidden: true } %>
-            <%= image_tag "santa-hat.webp", alt: "Santa Hat", class: "sidebar__user-avatar-santa-hat", aria: { hidden: true } %>
-          <% end %>
+          <%= image_tag "chef-hat.webp", alt: "Hat", class: "sidebar__user-avatar-hat", aria: { hidden: true } %>
+          <%= image_tag "chef-hat-bg.webp", alt: "Hat", class: "sidebar__user-avatar-hat-bg", aria: { hidden: true } %>
+          <%= image_tag "santa-hat.webp", alt: "Santa Hat", class: "sidebar__user-avatar-santa-hat", aria: { hidden: true } %>
           <% if current_user.slack_id.present? %>
             <%= image_tag current_user.avatar, alt: current_user.display_name, class: "sidebar__user-avatar-placeholder", style: "object-fit: cover;" %>
           <% else %>
@@ -110,11 +139,7 @@
           <% end %>
           <div class="sidebar__user-actions">
             <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
-              <% if controller_name == 'launch' %>
-                ▲ <%= current_user.cached_balance %>
-              <% else %>
-                🍪 <%= current_user.cached_balance %>
-              <% end %>
+              🍪 <%= current_user.cached_balance %>
             </button>
 
             <button type="button" class="sidebar__user-settings" onclick="document.getElementById('settings-modal').showModal()" aria-label="Settings">
@@ -131,6 +156,7 @@
           </div>
         </div>
       </div>
+    <% end %>
   </div>
 
   <%= render layout: "shared/modal", locals: { id: "balance-modal", title: "Transaction History" } do %>
