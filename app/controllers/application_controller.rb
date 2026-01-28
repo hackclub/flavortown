@@ -17,6 +17,7 @@ class ApplicationController < ActionController::Base
   before_action :apply_dev_override_ref
   before_action :allow_profiler
   before_action :bullet_for_admins
+  before_action :set_viewing_as_user
 
   rescue_from StandardError, with: :handle_error
   rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
@@ -63,6 +64,11 @@ class ApplicationController < ActionController::Base
     flash[:tutorial_messages] || []
   end
   helper_method :tutorial_messages
+
+  def viewing_as_user
+    @viewing_as_user
+  end
+  helper_method :viewing_as_user
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
@@ -154,5 +160,13 @@ class ApplicationController < ActionController::Base
     )
   rescue StandardError => e
     Rails.logger.warn("Portal return identity refresh failed: #{e.class}: #{e.message}")
+  end
+
+  def set_viewing_as_user
+    return unless params[:view_as].present?
+    return unless current_user&.admin?
+    return if impersonating?
+
+    @viewing_as_user = User.find_by(id: params[:view_as])
   end
 end

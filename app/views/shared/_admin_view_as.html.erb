@@ -1,0 +1,23 @@
+<% if current_user&.admin? && !impersonating? %>
+  <div class="view-as-container" data-controller="view-as">
+    <% if viewing_as_user %>
+      <div class="view-as-banner">
+        <span class="view-as-banner-text">
+          <strong>VIEWING AS:</strong> <%= viewing_as_user.display_name %>
+        </span>
+        <span class="view-as-banner-note">(view only - no actions)</span>
+      </div>
+    <% end %>
+    <div class="view-as-dropdown">
+      <label class="view-as-label">View as:</label>
+      <select class="view-as-select" data-action="change->view-as#select">
+        <option value="" <%= "selected" unless viewing_as_user %>>Yourself</option>
+        <% User.where.not(id: current_user.id).order(updated_at: :desc).limit(10).each do |user| %>
+          <option value="<%= user.id %>" <%= "selected" if viewing_as_user&.id == user.id %>>
+            <%= user.display_name || "User ##{user.id}" %>
+          </option>
+        <% end %>
+      </select>
+    </div>
+  </div>
+<% end %>
