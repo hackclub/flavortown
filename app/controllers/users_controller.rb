@@ -1,4 +1,19 @@
 class UsersController < ApplicationController
+  def stats
+    @user = User.find(params[:id])
+    authorize :admin, :access_admin_endpoints?
+
+    stats = {
+      order_count: @user.shop_orders.real.count,
+      total_cookies: @user.ledger_entries.sum(:amount),
+      projects_count: @user.projects_count || @user.projects.count,
+      created_at: @user.created_at,
+      verification_status: @user.verification_status
+    }
+
+    render json: stats
+  end
+
   def show
     @user = User.find(params[:id])
     authorize @user

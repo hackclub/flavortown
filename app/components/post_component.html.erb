@@ -30,7 +30,7 @@
           <div class="post__author">
 
             <% if post.user.present? %>
-              <%= link_to author_name, user_path(post.user) %><%= " ⚡" if post.user&.admin? %>
+              <%= render "shared/admin_stats_trigger", record: post.user, label: link_to(author_name, user_path(post.user)) %><%= " ⚡" if post.user&.admin? %>
             <% else %>
               <%= author_name %><%= " ⚡" if post.user&.admin? %>
             <% end %>
