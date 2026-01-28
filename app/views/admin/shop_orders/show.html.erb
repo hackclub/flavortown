@@ -156,6 +156,13 @@
 <% if @can_view_address %>
 <div class="admin-section">
   <h2 class="admin-section__header">Shipping Address</h2>
+  <% if @is_digital_fulfillment_type && current_user.admin? %>
+    <div style="margin-bottom: 1em; padding: 0.5em; background: #dbeafe; border-radius: 4px;">
+      <small style="color: #1e40af;">
+        ℹ️ This is a digital fulfillment item. Address visible because you are an admin.
+      </small>
+    </div>
+  <% end %>
   <% if @can_view_address %>
     <div id="address-container">
 

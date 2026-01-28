@@ -98,7 +98,6 @@ class ShopOrder < ApplicationRecord
     ShopItem::HCBGrant
     ShopItem::HCBPreauthGrant
     ShopItem::ThirdPartyDigital
-    ShopItem::SpecialFulfillmentItem
     ShopItem::WarehouseItem
     ShopItem::FreeStickers
     ShopItem::PileOfStickersItem
@@ -116,9 +115,10 @@ class ShopOrder < ApplicationRecord
 
   def can_view_address?(viewer)
     return false unless viewer
-    return false if DIGITAL_FULFILLMENT_TYPES.include?(shop_item.type)
 
     return true if viewer.admin?
+
+    return false if DIGITAL_FULFILLMENT_TYPES.include?(shop_item.type)
 
     # Fulfillment person can see addresses in their assigned regions
     if viewer.fulfillment_person?
