@@ -282,6 +282,7 @@ Rails.application.routes.draw do
     resource :ships, only: [ :new, :create ], module: :projects
     member do
       get :readme
+      get :stats
       post :mark_fire
       post :unmark_fire
       post :follow
@@ -300,5 +301,8 @@ Rails.application.routes.draw do
   # Public user profiles
   resources :users, only: [ :show ] do
     resource :og_image, only: [ :show ], module: :users, defaults: { format: :png }
+    member do
+      get :stats
+    end
   end
 end

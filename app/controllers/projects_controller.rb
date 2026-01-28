@@ -2,6 +2,21 @@ class ProjectsController < ApplicationController
   before_action :set_project_minimal, only: [ :edit, :update, :destroy, :mark_fire, :unmark_fire ]
   before_action :set_project, only: [ :show, :readme ]
 
+  def stats
+    @project = Project.find(params[:id])
+    authorize :admin, :access_admin_endpoints?
+
+    stats = {
+      devlogs_count: @project.devlogs_count,
+      members_count: @project.memberships_count,
+      total_hours: (@project.duration_seconds / 3600.0).round(1),
+      shipped: @project.shipped?,
+      created_at: @project.created_at
+    }
+
+    render json: stats
+  end
+
   def index
     authorize Project
     @projects = current_user.projects.includes(banner_attachment: :blob)

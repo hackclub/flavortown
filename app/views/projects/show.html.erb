@@ -6,11 +6,19 @@
 <% content_for :og_author, @project.memberships.find_by(role: :owner)&.user&.display_name %>
 
 <div class="projects-show">
-  <div class="projects-show__container">
+  <div class="projects-show__container" style="position: relative;">
+    <%= render "shared/debug_info", record: @project %>
+    <%= render "shared/admin_state_machine", record: @project %>
     <%= render ProjectShowCardComponent.new(project: @project, current_user: current_user) %>
 
     <% if current_user.present? %>
       <div class="mt-4" style="display: flex; gap: var(--space-m); align-items: center;">
+        <% if current_user.admin? || current_user.fraud_dept? %>
+          <%= link_to admin_project_path(@project), style: "background: #ff9500; color: white; border: 1px solid #cc7700; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 0.25rem;" do %>
+            🔨 Admin
+          <% end %>
+          <%= render "shared/admin_copy_debug", record: @project, record_type: "Project", url: project_url(@project, host: "flavortown.hackclub.com", protocol: "https") %>
+        <% end %>
         <% if @project.users.include?(current_user) %>
           <%= render ButtonComponent.new(
                 text: "Add Devlog",

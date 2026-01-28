@@ -1,0 +1,114 @@
+.state-machine {
+  background: #fff3e0;
+  border: 2px solid #ff9500;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+
+  &__header {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #cc7700;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #ffcc80;
+    padding-bottom: 0.5rem;
+  }
+
+  &__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    min-width: 120px;
+    flex-shrink: 0;
+  }
+
+  &__current {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    background: #9ca3af;
+    color: white;
+
+    &--pending {
+      background: #fbbf24;
+      color: #78350f;
+    }
+
+    &--approved,
+    &--fulfilled {
+      background: #10b981;
+      color: white;
+    }
+
+    &--rejected {
+      background: #ef4444;
+      color: white;
+    }
+
+    &--on_hold {
+      background: #6b7280;
+      color: white;
+    }
+
+    &--refunded {
+      background: #a855f7;
+      color: white;
+    }
+
+    &--awaiting_verification,
+    &--awaiting_periodical_fulfillment {
+      background: #60a5fa;
+      color: #1e3a8a;
+    }
+
+    &--draft {
+      background: #9ca3af;
+      color: white;
+    }
+
+    &--submitted {
+      background: #fbbf24;
+      color: #78350f;
+    }
+
+    &--under_review {
+      background: #f59e0b;
+      color: #78350f;
+    }
+  }
+
+  &__transitions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.8rem;
+  }
+
+  &__event {
+    padding: 0.25rem 0;
+    color: #374151;
+  }
+
+  &__target {
+    font-size: 0.7rem;
+  }
+
+  &__no-transitions {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    font-style: italic;
+  }
+}

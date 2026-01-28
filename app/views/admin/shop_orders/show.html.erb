@@ -4,6 +4,8 @@
     style="cursor: help;">Order #<%= @order.id %></span>
 </h1>
 
+<%= render "shared/admin_state_machine", record: @order %>
+
 <div class="admin-section">
   <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
     <div>

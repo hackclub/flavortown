@@ -14,6 +14,9 @@
     <div>
       <strong>Reporter:</strong>
       <%= link_to @report.reporter.display_name || @report.reporter.email, admin_user_path(@report.reporter) %>
+      <% if @report.reporter.slack_id.present? %>
+        <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;"><%= @report.reporter.slack_id %></code>
+      <% end %>
     </div>
     <div>
       <strong>Created:</strong> <%= @report.created_at.strftime("%Y-%m-%d %H:%M:%S") %>
@@ -56,6 +59,17 @@
         <strong>Members:</strong>
         <%= @report.project.users.map { |u| u.display_name || u.email }.join(", ") %>
       </div>
+      <% owner = @report.project.memberships.find_by(role: :owner)&.user %>
+      <% if owner %>
+        <div>
+          <strong>Owner Slack ID:</strong>
+          <% if owner.slack_id.present? %>
+            <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;"><%= owner.slack_id %></code>
+          <% else %>
+            <em>Not linked</em>
+          <% end %>
+        </div>
+      <% end %>
     </div>
 
     <% if @report.project.description.present? %>

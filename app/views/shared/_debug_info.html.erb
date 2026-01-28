@@ -1,0 +1,7 @@
+<% if (current_user&.admin? || current_user&.fraud_dept?) && record.present? %>
+  <div class="debug-info">
+    <%= record.class.name %>#<%= record.id %> |
+    created: <%= record.created_at&.strftime("%Y-%m-%d %H:%M:%S") %> |
+    updated: <%= record.updated_at&.strftime("%Y-%m-%d %H:%M:%S") %>
+  </div>
+<% end %>
