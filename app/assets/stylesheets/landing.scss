@@ -19,10 +19,11 @@
 }
 
 .scrolling-carousel {
-  &:hover > .scrolling-items {
+  &:hover>.scrolling-items {
     animation-play-state: paused;
   }
-  & > .scrolling-items {
+
+  &>.scrolling-items {
     will-change: transform;
     animation: scrolling var(--carousel-scroll-time) linear infinite;
 
@@ -55,7 +56,7 @@ input {
     outline-offset: 2px;
   }
 
-  > div {
+  >div {
     background: white;
     color: var(--color-red-400);
     box-shadow: var(--shadow-inset);
@@ -126,6 +127,133 @@ input {
   overflow: hidden;
   min-height: 100vh;
   padding: 0 0.5rem 20vw 0.5rem;
+
+  // Challenger variant - purple space gradient background
+  &--challenger {
+    background: linear-gradient(180deg, #170625 0%, #250C41 38%, #301361 100%);
+    position: relative;
+    overflow: hidden;
+
+    // Purple form styling for challenger
+    .rsvp-container {
+      h3 {
+        color: white !important;
+      }
+
+      h4, h5 {
+        color: white !important;
+      }
+
+      h5 a {
+        color: white !important;
+      }
+    }
+
+    .input-red {
+      background-color: #6a3d7d !important;
+
+      &:has(input:focus-visible) {
+        outline-color: #48225e !important;
+      }
+
+      > div {
+        background: white !important;
+        color: #48225e !important;
+        
+        svg {
+          fill: #48225e !important;
+        }
+
+        input {
+          color: #48225e !important;
+        }
+
+        input::placeholder {
+          color: #48225e !important;
+          opacity: 0.75;
+        }
+      }
+    }
+
+    .btn--red.btn--striped {
+      background-color: #6a3d7d !important;
+
+      > div {
+        background-color: #48225e !important;
+        color: white !important;
+      }
+
+      &:hover > div {
+        background-color: #5a2d4e !important;
+      }
+    }
+
+    .carat {
+      filter: hue-rotate(280deg) saturate(0.7) brightness(1.2);
+    }
+
+    .sign-back-in-link .link-btn {
+      color: white !important;
+    }
+  }
+
+  // Challenger logo combo (Flavortown x Challenger Center)
+  .challenger-logo-combo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+
+    .challenger-logo-flavortown {
+      width: 200px;
+      height: auto;
+    }
+
+    .challenger-logo-x {
+      font-family: var(--font-family-subtitle, "Jua", sans-serif);
+      font-size: 3rem;
+      color: #d4a5c9;
+      text-shadow: 0 0 20px rgba(212, 165, 201, 0.5);
+      margin: 0 1rem 0 0;
+    }
+
+    .challenger-logo-center {
+      width: 100px;
+      height: auto;
+    }
+
+    @media (max-width: 600px) {
+      gap: 0.5rem;
+
+      .challenger-logo-flavortown {
+        width: 120px;
+      }
+
+      .challenger-logo-x {
+        font-size: 2rem;
+      }
+
+      .challenger-logo-center {
+        width: 90px;
+      }
+    }
+  }
+
+  // Mars planet for challenger variant
+  .hero-mars {
+    position: absolute;
+    top: -10%;
+    right: 0;
+    width: 40%;
+    max-width: 600px;
+    pointer-events: none;
+    z-index: 1;
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
 
   @media (max-width: 600px) {
     padding-bottom: 0;
@@ -268,9 +396,11 @@ input {
       0% {
         transform: translateY(0);
       }
+
       50% {
         transform: translateY(-16px);
       }
+
       100% {
         transform: translateY(0);
       }
@@ -295,6 +425,15 @@ input {
       margin-left: -15%;
       margin-bottom: 5%;
     }
+
+    // Challenger moon surface positioning
+    &--challenger {
+      width: 100%;
+      margin-left: 0;
+      object-fit: cover;
+      object-position: bottom center;
+      bottom: -20%;
+    }
   }
 }
 
@@ -302,35 +441,31 @@ input {
   --gap-top: 20rem;
   --gap-bottom: 15rem;
   --jagged-depth: 60px;
-  --jagged-border-polygon: polygon(
-    0 var(--jagged-depth),
-    8% 0,
-    16% var(--jagged-depth),
-    22% 5px,
-    33% var(--jagged-depth),
-    38% 8px,
-    44% 65px,
-    55% 5px,
-    66.6% 58px,
-    74% 2px,
-    84% var(--jagged-depth),
-    90% 0,
-    99.99% var(--jagged-depth),
-    100% 100%,
-    0% 100%
-  );
-
-  @media (max-width: 600px) {
-    --jagged-border-polygon: polygon(
-      0 var(--jagged-depth),
-      22% 0,
-      44% var(--jagged-depth),
-      66% 8px,
-      84% 0,
+  --jagged-border-polygon: polygon(0 var(--jagged-depth),
+      8% 0,
+      16% var(--jagged-depth),
+      22% 5px,
+      33% var(--jagged-depth),
+      38% 8px,
+      44% 65px,
+      55% 5px,
+      66.6% 58px,
+      74% 2px,
+      84% var(--jagged-depth),
+      90% 0,
       99.99% var(--jagged-depth),
       100% 100%,
-      0% 100%
-    );
+      0% 100%);
+
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(0 var(--jagged-depth),
+        22% 0,
+        44% var(--jagged-depth),
+        66% 8px,
+        84% 0,
+        99.99% var(--jagged-depth),
+        100% 100%,
+        0% 100%);
   }
 
   padding-top: 1rem;
@@ -438,15 +573,13 @@ input {
             align-items: center;
 
             .title {
-              background: linear-gradient(
-                -52deg,
-                var(--title-edge) 0%,
-                var(--title-edge) 19.9%,
-                var(--title-middle) 20%,
-                var(--title-middle) 80%,
-                var(--title-edge) 80.1%,
-                var(--title-edge) 100%
-              );
+              background: linear-gradient(-52deg,
+                  var(--title-edge) 0%,
+                  var(--title-edge) 19.9%,
+                  var(--title-middle) 20%,
+                  var(--title-middle) 80%,
+                  var(--title-edge) 80.1%,
+                  var(--title-edge) 100%);
 
               color: white;
               border-radius: 1.25rem;
@@ -485,6 +618,7 @@ input {
           }
 
           @media (max-width: 1600px) {
+
             p,
             .step-count {
               font-size: 1.25rem;
@@ -516,9 +650,7 @@ input {
         }
 
         &.left {
-          background: var(--color-pink-400)
-            url("landing/how-this-works/texture_1.webp") no-repeat center /
-            cover;
+          background: var(--color-pink-400) url("landing/how-this-works/texture_1.webp") no-repeat center / cover;
           --ribbon-url: url("landing/how-this-works/step-1-ribbon.webp");
           --card-url: url("landing/how-this-works/step-1-card-bg.avif");
           --title-edge: #a4383f; // TODO do not hardcode!
@@ -527,9 +659,7 @@ input {
         }
 
         &.center {
-          background: var(--color-lime-400)
-            url("landing/how-this-works/texture_2.webp") no-repeat center /
-            cover;
+          background: var(--color-lime-400) url("landing/how-this-works/texture_2.webp") no-repeat center / cover;
           --ribbon-url: url("landing/how-this-works/step-2-ribbon.webp");
           --card-url: url("landing/how-this-works/step-2-card-bg.avif");
           --title-edge: #468232; // TODO do not hardcode!
@@ -538,9 +668,7 @@ input {
         }
 
         &.right {
-          background: var(--color-teal-400)
-            url("landing/how-this-works/texture_3.webp") no-repeat center /
-            cover;
+          background: var(--color-teal-400) url("landing/how-this-works/texture_3.webp") no-repeat center / cover;
           --ribbon-url: url("landing/how-this-works/step-3-ribbon.webp");
           --card-url: url("landing/how-this-works/step-3-card-bg.avif");
           --title-edge: #3c5e8b; // TODO do not hardcode!
@@ -585,7 +713,7 @@ input {
     z-index: 10;
   }
 
-  > .title {
+  >.title {
     background-image: url("landing/testimonials/title.webp");
     font-size: 3rem;
     color: var(--color-bg);
@@ -621,7 +749,7 @@ input {
       width: max-content;
       align-items: stretch;
 
-      > .testimonial {
+      >.testimonial {
         flex: 0 0 auto;
       }
     }
@@ -741,38 +869,34 @@ input {
 
 .prizes-section-second-border-wrapper {
   --jagged-depth: 80px;
-  --jagged-border-polygon: polygon(
-    0 0,
-    8% var(--jagged-depth),
-    16% 5px,
-    22% var(--jagged-depth),
-    33% 2px,
-    40% 65px,
-    55% 5px,
-    65% 55px,
-    70% 2px,
-    79% var(--jagged-depth),
-    84% 0,
-    90% 65px,
-    96% 8px,
-    99.99% 40px,
-    100% 100%,
-    0% 100%
-  );
-
-  @media (max-width: 600px) {
-    --jagged-border-polygon: polygon(
-      0 10px,
-      16% 0,
-      33% var(--jagged-depth),
+  --jagged-border-polygon: polygon(0 0,
+      8% var(--jagged-depth),
+      16% 5px,
+      22% var(--jagged-depth),
+      33% 2px,
+      40% 65px,
       55% 5px,
-      70% 45px,
+      65% 55px,
+      70% 2px,
+      79% var(--jagged-depth),
       84% 0,
-      96% 20px,
+      90% 65px,
+      96% 8px,
       99.99% 40px,
       100% 100%,
-      0% 100%
-    );
+      0% 100%);
+
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(0 10px,
+        16% 0,
+        33% var(--jagged-depth),
+        55% 5px,
+        70% 45px,
+        84% 0,
+        96% 20px,
+        99.99% 40px,
+        100% 100%,
+        0% 100%);
   }
 
   padding-top: 1rem;
@@ -789,8 +913,7 @@ input {
     .prizes {
       clip-path: var(--jagged-border-polygon);
 
-      background: var(--color-bg) url("landing/prizes/bg.svg") center center /
-        cover;
+      background: var(--color-bg) url("landing/prizes/bg.svg") center center / cover;
 
       padding: 6rem 0 4rem 0;
 
@@ -819,14 +942,13 @@ input {
 
         font-family: var(--font-family-text);
 
-        > div {
+        >div {
           font-size: 2.5rem;
           width: 110%;
           text-align: center;
           padding: 0.5rem 2rem;
 
-          background: var(--color-red-500)
-            url("landing/prizes/title-overlay.svg") center center / cover;
+          background: var(--color-red-500) url("landing/prizes/title-overlay.svg") center center / cover;
           box-shadow: var(--shadow);
           border-radius: 0.5rem;
         }
@@ -836,7 +958,7 @@ input {
 
           aspect-ratio: 11 / 3;
 
-          > div {
+          >div {
             font-size: 1.75rem;
           }
         }
@@ -857,7 +979,7 @@ input {
           display: flex;
           flex-direction: column;
 
-          > div {
+          >div {
             align-self: var(--align-title);
 
             background: var(--carousel-bg);
@@ -869,7 +991,7 @@ input {
             margin: 0 6rem;
             padding: 0.5rem 0.5rem 0 0.5rem;
 
-            > div {
+            >div {
               background: var(--carousel-title);
 
               padding: 0.25rem 3rem;
@@ -894,7 +1016,7 @@ input {
 
           background: var(--carousel-bg);
 
-          > .items {
+          >.items {
             display: flex;
             gap: 1rem;
             z-index: 1;
@@ -913,8 +1035,7 @@ input {
               gap: 0.5rem;
 
               .image-wrapper {
-                background: var(--color-tan-300)
-                  url("landing/prizes/img-overlay.svg") center center / cover;
+                background: var(--color-tan-300) url("landing/prizes/img-overlay.svg") center center / cover;
                 box-shadow: var(--shadow);
                 border-radius: 0.5rem;
                 padding: 0.25rem;
@@ -993,12 +1114,10 @@ input {
 
 .previously-hosted-section-second-border-wrapper {
   --jagged-depth: 80px;
-  --jagged-border-polygon: polygon(
-    0 var(--jagged-depth),
-    99.99% 0,
-    100% 100%,
-    0% 100%
-  );
+  --jagged-border-polygon: polygon(0 var(--jagged-depth),
+      99.99% 0,
+      100% 100%,
+      0% 100%);
   padding-top: 1rem;
   clip-path: var(--jagged-border-polygon);
   background-color: #f8e8d1;
@@ -1164,9 +1283,7 @@ input {
           height: calc(var(--notch-height) + var(--notch-border));
           top: calc(-1 * var(--notch-height) - var(--notch-border));
           top: calc(-1 * var(--notch-height) - var(--notch-border));
-          left: calc(
-            var(--notch-x) - (var(--notch-width) / 2) - var(--notch-border)
-          );
+          left: calc(var(--notch-x) - (var(--notch-width) / 2) - var(--notch-border));
           background: var(--color-brown-700);
           clip-path: polygon(0 100%, 50% 0, 100% 100%);
           transition: left 220ms ease;
@@ -1308,38 +1425,34 @@ input {
 
 .inspiration-section-second-border-wrapper {
   --jagged-depth: 80px;
-  --jagged-border-polygon: polygon(
-    0 var(--jagged-depth),
-    6% 0,
-    12% var(--jagged-depth),
-    20% 5px,
-    28% var(--jagged-depth),
-    36% 2px,
-    43% 65px,
-    50% 5px,
-    56% var(--jagged-depth),
-    62% 2px,
-    70% 62px,
-    76% 2px,
-    82% var(--jagged-depth),
-    88% 0,
-    95% 65px,
-    99.99% 20px,
-    100% 100%,
-    0% 100%
-  );
-
-  @media (max-width: 600px) {
-    --jagged-border-polygon: polygon(
-      0 var(--jagged-depth),
+  --jagged-border-polygon: polygon(0 var(--jagged-depth),
+      6% 0,
+      12% var(--jagged-depth),
       20% 5px,
+      28% var(--jagged-depth),
+      36% 2px,
       43% 65px,
-      62% 30px,
+      50% 5px,
+      56% var(--jagged-depth),
+      62% 2px,
+      70% 62px,
+      76% 2px,
+      82% var(--jagged-depth),
       88% 0,
+      95% 65px,
       99.99% 20px,
       100% 100%,
-      0% 100%
-    );
+      0% 100%);
+
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(0 var(--jagged-depth),
+        20% 5px,
+        43% 65px,
+        62% 30px,
+        88% 0,
+        99.99% 20px,
+        100% 100%,
+        0% 100%);
   }
 
   padding-top: 1rem;
@@ -1358,15 +1471,14 @@ input {
       width: 100%;
       clip-path: var(--jagged-border-polygon);
 
-      background: #e8c170 url("landing/inspiration/bg.avif") center center /
-        cover;
+      background: #e8c170 url("landing/inspiration/bg.avif") center center / cover;
       background-size: 10rem;
       flex-direction: column;
       align-items: center;
       gap: 2rem;
       padding: 8rem 0 12em 0;
 
-      > .title {
+      >.title {
         background-image: url("landing/testimonials/title.webp");
         color: var(--color-bg);
         font-size: 3rem;
@@ -1559,7 +1671,7 @@ input {
                     border-radius: 12px;
                   }
 
-                  > p {
+                  >p {
                     text-wrap: wrap;
                     font-size: 1.2em;
                     word-break: break-word;
@@ -1654,7 +1766,7 @@ input {
     padding: 8px;
   }
 
-  > div {
+  >div {
     background-color: var(--color-bg);
 
     box-shadow: var(--shadow);
@@ -1715,38 +1827,34 @@ input {
 
 .faq-section-second-border-wrapper {
   --jagged-depth: 40px;
-  --jagged-border-polygon: polygon(
-    0 var(--jagged-depth),
-    4% 0,
-    10% var(--jagged-depth),
-    19% 5px,
-    24% var(--jagged-depth),
-    32% 2px,
-    43% 65px,
-    51% 5px,
-    56% var(--jagged-depth),
-    64% 2px,
-    70% 30px,
-    74% 0,
-    79% var(--jagged-depth),
-    85% 5px,
-    96% 65px,
-    99.99% 20px,
-    100% 100%,
-    0% 100%
-  );
-
-  @media (max-width: 600px) {
-    --jagged-border-polygon: polygon(
-      0 var(--jagged-depth),
-      24% 10px,
-      51% 65px,
+  --jagged-border-polygon: polygon(0 var(--jagged-depth),
+      4% 0,
+      10% var(--jagged-depth),
+      19% 5px,
+      24% var(--jagged-depth),
+      32% 2px,
+      43% 65px,
+      51% 5px,
+      56% var(--jagged-depth),
+      64% 2px,
+      70% 30px,
       74% 0,
-      96% 50px,
+      79% var(--jagged-depth),
+      85% 5px,
+      96% 65px,
       99.99% 20px,
       100% 100%,
-      0% 100%
-    );
+      0% 100%);
+
+  @media (max-width: 600px) {
+    --jagged-border-polygon: polygon(0 var(--jagged-depth),
+        24% 10px,
+        51% 65px,
+        74% 0,
+        96% 50px,
+        99.99% 20px,
+        100% 100%,
+        0% 100%);
   }
 
   padding-top: 1rem;
@@ -1811,11 +1919,9 @@ input {
           display: flex;
           flex-direction: column;
           background: #4f8fba;
-          background-image: repeating-conic-gradient(
-            from 0deg,
-            rgba(0, 0, 0, 0.02) 0deg 90deg,
-            transparent 90deg 180deg
-          );
+          background-image: repeating-conic-gradient(from 0deg,
+              rgba(0, 0, 0, 0.02) 0deg 90deg,
+              transparent 90deg 180deg);
           background-size: 100px 100px;
           background-repeat: repeat;
 
@@ -1861,6 +1967,7 @@ input {
 
         .card-yellow {
           background-color: #be772b;
+
           &::after {
             background: #e7c06d;
           }
@@ -1868,6 +1975,7 @@ input {
 
         .card-green {
           background-color: #75a743;
+
           &::after {
             background: #d0da91;
           }
@@ -1875,6 +1983,7 @@ input {
 
         .card-blue {
           background-color: #4f8fba;
+
           &::after {
             background: #a4dddb;
           }
@@ -1882,6 +1991,7 @@ input {
 
         .card-red {
           background-color: #be4d54;
+
           &::after {
             background: #f9b2a0;
           }
@@ -2089,4 +2199,18 @@ button {
   .hero .hero-art {
     display: none;
   }
+}
+
+// Stars for challenger landing page - only show in hero section (first 100vh)
+body:has(.hero--challenger) .launch-stars-svg {
+  z-index: 1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  max-height: 100vh;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity 0.3s ease-out;
 }

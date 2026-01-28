@@ -13,6 +13,9 @@ application.register("address-select", AddressSelectController);
 import CardSoundController from "./card_sound_controller";
 application.register("card-sound", CardSoundController);
 
+import ChallengerStarsController from "./challenger_stars_controller";
+application.register("challenger-stars", ChallengerStarsController);
+
 import CookieClickerController from "./cookie_clicker_controller";
 application.register("cookie-clicker", CookieClickerController);
 

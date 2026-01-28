@@ -57,7 +57,7 @@
     <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>
 
-  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %> <%= 'launch-theme' if controller_name == 'launch' %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %> <%= 'data-controller="stars shooting-star"'.html_safe if controller_name == 'launch' %>>
+  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %> <%= 'launch-theme' if controller_name == 'launch' %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %> <%= 'data-controller="stars shooting-star"'.html_safe if controller_name == 'launch' %> <%= 'data-controller="stars"'.html_safe if controller_name == 'landing' && @landing_variant == 'challenger' %>>
     <%# ISS is rendered in the launch view inside .launch-scene container %>
     <% if Rails.env.development? && current_user.blank? %>
       <div style="position: fixed; top: 0; left: 0; right: 0; z-index: 99999; background: linear-gradient(90deg, #ff6b35, #f7931e); padding: 12px 20px; display: flex; align-items: center; justify-content: center; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); font-family: system-ui, sans-serif;">

@@ -132,17 +132,56 @@
 // Moon in upper right
 .launch-moon {
   position: fixed;
-  top: -35%;
-  right: -25%;
-  width: 70%;
-  max-width: 1100px;
+  top: 0%;
+  right: 0;
+  width: 40%;
+  max-width: 700px;
   pointer-events: none;
   z-index: -2;
-  transform: rotate(-156deg) skewX(-18deg) scaleY(0.95);
+  isolation: isolate;
+  
+  // Needed for ::after positioning
+  display: block;
 
   img {
+    display: block;
     width: 100%;
     height: auto;
+    position: relative;
+    z-index: 0;
+  }
+
+  // Pulsing glow overlay
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url("launch/Vector 253.png") no-repeat top right / 120% 120%;
+    mix-blend-mode: screen;
+    opacity: 0.8;
+    transform-origin: 85% 15%;
+    will-change: transform, opacity;
+    animation: moonGlowBreath 6.5s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+@keyframes moonGlowBreath {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+// Respect reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .launch-moon::after {
+    animation: none;
   }
 }
 
@@ -159,7 +198,7 @@
   transform: translateY(-50%);
   pointer-events: none;
   z-index: 5; // Behind sidebar (z-index: 10)
-  
+
   // Use flex to anchor panel to connector
   display: flex;
   align-items: center;
