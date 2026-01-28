@@ -59,6 +59,40 @@ class PostComponent < ViewComponent::Base
     postable.is_a?(Post::ShipEvent)
   end
 
+  def ship_event_has_payout?
+    ship_event? && postable.payout.present?
+  end
+
+  def show_ship_event_payout_footer?
+    return false unless ship_event?
+    return true if @current_user&.admin?
+    postable.payout.present?
+  end
+
+  def estimated_payout_data
+    return nil unless ship_event?
+
+    hours = postable.hours&.to_f
+    percentile = postable.overall_percentile
+
+    return { hours: hours, cookies: nil, multiplier: nil } if hours.nil? || percentile.nil?
+
+    game_constants = Rails.configuration.game_constants
+    low = game_constants.lowest_dollar_per_hour.to_f
+    high = game_constants.highest_dollar_per_hour.to_f
+    tickets_per_dollar = game_constants.tickets_per_dollar.to_f
+
+    p = (percentile.to_f / 100.0).clamp(0.0, 1.0)
+    gamma = 1.745427173
+    hourly_rate = low + (high - low) * (p ** gamma)
+    hourly_rate = hourly_rate.clamp(low, high)
+
+    cookies = (hours * hourly_rate * tickets_per_dollar).round
+    multiplier = (hourly_rate * tickets_per_dollar).round(2)
+
+    { hours: hours.round(2), cookies: cookies, multiplier: multiplier }
+  end
+
   def devlog?
     postable.is_a?(Post::Devlog)
   end
