@@ -36,7 +36,6 @@
 #  name                              :string
 #  old_prices                        :integer          default([]), is an Array
 #  one_per_person_ever               :boolean
-#  past_purchases                    :integer          default(0)
 #  payout_percentage                 :integer          default(0)
 #  price_offset_au                   :decimal(, )
 #  price_offset_ca                   :decimal(, )
@@ -52,12 +51,10 @@
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
-#  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
 #  ticket_cost                       :decimal(, )
 #  type                              :string
-#  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
 #  created_at                        :datetime         not null
@@ -75,44 +72,29 @@
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #
-class ShopItem::Accessory < ShopItem
-  validate :must_have_attached_items_if_not_buyable_by_self
-
-  def has_tag?
-    accessory_tag.present?
+class ShopItem::InkthreadableItem < ShopItem
+  def fulfill!(shop_order)
+    Shop::SendInkthreadableOrderJob.perform_later(shop_order.id)
+    shop_order.queue_for_fulfillment!
   end
 
-  def attached_shop_items
-    return ShopItem.none if attached_shop_item_ids.blank?
-
-    ShopItem.where(id: attached_shop_item_ids)
+  def inkthreadable_config
+    super || {}
   end
 
-  def can_be_purchased_standalone?
-    buyable_by_self?
+  def product_number
+    inkthreadable_config["pn"]
   end
 
-  def can_attach_to?(shop_item)
-    attached_shop_item_ids.include?(shop_item.id)
+  def design_urls
+    inkthreadable_config["designs"] || {}
   end
 
-  def total_cost_with(parent_item)
-    return nil unless can_attach_to?(parent_item)
-
-    ticket_cost + parent_item.ticket_cost
+  def shipping_method
+    inkthreadable_config["shipping_method"] || "regular"
   end
 
-  def standalone_cost
-    return nil unless can_be_purchased_standalone?
-
-    ticket_cost
-  end
-
-  private
-
-  def must_have_attached_items_if_not_buyable_by_self
-    if !buyable_by_self? && attached_shop_item_ids.blank?
-      errors.add(:attached_shop_item_ids, "must have at least one attached item when not buyable by self")
-    end
+  def brand_name
+    inkthreadable_config["brand_name"]
   end
 end
