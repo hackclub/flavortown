@@ -13,7 +13,7 @@
     <% end %>
   </article>
 <% else %>
-  <article class="post <%= variant_class %> <%= theme_class %><%= ' post--deleted' if deleted? %><%= ' post--compact' if compact? %><%= ' post--admin-only' if unapproved_ship_event? %>">
+  <article class="post <%= variant_class %> <%= theme_class %><%= ' post--deleted' if deleted? %><%= ' post--compact' if compact? %><%= ' post--admin-only' if unapproved_ship_event? && @current_user&.admin? %>">
     <div class="post__content">
       <% if deleted? %>
         <div class="post__deleted-banner">
