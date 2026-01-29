@@ -498,6 +498,11 @@ dialog {
   width: 90%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   background: var(--color-tan-300);
+  margin: auto;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 
   &::backdrop {
     background: rgba(0, 0, 0, 0.5);
