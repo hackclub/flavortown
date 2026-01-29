@@ -1,4 +1,21 @@
 class SessionsController < ApplicationController
+  def dev_bypass
+    raise ActionController::RoutingError, "Not Found" unless Rails.env.development?
+
+    user = if params[:user_id]
+      User.find(params[:user_id])
+    else
+      User.first || User.create!(
+        email: "dev@example.com",
+        display_name: "Dev User",
+        slack_id: "DEV123",
+        verification_status: :verified
+      )
+    end
+    session[:user_id] = user.id
+    redirect_to kitchen_path, notice: "Dev bypass: Signed in as #{user.display_name || user.email} (ID: #{user.id})"
+  end
+
   def create
     auth = request.env["omniauth.auth"]
     provider = auth.provider
