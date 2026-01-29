@@ -567,6 +567,24 @@
     height: auto;
     z-index: 1;
   }
+
+  .sidebar__user-avatar-astronaut-hat {
+    position: absolute;
+    top: -1.2em;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3.5em;
+    height: auto;
+    z-index: 3;
+  }
+}
+
+// Launch theme avatar styling - asteroid pod rings (pure CSS)
+.sidebar--launch .sidebar__user-avatar {
+  background-color: #3066c9;
+  border: none;
+  padding: 5px;
+  box-shadow: 0 0 0 8px #27093c;
 }
 
 .sidebar__user-avatar-placeholder {
@@ -876,4 +894,228 @@
   &:hover {
     color: var(--color-brown-400);
   }
+}
+
+// Launch theme for sidebar
+.sidebar__launch-rings {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(270deg);
+  width: 200%;
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sidebar--launch {
+  .sidebar__blob {
+    position: relative;
+    overflow: visible;
+    background-color: #27093c;
+    background-image: none;
+    box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.25);
+  }
+
+  .sidebar__launch-rings-clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .sidebar__nav-link {
+    color: #f8e8d1;
+  }
+
+  .sidebar__nav-link--active {
+    color: #f8e8d1;
+
+    &::before {
+      background-color: #340c45;
+    }
+  }
+
+  .sidebar__nav-icon {
+    fill: #f8e8d1;
+  }
+
+  .sidebar__user-card {
+    background-color: #340c45;
+  }
+
+  .sidebar__user-name,
+  .sidebar__user-balance {
+    color: #f8e8d1;
+  }
+
+  .sidebar__user-settings-icon,
+  .sidebar__user-logout-icon {
+    fill: #f8e8d1;
+    color: #f8e8d1;
+  }
+}
+
+// Launch user bubble styles
+.sidebar__user-card--launch {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+}
+
+.sidebar__user-avatar--launch {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 3px solid #6c5ce7;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  .sidebar__user-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+}
+
+.sidebar__user-details--launch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  transition:
+    opacity 180ms ease,
+    max-width 180ms ease;
+
+  .sidebar:hover &,
+  .sidebar:focus-within & {
+    opacity: 1;
+    max-width: 100px;
+  }
+}
+
+.sidebar__user-rank {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f8e8d1;
+  background-color: #340c45;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.sidebar__user-score {
+  font-size: 0.85rem;
+  color: #f8e8d1;
+}
+
+.sidebar__user-actions--launch {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+// Launch nav item special styling - override active colors
+.sidebar--launch .sidebar__nav-link--active::before {
+  background-color: #340c45;
+  background-image: url("mask/sidebar-active.webp");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.sidebar--launch .sidebar__nav-link--active .sidebar__nav-icon-wrapper {
+  background: #27093c;
+}
+
+.sidebar__nav-launch-wrapper {
+  position: relative;
+}
+
+.sidebar__launch-underline {
+  position: absolute;
+  bottom: 0.4rem;
+  right: 2rem;
+  width: 80px;
+  height: 5px;
+  opacity: 0;
+
+  .sidebar:hover &,
+  .sidebar:focus-within & {
+    opacity: 1;
+  }
+}
+
+// Launch theme stars
+.launch-stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+}
+
+.launch-star {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  opacity: var(--base-opacity, 0.4);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.launch-star--twinkle {
+  opacity: 1 !important;
+  transform: scale(1.5);
+}
+
+// Shooting star
+.shooting-star {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -2;
+  box-shadow:
+    0 0 2px 1px #fff,
+    0 0 8px 2px rgba(255, 200, 150, 0.8);
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 150px;
+    height: 2px;
+    background: linear-gradient(
+      to left,
+      rgba(255, 255, 255, 0.9),
+      rgba(255, 200, 150, 0.6) 20%,
+      rgba(255, 150, 100, 0.2) 60%,
+      transparent
+    );
+  }
+}
+
+// Launch theme ISS background
+.launch-iss {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: auto;
+  max-width: none;
+  pointer-events: none;
+  z-index: -1;
+  object-fit: contain;
+  object-position: left top;
 }

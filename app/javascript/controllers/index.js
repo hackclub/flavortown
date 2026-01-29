@@ -103,6 +103,12 @@ application.register("timezone", TimezoneController);
 import UploadFormController from "./upload_form_controller";
 application.register("upload-form", UploadFormController);
 
+import StarsController from "./stars_controller";
+application.register("stars", StarsController);
+
+import ShootingStarController from "./shooting_star_controller";
+application.register("shooting-star", ShootingStarController);
+
 import VoteTrackerController from "./vote_tracker_controller";
 application.register("vote-tracker", VoteTrackerController);
 
