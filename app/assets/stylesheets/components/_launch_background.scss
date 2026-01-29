@@ -197,7 +197,7 @@
 .launch-panel-wrapper {
   position: fixed;
   top: 50%;
-  left: 0;
+  left: -120px;
   transform: translateY(-50%);
   pointer-events: none;
   z-index: 5; // Behind sidebar (z-index: 10)
@@ -221,12 +221,83 @@
 
 // Main content panel (blue grid)
 .launch-main-panel {
-  flex-shrink: 0;
-  margin-left: -280px; // Pull left to connect with connector tabs
-  height: 90%;
+  --panel-pad: 4%;
+  --panel-gap: 4%;
 
-  img {
-    height: 100%;
-    width: auto;
+  flex-shrink: 0;
+  margin-left: -280px;
+  height: 90%;
+  position: relative;
+  pointer-events: auto;
+  border-radius: 32px;
+  overflow: hidden;
+}
+
+.launch-main-panel__image {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+.launch-main-panel__overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr 1fr;
+  padding: var(--panel-pad);
+  gap: var(--panel-gap);
+  z-index: 1;
+}
+
+.launch-main-panel__intro {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem;
+  color: #f8e8d1;
+}
+
+.launch-main-panel__intro-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.launch-main-panel__intro-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 80%;
+  opacity: 0.9;
+}
+
+.launch-main-panel__cell {
+  background: transparent;
+  border: 0;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.launch-main-panel__cell-text {
+  color: #f8e8d1;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: center;
+  padding: 0.5rem;
+  margin: 0;
+}
+
+.launch-main-panel__link {
+  color: #a9c9ff;
+  text-decoration: underline;
+  pointer-events: auto;
+
+  &:hover {
+    color: #fff;
   }
 }
