@@ -1,6 +1,19 @@
 <div class="audit-logs">
   <div class="audit-logs__header">
     <h1>Audit Logs</h1>
+    <% if @affected_record.present? %>
+      <div class="audit-logs__context-banner">
+        Showing logs for <strong><%= params[:item_type] %> #<%= params[:item_id] %></strong>
+        <% if @affected_record.respond_to?(:display_name) %>
+          (<%= @affected_record.display_name %>)
+        <% elsif @affected_record.respond_to?(:name) %>
+          (<%= @affected_record.name %>)
+        <% elsif @affected_record.respond_to?(:title) %>
+          (<%= @affected_record.title %>)
+        <% end %>
+        <%= link_to "× Clear filter", admin_audit_logs_path, class: "audit-logs__clear-context" %>
+      </div>
+    <% end %>
   </div>
 
   <div class="card" style="margin-bottom: 2rem;">
@@ -9,8 +22,18 @@
     <%= form_with url: admin_audit_logs_path, method: :get, local: true do |f| %>
       <div class="audit-logs__filters">
         <div class="audit-logs__filter-group">
+          <%= f.label :search, "Search Changes", class: "audit-logs__label" %>
+          <%= f.text_field :search, value: params[:search], class: "form-control", placeholder: "Search in changes..." %>
+        </div>
+
+        <div class="audit-logs__filter-group">
           <%= f.label :item_type, "Model Type", class: "audit-logs__label" %>
           <%= f.select :item_type, options_for_select(@item_types, params[:item_type]), { include_blank: "All" }, class: "form-control" %>
+        </div>
+
+        <div class="audit-logs__filter-group">
+          <%= f.label :item_id, "Record ID", class: "audit-logs__label" %>
+          <%= f.number_field :item_id, value: params[:item_id], class: "form-control", placeholder: "e.g. 123" %>
         </div>
 
         <div class="audit-logs__filter-group">
@@ -19,7 +42,7 @@
         </div>
 
         <div class="audit-logs__filter-group" data-controller="searchable-select">
-          <%= f.label :whodunnit, "User", class: "audit-logs__label" %>
+          <%= f.label :whodunnit, "Performed By", class: "audit-logs__label" %>
           <% selected_user = @users.find { |u| u.id.to_s == params[:whodunnit].to_s } %>
           <%= f.hidden_field :whodunnit, value: params[:whodunnit], data: { searchable_select_target: "hiddenField" } %>
           <input
@@ -154,6 +177,15 @@
     <% else %>
       <p class="audit-logs__empty">No audit logs found matching your filters.</p>
     <% end %>
+
+    <% if @pagy.pages > 1 %>
+      <div class="audit-logs__pagination">
+        <%== @pagy.series_nav %>
+        <div class="audit-logs__pagination-info">
+          <%== @pagy.info_tag %>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <div style="margin-top: 2rem;">
@@ -168,6 +200,37 @@
 
 .audit-logs__header h1 {
   margin: 0;
+}
+
+.audit-logs__context-banner {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #dbeafe;
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+  color: #1e40af;
+  font-size: 0.9rem;
+}
+
+.audit-logs__clear-context {
+  margin-left: 1rem;
+  color: #dc2626;
+  font-size: 0.85rem;
+}
+
+.audit-logs__pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-brown-300, #ddd);
+}
+
+.audit-logs__pagination-info {
+  font-size: 0.875rem;
+  color: #6b7280;
 }
 
 .audit-logs__filters {

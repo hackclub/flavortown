@@ -35,6 +35,7 @@
 #  name                              :string
 #  old_prices                        :integer          default([]), is an Array
 #  one_per_person_ever               :boolean
+#  past_purchases                    :integer          default(0)
 #  payout_percentage                 :integer          default(0)
 #  price_offset_au                   :decimal(, )
 #  price_offset_ca                   :decimal(, )
@@ -50,10 +51,12 @@
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
+#  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
 #  ticket_cost                       :decimal(, )
 #  type                              :string
+#  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
 #  created_at                        :datetime         not null
@@ -83,7 +86,7 @@ class ShopItem < ApplicationRecord
 
   def self.cached_buyable_standalone
     Rails.cache.fetch(BUYABLE_STANDALONE_CACHE_KEY, expires_in: 5.minutes) do
-      enabled.buyable_standalone.includes(:image_attachment, image_attachment: [ :blob, :record ]).to_a
+      enabled.listed.buyable_standalone.includes(:image_attachment, image_attachment: [ :blob, :record ]).to_a
     end
   end
 
@@ -101,7 +104,9 @@ class ShopItem < ApplicationRecord
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
   scope :enabled, -> { where(enabled: true) }
+  scope :listed, -> { where(unlisted: [ nil, false ]) }
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
+  scope :recently_added, -> { order(created_at: :desc).limit(6) }
 
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
   belongs_to :default_assigned_user, class_name: "User", optional: true
@@ -192,6 +197,17 @@ class ShopItem < ApplicationRecord
   def out_of_stock?
     limited? && remaining_stock && remaining_stock <= 0
   end
+
+  def current_event_purchases
+    shop_orders.where(aasm_state: %w[awaiting_fulfillment fulfilled]).sum(:quantity)
+  end
+
+  def display_purchase_count
+    c = current_event_purchases
+    c > 2 ? c : (past_purchases.to_i > 2 ? past_purchases : nil)
+  end
+
+  def new_item? = created_at.present? && created_at > 7.days.ago
 
   def available_accessories
     ShopItem::Accessory.where("? = ANY(attached_shop_item_ids)", id).where(enabled: true)

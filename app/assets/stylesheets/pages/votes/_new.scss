@@ -12,11 +12,6 @@
     width: 100%;
     margin-bottom: 2em;
 
-    &__title {
-      font-size: 2.5rem;
-      font-family: var(--font-family-text);
-    }
-
     &__stack {
       width: 50%;
     }
@@ -157,15 +152,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-      }
-    }
-
-    .report-btn {
-      background-color: transparent;
-      opacity: 0.5;
-
-      &:hover {
-        opacity: 1;
       }
     }
 

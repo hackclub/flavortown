@@ -3,12 +3,17 @@
 class PostComponent < ViewComponent::Base
   with_collection_parameter :post
 
-  attr_reader :post
+  attr_reader :post, :compact
 
-  def initialize(post:, current_user: nil, theme: nil)
+  def initialize(post:, current_user: nil, theme: nil, compact: false)
     @post = post
     @current_user = current_user
     @theme = theme
+    @compact = compact
+  end
+
+  def compact?
+    @compact
   end
 
   def variant
@@ -52,6 +57,44 @@ class PostComponent < ViewComponent::Base
 
   def ship_event?
     postable.is_a?(Post::ShipEvent)
+  end
+
+  def unapproved_ship_event?
+    ship_event? && postable.certification_status != "approved"
+  end
+
+  def ship_event_has_payout?
+    ship_event? && postable.payout.present?
+  end
+
+  def show_ship_event_payout_footer?
+    return false unless ship_event?
+    return true if @current_user&.admin?
+    postable.payout.present?
+  end
+
+  def estimated_payout_data
+    return nil unless ship_event?
+
+    hours = postable.hours&.to_f
+    percentile = postable.overall_percentile
+
+    return { hours: hours, cookies: nil, multiplier: nil } if hours.nil? || percentile.nil?
+
+    game_constants = Rails.configuration.game_constants
+    low = game_constants.lowest_dollar_per_hour.to_f
+    high = game_constants.highest_dollar_per_hour.to_f
+    tickets_per_dollar = game_constants.tickets_per_dollar.to_f
+
+    p = (percentile.to_f / 100.0).clamp(0.0, 1.0)
+    gamma = 1.745427173
+    hourly_rate = low + (high - low) * (p ** gamma)
+    hourly_rate = hourly_rate.clamp(low, high)
+
+    cookies = (hours * hourly_rate * tickets_per_dollar).round
+    multiplier = (hourly_rate * tickets_per_dollar).round(2)
+
+    { hours: hours.round(2), cookies: cookies, multiplier: multiplier }
   end
 
   def devlog?
@@ -122,6 +165,15 @@ class PostComponent < ViewComponent::Base
     devlog? && @current_user.present? && post.user == @current_user && !deleted?
   end
 
+  def can_force_delete?
+    devlog? && @current_user.present? && !deleted? &&
+      (@current_user.admin? || @current_user.has_role?(:fraud_dept))
+  end
+
+  def project_shipped?
+    post.project&.shipped?
+  end
+
   def deleted?
     devlog? && postable.deleted?
   end
@@ -140,6 +192,12 @@ class PostComponent < ViewComponent::Base
     return nil unless can_edit?
     return nil unless post.project.present?
     helpers.project_devlog_path(post.project, postable)
+  end
+
+  def force_delete_devlog_path
+    return nil unless can_force_delete?
+    return nil unless post.project.present?
+    helpers.project_devlog_path(post.project, postable, force: true)
   end
 
   def theme_class

@@ -27,8 +27,15 @@
       <div><b>Description:</b> <%= @project.description.presence || "None" %></div>
       <div><b>Ship Status:</b> <%= @project.ship_status.titleize %></div>
       <div><b>Type:</b> <%= @project.project_type.presence || "Not set" %></div>
-      <div><b>Created:</b> <%= @project.created_at.strftime("%Y-%m-%d") %></div>
+      <div><b>Categories:</b> <%= @project.project_categories.any? ? @project.project_categories.join(", ") : "None" %></div>
+      <div><b>Created:</b> <%= @project.created_at.strftime("%Y-%m-%d %H:%M") %></div>
+      <div><b>Updated:</b> <%= @project.updated_at.strftime("%Y-%m-%d %H:%M") %></div>
+      <div><b>Shipped:</b> <%= @project.shipped_at&.strftime("%Y-%m-%d %H:%M") || "Not shipped" %></div>
       <div><b>Status:</b> <%= @project.deleted? ? "Deleted" : "Active" %></div>
+      <div><b>Tutorial:</b> <%= @project.tutorial? ? "Yes" : "No" %></div>
+      <div><b>Duration:</b> <%= @project.duration_seconds > 0 ? "#{(@project.duration_seconds / 3600.0).round(1)}h" : "0h" %></div>
+      <div><b>Devlogs:</b> <%= @project.devlogs_count %></div>
+      <div><b>AI Declaration:</b> <%= @project.ai_declaration.presence || "None" %></div>
       <% if @project.repo_url.present? %>
         <% if (safe_repo_url = safe_external_url(@project.repo_url)) %>
           <div><b>Repo:</b> <%= link_to @project.repo_url, safe_repo_url, target: "_blank", rel: "noopener noreferrer" %></div>
@@ -58,6 +65,22 @@
       <p>No members.</p>
     <% end %>
   </div>
+
+  <div class="card">
+    <h2>Hackatime Keys</h2>
+    <% if @project.hackatime_projects.any? %>
+      <ul style="margin: 0; padding-left: 1.25rem;">
+        <% @project.hackatime_projects.each do |hp| %>
+          <li>
+            <code><%= hp.name %></code>
+            <small style="color: #6b7280;">(<%= link_to hp.user.display_name, admin_user_path(hp.user) %>)</small>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No hackatime keys linked.</p>
+    <% end %>
+  </div>
 </div>
 
 <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
@@ -68,6 +91,11 @@
       method: :post,
       class: "btn-primary",
       data: { confirm: "Are you sure you want to restore this project?" } %>
+  <% else %>
+    <%= button_to "Delete Project", delete_admin_project_path(@project),
+      method: :post,
+      class: "btn-danger slim",
+      data: { confirm: "Are you sure you want to delete this project?" } %>
   <% end %>
 
   <% if policy(:admin).shadow_ban_projects? %>

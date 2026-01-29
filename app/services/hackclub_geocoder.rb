@@ -21,7 +21,8 @@ class HackclubGeocoder
       {
         city: result["city"],
         region: result["region"],
-        country: result["country"],
+        country: result["country_code"],
+        country_name: result["country_name"],
         latitude: result["lat"]&.to_f,
         longitude: result["lng"]&.to_f
       }

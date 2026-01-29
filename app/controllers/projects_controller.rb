@@ -1,6 +1,21 @@
 class ProjectsController < ApplicationController
-  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :ship, :update_ship, :submit_ship, :mark_fire, :unmark_fire ]
+  before_action :set_project_minimal, only: [ :edit, :update, :destroy, :mark_fire, :unmark_fire ]
   before_action :set_project, only: [ :show, :readme ]
+
+  def stats
+    @project = Project.find(params[:id])
+    authorize :admin, :access_admin_endpoints?
+
+    stats = {
+      devlogs_count: @project.devlogs_count,
+      members_count: @project.memberships_count,
+      total_hours: (@project.duration_seconds / 3600.0).round(1),
+      shipped: @project.shipped?,
+      created_at: @project.created_at
+    }
+
+    render json: stats
+  end
 
   def index
     authorize Project
@@ -11,19 +26,24 @@ class ProjectsController < ApplicationController
     authorize @project
 
     is_member = @project.users.include?(current_user)
+    is_admin = current_user&.admin?
     user_shadow_banned = @project.users.where(shadow_banned: true).exists?
     project_shadow_banned = @project.shadow_banned?
 
-    if (user_shadow_banned || project_shadow_banned) && !is_member
-      raise ActiveRecord::RecordNotFound
-    end
+    @shadow_banned = user_shadow_banned || project_shadow_banned
+    @can_view_shadow_banned = is_member || is_admin
 
     @posts = @project.posts
                      .includes(:user, postable: [ :attachments_attachments ])
                      .order(created_at: :desc)
+                     .select { |post| post.postable.present? }
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
-      @posts = @posts.where.not(postable_type: "Post::GitCommit")
+      @posts = @posts.reject { |post| post.postable_type == "Post::GitCommit" }
+    end
+
+    unless current_user&.admin?
+      @posts = @posts.reject { |post| post.postable_type == "Post::ShipEvent" && post.postable.certification_status != "approved" }
     end
 
     if current_user
@@ -34,6 +54,30 @@ class ProjectsController < ApplicationController
     end
 
     ahoy.track "Viewed project", project_id: @project.id
+
+    latest_ship_post = @posts.find { |post| post.postable_type == "Post::ShipEvent" }
+    latest_ship_event = latest_ship_post&.postable
+
+    @votes_for_payout = nil
+    if current_user.present?
+      is_owner = @project.memberships.where(role: :owner, user_id: current_user.id).exists?
+
+      if is_owner &&
+          latest_ship_event.present? &&
+          latest_ship_event.certification_status == "approved" &&
+          latest_ship_event.payout.blank?
+
+        required = Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
+        current = latest_ship_event.votes_count.to_i
+        remaining = [ required - current, 0 ].max
+
+        @votes_for_payout = {
+          current: current,
+          required: required,
+          remaining: remaining
+        }
+      end
+    end
   end
 
   def new
@@ -116,18 +160,34 @@ class ProjectsController < ApplicationController
     # 2nd check w/ @project.errors.empty? is not redudant. this is ensures that hackatime is linked!
     if success && @project.errors.empty?
       flash[:notice] = "Project updated successfully"
-      redirect_to params[:return_to].presence || @project
+      redirect_to url_from(params[:return_to]) || @project
     else
       flash[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
-      load_project_times
-      render :edit, status: :unprocessable_entity
+      redirect_back_or_to edit_project_path(@project)
     end
   end
 
   def destroy
     authorize @project
+    force = params[:force] == "true" && policy(@project).force_destroy?
+
     begin
-      @project.soft_delete!
+      if force && @project.shipped?
+        PaperTrail::Version.create!(
+          item_type: "Project",
+          item_id: @project.id,
+          event: "force_delete",
+          whodunnit: current_user.id,
+          object_changes: {
+            deleted_at: [ nil, Time.current ],
+            shipped_at: @project.shipped_at,
+            reason: "Admin/Fraud override of ship protection",
+            deleted_by: current_user.id
+          }.to_yaml
+        )
+      end
+
+      @project.soft_delete!(force: force)
       current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
       flash[:notice] = "Project deleted successfully"
       redirect_to projects_path
@@ -135,88 +195,6 @@ class ProjectsController < ApplicationController
       flash[:alert] = e.record.errors.full_messages.to_sentence
       redirect_to @project
     end
-  end
-
-  def ship
-    authorize @project
-    @step = params[:step]&.to_i || 1
-    @step = 1 if @step < 1 || @step > 4
-
-    load_ship_data
-  end
-
-  def update_ship
-    authorize @project
-
-    if @project.update(ship_params)
-      step = params[:step]&.to_i || 1
-      next_step = step + 1
-      next_step = 4 if next_step > 4
-
-      redirect_to ship_project_path(@project, step: next_step)
-    else
-      @step = params[:step]&.to_i || 1
-      load_ship_data
-      flash.now[:alert] = "Failed to save: #{@project.errors.full_messages.join(', ')}"
-      render :ship, status: :unprocessable_entity
-    end
-  end
-
-  def submit_ship
-    authorize @project
-
-    unless current_user.eligible_for_shop?
-      redirect_to ship_project_path(@project, step: 1), alert: "You're not eligible to ship projects."
-      return
-    end
-
-    unless @project.shippable?
-      flash[:alert] = "Your project doesn't meet all shipping requirements yet."
-      redirect_to ship_project_path(@project, step: 1) and return
-    end
-
-    ship_body = params[:ship_update].to_s.strip
-
-    if ship_body.blank?
-      flash[:alert] = "Please write an update message before shipping."
-      redirect_to ship_project_path(@project, step: 4) and return
-    end
-
-    unless @project.can_ship_again?
-      flash[:alert] = "You need to add at least one devlog since your last ship before you can ship again."
-      redirect_to ship_project_path(@project, step: 4) and return
-    end
-
-    if @project.posts.where(postable_type: "Post::ShipEvent").none?
-      begin
-        ShipCertService.ship_to_dash(@project)
-      rescue => e
-        Rails.logger.error "Failed to send project #{@project.id} to certification dashboard: #{e.message}"
-        flash[:alert] = "We weren't able to process your ship update. Please try again later or contact #ask-the-shipwrights."
-        redirect_to ship_project_path(@project, step: 4) and return
-      end
-    end
-
-    ship_event = Post::ShipEvent.new(body: ship_body)
-    post = @project.posts.build(user: current_user, postable: ship_event)
-
-    @project.with_lock do
-      @project.submit_for_review!
-
-      unless post.save
-        raise ActiveRecord::Rollback
-      end
-    end
-
-    if post.persisted?
-      flash[:notice] = "🚀 Congratulations! Your project has been submitted for review!"
-    else
-      error_messages = (post.errors.full_messages + ship_event.errors.full_messages).uniq
-      flash[:alert] = "We couldn't post your ship update: #{error_messages.to_sentence}"
-      redirect_to ship_project_path(@project, step: 4) and return
-    end
-
-    redirect_to @project
   end
 
   def mark_fire
@@ -286,6 +264,20 @@ class ProjectsController < ApplicationController
 
     follow = current_user.project_follows.build(project: @project)
     if follow.save
+      @project.users.each do |member|
+        if member.send_notifications_for_new_followers && current_user.slack_id && member.slack_id
+          SendSlackDmJob.perform_later(
+            member.slack_id,
+            "#{current_user.display_name} is now following your project #{@project.title}!",
+            blocks_path: "notifications/new_follower",
+            locals: {
+              project_title: @project.title,
+              project_url: project_url(@project, host: "flavortown.hackclub.com", protocol: "https"),
+              follower_id: current_user.slack_id
+            }
+          )
+        end
+      end
       redirect_to @project, notice: "You are now following this project."
     else
       redirect_to @project, alert: follow.errors.full_messages.to_sentence
@@ -311,7 +303,7 @@ class ProjectsController < ApplicationController
     authorize @project
 
     PaperTrail.request(whodunnit: current_user.id) do
-      success = ShipCertService.ship_to_dash(@project)
+      success = ShipCertService.ship_to_dash(@project, type: "resend", force: true)
 
       PaperTrail::Version.create!(
         item_type: "Project",
@@ -346,7 +338,7 @@ class ProjectsController < ApplicationController
 
     PaperTrail.request(whodunnit: current_user.id) do
       begin
-        ShipCertService.ship_to_dash(@project)
+        ShipCertService.ship_to_dash(@project, type: "recertification", force: true)
         ship_event.update!(certification_status: "pending")
 
         PaperTrail::Version.create!(
@@ -390,16 +382,6 @@ class ProjectsController < ApplicationController
 
   private
 
-  def load_ship_data
-    @hackatime_projects = @project.hackatime_projects_with_time
-    @total_hours = @project.total_hackatime_hours
-    @devlogs = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
-  end
-
-  def ship_params
-    params.require(:project).permit(:title, :description, :demo_url, :repo_url, :readme_url, :banner, :project_type)
-  end
-
   # These are the same today, but they'll be different tomorrow.
 
   def set_project
@@ -411,7 +393,7 @@ class ProjectsController < ApplicationController
   end
 
   def project_params
-    params.require(:project).permit(:title, :description, :demo_url, :repo_url, :readme_url, :banner)
+    params.require(:project).permit(:title, :description, :demo_url, :repo_url, :readme_url, :banner, :ai_declaration)
   end
 
   def hackatime_project_ids
@@ -440,6 +422,7 @@ class ProjectsController < ApplicationController
   ALLOWLISTED_DOMAINS = %w[
     npmjs.com
     crates.io
+    curseforge.com
   ].freeze
 
   def validate_url_not_dead(attribute, name)

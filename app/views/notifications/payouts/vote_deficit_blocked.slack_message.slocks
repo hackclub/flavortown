@@ -1,0 +1,18 @@
+header ":siren1: Payout Blocked! Vote Deficit :siren1:"
+
+ship_date = ship_event.post&.created_at&.strftime("%b %-d, %Y")
+ship_event_label = "*#{project_title}*"
+
+section "Your payout for #{ship_event_label}#{ship_date.present? ? " (shipped #{ship_date})" : ''} has been blocked because you're in a vote deficit.", markdown: true
+
+divider
+
+section "You need to vote *#{pluralize(votes_needed, 'more time')}* before your payouts will be issued.", markdown: true
+
+section "Remember: every time you ship a project, your vote balance decreases by 15. Every time you vote, it increases by 1. Keep voting to maintain a positive balance!", markdown: true
+
+divider
+
+context [
+  mrkdwn_text("Start voting: <https://flavortown.hackclub.com/votes/new|Vote on projects>")
+]

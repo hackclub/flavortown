@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_27_025655) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -312,9 +312,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.string "feedback_video_url"
     t.float "hours"
     t.float "multiplier"
+    t.decimal "originality_median", precision: 5, scale: 2
+    t.decimal "originality_percentile", precision: 5, scale: 2
+    t.decimal "overall_percentile", precision: 5, scale: 2
+    t.decimal "overall_score", precision: 5, scale: 2
     t.float "payout"
+    t.decimal "storytelling_median", precision: 5, scale: 2
+    t.decimal "storytelling_percentile", precision: 5, scale: 2
     t.datetime "synced_at"
+    t.decimal "technical_median", precision: 5, scale: 2
+    t.decimal "technical_percentile", precision: 5, scale: 2
     t.datetime "updated_at", null: false
+    t.decimal "usability_median", precision: 5, scale: 2
+    t.decimal "usability_percentile", precision: 5, scale: 2
     t.integer "votes_count", default: 0, null: false
   end
 
@@ -370,9 +380,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.index ["project_id"], name: "index_project_reports_on_project_id"
     t.index ["reporter_id", "project_id"], name: "index_project_reports_on_reporter_id_and_project_id", unique: true
     t.index ["reporter_id"], name: "index_project_reports_on_reporter_id"
+    t.index ["status", "created_at"], name: "idx_project_reports_status_created_at_desc", order: { created_at: :desc }
   end
 
   create_table "projects", force: :cascade do |t|
+    t.text "ai_declaration"
     t.datetime "created_at", null: false
     t.datetime "deleted_at"
     t.text "demo_url"
@@ -471,6 +483,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.string "name"
     t.integer "old_prices", default: [], array: true
     t.boolean "one_per_person_ever"
+    t.integer "past_purchases", default: 0
     t.integer "payout_percentage", default: 0
     t.decimal "price_offset_au"
     t.decimal "price_offset_ca"
@@ -486,10 +499,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.integer "sale_percentage"
     t.boolean "show_in_carousel"
     t.integer "site_action"
+    t.string "source_region"
     t.boolean "special"
     t.integer "stock"
     t.decimal "ticket_cost"
     t.string "type"
+    t.boolean "unlisted", default: false
     t.date "unlock_on"
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"
@@ -523,6 +538,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.bigint "warehouse_package_id"
+    t.index ["aasm_state", "created_at"], name: "idx_shop_orders_aasm_state_created_at_desc", order: { created_at: :desc }
     t.index ["assigned_to_user_id"], name: "index_shop_orders_on_assigned_to_user_id"
     t.index ["parent_order_id"], name: "index_shop_orders_on_parent_order_id"
     t.index ["region"], name: "index_shop_orders_on_region"
@@ -609,6 +625,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.string "ref"
     t.string "regions", default: [], array: true
     t.boolean "send_notifications_for_followed_devlogs", default: true, null: false
+    t.boolean "send_notifications_for_new_comments", default: true, null: false
+    t.boolean "send_notifications_for_new_followers", default: true, null: false
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
     t.boolean "shadow_banned", default: false, null: false
@@ -619,10 +637,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.string "slack_id"
     t.boolean "special_effects_enabled", default: true, null: false
     t.datetime "synced_at"
+    t.string "things_dismissed", default: [], null: false, array: true
     t.string "tutorial_steps_completed", default: [], array: true
     t.datetime "updated_at", null: false
     t.string "verification_status", default: "needs_submission", null: false
     t.boolean "vote_anonymously", default: false, null: false
+    t.integer "vote_balance", default: 0, null: false
     t.integer "votes_count"
     t.boolean "ysws_eligible", default: false, null: false
     t.index ["api_key"], name: "index_users_on_api_key", unique: true
@@ -640,6 +660,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_040252) do
     t.jsonb "object", default: {}
     t.jsonb "object_changes", default: {}
     t.string "whodunnit"
+    t.index ["item_id", "created_at"], name: "idx_versions_project_report_status", where: "(((item_type)::text = 'Project::Report'::text) AND (object_changes ? 'status'::text))"
+    t.index ["item_id", "created_at"], name: "idx_versions_shop_order_aasm_state", where: "(((item_type)::text = 'ShopOrder'::text) AND (object_changes ? 'aasm_state'::text))"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
     t.index ["object"], name: "index_versions_on_object", using: :gin
     t.index ["object_changes"], name: "index_versions_on_object_changes", using: :gin

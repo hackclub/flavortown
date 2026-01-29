@@ -38,6 +38,18 @@ class Admin::ProjectsController < Admin::ApplicationController
     end
   end
 
+  def delete
+    authorize :admin, :manage_projects?
+    @project = Project.unscoped.find(params[:id])
+
+    if @project.deleted?
+      redirect_to admin_project_path(@project), alert: "Project is already deleted."
+    else
+      @project.soft_delete!(force: true)
+      redirect_to admin_project_path(@project), notice: "Project deleted successfully."
+    end
+  end
+
   def shadow_ban
     authorize :admin, :shadow_ban_projects?
     @project = Project.unscoped.find(params[:id])

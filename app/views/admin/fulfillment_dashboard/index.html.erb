@@ -7,6 +7,7 @@
       { key: :hq_mail, label: "HQ Stuff", color: "#10b981" },
       { key: :third_party, label: "Amber & Co", color: "#f59e0b" },
       { key: :warehouse, label: "Warehouse", color: "#ef4444" },
+      { key: :free_stickers, label: "Free Stickers", color: "#ec4899" },
       { key: :other, label: "Other", color: "#8b5cf6" }
     ]
   %>
@@ -118,9 +119,8 @@
         </td>
         <td>
           <% if order.frozen_address.present? %>
-            <% order_region = Shop::Regionalizable.country_to_region(order.frozen_address["country"]) %>
             <span style="background: #e0f2fe; color: #0369a1; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500;">
-              <%= Shop::Regionalizable.region_name(order_region) %>
+              <%= country_name_from_code(order.frozen_address["country"]) %>
             </span>
           <% else %>
             <span class="text-muted">—</span>
@@ -186,7 +186,7 @@
 <style>
     .dashboard-stats {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 1rem;
         margin-bottom: 2rem;
     }

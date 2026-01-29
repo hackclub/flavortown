@@ -1,7 +1,8 @@
 class Airtable::UserSyncJob < Airtable::BaseSyncJob
   def table_name = "_users"
 
-  def records = User.all
+  # Only sync users with emails to avoid duplicate nil key issues in Airtable
+  def records = User.where.not(email: [ nil, "" ])
 
   def primary_key_field = "email"
 
@@ -10,8 +11,9 @@ class Airtable::UserSyncJob < Airtable::BaseSyncJob
                                .or(FunnelEvent.where(email: user.email&.downcase))
                                .order(:created_at)
     last_event = funnel_events.last
+    address = user.addresses.first
 
-    {
+    fields = {
       "first_name" => user.first_name,
       "last_name" => user.last_name,
       "email" => user.email,
@@ -30,5 +32,18 @@ class Airtable::UserSyncJob < Airtable::BaseSyncJob
       "last_funnel_event_at" => last_event&.created_at,
       "funnel_events" => funnel_events.pluck(:event_name).uniq.join(",")
     }
+
+    if address.present?
+      fields.merge!(
+        "address_line_1" => address["line_1"],
+        "address_line_2" => address["line_2"],
+        "address_city" => address["city"],
+        "address_state" => address["state"],
+        "address_postal_code" => address["postal_code"],
+        "address_country" => address["country"]
+      )
+    end
+
+    fields
   end
 end

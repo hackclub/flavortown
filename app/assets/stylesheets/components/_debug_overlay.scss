@@ -1,0 +1,37 @@
+.debug-info {
+  display: none;
+}
+
+body.debug-mode .debug-info {
+  display: block;
+  position: absolute;
+  z-index: 9999;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.85);
+  color: #ff9500;
+  border: 1px solid #ff9500;
+  border-radius: 2px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.debug-toggle-btn {
+  position: fixed;
+  bottom: 60px;
+  right: 16px;
+  z-index: 10000;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.85);
+  color: #ff9500;
+  border: 1px solid #ff9500;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(50, 30, 0, 0.95);
+  }
+}

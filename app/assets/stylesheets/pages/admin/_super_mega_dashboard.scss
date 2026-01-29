@@ -1,0 +1,115 @@
+.super-mega-dashboard {
+  .ui-heading {
+    margin-bottom: 1em;
+  }
+
+  h2 {
+    font-size: 2rem;
+    text-align: center;
+    background-image: linear-gradient(red, blue);
+    color: transparent;
+    background-clip: text;
+  }
+
+  h3 {
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 1.5em;
+  }
+
+  &__dashboards {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+  }
+
+  &__dashboard {
+    background: var(--color-tan-300);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid var(--color-brown-700);
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1em;
+
+    h2 {
+      color: var(--color-brown-500);
+    }
+
+    a {
+      color: var(--color-brown-500);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  &__card {
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1em;
+    border-radius: 1em;
+
+    h3 {
+      margin-bottom: 0.5em;
+      font-size: 1.5rem;
+    }
+  }
+
+  &__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-evenly;
+  }
+
+  &__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &--value {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .yellow {
+      color: #f59e0b;
+    }
+    .green {
+      color: #10b981;
+    }
+    .red {
+      color: #ef4444;
+    }
+    .blue {
+      color: #3b82f6;
+    }
+    .purple {
+      color: #8b5cf6;
+    }
+
+    &--label {
+      font-size: 1rem;
+    }
+  }
+
+  &__actions {
+    margin-top: 1em;
+    text-align: right;
+  }
+}

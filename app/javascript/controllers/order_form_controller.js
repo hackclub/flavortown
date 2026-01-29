@@ -109,7 +109,8 @@ export default class extends Controller {
       parseInt(this.quantityInput ? this.quantityInput.value : 1, 10) || 1;
     const accessories = this.getSelectedAccessories();
     const accTotal = accessories.reduce((sum, acc) => sum + acc.price, 0);
-    const total = this.baseTicketCostValue * qty + accTotal;
+    // Accessories are multiplied by quantity (e.g., 10 RPis with 8GB RAM = 10 accessories)
+    const total = this.baseTicketCostValue * qty + accTotal * qty;
 
     if (
       this.hasAccessoriesListContainerTarget &&
@@ -120,7 +121,7 @@ export default class extends Controller {
         this.accessoriesListItemsTarget.innerHTML = accessories
           .map(
             (acc) =>
-              `<li>${acc.name} <span>🍪 ${Math.round(acc.price)}</span></li>`,
+              `<li>${acc.name} ${qty > 1 ? `(${qty}x)` : ""} <span>🍪 ${Math.round(acc.price * qty)}</span></li>`,
           )
           .join("");
       } else {

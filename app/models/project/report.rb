@@ -13,6 +13,7 @@
 #
 # Indexes
 #
+#  idx_project_reports_status_created_at_desc           (status,created_at DESC)
 #  index_project_reports_on_project_id                  (project_id)
 #  index_project_reports_on_reporter_id                 (reporter_id)
 #  index_project_reports_on_reporter_id_and_project_id  (reporter_id,project_id) UNIQUE

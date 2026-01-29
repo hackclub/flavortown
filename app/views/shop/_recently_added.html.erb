@@ -1,0 +1,34 @@
+<% if recently_added_items.any? %>
+  <section class="shop__recently-added">
+    <div class="shop__recently-added-inner">
+      <div class="shop__recently-added-header">
+        <h2 class="shop__recently-added-title">Recently Added</h2>
+        <p class="shop__recently-added-subtitle">fresh off the shelf, check these out!</p>
+      </div>
+      <div class="shop__recently-added-items">
+      <% recently_added_items.each do |item| %>
+        <% next unless item.image.present? && item.enabled_in_region?(user_region) %>
+        <% sale_price = item.price_for_region(user_region) %>
+        <%= render ShopItemCardComponent.new(
+          item_id: item.id,
+          name: item.name,
+          description: item.description,
+          hours: item.fixed_estimate(sale_price).to_i,
+          price: item.ticket_cost,
+          image_url: item.image.variant(:carousel_lg),
+          item_type: item.type,
+          balance: user_balance,
+          enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
+          regional_price: sale_price,
+          logged_in: logged_in,
+          remaining_stock: item.remaining_stock,
+          limited: item.limited?,
+          on_sale: item.on_sale?,
+          sale_percentage: item.sale_percentage,
+          original_price: item.ticket_cost
+        ) %>
+      <% end %>
+      </div>
+    </div>
+  </section>
+<% end %>

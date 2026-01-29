@@ -1,11 +1,12 @@
 class User
-  TutorialStep = Data.define(:slug, :name, :description, :icon, :link, :deps, :verb) do
+  TutorialStep = Data.define(:slug, :name, :description, :icon, :link, :deps, :verb, :video_url) do
     include ActiveModel::Conversion
     extend ActiveModel::Naming
 
     def initialize(params = {})
       params[:deps] ||= nil
       params[:verb] ||= :get
+      params[:video_url] ||= nil
       super(**params)
     end
 
@@ -28,15 +29,15 @@ class User
           icon: "edit",
           link: ->(_) { new_project_devlog_path(current_user.projects.first) },
           deps: [
-            Dep[:create_project, "you need to create a project first!"]
+            Dep[:create_project, "You need to create a project first!"]
           ]),
       new(slug: :identity_verified,
         name: "Confirm your age",
-        description: "You must be a teenager to participate in flavortown",
+        description: "You must be a teenager to participate in Flavortown",
         icon: "user",
         link: ->(_) { HCAService.verify_portal_url(return_to: kitchen_url) }),
       new(slug: :setup_hackatime,
-          name: "Setup hackatime",
+          name: "Setup Hackatime",
           description: "Start tracking your time",
           icon: "time",
           link: "/auth/hackatime",
@@ -52,8 +53,16 @@ class User
           icon: "sticker",
           link: ->(_) { shop_path },
           deps: [
-            Dep[:setup_hackatime, "you need to setup hackatime first!"]
-          ])
+            Dep[:setup_hackatime, "You need to setup Hackatime first!"]
+          ]),
+      new(slug: :learn_what_is_a_ship,
+          name: "Learn what's a ship",
+          description: "Watch a quick video on how to ship!",
+          icon: "ship",
+          link: "#tutorial-video-modal",
+          verb: :modal,
+          video_url: VimeoEmbedComponent.video_url(:what_is_a_ship)
+        )
     ].freeze
 
     self::SLUGGED = self::ALL.index_by(&:slug).freeze

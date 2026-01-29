@@ -7,141 +7,31 @@
         <%= hidden_field_tag :return_to, params[:return_to] %>
       <% end %>
       <div class="projects-new__card">
-        <div class="projects-new__field projects-new__field--title">
-          <%= render(
-                InputComponent.new(
-                  label: "Project Title",
-                  placeholder: "Give your project a name",
-                  form: form,
-                  attribute: :title,
-                  color: :yellow,
-                  subtitle: "A clear title helps people find your work.",
-                  input_html: {
-                    data: {
-                      action: "input->project-form#validateTitle blur->project-form#validateTitle",
-                      "project-form-target": "title"
-                    }
-                  }
-                )
-              ) %>
-        </div>
-
-        <div class="projects-new__field projects-new__field--description">
-          <%= render(
-                InputComponent.new(
-                  label: "Description",
-                  placeholder: "Share what the project does, who's working on it, and what's next.",
-                  form: form,
-                  attribute: :description,
-                  color: :red,
-                  as: :textarea,
-                  input_html: {
-                    rows: 4,
-                    data: {
-                      action: "input->project-form#validateDescription blur->project-form#validateDescription",
-                      "project-form-target": "description"
-                    }
-                  },
-                  subtitle: "Use a few sentences to explain what you're making."
-                )
-              ) %>
-        </div>
-
-        <div class="projects-new__field projects-new__field--banner">
-          <%= render(
-                FileUploadComponent.new(
-                  label: "Project Banner",
-                  form: form,
-                  attribute: :banner,
-                  color: :green,
-                  subtitle: "Upload a JPEG, PNG, WEBP, HEIC, or HEIF up to 10 MB.",
-                  accept: Project::ACCEPTED_CONTENT_TYPES.join(","),
-                  direct_upload: true,
-                  max_size: Project::MAX_BANNER_SIZE
-                )
-              ) %>
-        </div>
-
-        <div class="projects-new__field projects-new__field--links">
-          <%= render InputGroupComponent.new(
-                label: "Project Links",
-                color: :blue,
-                subtitle: "Share links to your project's resources."
-              ) do %>
-
-            <%= render InputComponent.new(
-                  label: "Demo Link",
-                  placeholder: "https://flavortown.cooked.selfhosted.hackclub.com/projects",
-                  form: form,
-                  attribute: :demo_url,
-                  color: :blue,
-                  icon: "icons/link.svg",
-                  input_html: {
-                    type: :url,
-                    inputmode: "url",
-                    data: {
-                      action: "input->project-form#validateUrl blur->project-form#validateUrl",
-                      "project-form-target": "demoUrl"
-                    }
-                  }
-                ) %>
-
-            <%= render InputComponent.new(
-                  label: "Repository",
-                  placeholder: "https://github.com/hackclub/flavortown",
-                  form: form,
-                  attribute: :repo_url,
-                  color: :blue,
-                  icon: "icons/merge.svg",
-                  input_html: {
-                    type: :url,
-                    inputmode: "url",
-                    data: {
-                      action: "input->project-form#onRepoInput blur->project-form#onRepoBlur",
-                      "project-form-target": "repoUrl"
-                    }
-                  }
-                ) %>
-
-            <div data-project-form-target="readmeContainer" hidden>
-              <%= render InputComponent.new(
-                    label: "Readme Link",
-                    placeholder: "https://github.com/hackclub/flavortown",
-                    form: form,
-                    attribute: :readme_url,
-                    color: :blue,
-                    icon: "icons/paper.svg",
-                    input_html: {
-                      type: :url,
-                      inputmode: "url",
-                      data: {
-                        action: "input->project-form#onReadmeInput input->project-form#validateUrl blur->project-form#validateUrl",
-                        "project-form-target": "readmeUrl"
-                      }
-                    }
-                  ) %>
-            </div>
-          <% end %>
-        </div>
-
-        <div class="projects-new__field projects-new__field--hackatime-projects">
-          <%= render(
-                HackatimeProjectSelectorComponent.new(
-                  label: "Hackatime Projects",
-                  form: form,
-                  attribute: :hackatime_project_ids,
-                  color: :yellow,
-                  projects: current_user.hackatime_projects,
-                  project_times: @project_times,
-                  subtitle: "Link this project to your Hackatime projects."
-                )
-              ) %>
-        </div>
+        <%= render "project_form_fields", form: form %>
       </div>
 
       <div class="projects-new__actions">
         <%= render(ButtonComponent.new(text: "Cancel", href: @project, color: :red, icon: "icons/close.svg")) %>
         <%= render(ButtonComponent.new(text: "Update Project", color: :blue, size: :md, icon: "icons/pencil.svg", type: :submit, data: { "project-form-target": "submit" })) %>
+      </div>
+    <% end %>
+
+    <% if policy(@project).destroy? %>
+      <div class="projects-new__card" style="margin-top: 2rem; border: 2px solid var(--color-red-500);">
+        <h3 style="color: var(--color-red-700);">Danger Zone</h3>
+        <% if @project.shipped? && !policy(@project).force_destroy? %>
+          <p style="color: var(--color-red-600);">This project has been shipped and cannot be deleted.</p>
+        <% elsif @project.shipped? && policy(@project).force_destroy? %>
+          <p style="color: var(--color-red-600);">⚠️ <strong>ADMIN/FRAUD OVERRIDE:</strong> This project is SHIPPED. Deleting it will override ship protection and will be audit logged.</p>
+          <%= button_to project_path(@project, force: true), method: :delete, class: "btn btn--red", form: { onsubmit: "return confirm('⚠️ ADMIN/FRAUD OVERRIDE ⚠️\\n\\nThis project is SHIPPED. You are about to override ship protection and force delete this project.\\n\\nThis action will be audit logged.\\n\\nAre you absolutely sure?')" } do %>
+            Force Delete Project
+          <% end %>
+        <% else %>
+          <p>Once you delete a project, there is no going back. Please be certain.</p>
+          <%= button_to project_path(@project), method: :delete, class: "btn btn--red", form: { onsubmit: "return confirm('Are you sure you want to delete this project? This action cannot be undone.')" } do %>
+            Delete Project
+          <% end %>
+        <% end %>
       </div>
     <% end %>
   </div>

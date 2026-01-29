@@ -24,19 +24,19 @@ class ProjectPolicy < ApplicationPolicy
     end
 
     def destroy?
-        owns? || user&.admin?
+        owns? || user&.admin? || user&.has_role?(:fraud_dept)
+    end
+
+    def force_destroy?
+        user&.admin? || user&.has_role?(:fraud_dept)
     end
 
     def ship?
         member?
     end
 
-    def update_ship?
-        member?
-    end
-
     def submit_ship?
-        member?
+        member? && user&.eligible_for_shop?
     end
 
     def resend_webhook?

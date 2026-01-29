@@ -71,12 +71,13 @@
               <div class="my-orders__title-section">
                 <h2 class="my-orders__item-name"><%= order.shop_item.name %></h2>
                 <div class="my-orders__status-wrapper">
-                  <span class="my-orders__status my-orders__status--<%= order.aasm_state %>">
-                    <%= order.aasm_state.humanize %>
+                  <% display_state = order.on_hold? ? "pending" : order.aasm_state %>
+                  <span class="my-orders__status my-orders__status--<%= display_state %>">
+                    <%= display_state.humanize %>
                   </span>
                   <% if order.aasm_state == "fulfilled" %>
                     <% if not order.digital? %>
-                      <span class="my-orders__status-hint">We have ordered/shipped the item to you! this does not mean it has already reached you.</span>
+                      <span class="my-orders__status-hint">We have ordered/shipped the item to you! This does not mean it has already reached you.<% if order.external_ref.present? %> You can track the package here: <% if order.external_ref.start_with?("pkg!", "ltr!") %><a href="https://mail.hackclub.com/<%= order.external_ref %>" target="_blank" rel="noopener"><%= order.external_ref %></a><% else %><%= order.external_ref %><% end %><% end %></span>
                     <% elsif order.grant? && order.shop_card_grant.present? %>
                       <div class="my-orders__grant-actions">
                         <%= render ButtonComponent.new(text: "Open Grant", href: order.shop_card_grant.hcb_url, color: :brown, target: "_blank") %>
@@ -109,7 +110,8 @@
                           <% end %>
                           <span class="my-orders__accessory-name"><%= acc_order.shop_item.name %></span>
                           <span class="my-orders__accessory-price">🍪 <%= number_with_precision(acc_order.frozen_item_price || acc_order.shop_item.ticket_cost, precision: 0) %></span>
-                          <span class="my-orders__status my-orders__status--<%= acc_order.aasm_state %>"><%= acc_order.aasm_state.humanize %></span>
+                          <% acc_display_state = acc_order.on_hold? ? "pending" : acc_order.aasm_state %>
+                          <span class="my-orders__status my-orders__status--<%= acc_display_state %>"><%= acc_display_state.humanize %></span>
                         </li>
                       <% end %>
                     </ul>

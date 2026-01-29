@@ -1,0 +1,7 @@
+context [
+  plain_text(":yay: New follower!")
+]
+
+section "*<#{project_url}|#{project_title}>*", markdown: true
+
+section "<@#{follower_id}> is now following your project!", markdown: true

@@ -5,7 +5,8 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @view = params[:view] || "shop_orders"
 
     # Fulfillment team can only access fulfillment view - auto-redirect if needed
-    if current_user.fulfillment_person? && !current_user.admin?
+    # But fraud_dept members with fulfillment_person role should have full access
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       if @view != "fulfillment"
         redirect_to admin_shop_orders_path(view: "fulfillment") and return
       end
@@ -53,7 +54,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     # Apply region filter using database-level query (now that orders have a region column)
     # Fulfillment persons see orders in their regions OR orders assigned to them OR orders with nil region (legacy/no address)
-    if current_user.fulfillment_person? && !current_user.admin? && current_user.has_regions?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept? && current_user.has_regions?
       orders = orders.where(region: current_user.regions)
                      .or(orders.where(region: nil))
                      .or(orders.where(assigned_to_user_id: current_user.id))
@@ -98,14 +99,14 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           total_shells: user_orders.sum { |o| o.total_cost || 0 },
           address: user_orders.first&.decrypted_address_for(current_user)
         }
-      end
+      end.sort_by { |g| -g[:orders].size }
     else
       @shop_orders = orders
     end
   end
 
   def show
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -113,7 +114,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @order = ShopOrder.find(params[:id])
 
     # Fulfillment persons can only view orders in their regions, assigned to them, or with nil region
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       can_access = @order.assigned_to_user_id == current_user.id
       can_access ||= @order.region.nil?
       can_access ||= current_user.has_regions? && current_user.has_region?(@order.region)
@@ -124,6 +125,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     @can_view_address = @order.can_view_address?(current_user)
+    @is_digital_fulfillment_type = ShopOrder::DIGITAL_FULFILLMENT_TYPES.include?(@order.shop_item.type)
 
     # Load fulfillment users for assignment (admins only)
     if current_user.admin?
@@ -147,7 +149,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def reveal_address
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -182,7 +184,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     if @order.shop_item.respond_to?(:fulfill!)
       @order.approve!
-      redirect_to admin_shop_orders_path, notice: "Order approved and fulfilled" and return
+      redirect_to shop_orders_return_path, notice: "Order approved and fulfilled" and return
     end
 
     if @order.queue_for_fulfillment && @order.save
@@ -195,7 +197,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           aasm_state: [ old_state, @order.aasm_state ]
         }
       )
-      redirect_to admin_shop_orders_path, notice: "Order approved for fulfillment"
+      redirect_to shop_orders_return_path, notice: "Order approved for fulfillment"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to approve order: #{@order.errors.full_messages.join(', ')}"
     end
@@ -218,7 +220,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           rejection_reason: [ nil, reason ]
         }
       )
-      redirect_to admin_shop_orders_path, notice: "Order rejected"
+      redirect_to shop_orders_return_path, notice: "Order rejected"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to reject order: #{@order.errors.full_messages.join(', ')}"
     end
@@ -239,7 +241,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           aasm_state: [ old_state, @order.aasm_state ]
         }
       )
-      redirect_to admin_shop_orders_path, notice: "Order placed on hold"
+      redirect_to shop_orders_return_path, notice: "Order placed on hold"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to place order on hold: #{@order.errors.full_messages.join(', ')}"
     end
@@ -260,14 +262,14 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           aasm_state: [ old_state, @order.aasm_state ]
         }
       )
-      redirect_to admin_shop_orders_path, notice: "Order released from hold"
+      redirect_to shop_orders_return_path, notice: "Order released from hold"
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to release order from hold: #{@order.errors.full_messages.join(', ')}"
     end
   end
 
   def mark_fulfilled
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -275,7 +277,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @order = ShopOrder.find(params[:id])
     old_state = @order.aasm_state
 
-    if @order.mark_fulfilled && @order.save
+    if @order.mark_fulfilled(params[:external_ref].presence, params[:fulfillment_cost].presence, current_user.display_name) && @order.save
       PaperTrail::Version.create!(
         item_type: "ShopOrder",
         item_id: @order.id,
@@ -292,7 +294,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def update_internal_notes
-    if current_user.fulfillment_person? && !current_user.admin?
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -367,6 +369,18 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to admin_shop_order_path(@order), alert: "Failed to cancel HCB grant: #{e.message}"
     end
   end
+  private
+
+  def shop_orders_return_path
+    # Preserve the view and status params for redirecting back to the list
+    params_to_keep = {}
+    params_to_keep[:view] = params[:return_view] if params[:return_view].present?
+    params_to_keep[:status] = params[:return_status] if params[:return_status].present?
+    admin_shop_orders_path(params_to_keep)
+  end
+
+  public
+
   def refresh_verification
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])

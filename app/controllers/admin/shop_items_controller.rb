@@ -119,6 +119,7 @@ module Admin
         :limited,
         :stock,
         :max_qty,
+        :past_purchases,
         :one_per_person_ever,
         :show_in_carousel,
         :special,
@@ -148,6 +149,8 @@ module Admin
         :default_assigned_user_id_au,
         :default_assigned_user_id_in,
         :default_assigned_user_id_xx,
+        :unlisted,
+        :source_region,
         attached_shop_item_ids: []
       )
     end

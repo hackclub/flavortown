@@ -156,6 +156,18 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       },
       progress: ->(user) { { current: ExtensionUsage.max_weekly_users_for(user.project_ids), target: 2 } },
       cookie_reward: 10
+    ),
+    new(
+      slug: :conventional_commit,
+      name: "By the Book",
+      description: "wrote a commit message following conventional commits",
+      icon: "code",
+      earned_check: ->(user) {
+        Post::GitCommit.joins(:post)
+          .where(posts: { project_id: user.projects.select(:id) })
+          .exists?([ "post_git_commits.message ~* ?", '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+' ])
+      },
+      visibility: :secret
     )
   ].freeze
 

@@ -1,0 +1,159 @@
+<h1>Fraud Dashboard</h1>
+
+<% r, b, o = @reports, @bans, @orders %>
+
+<div class="fraud-grid">
+  <div class="card fraud-card">
+    <h2>Report Intake</h2>
+    <div class="fraud-stats">
+      <div class="fraud-stat">
+        <span class="fraud-stat__value"><%= r[:new_today] %></span>
+        <span class="fraud-stat__label">New Today</span>
+      </div>
+      <div class="fraud-stat fraud-stat--warning">
+        <span class="fraud-stat__value"><%= r[:pending] %></span>
+        <span class="fraud-stat__label">Pending</span>
+      </div>
+      <div class="fraud-stat fraud-stat--success">
+        <span class="fraud-stat__value"><%= r[:reviewed] %></span>
+        <span class="fraud-stat__label">Reviewed</span>
+      </div>
+      <div class="fraud-stat">
+        <span class="fraud-stat__value"><%= r[:dismissed] %></span>
+        <span class="fraud-stat__label">Dismissed</span>
+      </div>
+    </div>
+    <% if r[:avg_response_hours] %>
+      <p class="fraud-note">Avg response time (30d): <strong><%= r[:avg_response_hours] %>h</strong></p>
+    <% end %>
+    <%= link_to "View Reports →", admin_reports_path, class: "btn-primary slim" %>
+  </div>
+
+  <div class="card fraud-card">
+    <h2>Report Reasons</h2>
+    <table class="fraud-table">
+      <thead><tr><th>Reason</th><th>Count</th></tr></thead>
+      <tbody>
+        <% r[:reasons].sort_by { |_, c| -c }.each do |reason, count| %>
+          <tr>
+            <td><%= reason.titleize %></td>
+            <td><strong><%= count %></strong></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card fraud-card">
+    <h2>Report Reviewers (All-Time)</h2>
+    <%= render "leaderboard", reviewers: r[:top_reviewers], medals: (1..10).map { |i| "##{i}" } %>
+  </div>
+</div>
+
+<div class="fraud-grid">
+  <div class="card fraud-card">
+    <h2>Cooked Fraudsters</h2>
+    <div class="fraud-stats">
+      <div class="fraud-stat fraud-stat--danger">
+        <span class="fraud-stat__value"><%= b[:banned] %></span>
+        <span class="fraud-stat__label">Total Banned</span>
+      </div>
+      <div class="fraud-stat fraud-stat--purple">
+        <span class="fraud-stat__value"><%= b[:shadow_banned_users] %></span>
+        <span class="fraud-stat__label">Shadow Banned Users</span>
+      </div>
+      <div class="fraud-stat fraud-stat--purple">
+        <span class="fraud-stat__value"><%= b[:shadow_banned_projects] %></span>
+        <span class="fraud-stat__label">Shadow Banned Projects</span>
+      </div>
+    </div>
+    <h3>Today's Activity</h3>
+    <table class="fraud-table">
+      <tbody>
+        <tr><td>Bans</td><td class="fraud-danger"><strong><%= b[:bans_today] %></strong></td></tr>
+        <tr><td>Unbans</td><td class="fraud-success"><strong><%= b[:unbans_today] %></strong></td></tr>
+        <tr><td>User Shadow Bans</td><td><strong><%= b[:shadow_bans_today] %></strong></td></tr>
+        <tr><td>User Unshadow Bans</td><td><strong><%= b[:unshadow_bans_today] %></strong></td></tr>
+        <tr><td>Project Shadow Bans</td><td><strong><%= b[:project_shadow_today] %></strong></td></tr>
+        <tr><td>Project Unshadow Bans</td><td><strong><%= b[:project_unshadow_today] %></strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card fraud-card fraud-card--wide">
+    <h2>Shop Order Review</h2>
+    <div class="fraud-stats">
+      <div class="fraud-stat fraud-stat--warning">
+        <span class="fraud-stat__value"><%= o[:pending] %></span>
+        <span class="fraud-stat__label">Pending</span>
+      </div>
+      <div class="fraud-stat">
+        <span class="fraud-stat__value"><%= o[:on_hold] %></span>
+        <span class="fraud-stat__label">On Hold</span>
+      </div>
+      <div class="fraud-stat fraud-stat--info">
+        <span class="fraud-stat__value"><%= o[:awaiting] %></span>
+        <span class="fraud-stat__label">Awaiting Fulfillment</span>
+      </div>
+      <div class="fraud-stat fraud-stat--danger">
+        <span class="fraud-stat__value"><%= o[:rejected] %></span>
+        <span class="fraud-stat__label">Rejected</span>
+      </div>
+      <div class="fraud-stat fraud-stat--warning">
+        <span class="fraud-stat__value"><%= o[:backlog] %></span>
+        <span class="fraud-stat__label">Total Backlog</span>
+      </div>
+      <div class="fraud-stat">
+        <span class="fraud-stat__value"><%= o[:new_today] %></span>
+        <span class="fraud-stat__label">New Today</span>
+      </div>
+    </div>
+    <% if o[:avg_response_hours] %>
+      <p class="fraud-note">Avg response time (30d): <strong><%= o[:avg_response_hours] %>h</strong></p>
+    <% end %>
+    <%= link_to "View Orders →", admin_shop_orders_path, class: "btn-primary slim" %>
+  </div>
+</div>
+
+<div class="fraud-grid">
+  <div class="card fraud-card">
+    <h2>Order Reviewers (All-Time)</h2>
+    <%= render "leaderboard", reviewers: o[:top_reviewers], medals: (1..10).map { |i| "##{i}" } %>
+  </div>
+</div>
+
+<%= link_to "← Back", admin_root_path, class: "btn-secondary" %>
+
+<style>
+.fraud-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.fraud-card { display: flex; flex-direction: column; gap: 0.75rem; }
+.fraud-card--wide { grid-column: span 2; }
+@media (max-width: 800px) { .fraud-card--wide { grid-column: span 1; } }
+.fraud-card h2 { margin: 0 0 0.25rem; font-size: 1rem; }
+.fraud-card h3 { margin: 0.5rem 0 0.25rem; font-size: 0.875rem; color: var(--color-brown-600); }
+.fraud-stats { display: flex; flex-wrap: wrap; gap: 1rem; }
+.fraud-stat { display: flex; flex-direction: column; align-items: center; min-width: 80px; padding: 0.5rem; }
+.fraud-stat__value { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+.fraud-stat__label { font-size: 0.7rem; color: var(--color-text-muted); text-align: center; }
+.fraud-stat--warning .fraud-stat__value { color: #f59e0b; }
+.fraud-stat--success .fraud-stat__value { color: #10b981; }
+.fraud-stat--danger .fraud-stat__value { color: #ef4444; }
+.fraud-stat--info .fraud-stat__value { color: #3b82f6; }
+.fraud-stat--purple .fraud-stat__value { color: #8b5cf6; }
+.fraud-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.fraud-table th, .fraud-table td { padding: 0.375rem 0.5rem; text-align: left; border-bottom: 1px solid var(--color-tan-400); }
+.fraud-table th { font-weight: 600 }
+.fraud-table td:last-child { text-align: right; }
+.fraud-note { margin: 0; font-size: 0.8rem; color: var(--color-text-muted); }
+.fraud-danger { color: #ef4444; }
+.fraud-success { color: #10b981; }
+.fraud-leaderboard { list-style: none; margin: 0; padding: 0; }
+.fraud-leaderboard li { display: flex; justify-content: space-between; padding: 0.25rem 0; font-size: 0.875rem; }
+.fraud-leaderboard li span:first-child { font-weight: 500; }
+
+</style>

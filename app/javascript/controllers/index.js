@@ -120,3 +120,17 @@ application.register("welcome-overlay", WelcomeOverlayController);
 
 import RocketLaunchController from "./rocket_launch_controller";
 application.register("rocket-launch", RocketLaunchController);
+import ResponsiveImageMapController from "./responsive_image_map_controller";
+application.register("responsive-image-map", ResponsiveImageMapController);
+
+import FlagshipModalController from "./flagship_modal_controller";
+application.register("flagship-modal", FlagshipModalController);
+
+import TutorialVideoModalController from "./tutorial_video_modal_controller";
+application.register("tutorial-video-modal", TutorialVideoModalController);
+
+import StatsHoverController from "./stats_hover_controller";
+application.register("stats-hover", StatsHoverController);
+
+import TooltipController from "./tooltip_controller";
+application.register("tooltip", TooltipController);

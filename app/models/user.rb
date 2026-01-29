@@ -25,6 +25,8 @@
 #  ref                                     :string
 #  regions                                 :string           default([]), is an Array
 #  send_notifications_for_followed_devlogs :boolean          default(TRUE), not null
+#  send_notifications_for_new_comments     :boolean          default(TRUE), not null
+#  send_notifications_for_new_followers    :boolean          default(TRUE), not null
 #  send_votes_to_slack                     :boolean          default(FALSE), not null
 #  session_token                           :string
 #  shadow_banned                           :boolean          default(FALSE), not null
@@ -34,9 +36,11 @@
 #  slack_balance_notifications             :boolean          default(FALSE), not null
 #  special_effects_enabled                 :boolean          default(TRUE), not null
 #  synced_at                               :datetime
+#  things_dismissed                        :string           default([]), not null, is an Array
 #  tutorial_steps_completed                :string           default([]), is an Array
 #  verification_status                     :string           default("needs_submission"), not null
 #  vote_anonymously                        :boolean          default(FALSE), not null
+#  vote_balance                            :integer          default(0), not null
 #  votes_count                             :integer
 #  ysws_eligible                           :boolean          default(FALSE), not null
 #  created_at                              :datetime         not null
@@ -55,6 +59,8 @@ class User < ApplicationRecord
   has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
 
   has_recommended :projects # you might like these projects...
+
+  DISMISSIBLE_THINGS = %w[flagship_ad].freeze
 
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy
@@ -133,6 +139,22 @@ class User < ApplicationRecord
     update!(tutorial_steps_completed: tutorial_steps - [ slug ]) if tutorial_step_completed?(slug)
   end
 
+  def has_dismissed?(thing_name) = things_dismissed.include?(thing_name.to_s)
+
+  def dismiss_thing!(thing_name)
+    thing_name_str = thing_name.to_s
+    raise ArgumentError, "Invalid thing to dismiss: #{thing_name_str}" unless DISMISSIBLE_THINGS.include?(thing_name_str)
+
+    update!(things_dismissed: things_dismissed + [ thing_name_str ]) unless has_dismissed?(thing_name_str)
+  end
+
+  def undismiss_thing!(thing_name)
+    thing_name_str = thing_name.to_s
+    raise ArgumentError, "Invalid thing to dismiss: #{thing_name_str}" unless DISMISSIBLE_THINGS.include?(thing_name_str)
+
+    update!(things_dismissed: things_dismissed - [ thing_name_str ]) if has_dismissed?(thing_name_str)
+  end
+
   def should_show_shop_tutorial?
     tutorial_step_completed?(:first_login) && !tutorial_step_completed?(:free_stickers)
   end
@@ -203,6 +225,10 @@ class User < ApplicationRecord
 
   def all_time_coding_seconds
     try_sync_hackatime_data!&.dig(:projects)&.values&.sum || 0
+  end
+
+  def has_logged_one_hour?
+    all_time_coding_seconds >= 3600
   end
 
   def highest_role
@@ -282,9 +308,22 @@ class User < ApplicationRecord
     return [] unless identity&.access_token.present?
 
     identity_payload = HCAService.identity(identity.access_token)
-    identity_payload["addresses"] || []
+    addresses = identity_payload["addresses"] || []
+    phone_number = identity_payload["phone_number"]
+    addresses.map { |addr| addr.merge("phone_number" => phone_number) }
   end
+  def birthday
+    identity = identities.find_by(provider: "hack_club")
+    return nil unless identity&.access_token.present?
 
+    identity_payload = HCAService.identity(identity.access_token)
+    birthday_str = identity_payload["birthday"]
+    return nil if birthday_str.blank?
+
+    Date.parse(birthday_str)
+  rescue ArgumentError
+    nil
+  end
   def avatar
     "https://cachet.dunkirk.sh/users/#{slack_id}/r"
   end

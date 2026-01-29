@@ -30,17 +30,18 @@
 #
 # Indexes
 #
-#  idx_shop_orders_item_state_qty             (shop_item_id,aasm_state,quantity)
-#  idx_shop_orders_stock_calc                 (shop_item_id,aasm_state)
-#  idx_shop_orders_user_item_state            (user_id,shop_item_id,aasm_state)
-#  idx_shop_orders_user_item_unique           (user_id,shop_item_id)
-#  index_shop_orders_on_assigned_to_user_id   (assigned_to_user_id)
-#  index_shop_orders_on_parent_order_id       (parent_order_id)
-#  index_shop_orders_on_region                (region)
-#  index_shop_orders_on_shop_card_grant_id    (shop_card_grant_id)
-#  index_shop_orders_on_shop_item_id          (shop_item_id)
-#  index_shop_orders_on_user_id               (user_id)
-#  index_shop_orders_on_warehouse_package_id  (warehouse_package_id)
+#  idx_shop_orders_aasm_state_created_at_desc  (aasm_state,created_at DESC)
+#  idx_shop_orders_item_state_qty              (shop_item_id,aasm_state,quantity)
+#  idx_shop_orders_stock_calc                  (shop_item_id,aasm_state)
+#  idx_shop_orders_user_item_state             (user_id,shop_item_id,aasm_state)
+#  idx_shop_orders_user_item_unique            (user_id,shop_item_id)
+#  index_shop_orders_on_assigned_to_user_id    (assigned_to_user_id)
+#  index_shop_orders_on_parent_order_id        (parent_order_id)
+#  index_shop_orders_on_region                 (region)
+#  index_shop_orders_on_shop_card_grant_id     (shop_card_grant_id)
+#  index_shop_orders_on_shop_item_id           (shop_item_id)
+#  index_shop_orders_on_user_id                (user_id)
+#  index_shop_orders_on_warehouse_package_id   (warehouse_package_id)
 #
 # Foreign Keys
 #
@@ -97,7 +98,6 @@ class ShopOrder < ApplicationRecord
     ShopItem::HCBGrant
     ShopItem::HCBPreauthGrant
     ShopItem::ThirdPartyDigital
-    ShopItem::SpecialFulfillmentItem
     ShopItem::WarehouseItem
     ShopItem::FreeStickers
     ShopItem::PileOfStickersItem
@@ -115,15 +115,19 @@ class ShopOrder < ApplicationRecord
 
   def can_view_address?(viewer)
     return false unless viewer
-    return false if DIGITAL_FULFILLMENT_TYPES.include?(shop_item.type)
 
     return true if viewer.admin?
+
+    return false if DIGITAL_FULFILLMENT_TYPES.include?(shop_item.type)
 
     # Fulfillment person can see addresses in their assigned regions
     if viewer.fulfillment_person?
       return true unless viewer.has_regions?
       return viewer.has_region?(region)
     end
+
+    # Fraud dept + fulfillment person can see addresses
+    return true if viewer.fraud_dept? && viewer.fulfillment_person?
 
     false
   end
@@ -353,7 +357,7 @@ class ShopOrder < ApplicationRecord
     e = shop_item.required_ships_end_date.strftime("%B %d, %Y")
     c = shop_item.required_ships_count
 
-    errors.add(:base, "You must have shipped at least #{c} #{'project'.pluralize(count)} between #{s} and #{e} to purchase this item.")
+    errors.add(:base, "You must have shipped at least #{c} #{'project'.pluralize(c)} between #{s} and #{e} to purchase this item.")
   end
 
   def create_negative_payout
