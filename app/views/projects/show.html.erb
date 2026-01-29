@@ -73,6 +73,29 @@
       </div>
     <% end %>
 
+    <% if @votes_for_payout.present? %>
+      <section class="projects-show__payout-votes" aria-label="Votes needed to unlock payout">
+        <h3 class="projects-show__payout-votes-title">Votes needed to unlock payout <span id="votes-progress-info">ⓘ</span></h3>
+
+        <div class="projects-show__payout-votes-row">
+          <progress
+            class="projects-show__payout-votes-progress"
+            value="<%= @votes_for_payout[:current] %>"
+            max="<%= @votes_for_payout[:required] %>">
+          </progress>
+
+          <div class="projects-show__payout-votes-text">
+            <strong><%= @votes_for_payout[:current] %></strong> / <%= @votes_for_payout[:required] %>
+            <% if @votes_for_payout[:remaining] > 0 %>
+              (<%= @votes_for_payout[:remaining] %> left)
+            <% else %>
+              (ready!)
+            <% end %>
+          </div>
+        </div>
+      </section>
+    <% end %>
+    
     <% if @posts.present? %>
       <div class="projects-show__timeline">
         <div class="mt-4" style="display: grid; gap: var(--space-xl);">
