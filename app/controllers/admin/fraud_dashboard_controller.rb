@@ -15,7 +15,6 @@ module Admin
       rs = ActiveRecord::Base.connection.select_one(report_stats_sql)
 
       reasons = Project::Report.group(:reason).count
-      report_versions = versions_today("Project::Report", "status", today)
 
       @reports = {
         pending: rs["pending_count"].to_i,
@@ -24,7 +23,7 @@ module Admin
         new_today: rs["new_today"].to_i,
         reasons: reasons,
         by_status: { pending: rs["pending_count"].to_i, reviewed: rs["reviewed_count"].to_i, dismissed: rs["dismissed_count"].to_i },
-        top_reviewers: top_performers(report_versions, "status", %w[reviewed dismissed]),
+        top_reviewers: all_time_report_performers(%w[reviewed dismissed]),
         avg_response_hours: avg_response("project_reports", "Project::Report", "status", %w[reviewed dismissed])
       }
 
@@ -66,7 +65,6 @@ module Admin
       ])
       os = ActiveRecord::Base.connection.select_one(order_stats_sql)
 
-      order_versions = versions_today("ShopOrder", "aasm_state", today)
       order_states = %w[awaiting_periodical_fulfillment rejected on_hold fulfilled]
 
       @orders = {
@@ -76,18 +74,12 @@ module Admin
         awaiting: os["awaiting_count"].to_i,
         backlog: os["pending_count"].to_i + os["awaiting_count"].to_i,
         new_today: os["new_today"].to_i,
-        top_reviewers: top_performers(order_versions, "aasm_state", order_states),
-        all_time: all_time_performers(order_states),
+        top_reviewers: all_time_performers(order_states),
         avg_response_hours: avg_response("shop_orders", "ShopOrder", "aasm_state", %w[awaiting_periodical_fulfillment rejected fulfilled])
       }
     end
 
     private
-
-    def versions_today(type, field, today)
-      PaperTrail::Version.where(item_type: type, created_at: today)
-        .where.not(whodunnit: nil).where("jsonb_exists(object_changes, ?)", field).to_a
-    end
 
     def batch_changes_count(today)
       sql = PaperTrail::Version.sanitize_sql_array([
@@ -118,20 +110,6 @@ module Admin
       result
     end
 
-    def top_performers(versions, field, states, limit = 3)
-      counts = versions.each_with_object(Hash.new(0)) do |v, h|
-        uid = v.whodunnit.to_i
-        next if uid.zero?
-        arr = (v.object_changes || {})[field]
-        h[uid] += 1 if arr.is_a?(Array) && arr.length == 2 && states.include?(arr[1])
-      end
-      ids = counts.sort_by { |_, c| -c }.first(limit).map(&:first)
-      return [] if ids.empty?
-
-      users = User.where(id: ids).select(:id, :display_name).index_by(&:id)
-      ids.map { |id| { name: users[id]&.display_name || "User ##{id}", count: counts[id] } }
-    end
-
     def all_time_performers(states)
       pg_array = "{#{states.join(',')}}"
       sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL, pg_array ])
@@ -141,6 +119,28 @@ module Admin
           AND whodunnit IS NOT NULL
           AND jsonb_exists(object_changes, 'aasm_state')
           AND (object_changes -> 'aasm_state' ->> 1) = ANY (?::text[])
+        GROUP BY whodunnit
+        ORDER BY cnt DESC
+        LIMIT 10
+      SQL
+
+      rows = ActiveRecord::Base.connection.select_all(sql).to_a
+      ids = rows.map { |r| r["whodunnit"].to_i }
+      return [] if ids.empty?
+
+      users = User.where(id: ids).select(:id, :display_name).index_by(&:id)
+      rows.map { |r| { name: users[r["whodunnit"].to_i]&.display_name || "User ##{r["whodunnit"]}", count: r["cnt"].to_i } }
+    end
+
+    def all_time_report_performers(states)
+      pg_array = "{#{states.join(',')}}"
+      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL, pg_array ])
+        SELECT whodunnit, COUNT(*) AS cnt
+        FROM versions
+        WHERE item_type = 'Project::Report'
+          AND whodunnit IS NOT NULL
+          AND jsonb_exists(object_changes, 'status')
+          AND (object_changes -> 'status' ->> 1) = ANY (?::text[])
         GROUP BY whodunnit
         ORDER BY cnt DESC
         LIMIT 10
