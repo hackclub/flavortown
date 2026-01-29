@@ -74,7 +74,7 @@ module Admin
 
       @fulfillment = {
         all: calculate_type_totals(type_counts),
-        hq_mail: calculate_type_totals(type_counts, %w[ShopItem::HQMailItem ShopItem::PileOfStickersItem ShopItem::LetterMail]),
+        hq_mail: calculate_type_totals(type_counts, %w[ShopItem::HQMailItem ShopItem::LetterMail]),
         third_party: calculate_type_totals(type_counts, %w[ShopItem::ThirdPartyPhysical]),
         warehouse: calculate_type_totals(type_counts, %w[ShopItem::WarehouseItem ShopItem::PileOfStickersItem]),
         other: calculate_type_totals(type_counts, %w[ShopItem::HCBGrant ShopItem::SiteActionItem ShopItem::BadgeItem ShopItem::AdventSticker ShopItem::HCBPreauthGrant ShopItem::SpecialFulfillmentItem])
