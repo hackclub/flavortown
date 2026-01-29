@@ -207,9 +207,15 @@
                 <span class="super-mega-dashboard__stat--value green"><%= format_minutes_as_time(@support[:resolution_time]) %></span>
                 <span class="super-mega-dashboard__stat--label">Avg Resolution</span>
               </div>
+            </div>
+          </div>
+
+          <div class="super-mega-dashboard__card">
+            <h3>Old tickets</h3>
+            <div class="super-mega-dashboard__stats">
               <div class="super-mega-dashboard__stat">
                 <span class="super-mega-dashboard__stat--value red"><%= format_seconds(@support[:oldest_unanswered] * 60, include_days: true) %></span>
-                <span class="super-mega-dashboard__stat--label">Oldest Unanswered</span>
+                <span class="super-mega-dashboard__stat--label">Oldest Unanswered Ticket</span>
               </div>
             </div>
           </div>
