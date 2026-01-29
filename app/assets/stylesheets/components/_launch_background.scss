@@ -10,10 +10,12 @@
     position: fixed;
     inset: 0;
     z-index: -10;
-    background: linear-gradient(180deg,
-        #170625 0%,
-        #250c41 37.825%,
-        #301361 100%);
+    background: linear-gradient(
+      180deg,
+      #170625 0%,
+      #250c41 37.825%,
+      #301361 100%
+    );
   }
 }
 
@@ -139,7 +141,7 @@
   pointer-events: none;
   z-index: -2;
   isolation: isolate;
-  
+
   // Needed for ::after positioning
   display: block;
 
@@ -168,7 +170,8 @@
 }
 
 @keyframes moonGlowBreath {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
     transform: scale(1);
   }

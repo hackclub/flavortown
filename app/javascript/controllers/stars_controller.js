@@ -124,7 +124,9 @@ export default class extends Controller {
 
   setupScrollFade() {
     this.boundHandleScroll = this.handleScroll.bind(this);
-    window.addEventListener("scroll", this.boundHandleScroll, { passive: true });
+    window.addEventListener("scroll", this.boundHandleScroll, {
+      passive: true,
+    });
     this.handleScroll();
   }
 
