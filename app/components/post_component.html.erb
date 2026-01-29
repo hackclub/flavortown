@@ -22,7 +22,7 @@
           <span class="post__deleted-banner-note">This content is only visible to admins/fraud review</span>
         </div>
       <% end %>
-      <% if unapproved_ship_event? %>
+      <% if unapproved_ship_event? && helpers.current_user&.admin? %>
         <div class="post__admin-only-banner">
           <strong>⏳ PENDING APPROVAL</strong>
           <span>Status: <%= postable.certification_status.titleize %></span>
