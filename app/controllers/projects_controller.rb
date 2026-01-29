@@ -42,6 +42,10 @@ class ProjectsController < ApplicationController
       @posts = @posts.reject { |post| post.postable_type == "Post::GitCommit" }
     end
 
+    unless current_user&.admin?
+      @posts = @posts.reject { |post| post.postable_type == "Post::ShipEvent" && post.postable.certification_status != "approved" }
+    end
+
     if current_user
       devlog_ids = @posts.select { |p| p.postable_type == "Post::Devlog" }.map(&:postable_id)
       @liked_devlog_ids = Like.where(user: current_user, likeable_type: "Post::Devlog", likeable_id: devlog_ids).pluck(:likeable_id).to_set
