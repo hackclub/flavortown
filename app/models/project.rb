@@ -20,6 +20,7 @@
 #  shadow_banned_reason :text
 #  ship_status          :string           default("draft")
 #  shipped_at           :datetime
+#  sidequest            :string
 #  synced_at            :datetime
 #  title                :string           not null
 #  tutorial             :boolean          default(FALSE), not null
