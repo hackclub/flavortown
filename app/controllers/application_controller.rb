@@ -74,7 +74,17 @@ class ApplicationController < ActionController::Base
 
   def user_not_authorized
     flash[:alert] = "You are not authorized to perform this action."
-    redirect_to(request.referrer || root_path)
+    redirect_to(safe_referrer || root_path)
+  end
+
+  def safe_referrer
+    return nil if request.referrer.blank?
+
+    referrer_uri = URI.parse(request.referrer)
+    request_uri = URI.parse(request.url)
+    referrer_uri.host == request_uri.host ? request.referrer : nil
+  rescue URI::InvalidURIError
+    nil
   end
 
   def handle_invalid_auth_token
