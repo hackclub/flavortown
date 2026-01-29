@@ -81,8 +81,9 @@ class ApplicationController < ActionController::Base
     return nil if request.referrer.blank?
 
     referrer_uri = URI.parse(request.referrer)
-    request_uri = URI.parse(request.url)
-    referrer_uri.host == request_uri.host ? request.referrer : nil
+    return request.referrer if referrer_uri.host&.end_with?(".hackclub.com") || referrer_uri.host == "hackclub.com"
+
+    nil
   rescue URI::InvalidURIError
     nil
   end
