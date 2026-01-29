@@ -293,7 +293,9 @@ export default class extends Controller {
     if (!this.hasDescriptionTarget || !this.hasUpdateDeclarationTarget) return;
 
     const prefix = this.updatePrefixValue;
-    const hasPrefix = this.descriptionTarget.value.trimStart().startsWith(prefix);
+    const hasPrefix = this.descriptionTarget.value
+      .trimStart()
+      .startsWith(prefix);
     this.updateDeclarationTarget.checked = hasPrefix;
   }
 
