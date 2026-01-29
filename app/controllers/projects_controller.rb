@@ -69,7 +69,7 @@ class ProjectsController < ApplicationController
 
         required = Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
         current = latest_ship_event.votes_count.to_i
-        remaining = [required - current, 0].max
+        remaining = [ required - current, 0 ].max
 
         @votes_for_payout = {
           current: current,

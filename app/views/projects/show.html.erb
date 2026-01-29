@@ -95,7 +95,7 @@
         </div>
       </section>
     <% end %>
-    
+
     <% if @posts.present? %>
       <div class="projects-show__timeline">
         <div class="mt-4" style="display: grid; gap: var(--space-xl);">
@@ -152,3 +152,8 @@
     <% end %>
   </div>
 </div>
+
+<%= render TooltipComponent.new(target_id: "votes-progress-info", position: :top) do %>
+  <strong>Votes needed to unlock payout</strong>
+  This shows the number of times <i>other</i> people need to vote for your project!
+<% end %>
