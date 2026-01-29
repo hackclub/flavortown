@@ -13,13 +13,20 @@
     <% end %>
   </article>
 <% else %>
-  <article class="post <%= variant_class %> <%= theme_class %><%= ' post--deleted' if deleted? %><%= ' post--compact' if compact? %>">
+  <article class="post <%= variant_class %> <%= theme_class %><%= ' post--deleted' if deleted? %><%= ' post--compact' if compact? %><%= ' post--admin-only' if unapproved_ship_event? %>">
     <div class="post__content">
       <% if deleted? %>
         <div class="post__deleted-banner">
           <strong>🚨 DELETED DEVLOG</strong>
           <span>Deleted on <%= postable.deleted_at.strftime("%B %d, %Y at %I:%M %p") %></span>
           <span class="post__deleted-banner-note">This content is only visible to admins/fraud review</span>
+        </div>
+      <% end %>
+      <% if unapproved_ship_event? %>
+        <div class="post__admin-only-banner">
+          <strong>⏳ PENDING APPROVAL</strong>
+          <span>Status: <%= postable.certification_status.titleize %></span>
+          <span class="post__admin-only-banner-note">This ship event is only visible to admins</span>
         </div>
       <% end %>
       <header class="post__header">

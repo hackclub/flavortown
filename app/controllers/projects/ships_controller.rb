@@ -15,8 +15,13 @@ class Projects::ShipsController < ApplicationController
       @post = @project.posts.create!(user: current_user, postable: Post::ShipEvent.new(body: params[:ship_update].to_s.strip))
     end
 
-    ShipCertWebhookJob.perform_later(ship_event_id: @post.postable_id, type: "initial", force: false) if initial_ship?
-    redirect_to @project, notice: "Congratulations! Your project has been submitted for review!"
+    if initial_ship?
+      ShipCertWebhookJob.perform_later(ship_event_id: @post.postable_id, type: "initial", force: false)
+      redirect_to @project, notice: "Congratulations! Your project has been submitted for review!"
+    else
+      @post.postable.update!(certification_status: "approved")
+      redirect_to @project, notice: "Ship submitted! Your project is now out for voting."
+    end
   rescue ActiveRecord::RecordInvalid => e
     redirect_back fallback_location: new_project_ships_path(@project), alert: e.record.errors.full_messages.to_sentence
   end
