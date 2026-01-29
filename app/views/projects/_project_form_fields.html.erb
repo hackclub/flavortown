@@ -29,13 +29,27 @@
           input_html: {
             rows: 4,
             data: {
-              action: "input->project-form#validateDescription blur->project-form#validateDescription",
+              action: "input->project-form#validateDescription input->project-form#syncUpdateCheckbox blur->project-form#validateDescription",
               "project-form-target": "description"
             }
           },
           subtitle: "Use a few sentences to explain what you're making."
         )
       ) %>
+
+  </div>
+
+<div class="projects-new__field projects-new__field--update-declaration">
+  <div class="input input--yellow">
+    <span class="input__label">Project Update Declaration</span>
+    <label class="projects-new__checkbox-control">
+      <input type="checkbox"
+             data-project-form-target="updateDeclaration"
+             data-action="change->project-form#toggleUpdatePrefix">
+      <span class="projects-new__checkbox-label">Tick this if you are updating a project previously submitted to any Hack Club program</span>
+    </label>
+    <div class="input__subtitle">Remember to tell us your project's new features in your description.</div>
+  </div>
 </div>
 
 <div class="projects-new__field projects-new__field--banner">

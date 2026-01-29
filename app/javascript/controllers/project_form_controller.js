@@ -10,7 +10,12 @@ export default class extends Controller {
     "readmeUrl",
     "readmeContainer",
     "submit",
+    "updateDeclaration",
   ];
+
+  static values = {
+    updatePrefix: { type: String, default: "Updated Project:" },
+  };
 
   connect() {
     this.userEditedReadme = false;
@@ -26,6 +31,9 @@ export default class extends Controller {
     this.updateSubmitState(); // submit button
 
     this.restorReadmeWhenThereIsAError();
+
+    // Sync checkbox state on load if description already has prefix
+    this.syncUpdateCheckbox();
 
     if (
       this.hasRepoUrlTarget &&
@@ -260,6 +268,37 @@ export default class extends Controller {
       this.readmeUrlTarget.removeAttribute("title");
       this.userEditedReadme = true;
     }
+  }
+
+  // Update Declaration checkbox handlers
+  toggleUpdatePrefix() {
+    if (!this.hasDescriptionTarget || !this.hasUpdateDeclarationTarget) return;
+
+    const prefix = this.updatePrefixValue;
+    const description = this.descriptionTarget.value;
+    const hasPrefix = description.trimStart().startsWith(prefix);
+
+    if (this.updateDeclarationTarget.checked && !hasPrefix) {
+      this.descriptionTarget.value = `${prefix} ${description}`;
+    } else if (!this.updateDeclarationTarget.checked && hasPrefix) {
+      this.descriptionTarget.value = description
+        .trimStart()
+        .replace(new RegExp(`^${this.escapeRegex(prefix)}\\s*`), "");
+    }
+
+    this.validateDescription();
+  }
+
+  syncUpdateCheckbox() {
+    if (!this.hasDescriptionTarget || !this.hasUpdateDeclarationTarget) return;
+
+    const prefix = this.updatePrefixValue;
+    const hasPrefix = this.descriptionTarget.value.trimStart().startsWith(prefix);
+    this.updateDeclarationTarget.checked = hasPrefix;
+  }
+
+  escapeRegex(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 
   // util
