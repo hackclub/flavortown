@@ -142,6 +142,10 @@
     top: 0.2em;
     left: -5.9em;
     z-index: 1;
+
+    @media (max-width: 900px) {
+      display: none;
+    }
   }
 
   &::after {
@@ -155,6 +159,10 @@
     border-width: 10px;
     border-style: solid;
     box-shadow: var(--shadow);
+
+    @media (max-width: 900px) {
+      display: none;
+    }
   }
 
   > * {
@@ -367,6 +375,10 @@
         color: var(--color-bg) !important;
       }
     }
+  }
+
+  picture.post__attachment {
+    display: block;
   }
 
   &__image {
