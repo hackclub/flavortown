@@ -11,10 +11,12 @@ export default class extends Controller {
     "readmeContainer",
     "submit",
     "updateDeclaration",
+    "spaceThemed",
   ];
 
   static values = {
     updatePrefix: { type: String, default: "Updated Project:" },
+    spacePrefix: { type: String, default: "Space Themed:" },
   };
 
   connect() {
@@ -34,6 +36,7 @@ export default class extends Controller {
 
     // Sync checkbox state on load if description already has prefix
     this.syncUpdateCheckbox();
+    this.syncSpaceCheckbox();
 
     if (
       this.hasRepoUrlTarget &&
@@ -272,31 +275,68 @@ export default class extends Controller {
 
   // Update Declaration checkbox handlers
   toggleUpdatePrefix() {
-    if (!this.hasDescriptionTarget || !this.hasUpdateDeclarationTarget) return;
-
-    const prefix = this.updatePrefixValue;
-    const description = this.descriptionTarget.value;
-    const hasPrefix = description.trimStart().startsWith(prefix);
-
-    if (this.updateDeclarationTarget.checked && !hasPrefix) {
-      this.descriptionTarget.value = `${prefix} ${description}`;
-    } else if (!this.updateDeclarationTarget.checked && hasPrefix) {
-      this.descriptionTarget.value = description
-        .trimStart()
-        .replace(new RegExp(`^${this.escapeRegex(prefix)}\\s*`), "");
-    }
-
-    this.validateDescription();
+    this.rebuildPrefixes();
   }
 
   syncUpdateCheckbox() {
     if (!this.hasDescriptionTarget || !this.hasUpdateDeclarationTarget) return;
 
     const prefix = this.updatePrefixValue;
-    const hasPrefix = this.descriptionTarget.value
-      .trimStart()
-      .startsWith(prefix);
+    const hasPrefix = this.descriptionTarget.value.trimStart().includes(prefix);
     this.updateDeclarationTarget.checked = hasPrefix;
+  }
+
+  // Space Themed checkbox handlers
+  toggleSpacePrefix() {
+    this.rebuildPrefixes();
+  }
+
+  syncSpaceCheckbox() {
+    if (!this.hasDescriptionTarget || !this.hasSpaceThemedTarget) return;
+
+    const prefix = this.spacePrefixValue;
+    const hasPrefix = this.descriptionTarget.value.trimStart().includes(prefix);
+    this.spaceThemedTarget.checked = hasPrefix;
+  }
+
+  // Rebuild prefixes based on checkbox states
+  rebuildPrefixes() {
+    if (!this.hasDescriptionTarget) return;
+
+    // Strip all existing prefixes from description
+    let description = this.descriptionTarget.value.trimStart();
+    const updatePrefix = this.updatePrefixValue;
+    const spacePrefix = this.spacePrefixValue;
+
+    // Remove existing prefixes (in any order, with optional comma)
+    const prefixPattern = new RegExp(
+      `^(${this.escapeRegex(updatePrefix)}|${this.escapeRegex(spacePrefix)})(,\\s*|\\s+)`,
+      "g",
+    );
+    // Keep removing prefixes until none remain
+    let prevDescription;
+    do {
+      prevDescription = description;
+      description = description.replace(prefixPattern, "").trimStart();
+    } while (description !== prevDescription);
+
+    // Build new prefix based on checkbox states
+    const prefixes = [];
+    if (
+      this.hasUpdateDeclarationTarget &&
+      this.updateDeclarationTarget.checked
+    ) {
+      prefixes.push(updatePrefix);
+    }
+    if (this.hasSpaceThemedTarget && this.spaceThemedTarget.checked) {
+      prefixes.push(spacePrefix);
+    }
+
+    // Combine prefixes with comma if both present
+    const combinedPrefix = prefixes.length > 0 ? `${prefixes.join(", ")} ` : "";
+    this.descriptionTarget.value = combinedPrefix + description;
+
+    this.validateDescription();
   }
 
   escapeRegex(string) {

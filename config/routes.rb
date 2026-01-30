@@ -115,6 +115,9 @@ Rails.application.routes.draw do
   # Kitchen
   get "kitchen", to: "kitchen#index"
 
+  # Launch
+  get "launch", to: "launch#index"
+
   # Leaderboard
   get "leaderboard", to: "leaderboard#index"
 

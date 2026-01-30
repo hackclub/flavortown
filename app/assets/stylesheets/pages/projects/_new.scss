@@ -81,6 +81,21 @@
     }
   }
 
+  &__field--declarations {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-l);
+    align-items: start;
+
+    .input {
+      width: 100%;
+    }
+
+    .input--blue .projects-new__checkbox-control input[type="checkbox"] {
+      accent-color: var(--color-blue-500);
+    }
+  }
+
   &__checkbox-control {
     display: flex;
     align-items: center;
@@ -98,6 +113,11 @@
       cursor: pointer;
       accent-color: var(--color-yellow-500);
       flex-shrink: 0;
+    }
+
+    &--compact {
+      padding: var(--space-s) var(--space-m);
+      gap: var(--space-s);
     }
   }
 
@@ -157,6 +177,10 @@
 
     &__card {
       padding: var(--space-xxl);
+    }
+
+    &__field--declarations {
+      grid-template-columns: 1fr;
     }
 
     &__actions {

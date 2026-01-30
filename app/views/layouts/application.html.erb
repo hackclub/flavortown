@@ -57,7 +57,19 @@
     <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>
 
-  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %>>
+  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %> <%= 'launch-theme' if controller_name == 'launch' %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %> <%= 'data-controller="stars shooting-star"'.html_safe if controller_name == 'launch' %> <%= 'data-controller="stars"'.html_safe if controller_name == 'landing' && @landing_variant == 'challenger' %>>
+    <%# ISS is rendered in the launch view inside .launch-scene container %>
+    <% if Rails.env.development? && current_user.blank? %>
+      <div style="position: fixed; top: 0; left: 0; right: 0; z-index: 99999; background: linear-gradient(90deg, #ff6b35, #f7931e); padding: 12px 20px; display: flex; align-items: center; justify-content: center; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); font-family: system-ui, sans-serif;">
+        <span style="color: white; font-weight: bold; font-size: 14px;">🔧 DEV MODE</span>
+        <% User.limit(5).each do |user| %>
+          <%= link_to user.display_name.presence || "User ##{user.id}",
+                      dev_login_path(user.id),
+                      style: "background: white; color: #ff6b35; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 13px;" %>
+        <% end %>
+      </div>
+      <div style="height: 50px;"></div>
+    <% end %>
     <% if impersonating? %>
       <div class="impersonation-banner">
         <div class="impersonation-content">
@@ -77,6 +89,14 @@
     <% end %>
     <% if current_user.present? && !current_user.banned? && !@hide_sidebar %>
       <%= render "shared/sidebar" %>
+
+      <%# Rocket launch animation element - hidden until triggered %>
+      <div class="rocket-launch" id="rocket-launch" aria-hidden="true">
+        <div class="rocket-launch__avatar">
+          <%= image_tag current_user.avatar, alt: "", class: "rocket-launch__avatar-img" %>
+        </div>
+        <%= image_tag "launch/rocket.png", alt: "", class: "rocket-launch__rocket" %>
+      </div>
     <% end %>
     <%= render "shared/flash" %>
     <% if tutorial_messages.present? %>
