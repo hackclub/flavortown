@@ -52,6 +52,7 @@ class Vote < ApplicationRecord
   validates(*score_columns, inclusion: { in: 1..6, message: "must be between 1 and 6" }, allow_nil: true)
   validate :all_categories_scored
   validate :user_cannot_vote_on_own_projects
+  validate :ship_event_matches_project
 
   def category_description(category) = CATEGORIES[category.to_sym]
 
@@ -76,5 +77,14 @@ class Vote < ApplicationRecord
 
   def increment_user_vote_balance
     user.increment!(:vote_balance, 1)
+  end
+
+  def ship_event_matches_project
+    return if ship_event.blank? || project_id.blank?
+
+    expected_project_id = ship_event.post&.project_id
+    return if expected_project_id.blank?
+
+    errors.add(:project, "does not match ship event") if project_id != expected_project_id
   end
 end
