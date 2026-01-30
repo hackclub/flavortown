@@ -6,6 +6,9 @@ module Admin
       authorize :admin, :access_reports?
 
       @reports = Project::Report.includes(:reporter, :project).order(created_at: :desc)
+      unless params[:show_demo_broken]
+          @reports = @reports.where.not(reason: "demo_broken")
+      end
 
       @reports = @reports.where(status: params[:status]) if params[:status].present?
       @reports = @reports.where(reason: params[:reason]) if params[:reason].present?

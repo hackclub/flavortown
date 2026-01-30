@@ -10,6 +10,7 @@
         <%= image_tag(@user.avatar, alt: @user.display_name, class: "user-profile__avatar") %>
             <h1><%= @user.display_name %></h1>
             <h2>Joined <%= @user.created_at.to_date.to_s %></h2>
+            <%= render "shared/admin_copy_debug", record: @user, record_type: "User", url: user_url(@user, host: "flavortown.hackclub.com", protocol: "https") %>
         </div>
         <div class="user-profile__heading">
             <%= inline_svg "icons/question.svg" %>
@@ -114,7 +115,7 @@
                             <span class="user-profile__order-item-name--<%= colors[index % colors.size] %>">
                                 <%= order.shop_item.name %>
                             </span>
-                            <b><%= order.quantity %> times</b>.
+                            <b><%= pluralize(order.quantity, "time") %></b>.
                         </h3>
                     </div>
                 <% end %>

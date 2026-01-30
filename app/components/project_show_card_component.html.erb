@@ -4,14 +4,30 @@
     <div class="project-card__banner-frame">
       <% if banner_variant.present? %>
         <%= image_tag project.banner.variant(:card), class: "project-card__banner-image", alt: "#{project.title} banner" %>
-        <% if owner? && (project.draft? || project.shippable?) %>
-            <%= render ButtonComponent.new(
-                text: project.draft? ? "Ship" : "Ship Again",
-                color: :green,
-                icon: "icons/ship.svg",
-                href: new_project_ships_path(project),
-                class: "project-show-card__ship-btn"
-            ) %>
+        <% if owner? %>
+            <% can_ship = project.draft? || project.shippable? %>
+            <%= render PopoverComponent.new(position: :left, class: "project-show-card__ship-wrapper") do |popover| %>
+              <% popover.with_trigger do %>
+                <%= render ButtonComponent.new(
+                    text: project.draft? ? "Ship" : "Ship Again",
+                    color: :green,
+                    icon: "icons/ship.svg",
+                    href: can_ship ? new_project_ships_path(project) : nil,
+                    disabled: !can_ship,
+                    class: "project-show-card__ship-btn"
+                ) %>
+              <% end %>
+              <% unless can_ship %>
+                <% popover.with_popover_content do %>
+                  <strong>Cannot ship yet:</strong>
+                  <ul>
+                    <% ship_disabled_reasons.each do |reason| %>
+                      <li><%= reason %></li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              <% end %>
+            <% end %>
         <% end %>
         <% if helpers.current_user.present? && helpers.policy(:admin).manage_projects? %>
           <%= render ButtonComponent.new(
@@ -29,14 +45,30 @@
         <% end %>
       <% else %>
         <%= image_tag "default-banner.png", class: "project-card__banner-image", alt: "#{project.title} banner" %>
-        <% if owner? && (project.draft? || project.shippable?) %>
-            <%= render ButtonComponent.new(
-                text: project.draft? ? "Ship" : "Ship Again",
-                color: :green,
-                icon: "icons/ship.svg",
-                href: new_project_ships_path(project),
-                class: "project-show-card__ship-btn"
-            ) %>
+        <% if owner? %>
+            <% can_ship = project.draft? || project.shippable? %>
+            <%= render PopoverComponent.new(position: :left, class: "project-show-card__ship-wrapper") do |popover| %>
+              <% popover.with_trigger do %>
+                <%= render ButtonComponent.new(
+                    text: project.draft? ? "Ship" : "Ship Again",
+                    color: :green,
+                    icon: "icons/ship.svg",
+                    href: can_ship ? new_project_ships_path(project) : nil,
+                    disabled: !can_ship,
+                    class: "project-show-card__ship-btn"
+                ) %>
+              <% end %>
+              <% unless can_ship %>
+                <% popover.with_popover_content do %>
+                  <strong>Cannot ship yet:</strong>
+                  <ul>
+                    <% ship_disabled_reasons.each do |reason| %>
+                      <li><%= reason %></li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              <% end %>
+            <% end %>
         <% end %>
         <% if helpers.current_user.present? && helpers.policy(:admin).manage_projects? %>
           <%= render ButtonComponent.new(

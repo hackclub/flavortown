@@ -45,8 +45,8 @@
   </div>
 
   <div class="card fraud-card">
-    <h2>Report Reviewers (24h)</h2>
-    <%= render "leaderboard", reviewers: r[:top_reviewers], medals: %w[🥇 🥈 🥉] %>
+    <h2>Report Reviewers (All-Time)</h2>
+    <%= render "leaderboard", reviewers: r[:top_reviewers], medals: (1..10).map { |i| "##{i}" } %>
   </div>
 </div>
 
@@ -117,13 +117,8 @@
 
 <div class="fraud-grid">
   <div class="card fraud-card">
-    <h2>Order Reviewers (24h)</h2>
-    <%= render "leaderboard", reviewers: o[:top_reviewers], medals: %w[🥇 🥈 🥉] %>
-  </div>
-
-  <div class="card fraud-card">
     <h2>Order Reviewers (All-Time)</h2>
-    <%= render "leaderboard", reviewers: o[:all_time], medals: (1..10).map { |i| "##{i}" } %>
+    <%= render "leaderboard", reviewers: o[:top_reviewers], medals: (1..10).map { |i| "##{i}" } %>
   </div>
 
   <div class="card fraud-card">

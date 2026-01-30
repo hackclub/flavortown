@@ -88,7 +88,7 @@ class ShipEventPayoutCalculator
     "Ship event payout: #{project.title}"
   end
 
-  def lowest_dollar_per_hour = @game_constants.lowerst_dollar_per_hour.to_f
+  def lowest_dollar_per_hour = @game_constants.lowest_dollar_per_hour.to_f
   def highest_dollar_per_hour = @game_constants.highest_dollar_per_hour.to_f
   def dollars_per_mean_hour = @game_constants.dollars_per_mean_hour.to_f
   def tickets_per_dollar = @game_constants.tickets_per_dollar.to_f
@@ -106,6 +106,11 @@ class ShipEventPayoutCalculator
 
   def notify_vote_deficit(user, votes_needed)
     return unless user.slack_id.present?
+
+    cache_key = "vote_deficit_notified:#{@ship_event.id}"
+    return if Rails.cache.exist?(cache_key)
+
+    Rails.cache.write(cache_key, true, expires_in: 6.hours)
 
     project = @ship_event.post&.project
     project_title = project&.title

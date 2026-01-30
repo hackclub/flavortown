@@ -1,3 +1,5 @@
+@use "sass:color";
+
 .tutorial-steps {
   position: relative;
   z-index: 1;
@@ -183,5 +185,83 @@
     border-top-color: var(--color-brown-500);
     z-index: 10;
     pointer-events: none;
+  }
+}
+
+.tutorial-video-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  padding: 0;
+  padding-top: 50px;
+  border: none;
+  border-radius: var(--border-radius);
+  width: calc(100vw - 80px);
+  max-width: 1200px;
+  max-height: calc(100vh - 80px);
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+
+  &::backdrop {
+    background: rgb(0 0 0 / 0.8);
+  }
+
+  &__content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__close {
+    position: absolute;
+    background: #253b5f;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #f8e9d3;
+    cursor: pointer;
+    width: 56px;
+    height: 56px;
+    line-height: 1;
+    font-size: 2rem;
+    z-index: 10;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: color.adjust(#253b5f, $lightness: 10%);
+    }
+
+    &--corner {
+      top: -30px;
+      right: -30px;
+    }
+  }
+
+  &__video-wrapper {
+    background: var(--color-brown-500);
+    border-radius: var(--border-radius);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+  }
+
+  &__body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+    iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: none;
+      border-radius: var(--border-radius);
+    }
   }
 }

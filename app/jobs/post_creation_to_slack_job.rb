@@ -85,9 +85,23 @@ class PostCreationToSlackJob < ApplicationJob
     author = comment.user
     return unless commentable && author
 
-    commentable_url, commentable_title = resolve_commentable(commentable)
+    commentable_url, commentable_title, commentable_users = resolve_commentable(commentable)
     return unless commentable_url
-
+    commentable_users.each do |member|
+      if member.slack_id && member.send_notifications_for_new_comments
+        SendSlackDmJob.perform_later(
+          member.slack_id,
+          "New comment on your project #{commentable_title} by #{author.display_name || "Someone"}",
+          blocks_path: "notifications/creations/comment_created_dm",
+          locals: {
+            commentable_title: sanitize_mentions(commentable_title),
+            commentable_url: commentable_url,
+            author_name: sanitize_mentions(author.display_name) || "Someone",
+            comment_body: sanitize_mentions(comment.body.to_s.truncate(200))
+          }
+        )
+      end
+    end
     SendSlackDmJob.perform_later(
       CHANNEL_ID,
       nil,
@@ -109,7 +123,8 @@ class PostCreationToSlackJob < ApplicationJob
 
       [
         project_url(post.project, host: "flavortown.hackclub.com", protocol: "https"),
-        post.project.title
+        post.project.title,
+        post.project.users
       ]
     when Post::ShipEvent
       post = commentable.post
@@ -117,7 +132,8 @@ class PostCreationToSlackJob < ApplicationJob
 
       [
         project_url(post.project, host: "flavortown.hackclub.com", protocol: "https"),
-        post.project.title
+        post.project.title,
+        post.project.users
       ]
     else
       nil

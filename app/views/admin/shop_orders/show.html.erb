@@ -1,4 +1,10 @@
-<h1 class="admin-section__header" style="font-size: 1.5rem; margin-bottom: 1rem;">Order #<%= @order.id %></h1>
+<h1 class="admin-section__header" style="font-size: 1.5rem; margin-bottom: 1rem;">
+  <span
+    title="ID: <%= @order.id %>&#10;User: <%= @order.user.display_name %> (Slack: <%= @order.user.slack_id || 'N/A' %>)&#10;Item: <%= @order.shop_item.name %>&#10;Qty: <%= @order.quantity %> × <%= @order.frozen_item_price %> = <%= @order.total_cost %> tickets&#10;Status: <%= @order.aasm_state.humanize %>&#10;Created: <%= @order.created_at.strftime('%Y-%m-%d %H:%M') %><%= @order.assigned_to_user.present? ? "&#10;Assigned: #{@order.assigned_to_user.display_name}" : '' %>"
+    style="cursor: help;">Order #<%= @order.id %></span>
+</h1>
+
+<%= render "shared/admin_state_machine", record: @order %>
 
 <div class="admin-section">
   <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
@@ -18,12 +24,14 @@
       <span style="font-size: 0.75rem; color: #6b7280; display: block;">User</span>
       <%= link_to @order.user.display_name || "Unknown", admin_user_path(@order.user), style: "font-size: 0.875rem; color: #3b82f6;" %>
       <div style="font-size: 0.7rem; color: #6b7280; margin-top: 0.25rem;">
-        <% if @order.user.slack_id.present? %>
-          <div>Slack: <code><%= @order.user.slack_id %></code></div>
-        <% end %>
+        <div>Slack: <% if @order.user.slack_id.present? %><a href="https://hackclub.slack.com/team/<%= @order.user.slack_id %>" target="_blank" style="color: #3b82f6;"><code><%= @order.user.slack_id %></code></a><% else %><span style="color: #9ca3af;">N/A</span><% end %></div>
         <% hackatime_identity = @order.user.identities.find { |i| i.provider == "hackatime" } %>
         <% if hackatime_identity %>
           <div>Hackatime: <code><%= hackatime_identity.uid %></code></div>
+        <% end %>
+        <% hack_club_identity = @order.user.identities.find { |i| i.provider == "hack_club" } %>
+        <% if hack_club_identity %>
+          <div>Hack Club: <code><%= hack_club_identity.uid %></code></div>
         <% end %>
       </div>
       <% if current_user.admin? || current_user.fraud_dept? %>
@@ -148,6 +156,13 @@
 <% if @can_view_address %>
 <div class="admin-section">
   <h2 class="admin-section__header">Shipping Address</h2>
+  <% if @is_digital_fulfillment_type && current_user.admin? %>
+    <div style="margin-bottom: 1em; padding: 0.5em; background: #dbeafe; border-radius: 4px;">
+      <small style="color: #1e40af;">
+        ℹ️ This is a digital fulfillment item. Address visible because you are an admin.
+      </small>
+    </div>
+  <% end %>
   <% if @can_view_address %>
     <div id="address-container">
 

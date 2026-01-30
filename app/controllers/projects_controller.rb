@@ -2,6 +2,21 @@ class ProjectsController < ApplicationController
   before_action :set_project_minimal, only: [ :edit, :update, :destroy, :mark_fire, :unmark_fire ]
   before_action :set_project, only: [ :show, :readme ]
 
+  def stats
+    @project = Project.find(params[:id])
+    authorize :admin, :access_admin_endpoints?
+
+    stats = {
+      devlogs_count: @project.devlogs_count,
+      members_count: @project.memberships_count,
+      total_hours: (@project.duration_seconds / 3600.0).round(1),
+      shipped: @project.shipped?,
+      created_at: @project.created_at
+    }
+
+    render json: stats
+  end
+
   def index
     authorize Project
     @projects = current_user.projects.includes(banner_attachment: :blob)
@@ -27,6 +42,10 @@ class ProjectsController < ApplicationController
       @posts = @posts.reject { |post| post.postable_type == "Post::GitCommit" }
     end
 
+    unless current_user&.admin?
+      @posts = @posts.reject { |post| post.postable_type == "Post::ShipEvent" && post.postable.certification_status != "approved" }
+    end
+
     if current_user
       devlog_ids = @posts.select { |p| p.postable_type == "Post::Devlog" }.map(&:postable_id)
       @liked_devlog_ids = Like.where(user: current_user, likeable_type: "Post::Devlog", likeable_id: devlog_ids).pluck(:likeable_id).to_set
@@ -35,6 +54,30 @@ class ProjectsController < ApplicationController
     end
 
     ahoy.track "Viewed project", project_id: @project.id
+
+    latest_ship_post = @posts.find { |post| post.postable_type == "Post::ShipEvent" }
+    latest_ship_event = latest_ship_post&.postable
+
+    @votes_for_payout = nil
+    if current_user.present?
+      is_owner = @project.memberships.where(role: :owner, user_id: current_user.id).exists?
+
+      if is_owner &&
+          latest_ship_event.present? &&
+          latest_ship_event.certification_status == "approved" &&
+          latest_ship_event.payout.blank?
+
+        required = Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
+        current = latest_ship_event.votes_count.to_i
+        remaining = [ required - current, 0 ].max
+
+        @votes_for_payout = {
+          current: current,
+          required: required,
+          remaining: remaining
+        }
+      end
+    end
   end
 
   def new
@@ -221,6 +264,20 @@ class ProjectsController < ApplicationController
 
     follow = current_user.project_follows.build(project: @project)
     if follow.save
+      @project.users.each do |member|
+        if member.send_notifications_for_new_followers && current_user.slack_id && member.slack_id
+          SendSlackDmJob.perform_later(
+            member.slack_id,
+            "#{current_user.display_name} is now following your project #{@project.title}!",
+            blocks_path: "notifications/new_follower",
+            locals: {
+              project_title: @project.title,
+              project_url: project_url(@project, host: "flavortown.hackclub.com", protocol: "https"),
+              follower_id: current_user.slack_id
+            }
+          )
+        end
+      end
       redirect_to @project, notice: "You are now following this project."
     else
       redirect_to @project, alert: follow.errors.full_messages.to_sentence
@@ -365,6 +422,7 @@ class ProjectsController < ApplicationController
   ALLOWLISTED_DOMAINS = %w[
     npmjs.com
     crates.io
+    curseforge.com
   ].freeze
 
   def validate_url_not_dead(attribute, name)

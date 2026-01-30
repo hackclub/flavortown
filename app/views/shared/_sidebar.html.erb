@@ -153,6 +153,22 @@
 
       <div class="settings-form__field">
         <label class="settings-form__checkbox">
+          <%= check_box_tag :send_notifications_for_new_followers, "1", current_user.send_notifications_for_new_followers, id: "send_notifications_for_new_followers" %>
+          <span>New follower notifications</span>
+        </label>
+        <small class="settings-form__hint">Receive a Slack DM when someone starts following a project you're making</small>
+      </div>
+
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
+          <%= check_box_tag :send_notifications_for_new_comments, "1", current_user.send_notifications_for_new_comments, id: "send_notifications_for_new_comments" %>
+          <span>New comment notifications</span>
+        </label>
+        <small class="settings-form__hint">Receive a Slack DM when someone comments on a project you made</small>
+      </div>
+
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
           <%= check_box_tag :special_effects_enabled, "1", current_user.special_effects_enabled, id: "special_effects_enabled" %>
           <span>Special effects</span>
         </label>

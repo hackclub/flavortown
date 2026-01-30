@@ -1,0 +1,22 @@
+<% if current_user&.admin? || current_user&.fraud_dept? %>
+  <%
+    stats_url = case record
+    when User
+      stats_user_path(record)
+    when Project
+      stats_project_path(record)
+    end
+  %>
+  <span class="stats-hover-wrapper"
+        data-controller="stats-hover"
+        data-stats-hover-url-value="<%= stats_url %>"
+        data-action="mouseenter->stats-hover#show mouseleave->stats-hover#hide">
+    <%= label %>
+    <div class="stats-hover-popover"
+         data-stats-hover-target="popover"
+         data-action="mouseenter->stats-hover#popoverEnter mouseleave->stats-hover#popoverLeave">
+    </div>
+  </span>
+<% else %>
+  <%= label %>
+<% end %>

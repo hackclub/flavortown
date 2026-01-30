@@ -99,6 +99,8 @@ class FraudDailySummaryJob < ApplicationJob
       next if user_id.zero?
 
       changes = version.object_changes || {}
+      next if changes.is_a?(String) && changes.start_with?("---")
+      changes = JSON.parse(changes) if changes.is_a?(String)
       state_change = changes[change_field]
       next unless state_change.is_a?(Array) && state_change.length == 2
       next unless valid_states.include?(state_change[1])
@@ -125,7 +127,12 @@ class FraudDailySummaryJob < ApplicationJob
     return nil if recent_orders.empty?
 
     total_hours = recent_orders.sum do |order|
-      first_action = order.versions.find { |v| v.object_changes&.dig("aasm_state")&.last.in?(%w[awaiting_periodical_fulfillment rejected]) }
+      first_action = order.versions.find do |v|
+        changes = v.object_changes
+        next if changes.is_a?(String) && changes.start_with?("---")
+        changes = JSON.parse(changes) if changes.is_a?(String)
+        changes&.dig("aasm_state")&.last.in?(%w[awaiting_periodical_fulfillment rejected])
+      end
       next 0 unless first_action
 
       (first_action.created_at - order.created_at) / 1.hour
