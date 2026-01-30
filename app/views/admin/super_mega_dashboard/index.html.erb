@@ -228,11 +228,11 @@
                 <span class="super-mega-dashboard__stat--label">Total</span>
               </div>
               <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value yellow"><%= @support[:open] %></span>
+                <span class="super-mega-dashboard__stat--value red"><%= @support[:open] %></span>
                 <span class="super-mega-dashboard__stat--label">Open</span>
               </div>
               <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value purple"><%= @support[:in_progress] %></span>
+                <span class="super-mega-dashboard__stat--value yellow"><%= @support[:in_progress] %></span>
                 <span class="super-mega-dashboard__stat--label">In Progress</span>
               </div>
               <div class="super-mega-dashboard__stat">
@@ -250,11 +250,11 @@
                 <span class="super-mega-dashboard__stat--label">Total</span>
               </div>
               <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value yellow"><%= @support[:prev_day][:open] %></span>
+                <span class="super-mega-dashboard__stat--value red"><%= @support[:prev_day][:open] %></span>
                 <span class="super-mega-dashboard__stat--label">Open</span>
               </div>
               <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value purple"><%= @support[:prev_day][:in_progress] %></span>
+                <span class="super-mega-dashboard__stat--value yellow"><%= @support[:prev_day][:in_progress] %></span>
                 <span class="super-mega-dashboard__stat--label">In Progress</span>
               </div>
               <div class="super-mega-dashboard__stat">
@@ -268,12 +268,22 @@
             <h3>Response Times</h3>
             <div class="super-mega-dashboard__stats">
               <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value red"><%= format_minutes_as_time(@support[:avg_hang_time]) %></span>
+                <span class="super-mega-dashboard__stat--value yellow"><%= format_minutes_as_time(@support[:avg_hang_time]) %></span>
                 <span class="super-mega-dashboard__stat--label">Avg Hang Time</span>
               </div>
               <div class="super-mega-dashboard__stat">
                 <span class="super-mega-dashboard__stat--value green"><%= format_minutes_as_time(@support[:resolution_time]) %></span>
                 <span class="super-mega-dashboard__stat--label">Avg Resolution</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="super-mega-dashboard__card">
+            <h3>Old tickets</h3>
+            <div class="super-mega-dashboard__stats">
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value red"><%= format_seconds(@support[:oldest_unanswered] * 60, include_days: true) %></span>
+                <span class="super-mega-dashboard__stat--label">Oldest Unanswered Ticket</span>
               </div>
             </div>
           </div>

@@ -111,6 +111,7 @@ module Admin
         closed: data["total_closed"],
         avg_hang_time: data["average_hang_time_minutes"]&.round,
         resolution_time: data["mean_resolution_time_minutes"]&.round,
+        oldest_unanswered: data["oldest_unanswered_ticket_age_minutes"]&.round,
         prev_day: {
           total: data["prev_day_total"],
           open: data["prev_day_open"],
