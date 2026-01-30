@@ -7,19 +7,19 @@ export default class extends Controller {
   };
 
   connect() {
-    this.targetElement = document.getElementById(this.targetIdValue);
-
-    if (!this.targetElement) {
-      console.warn(`Tooltip target #${this.targetIdValue} not found`);
-      return;
-    }
-
     this.boundShow = this.show.bind(this);
     this.boundHide = this.hide.bind(this);
     this.boundUpdatePosition = () => {
       if (!this.element.classList.contains("tooltip--visible")) return;
       requestAnimationFrame(() => this.updatePosition());
     };
+
+    this.targetElement = document.getElementById(this.targetIdValue);
+
+    if (!this.targetElement) {
+      console.warn(`Tooltip target #${this.targetIdValue} not found`);
+      return;
+    }
 
     this.targetElement.addEventListener("mouseenter", this.boundShow, {
       passive: true,
@@ -37,11 +37,8 @@ export default class extends Controller {
       passive: true,
     });
 
-    requestAnimationFrame(() => {
-      if (this.element.parentElement !== document.body) {
-        document.body.appendChild(this.element);
-      }
-    });
+    this.ensureInBody();
+    requestAnimationFrame(() => this.ensureInBody());
   }
 
   disconnect() {
@@ -52,15 +49,25 @@ export default class extends Controller {
       this.targetElement.removeEventListener("blur", this.boundHide);
     }
 
-    window.removeEventListener("scroll", this.boundUpdatePosition);
-    window.removeEventListener("resize", this.boundUpdatePosition);
+    if (this.boundUpdatePosition) {
+      window.removeEventListener("scroll", this.boundUpdatePosition);
+      window.removeEventListener("resize", this.boundUpdatePosition);
+    }
 
     if (this.element.parentElement === document.body) {
       this.element.remove();
     }
   }
 
+  ensureInBody() {
+    if (this.element.parentElement !== document.body) {
+      document.body.appendChild(this.element);
+    }
+  }
+
   show() {
+    this.ensureInBody();
+
     this.element.classList.add("tooltip--visible");
     this.element.setAttribute("aria-hidden", "false");
     this.updatePosition();
