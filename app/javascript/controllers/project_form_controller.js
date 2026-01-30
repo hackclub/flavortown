@@ -282,9 +282,7 @@ export default class extends Controller {
     if (!this.hasDescriptionTarget || !this.hasUpdateDeclarationTarget) return;
 
     const prefix = this.updatePrefixValue;
-    const hasPrefix = this.descriptionTarget.value
-      .trimStart()
-      .includes(prefix);
+    const hasPrefix = this.descriptionTarget.value.trimStart().includes(prefix);
     this.updateDeclarationTarget.checked = hasPrefix;
   }
 
@@ -297,9 +295,7 @@ export default class extends Controller {
     if (!this.hasDescriptionTarget || !this.hasSpaceThemedTarget) return;
 
     const prefix = this.spacePrefixValue;
-    const hasPrefix = this.descriptionTarget.value
-      .trimStart()
-      .includes(prefix);
+    const hasPrefix = this.descriptionTarget.value.trimStart().includes(prefix);
     this.spaceThemedTarget.checked = hasPrefix;
   }
 
@@ -337,8 +333,7 @@ export default class extends Controller {
     }
 
     // Combine prefixes with comma if both present
-    const combinedPrefix =
-      prefixes.length > 0 ? `${prefixes.join(", ")} ` : "";
+    const combinedPrefix = prefixes.length > 0 ? `${prefixes.join(", ")} ` : "";
     this.descriptionTarget.value = combinedPrefix + description;
 
     this.validateDescription();
