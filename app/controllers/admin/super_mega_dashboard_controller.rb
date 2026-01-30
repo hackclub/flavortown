@@ -74,7 +74,7 @@ module Admin
 
       @fulfillment = {
         all: calculate_type_totals(type_counts),
-        hq_mail: calculate_type_totals(type_counts, %w[ShopItem::HQMailItem ShopItem::PileOfStickersItem ShopItem::LetterMail]),
+        hq_mail: calculate_type_totals(type_counts, %w[ShopItem::HQMailItem ShopItem::LetterMail]),
         third_party: calculate_type_totals(type_counts, %w[ShopItem::ThirdPartyPhysical]),
         warehouse: calculate_type_totals(type_counts, %w[ShopItem::WarehouseItem ShopItem::PileOfStickersItem]),
         other: calculate_type_totals(type_counts, %w[ShopItem::HCBGrant ShopItem::SiteActionItem ShopItem::BadgeItem ShopItem::AdventSticker ShopItem::HCBPreauthGrant ShopItem::SpecialFulfillmentItem])
@@ -110,6 +110,7 @@ module Admin
         closed: data["total_closed"],
         avg_hang_time: data["average_hang_time_minutes"]&.round,
         resolution_time: data["mean_resolution_time_minutes"]&.round,
+        oldest_unanswered: data["oldest_unanswered_ticket_age_minutes"]&.round,
         prev_day: {
           total: data["prev_day_total"],
           open: data["prev_day_open"],

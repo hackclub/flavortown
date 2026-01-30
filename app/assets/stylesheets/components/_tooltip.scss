@@ -1,0 +1,30 @@
+.tooltip {
+  position: absolute;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  background-color: var(--color-brown-700);
+  color: var(--color-bg);
+  padding: 0.4em;
+  border-radius: 0.2em;
+  font-size: 1.2rem;
+  line-height: 1.2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  max-width: 300px;
+  width: max-content;
+  border: 0.3em solid var(--color-brown-500);
+
+  transition:
+    opacity 0.15s ease,
+    visibility 0.15s ease;
+
+  &--visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  strong {
+    display: block;
+  }
+}

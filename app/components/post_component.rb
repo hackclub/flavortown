@@ -59,6 +59,10 @@ class PostComponent < ViewComponent::Base
     postable.is_a?(Post::ShipEvent)
   end
 
+  def unapproved_ship_event?
+    ship_event? && postable.certification_status != "approved"
+  end
+
   def ship_event_has_payout?
     ship_event? && postable.payout.present?
   end

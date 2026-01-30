@@ -169,11 +169,11 @@
                             <h4>Base Price:</h4>
                             <% if @shop_item.on_sale? %>
                                 <h4>
-                                    <span class="shop-order__original-price">🍪 <%= @shop_item.ticket_cost.round %></span>
+                                    <span class="shop-order__original-price">🍪 <%= @regional_base_price.round %></span>
                                     🍪 <%= @sale_price.round %>
                                 </h4>
                             <% else %>
-                                <h4>🍪 <%= @shop_item.ticket_cost.round %></h4>
+                                <h4>🍪 <%= @regional_base_price.round %></h4>
                             <% end %>
                         </div>
                         <div class="shop-order__summary-accessories-list" id="shop-order__summary-accessories-list" style="display: none;" data-order-form-target="accessoriesListContainer">

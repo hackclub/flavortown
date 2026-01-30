@@ -42,6 +42,10 @@ class ProjectsController < ApplicationController
       @posts = @posts.reject { |post| post.postable_type == "Post::GitCommit" }
     end
 
+    unless current_user&.admin?
+      @posts = @posts.reject { |post| post.postable_type == "Post::ShipEvent" && post.postable.certification_status != "approved" }
+    end
+
     if current_user
       devlog_ids = @posts.select { |p| p.postable_type == "Post::Devlog" }.map(&:postable_id)
       @liked_devlog_ids = Like.where(user: current_user, likeable_type: "Post::Devlog", likeable_id: devlog_ids).pluck(:likeable_id).to_set
@@ -50,6 +54,30 @@ class ProjectsController < ApplicationController
     end
 
     ahoy.track "Viewed project", project_id: @project.id
+
+    latest_ship_post = @posts.find { |post| post.postable_type == "Post::ShipEvent" }
+    latest_ship_event = latest_ship_post&.postable
+
+    @votes_for_payout = nil
+    if current_user.present?
+      is_owner = @project.memberships.where(role: :owner, user_id: current_user.id).exists?
+
+      if is_owner &&
+          latest_ship_event.present? &&
+          latest_ship_event.certification_status == "approved" &&
+          latest_ship_event.payout.blank?
+
+        required = Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
+        current = latest_ship_event.votes_count.to_i
+        remaining = [ required - current, 0 ].max
+
+        @votes_for_payout = {
+          current: current,
+          required: required,
+          remaining: remaining
+        }
+      end
+    end
   end
 
   def new
