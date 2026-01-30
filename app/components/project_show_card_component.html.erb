@@ -6,7 +6,7 @@
         <%= image_tag project.banner.variant(:card), class: "project-card__banner-image", alt: "#{project.title} banner" %>
         <% if owner? %>
             <% can_ship = project.draft? || project.shippable? %>
-            <div class="project-show-card__ship-wrapper" id="ship-btn-wrapper-<%= project.id %>">
+            <div class="project-show-card__ship-wrapper" id="ship-btn-wrapper">
               <%= render ButtonComponent.new(
                   text: project.draft? ? "Ship" : "Ship Again",
                   color: :green,
@@ -17,7 +17,7 @@
               ) %>
             </div>
             <% unless can_ship %>
-              <%= render TooltipComponent.new(target_id: "ship-btn-wrapper-#{project.id}", position: :left) do %>
+              <%= render TooltipComponent.new(target_id: "ship-btn-wrapper", position: :left) do %>
                 <strong>Cannot ship yet:</strong>
                 <ul>
                   <% ship_disabled_reasons.each do |reason| %>
@@ -45,7 +45,7 @@
         <%= image_tag "default-banner.png", class: "project-card__banner-image", alt: "#{project.title} banner" %>
         <% if owner? %>
             <% can_ship = project.draft? || project.shippable? %>
-            <div class="project-show-card__ship-wrapper" id="ship-btn-wrapper-<%= project.id %>">
+            <div class="project-show-card__ship-wrapper" id="ship-btn-wrapper">
               <%= render ButtonComponent.new(
                   text: project.draft? ? "Ship" : "Ship Again",
                   color: :green,
@@ -56,7 +56,7 @@
               ) %>
             </div>
             <% unless can_ship %>
-              <%= render TooltipComponent.new(target_id: "ship-btn-wrapper-#{project.id}", position: :left) do %>
+              <%= render TooltipComponent.new(target_id: "ship-btn-wrapper", position: :left) do %>
                 <strong>Cannot ship yet:</strong>
                 <ul>
                   <% ship_disabled_reasons.each do |reason| %>
