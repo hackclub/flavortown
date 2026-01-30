@@ -25,6 +25,8 @@
 #  ref                                     :string
 #  regions                                 :string           default([]), is an Array
 #  send_notifications_for_followed_devlogs :boolean          default(TRUE), not null
+#  send_notifications_for_new_comments     :boolean          default(TRUE), not null
+#  send_notifications_for_new_followers    :boolean          default(TRUE), not null
 #  send_votes_to_slack                     :boolean          default(FALSE), not null
 #  session_token                           :string
 #  shadow_banned                           :boolean          default(FALSE), not null
@@ -38,6 +40,7 @@
 #  tutorial_steps_completed                :string           default([]), is an Array
 #  verification_status                     :string           default("needs_submission"), not null
 #  vote_anonymously                        :boolean          default(FALSE), not null
+#  vote_balance                            :integer          default(0), not null
 #  votes_count                             :integer
 #  ysws_eligible                           :boolean          default(FALSE), not null
 #  created_at                              :datetime         not null
@@ -305,7 +308,9 @@ class User < ApplicationRecord
     return [] unless identity&.access_token.present?
 
     identity_payload = HCAService.identity(identity.access_token)
-    identity_payload["addresses"] || []
+    addresses = identity_payload["addresses"] || []
+    phone_number = identity_payload["phone_number"]
+    addresses.map { |addr| addr.merge("phone_number" => phone_number) }
   end
   def birthday
     identity = identities.find_by(provider: "hack_club")

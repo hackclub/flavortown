@@ -17,6 +17,8 @@ class MyController < ApplicationController
       leaderboard_optin: params[:leaderboard_optin] == "1",
       slack_balance_notifications: params[:slack_balance_notifications] == "1",
       send_notifications_for_followed_devlogs: params[:send_notifications_for_followed_devlogs] == "1",
+      send_notifications_for_new_followers: params[:send_notifications_for_new_followers] == "1",
+      send_notifications_for_new_comments: params[:send_notifications_for_new_comments] == "1",
       special_effects_enabled: params[:special_effects_enabled] == "1"
     )
     redirect_back fallback_location: root_path, notice: "Settings saved"

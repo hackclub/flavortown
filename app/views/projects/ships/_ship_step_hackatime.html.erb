@@ -1,0 +1,20 @@
+<div class="projects-ship__step">
+  <h2 class="projects-ship__section-title">Review Your Work</h2>
+  <p class="projects-ship__section-desc">
+    <% if @last_ship %>
+      Here's what you've logged since your last ship on <%= @last_ship.created_at.strftime("%B %d") %>.
+    <% else %>
+      Here's the work you've logged for this project.
+    <% end %>
+  </p>
+
+  <% if @devlogs_for_ship.any? %>
+    <div class="projects-ship__posts">
+      <%= render PostComponent.with_collection(@devlogs_for_ship, current_user: current_user, compact: true) %>
+    </div>
+  <% else %>
+    <div class="projects-ship__empty-state">
+      <p>No devlogs yet! Add a devlog to show what you've been working on.</p>
+    </div>
+  <% end %>
+</div>

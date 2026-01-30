@@ -13,13 +13,20 @@
     <% end %>
   </article>
 <% else %>
-  <article class="post <%= variant_class %> <%= theme_class %><%= ' post--deleted' if deleted? %>">
+  <article class="post <%= variant_class %> <%= theme_class %><%= ' post--deleted' if deleted? %><%= ' post--compact' if compact? %><%= ' post--admin-only' if unapproved_ship_event? && @current_user&.admin? %>">
     <div class="post__content">
       <% if deleted? %>
         <div class="post__deleted-banner">
           <strong>🚨 DELETED DEVLOG</strong>
           <span>Deleted on <%= postable.deleted_at.strftime("%B %d, %Y at %I:%M %p") %></span>
           <span class="post__deleted-banner-note">This content is only visible to admins/fraud review</span>
+        </div>
+      <% end %>
+      <% if unapproved_ship_event? && helpers.current_user&.admin? %>
+        <div class="post__admin-only-banner">
+          <strong>⏳ PENDING APPROVAL</strong>
+          <span>Status: <%= postable.certification_status.titleize %></span>
+          <span class="post__admin-only-banner-note">This ship event is only visible to admins</span>
         </div>
       <% end %>
       <header class="post__header">
@@ -30,11 +37,11 @@
           <div class="post__author">
 
             <% if post.user.present? %>
-              <%= link_to author_name, user_path(post.user) %><%= " ⚡" if post.user&.admin? %>
+              <%= render "shared/admin_stats_trigger", record: post.user, label: link_to(author_name, user_path(post.user)) %><%= " ⚡" if post.user&.admin? %>
             <% else %>
               <%= author_name %><%= " ⚡" if post.user&.admin? %>
             <% end %>
-            <% if helpers.current_user&.admin? && post.user %>
+            <% if (helpers.current_user&.admin? || helpers.current_user&.fraud_dept?) && post.user %>
               <span style="border: 1px solid orange; background-color: #fff3e0; border-radius: 4px; padding: 2px 4px; margin-left: 4px;">
                 <%= link_to "🔨", helpers.admin_user_path(post.user), title: "Admin profile", style: "text-decoration: none;" %>
                 <%= link_to "🤓", helpers.admin_user_magic_link_path(post.user), title: "Generate magic link", style: "text-decoration: none;" %>
@@ -56,9 +63,47 @@
 
       <%= render "shared/inspector", record: postable %>
       <%= render "shared/inspector", record: post.user if post.user %>
+      <%= render "shared/debug_info", record: postable %>
 
       <% if ship_event? %>
         <h2 class="post__ship-title">Shipped this project!</h2>
+        <% if show_ship_event_payout_footer? %>
+          <% if postable.payout.present? %>
+            <div class="post__payout-footer">
+              <div class="post__payout-item">
+                <span class="post__payout-label">Hours:</span>
+                <span class="post__payout-value"><%= postable.hours&.round(2) || '—' %></span>
+              </div>
+              <div class="post__payout-item">
+                <span class="post__payout-label">Cookies:</span>
+                <span class="post__payout-value">🍪 <%= postable.payout.to_i %></span>
+              </div>
+              <div class="post__payout-item">
+                <span class="post__payout-label">Multiplier:</span>
+                <span class="post__payout-value"><%= postable.multiplier&.round(2) || '—' %> cookies/hr</span>
+              </div>
+            </div>
+          <% else %>
+            <% estimate = estimated_payout_data %>
+            <div class="post__payout-footer post__payout-footer--estimate">
+              <div class="post__payout-item">
+                <span class="post__payout-label">Hours:</span>
+                <span class="post__payout-value"><%= estimate&.dig(:hours) || '—' %></span>
+              </div>
+              <div class="post__payout-item">
+                <span class="post__payout-label">Cookies:</span>
+                <span class="post__payout-value">🍪 ~<%= estimate&.dig(:cookies) || '—' %></span>
+              </div>
+              <div class="post__payout-item">
+                <span class="post__payout-label">Multiplier:</span>
+                <span class="post__payout-value"><%= estimate&.dig(:multiplier) || '—' %> cookies/hr</span>
+              </div>
+              <div class="post__payout-estimate-notice">
+                <small>⏳ Estimated (payout not issued yet)</small>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
       <% end %>
 
       <% if fire_event? %>
@@ -110,7 +155,7 @@
         </div>
       <% end %>
 
-      <% if devlog? %>
+      <% if devlog? && !compact? %>
         <div class="post__interactions">
           <%= render "likes/button", likeable: postable %>
           <div class="comments-count">
