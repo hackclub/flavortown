@@ -4,6 +4,7 @@
 #
 #  id                        :bigint           not null, primary key
 #  frozen_address_ciphertext :text
+#  frozen_contents           :jsonb
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
 #  theseus_package_id        :string
@@ -45,7 +46,13 @@ class ShopWarehousePackage < ApplicationRecord
 
     contents = shop_orders.includes(:shop_item).flat_map do |order|
       headline << order.shop_item.name
-      order.get_agh_contents
+      item_contents = order.get_agh_contents
+
+      if item_contents.blank? && order.shop_item.is_a?(ShopItem::WarehouseItem)
+        raise ArgumentError, "Shop item '#{order.shop_item.name}' (ID: #{order.shop_item.id}) is missing valid AGH contents. Please update the item's AGH Contents field with valid JSON."
+      end
+
+      item_contents
     end
 
     contents += bonus_stickers
@@ -53,7 +60,7 @@ class ShopWarehousePackage < ApplicationRecord
       sku: "Pri/Fla/4x6/1st",
       quantity: 10
     }
-
+    update!(frozen_contents: contents)
     Rails.logger.info "Sending warehouse package #{id} to Theseus for user #{user_id} with orders #{shop_orders.pluck(:id).join(', ')}\nContents: #{contents.inspect}"
 
     order_ids = shop_orders.order(:id).pluck(:id).join("-")
