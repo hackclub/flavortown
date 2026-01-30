@@ -74,6 +74,13 @@
     margin-top: 0;
     color: var(--color-tan-400);
     font-size: var(--font-size-xl);
+    a {
+      color: inherit;
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 
   &__title {

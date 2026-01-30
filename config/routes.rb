@@ -154,7 +154,11 @@ Rails.application.routes.draw do
   end
 
   namespace :user, path: "" do
-    resources :tutorial_steps, only: [ :show ]
+    resources :tutorial_steps, only: [ :show ] do
+      member do
+        post :complete
+      end
+    end
   end
 
   namespace :helper, constraints: HelperConstraint do
@@ -248,6 +252,7 @@ Rails.application.routes.draw do
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
     get "ship_event_scores", to: "ship_event_scores#index"
+    get "super_mega_dashboard", to: "super_mega_dashboard#index"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
@@ -277,6 +282,7 @@ Rails.application.routes.draw do
     resource :ships, only: [ :new, :create ], module: :projects
     member do
       get :readme
+      get :stats
       post :mark_fire
       post :unmark_fire
       post :follow
@@ -295,5 +301,8 @@ Rails.application.routes.draw do
   # Public user profiles
   resources :users, only: [ :show ] do
     resource :og_image, only: [ :show ], module: :users, defaults: { format: :png }
+    member do
+      get :stats
+    end
   end
 end

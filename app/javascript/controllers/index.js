@@ -114,3 +114,12 @@ application.register("responsive-image-map", ResponsiveImageMapController);
 
 import FlagshipModalController from "./flagship_modal_controller";
 application.register("flagship-modal", FlagshipModalController);
+
+import TutorialVideoModalController from "./tutorial_video_modal_controller";
+application.register("tutorial-video-modal", TutorialVideoModalController);
+
+import StatsHoverController from "./stats_hover_controller";
+application.register("stats-hover", StatsHoverController);
+
+import TooltipController from "./tooltip_controller";
+application.register("tooltip", TooltipController);

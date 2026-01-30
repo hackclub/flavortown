@@ -76,6 +76,7 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::WarehouseItem < ShopItem
+  validates :agh_contents, presence: true
   def get_agh_contents(order)
     return [] unless agh_contents.present?
 

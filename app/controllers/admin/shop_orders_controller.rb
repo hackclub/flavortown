@@ -3,7 +3,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   def index
     # Determine view mode
     @view = params[:view] || "shop_orders"
-    @show_spammy_stuff = ActiveModel::Type::Boolean.new.cast(params[:show_spammy_stuff])
+
     # Fulfillment team can only access fulfillment view - auto-redirect if needed
     # But fraud_dept members with fulfillment_person role should have full access
     if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
@@ -21,10 +21,8 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     # Base query
-    orders = ShopOrder.joins(:shop_item).includes(:shop_item, :user, :accessory_orders, :assigned_to_user)
-    unless @show_spammy_stuff
-      orders = orders.where.not(shop_item: { type: %w[ShopItem::FreeStickers ShopItem::WarehouseItem] })
-    end
+    orders = ShopOrder.includes(:shop_item, :user, :accessory_orders, :assigned_to_user)
+
     # Apply status filter first if explicitly set (takes priority over view)
     if params[:status].present?
       orders = orders.where(aasm_state: params[:status])
@@ -40,21 +38,15 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       end
 
       # Set default status for fraud dept
-      @default_status = "pending" if current_user.fraud_dept? && !current_user.admin? && @view === "shop_orders"
+      @default_status = "pending" if current_user.fraud_dept? && !current_user.admin?
       orders = orders.where(aasm_state: @default_status) if @default_status.present?
     end
 
     # Apply filters
     orders = orders.where(shop_item_id: params[:shop_item_id]) if params[:shop_item_id].present?
-    if params[:date_from].present? || params[:date_to].present?
-      if params[:date_from].present? && params[:date_to].present?
-        orders = orders.where(created_at: params[:date_from]..params[:date_to])
-      elsif params[:date_from].present?
-        orders = orders.where("created_at >= ?", params[:date_from])
-      else
-        orders = orders.where("created_at <= ?", params[:date_to])
-      end
-    end
+    orders = orders.where("created_at >= ?", params[:date_from]) if params[:date_from].present?
+    orders = orders.where("created_at <= ?", params[:date_to]) if params[:date_to].present?
+
     if params[:user_search].present?
       search = "%#{ActiveRecord::Base.sanitize_sql_like(params[:user_search])}%"
       orders = orders.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.id::text = ? OR users.slack_id ILIKE ?", search, search, params[:user_search], search)
@@ -70,23 +62,22 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       orders = orders.where(region: params[:region].upcase)
     end
 
-    # Calculate stats with a single GROUP BY query instead of 6 separate count queries
-    stats_orders = @view == "shop_orders" ? ShopOrder.where(aasm_state: %w[pending awaiting_verification awaiting_periodical_fulfillment rejected on_hold fulfilled]) : orders
-    counts_by_state = stats_orders.group(:aasm_state).count
+    # Calculate stats after region filter so counts respect user's assigned regions
+    stats_orders = orders
     @c = {
-      pending: counts_by_state["pending"] || 0,
-      awaiting_verification: counts_by_state["awaiting_verification"] || 0,
-      awaiting_fulfillment: counts_by_state["awaiting_periodical_fulfillment"] || 0,
-      fulfilled: counts_by_state["fulfilled"] || 0,
-      rejected: counts_by_state["rejected"] || 0,
-      on_hold: counts_by_state["on_hold"] || 0
+      pending: stats_orders.where(aasm_state: "pending").count,
+      awaiting_verification: stats_orders.where(aasm_state: "awaiting_verification").count,
+      awaiting_fulfillment: stats_orders.where(aasm_state: "awaiting_periodical_fulfillment").count,
+      fulfilled: stats_orders.where(aasm_state: "fulfilled").count,
+      rejected: stats_orders.where(aasm_state: "rejected").count,
+      on_hold: stats_orders.where(aasm_state: "on_hold").count
     }
 
-    # Calculate average fulfillment time in a single query (returns nil if no rows)
-    @f = stats_orders
-      .where(aasm_state: "fulfilled")
-      .where.not(fulfilled_at: nil)
-      .average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))")&.to_f
+    # Calculate average times
+    fulfilled_orders = stats_orders.where(aasm_state: "fulfilled").where.not(fulfilled_at: nil)
+    if fulfilled_orders.any?
+      @f = fulfilled_orders.average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))").to_f
+    end
 
     # Sorting - always uses database ordering now
     orders = case params[:sort]
@@ -98,7 +89,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     else orders.order(created_at: :desc)
     end
 
-    # Grouping or pagination
+    # Grouping
     if params[:goob] == "true"
       @grouped_orders = orders.group_by(&:user).map do |user, user_orders|
         {
@@ -110,7 +101,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         }
       end.sort_by { |g| -g[:orders].size }
     else
-      @pagy, @shop_orders = pagy(:offset, orders, limit: params[:limit] || 25)
+      @shop_orders = orders
     end
   end
 
@@ -134,6 +125,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     @can_view_address = @order.can_view_address?(current_user)
+    @is_digital_fulfillment_type = ShopOrder::DIGITAL_FULFILLMENT_TYPES.include?(@order.shop_item.type)
 
     # Load fulfillment users for assignment (admins only)
     if current_user.admin?
