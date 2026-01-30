@@ -5,6 +5,7 @@ class Airtable::ProjectSyncJob < Airtable::BaseSyncJob
 
   def field_mapping(project)
     creator = project.memberships.first&.user
+    hackatime_identity = creator&.hackatime_identity
 
     {
       "title" => project.title,
@@ -20,8 +21,10 @@ class Airtable::ProjectSyncJob < Airtable::BaseSyncJob
       "deleted_at" => project.deleted_at,
       "synced_at" => Time.now,
       "flavor_id" => project.id.to_s,
-      "creator_id" => creator.id.to_s,
-      "email" => creator&.email
+      "creator_id" => creator&.id.to_s,
+      "email" => creator&.email,
+      "hackatime_id" => hackatime_identity&.uid,
+      "hackatime_project_names" => project.hackatime_keys.join(",").presence
     }
   end
 end

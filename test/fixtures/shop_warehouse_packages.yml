@@ -10,6 +10,7 @@
 #
 #  id                        :bigint           not null, primary key
 #  frozen_address_ciphertext :text
+#  frozen_contents           :jsonb
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
 #  theseus_package_id        :string

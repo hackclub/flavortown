@@ -12,7 +12,9 @@ class ShipEventPayoutCalculator
     payout_user = @ship_event.payout_recipient
     return unless payout_user
 
-    unless payout_eligible?
+    is_shadow_banned = @ship_event.post.project.shadow_banned?
+
+    unless payout_eligible? || is_shadow_banned
       if payout_user.vote_balance < 0
         notify_vote_deficit(payout_user, payout_user.vote_balance.abs)
       end
@@ -20,17 +22,22 @@ class ShipEventPayoutCalculator
     end
 
     @ship_event.with_lock do
-      return unless payout_eligible?
+      return unless payout_eligible? || is_shadow_banned
 
       hours_used = base_hours
       puts hours_used
       return if hours_used <= 0
 
-      percentile = @ship_event.overall_percentile
-      return if percentile.nil?
-      puts percentile
+      if is_shadow_banned
+        hourly_rate = lowest_dollar_per_hour
+      else
+        percentile = @ship_event.overall_percentile
+        return if percentile.nil?
+        puts percentile
 
-      hourly_rate = dollars_per_hour_for_percentile(percentile)
+        hourly_rate = dollars_per_hour_for_percentile(percentile)
+      end
+
       return if hourly_rate <= 0
       puts hourly_rate
 
@@ -96,16 +103,31 @@ class ShipEventPayoutCalculator
   def notify_payout_issued(user)
     return unless user.slack_id.present?
 
-    SendSlackDmJob.perform_later(
-      user.slack_id,
-      nil,
-      blocks_path: "notifications/payouts/ship_event_issued",
-      locals: { ship_event: @ship_event }
-    )
+    if @ship_event.post.project.shadow_banned?
+      reason = project.shadow_banned_reason
+      parts = []
+      parts << "Hey! After review, your project won't be going into voting this time."
+      parts << "Reason: #{reason}" if reason.present?
+      parts << "We've issued a minimum payout for your work on this ship."
+      parts << "If you have questions, reach out in #flavortown-help. Keep building — you can ship again anytime!"
+      SendSlackDmJob.perform_later(user.slack_id, parts.join("\n\n"))
+    else
+      SendSlackDmJob.perform_later(
+        user.slack_id,
+        nil,
+        blocks_path: "notifications/payouts/ship_event_issued",
+        locals: { ship_event: @ship_event }
+      )
+    end
   end
 
   def notify_vote_deficit(user, votes_needed)
     return unless user.slack_id.present?
+
+    cache_key = "vote_deficit_notified:#{@ship_event.id}"
+    return if Rails.cache.exist?(cache_key)
+
+    Rails.cache.write(cache_key, true, expires_in: 6.hours)
 
     project = @ship_event.post&.project
     project_title = project&.title

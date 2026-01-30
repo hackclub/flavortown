@@ -10,6 +10,8 @@
   <div><b>Country:</b> <%= address["country"] %></div>
   <% if address["phone_number"].present? %>
     <div><b>Phone:</b> <%= address["phone_number"] %></div>
+  <% else %>
+    <div><b>Phone:</b> N/A</div>
   <% end %>
 </div>
 <div style="margin-top: 1em; padding: 0.5em; background: #fef3c7; border-radius: 4px;">

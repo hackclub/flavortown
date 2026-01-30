@@ -308,7 +308,9 @@ class User < ApplicationRecord
     return [] unless identity&.access_token.present?
 
     identity_payload = HCAService.identity(identity.access_token)
-    identity_payload["addresses"] || []
+    addresses = identity_payload["addresses"] || []
+    phone_number = identity_payload["phone_number"]
+    addresses.map { |addr| addr.merge("phone_number" => phone_number) }
   end
   def birthday
     identity = identities.find_by(provider: "hack_club")

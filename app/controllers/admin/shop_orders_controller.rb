@@ -125,6 +125,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     @can_view_address = @order.can_view_address?(current_user)
+    @is_digital_fulfillment_type = ShopOrder::DIGITAL_FULFILLMENT_TYPES.include?(@order.shop_item.type)
 
     # Load fulfillment users for assignment (admins only)
     if current_user.admin?
