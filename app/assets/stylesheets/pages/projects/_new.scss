@@ -81,6 +81,32 @@
     }
   }
 
+  &__checkbox-control {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+    padding: var(--space-m);
+    background-color: var(--color-bg);
+    border-radius: calc(var(--border-radius) * 0.8);
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+
+    input[type="checkbox"] {
+      width: 1.25rem;
+      height: 1.25rem;
+      cursor: pointer;
+      accent-color: var(--color-yellow-500);
+      flex-shrink: 0;
+    }
+  }
+
+  &__checkbox-label {
+    font-size: var(--font-size-m);
+    color: var(--color-text-body);
+    line-height: 1.4;
+  }
+
   &__error {
     color: var(--color-red-600);
     font-size: 0.9rem;
