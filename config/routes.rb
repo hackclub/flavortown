@@ -256,6 +256,7 @@ Rails.application.routes.draw do
     end
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
+    get "voting_dashboard", to: "voting_dashboard#index"
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
     resources :fulfillment_dashboard, only: [ :index ] do

@@ -1,0 +1,233 @@
+<%= render HeadingComponent.new(title: "Voting Dashboard", tone: :blue, size: :full) %>
+
+<div class="voting-grid">
+    <div class="card voting-card voting-card--wide">
+        <h2>📊 Overview</h2>
+        <div class="voting-stats">
+        <div class="voting-stat">
+            <span class="voting-stat__value"><%= number_with_delimiter(@overview[:total]) %></span>
+            <span class="voting-stat__label">Total Votes</span>
+        </div>
+        <div class="voting-stat voting-stat--info">
+            <span class="voting-stat__value"><%= @overview[:today] %></span>
+            <span class="voting-stat__label">Today</span>
+        </div>
+        <div class="voting-stat voting-stat--success">
+            <span class="voting-stat__value"><%= @overview[:this_week] %></span>
+            <span class="voting-stat__label">This Week</span>
+        </div>
+        <div class="voting-stat">
+            <span class="voting-stat__value"><%= @overview[:avg_time_seconds] ? "#{@overview[:avg_time_seconds]}s" : "—" %></span>
+            <span class="voting-stat__label">Avg Time</span>
+        </div>
+        </div>
+    </div>
+
+    <div class="card voting-card">
+        <h2>Engagement</h2>
+        <div class="voting-stats">
+        <div class="voting-stat voting-stat--info">
+            <span class="voting-stat__value"><%= @overview[:demo_click_rate] %>%</span>
+            <span class="voting-stat__label">Demo Clicks</span>
+        </div>
+        <div class="voting-stat voting-stat--purple">
+            <span class="voting-stat__value"><%= @overview[:repo_click_rate] %>%</span>
+            <span class="voting-stat__label">Repo Clicks</span>
+        </div>
+        <div class="voting-stat voting-stat--success">
+            <span class="voting-stat__value"><%= @overview[:reason_rate] %>%</span>
+            <span class="voting-stat__label">With Reason</span>
+        </div>
+        </div>
+    </div>
+</div>
+
+<div class="voting-grid">
+    <div class="card voting-card voting-card--wide">
+        <h2>⏱️ Time to Vote Distribution</h2>
+        <div class="time-distribution">
+        <% max_count = @time_distribution.values.max.to_f.nonzero? || 1 %>
+        <% @time_distribution.each do |range, count| %>
+            <div class="time-bar-container">
+            <span class="time-bar-label"><%= range %></span>
+            <div class="time-bar-wrapper">
+                <div class="time-bar" style="width: <%= (count / max_count * 100).round %>%;"></div>
+            </div>
+            <span class="time-bar-count"><%= count %></span>
+            </div>
+        <% end %>
+        </div>
+    </div>
+</div>
+
+<div class="voting-grid">
+    <% Vote.enabled_categories.each do |category| %>
+        <div class="card voting-card">
+        <h2><%= category.to_s.humanize %></h2>
+        <div class="category-stats">
+            <div class="category-avg">
+            <span class="category-avg__value"><%= @category_stats[category][:avg] || "—" %></span>
+            <span class="category-avg__label">Average</span>
+            </div>
+            <div class="score-distribution">
+            <% (1..6).each do |score| %>
+                <% count = @category_stats[category][:distribution][score] || 0 %>
+                <% max = @category_stats[category][:distribution].values.max.to_f.nonzero? || 1 %>
+                <div class="score-bar-container">
+                <div class="score-bar" style="height: <%= (count / max * 100).round %>%;" title="<%= count %> votes"></div>
+                <span class="score-label"><%= score %></span>
+                </div>
+            <% end %>
+            </div>
+        </div>
+        </div>
+    <% end %>
+</div>
+
+<div class="voting-grid">
+    <div class="card voting-card voting-card--wide">
+        <h2>📈 Daily Votes (30 days)</h2>
+        <div class="chart-bars">
+        <% max_votes = @daily_votes.values.max.to_f.nonzero? || 1 %>
+        <% @daily_votes.each do |date, count| %>
+            <div class="chart-bar-container" title="<%= date.strftime('%b %d') %>: <%= count %> votes">
+            <div class="chart-bar chart-bar--blue" style="height: <%= (count / max_votes * 100).round %>%;"></div>
+            <span class="chart-label"><%= date.day %></span>
+            </div>
+        <% end %>
+        </div>
+    </div>
+</div>
+
+<div class="voting-grid">
+    <div class="card voting-card">
+        <h2>Votes by Hour (UTC)</h2>
+        <div class="hourly-chart">
+        <% max_hourly = @hourly_distribution.values.max.to_f.nonzero? || 1 %>
+        <% (0..23).each do |hour| %>
+            <% count = @hourly_distribution[hour] || 0 %>
+            <div class="hourly-bar-container" title="<%= hour %>:00 - <%= count %> votes">
+            <div class="hourly-bar" style="height: <%= (count / max_hourly * 100).round %>%;"></div>
+            <span class="hourly-label"><%= hour %></span>
+            </div>
+        <% end %>
+        </div>
+    </div>
+
+    <div class="card voting-card">
+        <h2>Votes by Day</h2>
+        <div class="weekly-chart">
+        <% days = %w[Sun Mon Tue Wed Thu Fri Sat] %>
+        <% max_weekly = @weekly_distribution.values.max.to_f.nonzero? || 1 %>
+        <% (0..6).each do |day| %>
+            <% count = @weekly_distribution[day] || 0 %>
+            <div class="weekly-bar-container" title="<%= days[day] %>: <%= count %> votes">
+            <div class="weekly-bar" style="height: <%= (count / max_weekly * 100).round %>%;"></div>
+            <span class="weekly-label"><%= days[day] %></span>
+            </div>
+        <% end %>
+        </div>
+    </div>
+</div>
+
+<div class="voting-grid">
+    <div class="card voting-card">
+        <h2>🏆 Top Voters</h2>
+        <table class="voting-table">
+        <thead>
+            <tr>
+            <th>#</th>
+            <th>User</th>
+            <th>Votes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% @top_voters.each_with_index do |user, index| %>
+            <tr>
+                <td class="rank">
+                <%= index + 1 %>
+                </td>
+                <td><%= link_to user.display_name || "User ##{user.id}", admin_user_path(user) %></td>
+                <td><strong><%= number_with_delimiter(user.votes_count) %></strong></td>
+            </tr>
+            <% end %>
+        </tbody>
+        </table>
+    </div>
+
+    <div class="card voting-card">
+        <h2>🎯 Most Voted Projects</h2>
+        <table class="voting-table">
+        <thead>
+            <tr>
+            <th>#</th>
+            <th>Project</th>
+            <th>Votes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% @most_voted_projects.each_with_index do |project, index| %>
+            <tr>
+                <td class="rank">
+                <%= index + 1 %>
+                </td>
+                <td><%= link_to truncate(project.title, length: 30), admin_project_path(project) %></td>
+                <td><strong><%= project.votes_count %></strong></td>
+            </tr>
+            <% end %>
+        </tbody>
+        </table>
+    </div>
+    </div>
+
+    <div class="voting-grid">
+    <div class="card voting-card voting-card--full">
+        <h2>Recent Votes</h2>
+        <table class="voting-table voting-table--wide">
+        <thead>
+            <tr>
+            <th>Time</th>
+            <th>Voter</th>
+            <th>Project</th>
+            <th>Orig.</th>
+            <th>Tech.</th>
+            <th>Usab.</th>
+            <th>Story.</th>
+            <th>Time</th>
+            <th>Demo</th>
+            <th>Repo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% @recent_votes.each do |vote| %>
+            <tr>
+                <td><%= time_ago_in_words(vote.created_at) %> ago</td>
+                <td>
+                <% if vote.user %>
+                    <%= link_to vote.user.display_name || "User ##{vote.user.id}", admin_user_path(vote.user) %>
+                <% else %>
+                    <span class="text-muted">Unknown</span>
+                <% end %>
+                </td>
+                <td>
+                <% if vote.project %>
+                    <%= link_to truncate(vote.project.title, length: 20), admin_project_path(vote.project) %>
+                <% else %>
+                    <span class="text-muted">Deleted</span>
+                <% end %>
+                </td>
+                <td class="score"><%= vote.originality_score || "—" %></td>
+                <td class="score"><%= vote.technical_score || "—" %></td>
+                <td class="score"><%= vote.usability_score || "—" %></td>
+                <td class="score"><%= vote.storytelling_score || "—" %></td>
+                <td><%= vote.time_taken_to_vote ? "#{vote.time_taken_to_vote}s" : "—" %></td>
+                <td><%= vote.demo_url_clicked ? "✓" : "—" %></td>
+                <td><%= vote.repo_url_clicked ? "✓" : "—" %></td>
+            </tr>
+            <% end %>
+        </tbody>
+        </table>
+    </div>
+</div>
+
+<%= link_to "← Back", admin_root_path, class: "btn-secondary" %>
