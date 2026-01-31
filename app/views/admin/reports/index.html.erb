@@ -34,7 +34,7 @@
 
       <div>
         <%= f.label :reason, "Reason" %>
-        <%= f.select :reason, options_for_select(Project::Report::REASONS.map { |r| [r.titleize, r] }, params[:reason]), { include_blank: "All" }, class: "form-control" %>
+        <%= f.select :reason, options_for_select(Project::Report::USER_REASONS.map { |r| [r.titleize, r] }, params[:reason]), { include_blank: "All" }, class: "form-control" %>
       </div>
     </div>
 

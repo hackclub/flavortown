@@ -28,7 +28,8 @@ class Project::Report < ApplicationRecord
     belongs_to :project
     after_create :notify_slack_channel
 
-    REASONS = %w[low_effort undeclared_ai demo_broken other].freeze
+    REASONS = %w[low_effort undeclared_ai demo_broken fraud other].freeze
+    USER_REASONS = %w[low_effort undeclared_ai demo_broken other].freeze # fraud is internal
 
     enum :status, { pending: 0, reviewed: 1, dismissed: 2 }, default: :pending
 
@@ -39,7 +40,7 @@ class Project::Report < ApplicationRecord
     validates :reporter, exclusion: {
         in: ->(report) { report.project&.users || [] },
         message: "cannot report own project"
-      }, unless: -> { Rails.env.development? }
+      }, unless: -> { Rails.env.development? || reason == "fraud" }
 
     private
 
