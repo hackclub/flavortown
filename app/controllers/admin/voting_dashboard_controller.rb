@@ -83,12 +83,10 @@ module Admin
       stats = {}
       Vote.enabled_categories.each do |category|
         column = "#{category}_score"
-        arel_column = Vote.arel_table[column]
-
-        avg_score = Vote.where.not(column => nil).average(arel_column)
+        avg_score = Vote.where.not(column => nil).average(column)
 
         distribution = Vote.where.not(column => nil)
-                           .group(arel_column)
+                           .group(column)
                            .count
 
         stats[category] = {
