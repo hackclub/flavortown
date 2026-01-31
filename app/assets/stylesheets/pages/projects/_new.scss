@@ -89,6 +89,11 @@
 
     .input {
       width: 100%;
+      margin-bottom: var(--space-xxxl);
+    }
+
+    .input:last-child {
+      margin-bottom: 0;
     }
 
     .input--blue .projects-new__checkbox-control input[type="checkbox"] {
@@ -181,6 +186,10 @@
 
     &__field--declarations {
       grid-template-columns: 1fr;
+
+      .input:last-child {
+        margin-top: var(--space-xxl);
+      }
     }
 
     &__actions {
