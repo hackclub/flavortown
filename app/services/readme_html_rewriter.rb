@@ -13,7 +13,22 @@ class ReadmeHtmlRewriter
     fragment = Nokogiri::HTML::DocumentFragment.parse(html)
 
     fragment.css("img[src]").each do |img|
-      img["src"] = rewrite_url(img["src"], base: base)
+      rewritten_src = rewrite_url(img["src"], base: base)
+      alt_text = img["alt"].presence || "Image"
+
+      placeholder = Nokogiri::XML::Node.new("button", fragment.document)
+      placeholder["type"] = "button"
+      placeholder["class"] = "click2load"
+      placeholder["data-controller"] = "readme-image"
+      placeholder["data-readme-image-src-value"] = rewritten_src
+      placeholder["data-readme-image-alt-value"] = alt_text
+      placeholder["data-action"] = "click->readme-image#load"
+      placeholder.inner_html = <<~HTML
+        <span class="click2load__text">Click to load image</span>
+        <span class="click2load__text">Images are hidden to protect your privacy</span>
+      HTML
+
+      img.replace(placeholder)
     end
 
     fragment.css("a[href]").each do |a|
