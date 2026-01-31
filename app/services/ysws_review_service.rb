@@ -5,7 +5,7 @@ module YswsReviewService
 
   module_function
 
-  DISABLED = true # Set to false to re-enable the service
+  DISABLED = false # Set to false to re-enable the service
 
   BASE_URL = "https://review.hackclub.com"
   LAST_SYNC_CACHE_KEY = "ysws_review_sync:last_fetched_at"

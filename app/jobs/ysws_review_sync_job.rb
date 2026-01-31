@@ -39,6 +39,20 @@ class YswsReviewSyncJob < ApplicationJob
     end
 
     ship_cert = current_review["shipCert"] || {}
+    code_url = ship_cert["repoUrl"]
+    ft_project_id = ship_cert["ftProjectId"]
+
+    if project_has_active_reports?(ft_project_id)
+      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: project has pending or reviewed reports"
+      return
+    end
+
+    # Check if project already exists in unified database (duplicate check)
+    if code_url.present? && project_exists_in_unified_db?(code_url)
+      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: project already exists in unified database"
+      return
+    end
+
     slack_id = ship_cert["ftSlackId"]
 
     return if slack_id.blank?
@@ -73,7 +87,28 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def create_airtable_record(review, user_pii, approved_orders)
-    table.create(build_record_fields(review, user_pii, approved_orders))
+    ship_cert = review["shipCert"] || {}
+    ship_cert_id = ship_cert["id"].to_s
+    fields = build_record_fields(review, user_pii, approved_orders)
+
+    existing_record = find_existing_record_by_ship_cert_id(ship_cert_id)
+
+    if existing_record
+      Rails.logger.info "[YswsReviewSyncJob] Updating existing Airtable record for ship_cert_id #{ship_cert_id}"
+      existing_record.fields.merge!(fields)
+      existing_record.save
+    else
+      Rails.logger.info "[YswsReviewSyncJob] Creating Airtable record for review #{review['id']} in table '#{table_name}'"
+      table.create(fields)
+    end
+  end
+
+  def find_existing_record_by_ship_cert_id(ship_cert_id)
+    return nil if ship_cert_id.blank?
+
+    table.all(
+      filter: "{ship_cert_id} = '#{ship_cert_id}'"
+    ).first
   end
 
   def build_record_fields(review, user_pii, approved_orders)
@@ -241,7 +276,29 @@ class YswsReviewSyncJob < ApplicationJob
     nil
   end
 
-  def build_banner_url(project)
-    project.banner.blob.url
+  def default_url_host
+    Rails.application.config.action_mailer.default_url_options&.fetch(:host, nil) ||
+      Rails.application.routes.default_url_options[:host] ||
+      ENV["APP_HOST"]
+  end
+
+  def project_exists_in_unified_db?(code_url)
+    unified_db_table.all(
+      filter: "AND({Code URL} = '#{code_url}', NOT({YSWS} = 'Flavortown'))"
+    ).any?
+  end
+
+  def unified_db_table
+    @unified_db_table ||= Norairrecord.table(
+      ENV["UNIFIED_DB_INTEGRATION_AIRTABLE_KEY"],
+      "app3A5kJwYqxMLOgh",
+      "Approved Projects"
+    )
+  end
+
+  def project_has_active_reports?(ft_project_id)
+    return false if ft_project_id.blank?
+
+    Project::Report.where(project_id: ft_project_id, status: [ :pending, :reviewed ]).exists?
   end
 end
