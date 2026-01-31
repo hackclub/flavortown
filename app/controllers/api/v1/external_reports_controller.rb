@@ -1,4 +1,5 @@
 class Api::V1::ExternalReportsController < Api::BaseController
+  skip_forgery_protection
   before_action :auth_review_key
 
   def create
