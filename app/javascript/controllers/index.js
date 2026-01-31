@@ -134,3 +134,6 @@ application.register("stats-hover", StatsHoverController);
 
 import TooltipController from "./tooltip_controller";
 application.register("tooltip", TooltipController);
+
+import ReadmeImageController from "./readme_image_controller";
+application.register("readme-image", ReadmeImageController);
