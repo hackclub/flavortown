@@ -84,7 +84,7 @@ module Admin
       Vote.enabled_categories.each do |category|
         column = "#{category}_score"
         arel_column = Vote.arel_table[column]
-        
+
         avg_score = Vote.where.not(column => nil).average(arel_column)
 
         distribution = Vote.where.not(column => nil)
@@ -100,24 +100,28 @@ module Admin
     end
 
     def calculate_time_distribution
-      ranges = {
-        "< 30s" => 0...30,
-        "30s - 1m" => 30...60,
-        "1m - 2m" => 60...120,
-        "2m - 5m" => 120...300,
-        "5m - 10m" => 300...600,
-        "> 10m" => 600..Float::INFINITY
-      }
+      select_sql = Vote.sanitize_sql_array([
+        <<-SQL.squish,
+          COUNT(*) FILTER (WHERE time_taken_to_vote < ?) AS "< 30s",
+          COUNT(*) FILTER (WHERE time_taken_to_vote >= ? AND time_taken_to_vote < ?) AS "30s - 1m",
+          COUNT(*) FILTER (WHERE time_taken_to_vote >= ? AND time_taken_to_vote < ?) AS "1m - 2m",
+          COUNT(*) FILTER (WHERE time_taken_to_vote >= ? AND time_taken_to_vote < ?) AS "2m - 5m",
+          COUNT(*) FILTER (WHERE time_taken_to_vote >= ? AND time_taken_to_vote < ?) AS "5m - 10m",
+          COUNT(*) FILTER (WHERE time_taken_to_vote >= ?) AS "> 10m"
+        SQL
+        30,
+        30, 60,
+        60, 120,
+        120, 300,
+        300, 600,
+        600
+      ])
 
-      votes_with_time = Vote.where.not(time_taken_to_vote: nil)
-
-      ranges.transform_values do |range|
-        if range.end == Float::INFINITY
-          votes_with_time.where("time_taken_to_vote >= ?", range.begin).count
-        else
-          votes_with_time.where(time_taken_to_vote: range).count
-        end
-      end
+      Vote.where.not(time_taken_to_vote: nil)
+          .select(select_sql)
+          .take
+          .attributes
+          .except("id")
     end
   end
 end
