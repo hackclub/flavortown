@@ -36,7 +36,6 @@
 #  name                              :string
 #  old_prices                        :integer          default([]), is an Array
 #  one_per_person_ever               :boolean
-#  past_purchases                    :integer          default(0)
 #  payout_percentage                 :integer          default(0)
 #  price_offset_au                   :decimal(, )
 #  price_offset_ca                   :decimal(, )
@@ -52,12 +51,10 @@
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
-#  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
 #  ticket_cost                       :decimal(, )
 #  type                              :string
-#  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
 #  created_at                        :datetime         not null
@@ -75,16 +72,29 @@
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #
-class ShopItem::WarehouseItem < ShopItem
-  validates :agh_contents, presence: true
-  def get_agh_contents(order)
-    return [] unless agh_contents.present?
+class ShopItem::InkthreadableItem < ShopItem
+  def fulfill!(shop_order)
+    Shop::SendInkthreadableOrderJob.perform_later(shop_order.id)
+    shop_order.queue_for_fulfillment!
+  end
 
-    agh_contents.map do |content_item|
-      {
-        sku: content_item["sku"],
-        quantity: (content_item["quantity"] || 1) * order.quantity
-      }
-    end
+  def inkthreadable_config
+    super || {}
+  end
+
+  def product_number
+    inkthreadable_config["pn"]
+  end
+
+  def design_urls
+    inkthreadable_config["designs"] || {}
+  end
+
+  def shipping_method
+    inkthreadable_config["shipping_method"] || "regular"
+  end
+
+  def brand_name
+    inkthreadable_config["brand_name"]
   end
 end
