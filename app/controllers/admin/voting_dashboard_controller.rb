@@ -82,7 +82,7 @@ module Admin
     def calculate_category_stats
       stats = {}
       Vote.enabled_categories.each do |category|
-        column = "#{category}_score"
+        column = Vote.score_column_for!(category)
         avg_score = Vote.where.not(column => nil).average(column)
 
         distribution = Vote.where.not(column => nil)

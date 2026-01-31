@@ -38,8 +38,16 @@ class Vote < ApplicationRecord
     storytelling: "How well does the baker document the development journey through devlogs, documentation, and READMEs?"
   }.freeze
 
+  SCORE_COLUMNS_BY_CATEGORY = {
+    originality: :originality_score,
+    technical: :technical_score,
+    usability: :usability_score,
+    storytelling: :storytelling_score
+  }.freeze
+
   def self.enabled_categories = CATEGORIES.keys
-  def self.score_columns = enabled_categories.map { |c| :"#{c}_score" }
+  def self.score_columns = SCORE_COLUMNS_BY_CATEGORY.values
+  def self.score_column_for!(category) = SCORE_COLUMNS_BY_CATEGORY.fetch(category.to_sym)
 
   belongs_to :user, counter_cache: true
   belongs_to :project
