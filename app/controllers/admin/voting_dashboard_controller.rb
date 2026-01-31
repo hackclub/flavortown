@@ -6,15 +6,20 @@ module Admin
       today = Time.current.beginning_of_day..Time.current.end_of_day
       this_week = 7.days.ago.beginning_of_day..Time.current
 
-      vote_stats = Vote.select(
-        "COUNT(*) AS total_votes",
-        "COUNT(*) FILTER (WHERE created_at >= '#{today.begin}' AND created_at <= '#{today.end}') AS votes_today",
-        "COUNT(*) FILTER (WHERE created_at >= '#{this_week.begin}') AS votes_this_week",
-        "AVG(time_taken_to_vote) AS avg_time",
-        "COUNT(*) FILTER (WHERE repo_url_clicked = true) AS repo_clicks",
-        "COUNT(*) FILTER (WHERE demo_url_clicked = true) AS demo_clicks",
-        "COUNT(*) FILTER (WHERE reason IS NOT NULL AND reason != '') AS with_reason"
-      ).take
+      select_sql = Vote.sanitize_sql_array([
+        <<-SQL.squish,
+          COUNT(*) AS total_votes,
+          COUNT(*) FILTER (WHERE created_at >= ? AND created_at <= ?) AS votes_today,
+          COUNT(*) FILTER (WHERE created_at >= ?) AS votes_this_week,
+          AVG(time_taken_to_vote) AS avg_time,
+          COUNT(*) FILTER (WHERE repo_url_clicked = true) AS repo_clicks,
+          COUNT(*) FILTER (WHERE demo_url_clicked = true) AS demo_clicks,
+          COUNT(*) FILTER (WHERE reason IS NOT NULL AND reason != '') AS with_reason
+        SQL
+        today.begin, today.end, this_week.begin
+      ])
+
+      vote_stats = Vote.select(select_sql).take
 
       total = vote_stats.total_votes.to_i
       @overview = {
@@ -78,16 +83,15 @@ module Admin
       stats = {}
       Vote.enabled_categories.each do |category|
         column = "#{category}_score"
-        result = Vote.where.not("#{column}": nil).select(
-          "AVG(#{column}) AS avg_score"
-        ).take
 
-        distribution = Vote.where.not("#{column}": nil)
+        avg_score = Vote.where.not(column => nil).average(column)
+
+        distribution = Vote.where.not(column => nil)
                            .group(column)
                            .count
 
         stats[category] = {
-          avg: result.avg_score&.round(2),
+          avg: avg_score&.round(2),
           distribution: distribution
         }
       end
