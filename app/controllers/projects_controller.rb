@@ -372,7 +372,8 @@ class ProjectsController < ApplicationController
 
     @readme_html =
       if result.markdown.present?
-        MarkdownRenderer.render(result.markdown)
+        html = MarkdownRenderer.render(result.markdown)
+        ReadmeHtmlRewriter.rewrite(html: html, readme_url: @project.readme_url)
       end
 
     @readme_error = result.error
