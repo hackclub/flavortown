@@ -440,6 +440,17 @@ class User < ApplicationRecord
       .count
   end
 
+  def reject_awaiting_verification_orders!
+    shop_orders.where(aasm_state: "awaiting_verification").find_each do |order|
+      reason = if verification_ineligible?
+                 "Identity verification marked as ineligible"
+      else
+                 "Not eligible for YSWS"
+      end
+      order.mark_rejected!(reason)
+    end
+  end
+
   private
 
   def should_check_verification_eligibility?
@@ -451,17 +462,6 @@ class User < ApplicationRecord
       Shop::ProcessVerifiedOrdersJob.perform_later(id)
     elsif should_reject_orders?
       reject_awaiting_verification_orders!
-    end
-  end
-
-  def reject_awaiting_verification_orders!
-    shop_orders.where(aasm_state: "awaiting_verification").find_each do |order|
-      reason = if verification_ineligible?
-                 "Identity verification marked as ineligible"
-      else
-                 "Not eligible for YSWS"
-      end
-      order.mark_rejected!(reason)
     end
   end
 
