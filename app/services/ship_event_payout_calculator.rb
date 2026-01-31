@@ -17,7 +17,7 @@ class ShipEventPayoutCalculator
 
     is_shadow_banned = project.shadow_banned?
 
-    unless payout_eligible? 
+    unless payout_eligible?
       if payout_user.vote_balance < 0
         notify_vote_deficit(payout_user, payout_user.vote_balance.abs)
       end
@@ -25,7 +25,7 @@ class ShipEventPayoutCalculator
     end
 
     @ship_event.with_lock do
-      return unless payout_eligible? 
+      return unless payout_eligible?
 
       hours_used = base_hours
       puts hours_used
