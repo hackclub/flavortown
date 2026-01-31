@@ -162,8 +162,8 @@ class ProjectsController < ApplicationController
       flash[:notice] = "Project updated successfully"
       redirect_to url_from(params[:return_to]) || @project
     else
-      flash[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
-      redirect_back_or_to edit_project_path(@project)
+      flash.now[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
+      render_update_error
     end
   end
 
@@ -524,5 +524,19 @@ class ProjectsController < ApplicationController
   def load_project_times
     result = current_user.try_sync_hackatime_data!
     @project_times = result&.dig(:projects) || {}
+  end
+
+  def render_update_error
+    if url_from(params[:return_to])&.include?("ships")
+      @hackatime_projects = @project.hackatime_projects_with_time
+      @total_hours = @project.total_hackatime_hours
+      @last_ship = @project.last_ship_event
+      @devlogs_for_ship = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
+      @devlogs_for_ship = @devlogs_for_ship.where("posts.created_at > ?", @last_ship.created_at) if @last_ship
+      @step = 2
+      render "projects/ships/new", status: :unprocessable_entity
+    else
+      render :edit, status: :unprocessable_entity
+    end
   end
 end
