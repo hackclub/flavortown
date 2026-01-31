@@ -19,9 +19,9 @@ module Admin
 
       report_counts = Project::Report.group(:status).count
       @fraud_reports = {
-        pending: report_counts["pending"] || 0,
-        reviewed: report_counts["reviewed"] || 0,
-        dismissed: report_counts["dismissed"] || 0,
+        pending: report_counts["pending"] || report_counts[0] || 0,
+        reviewed: report_counts["reviewed"] || report_counts[1] || 0,
+        dismissed: report_counts["dismissed"] || report_counts[2] || 0,
         new_today: Project::Report.where(created_at: today).count
       }
 
