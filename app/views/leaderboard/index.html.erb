@@ -18,6 +18,9 @@
 
                     <%= image_tag user.avatar %>
                     <h2>
+                        <% if user.banned? %>
+                            <span class="banned-label">[banned]</span>
+                        <% end %>
                         <%= link_to user.display_name, user_path(user) %>
                     </h2>
 
