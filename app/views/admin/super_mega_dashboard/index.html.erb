@@ -144,6 +144,74 @@
       </div>
     </div>
 
+    <div class="super-mega-dashboard__dashboard">
+      <div class="super-mega-dashboard__header super-mega-dashboard__header--ship-certs">
+        <h2>Ship Certs Overview</h2>
+        <%= link_to "View Full Dashboard →", "https://review.hackclub.com", class: "super-mega-link", target: "_blank" %>
+      </div>
+
+      <% if @ship_certs && !@ship_certs[:error] %>
+        <div class="super-mega-dashboard__cards">
+          <div class="super-mega-dashboard__card">
+            <h3>Certification Stats</h3>
+            <div class="super-mega-dashboard__stats">
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value blue"><%= number_with_delimiter(@ship_certs[:total_judged]) %></span>
+                <span class="super-mega-dashboard__stat--label">Total Judged</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value green"><%= number_with_delimiter(@ship_certs[:approved]) %></span>
+                <span class="super-mega-dashboard__stat--label">Approved</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value red"><%= number_with_delimiter(@ship_certs[:rejected]) %></span>
+                <span class="super-mega-dashboard__stat--label">Rejected</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value yellow"><%= number_with_delimiter(@ship_certs[:pending]) %></span>
+                <span class="super-mega-dashboard__stat--label">Pending</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="super-mega-dashboard__card">
+            <h3>Today's Activity</h3>
+            <div class="super-mega-dashboard__stats">
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value blue"><%= @ship_certs[:new_ships_today] %></span>
+                <span class="super-mega-dashboard__stat--label">New Ships</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value purple"><%= @ship_certs[:decisions_today] %></span>
+                <span class="super-mega-dashboard__stat--label">Decisions</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="super-mega-dashboard__card">
+            <h3>Performance</h3>
+            <div class="super-mega-dashboard__stats">
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value green"><%= @ship_certs[:approval_rate] %>%</span>
+                <span class="super-mega-dashboard__stat--label">Approval Rate</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value yellow"><%= @ship_certs[:avg_queue_time] %></span>
+                <span class="super-mega-dashboard__stat--label">Avg Queue Time</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="super-mega-dashboard__cards">
+          <div class="super-mega-dashboard__card">
+            <h3>⚠️ Service Unavailable</h3>
+            <p>Unable to fetch Ship Certs data. The service may be temporarily down.</p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
     <% if @support %>
       <div class="super-mega-dashboard__dashboard">
         <div class="super-mega-dashboard__header super-mega-dashboard__header--support">

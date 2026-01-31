@@ -9,6 +9,7 @@ module Admin
       load_payouts_stats
       load_fulfillment_stats
       load_support_stats
+      load_ship_certs_stats
     end
 
     private
@@ -122,6 +123,37 @@ module Admin
       }
     rescue Faraday::Error, JSON::ParserError
       @support = nil
+    end
+
+    def load_ship_certs_stats
+      conn = Faraday.new do |f|
+        f.options.timeout = 5
+        f.options.open_timeout = 2
+      end
+
+      response = conn.get("https://review.hackclub.com/api/stats/ship-certs") do |req|
+        req.headers["x-api-key"] = ENV["SHIPWRIGHTS_API_KEY"]
+      end
+
+      unless response.success?
+        @ship_certs = { error: true }
+        return
+      end
+
+      data = JSON.parse(response.body)
+
+      @ship_certs = {
+        total_judged: data["totalJudged"],
+        approved: data["approved"],
+        rejected: data["rejected"],
+        pending: data["pending"],
+        approval_rate: data["approvalRate"],
+        avg_queue_time: data["avgQueueTime"],
+        decisions_today: data["decisionsToday"],
+        new_ships_today: data["newShipsToday"]
+      }
+    rescue Faraday::Error, JSON::ParserError, Faraday::TimeoutError
+      @ship_certs = { error: true }
     end
   end
 end
