@@ -30,8 +30,12 @@
       <% end %>
       <% if @user.shadow_banned? %>
         <div><b>ℹ️ Visibility Restricted (do not tell user, contact an admin if needed)</b></div>
-        <div><b>- Reason:</b> <%= @user.shadow_banned_reason %></div>
-        <div><b>- Since:</b> <%= @user.shadow_banned_at.strftime("%Y-%m-%d %H:%M") %></div>
+        <% if @user.shadow_banned_reason.present? %>
+          <div><b>- Reason:</b> <%= @user.shadow_banned_reason %></div>
+        <% end %>
+        <% if @user.shadow_banned_at.present? %>
+          <div><b>- Since:</b> <%= @user.shadow_banned_at.strftime("%Y-%m-%d %H:%M") %></div>
+        <% end %>
       <% end %>
     </div>
   </div>
