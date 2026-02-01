@@ -110,6 +110,12 @@ class Vote < ApplicationRecord
   def mark_suspicious_if_fast
     return if time_taken_to_vote.nil?
 
-    self.suspicious = time_taken_to_vote < SUSPICIOUS_VOTE_THRESHOLD
+    # Mark as suspicious if:
+    # 1. Vote took less than 30 seconds, OR
+    # 2. Voter did not click both repo link AND demo link (must click both)
+    too_fast = time_taken_to_vote < SUSPICIOUS_VOTE_THRESHOLD
+    didnt_click_both = !repo_url_clicked || !demo_url_clicked
+
+    self.suspicious = too_fast || didnt_click_both
   end
 end

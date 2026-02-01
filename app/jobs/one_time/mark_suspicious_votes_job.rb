@@ -9,9 +9,10 @@ module OneTime
     private
 
     def mark_suspicious_votes
-      # Find votes from last 7 days that took less than 30s and aren't already marked
+      # Find votes from last 7 days that should be marked suspicious
+      # Criteria: under 30s OR didn't click both repo and demo links
       suspicious_votes = Vote.where(
-        "created_at >= ? AND time_taken_to_vote < ? AND suspicious = false",
+        "created_at >= ? AND (time_taken_to_vote < ? OR repo_url_clicked = false OR demo_url_clicked = false) AND suspicious = false",
         7.days.ago.beginning_of_day,
         Vote::SUSPICIOUS_VOTE_THRESHOLD
       )

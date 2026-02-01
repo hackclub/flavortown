@@ -8,8 +8,12 @@ class AddSuspiciousToVotes < ActiveRecord::Migration[8.1]
     # Note: This bypasses PaperTrail audit logging and model callbacks
     # which is acceptable for this one-time backfill operation
     puts "Marking suspicious votes from last 7 days..."
+    
+    # Mark as suspicious if:
+    # 1. Vote took less than 30 seconds, OR
+    # 2. Voter did not click both repo link AND demo link
     Vote.where(
-      "created_at >= ? AND time_taken_to_vote < ?",
+      "created_at >= ? AND (time_taken_to_vote < ? OR repo_url_clicked = false OR demo_url_clicked = false)",
       7.days.ago.beginning_of_day,
       30  # literal threshold value (Vote::SUSPICIOUS_VOTE_THRESHOLD)
     ).update_all(suspicious: true)
