@@ -372,6 +372,15 @@ class Admin::UsersController < Admin::ApplicationController
     redirect_to admin_user_path(@user)
   end
 
+  def votes
+    authorize :admin, :manage_users?
+    @user = User.find(params[:id])
+
+    @pagy, @votes = pagy(
+      @user.votes.includes(:project).order(created_at: :desc)
+    )
+  end
+
   def update
     authorize :admin, :manage_users?
     @user = User.find(params[:id])

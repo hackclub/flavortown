@@ -208,6 +208,7 @@ Rails.application.routes.draw do
          post :unshadow_ban
          post :impersonate
          post :refresh_verification
+         get  :votes
        end
        collection do
          post :stop_impersonating
@@ -220,6 +221,7 @@ Rails.application.routes.draw do
         post :delete
         post :shadow_ban
         post :unshadow_ban
+        get  :votes
       end
     end
     get "user-perms", to: "users#user_perms"

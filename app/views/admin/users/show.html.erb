@@ -167,6 +167,7 @@
             </div>
           </form>
         <% end %>
+        <%= link_to "View Votes", votes_admin_user_path(@user), class: "btn-secondary slim" %>
       <% end %>
 
       <% if current_user.admin? %>
