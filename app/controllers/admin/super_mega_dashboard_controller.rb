@@ -177,7 +177,7 @@ module Admin
       vote_stats = Vote.select(select_sql).take
       total = vote_stats.total_votes.to_i
 
-      @overview = {
+      @voting_overview = {
         total: total,
         today: vote_stats.votes_today.to_i,
         this_week: vote_stats.votes_this_week.to_i,
@@ -189,7 +189,7 @@ module Admin
 
       @voting_category_avgs = Vote.enabled_categories.index_with do |category|
         column = Vote.score_column_for!(category)
-        avg_score = Vote.where.not(column => nil).average(column)&.round(2)
+        Vote.where.not(column => nil).average(column)&.round(2)
       end
     end
   end

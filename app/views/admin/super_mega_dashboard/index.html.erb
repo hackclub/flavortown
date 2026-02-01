@@ -302,19 +302,19 @@
           <h3>Overview</h3>
           <div class="super-mega-dashboard__stats">
             <div class="super-mega-dashboard__stat">
-              <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@overview[:total]) %></span>
+              <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@voting_overview[:total]) %></span>
               <span class="super-mega-dashboard__stat--label">Total Votes</span>
             </div>
             <div class="super-mega-dashboard__stat">
-              <span class="super-mega-dashboard__stat--value"><%= @overview[:votes_today] || 0 %></span>
+              <span class="super-mega-dashboard__stat--value"><%= @voting_overview[:today] || 0 %></span>
               <span class="super-mega-dashboard__stat--label">Today</span>
             </div>
             <div class="super-mega-dashboard__stat">
-              <span class="super-mega-dashboard__stat--value"><%= @overview[:votes_this_week] || 0 %></span>
+              <span class="super-mega-dashboard__stat--value"><%= @voting_overview[:this_week] || 0 %></span>
               <span class="super-mega-dashboard__stat--label">This Week</span>
             </div>
             <div class="super-mega-dashboard__stat">
-              <span class="super-mega-dashboard__stat--value"><%= @overview[:avg_time_seconds] ? "#{@overview[:avg_time_seconds]}s" : "—" %></span>
+              <span class="super-mega-dashboard__stat--value"><%= @voting_overview[:avg_time_seconds] ? "#{@voting_overview[:avg_time_seconds]}s" : "—" %></span>
               <span class="super-mega-dashboard__stat--label">Avg Time</span>
             </div>
           </div>
@@ -324,15 +324,15 @@
           <h3>Engagement</h3>
           <div class="super-mega-dashboard__stats">
             <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value blue"><%= @overview[:demo_click_rate] || 0 %>%</span>
-                <span class="super-mega-dashboard__state--label">Demo Clicks</span>
+                <span class="super-mega-dashboard__stat--value blue"><%= @voting_overview[:demo_click_rate] || 0 %>%</span>
+                <span class="super-mega-dashboard__stat--label">Demo Clicks</span>
             </div>
             <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value purple"><%= @overview[:repo_click_rate] || 0 %>%</span>
+                <span class="super-mega-dashboard__stat--value purple"><%= @voting_overview[:repo_click_rate] || 0 %>%</span>
                 <span class="super-mega-dashboard__stat--label">Repo Clicks</span>
             </div>
             <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value green"><%= @overview[:reason_rate] || 0 %>%</span>
+                <span class="super-mega-dashboard__stat--value green"><%= @voting_overview[:reason_rate] || 0 %>%</span>
                 <span class="super-mega-dashboard__stat--label">With Reason</span>
             </div>
           </div>
