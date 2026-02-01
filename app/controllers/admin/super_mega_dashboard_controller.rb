@@ -10,6 +10,7 @@ module Admin
       load_fulfillment_stats
       load_support_stats
       load_ship_certs_stats
+      load_voting_stats
     end
 
     private
@@ -154,6 +155,42 @@ module Admin
       }
     rescue Faraday::Error, JSON::ParserError, Faraday::TimeoutError
       @ship_certs = { error: true }
+    end
+
+    def load_voting_stats
+      today = Time.current.beginning_of_day..Time.current.end_of_day
+      this_week = 7.days.ago.beginning_of_day..Time.current
+
+      select_sql = Vote.sanitize_sql_array([
+        <<-SQL.squish,
+          COUNT(*) AS total_votes,
+          COUNT(*) FILTER (WHERE created_at >= ? AND created_at <= ?) AS votes_today,
+          COUNT(*) FILTER (WHERE created_at >= ?) AS votes_this_week,
+          AVG(time_taken_to_vote) AS avg_time,
+          COUNT(*) FILTER (WHERE repo_url_clicked = true) AS repo_clicks,
+          COUNT(*) FILTER (WHERE demo_url_clicked = true) AS demo_clicks,
+          COUNT(*) FILTER (WHERE reason IS NOT NULL AND reason != '') AS with_reason
+        SQL
+        today.begin, today.end, this_week.begin
+      ])
+
+      vote_stats = Vote.select(select_sql).take
+      total = vote_stats.total_votes.to_i
+
+      @overview = {
+        total: total,
+        today: vote_stats.votes_today.to_i,
+        this_week: vote_stats.votes_this_week.to_i,
+        avg_time_seconds: vote_stats.avg_time&.round,
+        repo_click_rate: total > 0 ? (vote_stats.repo_clicks.to_f / total * 100).round(1) : 0,
+        demo_click_rate: total > 0 ? (vote_stats.demo_clicks.to_f / total * 100).round(1) : 0,
+        reason_rate: total > 0 ? (vote_stats.with_reason.to_f / total * 100).round(1) : 0
+      }
+
+      @voting_category_avgs = Vote.enabled_categories.index_with do |category|
+        column = Vote.score_column_for!(category)
+        avg_score = Vote.where.not(column => nil).average(column)&.round(2)
+      end
     end
   end
 end
