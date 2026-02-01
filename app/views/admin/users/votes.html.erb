@@ -55,7 +55,7 @@
     </table>
     <% if @pagy.pages > 1 %>
       <div class="pagination" style="margin-top: 1rem;">
-        <%== pagy_nav(@pagy) %>
+        <%== @pagy.series_nav %>
       </div>
     <% end %>
   <% else %>

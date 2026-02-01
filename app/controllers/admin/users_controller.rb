@@ -377,7 +377,7 @@ class Admin::UsersController < Admin::ApplicationController
     @user = User.find(params[:id])
 
     @pagy, @votes = pagy(
-      @user.votes.includes(:project, :ship_event).order(created_at: :desc)
+      @user.votes.includes(:project).order(created_at: :desc)
     )
   end
 
