@@ -60,8 +60,8 @@ module OneTime
           updated_at: Time.current
         )
 
-        # Recalculate payout if eligible
-        if ship_event.votes_count.to_i >= Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
+        # Recalculate payout if eligible, based only on legitimate (non-suspicious) votes
+        if ship_event.votes.legitimate.count >= Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
           ShipEventPayoutCalculator.apply!(ship_event)
         end
       end
