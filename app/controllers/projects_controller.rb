@@ -68,7 +68,7 @@ class ProjectsController < ApplicationController
           latest_ship_event.payout.blank?
 
         required = Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
-        current = latest_ship_event.votes_count.to_i
+        current = latest_ship_event.votes.where(suspicious: false).count
         remaining = [ required - current, 0 ].max
 
         @votes_for_payout = {

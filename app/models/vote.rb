@@ -8,6 +8,7 @@
 #  reason             :text
 #  repo_url_clicked   :boolean          default(FALSE)
 #  storytelling_score :integer
+#  suspicious         :boolean          default(FALSE), not null
 #  technical_score    :integer
 #  time_taken_to_vote :integer
 #  usability_score    :integer
@@ -21,6 +22,7 @@
 #
 #  index_votes_on_project_id                 (project_id)
 #  index_votes_on_ship_event_id              (ship_event_id)
+#  index_votes_on_suspicious_and_created_at  (suspicious,created_at)
 #  index_votes_on_user_id                    (user_id)
 #  index_votes_on_user_id_and_ship_event_id  (user_id,ship_event_id) UNIQUE
 #
@@ -31,6 +33,8 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Vote < ApplicationRecord
+  SUSPICIOUS_VOTE_THRESHOLD = 30
+
   CATEGORIES = {
     originality: "How distinct it is from common projects?",
     technical: "How much effort did the baker put into the implementation?",
@@ -49,9 +53,16 @@ class Vote < ApplicationRecord
   def self.score_columns = SCORE_COLUMNS_BY_CATEGORY.values
   def self.score_column_for!(category) = SCORE_COLUMNS_BY_CATEGORY.fetch(category.to_sym)
 
+  scope :legitimate, -> { where(suspicious: false) }
+  scope :suspicious, -> { where(suspicious: true) }
+
+  before_save :mark_suspicious_if_fast
+
   belongs_to :user, counter_cache: true
   belongs_to :project
   belongs_to :ship_event, class_name: "Post::ShipEvent", counter_cache: true
+
+  has_paper_trail on: [ :create, :update, :destroy ]
 
   after_commit :refresh_majority_judgment_scores, on: [ :create, :destroy ]
   after_commit :trigger_payout_calculation, on: [ :create, :destroy ]
@@ -94,5 +105,17 @@ class Vote < ApplicationRecord
     return if expected_project_id.blank?
 
     errors.add(:project, "does not match ship event") if project_id != expected_project_id
+  end
+
+  def mark_suspicious_if_fast
+    return if time_taken_to_vote.nil?
+
+    # Mark as suspicious if:
+    # 1. Vote took less than 30 seconds, OR
+    # 2. Voter did not click both repo link AND demo link (must click both)
+    too_fast = time_taken_to_vote < SUSPICIOUS_VOTE_THRESHOLD
+    didnt_click_both = !repo_url_clicked || !demo_url_clicked
+
+    self.suspicious = too_fast || didnt_click_both
   end
 end
