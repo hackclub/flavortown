@@ -20,6 +20,8 @@ module OneTime
       count = suspicious_votes.count
 
       suspicious_votes.find_each do |vote|
+        # Use update_columns to bypass callbacks (e.g., mark_suspicious_if_fast and after_commit)
+        # because related majority judgment and payout recalculations are handled explicitly below.
         vote.update_columns(suspicious: true)
       end
 
