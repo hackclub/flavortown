@@ -75,7 +75,7 @@ module Admin
                           .order(created_at: :desc)
                           .limit(20)
 
-      @recent_suspicious_votes = Vote.suspicious_votes
+      @recent_suspicious_votes = Vote.suspicious
                                       .includes(:user, :project)
                                       .order(created_at: :desc)
                                       .limit(20)
@@ -136,9 +136,9 @@ module Admin
 
     def calculate_suspicious_stats
       total = Vote.count
-      suspicious = Vote.suspicious_votes.count
+      suspicious = Vote.suspicious.count
       this_week = 7.days.ago.beginning_of_day..Time.current
-      suspicious_this_week = Vote.suspicious_votes.where(created_at: this_week).count
+      suspicious_this_week = Vote.suspicious.where(created_at: this_week).count
 
       {
         total_suspicious: suspicious,

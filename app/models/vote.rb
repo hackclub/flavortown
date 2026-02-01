@@ -54,7 +54,7 @@ class Vote < ApplicationRecord
   def self.score_column_for!(category) = SCORE_COLUMNS_BY_CATEGORY.fetch(category.to_sym)
 
   scope :legitimate, -> { where(suspicious: false) }
-  scope :suspicious_votes, -> { where(suspicious: true) }
+  scope :suspicious, -> { where(suspicious: true) }
 
   before_save :mark_suspicious_if_fast
 
