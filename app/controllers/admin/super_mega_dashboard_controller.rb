@@ -161,6 +161,11 @@ module Admin
       today = Time.current.beginning_of_day..Time.current.end_of_day
       this_week = 7.days.ago.beginning_of_day..Time.current
 
+      avg_columns = Vote.enabled_categories.map do |category|
+        column = Vote.score_column_for!(category)
+        "AVG(#{column}) AS avg_#{category}"
+      end.join(", ")
+
       select_sql = Vote.sanitize_sql_array([
         <<-SQL.squish,
           COUNT(*) AS total_votes,
@@ -169,7 +174,8 @@ module Admin
           AVG(time_taken_to_vote) AS avg_time,
           COUNT(*) FILTER (WHERE repo_url_clicked = true) AS repo_clicks,
           COUNT(*) FILTER (WHERE demo_url_clicked = true) AS demo_clicks,
-          COUNT(*) FILTER (WHERE reason IS NOT NULL AND reason != '') AS with_reason
+          COUNT(*) FILTER (WHERE reason IS NOT NULL AND reason != '') AS with_reason,
+          #{avg_columns}
         SQL
         today.begin, today.end, this_week.begin
       ])
@@ -188,8 +194,7 @@ module Admin
       }
 
       @voting_category_avgs = Vote.enabled_categories.index_with do |category|
-        column = Vote.score_column_for!(category)
-        Vote.where.not(column => nil).average(column)&.round(2)
+        vote_stats.send(:"avg_#{category}")&.to_f&.round(2)
       end
     end
   end
