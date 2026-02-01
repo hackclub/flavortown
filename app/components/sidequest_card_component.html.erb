@@ -10,7 +10,11 @@
         <h2><%= description %></h2>
     </div>
     <div class="sidequest-card__buttons">
-        <%= link_to "Learn More", learn_more_link, class: "btn btn--blue btn-learn-more", target: "_blank", rel: "noopener" %>
-        <%= link_to "Submit", submit_link, class: "btn btn--green btn-submit", target: "_blank", rel: "noopener" %>
+        <% if button_one_link.present? %>
+            <%= link_to button_one_text, button_one_link, class: "btn btn--blue btn-learn-more", target: "_blank", rel: "noopener" %>
+        <% end %>
+        <% if button_two_link.present? %>
+            <%= link_to button_two_text, button_two_link, class: "btn btn--green btn-submit", target: "_blank", rel: "noopener" %>
+        <% end %>
     </div>
 </div>
