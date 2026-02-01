@@ -62,7 +62,7 @@ class Vote < ApplicationRecord
   belongs_to :project
   belongs_to :ship_event, class_name: "Post::ShipEvent", counter_cache: true
 
-  has_paper_trail on: [ :update, :destroy ]
+  has_paper_trail on: [ :create, :update, :destroy ]
 
   after_commit :refresh_majority_judgment_scores, on: [ :create, :destroy ]
   after_commit :trigger_payout_calculation, on: [ :create, :destroy ]

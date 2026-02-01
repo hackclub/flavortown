@@ -114,14 +114,12 @@ module Admin
     def calculate_time_distribution
       select_sql = Vote.sanitize_sql_array([
         <<-SQL.squish,
-          COUNT(*) FILTER (WHERE time_taken_to_vote < ? AND suspicious = false) AS "< 30s",
           COUNT(*) FILTER (WHERE time_taken_to_vote >= ? AND time_taken_to_vote < ? AND suspicious = false) AS "30s - 1m",
           COUNT(*) FILTER (WHERE time_taken_to_vote >= ? AND time_taken_to_vote < ? AND suspicious = false) AS "1m - 2m",
           COUNT(*) FILTER (WHERE time_taken_to_vote >= ? AND time_taken_to_vote < ? AND suspicious = false) AS "2m - 5m",
           COUNT(*) FILTER (WHERE time_taken_to_vote >= ? AND time_taken_to_vote < ? AND suspicious = false) AS "5m - 10m",
           COUNT(*) FILTER (WHERE time_taken_to_vote >= ? AND suspicious = false) AS "> 10m"
         SQL
-        30,
         30, 60,
         60, 120,
         120, 300,
