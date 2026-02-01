@@ -1,0 +1,64 @@
+<h1 align="center">Votes by <%= @user.display_name %></h1>
+
+<div style="margin: 1.5em 0;">
+  <%= link_to "← Back to User", admin_user_path(@user), class: "btn-secondary" %>
+</div>
+
+<div class="card voting-card voting-card--full">
+  <% if @votes.any? %>
+    <table class="voting-table voting-table--wide">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Project</th>
+          <th>Orig.</th>
+          <th>Tech.</th>
+          <th>Usab.</th>
+          <th>Story.</th>
+          <th>Time</th>
+          <th>Demo</th>
+          <th>Repo</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @votes.each do |vote| %>
+          <tr>
+            <td><%= time_ago_in_words(vote.created_at) %> ago</td>
+            <td>
+              <% if vote.project %>
+                <%= link_to truncate(vote.project.title, length: 30), admin_project_path(vote.project) %>
+              <% else %>
+                <span class="text-muted">Deleted</span>
+              <% end %>
+            </td>
+            <td class="score"><%= vote.originality_score || "—" %></td>
+            <td class="score"><%= vote.technical_score || "—" %></td>
+            <td class="score"><%= vote.usability_score || "—" %></td>
+            <td class="score"><%= vote.storytelling_score || "—" %></td>
+            <td><%= vote.time_taken_to_vote ? "#{vote.time_taken_to_vote}s" : "—" %></td>
+            <td><%= vote.demo_url_clicked ? "✓" : "—" %></td>
+            <td><%= vote.repo_url_clicked ? "✓" : "—" %></td>
+            <td>
+              <% if vote.reason.present? %>
+                <details>
+                  <summary>View</summary>
+                  <div style="margin-top: 0.5rem; white-space: pre-wrap; max-width: 300px;"><%= vote.reason %></div>
+                </details>
+              <% else %>
+                <span class="text-muted">—</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @pagy.pages > 1 %>
+      <div class="pagination" style="margin-top: 1rem;">
+        <%== pagy_nav(@pagy) %>
+      </div>
+    <% end %>
+  <% else %>
+    <p>No votes cast yet.</p>
+  <% end %>
+</div>
