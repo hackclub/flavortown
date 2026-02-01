@@ -91,4 +91,12 @@
   </div>
 </div>
 
-<%= link_to "← Back", helper_users_path, class: "btn-secondary" %>
+
+<div style="display: flex; gap: 0.5rem;">
+  <%= link_to "← Back", helper_users_path, class: "btn-secondary" %>
+
+  <%= button_to "View Profile", user_path(@user),
+    method: :get,
+    class: "btn-primary",
+    form: { target: "_blank", rel: "noopener" } %>
+</div>
