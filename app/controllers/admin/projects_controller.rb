@@ -55,11 +55,41 @@ class Admin::ProjectsController < Admin::ApplicationController
     @project = Project.unscoped.find(params[:id])
 
     reason = params[:reason].presence
+
+    # Issue minimum payout if no payout exists for latest ship
+    ship = @project.ship_events.first
+    issued_min_payout = false
+    if ship.present? && ship.ledger_entries.none?
+      hours = ship.hours
+      amount = (hours * game_constants.lowerst_dollar_per_hour * game_constants.tickets_per_dollar).round
+      if amount > 0
+        Payout.create!(amount: amount, payable: ship, user: @project.user, reason: "Minimum payout (shadow banned)", escrowed: false)
+        issued_min_payout = true
+      end
+    end
+
     @project.shadow_ban!(reason: reason)
+
+    # Resolve all pending reports on the project
+    @project.reports.pending.update_all(
+      status: Project::Report.statuses[:reviewed],
+      updated_at: Time.current
+    )
+
+    @project.memberships.each do |member|
+      next unless member.user&.slack_id.present?
+
+      parts = []
+      parts << "Hey! After review, your project won't be going into voting this time."
+      parts << "Reason: #{reason}" if reason.present?
+      parts << "We've issued a minimum payout for your work on this ship." if issued_min_payout
+      parts << "If you have questions, reach out in #flavortown-help. Keep building – you can ship again anytime!"
+      SendSlackDmJob.perform_later(member.user.slack_id, parts.join("\n\n"))
+    end
 
     log_to_user_audit(@project, "shadow_banned", reason)
 
-    redirect_to admin_project_path(@project), notice: "Project has been shadow banned."
+    redirect_to admin_project_path(@project), notice: "Project has been shadow banned#{issued_min_payout ? ' and minimum payout issued' : ''}."
   end
 
   def unshadow_ban
