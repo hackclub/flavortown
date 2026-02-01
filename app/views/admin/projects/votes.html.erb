@@ -18,12 +18,13 @@
           <th>Time</th>
           <th>Demo</th>
           <th>Repo</th>
+          <th>Discarded</th>
           <th>Reason</th>
         </tr>
       </thead>
       <tbody>
         <% @votes.each do |vote| %>
-          <tr>
+          <tr class="<%= 'suspicious-vote' if vote.suspicious %>">
             <td><%= time_ago_in_words(vote.created_at) %> ago</td>
             <td>
               <% if vote.user %>
@@ -39,6 +40,13 @@
             <td><%= vote.time_taken_to_vote ? "#{vote.time_taken_to_vote}s" : "—" %></td>
             <td><%= vote.demo_url_clicked ? "✓" : "—" %></td>
             <td><%= vote.repo_url_clicked ? "✓" : "—" %></td>
+            <td>
+              <% if vote.suspicious %>
+                <span class="text-danger">⚠ Yes</span>
+              <% else %>
+                <span class="text-muted">No</span>
+              <% end %>
+            </td>
             <td>
               <% if vote.reason.present? %>
                 <details>

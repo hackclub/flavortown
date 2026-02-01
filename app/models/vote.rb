@@ -95,6 +95,9 @@ class Vote < ApplicationRecord
   end
 
   def increment_user_vote_balance
+    # Only increment vote balance for legitimate (non-suspicious) votes
+    return if suspicious?
+
     user.increment!(:vote_balance, 1)
   end
 
