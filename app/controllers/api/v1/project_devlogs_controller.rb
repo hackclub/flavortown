@@ -5,8 +5,8 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
     index: "Fetch all devlogs for a specific project."
   }
 
-  class_attribute :url_params_model, default: { }
-  class_attribute :request_body_model, default: { }
+  class_attribute :url_params_model, default: {}
+  class_attribute :request_body_model, default: {}
 
   DEVLOG_SCHEMA = {
     id: Integer, body: String, comments_count: Integer, duration_seconds: Integer,
@@ -30,7 +30,7 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
   }.freeze
 
   class_attribute :response_body_model, default: {
-    index: { devlogs: [ DEVLOG_SCHEMA ], pagination: PAGINATION_SCHEMA },
+    index: { devlogs: [ DEVLOG_SCHEMA ], pagination: PAGINATION_SCHEMA }
   }
 
   def index
