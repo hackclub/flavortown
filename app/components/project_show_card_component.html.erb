@@ -133,7 +133,7 @@
               <%= helpers.inline_svg_tag("icons/user.svg") %>
               <span><%= followers_count %> <%= "follower".pluralize(followers_count) %></span>
             </button>
-          <% if (owner? || certifier_viewing_others_project?) && ship_status.present? %>
+          <% if can_view_ship_feedback? && ship_status.present? %>
             <div class="project-show-card__stat">
               <% certifier_border = certifier_viewing_others_project? ? "border: 3px solid orange; box-shadow: 0 0 0 4px rgba(255, 165, 0, 0.3);" : "" %>
               <% if has_feedback? && owner? %>
@@ -201,7 +201,7 @@
   </div>
 </article>
 
-<% if owner? && has_feedback? %>
+<% if can_view_ship_feedback? && has_feedback? %>
   <div id="ship-feedback-modal-<%= project.id %>" class="ship-feedback-modal" data-controller="modal" style="display: none; position: fixed; inset: 0; z-index: 1000; justify-content: center; align-items: center;">
     <div data-action="click->modal#close" style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);"></div>
     <div style="background: var(--color-cream, #fef3e2); border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; position: relative; z-index: 1001;">
