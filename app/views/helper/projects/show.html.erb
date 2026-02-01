@@ -39,7 +39,7 @@
   </div>
 </div>
 
-<div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+<div style="display: flex; gap: 0.5rem;">
   <%= link_to "← Back", helper_projects_path, class: "btn-secondary no-margin" %>
   <% if @project.deleted? %>
     <%= button_to "Restore Project", restore_helper_project_path(@project),
