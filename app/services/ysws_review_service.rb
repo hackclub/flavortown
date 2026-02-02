@@ -47,6 +47,8 @@ module YswsReviewService
   end
 
   def update_last_synced_at!(time = Time.current)
+    return if DISABLED
+
     Rails.cache.write(LAST_SYNC_CACHE_KEY, time)
   end
 
