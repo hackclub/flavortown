@@ -192,7 +192,7 @@
 <div class="admin-section">
   <h2 class="admin-section__header">Fulfillment Information</h2>
   <div class="info-rows">
-    <% if current_user.admin? %>
+    <% if current_user.admin? || current_user.fulfillment_person? %>
       <div style="margin-bottom: 1rem;">
         <b>Assigned To:</b>
         <% if @order.assigned_to_user.present? %>
