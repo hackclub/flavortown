@@ -90,4 +90,8 @@ class AdminPolicy < ApplicationPolicy
   def access_voting_dashboard?
     user.admin? || user.fraud_dept?
   end
+
+  def access_shop_suggestions?
+    user.admin?
+  end
 end
