@@ -51,7 +51,12 @@ class VotesController < ApplicationController
 
     if @vote.save
       share_vote_to_slack(@vote) if current_user.send_votes_to_slack
-      redirect_to new_vote_path, notice: "Vote recorded!"
+      
+      if @vote.suspicious?
+        redirect_to new_vote_path, alert: "Your vote was recorded but marked as low quality. Please spend more time reviewing projects - check out the demo and repository links before voting!"
+      else
+        redirect_to new_vote_path, notice: "Vote recorded! Thanks for your feedback."
+      end
     else
       @ship_event = @vote.ship_event
       @project = @vote.project
