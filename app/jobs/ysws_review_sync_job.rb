@@ -1,4 +1,6 @@
 class YswsReviewSyncJob < ApplicationJob
+  include Rails.application.routes.url_helpers
+
   queue_as :default
 
   def self.perform_later(*args)
@@ -91,24 +93,8 @@ class YswsReviewSyncJob < ApplicationJob
     ship_cert_id = ship_cert["id"].to_s
     fields = build_record_fields(review, user_pii, approved_orders)
 
-    existing_record = find_existing_record_by_ship_cert_id(ship_cert_id)
-
-    if existing_record
-      Rails.logger.info "[YswsReviewSyncJob] Updating existing Airtable record for ship_cert_id #{ship_cert_id}"
-      existing_record.fields.merge!(fields)
-      existing_record.save
-    else
-      Rails.logger.info "[YswsReviewSyncJob] Creating Airtable record for review #{review['id']} in table '#{table_name}'"
-      table.create(fields)
-    end
-  end
-
-  def find_existing_record_by_ship_cert_id(ship_cert_id)
-    return nil if ship_cert_id.blank?
-
-    table.all(
-      filter: "{ship_cert_id} = '#{ship_cert_id}'"
-    ).first
+    Rails.logger.info "[YswsReviewSyncJob] Upserting Airtable record for ship_cert_id #{ship_cert_id}"
+    table.upsert(fields, "ship_cert_id")
   end
 
   def build_record_fields(review, user_pii, approved_orders)
@@ -138,7 +124,7 @@ class YswsReviewSyncJob < ApplicationJob
       "Code URL" => ship_cert["repoUrl"],
       "Playable URL" => ship_cert["demoUrl"],
       "project_readme" => ship_cert["readmeUrl"],
-      "Screenshot" => banner_url.present? ? [ { "url" => banner_url } ] : nil,
+      "Screenshot" => banner_url.present? ? [ { "url" => banner_url } ] : [ { "url" => ship_cert["screenshotUrl"] } ],
       "proof_video" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
       "Description" => ship_cert["description"],
       "Optional - Override Hours Spent" => (calculate_total_approved_minutes(devlogs) / 60.0).round(2),
@@ -268,7 +254,13 @@ class YswsReviewSyncJob < ApplicationJob
       return nil
     end
 
-    url = build_banner_url(project)
+    host = default_url_host
+    if host.blank?
+      Rails.logger.error("[YswsReviewSyncJob] banner_url_for_project_id: host missing. action_mailer=#{Rails.application.config.action_mailer.default_url_options.inspect} routes=#{Rails.application.routes.default_url_options.inspect} ENV[APP_HOST]=#{ENV['APP_HOST'].inspect}")
+      return nil
+    end
+
+    url = rails_blob_url(project.banner, host: host)
     Rails.logger.info("[YswsReviewSyncJob] banner_url_for_project_id: success project_id=#{project.id} url=#{url}")
     url
   rescue StandardError => e
@@ -277,9 +269,7 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def default_url_host
-    Rails.application.config.action_mailer.default_url_options&.fetch(:host, nil) ||
-      Rails.application.routes.default_url_options[:host] ||
-      ENV["APP_HOST"]
+    ENV["APP_HOST"]
   end
 
   def project_exists_in_unified_db?(code_url)

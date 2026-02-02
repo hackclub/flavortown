@@ -4,6 +4,7 @@ class Projects::ShipsController < ApplicationController
   def new
     authorize @project, :ship?
     @step = params[:step]&.to_i&.clamp(1, 4) || 1
+    @step = 1 if @step > 1 && !@project.shippable?
     load_ship_data
   end
 

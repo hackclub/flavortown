@@ -15,8 +15,8 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       authorize :admin, :access_shop_orders?
     end
 
-    # Load fulfillment users for assignment dropdown (admins only, fulfillment view)
-    if current_user.admin? && @view == "fulfillment"
+    # Load fulfillment users for assignment dropdown (admins and fulfillment peeps, fulfillment view)
+    if (current_user.admin? || current_user.fulfillment_person?) && @view == "fulfillment"
       @fulfillment_users = User.where("'fulfillment_person' = ANY(granted_roles)").order(:display_name)
     end
 
@@ -145,8 +145,8 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @can_view_address = @order.can_view_address?(current_user)
     @is_digital_fulfillment_type = ShopOrder::DIGITAL_FULFILLMENT_TYPES.include?(@order.shop_item.type)
 
-    # Load fulfillment users for assignment (admins only)
-    if current_user.admin?
+    # Load fulfillment users for assignment (admins and fulfillment peeps)
+    if current_user.admin? || current_user.fulfillment_person?
       @fulfillment_users = User.where("'fulfillment_person' = ANY(granted_roles)").order(:display_name)
     end
 
@@ -337,7 +337,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def assign_user
-    authorize :admin, :access_shop_orders?
+    authorize :admin, :assign_shop_order?
     @order = ShopOrder.find(params[:id])
     old_assigned = @order.assigned_to_user_id
 
