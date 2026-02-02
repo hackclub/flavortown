@@ -45,6 +45,12 @@
   font-size: 1.5rem;
   font-weight: bold;
   color: var(--color-brown-700);
+
+  .voting-stat__sublabel {
+    font-size: 0.8rem;
+    color: hsla(218, 8%, 28%, 0.678);
+    margin-left: 0.25rem;
+  }
 }
 
 .voting-stat__label {
@@ -273,10 +279,6 @@
 
 .text-muted {
   color: #9ca3af;
-}
-
-.suspicious-vote {
-  background-color: rgba(220, 38, 38, 0.05);
 }
 
 .text-danger {
