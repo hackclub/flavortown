@@ -18,14 +18,22 @@
 
     <% balance = current_user.vote_balance %>
     <% if balance < 0 %>
-      <div class="votes-new__balance-banner votes-new__balance-banner--negative">
-        <span class="votes-new__balance-icon">⚠</span>
-        <span class="votes-new__balance-message">You need <%= balance.abs %> more votes to unlock payouts for your projects</span>
+      <div class="votes-new__project" style="margin-bottom: 2em; margin-top: -1em; border-color: #c24e4e;">
+        <div class="votes-new__project-card" style="background: #c24e4e;">
+          <div class="votes-new__project-card-content" style="width: 100%; text-align: center; color: #fdf6e3;">
+            <h1 style="font-size: 1.2rem; margin-bottom: 0.5em;">⚠ Vote Balance</h1>
+            <p style="color: #fdf6e3;">You need <%= balance.abs %> more votes to unlock payouts for your projects</p>
+          </div>
+        </div>
       </div>
     <% elsif balance > 0 %>
-      <div class="votes-new__balance-banner votes-new__balance-banner--positive">
-        <span class="votes-new__balance-icon">✓</span>
-        <span class="votes-new__balance-message">You're <%= balance %> votes ahead, so you only need <%= 15 - balance %> more votes for your next payout.</span>
+      <div class="votes-new__project" style="margin-bottom: 2em; margin-top: -1em; border-color: #75a743;">
+        <div class="votes-new__project-card" style="background: #75a743;">
+          <div class="votes-new__project-card-content" style="width: 100%; text-align: center; color: #fdf6e3;">
+            <h1 style="font-size: 1.2rem; margin-bottom: 0.5em;">✓ Vote Balance</h1>
+            <p style="color: #fdf6e3;">You're <%= balance %> votes ahead, so you only need <%= 15 - balance %> more votes for your next payout.</p>
+          </div>
+        </div>
       </div>
     <% end %>
 
