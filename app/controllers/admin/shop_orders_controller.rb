@@ -63,18 +63,36 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     # Calculate stats after region filter so counts respect user's assigned regions
-    stats_orders = orders
+    base = ShopOrder.includes(:shop_item, :user)
+
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept? && current_user.has_regions?
+      base = base.where(region: current_user.regions)
+                             .or(base.where(region: nil))
+                             .or(base.where(assigned_to_user_id: current_user.id))
+    elsif params[:region].present?
+      base = base.where(region: params[:region].upcase)
+    end
+
+    base = base.where(shop_item_id: params[:shop_item_id]) if params[:shop_item_id].present?
+    base = base.where("created_at >= ?", params[:date_from]) if params[:date_from].present?
+    base = base.where("created_at <= ?", params[:date_to]) if params[:date_to].present?
+
+    if params[:user_search].present?
+      search = "%#{ActiveRecord::Base.sanitize_sql_like(params[:user_search])}%"
+      base = base.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.id::text = ? OR users.slack_id ILIKE ?", search, search, params[:user_search], search)
+    end
+
     @c = {
-      pending: stats_orders.where(aasm_state: "pending").count,
-      awaiting_verification: stats_orders.where(aasm_state: "awaiting_verification").count,
-      awaiting_fulfillment: stats_orders.where(aasm_state: "awaiting_periodical_fulfillment").count,
-      fulfilled: stats_orders.where(aasm_state: "fulfilled").count,
-      rejected: stats_orders.where(aasm_state: "rejected").count,
-      on_hold: stats_orders.where(aasm_state: "on_hold").count
+      pending: base.where(aasm_state: "pending").count,
+      awaiting_verification: base.where(aasm_state: "awaiting_verification").count,
+      awaiting_fulfillment: base.where(aasm_state: "awaiting_periodical_fulfillment").count,
+      fulfilled: base.where(aasm_state: "fulfilled").count,
+      rejected: base.where(aasm_state: "rejected").count,
+      on_hold: base.where(aasm_state: "on_hold").count
     }
 
     # Calculate average times
-    fulfilled_orders = stats_orders.where(aasm_state: "fulfilled").where.not(fulfilled_at: nil)
+    fulfilled_orders = base.where(aasm_state: "fulfilled").where.not(fulfilled_at: nil)
     if fulfilled_orders.any?
       @f = fulfilled_orders.average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))").to_f
     end

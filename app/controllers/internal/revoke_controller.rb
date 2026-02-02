@@ -1,5 +1,8 @@
 module Internal
   class RevokeController < BaseController
+    # This is an endpoint used to revoke exposed API keys.
+    # The lack of authentication is intentional.
+    # The exposure of the users email is also intentional to help identify the affected user.
     def create
       token = params[:token]
 

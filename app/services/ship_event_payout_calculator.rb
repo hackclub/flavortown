@@ -12,9 +12,12 @@ class ShipEventPayoutCalculator
     payout_user = @ship_event.payout_recipient
     return unless payout_user
 
-    is_shadow_banned = @ship_event.post.project.shadow_banned?
+    project = @ship_event.post&.project
+    return unless project
 
-    unless payout_eligible? || is_shadow_banned
+    is_shadow_banned = project.shadow_banned?
+
+    unless payout_eligible?
       if payout_user.vote_balance < 0
         notify_vote_deficit(payout_user, payout_user.vote_balance.abs)
       end
@@ -22,7 +25,7 @@ class ShipEventPayoutCalculator
     end
 
     @ship_event.with_lock do
-      return unless payout_eligible? || is_shadow_banned
+      return unless payout_eligible?
 
       hours_used = base_hours
       puts hours_used
@@ -103,7 +106,8 @@ class ShipEventPayoutCalculator
   def notify_payout_issued(user)
     return unless user.slack_id.present?
 
-    if @ship_event.post.project.shadow_banned?
+    project = @ship_event.post&.project
+    if project&.shadow_banned?
       reason = project.shadow_banned_reason
       parts = []
       parts << "Hey! After review, your project won't be going into voting this time."
