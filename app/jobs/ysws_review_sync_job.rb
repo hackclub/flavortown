@@ -93,24 +93,8 @@ class YswsReviewSyncJob < ApplicationJob
     ship_cert_id = ship_cert["id"].to_s
     fields = build_record_fields(review, user_pii, approved_orders)
 
-    existing_record = find_existing_record_by_ship_cert_id(ship_cert_id)
-
-    if existing_record
-      Rails.logger.info "[YswsReviewSyncJob] Updating existing Airtable record for ship_cert_id #{ship_cert_id}"
-      existing_record.fields.merge!(fields)
-      existing_record.save
-    else
-      Rails.logger.info "[YswsReviewSyncJob] Creating Airtable record for review #{review['id']} in table '#{table_name}'"
-      table.create(fields)
-    end
-  end
-
-  def find_existing_record_by_ship_cert_id(ship_cert_id)
-    return nil if ship_cert_id.blank?
-
-    table.all(
-      filter: "{ship_cert_id} = '#{ship_cert_id}'"
-    ).first
+    Rails.logger.info "[YswsReviewSyncJob] Upserting Airtable record for ship_cert_id #{ship_cert_id}"
+    table.upsert(fields, "ship_cert_id")
   end
 
   def build_record_fields(review, user_pii, approved_orders)
