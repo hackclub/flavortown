@@ -285,7 +285,7 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def default_url_host
-      ENV["APP_HOST"]
+    ENV["APP_HOST"]
   end
 
   def project_exists_in_unified_db?(code_url)
