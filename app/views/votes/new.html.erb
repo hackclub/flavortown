@@ -16,28 +16,18 @@
           aria: { label: "See my previous votes" }
         ) %>
 
-    <div class="votes-new__balance">
-      <% balance = current_user.vote_balance %>
-      <% if balance < 0 %>
-        <div class="votes-new__balance-box votes-new__balance-box--negative">
-          <span class="votes-new__balance-label">Vote Balance</span>
-          <span class="votes-new__balance-amount"><%= balance %></span>
-          <span class="votes-new__balance-text">You need <%= balance.abs %> more votes to unlock payouts for your projects</span>
-        </div>
-      <% elsif balance == 0 %>
-        <div class="votes-new__balance-box votes-new__balance-box--neutral">
-          <span class="votes-new__balance-label">Vote Balance</span>
-          <span class="votes-new__balance-amount"><%= balance %></span>
-          <span class="votes-new__balance-text">You're breaking even! Keep voting to stay positive</span>
-        </div>
-      <% else %>
-        <div class="votes-new__balance-box votes-new__balance-box--positive">
-          <span class="votes-new__balance-label">Vote Balance</span>
-          <span class="votes-new__balance-amount">+<%= balance %></span>
-          <span class="votes-new__balance-text">Great job! Your projects can receive payouts</span>
-        </div>
-      <% end %>
-    </div>
+    <% balance = current_user.vote_balance %>
+    <% if balance < 0 %>
+      <div class="votes-new__balance-banner votes-new__balance-banner--negative">
+        <span class="votes-new__balance-icon">⚠</span>
+        <span class="votes-new__balance-message">You need <%= balance.abs %> more votes to unlock payouts for your projects</span>
+      </div>
+    <% elsif balance > 0 %>
+      <div class="votes-new__balance-banner votes-new__balance-banner--positive">
+        <span class="votes-new__balance-icon">✓</span>
+        <span class="votes-new__balance-message">You've voted <%= balance %> times more than needed. Vote <%= 15 - balance %> more times for your next project payout.</span>
+      </div>
+    <% end %>
 
     <div class="votes-new__main" data-controller="vote-tracker">
       <%= render "project_showcase", project: @project, posts: @posts %>
