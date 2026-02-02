@@ -285,8 +285,6 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def default_url_host
-    Rails.application.config.action_mailer.default_url_options&.fetch(:host, nil) ||
-      Rails.application.routes.default_url_options[:host] ||
       ENV["APP_HOST"]
   end
 
