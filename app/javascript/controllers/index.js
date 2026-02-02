@@ -13,6 +13,9 @@ application.register("address-select", AddressSelectController);
 import CardSoundController from "./card_sound_controller";
 application.register("card-sound", CardSoundController);
 
+import ChallengerStarsController from "./challenger_stars_controller";
+application.register("challenger-stars", ChallengerStarsController);
+
 import CookieClickerController from "./cookie_clicker_controller";
 application.register("cookie-clicker", CookieClickerController);
 
@@ -103,12 +106,20 @@ application.register("timezone", TimezoneController);
 import UploadFormController from "./upload_form_controller";
 application.register("upload-form", UploadFormController);
 
+import StarsController from "./stars_controller";
+application.register("stars", StarsController);
+
+import ShootingStarController from "./shooting_star_controller";
+application.register("shooting-star", ShootingStarController);
+
 import VoteTrackerController from "./vote_tracker_controller";
 application.register("vote-tracker", VoteTrackerController);
 
 import WelcomeOverlayController from "./welcome_overlay_controller";
 application.register("welcome-overlay", WelcomeOverlayController);
 
+import RocketLaunchController from "./rocket_launch_controller";
+application.register("rocket-launch", RocketLaunchController);
 import ResponsiveImageMapController from "./responsive_image_map_controller";
 application.register("responsive-image-map", ResponsiveImageMapController);
 
@@ -123,3 +134,6 @@ application.register("stats-hover", StatsHoverController);
 
 import TooltipController from "./tooltip_controller";
 application.register("tooltip", TooltipController);
+
+import ReadmeImageController from "./readme_image_controller";
+application.register("readme-image", ReadmeImageController);

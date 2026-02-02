@@ -391,8 +391,11 @@ class User < ApplicationRecord
       ban!(reason: "Automatically banned: User is banned on Hackatime")
     end
 
-    result[:projects].each_key do |name|
-      User::HackatimeProject.find_or_create_by!(user_id: id, name: name)
+    if result[:projects].any?
+      User::HackatimeProject.insert_all(
+        result[:projects].keys.map { |name| { user_id: id, name: name } },
+        unique_by: [ :user_id, :name ]
+      )
     end
 
     @hackatime_data = result
@@ -437,6 +440,17 @@ class User < ApplicationRecord
       .count
   end
 
+  def reject_awaiting_verification_orders!
+    shop_orders.where(aasm_state: "awaiting_verification").find_each do |order|
+      reason = if verification_ineligible?
+                 "Identity verification marked as ineligible"
+      else
+                 "Not eligible for YSWS"
+      end
+      order.mark_rejected!(reason)
+    end
+  end
+
   private
 
   def should_check_verification_eligibility?
@@ -448,17 +462,6 @@ class User < ApplicationRecord
       Shop::ProcessVerifiedOrdersJob.perform_later(id)
     elsif should_reject_orders?
       reject_awaiting_verification_orders!
-    end
-  end
-
-  def reject_awaiting_verification_orders!
-    shop_orders.where(aasm_state: "awaiting_verification").find_each do |order|
-      reason = if verification_ineligible?
-                 "Identity verification marked as ineligible"
-      else
-                 "Not eligible for YSWS"
-      end
-      order.mark_rejected!(reason)
     end
   end
 

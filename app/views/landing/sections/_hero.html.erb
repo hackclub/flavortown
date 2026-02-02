@@ -1,4 +1,9 @@
-<div class="section hero" role="main">
+<div class="section hero <%= 'hero--challenger' if @landing_variant == 'challenger' %>" role="main" <%= 'data-controller="challenger-stars"' if @landing_variant == 'challenger' %>>
+  <% if @landing_variant == "challenger" %>
+    <div class="hero-mars" aria-hidden="true">
+      <%= image_tag "launch/Mask group.png", alt: "" %>
+    </div>
+  <% end %>
   <%= inline_svg_tag "landing/hero/flag-orpheus-top.svg", class: "orph-flag" %>
 
 <%
@@ -24,14 +29,28 @@
 =end
 %>
 
-  <div class="top-collab">
-    <%= image_tag image_url("landing/hero/hc-gh-collab.avif"), loading: "lazy", decoding: "async", alt: "Hack Club + Github" %>
-  </div>
+  <% unless @landing_variant == "challenger" %>
+    <div class="top-collab">
+      <%= image_tag image_url("landing/hero/hc-gh-collab.avif"), loading: "lazy", decoding: "async", alt: "Hack Club + Github" %>
+    </div>
+  <% end %>
 
   <div class="rsvp-container">
-    <%= image_tag image_url("landing/hero/logo.avif"), loading: "eager", decoding: "async", sizes: "(max-width: 600px) 160px, 240px", fetchpriority: "high", alt: "Hack Club Flavortown logo" %>
+    <% if @landing_variant == "challenger" %>
+      <div class="challenger-logo-combo">
+        <%= image_tag image_url("landing/hero/logo.avif"), loading: "eager", decoding: "async", class: "challenger-logo-flavortown", alt: "Hack Club Flavortown logo" %>
+        <span class="challenger-logo-x">x</span>
+        <%= image_tag image_url("launch/challenger-center-logo.png"), loading: "eager", decoding: "async", class: "challenger-logo-center", alt: "Challenger Center logo" %>
+      </div>
+    <% else %>
+      <%= image_tag image_url("landing/hero/logo.avif"), loading: "eager", decoding: "async", sizes: "(max-width: 600px) 160px, 240px", fetchpriority: "high", alt: "Hack Club Flavortown logo" %>
+    <% end %>
     <h3>
-      Cook personal projects. Win free prizes.
+      <% if @landing_variant == "challenger" %>
+        Cook space themed projects. Earn cosmic prizes.
+      <% else %>
+        Cook personal projects. Win free prizes.
+      <% end %>
     </h3>
 
     <div class="rsvp-form">
@@ -56,5 +75,9 @@
     <%= image_tag image_url("icons/chevrons-red-down.svg"), class: "carat", size: 48, alt: "" %>
   </div>
 
-  <%= image_tag image_url("landing/hero/long-image.avif"), class: "hero-art", loading: "eager", decoding: "async", fetchpriority: "high", sizes: "100vw", alt: "Heidi and Orpheus cooking up a storm" %>
+  <% if @landing_variant == "challenger" %>
+    <%= image_tag image_url("launch/Group 313.png"), class: "hero-art hero-art--challenger", loading: "eager", decoding: "async", fetchpriority: "high", sizes: "100vw", alt: "Moon surface" %>
+  <% else %>
+    <%= image_tag image_url("landing/hero/long-image.avif"), class: "hero-art", loading: "eager", decoding: "async", fetchpriority: "high", sizes: "100vw", alt: "Heidi and Orpheus cooking up a storm" %>
+  <% end %>
 </div>

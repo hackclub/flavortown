@@ -9,6 +9,8 @@ module Admin
       load_payouts_stats
       load_fulfillment_stats
       load_support_stats
+      load_ship_certs_stats
+      load_voting_stats
     end
 
     private
@@ -18,9 +20,9 @@ module Admin
 
       report_counts = Project::Report.group(:status).count
       @fraud_reports = {
-        pending: report_counts["pending"] || 0,
-        reviewed: report_counts["reviewed"] || 0,
-        dismissed: report_counts["dismissed"] || 0,
+        pending: report_counts["pending"] || report_counts[0] || 0,
+        reviewed: report_counts["reviewed"] || report_counts[1] || 0,
+        dismissed: report_counts["dismissed"] || report_counts[2] || 0,
         new_today: Project::Report.where(created_at: today).count
       }
 
@@ -122,6 +124,78 @@ module Admin
       }
     rescue Faraday::Error, JSON::ParserError
       @support = nil
+    end
+
+    def load_ship_certs_stats
+      conn = Faraday.new do |f|
+        f.options.timeout = 5
+        f.options.open_timeout = 2
+      end
+
+      response = conn.get("https://review.hackclub.com/api/stats/ship-certs") do |req|
+        req.headers["x-api-key"] = ENV["SHIPWRIGHTS_API_KEY"]
+      end
+
+      unless response.success?
+        @ship_certs = { error: true }
+        return
+      end
+
+      data = JSON.parse(response.body)
+
+      @ship_certs = {
+        total_judged: data["totalJudged"],
+        approved: data["approved"],
+        rejected: data["rejected"],
+        pending: data["pending"],
+        approval_rate: data["approvalRate"],
+        avg_queue_time: data["avgQueueTime"],
+        decisions_today: data["decisionsToday"],
+        new_ships_today: data["newShipsToday"]
+      }
+    rescue Faraday::Error, JSON::ParserError, Faraday::TimeoutError
+      @ship_certs = { error: true }
+    end
+
+    def load_voting_stats
+      today = Time.current.beginning_of_day..Time.current.end_of_day
+      this_week = 7.days.ago.beginning_of_day..Time.current
+
+      avg_columns = Vote.enabled_categories.map do |category|
+        column = Vote.score_column_for!(category)
+        "AVG(#{column}) AS avg_#{category}"
+      end.join(", ")
+
+      select_sql = Vote.sanitize_sql_array([
+        <<-SQL.squish,
+          COUNT(*) AS total_votes,
+          COUNT(*) FILTER (WHERE created_at >= ? AND created_at <= ?) AS votes_today,
+          COUNT(*) FILTER (WHERE created_at >= ?) AS votes_this_week,
+          AVG(time_taken_to_vote) AS avg_time,
+          COUNT(*) FILTER (WHERE repo_url_clicked = true) AS repo_clicks,
+          COUNT(*) FILTER (WHERE demo_url_clicked = true) AS demo_clicks,
+          COUNT(*) FILTER (WHERE reason IS NOT NULL AND reason != '') AS with_reason,
+          #{avg_columns}
+        SQL
+        today.begin, today.end, this_week.begin
+      ])
+
+      vote_stats = Vote.select(select_sql).take
+      total = vote_stats.total_votes.to_i
+
+      @voting_overview = {
+        total: total,
+        today: vote_stats.votes_today.to_i,
+        this_week: vote_stats.votes_this_week.to_i,
+        avg_time_seconds: vote_stats.avg_time&.round,
+        repo_click_rate: total > 0 ? (vote_stats.repo_clicks.to_f / total * 100).round(1) : 0,
+        demo_click_rate: total > 0 ? (vote_stats.demo_clicks.to_f / total * 100).round(1) : 0,
+        reason_rate: total > 0 ? (vote_stats.with_reason.to_f / total * 100).round(1) : 0
+      }
+
+      @voting_category_avgs = Vote.enabled_categories.index_with do |category|
+        vote_stats.send(:"avg_#{category}")&.to_f&.round(2)
+      end
     end
   end
 end

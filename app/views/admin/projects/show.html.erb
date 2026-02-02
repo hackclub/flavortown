@@ -86,6 +86,7 @@
 <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
   <%= link_to "← Back", admin_projects_path, class: "btn-secondary" %>
   <%= link_to "View Public Page", project_path(@project), class: "btn-secondary", target: "_blank" %>
+  <%= link_to "View Votes", votes_admin_project_path(@project), class: "btn-secondary slim" %>
   <% if @project.deleted? %>
     <%= button_to "Restore Project", restore_admin_project_path(@project),
       method: :post,
