@@ -201,4 +201,20 @@
     font-size: 1.1rem;
     color: var(--color-text-muted);
   }
+
+  &__requirements-warning {
+    margin-top: var(--space-m);
+    padding: var(--space-s) var(--space-m);
+    background: var(--color-red-100);
+    border: 1px solid var(--color-red-300);
+    border-radius: var(--border-radius-sm, 4px);
+    color: var(--color-red-700);
+    font-weight: 500;
+  }
+
+  &__error {
+    margin: 0;
+    color: var(--color-red-500);
+    font-size: 0.9rem;
+  }
 }
