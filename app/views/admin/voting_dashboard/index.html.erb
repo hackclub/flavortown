@@ -5,19 +5,16 @@
         <h2>📊 Overview</h2>
         <div class="voting-stats">
         <div class="voting-stat">
-            <span class="voting-stat__value"><%= number_with_delimiter(@overview[:legitimate_total]) %></span>
+            <span class="voting-stat__value"><%= number_with_delimiter(@overview[:legitimate_total]) %><span class="voting-stat__sublabel">/<%= number_with_delimiter(@overview[:total]) %> total</span></span>
             <span class="voting-stat__label">Total Votes</span>
-            <span class="voting-stat__sublabel">/ <%= number_with_delimiter(@overview[:total]) %> total</span>
         </div>
         <div class="voting-stat voting-stat--info">
-            <span class="voting-stat__value"><%= @overview[:legitimate_today] %></span>
+            <span class="voting-stat__value"><%= @overview[:legitimate_today] %><span class="voting-stat__sublabel">/<%= @overview[:today] %> total</span></span>
             <span class="voting-stat__label">Today</span>
-            <span class="voting-stat__sublabel">/ <%= @overview[:today] %> total</span>
         </div>
         <div class="voting-stat voting-stat--success">
-            <span class="voting-stat__value"><%= @overview[:legitimate_this_week] %></span>
+            <span class="voting-stat__value"><%= @overview[:legitimate_this_week] %><span class="voting-stat__sublabel">/<%= @overview[:this_week] %> total</span></span>
             <span class="voting-stat__label">This Week</span>
-            <span class="voting-stat__sublabel">/ <%= @overview[:this_week] %> total</span>
         </div>
         <div class="voting-stat">
             <span class="voting-stat__value"><%= @overview[:avg_time_seconds] ? "#{@overview[:avg_time_seconds]}s" : "—" %></span>
@@ -47,27 +44,26 @@
 
 <div class="voting-grid">
     <div class="card voting-card voting-card--wide">
-        <h2>🚨 Suspicious Vote Detection</h2>
+        <h2>Suspicious Vote Detection <span id="sus-votes-tooltip" style="cursor: pointer;">ⓘ</span></h2>
         <div class="voting-stats">
         <div class="voting-stat voting-stat--error">
             <span class="voting-stat__value"><%= number_with_delimiter(@suspicious_stats[:total_suspicious]) %></span>
-            <span class="voting-stat__label">Total Suspicious</span>
+            <span class="voting-stat__label">Total</span>
         </div>
         <div class="voting-stat voting-stat--warning">
             <span class="voting-stat__value"><%= @suspicious_stats[:suspicious_percentage] %>%</span>
-            <span class="voting-stat__label">Of All Votes</span>
+            <span class="voting-stat__label">Percentage</span>
         </div>
         <div class="voting-stat voting-stat--error">
             <span class="voting-stat__value"><%= @suspicious_stats[:suspicious_this_week] %></span>
             <span class="voting-stat__label">This Week</span>
         </div>
-        <div class="voting-stat">
-            <span class="voting-stat__value">&lt;30s</span>
-            <span class="voting-stat__label">Threshold</span>
         </div>
-        </div>
-        <p class="voting-info">Votes completed in under <%= Vote::SUSPICIOUS_VOTE_THRESHOLD %>s are automatically flagged as suspicious and excluded from payout calculations.</p>
     </div>
+    <%= render TooltipComponent.new(target_id: "sus-votes-tooltip", position: :top) do %>
+        <strong>Suspicious Votes</strong>
+        Votes completed in under <%= Vote::SUSPICIOUS_VOTE_THRESHOLD %>s are automatically flagged as suspicious and excluded from payout calculations.
+    <% end %>
 </div>
 
 <div class="voting-grid">
@@ -278,7 +274,7 @@
         </thead>
         <tbody>
             <% @recent_suspicious_votes.each do |vote| %>
-            <tr class="suspicious-vote">
+            <tr>
                 <td><%= time_ago_in_words(vote.created_at) %> ago</td>
                 <td>
                 <% if vote.user %>

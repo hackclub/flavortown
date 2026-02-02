@@ -188,13 +188,36 @@
               ) %>
         <% end %>
         <% if project.readme_url.present? %>
-          <%= render ButtonComponent.new(
+          <% readme_modal_id = "project-readme-modal-#{project.id}" %>
+
+          <% if ProjectReadmeFetcher.allowed_url?(project.readme_url) %>
+            <%= render ButtonComponent.new(
+                  text: "Readme",
+                  color: :brown,
+                  variant: :borderless,
+                  icon: "icons/paper.svg",
+                  onclick: "document.getElementById('project-readme-modal-#{project.id.to_json}').showModal()"
+                ) %>
+
+            <%= render layout: "shared/modal", locals: { id: readme_modal_id, title: "README" } do %>
+              <turbo-frame id="project-readme-frame-<%= project.id %>" src="<%= readme_project_path(project) %>" loading="lazy">
+                <p style="text-align: center; font-size: 1.5rem;">Loading README...</p>
+              </turbo-frame>
+              <div class="modal__actions">
+                <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= "project-readme-modal-#{project.id}".to_json %>).close()">Close</button>
+              </div>
+            <% end %>
+          <% else %>
+              <%= render ButtonComponent.new(
                 text: "Readme",
+                href: project.readme_url,
                 color: :brown,
                 variant: :borderless,
                 icon: "icons/paper.svg",
-                onclick: "document.getElementById('project-readme-modal-#{project.id.to_json}').showModal()"
+                target: "_blank",
+                rel: "noopener noreferrer"
               ) %>
+          <% end %>
         <% end %>
       </div>
     <% end %>
@@ -272,12 +295,5 @@
 </div>
 
 <% if project.readme_url.present? %>
-  <%= render layout: "shared/modal", locals: { id: "project-readme-modal-#{project.id}", title: "README" } do %>
-    <turbo-frame id="project-readme-frame-<%= project.id %>" src="<%= readme_project_path(project) %>" loading="lazy">
-      <p style="text-align: center; font-size: 1.5rem;">Loading README...</p>
-    </turbo-frame>
-    <div class="modal__actions">
-      <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= "project-readme-modal-#{project.id}".to_json %>).close()">Close</button>
-    </div>
-  <% end %>
+
 <% end %>

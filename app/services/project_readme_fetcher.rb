@@ -41,6 +41,15 @@ class ProjectReadmeFetcher
     Result.new(markdown: nil, error: "Could not fetch README right now.")
   end
 
+  def self.allowed_url?(url)
+    return false if url.blank?
+
+    uri = URI.parse(url.to_s)
+    allowed_uri?(uri)
+  rescue URI::InvalidURIError
+    false
+  end
+
   def self.allowed_uri?(uri)
     return false unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
     host = uri.host.to_s.downcase
