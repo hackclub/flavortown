@@ -267,6 +267,12 @@ Rails.application.routes.draw do
         post :send_letter_mail
       end
     end
+    resources :shop_suggestions, only: [ :index ] do
+      member do
+        post :dismiss
+        post :disable_for_user
+      end
+    end
   end
 
   get "queue", to: "queue#index"
@@ -314,4 +320,7 @@ Rails.application.routes.draw do
       get :stats
     end
   end
+
+  # Shop suggestions
+  resources :shop_suggestions, only: [ :create ]
 end
