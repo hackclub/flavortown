@@ -566,6 +566,25 @@
 }
 
 .votes-new__balance-message {
-  line-height: 1.4;
-  font-weight: 500;
+  line-height: 1.5;
+}
+
+.votes-new__balance-text {
+  text-align: center;
+  font-family: var(--font-family-text);
+  font-size: 1rem;
+  margin-bottom: 2em;
+  margin-top: -1em;
+  padding: 0.75em;
+  border-radius: 8px;
+
+  &--negative {
+    color: #c24e4e;
+    background-color: rgba(194, 78, 78, 0.1);
+  }
+
+  &--positive {
+    color: #75a743;
+    background-color: rgba(117, 167, 67, 0.1);
+  }
 }
