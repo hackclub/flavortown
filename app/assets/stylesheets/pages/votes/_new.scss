@@ -524,3 +524,72 @@
     --vote-category-footer-text: #75a743;
   }
 }
+
+// Vote Balance Display
+.votes-new__balance {
+  margin-bottom: 2em;
+  display: flex;
+  justify-content: center;
+}
+
+.votes-new__balance-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1em 2em;
+  border-radius: 16px;
+  border: 0.5rem solid;
+  font-family: var(--font-family-text);
+  max-width: 500px;
+  text-align: center;
+
+  &--negative {
+    background-color: #fef2f2;
+    border-color: #dc2626;
+    color: #dc2626;
+
+    .votes-new__balance-amount {
+      color: #dc2626;
+    }
+  }
+
+  &--neutral {
+    background-color: #fefce8;
+    border-color: #eab308;
+    color: #854d0e;
+
+    .votes-new__balance-amount {
+      color: #eab308;
+    }
+  }
+
+  &--positive {
+    background-color: #f0fdf4;
+    border-color: #16a34a;
+    color: #15803d;
+
+    .votes-new__balance-amount {
+      color: #16a34a;
+    }
+  }
+}
+
+.votes-new__balance-label {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25em;
+  opacity: 0.8;
+}
+
+.votes-new__balance-amount {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.25em;
+}
+
+.votes-new__balance-text {
+  font-size: 1rem;
+  opacity: 0.9;
+  max-width: 400px;
+}
