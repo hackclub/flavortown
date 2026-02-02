@@ -62,7 +62,10 @@ class YswsReviewSyncJob < ApplicationJob
     user = User.find_by(slack_id: slack_id)
     return if user.nil?
 
-    approved_orders = user.shop_orders.where(aasm_state: "fulfilled").where.not(fulfilled_by: "System").includes(:shop_item)
+    approved_orders = user.shop_orders
+      .where(aasm_state: "fulfilled")
+      .where("fulfilled_by IS NULL OR fulfilled_by NOT LIKE ?", "System%")
+      .includes(:shop_item)
 
     if approved_orders.none?
       Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: user #{slack_id} has no manually fulfilled orders"
@@ -193,7 +196,7 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def build_orders_section(approved_orders)
-    manual_orders = approved_orders.reject { |order| order.fulfilled_by == "System" }
+    manual_orders = approved_orders.reject { |order| order.fulfilled_by&.start_with?("System") }
     return "" if manual_orders.empty?
 
     orders_list = manual_orders.last(2).map do |order|
