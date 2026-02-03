@@ -7,9 +7,16 @@ class ExploreController < ApplicationController
                 .where(users: { shadow_banned: false })
                 .includes(:user, :project)
                 .preload(:postable)
-                .order(created_at: :desc)
 
     scope = scope.where(post_devlogs: { deleted_at: nil }) unless current_user&.can_see_deleted_devlogs?
+
+    if params[:sort] == "following" && current_user
+      scope = scope.where(project_id: current_user.project_follows.select(:project_id))
+    elsif params[:sort] == "top"
+      scope = scope.order(likes_count: :desc)
+    else
+      scope = scope.order(created_at: :desc)
+    end
 
     @pagy, @devlogs = pagy(scope, limit: 20, client_max_limit: 20)
 
@@ -37,7 +44,14 @@ class ExploreController < ApplicationController
                    .where(tutorial: false)
                    .excluding_member(current_user)
                    .excluding_shadow_banned
-                   .order(created_at: :desc)
+    
+    if params[:sort] == "following" && current_user
+      scope = scope.where(id: current_user.project_follows.select(:project_id))
+    elsif params[:sort] == "top"
+      scope = scope.order(devlogs_count: :desc)
+    else
+      scope = scope.order(created_at: :desc)
+    end
 
     @pagy, @projects = pagy(scope)
 

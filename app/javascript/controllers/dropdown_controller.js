@@ -19,9 +19,11 @@ export default class extends Controller {
 
     const label = this.element.querySelector(".dropdown__label")?.textContent;
 
-    if (label === "Section" && value) {
-      window.location.href = value;
-      return;
+    if ((label === "Section" || label === "Sort") && value) {
+      if (value.startsWith("/") || value.startsWith("http")) {
+        window.location.href = value;
+        return;
+      }
     }
 
     if (
