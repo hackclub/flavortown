@@ -11,6 +11,7 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
   DEVLOG_SCHEMA = {
     id: Integer, body: String, comments_count: Integer, duration_seconds: Integer,
     likes_count: Integer, scrapbook_url: String, created_at: String, updated_at: String,
+    media: [{ url: String, content_type: String }],
     comments: [
       {
         id: Integer,
