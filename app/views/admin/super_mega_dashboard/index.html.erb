@@ -220,70 +220,59 @@
         </div>
 
         <div class="super-mega-dashboard__cards">
+          <%
+            hang_time_color = ->(minutes) {
+              return nil if minutes.nil?
+              return "red" if minutes >= 720
+              return "orange" if minutes >= 360
+              nil
+            }
+          %>
+
           <div class="super-mega-dashboard__card">
-            <h3>All Time</h3>
+            <h3>Avg Hang Time (24h)</h3>
             <div class="super-mega-dashboard__stats">
               <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value blue"><%= number_with_delimiter(@support[:total]) %></span>
-                <span class="super-mega-dashboard__stat--label">Total</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value red"><%= @support[:open] %></span>
-                <span class="super-mega-dashboard__stat--label">Open</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value yellow"><%= @support[:in_progress] %></span>
-                <span class="super-mega-dashboard__stat--label">In Progress</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value green"><%= number_with_delimiter(@support[:closed]) %></span>
-                <span class="super-mega-dashboard__stat--label">Closed</span>
+                <span class="super-mega-dashboard__stat--value <%= hang_time_color.call(@support[:hang_24h]) %>">
+                  <%= format_seconds(@support[:hang_24h] * 60) %>
+                  <% if @support[:hang_24h_change] %>
+                    <span class="super-mega-dashboard__stat--change <%= @support[:hang_24h_change] <= 0 ? 'green' : 'red' %>">
+                      (<%= @support[:hang_24h_change] > 0 ? "+" : "" %><%= @support[:hang_24h_change] %>%)
+                    </span>
+                  <% end %>
+                </span>
+                <span class="super-mega-dashboard__stat--label">vs previous day</span>
               </div>
             </div>
           </div>
 
           <div class="super-mega-dashboard__card">
-            <h3>Last 24 Hours</h3>
+            <h3>Avg Hang Time (7d)</h3>
             <div class="super-mega-dashboard__stats">
               <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value blue"><%= @support[:prev_day][:total] %></span>
-                <span class="super-mega-dashboard__stat--label">Total</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value red"><%= @support[:prev_day][:open] %></span>
-                <span class="super-mega-dashboard__stat--label">Open</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value yellow"><%= @support[:prev_day][:in_progress] %></span>
-                <span class="super-mega-dashboard__stat--label">In Progress</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value green"><%= @support[:prev_day][:closed] %></span>
-                <span class="super-mega-dashboard__stat--label">Closed</span>
+                <span class="super-mega-dashboard__stat--value <%= hang_time_color.call(@support[:hang_7d]) %>">
+                  <%= format_seconds(@support[:hang_7d] * 60) %>
+                  <% if @support[:hang_7d_change] %>
+                    <span class="super-mega-dashboard__stat--change <%= @support[:hang_7d_change] <= 0 ? 'green' : 'red' %>">
+                      (<%= @support[:hang_7d_change] > 0 ? "+" : "" %><%= @support[:hang_7d_change] %>%)
+                    </span>
+                  <% end %>
+                </span>
+                <span class="super-mega-dashboard__stat--label">vs previous week</span>
               </div>
             </div>
           </div>
 
-          <div class="super-mega-dashboard__card">
-            <h3>Response Times</h3>
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--oldest">
+            <h3>Oldest Unanswered</h3>
             <div class="super-mega-dashboard__stats">
               <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value yellow"><%= format_minutes_as_time(@support[:avg_hang_time]) %></span>
-                <span class="super-mega-dashboard__stat--label">Avg Hang Time</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value green"><%= format_minutes_as_time(@support[:resolution_time]) %></span>
-                <span class="super-mega-dashboard__stat--label">Avg Resolution</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="super-mega-dashboard__card">
-            <h3>Old tickets</h3>
-            <div class="super-mega-dashboard__stats">
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value red"><%= format_seconds(@support[:oldest_unanswered] * 60, include_days: true) %></span>
-                <span class="super-mega-dashboard__stat--label">Oldest Unanswered Ticket</span>
+                <% if @support[:oldest_unanswered_link] %>
+                  <%= link_to format_seconds(@support[:oldest_unanswered] * 60, include_days: true), @support[:oldest_unanswered_link], target: "_blank", class: "super-mega-dashboard__stat--value super-mega-dashboard__stat--scary" %>
+                <% else %>
+                  <span class="super-mega-dashboard__stat--value super-mega-dashboard__stat--scary"><%= format_seconds(@support[:oldest_unanswered] * 60, include_days: true) %></span>
+                <% end %>
+                <span class="super-mega-dashboard__stat--label">Click to view ticket</span>
               </div>
             </div>
           </div>

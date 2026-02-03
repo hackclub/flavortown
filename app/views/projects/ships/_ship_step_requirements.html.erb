@@ -17,6 +17,12 @@
         </div>
       <% end %>
     </div>
+
+    <% unless @project.shippable? %>
+      <p class="projects-ship__requirements-warning">
+        Complete all requirements above before you can continue to ship your project.
+      </p>
+    <% end %>
   </div>
 
   <div class="projects-ship__video-section">

@@ -90,6 +90,9 @@
     .yellow {
       color: #f59e0b;
     }
+    .orange {
+      color: #f97316;
+    }
     .green {
       color: #10b981;
     }
@@ -106,6 +109,35 @@
     &--label {
       font-size: 1rem;
     }
+
+    &--change {
+      font-size: 1rem;
+      font-weight: 600;
+
+      &.green {
+        color: #10b981;
+      }
+
+      &.red {
+        color: #ef4444;
+      }
+    }
+
+    &--scary {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #ef4444;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__card--oldest {
+    background-color: #fef2f2;
+    border: 2px solid #ef4444;
   }
 
   &__actions {
