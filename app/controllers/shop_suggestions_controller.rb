@@ -10,6 +10,7 @@ class ShopSuggestionsController < ApplicationController
     @suggestion = current_user.shop_suggestions.build(suggestion_params)
 
     if @suggestion.save
+      Airtable::ShopSuggestionSyncJob.perform_later(@suggestion.id)
       redirect_to shop_path, notice: "Thank you for your suggestion!"
     else
       redirect_to shop_path, alert: @suggestion.errors.full_messages.to_sentence
