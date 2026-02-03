@@ -62,10 +62,13 @@ class YswsReviewSyncJob < ApplicationJob
     user = User.find_by(slack_id: slack_id)
     return if user.nil?
 
-    approved_orders = user.shop_orders.where(aasm_state: "fulfilled").includes(:shop_item)
+    approved_orders = user.shop_orders
+      .where(aasm_state: "fulfilled")
+      .where("fulfilled_by IS NULL OR fulfilled_by NOT LIKE ?", "System%")
+      .includes(:shop_item)
 
-    if approved_orders.count < 2
-      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: user #{slack_id} has only #{approved_orders.count} fulfilled order(s) (< 2)"
+    if approved_orders.none?
+      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: user #{slack_id} has no manually fulfilled orders"
       return
     end
 
@@ -193,9 +196,10 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def build_orders_section(approved_orders)
-    return "" if approved_orders.empty?
+    manual_orders = approved_orders.reject { |order| order.fulfilled_by&.start_with?("System") }
+    return "" if manual_orders.empty?
 
-    orders_list = approved_orders.last(2).map do |order|
+    orders_list = manual_orders.last(2).map do |order|
       item_name = order.shop_item.name
       fulfilled_by = order.fulfilled_by.presence || "Unknown"
       fulfilled_at = order.fulfilled_at&.strftime("%Y-%m-%d") || "Unknown date"
@@ -203,9 +207,7 @@ class YswsReviewSyncJob < ApplicationJob
     end.join("\n")
 
     <<~ORDERS
-
-      This was fraud checked #{approved_orders.count} time(s).
-
+      This user has the following manually approved shop orders:
       #{orders_list}
     ORDERS
   end
