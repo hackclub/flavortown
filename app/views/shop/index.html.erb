@@ -188,7 +188,7 @@
           <%= f.label :item, "What can we add?" %>
           <%= f.text_area :item,
                           placeholder: "A super cool HeidixOrpheusxForever plushie!",
-                          rows: 2,
+                          rows: 1,
                           required: true,
                           minlength: 10,
                           maxlength: 1000 %>
@@ -198,10 +198,17 @@
           <%= f.label :explanation, "How would this help you as a hacker?" %>
           <%= f.text_area :explanation,
                           placeholder: "The entire world needs this...",
-                          rows: 6,
+                          rows: 4,
                           required: true,
                           minlength: 10,
                           maxlength: 10000 %>
+        </div>
+
+        <div class="shop-suggestion-modal__field">
+          <%= f.label :link, "Link to the item (if applicable)" %>
+          <%= f.url_field :link,
+                          placeholder: "https://hackclub.com/iwantmoreplushies",
+                          maxlength: 2000 %>
         </div>
 
         <%= f.submit "Submit Suggestion", class: "btn btn-primary" %>

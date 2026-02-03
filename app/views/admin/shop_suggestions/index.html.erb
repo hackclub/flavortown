@@ -28,6 +28,13 @@
               <label>Explanation</label>
               <p><%= simple_format(suggestion.explanation) %></p>
             </div>
+
+            <% if suggestion.link.present? %>
+              <div class="shop-suggestions-admin__field">
+                <label>Link</label>
+                <p><%= link_to suggestion.link, suggestion.link, target: "_blank", rel: "noopener" %></p>
+              </div>
+            <% end %>
           </div>
 
           <div class="shop-suggestions-admin__actions">

@@ -19,7 +19,7 @@ class ShopSuggestionsController < ApplicationController
   private
 
   def suggestion_params
-    params.require(:shop_suggestion).permit(:item, :explanation)
+    params.require(:shop_suggestion).permit(:item, :explanation, :link)
   end
 
   def require_login

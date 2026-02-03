@@ -776,6 +776,27 @@
         opacity: 0.7;
       }
     }
+
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 2px solid var(--color-brown-400);
+      border-radius: 0.5em;
+      background: var(--color-bg);
+      font-size: 1rem;
+      color: var(--color-brown-700);
+      transition: border-color 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: var(--color-brown-700);
+      }
+
+      &::placeholder {
+        color: var(--color-brown-500);
+        opacity: 0.7;
+      }
+    }
   }
 
   .btn {
