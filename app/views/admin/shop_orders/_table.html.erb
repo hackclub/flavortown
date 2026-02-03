@@ -12,7 +12,7 @@
           <% if @view == 'fulfillment' %>
             <th>Region</th>
           <% end %>
-          <% if current_user.admin? && @view == 'fulfillment' %>
+          <% if (current_user.admin? || current_user.fulfillment_person?) && @view == 'fulfillment' %>
             <th>Assignee</th>
           <% end %>
           <th><%= @view == 'fulfillment' ? 'Hang Time' : 'Created' %></th>
@@ -60,7 +60,7 @@
               </td>
             <% end %>
 
-            <% if current_user.admin? && @view == 'fulfillment' %>
+            <% if (current_user.admin? || current_user.fulfillment_person?) && @view == 'fulfillment' %>
               <td>
                 <% if order.assigned_to_user.present? %>
                   <div style="display: flex; align-items: center; gap: 0.5rem;">

@@ -62,10 +62,13 @@ class YswsReviewSyncJob < ApplicationJob
     user = User.find_by(slack_id: slack_id)
     return if user.nil?
 
-    approved_orders = user.shop_orders.where(aasm_state: "fulfilled").includes(:shop_item)
+    approved_orders = user.shop_orders
+      .where(aasm_state: "fulfilled")
+      .where("fulfilled_by IS NULL OR fulfilled_by NOT LIKE ?", "System%")
+      .includes(:shop_item)
 
-    if approved_orders.count < 2
-      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: user #{slack_id} has only #{approved_orders.count} fulfilled order(s) (< 2)"
+    if approved_orders.none?
+      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: user #{slack_id} has no manually fulfilled orders"
       return
     end
 
@@ -93,24 +96,8 @@ class YswsReviewSyncJob < ApplicationJob
     ship_cert_id = ship_cert["id"].to_s
     fields = build_record_fields(review, user_pii, approved_orders)
 
-    existing_record = find_existing_record_by_ship_cert_id(ship_cert_id)
-
-    if existing_record
-      Rails.logger.info "[YswsReviewSyncJob] Updating existing Airtable record for ship_cert_id #{ship_cert_id}"
-      existing_record.fields.merge!(fields)
-      existing_record.save
-    else
-      Rails.logger.info "[YswsReviewSyncJob] Creating Airtable record for review #{review['id']} in table '#{table_name}'"
-      table.create(fields)
-    end
-  end
-
-  def find_existing_record_by_ship_cert_id(ship_cert_id)
-    return nil if ship_cert_id.blank?
-
-    table.all(
-      filter: "{ship_cert_id} = '#{ship_cert_id}'"
-    ).first
+    Rails.logger.info "[YswsReviewSyncJob] Upserting Airtable record for ship_cert_id #{ship_cert_id}"
+    table.upsert(fields, "ship_cert_id")
   end
 
   def build_record_fields(review, user_pii, approved_orders)
@@ -209,9 +196,10 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def build_orders_section(approved_orders)
-    return "" if approved_orders.empty?
+    manual_orders = approved_orders.reject { |order| order.fulfilled_by&.start_with?("System") }
+    return "" if manual_orders.empty?
 
-    orders_list = approved_orders.last(2).map do |order|
+    orders_list = manual_orders.last(2).map do |order|
       item_name = order.shop_item.name
       fulfilled_by = order.fulfilled_by.presence || "Unknown"
       fulfilled_at = order.fulfilled_at&.strftime("%Y-%m-%d") || "Unknown date"
@@ -219,9 +207,7 @@ class YswsReviewSyncJob < ApplicationJob
     end.join("\n")
 
     <<~ORDERS
-
-      This was fraud checked #{approved_orders.count} time(s).
-
+      This user has the following manually approved shop orders:
       #{orders_list}
     ORDERS
   end
@@ -285,9 +271,7 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def default_url_host
-    Rails.application.config.action_mailer.default_url_options&.fetch(:host, nil) ||
-      Rails.application.routes.default_url_options[:host] ||
-      ENV["APP_HOST"]
+    ENV["APP_HOST"]
   end
 
   def project_exists_in_unified_db?(code_url)
