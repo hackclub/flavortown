@@ -42,19 +42,91 @@
           </div>
         <% end %>
 
-        <div class="projects-new__field">
-          <%= render FileUploadComponent.new(
-                label: "Attachment",
-                form: f,
-                attribute: :attachments,
-                color: :green,
-                subtitle: "Supports images, video, and GIF. Max 50 MB.",
-                accept: Post::Devlog::ACCEPTED_CONTENT_TYPES.join(","),
-                multiple: true,
-                max_count: 8,
-                max_size: 50.megabytes
-              ) %>
-        </div>
+        <% if @lapse_timelapses.present? %>
+          <div class="projects-new__media-row" data-controller="media-selector">
+            <div class="projects-new__field">
+              <div class="input file-upload input--green">
+                <label class="input__label projects-new__media-label">
+                  <input type="radio" name="media_type" value="attachment" checked>
+                  <span>Attachment</span>
+                </label>
+                <div class="projects-new__media-content">
+                  <div class="file-upload__area" data-controller="file-upload" data-file-upload-max-size-value="<%= 50.megabytes %>" data-file-upload-max-count-value="8">
+                    <%= f.file_field :attachments,
+                          class: "file-upload__input",
+                          multiple: true,
+                          accept: Post::Devlog::ACCEPTED_CONTENT_TYPES.join(","),
+                          direct_upload: true,
+                          data: {
+                            "file-upload-target": "input",
+                            action: "change->file-upload#handleSelection direct-upload:initialize->file-upload#uploadInitialize direct-upload:start->file-upload#uploadStart direct-upload:progress->file-upload#uploadProgress direct-upload:error->file-upload#uploadError direct-upload:end->file-upload#uploadEnd"
+                          } %>
+                    <div class="file-upload__dropzone" role="button" tabindex="0" aria-label="Upload file" data-file-upload-target="dropzone" data-action="click->file-upload#open dragover->file-upload#dragOver dragleave->file-upload#dragLeave drop->file-upload#drop keydown->file-upload#openWithKeyboard keydown.left->file-upload#prev keydown.right->file-upload#next">
+                      <div class="file-upload__placeholder" data-file-upload-target="placeholder">
+                        <p class="file-upload__headline">Drag & drop your file here</p>
+                        <p class="file-upload__hint">or <button type="button" class="file-upload__browse" data-action="file-upload#open">browse from your computer</button></p>
+                      </div>
+                      <button type="button" class="file-upload__nav file-upload__nav--prev" data-file-upload-target="prevButton" data-action="file-upload#prev" aria-label="Previous" hidden>
+                        <%= inline_svg_tag "icons/chevron-down.svg", class: "file-upload__nav-icon", focusable: "false", aria: { hidden: true } %>
+                      </button>
+                      <div class="file-upload__preview" data-file-upload-target="preview" hidden></div>
+                      <button type="button" class="file-upload__nav file-upload__nav--next" data-file-upload-target="nextButton" data-action="file-upload#next" aria-label="Next" hidden>
+                        <%= inline_svg_tag "icons/chevron-down.svg", class: "file-upload__nav-icon", focusable: "false", aria: { hidden: true } %>
+                      </button>
+                      <p class="file-upload__filename" data-file-upload-target="filename" hidden></p>
+                      <div class="file-upload__indicators" data-file-upload-target="indicators" hidden></div>
+                      <button type="button" class="file-upload__browse file-upload__add-more" data-file-upload-target="addMore" data-action="file-upload#open" hidden>Add more files</button>
+                    </div>
+                    <div class="file-upload__progress" data-file-upload-target="progress" hidden>
+                      <div class="file-upload__progress-bar" data-file-upload-target="progressBar"></div>
+                    </div>
+                    <p class="file-upload__status" data-file-upload-target="status" hidden></p>
+                  </div>
+                </div>
+                <div class="input__subtitle">Supports images, video, and GIF. Max 50 MB.</div>
+              </div>
+            </div>
+
+            <div class="projects-new__field">
+              <div class="input file-upload input--green">
+                <label class="input__label projects-new__media-label">
+                  <input type="radio" name="media_type" value="lapse">
+                  <span>Lapse Timelapse</span>
+                </label>
+                <div class="projects-new__media-content">
+                  <div class="projects-new__lapse-preview" data-media-selector-target="preview">
+                    <video class="projects-new__lapse-video" data-media-selector-target="video" muted loop playsinline></video>
+                  </div>
+                  <%= f.select :lapse_timelapse_id,
+                        options_for_select(@lapse_timelapses.map { |t|
+                          [
+                            t["name"].presence || "Untitled (#{Time.at(t["createdAt"].to_i / 1000).strftime('%b %d, %Y')})",
+                            t["id"],
+                            { "data-playback-url" => t["playbackUrl"], "data-thumbnail-url" => t["thumbnailUrl"] }
+                          ]
+                        }),
+                        { include_blank: "Select a timelapse..." },
+                        { class: "projects-new__lapse-select", data: { action: "change->media-selector#selectTimelapse", "media-selector-target": "select" } } %>
+                </div>
+                <div class="input__subtitle">Attach a timelapse recording from Lapse.</div>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <div class="projects-new__field">
+            <%= render FileUploadComponent.new(
+                  label: "Attachment",
+                  form: f,
+                  attribute: :attachments,
+                  color: :green,
+                  subtitle: "Supports images, video, and GIF. Max 50 MB.",
+                  accept: Post::Devlog::ACCEPTED_CONTENT_TYPES.join(","),
+                  multiple: true,
+                  max_count: 8,
+                  max_size: 50.megabytes
+                ) %>
+          </div>
+        <% end %>
       </div>
 
       <div class="projects-new__actions">
