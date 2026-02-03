@@ -1,6 +1,12 @@
 .explore {
   margin-top: 3em;
 
+  &--extensions {
+    .explore__nav {
+      justify-content: center;
+    }
+  }
+
   &__nav {
     width: 90%;
     max-width: 1200px;
