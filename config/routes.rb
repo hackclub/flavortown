@@ -210,6 +210,7 @@ Rails.application.routes.draw do
          post :impersonate
          post :refresh_verification
          get  :votes
+         post :toggle_voting_lock
        end
        collection do
          post :stop_impersonating
@@ -262,6 +263,7 @@ Rails.application.routes.draw do
     get "voting_dashboard", to: "voting_dashboard#index"
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    get "suspicious_votes", to: "suspicious_votes#index"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
