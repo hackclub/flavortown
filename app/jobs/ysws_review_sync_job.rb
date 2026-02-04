@@ -1,3 +1,92 @@
+=begin
+Put this into https://mermaid.live/ for a visualisation of the pipeline.
+
+flowchart TD
+    Start(["`**process_review(review_id)**`"]) --> Init["adjusted_hours = nil"]
+    Init --> FetchReview["Fetch review from YSWS API"]
+    FetchReview --> GetDevlogs["Extract devlogs from review"]
+    GetDevlogs --> CalcMinutes["total_approved_minutes = sum of approvedMins"]
+
+    CalcMinutes --> CheckMinutes{"`total_approved_minutes < 5?`"}
+    CheckMinutes -->|Yes| SkipLowMinutes(["`⛔ SKIP
+    Less than 5 approved minutes`"])
+
+    CheckMinutes -->|No| ExtractShipCert["Extract from shipCert:
+    • code_url = repoUrl
+    • ft_project_id = ftProjectId"]
+
+    ExtractShipCert --> CheckReports{"`Project has pending
+    or reviewed reports?`"}
+    CheckReports -->|Yes| SkipReports(["`⛔ SKIP
+    Active reports exist`"])
+
+    CheckReports -->|No| CheckCodeUrl{"`code_url.present?`"}
+
+    CheckCodeUrl -->|No| GoToSlackCheck
+    CheckCodeUrl -->|Yes| CheckFlavortown{"`Project in unified DB
+    with YSWS = 'Flavortown'?`"}
+
+    subgraph UnifiedDB["Unified Database Checks"]
+        CheckFlavortown -->|Yes, found record| GetExistingHours["existing_hours = record hours
+        new_hours = approved_mins / 60"]
+        GetExistingHours --> CompareHoursFT{"`new_hours >
+        existing_hours + 0.5?`"}
+        CompareHoursFT -->|Yes| UpdateRecord["Update existing record:
+        • Set new hours
+        • Append justification"]
+        UpdateRecord --> ReturnAfterUpdate(["`✅ RETURN
+        Record updated`"])
+        CompareHoursFT -->|No| SkipExistsFT(["`⛔ SKIP
+        Hours not greater`"])
+
+        CheckFlavortown -->|No| CheckUnifiedOther{"`Project in unified DB
+        (non-Flavortown)?`"}
+        CheckUnifiedOther -->|Yes| GetUnifiedHours["unified_db_hours = existing hours
+        new_hours = approved_mins / 60"]
+        GetUnifiedHours --> CompareHoursUnified{"`new_hours >
+        unified_hours + 0.5?`"}
+        CompareHoursUnified -->|Yes| SetAdjusted["adjusted_hours =
+        new_hours - unified_hours"]
+        SetAdjusted --> GoToSlackCheck
+        CompareHoursUnified -->|No| SkipExistsUnified(["`⛔ SKIP
+        Hours not greater`"])
+        CheckUnifiedOther -->|No| GoToSlackCheck
+    end
+
+    GoToSlackCheck["slack_id = shipCert.ftSlackId"]
+    GoToSlackCheck --> CheckSlackId{"`slack_id.blank?`"}
+    CheckSlackId -->|Yes| SkipNoSlack(["`⛔ RETURN
+    No slack_id`"])
+
+    CheckSlackId -->|No| FindUser["user = User.find_by(slack_id)"]
+    FindUser --> CheckUser{"`user.nil?`"}
+    CheckUser -->|Yes| SkipNoUser(["`⛔ RETURN
+    User not found`"])
+
+    CheckUser -->|No| QueryOrders["Query user.shop_orders:
+    • state = 'fulfilled'
+    • NOT fulfilled_by LIKE 'System%'"]
+
+    QueryOrders --> CheckOrders{"`approved_orders.none?`"}
+    CheckOrders -->|Yes| SkipNoOrders(["`⛔ SKIP
+    No manual orders`"])
+
+    CheckOrders -->|No| ExtractPII["extract_user_pii(user)
+    • slack_id, email, names
+    • addresses, birthday"]
+
+    ExtractPII --> CreateRecord["create_airtable_record
+    • Build record fields
+    • Upsert by ship_cert_id"]
+    CreateRecord --> End(["`✅ SUCCESS
+    Record synced to Airtable`"])
+
+    class SkipLowMinutes,SkipReports,SkipExistsFT,SkipExistsUnified,SkipNoSlack,SkipNoUser,SkipNoOrders skip
+    class End,ReturnAfterUpdate success
+    class CheckMinutes,CheckReports,CheckCodeUrl,CheckFlavortown,CompareHoursFT,CheckUnifiedOther,CompareHoursUnified,CheckSlackId,CheckUser,CheckOrders decision
+    class Start,Init,FetchReview,GetDevlogs,CalcMinutes,ExtractShipCert,GetExistingHours,UpdateRecord,GetUnifiedHours,SetAdjusted,GoToSlackCheck,FindUser,QueryOrders,ExtractPII,CreateRecord process
+=end
+
 class YswsReviewSyncJob < ApplicationJob
   include Rails.application.routes.url_helpers
 
@@ -78,6 +167,9 @@ class YswsReviewSyncJob < ApplicationJob
           return
         end
       end
+    else
+      Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - missing code URL"
+      return
     end
 
     slack_id = ship_cert["ftSlackId"]
