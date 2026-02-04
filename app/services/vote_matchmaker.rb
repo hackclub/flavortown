@@ -54,6 +54,7 @@ class VoteMatchmaker
       .where(payout: nil)
       .where.not(id: @user.votes.select(:ship_event_id))
       .where.not(projects: { id: @user.projects })
+      .where.not(projects: { id: @user.reports.select(:project_id) })
       .where(project_members: { shadow_banned: false })
       .where(projects: { shadow_banned: false })
       .where("projects.duration_seconds > 0")
