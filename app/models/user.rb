@@ -42,6 +42,7 @@
 #  vote_anonymously                        :boolean          default(FALSE), not null
 #  vote_balance                            :integer          default(0), not null
 #  votes_count                             :integer
+#  voting_locked                           :boolean          default(FALSE), not null
 #  ysws_eligible                           :boolean          default(FALSE), not null
 #  created_at                              :datetime         not null
 #  updated_at                              :datetime         not null
@@ -60,7 +61,7 @@ class User < ApplicationRecord
 
   has_recommended :projects # you might like these projects...
 
-  DISMISSIBLE_THINGS = %w[flagship_ad].freeze
+  DISMISSIBLE_THINGS = %w[flagship_ad shop_suggestion_box].freeze
 
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy
@@ -76,6 +77,7 @@ class User < ApplicationRecord
   has_many :ledger_entries, dependent: :destroy
   has_many :project_follows, dependent: :destroy
   has_many :followed_projects, through: :project_follows, source: :project
+  has_many :shop_suggestions, dependent: :destroy
 
   enum :verification_status, {
     needs_submission: "needs_submission",
@@ -391,8 +393,11 @@ class User < ApplicationRecord
       ban!(reason: "Automatically banned: User is banned on Hackatime")
     end
 
-    result[:projects].each_key do |name|
-      User::HackatimeProject.find_or_create_by!(user_id: id, name: name)
+    if result[:projects].any?
+      User::HackatimeProject.insert_all(
+        result[:projects].keys.map { |name| { user_id: id, name: name } },
+        unique_by: [ :user_id, :name ]
+      )
     end
 
     @hackatime_data = result
@@ -437,6 +442,17 @@ class User < ApplicationRecord
       .count
   end
 
+  def reject_awaiting_verification_orders!
+    shop_orders.where(aasm_state: "awaiting_verification").find_each do |order|
+      reason = if verification_ineligible?
+                 "Identity verification marked as ineligible"
+      else
+                 "Not eligible for YSWS"
+      end
+      order.mark_rejected!(reason)
+    end
+  end
+
   private
 
   def should_check_verification_eligibility?
@@ -448,17 +464,6 @@ class User < ApplicationRecord
       Shop::ProcessVerifiedOrdersJob.perform_later(id)
     elsif should_reject_orders?
       reject_awaiting_verification_orders!
-    end
-  end
-
-  def reject_awaiting_verification_orders!
-    shop_orders.where(aasm_state: "awaiting_verification").find_each do |order|
-      reason = if verification_ineligible?
-                 "Identity verification marked as ineligible"
-      else
-                 "Not eligible for YSWS"
-      end
-      order.mark_rejected!(reason)
     end
   end
 

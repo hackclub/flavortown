@@ -22,6 +22,7 @@
   &:hover > .scrolling-items {
     animation-play-state: paused;
   }
+
   & > .scrolling-items {
     will-change: transform;
     animation: scrolling var(--carousel-scroll-time) linear infinite;
@@ -126,6 +127,134 @@ input {
   overflow: hidden;
   min-height: 100vh;
   padding: 0 0.5rem 20vw 0.5rem;
+
+  // Challenger variant - purple space gradient background
+  &--challenger {
+    background: linear-gradient(180deg, #170625 0%, #250c41 38%, #301361 100%);
+    position: relative;
+    overflow: hidden;
+
+    // Purple form styling for challenger
+    .rsvp-container {
+      h3 {
+        color: white !important;
+      }
+
+      h4,
+      h5 {
+        color: white !important;
+      }
+
+      h5 a {
+        color: white !important;
+      }
+    }
+
+    .input-red {
+      background-color: #6a3d7d !important;
+
+      &:has(input:focus-visible) {
+        outline-color: #48225e !important;
+      }
+
+      > div {
+        background: white !important;
+        color: #48225e !important;
+
+        svg {
+          fill: #48225e !important;
+        }
+
+        input {
+          color: #48225e !important;
+        }
+
+        input::placeholder {
+          color: #48225e !important;
+          opacity: 0.75;
+        }
+      }
+    }
+
+    .btn--red.btn--striped {
+      background-color: #6a3d7d !important;
+
+      > div {
+        background-color: #48225e !important;
+        color: white !important;
+      }
+
+      &:hover > div {
+        background-color: #5a2d4e !important;
+      }
+    }
+
+    .carat {
+      filter: hue-rotate(280deg) saturate(0.7) brightness(1.2);
+    }
+
+    .sign-back-in-link .link-btn {
+      color: white !important;
+    }
+  }
+
+  // Challenger logo combo (Flavortown x Challenger Center)
+  .challenger-logo-combo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+
+    .challenger-logo-flavortown {
+      width: 200px;
+      height: auto;
+    }
+
+    .challenger-logo-x {
+      font-family: var(--font-family-subtitle, "Jua", sans-serif);
+      font-size: 3rem;
+      color: #d4a5c9;
+      text-shadow: 0 0 20px rgba(212, 165, 201, 0.5);
+      margin: 0 1rem 0 0;
+    }
+
+    .challenger-logo-center {
+      width: 100px;
+      height: auto;
+    }
+
+    @media (max-width: 600px) {
+      gap: 0.5rem;
+
+      .challenger-logo-flavortown {
+        width: 120px;
+      }
+
+      .challenger-logo-x {
+        font-size: 2rem;
+      }
+
+      .challenger-logo-center {
+        width: 90px;
+      }
+    }
+  }
+
+  // Mars planet for challenger variant
+  .hero-mars {
+    position: absolute;
+    top: -10%;
+    right: 0;
+    width: 40%;
+    max-width: 600px;
+    pointer-events: none;
+    z-index: 1;
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
 
   @media (max-width: 600px) {
     padding-bottom: 0;
@@ -268,9 +397,11 @@ input {
       0% {
         transform: translateY(0);
       }
+
       50% {
         transform: translateY(-16px);
       }
+
       100% {
         transform: translateY(0);
       }
@@ -294,6 +425,15 @@ input {
       width: 130%;
       margin-left: -15%;
       margin-bottom: 5%;
+    }
+
+    // Challenger moon surface positioning
+    &--challenger {
+      width: 100%;
+      margin-left: 0;
+      object-fit: cover;
+      object-position: bottom center;
+      bottom: -20%;
     }
   }
 }
@@ -1861,6 +2001,7 @@ input {
 
         .card-yellow {
           background-color: #be772b;
+
           &::after {
             background: #e7c06d;
           }
@@ -1868,6 +2009,7 @@ input {
 
         .card-green {
           background-color: #75a743;
+
           &::after {
             background: #d0da91;
           }
@@ -1875,6 +2017,7 @@ input {
 
         .card-blue {
           background-color: #4f8fba;
+
           &::after {
             background: #a4dddb;
           }
@@ -1882,6 +2025,7 @@ input {
 
         .card-red {
           background-color: #be4d54;
+
           &::after {
             background: #f9b2a0;
           }
@@ -2090,4 +2234,18 @@ button {
   .hero .hero-art {
     display: none;
   }
+}
+
+// Stars for challenger landing page - only show in hero section (first 100vh)
+body:has(.hero--challenger) .launch-stars-svg {
+  z-index: 1 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  transition: opacity 0.3s ease-out;
 }

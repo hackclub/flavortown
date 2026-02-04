@@ -11,6 +11,35 @@
     grid-area: stack;
   }
 
+  &--red {
+    .dropdown__button {
+      background-color: #be4d54;
+    }
+
+    .dropdown__menu {
+      background-color: var(--color-red-500);
+    }
+
+    & .dropdown__label {
+      color: #a4383f;
+      background-color: #f9b2a0;
+    }
+
+    & .dropdown__menu {
+      background-color: #f9b2a0;
+      color: #a4383f;
+    }
+
+    & .dropdown__item {
+      color: #a4383f;
+    }
+
+    & .dropdown__item:hover {
+      background-color: #be4d54;
+      color: var(--color-bg);
+    }
+  }
+
   &--brown {
     .dropdown__button {
       background-color: #be772b;

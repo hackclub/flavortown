@@ -318,6 +318,22 @@ class Admin::UsersController < Admin::ApplicationController
     redirect_to admin_user_path(@user)
   end
 
+  def toggle_voting_lock
+    authorize :admin, :ban_users?
+    @user = User.find(params[:id])
+    @user.toggle!(:voting_locked)
+
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: @user.id,
+      event: "voting_lock_toggled",
+      whodunnit: current_user.id.to_s,
+      object_changes: { voting_locked: [ !@user.voting_locked, @user.voting_locked ] }.to_json
+    )
+
+    redirect_back(fallback_location: admin_user_path(@user), notice: "Voting lock has been #{@user.voting_locked ? 'enabled' : 'disabled'} for #{@user.display_name}.")
+  end
+
   def refresh_verification
     authorize :admin, :manage_users?
     @user = User.find(params[:id])
@@ -370,6 +386,15 @@ class Admin::UsersController < Admin::ApplicationController
     Rails.logger.error "Failed to refresh verification status for user #{@user.id}: #{e.message}"
     flash[:alert] = "Error refreshing verification: #{e.message}"
     redirect_to admin_user_path(@user)
+  end
+
+  def votes
+    authorize :admin, :manage_users?
+    @user = User.find(params[:id])
+
+    @pagy, @votes = pagy(
+      @user.votes.includes(:project).order(created_at: :desc)
+    )
   end
 
   def update

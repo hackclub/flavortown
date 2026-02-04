@@ -1,0 +1,303 @@
+// Launch page background elements
+// Stars, ISS station structure, moon, and solar panel from Figma
+
+// Background gradient (using ::before so stars with negative z-index remain visible)
+.launch-theme {
+  background: transparent;
+
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -10;
+    background: linear-gradient(
+      180deg,
+      #170625 0%,
+      #250c41 37.825%,
+      #301361 100%
+    );
+  }
+}
+
+// Stars background
+.launch-stars-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -3;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// ISS gray/purple background structure
+.launch-iss-bg {
+  position: fixed;
+  top: -5%;
+  left: -7%;
+  width: 28%;
+  height: 115%;
+  pointer-events: none;
+  z-index: -1;
+
+  // Base purple-gray color
+  background-color: #8f84a7;
+
+  // Lighter overlay
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    left: 10%;
+    background-color: #d6c3e3;
+    transform: skewX(1deg);
+  }
+
+  // Blurred glow
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -50px;
+    left: 15%;
+    background-color: #e0d8f0;
+    filter: blur(200px);
+    opacity: 0.2;
+  }
+}
+
+// ISS overlay with purple stripes and details
+.launch-iss-overlay {
+  position: fixed;
+  top: -5%;
+  left: -7%;
+  width: 28%;
+  height: 115%;
+  pointer-events: none;
+  z-index: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: left top;
+  }
+}
+
+// Purple accent stripes behind sidebar
+// Based on Figma coordinates (canvas 1419px tall)
+// Each pair: longer bar from edge, shorter accent bar on top of it
+.launch-stripe {
+  position: fixed;
+  left: 0;
+  border-radius: 0 35px 35px 0;
+  pointer-events: none;
+  z-index: 0;
+
+  // Top stripe pair - at ~33% from top (y=462/1419)
+  // Inner/base bar: longer, darker
+  &--top-inner {
+    top: 33%;
+    height: 55px;
+    width: 295px;
+    background-color: #554b73;
+  }
+
+  // Outer/accent bar: shorter, lighter, same vertical position
+  &--top-outer {
+    top: 33%;
+    height: 52px;
+    width: 180px;
+    left: 100px;
+    background-color: #716791;
+  }
+
+  // Bottom pair - at ~76% from top (y=1065/1419)
+  &--bottom-inner {
+    top: 76%;
+    height: 55px;
+    width: 295px;
+    background-color: #554b73;
+  }
+
+  &--bottom-outer {
+    top: 76%;
+    height: 52px;
+    width: 180px;
+    left: 100px;
+    background-color: #716791;
+  }
+}
+
+// Moon in upper right
+.launch-moon {
+  position: fixed;
+  top: 0%;
+  right: 0;
+  width: 40%;
+  max-width: 700px;
+  pointer-events: none;
+  z-index: -2;
+  isolation: isolate;
+
+  // Needed for ::after positioning
+  display: block;
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    position: relative;
+    z-index: 0;
+  }
+
+  // Pulsing glow overlay
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url("launch/Vector 253.png") no-repeat top right / 120% 120%;
+    mix-blend-mode: screen;
+    opacity: 0.8;
+    transform-origin: 85% 15%;
+    will-change: transform, opacity;
+    animation: moonGlowBreath 6.5s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+@keyframes moonGlowBreath {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+// Respect reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .launch-moon::after {
+    animation: none;
+  }
+}
+
+// Hide old ISS SVG
+.launch-iss {
+  display: none;
+}
+
+// Wrapper to position connector + main panel as one unit
+.launch-panel-wrapper {
+  position: fixed;
+  top: 50%;
+  left: -120px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 5; // Behind sidebar (z-index: 10)
+
+  // Use flex to anchor panel to connector
+  display: flex;
+  align-items: center;
+  height: 80vh;
+}
+
+// Side panel connector (tucked menu handle)
+.launch-connector {
+  flex-shrink: 0;
+  height: 130%;
+
+  img {
+    height: 100%;
+    width: auto;
+  }
+}
+
+// Main content panel (blue grid)
+.launch-main-panel {
+  --panel-pad: 4%;
+  --panel-gap: 4%;
+
+  flex-shrink: 0;
+  margin-left: -280px;
+  height: 90%;
+  position: relative;
+  pointer-events: auto;
+  border-radius: 32px;
+  overflow: hidden;
+}
+
+.launch-main-panel__image {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+.launch-main-panel__overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr 1fr;
+  padding: var(--panel-pad);
+  gap: var(--panel-gap);
+  z-index: 1;
+}
+
+.launch-main-panel__intro {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem;
+  color: #f8e8d1;
+}
+
+.launch-main-panel__intro-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.launch-main-panel__intro-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 80%;
+  opacity: 0.9;
+}
+
+.launch-main-panel__cell {
+  background: transparent;
+  border: 0;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.launch-main-panel__cell-text {
+  color: #f8e8d1;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: center;
+  padding: 0.5rem;
+  margin: 0;
+}
+
+.launch-main-panel__link {
+  color: #a9c9ff;
+  text-decoration: underline;
+  pointer-events: auto;
+
+  &:hover {
+    color: #fff;
+  }
+}

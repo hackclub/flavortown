@@ -1,4 +1,6 @@
 class YswsReviewSyncJob < ApplicationJob
+  include Rails.application.routes.url_helpers
+
   queue_as :default
 
   def self.perform_later(*args)
@@ -39,6 +41,20 @@ class YswsReviewSyncJob < ApplicationJob
     end
 
     ship_cert = current_review["shipCert"] || {}
+    code_url = ship_cert["repoUrl"]
+    ft_project_id = ship_cert["ftProjectId"]
+
+    if project_has_active_reports?(ft_project_id)
+      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: project has pending or reviewed reports"
+      return
+    end
+
+    # Check if project already exists in unified database (duplicate check)
+    if code_url.present? && project_exists_in_unified_db?(code_url)
+      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: project already exists in unified database"
+      return
+    end
+
     slack_id = ship_cert["ftSlackId"]
 
     return if slack_id.blank?
@@ -46,10 +62,13 @@ class YswsReviewSyncJob < ApplicationJob
     user = User.find_by(slack_id: slack_id)
     return if user.nil?
 
-    approved_orders = user.shop_orders.where(aasm_state: "fulfilled").includes(:shop_item)
+    approved_orders = user.shop_orders
+      .where(aasm_state: "fulfilled")
+      .where("fulfilled_by IS NULL OR fulfilled_by NOT LIKE ?", "System%")
+      .includes(:shop_item)
 
-    if approved_orders.count < 2
-      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: user #{slack_id} has only #{approved_orders.count} fulfilled order(s) (< 2)"
+    if approved_orders.none?
+      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: user #{slack_id} has no manually fulfilled orders"
       return
     end
 
@@ -73,7 +92,12 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def create_airtable_record(review, user_pii, approved_orders)
-    table.create(build_record_fields(review, user_pii, approved_orders))
+    ship_cert = review["shipCert"] || {}
+    ship_cert_id = ship_cert["id"].to_s
+    fields = build_record_fields(review, user_pii, approved_orders)
+
+    Rails.logger.info "[YswsReviewSyncJob] Upserting Airtable record for ship_cert_id #{ship_cert_id}"
+    table.upsert(fields, "ship_cert_id")
   end
 
   def build_record_fields(review, user_pii, approved_orders)
@@ -103,7 +127,7 @@ class YswsReviewSyncJob < ApplicationJob
       "Code URL" => ship_cert["repoUrl"],
       "Playable URL" => ship_cert["demoUrl"],
       "project_readme" => ship_cert["readmeUrl"],
-      "Screenshot" => banner_url.present? ? [ { "url" => banner_url } ] : nil,
+      "Screenshot" => banner_url.present? ? [ { "url" => banner_url } ] : [ { "url" => ship_cert["screenshotUrl"] } ],
       "proof_video" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
       "Description" => ship_cert["description"],
       "Optional - Override Hours Spent" => (calculate_total_approved_minutes(devlogs) / 60.0).round(2),
@@ -172,9 +196,10 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def build_orders_section(approved_orders)
-    return "" if approved_orders.empty?
+    manual_orders = approved_orders.reject { |order| order.fulfilled_by&.start_with?("System") }
+    return "" if manual_orders.empty?
 
-    orders_list = approved_orders.last(2).map do |order|
+    orders_list = manual_orders.last(2).map do |order|
       item_name = order.shop_item.name
       fulfilled_by = order.fulfilled_by.presence || "Unknown"
       fulfilled_at = order.fulfilled_at&.strftime("%Y-%m-%d") || "Unknown date"
@@ -182,9 +207,7 @@ class YswsReviewSyncJob < ApplicationJob
     end.join("\n")
 
     <<~ORDERS
-
-      This was fraud checked #{approved_orders.count} time(s).
-
+      This user has the following manually approved shop orders:
       #{orders_list}
     ORDERS
   end
@@ -233,7 +256,13 @@ class YswsReviewSyncJob < ApplicationJob
       return nil
     end
 
-    url = build_banner_url(project)
+    host = default_url_host
+    if host.blank?
+      Rails.logger.error("[YswsReviewSyncJob] banner_url_for_project_id: host missing. action_mailer=#{Rails.application.config.action_mailer.default_url_options.inspect} routes=#{Rails.application.routes.default_url_options.inspect} ENV[APP_HOST]=#{ENV['APP_HOST'].inspect}")
+      return nil
+    end
+
+    url = rails_blob_url(project.banner, host: host)
     Rails.logger.info("[YswsReviewSyncJob] banner_url_for_project_id: success project_id=#{project.id} url=#{url}")
     url
   rescue StandardError => e
@@ -241,7 +270,27 @@ class YswsReviewSyncJob < ApplicationJob
     nil
   end
 
-  def build_banner_url(project)
-    project.banner.blob.url
+  def default_url_host
+    ENV["APP_HOST"]
+  end
+
+  def project_exists_in_unified_db?(code_url)
+    unified_db_table.all(
+      filter: "AND({Code URL} = '#{code_url}', NOT({YSWS} = 'Flavortown'))"
+    ).any?
+  end
+
+  def unified_db_table
+    @unified_db_table ||= Norairrecord.table(
+      ENV["UNIFIED_DB_INTEGRATION_AIRTABLE_KEY"],
+      "app3A5kJwYqxMLOgh",
+      "Approved Projects"
+    )
+  end
+
+  def project_has_active_reports?(ft_project_id)
+    return false if ft_project_id.blank?
+
+    Project::Report.where(project_id: ft_project_id, status: [ :pending, :reviewed ]).exists?
   end
 end

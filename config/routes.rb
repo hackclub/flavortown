@@ -115,6 +115,9 @@ Rails.application.routes.draw do
   # Kitchen
   get "kitchen", to: "kitchen#index"
 
+  # Launch
+  get "launch", to: "launch#index"
+
   # Leaderboard
   get "leaderboard", to: "leaderboard#index"
 
@@ -140,7 +143,10 @@ Rails.application.routes.draw do
     get "/", to: "root#index"
 
     namespace :v1 do
-      resources :projects, only: [ :index, :show, :create, :update ]
+      resources :projects, only: [ :index, :show, :create, :update ] do
+        resource :report, only: [ :create ], controller: "external_reports"
+        resources :devlogs, only: [ :index ], controller: "project_devlogs"
+      end
 
       resources :docs, only: [ :index ]
       resources :devlogs, only: [ :index, :show ]
@@ -203,6 +209,8 @@ Rails.application.routes.draw do
          post :unshadow_ban
          post :impersonate
          post :refresh_verification
+         get  :votes
+         post :toggle_voting_lock
        end
        collection do
          post :stop_impersonating
@@ -215,6 +223,7 @@ Rails.application.routes.draw do
         post :delete
         post :shadow_ban
         post :unshadow_ban
+        get  :votes
       end
     end
     get "user-perms", to: "users#user_perms"
@@ -251,11 +260,19 @@ Rails.application.routes.draw do
     end
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
+    get "voting_dashboard", to: "voting_dashboard#index"
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    get "suspicious_votes", to: "suspicious_votes#index"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
+      end
+    end
+    resources :shop_suggestions, only: [ :index ] do
+      member do
+        post :dismiss
+        post :disable_for_user
       end
     end
   end
@@ -305,4 +322,7 @@ Rails.application.routes.draw do
       get :stats
     end
   end
+
+  # Shop suggestions
+  resources :shop_suggestions, only: [ :create ]
 end

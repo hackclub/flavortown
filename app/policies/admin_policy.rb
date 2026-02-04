@@ -47,6 +47,14 @@ class AdminPolicy < ApplicationPolicy
     user.admin? || user.fulfillment_person?
   end
 
+  def assign_shop_order?
+    user.admin? || user.fulfillment_person?
+  end
+
+  def reject_shop_order?
+    user.admin? || user.fraud_dept? || user.fulfillment_person?
+  end
+
   def access_shop_orders?
     user.admin? || user.fraud_dept?
   end
@@ -81,5 +89,17 @@ class AdminPolicy < ApplicationPolicy
 
   def access_super_mega_dashboard?
     user.admin?
+  end
+
+  def access_voting_dashboard?
+    user.admin? || user.fraud_dept?
+  end
+
+  def access_shop_suggestions?
+    user.admin?
+  end
+
+  def access_suspicious_votes?
+    user.admin? || user.fraud_dept?
   end
 end
