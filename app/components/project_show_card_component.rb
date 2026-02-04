@@ -101,43 +101,4 @@ class ProjectShowCardComponent < ViewComponent::Base
     current_user&.admin? || current_user&.fraud_dept? || current_user&.project_certifier?
   end
 
-  def has_lapse_timelapses?
-    lapse_timelapses.present?
-  end
-
-  def lapse_timelapses
-    return @lapse_timelapses if defined?(@lapse_timelapses)
-
-    @lapse_timelapses = begin
-      return [] unless ENV["LAPSE_API_BASE"].present?
-      return [] unless project.hackatime_keys.present?
-
-      hackatime_identity = project.users.first&.hackatime_identity
-      return [] unless hackatime_identity&.uid.present?
-
-      timelapses = LapseService.fetch_all_timelapses_for_projects(
-        hackatime_user_id: hackatime_identity.uid,
-        project_keys: project.hackatime_keys
-      ) || []
-      timelapses.sort_by { |t| -(t["createdAt"] || 0) }
-    rescue StandardError
-      []
-    end
-  end
-
-  def format_timelapse_duration(seconds)
-    return "0s" if seconds.nil? || seconds <= 0
-
-    total_seconds = seconds.to_i
-    hours = total_seconds / 3600
-    minutes = (total_seconds % 3600) / 60
-    secs = total_seconds % 60
-
-    parts = []
-    parts << "#{hours}hr" if hours > 0
-    parts << "#{minutes}m" if minutes > 0
-    parts << "#{secs}s" if hours == 0 && secs > 0
-
-    parts.empty? ? "0s" : parts.join(" ")
-  end
 end

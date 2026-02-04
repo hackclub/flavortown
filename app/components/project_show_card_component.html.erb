@@ -91,14 +91,8 @@
           <span class="project-show-card__title-text"><%= project.title %></span>
         </h1>
 
-        <% if helpers.policy(project).edit? || helpers.policy(project).destroy? || has_lapse_timelapses? %>
-          <div class="projects-show__admin-actions">
-            <% if has_lapse_timelapses? %>
-              <button type="button" class="project-show-card__lapse-badge" data-controller="modal" data-action="click->modal#open" data-modal-target-value="lapse-modal-<%= project.id %>">
-                <%= helpers.inline_svg_tag "lapse.svg", class: "project-show-card__lapse-icon" %>
-                <span>Tracked with Lapse</span>
-              </button>
-            <% end %>
+        <div class="projects-show__admin-actions">
+          <%= helpers.turbo_frame_tag "lapse-timelapses-#{project.id}", src: helpers.lapse_timelapses_project_path(project), loading: "lazy" %>
             <% if helpers.policy(project).edit? %>
               <%= render ButtonComponent.new(
                     href: helpers.edit_project_path(project),
@@ -110,16 +104,15 @@
                   ) %>
             <% end %>
             <% if helpers.policy(project).destroy? %>
-              <%= button_to helpers.project_path(project),
-                    method: :delete,
-                    class: "btn btn--brown btn--borderless projects-show__icon-btn",
-                    form: { onsubmit: "return confirm('Are you sure you want to delete ' + #{project.title.to_json} + '? This action cannot be undone.')" },
-                    aria: { label: "Delete project" } do %>
-                <%= helpers.inline_svg_tag "icons/trash-bin.svg" %>
-              <% end %>
+            <%= button_to helpers.project_path(project),
+                  method: :delete,
+                  class: "btn btn--brown btn--borderless projects-show__icon-btn",
+                  form: { onsubmit: "return confirm('Are you sure you want to delete ' + #{project.title.to_json} + '? This action cannot be undone.')" },
+                  aria: { label: "Delete project" } do %>
+              <%= helpers.inline_svg_tag "icons/trash-bin.svg" %>
             <% end %>
-          </div>
-        <% end %>
+          <% end %>
+        </div>
       </div>
       <div class="project-show-card__byline">
         <%= byline_text %>
@@ -300,37 +293,4 @@
   </div>
 </div>
 
-<% if project.readme_url.present? %>
 
-<% end %>
-
-<% if has_lapse_timelapses? %>
-  <div id="lapse-modal-<%= project.id %>" class="lapse-modal" data-controller="modal">
-    <div data-action="click->modal#close" class="lapse-modal__backdrop"></div>
-    <div class="lapse-modal__container">
-      <button type="button" data-action="click->modal#close" class="lapse-modal__close">
-        <%= helpers.inline_svg_tag "icons/close.svg" %>
-      </button>
-      <div class="lapse-modal__text">
-        <h2 class="lapse-modal__title">Timelapses for this project</h2>
-        <p class="lapse-modal__description">
-          These were made using <a href="<%= ENV['LAPSE_URL_BASE'] %>" target="_blank" rel="noopener noreferrer" class="lapse-modal__link">Lapse</a>
-          - our experiment to allow you to track time on everything - hardware projects, art, you name it!
-        </p>
-      </div>
-      <div class="lapse-modal__grid">
-        <% lapse_timelapses.each do |timelapse| %>
-          <a href="<%= ENV['LAPSE_URL_BASE'] %>/timelapse/<%= timelapse['id'] %>" target="_blank" rel="noopener noreferrer" class="lapse-modal__card">
-            <% if timelapse['thumbnailUrl'].present? %>
-              <img src="<%= timelapse['thumbnailUrl'] %>" alt="<%= timelapse['name'] %> thumbnail" class="lapse-modal__thumbnail">
-            <% else %>
-              <div class="lapse-modal__thumbnail lapse-modal__thumbnail--placeholder"></div>
-            <% end %>
-            <span class="lapse-modal__card-title"><%= timelapse['name'] || 'Untitled' %></span>
-            <span class="lapse-modal__card-duration"><%= format_timelapse_duration(timelapse['duration']) %></span>
-          </a>
-        <% end %>
-      </div>
-    </div>
-  </div>
-<% end %>

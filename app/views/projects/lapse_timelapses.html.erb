@@ -1,0 +1,37 @@
+<%= turbo_frame_tag "lapse-timelapses-#{@project.id}" do %>
+  <% if @lapse_timelapses.present? %>
+    <button type="button" class="project-show-card__lapse-badge" data-controller="modal" data-action="click->modal#open" data-modal-target-value="lapse-modal-<%= @project.id %>">
+      <%= inline_svg_tag "lapse.svg", class: "project-show-card__lapse-icon" %>
+      <span>Tracked with Lapse</span>
+    </button>
+
+    <div id="lapse-modal-<%= @project.id %>" class="lapse-modal" data-controller="modal">
+      <div data-action="click->modal#close" class="lapse-modal__backdrop"></div>
+      <div class="lapse-modal__container">
+        <button type="button" data-action="click->modal#close" class="lapse-modal__close">
+          <%= inline_svg_tag "icons/close.svg" %>
+        </button>
+        <div class="lapse-modal__text">
+          <h2 class="lapse-modal__title">Timelapses for this project</h2>
+          <p class="lapse-modal__description">
+            These were made using <a href="<%= ENV['LAPSE_URL_BASE'] %>" target="_blank" rel="noopener noreferrer" class="lapse-modal__link">Lapse</a>
+            - our experiment to allow you to track time on everything - hardware projects, art, you name it!
+          </p>
+        </div>
+        <div class="lapse-modal__grid">
+          <% @lapse_timelapses.each do |timelapse| %>
+            <a href="<%= ENV['LAPSE_URL_BASE'] %>/timelapse/<%= timelapse['id'] %>" target="_blank" rel="noopener noreferrer" class="lapse-modal__card">
+              <% if timelapse['thumbnailUrl'].present? %>
+                <img src="<%= timelapse['thumbnailUrl'] %>" alt="<%= timelapse['name'] %> thumbnail" class="lapse-modal__thumbnail">
+              <% else %>
+                <div class="lapse-modal__thumbnail lapse-modal__thumbnail--placeholder"></div>
+              <% end %>
+              <span class="lapse-modal__card-title"><%= timelapse['name'] || 'Untitled' %></span>
+              <span class="lapse-modal__card-duration"><%= format_timelapse_duration(timelapse['duration']) %></span>
+            </a>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>

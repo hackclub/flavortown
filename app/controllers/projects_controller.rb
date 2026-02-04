@@ -362,6 +362,19 @@ class ProjectsController < ApplicationController
     redirect_to @project
   end
 
+  def lapse_timelapses
+    @project = Project.find(params[:id])
+    authorize @project, :show?
+
+    unless turbo_frame_request?
+      redirect_to @project
+      return
+    end
+
+    @lapse_timelapses = fetch_lapse_timelapses
+    render layout: false
+  end
+
   def readme
     unless turbo_frame_request?
       redirect_to @project
@@ -524,6 +537,22 @@ class ProjectsController < ApplicationController
   def load_project_times
     result = current_user.try_sync_hackatime_data!
     @project_times = result&.dig(:projects) || {}
+  end
+
+  def fetch_lapse_timelapses
+    return [] unless ENV["LAPSE_API_BASE"].present?
+    return [] unless @project.hackatime_keys.present?
+
+    hackatime_identity = @project.users.first&.hackatime_identity
+    return [] unless hackatime_identity&.uid.present?
+
+    timelapses = LapseService.fetch_all_timelapses_for_projects(
+      hackatime_user_id: hackatime_identity.uid,
+      project_keys: @project.hackatime_keys
+    ) || []
+    timelapses.sort_by { |t| -(t["createdAt"] || 0) }
+  rescue StandardError
+    []
   end
 
   def render_update_error
