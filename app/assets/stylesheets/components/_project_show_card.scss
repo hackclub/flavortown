@@ -246,12 +246,10 @@
         transparent 50%,
         rgba(218, 114, 120, 0.04) 50%
       ),
-      linear-gradient(
-        to right,
-        transparent 50%,
-        rgba(218, 114, 120, 0.04) 50%
-      );
-    background-size: 150px 150px, 150px 150px;
+      linear-gradient(to right, transparent 50%, rgba(218, 114, 120, 0.04) 50%);
+    background-size:
+      150px 150px,
+      150px 150px;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
   }
 
