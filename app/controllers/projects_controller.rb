@@ -226,6 +226,14 @@ class ProjectsController < ApplicationController
         Project::PostToMagicJob.perform_later(@project)
         Project::MagicHappeningLetterJob.perform_later(@project)
 
+        @project.users.each do |user|
+          SendSlackDmJob.perform_later(
+            user.slack_id,
+            blocks_path: "notifications/projects/well_cooked",
+            locals: { project: @project }
+          )
+        end
+
         render json: { message: "Project marked as 🔥!", fire: true }, status: :ok
       else
         errors = (post.errors.full_messages + fire_event.errors.full_messages).uniq
