@@ -137,3 +137,6 @@ application.register("tooltip", TooltipController);
 
 import ReadmeImageController from "./readme_image_controller";
 application.register("readme-image", ReadmeImageController);
+
+import RadioOptionController from "./radio_option_controller"
+application.register("radio-option", RadioOptionController)

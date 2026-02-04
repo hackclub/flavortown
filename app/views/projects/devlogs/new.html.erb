@@ -43,13 +43,18 @@
         <% end %>
 
         <% if @lapse_timelapses.present? %>
-          <div class="projects-new__media-row" data-controller="media-selector">
+          <div class="projects-new__media-row projects-new__media-row--equal-height" data-controller="media-selector">
             <div class="projects-new__field">
               <div class="input file-upload input--green">
-                <label class="input__label projects-new__media-label">
-                  <input type="radio" name="media_type" value="attachment" checked>
-                  <span>Attachment</span>
-                </label>
+                <div class="input__label projects-new__media-label">
+                  <%= render RadioOptionComponent.new(
+                        name: "media_type",
+                        value: "attachment",
+                        label: "Attachment",
+                        radiogroup: "devlog_media",
+                        checked: true
+                      ) %>
+                </div>
                 <div class="projects-new__media-content">
                   <div class="file-upload__area" data-controller="file-upload" data-file-upload-max-size-value="<%= 50.megabytes %>" data-file-upload-max-count-value="8">
                     <%= f.file_field :attachments,
@@ -90,24 +95,29 @@
             <div class="projects-new__field">
               <div class="input file-upload input--green">
                 <label class="input__label projects-new__media-label">
-                  <input type="radio" name="media_type" value="lapse">
-                  <span>Lapse Timelapse</span>
+                 <%= render RadioOptionComponent.new(
+                      name: "media_type",
+                      value: "lapse",
+                      label: "Lapse Timelapse",
+                      radiogroup: "devlog_media",
+                      checked: false
+                    ) %>
                 </label>
                 <div class="projects-new__media-content">
-                  <div class="projects-new__lapse-preview" data-media-selector-target="preview">
-                    <video class="projects-new__lapse-video" data-media-selector-target="video" muted loop playsinline></video>
-                  </div>
-                  <%= f.select :lapse_timelapse_id,
-                        options_for_select(@lapse_timelapses.map { |t|
-                          [
-                            t["name"].presence || "Untitled (#{Time.at(t["createdAt"].to_i / 1000).strftime('%b %d, %Y')})",
-                            t["id"],
-                            { "data-playback-url" => t["playbackUrl"], "data-thumbnail-url" => t["thumbnailUrl"] }
-                          ]
-                        }),
-                        { include_blank: "Select a timelapse..." },
-                        { class: "projects-new__lapse-select", data: { action: "change->media-selector#selectTimelapse", "media-selector-target": "select" } } %>
-                </div>
+                   <div class="projects-new__lapse-preview" data-media-selector-target="preview">
+                     <video class="projects-new__lapse-video" data-media-selector-target="video" muted loop playsinline autoplay controls></video>
+                   </div>
+                   <%= f.select :lapse_timelapse_id,
+                          options_for_select(@lapse_timelapses.map { |t|
+                            [
+                              t["name"].presence || "Untitled (#{Time.at(t["createdAt"].to_i / 1000).strftime('%b %d, %Y')})",
+                              t["id"],
+                              { "data-playback-url" => t["playbackUrl"], "data-thumbnail-url" => t["thumbnailUrl"] }
+                            ]
+                          }, @lapse_timelapses.first["id"]),
+                          {},
+                          { class: "projects-new__lapse-select", data: { action: "change->media-selector#selectTimelapse", "media-selector-target": "select" } } %>
+                 </div>
                 <div class="input__subtitle">Attach a timelapse recording from Lapse.</div>
               </div>
             </div>
