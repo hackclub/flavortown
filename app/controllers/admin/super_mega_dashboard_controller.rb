@@ -102,28 +102,31 @@ module Admin
     end
 
     def load_support_stats
-      response = Faraday.get("https://flavortown.nephthys.hackclub.com/api/stats")
+      response = Faraday.get("https://flavortown.nephthys.hackclub.com/api/stats_v2")
       data = JSON.parse(response.body)
 
+      hang_24h = data.dig("past_24h", "mean_hang_time_minutes_all")
+      hang_24h_prev = data.dig("past_24h_previous", "mean_hang_time_minutes_all")
+      hang_7d = data.dig("past_7d", "mean_hang_time_minutes_all")
+      hang_7d_prev = data.dig("past_7d_previous", "mean_hang_time_minutes_all")
+      oldest = data.dig("all_time", "oldest_unanswered_ticket")
+
       @support = {
-        total: data["total_tickets"],
-        open: data["total_open"],
-        in_progress: data["total_in_progress"],
-        closed: data["total_closed"],
-        avg_hang_time: data["average_hang_time_minutes"]&.round,
-        resolution_time: data["mean_resolution_time_minutes"]&.round,
-        oldest_unanswered: data["oldest_unanswered_ticket_age_minutes"]&.round,
-        prev_day: {
-          total: data["prev_day_total"],
-          open: data["prev_day_open"],
-          in_progress: data["prev_day_in_progress"],
-          closed: data["prev_day_closed"],
-          avg_hang_time: data["prev_day_average_hang_time_minutes"]&.round,
-          resolution_time: data["prev_day_mean_resolution_time_minutes"]&.round
-        }
+        hang_24h: hang_24h&.round,
+        hang_24h_change: chg(hang_24h_prev, hang_24h),
+        hang_7d: hang_7d&.round,
+        hang_7d_change: chg(hang_7d_prev, hang_7d),
+        oldest_unanswered: oldest&.dig("age_minutes")&.round,
+        oldest_unanswered_link: oldest&.dig("link")
       }
     rescue Faraday::Error, JSON::ParserError
       @support = nil
+    end
+
+    def chg(old, new)
+      return nil if old.nil? || new.nil? || old.zero?
+
+      ((new - old) / old.to_f * 100).round
     end
 
     def load_ship_certs_stats

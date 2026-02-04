@@ -60,7 +60,7 @@ class User < ApplicationRecord
 
   has_recommended :projects # you might like these projects...
 
-  DISMISSIBLE_THINGS = %w[flagship_ad].freeze
+  DISMISSIBLE_THINGS = %w[flagship_ad shop_suggestion_box].freeze
 
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy
@@ -76,6 +76,7 @@ class User < ApplicationRecord
   has_many :ledger_entries, dependent: :destroy
   has_many :project_follows, dependent: :destroy
   has_many :followed_projects, through: :project_follows, source: :project
+  has_many :shop_suggestions, dependent: :destroy
 
   enum :verification_status, {
     needs_submission: "needs_submission",
