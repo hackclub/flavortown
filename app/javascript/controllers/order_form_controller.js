@@ -33,7 +33,8 @@ export default class extends Controller {
   setupBlockedCountryCheck() {
     this.banner = document.querySelector("[data-blocked-country-banner]");
     if (!this.banner) return;
-    const a = this.addressesValue.find((x) => x.primary) || this.addressesValue[0];
+    const a =
+      this.addressesValue.find((x) => x.primary) || this.addressesValue[0];
     if (a) this.checkBlockedCountry(a.country);
   }
 
@@ -47,7 +48,9 @@ export default class extends Controller {
     this.banner.style.display = blocked ? "block" : "none";
     if (!this.hasSubmitButtonTarget) return;
     this.submitButtonTarget.disabled = blocked;
-    this.submitButtonTarget.innerHTML = blocked ? "Not available in your country" : this.initialGetButtonHTML;
+    this.submitButtonTarget.innerHTML = blocked
+      ? "Not available in your country"
+      : this.initialGetButtonHTML;
     if (!blocked) this.updateOrderSummary();
   }
 
