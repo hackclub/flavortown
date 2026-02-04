@@ -6,6 +6,7 @@
 #  accessory_tag                     :string
 #  agh_contents                      :jsonb
 #  attached_shop_item_ids            :bigint           default([]), is an Array
+#  blocked_countries                 :string           default([]), is an Array
 #  buyable_by_self                   :boolean          default(TRUE)
 #  default_assigned_user_id_au       :bigint
 #  default_assigned_user_id_ca       :bigint
