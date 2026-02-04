@@ -158,7 +158,9 @@
     cursor: pointer;
     position: relative;
     z-index: 10;
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    transition:
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
 
     &:hover {
       border-color: var(--color-green-600);
@@ -177,8 +179,6 @@
       padding: var(--space-m);
     }
   }
-
-
 
   &__actions {
     display: flex;

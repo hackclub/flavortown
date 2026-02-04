@@ -165,6 +165,39 @@
       }
     }
   }
+
+  &__lapse-badge {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    padding: 9px 24px;
+    border-radius: 12px;
+    background-color: #4e2c33;
+    color: var(--color-bg);
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 500;
+    transition:
+      background-color 0.2s ease,
+      transform 0.1s ease;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #563038;
+    }
+
+    &:active {
+      background-color: darken(#4e2c33, 5%);
+      transform: scale(0.98);
+    }
+  }
+
+  &__lapse-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
 }
 
 .modal {

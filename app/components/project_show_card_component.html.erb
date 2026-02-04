@@ -91,8 +91,14 @@
           <span class="project-show-card__title-text"><%= project.title %></span>
         </h1>
 
-        <% if helpers.policy(project).edit? || helpers.policy(project).destroy? %>
+        <% if helpers.policy(project).edit? || helpers.policy(project).destroy? || has_lapse_timelapses? %>
           <div class="projects-show__admin-actions">
+            <% if has_lapse_timelapses? %>
+              <%= link_to "https://lapse.hackclub.com", target: "_blank", rel: "noopener noreferrer", class: "project-show-card__lapse-badge" do %>
+                <%= helpers.inline_svg_tag "lapse.svg", class: "project-show-card__lapse-icon" %>
+                <span>Tracked with Lapse</span>
+              <% end %>
+            <% end %>
             <% if helpers.policy(project).edit? %>
               <%= render ButtonComponent.new(
                     href: helpers.edit_project_path(project),

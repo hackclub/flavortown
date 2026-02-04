@@ -25,7 +25,9 @@ export default class extends Controller {
 
   updateHiddenInput() {
     const name = this.nameValue;
-    let input = document.querySelector(`input[type="hidden"][name="${name}"][data-radio-group-input]`,);
+    let input = document.querySelector(
+      `input[type="hidden"][name="${name}"][data-radio-group-input]`,
+    );
 
     if (!input) {
       input = document.createElement("input");

@@ -100,4 +100,24 @@ class ProjectShowCardComponent < ViewComponent::Base
 
     current_user&.admin? || current_user&.fraud_dept? || current_user&.project_certifier?
   end
+
+  def has_lapse_timelapses?
+    return @has_lapse_timelapses if defined?(@has_lapse_timelapses)
+
+    @has_lapse_timelapses = begin
+      return false unless ENV["LAPSE_API_BASE"].present?
+      return false unless project.hackatime_keys.present?
+
+      hackatime_identity = project.users.first&.hackatime_identity
+      return false unless hackatime_identity&.uid.present?
+
+      timelapses = LapseService.fetch_all_timelapses_for_projects(
+        hackatime_user_id: hackatime_identity.uid,
+        project_keys: project.hackatime_keys
+      )
+      timelapses.present?
+    rescue StandardError
+      false
+    end
+  end
 end
