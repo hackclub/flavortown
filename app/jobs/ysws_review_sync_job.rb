@@ -1,92 +1,3 @@
-=begin
-Put this into https://mermaid.live/ for a visualisation of the pipeline.
-
-flowchart TD
-    Start(["`**process_review(review_id)**`"]) --> Init["adjusted_hours = nil"]
-    Init --> FetchReview["Fetch review from YSWS API"]
-    FetchReview --> GetDevlogs["Extract devlogs from review"]
-    GetDevlogs --> CalcMinutes["total_approved_minutes = sum of approvedMins"]
-
-    CalcMinutes --> CheckMinutes{"`total_approved_minutes < 5?`"}
-    CheckMinutes -->|Yes| SkipLowMinutes(["`⛔ SKIP
-    Less than 5 approved minutes`"])
-
-    CheckMinutes -->|No| ExtractShipCert["Extract from shipCert:
-    • code_url = repoUrl
-    • ft_project_id = ftProjectId"]
-
-    ExtractShipCert --> CheckReports{"`Project has pending
-    or reviewed reports?`"}
-    CheckReports -->|Yes| SkipReports(["`⛔ SKIP
-    Active reports exist`"])
-
-    CheckReports -->|No| CheckCodeUrl{"`code_url.present?`"}
-
-    CheckCodeUrl -->|No| GoToSlackCheck
-    CheckCodeUrl -->|Yes| CheckFlavortown{"`Project in unified DB
-    with YSWS = 'Flavortown'?`"}
-
-    subgraph UnifiedDB["Unified Database Checks"]
-        CheckFlavortown -->|Yes, found record| GetExistingHours["existing_hours = record hours
-        new_hours = approved_mins / 60"]
-        GetExistingHours --> CompareHoursFT{"`new_hours >
-        existing_hours + 0.5?`"}
-        CompareHoursFT -->|Yes| UpdateRecord["Update existing record:
-        • Set new hours
-        • Append justification"]
-        UpdateRecord --> ReturnAfterUpdate(["`✅ RETURN
-        Record updated`"])
-        CompareHoursFT -->|No| SkipExistsFT(["`⛔ SKIP
-        Hours not greater`"])
-
-        CheckFlavortown -->|No| CheckUnifiedOther{"`Project in unified DB
-        (non-Flavortown)?`"}
-        CheckUnifiedOther -->|Yes| GetUnifiedHours["unified_db_hours = existing hours
-        new_hours = approved_mins / 60"]
-        GetUnifiedHours --> CompareHoursUnified{"`new_hours >
-        unified_hours + 0.5?`"}
-        CompareHoursUnified -->|Yes| SetAdjusted["adjusted_hours =
-        new_hours - unified_hours"]
-        SetAdjusted --> GoToSlackCheck
-        CompareHoursUnified -->|No| SkipExistsUnified(["`⛔ SKIP
-        Hours not greater`"])
-        CheckUnifiedOther -->|No| GoToSlackCheck
-    end
-
-    GoToSlackCheck["slack_id = shipCert.ftSlackId"]
-    GoToSlackCheck --> CheckSlackId{"`slack_id.blank?`"}
-    CheckSlackId -->|Yes| SkipNoSlack(["`⛔ RETURN
-    No slack_id`"])
-
-    CheckSlackId -->|No| FindUser["user = User.find_by(slack_id)"]
-    FindUser --> CheckUser{"`user.nil?`"}
-    CheckUser -->|Yes| SkipNoUser(["`⛔ RETURN
-    User not found`"])
-
-    CheckUser -->|No| QueryOrders["Query user.shop_orders:
-    • state = 'fulfilled'
-    • NOT fulfilled_by LIKE 'System%'"]
-
-    QueryOrders --> CheckOrders{"`approved_orders.none?`"}
-    CheckOrders -->|Yes| SkipNoOrders(["`⛔ SKIP
-    No manual orders`"])
-
-    CheckOrders -->|No| ExtractPII["extract_user_pii(user)
-    • slack_id, email, names
-    • addresses, birthday"]
-
-    ExtractPII --> CreateRecord["create_airtable_record
-    • Build record fields
-    • Upsert by ship_cert_id"]
-    CreateRecord --> End(["`✅ SUCCESS
-    Record synced to Airtable`"])
-
-    class SkipLowMinutes,SkipReports,SkipExistsFT,SkipExistsUnified,SkipNoSlack,SkipNoUser,SkipNoOrders skip
-    class End,ReturnAfterUpdate success
-    class CheckMinutes,CheckReports,CheckCodeUrl,CheckFlavortown,CompareHoursFT,CheckUnifiedOther,CompareHoursUnified,CheckSlackId,CheckUser,CheckOrders decision
-    class Start,Init,FetchReview,GetDevlogs,CalcMinutes,ExtractShipCert,GetExistingHours,UpdateRecord,GetUnifiedHours,SetAdjusted,GoToSlackCheck,FindUser,QueryOrders,ExtractPII,CreateRecord process
-=end
-
 class YswsReviewSyncJob < ApplicationJob
   include Rails.application.routes.url_helpers
 
@@ -120,13 +31,12 @@ class YswsReviewSyncJob < ApplicationJob
   private
 
   def process_review(review_id)
-    adjusted_hours = nil
     current_review = YswsReviewService.fetch_review(review_id)
     devlogs = current_review["devlogs"] || []
     total_approved_minutes = calculate_total_approved_minutes(devlogs) || 0
 
     if total_approved_minutes < 5
-      Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - only #{total_approved_minutes} approved minutes (< 5)"
+      Rails.logger.info "[YswsReviewSyncJob] Rejecting review #{review_id}: only #{total_approved_minutes} approved minutes (< 5)"
       return
     end
 
@@ -135,40 +45,13 @@ class YswsReviewSyncJob < ApplicationJob
     ft_project_id = ship_cert["ftProjectId"]
 
     if project_has_active_reports?(ft_project_id)
-      Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - project has pending or reviewed reports"
+      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: project has pending or reviewed reports"
       return
     end
 
-    # Check if project already exists in unified database             111 not implemented 110 implemented 101 implemented 100 implemented
-    if code_url.present?
-      existing_flavortown_record = find_project_in_unified_db_with_flavortown(code_url)
-
-      if existing_flavortown_record
-        existing_hours = existing_flavortown_record["Optional - Override Hours Spent"].to_f
-        new_hours = (total_approved_minutes / 60.0).round(2)
-
-        if new_hours > (existing_hours + 0.5)
-          Rails.logger.info "[YswsReviewSyncJob] Review #{review_id}: project exists in unified database under Flavortown with #{existing_hours}h, new review has #{new_hours}h (greater)"
-          update_existing_record_unified_db(current_review, existing_flavortown_record, new_hours)  # will update the record in the unified db.
-          return
-        else
-          Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - project exists in unified database under Flavortown with #{existing_hours}h, new review has #{new_hours}h (less or equal)"
-          return
-        end
-      elsif project_exists_in_unified_db?(code_url)
-        unified_db_hours = unified_db_hours_for_project(code_url)
-        new_hours = (total_approved_minutes / 60.0).round(2)
-
-        if new_hours > (unified_db_hours.to_f + 0.5)
-          adjusted_hours = (new_hours - unified_db_hours.to_f).round(2)
-          Rails.logger.info "[YswsReviewSyncJob] Review #{review_id}: project exists in unified database (non-Flavortown) with #{unified_db_hours}h, new review has #{new_hours}h - using adjusted hours: #{adjusted_hours}h"
-        else
-          Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - project exists in unified database (non-Flavortown) with #{unified_db_hours}h, new review has #{new_hours}h (less or equal)"
-          return
-        end
-      end
-    else
-      Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - missing code URL"
+    # Check if project already exists in unified database (duplicate check)
+    if code_url.present? && project_exists_in_unified_db?(code_url)
+      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: project already exists in unified database"
       return
     end
 
@@ -185,13 +68,13 @@ class YswsReviewSyncJob < ApplicationJob
       .includes(:shop_item)
 
     if approved_orders.none?
-      Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - user #{slack_id} has no manually fulfilled orders"
+      Rails.logger.info "[YswsReviewSyncJob] Skipping review #{review_id}: user #{slack_id} has no manually fulfilled orders"
       return
     end
 
     user_pii = extract_user_pii(user)
 
-    create_airtable_record(current_review, user_pii, approved_orders, adjusted_hours: adjusted_hours)
+    create_airtable_record(current_review, user_pii, approved_orders)
   end
 
   def extract_user_pii(user)
@@ -208,39 +91,20 @@ class YswsReviewSyncJob < ApplicationJob
     }
   end
 
-  def update_justification(current_review, old_hours, new_hours)
-      <<~UPDATE_JUSTIFICATION
-        \n
-        ===== Project Updated =====
-        #{old_hours} -> #{new_hours} hours
-        A new YSWS review and Ship Cert has been submitted for this project.
-
-        \nThe new review can be found at https://review.hackclub.com/admin/ysws_reviews/#{current_review["id"]}
-      UPDATE_JUSTIFICATION
-  end
-
-  def update_existing_record_unified_db(current_review, existing_flavortown_record, new_hours)
-    old_hours = existing_flavortown_record["Override Hours Spent"]
-    existing_flavortown_record["Override Hours Spent"] = new_hours
-    existing_flavortown_record["Override Hours Spent Justification"] = existing_flavortown_record["Override Hours Spent Justification"].to_s + update_justification(current_review, old_hours, new_hours)
-    existing_flavortown_record.save
-  end
-
-  def create_airtable_record(review, user_pii, approved_orders, adjusted_hours: nil)
+  def create_airtable_record(review, user_pii, approved_orders)
     ship_cert = review["shipCert"] || {}
     ship_cert_id = ship_cert["id"].to_s
-    fields = build_record_fields(review, user_pii, approved_orders, adjusted_hours: adjusted_hours)
+    fields = build_record_fields(review, user_pii, approved_orders)
 
     Rails.logger.info "[YswsReviewSyncJob] Upserting Airtable record for ship_cert_id #{ship_cert_id}"
     table.upsert(fields, "ship_cert_id")
   end
 
-  def build_record_fields(review, user_pii, approved_orders, adjusted_hours: nil)
+  def build_record_fields(review, user_pii, approved_orders)
     ship_cert = review["shipCert"] || {}
     primary_address = user_pii[:addresses]&.first || {}
     devlogs = review["devlogs"] || []
     banner_url = banner_url_for_project_id(ship_cert["ftProjectId"])
-    hours_spent = adjusted_hours || (calculate_total_approved_minutes(devlogs) / 60.0).round(2)
 
     {
       "review_id" => review["id"].to_s,
@@ -266,9 +130,8 @@ class YswsReviewSyncJob < ApplicationJob
       "Screenshot" => banner_url.present? ? [ { "url" => banner_url } ] : [ { "url" => ship_cert["screenshotUrl"] } ],
       "proof_video" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
       "Description" => ship_cert["description"],
-      "Optional - Override Hours Spent" => hours_spent,
-      "Optional - Override Hours Spent Justification" => adjusted_hours ? "Project Updated: #{build_justification(review, devlogs, approved_orders)}" : build_justification(review, devlogs, approved_orders),
-      "in_unified_db" => project_exists_in_unified_db?(ship_cert["repoUrl"])
+      "Optional - Override Hours Spent" => (calculate_total_approved_minutes(devlogs) / 60.0).round(2),
+      "Optional - Override Hours Spent Justification" => build_justification(review, devlogs, approved_orders)
     }
   end
 
@@ -312,8 +175,6 @@ class YswsReviewSyncJob < ApplicationJob
     <<~JUSTIFICATION
       The user logged #{original_time_formatted} on hackatime. #{total_original_minutes == total_approved_minutes ? "" : "(This was adjusted to #{approved_time_formatted} after review.)"}
 
-      The flavortown project can be found at https://flavortown.hackclub.com/projects/#{project_id}
-
       In this time they wrote #{devlogs.count} devlogs.
 
       This project was initially ship certified by #{ship_certifier}.
@@ -324,6 +185,8 @@ class YswsReviewSyncJob < ApplicationJob
 
       #{devlog_list}
       ====================================================
+      The flavortown project can be found at https://flavortown.hackclub.com/projects/#{project_id}
+
       The Full YSWS Review + devlogs are at https://review.hackclub.com/admin/ysws_reviews/#{review_id}
 
       The Ship Cert is at https://review.hackclub.com/admin/ship_certifications/#{ship_cert_id}/edit
@@ -411,31 +274,10 @@ class YswsReviewSyncJob < ApplicationJob
     ENV["APP_HOST"]
   end
 
-  def get_formatted_code_url(code_url)
-    return nil if code_url.blank?
-    code_url.sub(%r{^https?://}, "").sub(%r{(?:\.git)?/?(?:#.*)?$}, "")
-  end
-
   def project_exists_in_unified_db?(code_url)
-    formatted_url = get_formatted_code_url(code_url)
     unified_db_table.all(
-      filter: "AND(FIND('#{formatted_url}', {Code URL}) > 0, NOT({YSWS} = 'Flavortown'))"
+      filter: "AND({Code URL} = '#{code_url}', NOT({YSWS} = 'Flavortown'))"
     ).any?
-  end
-
-  def unified_db_hours_for_project(code_url)
-    formatted_url = get_formatted_code_url(code_url)
-    record = unified_db_table.all(
-      filter: "AND(FIND('#{formatted_url}', {Code URL}) > 0, NOT({YSWS} = 'Flavortown'))"
-    ).first
-    record&.dig("Hours Spent")&.to_f
-  end
-
-  def find_project_in_unified_db_with_flavortown(code_url)
-    formatted_url = get_formatted_code_url(code_url)
-    unified_db_table.all(
-      filter: "AND(FIND('#{formatted_url}', {Code URL}) > 0, {YSWS} = 'Flavortown')"
-    ).first
   end
 
   def unified_db_table
