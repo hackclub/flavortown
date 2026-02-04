@@ -277,6 +277,17 @@ class Admin::UsersController < Admin::ApplicationController
       @user.ban!(reason: reason)
     end
 
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: @user.id,
+      event: "banned",
+      whodunnit: current_user.id.to_s,
+      object_changes: {
+        banned: [ false, true ],
+        banned_reason: [ nil, reason ]
+      }.to_json
+    )
+
     flash[:notice] = "#{@user.display_name} has been banned."
     redirect_to admin_user_path(@user)
   end
@@ -284,10 +295,22 @@ class Admin::UsersController < Admin::ApplicationController
   def unban
     authorize :admin, :ban_users?
     @user = User.find(params[:id])
+    old_reason = @user.banned_reason
 
     PaperTrail.request(whodunnit: current_user.id) do
       @user.unban!
     end
+
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: @user.id,
+      event: "unbanned",
+      whodunnit: current_user.id.to_s,
+      object_changes: {
+        banned: [ true, false ],
+        banned_reason: [ old_reason, nil ]
+      }.to_json
+    )
 
     flash[:notice] = "#{@user.display_name} has been unbanned."
     redirect_to admin_user_path(@user)
@@ -302,6 +325,17 @@ class Admin::UsersController < Admin::ApplicationController
       @user.shadow_ban!(reason: reason)
     end
 
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: @user.id,
+      event: "shadow_banned",
+      whodunnit: current_user.id.to_s,
+      object_changes: {
+        shadow_banned: [ false, true ],
+        shadow_banned_reason: [ nil, reason ]
+      }.to_json
+    )
+
     flash[:notice] = "#{@user.display_name} has been shadow banned."
     redirect_to admin_user_path(@user)
   end
@@ -309,10 +343,22 @@ class Admin::UsersController < Admin::ApplicationController
   def unshadow_ban
     authorize :admin, :ban_users?
     @user = User.find(params[:id])
+    old_reason = @user.shadow_banned_reason
 
     PaperTrail.request(whodunnit: current_user.id) do
       @user.unshadow_ban!
     end
+
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: @user.id,
+      event: "shadow_unbanned",
+      whodunnit: current_user.id.to_s,
+      object_changes: {
+        shadow_banned: [ true, false ],
+        shadow_banned_reason: [ old_reason, nil ]
+      }.to_json
+    )
 
     flash[:notice] = "#{@user.display_name} has been unshadow banned."
     redirect_to admin_user_path(@user)
