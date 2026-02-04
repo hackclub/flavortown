@@ -262,6 +262,7 @@ Rails.application.routes.draw do
     get "voting_dashboard", to: "voting_dashboard#index"
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    get "suspicious_votes", to: "suspicious_votes#index"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail

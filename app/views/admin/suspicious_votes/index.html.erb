@@ -1,0 +1,26 @@
+<h1 style="text-align: center; margin: 0.5em;">Suspicious Votes</h1>
+
+<div class="card">
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>User</th>
+        <th>Suspicious Votes</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each_with_index do |user, idx| %>
+        <tr>
+          <td><%= idx + 1 %></td>
+          <td><%= link_to user.display_name || "User ##{user.id}", admin_user_path(user) %></td>
+          <td><%= user.suspicious_votes_count %></td>
+          <td>
+            <%= link_to "View Votes", votes_admin_user_path(user), class: "btn-primary slim" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
