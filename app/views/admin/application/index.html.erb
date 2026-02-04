@@ -84,28 +84,39 @@
   <% end %>
   <% if policy(:admin).manage_user_roles? %>
   <%= link_to "Manage users w/ perms", "/admin/user-perms", class: button_class %>
-<% end %>
-<% if policy(:admin).access_jobs? %>
-<%= link_to "Job queue", "/admin/jobs", class: button_class %>
-<% end %>
-  <% if policy(:admin).access_super_mega_dashboard? %>
-  <%= link_to "Super Mega Dashboard", "/admin/super_mega_dashboard", class: button_class %>
-<% end %>
-  <% if policy(:admin).access_payouts_dashboard? %>
-  <%= link_to "Payouts Dashboard", "/admin/payouts_dashboard", class: button_class %>
-<% end %>
-<% if policy(:admin).access_fraud_dashboard? %>
-  <%= link_to "Fraud Dashboard", "/admin/fraud_dashboard", class: button_class %>
-<% end %>
-<% if policy(:admin).access_admin_endpoints? %>
-  <%= link_to "Ship Event Scores", "/admin/ship_event_scores", class: button_class %>
-<% end %>
-<% if policy(:admin).access_fulfillment_dashboard? %>
-  <%= link_to "Fulfillment Dashboard", admin_fulfillment_dashboard_index_path, class: button_class %>
-<% end %>
-<% if policy(:admin).access_voting_dashboard? %>
-  <%= link_to "Voting Dashboard", "/admin/voting_dashboard", class: button_class %>
-<% end %>
+  <% end %>
+  <% if policy(:admin).access_jobs? %>
+  <%= link_to "Job queue", "/admin/jobs", class: button_class %>
+  <% end %>
+    <% if policy(:admin).access_super_mega_dashboard? %>
+    <%= link_to "Super Mega Dashboard", "/admin/super_mega_dashboard", class: button_class %>
+  <% end %>
+    <% if policy(:admin).access_payouts_dashboard? %>
+    <%= link_to "Payouts Dashboard", "/admin/payouts_dashboard", class: button_class %>
+  <% end %>
+  <% if policy(:admin).access_fraud_dashboard? %>
+    <%= link_to "Fraud Dashboard", "/admin/fraud_dashboard", class: button_class %>
+  <% end %>
+  <% if policy(:admin).access_admin_endpoints? %>
+    <%= link_to "Ship Event Scores", "/admin/ship_event_scores", class: button_class %>
+  <% end %>
+  <% if policy(:admin).access_fulfillment_dashboard? %>
+    <%= link_to "Fulfillment Dashboard", admin_fulfillment_dashboard_index_path, class: button_class %>
+  <% end %>
+  <% if policy(:admin).access_voting_dashboard? %>
+    <%= link_to "Voting Dashboard", "/admin/voting_dashboard", class: button_class %>
+  <% end %>
   <%= link_to "Help bot", "slack://app?team=T0266FRGM&id=A09NP19R7FX&tab=home", class: "btn-primary" %>
   <%= link_to "Ship Cert & YSWS Dashboards", "https://review.hackclub.com/", class: "btn-primary", target: "_blank" %>
+</div>
+
+<h2>other stuff</h2>
+<div class="button-grid">
+  <% button_class = Flipper.enabled?(:admin_dark_brown_buttons, current_user) ? "btn-primary-dark" : "btn-primary" %>
+  <% if policy(:admin).access_shop_suggestions? %>
+    <%= link_to "Shop suggestions", "/admin/shop_suggestions", class: button_class %>
+  <% end %>
+  <% if policy(:admin).access_suspicious_votes? %>
+    <%= link_to "Suspicious Votes", "/admin/suspicious_votes", class: button_class %>
+  <% end %>
 </div>
