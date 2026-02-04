@@ -311,6 +311,11 @@ class ShopOrder < ApplicationRecord
     address_country = frozen_address["country"]
     return unless address_country.present?
 
+    if shop_item.blocked_countries&.include?(address_country.upcase)
+      errors.add(:base, "This item cannot be shipped to that country due to logistical constraints.")
+      return
+    end
+
     address_region = Shop::Regionalizable.country_to_region(address_country)
 
     # Allow items enabled for the address region OR for XX (Rest of World)
