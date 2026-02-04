@@ -208,7 +208,7 @@ class YswsReviewSyncJob < ApplicationJob
     }
   end
 
-  def update_justification(current_review,old_hours,new_hours)
+  def update_justification(current_review, old_hours, new_hours)
       <<~UPDATE_JUSTIFICATION
         \n
         ===== Project Updated =====
@@ -413,7 +413,7 @@ class YswsReviewSyncJob < ApplicationJob
 
   def get_formatted_code_url(code_url)
     return nil if code_url.blank?
-    code_url.sub(%r{^https?://}, '').sub(%r{(?:\.git)?/?(?:#.*)?$}, '')
+    code_url.sub(%r{^https?://}, "").sub(%r{(?:\.git)?/?(?:#.*)?$}, "")
   end
 
   def project_exists_in_unified_db?(code_url)
