@@ -140,3 +140,6 @@ application.register("readme-image", ReadmeImageController);
 
 import RadioOptionController from "./radio_option_controller";
 application.register("radio-option", RadioOptionController);
+
+import MediaSelectorController from "./media_selector_controller";
+application.register("media-selector", MediaSelectorController);
