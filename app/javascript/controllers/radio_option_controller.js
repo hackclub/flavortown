@@ -17,7 +17,12 @@ export default class extends Controller {
     document
       .querySelectorAll(`[data-radiogroup="${radioGroup}"]`)
       .forEach((el) => {
-        el.dataset.checked = el === this.element ? "true" : "false";
+        const isSelected = el === this.element;
+        el.dataset.checked = isSelected ? "true" : "false";
+        const hiddenInput = el.querySelector('input[type="hidden"]');
+        if (hiddenInput) {
+          hiddenInput.disabled = !isSelected;
+        }
       });
 
     this.updateHiddenInput();

@@ -114,7 +114,7 @@
                               t["id"],
                               { "data-playback-url" => t["playbackUrl"], "data-thumbnail-url" => t["thumbnailUrl"] }
                             ]
-                          }, @lapse_timelapses.first["id"]),
+                          }, @lapse_timelapses.max_by { |t| t["duration"].to_i }["id"]),
                           {},
                           { class: "projects-new__lapse-select", data: { action: "change->media-selector#selectTimelapse", "media-selector-target": "select" } } %>
                  </div>

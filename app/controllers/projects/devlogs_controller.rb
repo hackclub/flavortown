@@ -5,7 +5,7 @@ class Projects::DevlogsController < ApplicationController
   before_action :sync_hackatime_projects, only: %i[new create]
   before_action :load_preview_time, only: %i[new]
   before_action :require_preview_time, only: %i[new]
-  before_action :load_lapse_timelapses, only: %i[new]
+  before_action :load_lapse_timelapses, only: %i[new create]
 
   def new
     authorize @project, :create_devlog?
@@ -19,9 +19,19 @@ class Projects::DevlogsController < ApplicationController
       load_preview_time
       return redirect_to @project, alert: "Could not calculate your coding time. Please try again." unless @preview_time.present?
 
-      @devlog = Post::Devlog.new(devlog_params)
+      Rails.logger.info "DevlogsController#create: media_type=#{params[:media_type].inspect}, lapse_timelapse_id=#{params.dig(:post_devlog, :lapse_timelapse_id).inspect}"
+
+      @devlog = Post::Devlog.new(devlog_params.except(:lapse_timelapse_id))
       @devlog.duration_seconds = @preview_seconds
       @devlog.hackatime_projects_key_snapshot = @project.hackatime_keys.join(",")
+
+      if params[:media_type] == "lapse"
+        unless attach_lapse_timelapse
+          flash.now[:alert] = "Failed to attach timelapse. Please try again or use a file upload."
+          load_lapse_timelapses
+          return render :new, status: :unprocessable_entity
+        end
+      end
 
       if @devlog.save
         Post.create!(project: @project, user: current_user, postable: @devlog)
@@ -179,7 +189,7 @@ class Projects::DevlogsController < ApplicationController
   end
 
   def devlog_params
-    params.require(:post_devlog).permit(:body, :scrapbook_url, attachments: [])
+    params.require(:post_devlog).permit(:body, :scrapbook_url, :lapse_timelapse_id, attachments: [])
   end
 
   def update_devlog_params
@@ -212,6 +222,51 @@ class Projects::DevlogsController < ApplicationController
   rescue => e
     Rails.logger.error "Failed to load preview time: #{e.message}"
     @preview_time = nil
+  end
+
+  def attach_lapse_timelapse
+    timelapse_id = devlog_params[:lapse_timelapse_id]
+    unless timelapse_id.present?
+      Rails.logger.error "attach_lapse_timelapse: No timelapse_id provided"
+      return false
+    end
+
+    timelapse = @lapse_timelapses&.find { |t| t["id"] == timelapse_id }
+    unless timelapse
+      Rails.logger.error "attach_lapse_timelapse: Timelapse #{timelapse_id} not found in #{@lapse_timelapses&.length || 0} timelapses"
+      return false
+    end
+
+    playback_url = timelapse["playbackUrl"]
+    unless playback_url.present?
+      Rails.logger.error "attach_lapse_timelapse: No playbackUrl for timelapse #{timelapse_id}"
+      return false
+    end
+
+    Rails.logger.info "attach_lapse_timelapse: Downloading timelapse from #{playback_url}"
+
+    response = Faraday.get(playback_url)
+    unless response.success?
+      Rails.logger.error "attach_lapse_timelapse: Failed to download timelapse: #{response.status}"
+      return false
+    end
+
+    content_type = response.headers["content-type"] || "video/mp4"
+    extension = Rack::Mime::MIME_TYPES.invert[content_type] || ".mp4"
+    filename = "timelapse-#{timelapse_id}#{extension}"
+
+    @devlog.attachments.attach(
+      io: StringIO.new(response.body),
+      filename: filename,
+      content_type: content_type
+    )
+
+    Rails.logger.info "attach_lapse_timelapse: Successfully attached timelapse as #{filename}"
+    true
+  rescue => e
+    Rails.logger.error "attach_lapse_timelapse: Error - #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n")
+    false
   end
 
   def load_lapse_timelapses
