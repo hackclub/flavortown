@@ -17,7 +17,7 @@ module Admin
         .where(item_type: "User", item_id: user_ids, event: "voting_lock_toggled")
         .group(:item_id)
         .pluck("item_id, MAX(created_at)")
-        
+
       @voting_lock_timestamps = raw_timestamps.each_with_object({}) do |(id, time), hash|
         hash[id.to_i] = time
       end
