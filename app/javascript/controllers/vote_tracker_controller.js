@@ -7,13 +7,17 @@ export default class extends Controller {
     this.startTime = Date.now();
   }
 
-  trackRepoClick() {
-    console.log("Repo clicked!");
+  trackRepoClick(event) {
+    if (event.type === "auxclick" && event.button === 2) {
+      return;
+    }
     this.repoFieldTarget.value = "true";
   }
 
-  trackDemoClick() {
-    console.log("Demo clicked!");
+  trackDemoClick(event) {
+    if (event.type === "auxclick" && event.button === 2) {
+      return;
+    }
     this.demoFieldTarget.value = "true";
   }
 
