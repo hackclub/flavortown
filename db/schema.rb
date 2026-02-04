@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_03_164546) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_04_053738) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -641,6 +641,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_164546) do
     t.boolean "vote_anonymously", default: false, null: false
     t.integer "vote_balance", default: 0, null: false
     t.integer "votes_count"
+    t.boolean "voting_locked", default: false, null: false
     t.boolean "ysws_eligible", default: false, null: false
     t.index ["api_key"], name: "index_users_on_api_key", unique: true
     t.index ["email"], name: "index_users_on_email"
