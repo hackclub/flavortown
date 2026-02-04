@@ -108,4 +108,7 @@
 <% end %>
   <%= link_to "Help bot", "slack://app?team=T0266FRGM&id=A09NP19R7FX&tab=home", class: "btn-primary" %>
   <%= link_to "Ship Cert & YSWS Dashboards", "https://review.hackclub.com/", class: "btn-primary", target: "_blank" %>
+<% if policy(:admin).access_shop_suggestions? %>
+  <%= link_to "Shop suggestions", "/admin/shop_suggestions", class: button_class %>
+<% end %>
 </div>

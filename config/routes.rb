@@ -145,6 +145,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :projects, only: [ :index, :show, :create, :update ] do
         resource :report, only: [ :create ], controller: "external_reports"
+        resources :devlogs, only: [ :index ], controller: "project_devlogs"
       end
 
       resources :docs, only: [ :index ]
@@ -266,6 +267,12 @@ Rails.application.routes.draw do
         post :send_letter_mail
       end
     end
+    resources :shop_suggestions, only: [ :index ] do
+      member do
+        post :dismiss
+        post :disable_for_user
+      end
+    end
   end
 
   get "queue", to: "queue#index"
@@ -313,4 +320,7 @@ Rails.application.routes.draw do
       get :stats
     end
   end
+
+  # Shop suggestions
+  resources :shop_suggestions, only: [ :create ]
 end
