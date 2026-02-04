@@ -119,7 +119,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         }
       end.sort_by { |g| -g[:orders].size }
     else
-      @shop_orders = orders
+      @pagy, @shop_orders = pagy(:offset, orders, limit: 50)
     end
   end
 

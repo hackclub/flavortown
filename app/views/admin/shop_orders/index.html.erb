@@ -44,6 +44,9 @@
   <%= render partial: "grouped_table", locals: { grouped_orders: @grouped_orders } %>
 <% elsif @shop_orders %>
   <%= render partial: "table", locals: { orders: @shop_orders } %>
+  <% if @pagy %>
+    <%== pagy_nav(@pagy) %>
+  <% end %>
 <% end %>
 
 <div style="margin-top: 2em;">
