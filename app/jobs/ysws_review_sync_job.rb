@@ -31,6 +31,7 @@ class YswsReviewSyncJob < ApplicationJob
   private
 
   def process_review(review_id)
+    adjusted_hours = nil
     current_review = YswsReviewService.fetch_review(review_id)
     devlogs = current_review["devlogs"] || []
     total_approved_minutes = calculate_total_approved_minutes(devlogs) || 0
@@ -115,11 +116,11 @@ class YswsReviewSyncJob < ApplicationJob
     }
   end
 
-  def update_justification(current_review,existing_flavortown_record,new_hours)
+  def update_justification(current_review,old_hours,new_hours)
       <<~UPDATE_JUSTIFICATION
         \n
         ===== Project Updated =====
-        #{existing_flavortown_record["Override Hours Spent"]} -> #{new_hours} hours
+        #{old_hours} -> #{new_hours} hours
         A new YSWS review and Ship Cert has been submitted for this project.
 
         \nThe new review can be found at https://review.hackclub.com/admin/ysws_reviews/#{current_review["id"]}
@@ -127,10 +128,10 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def update_existing_record_unified_db(current_review, existing_flavortown_record, new_hours)
-    {
-      "Override Hours Spent" => new_hours,
-      "Override Hours Spent Justification" => (existing_flavortown_record["Override Hours Spent Justification"] + update_justification(current_review, existing_flavortown_record, new_hours))
-    }
+    old_hours = existing_flavortown_record["Override Hours Spent"]
+    existing_flavortown_record["Override Hours Spent"] = new_hours
+    existing_flavortown_record["Override Hours Spent Justification"] = existing_flavortown_record["Override Hours Spent Justification"].to_s + update_justification(current_review, old_hours, new_hours)
+    existing_flavortown_record.save
   end
 
   def create_airtable_record(review, user_pii, approved_orders, adjusted_hours: nil)
@@ -173,7 +174,7 @@ class YswsReviewSyncJob < ApplicationJob
       "Screenshot" => banner_url.present? ? [ { "url" => banner_url } ] : [ { "url" => ship_cert["screenshotUrl"] } ],
       "proof_video" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
       "Description" => ship_cert["description"],
-      "Optional - Override Hours Spent" => adjusted_hours ? adjusted_hours : hours_spent,
+      "Optional - Override Hours Spent" => hours_spent,
       "Optional - Override Hours Spent Justification" => adjusted_hours ? "Project Updated: #{build_justification(review, devlogs, approved_orders)}" : build_justification(review, devlogs, approved_orders),
       "in_unified_db" => project_exists_in_unified_db?(ship_cert["repoUrl"])
     }
@@ -231,7 +232,6 @@ class YswsReviewSyncJob < ApplicationJob
 
       #{devlog_list}
       ====================================================
-
       The Full YSWS Review + devlogs are at https://review.hackclub.com/admin/ysws_reviews/#{review_id}
 
       The Ship Cert is at https://review.hackclub.com/admin/ship_certifications/#{ship_cert_id}/edit
