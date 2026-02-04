@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_04_053738) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_04_212306) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -438,6 +438,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_04_053738) do
     t.string "accessory_tag"
     t.jsonb "agh_contents"
     t.bigint "attached_shop_item_ids", default: [], array: true
+    t.string "blocked_countries", default: [], array: true
     t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.bigint "default_assigned_user_id"
