@@ -7,7 +7,7 @@ module Admin
         .joins(:votes)
         .where(votes: { suspicious: true })
         .group("users.id")
-        .select("users.id, users.display_name, COUNT(votes.id) AS suspicious_votes_count")
+        .select("users.id, users.display_name, users.voting_locked, COUNT(votes.id) AS suspicious_votes_count")
         .order("suspicious_votes_count DESC")
         .limit(100)
     end

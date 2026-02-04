@@ -18,6 +18,12 @@
           <td><%= user.suspicious_votes_count %></td>
           <td>
             <%= link_to "View Votes", votes_admin_user_path(user), class: "btn-primary slim" %>
+            <%= button_to toggle_voting_lock_admin_user_path(user), 
+                  method: :post, 
+                  class: "btn-secondary slim",
+                  title: user.voting_locked? ? "Unlock Voting" : "Lock Voting" do %>
+              <%= user.voting_locked? ? "Unlock" : "Lock" %>
+            <% end %>
           </td>
         </tr>
       <% end %>

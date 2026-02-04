@@ -210,6 +210,7 @@ Rails.application.routes.draw do
          post :impersonate
          post :refresh_verification
          get  :votes
+         post :toggle_voting_lock
        end
        collection do
          post :stop_impersonating
