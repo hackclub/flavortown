@@ -7,6 +7,7 @@
         <th>#</th>
         <th>User</th>
         <th>Suspicious Votes</th>
+        <th>Last Updated</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -16,6 +17,13 @@
           <td><%= idx + 1 %></td>
           <td><%= link_to user.display_name || "User ##{user.id}", admin_user_path(user) %></td>
           <td><%= user.suspicious_votes_count %></td>
+          <td>
+            <% if timestamp = @voting_lock_timestamps[user.id] %>
+              <%= time_ago_in_words(timestamp) %> ago
+            <% else %>
+              <span class="text-muted">—</span>
+            <% end %>
+          </td>
           <td>
             <%= link_to "View Votes", votes_admin_user_path(user), class: "btn-primary slim" %>
             <%= button_to toggle_voting_lock_admin_user_path(user), 
@@ -30,3 +38,5 @@
     </tbody>
   </table>
 </div>
+<br>
+<%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
