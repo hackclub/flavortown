@@ -4,8 +4,6 @@ class LapseService
       return nil
     end
 
-    url = "#{base_url}/hackatime/timelapsesForProject?hackatimeUserId=#{hackatime_user_id}&projectKey=#{project_key}"
-
     response = connection.get("hackatime/timelapsesForProject") do |req|
       req.params["hackatimeUserId"] = hackatime_user_id
       req.params["projectKey"] = project_key
