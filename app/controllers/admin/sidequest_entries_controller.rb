@@ -1,6 +1,6 @@
 module Admin
   class SidequestEntriesController < Admin::ApplicationController
-    before_action :set_entry, only: [:show, :approve, :reject]
+    before_action :set_entry, only: [ :show, :approve, :reject ]
 
     def index
       authorize :admin, :access_admin_endpoints?
