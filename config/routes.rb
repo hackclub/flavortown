@@ -259,6 +259,12 @@ Rails.application.routes.draw do
         post :dismiss
       end
     end
+    resources :sidequest_entries, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+    end
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
     get "voting_dashboard", to: "voting_dashboard#index"

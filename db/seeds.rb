@@ -19,8 +19,9 @@ free_stickers.update!(ticket_cost: 10) if free_stickers.ticket_cost != 10
 
 # Create the current sidequests
 Sidequest.find_or_create_by!(slug: "extension") do |sq|
-  sq.title = "Chrome Extension Sidequest"
-  sq.description = "Ship a Chrome extension and unlock a Chrome Developer License in the shop!"
+  sq.title = "Extensions"
+  sq.description = "Unlock a Chrome Developer License in the shop! Must have a GitHub release with a .crx file to qualify."
+  sq.expires_at = Date.new(2026, 2, 20)
 end
 
 # Chrome Webstore License - requires extension sidequest achievement
