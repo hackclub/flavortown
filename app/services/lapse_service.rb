@@ -1,26 +1,18 @@
 class LapseService
   def self.fetch_timelapses_for_project(hackatime_user_id:, project_key:)
-    Rails.logger.info "LapseService: Fetching timelapses for hackatimeUserId=#{hackatime_user_id}, projectKey=#{project_key}"
-
     unless base_url.present?
-      Rails.logger.info "LapseService: LAPSE_API_BASE not configured, skipping"
       return nil
     end
 
     url = "#{base_url}/hackatime/timelapsesForProject?hackatimeUserId=#{hackatime_user_id}&projectKey=#{project_key}"
-    Rails.logger.info "LapseService: Requesting #{url}"
 
     response = connection.get("hackatime/timelapsesForProject") do |req|
       req.params["hackatimeUserId"] = hackatime_user_id
       req.params["projectKey"] = project_key
     end
 
-    Rails.logger.info "LapseService: Response status=#{response.status}"
-
     if response.success?
       data = JSON.parse(response.body)
-      Rails.logger.info "LapseService: Response ok=#{data['ok']}, timelapse_count=#{data.dig('data', 'timelapses')&.length || 0}"
-
       return nil unless data["ok"]
 
       data.dig("data", "timelapses") || []
