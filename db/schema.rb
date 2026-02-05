@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_04_053738) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_05_052742) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -557,6 +557,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_04_053738) do
     t.bigint "user_id", null: false
     t.index ["theseus_package_id"], name: "index_shop_warehouse_packages_on_theseus_package_id", unique: true
     t.index ["user_id"], name: "index_shop_warehouse_packages_on_user_id"
+  end
+
+  create_table "support_vibes", force: :cascade do |t|
+    t.jsonb "concerns", default: []
+    t.datetime "created_at", null: false
+    t.jsonb "notable_quotes", default: []
+    t.decimal "overall_sentiment", precision: 3, scale: 2
+    t.datetime "period_end"
+    t.datetime "period_start"
+    t.string "rating"
+    t.datetime "updated_at", null: false
+    t.index ["period_start"], name: "index_support_vibes_on_period_start"
   end
 
   create_table "user_achievements", force: :cascade do |t|

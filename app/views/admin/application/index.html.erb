@@ -119,4 +119,7 @@
   <% if policy(:admin).access_suspicious_votes? %>
     <%= link_to "Suspicious Votes", "/admin/suspicious_votes", class: button_class %>
   <% end %>
+  <% if policy(:admin).access_support_vibes? %>
+    <%= link_to "Support Vibes", "/admin/support_vibes", class: button_class %>
+  <% end %>
 </div>
