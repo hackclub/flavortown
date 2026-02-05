@@ -1,0 +1,24 @@
+<%= render HeadingComponent.new(title: "Nibbles", tone: :green, size: :full) %>
+
+<div class="nibbles__sidequests">
+  <h1 class="nibbles__sidequests-subtitle">Looking for a sidequest? Take on one of these challenges for extra bonuses!</h1>
+
+  <% if @active_sidequests.any? %>
+    <div class="nibbles__sidequests-cards">
+      <% @active_sidequests.each do |sidequest| %>
+        <%= render SidequestCardComponent.new(**sidequest) %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="nibbles__sidequests-empty">No active sidequests right now. Check back soon!</p>
+  <% end %>
+
+  <% if @expired_sidequests.any? %>
+    <h2 class="nibbles__sidequests-section-title">Past Sidequests</h2>
+    <div class="nibbles__sidequests-cards">
+      <% @expired_sidequests.each do |sidequest| %>
+        <%= render SidequestCardComponent.new(**sidequest) %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -46,6 +46,9 @@ class Project < ApplicationRecord
 
   has_recommended :projects # more projects like this...
 
+  has_many :sidequest_entries, dependent: :destroy
+  has_many :sidequests, through: :sidequest_entries
+
   after_create :notify_slack_channel
 
   ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
