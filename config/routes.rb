@@ -77,7 +77,7 @@ Rails.application.routes.draw do
 
   # Nibbles
   get "nibbles", to: "nibbles#index", as: :nibbles
-
+  resources :sidequests, only: [ :index, :show ]
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
@@ -257,6 +257,12 @@ Rails.application.routes.draw do
       member do
         post :review
         post :dismiss
+      end
+    end
+    resources :sidequest_entries, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
       end
     end
     get "payouts_dashboard", to: "payouts_dashboard#index"
