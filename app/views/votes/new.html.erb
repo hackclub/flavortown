@@ -16,6 +16,26 @@
           aria: { label: "See my previous votes" }
         ) %>
 
+    <% balance = current_user.vote_balance %>
+    <% if balance < 0 %>
+      <p class="votes-new__balance-text votes-new__balance-text--negative">
+        ⚠ You need <%= balance.abs %> more votes to unlock payouts for your projects
+      </p>
+    <% elsif balance > 0 %>
+      <% ships_covered = balance / 15 %>
+      <% remaining_for_next = [15 - (balance % 15), 0].max %>
+      <p class="votes-new__balance-text votes-new__balance-text--positive">
+        <% if ships_covered >= 1 %>
+          ✓ You're <%= balance %> votes ahead, enough for <%= ships_covered %> ship<%= "s" if ships_covered > 1 %>!
+          <% if remaining_for_next > 0 %>
+            You only need <%= remaining_for_next %> more vote<%= "s" if remaining_for_next > 1 %> for your next payout.
+          <% end %>
+        <% else %>
+          ✓ You're <%= balance %> votes ahead, so you only need <%= remaining_for_next %> more vote<%= "s" if remaining_for_next > 1 %> for your next payout.
+        <% end %>
+      </p>
+    <% end %>
+
     <div class="votes-new__main" data-controller="vote-tracker">
       <%= render "project_showcase", project: @project, posts: @posts %>
 
