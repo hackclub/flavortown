@@ -61,6 +61,9 @@ application.register("markdown-preview", MarkdownPreviewController);
 import ModalController from "./modal_controller";
 application.register("modal", ModalController);
 
+import LapseModalController from "./lapse_modal_controller";
+application.register("lapse-modal", LapseModalController);
+
 import MusicPlayerController from "./music_player_controller";
 application.register("music-player", MusicPlayerController);
 
@@ -142,4 +145,7 @@ import RadioOptionController from "./radio_option_controller";
 application.register("radio-option", RadioOptionController);
 
 import DevlogAttachmentSelectorController from "./devlog_attachment_selector_controller";
-application.register("devlog-attachment-selector", DevlogAttachmentSelectorController);
+application.register(
+  "devlog-attachment-selector",
+  DevlogAttachmentSelectorController,
+);

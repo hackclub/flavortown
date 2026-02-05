@@ -43,7 +43,7 @@
         <% end %>
 
         <% if @lapse_timelapses.present? %>
-          <div class="projects-new__media-row projects-new__media-row--equal-height" data-controller="media-selector">
+          <div class="projects-new__media-row projects-new__media-row--equal-height" data-controller="devlog-attachment-selector">
             <div class="projects-new__field">
               <div class="input file-upload input--green">
                 <div class="input__label projects-new__media-label">
@@ -104,8 +104,8 @@
                     ) %>
                 </label>
                 <div class="projects-new__media-content">
-                   <div class="projects-new__lapse-preview" data-media-selector-target="preview">
-                     <video class="projects-new__lapse-video" data-media-selector-target="video" muted loop playsinline autoplay controls></video>
+                   <div class="projects-new__lapse-preview" data-devlog-attachment-selector-target="preview">
+                     <video class="projects-new__lapse-video" data-devlog-attachment-selector-target="video" muted loop playsinline autoplay controls></video>
                    </div>
                    <%= f.select :lapse_timelapse_id,
                           options_for_select(@lapse_timelapses.map { |t|
@@ -116,7 +116,7 @@
                             ]
                           }, @lapse_timelapses.max_by { |t| t["duration"].to_i }["id"]),
                           {},
-                          { class: "projects-new__lapse-select", data: { action: "change->media-selector#selectTimelapse", "media-selector-target": "select" } } %>
+                          { class: "projects-new__lapse-select", data: { action: "change->devlog-attachment-selector#selectTimelapse", "devlog-attachment-selector-target": "select" } } %>
                  </div>
                 <div class="input__subtitle">Attach a timelapse recording from Lapse.</div>
               </div>

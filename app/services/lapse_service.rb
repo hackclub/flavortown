@@ -1,4 +1,65 @@
 class LapseService
+  # Example response:
+  # {
+  #   "ok": true,
+  #   "data": {
+  #     "count": 0,
+  #     "timelapses": [
+  #       {
+  #         "id": "string",
+  #         "createdAt": 0,
+  #         "owner": {
+  #           "id": "string",
+  #           "createdAt": 0,
+  #           "handle": "string",
+  #           "displayName": "string",
+  #           "profilePictureUrl": "https://example.com/",
+  #           "bio": "",
+  #           "urls": [
+  #             "https://example.com/"
+  #           ],
+  #           "hackatimeId": "string",
+  #           "slackId": "UKCGDGWGV3D81BMMKJO709SDXV6TYZEL0BSXXMXGBGM5JVNGNGP0DY7DA6RJDG5E7VU7ODDUKPWW116ZDR56"
+  #         },
+  #         "name": "string",
+  #         "description": "",
+  #         "comments": [
+  #           {
+  #             "id": "string",
+  #             "content": "string",
+  #             "author": {
+  #               "id": "string",
+  #               "createdAt": 0,
+  #               "handle": "string",
+  #               "displayName": "string",
+  #               "profilePictureUrl": "https://example.com/",
+  #               "bio": "",
+  #               "urls": [
+  #                 "https://example.com/"
+  #               ],
+  #               "hackatimeId": "string",
+  #               "slackId": "UAHYSXDRMAKO9033E3R2TM9BS9UE5XM08BUBS67DXTV38ILEKAY1S7E7CXD0VMOP3X12EMJ2IV6E1QUDWA08LBM5Q"
+  #             },
+  #             "createdAt": 0
+  #           }
+  #         ],
+  #         "visibility": "UNLISTED",
+  #         "isPublished": true,
+  #         "playbackUrl": "https://example.com/",
+  #         "thumbnailUrl": "https://example.com/",
+  #         "videoContainerKind": "WEBM",
+  #         "duration": 0,
+  #         "private": {
+  #           "device": {
+  #             "id": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+  #             "name": "string"
+  #           },
+  #           "hackatimeProject": "string"
+  #         }
+  #       }
+  #     ]
+  #   }
+  # }
   def self.fetch_timelapses_for_project(hackatime_user_id:, project_key:)
     unless base_url.present?
       return nil

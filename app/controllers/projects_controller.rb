@@ -53,6 +53,30 @@ class ProjectsController < ApplicationController
       @liked_devlog_ids = Set.new
     end
 
+    @devlog_lapse_badges = {}
+    devlog_posts = @posts.select { |p| p.postable_type == "Post::Devlog" }
+    if devlog_posts.any?
+      timelapses = fetch_lapse_timelapses
+      timelapse_times = timelapses.filter_map do |timelapse|
+        created_at_ms = timelapse["createdAt"]
+        next if created_at_ms.blank?
+
+        Time.at(created_at_ms.to_i / 1000.0)
+      rescue ArgumentError, TypeError
+        nil
+      end.sort
+
+      if timelapse_times.any?
+        previous_time = @project.created_at
+        devlog_posts.sort_by(&:created_at).each do |devlog_post|
+          current_time = devlog_post.created_at
+          has_lapse = timelapse_times.any? { |time| time > previous_time && time <= current_time }
+          @devlog_lapse_badges[devlog_post.postable_id] = has_lapse
+          previous_time = current_time
+        end
+      end
+    end
+
     ahoy.track "Viewed project", project_id: @project.id
 
     latest_ship_post = @posts.find { |post| post.postable_type == "Post::ShipEvent" }
