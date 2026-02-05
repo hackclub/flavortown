@@ -100,5 +100,4 @@ class ProjectShowCardComponent < ViewComponent::Base
 
     current_user&.admin? || current_user&.fraud_dept? || current_user&.project_certifier?
   end
-
 end
