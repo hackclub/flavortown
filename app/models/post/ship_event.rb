@@ -76,7 +76,7 @@ class Post::ShipEvent < ApplicationRecord
   def payout_eligible?
     return false unless certification_status == "approved"
     return false unless payout.blank?
-    return false unless votes_count.to_i >= VOTES_REQUIRED_FOR_PAYOUT
+    return false unless votes.legitimate.count >= VOTES_REQUIRED_FOR_PAYOUT
 
     payout_user = payout_recipient
     return false unless payout_user

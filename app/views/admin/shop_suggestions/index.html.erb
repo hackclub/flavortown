@@ -1,0 +1,176 @@
+<div class="shop-suggestions-admin">
+  <div class="shop-suggestions-admin__header">
+    <h1>Shop Suggestions</h1>
+    <span class="shop-suggestions-admin__count"><%= @pagy.count %> suggestions</span>
+  </div>
+
+  <% if @suggestions.any? %>
+    <div class="shop-suggestions-admin__list">
+      <% @suggestions.each do |suggestion| %>
+        <div class="shop-suggestions-admin__card">
+          <div class="shop-suggestions-admin__user">
+            <% if suggestion.user.avatar.present? %>
+              <%= image_tag suggestion.user.avatar, class: "shop-suggestions-admin__avatar" %>
+            <% end %>
+            <div class="shop-suggestions-admin__user-info">
+              <%= link_to suggestion.user.display_name, admin_user_path(suggestion.user), class: "shop-suggestions-admin__username" %>
+              <span class="shop-suggestions-admin__date"><%= time_ago_in_words(suggestion.created_at) %> ago</span>
+            </div>
+          </div>
+
+          <div class="shop-suggestions-admin__content">
+            <div class="shop-suggestions-admin__field">
+              <label>Item</label>
+              <p><%= simple_format(suggestion.item) %></p>
+            </div>
+
+            <div class="shop-suggestions-admin__field">
+              <label>Explanation</label>
+              <p><%= simple_format(suggestion.explanation) %></p>
+            </div>
+
+            <% if suggestion.link.present? %>
+              <div class="shop-suggestions-admin__field">
+                <label>Link</label>
+                <p><%= link_to suggestion.link, suggestion.link, target: "_blank", rel: "noopener" %></p>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="shop-suggestions-admin__actions">
+            <%= button_to "Dismiss",
+                          dismiss_admin_shop_suggestion_path(suggestion),
+                          method: :post,
+                          class: "btn-secondary slim",
+                          data: { confirm: "Dismiss this suggestion?" } %>
+            <%= button_to "Disable for User",
+                          disable_for_user_admin_shop_suggestion_path(suggestion),
+                          method: :post,
+                          class: "btn-danger slim",
+                          data: { confirm: "This will disable the suggestion box for #{suggestion.user.display_name} and dismiss this suggestion. Continue?" } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @pagy.pages > 1 %>
+      <div class="shop-suggestions-admin__pagination">
+        <%== @pagy.series_nav %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="shop-suggestions-admin__empty">
+      <p>No suggestions yet.</p>
+    </div>
+  <% end %>
+</div>
+
+<style>
+.shop-suggestions-admin {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.shop-suggestions-admin__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.shop-suggestions-admin__header h1 {
+  margin: 0;
+}
+
+.shop-suggestions-admin__count {
+  background: var(--color-tan-400);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.shop-suggestions-admin__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.shop-suggestions-admin__card {
+  background: var(--color-bg, #fff);
+  border: 1px solid var(--color-brown-500);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.shop-suggestions-admin__user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-tan-400);
+}
+
+.shop-suggestions-admin__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.shop-suggestions-admin__user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.shop-suggestions-admin__username {
+  font-weight: 600;
+  color: var(--color-brown-700);
+}
+
+.shop-suggestions-admin__date {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.shop-suggestions-admin__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.shop-suggestions-admin__field label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-brown-700);
+  margin-bottom: 0.25rem;
+}
+
+.shop-suggestions-admin__field p {
+  margin: 0;
+  color: var(--color-text-body, #374151);
+  line-height: 1.5;
+}
+
+.shop-suggestions-admin__actions {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-tan-400);
+}
+
+.shop-suggestions-admin__empty {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.shop-suggestions-admin__pagination {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+</style>
