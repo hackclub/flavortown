@@ -30,23 +30,47 @@ module Admin
           return
         end
 
-        # Sample llm result so i can fix layout a bit
-        llm_result = {
-          "top_5_concerns" => [
-            "Hardware shipment delays in EU",
-            "Confusion about 'Shadow Banned' status", 
-            "Login issues with magic link",
-            "Users asking for more stickers",
-            "Bug in project submission form"
-          ],
-          "overall_sentiment" => -0.25,
-          "notable_quotes" => [
-            "I've been waiting for my PCB for 3 weeks!",
-            "This platform is actually really cool despite the bugs.",
-            "Why can't I vote on my own project?"
-          ],
-          "rating" => "medium" 
-        }
+        questions_list = tickets.map { |t| t["description"].to_s }
+        questions = questions_list.map.with_index(1) { |q, i| "#{i}. #{q}" }.join("\n")
+
+        prompt = <<~PROMPT
+          Analyze the following support questions and summarize the current vibes.
+
+          Questions:
+          #{questions}
+
+          Return ONLY a valid JSON object with the following structure (no markdown formatting, no code blocks): 
+          {
+            "top_5_concerns": ["concern 1", "concern 2", ...],
+            "overall_sentiment": 0.5, // Float between -1.0 (very negative) and 1.0 (very positive)
+            "rating": "medium", // Must be one of: "low", "medium", "high". "high" means good vibes (happy users).
+            "notable_quotes": ["quote 1", "quote 2", ...] // Extract 2-3 short, impactful quotes VERBATIM from the descriptions.
+          }
+        PROMPT
+
+        llm_response = Faraday.post("https://ai.hackclub.com/proxy/v1/chat/completions") do |req|
+          req.headers['Authorization'] = "Bearer #{ENV['HCAI_API_KEY']}"
+          req.headers['Content-Type'] = 'application/json'
+          req.body = {
+            model: "x-ai/grok-4.1-fast",
+            messages: [
+              { role: "user", content: prompt }
+            ]
+          }.to_json
+        end
+
+        unless llm_response.success?
+          Rails.logger.error "LLM Failure: #{llm_response.status} body: #{llm_response.body}"
+          redirect_to admin_support_vibes_path, alert: "LLM response failed."
+          return
+        end
+
+        llm_body = JSON.parse(llm_response.body)
+        content = llm_body.dig("choices", 0, "message", "content")
+
+        # # Remove code blocks (if present, idk)
+        cleaned_content = content.gsub(/^```json\s*|```\s*$/, "")
+        llm_result = JSON.parse(cleaned_content)
 
         SupportVibes.create!(
           period_start: start_time,
