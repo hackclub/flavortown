@@ -102,4 +102,8 @@ class AdminPolicy < ApplicationPolicy
   def access_suspicious_votes?
     user.admin? || user.fraud_dept?
   end
+
+  def access_support_vibes?
+    user.admin?
+  end
 end
