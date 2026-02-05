@@ -22,4 +22,8 @@ class HelperPolicy < ApplicationPolicy
   def restore_projects?
     access?
   end
+
+  def view_support_vibes?
+    access?
+  end
 end
