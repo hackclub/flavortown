@@ -184,7 +184,8 @@ class YswsReviewSyncJob < ApplicationJob
       .where("fulfilled_by IS NULL OR fulfilled_by NOT LIKE ?", "System%")
       .includes(:shop_item)
 
-    if approved_orders.none?
+    hours_spent = adjusted_hours || (total_approved_minutes / 60.0)
+    if approved_orders.none? && hours_spent < 5
       Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - user #{slack_id} has no manually fulfilled orders"
       return
     end
