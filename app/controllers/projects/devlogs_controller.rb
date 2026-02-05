@@ -227,27 +227,21 @@ class Projects::DevlogsController < ApplicationController
   def attach_lapse_timelapse
     timelapse_id = devlog_params[:lapse_timelapse_id]
     unless timelapse_id.present?
-      Rails.logger.error "attach_lapse_timelapse: No timelapse_id provided"
       return false
     end
 
     timelapse = @lapse_timelapses&.find { |t| t["id"] == timelapse_id }
     unless timelapse
-      Rails.logger.error "attach_lapse_timelapse: Timelapse #{timelapse_id} not found in #{@lapse_timelapses&.length || 0} timelapses"
       return false
     end
 
     playback_url = timelapse["playbackUrl"]
     unless playback_url.present?
-      Rails.logger.error "attach_lapse_timelapse: No playbackUrl for timelapse #{timelapse_id}"
       return false
     end
 
-    Rails.logger.info "attach_lapse_timelapse: Downloading timelapse from #{playback_url}"
-
     response = Faraday.get(playback_url)
     unless response.success?
-      Rails.logger.error "attach_lapse_timelapse: Failed to download timelapse: #{response.status}"
       return false
     end
 
@@ -261,7 +255,6 @@ class Projects::DevlogsController < ApplicationController
       content_type: content_type
     )
 
-    Rails.logger.info "attach_lapse_timelapse: Successfully attached timelapse as #{filename}"
     true
   rescue => e
     Rails.logger.error "attach_lapse_timelapse: Error - #{e.class} - #{e.message}"
@@ -272,39 +265,29 @@ class Projects::DevlogsController < ApplicationController
   def load_lapse_timelapses
     @lapse_timelapses = []
 
-    Rails.logger.info "load_lapse_timelapses: Starting for project=#{@project.id}"
-
     hackatime_identity = current_user.hackatime_identity
     unless hackatime_identity&.uid.present?
-      Rails.logger.info "load_lapse_timelapses: No hackatime identity for user=#{current_user.id}"
       return
     end
 
     unless ENV["LAPSE_API_BASE"].present?
-      Rails.logger.info "load_lapse_timelapses: LAPSE_API_BASE not configured"
       return
     end
 
     hackatime_keys = @project.hackatime_keys
     unless hackatime_keys.present?
-      Rails.logger.info "load_lapse_timelapses: No hackatime keys for project"
       return
     end
-
-    Rails.logger.info "load_lapse_timelapses: Fetching timelapses for hackatime_uid=#{hackatime_identity.uid}, keys=#{hackatime_keys.inspect}"
 
     all_timelapses = LapseService.fetch_all_timelapses_for_projects(
       hackatime_user_id: hackatime_identity.uid,
       project_keys: hackatime_keys
     )
 
-    Rails.logger.info "load_lapse_timelapses: Fetched #{all_timelapses&.length || 0} total timelapses"
-
     return unless all_timelapses.present?
 
     last_devlog = @project.devlogs.order(created_at: :desc).first
     last_devlog_time = last_devlog&.created_at
-    Rails.logger.info "load_lapse_timelapses: Last devlog time=#{last_devlog_time.inspect}"
 
     @lapse_timelapses = all_timelapses.select do |timelapse|
       created_at = Time.at(timelapse["createdAt"].to_i / 1000.0) rescue nil
@@ -316,8 +299,6 @@ class Projects::DevlogsController < ApplicationController
         true
       end
     end
-
-    Rails.logger.info "load_lapse_timelapses: Filtered to #{@lapse_timelapses.length} timelapses after last devlog"
   rescue => e
     Rails.logger.error "Failed to load lapse timelapses: #{e.class} - #{e.message}"
     Rails.logger.error e.backtrace.first(5).join("\n")
