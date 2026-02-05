@@ -210,12 +210,10 @@ class YswsReviewSyncJob < ApplicationJob
 
   def update_justification(current_review, old_hours, new_hours)
       <<~UPDATE_JUSTIFICATION
-        \n
         ===== Project Updated =====
         #{old_hours} -> #{new_hours} hours
         A new YSWS review and Ship Cert has been submitted for this project.
-
-        \nThe new review can be found at https://review.hackclub.com/admin/ysws_reviews/#{current_review["id"]}
+        The new review can be found at https://review.hackclub.com/admin/ysws_reviews/#{current_review["id"]}
       UPDATE_JUSTIFICATION
   end
 
