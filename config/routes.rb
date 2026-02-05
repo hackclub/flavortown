@@ -176,6 +176,7 @@ Rails.application.routes.draw do
       end
     end
     resources :shop_orders, only: [ :index, :show ]
+    resources :support_vibes, only: [ :index ]
   end
 
   # admin shallow routing
