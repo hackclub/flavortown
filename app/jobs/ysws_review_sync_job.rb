@@ -144,12 +144,12 @@ class YswsReviewSyncJob < ApplicationJob
       existing_flavortown_record = find_project_in_unified_db_with_flavortown(code_url)
 
       if existing_flavortown_record
-        existing_hours = existing_flavortown_record["Optional - Override Hours Spent"].to_f
+        existing_hours = existing_flavortown_record["Override Hours Spent"].to_f
         new_hours = (total_approved_minutes / 60.0).round(2)
 
         if new_hours > (existing_hours + 0.5)
           Rails.logger.info "[YswsReviewSyncJob] Review #{review_id}: project exists in unified database under Flavortown with #{existing_hours}h, new review has #{new_hours}h (greater)"
-          update_existing_record_unified_db(current_review, existing_flavortown_record, new_hours)  # will update the record in the unified db.
+          update_existing_record_unified_db(current_review, existing_flavortown_record, existing_hours, new_hours)  # will update the record in the unified db.
           return
         else
           Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - project exists in unified database under Flavortown with #{existing_hours}h, new review has #{new_hours}h (less or equal)"
@@ -219,10 +219,9 @@ class YswsReviewSyncJob < ApplicationJob
       UPDATE_JUSTIFICATION
   end
 
-  def update_existing_record_unified_db(current_review, existing_flavortown_record, new_hours)
-    old_hours = existing_flavortown_record["Override Hours Spent"]
+  def update_existing_record_unified_db(current_review, existing_flavortown_record, existing_hours, new_hours)
     existing_flavortown_record["Override Hours Spent"] = new_hours
-    existing_flavortown_record["Override Hours Spent Justification"] = existing_flavortown_record["Override Hours Spent Justification"].to_s + update_justification(current_review, old_hours, new_hours)
+    existing_flavortown_record["Override Hours Spent Justification"] = existing_flavortown_record["Override Hours Spent Justification"].to_s + update_justification(current_review, existing_hours, new_hours)
     existing_flavortown_record.save
   end
 
@@ -428,7 +427,7 @@ class YswsReviewSyncJob < ApplicationJob
     record = unified_db_table.all(
       filter: "AND(FIND('#{formatted_url}', {Code URL}) > 0, NOT({YSWS} = 'Flavortown'))"
     ).first
-    record&.dig("Hours Spent")&.to_f
+    record&.[]("Hours Spent")&.to_f
   end
 
   def find_project_in_unified_db_with_flavortown(code_url)
