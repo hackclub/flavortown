@@ -34,4 +34,23 @@
       </div>
     </div>
   <% end %>
+
+  <% if @lapse_timelapses.present? %>
+    <% @devlog_lapse_badges&.each_key do |devlog_id| %>
+      <turbo-stream action="replace" target="devlog-lapse-badge-<%= devlog_id %>">
+        <template>
+          <button
+            type="button"
+            id="devlog-lapse-badge-<%= devlog_id %>"
+            class="post__lapse-badge"
+            aria-label="Tracked with Lapse - Click to view timelapses"
+            data-controller="modal"
+            data-action="click->modal#open"
+            data-modal-target-value="lapse-modal-<%= @project.id %>">
+            <%= inline_svg_tag "lapse.svg", class: "post__lapse-icon", aria: { hidden: true } %>
+          </button>
+        </template>
+      </turbo-stream>
+    <% end %>
+  <% end %>
 <% end %>

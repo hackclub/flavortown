@@ -56,25 +56,9 @@ class ProjectsController < ApplicationController
     @devlog_lapse_badges = {}
     devlog_posts = @posts.select { |p| p.postable_type == "Post::Devlog" }
     if devlog_posts.any?
-      timelapses = fetch_lapse_timelapses
-      timelapse_times = timelapses.filter_map do |timelapse|
-        created_at_ms = timelapse["createdAt"]
-        next if created_at_ms.blank?
-
-        Time.at(created_at_ms.to_i / 1000.0)
-      rescue ArgumentError, TypeError
-        nil
-      end.sort
-
-      if timelapse_times.any?
-        previous_time = @project.created_at
-        devlog_posts.sort_by(&:created_at).each do |devlog_post|
-          current_time = devlog_post.created_at
-          has_lapse = timelapse_times.any? { |time| time > previous_time && time <= current_time }
-          @devlog_lapse_badges[devlog_post.postable_id] = has_lapse
-          previous_time = current_time
-        end
-      end
+      timelapses = cached_lapse_timelapses
+      queue_lapse_timelapses_fetch if timelapses.nil?
+      @devlog_lapse_badges = build_devlog_lapse_badges(devlog_posts, timelapses)
     end
 
     ahoy.track "Viewed project", project_id: @project.id
@@ -395,7 +379,15 @@ class ProjectsController < ApplicationController
       return
     end
 
-    @lapse_timelapses = fetch_lapse_timelapses
+    @lapse_timelapses = cached_lapse_timelapses
+
+    if @lapse_timelapses.nil? && should_fetch_lapse_timelapses?
+      @lapse_timelapses = fetch_lapse_timelapses
+      Rails.cache.write(lapse_timelapses_cache_key, @lapse_timelapses, expires_in: Cache::ProjectLapseTimelapsesJob::CACHE_TTL)
+    end
+
+    @lapse_timelapses ||= []
+    @devlog_lapse_badges = build_devlog_lapse_badges(@project.devlog_posts, @lapse_timelapses)
     render layout: false
   end
 
@@ -564,19 +556,55 @@ class ProjectsController < ApplicationController
   end
 
   def fetch_lapse_timelapses
-    return [] unless ENV["LAPSE_API_BASE"].present?
-    return [] unless @project.hackatime_keys.present?
+    ProjectLapseTimelapsesFetcher.new(@project).call
+  end
+
+  def cached_lapse_timelapses
+    Rails.cache.read(lapse_timelapses_cache_key)
+  end
+
+  def queue_lapse_timelapses_fetch
+    return unless should_fetch_lapse_timelapses?
+    return if Rails.cache.exist?(lapse_timelapses_cache_key)
+
+    Cache::ProjectLapseTimelapsesJob.perform_later(@project.id)
+  end
+
+  def should_fetch_lapse_timelapses?
+    return false unless ENV["LAPSE_API_BASE"].present?
+    return false unless @project.hackatime_keys.present?
 
     hackatime_identity = @project.users.first&.hackatime_identity
-    return [] unless hackatime_identity&.uid.present?
+    hackatime_identity&.uid.present?
+  end
 
-    timelapses = LapseService.fetch_all_timelapses_for_projects(
-      hackatime_user_id: hackatime_identity.uid,
-      project_keys: @project.hackatime_keys
-    ) || []
-    timelapses.sort_by { |t| -(t["createdAt"] || 0) }
-  rescue StandardError
-    []
+  def lapse_timelapses_cache_key
+    Cache::ProjectLapseTimelapsesJob.cache_key(@project.id)
+  end
+
+  def build_devlog_lapse_badges(devlog_posts, timelapses)
+    return {} if devlog_posts.blank? || timelapses.blank?
+
+    timelapse_times = timelapses.filter_map do |timelapse|
+      created_at_ms = timelapse["createdAt"]
+      next if created_at_ms.blank?
+
+      Time.at(created_at_ms.to_i / 1000.0)
+    rescue ArgumentError, TypeError
+      nil
+    end.sort
+
+    return {} if timelapse_times.blank?
+
+    badges = {}
+    previous_time = @project.created_at
+    devlog_posts.sort_by(&:created_at).each do |devlog_post|
+      current_time = devlog_post.created_at
+      badges[devlog_post.postable_id] = timelapse_times.any? { |time| time > previous_time && time <= current_time }
+      previous_time = current_time
+    end
+
+    badges
   end
 
   def render_update_error

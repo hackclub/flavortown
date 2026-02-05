@@ -62,6 +62,7 @@
         <% if show_lapse_badge? %>
           <button
             type="button"
+            id="devlog-lapse-badge-<%= postable.id %>"
             class="post__lapse-badge"
             aria-label="Tracked with Lapse - Click to view timelapses"
             data-controller="<%= standalone? ? 'lapse-modal' : 'modal' %>"
@@ -78,6 +79,8 @@
           <% if standalone? %>
             <%= helpers.turbo_frame_tag lapse_frame_id %>
           <% end %>
+        <% elsif devlog? %>
+          <turbo-frame id="devlog-lapse-badge-<%= postable.id %>"></turbo-frame>
         <% end %>
       </header>
 
