@@ -1,20 +1,20 @@
 <%= render HeadingComponent.new(title: "Support Vibes", tone: :blue, size: :full) %>
-<h2 class="warning">this data was generated using ai analysis so take it with a grain of salt or smth kthxbye</h2> 
+<h2 class="warning">this data was generated using ai analysis so take it with a grain of salt or smth kthxbye</h2>
 
 <%= button_to "✨ DO DA VIBE CHECK ✨", admin_support_vibes_path, method: :post, class: "btn-primary" %>
 
 <% if @vibes.any? %>
   <div class="vibe-feed">
     <% @vibes.each do |vibe| %>
-      <% 
-        rating_color = case vibe.rating 
+      <%
+        rating_color = case vibe.rating
           when 'high' then 'green'
           when 'medium' then 'orange'
           when 'low' then 'red'
           else 'gray'
         end
       %>
-      
+
       <div class="card" style="border-left: 0.5em solid <%= rating_color %>;">
         <div class="card__header">
           <div class="card__header--left">
@@ -85,9 +85,9 @@
   }
 
   .card__header {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: flex-start; 
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: 1rem;
   }
 
@@ -96,24 +96,24 @@
   }
 
   .card__content {
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
   }
 
   ul.concerns-list {
     padding-left: 1.2rem;
   }
-    
+
   li.concerns-list-item {
     margin-bottom: 0.1rem;
   }
 
   blockquote {
-    border-left: 3px solid #ccc; 
-    padding-left: 1rem; 
-    color: #555; 
-    font-style: italic; 
+    border-left: 3px solid #ccc;
+    padding-left: 1rem;
+    color: #555;
+    font-style: italic;
     margin-bottom: 1rem;
   }
 </style>

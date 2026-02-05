@@ -18,10 +18,10 @@
 #
 class SupportVibes < ApplicationRecord
   validates :rating, inclusion: { in: %w[low medium high], allow_nil: true }
-  
+
   def sentiment_label
     return "Neutral" unless overall_sentiment
-    
+
     if overall_sentiment > 0.3
       "Positive"
     elsif overall_sentiment < -0.3
