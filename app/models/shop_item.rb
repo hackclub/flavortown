@@ -145,7 +145,7 @@ class ShopItem < ApplicationRecord
                        saver: { strip: true, quality: 75 }
   end
   validates :name, :description, :ticket_cost, :type, presence: true
-  validates :ticket_cost, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :ticket_cost, numericality: { greater_than_or_equal_to: 0 }
   validates :image, presence: true, on: :create
   validates :required_ships_count, numericality: { only_integer: true, greater_than: 0 }, if: :requires_ship?
   validates :required_ships_start_date, :required_ships_end_date, presence: true, if: :requires_ship?

@@ -5,8 +5,11 @@ class ShipEventPayoutCalculatorJob < ApplicationJob
     Post::ShipEvent
       .joins(post: :project)
       .where(certification_status: "approved", payout: nil)
-      .where("votes_count >= ? OR projects.shadow_banned = ?", Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT, true)
       .find_each do |ship_event|
+        # Only process if ship event has enough legitimate votes or project is shadow banned
+        legitimate_votes_count = ship_event.votes.legitimate.count
+        next unless legitimate_votes_count >= Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT || ship_event.project.shadow_banned?
+
         ShipEventPayoutCalculator.apply!(ship_event)
       end
   end

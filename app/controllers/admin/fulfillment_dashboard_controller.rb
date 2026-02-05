@@ -143,9 +143,7 @@ module Admin
     end
 
     def ensure_authorized_user
-      unless current_user&.admin?
-        redirect_to root_path, alert: "whomp whomp"
-      end
+      authorize :admin, :access_fulfillment_dashboard?
     end
   end
 end
