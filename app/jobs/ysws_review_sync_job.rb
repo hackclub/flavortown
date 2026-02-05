@@ -280,7 +280,7 @@ class YswsReviewSyncJob < ApplicationJob
 
     ship_cert = review["shipCert"] || {}
     reviewer_username = review.dig("reviewer", "username") || "Unknown"
-    ship_certifier = ship_cert["certifierName"] || "a ship certifier"
+    ship_certifier = ship_cert["certifier"] || "a ship certifier"
     project_id = ship_cert["ftProjectId"]
     review_id = review["id"]
     ship_cert_id = ship_cert["id"]
