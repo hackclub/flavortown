@@ -1,1 +1,119 @@
-<%= render HeadingComponent.new(title: "Support Vibes", tone: :green, size: :full) %>
+<%= render HeadingComponent.new(title: "Support Vibes", tone: :blue, size: :full) %>
+<h2 class="warning">this data was generated using ai analysis so take it with a grain of salt or smth kthxbye</h2> 
+
+<%= button_to "✨ DO DA VIBECHECK ✨", admin_support_vibes_path, method: :post, class: "btn-primary" %>
+
+<% if @vibes.any? %>
+  <div class="vibe-feed">
+    <% @vibes.each do |vibe| %>
+      <% 
+        rating_color = case vibe.rating 
+          when 'high' then 'green'
+          when 'medium' then 'orange'
+          when 'low' then 'red'
+          else 'gray'
+        end
+      %>
+      
+      <div class="card" style="border-left: 0.5em solid <%= rating_color %>;">
+        <div class="card__header">
+          <div class="card__header--left">
+            <h2 style="margin: 0; font-size: 1.5rem;">
+              <%= vibe.period_end.strftime("%B %d, %Y") %>
+              <span class="badge"><%= vibe.rating&.upcase %> VIBES</span>
+            </h2>
+            <small class="text-muted">
+              Analyzing <%= vibe.period_start.strftime("%H:%M") %> - <%= vibe.period_end.strftime("%H:%M") %>
+            </small>
+          </div>
+          <div class="card__header--right">
+            <div style="font-size: 1.25rem; %>">
+              <%= vibe.overall_sentiment %> Sentiment
+            </div>
+            <small class="text-muted"><%= vibe.sentiment_label %></small>
+          </div>
+        </div>
+
+        <div class="card__content">
+          <div>
+            <h3>Top 5 Concerns</h3>
+            <ul class="concerns-list">
+              <% (vibe.concerns || []).each do |concern| %>
+                <li class="concerns-list-item"><%= concern %></li>
+              <% end %>
+            </ul>
+          </div>
+
+          <div>
+            <h3>Notable Quotes</h3>
+            <% (vibe.notable_quotes || []).each do |quote| %>
+              <blockquote>
+                "<%= quote %>"
+              </blockquote>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card">
+    <p>No vibes checked yet. Be the first to check the vibes!</p>
+  </div>
+<% end %>
+
+<style>
+  .btn-primary {
+    font-size: 1.75rem;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 2rem 0;
+  }
+
+  .warning {
+    text-align: center;
+    font-weight: normal;
+    font-size: 1.2rem;
+    margin: 0;
+  }
+
+  .vibe-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+  }
+
+  .card__header {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start; 
+    margin-bottom: 1rem;
+  }
+
+  .card__header--right {
+    text-align: right;
+  }
+
+  .card__content {
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 2rem;
+  }
+
+  ul.concerns-list {
+    padding-left: 1.2rem;
+  }
+    
+  li.concerns-list-item {
+    margin-bottom: 0.1rem;
+  }
+
+  blockquote {
+    border-left: 3px solid #ccc; 
+    padding-left: 1rem; 
+    color: #555; 
+    font-style: italic; 
+    margin-bottom: 1rem;
+  }
+</style>

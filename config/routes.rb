@@ -264,7 +264,7 @@ Rails.application.routes.draw do
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
     get "suspicious_votes", to: "suspicious_votes#index"
-    get "support_vibes", to: "support_vibes#index"
+    resources :support_vibes, only: [ :index, :create ]
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
