@@ -28,7 +28,16 @@ class Project::Report < ApplicationRecord
     belongs_to :project
     after_create :notify_slack_channel
 
-    REASONS = %w[low_effort undeclared_ai demo_broken fraud other].freeze
+    REASONS = [
+      "low_effort",
+      "undeclared_ai",
+      "demo_broken",
+      "fraud",
+      "other",
+      "External flag",
+      "YSWS project flag",
+      "Shipwrights project flag"
+    ].freeze
     USER_REASONS = %w[low_effort undeclared_ai demo_broken other].freeze # fraud is internal
 
     enum :status, { pending: 0, reviewed: 1, dismissed: 2 }, default: :pending

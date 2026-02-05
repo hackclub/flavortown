@@ -176,6 +176,7 @@ Rails.application.routes.draw do
       end
     end
     resources :shop_orders, only: [ :index, :show ]
+    resources :support_vibes, only: [ :index ]
   end
 
   # admin shallow routing
@@ -264,6 +265,7 @@ Rails.application.routes.draw do
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
     get "suspicious_votes", to: "suspicious_votes#index"
+    resources :support_vibes, only: [ :index, :create ]
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
