@@ -33,21 +33,30 @@
         </div>
 
         <div class="card__content">
-          <div>
+          <div class="concerns-section">
             <h3>Top 5 Concerns</h3>
-            <ul class="concerns-list">
+            <div class="concerns-list">
               <% (vibe.concerns || []).each do |concern| %>
-                <li class="concerns-list-item"><%= concern %></li>
+                <div class="concern-item">
+                  <% if concern.is_a?(Hash) %>
+                    <h4><%= concern["title"] %></h4>
+                    <p><%= concern["description"] %></p>
+                  <% else %>
+                    <p><%= concern %></p>
+                  <% end %>
+                </div>
               <% end %>
-            </ul>
+            </div>
           </div>
 
-          <div>
-            <h3>Notable Quotes</h3>
-            <% (vibe.notable_quotes || []).each do |quote| %>
-              <blockquote>
-                "<%= quote %>"
-              </blockquote>
+          <div class="questions-section">
+            <h3>Prominent Questions</h3>
+            <% vibe.notable_quotes.presence.each do |q| %>
+              <div class="question-item">
+                <blockquote>
+                  "<%= q %>"
+                </blockquote>
+              </div>
             <% end %>
           </div>
         </div>
@@ -73,7 +82,7 @@
     text-align: center;
     font-weight: normal;
     font-size: 1.2rem;
-    margin-bottom: 1.5em;
+    margin: 1.5rem 0;
   }
 
   .vibe-feed {
@@ -99,17 +108,29 @@
     gap: 2rem;
   }
 
-  ul.concerns-list {
-    padding-left: 1.2rem;
+  h3 {
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem !important;
   }
 
-  li.concerns-list-item {
-    margin-bottom: 0.1rem;
+  h4 {
+    margin-top: 1rem !important;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #444;
+  }
+
+  .questions-item {
+    margin-bottom: 1rem;
   }
 
   blockquote {
     border-left: 3px solid #ccc;
-    padding-left: 1rem;
+    padding-left: 0.5rem;
     color: #555;
     font-style: italic;
     margin-bottom: 1rem;
