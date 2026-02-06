@@ -1,3 +1,8 @@
+<% content_for :title, @sidequest.title %>
+<% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
+<% content_for :og_image, og_image_url('sidequests', format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+
 <%= render HeadingComponent.new(title: @sidequest.title, tone: :blue, size: :full) %>
 
 <div class="sidequest-show">
