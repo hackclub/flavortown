@@ -36,15 +36,22 @@ module Admin
         prompt = <<~PROMPT
           Analyze the following support questions and summarize the current vibes.
 
-          Questions:
+          INPUT DATA:
           #{questions}
 
-          Return ONLY a valid JSON object with the following structure (no markdown formatting, no code blocks):#{' '}
+          OUTPUT INSTRUCTIONS:
+          Return ONLY valid JSON (no markdown formatting, no code blocks) with this exact schema:
           {
-            "top_5_concerns": ["concern 1", "concern 2", ...],
-            "overall_sentiment": 0.5, // Float between -1.0 (very negative) and 1.0 (very positive)
-            "rating": "medium", // Must be one of: "low", "medium", "high". "high" means good vibes (happy users).
-            "notable_quotes": ["quote 1", "quote 2", ...] // Extract 2-3 short, impactful quotes VERBATIM from the descriptions.
+            "concerns": [
+              { "title": "Short catchy title", "description": "Detailed explanation (2-3 sentences) of what users are worried about including context." },
+              ... (Top 5 concerns)
+            ],
+            "prominent_questions": [
+              "Exact question asked by user?",
+              ... (5-7 most common/impactful VERBATIM questions found in the text)
+            ],
+            "overall_sentiment": 0.5, // Float from -1.0 (very negative) to 1.0 (very positive)
+            "rating": "medium" // One of: "low", "medium", "high"
           }
         PROMPT
 
@@ -67,18 +74,17 @@ module Admin
 
         llm_body = JSON.parse(llm_response.body)
         content = llm_body.dig("choices", 0, "message", "content")
-
-        # # Remove code blocks (if present, idk)
         cleaned_content = content.gsub(/^```json\s*|```\s*$/, "")
-        llm_result = JSON.parse(cleaned_content)
+
+        data = JSON.parse(cleaned_content)
 
         SupportVibes.create!(
           period_start: start_time,
           period_end: end_time,
-          concerns: llm_result["top_5_concerns"],
-          overall_sentiment: llm_result["overall_sentiment"],
-          notable_quotes: llm_result["notable_quotes"],
-          rating: llm_result["rating"]
+          concerns: data["concerns"],
+          overall_sentiment: data["overall_sentiment"],
+          notable_quotes: data["prominent_questions"],
+          rating: data["rating"]
         )
 
         redirect_to admin_support_vibes_path, notice: "Support vibes updated successfully."
