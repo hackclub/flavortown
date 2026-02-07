@@ -3,17 +3,17 @@
   # Mode can be :fraud (approvals/rejections) or :fulfillment (fulfilled orders)
   mode = local_assigns[:mode] || :combined
   time_range = local_assigns[:time_range] || '7_days'
-  
+
   # Build query based on time range
   versions_query = PaperTrail::Version
     .where(item_type: "ShopOrder")
     .where.not(whodunnit: nil)
     .where("object_changes ? 'aasm_state'")
-  
+
   if time_range == '7_days'
     versions_query = versions_query.where("created_at >= ?", 7.days.ago)
   end
-  
+
   recent_versions = versions_query
 
   # Group by user and count actions by type
@@ -84,9 +84,9 @@
       <small style="color: #666; font-weight: normal;">(<%= time_range == '7_days' ? '7 days' : 'all time' %>)</small>
     </h3>
     <div class="action-leaderboard__toggle">
-      <%= link_to "7 days", admin_shop_orders_path(view: @view, time_range: '7_days'), 
+      <%= link_to "7 days", admin_shop_orders_path(view: @view, time_range: '7_days'),
           class: "btn-#{time_range == '7_days' ? 'primary' : 'secondary'} slim" %>
-      <%= link_to "All time", admin_shop_orders_path(view: @view, time_range: 'all_time'), 
+      <%= link_to "All time", admin_shop_orders_path(view: @view, time_range: 'all_time'),
           class: "btn-#{time_range == 'all_time' ? 'primary' : 'secondary'} slim" %>
     </div>
   </div>
