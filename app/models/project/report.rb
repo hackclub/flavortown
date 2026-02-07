@@ -26,7 +26,7 @@
 class Project::Report < ApplicationRecord
     belongs_to :reporter, class_name: "User"
     belongs_to :project
-    after_create :notify_slack_channel
+    after_commit :notify_slack_channel, on: :create
 
     REASONS = [
       "low_effort",
@@ -55,5 +55,8 @@ class Project::Report < ApplicationRecord
 
     def notify_slack_channel
       SendSlackDmJob.perform_later("C0A1YJ9PDAS", "New report received", blocks_path: "notifications/reports/slack_message", locals: { report: self })
+      if reason == "demo_broken"
+        SendSlackDmJob.perform_later("C0ADFNQ2MEF", "New report received", blocks_path: "notifications/reports/slack_message", locals: { report: self })
+      end
     end
 end
