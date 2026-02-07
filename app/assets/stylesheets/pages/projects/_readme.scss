@@ -53,6 +53,37 @@
     margin: 1em 0;
   }
 
+  .click2load {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    width: 100%;
+    min-height: 120px;
+    padding: 1.5em;
+    margin: 1em 0;
+    background-color: var(--color-bg-2);
+    border: 4px dashed var(--color-brown-300);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--color-brown-400);
+      border-color: var(--color-brown-400);
+    }
+
+    &__text {
+      font-family: var(--font-family-subtitle);
+      font-size: 1rem;
+      color: var(--color-brown-700);
+      font-weight: bold;
+    }
+  }
+
   pre {
     background-color: var(--color-brown-700);
     color: var(--color-bg);

@@ -8,6 +8,8 @@ class ProjectReadmeFetcher
     github.com
     gitlab.com
     git.gay
+    codeberg.org
+    tangled.org
   ].freeze
 
   TIMEOUT_SECONDS = 10
@@ -37,6 +39,15 @@ class ProjectReadmeFetcher
     Result.new(markdown: nil, error: "Invalid README URL.")
   rescue Faraday::Error
     Result.new(markdown: nil, error: "Could not fetch README right now.")
+  end
+
+  def self.allowed_url?(url)
+    return false if url.blank?
+
+    uri = URI.parse(url.to_s)
+    allowed_uri?(uri)
+  rescue URI::InvalidURIError
+    false
   end
 
   def self.allowed_uri?(uri)

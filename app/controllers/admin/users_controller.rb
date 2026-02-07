@@ -277,6 +277,17 @@ class Admin::UsersController < Admin::ApplicationController
       @user.ban!(reason: reason)
     end
 
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: @user.id,
+      event: "banned",
+      whodunnit: current_user.id.to_s,
+      object_changes: {
+        banned: [ false, true ],
+        banned_reason: [ nil, reason ]
+      }.to_json
+    )
+
     flash[:notice] = "#{@user.display_name} has been banned."
     redirect_to admin_user_path(@user)
   end
@@ -284,10 +295,22 @@ class Admin::UsersController < Admin::ApplicationController
   def unban
     authorize :admin, :ban_users?
     @user = User.find(params[:id])
+    old_reason = @user.banned_reason
 
     PaperTrail.request(whodunnit: current_user.id) do
       @user.unban!
     end
+
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: @user.id,
+      event: "unbanned",
+      whodunnit: current_user.id.to_s,
+      object_changes: {
+        banned: [ true, false ],
+        banned_reason: [ old_reason, nil ]
+      }.to_json
+    )
 
     flash[:notice] = "#{@user.display_name} has been unbanned."
     redirect_to admin_user_path(@user)
@@ -302,6 +325,17 @@ class Admin::UsersController < Admin::ApplicationController
       @user.shadow_ban!(reason: reason)
     end
 
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: @user.id,
+      event: "shadow_banned",
+      whodunnit: current_user.id.to_s,
+      object_changes: {
+        shadow_banned: [ false, true ],
+        shadow_banned_reason: [ nil, reason ]
+      }.to_json
+    )
+
     flash[:notice] = "#{@user.display_name} has been shadow banned."
     redirect_to admin_user_path(@user)
   end
@@ -309,13 +343,41 @@ class Admin::UsersController < Admin::ApplicationController
   def unshadow_ban
     authorize :admin, :ban_users?
     @user = User.find(params[:id])
+    old_reason = @user.shadow_banned_reason
 
     PaperTrail.request(whodunnit: current_user.id) do
       @user.unshadow_ban!
     end
 
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: @user.id,
+      event: "shadow_unbanned",
+      whodunnit: current_user.id.to_s,
+      object_changes: {
+        shadow_banned: [ true, false ],
+        shadow_banned_reason: [ old_reason, nil ]
+      }.to_json
+    )
+
     flash[:notice] = "#{@user.display_name} has been unshadow banned."
     redirect_to admin_user_path(@user)
+  end
+
+  def toggle_voting_lock
+    authorize :admin, :ban_users?
+    @user = User.find(params[:id])
+    @user.toggle!(:voting_locked)
+
+    PaperTrail::Version.create!(
+      item_type: "User",
+      item_id: @user.id,
+      event: "voting_lock_toggled",
+      whodunnit: current_user.id.to_s,
+      object_changes: { voting_locked: [ !@user.voting_locked, @user.voting_locked ] }.to_json
+    )
+
+    redirect_back(fallback_location: admin_user_path(@user), notice: "Voting lock has been #{@user.voting_locked ? 'enabled' : 'disabled'} for #{@user.display_name}.")
   end
 
   def refresh_verification
@@ -370,6 +432,15 @@ class Admin::UsersController < Admin::ApplicationController
     Rails.logger.error "Failed to refresh verification status for user #{@user.id}: #{e.message}"
     flash[:alert] = "Error refreshing verification: #{e.message}"
     redirect_to admin_user_path(@user)
+  end
+
+  def votes
+    authorize :admin, :manage_users?
+    @user = User.find(params[:id])
+
+    @pagy, @votes = pagy(
+      @user.votes.includes(:project).order(created_at: :desc)
+    )
   end
 
   def update

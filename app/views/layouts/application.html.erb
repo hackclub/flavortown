@@ -36,6 +36,9 @@
     <%= preload_link_tag image_path("landing/hero/long-image.avif"), as: "image", fetchpriority: "high" %>
     <%= preload_link_tag image_path("landing/hero/hero-bg.avif"), as: "image" %>
     <%= preload_link_tag asset_path("Jua-Regular.woff2"), as: "font", type: "font/woff2", crossorigin: true %>
+    <% if current_user.present? %>
+      <%= preload_link_tag image_path("launch/rocket.png"), as: "image" %>
+    <% end %>
 
     <%= yield :head %>
 
@@ -57,7 +60,7 @@
     <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>
 
-  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %>>
+  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %> <%= 'launch-theme' if controller_name == 'launch' %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %> <%= 'data-controller="stars shooting-star"'.html_safe if controller_name == 'launch' %> <%= 'data-controller="stars"'.html_safe if controller_name == 'landing' && @landing_variant == 'challenger' %>>
     <% if impersonating? %>
       <div class="impersonation-banner">
         <div class="impersonation-content">
@@ -77,6 +80,14 @@
     <% end %>
     <% if current_user.present? && !current_user.banned? && !@hide_sidebar %>
       <%= render "shared/sidebar" %>
+
+      <%# Rocket launch animation element - hidden until triggered %>
+      <div class="rocket-launch" id="rocket-launch" aria-hidden="true">
+        <div class="rocket-launch__avatar">
+          <%= image_tag current_user.avatar, alt: "", class: "rocket-launch__avatar-img" %>
+        </div>
+        <%= image_tag "launch/rocket.png", alt: "", class: "rocket-launch__rocket" %>
+      </div>
     <% end %>
     <%= render "shared/flash" %>
     <% if tutorial_messages.present? %>

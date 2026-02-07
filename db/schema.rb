@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_27_025655) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_05_182813) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -481,6 +481,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_27_025655) do
     t.integer "required_ships_count", default: 1
     t.date "required_ships_end_date"
     t.date "required_ships_start_date"
+    t.string "requires_achievement"
     t.boolean "requires_ship", default: false
     t.integer "sale_percentage"
     t.boolean "show_in_carousel"
@@ -538,14 +539,62 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_27_025655) do
     t.index ["warehouse_package_id"], name: "index_shop_orders_on_warehouse_package_id"
   end
 
+  create_table "shop_suggestions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "explanation"
+    t.text "item"
+    t.string "link"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_shop_suggestions_on_user_id"
+  end
+
   create_table "shop_warehouse_packages", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "frozen_address_ciphertext"
+    t.jsonb "frozen_contents"
     t.string "theseus_package_id"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["theseus_package_id"], name: "index_shop_warehouse_packages_on_theseus_package_id", unique: true
     t.index ["user_id"], name: "index_shop_warehouse_packages_on_user_id"
+  end
+
+  create_table "sidequest_entries", force: :cascade do |t|
+    t.string "aasm_state", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.bigint "project_id", null: false
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.bigint "sidequest_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aasm_state"], name: "index_sidequest_entries_on_aasm_state"
+    t.index ["project_id"], name: "index_sidequest_entries_on_project_id"
+    t.index ["reviewed_by_id"], name: "index_sidequest_entries_on_reviewed_by_id"
+    t.index ["sidequest_id"], name: "index_sidequest_entries_on_sidequest_id"
+  end
+
+  create_table "sidequests", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "description"
+    t.datetime "expires_at"
+    t.string "external_page_link"
+    t.string "slug", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_sidequests_on_slug", unique: true
+  end
+
+  create_table "support_vibes", force: :cascade do |t|
+    t.jsonb "concerns", default: []
+    t.datetime "created_at", null: false
+    t.jsonb "notable_quotes", default: []
+    t.decimal "overall_sentiment", precision: 3, scale: 2
+    t.datetime "period_end"
+    t.datetime "period_start"
+    t.string "rating"
+    t.datetime "updated_at", null: false
+    t.index ["period_start"], name: "index_support_vibes_on_period_start"
   end
 
   create_table "user_achievements", force: :cascade do |t|
@@ -630,6 +679,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_27_025655) do
     t.boolean "vote_anonymously", default: false, null: false
     t.integer "vote_balance", default: 0, null: false
     t.integer "votes_count"
+    t.boolean "voting_locked", default: false, null: false
     t.boolean "ysws_eligible", default: false, null: false
     t.index ["api_key"], name: "index_users_on_api_key", unique: true
     t.index ["email"], name: "index_users_on_email"
@@ -662,6 +712,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_27_025655) do
     t.boolean "repo_url_clicked", default: false
     t.bigint "ship_event_id", null: false
     t.integer "storytelling_score"
+    t.boolean "suspicious", default: false, null: false
     t.integer "technical_score"
     t.integer "time_taken_to_vote"
     t.datetime "updated_at", null: false
@@ -669,6 +720,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_27_025655) do
     t.bigint "user_id", null: false
     t.index ["project_id"], name: "index_votes_on_project_id"
     t.index ["ship_event_id"], name: "index_votes_on_ship_event_id"
+    t.index ["suspicious", "created_at"], name: "index_votes_on_suspicious_and_created_at"
     t.index ["user_id", "ship_event_id"], name: "index_votes_on_user_id_and_ship_event_id", unique: true
     t.index ["user_id"], name: "index_votes_on_user_id"
   end
@@ -700,7 +752,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_27_025655) do
   add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"
   add_foreign_key "shop_orders", "users"
   add_foreign_key "shop_orders", "users", column: "assigned_to_user_id", on_delete: :nullify
+  add_foreign_key "shop_suggestions", "users"
   add_foreign_key "shop_warehouse_packages", "users"
+  add_foreign_key "sidequest_entries", "projects"
+  add_foreign_key "sidequest_entries", "sidequests"
+  add_foreign_key "sidequest_entries", "users", column: "reviewed_by_id"
   add_foreign_key "user_achievements", "users"
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"

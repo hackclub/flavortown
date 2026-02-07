@@ -70,9 +70,17 @@
   </div>
 <% end %>
 
-<div class="actions-bar">
+<div class="actions-bar" style="display: flex; gap: 1rem; align-items: center;">
   <%= button_to "Send Letter Mail", send_letter_mail_admin_fulfillment_dashboard_index_path,
                 method: :post, class: "btn-primary slim" %>
+
+  <% if @fulfillment_type == "all" %>
+    <% if @show_warehouse %>
+      <%= link_to "Hide Warehouse Items", admin_fulfillment_dashboard_index_path(fulfillment_type: @fulfillment_type), class: "btn-secondary slim" %>
+    <% else %>
+      <%= link_to "Show Warehouse Items", admin_fulfillment_dashboard_index_path(fulfillment_type: @fulfillment_type, show_warehouse: true), class: "btn-secondary slim" %>
+    <% end %>
+  <% end %>
 </div>
 
 <% if @orders.any? %>
@@ -88,7 +96,7 @@
       <th>Region</th>
       <th>Assignee</th>
       <th>Wait Time</th>
-      <th>Created</th>
+      <th>Hang Time</th>
       <th>Actions</th>
     </tr>
     </thead>
@@ -160,8 +168,14 @@
           </div>
         </td>
         <td>
-          <%= order.created_at.strftime("%m/%d/%y") %>
-          <br><small class="text-muted"><%= order.created_at.strftime("%l:%M %p") %></small>
+          <% if order.awaiting_periodical_fulfillment_at %>
+            <span class="time-value <%= (Time.current - order.awaiting_periodical_fulfillment_at) > 2.days ? 'text-danger' : '' %>">
+              <%= time_ago_in_words(order.awaiting_periodical_fulfillment_at) %>
+            </span>
+            <br><small class="text-muted">since approval</small>
+          <% else %>
+            <span class="text-muted">Not approved yet</span>
+          <% end %>
         </td>
         <td>
           <%= link_to "Manage", admin_shop_order_path(order), class: "btn-primary slim" %>

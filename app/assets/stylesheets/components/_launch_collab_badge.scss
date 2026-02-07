@@ -1,0 +1,29 @@
+.launch-collab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transform: rotate(4.27deg);
+  }
+
+  &__challenger-logo {
+    height: 70px;
+    width: auto;
+  }
+
+  &__x {
+    font-family: "Jua", sans-serif;
+    font-size: 2.5rem;
+    color: #fff;
+    line-height: 1;
+  }
+
+  &__hackclub-logo {
+    height: 45px;
+    width: auto;
+  }
+}

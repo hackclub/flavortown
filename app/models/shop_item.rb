@@ -47,6 +47,7 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
+#  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
@@ -106,7 +107,7 @@ class ShopItem < ApplicationRecord
   scope :enabled, -> { where(enabled: true) }
   scope :listed, -> { where(unlisted: [ nil, false ]) }
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
-  scope :recently_added, -> { order(created_at: :desc).limit(6) }
+  scope :recently_added, -> { where(created_at: 2.weeks.ago..).order(created_at: :desc) }
 
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
   belongs_to :default_assigned_user, class_name: "User", optional: true
@@ -145,7 +146,7 @@ class ShopItem < ApplicationRecord
                        saver: { strip: true, quality: 75 }
   end
   validates :name, :description, :ticket_cost, :type, presence: true
-  validates :ticket_cost, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :ticket_cost, numericality: { greater_than_or_equal_to: 0 }
   validates :image, presence: true, on: :create
   validates :required_ships_count, numericality: { only_integer: true, greater_than: 0 }, if: :requires_ship?
   validates :required_ships_start_date, :required_ships_end_date, presence: true, if: :requires_ship?
@@ -222,6 +223,17 @@ class ShopItem < ApplicationRecord
     return false unless user.present?
 
     user.shipped_projects_count_in_range(required_ships_start_date, required_ships_end_date) >= required_ships_count
+  end
+
+  def meet_achievement_require?(user)
+    return true unless requires_achievement?
+    return false unless user.present?
+
+    user.earned_achievement?(requires_achievement.to_sym)
+  end
+
+  def requires_achievement?
+    requires_achievement.present?
   end
 
   private

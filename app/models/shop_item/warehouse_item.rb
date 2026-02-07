@@ -47,6 +47,7 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
+#  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
@@ -75,6 +76,7 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::WarehouseItem < ShopItem
+  validates :agh_contents, presence: true
   def get_agh_contents(order)
     return [] unless agh_contents.present?
 

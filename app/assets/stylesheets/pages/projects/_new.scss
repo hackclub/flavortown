@@ -81,6 +81,57 @@
     }
   }
 
+  &__field--declarations {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-l);
+    align-items: start;
+
+    .input {
+      width: 100%;
+      margin-bottom: var(--space-xxxl);
+    }
+
+    .input:last-child {
+      margin-bottom: 0;
+    }
+
+    .input--blue .projects-new__checkbox-control input[type="checkbox"] {
+      accent-color: var(--color-blue-500);
+    }
+  }
+
+  &__checkbox-control {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+    padding: var(--space-m);
+    background-color: var(--color-bg);
+    border-radius: calc(var(--border-radius) * 0.8);
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+
+    input[type="checkbox"] {
+      width: 1.25rem;
+      height: 1.25rem;
+      cursor: pointer;
+      accent-color: var(--color-yellow-500);
+      flex-shrink: 0;
+    }
+
+    &--compact {
+      padding: var(--space-s) var(--space-m);
+      gap: var(--space-s);
+    }
+  }
+
+  &__checkbox-label {
+    font-size: var(--font-size-m);
+    color: var(--color-text-body);
+    line-height: 1.4;
+  }
+
   &__error {
     color: var(--color-red-600);
     font-size: 0.9rem;
@@ -131,6 +182,14 @@
 
     &__card {
       padding: var(--space-xxl);
+    }
+
+    &__field--declarations {
+      grid-template-columns: 1fr;
+
+      .input:last-child {
+        margin-top: var(--space-xxl);
+      }
     }
 
     &__actions {
