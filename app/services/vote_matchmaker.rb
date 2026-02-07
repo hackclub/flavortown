@@ -58,10 +58,27 @@ class VoteMatchmaker
       .where(projects: { shadow_banned: false })
       .where("projects.duration_seconds > 0")
 
+    scope = scope.where.not(id: blocked_due_to_vote_deficit)
+
     excluded_categories.each do |category|
       scope = scope.where.not("? = ANY(projects.project_categories)", category)
     end
 
     scope
+  end
+
+  def blocked_due_to_vote_deficit
+    ship_events_with_enough_votes = Post::ShipEvent
+      .joins(:votes)
+      .where(votes: { suspicious: false })
+      .group("post_ship_events.id")
+      .having("COUNT(votes.id) >= ?", Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT)
+      .select(:id)
+
+    Post::ShipEvent
+      .joins(post: :user)
+      .where("users.vote_balance < 0")
+      .where(id: ship_events_with_enough_votes)
+      .select(:id)
   end
 end
