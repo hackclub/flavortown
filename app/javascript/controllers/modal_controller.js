@@ -6,11 +6,15 @@ export default class extends Controller {
   connect() {
     this._boundBackdropClick = this.backdropClick.bind(this);
 
-    this.element.addEventListener("click", this._boundBackdropClick);
+    if (!this.hasTargetValue) {
+      this.element.addEventListener("click", this._boundBackdropClick);
+    }
   }
 
   disconnect() {
-    this.element.removeEventListener("click", this._boundBackdropClick);
+    if (!this.hasTargetValue) {
+      this.element.removeEventListener("click", this._boundBackdropClick);
+    }
   }
 
   open() {
