@@ -26,7 +26,12 @@
     <%= render partial: "stats", locals: { counts: @c, average_fulfillment_time: @f } %>
   </div>
   <div style="flex-shrink: 0;">
-    <%= render partial: "action_leaderboard" %>
+    <% time_range = params[:time_range] || '7_days' %>
+    <% if @view == 'fulfillment' %>
+      <%= render partial: "action_leaderboard", locals: { mode: :fulfillment, time_range: time_range } %>
+    <% elsif @view == 'shop_orders' %>
+      <%= render partial: "action_leaderboard", locals: { mode: :fraud, time_range: time_range } %>
+    <% end %>
   </div>
 </div>
 
