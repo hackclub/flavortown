@@ -6,18 +6,36 @@
         <%= image_tag project.banner.variant(:card), class: "project-card__banner-image", alt: "#{project.title} banner" %>
         <% if owner? %>
             <% can_ship = project.draft? || project.shippable? %>
-            <div class="project-show-card__ship-wrapper" id="ship-btn-wrapper">
-              <%= render ButtonComponent.new(
-                  text: project.draft? ? "Ship" : "Ship Again",
-                  color: :green,
-                  icon: "icons/ship.svg",
-                  href: can_ship ? new_project_ships_path(project) : nil,
-                  disabled: !can_ship,
-                  class: "project-show-card__ship-btn"
-              ) %>
+            <% can_request_re_cert = project.last_ship_event&.certification_status == 'rejected' %>
+            <div class="project-show-card__ship-wrapper" id="ship-btn-wrapper-banner">
+              <% if can_ship %>
+                <%= render ButtonComponent.new(
+                    text: project.draft? ? "Ship" : "Ship Again",
+                    color: :green,
+                    icon: "icons/ship.svg",
+                    href: new_project_ships_path(project),
+                    class: "project-show-card__ship-btn"
+                ) %>
+              <% elsif can_request_re_cert %>
+                <%= button_to helpers.request_recertification_project_path(project),
+                      method: :post,
+                      class: "btn btn--green project-show-card__ship-btn",
+                      data: { confirm: "Are you sure you want to request re-certification? This will resubmit your project for review." } do %>
+                  <%= helpers.inline_svg_tag "icons/ship.svg" %>
+                  Ship Again
+                <% end %>
+              <% else %>
+                <%= render ButtonComponent.new(
+                    text: project.draft? ? "Ship" : "Ship Again",
+                    color: :green,
+                    icon: "icons/ship.svg",
+                    disabled: true,
+                    class: "project-show-card__ship-btn"
+                ) %>
+              <% end %>
             </div>
-            <% unless can_ship %>
-              <%= render TooltipComponent.new(target_id: "ship-btn-wrapper", position: :left) do %>
+            <% if !can_ship && !can_request_re_cert %>
+              <%= render TooltipComponent.new(target_id: "ship-btn-wrapper-banner", position: :left) do %>
                 <strong>Cannot ship yet:</strong>
                 <ul>
                   <% ship_disabled_reasons.each do |reason| %>

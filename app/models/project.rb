@@ -258,7 +258,8 @@ class Project < ApplicationRecord
       { key: :banner, label: "Upload a banner image for your project", passed: banner.attached? },
       { key: :devlog, label: "Post at least one devlog since your last ship", passed: has_devlog_since_last_ship? },
       { key: :payout, label: "Wait for your previous ship's to get a payout", passed: previous_ship_event_has_payout? },
-      { key: :vote_balance, label: "Your vote balance is negative", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 }
+      { key: :vote_balance, label: "Your vote balance is negative", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
+      { key: :project_isnt_rejected, label: "Your project is not approved!", passed: last_ship_event&.certification_status != "rejected" }
     ]
   end
 
