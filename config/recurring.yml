@@ -75,6 +75,13 @@ production:
     concurrency: 1
     description: "Refresh carousel prizes cache for landing page"
 
+  cache_sitemap:
+    class: Cache::SitemapJob
+    args: [{ force: true }]
+    schedule: every hour
+    concurrency: 1
+    description: "Refresh sitemap XML cache"
+
   sync_git_commits:
     class: GitCommitSyncJob
     schedule: every hour

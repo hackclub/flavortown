@@ -1,1 +1,31 @@
 # See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+
+User-agent: *
+
+# Admin & internal
+Disallow: /admin/
+Disallow: /helper/
+Disallow: /internal/
+
+# Auth & sessions
+Disallow: /auth/
+Disallow: /oauth/
+Disallow: /magic_links/
+Disallow: /login
+Disallow: /start/
+
+# User-private pages
+Disallow: /my/
+Disallow: /queue
+Disallow: /votes/
+
+# Infrastructure
+Disallow: /rails/
+Disallow: /insights
+Disallow: /up
+Disallow: /webhooks/
+
+# API
+Disallow: /api/
+
+Sitemap: https://flavortown.hackclub.com/sitemap.xml
