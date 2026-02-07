@@ -1,12 +1,22 @@
-header "New report"
-section "Project #{report.project_id} was reported by user #{report.reporter_id} - Type: #{report.reason} "
+header "New Project Report"
 
-divider 
-section "Reason: #{report.details}"
+section "*<https://flavortown.hackclub.com/projects/#{report.project.id}|#{report.project.title}>* was reported", markdown: true
+
+section "Report Details:",
+  fields: [
+    mrkdwn_text("*Reporter:* <https://flavortown.hackclub.com/users/#{report.reporter.id}|#{report.reporter.display_name}>"),
+    mrkdwn_text("*Reason:* #{report.reason.humanize}"),
+    mrkdwn_text("*Project Owner:* #{report.project.memberships.owner.first&.user&.display_name || 'Unknown'}")
+  ]
+
+divider
+
+section "*Details:*\n#{report.details}", markdown: true
+
 divider
 
 actions [
-  button("On da platform", "view_report", url: "https://flavortown.hackclub.com/admin/reports/#{report.id}"),
-  button("Reporter", "u_view_report", url: "https://flavortown.hackclub.com/users/#{report.reporter_id}"),
-  button("Project", "p_view_report", url: "https://flavortown.hackclub.com/projects/#{report.project_id}"),
+  button("Review Report", "view_report", url: "https://flavortown.hackclub.com/admin/reports/#{report.id}"),
+  button("View Reporter", "u_view_report", url: "https://flavortown.hackclub.com/users/#{report.reporter.id}"),
+  button("View Project", "p_view_report", url: "https://flavortown.hackclub.com/projects/#{report.project.id}")
 ]
