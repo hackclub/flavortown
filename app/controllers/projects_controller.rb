@@ -333,20 +333,6 @@ class ProjectsController < ApplicationController
     end
   end
 
-  def confirm_recertification
-    @project = Project.find(params[:id])
-    authorize @project
-
-    ship_event = ShipCertService.latest_ship_event(@project)
-
-    unless ship_event&.certification_status == "rejected"
-      flash[:alert] = "Re-certification can only be requested for rejected ships."
-      redirect_to @project and return
-    end
-
-    render :confirm_recertification
-  end
-
   def request_recertification
     @project = Project.find(params[:id])
     authorize @project

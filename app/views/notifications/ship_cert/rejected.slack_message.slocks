@@ -15,8 +15,3 @@ divider
 context [
   mrkdwn_text("Don't give up! Review the feedback, make improvements, and ship again. 💪")
 ]
-
-actions [
-  button("View Project", "view_project", url: "https://flavortown.hackclub.com/projects/#{project.id}"),
-  button("Request Re-Certification", "request_recert", url: "https://flavortown.hackclub.com/projects/#{project.id}/confirm_recertification")
-]
