@@ -55,21 +55,29 @@ class Admin::ProjectsController < Admin::ApplicationController
     @project = Project.unscoped.find(params[:id])
 
     reason = params[:reason].presence
-
-    # Issue minimum payout if no payout exists for latest ship
-    ship = @project.ship_events.first
     issued_min_payout = false
-    if ship.present? && ship.ledger_entries.none?
-      hours = ship.hours
-      amount = (hours * game_constants.lowerst_dollar_per_hour * game_constants.tickets_per_dollar).round
-      if amount > 0
-        Payout.create!(amount: amount, payable: ship, user: @project.user, reason: "Minimum payout (shadow banned)", escrowed: false)
-        issued_min_payout = true
+
+    ActiveRecord::Base.transaction do
+      # Issue minimum payout if no payout exists for latest ship
+      ship = @project.ship_events.order(:created_at).last
+      if ship.present? && ship.payouts.none?
+        hours = ship.hours_covered
+        min_multiplier = 1.0
+        amount = (min_multiplier * hours).ceil
+        if amount > 0
+          Payout.create!(
+            amount: amount,
+            payable: ship,
+            user: @project.user,
+            reason: "Minimum payout (shadow banned)",
+            escrowed: false
+          )
+          issued_min_payout = true
+        end
       end
+
+      @project.shadow_ban!(reason: reason)
     end
-
-    @project.shadow_ban!(reason: reason)
-
     # Resolve all pending reports on the project
     @project.reports.pending.update_all(
       status: Project::Report.statuses[:reviewed],
