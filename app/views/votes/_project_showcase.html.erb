@@ -9,6 +9,16 @@
       <div class="votes-new__project-card-content">
           <h1><%= project.title %></h1>
           <p><%= truncate(project.description, length: 250) %></p>
+          <% if project.ai_declaration.present? %>
+            <div class="votes-new__ai-declaration">
+              <div class="votes-new__ai-declaration-header">
+                <span aria-hidden="true">🤖</span> <span>This project uses AI</span>
+              </div>
+              <div class="votes-new__ai-declaration-content">
+                <%= truncate(project.ai_declaration, length: 200) %>
+              </div>
+            </div>
+          <% end %>
           <div class="votes-new__project-card-stats">
               <div class="votes-new__project-card-stat">
                   <%= inline_svg_tag "icons/paper.svg" %>
