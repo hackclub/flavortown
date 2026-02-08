@@ -1,3 +1,4 @@
+<% content_for :title, "User #{@user.display_name}" %>
 <h1>User #<%= @user.id %>, <%= @user.display_name %></h1>
 
 <% if @user.banned? %>

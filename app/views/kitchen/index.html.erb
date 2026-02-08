@@ -46,7 +46,8 @@
     <% end %>
   </div>
 
-  <% if @show_welcome_overlay %>
+<% content_for :title, "Kitchen" %>
+<% if @show_welcome_overlay %>
     <div class="dialogue-box-container"
          data-controller="kitchen-dialogue"
          data-kitchen-dialogue-show-hackatime-tutorial-value="<%= @show_hackatime_tutorial %>"
