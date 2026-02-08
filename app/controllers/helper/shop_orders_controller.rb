@@ -12,7 +12,7 @@ module Helper
 
       if params[:user_search].present?
         s = "%#{ActiveRecord::Base.sanitize_sql_like(params[:user_search])}%"
-        o = o.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.slack ILIKE ?", s, s, s)
+        o = o.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.slack_id ILIKE ?", s, s, s)
       end
 
       @pagy, @orders = pagy(:offset, o.order(created_at: :desc))
