@@ -19,11 +19,11 @@
     <% balance = current_user.vote_balance %>
     <% if balance < 0 %>
       <p class="votes-new__balance-text votes-new__balance-text--negative">
-        ⚠ You need <%= balance.abs %> more votes to unlock payouts for your projects
+        ⚠ You need <%= balance.abs %> more <%= pluralize(balance.abs,"vote") %> to unlock payouts for your projects
       </p>
     <% elsif balance > 0 %>
       <p class="votes-new__balance-text votes-new__balance-text--positive">
-        ✓ You're <%= balance %> votes ahead, so you only need <%= 15 - balance %> more votes for your next payout.
+        ✓ You're <%= balance %> votes ahead, so you only need <%= 15 - balance %> more  <%= pluralize(15 - balance,"vote") %> for your next payout.
       </p>
     <% end %>
 
