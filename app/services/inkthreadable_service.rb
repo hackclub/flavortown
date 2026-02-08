@@ -56,7 +56,7 @@ module InkthreadableService
     end
 
     def generate_signature(request_body)
-      Digest::SHA1.hexdigest("#{request_body}#{secret_key}")
+      OpenSSL::HMAC.hexdigest("SHA256", secret_key, request_body)
     end
   end
 end
