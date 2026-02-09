@@ -272,6 +272,12 @@ Rails.application.routes.draw do
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
     get "suspicious_votes", to: "suspicious_votes#index"
+    resources :recommendations_dashboard, only: [ :index ] do
+      collection do
+        post :refresh_all
+        post :clear_cache
+      end
+    end
     resources :support_vibes, only: [ :index, :create ]
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do

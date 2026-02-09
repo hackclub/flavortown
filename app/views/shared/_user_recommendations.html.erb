@@ -1,3 +1,9 @@
+<% if Flipper.enabled?(:user_recommendations, current_user) %>
+  flippy
+<% else %>
+  weh
+<% end %>
+
 <% return unless Flipper.enabled?(:user_recommendations, current_user) %>
 <% return unless current_user.present? %>
 

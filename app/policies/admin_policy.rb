@@ -106,4 +106,8 @@ class AdminPolicy < ApplicationPolicy
   def access_support_vibes?
     user.admin?
   end
+
+  def access_recommendations_dashboard?
+    user.admin?
+  end
 end
