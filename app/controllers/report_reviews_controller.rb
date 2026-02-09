@@ -13,7 +13,7 @@ class ReportReviewsController < ApplicationController
   private
 
   def ensure_logged_in
-    return redirect_to "/?login=1", alert: "You must be logged in to review reports" unless current_user
+    redirect_to "/?login=1", alert: "You must be logged in to review reports" unless current_user
   end
 
   def find_token
@@ -24,7 +24,7 @@ class ReportReviewsController < ApplicationController
     end
 
     unless @token.action.to_s == action_name.to_s
-      return redirect_to root_path, alert: "Invalid review token action"
+      redirect_to root_path, alert: "Invalid review token action"
     end
   end
 
