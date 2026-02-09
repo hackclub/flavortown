@@ -1,20 +1,73 @@
 <div class="explore__nav">
-  <%= link_to explore_index_path, class: "explore__nav-component #{'selected' if current_page?(explore_index_path)}" do %>
-    <%= inline_svg "icons/globe2.svg" %>
-    Devlogs
-  <% end %>
-  <%= link_to explore_gallery_path, class: "explore__nav-component #{'selected' if current_page?(explore_gallery_path)}" do %>
-    <%= inline_svg "icons/globe2.svg" %>
-    Gallery
-  <% end %>
-  <%= link_to explore_extensions_path, class: "explore__nav-component #{'selected' if current_page?(explore_extensions_path)}" do %>
-    <%= inline_svg "icons/globe2.svg" %>
-    Extensions
-  <% end %>
-  <% if current_user %>
-    <%= link_to explore_following_path, class: "explore__nav-component #{'selected' if current_page?(explore_following_path)}" do %>
-      <%= inline_svg "icons/globe2.svg" %>
-      Following
+  <div class="explore__nav--type explore__nav--desktop">
+    <%= link_to explore_index_path, class: "explore__nav-component #{'selected' if current_page?(explore_index_path)}" do %>
+      <%= inline_svg "icons/paper.svg" %>
+      Devlogs
     <% end %>
+    <%= link_to explore_gallery_path, class: "explore__nav-component #{'selected' if current_page?(explore_gallery_path)}" do %>
+      <%= inline_svg "icons/ship.svg" %>
+      Gallery
+    <% end %>
+    <%= link_to explore_extensions_path, class: "explore__nav-component #{'selected' if current_page?(explore_extensions_path)}" do %>
+      <%= inline_svg "icons/globe2.svg" %>
+      Extensions
+    <% end %>
+  </div>
+  <div class="explore__nav--type explore__nav--mobile">
+    <%= render DropdownComponent.new(
+      label: "Section",
+      options: [
+        { label: "Devlogs", value: explore_index_path },
+        { label: "Gallery", value: explore_gallery_path },
+        { label: "Extensions", value: explore_extensions_path }
+      ],
+      selected_option: (
+        if current_page?(explore_index_path)
+          "Devlogs"
+        elsif current_page?(explore_gallery_path)
+          "Gallery"
+        elsif current_page?(explore_extensions_path)
+          "Extensions"
+        else
+          "Devlogs"
+        end
+      ),
+      longest_option_string: "Extensions",
+      color: :brown
+    ) %>
+  </div>
+  <% unless current_page?(explore_extensions_path) %>
+    <div class="explore__nav--sort">
+      <%
+        base_path = request.path
+        sort_options = [
+          { label: "Newest", value: "#{base_path}?sort=newest" },
+          { label: "Top", value: "#{base_path}?sort=top" }
+        ]
+
+        if current_user
+          sort_options << { label: "Following", value: "#{base_path}?sort=following" }
+        end
+
+        selected_label = case params[:sort]
+                         when "top" then "Top"
+                         when "following" then "Following"
+                         else "Newest"
+                         end
+
+        sort_color = case selected_label
+                     when "Top" then :red
+                     when "Following" then :blue
+                     else :green
+                     end
+      %>
+      <%= render DropdownComponent.new(
+        label: "Sort",
+        options: sort_options,
+        selected_option: selected_label,
+        longest_option_string: "Following",
+        color: sort_color
+      ) %>
+    </div>
   <% end %>
 </div>

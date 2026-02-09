@@ -1,3 +1,4 @@
+<% content_for :title, "README" %>
 <%= turbo_frame_tag "project-readme-frame-#{@project.id}" do %>
   <div class="readme-markdown-content">
     <% if @readme_error.present? %>

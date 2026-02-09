@@ -1,3 +1,4 @@
+<% content_for :title, "User #{@user.display_name}" %>
 <h1>User #<%= @user.id %>, <%= @user.display_name %></h1>
 
 <% if @user.banned? %>
@@ -8,6 +9,18 @@
     <% end %>
     <% if @user.banned_at.present? %>
       <br>Banned at: <%= @user.banned_at.strftime("%Y-%m-%d %H:%M") %>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @user.shadow_banned? %>
+  <div class="alert alert--danger" style="margin-bottom: 1rem;">
+    <strong>👻 This user is shadow banned</strong>
+    <% if @user.shadow_banned_reason.present? %>
+      <br>Reason: <%= @user.shadow_banned_reason %>
+    <% end %>
+    <% if @user.shadow_banned_at.present? %>
+      <br>Shadow banned at: <%= @user.shadow_banned_at.strftime("%Y-%m-%d %H:%M") %>
     <% end %>
   </div>
 <% end %>
@@ -83,7 +96,7 @@
 
           <% if identity.provider == "hackatime" %>
             <%= link_to "go to billy", "https://billy.3kh0.net/?u=#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
-            <%= link_to "go to joe", "https://dash.fraud.land/profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
+            <%= link_to "go to joe", "https://joe.fraud.hackclub.com/profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
 
             <% if identity.provider == "hack_club" %>

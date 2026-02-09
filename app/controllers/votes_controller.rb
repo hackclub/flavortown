@@ -71,6 +71,11 @@ class VotesController < ApplicationController
   private
 
   def check_voting_enabled
+    if current_user&.voting_locked?
+      redirect_to root_path, alert: "Your voting has been locked temporarily. Please contact @Fraud Squad for more information."
+      return
+    end
+
     return if current_user && Flipper.enabled?(:voting, current_user)
 
     redirect_to root_path, alert: "Voting is currently disabled."

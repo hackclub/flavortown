@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= content_for?(:title) ? "#{strip_tags(yield(:title))} - Flavortown" : "Flavortown - Hack Club" %></title>
+    <title><%= content_for?(:title) ? "Flavortown - #{strip_tags(yield(:title))}" : "Flavortown" %></title>
     <%= favicon_link_tag 'favicon.ico' %>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,7 +12,7 @@
     <meta property="og:locale" content="en_US">
     <meta property="og:site_name" content="Flavortown - Hack Club">
 
-    <% og_title = content_for?(:og_title) ? yield(:og_title) : (content_for?(:title) ? "#{yield(:title)} - Flavortown" : "Flavortown - Hack Club") %>
+    <% og_title = content_for?(:og_title) ? yield(:og_title) : (content_for?(:title) ? "Flavortown - #{yield(:title)}" : "Flavortown") %>
     <% og_description = content_for?(:og_description) ? yield(:og_description) : "Build projects, earn cookies, get prizes. A Hack Club program for teen coders." %>
     <% og_image = content_for?(:og_image) ? yield(:og_image) : image_url("landing/hero/long-image.avif") %>
     <% og_url = content_for?(:og_url) ? yield(:og_url) : request.original_url %>

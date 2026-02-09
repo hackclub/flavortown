@@ -5,6 +5,9 @@ module Admin
     def index
       authorize :admin, :access_reports?
 
+      @time_range = params[:time_range] || "7_days"
+      @limit = params[:limit] || "10"
+
       @reports = Project::Report.includes(:reporter, :project).order(created_at: :desc)
       unless params[:show_demo_broken]
           @reports = @reports.where.not(reason: "demo_broken")
@@ -12,6 +15,7 @@ module Admin
 
       @reports = @reports.where(status: params[:status]) if params[:status].present?
       @reports = @reports.where(reason: params[:reason]) if params[:reason].present?
+      @reports = @reports.where(reporter_id: params[:reporter_id]) if params[:reporter_id].present?
 
       @counts = {
         pending: Project::Report.pending.count,
