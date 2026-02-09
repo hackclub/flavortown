@@ -128,6 +128,7 @@ Rails.application.routes.draw do
   post "my/cookie_click", to: "my#cookie_click", as: :my_cookie_click
   post "my/dismiss_thing", to: "my#dismiss_thing", as: :dismiss_thing
   get "my/achievements", to: "achievements#index", as: :my_achievements
+  post "my/refresh_recommendations", to: "my#refresh_recommendations", as: :refresh_recommendations
 
   # Magic Links
   post "magic_links", to: "magic_links#create"
