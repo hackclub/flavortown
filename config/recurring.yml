@@ -116,3 +116,9 @@ production:
     schedule: every 15 minutes
     concurrency: 1
     description: "Sync completed YSWS reviews to Airtable with user PII"
+
+  generate_project_recommendations:
+    class: ProjectRecommendationsJob
+    schedule: every 6 hours
+    concurrency: 1
+    description: "Generate collaborative and content-based project recommendations for users and projects"
