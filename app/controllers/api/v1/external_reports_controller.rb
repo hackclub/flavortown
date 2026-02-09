@@ -3,9 +3,17 @@ class Api::V1::ExternalReportsController < Api::BaseController
   before_action :auth_review_key
 
   def create
-    project = Project.find(params[:project_id])
+    project = Project.find_by(id: params[:project_id])
+    unless project
+      render json: { error: "Project not found" }, status: :not_found
+      return
+    end
 
-    existing_report = Project::Report.find_by(project: project, reason: "fraud")
+    reported_by = params[:reported_by].presence || params[:reportedBy].presence
+    reason = params[:reason].presence || "External flag"
+    reporter_id = normalize_reporter_id(reported_by)
+
+    existing_report = Project::Report.find_by(project: project, reason: reason)
     if existing_report
       render json: serialize(existing_report), status: :ok
       return
@@ -13,8 +21,8 @@ class Api::V1::ExternalReportsController < Api::BaseController
 
     report = Project::Report.new(
       project: project,
-      reporter_id: 1734, # avd
-      reason: "fraud",
+      reporter_id: reporter_id,
+      reason: reason,
       details: params[:details].presence || "Flagged for fraud review via review.hackclub.com"
     )
 
@@ -44,5 +52,13 @@ class Api::V1::ExternalReportsController < Api::BaseController
       status: report.status,
       created_at: report.created_at
     }
+  end
+
+  def normalize_reporter_id(reported_by)
+    return 1734 if reported_by.blank?
+
+    Integer(reported_by, 10)
+  rescue ArgumentError, TypeError
+    1734
   end
 end

@@ -168,6 +168,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
           .exists?([ "post_git_commits.message ~* ?", '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+' ])
       },
       visibility: :secret
+    ),
+    new(
+      slug: :sidequest_extension,
+      name: "Sidequest: Extensions",
+      description: "Shipped a project for the Extensions sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "extension" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
     )
   ].freeze
 

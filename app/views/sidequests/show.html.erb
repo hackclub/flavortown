@@ -1,0 +1,33 @@
+<% content_for :title, @sidequest.title %>
+<% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
+<% content_for :og_image, og_image_url('sidequests', format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+
+<%= render HeadingComponent.new(title: @sidequest.title, tone: :blue, size: :full) %>
+
+<div class="sidequest-show">
+  <div class="sidequest-show__content">
+    <% if @sidequest.description.present? %>
+      <p class="sidequest-show__description"><%= @sidequest.description %></p>
+    <% end %>
+
+    <% if @sidequest.expires_at.present? %>
+      <p class="sidequest-show__expires">
+        <% if @sidequest.expires_at > Time.current %>
+          Ends <%= @sidequest.expires_at.strftime("%B %d, %Y") %>
+        <% else %>
+          Ended <%= @sidequest.expires_at.strftime("%B %d, %Y") %>
+        <% end %>
+      </p>
+    <% end %>
+
+    <div class="sidequest-show__actions">
+      <%= render ButtonComponent.new(
+            text: "← Back to Sidequests",
+            href: sidequests_path,
+            color: :brown,
+            variant: :borderless
+          ) %>
+    </div>
+  </div>
+</div>

@@ -3,6 +3,8 @@
 <% content_for :og_image, og_image_url('gallery', format: :png) %>
 
 <div class="explore" data-controller="load-more" data-load-more-url-value="<%= explore_gallery_path %>">
+    <%= render HeadingComponent.new(title: "Explore", tone: :blue, size: :full) %>
+
     <%= render "explore/explore_nav" %>
 
     <div id="project-list" class="explore__projects-list" data-load-more-target="entries">

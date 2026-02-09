@@ -50,7 +50,7 @@ module Admin
       when "index"
         # Allow access to index so controller can redirect to fulfillment view if needed
         true
-      when "show", "reveal_address", "mark_fulfilled", "update_internal_notes"
+      when "show", "reveal_address", "mark_fulfilled", "update_internal_notes", "assign_user", "reject"
         true
       else
         false

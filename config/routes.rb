@@ -66,6 +66,10 @@ Rails.application.routes.draw do
   post "shop/order", to: "shop#create_order"
   patch "shop/update_region", to: "shop#update_region"
 
+  # Report Reviews
+  get "report-reviews/review/:token", to: "report_reviews#review", as: :review_report_token
+  get "report-reviews/dismiss/:token", to: "report_reviews#dismiss", as: :dismiss_report_token
+
   # Voting
   resources :votes, only: [ :new, :create, :index ]
 
@@ -77,7 +81,7 @@ Rails.application.routes.draw do
 
   # Nibbles
   get "nibbles", to: "nibbles#index", as: :nibbles
-
+  resources :sidequests, only: [ :index, :show ]
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
@@ -176,6 +180,7 @@ Rails.application.routes.draw do
       end
     end
     resources :shop_orders, only: [ :index, :show ]
+    resources :support_vibes, only: [ :index ]
   end
 
   # admin shallow routing
@@ -210,6 +215,7 @@ Rails.application.routes.draw do
          post :impersonate
          post :refresh_verification
          get  :votes
+         post :toggle_voting_lock
        end
        collection do
          post :stop_impersonating
@@ -257,11 +263,19 @@ Rails.application.routes.draw do
         post :dismiss
       end
     end
+    resources :sidequest_entries, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+    end
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
     get "voting_dashboard", to: "voting_dashboard#index"
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    get "suspicious_votes", to: "suspicious_votes#index"
+    resources :support_vibes, only: [ :index, :create ]
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
@@ -304,6 +318,7 @@ Rails.application.routes.draw do
       post :follow
       delete :unfollow
       post :resend_webhook
+      get :confirm_recertification
       post :request_recertification
     end
   end

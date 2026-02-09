@@ -12,7 +12,9 @@ export default class extends Controller {
   }
 
   disconnect() {
-    this.element.removeEventListener("click", this._boundBackdropClick);
+    if (!this.hasTargetValue) {
+      this.element.removeEventListener("click", this._boundBackdropClick);
+    }
   }
 
   open() {

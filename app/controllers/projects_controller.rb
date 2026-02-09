@@ -234,6 +234,14 @@ class ProjectsController < ApplicationController
         Project::PostToMagicJob.perform_later(@project)
         Project::MagicHappeningLetterJob.perform_later(@project)
 
+        @project.users.each do |user|
+          SendSlackDmJob.perform_later(
+            user.slack_id,
+            blocks_path: "notifications/projects/well_cooked",
+            locals: { project: @project }
+          )
+        end
+
         render json: { message: "Project marked as 🔥!", fire: true }, status: :ok
       else
         errors = (post.errors.full_messages + fire_event.errors.full_messages).uniq
@@ -331,6 +339,20 @@ class ProjectsController < ApplicationController
         render json: { message: "Failed to resend webhook" }, status: :unprocessable_entity
       end
     end
+  end
+
+  def confirm_recertification
+    @project = Project.find(params[:id])
+    authorize @project
+
+    ship_event = ShipCertService.latest_ship_event(@project)
+
+    unless ship_event&.certification_status == "rejected"
+      flash[:alert] = "Re-certification can only be requested for rejected ships."
+      redirect_to @project and return
+    end
+
+    render :confirm_recertification
   end
 
   def request_recertification
@@ -453,6 +475,8 @@ class ProjectsController < ApplicationController
     npmjs.com
     crates.io
     curseforge.com
+    makerworld.com
+    streamlit.app
   ].freeze
 
   def validate_url_not_dead(attribute, name)
