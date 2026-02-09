@@ -1,10 +1,19 @@
 <%
-  # Get report action stats from PaperTrail versions in the last 7 days
-  recent_versions = PaperTrail::Version
+  # Get report action stats from PaperTrail versions
+  time_range = local_assigns[:time_range] || '7_days'
+  limit = local_assigns[:limit]&.to_i || 10
+
+  # Build query based on time range
+  versions_query = PaperTrail::Version
     .where(item_type: "Project::Report")
-    .where("created_at >= ?", 7.days.ago)
     .where.not(whodunnit: nil)
     .where("object_changes ? 'status'")
+
+  if time_range == '7_days'
+    versions_query = versions_query.where("created_at >= ?", 7.days.ago)
+  end
+
+  recent_versions = versions_query
 
   # Group by user and count actions by type
   action_counts = recent_versions.each_with_object(Hash.new { |h, k| h[k] = { reviewed: 0, dismissed: 0, total: 0 } }) do |version, counts|
@@ -26,14 +35,34 @@
     counts[user_id][:total] += 1
   end
 
-  # Sort by total and take top 10
-  top_users = action_counts.sort_by { |_, v| -v[:total] }.first(10)
+  # Sort by total and take top users based on limit (nil means show all)
+  sorted_users = action_counts.sort_by { |_, v| -v[:total] }
+  top_users = limit.nil? ? sorted_users : sorted_users.first(limit)
   user_ids = top_users.map(&:first)
   users_by_id = User.where(id: user_ids).index_by(&:id)
+
+  limit_options = [10, nil]
 %>
 
 <div class="card action-leaderboard">
-  <h3>🏆 Action Leaderboard <small style="color: #666; font-weight: normal;">(7 days)</small></h3>
+  <div class="action-leaderboard__header">
+    <h3>
+      🕵️ Fraud Team Leaderboard
+      <small style="color: #666; font-weight: normal;">(<%= time_range == '7_days' ? '7 days' : 'all time' %>)</small>
+    </h3>
+    <div class="action-leaderboard__toggle">
+      <%= link_to "7 days", admin_reports_path(time_range: '7_days', limit: limit),
+          class: "btn-#{time_range == '7_days' ? 'primary' : 'secondary'} slim" %>
+      <%= link_to "All time", admin_reports_path(time_range: 'all_time', limit: limit),
+          class: "btn-#{time_range == 'all_time' ? 'primary' : 'secondary'} slim" %>
+    </div>
+    <div class="action-leaderboard__limit-toggle">
+      <%= link_to "Top 10", admin_reports_path(time_range: time_range, limit: 10),
+          class: "btn-#{limit == 10 ? 'primary' : 'secondary'} slim" %>
+      <%= link_to "All", admin_reports_path(time_range: time_range, limit: nil),
+          class: "btn-#{limit.nil? ? 'primary' : 'secondary'} slim" %>
+    </div>
+  </div>
 
   <% if top_users.any? %>
     <table class="leaderboard-table">
@@ -72,7 +101,7 @@
       </tbody>
     </table>
   <% else %>
-    <p class="text-muted">No report actions in the last 7 days.</p>
+    <p class="text-muted">No report actions <%= time_range == '7_days' ? 'in the last 7 days' : 'recorded' %>.</p>
   <% end %>
 </div>
 
@@ -135,5 +164,42 @@
 
   .text-muted {
     color: #6b7280;
+  }
+
+  .action-leaderboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1em;
+    gap: 1em;
+  }
+
+  .action-leaderboard__header h3 {
+    margin: 0;
+    flex: 1;
+  }
+
+  .action-leaderboard__toggle {
+    display: flex;
+    gap: 0.5em;
+    flex-shrink: 0;
+  }
+
+  .action-leaderboard__toggle .btn-primary,
+  .action-leaderboard__toggle .btn-secondary {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .action-leaderboard__limit-toggle {
+    display: flex;
+    gap: 0.5em;
+    margin-top: 0.5em;
+  }
+
+  .action-leaderboard__limit-toggle .btn-primary,
+  .action-leaderboard__limit-toggle .btn-secondary {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
   }
 </style>

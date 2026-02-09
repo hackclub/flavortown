@@ -19,7 +19,7 @@
   </div>
   </div>
 
-  <%= render partial: "action_leaderboard" %>
+  <%= render partial: "action_leaderboard", locals: { time_range: @time_range, limit: @limit } %>
 </div>
 
 <div class="card" style="margin-bottom: 2rem;">
