@@ -12,6 +12,7 @@ module Admin
 
       @reports = @reports.where(status: params[:status]) if params[:status].present?
       @reports = @reports.where(reason: params[:reason]) if params[:reason].present?
+      @reports = @reports.where(reporter_id: params[:reporter_id]) if params[:reporter_id].present?
 
       @counts = {
         pending: Project::Report.pending.count,
