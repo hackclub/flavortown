@@ -5,6 +5,9 @@ module Admin
     def index
       authorize :admin, :access_reports?
 
+      @time_range = params[:time_range] || "7_days"
+      @limit = params[:limit] || "10"
+
       @reports = Project::Report.includes(:reporter, :project).order(created_at: :desc)
       unless params[:show_demo_broken]
           @reports = @reports.where.not(reason: "demo_broken")
