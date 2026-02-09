@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_05_182813) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_09_032126) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -413,6 +413,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_05_182813) do
     t.index ["shadow_banned"], name: "index_projects_on_shadow_banned"
   end
 
+  create_table "report_review_tokens", force: :cascade do |t|
+    t.string "action", null: false
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.bigint "report_id", null: false
+    t.string "token", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "used_at"
+    t.index ["report_id", "action"], name: "index_report_review_tokens_on_report_id_and_action", unique: true
+    t.index ["report_id"], name: "index_report_review_tokens_on_report_id"
+    t.index ["token"], name: "index_report_review_tokens_on_token", unique: true
+  end
+
   create_table "rsvps", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
@@ -743,6 +756,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_05_182813) do
   add_foreign_key "project_reports", "projects"
   add_foreign_key "project_reports", "users", column: "reporter_id"
   add_foreign_key "projects", "users", column: "marked_fire_by_id"
+  add_foreign_key "report_review_tokens", "project_reports", column: "report_id"
   add_foreign_key "shop_card_grants", "shop_items"
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
