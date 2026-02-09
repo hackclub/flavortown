@@ -13,13 +13,18 @@ class ReportReviewsController < ApplicationController
   private
 
   def ensure_logged_in
-    redirect_to "/?login=1", alert: "You must be logged in to review reports" unless current_user
+    return redirect_to "/?login=1", alert: "You must be logged in to review reports" unless current_user
   end
 
   def find_token
-    @token = Report::ReviewToken.find_by(token: params[:token])
-    unless @token&.valid?
-      redirect_to root_path, alert: "Invalid or expired review token"
+    @token = Report::ReviewToken.pending.find_by(token: params[:token])
+
+    unless @token
+      return redirect_to root_path, alert: "Invalid or expired review token"
+    end
+
+    unless @token.action.to_s == action_name.to_s
+      return redirect_to root_path, alert: "Invalid review token action"
     end
   end
 
