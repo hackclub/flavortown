@@ -74,6 +74,10 @@
         <% next %>
       <% end %>
 
+      <% if route.defaults[:controller] == "api/v1/external_reports" %>
+        <% next %>
+      <% end %>
+
       <div class="card">
         <div class="content">
           <h2><%= route.verb %> <%= route.path.spec.to_s.gsub("(.:format)", "") %></h2>

@@ -1,10 +1,20 @@
 <%
-  # Get order action stats from PaperTrail versions in the last 7 days
-  recent_versions = PaperTrail::Version
+  # Get order action stats from PaperTrail versions
+  # Mode can be :fraud (approvals/rejections) or :fulfillment (fulfilled orders)
+  mode = local_assigns[:mode] || :combined
+  time_range = local_assigns[:time_range] || '7_days'
+
+  # Build query based on time range
+  versions_query = PaperTrail::Version
     .where(item_type: "ShopOrder")
-    .where("created_at >= ?", 7.days.ago)
     .where.not(whodunnit: nil)
     .where("object_changes ? 'aasm_state'")
+
+  if time_range == '7_days'
+    versions_query = versions_query.where("created_at >= ?", 7.days.ago)
+  end
+
+  recent_versions = versions_query
 
   # Group by user and count actions by type
   action_counts = recent_versions.each_with_object(Hash.new { |h, k| h[k] = { approved: 0, rejected: 0, on_hold: 0, fulfilled: 0, total: 0 } }) do |version, counts|
@@ -20,24 +30,66 @@
     case new_state
     when "awaiting_periodical_fulfillment"
       counts[user_id][:approved] += 1
+      counts[user_id][:total] += 1
     when "rejected"
       counts[user_id][:rejected] += 1
+      counts[user_id][:total] += 1
     when "on_hold"
       counts[user_id][:on_hold] += 1
+      counts[user_id][:total] += 1
     when "fulfilled"
       counts[user_id][:fulfilled] += 1
+      counts[user_id][:total] += 1
     end
-    counts[user_id][:total] += 1
+  end
+
+  # Filter by mode
+  filtered_counts = case mode
+  when :fraud
+    action_counts.transform_values do |stats|
+      {
+        approved: stats[:approved],
+        rejected: stats[:rejected],
+        on_hold: stats[:on_hold],
+        total: stats[:approved] + stats[:rejected] + stats[:on_hold]
+      }
+    end.select { |_, stats| stats[:total] > 0 }
+  when :fulfillment
+    action_counts.transform_values do |stats|
+      {
+        fulfilled: stats[:fulfilled],
+        total: stats[:fulfilled]
+      }
+    end.select { |_, stats| stats[:total] > 0 }
+  else
+    action_counts
   end
 
   # Sort by total and take top 10
-  top_users = action_counts.sort_by { |_, v| -v[:total] }.first(10)
+  top_users = filtered_counts.sort_by { |_, v| -v[:total] }.first(10)
   user_ids = top_users.map(&:first)
   users_by_id = User.where(id: user_ids).index_by(&:id)
 %>
 
 <div class="card action-leaderboard">
-  <h3>🏆 Action Leaderboard <small style="color: #666; font-weight: normal;">(7 days)</small></h3>
+  <div class="action-leaderboard__header">
+    <h3>
+      <% if mode == :fraud %>
+        🕵️ Fraud Team Leaderboard
+      <% elsif mode == :fulfillment %>
+        📦 Fulfillment Team Leaderboard
+      <% else %>
+        🏆 Action Leaderboard
+      <% end %>
+      <small style="color: #666; font-weight: normal;">(<%= time_range == '7_days' ? '7 days' : 'all time' %>)</small>
+    </h3>
+    <div class="action-leaderboard__toggle">
+      <%= link_to "7 days", admin_shop_orders_path(view: @view, time_range: '7_days'),
+          class: "btn-#{time_range == '7_days' ? 'primary' : 'secondary'} slim" %>
+      <%= link_to "All time", admin_shop_orders_path(view: @view, time_range: 'all_time'),
+          class: "btn-#{time_range == 'all_time' ? 'primary' : 'secondary'} slim" %>
+    </div>
+  </div>
 
   <% if top_users.any? %>
     <table class="leaderboard-table">
@@ -45,10 +97,14 @@
         <tr>
           <th>#</th>
           <th>User</th>
-          <th title="Approved">✓</th>
-          <th title="Rejected">✗</th>
-          <th title="On Hold">⏸</th>
-          <th title="Fulfilled">📦</th>
+          <% if mode == :fraud || mode == :combined %>
+            <th title="Approved">✓</th>
+            <th title="Rejected">✗</th>
+            <th title="On Hold">⏸</th>
+          <% end %>
+          <% if mode == :fulfillment || mode == :combined %>
+            <th title="Fulfilled">📦</th>
+          <% end %>
           <th>Total</th>
         </tr>
       </thead>
@@ -70,17 +126,21 @@
                 <span class="text-muted">User #<%= user_id %></span>
               <% end %>
             </td>
-            <td class="stat stat-approved"><%= stats[:approved] %></td>
-            <td class="stat stat-rejected"><%= stats[:rejected] %></td>
-            <td class="stat stat-on_hold"><%= stats[:on_hold] %></td>
-            <td class="stat stat-fulfilled"><%= stats[:fulfilled] %></td>
+            <% if mode == :fraud || mode == :combined %>
+              <td class="stat stat-approved"><%= stats[:approved] %></td>
+              <td class="stat stat-rejected"><%= stats[:rejected] %></td>
+              <td class="stat stat-on_hold"><%= stats[:on_hold] %></td>
+            <% end %>
+            <% if mode == :fulfillment || mode == :combined %>
+              <td class="stat stat-fulfilled"><%= stats[:fulfilled] %></td>
+            <% end %>
             <td class="stat stat-total"><%= stats[:total] %></td>
           </tr>
         <% end %>
       </tbody>
     </table>
   <% else %>
-    <p class="text-muted">No order actions in the last 7 days.</p>
+    <p class="text-muted">No order actions <%= time_range == '7_days' ? 'in the last 7 days' : 'recorded' %>.</p>
   <% end %>
 </div>
 
@@ -89,9 +149,29 @@
     max-width: 400px;
   }
 
-  .action-leaderboard h3 {
-    margin-top: 0;
+  .action-leaderboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: 1em;
+    gap: 1em;
+  }
+
+  .action-leaderboard h3 {
+    margin: 0;
+    flex: 1;
+  }
+
+  .action-leaderboard__toggle {
+    display: flex;
+    gap: 0.5em;
+    flex-shrink: 0;
+  }
+
+  .action-leaderboard__toggle .btn-primary,
+  .action-leaderboard__toggle .btn-secondary {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
   }
 
   .leaderboard-table {

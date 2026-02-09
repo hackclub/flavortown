@@ -6,6 +6,7 @@ module Admin
 
     def index
       @fulfillment_type = params[:fulfillment_type] || "all"
+      @show_warehouse = params[:show_warehouse] == "true"
       @pagy, @orders = pagy(:offset, filtered_orders(@fulfillment_type))
       generate_statistics
     end
@@ -52,6 +53,10 @@ module Admin
     def filtered_orders(fulfillment_type)
       include_free_stickers = fulfillment_type == "free_stickers"
       base_scope = base_fulfillment_scope(include_associations: true, include_free_stickers: include_free_stickers)
+
+      if fulfillment_type == "all" && !@show_warehouse
+        base_scope = base_scope.where.not(shop_items: { type: [ "ShopItem::WarehouseItem", "ShopItem::PileOfStickersItem" ] })
+      end
 
       if fulfillment_type == "all" || !fulfillment_type_filters.key?(fulfillment_type)
         base_scope
@@ -138,9 +143,7 @@ module Admin
     end
 
     def ensure_authorized_user
-      unless current_user&.admin?
-        redirect_to root_path, alert: "whomp whomp"
-      end
+      authorize :admin, :access_fulfillment_dashboard?
     end
   end
 end

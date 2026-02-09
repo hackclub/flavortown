@@ -144,6 +144,74 @@
       </div>
     </div>
 
+    <div class="super-mega-dashboard__dashboard">
+      <div class="super-mega-dashboard__header super-mega-dashboard__header--ship-certs">
+        <h2>Ship Certs Overview</h2>
+        <%= link_to "View Full Dashboard →", "https://review.hackclub.com", class: "super-mega-link", target: "_blank" %>
+      </div>
+
+      <% if @ship_certs && !@ship_certs[:error] %>
+        <div class="super-mega-dashboard__cards">
+          <div class="super-mega-dashboard__card">
+            <h3>Certification Stats</h3>
+            <div class="super-mega-dashboard__stats">
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value blue"><%= number_with_delimiter(@ship_certs[:total_judged]) %></span>
+                <span class="super-mega-dashboard__stat--label">Total Judged</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value green"><%= number_with_delimiter(@ship_certs[:approved]) %></span>
+                <span class="super-mega-dashboard__stat--label">Approved</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value red"><%= number_with_delimiter(@ship_certs[:rejected]) %></span>
+                <span class="super-mega-dashboard__stat--label">Rejected</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value yellow"><%= number_with_delimiter(@ship_certs[:pending]) %></span>
+                <span class="super-mega-dashboard__stat--label">Pending</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="super-mega-dashboard__card">
+            <h3>Today's Activity</h3>
+            <div class="super-mega-dashboard__stats">
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value blue"><%= @ship_certs[:new_ships_today] %></span>
+                <span class="super-mega-dashboard__stat--label">New Ships</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value purple"><%= @ship_certs[:decisions_today] %></span>
+                <span class="super-mega-dashboard__stat--label">Decisions</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="super-mega-dashboard__card">
+            <h3>Performance</h3>
+            <div class="super-mega-dashboard__stats">
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value green"><%= @ship_certs[:approval_rate] %>%</span>
+                <span class="super-mega-dashboard__stat--label">Approval Rate</span>
+              </div>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value yellow"><%= @ship_certs[:avg_queue_time] %></span>
+                <span class="super-mega-dashboard__stat--label">Avg Queue Time</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="super-mega-dashboard__cards">
+          <div class="super-mega-dashboard__card">
+            <h3>⚠️ Service Unavailable</h3>
+            <p>Unable to fetch Ship Certs data. The service may be temporarily down.</p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
     <% if @support %>
       <div class="super-mega-dashboard__dashboard">
         <div class="super-mega-dashboard__header super-mega-dashboard__header--support">
@@ -152,76 +220,132 @@
         </div>
 
         <div class="super-mega-dashboard__cards">
+          <%
+            hang_time_color = ->(minutes) {
+              return nil if minutes.nil?
+              return "red" if minutes >= 720
+              return "orange" if minutes >= 360
+              nil
+            }
+          %>
+
           <div class="super-mega-dashboard__card">
-            <h3>All Time</h3>
+            <h3>Avg Hang Time (24h)</h3>
             <div class="super-mega-dashboard__stats">
               <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value blue"><%= number_with_delimiter(@support[:total]) %></span>
-                <span class="super-mega-dashboard__stat--label">Total</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value red"><%= @support[:open] %></span>
-                <span class="super-mega-dashboard__stat--label">Open</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value yellow"><%= @support[:in_progress] %></span>
-                <span class="super-mega-dashboard__stat--label">In Progress</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value green"><%= number_with_delimiter(@support[:closed]) %></span>
-                <span class="super-mega-dashboard__stat--label">Closed</span>
+                <span class="super-mega-dashboard__stat--value <%= hang_time_color.call(@support[:hang_24h]) %>">
+                  <%= format_seconds(@support[:hang_24h] * 60) %>
+                  <% if @support[:hang_24h_change] %>
+                    <span class="super-mega-dashboard__stat--change <%= @support[:hang_24h_change] <= 0 ? 'green' : 'red' %>">
+                      (<%= @support[:hang_24h_change] > 0 ? "+" : "" %><%= @support[:hang_24h_change] %>%)
+                    </span>
+                  <% end %>
+                </span>
+                <span class="super-mega-dashboard__stat--label">vs previous day</span>
               </div>
             </div>
           </div>
 
           <div class="super-mega-dashboard__card">
-            <h3>Last 24 Hours</h3>
+            <h3>Avg Hang Time (7d)</h3>
             <div class="super-mega-dashboard__stats">
               <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value blue"><%= @support[:prev_day][:total] %></span>
-                <span class="super-mega-dashboard__stat--label">Total</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value red"><%= @support[:prev_day][:open] %></span>
-                <span class="super-mega-dashboard__stat--label">Open</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value yellow"><%= @support[:prev_day][:in_progress] %></span>
-                <span class="super-mega-dashboard__stat--label">In Progress</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value green"><%= @support[:prev_day][:closed] %></span>
-                <span class="super-mega-dashboard__stat--label">Closed</span>
+                <span class="super-mega-dashboard__stat--value <%= hang_time_color.call(@support[:hang_7d]) %>">
+                  <%= format_seconds(@support[:hang_7d] * 60) %>
+                  <% if @support[:hang_7d_change] %>
+                    <span class="super-mega-dashboard__stat--change <%= @support[:hang_7d_change] <= 0 ? 'green' : 'red' %>">
+                      (<%= @support[:hang_7d_change] > 0 ? "+" : "" %><%= @support[:hang_7d_change] %>%)
+                    </span>
+                  <% end %>
+                </span>
+                <span class="super-mega-dashboard__stat--label">vs previous week</span>
               </div>
             </div>
           </div>
 
-          <div class="super-mega-dashboard__card">
-            <h3>Response Times</h3>
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--oldest">
+            <h3>Oldest Unanswered</h3>
             <div class="super-mega-dashboard__stats">
               <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value yellow"><%= format_minutes_as_time(@support[:avg_hang_time]) %></span>
-                <span class="super-mega-dashboard__stat--label">Avg Hang Time</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value green"><%= format_minutes_as_time(@support[:resolution_time]) %></span>
-                <span class="super-mega-dashboard__stat--label">Avg Resolution</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="super-mega-dashboard__card">
-            <h3>Old tickets</h3>
-            <div class="super-mega-dashboard__stats">
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value red"><%= format_seconds(@support[:oldest_unanswered] * 60, include_days: true) %></span>
-                <span class="super-mega-dashboard__stat--label">Oldest Unanswered Ticket</span>
+                <% if @support[:oldest_unanswered_link] %>
+                  <%= link_to format_seconds(@support[:oldest_unanswered] * 60, include_days: true), @support[:oldest_unanswered_link], target: "_blank", class: "super-mega-dashboard__stat--value super-mega-dashboard__stat--scary" %>
+                <% else %>
+                  <span class="super-mega-dashboard__stat--value super-mega-dashboard__stat--scary"><%= format_seconds(@support[:oldest_unanswered] * 60, include_days: true) %></span>
+                <% end %>
+                <span class="super-mega-dashboard__stat--label">Click to view ticket</span>
               </div>
             </div>
           </div>
         </div>
       </div>
     <% end %>
+
+    <div class="super-mega-dashboard__dashboard">
+      <div class="super-mega-dashboard__header super-mega-dashboard__header--voting">
+        <h2>Voting Overview</h2>
+        <%= link_to "View Full Dashboard →", admin_voting_dashboard_path, class: "super-mega-link" %>
+      </div>
+
+      <div class="super-mega-dashboard__cards">
+        <div class="super-mega-dashboard__card">
+          <h3>Overview</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@voting_overview[:total]) %></span>
+              <span class="super-mega-dashboard__stat--label">Total Votes</span>
+            </div>
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @voting_overview[:today] || 0 %></span>
+              <span class="super-mega-dashboard__stat--label">Today</span>
+            </div>
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @voting_overview[:this_week] || 0 %></span>
+              <span class="super-mega-dashboard__stat--label">This Week</span>
+            </div>
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @voting_overview[:avg_time_seconds] ? "#{@voting_overview[:avg_time_seconds]}s" : "—" %></span>
+              <span class="super-mega-dashboard__stat--label">Avg Time</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Engagement</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value blue"><%= @voting_overview[:demo_click_rate] || 0 %>%</span>
+                <span class="super-mega-dashboard__stat--label">Demo Clicks</span>
+            </div>
+            <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value purple"><%= @voting_overview[:repo_click_rate] || 0 %>%</span>
+                <span class="super-mega-dashboard__stat--label">Repo Clicks</span>
+            </div>
+            <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value green"><%= @voting_overview[:reason_rate] || 0 %>%</span>
+                <span class="super-mega-dashboard__stat--label">With Reason</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Category Averages</h3>
+          <div class="super-mega-dashboard__stats">
+            <% Vote.enabled_categories.each do |category| %>
+              <% color_class = {
+                originality: "red",
+                technical: "yellow",
+                usability: "blue",
+                storytelling: "green"
+              }.fetch(category.to_sym, "purple") %>
+              <div class="super-mega-dashboard__stat">
+                <span class="super-mega-dashboard__stat--value <%= color_class %>"><%= @voting_category_avgs[category] || "—" %></span>
+                <span class="super-mega-dashboard__stat--label"><%= category.to_s.humanize %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="super-mega-dashboard__actions">

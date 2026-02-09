@@ -12,10 +12,10 @@
           <% if @view == 'fulfillment' %>
             <th>Region</th>
           <% end %>
-          <% if current_user.admin? && @view == 'fulfillment' %>
+          <% if (current_user.admin? || current_user.fulfillment_person?) && @view == 'fulfillment' %>
             <th>Assignee</th>
           <% end %>
-          <th>Created</th>
+          <th><%= @view == 'fulfillment' ? 'Hang Time' : 'Created' %></th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -60,7 +60,7 @@
               </td>
             <% end %>
 
-            <% if current_user.admin? && @view == 'fulfillment' %>
+            <% if (current_user.admin? || current_user.fulfillment_person?) && @view == 'fulfillment' %>
               <td>
                 <% if order.assigned_to_user.present? %>
                   <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -111,8 +111,17 @@
             <% end %>
 
             <td>
-              <%= order.created_at.strftime("%b %d, %Y") %><br>
-              <small style="color: #6b7280;"><%= order.created_at.strftime("%l:%M %p") %></small>
+              <% if @view == 'fulfillment' && order.awaiting_periodical_fulfillment_at %>
+                <span style="font-family: monospace; font-weight: bold; <%= (Time.current - order.awaiting_periodical_fulfillment_at) > 2.days ? 'color: #ef4444;' : '' %>">
+                  <%= time_ago_in_words(order.awaiting_periodical_fulfillment_at) %>
+                </span>
+                <br><small style="color: #6b7280;">since approval</small>
+              <% elsif @view == 'fulfillment' %>
+                <span style="color: #9ca3af;">not approved yet</span>
+              <% else %>
+                <%= order.created_at.strftime("%b %d, %Y") %><br>
+                <small style="color: #6b7280;"><%= order.created_at.strftime("%l:%M %p") %></small>
+              <% end %>
             </td>
             <td>
               <%= link_to "Inspect", admin_shop_order_path(order, return_view: params[:view], return_status: params[:status]), class: "btn-primary slim" %>

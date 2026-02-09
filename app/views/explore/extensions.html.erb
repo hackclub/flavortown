@@ -3,11 +3,12 @@
 <% content_for :og_description, "Discover community-built tools and integrations for Flavortown." %>
 <% content_for :og_image, og_image_url('extensions', format: :png) %>
 
-<div class="explore" data-controller="load-more" data-load-more-url-value="<%= explore_extensions_path %>">
+<div class="explore explore--extensions" data-controller="load-more" data-load-more-url-value="<%= explore_extensions_path %>">
+  <%= render HeadingComponent.new(title: "Explore", tone: :blue, size: :full) %>
+
   <%= render "explore/explore_nav" %>
 
   <div class="explore__header">
-      <h2 class="explore__header-title">Extensions</h2>
       <p class="explore__description">
           Projects that integrate with Flavortown, shown by usage.
           At least 2 weekly users needed to show up.

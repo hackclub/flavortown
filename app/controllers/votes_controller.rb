@@ -50,8 +50,14 @@ class VotesController < ApplicationController
     @vote.project = ship_event.post.project
 
     if @vote.save
-      share_vote_to_slack(@vote) if current_user.send_votes_to_slack
-      redirect_to new_vote_path, notice: "Vote recorded!"
+      if @vote.suspicious?
+        # Don't share low quality votes to Slack
+        redirect_to new_vote_path, alert: "Your vote was recorded but marked as low quality. Please spend more time reviewing projects - check out the demo and repository links before voting!"
+      else
+        # Only share legitimate votes to Slack
+        share_vote_to_slack(@vote) if current_user.send_votes_to_slack
+        redirect_to new_vote_path, notice: "Vote recorded! Thanks for your feedback."
+      end
     else
       @ship_event = @vote.ship_event
       @project = @vote.project
@@ -65,6 +71,11 @@ class VotesController < ApplicationController
   private
 
   def check_voting_enabled
+    if current_user&.voting_locked?
+      redirect_to root_path, alert: "Your voting has been locked temporarily. Please contact @Fraud Squad for more information."
+      return
+    end
+
     return if current_user && Flipper.enabled?(:voting, current_user)
 
     redirect_to root_path, alert: "Voting is currently disabled."

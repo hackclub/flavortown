@@ -80,6 +80,7 @@ class ShopOrder < ApplicationRecord
   validate :check_devlog_for_free_stickers, on: :create
   validate :check_stock, on: :create
   validate :check_ship_requirement, on: :create
+  validate :check_achievement_requirement, on: :create
 
   after_create :create_negative_payout
   after_create :assign_default_user
@@ -358,6 +359,14 @@ class ShopOrder < ApplicationRecord
     c = shop_item.required_ships_count
 
     errors.add(:base, "You must have shipped at least #{c} #{'project'.pluralize(c)} between #{s} and #{e} to purchase this item.")
+  end
+
+  def check_achievement_requirement
+    return unless shop_item&.requires_achievement?
+    return if shop_item.meet_achievement_require?(user)
+
+    achievement = Achievement.find(shop_item.requires_achievement.to_sym)
+    errors.add(:base, "You must earn the \"#{achievement.name}\" achievement to purchase this item.")
   end
 
   def create_negative_payout

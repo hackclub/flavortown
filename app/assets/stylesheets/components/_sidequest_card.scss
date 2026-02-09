@@ -98,4 +98,9 @@
     --color-content-bg: rgb(114, 166, 68);
     --color-content-darker: rgb(61, 120, 46);
   }
+
+  &--expired {
+    opacity: 0.7;
+    filter: grayscale(40%);
+  }
 }

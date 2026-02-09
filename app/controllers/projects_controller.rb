@@ -68,7 +68,7 @@ class ProjectsController < ApplicationController
           latest_ship_event.payout.blank?
 
         required = Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
-        current = latest_ship_event.votes_count.to_i
+        current = latest_ship_event.votes.where(suspicious: false).count
         remaining = [ required - current, 0 ].max
 
         @votes_for_payout = {
@@ -162,8 +162,8 @@ class ProjectsController < ApplicationController
       flash[:notice] = "Project updated successfully"
       redirect_to url_from(params[:return_to]) || @project
     else
-      flash[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
-      redirect_back_or_to edit_project_path(@project)
+      flash.now[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
+      render_update_error
     end
   end
 
@@ -225,6 +225,14 @@ class ProjectsController < ApplicationController
 
         Project::PostToMagicJob.perform_later(@project)
         Project::MagicHappeningLetterJob.perform_later(@project)
+
+        @project.users.each do |user|
+          SendSlackDmJob.perform_later(
+            user.slack_id,
+            blocks_path: "notifications/projects/well_cooked",
+            locals: { project: @project }
+          )
+        end
 
         render json: { message: "Project marked as 🔥!", fire: true }, status: :ok
       else
@@ -325,6 +333,20 @@ class ProjectsController < ApplicationController
     end
   end
 
+  def confirm_recertification
+    @project = Project.find(params[:id])
+    authorize @project
+
+    ship_event = ShipCertService.latest_ship_event(@project)
+
+    unless ship_event&.certification_status == "rejected"
+      flash[:alert] = "Re-certification can only be requested for rejected ships."
+      redirect_to @project and return
+    end
+
+    render :confirm_recertification
+  end
+
   def request_recertification
     @project = Project.find(params[:id])
     authorize @project
@@ -372,7 +394,8 @@ class ProjectsController < ApplicationController
 
     @readme_html =
       if result.markdown.present?
-        MarkdownRenderer.render(result.markdown)
+        html = MarkdownRenderer.render(result.markdown)
+        ReadmeHtmlRewriter.rewrite(html: html, readme_url: @project.readme_url)
       end
 
     @readme_error = result.error
@@ -523,5 +546,19 @@ class ProjectsController < ApplicationController
   def load_project_times
     result = current_user.try_sync_hackatime_data!
     @project_times = result&.dig(:projects) || {}
+  end
+
+  def render_update_error
+    if url_from(params[:return_to])&.include?("ships")
+      @hackatime_projects = @project.hackatime_projects_with_time
+      @total_hours = @project.total_hackatime_hours
+      @last_ship = @project.last_ship_event
+      @devlogs_for_ship = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
+      @devlogs_for_ship = @devlogs_for_ship.where("posts.created_at > ?", @last_ship.created_at) if @last_ship
+      @step = 2
+      render "projects/ships/new", status: :unprocessable_entity
+    else
+      render :edit, status: :unprocessable_entity
+    end
   end
 end

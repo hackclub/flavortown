@@ -76,7 +76,7 @@
           <div class="shop-item-form__row">
             <div class="shop-item-form__field">
               <%= f.label :ticket_cost, "🍪 Ticket Cost", class: "shop-item-form__label" %>
-              <%= f.number_field :ticket_cost, step: 1, class: "form-control", id: "shop_item_ticket_cost", required: true %>
+              <%= f.number_field :ticket_cost, step: "any", class: "form-control", id: "shop_item_ticket_cost", required: true %>
               <span class="shop-item-form__hint">Auto-calculated from USD & Hacker Score, or set manually</span>
             </div>
             <div class="shop-item-form__field">
@@ -237,8 +237,12 @@
           <h3>Warehouse Settings</h3>
           <div class="shop-item-form__field">
             <%= f.label :agh_contents, "AGH Contents (JSON)", class: "shop-item-form__label" %>
-            <%= f.text_area :agh_contents, rows: 4, id: "shop_item_agh_contents", class: "form-control shop-item-form__code", placeholder: '[{"sku": "ITEM-001", "quantity": 1}]' %>
+            <%= f.text_area :agh_contents, rows: 4, id: "shop_item_agh_contents", class: "form-control shop-item-form__code", placeholder: '[{"sku": "ITEM-001", "quantity": 1}]', value: shop_item.agh_contents.present? ? JSON.pretty_generate(shop_item.agh_contents) : '' %>
             <span class="shop-item-form__hint">List SKUs to include. Quantity selected by user will batch all SKUs together.</span>
+            <div class="alert alert-warning" style="margin-top: 0.5rem;">
+              <strong>Required:</strong> This field must contain valid JSON (not Ruby hash syntax).
+              Use double quotes for keys and strings. <a href="https://github.com/hackclub/flavortown/issues/1172" target="_blank" rel="noopener">See issue #1172 for more info</a>.
+            </div>
           </div>
         </div>
 
