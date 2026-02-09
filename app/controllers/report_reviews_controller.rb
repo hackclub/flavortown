@@ -45,7 +45,7 @@ class ReportReviewsController < ApplicationController
         }
       )
 
-      action_text = new_status == 1 ? "reviewed" : "dismissed"
+      action_text = new_status.to_s
       redirect_to root_path, notice: "Report has been #{action_text}"
     else
       redirect_to root_path, alert: "Failed to process report"
