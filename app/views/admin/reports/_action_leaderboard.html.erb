@@ -40,8 +40,6 @@
   top_users = limit.nil? ? sorted_users : sorted_users.first(limit)
   user_ids = top_users.map(&:first)
   users_by_id = User.where(id: user_ids).index_by(&:id)
-
-  limit_options = [10, nil]
 %>
 
 <div class="card action-leaderboard">
