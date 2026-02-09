@@ -25,7 +25,7 @@
       <% @users.each do |user| %>
         <tr>
           <td><%= user.id %></td>
-          <td><%= user.display_name %></td>
+          <td><%= link_to user.display_name, admin_reports_path(reporter_id: user.id) %></td>
           <td><%= user.email %></td>
           <td><%= user.roles.map { |r| r.to_s.titleize }.join(", ") %></td>
           <td>
