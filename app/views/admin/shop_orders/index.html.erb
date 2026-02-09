@@ -51,7 +51,7 @@
 <% elsif @shop_orders %>
   <%= render partial: "table", locals: { orders: @shop_orders } %>
   <% if @pagy %>
-    <%== pagy_nav(@pagy) %>
+    <%== @pagy.series_nav %>
   <% end %>
 <% end %>
 
