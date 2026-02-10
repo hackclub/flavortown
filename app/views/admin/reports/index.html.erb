@@ -1,3 +1,4 @@
+<% content_for :title, "Project Reports" %>
 <h1>Project Reports</h1>
 
 <div style="display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap;">
@@ -19,7 +20,7 @@
   </div>
   </div>
 
-  <%= render partial: "action_leaderboard" %>
+  <%= render partial: "action_leaderboard", locals: { time_range: @time_range, limit: @limit } %>
 </div>
 
 <div class="card" style="margin-bottom: 2rem;">
@@ -34,7 +35,7 @@
 
       <div>
         <%= f.label :reason, "Reason" %>
-        <%= f.select :reason, options_for_select(Project::Report::REASONS.map { |r| [r.titleize, r] }, params[:reason]), { include_blank: "All" }, class: "form-control" %>
+        <%= f.select :reason, options_for_select(Project::Report::USER_REASONS.map { |r| [r.titleize, r] }, params[:reason]), { include_blank: "All" }, class: "form-control" %>
       </div>
     </div>
 

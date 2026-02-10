@@ -1,3 +1,4 @@
+<% content_for :title, "API Documentation" %>
 <%= content_for :stylesheets do %>
   <%= stylesheet_link_tag "api_docs", "data-turbo-track": "reload" %>
 <% end %>
@@ -71,6 +72,10 @@
   <div class="grid">
     <% Rails.application.routes.routes.select { |r| r.defaults[:controller]&.start_with?("api/v1/") }.each do |route| %>
       <% if route.path.spec.to_s.starts_with?("/api/v1/docs") %>
+        <% next %>
+      <% end %>
+
+      <% if route.defaults[:controller] == "api/v1/external_reports" %>
         <% next %>
       <% end %>
 

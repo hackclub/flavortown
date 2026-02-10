@@ -1,0 +1,36 @@
+<% if (current_user&.admin? || current_user&.fraud_dept?) && record.respond_to?(:aasm) %>
+  <% current_state = record.aasm.current_state %>
+  <% available_events = record.aasm.events(permitted: true) %>
+
+  <div class="state-machine">
+    <div class="state-machine__header">State Machine</div>
+
+    <div class="state-machine__row">
+      <span class="state-machine__label">Current State:</span>
+      <span class="state-machine__current state-machine__current--<%= current_state %>">
+        <%= current_state.to_s.humanize %>
+      </span>
+    </div>
+
+    <% if available_events.any? %>
+      <div class="state-machine__row">
+        <span class="state-machine__label">Available Transitions:</span>
+        <ul class="state-machine__transitions">
+          <% available_events.each do |event| %>
+            <li class="state-machine__event">
+              <strong><%= event.name.to_s.humanize %></strong>
+              <% targets = event.transitions.select { |t| t.from == current_state || t.from.include?(current_state) rescue false }.map(&:to).uniq %>
+              <% if targets.any? %>
+                → <span class="state-machine__target state-machine__current--<%= targets.first %>"><%= targets.map { |t| t.to_s.humanize }.join(", ") %></span>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% else %>
+      <div class="state-machine__row">
+        <span class="state-machine__no-transitions">No transitions available from this state</span>
+      </div>
+    <% end %>
+  </div>
+<% end %>

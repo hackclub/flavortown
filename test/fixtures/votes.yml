@@ -10,6 +10,7 @@
 #  reason             :text
 #  repo_url_clicked   :boolean          default(FALSE)
 #  storytelling_score :integer
+#  suspicious         :boolean          default(FALSE), not null
 #  technical_score    :integer
 #  time_taken_to_vote :integer
 #  usability_score    :integer
@@ -23,6 +24,7 @@
 #
 #  index_votes_on_project_id                 (project_id)
 #  index_votes_on_ship_event_id              (ship_event_id)
+#  index_votes_on_suspicious_and_created_at  (suspicious,created_at)
 #  index_votes_on_user_id                    (user_id)
 #  index_votes_on_user_id_and_ship_event_id  (user_id,ship_event_id) UNIQUE
 #

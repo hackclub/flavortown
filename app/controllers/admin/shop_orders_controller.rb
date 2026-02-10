@@ -3,6 +3,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   def index
     # Determine view mode
     @view = params[:view] || "shop_orders"
+    @limit = params[:limit] || "10"
 
     # Fulfillment team can only access fulfillment view - auto-redirect if needed
     # But fraud_dept members with fulfillment_person role should have full access
@@ -15,8 +16,8 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       authorize :admin, :access_shop_orders?
     end
 
-    # Load fulfillment users for assignment dropdown (admins only, fulfillment view)
-    if current_user.admin? && @view == "fulfillment"
+    # Load fulfillment users for assignment dropdown (admins and fulfillment peeps, fulfillment view)
+    if (current_user.admin? || current_user.fulfillment_person?) && @view == "fulfillment"
       @fulfillment_users = User.where("'fulfillment_person' = ANY(granted_roles)").order(:display_name)
     end
 
@@ -63,18 +64,36 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     # Calculate stats after region filter so counts respect user's assigned regions
-    stats_orders = orders
+    base = ShopOrder.includes(:shop_item, :user)
+
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept? && current_user.has_regions?
+      base = base.where(region: current_user.regions)
+                             .or(base.where(region: nil))
+                             .or(base.where(assigned_to_user_id: current_user.id))
+    elsif params[:region].present?
+      base = base.where(region: params[:region].upcase)
+    end
+
+    base = base.where(shop_item_id: params[:shop_item_id]) if params[:shop_item_id].present?
+    base = base.where("created_at >= ?", params[:date_from]) if params[:date_from].present?
+    base = base.where("created_at <= ?", params[:date_to]) if params[:date_to].present?
+
+    if params[:user_search].present?
+      search = "%#{ActiveRecord::Base.sanitize_sql_like(params[:user_search])}%"
+      base = base.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.id::text = ? OR users.slack_id ILIKE ?", search, search, params[:user_search], search)
+    end
+
     @c = {
-      pending: stats_orders.where(aasm_state: "pending").count,
-      awaiting_verification: stats_orders.where(aasm_state: "awaiting_verification").count,
-      awaiting_fulfillment: stats_orders.where(aasm_state: "awaiting_periodical_fulfillment").count,
-      fulfilled: stats_orders.where(aasm_state: "fulfilled").count,
-      rejected: stats_orders.where(aasm_state: "rejected").count,
-      on_hold: stats_orders.where(aasm_state: "on_hold").count
+      pending: base.where(aasm_state: "pending").count,
+      awaiting_verification: base.where(aasm_state: "awaiting_verification").count,
+      awaiting_fulfillment: base.where(aasm_state: "awaiting_periodical_fulfillment").count,
+      fulfilled: base.where(aasm_state: "fulfilled").count,
+      rejected: base.where(aasm_state: "rejected").count,
+      on_hold: base.where(aasm_state: "on_hold").count
     }
 
     # Calculate average times
-    fulfilled_orders = stats_orders.where(aasm_state: "fulfilled").where.not(fulfilled_at: nil)
+    fulfilled_orders = base.where(aasm_state: "fulfilled").where.not(fulfilled_at: nil)
     if fulfilled_orders.any?
       @f = fulfilled_orders.average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))").to_f
     end
@@ -101,7 +120,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         }
       end.sort_by { |g| -g[:orders].size }
     else
-      @shop_orders = orders
+      @pagy, @shop_orders = pagy(:offset, orders, limit: 50)
     end
   end
 
@@ -125,9 +144,10 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     @can_view_address = @order.can_view_address?(current_user)
+    @is_digital_fulfillment_type = ShopOrder::DIGITAL_FULFILLMENT_TYPES.include?(@order.shop_item.type)
 
-    # Load fulfillment users for assignment (admins only)
-    if current_user.admin?
+    # Load fulfillment users for assignment (admins and fulfillment peeps)
+    if current_user.admin? || current_user.fulfillment_person?
       @fulfillment_users = User.where("'fulfillment_person' = ANY(granted_roles)").order(:display_name)
     end
 
@@ -169,7 +189,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       render turbo_stream: turbo_stream.replace(
         "address-content",
         partial: "address_details",
-        locals: { address: @decrypted_address }
+        locals: { address: @decrypted_address, user_email: current_user&.email }
       )
     else
       render plain: "Unauthorized", status: :forbidden
@@ -318,7 +338,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def assign_user
-    authorize :admin, :access_shop_orders?
+    authorize :admin, :assign_shop_order?
     @order = ShopOrder.find(params[:id])
     old_assigned = @order.assigned_to_user_id
 

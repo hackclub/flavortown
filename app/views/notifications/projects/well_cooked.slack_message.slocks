@@ -1,0 +1,11 @@
+header "🔥 Your project has been marked as well cooked!"
+
+section "Congrats!! Your project *#{project.title}* has been recognized for its quality and marked as well cooked by the Hack Club team.", markdown: true
+
+section "As a prize for your nicely cooked project, look out for a surprise in the mail :D", markdown: true
+
+divider
+
+context [
+  mrkdwn_text("Keep building awesome things! 🚀")
+]

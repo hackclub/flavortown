@@ -35,6 +35,7 @@
 #  name                              :string
 #  old_prices                        :integer          default([]), is an Array
 #  one_per_person_ever               :boolean
+#  past_purchases                    :integer          default(0)
 #  payout_percentage                 :integer          default(0)
 #  price_offset_au                   :decimal(, )
 #  price_offset_ca                   :decimal(, )
@@ -46,6 +47,7 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
+#  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
@@ -74,6 +76,7 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::WarehouseItem < ShopItem
+  validates :agh_contents, presence: true
   def get_agh_contents(order)
     return [] unless agh_contents.present?
 

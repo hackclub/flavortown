@@ -1,3 +1,4 @@
+<% content_for :title, "Report ##{@report.id}" %>
 <h1>Report #<%= @report.id %></h1>
 
 <div class="card" style="margin-bottom: 2rem;">
@@ -14,6 +15,9 @@
     <div>
       <strong>Reporter:</strong>
       <%= link_to @report.reporter.display_name || @report.reporter.email, admin_user_path(@report.reporter) %>
+      <% if @report.reporter.slack_id.present? %>
+        <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;"><%= @report.reporter.slack_id %></code>
+      <% end %>
     </div>
     <div>
       <strong>Created:</strong> <%= @report.created_at.strftime("%Y-%m-%d %H:%M:%S") %>
@@ -32,6 +36,8 @@
   <h2>Reported Project</h2>
 
   <% if @report.project.present? %>
+    <% reported_user = @report.project.memberships.owner.first&.user %>
+
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
       <div>
         <strong>Title:</strong> <%= link_to @report.project.title, project_path(@report.project) %>
@@ -56,6 +62,17 @@
         <strong>Members:</strong>
         <%= @report.project.users.map { |u| u.display_name || u.email }.join(", ") %>
       </div>
+      <% owner = @report.project.memberships.find_by(role: :owner)&.user %>
+      <% if owner %>
+        <div>
+          <strong>Owner Slack ID:</strong>
+          <% if owner.slack_id.present? %>
+            <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;"><%= owner.slack_id %></code>
+          <% else %>
+            <em>Not linked</em>
+          <% end %>
+        </div>
+      <% end %>
     </div>
 
     <% if @report.project.description.present? %>
@@ -64,6 +81,12 @@
         <p style="background: #f9fafb; padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
           <%= @report.project.description %>
         </p>
+      </div>
+    <% end %>
+
+    <% if reported_user.present? %>
+      <div style="margin-top: 1rem;">
+        <%= link_to "View reported user →", admin_user_path(reported_user), class: "btn-primary slim" %>
       </div>
     <% end %>
   <% else %>

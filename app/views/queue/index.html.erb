@@ -1,3 +1,4 @@
+<% content_for :title, "Order Review Queue" %>
 <h1>Order Review Queue</h1>
 
 <% if Flipper.enabled?(:shop_backlogged) %>
@@ -14,12 +15,8 @@
         <span class="fraud-stat__value"><%= @pending_count %></span>
         <span class="fraud-stat__label">Pending</span>
       </div>
-      <div class="fraud-stat">
-        <span class="fraud-stat__value"><%= @on_hold_count %></span>
-        <span class="fraud-stat__label">On Hold</span>
-      </div>
       <div class="fraud-stat fraud-stat--warning">
-        <span class="fraud-stat__value"><%= @pending_count + @on_hold_count %></span>
+        <span class="fraud-stat__value"><%= @pending_count %></span>
         <span class="fraud-stat__label">Total Backlog</span>
       </div>
     </div>
@@ -81,27 +78,6 @@
       </table>
     <% else %>
       <p class="fraud-note">No pending orders 🎉</p>
-    <% end %>
-  </div>
-
-  <div class="card fraud-card">
-    <h2>On Hold</h2>
-    <% if @on_hold_orders.any? %>
-      <table class="fraud-table">
-        <thead>
-          <tr><th>#</th><th>Created</th></tr>
-        </thead>
-        <tbody>
-          <% @on_hold_orders.each do |order| %>
-            <tr>
-              <td><%= order.id %></td>
-              <td><%= order.created_at ? "#{time_ago_in_words(order.created_at)} ago" : "—" %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    <% else %>
-      <p class="fraud-note">No orders on hold</p>
     <% end %>
   </div>
 </div>

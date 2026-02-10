@@ -39,280 +39,271 @@
 #  fk_rails_...  (marked_fire_by_id => users.id)
 #
 class Project < ApplicationRecord
-    include AASM
-    include SoftDeletable
+  include AASM
+  include SoftDeletable
 
-    has_paper_trail only: %i[shadow_banned shadow_banned_at shadow_banned_reason deleted_at]
+  has_paper_trail only: %i[shadow_banned shadow_banned_at shadow_banned_reason deleted_at]
 
-    has_recommended :projects # more projects like this...
+  has_recommended :projects # more projects like this...
 
-    after_create :notify_slack_channel
+  has_many :sidequest_entries, dependent: :destroy
+  has_many :sidequests, through: :sidequest_entries
 
-    ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
-    MAX_BANNER_SIZE = 10.megabytes
+  after_create :notify_slack_channel
 
-    AVAILABLE_CATEGORIES = [
-      "CLI", "Cargo", "Web App", "Chat Bot", "Extension",
-      "Desktop App (Windows)", "Desktop App (Linux)", "Desktop App (macOS)",
-      "Minecraft Mods", "Hardware", "Android App", "iOS App", "Other"
-    ].freeze
+  ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
+  MAX_BANNER_SIZE = 10.megabytes
 
-    scope :excluding_member, ->(user) {
-        user ? where.not(id: user.projects) : all
-    }
-    scope :fire, -> { where.not(marked_fire_at: nil) }
-    scope :excluding_shadow_banned, -> {
-      where(shadow_banned: false)
-        .joins(:memberships)
-        .joins("INNER JOIN users ON users.id = project_memberships.user_id")
-        .where(users: { shadow_banned: false })
+  AVAILABLE_CATEGORIES = [
+    "CLI", "Cargo", "Web App", "Chat Bot", "Extension",
+    "Desktop App (Windows)", "Desktop App (Linux)", "Desktop App (macOS)",
+    "Minecraft Mods", "Hardware", "Android App", "iOS App", "Other"
+  ].freeze
+
+  scope :excluding_member, ->(user) {
+    user ? where.not(id: user.projects) : all
+  }
+  scope :fire, -> { where.not(marked_fire_at: nil) }
+  scope :excluding_shadow_banned, -> {
+    where(shadow_banned: false)
+      .joins(:memberships)
+      .joins("INNER JOIN users ON users.id = project_memberships.user_id")
+      .where(users: { shadow_banned: false })
+      .distinct
+  }
+  scope :visible_to, ->(viewer) {
+    if viewer&.shadow_banned?
+      # Shadow-banned users see all projects (so they don't know they're banned)
+      all
+    elsif viewer
+      # Regular users see non-shadow-banned projects + their own projects
+      left_joins(memberships: :user)
+        .where(shadow_banned: false)
+        .where(memberships: { users: { shadow_banned: false } })
+        .or(left_joins(memberships: :user).where(memberships: { user_id: viewer.id }))
         .distinct
-    }
-    scope :visible_to, ->(viewer) {
-      if viewer&.shadow_banned?
-        # Shadow-banned users see all projects (so they don't know they're banned)
-        all
-      elsif viewer
-        # Regular users see non-shadow-banned projects + their own projects
-        left_joins(memberships: :user)
-          .where(shadow_banned: false)
-          .where(memberships: { users: { shadow_banned: false } })
-          .or(left_joins(memberships: :user).where(memberships: { user_id: viewer.id }))
-          .distinct
-      else
-        excluding_shadow_banned
+    else
+      excluding_shadow_banned
+    end
+  }
+
+  belongs_to :marked_fire_by, class_name: "User", optional: true
+
+  has_many :memberships, class_name: "Project::Membership", dependent: :destroy
+  has_many :users, through: :memberships
+  has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :nullify
+  has_many :posts, dependent: :destroy
+  has_many :devlog_posts, -> { where(postable_type: "Post::Devlog").order(created_at: :desc) }, class_name: "Post"
+  has_many :devlogs, through: :devlog_posts, source: :postable, source_type: "Post::Devlog"
+  has_many :ship_event_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
+  has_many :ship_events, through: :ship_event_posts, source: :postable, source_type: "Post::ShipEvent"
+  has_many :git_commit_posts, -> { where(postable_type: "Post::GitCommit").order(created_at: :desc) }, class_name: "Post"
+  has_many :votes, dependent: :destroy
+  has_many :reports, class_name: "Project::Report", dependent: :destroy
+  has_many :project_follows, dependent: :destroy
+  has_many :followers, through: :project_follows, source: :user
+  # needs to be implemented
+  has_one_attached :demo_video
+
+  # https://github.com/rails/rails/pull/39135
+  has_one_attached :banner do |attachable|
+    # using resize_to_limit to preserve aspect ratio without cropping
+    # we're preprocessing them because its likely going to be used
+
+    # for explore and projects#index
+    attachable.variant :card,
+                       resize_to_limit: [ 1600, 900 ],
+                       format: :webp,
+                       preprocessed: true,
+                       saver: { strip: true, quality: 75 }
+
+    #   attachable.variant :not_sure,
+    #     resize_to_limit: [ 1200, 630 ],
+    #     format: :webp,
+    #     saver: { strip: true, quality: 75 }
+
+    # for voting
+    attachable.variant :thumb,
+                       resize_to_limit: [ 400, 210 ],
+                       format: :webp,
+                       preprocessed: true,
+                       saver: { strip: true, quality: 75 }
+  end
+
+  validates :title, presence: true, length: { maximum: 120 }
+  validates :description, length: { maximum: 1_000 }, allow_blank: true
+  validates :ai_declaration, length: { maximum: 1_000 }, allow_blank: true
+  validates :demo_url, :repo_url, :readme_url,
+            length: { maximum: 2_048 },
+            format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]) },
+            allow_blank: true
+  validates :banner,
+            content_type: { in: ACCEPTED_CONTENT_TYPES, spoofing_protection: true },
+            size: { less_than: MAX_BANNER_SIZE, message: "is too large (max 10 MB)" },
+            processable_file: true
+  validate :validate_project_categories
+
+  def validate_project_categories
+    return if project_categories.blank?
+
+    invalid_types = project_categories - AVAILABLE_CATEGORIES
+    if invalid_types.any?
+      errors.add(:project_categories, "contains invalid types: #{invalid_types.join(', ')}")
+    end
+  end
+
+  def validate_repo_cloneable
+    return false if repo_url.blank?
+
+    GitRepoService.is_cloneable? repo_url
+  end
+
+  def calculate_duration_seconds
+    posts.of_devlogs(join: true).where(post_devlogs: { deleted_at: nil }).sum("post_devlogs.duration_seconds")
+  end
+
+  def recalculate_duration_seconds!
+    update_column(:duration_seconds, calculate_duration_seconds)
+  end
+
+  # this can probaby be better?
+  def soft_delete!(force: false)
+    if !force && shipped?
+      errors.add(:base, "Cannot delete a project that has been shipped")
+      raise ActiveRecord::RecordInvalid.new(self)
+    end
+    update!(deleted_at: Time.current)
+  end
+
+  def shipped?
+    shipped_at.present? || !draft?
+  end
+
+  def restore!
+    update!(deleted_at: nil)
+  end
+
+  def deleted?
+    deleted_at.present?
+  end
+
+  def hackatime_keys
+    hackatime_projects.pluck(:name)
+  end
+
+  def total_hackatime_hours
+    return 0 if hackatime_projects.empty?
+
+    owner = memberships.owner.first&.user
+    return 0 unless owner
+
+    result = owner.try_sync_hackatime_data!
+    return 0 unless result
+
+    project_times = result[:projects]
+    total_seconds = hackatime_projects.sum { |hp| project_times[hp.name].to_i }
+    (total_seconds / 3600.0).round(1)
+  end
+
+  def hackatime_projects_with_time
+    owner = memberships.owner.first&.user
+    return [] unless owner
+
+    result = owner.try_sync_hackatime_data!
+    return [] unless result
+
+    project_times = result[:projects]
+    hackatime_projects.map do |hp|
+      {
+        name: hp.name,
+        hours: (project_times[hp.name].to_i / 3600.0).round(1)
+      }
+    end
+  end
+
+  aasm column: :ship_status do
+    state :draft, initial: true
+    state :submitted
+    state :under_review
+    state :approved
+    state :rejected
+
+    event :submit_for_review do
+      transitions from: [ :draft, :submitted, :under_review, :approved, :rejected ], to: :submitted, guard: :shippable?
+      after do
+        self.shipped_at = Time.current
       end
-    }
-
-    belongs_to :marked_fire_by, class_name: "User", optional: true
-
-    has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
-    has_many :users, through: :memberships
-    has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :nullify
-    has_many :posts, dependent: :destroy
-    has_many :devlog_posts, -> { where(postable_type: "Post::Devlog").order(created_at: :desc) }, class_name: "Post"
-    has_many :devlogs, through: :devlog_posts, source: :postable, source_type: "Post::Devlog"
-    has_many :ship_event_posts, -> { where(postable_type: "Post::ShipEvent").order(created_at: :desc) }, class_name: "Post"
-    has_many :ship_events, through: :ship_event_posts, source: :postable, source_type: "Post::ShipEvent"
-    has_many :git_commit_posts, -> { where(postable_type: "Post::GitCommit").order(created_at: :desc) }, class_name: "Post"
-    has_many :votes, dependent: :destroy
-    has_many :reports, class_name: "Project::Report", dependent: :destroy
-    has_many :project_follows, dependent: :destroy
-    has_many :followers, through: :project_follows, source: :user
-    # needs to be implemented
-    has_one_attached :demo_video
-
-    # https://github.com/rails/rails/pull/39135
-    has_one_attached :banner do |attachable|
-        # using resize_to_limit to preserve aspect ratio without cropping
-        # we're preprocessing them because its likely going to be used
-
-        # for explore and projects#index
-        attachable.variant :card,
-                           resize_to_limit: [ 1600, 900 ],
-                           format: :webp,
-                           preprocessed: true,
-                           saver: { strip: true, quality: 75 }
-
-        #   attachable.variant :not_sure,
-        #     resize_to_limit: [ 1200, 630 ],
-        #     format: :webp,
-        #     saver: { strip: true, quality: 75 }
-
-        # for voting
-        attachable.variant :thumb,
-                           resize_to_limit: [ 400, 210 ],
-                           format: :webp,
-                           preprocessed: true,
-                           saver: { strip: true, quality: 75 }
     end
 
-    validates :title, presence: true, length: { maximum: 120 }
-    validates :description, length: { maximum: 1_000 }, allow_blank: true
-    validates :ai_declaration, length: { maximum: 1_000 }, allow_blank: true
-    validates :demo_url, :repo_url, :readme_url,
-              length: { maximum: 2_048 },
-              format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]) },
-              allow_blank: true
-    validates :banner,
-              content_type: { in: ACCEPTED_CONTENT_TYPES, spoofing_protection: true },
-              size: { less_than: MAX_BANNER_SIZE, message: "is too large (max 10 MB)" },
-              processable_file: true
-    validate :validate_project_categories
-    def validate_project_categories
-      return if project_categories.blank?
-
-      invalid_types = project_categories - AVAILABLE_CATEGORIES
-      if invalid_types.any?
-        errors.add(:project_categories, "contains invalid types: #{invalid_types.join(', ')}")
-      end
+    event :start_review do
+      transitions from: :submitted, to: :under_review
     end
 
-    def validate_repo_cloneable
-      return false if repo_url.blank?
-
-      GitRepoService.is_cloneable? repo_url
+    event :approve do
+      transitions from: :under_review, to: :approved
     end
 
-    def calculate_duration_seconds
-        posts.of_devlogs(join: true).where(post_devlogs: { deleted_at: nil }).sum("post_devlogs.duration_seconds")
+    event :reject do
+      transitions from: :under_review, to: :rejected
     end
+  end
 
-    def recalculate_duration_seconds!
-        update_column(:duration_seconds, calculate_duration_seconds)
-    end
+  def shipping_requirements
+    [
+      { key: :demo_url, label: "Add a demo link so anyone can try your project", passed: demo_url.present? },
+      { key: :repo_url, label: "Add a public GitHub URL with your source code", passed: repo_url.present? },
+      { key: :repo_cloneable, label: "Make your GitHub repo publicly cloneable", passed: validate_repo_cloneable },
+      { key: :readme_url, label: "Add a README URL to your project", passed: readme_url.present? },
+      { key: :description, label: "Add a description for your project", passed: description.present? },
+      { key: :banner, label: "Upload a banner image for your project", passed: banner.attached? },
+      { key: :devlog, label: "Post at least one devlog since your last ship", passed: has_devlog_since_last_ship? },
+      { key: :payout, label: "Wait for your previous ship's to get a payout", passed: previous_ship_event_has_payout? },
+      { key: :vote_balance, label: "Your vote balance is negative", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
+      { key: :project_isnt_rejected, label: "Your project is not approved!", passed: last_ship_event&.certification_status != "rejected" },
+      { key: :project_has_more_then_10s, label: "Your ship event has more then 10s!", passed: duration_seconds > 10 }
+    ]
+  end
 
-    # this can probaby be better?
-    def soft_delete!(force: false)
-      if !force && shipped?
-        errors.add(:base, "Cannot delete a project that has been shipped")
-        raise ActiveRecord::RecordInvalid.new(self)
-      end
-      update!(deleted_at: Time.current)
-    end
+  def shippable? = shipping_requirements.all? { |r| r[:passed] }
+  def ship_blocking_errors = shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:label] }
 
-    def shipped?
-      shipped_at.present? || !draft?
-    end
+  def last_ship_event
+    ship_events.first
+  end
 
-    def restore!
-      update!(deleted_at: nil)
-    end
+  def fire?
+    marked_fire_at.present?
+  end
 
-    def deleted?
-      deleted_at.present?
-    end
+  def mark_fire!(user)
+    update!(marked_fire_at: Time.current, marked_fire_by: user)
+  end
 
-    def hackatime_keys
-        hackatime_projects.pluck(:name)
-    end
+  def unmark_fire!
+    update!(marked_fire_at: nil, marked_fire_by: nil)
+  end
 
-    def total_hackatime_hours
-      return 0 if hackatime_projects.empty?
+  def shadow_ban!(reason: nil)
+    update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
+  end
 
-      owner = memberships.owner.first&.user
-      return 0 unless owner
+  def unshadow_ban!
+    update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
+  end
 
-      result = owner.try_sync_hackatime_data!
-      return 0 unless result
+  private
 
-      project_times = result[:projects]
-      total_seconds = hackatime_projects.sum { |hp| project_times[hp.name].to_i }
-      (total_seconds / 3600.0).round(1)
-    end
+  def has_devlog_since_last_ship?
+    return true if draft? || last_ship_event.nil?
+    devlogs.where("post_devlogs.created_at > ?", last_ship_event.created_at).exists?
+  end
 
-    def hackatime_projects_with_time
-        owner = memberships.owner.first&.user
-        return [] unless owner
+  def previous_ship_event_has_payout?
+    return true if last_ship_event.nil?
+    last_ship_event.payout.present? && last_ship_event.payout > 0
+  end
 
-        result = owner.try_sync_hackatime_data!
-        return [] unless result
-
-        project_times = result[:projects]
-        hackatime_projects.map do |hp|
-            {
-                name: hp.name,
-                hours: (project_times[hp.name].to_i / 3600.0).round(1)
-            }
-        end
-    end
-
-    aasm column: :ship_status do
-        state :draft, initial: true
-        state :submitted
-        state :under_review
-        state :approved
-        state :rejected
-
-        event :submit_for_review do
-            transitions from: [ :draft, :submitted, :under_review, :approved, :rejected ], to: :submitted, guard: :can_ship_again?
-            after do
-                self.shipped_at = Time.current
-            end
-        end
-
-        event :start_review do
-            transitions from: :submitted, to: :under_review
-        end
-
-        event :approve do
-            transitions from: :under_review, to: :approved
-        end
-
-        event :reject do
-            transitions from: :under_review, to: :rejected
-        end
-    end
-
-    def can_ship_again?
-        return true if draft?
-        return false unless has_devlog_since_last_ship?
-        return false unless previous_ship_event_has_payout?
-
-        true
-    end
-
-    def has_devlog_since_last_ship?
-        last_ship = last_ship_event
-        return true if last_ship.nil?
-
-        devlogs.where("post_devlogs.created_at > ?", last_ship.created_at).exists?
-    end
-
-    def previous_ship_event_has_payout?
-        last_ship = last_ship_event
-        return true if last_ship.nil?
-
-        last_ship.payout.present? && last_ship.payout > 0
-    end
-
-    def last_ship_event
-        ship_events.first
-    end
-
-    def shippable?
-        demo_url.present? &&
-        repo_url.present? &&
-        banner.attached? &&
-        description.present? &&
-        devlogs.any?
-    end
-
-    def fire?
-        marked_fire_at.present?
-    end
-
-    def mark_fire!(user)
-        update!(marked_fire_at: Time.current, marked_fire_by: user)
-    end
-
-    def unmark_fire!
-        update!(marked_fire_at: nil, marked_fire_by: nil)
-    end
-
-    def shipping_validations
-        [
-            { key: :demo_url, label: "You have an experienceable link (a URL where anyone can try your project now)", passed: demo_url.present? },
-            { key: :repo_url, label: "You have a public GitHub URL with all source code", passed: repo_url.present? },
-            { key: :repo_cloneable, label: "Your GitHub repo is publicly cloneable", passed: validate_repo_cloneable },
-            { key: :readme_url, label: "You have a README url added to your project", passed: readme_url.present? },
-            { key: :description, label: "You have a description for your project", passed: description.present? },
-            { key: :screenshot, label: "You have a screenshot of your project", passed: banner.attached? },
-            { key: :devlogs, label: "You have at least one devlog", passed: devlogs.any? }
-        ]
-    end
-
-    def shadow_ban!(reason: nil)
-      update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
-    end
-
-    def unshadow_ban!
-      update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
-    end
-
-    private
-
-    def notify_slack_channel
-        PostCreationToSlackJob.perform_later(self)
-    end
+  def notify_slack_channel
+    PostCreationToSlackJob.perform_later(self)
+  end
 end

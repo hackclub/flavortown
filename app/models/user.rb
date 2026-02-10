@@ -25,6 +25,8 @@
 #  ref                                     :string
 #  regions                                 :string           default([]), is an Array
 #  send_notifications_for_followed_devlogs :boolean          default(TRUE), not null
+#  send_notifications_for_new_comments     :boolean          default(TRUE), not null
+#  send_notifications_for_new_followers    :boolean          default(TRUE), not null
 #  send_votes_to_slack                     :boolean          default(FALSE), not null
 #  session_token                           :string
 #  shadow_banned                           :boolean          default(FALSE), not null
@@ -34,10 +36,13 @@
 #  slack_balance_notifications             :boolean          default(FALSE), not null
 #  special_effects_enabled                 :boolean          default(TRUE), not null
 #  synced_at                               :datetime
+#  things_dismissed                        :string           default([]), not null, is an Array
 #  tutorial_steps_completed                :string           default([]), is an Array
 #  verification_status                     :string           default("needs_submission"), not null
 #  vote_anonymously                        :boolean          default(FALSE), not null
+#  vote_balance                            :integer          default(0), not null
 #  votes_count                             :integer
+#  voting_locked                           :boolean          default(FALSE), not null
 #  ysws_eligible                           :boolean          default(FALSE), not null
 #  created_at                              :datetime         not null
 #  updated_at                              :datetime         not null
@@ -56,6 +61,8 @@ class User < ApplicationRecord
 
   has_recommended :projects # you might like these projects...
 
+  DISMISSIBLE_THINGS = %w[flagship_ad shop_suggestion_box].freeze
+
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
@@ -70,6 +77,7 @@ class User < ApplicationRecord
   has_many :ledger_entries, dependent: :destroy
   has_many :project_follows, dependent: :destroy
   has_many :followed_projects, through: :project_follows, source: :project
+  has_many :shop_suggestions, dependent: :destroy
 
   enum :verification_status, {
     needs_submission: "needs_submission",
@@ -131,6 +139,22 @@ class User < ApplicationRecord
 
   def revoke_tutorial_step!(slug)
     update!(tutorial_steps_completed: tutorial_steps - [ slug ]) if tutorial_step_completed?(slug)
+  end
+
+  def has_dismissed?(thing_name) = things_dismissed.include?(thing_name.to_s)
+
+  def dismiss_thing!(thing_name)
+    thing_name_str = thing_name.to_s
+    raise ArgumentError, "Invalid thing to dismiss: #{thing_name_str}" unless DISMISSIBLE_THINGS.include?(thing_name_str)
+
+    update!(things_dismissed: things_dismissed + [ thing_name_str ]) unless has_dismissed?(thing_name_str)
+  end
+
+  def undismiss_thing!(thing_name)
+    thing_name_str = thing_name.to_s
+    raise ArgumentError, "Invalid thing to dismiss: #{thing_name_str}" unless DISMISSIBLE_THINGS.include?(thing_name_str)
+
+    update!(things_dismissed: things_dismissed - [ thing_name_str ]) if has_dismissed?(thing_name_str)
   end
 
   def should_show_shop_tutorial?
@@ -203,6 +227,10 @@ class User < ApplicationRecord
 
   def all_time_coding_seconds
     try_sync_hackatime_data!&.dig(:projects)&.values&.sum || 0
+  end
+
+  def has_logged_one_hour?
+    all_time_coding_seconds >= 3600
   end
 
   def highest_role
@@ -282,7 +310,9 @@ class User < ApplicationRecord
     return [] unless identity&.access_token.present?
 
     identity_payload = HCAService.identity(identity.access_token)
-    identity_payload["addresses"] || []
+    addresses = identity_payload["addresses"] || []
+    phone_number = identity_payload["phone_number"]
+    addresses.map { |addr| addr.merge("phone_number" => phone_number) }
   end
   def birthday
     identity = identities.find_by(provider: "hack_club")
@@ -363,8 +393,11 @@ class User < ApplicationRecord
       ban!(reason: "Automatically banned: User is banned on Hackatime")
     end
 
-    result[:projects].each_key do |name|
-      User::HackatimeProject.find_or_create_by!(user_id: id, name: name)
+    if result[:projects].any?
+      User::HackatimeProject.insert_all(
+        result[:projects].keys.map { |name| { user_id: id, name: name } },
+        unique_by: [ :user_id, :name ]
+      )
     end
 
     @hackatime_data = result
@@ -409,6 +442,17 @@ class User < ApplicationRecord
       .count
   end
 
+  def reject_awaiting_verification_orders!
+    shop_orders.where(aasm_state: "awaiting_verification").find_each do |order|
+      reason = if verification_ineligible?
+                 "Identity verification marked as ineligible"
+      else
+                 "Not eligible for YSWS"
+      end
+      order.mark_rejected!(reason)
+    end
+  end
+
   private
 
   def should_check_verification_eligibility?
@@ -420,17 +464,6 @@ class User < ApplicationRecord
       Shop::ProcessVerifiedOrdersJob.perform_later(id)
     elsif should_reject_orders?
       reject_awaiting_verification_orders!
-    end
-  end
-
-  def reject_awaiting_verification_orders!
-    shop_orders.where(aasm_state: "awaiting_verification").find_each do |order|
-      reason = if verification_ineligible?
-                 "Identity verification marked as ineligible"
-      else
-                 "Not eligible for YSWS"
-      end
-      order.mark_rejected!(reason)
     end
   end
 

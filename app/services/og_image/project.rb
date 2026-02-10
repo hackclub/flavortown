@@ -117,7 +117,7 @@ module OgImage
     end
 
     def logo_path
-      "https://hc-cdn.hel1.your-objectstorage.com/s/v3/288a4173f175618e_img_5401_copy.png"
+      Rails.root.join("app", "assets", "images", "flavortown_logo.png").to_s
     end
 
     def draw_hack_club_flag

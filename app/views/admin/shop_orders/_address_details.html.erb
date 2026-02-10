@@ -1,5 +1,9 @@
 <div class="info-rows">
   <div><b>Name:</b> <%= address["first_name"] %> <%= address["last_name"] %></div>
+  <% if user_email.present? %>
+  <div><b>Email:</b> <%= mail_to user_email, user_email %> </div>
+  <% end %>
+
   <div><b>Address Line 1:</b> <%= address["line_1"] %></div>
   <% if address["line_2"].present? %>
     <div><b>Address Line 2:</b> <%= address["line_2"] %></div>
@@ -10,6 +14,8 @@
   <div><b>Country:</b> <%= address["country"] %></div>
   <% if address["phone_number"].present? %>
     <div><b>Phone:</b> <%= address["phone_number"] %></div>
+  <% else %>
+    <div><b>Phone:</b> N/A</div>
   <% end %>
 </div>
 <div style="margin-top: 1em; padding: 0.5em; background: #fef3c7; border-radius: 4px;">

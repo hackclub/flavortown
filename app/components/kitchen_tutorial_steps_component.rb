@@ -1,31 +1,39 @@
 class KitchenTutorialStepsComponent < ApplicationComponent
   include Phlex::Rails::Helpers::ButtonTo
+  include Phlex::Rails::Helpers::TurboFrameTag
 
   def initialize(tutorial_steps:, completed_steps:, current_user:)
     @tutorial_steps = tutorial_steps
     @completed_steps = completed_steps
+    @current_user = current_user
   end
 
   def view_template
-    details(class: "tutorial-steps", open: !all_completed?) do
-      summary(class: "tutorial-steps__header") do
-        span(class: "tutorial-steps__toggle-icon") do
-          inline_svg_tag("icons/chevron-down.svg", alt: "")
-        end
-        span(class: "tutorial-steps__title") { "Tutorial" }
-        div(class: "tutorial-steps__progress") do
-          span(class: "tutorial-steps__progress-text") { "#{completed_count} of #{total_count}" }
-          div(class: "tutorial-steps__progress-bar") do
-            div(class: "tutorial-steps__progress-fill", style: "width: #{progress_percentage}%")
+    div(data: { controller: "tutorial-video-modal" }) do
+      turbo_frame_tag("tutorial-steps-container") do
+        details(class: "tutorial-steps", open: !all_completed?) do
+          summary(class: "tutorial-steps__header") do
+            span(class: "tutorial-steps__toggle-icon") do
+              inline_svg_tag("icons/chevron-down.svg", alt: "")
+            end
+            span(class: "tutorial-steps__title") { "Tutorial" }
+            div(class: "tutorial-steps__progress") do
+              span(class: "tutorial-steps__progress-text") { "#{completed_count} of #{total_count}" }
+              div(class: "tutorial-steps__progress-bar") do
+                div(class: "tutorial-steps__progress-fill", style: "width: #{progress_percentage}%")
+              end
+            end
+          end
+
+          div(class: "tutorial-steps__grid") do
+            @tutorial_steps.each do |step|
+              render_step_card(step)
+            end
           end
         end
       end
 
-      div(class: "tutorial-steps__grid") do
-        @tutorial_steps.each do |step|
-          render_step_card(step)
-        end
-      end
+      render_tutorial_video_modal
     end
   end
 
@@ -42,7 +50,7 @@ class KitchenTutorialStepsComponent < ApplicationComponent
     card_classes = "state-card state-card--#{variant} tutorial-step-card"
     card_classes += " tutorial-step-card--disabled" unless deps_ok
 
-    div(class: card_classes) do
+    div(class: card_classes, data: { tutorial_step: step.slug }) do
       div(class: "state-card__status-pill") do
         div(class: "state-card__badge") { badge_text_for(step) }
         if step.icon.present?
@@ -60,7 +68,22 @@ class KitchenTutorialStepsComponent < ApplicationComponent
   end
 
   def render_cta(step, completed, deps_ok, verb)
-    if deps_ok && !completed
+    if verb == :modal && deps_ok
+      div(class: "state-card__cta") do
+        button(
+          type: "button",
+          class: "btn btn--borderless btn--bg_yellow",
+          data: {
+            action: "click->tutorial-video-modal#open",
+            tutorial_video_modal_complete_url_param: helpers.complete_user_tutorial_step_path(step.slug),
+            tutorial_video_modal_video_url_param: step.video_url
+          }
+        ) do
+          span { completed ? "Watch again" : "Start" }
+          inline_svg_tag("icons/right-arrow.svg")
+        end
+      end
+    elsif deps_ok && !completed
       link = step_link(step)
       return unless link
 
@@ -131,6 +154,35 @@ class KitchenTutorialStepsComponent < ApplicationComponent
       view_context.instance_exec(@current_user, &step.link)
     else
       step.link
+    end
+  end
+
+  def render_tutorial_video_modal
+    dialog(
+      id: "tutorial-video-modal",
+      class: "tutorial-video-modal",
+      data: { tutorial_video_modal_target: "dialog", action: "click->tutorial-video-modal#closeOnBackdrop" }
+    ) do
+      div(class: "tutorial-video-modal__content") do
+        button(
+          type: "button",
+          class: "tutorial-video-modal__close tutorial-video-modal__close--corner",
+          data: { action: "click->tutorial-video-modal#close" }
+        ) { "×" }
+        div(class: "tutorial-video-modal__video-wrapper") do
+          div(class: "tutorial-video-modal__body") do
+            iframe(
+              title: "vimeo-player",
+              src: "",
+              frameborder: "0",
+              referrerpolicy: "strict-origin-when-cross-origin",
+              allow: "autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share",
+              allowfullscreen: true,
+              data: { tutorial_video_modal_target: "iframe" }
+            )
+          end
+        end
+      end
     end
   end
 end

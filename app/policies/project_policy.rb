@@ -35,16 +35,16 @@ class ProjectPolicy < ApplicationPolicy
         member?
     end
 
-    def update_ship?
-        member?
-    end
-
     def submit_ship?
-        member?
+        member? && user&.eligible_for_shop?
     end
 
     def resend_webhook?
         user&.project_certifier?
+    end
+
+    def confirm_recertification?
+        member?
     end
 
     def request_recertification?

@@ -1,24 +1,89 @@
 .explore {
   margin-top: 3em;
 
+  &--extensions {
+    .explore__nav {
+      justify-content: center;
+    }
+  }
+
   &__nav {
-    background-color: var(--color-brown-400);
+    width: 90%;
+    max-width: 1200px;
     display: flex;
     flex-direction: row;
-    gap: 1em;
-    border-radius: 16px;
-    padding: 0.5em;
-    width: fit-content;
-    margin: 0 auto;
+    justify-content: space-between;
+    margin: 2.5em auto;
 
-    @media (max-width: 960px) {
-      flex-direction: column;
+    &--type {
+      border: 0.2em solid var(--color-brown-500);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: row;
+
+      .dropdown {
+        &__label {
+          display: none;
+        }
+
+        &__menu {
+          top: 0;
+          background-color: var(--color-tan-400);
+          color: var(--color-bg);
+        }
+
+        &__button {
+          background-color: var(--color-brown-500);
+          color: var(--color-bg);
+        }
+
+        &__item {
+          color: var(--color-brown-500);
+        }
+
+        &__item:hover {
+          background-color: var(--color-brown-700);
+          color: var(--color-bg);
+        }
+      }
+    }
+
+    &--mobile {
+      display: none;
+    }
+
+    &--sort {
+      .dropdown {
+        &__label {
+          display: none;
+        }
+
+        &__menu {
+          top: 0;
+        }
+      }
+    }
+
+    @media (max-width: 900px) {
       width: 100%;
+
+      &--type {
+        border: none;
+        margin-top: 0.2em;
+      }
+
+      &--desktop {
+        display: none;
+      }
+
+      &--mobile {
+        display: block;
+      }
     }
   }
 
   &__nav-component {
-    color: var(--color-bg);
+    color: var(--color-brown-500);
     font-size: 1.5rem;
     display: flex;
     justify-content: center;
@@ -28,15 +93,21 @@
     text-decoration: none;
 
     &:hover {
-      filter: brightness(1.1);
+      color: var(--color-brown-700);
     }
 
     &.selected {
       background-color: var(--color-brown-500);
+      color: var(--color-bg);
 
       &:hover {
-        filter: none;
+        color: var(--color-bg);
       }
+    }
+
+    svg {
+      height: 1.5rem;
+      width: 1.5rem;
     }
   }
 

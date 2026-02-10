@@ -23,7 +23,7 @@ class MajorityJudgmentService
 
       ship_event.update_columns(attrs.merge(updated_at: Time.current))
 
-      next unless ship_event.votes_count.to_i >= Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
+      next unless ship_event.votes.legitimate.count >= Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
 
       ShipEventPayoutCalculator.apply!(ship_event)
     end
@@ -34,7 +34,7 @@ class MajorityJudgmentService
   end
 
   def call
-    scores = @ship_event.votes.pluck(*Vote.score_columns)
+    scores = @ship_event.votes.legitimate.pluck(*Vote.score_columns)
     return empty_result if scores.empty?
 
     medians = build_medians(scores)
@@ -79,7 +79,7 @@ class MajorityJudgmentService
   end
 
   def self.all_median_values
-    all_scores = Vote.pluck(:ship_event_id, *Vote.score_columns)
+    all_scores = Vote.legitimate.pluck(:ship_event_id, *Vote.score_columns)
     scores_by_ship_event = all_scores.group_by(&:first).transform_values do |rows|
       rows.map { |row| row.drop(1) }
     end
@@ -108,7 +108,7 @@ class MajorityJudgmentService
   end
 
   def self.build_all_medians
-    all_scores = Vote.pluck(:ship_event_id, *Vote.score_columns)
+    all_scores = Vote.legitimate.pluck(:ship_event_id, *Vote.score_columns)
     scores_by_ship_event = all_scores.group_by(&:first).transform_values do |rows|
       rows.map { |row| row.drop(1) }
     end

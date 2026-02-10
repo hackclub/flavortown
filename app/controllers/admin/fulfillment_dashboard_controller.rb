@@ -6,6 +6,7 @@ module Admin
 
     def index
       @fulfillment_type = params[:fulfillment_type] || "all"
+      @show_warehouse = params[:show_warehouse] == "true"
       @pagy, @orders = pagy(:offset, filtered_orders(@fulfillment_type))
       generate_statistics
     end
@@ -20,9 +21,10 @@ module Admin
 
     def fulfillment_type_filters
       {
-        "hq_mail" => [ "ShopItem::HQMailItem", "ShopItem::PileOfStickersItem", "ShopItem::LetterMail" ],
+        "hq_mail" => [ "ShopItem::HQMailItem", "ShopItem::LetterMail" ],
         "third_party" => "ShopItem::ThirdPartyPhysical",
         "warehouse" => [ "ShopItem::WarehouseItem", "ShopItem::PileOfStickersItem" ],
+        "free_stickers" => "ShopItem::FreeStickers",
         "other" => [
           "ShopItem::HCBGrant",
           "ShopItem::SiteActionItem",
@@ -34,10 +36,11 @@ module Admin
       }
     end
 
-    def base_fulfillment_scope(include_associations: false)
+    def base_fulfillment_scope(include_associations: false, include_free_stickers: false)
       scope = ShopOrder.where(aasm_state: [ "pending", "awaiting_periodical_fulfillment" ])
-                       .where.not(shop_items: { type: "ShopItem::FreeStickers" })
                        .joins(:shop_item)
+
+      scope = scope.where.not(shop_items: { type: "ShopItem::FreeStickers" }) unless include_free_stickers
 
       if include_associations
         scope = scope.includes(:user, :shop_item, :assigned_to_user)
@@ -48,7 +51,12 @@ module Admin
     end
 
     def filtered_orders(fulfillment_type)
-      base_scope = base_fulfillment_scope(include_associations: true)
+      include_free_stickers = fulfillment_type == "free_stickers"
+      base_scope = base_fulfillment_scope(include_associations: true, include_free_stickers: include_free_stickers)
+
+      if fulfillment_type == "all" && !@show_warehouse
+        base_scope = base_scope.where.not(shop_items: { type: [ "ShopItem::WarehouseItem", "ShopItem::PileOfStickersItem" ] })
+      end
 
       if fulfillment_type == "all" || !fulfillment_type_filters.key?(fulfillment_type)
         base_scope
@@ -60,11 +68,13 @@ module Admin
 
     def generate_statistics
       base_orders = base_fulfillment_scope
+      base_orders_with_free = base_fulfillment_scope(include_free_stickers: true)
 
       @stats = {}
 
       fulfillment_type_filters.each do |type, shop_item_types|
-        @stats[type.to_sym] = generate_type_stats(base_orders.where(shop_items: { type: shop_item_types }))
+        scope = type == "free_stickers" ? base_orders_with_free : base_orders
+        @stats[type.to_sym] = generate_type_stats(scope.where(shop_items: { type: shop_item_types }))
       end
 
       @stats[:all] = generate_type_stats(base_orders)
@@ -133,9 +143,7 @@ module Admin
     end
 
     def ensure_authorized_user
-      unless current_user&.admin?
-        redirect_to root_path, alert: "whomp whomp"
-      end
+      authorize :admin, :access_fulfillment_dashboard?
     end
   end
 end

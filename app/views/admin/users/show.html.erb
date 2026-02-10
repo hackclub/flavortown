@@ -1,3 +1,4 @@
+<% content_for :title, "User #{@user.display_name}" %>
 <h1>User #<%= @user.id %>, <%= @user.display_name %></h1>
 
 <% if @user.banned? %>
@@ -12,12 +13,26 @@
   </div>
 <% end %>
 
+<% if @user.shadow_banned? %>
+  <div class="alert alert--danger" style="margin-bottom: 1rem;">
+    <strong>👻 This user is shadow banned</strong>
+    <% if @user.shadow_banned_reason.present? %>
+      <br>Reason: <%= @user.shadow_banned_reason %>
+    <% end %>
+    <% if @user.shadow_banned_at.present? %>
+      <br>Shadow banned at: <%= @user.shadow_banned_at.strftime("%Y-%m-%d %H:%M") %>
+    <% end %>
+  </div>
+<% end %>
+
 <div class="flex">
   <div class="card">
     <h2>basic info</h2>
 
     <div class="info-rows">
       <div><b>Name:</b> <%= @user.display_name %></div>
+      <div><b>Email:</b> <%= @user.email.presence || content_tag(:span, "N/A", style: "color: #9ca3af;") %></div>
+      <div><b>HCB Email:</b> <%= @user.hcb_email.presence || content_tag(:span, "N/A", style: "color: #9ca3af;") %></div>
       <div><b>Balance:</b> <%= @user.balance %> tickets</div>
       <div><b>Roles:</b> <%= @user.roles.map { |r| r.to_s.titleize }.join(", ") %></div>
       <div>
@@ -61,6 +76,15 @@
   <div class="card">
     <h2>identities</h2>
     <div class="info-rows">
+      <div>
+        <b>slack_id:</b>
+        <% if @user.slack_id.present? %>
+          <%= @user.slack_id %>
+          <%= link_to "go to slack", "https://hackclub.slack.com/team/#{@user.slack_id}", class: "btn-primary slim", target: "_blank" %>
+        <% else %>
+          <span style="color: #9ca3af;">N/A</span>
+        <% end %>
+      </div>
       <% @user.identities.each do |identity| %>
         <div>
           <b><%= identity.provider %>:</b>
@@ -72,7 +96,7 @@
 
           <% if identity.provider == "hackatime" %>
             <%= link_to "go to billy", "https://billy.3kh0.net/?u=#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
-            <%= link_to "go to joe", "https://dash.fraud.land/profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
+            <%= link_to "go to joe", "https://joe.fraud.hackclub.com/profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
 
             <% if identity.provider == "hack_club" %>
@@ -158,6 +182,7 @@
             </div>
           </form>
         <% end %>
+        <%= link_to "View Votes", votes_admin_user_path(@user), class: "btn-secondary slim" %>
       <% end %>
 
       <% if current_user.admin? %>

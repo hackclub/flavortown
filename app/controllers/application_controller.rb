@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
   include Achievementable
   include ExtensionUsageTrackable
 
+  before_action :store_referral_code
   before_action :enforce_ban
   before_action :refresh_identity_on_portal_return
   before_action :initialize_cache_counters
@@ -68,13 +69,34 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def store_referral_code
+    return unless params[:ref].present? && params[:ref].length <= 64
+
+    cookies[:referral_code] = {
+      value: params[:ref],
+      expires: 30.days.from_now,
+      same_site: :lax
+    }
+  end
+
   def render_not_found
     render file: Rails.root.join("public/404.html"), status: :not_found, layout: false
   end
 
   def user_not_authorized
     flash[:alert] = "You are not authorized to perform this action."
-    redirect_to(request.referrer || root_path)
+    redirect_to(safe_referrer || root_path)
+  end
+
+  def safe_referrer
+    return nil if request.referrer.blank?
+
+    referrer_uri = URI.parse(request.referrer)
+    return request.referrer if referrer_uri.host&.end_with?(".hackclub.com") || referrer_uri.host == "hackclub.com"
+
+    nil
+  rescue URI::InvalidURIError
+    nil
   end
 
   def handle_invalid_auth_token

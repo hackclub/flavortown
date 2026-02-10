@@ -26,6 +26,15 @@ class Admin::ProjectsController < Admin::ApplicationController
     @project = Project.unscoped.find(params[:id])
   end
 
+  def votes
+    authorize :admin, :manage_projects?
+    @project = Project.find(params[:id])
+
+    @pagy, @votes = pagy(
+      @project.votes.includes(:user).order(created_at: :desc)
+    )
+  end
+
   def restore
     authorize :admin, :manage_projects?
     @project = Project.unscoped.find(params[:id])

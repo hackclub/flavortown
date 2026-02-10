@@ -1,3 +1,4 @@
+<% content_for :title, "My Orders" %>
 <% if @show_tutorial_complete_dialog %>
   <%= render DialogueBoxComponent.new(
     text: [
@@ -71,8 +72,9 @@
               <div class="my-orders__title-section">
                 <h2 class="my-orders__item-name"><%= order.shop_item.name %></h2>
                 <div class="my-orders__status-wrapper">
-                  <span class="my-orders__status my-orders__status--<%= order.aasm_state %>">
-                    <%= order.aasm_state.humanize %>
+                  <% display_state = order.on_hold? ? "pending" : order.aasm_state %>
+                  <span class="my-orders__status my-orders__status--<%= display_state %>">
+                    <%= display_state.humanize %>
                   </span>
                   <% if order.aasm_state == "fulfilled" %>
                     <% if not order.digital? %>
@@ -109,7 +111,8 @@
                           <% end %>
                           <span class="my-orders__accessory-name"><%= acc_order.shop_item.name %></span>
                           <span class="my-orders__accessory-price">🍪 <%= number_with_precision(acc_order.frozen_item_price || acc_order.shop_item.ticket_cost, precision: 0) %></span>
-                          <span class="my-orders__status my-orders__status--<%= acc_order.aasm_state %>"><%= acc_order.aasm_state.humanize %></span>
+                          <% acc_display_state = acc_order.on_hold? ? "pending" : acc_order.aasm_state %>
+                          <span class="my-orders__status my-orders__status--<%= acc_display_state %>"><%= acc_display_state.humanize %></span>
                         </li>
                       <% end %>
                     </ul>

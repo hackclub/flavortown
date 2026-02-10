@@ -1,0 +1,63 @@
+<% content_for :title, "Ship Project" %>
+<div class="projects-ship">
+  <div class="projects-ship__container">
+    <div class="projects-ship__content">
+      <%= render ButtonComponent.new(
+            text: "← Back to Project",
+            color: :brown,
+            variant: :borderless,
+            href: project_path(@project),
+            class: "projects-ship__back"
+          ) %>
+
+      <h1 class="projects-ship__title">
+        Ready to submit <span class="projects-ship__project-name"><%= @project.title %></span>?
+      </h1>
+
+      <% case @step %>
+      <% when 1 %>
+        <%= render "ship_step_requirements" %>
+      <% when 2 %>
+        <%= render "ship_step_details" %>
+      <% when 3 %>
+        <%= render "ship_step_hackatime" %>
+      <% when 4 %>
+        <%= render "ship_step_update" %>
+      <% end %>
+
+      <div class="projects-ship__navigation">
+        <% if @step > 1 %>
+          <%= render ButtonComponent.new(text: "Back", color: :red, variant: :borderless, href: new_project_ships_path(@project, step: @step - 1)) %>
+        <% end %>
+
+        <% case @step %>
+        <% when 1 %>
+          <% if @project.shippable? %>
+            <%= render ButtonComponent.new(color: :blue, variant: :borderless, href: new_project_ships_path(@project, step: @step + 1)) do %>
+              Continue <%= inline_svg_tag("icons/next.svg") %>
+            <% end %>
+          <% else %>
+            <%= render ButtonComponent.new(color: :blue, variant: :borderless, disabled: true) do %>
+              Continue <%= inline_svg_tag("icons/next.svg") %>
+            <% end %>
+          <% end %>
+        <% when 3 %>
+          <%= render ButtonComponent.new(color: :blue, variant: :borderless, href: new_project_ships_path(@project, step: @step + 1)) do %>
+            Continue <%= inline_svg_tag("icons/next.svg") %>
+          <% end %>
+        <% when 2 %>
+          <%= render ButtonComponent.new(color: :blue, variant: :borderless, type: :submit, form: "ship-details-form", disable_with: "Saving...") do %>
+            Save & Continue <%= inline_svg_tag("icons/next.svg") %>
+          <% end %>
+        <% when 4 %>
+          <% if @project.shippable? %>
+            <%= render ButtonComponent.new(text: "Ship It!", color: :green, variant: :borderless, type: :submit, form: "ship-form", disable_with: "Shipping...") %>
+          <% else %>
+            <%= render ButtonComponent.new(text: "Ship It!", color: :green, variant: :borderless, disabled: true) %>
+            <p class="projects-ship__error">Complete all requirements on step 1 before shipping.</p>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

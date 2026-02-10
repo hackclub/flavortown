@@ -66,6 +66,10 @@ Rails.application.routes.draw do
   post "shop/order", to: "shop#create_order"
   patch "shop/update_region", to: "shop#update_region"
 
+  # Report Reviews
+  get "report-reviews/review/:token", to: "report_reviews#review", as: :review_report_token
+  get "report-reviews/dismiss/:token", to: "report_reviews#dismiss", as: :dismiss_report_token
+
   # Voting
   resources :votes, only: [ :new, :create, :index ]
 
@@ -77,7 +81,7 @@ Rails.application.routes.draw do
 
   # Nibbles
   get "nibbles", to: "nibbles#index", as: :nibbles
-
+  resources :sidequests, only: [ :index, :show ]
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
@@ -115,6 +119,9 @@ Rails.application.routes.draw do
   # Kitchen
   get "kitchen", to: "kitchen#index"
 
+  # Launch
+  get "launch", to: "launch#index"
+
   # Leaderboard
   get "leaderboard", to: "leaderboard#index"
 
@@ -123,6 +130,7 @@ Rails.application.routes.draw do
   patch "my/settings", to: "my#update_settings", as: :my_settings
   post "my/roll_api_key", to: "my#roll_api_key", as: :roll_api_key
   post "my/cookie_click", to: "my#cookie_click", as: :my_cookie_click
+  post "my/dismiss_thing", to: "my#dismiss_thing", as: :dismiss_thing
   get "my/achievements", to: "achievements#index", as: :my_achievements
 
   # Magic Links
@@ -140,7 +148,8 @@ Rails.application.routes.draw do
 
     namespace :v1 do
       resources :projects, only: [ :index, :show, :create, :update ] do
-        resources :devlogs, only: [ :index, :show, :create, :update, :destroy ], controller: "project_devlogs"
+        resource :report, only: [ :create ], controller: "external_reports"
+        resources :devlogs, only: [ :index ], controller: "project_devlogs"
       end
 
       resources :docs, only: [ :index ]
@@ -155,7 +164,11 @@ Rails.application.routes.draw do
   end
 
   namespace :user, path: "" do
-    resources :tutorial_steps, only: [ :show ]
+    resources :tutorial_steps, only: [ :show ] do
+      member do
+        post :complete
+      end
+    end
   end
 
   namespace :helper, constraints: HelperConstraint do
@@ -167,6 +180,7 @@ Rails.application.routes.draw do
       end
     end
     resources :shop_orders, only: [ :index, :show ]
+    resources :support_vibes, only: [ :index ]
   end
 
   # admin shallow routing
@@ -200,6 +214,8 @@ Rails.application.routes.draw do
          post :unshadow_ban
          post :impersonate
          post :refresh_verification
+         get  :votes
+         post :toggle_voting_lock
        end
        collection do
          post :stop_impersonating
@@ -212,6 +228,7 @@ Rails.application.routes.draw do
         post :delete
         post :shadow_ban
         post :unshadow_ban
+        get  :votes
       end
     end
     get "user-perms", to: "users#user_perms"
@@ -246,12 +263,28 @@ Rails.application.routes.draw do
         post :dismiss
       end
     end
+    resources :sidequest_entries, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+    end
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
+    get "voting_dashboard", to: "voting_dashboard#index"
     get "ship_event_scores", to: "ship_event_scores#index"
+    get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    get "suspicious_votes", to: "suspicious_votes#index"
+    resources :support_vibes, only: [ :index, :create ]
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
+      end
+    end
+    resources :shop_suggestions, only: [ :index ] do
+      member do
+        post :dismiss
+        post :disable_for_user
       end
     end
   end
@@ -267,25 +300,24 @@ Rails.application.routes.draw do
 
   # Projects
   resources :projects, shallow: true do
-    resources :memberships, only: [ :create, :destroy ], module: :project
-    resources :devlogs, only: %i[new create edit update destroy], module: :project, shallow: false do
+    resources :memberships, only: [ :create, :destroy ], module: :projects
+    resources :devlogs, only: %i[new create edit update destroy], module: :projects, shallow: false do
       member do
         get :versions
       end
     end
-    post "devlogs/new", to: "project/devlogs#create", as: nil
-    resources :reports, only: [ :create ], module: :project
+    resources :reports, only: [ :create ], module: :projects
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
+    resource :ships, only: [ :new, :create ], module: :projects
     member do
-      get :ship
       get :readme
-      patch :update_ship
-      post :submit_ship
+      get :stats
       post :mark_fire
       post :unmark_fire
       post :follow
       delete :unfollow
       post :resend_webhook
+      get :confirm_recertification
       post :request_recertification
     end
   end
@@ -299,5 +331,11 @@ Rails.application.routes.draw do
   # Public user profiles
   resources :users, only: [ :show ] do
     resource :og_image, only: [ :show ], module: :users, defaults: { format: :png }
+    member do
+      get :stats
+    end
   end
+
+  # Shop suggestions
+  resources :shop_suggestions, only: [ :create ]
 end

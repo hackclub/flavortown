@@ -21,7 +21,11 @@ class KitchenController < ApplicationController
     @completed_steps = current_user.tutorial_steps
     @tutorial_is_complete = @tutorial_steps - @completed_steps
 
-    @recently_added_items = ShopItem.enabled.buyable_standalone.recently_added.includes(:image_attachment)
+    @recently_added_items = ShopItem.enabled
+                                    .buyable_standalone
+                                    .recently_added
+                                    .limit(3)
+                                    .includes(:image_attachment)
     @user_region = determine_user_region
     @user_balance = current_user.balance
 
@@ -35,6 +39,8 @@ class KitchenController < ApplicationController
       @show_hackatime_tutorial = false
       @show_slack_tutorial = false
     end
+
+    @show_flagship_ad = current_user.has_logged_one_hour? && !current_user.has_dismissed?(:flagship_ad)
   end
 
   private
