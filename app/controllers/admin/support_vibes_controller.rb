@@ -1,0 +1,99 @@
+module Admin
+  class SupportVibesController < Admin::ApplicationController
+    def index
+      authorize :admin, :access_support_vibes?
+      @vibes = SupportVibes.order(period_end: :desc).limit(20)
+    end
+
+    def create
+      authorize :admin, :access_support_vibes?
+
+      last_vibe = SupportVibes.order(period_end: :desc).first
+      start_time = last_vibe ? last_vibe.period_end : 24.hours.ago
+      end_time = Time.current
+
+      begin
+        response = Faraday.get("https://flavortown.nephthys.hackclub.com/api/tickets") do |req|
+          req.params["after"] = start_time.iso8601
+          req.params["before"] = end_time.iso8601
+        end
+
+        unless response.success?
+          redirect_to admin_support_vibes_path, alert: "Failed to fetch data from Nephthys."
+          return
+        end
+
+        tickets = JSON.parse(response.body)
+
+        if tickets.empty?
+          redirect_to admin_support_vibes_path, notice: "No new tickets found in the specified time frame."
+          return
+        end
+
+        questions_list = tickets.map { |t| t["description"].to_s }
+        questions = questions_list.map.with_index(1) { |q, i| "#{i}. #{q}" }.join("\n")
+
+        prompt = <<~PROMPT
+          Analyze the following support questions and summarize the current vibes.
+
+          INPUT DATA:
+          #{questions}
+
+          OUTPUT INSTRUCTIONS:
+          Return ONLY valid JSON (no markdown formatting, no code blocks) with this exact schema:
+          {
+            "concerns": [
+              { "title": "Short catchy title", "description": "Detailed explanation (2-3 sentences) of what users are worried about including context." },
+              ... (Top 5 concerns)
+            ],
+            "prominent_questions": [
+              "Exact question asked by user?",
+              ... (5-7 most common/impactful VERBATIM questions found in the text)
+            ],
+            "overall_sentiment": 0.5, // Float from -1.0 (very negative) to 1.0 (very positive)
+            "rating": "medium" // One of: "low", "medium", "high"
+          }
+        PROMPT
+
+        llm_response = Faraday.post("https://ai.hackclub.com/proxy/v1/chat/completions") do |req|
+          req.headers["Authorization"] = "Bearer #{ENV['HCAI_API_KEY']}"
+          req.headers["Content-Type"] = "application/json"
+          req.body = {
+            model: "x-ai/grok-4.1-fast",
+            messages: [
+              { role: "user", content: prompt }
+            ]
+          }.to_json
+        end
+
+        unless llm_response.success?
+          Rails.logger.error "LLM Failure: #{llm_response.status} body: #{llm_response.body}"
+          redirect_to admin_support_vibes_path, alert: "LLM response failed."
+          return
+        end
+
+        llm_body = JSON.parse(llm_response.body)
+        content = llm_body.dig("choices", 0, "message", "content")
+        cleaned_content = content.gsub(/^```json\s*|```\s*$/, "")
+
+        data = JSON.parse(cleaned_content)
+
+        SupportVibes.create!(
+          period_start: start_time,
+          period_end: end_time,
+          concerns: data["concerns"],
+          overall_sentiment: data["overall_sentiment"],
+          notable_quotes: data["prominent_questions"],
+          rating: data["rating"]
+        )
+
+        redirect_to admin_support_vibes_path, notice: "Support vibes updated successfully."
+
+      rescue JSON::ParserError
+        redirect_to admin_support_vibes_path, alert: "Received invalid JSON from Nephthys."
+      rescue StandardError => e
+        redirect_to admin_support_vibes_path, alert: "An error occurred: #{e.message}"
+      end
+    end
+  end
+end

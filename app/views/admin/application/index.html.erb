@@ -1,3 +1,4 @@
+<% content_for :title, "Admin" %>
 <%= render HeadingComponent.new(title: "Admin", tone: :blue, size: :full) %>
 
 <h2>tasks</h2>
@@ -25,6 +26,15 @@
           <%= pending_reports %>
         </span>
       <% end %>
+    <% end %>
+  <% end %>
+  <% pending_sidequests = SidequestEntry.pending.joins(project: :ship_events).distinct.count %>
+  <%= link_to "/admin/sidequest_entries", class: button_class do %>
+    Sidequest Entries
+    <% if pending_sidequests > 0 %>
+      <span style="background-color: #8b5cf6; color: white; border-radius: 9999px; padding: 0px 6px; font-size: 0.9em; min-width: 20px; text-align: center;">
+        <%= pending_sidequests %>
+      </span>
     <% end %>
   <% end %>
   <% if policy(:admin).access_shop_orders? %>
@@ -118,5 +128,8 @@
   <% end %>
   <% if policy(:admin).access_suspicious_votes? %>
     <%= link_to "Suspicious Votes", "/admin/suspicious_votes", class: button_class %>
+  <% end %>
+  <% if policy(:admin).access_support_vibes? %>
+    <%= link_to "Support Vibes", "/admin/support_vibes", class: button_class %>
   <% end %>
 </div>

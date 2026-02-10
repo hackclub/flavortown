@@ -1,0 +1,191 @@
+<h1>Sidequest Entries</h1>
+
+<div style="display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap;">
+  <div class="card" style="flex: 1; min-width: 300px;">
+    <h2>Stats</h2>
+    <div style="display: flex; gap: 2rem; align-items: center;">
+      <div>
+        <strong>Pending:</strong> <%= @counts[:pending] %>
+      </div>
+      <div>
+        <strong>Approved:</strong> <%= @counts[:approved] %>
+      </div>
+      <div>
+        <strong>Rejected:</strong> <%= @counts[:rejected] %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h2>Filters</h2>
+
+  <%= form_with url: admin_sidequest_entries_path, method: :get, local: true do |f| %>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+      <div>
+        <%= f.label :status, "Status" %>
+        <%= f.select :status, options_for_select([["Pending", "pending"], ["Approved", "approved"], ["Rejected", "rejected"]], params[:status]), { include_blank: "All" }, class: "form-control" %>
+      </div>
+
+      <div>
+        <%= f.label :sidequest_id, "Sidequest" %>
+        <%= f.select :sidequest_id, options_for_select(@sidequests.map { |s| [s.title, s.id] }, params[:sidequest_id]), { include_blank: "All" }, class: "form-control" %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.submit "Filter", class: "btn-primary" %>
+      <%= link_to "Clear Filters", admin_sidequest_entries_path, class: "btn-secondary" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="card">
+  <table class="entries-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Sidequest</th>
+        <th>Project</th>
+        <th>Owner</th>
+        <th>Status</th>
+        <th>Reviewed By</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @entries.each do |entry| %>
+        <tr>
+          <td>#<%= entry.id %></td>
+          <td><%= entry.sidequest.title %></td>
+          <td>
+            <%= link_to entry.project.title, project_path(entry.project) %>
+          </td>
+          <td>
+            <% owner = entry.project_owner %>
+            <% if owner %>
+              <div class="user-cell">
+                <%= image_tag owner.avatar, class: "avatar-sm", alt: owner.display_name %>
+                <span><%= owner.display_name || owner.email %></span>
+              </div>
+            <% else %>
+              <span class="text-muted">-</span>
+            <% end %>
+          </td>
+          <td>
+            <span class="badge badge-<%= entry.aasm_state %>">
+              <%= entry.aasm_state %>
+            </span>
+          </td>
+          <td>
+            <% if entry.reviewed_by %>
+              <div class="user-cell">
+                <%= image_tag entry.reviewed_by.avatar, class: "avatar-sm", alt: entry.reviewed_by.display_name %>
+                <span><%= entry.reviewed_by.display_name %></span>
+              </div>
+            <% else %>
+              <span class="text-muted">-</span>
+            <% end %>
+          </td>
+          <td><%= entry.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          <td>
+            <div class="actions-cell">
+              <% if entry.pending? %>
+                <%= button_to "Approve", approve_admin_sidequest_entry_path(entry), method: :post, class: "btn-primary slim" %>
+                <%= button_to "Reject", reject_admin_sidequest_entry_path(entry), method: :post, class: "btn-secondary slim" %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if @entries.empty? %>
+    <p style="text-align: center; padding: 2rem;">No sidequest entries found.</p>
+  <% end %>
+</div>
+
+<div style="margin-top: 2em;">
+  <%= link_to "<- Back", admin_root_path, class: "btn-secondary" %>
+</div>
+
+<style>
+.entries-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.entries-table th,
+.entries-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.entries-table th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.entries-table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.text-muted {
+  color: #9ca3af;
+}
+
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.badge-pending {
+  background-color: #fbbf24;
+  color: #78350f;
+}
+
+.badge-approved {
+  background-color: #10b981;
+  color: white;
+}
+
+.badge-rejected {
+  background-color: #ef4444;
+  color: white;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5em;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: white;
+}
+</style>

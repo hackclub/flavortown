@@ -12,10 +12,26 @@ free_stickers = ShopItem::FreeStickers.find_or_create_by!(name: "Free Stickers!"
   item.one_per_person_ever = true
   item.description = "we'll actually send you these!"
   item.ticket_cost = 10
-  downloaded_image = URI.parse("https://hc-cdn.hel1.your-objectstorage.com/s/v3/4367d6fb4a3afa7b2e34ef63c13beaa33922f91b_untitled78_20251203024129__1_.png").open
+  downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "sticker.png")
 end
 free_stickers.update!(ticket_cost: 10) if free_stickers.ticket_cost != 10
+
+# Create the current sidequests
+Sidequest.find_or_create_by!(slug: "extension") do |sq|
+  sq.title = "Extensions"
+  sq.description = "Unlock a Chrome Developer License in the shop! Must have a GitHub release with a .crx file to qualify."
+  sq.expires_at = Date.new(2026, 2, 20)
+end
+
+# Chrome Webstore License - requires extension sidequest achievement
+chrome_license = ShopItem::HCBGrant.find_or_create_by!(name: "Chrome Webstore License") do |item|
+  item.description = "A $5 grant to pay for your Chrome Web Store developer registration fee"
+  item.ticket_cost = 0
+  downloaded_image = URI.parse("https://placecats.com/300/200").open
+  item.image.attach(io: downloaded_image, filename: "chrome-webstore.png")
+end
+chrome_license.update!(requires_achievement: "sidequest_extension")
 
 user = User.find_or_create_by!(email: "max@hackclub.com", slack_id: "U09UQ385LSG")
 user.make_super_admin!
