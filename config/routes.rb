@@ -66,6 +66,10 @@ Rails.application.routes.draw do
   post "shop/order", to: "shop#create_order"
   patch "shop/update_region", to: "shop#update_region"
 
+  # Report Reviews
+  get "report-reviews/review/:token", to: "report_reviews#review", as: :review_report_token
+  get "report-reviews/dismiss/:token", to: "report_reviews#dismiss", as: :dismiss_report_token
+
   # Voting
   resources :votes, only: [ :new, :create, :index ]
 

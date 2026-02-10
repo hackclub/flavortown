@@ -27,10 +27,11 @@
   </div>
   <div style="flex-shrink: 0;">
     <% time_range = params[:time_range] || '7_days' %>
+    <% limit = params[:limit] || '10' %>
     <% if @view == 'fulfillment' %>
-      <%= render partial: "action_leaderboard", locals: { mode: :fulfillment, time_range: time_range } %>
+      <%= render partial: "action_leaderboard", locals: { mode: :fulfillment, time_range: time_range, limit: limit } %>
     <% elsif @view == 'shop_orders' %>
-      <%= render partial: "action_leaderboard", locals: { mode: :fraud, time_range: time_range } %>
+      <%= render partial: "action_leaderboard", locals: { mode: :fraud, time_range: time_range, limit: limit } %>
     <% end %>
   </div>
 </div>
@@ -49,6 +50,9 @@
   <%= render partial: "grouped_table", locals: { grouped_orders: @grouped_orders } %>
 <% elsif @shop_orders %>
   <%= render partial: "table", locals: { orders: @shop_orders } %>
+  <% if @pagy %>
+    <%== @pagy.series_nav %>
+  <% end %>
 <% end %>
 
 <div style="margin-top: 2em;">

@@ -108,42 +108,147 @@
 <% end %>
 
 <h2>30-Day Trends</h2>
-<div class="chart-section">
-  <h3>Daily Creation</h3>
-  <div class="chart-bars">
-    <% max_creation = @creation.values.max.to_f.nonzero? || 1 %>
-    <% @creation.each do |date, amount| %>
-      <div class="chart-bar-container" title="<%= date.strftime('%b %d') %>: <%= number_with_delimiter(amount) %>">
-        <div class="chart-bar positive" style="height: <%= (amount / max_creation * 100).round %>%;"></div>
-        <span class="chart-label"><%= date.strftime('%d') %></span>
-      </div>
-    <% end %>
+
+<div class="payout-charts-container">
+  <div class="card payout-chart-card">
+    <h3>Daily Creation</h3>
+    <canvas id="creationChart"></canvas>
   </div>
 
-  <h3>Daily Destruction</h3>
-  <div class="chart-bars">
-    <% max_destruction = @destruction.values.max.to_f.nonzero? || 1 %>
-    <% @destruction.each do |date, amount| %>
-      <div class="chart-bar-container" title="<%= date.strftime('%b %d') %>: <%= number_with_delimiter(amount) %>">
-        <div class="chart-bar negative" style="height: <%= (amount / max_destruction * 100).round %>%;"></div>
-        <span class="chart-label"><%= date.strftime('%d') %></span>
-      </div>
-    <% end %>
+  <div class="card payout-chart-card">
+    <h3>Daily Destruction</h3>
+    <canvas id="destructionChart"></canvas>
   </div>
 
-  <h3>Circulation Over Time</h3>
-  <div class="chart-bars">
-    <% min_circ = @circulation.values.min.to_f %>
-    <% max_circ = @circulation.values.max.to_f %>
-    <% range = (max_circ - min_circ).nonzero? || 1 %>
-    <% @circulation.each do |date, amount| %>
-      <div class="chart-bar-container" title="<%= date.strftime('%b %d') %>: <%= number_with_delimiter(amount) %>">
-        <div class="chart-bar neutral" style="height: <%= ((amount - min_circ) / range * 100).round %>%;"></div>
-        <span class="chart-label"><%= date.strftime('%d') %></span>
-      </div>
-    <% end %>
+  <div class="card payout-chart-card">
+    <h3>Circulation Over Time</h3>
+    <canvas id="circulationChart"></canvas>
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="payout-chart-data">
+  <%= {
+    creation: @creation.sort.map { |date, amount| { x: date.strftime('%b %d'), y: amount.to_i } },
+    destruction: @destruction.sort.map { |date, amount| { x: date.strftime('%b %d'), y: amount.to_i } },
+    circulation: @circulation.sort.map { |date, amount| { x: date.strftime('%b %d'), y: amount.to_i } }
+  }.to_json.html_safe %>
+</script>
+
+<script>
+  (() => {
+    const chartData = JSON.parse(document.getElementById('payout-chart-data').textContent);
+
+    // Creation Chart
+    const creationCtx = document.getElementById('creationChart');
+    if (creationCtx) {
+      new Chart(creationCtx, {
+        type: 'bar',
+        data: {
+          labels: chartData.creation.map(d => d.x),
+          datasets: [{
+            label: 'Cookies Created',
+            data: chartData.creation.map(d => d.y),
+            backgroundColor: 'rgba(16, 185, 129, 0.6)',
+            borderColor: 'rgba(16, 185, 129, 1)',
+            borderWidth: 1,
+            borderRadius: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return value.toLocaleString();
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Destruction Chart
+    const destructionCtx = document.getElementById('destructionChart');
+    if (destructionCtx) {
+      new Chart(destructionCtx, {
+        type: 'bar',
+        data: {
+          labels: chartData.destruction.map(d => d.x),
+          datasets: [{
+            label: 'Cookies Destroyed',
+            data: chartData.destruction.map(d => d.y),
+            backgroundColor: 'rgba(239, 68, 68, 0.6)',
+            borderColor: 'rgba(239, 68, 68, 1)',
+            borderWidth: 1,
+            borderRadius: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return value.toLocaleString();
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Circulation Chart
+    const circulationCtx = document.getElementById('circulationChart');
+    if (circulationCtx) {
+      new Chart(circulationCtx, {
+        type: 'line',
+        data: {
+          labels: chartData.circulation.map(d => d.x),
+          datasets: [{
+            label: 'Total Circulation',
+            data: chartData.circulation.map(d => d.y),
+            borderColor: 'rgba(59, 130, 246, 1)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: 'rgba(59, 130, 246, 1)'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: {
+                callback: function(value) {
+                  return value.toLocaleString();
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+  })();
+</script>
 
 <h2>Recent Transactions</h2>
 <% if @recent.any? %>
@@ -206,43 +311,20 @@
 
   .positive { color: #10b981; }
   .negative { color: #ef4444; }
-  .neutral { background-color: #6366f1; }
 
-  .chart-section {
-    margin: 2rem 0;
+  .payout-charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
   }
 
-  .chart-bars {
-    display: flex;
-    align-items: flex-end;
-    height: 100px;
-    gap: 2px;
-    margin-bottom: 1.5rem;
-    padding: 0.5rem;
-    background: #f5f5f5;
-    border-radius: 4px;
-  }
-
-  .chart-bar-container {
-    flex: 1;
+  .payout-chart-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    height: 100%;
   }
 
-  .chart-bar {
-    width: 100%;
-    min-height: 2px;
-    border-radius: 2px 2px 0 0;
-  }
-
-  .chart-bar.positive { background-color: #10b981; }
-  .chart-bar.negative { background-color: #ef4444; }
-
-  .chart-label {
-    font-size: 0.6rem;
-    color: #666;
-    margin-top: 2px;
+  .payout-chart-card h3 {
+    margin-bottom: 1rem;
   }
 </style>

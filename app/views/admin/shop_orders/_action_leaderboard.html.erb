@@ -3,6 +3,7 @@
   # Mode can be :fraud (approvals/rejections) or :fulfillment (fulfilled orders)
   mode = local_assigns[:mode] || :combined
   time_range = local_assigns[:time_range] || '7_days'
+  limit = local_assigns[:limit]&.to_i || 10
 
   # Build query based on time range
   versions_query = PaperTrail::Version
@@ -65,10 +66,13 @@
     action_counts
   end
 
-  # Sort by total and take top 10
-  top_users = filtered_counts.sort_by { |_, v| -v[:total] }.first(10)
+  # Sort by total and take top users based on limit (nil means show all)
+  sorted_users = filtered_counts.sort_by { |_, v| -v[:total] }
+  top_users = limit.nil? ? sorted_users : sorted_users.first(limit)
   user_ids = top_users.map(&:first)
   users_by_id = User.where(id: user_ids).index_by(&:id)
+
+  limit_options = [10, nil]
 %>
 
 <div class="card action-leaderboard">
@@ -84,10 +88,16 @@
       <small style="color: #666; font-weight: normal;">(<%= time_range == '7_days' ? '7 days' : 'all time' %>)</small>
     </h3>
     <div class="action-leaderboard__toggle">
-      <%= link_to "7 days", admin_shop_orders_path(view: @view, time_range: '7_days'),
+      <%= link_to "7 days", admin_shop_orders_path(view: @view, time_range: '7_days', limit: limit),
           class: "btn-#{time_range == '7_days' ? 'primary' : 'secondary'} slim" %>
-      <%= link_to "All time", admin_shop_orders_path(view: @view, time_range: 'all_time'),
+      <%= link_to "All time", admin_shop_orders_path(view: @view, time_range: 'all_time', limit: limit),
           class: "btn-#{time_range == 'all_time' ? 'primary' : 'secondary'} slim" %>
+    </div>
+    <div class="action-leaderboard__limit-toggle">
+      <%= link_to "Top 10", admin_shop_orders_path(view: @view, time_range: time_range, limit: 10),
+          class: "btn-#{limit == 10 ? 'primary' : 'secondary'} slim" %>
+      <%= link_to "All", admin_shop_orders_path(view: @view, time_range: time_range, limit: nil),
+          class: "btn-#{limit.nil? ? 'primary' : 'secondary'} slim" %>
     </div>
   </div>
 
@@ -172,6 +182,18 @@
   .action-leaderboard__toggle .btn-secondary {
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
+  }
+
+  .action-leaderboard__limit-toggle {
+    display: flex;
+    gap: 0.5em;
+    margin-top: 0.5em;
+  }
+
+  .action-leaderboard__limit-toggle .btn-primary,
+  .action-leaderboard__limit-toggle .btn-secondary {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
   }
 
   .leaderboard-table {

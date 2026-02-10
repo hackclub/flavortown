@@ -8,14 +8,16 @@ export default class extends Controller {
   }
 
   trackRepoClick(event) {
-    if (event.button === 2) return;
-    console.log("Repo clicked!");
+    if (event.type === "auxclick" && event.button === 2) {
+      return;
+    }
     this.repoFieldTarget.value = "true";
   }
 
   trackDemoClick(event) {
-    if (event.button === 2) return;
-    console.log("Demo clicked!");
+    if (event.type === "auxclick" && event.button === 2) {
+      return;
+    }
     this.demoFieldTarget.value = "true";
   }
 

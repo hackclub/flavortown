@@ -446,6 +446,8 @@ class ProjectsController < ApplicationController
     npmjs.com
     crates.io
     curseforge.com
+    makerworld.com
+    streamlit.app
   ].freeze
 
   def validate_url_not_dead(attribute, name)
