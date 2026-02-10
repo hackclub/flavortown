@@ -7,7 +7,7 @@ class ProjectLapseTimelapsesFetcher
     return [] unless ENV["LAPSE_API_BASE"].present?
     return [] unless @project.hackatime_keys.present?
 
-    hackatime_identity = @project.users.first&.hackatime_identity
+    hackatime_identity = @project.memberships.owner.first&.user&.hackatime_identity
     return [] unless hackatime_identity&.uid.present?
 
     timelapses = LapseService.fetch_all_timelapses_for_projects(

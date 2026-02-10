@@ -598,7 +598,7 @@ class ProjectsController < ApplicationController
     return false unless ENV["LAPSE_API_BASE"].present?
     return false unless @project.hackatime_keys.present?
 
-    hackatime_identity = @project.users.first&.hackatime_identity
+    hackatime_identity = @project.memberships.owner.first&.user&.hackatime_identity
     hackatime_identity&.uid.present?
   end
 
