@@ -36,38 +36,35 @@ module Admin
       end
 
       thirty_days_ago = 30.days.ago.beginning_of_day
-      daily_data = LedgerEntry.where(created_at: thirty_days_ago..)
-                              .group("DATE(created_at)")
-                              .group("CASE WHEN amount >= 0 THEN 'created' ELSE 'destroyed' END")
-                              .sum("ABS(amount)")
-
+      
+      # Build daily creation/destruction data
       @creation = {}
       @destruction = {}
-
+      
       30.times do |i|
         date = i.days.ago.to_date
-        date_str = date.to_s
-        @creation[date] = daily_data[[ date_str, "created" ]] || 0
-        @destruction[date] = daily_data[[ date_str, "destroyed" ]] || 0
+        date_start = date.beginning_of_day
+        date_end = date.end_of_day
+        
+        @creation[date] = LedgerEntry.where(created_at: date_start..date_end, amount: 1..).sum("ABS(amount)").to_i
+        @destruction[date] = LedgerEntry.where(created_at: date_start..date_end, amount: ..0).sum("ABS(amount)").to_i
       end
 
-      circulation_data = LedgerEntry.where("created_at < ?", 31.days.ago.beginning_of_day)
-                                    .sum(:amount)
-
-      daily_changes = LedgerEntry.where(created_at: thirty_days_ago..)
-                                 .group("DATE(created_at)")
-                                 .sum(:amount)
-
+      # Build circulation data
       @circulation = {}
-      total = circulation_data
+      circulation_total = LedgerEntry.where("created_at < ?", thirty_days_ago).sum(:amount).to_i
 
       30.times do |i|
         date = i.days.ago.to_date
-        change = daily_changes[date.to_s] || 0
-        total += change
-        @circulation[date] = total
+        date_start = date.beginning_of_day
+        date_end = date.end_of_day
+        
+        daily_change = LedgerEntry.where(created_at: date_start..date_end).sum(:amount).to_i
+        circulation_total += daily_change
+        @circulation[date] = circulation_total
       end
 
+      # Sort in ascending order
       @creation = @creation.sort.to_h
       @destruction = @destruction.sort.to_h
       @circulation = @circulation.sort.to_h
