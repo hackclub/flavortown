@@ -89,7 +89,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
+        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev libvips-dev
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
