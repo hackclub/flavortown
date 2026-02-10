@@ -10,7 +10,7 @@ class ShipCertService
     devlog_count = project.devlog_posts
       .joins("JOIN post_devlogs ON post_devlogs.id = posts.postable_id")
       .where(post_devlogs: { deleted_at: nil })
-      .count
+      .size
 
     last_ship_at = project.ship_events.first&.created_at
 

@@ -1,3 +1,4 @@
+<% content_for :title, "Order #{@shop_item.name}" %>
 <%= render "shared/inspector", record: @shop_item %>
 <div class="shop-order">
     <div class="shop-order__back">
@@ -33,6 +34,15 @@
                         <span>Out of stock</span>
                     <% else %>
                         <span><%= @shop_item.remaining_stock %> left in stock</span>
+                    <% end %>
+                </div>
+            <% end %>
+            <% if @required_achievement %>
+                <div class="shop-order__achievement-requirement <%= 'shop-order__achievement-requirement--locked' if @locked_by_achievement %>">
+                    <% if @locked_by_achievement %>
+                        <span>Requires "<%= @required_achievement.name %>" achievement to purchase</span>
+                    <% else %>
+                        <span>Unlocked via "<%= @required_achievement.name %>" achievement</span>
                     <% end %>
                 </div>
             <% end %>
@@ -193,9 +203,9 @@
                     </div>
                 <% end %>
             </div>
-            <button type="submit" form="order-form" class="btn btn-order" style="width: 100%;" data-order-form-target="submitButton">
+            <button type="submit" form="order-form" class="btn btn-order" style="width: 100%;" data-order-form-target="submitButton" <%= 'disabled' if @locked_by_achievement %>>
                 <%= inline_svg_tag "icons/tick.svg", class: "shop-order__summary-btn-icon", aria: { hidden: true } %>
-                Get!
+                <%= @locked_by_achievement ? 'Locked' : 'Get!' %>
             </button>
         </div>
     </div>

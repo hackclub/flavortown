@@ -48,6 +48,7 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
+#  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
@@ -230,6 +231,17 @@ class ShopItem < ApplicationRecord
   def blocked_in_country?(country_code)
     return false unless country_code.present? && blocked_countries.present?
     blocked_countries.include?(country_code.upcase)
+  end
+
+  def meet_achievement_require?(user)
+    return true unless requires_achievement?
+    return false unless user.present?
+
+    user.earned_achievement?(requires_achievement.to_sym)
+  end
+
+  def requires_achievement?
+    requires_achievement.present?
   end
 
   private

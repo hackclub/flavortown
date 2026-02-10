@@ -109,6 +109,25 @@
     }
   }
 
+  &__achievement-requirement {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--font-family-text);
+    margin-bottom: 0.5rem;
+    background-color: var(--color-green-300);
+    color: var(--color-green-700);
+    border: 1px solid var(--color-green-400);
+
+    &--locked {
+      background-color: #fef3c7;
+      color: #92400e;
+      border-color: #fcd34d;
+    }
+  }
+
   &__details {
     width: 50%;
 
