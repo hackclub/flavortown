@@ -2,6 +2,7 @@ class ShipCertWebhookJob < ApplicationJob
   queue_as :default
   retry_on StandardError, wait: :polynomially_longer, attempts: Float::INFINITY
   discard_on ProjectNotShippableError
+  discard_on DuplicateShipError
 
   def perform(ship_event_id:, type: nil, force: false)
     return if !force && already_processed?(ship_event_id)
