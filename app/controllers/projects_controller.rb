@@ -401,6 +401,8 @@ class ProjectsController < ApplicationController
       return
     end
 
+    @is_owner = current_user.present? && @project.users.include?(current_user)
+
     @lapse_timelapses = cached_lapse_timelapses
 
     if @lapse_timelapses.nil? && should_fetch_lapse_timelapses?

@@ -110,7 +110,7 @@
           <span class="project-show-card__title-text"><%= project.title %></span>
         </h1>
 
-        <div class="projects-show__admin-actions">
+        <div class="projects-show__title-actions">
           <%= helpers.turbo_frame_tag "lapse-timelapses-#{project.id}", src: helpers.lapse_timelapses_project_path(project), loading: "lazy" %>
             <% if helpers.policy(project).edit? %>
               <%= render ButtonComponent.new(
