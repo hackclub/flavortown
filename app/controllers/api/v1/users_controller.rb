@@ -3,13 +3,17 @@ class Api::V1::UsersController < Api::BaseController
 
   class_attribute :description, default: {
     index: "Fetch a list of users. Ratelimit: 5 reqs/min",
-    show: "Fetch a specific user by ID. Ratelimit: 30 reqs/min"
+    show: "Fetch a specific user by ID. Ratelimit: 30 reqs/min",
+    projects: "Fetch all projects for a specific user. Ratelimit: 30 reqs/min"
   }
 
   class_attribute :url_params_model, default: {
     index: {
       page: { type: Integer, desc: "Page number for pagination", required: false },
       query: { type: String, desc: "Search users by display name or slack ID", required: false }
+    },
+    projects: {
+      page: { type: Integer, desc: "Page number for pagination", required: false }
     }
   }
 
@@ -22,12 +26,20 @@ class Api::V1::UsersController < Api::BaseController
     total_count: Integer, next_page: "Integer || Null"
   }.freeze
 
+  PROJECT_SCHEMA = {
+    id: Integer, title: String, description: String, repo_url: String,
+    demo_url: String, readme_url: String, ai_declaration: String,
+    ship_status: String, devlog_ids: [ Integer ], created_at: String,
+    updated_at: String
+  }.freeze
+
   class_attribute :response_body_model, default: {
     index: { users: [ USER_BASE ], pagination: PAGINATION_SCHEMA },
     show: USER_BASE.merge(
       vote_count: Integer, like_count: Integer,
       devlog_seconds_total: Integer, devlog_seconds_today: Integer
-    )
+    ),
+    projects: { projects: [ PROJECT_SCHEMA ], pagination: PAGINATION_SCHEMA }
   }
 
   def index
@@ -44,5 +56,12 @@ class Api::V1::UsersController < Api::BaseController
 
   def show
     @user = params[:id] == "me" ? current_api_user : User.find(params[:id])
+  end
+
+  def projects
+    user = params[:user_id] == "me" ? current_api_user : User.find(params[:user_id])
+    projects = user.projects.where(deleted_at: nil).excluding_shadow_banned.includes(:devlogs)
+
+    @pagy, @projects = pagy(projects, page: params[:page], limit: 100)
   end
 end
