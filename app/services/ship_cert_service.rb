@@ -10,7 +10,7 @@ class ShipCertService
     devlog_count = project.devlog_posts
       .joins("JOIN post_devlogs ON post_devlogs.id = posts.postable_id")
       .where(post_devlogs: { deleted_at: nil })
-      .count
+      .size
 
     last_ship_at = project.ship_events.first&.created_at
 
@@ -66,6 +66,12 @@ class ShipCertService
       Rails.logger.info "#{project.id} sent for certification"
       true
     else
+      # Check for duplicate ship error (403)
+      if response.status == 403 && response.body.include?("duplicate ship")
+        Rails.logger.warn "Duplicate ship detected for project #{project.id}"
+        raise DuplicateShipError, "Project #{project.id} is already in the certification queue"
+      end
+
       raise "Certification request failed for project #{project.id}: #{response.body}"
     end
   rescue Faraday::Error => e
@@ -96,3 +102,5 @@ class ShipCertService
     project.ship_events.first
   end
 end
+
+class DuplicateShipError < StandardError; end

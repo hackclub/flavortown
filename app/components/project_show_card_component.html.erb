@@ -1,23 +1,42 @@
 <%= render "shared/inspector", record: project %>
 <article class="project-show-card">
+  <% ship_feedback_modal_id = "ship-feedback-modal-#{project.id}" %>
   <div class="project-show-card__banner project-card__banner">
     <div class="project-card__banner-frame">
       <% if banner_variant.present? %>
         <%= image_tag project.banner.variant(:card), class: "project-card__banner-image", alt: "#{project.title} banner" %>
         <% if owner? %>
             <% can_ship = project.draft? || project.shippable? %>
-            <div class="project-show-card__ship-wrapper" id="ship-btn-wrapper">
-              <%= render ButtonComponent.new(
-                  text: project.draft? ? "Ship" : "Ship Again",
-                  color: :green,
-                  icon: "icons/ship.svg",
-                  href: can_ship ? new_project_ships_path(project) : nil,
-                  disabled: !can_ship,
-                  class: "project-show-card__ship-btn"
-              ) %>
+            <% can_request_re_cert = project.last_ship_event&.certification_status == 'rejected' %>
+            <div class="project-show-card__ship-wrapper" id="ship-btn-wrapper-banner">
+              <% if can_ship %>
+                <%= render ButtonComponent.new(
+                    text: project.draft? ? "Ship" : "Ship Again",
+                    color: :green,
+                    icon: "icons/ship.svg",
+                    href: new_project_ships_path(project),
+                    class: "project-show-card__ship-btn"
+                ) %>
+              <% elsif can_request_re_cert %>
+                <%= button_to helpers.request_recertification_project_path(project),
+                      method: :post,
+                      class: "btn btn--green project-show-card__ship-btn",
+                      data: { confirm: "Are you sure you want to request re-certification? This will resubmit your project for review." } do %>
+                  <%= helpers.inline_svg_tag "icons/ship.svg" %>
+                  Ship Again
+                <% end %>
+              <% else %>
+                <%= render ButtonComponent.new(
+                    text: project.draft? ? "Ship" : "Ship Again",
+                    color: :green,
+                    icon: "icons/ship.svg",
+                    disabled: true,
+                    class: "project-show-card__ship-btn"
+                ) %>
+              <% end %>
             </div>
-            <% unless can_ship %>
-              <%= render TooltipComponent.new(target_id: "ship-btn-wrapper", position: :left) do %>
+            <% if !can_ship && !can_request_re_cert %>
+              <%= render TooltipComponent.new(target_id: "ship-btn-wrapper-banner", position: :left) do %>
                 <strong>Cannot ship yet:</strong>
                 <ul>
                   <% ship_disabled_reasons.each do |reason| %>
@@ -133,11 +152,11 @@
               <%= helpers.inline_svg_tag("icons/user.svg") %>
               <span><%= followers_count %> <%= "follower".pluralize(followers_count) %></span>
             </button>
-          <% if can_view_ship_feedback? && ship_status.present? %>
+          <% if !project.draft? && can_view_ship_feedback? && ship_status.present? %>
             <div class="project-show-card__stat">
               <% certifier_border = certifier_viewing_others_project? ? "border: 3px solid orange; box-shadow: 0 0 0 4px rgba(255, 165, 0, 0.3);" : "" %>
-              <% if has_feedback? && owner? %>
-                <button type="button" data-controller="modal" data-action="click->modal#open" data-modal-target-value="ship-feedback-modal-<%= project.id %>" style="background-color: <%= ship_status_color %>; color: white; border-radius: 9999px; padding: 2px 10px; font-size: 0.85em; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; <%= certifier_border %>" title="Click to view feedback">
+              <% if has_feedback? && (owner? || current_user&.project_certifier? || current_user&.fraud_dept? || current_user&.admin?) %>
+                <button type="button" data-controller="modal" data-action="click->modal#open" data-modal-target-value="<%= ship_feedback_modal_id %>" style="background-color: <%= ship_status_color %>; color: white; border-radius: 9999px; padding: 2px 10px; font-size: 0.85em; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; <%= certifier_border %>" title="Click to view feedback">
                   <%= ship_status_label %>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
                 </button>
@@ -225,22 +244,16 @@
 </article>
 
 <% if can_view_ship_feedback? && has_feedback? %>
-  <div id="ship-feedback-modal-<%= project.id %>" class="ship-feedback-modal" data-controller="modal" style="display: none; position: fixed; inset: 0; z-index: 1000; justify-content: center; align-items: center;">
-    <div data-action="click->modal#close" style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);"></div>
-    <div style="background: var(--color-cream, #fef3e2); border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; position: relative; z-index: 1001;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h2 style="margin: 0; color: var(--color-brown);">Ship Feedback</h2>
-        <button type="button" data-action="click->modal#close" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--color-brown);">&times;</button>
-      </div>
-
-      <div style="margin-bottom: 16px;">
+  <%= render layout: "shared/modal", locals: { id: ship_feedback_modal_id, title: "Ship Feedback" } do %>
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div>
         <span style="background-color: <%= ship_status_color %>; color: white; border-radius: 9999px; padding: 4px 12px; font-size: 0.9em; font-weight: 600;">
           <%= ship_status_label %>
         </span>
       </div>
 
       <% if ship_feedback_reason.present? %>
-        <div style="margin-bottom: 16px;">
+        <div>
           <h3 style="margin: 0 0 8px 0; color: var(--color-brown); font-size: 1em;">Reason</h3>
           <p style="margin: 0; color: var(--color-brown-dark);"><%= ship_feedback_reason %></p>
         </div>
@@ -258,17 +271,22 @@
       <% end %>
 
       <% if ship_status == "rejected" %>
-        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--color-brown-300, #ddd);">
+        <div style="margin-top: 4px; padding-top: 16px; border-top: 1px solid var(--color-brown-300, #ddd);">
           <%= button_to helpers.request_recertification_project_path(project),
                 method: :post,
                 data: { confirm: "Are you sure you want to request re-certification? This will resubmit your project for review." },
-                style: "width: 100%; padding: 12px 16px; background-color: var(--color-brown-500, #8B5A3C); color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: 600; cursor: pointer;" do %>
+                class: "btn btn--brown",
+                style: "width: 100%; justify-content: center;" do %>
             🔄 Request Re-Certification
           <% end %>
         </div>
       <% end %>
+
+      <div class="modal__actions" style="margin-top: 8px;">
+        <button type="button" class="modal__actions-close" data-action="modal#close">Close</button>
+      </div>
     </div>
-  </div>
+  <% end %>
 <% end %>
 
 <div id="project-followers-modal-<%= project.id %>" class="project-followers-modal" data-controller="modal" style="display: none; position: fixed; inset: 0; z-index: 1000; justify-content: center; align-items: center;">

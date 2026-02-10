@@ -26,7 +26,8 @@
 class Project::Report < ApplicationRecord
     belongs_to :reporter, class_name: "User"
     belongs_to :project
-    after_create :notify_slack_channel
+    has_many :review_tokens, class_name: "Report::ReviewToken", foreign_key: :report_id, dependent: :destroy
+    after_commit :notify_slack_channel, on: :create
 
     REASONS = [
       "low_effort",
@@ -55,5 +56,12 @@ class Project::Report < ApplicationRecord
 
     def notify_slack_channel
       SendSlackDmJob.perform_later("C0A1YJ9PDAS", "New report received", blocks_path: "notifications/reports/slack_message", locals: { report: self })
+      if reason == "demo_broken"
+        # Create one-time tokens for quick actions
+        review_token = review_tokens.create!(action: "review")
+        dismiss_token = review_tokens.create!(action: "dismiss")
+
+        SendSlackDmJob.perform_later("C0ADFNQ2MEF", "Demo broken report needs review", blocks_path: "notifications/reports/demo_broken_slack_message", locals: { report: self, review_token_string: review_token.token, dismiss_token_string: dismiss_token.token })
+      end
     end
 end

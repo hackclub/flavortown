@@ -100,4 +100,7 @@ class ProjectShowCardComponent < ViewComponent::Base
 
     current_user&.admin? || current_user&.fraud_dept? || current_user&.project_certifier?
   end
+  def ship_feedback_modal_id
+    "ship-feedback-modal-#{project.id}"
+  end
 end
