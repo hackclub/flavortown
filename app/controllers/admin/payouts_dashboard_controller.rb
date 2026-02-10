@@ -36,16 +36,16 @@ module Admin
       end
 
       thirty_days_ago = 30.days.ago.beginning_of_day
-      
+
       # Build daily creation/destruction data
       @creation = {}
       @destruction = {}
-      
+
       30.times do |i|
         date = i.days.ago.to_date
         date_start = date.beginning_of_day
         date_end = date.end_of_day
-        
+
         @creation[date] = LedgerEntry.where(created_at: date_start..date_end, amount: 1..).sum("ABS(amount)").to_i
         @destruction[date] = LedgerEntry.where(created_at: date_start..date_end, amount: ..0).sum("ABS(amount)").to_i
       end
@@ -58,7 +58,7 @@ module Admin
         date = i.days.ago.to_date
         date_start = date.beginning_of_day
         date_end = date.end_of_day
-        
+
         daily_change = LedgerEntry.where(created_at: date_start..date_end).sum(:amount).to_i
         circulation_total += daily_change
         @circulation[date] = circulation_total
