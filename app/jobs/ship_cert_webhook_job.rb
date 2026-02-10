@@ -1,3 +1,6 @@
+class ProjectNotShippableError < StandardError; end
+class DuplicateShipError < StandardError; end
+
 class ShipCertWebhookJob < ApplicationJob
   queue_as :default
   retry_on StandardError, wait: :polynomially_longer, attempts: Float::INFINITY
@@ -38,5 +41,3 @@ class ShipCertWebhookJob < ApplicationJob
     Rails.cache.write(cache_key(ship_event_id), true, expires_in: 24.hours)
   end
 end
-
-class ProjectNotShippableError < StandardError; end
