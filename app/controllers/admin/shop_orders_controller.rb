@@ -189,7 +189,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       render turbo_stream: turbo_stream.replace(
         "address-content",
         partial: "address_details",
-        locals: { address: @decrypted_address, user_email: current_user&.email }
+        locals: { address: @decrypted_address, user_email: User.find(@order.user_id)&.email }
       )
     else
       render plain: "Unauthorized", status: :forbidden
