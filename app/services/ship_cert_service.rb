@@ -66,12 +66,6 @@ class ShipCertService
       Rails.logger.info "#{project.id} sent for certification"
       true
     else
-      # Check for duplicate ship error (403)
-      if response.status == 403 && response.body.include?("duplicate ship")
-        Rails.logger.warn "Duplicate ship detected for project #{project.id}"
-        raise DuplicateShipError, "Project #{project.id} is already in the certification queue"
-      end
-
       raise "Certification request failed for project #{project.id}: #{response.body}"
     end
   rescue Faraday::Error => e
@@ -102,5 +96,3 @@ class ShipCertService
     project.ship_events.first
   end
 end
-
-class DuplicateShipError < StandardError; end
