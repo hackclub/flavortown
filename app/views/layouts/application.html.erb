@@ -28,6 +28,7 @@
     <meta name="twitter:description" content="<%= og_description %>">
     <meta name="twitter:image" content="<%= og_image %>">
     <% if content_for?(:og_author) %><meta name="author" content="<%= yield(:og_author) %>"><% end %>
+    <link rel="canonical" href="<%= request.original_url.split("?").first %>">
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>

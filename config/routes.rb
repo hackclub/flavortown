@@ -38,6 +38,9 @@ class HelperConstraint
 end
 
 Rails.application.routes.draw do
+  # Sitemap
+  get "sitemap.xml", to: "sitemaps#index", as: :sitemap, defaults: { format: :xml }
+
   # Static OG images
   get "og/:page", to: "og_images#show", as: :og_image, defaults: { format: :png }
   # Landing

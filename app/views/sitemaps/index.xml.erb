@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc><%= root_url %></loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc><%= explore_index_url %></loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc><%= explore_gallery_url %></loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc><%= explore_extensions_url %></loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc><%= url_for(controller: "leaderboard", action: "index", only_path: false) %></loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc><%= url_for(controller: "shop", action: "index", only_path: false) %></loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc><%= nibbles_url %></loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <% @projects.find_each do |project| %>
+  <url>
+    <loc><%= project_url(project) %></loc>
+    <lastmod><%= project.updated_at.strftime("%Y-%m-%d") %></lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <% end %>
+
+  <% @users.find_each do |user| %>
+  <url>
+    <loc><%= user_url(user) %></loc>
+    <lastmod><%= user.updated_at.strftime("%Y-%m-%d") %></lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <% end %>
+
+  <% @sidequests.each do |sidequest| %>
+  <url>
+    <loc><%= sidequest_url(sidequest) %></loc>
+    <lastmod><%= sidequest.updated_at.strftime("%Y-%m-%d") %></lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <% end %>
+</urlset>
