@@ -11,12 +11,10 @@ export default class extends Controller {
     "readmeContainer",
     "submit",
     "updateDeclaration",
-    "spaceThemed",
   ];
 
   static values = {
     updatePrefix: { type: String, default: "Updated Project:" },
-    spacePrefix: { type: String, default: "Space Themed:" },
   };
 
   connect() {
@@ -36,7 +34,6 @@ export default class extends Controller {
 
     // Sync checkbox state on load if description already has prefix
     this.syncUpdateCheckbox();
-    this.syncSpaceCheckbox();
 
     if (
       this.hasRepoUrlTarget &&
@@ -286,55 +283,31 @@ export default class extends Controller {
     this.updateDeclarationTarget.checked = hasPrefix;
   }
 
-  // Space Themed checkbox handlers
-  toggleSpacePrefix() {
-    this.rebuildPrefixes();
-  }
-
-  syncSpaceCheckbox() {
-    if (!this.hasDescriptionTarget || !this.hasSpaceThemedTarget) return;
-
-    const prefix = this.spacePrefixValue;
-    const hasPrefix = this.descriptionTarget.value.trimStart().includes(prefix);
-    this.spaceThemedTarget.checked = hasPrefix;
-  }
-
   // Rebuild prefixes based on checkbox states
   rebuildPrefixes() {
     if (!this.hasDescriptionTarget) return;
 
-    // Strip all existing prefixes from description
+    // Strip existing update prefix from description
     let description = this.descriptionTarget.value.trimStart();
     const updatePrefix = this.updatePrefixValue;
-    const spacePrefix = this.spacePrefixValue;
 
-    // Remove existing prefixes (in any order, with optional comma)
+    // Remove existing prefix
     const prefixPattern = new RegExp(
-      `^(${this.escapeRegex(updatePrefix)}|${this.escapeRegex(spacePrefix)})(,\\s*|\\s+)`,
+      `^${this.escapeRegex(updatePrefix)}(,\\s*|\\s+)`,
       "g",
     );
-    // Keep removing prefixes until none remain
     let prevDescription;
     do {
       prevDescription = description;
       description = description.replace(prefixPattern, "").trimStart();
     } while (description !== prevDescription);
 
-    // Build new prefix based on checkbox states
-    const prefixes = [];
-    if (
-      this.hasUpdateDeclarationTarget &&
-      this.updateDeclarationTarget.checked
-    ) {
-      prefixes.push(updatePrefix);
-    }
-    if (this.hasSpaceThemedTarget && this.spaceThemedTarget.checked) {
-      prefixes.push(spacePrefix);
-    }
-
-    // Combine prefixes with comma if both present
-    const combinedPrefix = prefixes.length > 0 ? `${prefixes.join(", ")} ` : "";
-    this.descriptionTarget.value = combinedPrefix + description;
+    // Add prefix if checkbox is checked
+    const prefix =
+      this.hasUpdateDeclarationTarget && this.updateDeclarationTarget.checked
+        ? `${updatePrefix} `
+        : "";
+    this.descriptionTarget.value = prefix + description;
 
     this.validateDescription();
   }

@@ -1,15 +1,26 @@
-<% content_for :title, @sidequest.title %>
-<% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
+<% content_for :title, "Challenger Center Space Challenge" %>
+<% content_for :og_description, "Build a space-themed project for the Challenger Center space challenge!" %>
 <% content_for :og_image, og_image_url('sidequests', format: :png) %>
 <% content_for :twitter_card, "summary_large_image" %>
 
-<%= render HeadingComponent.new(title: @sidequest.title, tone: :blue, size: :full) %>
+<%= render HeadingComponent.new(title: "Challenger Center Space Challenge", tone: :blue, size: :full) %>
 
 <div class="sidequest-show">
   <div class="sidequest-show__content">
-    <% if @sidequest.description.present? %>
-      <p class="sidequest-show__description"><%= @sidequest.description %></p>
-    <% end %>
+    <p class="sidequest-show__description">
+      Hack Club has partnered with Challenger Center to bring a space challenge to Flavortown.
+      Prizes include a visit with an astronaut and a visit to a Challenger Center space center near you.
+    </p>
+
+    <div class="sidequest-show__challenge-details">
+      <h3>The Challenge</h3>
+      <ul>
+        <li>Build a technical or mechanical project that relates to the technologies needed for
+          <%= link_to "NASA's technology shortfalls list", "https://techport.nasa.gov/strategy", target: "_blank", rel: "noopener noreferrer" %></li>
+        <li>Address Mars' solar wind and solar storms to safely allow human habitation, or something else related to space exploration and discovery</li>
+        <li>Be creative! Design a website, app, game, magnetic shielding system, mechanical keyboard, or any tech you could use on the moon, Mars, or exploring the universe</li>
+      </ul>
+    </div>
 
     <% if @sidequest.expires_at.present? %>
       <p class="sidequest-show__expires">

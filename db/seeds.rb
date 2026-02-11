@@ -33,6 +33,11 @@ chrome_license = ShopItem::HCBGrant.find_or_create_by!(name: "Chrome Webstore Li
 end
 chrome_license.update!(requires_achievement: "sidequest_extension")
 
+Sidequest.find_or_create_by!(slug: "challenger") do |sq|
+  sq.title = "Challenger Center"
+  sq.description = "Build a space-themed project for the Challenger Center space challenge!"
+end
+
 user = User.find_or_create_by!(email: "max@hackclub.com", slack_id: "U09UQ385LSG")
 user.make_super_admin!
 user.make_admin!
