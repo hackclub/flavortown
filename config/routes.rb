@@ -38,6 +38,9 @@ class HelperConstraint
 end
 
 Rails.application.routes.draw do
+  # Sitemap
+  get "sitemap.xml", to: "sitemaps#index", as: :sitemap, defaults: { format: :xml }
+
   # Static OG images
   get "og/:page", to: "og_images#show", as: :og_image, defaults: { format: :png }
   # Landing
@@ -65,6 +68,10 @@ Rails.application.routes.draw do
   get "shop/order", to: "shop#order"
   post "shop/order", to: "shop#create_order"
   patch "shop/update_region", to: "shop#update_region"
+
+  # Report Reviews
+  get "report-reviews/review/:token", to: "report_reviews#review", as: :review_report_token
+  get "report-reviews/dismiss/:token", to: "report_reviews#dismiss", as: :dismiss_report_token
 
   # Voting
   resources :votes, only: [ :new, :create, :index ]
@@ -279,6 +286,7 @@ Rails.application.routes.draw do
       end
     end
     resources :support_vibes, only: [ :index, :create ]
+    resources :sw_vibes, only: [ :index ]
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail

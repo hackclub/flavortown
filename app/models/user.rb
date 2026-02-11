@@ -435,6 +435,10 @@ class User < ApplicationRecord
     end
   end
 
+  def has_shipped?
+    projects.joins(:ship_events).exists?
+  end
+
   def shipped_projects_count_in_range(start_date, end_date)
     projects
       .joins(:posts)

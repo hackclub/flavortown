@@ -1,3 +1,4 @@
+<% content_for :title, "Project Reports" %>
 <h1>Project Reports</h1>
 
 <div style="display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap;">
@@ -19,7 +20,7 @@
   </div>
   </div>
 
-  <%= render partial: "action_leaderboard" %>
+  <%= render partial: "action_leaderboard", locals: { time_range: @time_range, limit: @limit } %>
 </div>
 
 <div class="card" style="margin-bottom: 2rem;">
