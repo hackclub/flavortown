@@ -23,14 +23,14 @@ export default class extends Controller {
   expand() {
     this.expanded = true;
     this.contentTarget.classList.add("sidequest-card__expanded--open");
-    this.buttonTextTarget.textContent = "Show Less";
+    this.buttonTextTarget.textContent = "Close Briefing";
     this.element.classList.add("sidequest-card--expanded");
   }
 
   collapse() {
     this.expanded = false;
     this.contentTarget.classList.remove("sidequest-card__expanded--open");
-    this.buttonTextTarget.textContent = "Learn More";
+    this.buttonTextTarget.textContent = "Mission Briefing";
     this.element.classList.remove("sidequest-card--expanded");
   }
 }

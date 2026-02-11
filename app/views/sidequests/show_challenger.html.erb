@@ -12,12 +12,12 @@
     </p>
 
     <div class="sidequest-show__challenge-details">
-      <h3>Deadline, prizes, and how to enter</h3>
+      <h3>Mission briefing</h3>
       <ul>
-        <li><strong>Deadline:</strong> March 31</li>
-        <li><strong>Prizes:</strong> Unlock Challenger-specific prize eligibility, including astronaut Q&A, Challenger Center visit opportunities, and bonus rewards.</li>
-        <li><strong>How to enter:</strong> Build a space-related project, ship it on Flavortown, then submit it to this sidequest.</li>
-        <li><strong>Need ideas?</strong> Start from <%= link_to "NASA's technology shortfalls list", "https://techport.nasa.gov/strategy", target: "_blank", rel: "noopener noreferrer" %>.</li>
+        <li><strong>Mission deadline:</strong> March 31</li>
+        <li><strong>Mission rewards:</strong> Unlock Challenger-specific prize eligibility, including astronaut Q&A, Challenger Center visit opportunities, and bonus rewards.</li>
+        <li><strong>Mission steps:</strong> Build a space-related project, ship it on Flavortown, then submit it to this sidequest.</li>
+        <li><strong>Mission ideas:</strong> Start from <%= link_to "NASA's technology shortfalls list", "https://techport.nasa.gov/strategy", target: "_blank", rel: "noopener noreferrer" %>.</li>
       </ul>
     </div>
 
@@ -37,7 +37,7 @@
 
     <% if @approved_entries.any? %>
       <div class="sidequest-show__gallery">
-        <h3>Project examples gallery</h3>
+        <h3>Mission gallery</h3>
         <div class="sidequest-show__gallery-grid">
           <% @approved_entries.each do |entry| %>
             <% project = entry.project %>
