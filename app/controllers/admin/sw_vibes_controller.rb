@@ -10,17 +10,22 @@ module Admin
     private
 
     def fetch_sw_vibes_data
+      api_key = ENV["SWAI_KEY"]
+      unless api_key.present?
+        return { error: "SWAI_KEY is not configured" }
+      end
+
       Rails.cache.fetch("sw_vibes_data", expires_in: 5.minutes) do
-        fetch_from_api
+        fetch_from_api(api_key)
       end
     rescue StandardError => e
       Rails.logger.error "SW Vibes API Error: #{e.message}"
       { error: e.message }
     end
 
-    def fetch_from_api
+    def fetch_from_api(api_key)
       response = Faraday.get("https://ai.review.hackclub.com/metrics/qualitative") do |req|
-        req.headers["X-API-Key"] = ENV["SWAI_KEY"]
+        req.headers["X-API-Key"] = api_key
         req.options.timeout = 10
         req.options.open_timeout = 5
       end
