@@ -13,14 +13,14 @@
                     <div class="sidequest-card__image-container">
                         <%= image_tag "launch/challenger-sidebar.png", alt: "Space Mission", class: "sidequest-card__image" %>
                     </div>
-                    <h2>Make a space-related project, ship it on Flavortown, and submit by March 31 to unlock Challenger-specific prizes.</h2>
+                    <h2>Build and ship a space-related project, then submit by March 31. Once approved, you get a Challenger sticker and become eligible for additional prizes.</h2>
                 </div>
 
                 <div class="sidequest-card__expanded" data-sidequest-expand-target="content">
                     <div class="sidequest-card__expanded-inner">
                         <h2 class="sidequest-card__expanded-title">Mission briefing</h2>
                         <p class="sidequest-card__expanded-text">
-                            Submit by March 31 to unlock Challenger-specific prizes, including astronaut Q&A, Challenger Center visit opportunities, and bonus rewards.
+                            Submit by March 31. Approval guarantees your Challenger sticker and unlocks extra rewards, including astronaut Q&A, Challenger Center visit opportunities, and bonus prizes.
                         </p>
 
                         <div class="sidequest-card__expanded-grid">
@@ -45,6 +45,7 @@
                                 challenger_mission_cta_href,
                                 class: "btn btn--green btn-submit" %>
                 </div>
+                <p class="sidequest-card__cta-helper">Submit now. Sticker is guaranteed after approval.</p>
             </div>
             <%= render SidequestCardComponent.new(
                 title: "The Hackazine",

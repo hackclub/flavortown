@@ -174,18 +174,6 @@
   }
 
   &--dynamic-stars {
-    .sidequest-card__image-container {
-      margin-left: -1.35em;
-      width: calc(100% + 1.35em);
-      border-radius: 0;
-      overflow: hidden;
-    }
-
-    .sidequest-card__image {
-      border-radius: 0;
-      display: block;
-    }
-
     .sidequest-card__content::before {
       display: none;
     }
@@ -213,6 +201,18 @@
       z-index: 0;
       pointer-events: none;
       border-radius: inherit;
+    }
+
+    .sidequest-card__cta-helper {
+      margin: 0.55rem 0 0;
+      text-align: center;
+      color: #f8e8d1;
+      opacity: 0.95;
+      font-family: var(--font-family-text);
+      font-size: 0.95rem;
+      line-height: 1.35;
+      position: relative;
+      z-index: 1;
     }
   }
 }
