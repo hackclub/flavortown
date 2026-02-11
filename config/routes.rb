@@ -65,6 +65,7 @@ Rails.application.routes.draw do
   get "shop/order", to: "shop#order"
   post "shop/order", to: "shop#create_order"
   patch "shop/update_region", to: "shop#update_region"
+  resources :shop_suggestions, only: [ :create ]
 
   # Voting
   resources :votes, only: [ :new, :create, :index ]
@@ -77,6 +78,7 @@ Rails.application.routes.draw do
 
   # Nibbles
   get "nibbles", to: "nibbles#index", as: :nibbles
+  resources :sidequests, only: [ :index, :show ]
 
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -109,6 +111,8 @@ Rails.application.routes.draw do
   get "auth/:provider/callback", to: "sessions#create"
   get "/auth/failure", to: "sessions#failure"
   delete "logout", to: "sessions#destroy"
+  get "dev_login", to: "sessions#dev_login", as: :dev_login_auto if Rails.env.development?
+  get "dev_login/:id", to: "sessions#dev_login", as: :dev_login if Rails.env.development?
 
   # OAuth callback for HCA
   get "/oauth/callback", to: "sessions#create"
@@ -173,6 +177,7 @@ Rails.application.routes.draw do
       end
     end
     resources :shop_orders, only: [ :index, :show ]
+    resources :support_vibes, only: [ :index ]
   end
 
   # admin shallow routing
@@ -206,6 +211,7 @@ Rails.application.routes.draw do
          post :unshadow_ban
          post :impersonate
          post :refresh_verification
+         post :toggle_voting_lock
          get  :votes
        end
        collection do
@@ -244,6 +250,21 @@ Rails.application.routes.draw do
         post :refresh_verification
       end
     end
+    resources :shop_suggestions, only: [ :index ] do
+      member do
+        post :dismiss
+        post :disable_for_user
+      end
+    end
+    resources :sidequest_entries, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+    end
+    resources :support_vibes, only: [ :index, :create ]
+    resources :sw_vibes, only: [ :index ]
+    resources :suspicious_votes, only: [ :index ]
     resources :audit_logs, only: [ :index, :show ]
     resources :reports, only: [ :index, :show ] do
       collection do
@@ -269,11 +290,7 @@ Rails.application.routes.draw do
   get "queue", to: "queue#index"
 
   # Project Ideas
-  resources :project_ideas, only: [] do
-    collection do
-      post :random
-    end
-  end
+  post "project_ideas/random", to: "project_ideas#random", as: :random_project_ideas
 
   # Projects
   resources :projects, shallow: true do
