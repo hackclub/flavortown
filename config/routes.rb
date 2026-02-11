@@ -82,8 +82,8 @@ Rails.application.routes.draw do
   get "explore/following", to: "explore#following", as: :explore_following
   get "explore/extensions", to: "explore#extensions", as: :explore_extensions
 
-  # Nibbles
-  get "nibbles", to: "nibbles#index", as: :nibbles
+  # Sidequests (formerly Nibbles)
+  get "nibbles", to: redirect("/sidequests")
   resources :sidequests, only: [ :index, :show ]
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
