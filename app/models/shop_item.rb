@@ -47,6 +47,7 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
+#  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
@@ -127,18 +128,21 @@ class ShopItem < ApplicationRecord
 
   has_one_attached :image do |attachable|
     attachable.variant :carousel_sm,
+                       crop_to_content: true,
                        resize_to_limit: [ 160, nil ],
                        format: :webp,
                        preprocessed: true,
                        saver: { strip: true, quality: 75 }
 
     attachable.variant :carousel_md,
+                       crop_to_content: true,
                        resize_to_limit: [ 240, nil ],
                        format: :webp,
                        preprocessed: true,
                        saver: { strip: true, quality: 75 }
 
     attachable.variant :carousel_lg,
+                       crop_to_content: true,
                        resize_to_limit: [ 360, nil ],
                        format: :webp,
                        preprocessed: true,
@@ -222,6 +226,17 @@ class ShopItem < ApplicationRecord
     return false unless user.present?
 
     user.shipped_projects_count_in_range(required_ships_start_date, required_ships_end_date) >= required_ships_count
+  end
+
+  def meet_achievement_require?(user)
+    return true unless requires_achievement?
+    return false unless user.present?
+
+    user.earned_achievement?(requires_achievement.to_sym)
+  end
+
+  def requires_achievement?
+    requires_achievement.present?
   end
 
   private

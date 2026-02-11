@@ -1,3 +1,4 @@
+<% content_for :title, "Users" %>
 <h1>users</h1>
 
 <%= form_with url: admin_users_path, method: :get, local: true, class: "form-basic" do %>
@@ -25,7 +26,7 @@
       <% @users.each do |user| %>
         <tr>
           <td><%= user.id %></td>
-          <td><%= user.display_name %></td>
+          <td><%= link_to user.display_name, admin_reports_path(reporter_id: user.id) %></td>
           <td><%= user.email %></td>
           <td><%= user.roles.map { |r| r.to_s.titleize }.join(", ") %></td>
           <td>

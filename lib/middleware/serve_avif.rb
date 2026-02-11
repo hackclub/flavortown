@@ -6,6 +6,10 @@ class ServeAvif
 
   def call(env)
     path = env["PATH_INFO"]
+
+    # Early exit for non-asset requests to avoid polluting stacktraces
+    return @app.call(env) unless path.start_with?("/assets/")
+
     accept = env["HTTP_ACCEPT"] || ""
 
     if path =~ %r{^/assets/.+\.(png|jpe?g)$} && accept.include?("image/avif")

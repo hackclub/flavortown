@@ -27,11 +27,17 @@ class VoteMatchmaker
 
   def detect_os(ua)
     return nil unless ua
-    return :android if ua.include?("Android")
-    return :ios if ua.include?("iPhone") || ua.include?("iPad")
-    return :windows if ua.include?("Windows")
-    return :mac if ua.include?("Macintosh")
-    return :linux if ua.include?("Linux")
+    s = ua.downcase
+
+    return :android if s.include?("android")
+    return :ios if s.include?("iphone") || s.include?("ipod") || s.include?("ipad")
+    if s.include?("macintosh") && (s.include?("mobile") || s.include?("cpu os") || s.include?("ipad"))
+      return :ios
+    end
+
+    return :windows if s.include?("windows")
+    return :mac if s.include?("macintosh")
+    return :linux if s.include?("linux")
     nil
   end
 
@@ -54,14 +60,24 @@ class VoteMatchmaker
       .where(payout: nil)
       .where.not(id: @user.votes.select(:ship_event_id))
       .where.not(projects: { id: @user.projects })
+      .where.not(projects: { id: @user.reports.select(:project_id) })
       .where(project_members: { shadow_banned: false })
       .where(projects: { shadow_banned: false })
       .where("projects.duration_seconds > 0")
+      .where.not(id: vote_deficit_blocked_ship_event_ids)
 
     excluded_categories.each do |category|
       scope = scope.where.not("? = ANY(projects.project_categories)", category)
     end
 
     scope
+  end
+
+  def vote_deficit_blocked_ship_event_ids
+    Post::ShipEvent
+      .joins(post: :user)
+      .where("post_ship_events.votes_count >= ?", Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT)
+      .where("users.vote_balance < 0")
+      .select("post_ship_events.id")
   end
 end
