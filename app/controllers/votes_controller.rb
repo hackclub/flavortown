@@ -59,12 +59,7 @@ class VotesController < ApplicationController
         redirect_to new_vote_path, notice: "Vote recorded! Thanks for your feedback."
       end
     else
-      @ship_event = @vote.ship_event
-      @project = @vote.project
-      @posts = @project.posts.where("created_at <= ?", @ship_event.post.created_at)
-                     .where.not(postable_type: "Post::GitCommit")
-                     .order(created_at: :desc)
-      render :new, status: :unprocessable_entity
+      redirect_to new_vote_path, alert: @vote.errors.full_messages.to_sentence
     end
   end
 
