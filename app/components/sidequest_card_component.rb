@@ -3,9 +3,9 @@
 class SidequestCardComponent < ViewComponent::Base
   VARIANTS = %i[blue green red purple].freeze
 
-  attr_reader :title, :description, :variant, :learn_more_link, :submit_link
+  attr_reader :title, :description, :variant, :learn_more_link, :submit_link, :expires_at
 
-  def initialize(title:, image:, sticker_image: nil, description:, learn_more_link:, submit_link:, variant: :red)
+  def initialize(title:, image:, sticker_image: nil, description:, learn_more_link:, submit_link:, variant: :red, expires_at: nil)
     @title = title
     @image_path = image
     @sticker_image_path = sticker_image
@@ -13,6 +13,7 @@ class SidequestCardComponent < ViewComponent::Base
     @learn_more_link = learn_more_link
     @submit_link = submit_link
     @variant = variant
+    @expires_at = expires_at
   end
 
   def banner_image_url
