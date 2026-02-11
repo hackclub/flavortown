@@ -3,6 +3,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   def index
     # Determine view mode
     @view = params[:view] || "shop_orders"
+    @limit = params[:limit] || "10"
 
     # Fulfillment team can only access fulfillment view - auto-redirect if needed
     # But fraud_dept members with fulfillment_person role should have full access
@@ -119,7 +120,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         }
       end.sort_by { |g| -g[:orders].size }
     else
-      @shop_orders = orders
+      @pagy, @shop_orders = pagy(:offset, orders, limit: 50)
     end
   end
 
@@ -188,7 +189,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       render turbo_stream: turbo_stream.replace(
         "address-content",
         partial: "address_details",
-        locals: { address: @decrypted_address }
+        locals: { address: @decrypted_address, user_email: User.find(@order.user_id)&.email }
       )
     else
       render plain: "Unauthorized", status: :forbidden

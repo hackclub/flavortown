@@ -1,6 +1,4 @@
 class VotesController < ApplicationController
-  before_action :check_voting_enabled
-
   def index
     authorize :vote
     @pagy, @votes = pagy(current_user.votes.includes(:project, :ship_event).order(created_at: :desc))
@@ -50,36 +48,14 @@ class VotesController < ApplicationController
     @vote.project = ship_event.post.project
 
     if @vote.save
-      if @vote.suspicious?
-        # Don't share low quality votes to Slack
-        redirect_to new_vote_path, alert: "Your vote was recorded but marked as low quality. Please spend more time reviewing projects - check out the demo and repository links before voting!"
-      else
-        # Only share legitimate votes to Slack
-        share_vote_to_slack(@vote) if current_user.send_votes_to_slack
-        redirect_to new_vote_path, notice: "Vote recorded! Thanks for your feedback."
-      end
+      share_vote_to_slack(@vote) if current_user.send_votes_to_slack
+      redirect_to new_vote_path, notice: "Vote recorded! Thanks for your feedback."
     else
-      @ship_event = @vote.ship_event
-      @project = @vote.project
-      @posts = @project.posts.where("created_at <= ?", @ship_event.post.created_at)
-                     .where.not(postable_type: "Post::GitCommit")
-                     .order(created_at: :desc)
-      render :new, status: :unprocessable_entity
+      redirect_to new_vote_path, alert: @vote.errors.full_messages.to_sentence
     end
   end
 
   private
-
-  def check_voting_enabled
-    if current_user&.voting_locked?
-      redirect_to root_path, alert: "Your voting has been locked temporarily. Please contact @Fraud Squad for more information."
-      return
-    end
-
-    return if current_user && Flipper.enabled?(:voting, current_user)
-
-    redirect_to root_path, alert: "Voting is currently disabled."
-  end
 
   def vote_params
     params.require(:vote).permit(
