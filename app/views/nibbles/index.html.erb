@@ -3,11 +3,15 @@
     <div class="nibbles__sidequests">
         <h1 class="nibbles__sidequests-subtitle">Tackle fun sidequests for extra (bite-sized) challenges and tasty bonuses!</h1>
         <div class="nibbles__sidequests-cards">
-            <div id="challenger-center" class="sidequest-card sidequest-card--purple" data-controller="sidequest-expand">
-                <div class="sidequest-card__content">
+            <div id="challenger-center" class="sidequest-card sidequest-card--purple sidequest-card--dynamic-stars" data-controller="sidequest-expand">
+                <div class="sidequest-card__content" data-controller="stars" data-stars-fade-on-scroll-value="false">
                     <h1 class="sidequest-card__title">Challenger Center Space Challenge</h1>
+                    <%= image_tag "launch/group-moon.png",
+                                  alt: "",
+                                  aria: { hidden: true },
+                                  class: "sidequest-card__corner-moon" %>
                     <div class="sidequest-card__image-container">
-                        <%= image_tag "launch/rocket.png", alt: "Space Mission", class: "sidequest-card__image" %>
+                        <%= image_tag "launch/challenger-sidebar.png", alt: "Space Mission", class: "sidequest-card__image" %>
                     </div>
                     <h2>Make a space-related project, ship it on Flavortown, and submit by March 31 to unlock Challenger-specific prizes.</h2>
                 </div>
@@ -37,7 +41,9 @@
                     <button class="btn btn--blue btn-learn-more" data-action="sidequest-expand#toggle" data-sidequest-expand-target="button">
                         <span data-sidequest-expand-target="buttonText">Mission Briefing</span>
                     </button>
-                    <%= link_to challenger_mission_cta_text, new_project_path(mission: "challenger"), class: "btn btn--green btn-submit" %>
+                    <%= link_to challenger_mission_cta_text,
+                                challenger_mission_cta_href,
+                                class: "btn btn--green btn-submit" %>
                 </div>
             </div>
             <%= render SidequestCardComponent.new(

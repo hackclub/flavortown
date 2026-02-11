@@ -162,7 +162,7 @@
     </div>
   <% end %>
 
-  <% if cookies[:landing_src] == "challenger" %>
+  <% if challenger_source? %>
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <%= render StateCardComponent.new(
         title: "Challenger Center Space Challenge",
@@ -171,7 +171,7 @@
         badge_text: "Mission Deadline: March 31",
         icon: "rocket",
         cta_text: challenger_mission_cta_text,
-        cta_href: nibbles_path(anchor: "challenger-center")
+        cta_href: challenger_mission_cta_href(fallback: nibbles_path(anchor: "challenger-center"))
       ) %>
     </div>
   <% end %>
