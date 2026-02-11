@@ -294,7 +294,7 @@ class Project < ApplicationRecord
   private
 
   def has_devlog_since_last_ship?
-    return true if draft? || last_ship_event.nil?
+    return devlogs.exists? if last_ship_event.nil? || draft?
     devlogs.where("post_devlogs.created_at > ?", last_ship_event.created_at).exists?
   end
 
