@@ -279,6 +279,7 @@ Rails.application.routes.draw do
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
     get "suspicious_votes", to: "suspicious_votes#index"
     resources :support_vibes, only: [ :index, :create ]
+    resources :sw_vibes, only: [ :index ]
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
