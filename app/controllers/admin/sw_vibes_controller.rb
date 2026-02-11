@@ -19,8 +19,8 @@ module Admin
         fetch_from_api(api_key)
       end
     rescue StandardError => e
-      Rails.logger.error "SW Vibes API Error: #{e.message}"
-      { error: e.message }
+      Rails.logger.error "SW Vibes API Error: #{e.class}: #{e.message}\n#{e.backtrace&.join("\n")}"
+      { error: "An unexpected error occurred while loading SW Vibes data" }
     end
 
     def fetch_from_api(api_key)
