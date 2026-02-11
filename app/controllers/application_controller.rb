@@ -83,8 +83,8 @@ class ApplicationController < ActionController::Base
     render file: Rails.root.join("public/404.html"), status: :not_found, layout: false
   end
 
-  def user_not_authorized
-    flash[:alert] = "You are not authorized to perform this action."
+  def user_not_authorized(exception)
+    flash[:alert] = exception.message.presence || "You are not authorized to perform this action."
     redirect_to(safe_referrer || root_path)
   end
 
