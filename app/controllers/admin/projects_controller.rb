@@ -71,15 +71,12 @@ class Admin::ProjectsController < Admin::ApplicationController
       ship = @project.ship_events.order(:created_at).last
       if ship.present? && ship.payouts.none?
         hours = ship.hours_covered
-        min_multiplier = 1.0
+        game_constants = Rails.configuration.game_constants
+        min_multiplier = game_constants.min_multiplier.to_f
         amount = (min_multiplier * hours).ceil
         if amount > 0
-          Payout.create!(
-            amount: amount,
-            payable: ship,
-            user: @project.user,
-            reason: "Minimum payout (shadow banned)",
-            escrowed: false
+          @project.user.ledger_entries.create!(
+            amount: amount, reason: "Ship Event Payout: #{@project.title}", created_by: "System", ledgerable: @project.user
           )
           issued_min_payout = true
         end
