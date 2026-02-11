@@ -135,4 +135,97 @@
       }
     }
   }
+
+  &--space-themed {
+    position: relative;
+    border-color: #48225e;
+    background-color: #250c41;
+    background-image:
+      radial-gradient(circle at 85% 14%, rgba(212, 165, 201, 0.35) 0%, rgba(212, 165, 201, 0) 35%),
+      linear-gradient(180deg, #170625 0%, #250c41 42%, #301361 100%);
+    box-shadow: 0 8px 20px rgba(23, 6, 37, 0.42);
+
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .project-card__title-link {
+      color: #f8f2ff;
+      text-shadow: 0 0 8px rgba(212, 165, 201, 0.28);
+    }
+
+    .project-card__content {
+      color: #ead8ff;
+    }
+
+    .project-card__stats h5 {
+      background-color: #d9b7e8;
+      color: #301361;
+
+      svg {
+        color: #301361 !important;
+        filter: drop-shadow(5px 0 0 #d9b7e8)
+          drop-shadow(-5px 0 0 #d9b7e8)
+          drop-shadow(0 5px 0 #d9b7e8)
+          drop-shadow(0 -5px 0 #d9b7e8);
+      }
+    }
+  }
+
+  &__stars {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  &__star {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--size);
+    height: var(--size);
+    border-radius: 999px;
+    background: #fff;
+    opacity: var(--opacity);
+    box-shadow:
+      0 0 6px rgba(255, 255, 255, 0.65),
+      0 0 14px rgba(212, 165, 201, 0.55);
+    transform: translate(-50%, -50%);
+    animation: project-card-space-twinkle var(--twinkle-duration) ease-in-out infinite alternate;
+    animation-delay: var(--twinkle-delay);
+  }
+
+  .shooting-star--card {
+    z-index: 0;
+    width: 2px;
+    height: 2px;
+    box-shadow:
+      0 0 2px 1px rgba(255, 255, 255, 0.95),
+      0 0 8px 2px rgba(212, 165, 201, 0.72);
+
+    &::after {
+      width: 44px;
+      height: 1.5px;
+      background: linear-gradient(
+        to left,
+        rgba(255, 255, 255, 0.92),
+        rgba(212, 165, 201, 0.72) 28%,
+        rgba(212, 165, 201, 0.15) 72%,
+        transparent
+      );
+    }
+  }
+}
+
+@keyframes project-card-space-twinkle {
+  0% {
+    opacity: 0.55;
+  }
+
+  100% {
+    opacity: 0.95;
+  }
 }

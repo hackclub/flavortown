@@ -1,5 +1,9 @@
 <% cache project do %>
-<%= tag.div id: dom_id(project), class: "project-card" do %>
+<%= tag.div id: dom_id(project),
+            class: class_names("project-card", "project-card--space-themed": project.space_themed?),
+            data: (project.space_themed? ? {
+              controller: "project-card-stars project-card-shooting-star"
+            } : {}) do %>
     <% if project.banner.attached? %>
         <div class="project-card__banner">
             <%= link_to project_path(project), class: "project-card__banner-frame" do %>

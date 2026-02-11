@@ -29,7 +29,10 @@
       <p class="explore__empty">No extensions with enough usage yet.</p>
     <% else %>
       <% @projects_with_counts.each do |project| %>
-        <div class="project-card project-card--extension">
+        <%= tag.div class: class_names("project-card", "project-card--extension", "project-card--space-themed": project.space_themed?),
+                    data: (project.space_themed? ? {
+                      controller: "project-card-stars project-card-shooting-star"
+                    } : {}) do %>
           <% if project.banner.attached? %>
             <div class="project-card__banner">
               <%= link_to project_path(project), class: "project-card__banner-frame" do %>
@@ -63,7 +66,7 @@
               <%= @weekly_user_counts[project.id] || 0 %> weekly users
             </h5>
           </div>
-        </div>
+        <% end %>
       <% end %>
     <% end %>
   </div>
