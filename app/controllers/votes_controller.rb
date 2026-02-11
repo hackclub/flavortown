@@ -1,6 +1,4 @@
 class VotesController < ApplicationController
-  before_action :check_voting_enabled
-
   def index
     authorize :vote
     @pagy, @votes = pagy(current_user.votes.includes(:project, :ship_event).order(created_at: :desc))
@@ -58,17 +56,6 @@ class VotesController < ApplicationController
   end
 
   private
-
-  def check_voting_enabled
-    if current_user&.voting_locked?
-      redirect_to root_path, alert: "Your voting has been locked temporarily. Please contact @Fraud Squad for more information."
-      return
-    end
-
-    return if current_user && Flipper.enabled?(:voting, current_user)
-
-    redirect_to root_path, alert: "Voting is currently disabled."
-  end
 
   def vote_params
     params.require(:vote).permit(
