@@ -287,27 +287,32 @@ export default class extends Controller {
   rebuildPrefixes() {
     if (!this.hasDescriptionTarget) return;
 
-    // Strip existing update prefix from description
+    // Strip all existing prefixes from description
     let description = this.descriptionTarget.value.trimStart();
     const updatePrefix = this.updatePrefixValue;
 
-    // Remove existing prefix
+    // Remove update prefix (with optional trailing comma/space)
     const prefixPattern = new RegExp(
       `^${this.escapeRegex(updatePrefix)}(,\\s*|\\s+)`,
       "g",
     );
+    // Keep removing prefixes until none remain
     let prevDescription;
     do {
       prevDescription = description;
       description = description.replace(prefixPattern, "").trimStart();
     } while (description !== prevDescription);
 
-    // Add prefix if checkbox is checked
-    const prefix =
-      this.hasUpdateDeclarationTarget && this.updateDeclarationTarget.checked
-        ? `${updatePrefix} `
-        : "";
-    this.descriptionTarget.value = prefix + description;
+    // Build new prefix based on checkbox states
+    const prefixes = [];
+    if (
+      this.hasUpdateDeclarationTarget &&
+      this.updateDeclarationTarget.checked
+    ) {
+      prefixes.push(updatePrefix);
+    }
+    const combinedPrefix = prefixes.length > 0 ? `${prefixes.join(", ")} ` : "";
+    this.descriptionTarget.value = combinedPrefix + description;
 
     this.validateDescription();
   }

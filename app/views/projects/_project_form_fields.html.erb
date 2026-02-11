@@ -51,6 +51,18 @@
     <div class="input__subtitle">Tick if updating a project previously submitted to Hack Club. Remember to describe what's new.</div>
   </div>
 
+  <div class="input input--blue">
+    <span class="input__label">Space Theme</span>
+    <label class="projects-new__checkbox-control projects-new__checkbox-control--compact">
+      <%= hidden_field_tag "project[space_themed]", "0" %>
+      <input type="checkbox"
+             name="project[space_themed]"
+             value="1"
+             <%= "checked" if @space_themed_checked %>>
+      <span class="projects-new__checkbox-label">Space themed</span>
+    </label>
+    <div class="input__subtitle">May be eligible for cosmic prizes!</div>
+  </div>
 </div>
 
 <div class="projects-new__field projects-new__field--banner">
