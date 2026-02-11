@@ -1,5 +1,5 @@
 <% content_for :title, "Challenger Center Space Challenge" %>
-<% content_for :og_description, "Build a space-themed project for the Challenger Center space challenge!" %>
+<% content_for :og_description, "Make a space-related project, ship it on Flavortown, and submit by March 31 to unlock Challenger-specific prizes." %>
 <% content_for :og_image, og_image_url('sidequests', format: :png) %>
 <% content_for :twitter_card, "summary_large_image" %>
 
@@ -8,17 +8,16 @@
 <div class="sidequest-show">
   <div class="sidequest-show__content">
     <p class="sidequest-show__description">
-      Hack Club has partnered with Challenger Center to bring a space challenge to Flavortown.
-      Prizes include a visit with an astronaut and a visit to a Challenger Center space center near you.
+      Make a space-related project, ship it on Flavortown, and submit by March 31 to unlock Challenger-specific prizes.
     </p>
 
     <div class="sidequest-show__challenge-details">
-      <h3>The Challenge</h3>
+      <h3>Deadline, prizes, and how to enter</h3>
       <ul>
-        <li>Build a technical or mechanical project that relates to the technologies needed for
-          <%= link_to "NASA's technology shortfalls list", "https://techport.nasa.gov/strategy", target: "_blank", rel: "noopener noreferrer" %></li>
-        <li>Address Mars' solar wind and solar storms to safely allow human habitation, or something else related to space exploration and discovery</li>
-        <li>Be creative! Design a website, app, game, magnetic shielding system, mechanical keyboard, or any tech you could use on the moon, Mars, or exploring the universe</li>
+        <li><strong>Deadline:</strong> March 31</li>
+        <li><strong>Prizes:</strong> Unlock Challenger-specific prize eligibility, including astronaut Q&A, Challenger Center visit opportunities, and bonus rewards.</li>
+        <li><strong>How to enter:</strong> Build a space-related project, ship it on Flavortown, then submit it to this sidequest.</li>
+        <li><strong>Need ideas?</strong> Start from <%= link_to "NASA's technology shortfalls list", "https://techport.nasa.gov/strategy", target: "_blank", rel: "noopener noreferrer" %>.</li>
       </ul>
     </div>
 
@@ -38,7 +37,7 @@
 
     <% if @approved_entries.any? %>
       <div class="sidequest-show__gallery">
-        <h3>Approved Projects</h3>
+        <h3>Project examples gallery</h3>
         <div class="sidequest-show__gallery-grid">
           <% @approved_entries.each do |entry| %>
             <% project = entry.project %>

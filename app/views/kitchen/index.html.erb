@@ -165,12 +165,12 @@
   <% if cookies[:landing_src] == "challenger" %>
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <%= render StateCardComponent.new(
-        title: "Want to meet an astronaut?",
-        description: "Build a space-related project. Earn space prizes and get to talk to a real astronaut.",
+        title: "Challenger Center Space Challenge",
+        description: "Make a space-related project, ship it on Flavortown, and submit by March 31 to unlock Challenger-specific prizes.",
         variant: :space,
-        badge_text: "Space Mission",
+        badge_text: "Deadline: March 31",
         icon: "rocket",
-        cta_text: "Accept Mission",
+        cta_text: "View Challenge",
         cta_href: nibbles_path(anchor: "challenger-center")
       ) %>
     </div>
