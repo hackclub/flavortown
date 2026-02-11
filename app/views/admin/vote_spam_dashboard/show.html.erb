@@ -1,0 +1,158 @@
+<%= render HeadingComponent.new(title: @show_copy[:heading], tone: :blue, size: :full) %>
+
+<div class="card vote-spam-card">
+  <%= form_with url: admin_vote_spam_dashboard_user_path(@selected_user.id), method: :get, local: true, class: "vote-spam-filters" do %>
+    <label>
+      <%= @show_copy[:lookback_label] %>
+      <%= number_field_tag :window_days, @window_days, min: 1, max: 365, autocomplete: "off", class: "input-primary" %>
+    </label>
+    <%= submit_tag @show_copy[:apply_button], class: "btn-primary" %>
+  <% end %>
+  <p class="vote-spam-note">
+    <%= @show_copy[:inspecting_prefix] %> <strong><%= @selected_user.display_name.presence || "User ##{@selected_user.id}" %></strong> (ID: <%= @selected_user.id %>).
+  </p>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--full">
+    <h2><%= @show_copy[:user_metrics_title] %> (<%= @window_days %>-day lookback)</h2>
+    <% if @selected_user_metric %>
+      <div class="voting-stats">
+        <div class="voting-stat">
+          <span class="voting-stat__value"><%= number_with_delimiter(@selected_user_metric[:votes_count]) %></span>
+          <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, :votes_count) %></span>
+        </div>
+        <div class="voting-stat">
+          <span class="voting-stat__value"><%= @selected_user_metric[:unique_vector_count] %></span>
+          <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, :unique_vector_count) %></span>
+        </div>
+        <div class="voting-stat">
+          <span class="voting-stat__value"><%= number_with_precision(@selected_user_metric[:vector_concentration], precision: 4) %></span>
+          <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, :vector_concentration) %></span>
+        </div>
+        <div class="voting-stat">
+          <span class="voting-stat__value"><%= number_to_percentage(@selected_user_metric[:all_dims_equal_rate] * 100, precision: 2) %></span>
+          <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, :all_dims_equal_rate) %></span>
+        </div>
+        <div class="voting-stat">
+          <span class="voting-stat__value"><%= number_with_precision(@selected_user_metric[:avg_dimension_variance], precision: 4) %></span>
+          <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, :avg_dimension_variance) %></span>
+        </div>
+      </div>
+    <% else %>
+      <p class="vote-spam-note"><%= @show_copy[:no_scored_votes] %></p>
+    <% end %>
+  </div>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--wide">
+    <h2><%= @show_copy.dig(:cards, :score_trend) %></h2>
+    <% if @selected_user_score_series.present? %>
+      <%= line_chart @selected_user_score_series, min: 1, max: 6, xtitle: @show_copy.dig(:chart_axes, :vote_number), ytitle: @show_copy.dig(:chart_axes, :score), height: "320px" %>
+    <% else %>
+      <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :score_trend) %></p>
+    <% end %>
+  </div>
+
+  <div class="card voting-card voting-card--wide">
+    <h2><%= @show_copy.dig(:cards, :average_score_by_dimension) %></h2>
+    <% if @selected_user_average_scores.present? %>
+      <%= column_chart @selected_user_average_scores, min: 1, max: 6, ytitle: @show_copy.dig(:chart_axes, :average_score), height: "320px" %>
+    <% else %>
+      <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :average_scores) %></p>
+    <% end %>
+  </div>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--wide">
+    <h2><%= @show_copy.dig(:cards, :score_distribution) %></h2>
+    <% if @selected_user_score_distribution.present? %>
+      <%= column_chart @selected_user_score_distribution, stacked: true, xtitle: @show_copy.dig(:chart_axes, :score), ytitle: @show_copy.dig(:chart_axes, :votes), height: "320px" %>
+    <% else %>
+      <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :score_distribution) %></p>
+    <% end %>
+  </div>
+
+  <div class="card voting-card voting-card--wide">
+    <h2><%= @show_copy.dig(:cards, :vector_distribution) %></h2>
+    <% if @selected_user_vector_distribution.present? %>
+      <%= column_chart @selected_user_vector_distribution, height: "320px" %>
+    <% else %>
+      <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :vector_distribution) %></p>
+    <% end %>
+  </div>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--wide">
+    <h2><%= @show_copy.dig(:cards, :votes_per_day) %> (<%= @window_days %>-day lookback)</h2>
+    <% if @selected_user_daily_vote_counts.present? %>
+      <%= line_chart @selected_user_daily_vote_counts, xtitle: @show_copy.dig(:chart_axes, :day), ytitle: @show_copy.dig(:chart_axes, :votes), height: "320px" %>
+    <% else %>
+      <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :daily_votes) %></p>
+    <% end %>
+  </div>
+
+  <div class="card voting-card voting-card--wide">
+    <h2><%= @show_copy.dig(:cards, :time_taken_by_vote_number) %></h2>
+    <% if @selected_user_time_taken_series.present? %>
+      <%= line_chart @selected_user_time_taken_series, xtitle: @show_copy.dig(:chart_axes, :vote_number), ytitle: @show_copy.dig(:chart_axes, :seconds), height: "320px" %>
+    <% else %>
+      <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :time_taken) %></p>
+    <% end %>
+  </div>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--wide">
+    <h2><%= @show_copy.dig(:cards, :link_click_behavior) %></h2>
+    <% if @selected_user_click_breakdown.present? %>
+      <%= pie_chart @selected_user_click_breakdown, donut: true, height: "320px" %>
+    <% else %>
+      <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :click_behavior) %></p>
+    <% end %>
+  </div>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--full">
+    <h2><%= @show_copy.dig(:cards, :raw_vote_data) %> (latest <%= @selected_user_votes.size %>)</h2>
+    <table class="voting-table voting-table--wide">
+      <thead>
+        <tr>
+          <% @show_copy[:raw_table_headers].each do |header| %>
+            <th><%= header %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @selected_user_votes.each do |vote| %>
+          <tr>
+            <td><%= l(vote.created_at, format: :short) %></td>
+            <td>
+              <% if vote.project %>
+                <%= link_to truncate(vote.project.title, length: 28), admin_project_path(vote.project) %>
+              <% else %>
+                <span class="text-muted"><%= @show_copy[:deleted_fallback] %></span>
+              <% end %>
+            </td>
+            <td><%= vote.ship_event_id %></td>
+            <td><%= [vote.originality_score, vote.technical_score, vote.usability_score, vote.storytelling_score].join("-") %></td>
+            <td class="score"><%= vote.originality_score || @show_copy[:empty_cell] %></td>
+            <td class="score"><%= vote.technical_score || @show_copy[:empty_cell] %></td>
+            <td class="score"><%= vote.usability_score || @show_copy[:empty_cell] %></td>
+            <td class="score"><%= vote.storytelling_score || @show_copy[:empty_cell] %></td>
+            <td><%= vote.time_taken_to_vote ? "#{vote.time_taken_to_vote}s" : @show_copy[:empty_cell] %></td>
+            <td><%= vote.demo_url_clicked ? "✓" : @show_copy[:empty_cell] %></td>
+            <td><%= vote.repo_url_clicked ? "✓" : @show_copy[:empty_cell] %></td>
+            <td><%= truncate(vote.reason.to_s, length: 80) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%= link_to @show_copy[:back_link], admin_vote_spam_dashboard_path(window_days: @window_days), class: "btn-secondary" %>

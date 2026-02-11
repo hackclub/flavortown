@@ -1,0 +1,57 @@
+<%= render HeadingComponent.new(title: "Vote Spam Dashboard", tone: :blue, size: :full) %>
+
+<div class="card vote-spam-card">
+  <%= form_with url: admin_vote_spam_dashboard_path, method: :get, local: true, class: "vote-spam-filters" do %>
+    <%= hidden_field_tag :sort, @sort_key %>
+    <%= hidden_field_tag :direction, @sort_direction %>
+    <label>
+      Minimum votes
+      <%= number_field_tag :min_votes, @min_votes, min: 1, max: 1000, autocomplete: "off", class: "input-primary" %>
+    </label>
+    <label>
+      Lookback period (days)
+      <%= number_field_tag :window_days, @window_days, min: 1, max: 365, autocomplete: "off", class: "input-primary" %>
+    </label>
+    <%= submit_tag "Apply", class: "btn-primary" %>
+  <% end %>
+  <p class="vote-spam-note">
+    Showing users with at least <strong><%= @min_votes %></strong> votes in the last
+    <strong><%= @window_days %></strong> days (lookback period).
+  </p>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--full">
+    <h2>Per-user signals</h2>
+    <table class="voting-table voting-table--wide">
+      <thead>
+        <tr>
+          <% @global_table_columns.each do |column| %>
+            <th>
+              <% if column[:sortable] %>
+                <%= link_to "#{column[:label]}#{sort_indicator(column[:sort_key])}", admin_vote_spam_dashboard_path(sort_link_params(column[:sort_key])) %>
+              <% else %>
+                <%= column[:label] %>
+              <% end %>
+            </th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @rows.each do |row| %>
+          <tr>
+            <td><%= link_to row[:label], admin_user_path(row[:user_id]) %></td>
+            <td><%= link_to "View", admin_vote_spam_dashboard_user_path(row[:user_id], window_days: @window_days), class: "btn-secondary slim" %></td>
+            <td><%= number_with_delimiter(row[:votes_count]) %></td>
+            <td><%= row[:unique_vector_count] %></td>
+            <td><%= number_with_precision(row[:vector_concentration], precision: 4) %></td>
+            <td><%= number_to_percentage(row[:all_dims_equal_rate] * 100, precision: 2) %></td>
+            <td><%= number_with_precision(row[:avg_dimension_variance], precision: 4) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%= link_to "← Back", admin_root_path, class: "btn-secondary" %>
