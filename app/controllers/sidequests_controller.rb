@@ -38,6 +38,12 @@ class SidequestsController < ApplicationController
       redirect_to @sidequest.external_page_link, allow_other_host: true and return
     end
 
-    # otherwise, render default show page
+    @approved_entries = @sidequest.sidequest_entries.approved.includes(project: :memberships)
+
+    # Render custom template if one exists, otherwise default show
+    custom_template = "sidequests/show_#{@sidequest.slug}"
+    if lookup_context.exists?(custom_template)
+      render custom_template
+    end
   end
 end
