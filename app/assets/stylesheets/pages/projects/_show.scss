@@ -8,8 +8,7 @@
     gap: var(--space-xl);
   }
 
-  /* (edit/delete) */
-  &__admin-actions {
+  &__title-actions {
     display: flex;
     gap: var(--space-s);
     align-self: flex-end;
