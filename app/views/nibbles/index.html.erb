@@ -1,26 +1,62 @@
-<% content_for :title, "Nibbles" %>
 <div class="nibbles">
     <%= render HeadingComponent.new(title: "Nibbles", tone: :blue, size: :full) %>
     <div class="nibbles__sidequests">
         <h1 class="nibbles__sidequests-subtitle">Tackle fun sidequests for extra (bite-sized) challenges and tasty bonuses!</h1>
+        <div class="nibbles__sidequests-cards">
+            <%= render SidequestCardComponent.new(
+                title: "The Hackazine",
+                image: "nibbles/Hackazine.avif",
+                sticker_image: "nibbles/Hackazine-Sticker.avif",
+                description: "This January: make a page for your project and get it in the Hack Club 2025 magazine! Join #magazine and submit before January 22nd. Projects selected for the magazine receive 50 cookies + stickers! Please note, magazine submissions have 0% AI tolerance.",
+                learn_more_link: "https://magazine.hackclub.com/",
+                submit_link: "https://hackclub.slack.com/app_redirect?channel=C0A8CMWM0CR",
+                variant: :red
+            ) %>
+            <%= render SidequestCardComponent.new(
+                title: "Borked UI Jam",
+                image: "nibbles/Borked-UI-Jam.avif",
+                description: "Running until January 25th — make a project with delightfully broken UI/UX and submit it for the Borked UI Jam! The top 5 best (worst) projects will receive cookies + other prizes. Check out #borked for more details.",
+                learn_more_link: "https://hackclub.slack.com/app_redirect?channel=C0A278BH8UA",
+                submit_link: "https://borked.irtaza.xyz/",
+                variant: :green
+            ) %>
+            <div id="challenger-center" class="sidequest-card sidequest-card--purple" data-controller="sidequest-expand">
+                <div class="sidequest-card__content">
+                    <h1 class="sidequest-card__title">Meet an Astronaut</h1>
+                    <div class="sidequest-card__image-container">
+                        <%= image_tag "launch/rocket.png", alt: "Space Mission", class: "sidequest-card__image" %>
+                    </div>
+                    <h2>NASA has a list of tech problems they can't solve. Think you can help? Build something space-worthy and you might get flown out to hang with a real astronaut.</h2>
+                </div>
 
-        <% if @active_sidequests.any? %>
-            <div class="nibbles__sidequests-cards">
-                <% @active_sidequests.each do |sidequest| %>
-                    <%= render SidequestCardComponent.new(**sidequest) %>
-                <% end %>
-            </div>
-        <% else %>
-            <p class="nibbles__sidequests-empty">No active sidequests right now. Check back soon!</p>
-        <% end %>
+                <div class="sidequest-card__expanded" data-sidequest-expand-target="content">
+                    <div class="sidequest-card__expanded-inner">
+                        <h2 class="sidequest-card__expanded-title">Space Smells Like Raspberries and Cookies</h2>
+                        <p class="sidequest-card__expanded-text">
+                            Seriously, astronauts say it smells like rum and raspberries out there. Build something that helps humans survive in space and you could find out for yourself.
+                        </p>
 
-        <% if @expired_sidequests.any? %>
-            <h2 class="nibbles__sidequests-section-title">Past Sidequests</h2>
-            <div class="nibbles__sidequests-cards">
-                <% @expired_sidequests.each do |sidequest| %>
-                    <%= render SidequestCardComponent.new(**sidequest) %>
-                <% end %>
+                        <div class="sidequest-card__expanded-grid">
+                            <div class="sidequest-card__expanded-cell">
+                                <p>Check out <%= link_to "NASA's list of unsolved tech problems", "https://techport.nasa.gov/strategy", target: "_blank", rel: "noopener noreferrer", class: "sidequest-card__link" %> and build something that tackles one</p>
+                            </div>
+                            <div class="sidequest-card__expanded-cell">
+                                <p>Solar storms, radiation shielding, growing food on Mars - pick a problem that sounds cool and hack on it</p>
+                            </div>
+                            <div class="sidequest-card__expanded-cell">
+                                <p>Websites, apps, games, hardware, whatever. If you could use it on the moon, we want to see it</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidequest-card__buttons">
+                    <button class="btn btn--blue btn-learn-more" data-action="sidequest-expand#toggle" data-sidequest-expand-target="button">
+                        <span data-sidequest-expand-target="buttonText">Learn More</span>
+                    </button>
+                    <%= link_to "Submit", kitchen_path, class: "btn btn--green btn-submit" %>
+                </div>
             </div>
-        <% end %>
+        </div>
     </div>
 </div>

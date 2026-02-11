@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class SidequestCardComponent < ViewComponent::Base
-  VARIANTS = %i[blue green red].freeze
+  VARIANTS = %i[blue green red purple].freeze
 
-  attr_reader :title, :description, :variant, :learn_more_link, :submit_link, :expires_at
+  attr_reader :title, :description, :variant, :learn_more_link, :submit_link
 
-  def initialize(title:, image:, sticker_image: nil, description:, learn_more_link:, submit_link:, variant: :red, expires_at: nil)
+  def initialize(title:, image:, sticker_image: nil, description:, learn_more_link:, submit_link:, variant: :red)
     @title = title
     @image_path = image
     @sticker_image_path = sticker_image
@@ -13,11 +13,6 @@ class SidequestCardComponent < ViewComponent::Base
     @learn_more_link = learn_more_link
     @submit_link = submit_link
     @variant = variant
-    @expires_at = expires_at
-  end
-
-  def expired?
-    expires_at.present? && expires_at < Date.current
   end
 
   def banner_image_url
@@ -33,8 +28,6 @@ class SidequestCardComponent < ViewComponent::Base
   end
 
   def card_classes
-    classes = [ "sidequest-card", "sidequest-card--#{variant}" ]
-    classes << "sidequest-card--expired" if expired?
-    classes.join(" ")
+    "sidequest-card sidequest-card--#{variant}"
   end
 end

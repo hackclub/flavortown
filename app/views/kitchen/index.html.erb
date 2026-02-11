@@ -46,8 +46,7 @@
     <% end %>
   </div>
 
-<% content_for :title, "Kitchen" %>
-<% if @show_welcome_overlay %>
+  <% if @show_welcome_overlay %>
     <div class="dialogue-box-container"
          data-controller="kitchen-dialogue"
          data-kitchen-dialogue-show-hackatime-tutorial-value="<%= @show_hackatime_tutorial %>"
@@ -163,6 +162,20 @@
     </div>
   <% end %>
 
+  <% if cookies[:landing_src] == "challenger" %>
+    <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
+      <%= render StateCardComponent.new(
+        title: "Want to meet an astronaut?",
+        description: "Build a space-related project. Earn space prizes and get to talk to a real astronaut.",
+        variant: :space,
+        badge_text: "Space Mission",
+        icon: "rocket",
+        cta_text: "Accept Mission",
+        cta_href: nibbles_path(anchor: "challenger-center")
+      ) %>
+    </div>
+  <% end %>
+
   <% if current_user&.banned? %>
     <div class="banned-banner">
       <div class="banned-banner__content">
@@ -265,7 +278,7 @@
           caption: "Vote on projects!",
           modal_title: "Vote on projects!",
           step_num: 4,
-          modal_text: "<p>You're almost ready to get cookies for the hours you spent on your project — you just have to vote to unlock the payout! Voting is done by rating each project on a bunch of simple metrics:</p> <ul><li><b>Originality:</b> Is the project innovative and original, or just a clone of an overused concept?</li><li><b>Technical:</b> How complex is the project? Did the author use new frameworks or learn something cool?</li><li><b>Usability:</b> Is the project easy and fun to use, or is it buggy and frustrating?</li><li><b>Storytelling:</b> Does the author devlog regularly? Is the development timeline fun to scroll through?</li></ul> <p>Voting is done so people (including you) making good projects get more cookies per hour. For every project shipped, you must vote on 15 projects to get cookies!</p>"
+          modal_text: "<p>You're almost ready to get cookies for the hours you spent on your project — you just have to vote to unlock the payout! Voting is done by rating each project on a bunch of simple metrics:</p> <ul><li><b>Originality:</b> Is the project innovative and original, or just a clone of an overused concept?</li><li><b>Technical:</b> How complex is the project? Did the author use new frameworks or learn something cool?</li><li><b>Usability:</b> Is the project easy and fun to use, or is it buggy and frustrating?</li><li><b>Storytelling:</b> Does the author devlog regularly? Is the development timeline fun to scroll through?</li></ul> <p>Voting is done so people (including you) making good projects get more cookies per hour. For every project shipped, you must vote on 14 projects to get cookies!</p>"
         ) %>
         <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
         <%= render ComicCardComponent.new(

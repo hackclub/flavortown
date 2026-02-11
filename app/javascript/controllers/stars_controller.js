@@ -207,7 +207,13 @@ export default class extends Controller {
     });
 
     this.svgContainer.appendChild(defs);
-    document.body.appendChild(this.svgContainer);
+
+    // If inside a state-card, append to element; otherwise append to body
+    if (this.element.classList.contains("state-card")) {
+      this.element.appendChild(this.svgContainer);
+    } else {
+      document.body.appendChild(this.svgContainer);
+    }
     this.stars = [];
   }
 

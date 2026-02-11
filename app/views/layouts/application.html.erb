@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= content_for?(:title) ? "Flavortown - #{strip_tags(yield(:title))}" : "Flavortown" %></title>
+    <title><%= content_for?(:title) ? "#{strip_tags(yield(:title))} - Flavortown" : "Flavortown - Hack Club" %></title>
     <%= favicon_link_tag 'favicon.ico' %>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,7 +12,7 @@
     <meta property="og:locale" content="en_US">
     <meta property="og:site_name" content="Flavortown - Hack Club">
 
-    <% og_title = content_for?(:og_title) ? yield(:og_title) : (content_for?(:title) ? "Flavortown - #{yield(:title)}" : "Flavortown") %>
+    <% og_title = content_for?(:og_title) ? yield(:og_title) : (content_for?(:title) ? "#{yield(:title)} - Flavortown" : "Flavortown - Hack Club") %>
     <% og_description = content_for?(:og_description) ? yield(:og_description) : "Build projects, earn cookies, get prizes. A Hack Club program for teen coders." %>
     <% og_image = content_for?(:og_image) ? yield(:og_image) : image_url("landing/hero/long-image.avif") %>
     <% og_url = content_for?(:og_url) ? yield(:og_url) : request.original_url %>
@@ -28,7 +28,6 @@
     <meta name="twitter:description" content="<%= og_description %>">
     <meta name="twitter:image" content="<%= og_image %>">
     <% if content_for?(:og_author) %><meta name="author" content="<%= yield(:og_author) %>"><% end %>
-    <link rel="canonical" href="<%= request.original_url.split("?").first %>">
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -37,9 +36,6 @@
     <%= preload_link_tag image_path("landing/hero/long-image.avif"), as: "image", fetchpriority: "high" %>
     <%= preload_link_tag image_path("landing/hero/hero-bg.avif"), as: "image" %>
     <%= preload_link_tag asset_path("Jua-Regular.woff2"), as: "font", type: "font/woff2", crossorigin: true %>
-    <% if current_user.present? %>
-      <%= preload_link_tag image_path("launch/rocket.png"), as: "image" %>
-    <% end %>
 
     <%= yield :head %>
 
@@ -61,7 +57,7 @@
     <%= Sentry.get_trace_propagation_meta.html_safe %> <%# erb_lint:disable ErbSafety %>
   </head>
 
-  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %> <%= 'launch-theme' if controller_name == 'launch' %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %> <%= 'data-controller="stars shooting-star"'.html_safe if controller_name == 'launch' %> <%= 'data-controller="stars"'.html_safe if controller_name == 'landing' && @landing_variant == 'challenger' %>>
+  <body class="<%= current_user.present? && !@hide_sidebar ? 'signed-in' : '' %> <%= @body_class %> <%= 'christmas-theme' if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %>" <%= 'data-controller="snow"'.html_safe if current_user && Flipper.enabled?(:christmas_theme, current_user) && current_user.special_effects_enabled %> <%= 'data-controller="stars"'.html_safe if controller_name == 'landing' && @landing_variant == 'challenger' %>>
     <% if impersonating? %>
       <div class="impersonation-banner">
         <div class="impersonation-content">
@@ -81,14 +77,6 @@
     <% end %>
     <% if current_user.present? && !current_user.banned? && !@hide_sidebar %>
       <%= render "shared/sidebar" %>
-
-      <%# Rocket launch animation element - hidden until triggered %>
-      <div class="rocket-launch" id="rocket-launch" aria-hidden="true">
-        <div class="rocket-launch__avatar">
-          <%= image_tag current_user.avatar, alt: "", class: "rocket-launch__avatar-img" %>
-        </div>
-        <%= image_tag "launch/rocket.png", alt: "", class: "rocket-launch__rocket" %>
-      </div>
     <% end %>
     <%= render "shared/flash" %>
     <% if tutorial_messages.present? %>
