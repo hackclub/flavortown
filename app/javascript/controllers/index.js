@@ -76,15 +76,6 @@ application.register("project-fire", ProjectFireController);
 import ProjectFormController from "./project_form_controller";
 application.register("project-form", ProjectFormController);
 
-import ProjectCardStarsController from "./project_card_stars_controller";
-application.register("project-card-stars", ProjectCardStarsController);
-
-import ProjectCardShootingStarController from "./project_card_shooting_star_controller";
-application.register(
-  "project-card-shooting-star",
-  ProjectCardShootingStarController,
-);
-
 import ProjectIdeasController from "./project_ideas_controller";
 application.register("project-ideas", ProjectIdeasController);
 
