@@ -185,7 +185,7 @@
                           <div class="sw-vibes-popup__reason-block">
                             <%= quote[:reason] %>
                           </div>
-                          <%= link_to "View in Slack →", quote[:link], target: "_blank", class: "sw-vibes-popup__link" %>
+                          <%= link_to "View in Slack →", quote[:link], target: "_blank", rel: "noopener noreferrer", class: "sw-vibes-popup__link" %>
                         </div>
                       </div>
                     <% end %>
