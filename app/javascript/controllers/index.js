@@ -7,6 +7,9 @@ import { application } from "./application";
 import AchievementHighlightController from "./achievement_highlight_controller";
 application.register("achievement-highlight", AchievementHighlightController);
 
+import AnchorScrollController from "./anchor_scroll_controller";
+application.register("anchor-scroll", AnchorScrollController);
+
 import AddressSelectController from "./address_select_controller";
 application.register("address-select", AddressSelectController);
 
