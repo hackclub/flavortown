@@ -127,6 +127,7 @@ module Admin
 
     def load_support_vibes_stats
       @support_vibes_history = SupportVibes.order(period_end: :desc).limit(30).pluck(:period_end, :overall_sentiment)
+      @latest_support_vibes = SupportVibes.order(period_end: :desc).first
     end
 
     def chg(old, new)
