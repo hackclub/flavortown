@@ -223,6 +223,8 @@ GEM
     faraday-net_http_persistent (2.3.1)
       faraday (~> 2.5)
       net-http-persistent (>= 4.0.4, < 5)
+    faraday-retry (2.4.0)
+      faraday (~> 2.0)
     ffi (1.17.3-aarch64-linux-gnu)
     ffi (1.17.3-aarch64-linux-musl)
     ffi (1.17.3-arm-linux-gnu)
@@ -755,6 +757,7 @@ DEPENDENCIES
   faiss
   faker (~> 3.5)
   faraday
+  faraday-retry
   flipper
   flipper-active_record
   flipper-active_support_cache_store

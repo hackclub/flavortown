@@ -104,6 +104,7 @@ gem "view_component"
 gem "phlex-rails"
 gem "aws-sdk-s3"
 gem "faraday"
+gem "faraday-retry"
 
 gem "faker", "~> 3.5"
 gem "jsbundling-rails", "~> 1.3"
