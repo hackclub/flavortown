@@ -99,6 +99,17 @@
     --color-content-darker: rgb(61, 120, 46);
   }
 
+  &--link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+
+    &:hover {
+      text-decoration: none;
+      color: inherit;
+    }
+  }
+
   &--purple {
     --color-card-bg: #8b7bb5;
     --color-content-bg: linear-gradient(

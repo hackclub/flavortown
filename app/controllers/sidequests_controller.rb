@@ -26,8 +26,11 @@ class SidequestsController < ApplicationController
     @active_sidequests = legacy_sidequests.reject { |s| s[:expires_at].present? && s[:expires_at] < Date.current }
     @expired_sidequests = legacy_sidequests.select { |s| s[:expires_at].present? && s[:expires_at] < Date.current }
 
-    # Database-backed sidequests (for ship opt-in, not displayed as cards yet)
-    @db_sidequests = Sidequest.active
+    # Database-backed sidequests (Challenger, Extensions, etc.); ensure defaults exist so they show without running seeds
+    Sidequest.ensure_default_sidequests!
+    db_sidequests = Sidequest.active.to_a
+    @challenger_sidequest = db_sidequests.find { |sidequest| sidequest.slug == "challenger" }
+    @db_sidequests = db_sidequests.reject { |sidequest| sidequest.slug == "challenger" }
   end
 
   def show
