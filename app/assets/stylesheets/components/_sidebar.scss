@@ -1,6 +1,6 @@
 .sidebar {
   --sidebar-collapsed-width: 150px;
-  --sidebar-expanded-width: 300px;
+  --sidebar-expanded-width: 350px;
 
   position: fixed;
   top: 0;
@@ -493,12 +493,13 @@
     max-width 150ms ease,
     margin 150ms ease;
   margin-left: 0;
+  flex-shrink: 0;
 }
 
 .sidebar:is(:hover, :focus-within) .sidebar__nav-label,
 .sidebar--pinned .sidebar__nav-label {
   opacity: 1;
-  max-width: 240px;
+  max-width: 400px;
   margin-left: var(--space-s);
 }
 

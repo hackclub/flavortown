@@ -117,6 +117,7 @@ gem "norairrecord"
 
 gem "awesome_print"
 gem "activeinsights"
+gem "chartkick"
 
 # Database-level advisory locks for preventing race conditions across processes
 gem "with_advisory_lock"
