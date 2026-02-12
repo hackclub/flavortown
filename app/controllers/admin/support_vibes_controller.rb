@@ -1,3 +1,5 @@
+require "faraday/retry"
+
 module Admin
   class SupportVibesController < Admin::ApplicationController
     def index
@@ -25,7 +27,7 @@ module Admin
 
         tickets = JSON.parse(response.body)
 
-        open_tickets_response = nephthys_connection.get("/api/tickets") do |req|
+        open_tickets_response = nephthys_conn.get("/api/tickets") do |req|
           req.params["status"] = "open"
         end
 
@@ -117,7 +119,7 @@ module Admin
       end
     end
 
-    private 
+    private
 
     def nephthys_conn
       @nephthys_conn ||= Faraday.new("https://flavortown.nephthys.hackclub.com") do |f|
