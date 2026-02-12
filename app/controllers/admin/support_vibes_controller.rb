@@ -27,14 +27,11 @@ module Admin
 
         tickets = JSON.parse(response.body)
 
-        open_tickets_response = nephthys_conn.get("/api/tickets") do |req|
-          req.params["status"] = "open"
-        end
-
-        open_tickets = if open_tickets_response.success?
-          JSON.parse(open_tickets_response.body)
-        else
-          []
+        begin
+          open_tickets_response = nephthys_conn.get("/api/tickets?status=open")
+          open_tickets = JSON.parse(open_tickets_response.body)
+        rescue Faraday::Error
+          open_tickets = []
         end
 
         if tickets.empty?
