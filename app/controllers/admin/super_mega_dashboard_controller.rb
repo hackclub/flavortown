@@ -127,7 +127,7 @@ module Admin
 
     def load_support_vibes_stats
       vibes = SupportVibes.order(period_end: :desc).limit(30)
-      @support_vibes_history = vibes.map { |d| [d.period_end, d.overall_sentiment] }
+      @support_vibes_history = vibes.map { |d| [ d.period_end, d.overall_sentiment ] }
       @latest_support_vibes = vibes.first
     end
 
