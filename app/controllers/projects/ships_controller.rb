@@ -34,6 +34,10 @@ class Projects::ShipsController < ApplicationController
   def initial_ship? = @project.posts.where(postable_type: "Post::ShipEvent").one?
 
   def load_ship_data
+    if @step == 2
+      @space_themed_checked = @project.space_themed?
+      @project.description = @project.description_without_space_theme_prefix if @project.space_themed?
+    end
     @hackatime_projects = @project.hackatime_projects_with_time
     @total_hours = @project.total_hackatime_hours
     @last_ship = @project.last_ship_event
@@ -48,6 +52,11 @@ class Projects::ShipsController < ApplicationController
 
   def create_sidequest_entries!
     sidequest_ids = Array(params[:sidequest_ids]).map(&:to_i).reject(&:zero?)
+    if @project.space_themed?
+      challenger_id = Sidequest.active.find_by(slug: "challenger")&.id
+      sidequest_ids << challenger_id if challenger_id
+    end
+    sidequest_ids.uniq!
     return if sidequest_ids.empty?
 
     active_sidequest_ids = Sidequest.active.where(id: sidequest_ids).pluck(:id)

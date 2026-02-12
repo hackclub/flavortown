@@ -217,4 +217,147 @@
       color: var(--color-brown-700);
     }
   }
+
+  &--space {
+    --state-card-accent: #6b5b9a;
+    background: linear-gradient(135deg, #301361 0%, #250c41 50%, #170625 100%);
+    border-color: #8b7bb5;
+    position: relative;
+    overflow: visible;
+
+    &::before {
+      display: none;
+    }
+
+    .state-card__badge {
+      background: #6b5b9a;
+      color: #f8e8d1;
+    }
+    .state-card__icon-circle {
+      background: #6b5b9a;
+    }
+    .state-card__icon {
+      background: #4a3d6e;
+    }
+    .state-card__title {
+      color: #f8e8d1;
+    }
+    .state-card__description {
+      color: #f8e8d1;
+      opacity: 0.9;
+    }
+  }
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+// Card stars SVG styles
+.card-stars-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.card-star-group {
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
+
+.card-star-core,
+.card-star-glow {
+  transition: opacity 0.5s ease;
+}
+
+.card-star--twinkle {
+  .card-star-core {
+    opacity: 1 !important;
+  }
+
+  .card-star-glow {
+    opacity: 0.8 !important;
+  }
+
+  transform: scale(1.5);
+}
+
+// Launch theme stars (SVG-based four-pointed stars)
+.launch-stars-svg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -2;
+}
+
+.state-card--space .launch-stars-svg {
+  position: absolute;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.launch-star-group {
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
+
+.launch-star-core,
+.launch-star-glow {
+  transition: opacity 0.5s ease;
+}
+
+.launch-star--twinkle {
+  .launch-star-core {
+    opacity: 1 !important;
+  }
+
+  .launch-star-glow {
+    opacity: 0.8 !important;
+  }
+
+  transform: scale(1.3);
+}
+
+// Shooting star styles
+.shooting-star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  box-shadow:
+    0 0 2px 1px #fff,
+    0 0 6px 2px rgba(255, 200, 150, 0.8);
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(
+      to left,
+      rgba(255, 255, 255, 0.9),
+      rgba(255, 200, 150, 0.6) 20%,
+      rgba(255, 150, 100, 0.2) 60%,
+      transparent
+    );
+  }
 }

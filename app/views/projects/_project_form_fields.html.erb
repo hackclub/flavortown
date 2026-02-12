@@ -29,7 +29,7 @@
           input_html: {
             rows: 4,
             data: {
-              action: "input->project-form#validateDescription input->project-form#syncUpdateCheckbox input->project-form#syncSpaceCheckbox blur->project-form#validateDescription",
+              action: "input->project-form#validateDescription input->project-form#syncUpdateCheckbox blur->project-form#validateDescription",
               "project-form-target": "description"
             }
           },
@@ -54,9 +54,11 @@
   <div class="input input--blue">
     <span class="input__label">Space Theme</span>
     <label class="projects-new__checkbox-control projects-new__checkbox-control--compact">
+      <%= hidden_field_tag "project[space_themed]", "0" %>
       <input type="checkbox"
-             data-project-form-target="spaceThemed"
-             data-action="change->project-form#toggleSpacePrefix">
+             name="project[space_themed]"
+             value="1"
+             <%= "checked" if @space_themed_checked %>>
       <span class="projects-new__checkbox-label">Space themed</span>
     </label>
     <div class="input__subtitle">May be eligible for cosmic prizes!</div>
