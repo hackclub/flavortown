@@ -9,6 +9,7 @@ module Admin
       load_payouts_stats
       load_fulfillment_stats
       load_support_stats
+      load_support_vibes_stats
       load_ship_certs_stats
       load_sw_vibes_stats
       load_voting_stats
@@ -122,6 +123,12 @@ module Admin
       }
     rescue Faraday::Error, JSON::ParserError
       @support = nil
+    end
+
+    def load_support_vibes_stats
+      vibes = SupportVibes.order(period_end: :desc).limit(30)
+      @support_vibes_history = vibes.map { |d| [ d.period_end, d.overall_sentiment ] }
+      @latest_support_vibes = vibes.first
     end
 
     def chg(old, new)

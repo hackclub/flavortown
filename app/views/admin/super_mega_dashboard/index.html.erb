@@ -565,6 +565,92 @@
               </div>
             </div>
           </div>
+
+          <div class="super-mega-dashboard__card">
+            <h3>Support Vibes Trend</h3>
+            <div class="support-vibes-graph">
+              <canvas id="supportVibesChart" height="200"></canvas>
+            </div>
+          </div>
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const ctx = document.getElementById('supportVibesChart');
+              if (!ctx) return;
+
+              const vibesData = <%= raw(@support_vibes_history.map { |d| { x: d[0].strftime('%b %-d'), y: d[1].to_f } }.to_json) %>;
+              const labels = vibesData.map(d => d.x);
+              const values = vibesData.map(d => d.y);
+
+              new Chart(ctx, {
+                type: 'line',
+                data: {
+                  labels: labels,
+                  datasets: [{
+                    label: 'Overall Sentiment',
+                    data: values,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#10b981'
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  plugins: {
+                    legend: { display: false }
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      min: -1,
+                      max: 1,
+                      title: { display: false }
+                    },
+                    x: {
+                      title: { display: false },
+                      ticks: {
+                        callback: function(value, index, ticks) {
+                          return index % 3 === 0 ? this.getLabelForValue(value) : '';
+                        },
+                        minRotation: 45,
+                        maxRotation: 45
+                      }
+                    }
+                  }
+                }
+              });
+            });
+          </script>
+
+          <div class="super-mega-dashboard__card">
+            <h3>Current Concerns</h3>
+            <% if @latest_support_vibes&.concerns.present? %>
+              <ol class="current-concerns-list">
+                <% @latest_support_vibes.concerns.each_with_index do |concern, idx| %>
+                  <li>
+                    <div data-controller="modal">
+                      <button
+                        type="button"
+                        class="concern-desc-btn"
+                        onclick="document.getElementById(<%= "concern-#{idx}".to_json %>).showModal()">
+                        <%= concern["title"] %>
+                      </button>
+                      <%= render layout: "shared/modal", locals: { id: "concern-#{idx}", title: concern["title"], description: concern["description"] } do %>
+                        <div class="modal__actions">
+                          <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= "concern-#{idx}".to_json %>).close()">X</button>
+                        </div>
+                      <% end %>
+                    </div>
+                  </li>
+                <% end %>
+              </ol>
+            <% else %>
+              <p>No concerns found.</p>
+            <% end %>
+          </div>
         </div>
       </div>
     <% end %>
