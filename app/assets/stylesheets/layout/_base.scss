@@ -25,11 +25,11 @@ body.signed-in {
   background-position: center;
   background-attachment: fixed;
   background-color: var(--color-bg-2);
-  margin-left: 320px; // space for sidebar
+  margin-left: 380px; // space for sidebar
   margin-right: 100px;
 
   @media (max-width: 1500px) {
-    margin-left: 270px;
+    margin-left: 280px;
     margin-right: 50px;
   }
 

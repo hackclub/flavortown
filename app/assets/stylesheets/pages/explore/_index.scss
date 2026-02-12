@@ -10,10 +10,21 @@
   &__nav {
     width: 90%;
     max-width: 1200px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0 1em;
+    align-items: center;
     margin: 2.5em auto;
+
+    &--desktop {
+      grid-column: 2;
+      justify-self: center;
+    }
+
+    &--sort {
+      grid-column: 3;
+      justify-self: start;
+    }
 
     &--type {
       border: 0.2em solid var(--color-brown-500);
@@ -50,6 +61,8 @@
 
     &--mobile {
       display: none;
+      grid-column: 1;
+      justify-self: start;
     }
 
     &--sort {

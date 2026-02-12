@@ -3,13 +3,13 @@
 <% content_for :og_image, og_image_url('sidequests', format: :png) %>
 <% content_for :twitter_card, "summary_large_image" %>
 
-<%= render HeadingComponent.new(title: "Nibbles", tone: :green, size: :full) %>
+<%= render HeadingComponent.new(title: "Sidequests", tone: :green, size: :full) %>
 
-<div class="nibbles__sidequests">
-  <h1 class="nibbles__sidequests-subtitle">Looking for a sidequest? Take on one of these challenges for extra bonuses!</h1>
+<div class="sidequests-index">
+  <h1 class="sidequests-index__subtitle">Looking for a sidequest? Take on one of these challenges for extra bonuses!</h1>
 
   <% if @db_sidequests.any? %>
-    <div class="nibbles__sidequests-cards">
+    <div class="sidequests-index__cards">
       <% @db_sidequests.each do |sidequest| %>
         <div class="sidequest-card sidequest-card--blue">
           <div class="sidequest-card__content">
@@ -25,7 +25,7 @@
   <% end %>
 
   <% if @active_sidequests.any? %>
-    <div class="nibbles__sidequests-cards">
+    <div class="sidequests-index__cards">
       <% @active_sidequests.each do |sidequest| %>
         <%= render SidequestCardComponent.new(**sidequest) %>
       <% end %>
@@ -33,12 +33,12 @@
   <% end %>
 
   <% if @active_sidequests.empty? && @db_sidequests.empty? %>
-    <p class="nibbles__sidequests-empty">No active sidequests right now. Check back soon!</p>
+    <p class="sidequests-index__empty">No active sidequests right now. Check back soon!</p>
   <% end %>
 
   <% if @expired_sidequests.any? %>
-    <h2 class="nibbles__sidequests-section-title">Past Sidequests</h2>
-    <div class="nibbles__sidequests-cards">
+    <h2 class="sidequests-index__section-title">Past Sidequests</h2>
+    <div class="sidequests-index__cards">
       <% @expired_sidequests.each do |sidequest| %>
         <%= render SidequestCardComponent.new(**sidequest) %>
       <% end %>

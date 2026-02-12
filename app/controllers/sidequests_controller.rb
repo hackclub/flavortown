@@ -1,7 +1,7 @@
 class SidequestsController < ApplicationController
   def index
-    # Hardcoded nibbles (legacy)
-    nibbles = [
+    # Hardcoded sidequests (legacy)
+    legacy_sidequests = [
       {
         title: "The Hackazine",
         image: "nibbles/Hackazine.avif",
@@ -23,8 +23,8 @@ class SidequestsController < ApplicationController
       }
     ]
 
-    @active_sidequests = nibbles.reject { |s| s[:expires_at].present? && s[:expires_at] < Date.current }
-    @expired_sidequests = nibbles.select { |s| s[:expires_at].present? && s[:expires_at] < Date.current }
+    @active_sidequests = legacy_sidequests.reject { |s| s[:expires_at].present? && s[:expires_at] < Date.current }
+    @expired_sidequests = legacy_sidequests.select { |s| s[:expires_at].present? && s[:expires_at] < Date.current }
 
     # Database-backed sidequests (for ship opt-in, not displayed as cards yet)
     @db_sidequests = Sidequest.active
