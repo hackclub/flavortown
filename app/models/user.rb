@@ -57,6 +57,8 @@
 #  index_users_on_slack_id          (slack_id) UNIQUE
 #
 class User < ApplicationRecord
+  include Recommendable
+
   has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
 
   has_recommended :projects # you might like these projects...

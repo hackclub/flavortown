@@ -59,6 +59,16 @@ class MyController < ApplicationController
     head :internal_server_error
   end
 
+  def refresh_recommendations
+    return head :forbidden unless Flipper.enabled?(:refresh_recommendations, current_user)
+
+    current_user.refresh_recommendations!
+    redirect_back fallback_location: root_path, notice: "Recommendations refreshed"
+  rescue StandardError => e
+    Rails.logger.error("Error refreshing recommendations: #{e.message}")
+    redirect_back fallback_location: root_path, alert: "Failed to refresh recommendations"
+  end
+
   private
 
   def require_login

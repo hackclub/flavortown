@@ -1,0 +1,316 @@
+<%= render HeadingComponent.new(title: "Recommendations Dashboard", tone: :blue, size: :full) %>
+
+<div class="dashboard-actions" style="margin-bottom: 2rem;">
+  <%= link_to "Refresh All Recommendations", refresh_all_admin_recommendations_dashboard_index_path, method: :post, class: "btn-primary", data: { confirm: "This will queue a job to regenerate all recommendations. Continue?" } %>
+  <%= link_to "Clear Caches", clear_cache_admin_recommendations_dashboard_index_path, method: :post, class: "btn-primary", style: "margin-left: 1rem;", data: { confirm: "This will clear all recommendation caches. Continue?" } %>
+</div>
+
+<h2>Overview Statistics</h2>
+<div class="dashboard-stats">
+  <div class="card">
+    <h3>Total Recommendations</h3>
+    <p class="stat-value"><%= number_with_delimiter(@total_recommendations) %></p>
+  </div>
+  <div class="card">
+    <h3>Users with Recommendations</h3>
+    <p class="stat-value"><%= number_with_delimiter(@total_users_with_recs) %></p>
+  </div>
+  <div class="card">
+    <h3>Projects with Recommendations</h3>
+    <p class="stat-value"><%= number_with_delimiter(@total_projects_with_recs) %></p>
+  </div>
+  <div class="card">
+    <h3>Generated (24h)</h3>
+    <p class="stat-value"><%= number_with_delimiter(@recent_recommendations) %></p>
+  </div>
+</div>
+
+<h2>Average Scores</h2>
+<div class="dashboard-stats">
+  <div class="card">
+    <h3>User Recs Avg Score</h3>
+    <p class="stat-value"><%= number_to_percentage(@avg_user_score * 100, precision: 1) %></p>
+  </div>
+  <div class="card">
+    <h3>Project Recs Avg Score</h3>
+    <p class="stat-value"><%= number_to_percentage(@avg_project_score * 100, precision: 1) %></p>
+  </div>
+</div>
+
+<h2>Interaction Data</h2>
+<div class="dashboard-stats">
+  <div class="card">
+    <h3>Total Interactions</h3>
+    <p class="stat-value"><%= number_with_delimiter(@total_interactions) %></p>
+    <small>Views, Likes, Votes, Follows</small>
+  </div>
+  <div class="card">
+    <h3>Interactions (24h)</h3>
+    <p class="stat-value"><%= number_with_delimiter(@interactions_24h) %></p>
+  </div>
+</div>
+
+<h2>Feature Flags Status</h2>
+<div class="dashboard-stats">
+  <% @flipper_flags.each do |flag, enabled| %>
+    <div class="card" style="border-left: 4px solid <%= enabled ? '#10b981' : '#ef4444' %>;">
+      <h3><%= flag.to_s.humanize %></h3>
+      <p class="stat-value" style="font-size: 1.5rem;"><%= enabled ? '✓ Enabled' : '✗ Disabled' %></p>
+    </div>
+  <% end %>
+</div>
+
+<% if Flipper.enabled?(:user_recommendations) %>
+  <h2>Top Recommended Projects (User-based)</h2>
+  <% if @top_recommended_projects.any? %>
+    <table class="table-data">
+      <thead>
+        <tr>
+          <th>Project</th>
+          <th>Times Recommended</th>
+          <th>Avg Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @top_recommended_projects.each do |project, count, avg_score| %>
+          <tr>
+            <td><%= link_to project.title, admin_project_path(project) %></td>
+            <td><%= number_with_delimiter(count) %></td>
+            <td><%= number_to_percentage(avg_score * 100, precision: 1) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>No user-based recommendations yet.</p>
+  <% end %>
+
+  <h2>Top Users by Recommendation Count</h2>
+  <% if @top_users_with_recs.any? %>
+    <table class="table-data">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Recommendations</th>
+          <th>Avg Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @top_users_with_recs.each do |user, count, avg_score| %>
+          <tr>
+            <td><%= link_to user.display_name, admin_user_path(user) %></td>
+            <td><%= number_with_delimiter(count) %></td>
+            <td><%= number_to_percentage(avg_score * 100, precision: 1) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>No users with recommendations yet.</p>
+  <% end %>
+<% end %>
+
+<% if Flipper.enabled?(:project_recommendations) %>
+  <h2>Top Projects with Recommendations</h2>
+  <% if @top_projects_with_recs.any? %>
+    <table class="table-data">
+      <thead>
+        <tr>
+          <th>Project</th>
+          <th>Similar Projects</th>
+          <th>Avg Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @top_projects_with_recs.each do |project, count, avg_score| %>
+          <tr>
+            <td><%= link_to project.title, admin_project_path(project) %></td>
+            <td><%= number_with_delimiter(count) %></td>
+            <td><%= number_to_percentage(avg_score * 100, precision: 1) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>No project-based recommendations yet.</p>
+  <% end %>
+<% end %>
+
+<h2>Context Breakdown</h2>
+<% if @context_breakdown.any? %>
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>Context</th>
+        <th>Count</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @context_breakdown.each do |context, count| %>
+        <tr>
+          <td><%= context.humanize %></td>
+          <td><%= number_with_delimiter(count) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No context data available.</p>
+<% end %>
+
+<h2>Score Distribution</h2>
+<% if @score_distribution.values.sum > 0 %>
+  <div class="chart-section">
+    <div class="chart-bars" style="height: 150px;">
+      <% max_count = @score_distribution.values.max.to_f.nonzero? || 1 %>
+      <% @score_distribution.each do |range, count| %>
+        <div class="chart-bar-container" title="<%= range %>: <%= number_with_delimiter(count) %>">
+          <div class="chart-bar neutral" style="height: <%= (count / max_count * 100).round %>%; background-color: #6366f1;"></div>
+          <span class="chart-label" style="font-size: 0.7rem;"><%= range %></span>
+          <span class="chart-value" style="font-size: 0.7rem; font-weight: bold;"><%= count %></span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <p>No score distribution data available.</p>
+<% end %>
+
+<h2>Recent Recommendations</h2>
+<% if @recent_list.any? %>
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Type</th>
+        <th>Subject</th>
+        <th>Item</th>
+        <th>Context</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @recent_list.each do |rec| %>
+        <tr>
+          <td><%= rec.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          <td><%= rec.subject_type %></td>
+          <td>
+            <% if rec.subject.is_a?(User) %>
+              <%= link_to rec.subject.display_name, admin_user_path(rec.subject) %>
+            <% elsif rec.subject.is_a?(Project) %>
+              <%= link_to rec.subject.title, admin_project_path(rec.subject) %>
+            <% end %>
+          </td>
+          <td>
+            <% if rec.item.is_a?(Project) %>
+              <%= link_to rec.item.title, admin_project_path(rec.item) %>
+            <% end %>
+          </td>
+          <td><%= rec.context.humanize %></td>
+          <td><%= number_to_percentage(rec.score * 100, precision: 1) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No recommendations generated yet.</p>
+<% end %>
+
+<%= link_to "Go back", "/admin", class: "btn-primary", style: "margin-top: 2rem;" %>
+
+<style>
+  .dashboard-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .dashboard-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    min-width: 150px;
+    flex: 1;
+  }
+
+  .card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+    color: #111827;
+  }
+
+  .table-data {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+
+  .table-data th,
+  .table-data td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .table-data th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .chart-section {
+    margin: 2rem 0;
+  }
+
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    height: 150px;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 4px;
+  }
+
+  .chart-bar-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+  }
+
+  .chart-bar {
+    width: 100%;
+    min-height: 2px;
+    border-radius: 2px 2px 0 0;
+  }
+
+  .chart-label {
+    font-size: 0.6rem;
+    color: #666;
+    margin-top: 4px;
+  }
+
+  .chart-value {
+    font-size: 0.7rem;
+    color: #333;
+    margin-top: 2px;
+  }
+</style>

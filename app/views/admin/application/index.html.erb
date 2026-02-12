@@ -116,6 +116,9 @@
   <% if policy(:admin).access_voting_dashboard? %>
     <%= link_to "Voting Dashboard", "/admin/voting_dashboard", class: button_class %>
   <% end %>
+  <% if policy(:admin).access_recommendations_dashboard? && Flipper.enabled?(:recommendations_dashboard, current_user) %>
+    <%= link_to "Recommendations Dashboard", admin_recommendations_dashboard_index_path, class: button_class %>
+  <% end %>
   <% if policy(:admin).access_vote_spam_dashboard? %>
     <%= link_to "Vote Spam Dashboard", admin_vote_spam_dashboard_path, class: button_class %>
   <% end %>
