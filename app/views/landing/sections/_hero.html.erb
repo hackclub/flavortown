@@ -67,6 +67,13 @@
         <% end %>
       <% end %>
       <%= button_to "or, sign back in", "/auth/hack_club", method: :post, form_class: "sign-back-in-link", class: "link-btn" %>
+      <% if Rails.env.development? && current_user.blank? %>
+        <%= button_to "dev login",
+                      "/dev_login",
+                      method: :get,
+                      form_class: "sign-back-in-link",
+                      class: "link-btn" %>
+      <% end %>
     </div>
 
     <% if @landing_variant == "challenger" %>
