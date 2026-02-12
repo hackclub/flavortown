@@ -43,7 +43,7 @@
             <% project = entry.project %>
             <a href="<%= project_path(project) %>" class="sidequest-show__gallery-item">
               <% if project.banner.attached? %>
-                <%= image_tag project.banner.variant(:medium), class: "sidequest-show__gallery-banner", alt: project.title %>
+                <%= image_tag project.banner.variant(:card), class: "sidequest-show__gallery-banner", alt: project.title %>
               <% end %>
               <span class="sidequest-show__gallery-title"><%= project.title %></span>
             </a>
