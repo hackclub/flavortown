@@ -66,7 +66,7 @@ module Admin
               ... (5-7 most common/impactful VERBATIM questions found in the text)
             ],
             "unresolved_queries": {
-              "Theme/Category: Short description of questions (2-3 sentences)": ["Exact question 1", "Exact question 2"],
+              "Theme/Category: Short description of questions (2-3 sentences) [HIGH/MEDIUM/LOW — assigned priority based on how frequent the concern is amongst open tickets]": ["Exact question 1", "Exact question 2"],
               ... (For all major themes of unresolved questions, group them and list 2 VERBATIM questions for each)
             },
             "overall_sentiment": 0.5, // Float from -1.0 (very negative) to 1.0 (very positive)
