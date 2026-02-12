@@ -174,8 +174,12 @@
                   <h4 class="sw-vibes-mini__header">Quotes (<%= @sw_vibes[:quotes].size %>)</h4>
                   <ul class="sw-vibes-mini__quotes-list">
                     <% @sw_vibes[:quotes].each_with_index do |quote, idx| %>
-                      <li class="sw-vibes-mini__quote-item" data-popup="quote-popup-<%= idx %>">
-                        "<%= truncate(quote[:text], length: 150) %>"
+                      <li class="sw-vibes-mini__quote-item">
+                        <button type="button"
+                                class="sw-vibes-mini__quote-trigger"
+                                data-popup="quote-popup-<%= idx %>">
+                          "<%= truncate(quote[:text], length: 150) %>"
+                        </button>
                       </li>
                       <div id="quote-popup-<%= idx %>" class="sw-vibes-popup" style="display: none;">
                         <div class="sw-vibes-popup__content">
