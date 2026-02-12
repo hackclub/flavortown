@@ -82,8 +82,8 @@ Rails.application.routes.draw do
   get "explore/following", to: "explore#following", as: :explore_following
   get "explore/extensions", to: "explore#extensions", as: :explore_extensions
 
-  # Nibbles
-  get "nibbles", to: "nibbles#index", as: :nibbles
+  # Sidequests (formerly Nibbles)
+  get "nibbles", to: redirect("/sidequests")
   resources :sidequests, only: [ :index, :show ]
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -276,6 +276,8 @@ Rails.application.routes.draw do
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
     get "voting_dashboard", to: "voting_dashboard#index"
+    get "vote_spam_dashboard", to: "vote_spam_dashboard#index"
+    get "vote_spam_dashboard/users/:user_id", to: "vote_spam_dashboard#show", as: :vote_spam_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
     get "suspicious_votes", to: "suspicious_votes#index"
@@ -286,7 +288,6 @@ Rails.application.routes.draw do
       end
     end
     resources :support_vibes, only: [ :index, :create ]
-    resources :sw_vibes, only: [ :index ]
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
