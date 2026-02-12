@@ -75,7 +75,7 @@ module Admin
         PROMPT
 
         llm_response = Faraday.post("https://openrouter.ai/api/v1/chat/completions") do |req|
-          req.headers["Authorization"] = "Bearer #{ENV['SWAI_KEY']}"
+          req.headers["Authorization"] = "Bearer #{ENV['OPENROUTER_API_KEY']}"
           req.headers["Content-Type"] = "application/json"
           req.body = {
             model: "x-ai/grok-4.1-fast",
