@@ -13,7 +13,7 @@ module Admin
       end_time = Time.current
 
       begin
-        response = Faraday.get("https://flavortown.nephthys.hackclub.com/api/tickets") do |req|
+        response = nephthys_conn.get("/api/tickets") do |req|
           req.params["after"] = start_time.iso8601
           req.params["before"] = end_time.iso8601
         end
@@ -25,7 +25,9 @@ module Admin
 
         tickets = JSON.parse(response.body)
 
-        open_tickets_response = Faraday.get("https://flavortown.nephthys.hackclub.com/api/tickets?status=open")
+        open_tickets_response = nephthys_connection.get("/api/tickets") do |req|
+          req.params["status"] = "open"
+        end
 
         open_tickets = if open_tickets_response.success?
           JSON.parse(open_tickets_response.body)
@@ -112,6 +114,18 @@ module Admin
         redirect_to admin_support_vibes_path, alert: "Received invalid JSON from Nephthys."
       rescue StandardError => e
         redirect_to admin_support_vibes_path, alert: "An error occurred: #{e.message}"
+      end
+    end
+
+    private 
+
+    def nephthys_conn
+      @nephthys_conn ||= Faraday.new("https://flavortown.nephthys.hackclub.com") do |f|
+        f.request :retry, max: 2, interval: 0.2, interval_randomness: 0.1, backoff_factor: 2
+        f.options.open_timeout = 3
+        f.options.timeout = 7
+        f.response :raise_error
+        f.adapter Faraday.default_adapter
       end
     end
   end
