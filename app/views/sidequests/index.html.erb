@@ -5,13 +5,13 @@
 
 <%= render HeadingComponent.new(title: "Sidequests", tone: :green, size: :full) %>
 
-<div class="sidequests-index">
+<div class="sidequests-index" data-controller="anchor-scroll">
   <h1 class="sidequests-index__subtitle">Looking for a sidequest? Take on one of these challenges for extra bonuses!</h1>
 
   <% if @db_sidequests.any? %>
     <div class="sidequests-index__cards">
       <% @db_sidequests.each do |sidequest| %>
-        <div class="sidequest-card sidequest-card--blue">
+        <div id="<%= sidequest.slug %>" class="sidequest-card sidequest-card--blue">
           <div class="sidequest-card__content">
             <h1 class="sidequest-card__title"><%= sidequest.title %></h1>
             <h2><%= sidequest.description %></h2>
