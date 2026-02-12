@@ -1,3 +1,5 @@
+require "faraday/retry"
+
 module Admin
   class SupportVibesController < Admin::ApplicationController
     def index
@@ -13,7 +15,7 @@ module Admin
       end_time = Time.current
 
       begin
-        response = Faraday.get("https://flavortown.nephthys.hackclub.com/api/tickets") do |req|
+        response = nephthys_conn.get("/api/tickets") do |req|
           req.params["after"] = start_time.iso8601
           req.params["before"] = end_time.iso8601
         end
@@ -25,6 +27,13 @@ module Admin
 
         tickets = JSON.parse(response.body)
 
+        begin
+          open_tickets_response = nephthys_conn.get("/api/tickets?status=open")
+          open_tickets = JSON.parse(open_tickets_response.body)
+        rescue Faraday::Error
+          open_tickets = []
+        end
+
         if tickets.empty?
           redirect_to admin_support_vibes_path, notice: "No new tickets found in the specified time frame."
           return
@@ -33,11 +42,17 @@ module Admin
         questions_list = tickets.map { |t| t["description"].to_s }
         questions = questions_list.map.with_index(1) { |q, i| "#{i}. #{q}" }.join("\n")
 
+        open_questions_list = open_tickets.map { |t| t["description"].to_s }
+        open_questions = open_questions_list.map.with_index(1) { |q, i| "#{i}. #{q}" }.join("\n")
+
         prompt = <<~PROMPT
           Analyze the following support questions and summarize the current vibes.
 
           INPUT DATA:
           #{questions}
+
+          OPEN QUESTIONS:
+          #{open_questions}
 
           OUTPUT INSTRUCTIONS:
           Return ONLY valid JSON (no markdown formatting, no code blocks) with this exact schema:
@@ -50,13 +65,17 @@ module Admin
               "Exact question asked by user?",
               ... (5-7 most common/impactful VERBATIM questions found in the text)
             ],
+            "unresolved_queries": {
+              "Theme/Category: Short description of questions (2-3 sentences)": ["Exact question 1", "Exact question 2"],
+              ... (For all major themes of unresolved questions, group them and list 2 VERBATIM questions for each)
+            },
             "overall_sentiment": 0.5, // Float from -1.0 (very negative) to 1.0 (very positive)
             "rating": "medium" // One of: "low", "medium", "high"
           }
         PROMPT
 
-        llm_response = Faraday.post("https://ai.hackclub.com/proxy/v1/chat/completions") do |req|
-          req.headers["Authorization"] = "Bearer #{ENV['HCAI_API_KEY']}"
+        llm_response = Faraday.post("https://openrouter.ai/api/v1/chat/completions") do |req|
+          req.headers["Authorization"] = "Bearer #{ENV['SWAI_KEY']}"
           req.headers["Content-Type"] = "application/json"
           req.body = {
             model: "x-ai/grok-4.1-fast",
@@ -84,6 +103,7 @@ module Admin
           concerns: data["concerns"],
           overall_sentiment: data["overall_sentiment"],
           notable_quotes: data["prominent_questions"],
+          unresolved_queries: data["unresolved_queries"],
           rating: data["rating"]
         )
 
@@ -93,6 +113,18 @@ module Admin
         redirect_to admin_support_vibes_path, alert: "Received invalid JSON from Nephthys."
       rescue StandardError => e
         redirect_to admin_support_vibes_path, alert: "An error occurred: #{e.message}"
+      end
+    end
+
+    private
+
+    def nephthys_conn
+      @nephthys_conn ||= Faraday.new("https://flavortown.nephthys.hackclub.com") do |f|
+        f.request :retry, max: 2, interval: 0.2, interval_randomness: 0.1, backoff_factor: 2
+        f.options.open_timeout = 3
+        f.options.timeout = 7
+        f.response :raise_error
+        f.adapter Faraday.default_adapter
       end
     end
   end
