@@ -635,12 +635,12 @@
                       <button
                         type="button"
                         class="concern-desc-btn"
-                        onclick="document.getElementById('concern-<%= idx %>').showModal()">
+                        onclick="document.getElementById(<%= "concern-#{idx}".to_json %>).showModal()">
                         <%= concern["title"] %>
                       </button>
                       <%= render layout: "shared/modal", locals: { id: "concern-#{idx}", title: concern["title"], description: concern["description"] } do %>
                         <div class="modal__actions">
-                          <button type="button" class="modal__actions-close" onclick="document.getElementById('<%= "concern-#{idx}" %>').close()">X</button>
+                          <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= "concern-#{idx}".to_json %>).close()">X</button>
                         </div>
                       <% end %>
                     </div>
