@@ -53,6 +53,21 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       orders = orders.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.id::text = ? OR users.slack_id ILIKE ?", search, search, params[:user_search], search)
     end
 
+    # Apply assignee filter (OR logic: show orders matching ANY selected assignee, including unassigned)
+    if params[:assignee_ids].present?
+      selected_ids = Array(params[:assignee_ids]).map(&:to_s)
+      has_unassigned = selected_ids.include?("unassigned")
+      user_ids = selected_ids.reject { |id| id == "unassigned" }.map(&:to_i)
+
+      if has_unassigned && user_ids.any?
+        orders = orders.where(assigned_to_user_id: nil).or(orders.where(assigned_to_user_id: user_ids))
+      elsif has_unassigned
+        orders = orders.where(assigned_to_user_id: nil)
+      elsif user_ids.any?
+        orders = orders.where(assigned_to_user_id: user_ids)
+      end
+    end
+
     # Apply region filter using database-level query (now that orders have a region column)
     # Fulfillment persons see orders in their regions OR orders assigned to them OR orders with nil region (legacy/no address)
     if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept? && current_user.has_regions?
