@@ -51,15 +51,15 @@
       form: { target: "_blank", rel: "noopener" } %>
   <% end %>
 
-  <% if @project.repo_url.present? %>
+  <% if @project.repo_url.present? && URI.parse(@project.repo_url).scheme.in?(%w[http https]) rescue false %>
     <%= link_to "View Repo", @project.repo_url, class: "btn-primary", target: "_blank", rel: "noopener" %>
   <% end %>
 
-  <% if @project.demo_url.present? %>
+  <% if @project.demo_url.present? && URI.parse(@project.demo_url).scheme.in?(%w[http https]) rescue false %>
     <%= link_to "View Demo", @project.demo_url, class: "btn-primary", target: "_blank", rel: "noopener" %>
   <% end %>
 
-  <% if @project.readme_url.present? %>
+  <% if @project.readme_url.present? && URI.parse(@project.readme_url).scheme.in?(%w[http https]) rescue false %>
     <%= link_to "View Readme", @project.readme_url, class: "btn-primary", target: "_blank", rel: "noopener" %>
   <% end %>
 </div>
