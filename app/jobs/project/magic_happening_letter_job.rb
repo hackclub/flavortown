@@ -1,5 +1,6 @@
 class Project::MagicHappeningLetterJob < ApplicationJob
   queue_as :default
+  notify_maintainers_on_exhaustion StandardError, maintainers_slack_ids: ["U07L45W79E1"], wait: :polynomially_longer, attempts: 3
 
   def perform(project)
     unless Rails.env.production?
@@ -11,11 +12,7 @@ class Project::MagicHappeningLetterJob < ApplicationJob
     address = owner.addresses.first
 
     if owner.email.blank? || address.blank?
-      Rails.logger.warn(
-        "MagicHappeningLetterJob: project #{project.id} missing owner email or address — re-enqueuing"
-      )
-      Project::MagicHappeningLetterJob.perform_later(project)
-      return
+      raise "MagicHappeningLetterJob: project #{project.id} missing owner email or address"
     end
 
     response = TheseusService.create_letter_v1(
