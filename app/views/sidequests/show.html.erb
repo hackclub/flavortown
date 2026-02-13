@@ -21,23 +21,16 @@
       </p>
     <% end %>
 
-    <div class="sidequest-show__stats">
-      <p><strong><%= @approved_entries.size %></strong> approved projects</p>
-    </div>
-
     <% if @approved_entries.any? %>
       <div class="sidequest-show__gallery">
-        <h3>Approved Projects</h3>
+        <h3 class="sidequest-show__gallery-title">Approved Projects (<%= @approved_entries.size %>)</h3>
         <div class="sidequest-show__gallery-grid">
           <% @approved_entries.each do |entry| %>
-            <% project = entry.project %>
-            <% next unless project.present? %>
-            <a href="<%= project_path(project) %>" class="sidequest-show__gallery-item">
-              <% if project.banner.attached? %>
-                <%= image_tag project.banner.variant(:card), class: "sidequest-show__gallery-banner", alt: project.title %>
-              <% end %>
-              <span class="sidequest-show__gallery-title"><%= project.title %></span>
-            </a>
+            <div class="sidequest-show__gallery-item">
+              <% project = entry.project %>
+              <% next unless project.present? %>
+              <%= render partial: "projects/card", locals: { project: project } %>
+            </div>
           <% end %>
         </div>
       </div>
