@@ -26,9 +26,9 @@
         <h3 class="sidequest-show__gallery-title">Approved Projects (<%= @approved_entries.size %>)</h3>
         <div class="sidequest-show__gallery-grid">
           <% @approved_entries.each do |entry| %>
+            <% project = entry.project %>
+            <% next unless project.present? %>
             <div class="sidequest-show__gallery-item">
-              <% project = entry.project %>
-              <% next unless project.present? %>
               <%= render partial: "projects/card", locals: { project: project } %>
             </div>
           <% end %>
