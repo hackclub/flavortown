@@ -10,4 +10,4 @@ section "*Backtrace (first 5 lines):*\n```#{error_backtrace.join("\n")}```", mar
 
 section "*Arguments:*\n```#{job_arguments.inspect}```", markdown: true
 
-section "This job has exceeded its maximum retry attempts (3). Please investigate and fix this issue.", markdown: true
+section "This job has exceeded its maximum retry attempts (#{executions_count}). Please investigate and fix this issue.", markdown: true
