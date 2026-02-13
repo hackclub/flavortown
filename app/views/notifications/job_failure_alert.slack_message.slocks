@@ -1,4 +1,4 @@
-header "⚠️ Recurring Job Failed"
+header "⚠️ Job Failed After Retries"
 
 section "*Job:* `#{job_class}`\n*Job ID:* `#{job_id}`", markdown: true
 
