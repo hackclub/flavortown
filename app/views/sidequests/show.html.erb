@@ -31,6 +31,7 @@
         <div class="sidequest-show__gallery-grid">
           <% @approved_entries.each do |entry| %>
             <% project = entry.project %>
+            <% next unless project.present? %>
             <a href="<%= project_path(project) %>" class="sidequest-show__gallery-item">
               <% if project.banner.attached? %>
                 <%= image_tag project.banner.variant(:card), class: "sidequest-show__gallery-banner", alt: project.title %>
