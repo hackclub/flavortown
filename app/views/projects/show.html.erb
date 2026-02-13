@@ -1,6 +1,6 @@
 <% content_for :title, @project.title %>
 <% content_for :og_title, @project.title %>
-<% content_for :og_description, truncate(@project.description.to_s, length: 200) %>
+<% content_for :og_description, truncate(@project.display_description.to_s, length: 200) %>
 <% content_for :og_image, project_og_image_url(@project, format: :png) %>
 <% content_for :twitter_card, "summary_large_image" %>
 <% content_for :og_author, @project.memberships.find_by(role: :owner)&.user&.display_name %>

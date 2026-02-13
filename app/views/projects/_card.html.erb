@@ -22,9 +22,9 @@
             <%= link_to project.title, project_path(project), class: "project-card__title-link" %>
         </h3>
         <%# TODO: add continue/read more https://apidock.com/rails/ActionView/Helpers/TextHelper/truncate %>
-        <% if project.description.present? %>
+        <% if project.display_description.present? %>
             <p class="project-card__description">
-                <%= md truncate(project.description, length: 120) %>
+                <%= md truncate(project.display_description, length: 120) %>
             </p>
         <% end %>
     </div>

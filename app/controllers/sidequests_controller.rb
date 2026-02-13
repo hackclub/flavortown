@@ -1,7 +1,7 @@
 class SidequestsController < ApplicationController
   def index
-    # Hardcoded nibbles (legacy)
-    nibbles = [
+    # Hardcoded sidequests (legacy)
+    legacy_sidequests = [
       {
         title: "The Hackazine",
         image: "nibbles/Hackazine.avif",
@@ -23,11 +23,14 @@ class SidequestsController < ApplicationController
       }
     ]
 
-    @active_sidequests = nibbles.reject { |s| s[:expires_at].present? && s[:expires_at] < Date.current }
-    @expired_sidequests = nibbles.select { |s| s[:expires_at].present? && s[:expires_at] < Date.current }
+    @active_sidequests = legacy_sidequests.reject { |s| s[:expires_at].present? && s[:expires_at] < Date.current }
+    @expired_sidequests = legacy_sidequests.select { |s| s[:expires_at].present? && s[:expires_at] < Date.current }
 
-    # Database-backed sidequests (for ship opt-in, not displayed as cards yet)
-    @db_sidequests = Sidequest.active
+    # Database-backed sidequests (Challenger, Extensions, etc.); ensure defaults exist so they show without running seeds
+    Sidequest.ensure_default_sidequests!
+    db_sidequests = Sidequest.active.to_a
+    @challenger_sidequest = db_sidequests.find { |sidequest| sidequest.slug == "challenger" }
+    @db_sidequests = db_sidequests.reject { |sidequest| sidequest.slug == "challenger" }
   end
 
   def show
@@ -38,6 +41,12 @@ class SidequestsController < ApplicationController
       redirect_to @sidequest.external_page_link, allow_other_host: true and return
     end
 
-    # otherwise, render default show page
+    @approved_entries = @sidequest.sidequest_entries.approved.includes(project: :memberships)
+
+    # Render custom template if one exists, otherwise default show
+    custom_template = "sidequests/show_#{@sidequest.slug}"
+    if lookup_context.exists?(custom_template)
+      render custom_template
+    end
   end
 end
