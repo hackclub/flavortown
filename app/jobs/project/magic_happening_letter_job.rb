@@ -12,7 +12,9 @@ class Project::MagicHappeningLetterJob < ApplicationJob
     address = owner.addresses.first
 
     if owner.email.blank? || address.blank?
-      raise "MagicHappeningLetterJob: project #{project.id} missing owner email or address"
+      Rails.logger.info "MagicHappeningLetterJob: project #{project.id} missing owner email or address, re-enqueuing job to wait for data"
+      self.class.set(wait: 15.minutes).perform_later(project)
+      return
     end
 
     response = TheseusService.create_letter_v1(
