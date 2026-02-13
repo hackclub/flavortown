@@ -22,7 +22,11 @@
     <% end %>
 
     <div class="sidequest-show__stats">
-      <p><strong><%= @approved_entries.size %></strong> approved projects</p>
+      <% if @approved_entries.any? %>
+        <p><strong><%= @approved_entries.size %></strong> approved projects</p>
+      <% else %>
+        <p><strong>Be the first to submit</strong></p>
+      <% end %>
     </div>
 
     <% if @approved_entries.any? %>

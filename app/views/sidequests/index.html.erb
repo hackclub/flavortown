@@ -9,50 +9,17 @@
   <h1 class="sidequests-index__subtitle">Looking for a sidequest? Take on one of these challenges for extra bonuses!</h1>
 
   <div class="sidequests-index__cards">
-      <div id="challenger-center" class="sidequest-card sidequest-card--purple sidequest-card--dynamic-stars" data-controller="sidequest-expand">
+      <%= link_to sidequest_path("challenger"), id: "challenger-center", class: "sidequest-card sidequest-card--purple sidequest-card--dynamic-stars sidequest-card--link" do %>
         <div class="sidequest-card__content" data-controller="stars" data-stars-fade-on-scroll-value="false">
-          <h1 class="sidequest-card__title">Challenger Center Space Challenge</h1>
+          <h1 class="sidequest-card__title">Challenger Space Mission</h1>
           <%= image_tag "launch/group-moon.png",
                         alt: "",
                         aria: { hidden: true },
                         class: "sidequest-card__corner-moon" %>
-          <div class="sidequest-card__image-container">
-            <%= image_tag "launch/challenger-sidebar.png", alt: "Space Mission", class: "sidequest-card__image" %>
-          </div>
-          <h2>Build and ship a space-related project, then submit by March 31. Once approved, you get a Challenger sticker and become eligible for additional prizes.</h2>
+          <h2>Ship a space-related project by March 31! Submit it to this sidequest to qualify for space-themed prizes in the shop.</h2>
+          <p class="sidequest-card__expires">Ends March 31, 2026</p>
         </div>
-
-        <div class="sidequest-card__expanded" data-sidequest-expand-target="content">
-          <div class="sidequest-card__expanded-inner">
-            <h2 class="sidequest-card__expanded-title">Mission briefing</h2>
-            <p class="sidequest-card__expanded-text">
-              Submit by March 31. Approval guarantees your Challenger sticker and unlocks extra rewards, including astronaut Q&A, Challenger Center visit opportunities, and bonus prizes.
-            </p>
-
-            <div class="sidequest-card__expanded-grid">
-              <div class="sidequest-card__expanded-cell">
-                <p><strong>Mission deadline:</strong> March 31</p>
-              </div>
-              <div class="sidequest-card__expanded-cell">
-                <p><strong>Mission steps:</strong> Build a space-related project, ship it on Flavortown, then submit it to this challenge.</p>
-              </div>
-              <div class="sidequest-card__expanded-cell">
-                <p><strong>Mission ideas:</strong> Start from <%= link_to "NASA's technology shortfalls list", "https://techport.nasa.gov/strategy", target: "_blank", rel: "noopener noreferrer", class: "sidequest-card__link" %> and check the gallery below.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="sidequest-card__buttons">
-          <button class="btn btn--blue btn-learn-more" data-action="sidequest-expand#toggle" data-sidequest-expand-target="button">
-            <span data-sidequest-expand-target="buttonText">Mission Briefing</span>
-          </button>
-          <%= link_to challenger_mission_cta_text,
-                      challenger_mission_cta_href,
-                      class: "btn btn--green btn-submit" %>
-        </div>
-        <p class="sidequest-card__cta-helper">Submit now. Sticker is guaranteed after approval.</p>
-      </div>
+      <% end %>
 
       <% @db_sidequests.each do |sidequest| %>
         <%= link_to sidequest_path(sidequest), class: "sidequest-card sidequest-card--blue sidequest-card--link" do %>
