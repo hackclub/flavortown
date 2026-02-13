@@ -1,0 +1,42 @@
+.sidequest-show {
+  &__gallery-title {
+    text-align: center;
+    margin: 1em 0;
+    font-size: 2rem;
+  }
+
+  &__gallery-grid {
+    padding: 0 2em;
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+
+    @media (max-width: 960px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .project-card {
+    height: auto;
+    min-height: 0;
+  }
+
+  &__actions {
+    margin-top: 3.5em;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__description {
+    font-size: 1.25rem;
+    text-align: center;
+  }
+
+  &__expires {
+    font-size: 1.25rem;
+    text-align: center;
+    font-style: italic;
+    font-weight: bold;
+    margin-top: 0.25em;
+  }
+}
