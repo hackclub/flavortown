@@ -63,11 +63,20 @@ module Admin
                          .sort
                          .to_h
 
+      @daily_suspicious_votes = Vote.suspicious.where(created_at: 30.days.ago..)
+                                     .group("DATE(created_at)")
+                                     .count
+                                     .transform_keys(&:to_date)
+                                     .sort
+                                     .to_h
+
       30.times do |i|
         date = i.days.ago.to_date
         @daily_votes[date] ||= 0
+        @daily_suspicious_votes[date] ||= 0
       end
       @daily_votes = @daily_votes.sort.to_h
+      @daily_suspicious_votes = @daily_suspicious_votes.sort.to_h
 
       @time_distribution = calculate_time_distribution
 

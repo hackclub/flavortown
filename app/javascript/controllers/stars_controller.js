@@ -11,6 +11,7 @@ function createStarPath(cx, cy, size) {
 export default class extends Controller {
   static values = {
     drift: { type: Number, default: 15 },
+    fadeOnScroll: { type: Boolean, default: true },
   };
 
   // Star configurations by size category
@@ -119,7 +120,11 @@ export default class extends Controller {
 
     this.createStarsContainer();
     this.renderStars();
-    this.setupScrollFade();
+    if (this.fadeOnScrollValue) {
+      this.setupScrollFade();
+    } else if (this.svgContainer) {
+      this.svgContainer.style.opacity = "1";
+    }
   }
 
   setupScrollFade() {
@@ -207,7 +212,13 @@ export default class extends Controller {
     });
 
     this.svgContainer.appendChild(defs);
-    document.body.appendChild(this.svgContainer);
+
+    // Render relative to the controller element, unless it's attached to body.
+    if (this.element === document.body) {
+      document.body.appendChild(this.svgContainer);
+    } else {
+      this.element.appendChild(this.svgContainer);
+    }
     this.stars = [];
   }
 

@@ -1,0 +1,68 @@
+<% content_for :title, "Challenger Center Space Challenge" %>
+<% content_for :og_description, "Ship a space-related project by March 31! Submit it to this sidequest to qualify for space-themed prizes in the shop." %>
+<% content_for :og_image, og_image_url('sidequests', format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+
+<%= render HeadingComponent.new(title: "Challenger Center Space Challenge", tone: :blue, size: :full) %>
+
+<div class="sidequest-show">
+  <div class="sidequest-show__content">
+    <p class="sidequest-show__description">
+      Ship a space-related project by March 31! Submit it to this sidequest to qualify for space-themed prizes in the shop.
+    </p>
+
+    <div class="sidequest-show__challenge-details">
+      <h3>Mission briefing</h3>
+      <ul>
+        <li><strong>Mission deadline:</strong> March 31</li>
+        <li><strong>Mission rewards:</strong> Approved projects can unlock additional rewards, including astronaut Q&A, Challenger Center visit opportunities, and bonus prizes.</li>
+        <li><strong>Mission steps:</strong> Build a space-related project, ship it on Flavortown, and submit it to this sidequest by March 31.</li>
+        <li><strong>Mission ideas:</strong> Start from <%= link_to "NASA's technology shortfalls list", "https://techport.nasa.gov/strategy", target: "_blank", rel: "noopener noreferrer" %>.</li>
+      </ul>
+    </div>
+
+    <% if @sidequest.expires_at.present? %>
+      <p class="sidequest-show__expires">
+        <% if @sidequest.expires_at > Time.current %>
+          Ends <%= @sidequest.expires_at.strftime("%B %d, %Y") %>
+        <% else %>
+          Ended <%= @sidequest.expires_at.strftime("%B %d, %Y") %>
+        <% end %>
+      </p>
+    <% end %>
+
+    <div class="sidequest-show__stats">
+      <% if @approved_entries.any? %>
+        <p><strong><%= @approved_entries.size %></strong> approved projects</p>
+      <% else %>
+        <p><strong>Be the first to submit</strong></p>
+      <% end %>
+    </div>
+
+    <% if @approved_entries.any? %>
+      <div class="sidequest-show__gallery">
+        <h3>Mission gallery</h3>
+        <div class="sidequest-show__gallery-grid">
+          <% @approved_entries.each do |entry| %>
+            <% project = entry.project %>
+            <a href="<%= project_path(project) %>" class="sidequest-show__gallery-item">
+              <% if project.banner.attached? %>
+                <%= image_tag project.banner.variant(:card), class: "sidequest-show__gallery-banner", alt: project.title %>
+              <% end %>
+              <span class="sidequest-show__gallery-title"><%= project.title %></span>
+            </a>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="sidequest-show__actions">
+      <%= render ButtonComponent.new(
+            text: "← Back to Sidequests",
+            href: sidequests_path,
+            color: :brown,
+            variant: :borderless
+          ) %>
+    </div>
+  </div>
+</div>

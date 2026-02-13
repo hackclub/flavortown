@@ -2,12 +2,21 @@ require "rack/attack"
 
 # rate limit the API to 60 req/min...
 Rack::Attack.throttle("api/sustained", limit: 60, period: 1.minute) do |req|
+  next nil if req.path.start_with?("/api/") && admin_api_key?(req)
   (req.env["HTTP_AUTHORIZATION"] || req.ip) if req.path.start_with?("/api/")
 end
 
 # ...but with a burst of up to 20 reqs per 5 sec
 Rack::Attack.throttle("api/burst", limit: 20, period: 5.seconds) do |req|
+  next nil if req.path.start_with?("/api/") && admin_api_key?(req)
   (req.env["HTTP_AUTHORIZATION"] || req.ip) if req.path.start_with?("/api/")
+end
+
+def admin_api_key?(req)
+  api_key = req.env["HTTP_AUTHORIZATION"]&.remove("Bearer ")
+  return false unless api_key.present?
+  user = User.find_by(api_key: api_key)
+  user&.admin?
 end
 
 # rate limit internal revoke endpoint to 500 req/hr

@@ -124,6 +124,21 @@
 </div>
 
 <div class="voting-grid">
+    <div class="card voting-card voting-card--wide">
+        <h2>⚠️ Daily Suspicious Votes (30 days)</h2>
+        <div class="chart-bars">
+        <% max_votes = @daily_suspicious_votes.values.max.to_f.nonzero? || 1 %>
+        <% @daily_suspicious_votes.each do |date, count| %>
+            <div class="chart-bar-container" title="<%= date.strftime('%b %d') %>: <%= count %> votes">
+            <div class="chart-bar chart-bar--danger" style="height: <%= (count / max_votes * 100).round %>%;"></div>
+            <span class="chart-label"><%= date.day %></span>
+            </div>
+        <% end %>
+        </div>
+    </div>
+</div>
+
+<div class="voting-grid">
     <div class="card voting-card">
         <h2>Votes by Hour (UTC)</h2>
         <div class="hourly-chart">

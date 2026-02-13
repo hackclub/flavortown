@@ -207,7 +207,7 @@ GEM
       rice (>= 4.8)
     faker (3.6.0)
       i18n (>= 1.8.11, < 2)
-    faraday (2.14.0)
+    faraday (2.14.1)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
@@ -223,6 +223,8 @@ GEM
     faraday-net_http_persistent (2.3.1)
       faraday (~> 2.5)
       net-http-persistent (>= 4.0.4, < 5)
+    faraday-retry (2.4.0)
+      faraday (~> 2.0)
     ffi (1.17.3-aarch64-linux-gnu)
     ffi (1.17.3-aarch64-linux-musl)
     ffi (1.17.3-arm-linux-gnu)
@@ -454,7 +456,7 @@ GEM
     pg (1.6.3-arm64-darwin)
     pg (1.6.3-x86_64-linux)
     pg (1.6.3-x86_64-linux-musl)
-    phlex (2.4.0)
+    phlex (2.4.1)
       refract (~> 1.0)
       zeitwerk (~> 2.7)
     phlex-rails (2.4.0)
@@ -745,6 +747,7 @@ DEPENDENCIES
   brakeman
   bullet
   capybara
+  chartkick
   commonmarker
   dartsass-rails (~> 0.5.1)
   debug
@@ -754,6 +757,7 @@ DEPENDENCIES
   faiss
   faker (~> 3.5)
   faraday
+  faraday-retry
   flipper
   flipper-active_record
   flipper-active_support_cache_store

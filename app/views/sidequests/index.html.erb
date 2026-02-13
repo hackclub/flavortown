@@ -3,15 +3,26 @@
 <% content_for :og_image, og_image_url('sidequests', format: :png) %>
 <% content_for :twitter_card, "summary_large_image" %>
 
-<%= render HeadingComponent.new(title: "Nibbles", tone: :green, size: :full) %>
+<%= render HeadingComponent.new(title: "Sidequests", tone: :green, size: :full) %>
 
-<div class="nibbles__sidequests">
-  <h1 class="nibbles__sidequests-subtitle">Looking for a sidequest? Take on one of these challenges for extra bonuses!</h1>
+<div class="sidequests-index">
+  <h1 class="sidequests-index__subtitle">Looking for a sidequest? Take on one of these challenges for extra bonuses!</h1>
 
-  <% if @db_sidequests.any? %>
-    <div class="nibbles__sidequests-cards">
+  <div class="sidequests-index__cards">
+      <%= link_to sidequest_path("challenger"), id: "challenger-center", class: "sidequest-card sidequest-card--purple sidequest-card--dynamic-stars sidequest-card--link" do %>
+        <div class="sidequest-card__content" data-controller="stars" data-stars-fade-on-scroll-value="false">
+          <h1 class="sidequest-card__title">Challenger Space Mission</h1>
+          <%= image_tag "launch/group-moon.png",
+                        alt: "",
+                        aria: { hidden: true },
+                        class: "sidequest-card__corner-moon" %>
+          <h2>Ship a space-related project by March 31! Submit it to this sidequest to qualify for space-themed prizes in the shop.</h2>
+          <p class="sidequest-card__expires">Ends March 31, 2026</p>
+        </div>
+      <% end %>
+
       <% @db_sidequests.each do |sidequest| %>
-        <div class="sidequest-card sidequest-card--blue">
+        <%= link_to sidequest_path(sidequest), class: "sidequest-card sidequest-card--blue sidequest-card--link" do %>
           <div class="sidequest-card__content">
             <h1 class="sidequest-card__title"><%= sidequest.title %></h1>
             <h2><%= sidequest.description %></h2>
@@ -19,26 +30,21 @@
               <p class="sidequest-card__expires">Ends <%= sidequest.expires_at.strftime("%B %d, %Y") %></p>
             <% end %>
           </div>
-        </div>
+        <% end %>
       <% end %>
-    </div>
-  <% end %>
+  </div>
 
   <% if @active_sidequests.any? %>
-    <div class="nibbles__sidequests-cards">
+    <div class="sidequests-index__cards">
       <% @active_sidequests.each do |sidequest| %>
         <%= render SidequestCardComponent.new(**sidequest) %>
       <% end %>
     </div>
   <% end %>
 
-  <% if @active_sidequests.empty? && @db_sidequests.empty? %>
-    <p class="nibbles__sidequests-empty">No active sidequests right now. Check back soon!</p>
-  <% end %>
-
   <% if @expired_sidequests.any? %>
-    <h2 class="nibbles__sidequests-section-title">Past Sidequests</h2>
-    <div class="nibbles__sidequests-cards">
+    <h2 class="sidequests-index__section-title">Past Sidequests</h2>
+    <div class="sidequests-index__cards">
       <% @expired_sidequests.each do |sidequest| %>
         <%= render SidequestCardComponent.new(**sidequest) %>
       <% end %>

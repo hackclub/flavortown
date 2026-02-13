@@ -28,4 +28,17 @@ class Sidequest < ApplicationRecord
   def to_param
     slug
   end
+
+  # Ensures Challenger and Extensions sidequests exist (e.g. when visiting /sidequests without running seeds).
+  def self.ensure_default_sidequests!
+    find_or_create_by!(slug: "extension") do |sq|
+      sq.title = "Extensions"
+      sq.description = "Unlock a Chrome Developer License in the shop! Must have a GitHub release with a .crx file to qualify."
+      sq.expires_at = Date.new(2026, 2, 20)
+    end
+    find_or_create_by!(slug: "challenger") do |sq|
+      sq.title = "Challenger Center"
+      sq.description = "Ship a space-related project by March 31! Submit it to this sidequest to qualify for space-themed prizes in the shop."
+    end
+  end
 end

@@ -38,6 +38,9 @@ class HelperConstraint
 end
 
 Rails.application.routes.draw do
+  # Sitemap
+  get "sitemap.xml", to: "sitemaps#index", as: :sitemap, defaults: { format: :xml }
+
   # Static OG images
   get "og/:page", to: "og_images#show", as: :og_image, defaults: { format: :png }
   # Landing
@@ -65,6 +68,7 @@ Rails.application.routes.draw do
   get "shop/order", to: "shop#order"
   post "shop/order", to: "shop#create_order"
   patch "shop/update_region", to: "shop#update_region"
+  resources :shop_suggestions, only: [ :create ]
 
   # Report Reviews
   get "report-reviews/review/:token", to: "report_reviews#review", as: :review_report_token
@@ -79,9 +83,10 @@ Rails.application.routes.draw do
   get "explore/following", to: "explore#following", as: :explore_following
   get "explore/extensions", to: "explore#extensions", as: :explore_extensions
 
-  # Nibbles
-  get "nibbles", to: "nibbles#index", as: :nibbles
+  # Sidequests (formerly Nibbles)
+  get "nibbles", to: redirect("/sidequests")
   resources :sidequests, only: [ :index, :show ]
+
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
@@ -96,6 +101,7 @@ Rails.application.routes.draw do
 
     get "og_image_previews", to: "og_image_previews#index"
     get "og_image_previews/*id", to: "og_image_previews#show", as: :og_image_preview
+
   end
 
   # Action Mailbox for incoming HCB and tracking emails
@@ -112,15 +118,14 @@ Rails.application.routes.draw do
   get "auth/:provider/callback", to: "sessions#create"
   get "/auth/failure", to: "sessions#failure"
   delete "logout", to: "sessions#destroy"
+  get "dev_login", to: "sessions#dev_login", as: :dev_login_auto if Rails.env.development?
+  get "dev_login/:id", to: "sessions#dev_login", as: :dev_login if Rails.env.development?
 
   # OAuth callback for HCA
   get "/oauth/callback", to: "sessions#create"
 
   # Kitchen
   get "kitchen", to: "kitchen#index"
-
-  # Launch
-  get "launch", to: "launch#index"
 
   # Leaderboard
   get "leaderboard", to: "leaderboard#index"
@@ -149,7 +154,6 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :projects, only: [ :index, :show, :create, :update ] do
         resource :report, only: [ :create ], controller: "external_reports"
-        resources :devlogs, only: [ :index ], controller: "project_devlogs"
       end
 
       resources :docs, only: [ :index ]
@@ -214,8 +218,8 @@ Rails.application.routes.draw do
          post :unshadow_ban
          post :impersonate
          post :refresh_verification
-         get  :votes
          post :toggle_voting_lock
+         get  :votes
        end
        collection do
          post :stop_impersonating
@@ -253,6 +257,21 @@ Rails.application.routes.draw do
         post :refresh_verification
       end
     end
+    resources :shop_suggestions, only: [ :index ] do
+      member do
+        post :dismiss
+        post :disable_for_user
+      end
+    end
+    resources :sidequest_entries, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+    end
+    resources :support_vibes, only: [ :index, :create ]
+    resources :sw_vibes, only: [ :index ]
+    resources :suspicious_votes, only: [ :index ]
     resources :audit_logs, only: [ :index, :show ]
     resources :reports, only: [ :index, :show ] do
       collection do
@@ -263,28 +282,16 @@ Rails.application.routes.draw do
         post :dismiss
       end
     end
-    resources :sidequest_entries, only: [ :index, :show ] do
-      member do
-        post :approve
-        post :reject
-      end
-    end
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
     get "voting_dashboard", to: "voting_dashboard#index"
+    get "vote_spam_dashboard", to: "vote_spam_dashboard#index"
+    get "vote_spam_dashboard/users/:user_id", to: "vote_spam_dashboard#show", as: :vote_spam_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
-    get "suspicious_votes", to: "suspicious_votes#index"
-    resources :support_vibes, only: [ :index, :create ]
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
-      end
-    end
-    resources :shop_suggestions, only: [ :index ] do
-      member do
-        post :dismiss
-        post :disable_for_user
       end
     end
   end
@@ -292,11 +299,7 @@ Rails.application.routes.draw do
   get "queue", to: "queue#index"
 
   # Project Ideas
-  resources :project_ideas, only: [] do
-    collection do
-      post :random
-    end
-  end
+  post "project_ideas/random", to: "project_ideas#random", as: :random_project_ideas
 
   # Projects
   resources :projects, shallow: true do
@@ -335,7 +338,4 @@ Rails.application.routes.draw do
       get :stats
     end
   end
-
-  # Shop suggestions
-  resources :shop_suggestions, only: [ :create ]
 end
