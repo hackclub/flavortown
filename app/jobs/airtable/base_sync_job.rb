@@ -1,8 +1,6 @@
 class Airtable::BaseSyncJob < ApplicationJob
   queue_as :literally_whenever
-  retry_on Norairrecord::Error, wait: :polynomially_longer, attempts: 3 do |job, error|
-    Rails.logger.error("[#{job.class.name}] Failed after retries: #{error.message}")
-  end
+  notify_maintainers_on_exhaustion Norairrecord::Error, maintainers_slack_ids: [ "U07L45W79E1" ], wait: :polynomially_longer, attempts: 3
 
   def self.perform_later(*args)
     return if SolidQueue::Job.where(class_name: name, finished_at: nil).exists?
