@@ -32,7 +32,7 @@ class ApplicationJob < ActiveJob::Base
         maintainers_slack_ids.each do |slack_id|
           next unless slack_id.present?
 
-          SendSlackDmJob.perform_later(
+             SendSlackDmJob.perform_later(
             slack_id,
             nil,
             blocks_path: "notifications/job_failure_alert",
@@ -44,7 +44,6 @@ class ApplicationJob < ActiveJob::Base
               job_id: job.job_id
             }
           )
-        end
         end
       end
 
