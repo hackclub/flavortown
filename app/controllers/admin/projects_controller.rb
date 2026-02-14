@@ -69,8 +69,8 @@ class Admin::ProjectsController < Admin::ApplicationController
     ActiveRecord::Base.transaction do
       # Issue minimum payout if no payout exists for latest ship
       ship = @project.ship_events.order(:created_at).last
-      if ship.present? && ship.payouts.none?
-        hours = ship.hours_covered
+      if ship.present? && ship.payout.blank?
+        hours = ship.hours
         game_constants = Rails.configuration.game_constants
         min_multiplier = game_constants.min_multiplier.to_f
         amount = (min_multiplier * hours).ceil
