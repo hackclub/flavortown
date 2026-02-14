@@ -1,6 +1,6 @@
 class Project::MagicHappeningLetterJob < ApplicationJob
   queue_as :default
-  notify_maintainers_on_exhaustion StandardError, maintainers_slack_ids: ["U07L45W79E1"], wait: :polynomially_longer, attempts: 3
+  notify_maintainers_on_exhaustion StandardError, maintainers_slack_ids: [ "U07L45W79E1" ], wait: :polynomially_longer, attempts: 3
 
   def perform(project)
     unless Rails.env.production?
