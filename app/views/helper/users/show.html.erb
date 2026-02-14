@@ -4,9 +4,6 @@
 <% if @user.banned? %>
   <div class="alert alert--danger" style="margin-bottom: 1rem;">
     <strong>🚫 This user is banned</strong>
-    <% if @user.banned_reason.present? %>
-      <br>Reason: <%= @user.banned_reason %>
-    <% end %>
   </div>
 <% end %>
 
@@ -15,10 +12,32 @@
     <h2>Basic Info</h2>
     <div class="info-rows">
       <div><b>Name:</b> <%= @user.display_name %></div>
+      <div><b>Slack ID:</b> <%= @user.slack_id || "N/A" %></div>
       <div><b>Verification:</b> <%= @user.verification_status.titleize %></div>
       <div><b>YSWS Eligible:</b> <%= @user.ysws_eligible? ? "Yes" : "No" %></div>
-      <div><b>Projects:</b> <%= @user.projects_count %></div>
+      <div><b>Vote Balance:</b> <%= @user.vote_balance %></div>
+      <div><b>Has Hackatime:</b> <%= @user.has_hackatime? ? "Yes" : "No" %></div>
       <div><b>Joined:</b> <%= @user.created_at.strftime("%Y-%m-%d") %></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Moderation</h2>
+    <div class="info-rows">
+      <div><b>⚠️ User Banned:</b> <%= @user.banned? ? "Yes" : "No" %></div>
+      <% if @user.banned? && @user.banned_reason.present? %>
+        <div><b>- Reason:</b> <%= @user.banned_reason %></div>
+        <div><b>- Since:</b> <%= @user.banned_at.strftime("%Y-%m-%d %H:%M") %></div>
+      <% end %>
+      <% if @user.shadow_banned? %>
+        <div><b>ℹ️ Visibility Restricted (do not tell user, contact an admin if needed)</b></div>
+        <% if @user.shadow_banned_reason.present? %>
+          <div><b>- Reason:</b> <%= @user.shadow_banned_reason %></div>
+        <% end %>
+        <% if @user.shadow_banned_at.present? %>
+          <div><b>- Since:</b> <%= @user.shadow_banned_at.strftime("%Y-%m-%d %H:%M") %></div>
+        <% end %>
+      <% end %>
     </div>
   </div>
 
@@ -77,4 +96,11 @@
   </div>
 </div>
 
-<%= link_to "← Back", helper_users_path, class: "btn-secondary", style: "margin-top: 1rem;" %>
+<div style="display: flex; gap: 0.5rem;">
+  <%= link_to "← Back", helper_users_path, class: "btn-secondary" %>
+
+  <%= button_to "View Profile", user_path(@user),
+    method: :get,
+    class: "btn-primary",
+    form: { target: "_blank", rel: "noopener" } %>
+</div>
