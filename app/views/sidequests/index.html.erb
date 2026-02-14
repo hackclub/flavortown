@@ -1,3 +1,6 @@
+<%= content_for :stylesheets do %>
+  <%= stylesheet_link_tag "xp_window", "data-turbo-track": "reload" %>
+<% end %>
 <% content_for :title, "Sidequests" %>
 <% content_for :og_description, "Take on challenges for extra bonuses! Browse active and past sidequests on Flavortown." %>
 <% content_for :og_image, og_image_url('sidequests', format: :png) %>
@@ -37,7 +40,6 @@
               </div>
             </div>
             <div class="window-body">
-              <p><strong><%= @webos_sidequest.title %></strong></p>
               <p><%= @webos_sidequest.description %></p>
               <% if @webos_sidequest.expires_at.present? %>
                 <p style="color: #666; font-size: 11px;">Ends <%= @webos_sidequest.expires_at.strftime("%B %d, %Y") %></p>

@@ -85,6 +85,13 @@ export default class extends Controller {
     // If the title bar belongs to the error dialog, drag the dialog itself
     const parentWindow = titleBar.closest(".window");
     if (parentWindow && parentWindow === this.errorDialogTarget) {
+      // Remove centering transform so left/top match the visual position
+      if (parentWindow.style.transform) {
+        const rect = parentWindow.getBoundingClientRect();
+        parentWindow.style.transform = "none";
+        parentWindow.style.left = `${rect.left}px`;
+        parentWindow.style.top = `${rect.top}px`;
+      }
       return parentWindow;
     }
     // Otherwise drag the wrapper

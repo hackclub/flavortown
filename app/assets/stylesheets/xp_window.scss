@@ -1,14 +1,20 @@
 // XP.css fonts (must be global for @font-face)
-@import "../vendor/xp_fonts";
+@import "vendor/xp_fonts";
 
 // XP.css rules scoped under our wrapper
 .xp-window-wrapper {
-  @import "../vendor/xp_rules";
+  @import "vendor/xp_rules";
 
   position: relative;
   width: 500px;
   user-select: none;
   overflow: visible;
+
+  // Force XP font on everything — override app's global font-family
+  &,
+  & * {
+    font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+  }
 
   > .window:first-child {
     width: 100%;
@@ -19,6 +25,7 @@
     font-size: 1rem;
 
     p {
+      font-family: inherit;
       font-size: 1rem;
       line-height: 1.4;
     }
@@ -28,13 +35,22 @@
     }
   }
 
-  // Drag cursor on title bar
+  // Title bar
   .title-bar {
     cursor: grab;
+    padding: 4px 6px;
+    font-size: 14px;
 
     &:active {
       cursor: grabbing;
     }
+  }
+
+  .title-bar-controls button {
+    padding: 0;
+    min-height: 21px;
+    min-width: 21px;
+    margin: 0 0 0 2px;
   }
 
   // External link in title bar controls
