@@ -160,7 +160,9 @@ Rails.application.routes.draw do
       resources :docs, only: [ :index ]
       resources :devlogs, only: [ :index, :show ]
       resources :store, only: [ :index, :show ]
-      resources :users, only: [ :index, :show ]
+      resources :users, only: [ :index, :show ] do
+        resources :projects, only: [ :index ]
+      end
     end
   end
 
