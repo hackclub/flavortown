@@ -40,9 +40,14 @@
 
   &__notice {
     // Stole this from the .sidequests-index styles
-    background: var(--color-yellow-300) repeating-conic-gradient(from 0deg, rgba(0, 0, 0, 0.02) 0deg 90deg, transparent 90deg 180deg);
+    background: var(--color-yellow-300)
+      repeating-conic-gradient(
+        from 0deg,
+        rgba(0, 0, 0, 0.02) 0deg 90deg,
+        transparent 90deg 180deg
+      );
     background-size: 120px 120px;
-    outline: .4em solid var(--color-yellow-500);
+    outline: 0.4em solid var(--color-yellow-500);
     outline-offset: 0;
     padding: 1em;
     border-radius: 12px;
@@ -52,7 +57,7 @@
       margin-left: 1.5em;
     }
 
-    & a { 
+    & a {
       color: var(--color-brown-700);
       text-decoration: underline;
     }
