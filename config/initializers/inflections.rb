@@ -15,4 +15,6 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.acronym "HCA"
   inflect.acronym "HCB"
   inflect.acronym "HQ"
+  inflect.acronym "WebOS"
+  inflect.uncountable "webos"
 end
