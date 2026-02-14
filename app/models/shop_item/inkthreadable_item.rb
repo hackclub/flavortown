@@ -76,36 +76,29 @@
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #
-class ShopItem::FreeStickers < ShopItem
-  QUEUE_ID = "flavortown-tutorial-stickers"
-
+class ShopItem::InkthreadableItem < ShopItem
   def fulfill!(shop_order)
-    email   = shop_order.user&.email
-    address = shop_order.frozen_address
+    Shop::SendInkthreadableOrderJob.perform_later(shop_order.id)
+    shop_order.queue_for_fulfillment!
+  end
 
-    if email.blank? || address.blank?
-      Rails.logger.warn(
-        "FreeStickers order #{shop_order.id} missing email or address — re-enqueuing"
-      )
+  def inkthreadable_config
+    super || {}
+  end
 
-      # push to end of queue (new job)
-      FulfillShopOrderJob.perform_later(shop_order.id)
+  def product_number
+    inkthreadable_config["pn"]
+  end
 
-      return
-    end
+  def design_urls
+    inkthreadable_config["designs"] || {}
+  end
 
-    response = TheseusService.create_letter_v1(
-      QUEUE_ID,
-      {
-        recipient_email: email,
-        address: address,
-        idempotency_key: "flavortown_tutorial_stickers_order_#{Rails.env}_#{shop_order.id}"
-      }
-    )
+  def shipping_method
+    inkthreadable_config["shipping_method"] || "regular"
+  end
 
-    shop_order.mark_fulfilled!(response[:id], nil, "System")
-  rescue => e
-    Rails.logger.error "Failed to fulfill free stickers order #{shop_order.id}: #{e.message}"
-    raise
+  def brand_name
+    inkthreadable_config["brand_name"]
   end
 end
