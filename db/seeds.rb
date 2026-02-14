@@ -47,6 +47,7 @@ end
 webos_stickers = ShopItem.find_or_create_by!(id: 95) do |item|
   item.name = "webOS Stickers"
   item.description = "webOS stickers"
+  item.type = "ShopItem::LetterMail"
   item.ticket_cost = 0
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "webos-stickers.png")
@@ -56,6 +57,7 @@ webos_stickers.update!(requires_achievement: "sidequest_webos")
 neocities_sub = ShopItem.find_or_create_by!(id: 96) do |item|
   item.name = "Neocities Subscription"
   item.description = "Neocities subscription"
+  item.type = "ShopItem::HCBGrant"
   item.ticket_cost = 0
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "neocities.png")
@@ -65,6 +67,7 @@ neocities_sub.update!(requires_achievement: "sidequest_webos")
 chromebook = ShopItem.find_or_create_by!(id: 97) do |item|
   item.name = "Chromebook"
   item.description = "Chromebook"
+  item.type = "ShopItem::ThirdPartyPhysical"
   item.ticket_cost = 0
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "chromebook.png")

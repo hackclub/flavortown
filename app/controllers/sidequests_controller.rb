@@ -44,6 +44,11 @@ class SidequestsController < ApplicationController
 
     @approved_entries = @sidequest.sidequest_entries.approved.includes(project: :memberships)
 
+    # Load prizes for webOS sidequest
+    if @sidequest.slug == "webos"
+      @prizes = ShopItem.where(requires_achievement: "sidequest_webos", enabled: true)
+    end
+
     # Render custom template if one exists, otherwise default show
     custom_template = "sidequests/show_#{@sidequest.slug}"
     if lookup_context.exists?(custom_template)

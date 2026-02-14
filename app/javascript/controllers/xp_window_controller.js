@@ -84,7 +84,11 @@ export default class extends Controller {
   findDragTarget(titleBar) {
     // If the title bar belongs to the error dialog, drag the dialog itself
     const parentWindow = titleBar.closest(".window");
-    if (parentWindow && parentWindow === this.errorDialogTarget) {
+    if (
+      parentWindow &&
+      this.hasErrorDialogTarget &&
+      parentWindow === this.errorDialogTarget
+    ) {
       // Remove centering transform so left/top match the visual position
       if (parentWindow.style.transform) {
         const rect = parentWindow.getBoundingClientRect();
