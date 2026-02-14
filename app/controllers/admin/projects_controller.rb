@@ -72,7 +72,7 @@ class Admin::ProjectsController < Admin::ApplicationController
       if ship.present? && ship.payout.blank?
         hours = ship.hours
         game_constants = Rails.configuration.game_constants
-        min_multiplier = game_constants.min_multiplier.to_f
+        min_multiplier = game_constants.sb_min_dollar_per_hour.to_f
         amount = (min_multiplier * hours).ceil
         if amount > 0
           @project.user.ledger_entries.create!(
