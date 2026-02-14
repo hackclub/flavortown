@@ -194,6 +194,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
           .where(project_memberships: { user_id: user.id, role: "owner" })
           .exists?
       }
+    ),
+    new(
+      slug: :sidequest_webos,
+      name: "Sidequest: webOS",
+      description: "Shipped a project for the webOS sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "webos" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
     )
   ].freeze
 
