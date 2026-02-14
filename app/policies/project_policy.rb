@@ -44,11 +44,11 @@ class ProjectPolicy < ApplicationPolicy
     end
 
     def confirm_recertification?
-        member?
+        member? || user&.project_certifier?
     end
 
     def request_recertification?
-        member?
+        member? || user&.project_certifier?
     end
 
     # well, we shoudn't be doing this. but i think i goofed up a lil and authorize @devlog won't work without passing @project and Post::Devlog does not have @project

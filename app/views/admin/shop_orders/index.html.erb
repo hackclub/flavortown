@@ -38,9 +38,9 @@
 
 <div style="margin-bottom: 2em;">
   <% if params[:goob] == "true" %>
-    <%= link_to "Ungroup", admin_shop_orders_path(params.permit(:user_search, :shop_item_id, :status, :date_from, :date_to, :sort, :view).except(:goob)), class: "btn-secondary slim" %>
+    <%= link_to "Ungroup", admin_shop_orders_path(params.permit(:user_search, :shop_item_id, :status, :date_from, :date_to, :sort, :view, assignee_ids: []).except(:goob)), class: "btn-secondary slim" %>
   <% else %>
-    <%= link_to "Group by User", admin_shop_orders_path(params.permit(:user_search, :shop_item_id, :status, :date_from, :date_to, :sort, :view).merge(goob: true)), class: "btn-primary slim" %>
+    <%= link_to "Group by User", admin_shop_orders_path(params.permit(:user_search, :shop_item_id, :status, :date_from, :date_to, :sort, :view, assignee_ids: []).merge(goob: true)), class: "btn-primary slim" %>
   <% end %>
 </div>
 
