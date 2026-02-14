@@ -6,7 +6,7 @@ class ExploreController < ApplicationController
                 .joins(:user)
                 .where(users: { shadow_banned: false })
                 .includes(:user, :project)
-                .preload(:postable)
+                .preload(postable: { comments: :user })
 
     scope = scope.where(post_devlogs: { deleted_at: nil }) unless current_user&.can_see_deleted_devlogs?
 

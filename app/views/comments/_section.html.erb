@@ -6,12 +6,12 @@
 <div class="comments-section">
   <%= render "comments/form", commentable: commentable %>
 
-  <% if commentable.comments.exists? %>
+  <% if commentable.comments.any? %>
     <h3 class="comments-section__title">Comments</h3>
   <% end %>
 
   <div id="<%= comments_dom_id %>" class="comments-section__list">
-    <% commentable.comments.includes(:user).order(created_at: :asc).each do |comment| %>
+    <% commentable.comments.sort_by(&:created_at).each do |comment| %>
       <%= render "comments/comment", comment: comment %>
     <% end %>
   </div>
