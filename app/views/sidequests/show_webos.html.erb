@@ -14,25 +14,7 @@
       <p class="sidequest-show__description"><%= @sidequest.description %></p>
     <% end %>
 
-    <% if @sidequest.expires_at.present? %>
-      <p class="sidequest-show__expires">
-        <% if @sidequest.expires_at > Time.current %>
-          Ends
-        <% else %>
-          Ended
-        <% end %>
-        <%= @sidequest.expires_at.strftime("%B %d, %Y") %>
-        (<%= distance_of_time_in_words(Time.current, @sidequest.expires_at) %>
-          <% if @sidequest.expires_at > Time.current %>
-            left
-          <% else %>
-            ago
-          <% end %>
-        )
-      </p>
-    <% end %>
-
-    <div class="sidequest-show__xp-windows">
+<div class="sidequest-show__xp-windows">
       <%# Instructions window %>
       <div class="xp-window-wrapper" data-controller="xp-window">
         <div class="window" data-xp-window-target="window">
@@ -61,6 +43,44 @@
                data-action="mousedown->xp-window#resizeStart"></div>
         </div>
       </div>
+
+      <%# Countdown window %>
+      <% if @sidequest.expires_at.present? %>
+        <% sidequest_ended = @sidequest.expires_at <= Time.current %>
+        <div class="xp-window-wrapper" data-controller="xp-window">
+          <div class="window" data-xp-window-target="window">
+            <div class="title-bar"
+                 data-xp-window-target="titlebar"
+                 data-action="mousedown->xp-window#dragStart touchstart->xp-window#dragTouchStart">
+              <div class="title-bar-text"><%= sidequest_ended ? "Submissions Closed" : "Time Remaining" %></div>
+              <div class="title-bar-controls">
+                <button aria-label="Minimize" data-action="click->xp-window#minimize"></button>
+                <button aria-label="Close" data-action="click->xp-window#close"></button>
+              </div>
+            </div>
+            <div class="window-body">
+              <p style="text-align: center; margin: 0 0 8px;">
+                <%= sidequest_ended ? "Ended" : "Ends" %> <%= @sidequest.expires_at.strftime("%B %d, %Y") %>
+              </p>
+              <% sidequest_start = Time.zone.local(2026, 2, 14) %>
+              <% total = (@sidequest.expires_at - sidequest_start).to_f %>
+              <% remaining = [(@sidequest.expires_at - Time.current).to_f, 0].max %>
+              <% elapsed_pct = (((total - remaining) / total) * 100).clamp(0, 100) %>
+              <progress max="100" value="<%= elapsed_pct.round %>"></progress>
+              <p style="text-align: center; margin: 8px 0 0; font-size: 11px; color: #666;">
+                <% if sidequest_ended %>
+                  Submissions ended <%= distance_of_time_in_words(Time.current, @sidequest.expires_at) %> ago
+                <% else %>
+                  <%= distance_of_time_in_words(Time.current, @sidequest.expires_at) %> left
+                <% end %>
+              </p>
+            </div>
+            <div class="xp-window-wrapper__resize-handle"
+                 data-xp-window-target="resizeHandle"
+                 data-action="mousedown->xp-window#resizeStart"></div>
+          </div>
+        </div>
+      <% end %>
 
       <%# Prizes window %>
       <% if @prizes.present? && @prizes.any? %>

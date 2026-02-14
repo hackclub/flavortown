@@ -52,12 +52,17 @@
     gap: 2rem;
     justify-content: center;
     flex-wrap: wrap;
+    align-items: flex-start;
     margin: 2em 0;
 
     .xp-window-wrapper {
       width: auto;
       max-width: 500px;
       flex: 1 1 300px;
+    }
+
+    progress {
+      width: 100%;
     }
   }
 
