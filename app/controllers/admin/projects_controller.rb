@@ -74,9 +74,10 @@ class Admin::ProjectsController < Admin::ApplicationController
         game_constants = Rails.configuration.game_constants
         min_multiplier = game_constants.sb_min_dollar_per_hour.to_f
         amount = (min_multiplier * hours).ceil
-        if amount > 0
-          @project.user.ledger_entries.create!(
-            amount: amount, reason: "Ship Event Payout: #{@project.title}", created_by: "System", ledgerable: @project.user
+        payout_user = @project.memberships.owner.first&.user
+        if amount > 0 && payout_user
+          payout_user.ledger_entries.create!(
+            amount: amount, reason: "Ship Event Payout: #{@project.title}", created_by: "System", ledgerable: payout_user
           )
           issued_min_payout = true
         end
