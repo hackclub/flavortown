@@ -6,6 +6,7 @@
 #  accessory_tag                     :string
 #  agh_contents                      :jsonb
 #  attached_shop_item_ids            :bigint           default([]), is an Array
+#  blocked_countries                 :string           default([]), is an Array
 #  buyable_by_self                   :boolean          default(TRUE)
 #  default_assigned_user_id_au       :bigint
 #  default_assigned_user_id_ca       :bigint
@@ -79,6 +80,8 @@ class ShopItem < ApplicationRecord
   has_paper_trail
 
   include Shop::Regionalizable
+
+  before_validation :fix_blacklist
 
   after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
   after_commit :invalidate_buyable_standalone_cache
@@ -228,6 +231,11 @@ class ShopItem < ApplicationRecord
     user.shipped_projects_count_in_range(required_ships_start_date, required_ships_end_date) >= required_ships_count
   end
 
+  def blocked_in_country?(country_code)
+    return false unless country_code.present? && blocked_countries.present?
+    blocked_countries.include?(country_code.upcase)
+  end
+
   def meet_achievement_require?(user)
     return true unless requires_achievement?
     return false unless user.present?
@@ -259,5 +267,10 @@ class ShopItem < ApplicationRecord
 
   def invalidate_buyable_standalone_cache
     self.class.invalidate_buyable_standalone_cache!
+  end
+
+  def fix_blacklist
+    return unless blocked_countries.present?
+    self.blocked_countries = blocked_countries.map(&:upcase).reject(&:blank?).uniq
   end
 end

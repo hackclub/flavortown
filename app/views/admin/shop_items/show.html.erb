@@ -103,6 +103,25 @@
       </div>
 
       <div class="card">
+        <h3>Country Blacklist</h3>
+
+        <div class="shop-item-detail__info">
+          <div class="shop-item-detail__row">
+            <span class="shop-item-detail__label">Blocked Countries</span>
+            <span class="shop-item-detail__value">
+              <% if @shop_item.blocked_countries.present? %>
+                <span class="shop-item-detail__blocked-countries">
+                  <%= @shop_item.blocked_countries.join(", ") %>
+                </span>
+              <% else %>
+                <span class="shop-item-detail__muted">None :D</span>
+              <% end %>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
         <h3>Regional Availability</h3>
 
         <div class="shop-item-detail__regions">

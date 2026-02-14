@@ -17,6 +17,7 @@ export default class extends Controller {
     hasAddresses: Boolean,
     baseTicketCost: Number,
     userBalance: Number,
+    blockedCountries: Array,
   };
 
   connect() {
@@ -26,6 +27,31 @@ export default class extends Controller {
 
     this.setupAccessoryRadioUndo();
     this.setupOrderSummary();
+    this.setupBlockedCountryCheck();
+  }
+
+  setupBlockedCountryCheck() {
+    this.banner = document.querySelector("[data-blocked-country-banner]");
+    if (!this.banner) return;
+    const a =
+      this.addressesValue.find((x) => x.primary) || this.addressesValue[0];
+    if (a) this.checkBlockedCountry(a.country);
+  }
+
+  addressChanged(e) {
+    if (e.detail?.country) this.checkBlockedCountry(e.detail.country);
+  }
+
+  checkBlockedCountry(c) {
+    if (!c) return;
+    const blocked = this.blockedCountriesValue.includes(c.toUpperCase());
+    this.banner.style.display = blocked ? "block" : "none";
+    if (!this.hasSubmitButtonTarget) return;
+    this.submitButtonTarget.disabled = blocked;
+    this.submitButtonTarget.innerHTML = blocked
+      ? "Not available in your country"
+      : this.initialGetButtonHTML;
+    if (!blocked) this.updateOrderSummary();
   }
 
   setupAccessoryRadioUndo() {
