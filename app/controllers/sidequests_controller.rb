@@ -30,7 +30,8 @@ class SidequestsController < ApplicationController
     Sidequest.ensure_default_sidequests!
     db_sidequests = Sidequest.active.to_a
     @challenger_sidequest = db_sidequests.find { |sidequest| sidequest.slug == "challenger" }
-    @db_sidequests = db_sidequests.reject { |sidequest| sidequest.slug == "challenger" }
+    @webos_sidequest = db_sidequests.find { |sidequest| sidequest.slug == "webos" }
+    @db_sidequests = db_sidequests.reject { |sidequest| sidequest.slug.in?(%w[challenger webos]) }
   end
 
   def show
