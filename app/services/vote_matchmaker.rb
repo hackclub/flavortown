@@ -16,14 +16,25 @@ class VoteMatchmaker
   end
 
   def next_ship_event
+    find_melon_ship_event || find_random_ship_event
+  end
+
+  private
+
+  def find_melon_ship_event
+    voteable_ship_events
+      .where(project_members: { username: "melon" })
+      .order(created_at: :asc)
+      .find { |ship_event| ship_event.votes_count < Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT }
+  end
+
+  def find_random_ship_event
     if rand(100) < EARLIEST_WEIGHT
       find_earliest_ship_event || find_near_payout_ship_event
     else
       find_near_payout_ship_event || find_earliest_ship_event
     end
   end
-
-  private
 
   def detect_os(ua)
     return nil unless ua
