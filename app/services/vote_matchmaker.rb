@@ -24,8 +24,9 @@ class VoteMatchmaker
   def find_melon_ship_event
     voteable_ship_events
       .where(project_members: { username: "melon" })
+      .where("post_ship_events.votes_count < ?", Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT)
       .order(created_at: :asc)
-      .find { |ship_event| ship_event.votes_count < Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT }
+      .first
   end
 
   def find_random_ship_event
