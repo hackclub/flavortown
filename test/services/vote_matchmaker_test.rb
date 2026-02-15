@@ -1,11 +1,12 @@
+require "securerandom"
 require "test_helper"
 
 class VoteMatchmakerTest < ActiveSupport::TestCase
   test "should prioritize melon's projects" do
     # Create users
-    user = User.create!(username: "testuser", email: "testuser@example.com", password: "password")
-    melon = User.create!(username: "melon", email: "melon@example.com", password: "password")
-    other_user = User.create!(username: "otheruser", email: "otheruser@example.com", password: "password")
+    user = users(:one)
+    melon = User.create!(username: "melon", email: "melon-#{SecureRandom.uuid}@example.com", password: SecureRandom.uuid)
+    other_user = users(:two)
 
     # Create projects
     other_project = Project.create!(title: "Other Project")
