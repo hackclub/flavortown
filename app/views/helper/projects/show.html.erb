@@ -52,14 +52,14 @@
   <% end %>
 
   <% if @project.repo_url.present? && (URI.parse(@project.repo_url).scheme.in?(%w[http https]) rescue false) %>
-    <%= link_to "View Repo", sanitize(@project.repo_url, tags: []), class: "btn-primary", target: "_blank", rel: "noopener" %>
+    <%= link_to "View Repo", URI.parse(@project.repo_url).to_s, class: "btn-primary", target: "_blank", rel: "noopener" %>
   <% end %>
 
   <% if @project.demo_url.present? && (URI.parse(@project.demo_url).scheme.in?(%w[http https]) rescue false) %>
-    <%= link_to "View Demo", sanitize(@project.demo_url, tags: []), class: "btn-primary", target: "_blank", rel: "noopener" %>
+    <%= link_to "View Demo", URI.parse(@project.demo_url).to_s, class: "btn-primary", target: "_blank", rel: "noopener" %>
   <% end %>
 
   <% if @project.readme_url.present? && (URI.parse(@project.readme_url).scheme.in?(%w[http https]) rescue false) %>
-    <%= link_to "View Readme", sanitize(@project.readme_url, tags: []), class: "btn-primary", target: "_blank", rel: "noopener" %>
+    <%= link_to "View Readme", URI.parse(@project.readme_url).to_s, class: "btn-primary", target: "_blank", rel: "noopener" %>
   <% end %>
 </div>
