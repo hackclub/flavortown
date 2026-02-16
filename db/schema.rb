@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_10_182348) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_16_190028) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -576,7 +576,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_10_182348) do
   create_table "sidequest_entries", force: :cascade do |t|
     t.string "aasm_state", default: "pending", null: false
     t.datetime "created_at", null: false
+    t.boolean "is_rejection_fee_charged", default: false, null: false
     t.bigint "project_id", null: false
+    t.text "rejection_message"
     t.datetime "reviewed_at"
     t.bigint "reviewed_by_id"
     t.bigint "sidequest_id", null: false

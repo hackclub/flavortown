@@ -43,6 +43,8 @@ module Admin
       authorize :admin, :access_admin_endpoints?
 
       if @entry.may_reject?
+        @entry.rejection_message = params[:rejection_message].presence
+        @entry.is_rejection_fee_charged = params[:charge_fee] == "1"
         @entry.reject!(current_user)
         redirect_to admin_sidequest_entries_path, notice: "Entry rejected."
       else
