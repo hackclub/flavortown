@@ -1,3 +1,6 @@
+<%= content_for :stylesheets do %>
+  <%= stylesheet_link_tag "xp_window", "data-turbo-track": "reload" %>
+<% end %>
 <% content_for :title, "Sidequests" %>
 <% content_for :og_description, "Take on challenges for extra bonuses! Browse active and past sidequests on Flavortown." %>
 <% content_for :og_image, og_image_url('sidequests', format: :png) %>
@@ -18,6 +21,67 @@
                         class: "sidequest-card__corner-moon" %>
           <h2>Ship a space-related project by March 31! Submit it to this sidequest to qualify for space-themed prizes in the shop.</h2>
           <p class="sidequest-card__expires">Ends March 31, 2026</p>
+        </div>
+      <% end %>
+
+      <% if @webos_sidequest %>
+        <div class="xp-window-wrapper" data-controller="xp-window">
+          <div class="window" data-xp-window-target="window">
+            <div class="title-bar"
+                 data-xp-window-target="titlebar"
+                 data-action="mousedown->xp-window#dragStart touchstart->xp-window#dragTouchStart">
+              <div class="title-bar-text"><%= @webos_sidequest.title %></div>
+              <div class="title-bar-controls">
+                <button aria-label="Minimize" data-action="click->xp-window#minimize"></button>
+                <%= link_to "https://jams.hackclub.com/batch/webOS", target: "_blank", rel: "noopener", class: "xp-window-wrapper__external-link", title: "Open in new tab" do %>
+                  <button aria-label="Maximize"></button>
+                <% end %>
+                <button aria-label="Close" data-action="click->xp-window#close"></button>
+              </div>
+            </div>
+            <div class="window-body">
+              <p><%= @webos_sidequest.description %></p>
+              <% if @webos_sidequest.expires_at.present? %>
+                <p style="color: #666; font-size: 11px;">Ends <%= @webos_sidequest.expires_at.strftime("%B %d, %Y") %></p>
+              <% end %>
+              <div class="xp-window-wrapper__actions">
+                <%= link_to sidequest_path(@webos_sidequest) do %>
+                  <button>View</button>
+                <% end %>
+                <button data-action="click->xp-window#showError">Cancel</button>
+              </div>
+            </div>
+            <div class="xp-window-wrapper__resize-handle"
+                 data-xp-window-target="resizeHandle"
+                 data-action="mousedown->xp-window#resizeStart"></div>
+          </div>
+
+          <%# XP Error Dialog %>
+          <div class="window xp-window-wrapper__error-dialog" data-xp-window-target="errorDialog" style="display: none;">
+            <div class="title-bar" data-action="mousedown->xp-window#dragStart touchstart->xp-window#dragTouchStart">
+              <div class="title-bar-text">Error</div>
+              <div class="title-bar-controls">
+                <button aria-label="Close" data-action="click->xp-window#closeError"></button>
+              </div>
+            </div>
+            <div class="window-body">
+              <div class="xp-window-wrapper__error-content">
+                <img src="https://win98icons.alexmeub.com/icons/png/msg_error-0.png" alt="Error" width="32" height="32">
+                <p data-xp-window-target="errorText">something happened</p>
+              </div>
+              <div class="xp-window-wrapper__actions">
+                <%= link_to "https://www.youtube.com/watch?v=5BZLz21ZS_Y", target: "_blank", rel: "noopener" do %>
+                  <button>oh</button>
+                <% end %>
+                <%= link_to "https://www.youtube.com/watch?v=5BZLz21ZS_Y", target: "_blank", rel: "noopener" do %>
+                  <button>no</button>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <audio data-xp-window-target="errorSound" preload="auto">
+            <source src="https://www.myinstants.com/media/sounds/windows-xp-error-sound.mp3" type="audio/mpeg">
+          </audio>
         </div>
       <% end %>
 

@@ -1,0 +1,11 @@
+header "❌ webOS Sidequest Entry Not Approved"
+
+section "Your project *#{entry.project.title}* wasn't approved for the webOS sidequest.", markdown: true
+
+section "Feel free to update your project and try again!", markdown: true
+
+divider
+
+context [
+  mrkdwn_text("Questions? Reach out in #flavortown-help")
+]

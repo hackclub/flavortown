@@ -30,7 +30,8 @@ class SidequestsController < ApplicationController
     Sidequest.ensure_default_sidequests!
     db_sidequests = Sidequest.active.to_a
     @challenger_sidequest = db_sidequests.find { |sidequest| sidequest.slug == "challenger" }
-    @db_sidequests = db_sidequests.reject { |sidequest| sidequest.slug == "challenger" }
+    @webos_sidequest = db_sidequests.find { |sidequest| sidequest.slug == "webos" }
+    @db_sidequests = db_sidequests.reject { |sidequest| sidequest.slug.in?(%w[challenger webos]) }
   end
 
   def show
@@ -42,6 +43,11 @@ class SidequestsController < ApplicationController
     end
 
     @approved_entries = @sidequest.sidequest_entries.approved.includes(project: :memberships)
+
+    # Load prizes for webOS sidequest
+    if @sidequest.slug == "webos"
+      @prizes = ShopItem.where(requires_achievement: "sidequest_webos", enabled: true)
+    end
 
     # Render custom template if one exists, otherwise default show
     custom_template = "sidequests/show_#{@sidequest.slug}"

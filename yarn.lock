@@ -239,3 +239,8 @@ spark-md5@^3.0.1:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/spark-md5/-/spark-md5-3.0.2.tgz#7952c4a30784347abcee73268e473b9c0167e3fc"
   integrity sha512-wcFzz9cDfbuqe0FZzfi2or1sgyIrsDwmPwfZC4hiNidPdPINjeUwNfv5kldczoEAcjl9Y1L3SM7Uz2PUEQzxQw==
+
+xp.css@^0.2.6:
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/xp.css/-/xp.css-0.2.6.tgz#ec78a023897a0da594e0d0100a931e7310a4f5cd"
+  integrity sha512-v0qUB4wOvyXIMLNid5bIpm+0n5aL4i8wE5dqJH8LNVxE04PxUUxjwf2rNzengegUIK03XC4vbfLVCPAfMLtuqA==
