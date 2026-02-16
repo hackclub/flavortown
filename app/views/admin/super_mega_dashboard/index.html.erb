@@ -593,6 +593,72 @@
               <p>No concerns found.</p>
             <% end %>
           </div>
+
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+            <h3>Trend Graph</h3>
+            <% if @support_graph_data %>
+              <div class="support-graph">
+                <canvas id="supportGraphChart" height="300"></canvas>
+              </div>
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                  const ctx = document.getElementById('supportGraphChart');
+                  if (!ctx) return;
+
+                  const data = <%= raw @support_graph_data.to_json %>;
+                  const labels = data.map(d => {
+                    const date = new Date(d.date);
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  });
+                  
+                  const unresolved = data.map(d => d.unresolved_tickets);
+                  const hangTime = data.map(d => d.hang_time_p95);
+
+                  new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                      labels: labels,
+                      datasets: [
+                        {
+                          label: 'Unresolved Tickets',
+                          data: unresolved,
+                          borderColor: '#6366f1',
+                          backgroundColor: 'rgba(99,102,241,0.1)',
+                          fill: false,
+                          tension: 0.3,
+                          pointRadius: 4
+                        },
+                        {
+                          label: 'Hang Time (min)',
+                          data: hangTime,
+                          borderColor: '#f59e0b',
+                          backgroundColor: 'rgba(245,158,11,0.1)',
+                          fill: false,
+                          tension: 0.3,
+                          pointRadius: 4
+                        }
+                      ]
+                    },
+                    options: {
+                      responsive: true,
+                      plugins: {
+                        legend: { display: true, position: 'bottom' }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          title: { display: true, text: 'Count / Minutes' }
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+            <% else %>
+              <p>No graph data available :(</p>
+            <% end %>
+          </div>
         </div>
       </div>
     <% end %>

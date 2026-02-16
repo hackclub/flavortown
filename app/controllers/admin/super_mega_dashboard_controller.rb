@@ -10,6 +10,7 @@ module Admin
       load_fulfillment_stats
       load_support_stats
       load_support_vibes_stats
+      load_support_graph_data
       load_ship_certs_stats
       load_sw_vibes_stats
       load_voting_stats
@@ -127,6 +128,28 @@ module Admin
 
     def load_support_vibes_stats
       @latest_support_vibes = SupportVibes.order(period_end: :desc).first
+    end
+
+    def load_support_graph_data
+      start_date = 30.days.ago.to_date
+      end_date = Date.current
+      response = Faraday.get("https://flavortown-support-stats.slevel.xyz/api/v1/super-mega-stats?start=#{start_date}&end=#{end_date}")
+      data = JSON.parse(response.body)
+
+      unresolved = data.dig("unresolved_tickets") || {}
+      hang_time = data.dig("p95") || {}
+
+      all_dates = (unresolved.keys + hang_time.keys).uniq.sort
+
+      @support_graph_data = all_dates.map do |date|
+        {
+          date: date,
+          unresolved_tickets: unresolved[date] || 0,
+          hang_time_p95: hang_time[date].nil? ? nil : hang_time[date].round(2)
+        }
+      end
+    rescue Faraday::Error, JSON::ParserError
+      @support_graph_data = nil
     end
 
     def chg(old, new)
