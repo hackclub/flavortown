@@ -19,6 +19,7 @@ export default class extends Controller {
 
   connect() {
     this.userEditedReadme = false;
+    this.submitting = false;
     this.debouncedDetect = this.debounce(() => this.detectReadme(), 400);
 
     if (this.hasReadmeUrlTarget) {
@@ -136,6 +137,17 @@ export default class extends Controller {
         "input:invalid, textarea:invalid, select:invalid",
       );
       invalid.forEach((field) => this.triggerShake(field));
+      return;
+    }
+
+    if (this.submitting) {
+      event.preventDefault();
+      return;
+    }
+    this.submitting = true;
+
+    if (this.hasSubmitTarget) {
+      this.submitTarget.disabled = true;
     }
   }
 
