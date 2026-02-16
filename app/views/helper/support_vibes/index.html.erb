@@ -2,6 +2,65 @@
 <%= render HeadingComponent.new(title: "Support Vibes", tone: :blue, size: :full) %>
 <h2 class="warning">this data was generated using ai analysis so take it with a grain of salt or smth kthxbye</h2>
 
+<div class="support-vibes-trend-graph">
+  <h3>Support Vibes Trend</h3>
+  <div class="support-vibes-graph">
+    <canvas id="supportVibesChart" height="200"></canvas>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('supportVibesChart');
+    if (!ctx) return;
+
+    const vibesData = <%= raw(@support_vibes_history.map { |d| { x: d[0].strftime('%b %-d'), y: d[1].to_f } }.to_json) %>;
+    const labels = vibesData.map(d => d.x);
+    const values = vibesData.map(d => d.y);
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Overall Sentiment',
+          data: values,
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4,
+          pointBackgroundColor: '#10b981'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            min: -1,
+            max: 1,
+            title: { display: false }
+          },
+          x: {
+            title: { display: false },
+            ticks: {
+              callback: function(value, index, ticks) {
+                return index % 3 === 0 ? this.getLabelForValue(value) : '';
+              },
+              minRotation: 45,
+              maxRotation: 45
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+
 <% if @vibes.any? %>
   <div class="vibe-feed">
     <% @vibes.each do |vibe| %>
@@ -184,5 +243,26 @@
     font-size: 0.9rem;
     margin-bottom: 0.15rem;
     line-height: 0.9;
+  }
+
+  .support-vibes-trend-graph {
+    margin: 2em auto;
+    border: 2px solid black;
+    border-radius: 1em;
+    padding: 1em;
+    width: fit-content;
+
+    h3 {
+      margin-bottom: 0.5em;
+      font-size: 1.5rem;
+      text-align: center;
+      color: black;
+    }
+
+    .support-vibes-graph {
+      position: relative;
+      height: 200px;
+      padding: 1em;
+    }
   }
 </style>

@@ -495,3 +495,24 @@
     }
   }
 }
+
+.support-vibes-trend-graph {
+  margin: 2em auto;
+  border: 2px solid black;
+  border-radius: 1em;
+  padding: 1em;
+  width: fit-content;
+
+  h3 {
+    margin-bottom: 0.5em;
+    font-size: 1.5rem;
+    text-align: center;
+    color: black;
+  }
+
+  .support-vibes-graph {
+    position: relative;
+    height: 200px;
+    padding: 1em;
+  }
+}
