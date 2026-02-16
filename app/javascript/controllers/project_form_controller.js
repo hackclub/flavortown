@@ -22,6 +22,16 @@ export default class extends Controller {
     this.submitting = false;
     this.debouncedDetect = this.debounce(() => this.detectReadme(), 400);
 
+    // Reset submitting flag after direct uploads complete so the form can
+    // be re-submitted with the signed blob ID by Active Storage.
+    this.element.addEventListener("direct-upload:end", () => {
+      this.submitting = false;
+    });
+    this.element.addEventListener("direct-upload:error", () => {
+      this.submitting = false;
+      if (this.hasSubmitTarget) this.submitTarget.disabled = false;
+    });
+
     if (this.hasReadmeUrlTarget) {
       this.readmeUrlTarget.addEventListener("input", () => {
         this.userEditedReadme = true;
