@@ -40,5 +40,9 @@ class Sidequest < ApplicationRecord
       sq.title = "Challenger Center"
       sq.description = "Ship a space-related project by March 31! Submit it to this sidequest to qualify for space-themed prizes in the shop."
     end
+    find_or_create_by!(slug: "webos") do |sq|
+      sq.title = "webOS"
+      sq.description = "Build a project for the webOS sidequest! Unlock webOS prizes in the shop."
+    end
   end
 end

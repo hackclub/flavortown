@@ -138,3 +138,6 @@ application.register("tooltip", TooltipController);
 
 import ReadmeImageController from "./readme_image_controller";
 application.register("readme-image", ReadmeImageController);
+
+import XpWindowController from "./xp_window_controller";
+application.register("xp-window", XpWindowController);
