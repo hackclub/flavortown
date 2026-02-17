@@ -77,7 +77,7 @@ class Admin::ProjectsController < Admin::ApplicationController
         payout_user = @project.memberships.owner.first&.user
         if amount > 0 && payout_user
           payout_user.ledger_entries.create!(
-            amount: amount, reason: "Ship Event Payout: #{@project.title}", created_by: "System", ledgerable: payout_user
+            amount: amount, reason: "Ship Event Payout: #{@project.title}", created_by: "System", ledgerable: ship
           )
           issued_min_payout = true
         end
