@@ -72,12 +72,24 @@ class Admin::ProjectsController < Admin::ApplicationController
       if ship.present? && ship.payout.blank?
         hours = ship.hours
         game_constants = Rails.configuration.game_constants
-        min_multiplier = game_constants.sb_min_dollar_per_hour.to_f
-        amount = (min_multiplier * hours).ceil
+        hourly_rate = game_constants.lowest_dollar_per_hour.to_f
+        tickets_per_dollar = game_constants.tickets_per_dollar.to_f
+        
+        # Calculate cookies (same logic as ShipEventPayoutCalculator)
+        cookies = (hours * hourly_rate * tickets_per_dollar).round
+        mult = (hourly_rate * tickets_per_dollar).round(6)
+        
         payout_user = @project.memberships.owner.first&.user
-        if amount > 0 && payout_user
+        if cookies > 0 && payout_user
+          # Update ship event fields to mark it as paid
+          ship.update!(payout: cookies, multiplier: mult, hours: hours)
+          
+          # Create ledger entry
           payout_user.ledger_entries.create!(
-            amount: amount, reason: "Ship Event Payout: #{@project.title}", created_by: "System", ledgerable: ship
+            amount: cookies, 
+            reason: "Ship event payout: #{@project.title}", 
+            created_by: "ship_event_payout", 
+            ledgerable: ship
           )
           issued_min_payout = true
         end
@@ -91,16 +103,16 @@ class Admin::ProjectsController < Admin::ApplicationController
       updated_at: Time.current
     )
 
-    if !issued_min_payout
-      @project.memberships.each do |member|
-        next unless member.user&.slack_id.present?
+    # Send DM notification
+    @project.memberships.each do |member|
+      next unless member.user&.slack_id.present?
 
-        parts = []
-        parts << "Hey! After review, your project won't be going into voting this time."
-        parts << "Reason: #{reason}" if reason.present?
-        parts << "If you have questions, reach out in #flavortown-help. Keep building – you can ship again anytime!"
-        SendSlackDmJob.perform_later(member.user.slack_id, parts.join("\n\n"))
-      end
+      parts = []
+      parts << "Hey! After review, your project won't be going into voting this time."
+      parts << "Reason: #{reason}" if reason.present?
+      parts << "We've issued a minimum payout for your work on this ship." if issued_min_payout
+      parts << "If you have questions, reach out in #flavortown-help. Keep building — you can ship again anytime!"
+      SendSlackDmJob.perform_later(member.user.slack_id, parts.join("\n\n"))
     end
     log_to_user_audit(@project, "shadow_banned", reason)
 
