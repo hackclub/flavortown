@@ -91,17 +91,17 @@ class Admin::ProjectsController < Admin::ApplicationController
       updated_at: Time.current
     )
 
-    @project.memberships.each do |member|
-      next unless member.user&.slack_id.present?
+    if !issued_min_payout
+      @project.memberships.each do |member|
+        next unless member.user&.slack_id.present?
 
-      parts = []
-      parts << "Hey! After review, your project won't be going into voting this time."
-      parts << "Reason: #{reason}" if reason.present?
-      parts << "We've issued a minimum payout for your work on this ship." if issued_min_payout
-      parts << "If you have questions, reach out in #flavortown-help. Keep building – you can ship again anytime!"
-      SendSlackDmJob.perform_later(member.user.slack_id, parts.join("\n\n"))
+        parts = []
+        parts << "Hey! After review, your project won't be going into voting this time."
+        parts << "Reason: #{reason}" if reason.present?
+        parts << "If you have questions, reach out in #flavortown-help. Keep building – you can ship again anytime!"
+        SendSlackDmJob.perform_later(member.user.slack_id, parts.join("\n\n"))
+      end
     end
-
     log_to_user_audit(@project, "shadow_banned", reason)
 
     redirect_to admin_project_path(@project), notice: "Project has been shadow banned#{issued_min_payout ? ' and minimum payout issued' : ''}."
