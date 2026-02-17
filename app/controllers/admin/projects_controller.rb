@@ -74,21 +74,21 @@ class Admin::ProjectsController < Admin::ApplicationController
         game_constants = Rails.configuration.game_constants
         hourly_rate = game_constants.lowest_dollar_per_hour.to_f
         tickets_per_dollar = game_constants.tickets_per_dollar.to_f
-        
+
         # Calculate cookies (same logic as ShipEventPayoutCalculator)
         cookies = (hours * hourly_rate * tickets_per_dollar).round
         mult = (hourly_rate * tickets_per_dollar).round(6)
-        
+
         payout_user = @project.memberships.owner.first&.user
         if cookies > 0 && payout_user
           # Update ship event fields to mark it as paid
           ship.update!(payout: cookies, multiplier: mult, hours: hours)
-          
+
           # Create ledger entry
           payout_user.ledger_entries.create!(
-            amount: cookies, 
-            reason: "Ship event payout: #{@project.title}", 
-            created_by: "ship_event_payout", 
+            amount: cookies,
+            reason: "Ship event payout: #{@project.title}",
+            created_by: "ship_event_payout",
             ledgerable: ship
           )
           issued_min_payout = true
