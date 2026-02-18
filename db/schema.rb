@@ -451,6 +451,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_16_190028) do
     t.string "accessory_tag"
     t.jsonb "agh_contents"
     t.bigint "attached_shop_item_ids", default: [], array: true
+    t.string "blocked_countries", default: [], array: true
     t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.bigint "default_assigned_user_id"
