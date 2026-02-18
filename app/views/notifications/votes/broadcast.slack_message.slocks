@@ -19,9 +19,9 @@ section "Metadata:",
     mrkdwn_text("*Repo URL clicked:* #{repo_url_clicked ? 'Yes' : 'No'}")
   ]
 
-<% if reason.present? %>
-section "*Reason:* #{reason}", markdown: true
-<% end %>
+if reason.present?
+  section "*Reason:* #{reason}", markdown: true
+end
 
 divider
 
