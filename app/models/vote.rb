@@ -111,7 +111,9 @@ class Vote < ApplicationRecord
 
   def mark_suspicious
     self.suspicious = Secrets::VoteSuspicion.suspicious_vote?(
-      time_taken_to_vote: time_taken_to_vote
+      time_taken_to_vote: time_taken_to_vote,
+      demo_url_clicked: demo_url_clicked,
+      repo_url_clicked: repo_url_clicked
     )
   end
 
