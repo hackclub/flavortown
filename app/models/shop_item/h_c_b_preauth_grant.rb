@@ -6,6 +6,7 @@
 #  accessory_tag                     :string
 #  agh_contents                      :jsonb
 #  attached_shop_item_ids            :bigint           default([]), is an Array
+#  blocked_countries                 :string           default([]), is an Array
 #  buyable_by_self                   :boolean          default(TRUE)
 #  default_assigned_user_id_au       :bigint
 #  default_assigned_user_id_ca       :bigint
@@ -49,6 +50,7 @@
 #  required_ships_start_date         :date
 #  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
+#  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer

@@ -6,6 +6,7 @@
 #  accessory_tag                     :string
 #  agh_contents                      :jsonb
 #  attached_shop_item_ids            :bigint           default([]), is an Array
+#  blocked_countries                 :string           default([]), is an Array
 #  buyable_by_self                   :boolean          default(TRUE)
 #  default_assigned_user_id_au       :bigint
 #  default_assigned_user_id_ca       :bigint
@@ -49,6 +50,7 @@
 #  required_ships_start_date         :date
 #  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
+#  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
@@ -194,7 +196,7 @@ class ShopItem < ApplicationRecord
   def remaining_stock
     return nil unless limited? && stock.present?
 
-    reserved_quantity = shop_orders.where(aasm_state: %w[pending awaiting_verification awaiting_periodical_fulfillment on_hold fulfilled]).sum(:quantity)
+    reserved_quantity = shop_orders.where(aasm_state: %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold fulfilled]).sum(:quantity)
     stock - reserved_quantity
   end
 

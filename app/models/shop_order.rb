@@ -84,6 +84,7 @@ class ShopOrder < ApplicationRecord
 
   after_create :create_negative_payout
   after_create :assign_default_user
+  after_create :notify_amber_if_verification_call_required
   before_create :freeze_item_price
   before_create :set_region_from_address
   after_commit :notify_user_of_status_change, if: :saved_change_to_aasm_state?
@@ -157,6 +158,7 @@ class ShopOrder < ApplicationRecord
     # Normal states
     state :pending, initial: true
     state :awaiting_verification
+    state :awaiting_verification_call
     state :awaiting_periodical_fulfillment
     state :fulfilled
 
@@ -169,6 +171,10 @@ class ShopOrder < ApplicationRecord
       transitions from: :pending, to: :awaiting_verification
     end
 
+    event :queue_for_verification_call do
+      transitions from: :pending, to: :awaiting_verification_call
+    end
+
     event :queue_for_fulfillment do
       transitions from: :pending, to: :awaiting_periodical_fulfillment
       after do
@@ -177,7 +183,7 @@ class ShopOrder < ApplicationRecord
     end
 
     event :mark_rejected do
-      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment on_hold], to: :rejected
+      transitions from: %i[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold], to: :rejected
       before do |rejection_reason|
         self.rejection_reason = rejection_reason
       end
@@ -199,7 +205,7 @@ class ShopOrder < ApplicationRecord
     end
 
     event :place_on_hold do
-      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment], to: :on_hold
+      transitions from: %i[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment], to: :on_hold
     end
 
     event :take_off_hold do
@@ -207,7 +213,7 @@ class ShopOrder < ApplicationRecord
     end
 
     event :refund do
-      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment fulfilled], to: :refunded
+      transitions from: %i[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment fulfilled], to: :refunded
       after do
         create_refund_payout
       end
@@ -248,6 +254,7 @@ class ShopOrder < ApplicationRecord
     template = case aasm_state
     when "rejected" then "notifications/shop_orders/rejected"
     when "awaiting_verification" then "notifications/shop_orders/awaiting_verification"
+    when "awaiting_verification_call" then "notifications/shop_orders/awaiting_verification_call"
     when "awaiting_periodical_fulfillment" then "notifications/shop_orders/awaiting_fulfillment"
     when "fulfilled" then "notifications/shop_orders/fulfilled"
     else "notifications/shop_orders/default"
@@ -406,6 +413,17 @@ class ShopOrder < ApplicationRecord
     return unless assignee_id.present?
 
     update(assigned_to_user_id: assignee_id)
+  end
+
+  def notify_amber_if_verification_call_required
+    return unless shop_item.requires_verification_call?
+
+    SendSlackDmJob.perform_later(
+      "U054VC2KM9P",
+      nil,
+      blocks_path: "notifications/shop_orders/new_verification_call_order",
+      locals: { order: self }
+    )
   end
 
   def notify_assigned_user

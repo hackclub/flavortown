@@ -141,6 +141,14 @@
                 <span class="shop-item-form__toggle-desc">Enable inventory tracking for this item</span>
               </span>
             </label>
+
+            <label class="shop-item-form__toggle">
+              <%= f.check_box :requires_verification_call %>
+              <span class="shop-item-form__toggle-content">
+                <strong>Requires Call</strong>
+                <span class="shop-item-form__toggle-desc">Orders require a verification call before fulfillment</span>
+              </span>
+            </label>
           </div>
 
           <div class="shop-item-form__field" id="stock_field_container">
