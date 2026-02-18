@@ -1,30 +1,9 @@
-header "#{suspicious ? ':warning: Suspicious Vote' : ':white_check_mark: New Vote'}"
+voter_label = voter_slack_id.present? ? "<@#{voter_slack_id}>" : voter_name
 
-section "*Voter:* #{voter_name} (#{voter_slack_id.present? ? "<@#{voter_slack_id}>" : 'no Slack ID'})\n*Project:* <#{project_url}|#{project_title}>\n*Ship Event:* ##{ship_event_id}\n*Voted at:* #{voted_at}", markdown: true
-
-section "Scores:",
-  fields: [
-    mrkdwn_text("*Originality:* #{originality_score}/6"),
-    mrkdwn_text("*Technical:* #{technical_score}/6"),
-    mrkdwn_text("*Usability:* #{usability_score}/6"),
-    mrkdwn_text("*Storytelling:* #{storytelling_score}/6")
-  ]
-
-divider
-
-section "Metadata:",
-  fields: [
-    mrkdwn_text("*Time taken:* #{time_taken_to_vote}s"),
-    mrkdwn_text("*Demo URL clicked:* #{demo_url_clicked ? 'Yes' : 'No'}"),
-    mrkdwn_text("*Repo URL clicked:* #{repo_url_clicked ? 'Yes' : 'No'}")
-  ]
+section "#{voter_label} <#{project_url}|#{project_title}> (#{time_taken_to_vote}s)#{suspicious ? ' Sus :among_us:' : ''}\nOriginality.:#{originality_score} Technicality.:#{technical_score} Usability:#{usability_score} Storytelling:#{storytelling_score} · demo:#{demo_url_clicked ? ':checks-passed-octicon: ' : ':ms-cross:'} repo:#{repo_url_clicked ? ':checks-passed-octicon: ' : ':ms-cross:'} · <#{dashboard_url}|dashboard>", markdown: true
 
 if reason.present?
-  section "*Reason:* #{reason}", markdown: true
+  context [
+    mrkdwn_text(":speech_balloon: #{reason}")
+  ]
 end
-
-divider
-
-actions [
-  button("Vote Quality Dashboard", "vote_quality_dashboard", url: dashboard_url)
-]
