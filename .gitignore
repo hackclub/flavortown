@@ -54,3 +54,8 @@ wak.toml
 app/assets/images/achievements/silhouettes/
 
 Procfile.assets
+app/controllers/component_previews_controller.rb
+app/views/component_previews/buttons.html.erb
+app/views/component_previews/index.html.erb
+prod_backupgg.dump
+prod.dump
