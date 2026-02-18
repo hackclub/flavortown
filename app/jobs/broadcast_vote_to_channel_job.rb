@@ -1,11 +1,12 @@
 class BroadcastVoteToChannelJob < ApplicationJob
-  queue_as :latency_5m
+  queue_as :default
 
   CHANNEL_ID = "C0AFB0JU00P"
+
   def perform(vote)
     user = vote.user
 
-    SendSlackDmJob.perform_later(
+    SendSlackDmJob.perform_now(
       CHANNEL_ID,
       nil,
       blocks_path: "notifications/votes/broadcast",
@@ -13,7 +14,7 @@ class BroadcastVoteToChannelJob < ApplicationJob
         voter_name: user.display_name,
         voter_slack_id: user.slack_id,
         project_title: vote.project.title,
-        ship_event_id: vote.ship_event_id,
+        project_url: "https://flavortown.hackclub.com/projects/#{vote.project.id}",
         originality_score: vote.originality_score,
         technical_score: vote.technical_score,
         usability_score: vote.usability_score,
