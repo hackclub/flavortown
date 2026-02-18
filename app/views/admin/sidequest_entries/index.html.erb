@@ -5,13 +5,13 @@
     <h2>Stats</h2>
     <div style="display: flex; gap: 2rem; align-items: center;">
       <div>
-        <strong>Pending:</strong> <%= @counts[:pending] %>
+        <strong>Pending:</strong> <span id="count-pending"><%= @counts[:pending] %></span>
       </div>
       <div>
-        <strong>Approved:</strong> <%= @counts[:approved] %>
+        <strong>Approved:</strong> <span id="count-approved"><%= @counts[:approved] %></span>
       </div>
       <div>
-        <strong>Rejected:</strong> <%= @counts[:rejected] %>
+        <strong>Rejected:</strong> <span id="count-rejected"><%= @counts[:rejected] %></span>
       </div>
     </div>
   </div>
@@ -55,50 +55,7 @@
       </tr>
     </thead>
     <tbody>
-      <% @entries.each do |entry| %>
-        <tr>
-          <td>#<%= entry.id %></td>
-          <td><%= entry.sidequest.title %></td>
-          <td>
-            <%= link_to entry.project.title, project_path(entry.project) %>
-          </td>
-          <td>
-            <% owner = entry.project_owner %>
-            <% if owner %>
-              <div class="user-cell">
-                <%= image_tag owner.avatar, class: "avatar-sm", alt: owner.display_name %>
-                <span><%= owner.display_name || owner.email %></span>
-              </div>
-            <% else %>
-              <span class="text-muted">-</span>
-            <% end %>
-          </td>
-          <td>
-            <span class="badge badge-<%= entry.aasm_state %>">
-              <%= entry.aasm_state %>
-            </span>
-          </td>
-          <td>
-            <% if entry.reviewed_by %>
-              <div class="user-cell">
-                <%= image_tag entry.reviewed_by.avatar, class: "avatar-sm", alt: entry.reviewed_by.display_name %>
-                <span><%= entry.reviewed_by.display_name %></span>
-              </div>
-            <% else %>
-              <span class="text-muted">-</span>
-            <% end %>
-          </td>
-          <td><%= entry.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-          <td>
-            <div class="actions-cell">
-              <% if entry.pending? %>
-                <%= button_to "Approve", approve_admin_sidequest_entry_path(entry), method: :post, class: "btn-primary slim" %>
-                <button type="button" onclick="document.getElementById(<%= "reject-modal-#{entry.id}".to_json %>).showModal()" class="btn-danger slim">Reject</button>
-              <% end %>
-            </div>
-          </td>
-        </tr>
-      <% end %>
+      <%= render partial: "entry", collection: @entries, as: :entry %>
     </tbody>
   </table>
 

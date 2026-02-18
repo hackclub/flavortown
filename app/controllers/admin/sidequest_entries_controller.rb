@@ -33,7 +33,10 @@ module Admin
 
       if @entry.may_approve?
         @entry.approve!(current_user)
-        redirect_to admin_sidequest_entries_path, notice: "Entry approved! Achievement granted."
+        respond_to do |format|
+          format.turbo_stream { @counts = shipped_counts }
+          format.html { redirect_to admin_sidequest_entries_path, notice: "Entry approved! Achievement granted." }
+        end
       else
         redirect_to admin_sidequest_entries_path, alert: "Cannot approve this entry."
       end
@@ -46,7 +49,10 @@ module Admin
         @entry.rejection_message = params[:rejection_message].presence
         @entry.is_rejection_fee_charged = params[:charge_fee] == "1"
         @entry.reject!(current_user)
-        redirect_to admin_sidequest_entries_path, notice: "Entry rejected."
+        respond_to do |format|
+          format.turbo_stream { @counts = shipped_counts }
+          format.html { redirect_to admin_sidequest_entries_path, notice: "Entry rejected." }
+        end
       else
         redirect_to admin_sidequest_entries_path, alert: "Cannot reject this entry."
       end
@@ -56,6 +62,15 @@ module Admin
 
     def set_entry
       @entry = SidequestEntry.find(params[:id])
+    end
+
+    def shipped_counts
+      base = SidequestEntry.joins(project: :ship_events).distinct
+      {
+        pending: base.pending.count,
+        approved: base.approved.count,
+        rejected: base.rejected.count
+      }
     end
   end
 end
