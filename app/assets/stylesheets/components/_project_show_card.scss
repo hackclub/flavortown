@@ -243,12 +243,12 @@
     filter: blur(2px);
     position: relative;
     z-index: 1001;
-    width: 60%;
-    max-width: 60vw;
+    width: 80vw;
+    max-width: 1400px;
     max-height: 80vh;
     overflow-y: auto;
     border-radius: 16px;
-    padding: 4em 8em;
+    padding: 4em 4em;
     display: flex;
     flex-direction: column;
     gap: 32px;
@@ -313,7 +313,7 @@
     color: #7a4841;
     margin: 0;
     line-height: 1.4;
-    margin: 0 3em;
+    margin: 0 1em;
   }
 
   &__link {
@@ -332,7 +332,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, 240px);
     gap: 24px;
-    justify-content: center;
+    justify-content: space-between;
   }
 
   &__card {
@@ -423,6 +423,7 @@
     &__container {
       width: 90%;
       padding: 32px;
+      padding-top: 80px;
       gap: 24px;
     }
 
