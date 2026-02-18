@@ -134,3 +134,5 @@ gem "rack-mini-profiler"
 gem "redis", "~> 5.4"
 
 gem "ahoy_matey"
+
+gem "countries"

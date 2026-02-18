@@ -166,18 +166,9 @@ module Admin
         :default_assigned_user_id_xx,
         :unlisted,
         :source_region,
-        attached_shop_item_ids: []
-      ).tap do |permitted|
-        if params[:shop_item][:blocked_countries].present?
-          permitted[:blocked_countries] = params[:shop_item][:blocked_countries].to_s
-            .split(/[,\s]+/)
-            .map(&:strip)
-            .reject(&:blank?)
-            .map(&:upcase)
-        else
-          permitted[:blocked_countries] = []
-        end
-      end
+        attached_shop_item_ids: [],
+        blocked_countries: []
+      )
     end
   end
 end
