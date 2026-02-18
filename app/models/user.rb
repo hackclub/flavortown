@@ -270,6 +270,19 @@ class User < ApplicationRecord
     soft_delete_projects!
   end
 
+  def lock_voting_and_mark_votes_suspicious!(notify: false)
+    return if voting_locked?
+
+    transaction do
+      update!(voting_locked: true)
+      votes.update_all(suspicious: true)
+    end
+
+    if notify
+      dm_user("Your voting has been locked due to suspicious activity. Please contact @Fraud Squad if you believe this is a mistake.")
+    end
+  end
+
   def reject_pending_orders!(reason: "User banned")
     shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).find_each do |order|
       order.mark_rejected(reason)
@@ -391,6 +404,7 @@ class User < ApplicationRecord
     if result[:banned] && !banned?
       Rails.logger.warn "User #{id} (#{slack_id}) is banned on Hackatime, auto-banning"
       ban!(reason: "Automatically banned: User is banned on Hackatime")
+      lock_voting_and_mark_votes_suspicious!
     end
 
     if result[:projects].any?
@@ -420,7 +434,7 @@ class User < ApplicationRecord
     Rails.cache.fetch("user/#{id}/devlog_seconds_total", expires_in: 10.minutes) do
       devlog_postable_ids = Post.where(user_id: id, postable_type: "Post::Devlog")
                                 .select("postable_id::bigint")
-      Post::Devlog.where(id: devlog_postable_ids).sum(:duration_seconds) || 0
+      Post::Devlog.where(id: devlog_postable_ids).not_deleted.sum(:duration_seconds) || 0
     end
   end
 
@@ -429,8 +443,12 @@ class User < ApplicationRecord
       devlog_postable_ids = Post.where(user_id: id, postable_type: "Post::Devlog")
                                 .where(created_at: Time.zone.now.beginning_of_day..Time.zone.now.end_of_day)
                                 .select("postable_id::bigint")
-      Post::Devlog.where(id: devlog_postable_ids).sum(:duration_seconds) || 0
+      Post::Devlog.where(id: devlog_postable_ids).not_deleted.sum(:duration_seconds) || 0
     end
+  end
+
+  def has_shipped?
+    projects.joins(:ship_events).exists?
   end
 
   def shipped_projects_count_in_range(start_date, end_date)

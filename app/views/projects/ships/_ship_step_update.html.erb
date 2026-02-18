@@ -17,10 +17,11 @@
         ) %>
 
     <% @active_sidequests.each do |sidequest| %>
+      <% auto_checked = sidequest.slug == "challenger" && @project.space_themed? %>
       <div class="input input--blue">
         <span class="input__label">Sidequest</span>
         <label class="projects-new__checkbox-control projects-new__checkbox-control--compact">
-          <input type="checkbox" name="sidequest_ids[]" value="<%= sidequest.id %>" <%= 'checked' if @project.sidequests.include?(sidequest) %>>
+          <input type="checkbox" name="sidequest_ids[]" value="<%= sidequest.id %>" <%= 'checked' if @project.sidequests.include?(sidequest) || auto_checked %>>
           <span class="projects-new__checkbox-label"><%= sidequest.title %></span>
         </label>
         <% if sidequest.description.present? %>

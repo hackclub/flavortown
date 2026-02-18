@@ -6,6 +6,19 @@ class ShipCertService
   def self.ship_data(project, type: nil, ship_event: nil)
     owner = project.memberships.owner.first&.user
     ship_event ||= latest_ship_event(project)
+    sidequest_entries = project.sidequest_entries.includes(:sidequest)
+    sidequest_slugs = sidequest_entries.map { |entry| entry.sidequest&.slug }.compact
+    sidequest_details = sidequest_entries.filter_map do |entry|
+      sidequest = entry.sidequest
+      next unless sidequest
+
+      {
+        id: sidequest.id.to_s,
+        slug: sidequest.slug,
+        title: sidequest.title,
+        entryState: entry.aasm_state
+      }
+    end
 
     devlog_count = project.devlog_posts
       .joins("JOIN post_devlogs ON post_devlogs.id = posts.postable_id")
@@ -35,7 +48,10 @@ class ShipCertService
         metadata: {
           devTime: project.duration_seconds,
           devlogCount: devlog_count,
-          lastShipEventAt: last_ship_at&.iso8601
+          lastShipEventAt: last_ship_at&.iso8601,
+          isSidequestProject: sidequest_slugs.any?,
+          sidequestSlugs: sidequest_slugs,
+          sidequests: sidequest_details
         }
       }
     }
@@ -66,12 +82,6 @@ class ShipCertService
       Rails.logger.info "#{project.id} sent for certification"
       true
     else
-      # Check for duplicate ship error (403)
-      if response.status == 403 && response.body.include?("duplicate ship")
-        Rails.logger.warn "Duplicate ship detected for project #{project.id}"
-        raise DuplicateShipError, "Project #{project.id} is already in the certification queue"
-      end
-
       raise "Certification request failed for project #{project.id}: #{response.body}"
     end
   rescue Faraday::Error => e
@@ -102,5 +112,3 @@ class ShipCertService
     project.ship_events.first
   end
 end
-
-class DuplicateShipError < StandardError; end

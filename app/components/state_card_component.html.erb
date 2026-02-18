@@ -1,4 +1,4 @@
-<div class="state-card state-card--<%= @variant %>">
+<div class="state-card state-card--<%= @variant %>" <% if @variant == :space %> data-controller="stars shooting-star"<% end %>>
   <div class="state-card__status-pill">
     <div class="state-card__badge"><%= @badge_text %></div>
     <% if @icon.present? %>

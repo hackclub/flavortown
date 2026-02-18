@@ -129,6 +129,23 @@ class SessionsController < ApplicationController
     redirect_to root_path, alert: "Authentication failed"
   end
 
+  def dev_login
+    return head :not_found unless Rails.env.development?
+
+    user = if params[:id].present?
+      User.find_by(id: params[:id])
+    else
+      User.find_by(id: ENV["DEV_ADMIN_USER_ID"]) || User.order(:id).first
+    end
+
+    unless user
+      return redirect_to(root_path, alert: "No users found for dev login. Create a user first.")
+    end
+
+    session[:user_id] = user.id
+    redirect_to "/projects", notice: "Dev logged in as #{user.display_name}"
+  end
+
   private
 
   def fetch_hack_club_identity(access_token)

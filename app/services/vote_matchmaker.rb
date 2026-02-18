@@ -27,11 +27,17 @@ class VoteMatchmaker
 
   def detect_os(ua)
     return nil unless ua
-    return :android if ua.include?("Android")
-    return :ios if ua.include?("iPhone") || ua.include?("iPad")
-    return :windows if ua.include?("Windows")
-    return :mac if ua.include?("Macintosh")
-    return :linux if ua.include?("Linux")
+    s = ua.downcase
+
+    return :android if s.include?("android")
+    return :ios if s.include?("iphone") || s.include?("ipod") || s.include?("ipad")
+    if s.include?("macintosh") && (s.include?("mobile") || s.include?("cpu os") || s.include?("ipad"))
+      return :ios
+    end
+
+    return :windows if s.include?("windows")
+    return :mac if s.include?("macintosh")
+    return :linux if s.include?("linux")
     nil
   end
 
@@ -40,11 +46,11 @@ class VoteMatchmaker
   end
 
   def find_earliest_ship_event
-    voteable_ship_events.order(:created_at, "RANDOM()").first
+    voteable_ship_events.order(:created_at, "RANDOM()").find { |ship_event| ship_event.hours.to_f.positive? }
   end
 
   def find_near_payout_ship_event
-    voteable_ship_events.order(votes_count: :desc, created_at: :asc).first
+    voteable_ship_events.order(votes_count: :desc, created_at: :asc).find { |ship_event| ship_event.hours.to_f.positive? }
   end
 
   def voteable_ship_events
@@ -54,9 +60,9 @@ class VoteMatchmaker
       .where(payout: nil)
       .where.not(id: @user.votes.select(:ship_event_id))
       .where.not(projects: { id: @user.projects })
+      .where.not(projects: { id: @user.reports.select(:project_id) })
       .where(project_members: { shadow_banned: false })
       .where(projects: { shadow_banned: false })
-      .where("projects.duration_seconds > 0")
       .where.not(id: vote_deficit_blocked_ship_event_ids)
 
     excluded_categories.each do |category|
@@ -69,7 +75,7 @@ class VoteMatchmaker
   def vote_deficit_blocked_ship_event_ids
     Post::ShipEvent
       .joins(post: :user)
-      .where("post_ship_events.votes_count >= ?", Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT)
+      .where(id: Vote.legitimate.group(:ship_event_id).having("COUNT(*) >= ?", Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT).select(:ship_event_id))
       .where("users.vote_balance < 0")
       .select("post_ship_events.id")
   end
