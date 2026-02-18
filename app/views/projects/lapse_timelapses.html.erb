@@ -27,7 +27,7 @@
                 <div class="lapse-modal__thumbnail lapse-modal__thumbnail--placeholder"></div>
               <% end %>
               <span class="lapse-modal__card-title"><%= timelapse['name'] || 'Untitled' %></span>
-              <span class="lapse-modal__card-duration"><%= format_timelapse_duration(timelapse['duration']) %></span>
+              <span class="lapse-modal__card-duration"><%= format_seconds(timelapse['duration'].round) %></span>
             </a>
           <% end %>
         </div>
