@@ -1,9 +1,11 @@
 <%= turbo_frame_tag "lapse-timelapses-#{@project.id}" do %>
-  <% if @lapse_timelapses.present? && !@is_owner %>
-    <button type="button" class="project-show-card__lapse-badge" data-controller="modal" data-action="click->modal#open" data-modal-target-value="lapse-modal-<%= @project.id %>">
-      <%= inline_svg_tag "lapse.svg", class: "project-show-card__lapse-icon" %>
-      <span>Tracked with Lapse</span>
-    </button>
+  <% if @lapse_timelapses.present? %>
+    <% if !@is_owner %>
+      <button type="button" class="project-show-card__lapse-badge" data-controller="modal" data-action="click->modal#open" data-modal-target-value="lapse-modal-<%= @project.id %>">
+        <%= inline_svg_tag "lapse.svg", class: "project-show-card__lapse-icon" %>
+        <span>Tracked with Lapse</span>
+      </button>
+    <% end %>
 
     <div id="lapse-modal-<%= @project.id %>" class="lapse-modal" data-controller="modal">
       <div data-action="click->modal#close" class="lapse-modal__backdrop"></div>
