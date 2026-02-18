@@ -1,0 +1,30 @@
+header "#{suspicious ? ':warning: Suspicious Vote' : ':white_check_mark: New Vote'}"
+
+section "*Voter:* #{voter_name} (#{voter_slack_id.present? ? "<@#{voter_slack_id}>" : 'no Slack ID'})\n*Project:* #{project_title}\n*Ship Event:* ##{ship_event_id}", markdown: true
+
+section "Scores:",
+  fields: [
+    mrkdwn_text("*Originality:* #{originality_score}/6"),
+    mrkdwn_text("*Technical:* #{technical_score}/6"),
+    mrkdwn_text("*Usability:* #{usability_score}/6"),
+    mrkdwn_text("*Storytelling:* #{storytelling_score}/6")
+  ]
+
+divider
+
+section "Metadata:",
+  fields: [
+    mrkdwn_text("*Time taken:* #{time_taken_to_vote}s"),
+    mrkdwn_text("*Demo URL clicked:* #{demo_url_clicked ? 'Yes' : 'No'}"),
+    mrkdwn_text("*Repo URL clicked:* #{repo_url_clicked ? 'Yes' : 'No'}")
+  ]
+
+<% if reason.present? %>
+section "*Reason:* #{reason}", markdown: true
+<% end %>
+
+divider
+
+actions [
+  button("Vote Quality Dashboard", "vote_quality_dashboard", url: dashboard_url)
+]

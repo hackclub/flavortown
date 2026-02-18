@@ -403,6 +403,13 @@
   }
 
   &__feedback {
+    margin: 4rem 0;
+
+    .input {
+      display: flex;
+      width: 100%;
+    }
+
     .input__label {
       padding: 0.5rem 1.5rem 2rem 1.5rem;
       font-family: var(--font-family-jua, sans-serif);
