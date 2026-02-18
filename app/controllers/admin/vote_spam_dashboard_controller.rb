@@ -4,7 +4,7 @@ module Admin
     DEFAULT_WINDOW_DAYS = 30
     MAX_ROWS = 200
     RAW_VOTE_LIMIT = 200
-    SORT_KEYS = %w[votes f1 f2 f3 f4].freeze
+    SORT_KEYS = %w[votes spam_votes spam_rate spam_score f1 f2 f3 f4].freeze
     SORT_DIRECTIONS = %w[asc desc].freeze
 
     helper_method :sort_link_params, :sort_indicator
@@ -22,6 +22,7 @@ module Admin
       ).call
       @rows = snapshot.fetch(:rows)
       @global_table_columns = Secrets::VoteSpamCopy.global_table_columns
+      @spam_threshold_seconds = Secrets::VoteSpamMetrics.spam_threshold_seconds
     end
 
     def show
@@ -51,6 +52,7 @@ module Admin
       @selected_user_vector_distribution = drilldown.fetch(:vector_distribution)
       @selected_user_click_breakdown = drilldown.fetch(:click_breakdown)
       @selected_user_votes = drilldown.fetch(:raw_votes)
+      @spam_threshold_seconds = Secrets::VoteSpamMetrics.spam_threshold_seconds
     end
 
     private
