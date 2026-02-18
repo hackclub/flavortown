@@ -34,7 +34,14 @@ module Admin
       if @entry.may_approve?
         @entry.approve!(current_user)
         respond_to do |format|
-          format.turbo_stream { @counts = shipped_counts }
+          format.turbo_stream {
+            counts = shipped_counts
+            render turbo_stream: [
+              turbo_stream.replace(dom_id(@entry), partial: "admin/sidequest_entries/entry", locals: { entry: @entry }),
+              turbo_stream.replace("count-pending", html: "<span id='count-pending'>#{counts[:pending]}</span>"),
+              turbo_stream.replace("count-approved", html: "<span id='count-approved'>#{counts[:approved]}</span>")
+            ]
+          }
           format.html { redirect_to admin_sidequest_entries_path, notice: "Entry approved! Achievement granted." }
         end
       else
@@ -50,7 +57,15 @@ module Admin
         @entry.is_rejection_fee_charged = params[:charge_fee] == "1"
         @entry.reject!(current_user)
         respond_to do |format|
-          format.turbo_stream { @counts = shipped_counts }
+          format.turbo_stream {
+            counts = shipped_counts
+            render turbo_stream: [
+              turbo_stream.replace(dom_id(@entry), partial: "admin/sidequest_entries/entry", locals: { entry: @entry }),
+              turbo_stream.replace("count-pending", html: "<span id='count-pending'>#{counts[:pending]}</span>"),
+              turbo_stream.replace("count-rejected", html: "<span id='count-rejected'>#{counts[:rejected]}</span>"),
+              turbo_stream.remove("reject-modal-#{@entry.id}")
+            ]
+          }
           format.html { redirect_to admin_sidequest_entries_path, notice: "Entry rejected." }
         end
       else
