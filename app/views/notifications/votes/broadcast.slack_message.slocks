@@ -1,6 +1,6 @@
 header "#{suspicious ? ':warning: Suspicious Vote' : ':white_check_mark: New Vote'}"
 
-section "*Voter:* #{voter_name} (#{voter_slack_id.present? ? "<@#{voter_slack_id}>" : 'no Slack ID'})\n*Project:* #{project_title}\n*Ship Event:* ##{ship_event_id}", markdown: true
+section "*Voter:* #{voter_name} (#{voter_slack_id.present? ? "<@#{voter_slack_id}>" : 'no Slack ID'})\n*Project:* <#{project_url}|#{project_title}>\n*Ship Event:* ##{ship_event_id}\n*Voted at:* #{voted_at}", markdown: true
 
 section "Scores:",
   fields: [
