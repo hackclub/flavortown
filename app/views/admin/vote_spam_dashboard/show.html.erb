@@ -23,6 +23,22 @@
           <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, :votes_count) %></span>
         </div>
         <div class="voting-stat">
+          <span class="voting-stat__value"><%= number_with_delimiter(@selected_user_metric[:spam_votes_count]) %></span>
+          <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, :spam_votes_count) %></span>
+        </div>
+        <div class="voting-stat">
+          <span class="voting-stat__value"><%= number_to_percentage(@selected_user_metric[:spam_vote_rate] * 100, precision: 2) %></span>
+          <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, :spam_vote_rate) %></span>
+        </div>
+        <div class="voting-stat">
+          <span class="voting-stat__value"><%= @selected_user_metric[:spam_score] %></span>
+          <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, :spam_score) %></span>
+        </div>
+        <div class="voting-stat">
+          <span class="voting-stat__value"><%= @selected_user_metric[:is_spammer] ? "Yes" : "No" %></span>
+          <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, :is_spammer) %></span>
+        </div>
+        <div class="voting-stat">
           <span class="voting-stat__value"><%= @selected_user_metric[:unique_vector_count] %></span>
           <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, :unique_vector_count) %></span>
         </div>
@@ -147,6 +163,7 @@
             <td><%= vote.time_taken_to_vote ? "#{vote.time_taken_to_vote}s" : @show_copy[:empty_cell] %></td>
             <td><%= vote.demo_url_clicked ? "✓" : @show_copy[:empty_cell] %></td>
             <td><%= vote.repo_url_clicked ? "✓" : @show_copy[:empty_cell] %></td>
+            <td><%= vote.time_taken_to_vote.to_i <= @spam_threshold_seconds ? @show_copy.dig(:spam_badge, :yes) : @show_copy.dig(:spam_badge, :no) %></td>
             <td><%= truncate(vote.reason.to_s, length: 80) %></td>
           </tr>
         <% end %>
