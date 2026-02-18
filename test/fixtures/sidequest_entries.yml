@@ -4,14 +4,16 @@
 #
 # Table name: sidequest_entries
 #
-#  id             :bigint           not null, primary key
-#  aasm_state     :string           default("pending"), not null
-#  reviewed_at    :datetime
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
-#  project_id     :bigint           not null
-#  reviewed_by_id :bigint
-#  sidequest_id   :bigint           not null
+#  id                       :bigint           not null, primary key
+#  aasm_state               :string           default("pending"), not null
+#  is_rejection_fee_charged :boolean          default(FALSE), not null
+#  rejection_message        :text
+#  reviewed_at              :datetime
+#  created_at               :datetime         not null
+#  updated_at               :datetime         not null
+#  project_id               :bigint           not null
+#  reviewed_by_id           :bigint
+#  sidequest_id             :bigint           not null
 #
 # Indexes
 #
