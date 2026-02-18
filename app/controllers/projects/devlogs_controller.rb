@@ -19,8 +19,6 @@ class Projects::DevlogsController < ApplicationController
       load_preview_time
       return redirect_to @project, alert: "Could not calculate your coding time. Please try again." unless @preview_time.present?
 
-      Rails.logger.info "DevlogsController#create: media_type=#{params[:media_type].inspect}, lapse_timelapse_id=#{params.dig(:post_devlog, :lapse_timelapse_id).inspect}"
-
       @devlog = Post::Devlog.new(devlog_params.except(:lapse_timelapse_id))
       @devlog.duration_seconds = @preview_seconds
       @devlog.hackatime_projects_key_snapshot = @project.hackatime_keys.join(",")
