@@ -1,5 +1,5 @@
 class Api::V1::ShipwrightsController < Api::BaseController
-  skip_before_action :verify_authenticity_token
+  skip_before_action :verify_authenticity_token, if: :api_key_present?
   before_action :verify_api_key
 
   def update_status
@@ -53,6 +53,10 @@ class Api::V1::ShipwrightsController < Api::BaseController
 
   def normalize_category(category)
     Project::AVAILABLE_CATEGORIES.include?(category) ? category : "Other"
+  end
+
+  def api_key_present?
+    request.headers["x-api-key"].present?
   end
 
   def verify_api_key
