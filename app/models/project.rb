@@ -307,8 +307,16 @@ class Project < ApplicationRecord
 
   def readme_is_raw_github_url?
     return false if readme_url.blank?
-    return true unless readme_url.include?("github.com/")
-    /https:\/\/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/[^\/]+\/.*README.*\.md/i.match?(readme_url)
+
+    begin
+      uri = URI.parse(readme_url)
+    rescue URI::InvalidURIError
+      return false
+    end
+
+    return false unless uri.host == "raw.githubusercontent.com"
+
+    /https:\/\/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/[^\/]+\/.*README.*\.md/i.match?(uri.to_s)
   end
 
   private
