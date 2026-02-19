@@ -1,5 +1,5 @@
 class Api::V1::ShipwrightsController < Api::BaseController
-  skip_before_action :verify_authenticity_token, if: :api_key_present?
+  skip_before_action :verify_authenticity_token, if: :api_key_valid?
   before_action :verify_api_key
 
   def update_status
@@ -57,6 +57,14 @@ class Api::V1::ShipwrightsController < Api::BaseController
 
   def api_key_present?
     request.headers["x-api-key"].present?
+  end
+
+  def api_key_valid?
+    api_key = request.headers["x-api-key"]
+    expected_key = ENV["SW_DASHBOARD_API_KEY"]
+
+    api_key.present? && expected_key.present? &&
+      ActiveSupport::SecurityUtils.secure_compare(api_key, expected_key)
   end
 
   def verify_api_key
