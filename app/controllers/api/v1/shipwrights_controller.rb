@@ -1,6 +1,6 @@
 class Api::V1::ShipwrightsController < Api::BaseController
-  skip_before_action :verify_authenticity_token, if: :api_key_valid?
   before_action :verify_api_key
+
 
   def update_status
     project_id = params[:id]
