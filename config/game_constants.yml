@@ -7,3 +7,4 @@ shared:
   max_quality_multiplier: 30.0
   lowest_dollar_per_hour: 0.3
   highest_dollar_per_hour: 6.0
+  sb_min_dollar_per_hour: 1.0

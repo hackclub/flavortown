@@ -1,0 +1,9 @@
+voter_label = voter_slack_id.present? ? "<@#{voter_slack_id}>" : voter_name
+
+section "#{voter_label} <#{project_url}|#{project_title}> (#{time_taken_to_vote}s)#{suspicious ? ' Sus :among_us:' : ''}\nOriginality.:#{originality_score} Technicality.:#{technical_score} Usability:#{usability_score} Storytelling:#{storytelling_score} · demo:#{demo_url_clicked ? ':checks-passed-octicon: ' : ':ms-cross:'} repo:#{repo_url_clicked ? ':checks-passed-octicon: ' : ':ms-cross:'} · <#{dashboard_url}|dashboard>", markdown: true
+
+if reason.present?
+  context [
+    mrkdwn_text(":speech_balloon: #{reason}")
+  ]
+end

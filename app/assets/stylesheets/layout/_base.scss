@@ -25,11 +25,11 @@ body.signed-in {
   background-position: center;
   background-attachment: fixed;
   background-color: var(--color-bg-2);
-  margin-left: 320px; // space for sidebar
+  margin-left: 380px; // space for sidebar
   margin-right: 100px;
 
   @media (max-width: 1500px) {
-    margin-left: 270px;
+    margin-left: 280px;
     margin-right: 50px;
   }
 
@@ -50,20 +50,6 @@ body.shop-page:not(.signed-in) {
   background-color: var(--color-bg-2);
 }
 
-// Launch theme background
-body.launch-theme,
-body.signed-in.launch-theme {
-  background: linear-gradient(
-    135deg,
-    #4a2c7a 0%,
-    #362060 35%,
-    #261545 70%,
-    #1a0d30 100%
-  );
-  background-image: none;
-  background-color: #1a0d30;
-}
-
 .dev-footer {
   text-align: center;
   font-size: 0.75rem;
@@ -75,16 +61,6 @@ body.signed-in.launch-theme {
 
   &:hover {
     opacity: 0.9;
-  }
-
-  // Fix footer at bottom for launch theme
-  .launch-theme & {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin-top: 0;
-    z-index: 0;
   }
 
   a {

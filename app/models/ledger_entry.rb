@@ -76,6 +76,7 @@ class LedgerEntry < ApplicationRecord
     when "Post::ShipEvent" then "tutorial"
     when "User" then "user grant"
     when "User::Achievement" then "achievement: #{ledgerable.achievement.name}"
+    when "SidequestEntry" then "sidequest rejection fee"
     else ledgerable_type.underscore.humanize.downcase
     end
     change_emoji = amount.positive? ? "📈" : "📉"

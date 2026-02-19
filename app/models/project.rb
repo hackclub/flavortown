@@ -42,6 +42,8 @@ class Project < ApplicationRecord
   include AASM
   include SoftDeletable
 
+  SPACE_THEMED_PREFIX = "Space Themed:".freeze
+
   has_paper_trail only: %i[shadow_banned shadow_banned_at shadow_banned_reason deleted_at]
 
   has_recommended :projects # more projects like this...
@@ -187,6 +189,18 @@ class Project < ApplicationRecord
     deleted_at.present?
   end
 
+  def space_themed?
+    description.to_s.lstrip.start_with?(SPACE_THEMED_PREFIX)
+  end
+
+  def description_without_space_theme_prefix
+    description.to_s.sub(/\A\s*#{Regexp.escape(SPACE_THEMED_PREFIX)}\s*/, "")
+  end
+
+  def display_description
+    description_without_space_theme_prefix
+  end
+
   def hackatime_keys
     hackatime_projects.pluck(:name)
   end
@@ -259,7 +273,7 @@ class Project < ApplicationRecord
       { key: :devlog, label: "Post at least one devlog since your last ship", passed: has_devlog_since_last_ship? },
       { key: :payout, label: "Wait for your previous ship's to get a payout", passed: previous_ship_event_has_payout? },
       { key: :vote_balance, label: "Your vote balance is negative", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
-      { key: :project_isnt_rejected, label: "Your project is not approved!", passed: last_ship_event&.certification_status != "rejected" },
+      { key: :project_isnt_rejected, label: "Your project is not rejected!", passed: last_ship_event&.certification_status != "rejected" },
       { key: :project_has_more_then_10s, label: "Your ship event has more then 10s!", passed: duration_seconds > 10 }
     ]
   end
@@ -294,7 +308,7 @@ class Project < ApplicationRecord
   private
 
   def has_devlog_since_last_ship?
-    return true if draft? || last_ship_event.nil?
+    return devlogs.exists? if last_ship_event.nil? || draft?
     devlogs.where("post_devlogs.created_at > ?", last_ship_event.created_at).exists?
   end
 

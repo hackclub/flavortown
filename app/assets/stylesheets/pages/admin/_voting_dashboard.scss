@@ -288,3 +288,28 @@
 .text-danger {
   color: #dc2626;
 }
+
+.vote-spam-card {
+  margin-bottom: 1.5rem;
+}
+
+.vote-spam-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.vote-spam-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 180px;
+}
+
+.vote-spam-note {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}

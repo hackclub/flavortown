@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_09_032126) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_16_190028) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -451,6 +451,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_09_032126) do
     t.string "accessory_tag"
     t.jsonb "agh_contents"
     t.bigint "attached_shop_item_ids", default: [], array: true
+    t.string "blocked_countries", default: [], array: true
     t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.bigint "default_assigned_user_id"
@@ -576,7 +577,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_09_032126) do
   create_table "sidequest_entries", force: :cascade do |t|
     t.string "aasm_state", default: "pending", null: false
     t.datetime "created_at", null: false
+    t.boolean "is_rejection_fee_charged", default: false, null: false
     t.bigint "project_id", null: false
+    t.text "rejection_message"
     t.datetime "reviewed_at"
     t.bigint "reviewed_by_id"
     t.bigint "sidequest_id", null: false
@@ -606,6 +609,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_09_032126) do
     t.datetime "period_end"
     t.datetime "period_start"
     t.string "rating"
+    t.jsonb "unresolved_queries", default: {}
     t.datetime "updated_at", null: false
     t.index ["period_start"], name: "index_support_vibes_on_period_start"
   end

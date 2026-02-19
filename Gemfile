@@ -104,6 +104,7 @@ gem "view_component"
 gem "phlex-rails"
 gem "aws-sdk-s3"
 gem "faraday"
+gem "faraday-retry"
 
 gem "faker", "~> 3.5"
 gem "jsbundling-rails", "~> 1.3"
@@ -117,6 +118,7 @@ gem "norairrecord"
 
 gem "awesome_print"
 gem "activeinsights"
+gem "chartkick"
 
 # Database-level advisory locks for preventing race conditions across processes
 gem "with_advisory_lock"
@@ -134,3 +136,5 @@ gem "rack-mini-profiler"
 gem "redis", "~> 5.4"
 
 gem "ahoy_matey"
+
+gem "countries"

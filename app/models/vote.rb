@@ -33,8 +33,6 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Vote < ApplicationRecord
-  SUSPICIOUS_VOTE_THRESHOLD = 30
-
   CATEGORIES = {
     originality: "How distinct it is from common projects?",
     technical: "How much effort did the baker put into the implementation?",
@@ -56,7 +54,7 @@ class Vote < ApplicationRecord
   scope :legitimate, -> { where(suspicious: false) }
   scope :suspicious, -> { where(suspicious: true) }
 
-  before_save :mark_suspicious_if_fast
+  before_save :mark_suspicious
 
   belongs_to :user, counter_cache: true
   belongs_to :project
@@ -67,6 +65,8 @@ class Vote < ApplicationRecord
   after_commit :refresh_majority_judgment_scores, on: [ :create, :destroy ]
   after_commit :trigger_payout_calculation, on: [ :create, :destroy ]
   after_commit :increment_user_vote_balance, on: :create
+  after_commit :detect_vote_spam, on: :create
+  after_commit :broadcast_vote_to_channel, on: :create
 
   validates(*score_columns, inclusion: { in: 1..6, message: "must be between 1 and 6" }, allow_nil: true)
   validate :all_categories_scored
@@ -110,15 +110,19 @@ class Vote < ApplicationRecord
     errors.add(:project, "does not match ship event") if project_id != expected_project_id
   end
 
-  def mark_suspicious_if_fast
-    return if time_taken_to_vote.nil?
+  def mark_suspicious
+    self.suspicious = Secrets::VoteSuspicion.suspicious_vote?(
+      time_taken_to_vote: time_taken_to_vote,
+      demo_url_clicked: demo_url_clicked,
+      repo_url_clicked: repo_url_clicked
+    )
+  end
 
-    # Mark as suspicious if:
-    # 1. Vote took less than 30 seconds, OR
-    # 2. Voter did not click both repo link AND demo link (must click both)
-    too_fast = time_taken_to_vote < SUSPICIOUS_VOTE_THRESHOLD
-    didnt_click_both = !repo_url_clicked || !demo_url_clicked
+  def detect_vote_spam
+    Secrets::VoteSpamDetector.new(user).call
+  end
 
-    self.suspicious = too_fast || didnt_click_both
+  def broadcast_vote_to_channel
+    BroadcastVoteToChannelJob.perform_later(self)
   end
 end
