@@ -8,6 +8,14 @@
     gap: var(--space-xl);
   }
 
+  & [data-controller="file-upload"] {
+    height: 100%;
+
+    > * {
+      height: 100%;
+    }
+  }
+
   &__card {
     position: relative;
     border-radius: calc(var(--border-radius) * 1.25);
@@ -89,9 +97,13 @@
   }
 
   &__media-content {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
+    height: 100%;
+
+    > * {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
 
     .file-upload__area {
       display: flex;

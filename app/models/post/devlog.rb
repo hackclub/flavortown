@@ -143,6 +143,7 @@ class Post::Devlog < ApplicationRecord
 
   def at_least_one_attachment
     return if scrapbook_url.present?
+    return if lapse_video_processing?
 
     errors.add(:attachments, "must include at least one image or video") unless attachments.attached?
   end

@@ -143,7 +143,13 @@
         <% end %>
       <% end %>
 
-      <% if attachments.any? %>
+      <% if devlog? && postable.lapse_video_processing? %>
+        <div class="post__attachments">
+          <div class="post__processing-placeholder">
+            <p>🎬 Video processing — check back later!</p>
+          </div>
+        </div>
+      <% elsif attachments.any? %>
         <div class="post__attachments" data-controller="post-attachments">
           <div class="post__viewport">
             <button type="button" class="post__chevron post__chevron--prev" data-post-attachments-target="prevButton" data-action="post-attachments#prev" aria-label="Previous" hidden>

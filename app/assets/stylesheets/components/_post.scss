@@ -370,6 +370,19 @@
     }
   }
 
+  &__processing-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--border-radius);
+    background: var(--color-brown-300);
+    color: var(--color-brown-700);
+    font-weight: 600;
+    text-align: center;
+    padding: 1rem;
+  }
+
   &__viewport {
     position: relative;
     width: 100%;

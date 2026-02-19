@@ -24,14 +24,19 @@ class Projects::DevlogsController < ApplicationController
       @devlog.hackatime_projects_key_snapshot = @project.hackatime_keys.join(",")
 
       if params[:media_type] == "lapse"
-        unless attach_lapse_timelapse
+        timelapse_data = resolve_lapse_timelapse
+        unless timelapse_data
           flash.now[:alert] = "Failed to attach timelapse. Please try again or use a file upload."
           load_lapse_timelapses
           return render :new, status: :unprocessable_entity
         end
+        @devlog.lapse_video_processing = true
       end
 
       if @devlog.save
+        if timelapse_data
+          ProcessLapseTimelapseJob.perform_later(@devlog.id, timelapse_data[:id], timelapse_data[:playback_url])
+        end
         Post.create!(project: @project, user: current_user, postable: @devlog)
         Rails.cache.delete("user/#{current_user.id}/devlog_seconds_total")
         Rails.cache.delete("user/#{current_user.id}/devlog_seconds_today/#{Time.zone.today}")
@@ -222,42 +227,17 @@ class Projects::DevlogsController < ApplicationController
     @preview_time = nil
   end
 
-  def attach_lapse_timelapse
+  def resolve_lapse_timelapse
     timelapse_id = devlog_params[:lapse_timelapse_id]
-    unless timelapse_id.present?
-      return false
-    end
+    return nil unless timelapse_id.present?
 
     timelapse = @lapse_timelapses&.find { |t| t["id"] == timelapse_id }
-    unless timelapse
-      return false
-    end
+    return nil unless timelapse
 
     playback_url = timelapse["playbackUrl"]
-    unless playback_url.present?
-      return false
-    end
+    return nil unless playback_url.present?
 
-    response = Faraday.get(playback_url)
-    unless response.success?
-      return false
-    end
-
-    content_type = response.headers["content-type"] || "video/mp4"
-    extension = Rack::Mime::MIME_TYPES.invert[content_type] || ".mp4"
-    filename = "timelapse-#{timelapse_id}#{extension}"
-
-    @devlog.attachments.attach(
-      io: StringIO.new(response.body),
-      filename: filename,
-      content_type: content_type
-    )
-
-    true
-  rescue => e
-    Rails.logger.error "attach_lapse_timelapse: Error - #{e.class} - #{e.message}"
-    Rails.logger.error e.backtrace.first(5).join("\n")
-    false
+    { id: timelapse_id, playback_url: playback_url }
   end
 
   def load_lapse_timelapses
