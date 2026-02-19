@@ -417,11 +417,14 @@ class YswsReviewSyncJob < ApplicationJob
 
     Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: downloading #{proof_video_url.inspect}")
 
-    ext = File.extname(URI.parse(proof_video_url).path).downcase.presence || ".mp4"
+    uri = URI(proof_video_url)
+    raise ArgumentError, "Only HTTP(S) URLs are allowed" unless uri.is_a?(URI::HTTP)
+
+    ext = File.extname(uri.path).downcase.presence || ".mp4"
 
     video_tmp = Tempfile.new([ "proof_video", ext ])
     video_tmp.binmode
-    URI.open(proof_video_url, "rb") { |remote| IO.copy_stream(remote, video_tmp) }
+    uri.open("rb") { |remote| IO.copy_stream(remote, video_tmp) }
     video_tmp.rewind
 
     # Get duration via ffprobe so we can seek to 2/5 of the way through (midpoint of 1/5–3/5)
