@@ -62,7 +62,7 @@
     </div>
     <%= render TooltipComponent.new(target_id: "sus-votes-tooltip", position: :top) do %>
         <strong>Suspicious Votes</strong>
-        Votes completed in under <%= Vote::SUSPICIOUS_VOTE_THRESHOLD %>s are automatically flagged as suspicious and excluded from payout calculations.
+        Votes completed in under <%= Secrets::VoteSuspicion.threshold_seconds %>s are automatically flagged as suspicious and excluded from payout calculations.
     <% end %>
 </div>
 

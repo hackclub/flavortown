@@ -2,7 +2,11 @@ header "❌ Extension Sidequest Entry Not Approved"
 
 section "Your project *#{entry.project.title}* wasn't approved for the Extensions sidequest.", markdown: true
 
-section "This could be because the project doesn't meet the requirements for a Chrome extension. Feel free to update your project and try again!", markdown: true
+if entry.rejection_message.present?
+  section "*Reason:* #{entry.rejection_message}", markdown: true
+else
+  section "This could be because the project doesn't meet the requirements for a Chrome extension. Feel free to update your project and try again!", markdown: true
+end
 
 divider
 
