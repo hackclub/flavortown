@@ -268,6 +268,7 @@ class Project < ApplicationRecord
       { key: :repo_url, label: "Add a public GitHub URL with your source code", passed: repo_url.present? },
       { key: :repo_cloneable, label: "Make your GitHub repo publicly cloneable", passed: validate_repo_cloneable },
       { key: :readme_url, label: "Add a README URL to your project", passed: readme_url.present? },
+      { key: :readme_is_raw, label: "Your readme URL is a raw GitHub URL", passed: readme_is_raw_github_url? },
       { key: :description, label: "Add a description for your project", passed: description.present? },
       { key: :banner, label: "Upload a banner image for your project", passed: banner.attached? },
       { key: :devlog, label: "Post at least one devlog since your last ship", passed: has_devlog_since_last_ship? },
@@ -303,6 +304,12 @@ class Project < ApplicationRecord
 
   def unshadow_ban!
     update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
+  end
+
+  def readme_is_raw_github_url?
+    return false if readme_url.blank?
+    return true unless readme_url.include?('github.com/')
+    /https:\/\/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/[^\/]+\/.*README.*\.md/i.match?(readme_url)
   end
 
   private
