@@ -11,7 +11,7 @@
   & [data-controller="file-upload"] {
     height: 100%;
 
-    > * {
+    > .file-upload__area {
       height: 100%;
     }
   }
