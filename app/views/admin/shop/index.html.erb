@@ -126,9 +126,9 @@
          <% if @pagy.page > 1 %>
            <%= link_to "← Previous", admin_manage_shop_path(search: params[:search], type: params[:type], enabled: params[:enabled], carousel: params[:carousel], page: @pagy.page - 1), class: "btn-secondary slim" %>
          <% end %>
-         
+
          <span class="manage-shop__page-info">Page <%= @pagy.page %> of <%= @pagy.pages %></span>
-         
+
          <% if @pagy.page < @pagy.pages %>
            <%= link_to "Next →", admin_manage_shop_path(search: params[:search], type: params[:type], enabled: params[:enabled], carousel: params[:carousel], page: @pagy.page + 1), class: "btn-secondary slim" %>
          <% end %>
