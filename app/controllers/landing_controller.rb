@@ -2,18 +2,7 @@ class LandingController < ApplicationController
   def index
     @prizes = Cache::CarouselPrizesJob.fetch
     @hide_sidebar = true
-
-    # Track landing source for challenger.hackclub.com redirects
-    if params[:src] == "challenger"
-      cookies[:landing_src] = {
-        value: "challenger",
-        expires: 1.day,
-        same_site: :lax,
-        secure: Rails.env.production?,
-        httponly: true
-      }
-    end
-    @landing_variant = (params[:src].presence || cookies[:landing_src]) == "challenger" ? "challenger" : "default"
+    @landing_variant = challenger_source? ? "challenger" : "default"
 
     if current_user
       redirect_to kitchen_path

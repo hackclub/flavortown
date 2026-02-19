@@ -170,8 +170,8 @@
       </div>
     </header>
 
-    <% if project.description.present? %>
-      <div class="project-show-card__description"><%= helpers.md project.description %></div>
+    <% if project.display_description.present? %>
+      <div class="project-show-card__description"><%= helpers.md project.display_description %></div>
     <% end %>
 
     <% if project.ai_declaration.present? %>

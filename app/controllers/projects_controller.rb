@@ -19,7 +19,7 @@ class ProjectsController < ApplicationController
 
   def index
     authorize Project
-    @projects = current_user.projects.includes(banner_attachment: :blob)
+    @projects = current_user.projects.distinct.includes(banner_attachment: :blob)
   end
 
   def show
@@ -90,12 +90,14 @@ class ProjectsController < ApplicationController
 
   def new
     @project = Project.new
+    @space_themed_checked = params[:mission] == "challenger"
     authorize @project
     load_project_times
   end
 
   def create
     @project = Project.new(project_params)
+    apply_space_theme_marker!(@project, space_themed: space_themed_param?)
     authorize @project
 
     validate_urls
@@ -147,6 +149,7 @@ class ProjectsController < ApplicationController
       redirect_to @project
     else
       flash[:alert] = "Failed to create project: #{@project.errors.full_messages.join(', ')}"
+      prepare_space_themed_form_state!(space_themed: space_themed_param?)
       load_project_times
       render :new, status: :unprocessable_entity
     end
@@ -154,6 +157,7 @@ class ProjectsController < ApplicationController
 
   def edit
     authorize @project
+    prepare_space_themed_form_state!(space_themed: @project.space_themed?)
     load_project_times
   end
 
@@ -161,6 +165,7 @@ class ProjectsController < ApplicationController
     authorize @project
 
     @project.assign_attributes(project_params)
+    apply_space_theme_marker!(@project, space_themed: space_themed_param?)
     validate_urls
     success = @project.errors.empty? && @project.save
 
@@ -171,6 +176,7 @@ class ProjectsController < ApplicationController
       redirect_to url_from(params[:return_to]) || @project
     else
       flash.now[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
+      prepare_space_themed_form_state!(space_themed: space_themed_param?)
       render_update_error
     end
   end
@@ -645,5 +651,23 @@ class ProjectsController < ApplicationController
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def space_themed_param?
+    ActiveModel::Type::Boolean.new.cast(params.dig(:project, :space_themed))
+  end
+
+  def apply_space_theme_marker!(project, space_themed:)
+    description = project.description_without_space_theme_prefix
+    project.description = if space_themed
+      [ Project::SPACE_THEMED_PREFIX, description.presence ].compact.join(" ")
+    else
+      description
+    end
+  end
+
+  def prepare_space_themed_form_state!(space_themed:)
+    @space_themed_checked = space_themed
+    @project.description = @project.description_without_space_theme_prefix if @project.space_themed?
   end
 end

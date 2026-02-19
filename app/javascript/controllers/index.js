@@ -112,6 +112,9 @@ application.register("upload-form", UploadFormController);
 import StarsController from "./stars_controller";
 application.register("stars", StarsController);
 
+import SidequestExpandController from "./sidequest_expand_controller";
+application.register("sidequest-expand", SidequestExpandController);
+
 import ShootingStarController from "./shooting_star_controller";
 application.register("shooting-star", ShootingStarController);
 
@@ -121,8 +124,6 @@ application.register("vote-tracker", VoteTrackerController);
 import WelcomeOverlayController from "./welcome_overlay_controller";
 application.register("welcome-overlay", WelcomeOverlayController);
 
-import RocketLaunchController from "./rocket_launch_controller";
-application.register("rocket-launch", RocketLaunchController);
 import ResponsiveImageMapController from "./responsive_image_map_controller";
 application.register("responsive-image-map", ResponsiveImageMapController);
 
@@ -149,3 +150,6 @@ application.register(
   "devlog-attachment-selector",
   DevlogAttachmentSelectorController,
 );
+
+import XpWindowController from "./xp_window_controller";
+application.register("xp-window", XpWindowController);

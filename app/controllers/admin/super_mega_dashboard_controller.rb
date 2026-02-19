@@ -9,7 +9,10 @@ module Admin
       load_payouts_stats
       load_fulfillment_stats
       load_support_stats
+      load_support_vibes_stats
+      load_support_graph_data
       load_ship_certs_stats
+      load_sw_vibes_stats
       load_voting_stats
     end
 
@@ -123,6 +126,32 @@ module Admin
       @support = nil
     end
 
+    def load_support_vibes_stats
+      @latest_support_vibes = SupportVibes.order(period_end: :desc).first
+    end
+
+    def load_support_graph_data
+      start_date = 30.days.ago.to_date
+      end_date = Date.current
+      response = Faraday.get("https://flavortown-support-stats.slevel.xyz/api/v1/super-mega-stats?start=#{start_date}&end=#{end_date}")
+      data = JSON.parse(response.body)
+
+      unresolved = data.dig("unresolved_tickets") || {}
+      hang_time = data.dig("p95") || {}
+
+      all_dates = (unresolved.keys + hang_time.keys).uniq.sort
+
+      @support_graph_data = all_dates.map do |date|
+        {
+          date: date,
+          unresolved_tickets: unresolved[date] || 0,
+          hang_time_p95: hang_time[date].nil? ? nil : hang_time[date].round(2)
+        }
+      end
+    rescue Faraday::Error, JSON::ParserError
+      @support_graph_data = nil
+    end
+
     def chg(old, new)
       return nil if old.nil? || new.nil? || old.zero?
 
@@ -136,7 +165,7 @@ module Admin
       end
 
       response = conn.get("https://review.hackclub.com/api/stats/ship-certs") do |req|
-        req.headers["x-api-key"] = ENV["SHIPWRIGHTS_API_KEY"]
+        req.headers["x-api-key"] = ENV["SW_DASHBOARD_API_KEY"]
       end
 
       unless response.success?
@@ -152,12 +181,45 @@ module Admin
         rejected: data["rejected"],
         pending: data["pending"],
         approval_rate: data["approvalRate"],
-        avg_queue_time: data["avgQueueTime"],
+        median_queue_time: data["medianQueueTime"],
+        oldest_in_queue: data["oldestInQueue"],
+        avg_queue_time_history: data["avgQueueTime"] || {},
+        reviews_per_day: data["reviewsPerDay"] || {},
+        ships_per_day: data["shipsPerDay"] || {},
         decisions_today: data["decisionsToday"],
         new_ships_today: data["newShipsToday"]
       }
     rescue Faraday::Error, JSON::ParserError, Faraday::TimeoutError
       @ship_certs = { error: true }
+    end
+
+    def load_sw_vibes_stats
+      api_key = ENV["SWAI_KEY"]
+      unless api_key.present?
+        @sw_vibes = { error: "SWAI_KEY not configured" }
+        return
+      end
+
+      @sw_vibes = Rails.cache.fetch("sw_vibes_data", expires_in: 5.minutes) do
+        conn = Faraday.new do |f|
+          f.options.timeout = 10
+          f.options.open_timeout = 5
+        end
+
+        response = conn.get("https://ai.review.hackclub.com/metrics/qualitative") do |req|
+          req.headers["X-API-Key"] = api_key
+        end
+
+        unless response.success?
+          next { error: "API died (#{response.status})" }
+        end
+
+        JSON.parse(response.body, symbolize_names: true)
+      end
+    rescue Faraday::Error
+      @sw_vibes = { error: "Couldn't reach the API" }
+    rescue JSON::ParserError
+      @sw_vibes = { error: "Got a weird response" }
     end
 
     def load_voting_stats

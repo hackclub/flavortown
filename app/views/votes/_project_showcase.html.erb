@@ -8,7 +8,7 @@
       <% end %>
       <div class="votes-new__project-card-content">
           <h1><%= project.title %></h1>
-          <p><%= truncate(project.description, length: 250) %></p>
+          <p><%= truncate(project.display_description, length: 250) %></p>
           <% if project.ai_declaration.present? %>
             <div class="votes-new__ai-declaration">
               <div class="votes-new__ai-declaration-header">

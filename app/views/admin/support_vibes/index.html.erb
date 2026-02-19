@@ -3,6 +3,65 @@
 
 <%= button_to "✨ DO DA VIBE CHECK ✨", admin_support_vibes_path, method: :post, class: "btn-primary" %>
 
+<div class="support-vibes-trend-graph">
+  <h3>Support Vibes Trend</h3>
+  <div class="support-vibes-graph">
+    <canvas id="supportVibesChart" height="200"></canvas>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('supportVibesChart');
+    if (!ctx) return;
+
+    const vibesData = <%= raw(@support_vibes_history.map { |d| { x: d[0].strftime('%b %-d'), y: d[1].to_f } }.to_json) %>;
+    const labels = vibesData.map(d => d.x);
+    const values = vibesData.map(d => d.y);
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Overall Sentiment',
+          data: values,
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4,
+          pointBackgroundColor: '#10b981'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            min: -1,
+            max: 1,
+            title: { display: false }
+          },
+          x: {
+            title: { display: false },
+            ticks: {
+              callback: function(value, index, ticks) {
+                return index % 3 === 0 ? this.getLabelForValue(value) : '';
+              },
+              minRotation: 45,
+              maxRotation: 45
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+
 <% if @vibes.any? %>
   <div class="vibe-feed">
     <% @vibes.each do |vibe| %>
@@ -58,6 +117,24 @@
                 <blockquote>
                   "<%= q %>"
                 </blockquote>
+              </div>
+            <% end %>
+
+            <% if vibe.respond_to?(:unresolved_queries) && vibe.unresolved_queries.present? %>
+              <div class="unresolved-section">
+                <h3>Still Unresolved Queries</h3>
+                <div class="unresolved-grid">
+                  <% vibe.unresolved_queries.each do |category, questions| %>
+                    <div class="unresolved-category">
+                      <h4><%= category %></h4>
+                      <ul>
+                        <% Array(questions).each do |q| %>
+                          <li><%= q %></li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  <% end %>
+                </div>
               </div>
             <% end %>
           </div>
@@ -136,5 +213,36 @@
     color: #555;
     font-style: italic;
     margin-bottom: 1rem;
+  }
+
+  .unresolved-section {
+    grid-column: 1 / -1;
+    margin-top: 2rem;
+    border-top: 2px solid #eee;
+    padding-top: 1rem;
+  }
+
+  .unresolved-grid {
+    display: grid;
+    grid-template-columns:
+    repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0.2em;
+  }
+
+  .unresolved-category h4 {
+    color: #666;
+    font-size: 1em;
+    font-weight: normal;
+  }
+
+  .unresolved-category ul {
+    padding-left: 1.2rem;
+    margin: 0.5rem 0;
+  }
+
+  .unresolved-category li {
+    font-size: 0.9rem;
+    margin-bottom: 0.15rem;
+    line-height: 0.9;
   }
 </style>

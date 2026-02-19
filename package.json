@@ -8,7 +8,10 @@
     "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo-rails": "^8.0.20",
     "@rails/activestorage": "^8.1.100",
-    "gsap": "^3.14.2"
+    "chart.js": "^4.5.1",
+    "chartkick": "^5.0.1",
+    "gsap": "^3.14.2",
+    "xp.css": "^0.2.6"
   },
   "devDependencies": {
     "esbuild": "^0.27.0",
