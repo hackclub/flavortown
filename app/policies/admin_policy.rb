@@ -95,6 +95,10 @@ class AdminPolicy < ApplicationPolicy
     user.admin? || user.fraud_dept?
   end
 
+  def access_vote_spam_dashboard?
+    user.admin? || user.fraud_dept?
+  end
+
   def access_shop_suggestions?
     user.admin?
   end

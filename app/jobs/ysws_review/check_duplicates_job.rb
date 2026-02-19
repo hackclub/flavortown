@@ -43,9 +43,26 @@ class YswsReview::CheckDuplicatesJob < ApplicationJob
 
   private
 
+  def normalized_code_url_for_filter(code_url)
+    normalized = code_url.to_s.strip
+    normalized = normalized.sub(%r{\Ahttps?://}i, "")
+    normalized = normalized.sub(%r{\.git\z}i, "")
+    normalized = normalized.split("#").first
+    # Escape single quotes for Airtable formula strings
+    normalized.gsub("'", "''")
+  end
+
   def find_duplicate_in_unified_db(code_url)
+    normalized_code_url = normalized_code_url_for_filter(code_url)
+
+    filter = "AND(" \
+             "FIND('#{normalized_code_url}', " \
+             "SUBSTITUTE(SUBSTITUTE(SUBSTITUTE({Code URL}, 'https://', ''), 'http://', ''), '.git', ''))," \
+             " NOT({YSWS} = 'Flavortown')" \
+             ")"
+
     unified_db_table.all(
-      filter: "AND({Code URL} = '#{code_url}', NOT({YSWS} = 'Flavortown'))"
+      filter: filter
     ).first
   end
 

@@ -1,14 +1,9 @@
-<aside class="sidebar <%= 'sidebar--launch' if controller_name == 'launch' %>" data-controller="sidebar-pin rocket-launch" data-sidebar-pin-pinned-class="sidebar--pinned" aria-label="Main">
+<aside class="sidebar" data-controller="sidebar-pin" data-sidebar-pin-pinned-class="sidebar--pinned" aria-label="Main">
   <%# <div class="sidebar__header">
     <span class="sidebar__title">Flavortown</span>
   </div> %>
 
   <div class="sidebar__blob">
-    <% if controller_name == 'launch' %>
-      <div class="sidebar__launch-rings-clip">
-        <%= image_tag "launch/launch-rings.png", class: "sidebar__launch-rings", alt: "", aria: { hidden: true } %>
-      </div>
-    <% end %>
     <button type="button" class="sidebar__pin-button" data-action="click->sidebar-pin#toggle" data-sidebar-pin-target="button" aria-label="Pin sidebar open">
       <svg class="sidebar__pin-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor"><path d="M160 96c0-17.7 14.3-32 32-32h256c17.7 0 32 14.3 32 32s-14.3 32-32 32h-29.5l10.3 134.1c37.1 21.2 65.8 56.4 78.2 99.7l3.8 13.4c2.8 9.7.8 20-5.2 28.1S490 416 480 416H160c-10 0-19.5-4.7-25.5-12.7s-8-18.4-5.2-28.1l3.7-13.4c12.4-43.3 41-78.5 78.2-99.7L221.5 128H192c-17.7 0-32-14.3-32-32m128 368h64v112c0 17.7-14.3 32-32 32s-32-14.3-32-32z" /></svg>
     </button>
@@ -17,10 +12,9 @@
         { label: "Kitchen", path: kitchen_path, icon: "fork_spoon_fill" },
         { label: "Explore", path: "/explore", icon: "compass_fill" },
         { label: "Projects", path: projects_path, icon: "projects-icon" },
-        { label: "Nibbles", path: nibbles_path, icon: "foodtray" },
+        { label: "Sidequests", path: sidequests_path, icon: "foodtray" },
         { label: "Vote", path: new_vote_path, icon: "star_fill" },
-        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" },
-        { label: "Launch", path: launch_path, icon: "rocket" }
+        { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" }
       ] %>
 
       <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_dashboard? %>
@@ -52,31 +46,11 @@
                 <span class="sidebar__nav-label"><%= item[:label] %></span>
               <% end %>
             <% else %>
-              <% if item[:label] == "Launch" && controller_name == 'launch' %>
-                <div class="sidebar__nav-launch-wrapper">
-                  <%= link_to item[:path], class: link_classes, aria: { current: "page" } do %>
-                    <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
-                      <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
-                    </span>
-                    <span class="sidebar__nav-label"><%= item[:label] %></span>
-                  <% end %>
-                  <%= inline_svg_tag "launch/launch-underline.svg", class: "sidebar__launch-underline" %>
-                </div>
-              <% elsif item[:label] == "Launch" && controller_name != 'launch' %>
-                <%# Launch link with rocket animation trigger %>
-                <%= link_to item[:path], class: link_classes, data: { action: "click->rocket-launch#launch" } do %>
-                  <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
-                    <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
-                  </span>
-                  <span class="sidebar__nav-label"><%= item[:label] %></span>
-                <% end %>
-              <% else %>
-                <%= link_to item[:path], class: link_classes, aria: (active ? { current: "page" } : {}) do %>
-                  <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
-                    <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
-                  </span>
-                  <span class="sidebar__nav-label"><%= item[:label] %></span>
-                <% end %>
+              <%= link_to item[:path], class: link_classes, aria: (active ? { current: "page" } : {}) do %>
+                <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
+                  <%= inline_svg_tag "icons/#{item[:icon]}.svg", class: "sidebar__nav-icon" %>
+                </span>
+                <span class="sidebar__nav-label"><%= item[:label] %></span>
               <% end %>
             <% end %>
           </li>
@@ -86,77 +60,45 @@
   </div>
 
   <div class="sidebar__user" aria-live="polite">
-    <% if controller_name == 'launch' %>
-      <%# Launch theme: Hexagonal avatar with rank badge %>
-      <div class="sidebar__launch-user">
-        <div class="sidebar__launch-avatar-wrapper">
-          <%# Hexagon frame with textures %>
-          <%= image_tag "launch/launch-hexagon-frame.png", class: "sidebar__launch-hexagon", alt: "", aria: { hidden: true } %>
-          <%# User avatar centered %>
-          <div class="sidebar__launch-avatar-ring">
-            <% if current_user.slack_id.present? %>
-              <%= image_tag current_user.avatar, alt: current_user.display_name, class: "sidebar__launch-avatar-img" %>
-            <% else %>
-              <div class="sidebar__launch-avatar-placeholder">
-                <%= current_user.display_name.first.upcase %>
-              </div>
-            <% end %>
+    <div class="sidebar__user-card">
+      <div class="sidebar__user-avatar">
+        <%= image_tag "chef-hat.webp", alt: "Hat", class: "sidebar__user-avatar-hat", aria: { hidden: true } %>
+        <%= image_tag "chef-hat-bg.webp", alt: "Hat", class: "sidebar__user-avatar-hat-bg", aria: { hidden: true } %>
+        <%= image_tag "santa-hat.webp", alt: "Santa Hat", class: "sidebar__user-avatar-santa-hat", aria: { hidden: true } %>
+        <% if current_user.slack_id.present? %>
+          <%= image_tag current_user.avatar, alt: current_user.display_name, class: "sidebar__user-avatar-placeholder", style: "object-fit: cover;" %>
+        <% else %>
+          <div class="sidebar__user-avatar-placeholder">
+            <%= current_user.display_name.first.upcase %>
           </div>
-        </div>
-        <%# Rank badge %>
-        <div class="sidebar__launch-rank">
-          <%= inline_svg_tag "launch/launch-rank-badge.svg", class: "sidebar__launch-rank-bg", aria: { hidden: true } %>
-          <div class="sidebar__launch-rank-content">
-            <span class="sidebar__launch-rank-title">cadet</span>
-            <div class="sidebar__launch-rank-score">
-              <%= inline_svg_tag "launch/launch-rank-arrow.svg", class: "sidebar__launch-rank-arrow", aria: { hidden: true } %>
-              <span class="sidebar__launch-rank-points"><%= current_user.cached_balance %></span>
-            </div>
-          </div>
+        <% end %>
+      </div>
+      <div class="sidebar__user-details">
+        <%= link_to user_path(current_user) do %>
+          <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
+        <% end %>
+        <% if current_user.fulfillment_person? && current_user.has_regions? %>
+          <span class="sidebar__user-region" style="font-size: 0.75rem; opacity: 0.7;">📍 <%= current_user.regions_display %></span>
+        <% end %>
+        <div class="sidebar__user-actions">
+          <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
+            🍪 <%= current_user.cached_balance %>
+          </button>
+
+          <button type="button" class="sidebar__user-settings" onclick="document.getElementById('settings-modal').showModal()" aria-label="Settings">
+            <%= inline_svg_tag "icons/gear.svg", class: "sidebar__user-settings-icon" %>
+          </button>
+
+          <button type="button" class="sidebar__user-logout" onclick="document.getElementById('logout-form').submit()" aria-label="Logout">
+            <%= inline_svg_tag "icons/logout.svg", class: "sidebar__user-logout-icon" %>
+          </button>
+
+          <%= form_with url: logout_path, method: :delete, id: "logout-form", style: "display: none;" do %>
+
+          <% end %>
         </div>
       </div>
-    <% else %>
-      <%# Default theme %>
-      <div class="sidebar__user-card">
-        <div class="sidebar__user-avatar">
-          <%= image_tag "chef-hat.webp", alt: "Hat", class: "sidebar__user-avatar-hat", aria: { hidden: true } %>
-          <%= image_tag "chef-hat-bg.webp", alt: "Hat", class: "sidebar__user-avatar-hat-bg", aria: { hidden: true } %>
-          <%= image_tag "santa-hat.webp", alt: "Santa Hat", class: "sidebar__user-avatar-santa-hat", aria: { hidden: true } %>
-          <% if current_user.slack_id.present? %>
-            <%= image_tag current_user.avatar, alt: current_user.display_name, class: "sidebar__user-avatar-placeholder", style: "object-fit: cover;" %>
-          <% else %>
-            <div class="sidebar__user-avatar-placeholder">
-              <%= current_user.display_name.first.upcase %>
-            </div>
-          <% end %>
-        </div>
-        <div class="sidebar__user-details">
-          <%= link_to user_path(current_user) do %>
-            <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
-          <% end %>
-          <% if current_user.fulfillment_person? && current_user.has_regions? %>
-            <span class="sidebar__user-region" style="font-size: 0.75rem; opacity: 0.7;">📍 <%= current_user.regions_display %></span>
-          <% end %>
-          <div class="sidebar__user-actions">
-            <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
-              🍪 <%= current_user.cached_balance %>
-            </button>
-
-            <button type="button" class="sidebar__user-settings" onclick="document.getElementById('settings-modal').showModal()" aria-label="Settings">
-              <%= inline_svg_tag "icons/gear.svg", class: "sidebar__user-settings-icon" %>
-            </button>
-
-            <button type="button" class="sidebar__user-logout" onclick="document.getElementById('logout-form').submit()" aria-label="Logout">
-              <%= inline_svg_tag "icons/logout.svg", class: "sidebar__user-logout-icon" %>
-            </button>
-
-            <%= form_with url: logout_path, method: :delete, id: "logout-form", style: "display: none;" do %>
-
-            <% end %>
-          </div>
-        </div>
-      </div>
-    <% end %>
+    </div>
   </div>
 
   <%= render layout: "shared/modal", locals: { id: "balance-modal", title: "Transaction History" } do %>
