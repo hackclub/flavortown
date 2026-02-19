@@ -36,7 +36,7 @@ class YswsReview::CheckDuplicatesJob < ApplicationJob
     end
 
     if records_to_update.any?
-      source_table.batch_update(records_to_update)
+      source_table.batch_upsert(records_to_update, "id")
       puts "Successfully updated #{records_to_update.count} records with duplicate status"
     end
   end
