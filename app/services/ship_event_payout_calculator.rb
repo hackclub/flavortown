@@ -66,10 +66,31 @@ class ShipEventPayoutCalculator
       end
 
       notify_payout_issued(payout_user)
+      broadcast_payout(payout_user, cookies, hours_used, mult, is_shadow_banned)
     end
   end
 
   private
+
+  BROADCAST_CHANNEL_ID = "C0AFB0JU00P"
+
+  def broadcast_payout(user, cookies, hours, multiplier, shadow_banned)
+    project = @ship_event.post&.project
+    SendSlackDmJob.perform_later(
+      BROADCAST_CHANNEL_ID,
+      nil,
+      blocks_path: "notifications/payouts/broadcast",
+      locals: {
+        project_title: project&.title || "Unknown",
+        project_url: "https://flavortown.hackclub.com/projects/#{project&.id}",
+        recipient_name: user.display_name,
+        cookies: cookies,
+        hours: hours&.round(2),
+        multiplier: multiplier&.round(2),
+        shadow_banned: shadow_banned
+      }
+    )
+  end
 
   def payout_eligible?
     @ship_event.payout_eligible?

@@ -270,6 +270,19 @@ class User < ApplicationRecord
     soft_delete_projects!
   end
 
+  def lock_voting_and_mark_votes_suspicious!(notify: false)
+    return if voting_locked?
+
+    transaction do
+      update!(voting_locked: true)
+      votes.update_all(suspicious: true)
+    end
+
+    if notify
+      dm_user("Your voting has been locked due to suspicious activity. Please contact @Fraud Squad if you believe this is a mistake.")
+    end
+  end
+
   def reject_pending_orders!(reason: "User banned")
     shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).find_each do |order|
       order.mark_rejected(reason)
@@ -391,6 +404,7 @@ class User < ApplicationRecord
     if result[:banned] && !banned?
       Rails.logger.warn "User #{id} (#{slack_id}) is banned on Hackatime, auto-banning"
       ban!(reason: "Automatically banned: User is banned on Hackatime")
+      lock_voting_and_mark_votes_suspicious!
     end
 
     if result[:projects].any?

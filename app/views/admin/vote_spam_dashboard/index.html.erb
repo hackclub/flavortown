@@ -40,13 +40,34 @@
       <tbody>
         <% @rows.each do |row| %>
           <tr>
-            <td><%= link_to row[:label], admin_user_path(row[:user_id]) %></td>
-            <td><%= link_to "View", admin_vote_spam_dashboard_user_path(row[:user_id], window_days: @window_days), class: "btn-secondary slim" %></td>
-            <td><%= number_with_delimiter(row[:votes_count]) %></td>
-            <td><%= row[:unique_vector_count] %></td>
-            <td><%= number_with_precision(row[:vector_concentration], precision: 4) %></td>
-            <td><%= number_to_percentage(row[:all_dims_equal_rate] * 100, precision: 2) %></td>
-            <td><%= number_with_precision(row[:avg_dimension_variance], precision: 4) %></td>
+            <% @global_table_columns.each do |column| %>
+              <td>
+                <% case column[:key] %>
+                <% when :user %>
+                  <%= link_to row[:label], admin_user_path(row[:user_id]) %>
+                <% when :analyze %>
+                  <%= link_to "View", admin_vote_spam_dashboard_user_path(row[:user_id], window_days: @window_days), class: "btn-secondary slim" %>
+                <% when :votes_count %>
+                  <%= number_with_delimiter(row[:votes_count]) %>
+                <% when :spam_votes_count %>
+                  <%= number_with_delimiter(row[:spam_votes_count]) %>
+                <% when :spam_vote_rate %>
+                  <%= number_to_percentage(row[:spam_vote_rate] * 100, precision: 2) %>
+                <% when :spam_score %>
+                  <%= row[:spam_score] %>
+                <% when :is_spammer %>
+                  <%= row[:is_spammer] ? "Yes" : "No" %>
+                <% when :unique_vector_count %>
+                  <%= row[:unique_vector_count] %>
+                <% when :vector_concentration %>
+                  <%= number_with_precision(row[:vector_concentration], precision: 4) %>
+                <% when :all_dims_equal_rate %>
+                  <%= number_to_percentage(row[:all_dims_equal_rate] * 100, precision: 2) %>
+                <% when :avg_dimension_variance %>
+                  <%= number_with_precision(row[:avg_dimension_variance], precision: 4) %>
+                <% end %>
+              </td>
+            <% end %>
           </tr>
         <% end %>
       </tbody>
