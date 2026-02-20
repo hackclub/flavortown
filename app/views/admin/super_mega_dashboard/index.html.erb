@@ -664,6 +664,114 @@
     <% end %>
 
     <div class="super-mega-dashboard__dashboard">
+      <div class="super-mega-dashboard__header super-mega-dashboard__header--ysws-review">
+        <h2>YSWS Review Overview</h2>
+        <%= link_to "View Full Dashboard →", "https://review.hackclub.com/admin/ysws_reviews", class: "super-mega-link", target: "_blank" %>
+      </div>
+
+      <div class="super-mega-dashboard__cards">
+        <% if @ysws_review_stats && !@ysws_review_stats[:error] %>
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+            <h3>Reviews Per Day</h3>
+            <% if @ysws_review_graph_data.present? %>
+              <div class="ysws-review-graph">
+                <canvas id="yswsReviewChart" height="300"></canvas>
+              </div>
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                  const ctx = document.getElementById('yswsReviewChart');
+                  if (!ctx) return;
+
+                  const data = <%= raw @ysws_review_graph_data.to_json %>;
+                  const doneData = data.done;
+                  const returnedData = data.returned;
+
+                  const sortedDates = Object.keys(doneData).sort();
+                  const labels = sortedDates.map(d => {
+                    const date = new Date(d);
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  });
+
+                  const doneValues = sortedDates.map(d => doneData[d]);
+                  const returnedValues = sortedDates.map(d => returnedData[d]);
+
+                  new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                      labels: labels,
+                      datasets: [
+                        {
+                          label: 'Done',
+                          data: doneValues,
+                          borderColor: '#10b981',
+                          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                          fill: true,
+                          tension: 0.3,
+                          pointRadius: 4,
+                          pointBackgroundColor: '#10b981'
+                        },
+                        {
+                          label: 'Returned',
+                          data: returnedValues,
+                          borderColor: '#f59e0b',
+                          backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                          fill: true,
+                          tension: 0.3,
+                          pointRadius: 4,
+                          pointBackgroundColor: '#f59e0b'
+                        }
+                      ]
+                    },
+                    options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: 'bottom'
+                        },
+                        tooltip: {
+                          callbacks: {
+                            title: function(context) {
+                              return context[0].label;
+                            },
+                            label: function(context) {
+                              return context.dataset.label + ': ' + context.raw + ' review' + (context.raw !== 1 ? 's' : '');
+                            }
+                          }
+                        }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          title: { display: true, text: 'Reviews' },
+                          ticks: {
+                            precision: 0
+                          }
+                        },
+                        x: {
+                          title: { display: true, text: 'Date (EST)' }
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+            <% else %>
+              <p>No review data available</p>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="super-mega-dashboard__card">
+            <h3>Error</h3>
+            <p>Couldn't load YSWS review data: <%= @ysws_review_stats&.dig(:error) || "Unknown error" %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="super-mega-dashboard__dashboard">
       <div class="super-mega-dashboard__header super-mega-dashboard__header--voting">
         <h2>Voting Overview</h2>
         <%= link_to "View Full Dashboard →", admin_voting_dashboard_path, class: "super-mega-link" %>
