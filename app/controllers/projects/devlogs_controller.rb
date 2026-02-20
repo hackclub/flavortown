@@ -70,10 +70,10 @@ class Projects::DevlogsController < ApplicationController
     if params[:remove_attachment_ids].present?
       attachments_to_remove = @devlog.attachments.where(id: params[:remove_attachment_ids])
       remaining_count = @devlog.attachments.count - attachments_to_remove.count
-      new_attachments_count = update_devlog_params[:attachments]&.count || 0
+      new_attachments_count = update_devlog_params[:attachments]&.reject(&:blank?).count || 0
 
       if remaining_count + new_attachments_count < 1
-        flash.now[:alert] = "Devlog must have at least one attachment"
+        flash.now[:alert] = "Your devlog must have at least one attachment."
         return render :edit, status: :unprocessable_entity
       end
 
