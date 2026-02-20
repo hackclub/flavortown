@@ -57,8 +57,10 @@ export default class extends Controller {
     // prevent user from removing all attachments without adding new ones
     if (this.#removingAllAttachments()) {
       event.preventDefault();
-      alert('You cannot remove all attachments without adding new ones. Please add at least one attachment or keep at least one existing attachment.');
-      
+      alert(
+        "You cannot remove all attachments without adding new ones. Please add at least one attachment or keep at least one existing attachment.",
+      );
+
       return false;
     }
   };
@@ -68,11 +70,15 @@ export default class extends Controller {
     if (!this.hasRemoveCheckboxTarget) return false;
 
     const totalAttachments = this.removeCheckboxTargets.length;
-    const remcount = this.removeCheckboxTargets.filter((cb) => cb.checked).length;
+    const remcount = this.removeCheckboxTargets.filter(
+      (cb) => cb.checked,
+    ).length;
     if (remcount === 0) return false;
 
     const fileInput = this.element.querySelector('input[type="file"]');
-    return (totalAttachments - remcount) + (fileInput ? fileInput.files.length : 0) < 1;
+    return (
+      totalAttachments - remcount + (fileInput ? fileInput.files.length : 0) < 1
+    );
   }
 
   #disableSubmit() {
