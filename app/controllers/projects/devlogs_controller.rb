@@ -84,6 +84,8 @@ class Projects::DevlogsController < ApplicationController
     new_attachments = update_devlog_params[:attachments]
     body_params = update_devlog_params.except(:attachments)
 
+    @devlog.uploading_attachments = new_attachments.present?
+
     if @devlog.update(body_params)
       # Append new attachments instead of replacing
       if new_attachments.present?
