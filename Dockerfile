@@ -25,7 +25,8 @@ RUN apt-get update -qq && \
     file \
     git \
     libopenblas0 \
-    liblapack3 && \
+    liblapack3 \
+    ffmpeg && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Set production environment
