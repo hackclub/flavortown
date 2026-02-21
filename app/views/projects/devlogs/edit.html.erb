@@ -45,7 +45,7 @@
                   <% end %>
                   <% if @devlog.attachments.count > 1 %>
                     <label style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: var(--color-red-600); cursor: pointer;">
-                      <%= check_box_tag "remove_attachment_ids[]", attachment.id, false, style: "cursor: pointer;" %>
+                      <%= check_box_tag "remove_attachment_ids[]", attachment.id, false, style: "cursor: pointer;", data: { "upload-form-target": "removeCheckbox" } %>
                       Remove
                     </label>
                   <% end %>

@@ -2,7 +2,7 @@ module OneTime
   class RetroactiveVoteSpamDetectionJob < ApplicationJob
     queue_as :default
 
-    VOTE_THRESHOLD = Secrets::VoteSpamDetector::SPAM_DETECTION_VOTE_THRESHOLD
+    VOTE_THRESHOLD = Secrets.available? ? Secrets::VoteSpamDetector::SPAM_DETECTION_VOTE_THRESHOLD : nil
     KARTIKEY_SLACK_ID = "U05F4B48GBF"
 
     def perform
