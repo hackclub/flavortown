@@ -2,7 +2,7 @@ class OneTime::AddHackazineProjectsJob < ApplicationJob
     queue_as :literally_whenever
 
     def perform
-        sidequest = Sidequest.find_by(slug: "hackazine")
+        sidequest = Sidequest.find_or_create_by(slug: "hackazine")
         return unless sidequest
 
         project_ids = [ 2935, 140, 7256, 6494, 2381, 1865, 3984, 781 ]
