@@ -23,31 +23,219 @@ module Admin
       today = Time.current.beginning_of_day..Time.current.end_of_day
 
       report_counts = Project::Report.group(:status).count
+      total_reports = report_counts.values.sum
+      pending = report_counts["pending"] || report_counts[0] || 0
+      reviewed = report_counts["reviewed"] || report_counts[1] || 0
+      dismissed = report_counts["dismissed"] || report_counts[2] || 0
+      new_today_reports = Project::Report.where(created_at: today).count
+      
       @fraud_reports = {
-        pending: report_counts["pending"] || report_counts[0] || 0,
-        reviewed: report_counts["reviewed"] || report_counts[1] || 0,
-        dismissed: report_counts["dismissed"] || report_counts[2] || 0,
-        new_today: Project::Report.where(created_at: today).count
+        pending: pending,
+        pending_pct: total_reports > 0 ? ((pending.to_f / total_reports) * 100).round(1) : 0,
+        reviewed: reviewed,
+        reviewed_pct: total_reports > 0 ? ((reviewed.to_f / total_reports) * 100).round(1) : 0,
+        dismissed: dismissed,
+        dismissed_pct: total_reports > 0 ? ((dismissed.to_f / total_reports) * 100).round(1) : 0,
+        new_today: new_today_reports
       }
 
       ban_counts = User.where("banned = ? OR shadow_banned = ?", true, true)
                        .group(:banned, :shadow_banned).count
+      total_users = User.count
+      banned = ban_counts.sum { |(b, _), c| b ? c : 0 }
+      shadow_banned = ban_counts.sum { |(_, sb), c| sb ? c : 0 }
+      
       @fraud_bans = {
-        banned: ban_counts.sum { |(b, _), c| b ? c : 0 },
-        shadow_banned_users: ban_counts.sum { |(_, sb), c| sb ? c : 0 }
+        banned: banned,
+        banned_pct: total_users > 0 ? ((banned.to_f / total_users) * 100).round(2) : 0,
+        shadow_banned_users: shadow_banned,
+        shadow_banned_pct: total_users > 0 ? ((shadow_banned.to_f / total_users) * 100).round(2) : 0
+      }
+
+      # Second chances vs bans (ban changes today)
+      bans_today = PaperTrail::Version.where(item_type: "User", created_at: today)
+                                      .where("object_changes ->> 'banned' IS NOT NULL")
+                                      .where("object_changes -> 'banned' ->> 1 = ?", "true").count
+      unbans_today = PaperTrail::Version.where(item_type: "User", created_at: today)
+                                        .where("object_changes ->> 'banned' IS NOT NULL")
+                                        .where("object_changes -> 'banned' ->> 1 = ?", "false").count
+      
+      @fraud_second_chances = {
+        bans_today: bans_today,
+        unbans_today: unbans_today,
+        net_change: bans_today - unbans_today
       }
 
       order_counts = ShopOrder.group(:aasm_state).count
       pending = order_counts["pending"] || 0
       awaiting = order_counts["awaiting_periodical_fulfillment"] || 0
+      total_orders = order_counts.values.sum
+      backlog = pending + awaiting
+      on_hold = order_counts["on_hold"] || 0
+      rejected = order_counts["rejected"] || 0
+      new_today_orders = ShopOrder.where(created_at: today).count
+      
       @fraud_orders = {
         pending: pending,
+        pending_pct: backlog > 0 ? ((pending.to_f / backlog) * 100).round(1) : 0,
         awaiting: awaiting,
-        on_hold: order_counts["on_hold"] || 0,
-        rejected: order_counts["rejected"] || 0,
-        backlog: pending + awaiting,
-        new_today: ShopOrder.where(created_at: today).count
+        awaiting_pct: backlog > 0 ? ((awaiting.to_f / backlog) * 100).round(1) : 0,
+        on_hold: on_hold,
+        rejected: rejected,
+        backlog: backlog,
+        backlog_pct: total_orders > 0 ? ((backlog.to_f / total_orders) * 100).round(1) : 0,
+        new_today: new_today_orders
       }
+
+      # Quality metrics for reviews
+      @fraud_review_quality = calculate_review_quality
+
+      # Fetch Joe fraud case stats
+      @joe_fraud_stats = fetch_joe_fraud_stats
+
+      # Build ban trend data
+      @fraud_ban_trend_data = build_ban_trend_data
+
+      # Build shop order review trend data
+      @fraud_shop_order_trend_data = build_shop_order_trend_data
+
+      # Build report review trend data
+      @fraud_report_trend_data = build_report_trend_data
+      
+      # Build report status trend data
+      @fraud_report_status_trend_data = build_report_status_trend_data
+    end
+
+    private
+
+    def build_ban_trend_data
+      trend_data = {}
+      # Get data for last 60 days to match Joe timeline span
+      (0..59).reverse_each do |days_ago|
+        date = days_ago.days.ago.to_date
+        day_range = date.beginning_of_day..date.end_of_day
+        
+        bans = PaperTrail::Version.where(item_type: "User", created_at: day_range)
+                                  .where("object_changes ->> 'banned' IS NOT NULL")
+                                  .where("object_changes -> 'banned' ->> 1 = ?", "true").count
+        unbans = PaperTrail::Version.where(item_type: "User", created_at: day_range)
+                                    .where("object_changes ->> 'banned' IS NOT NULL")
+                                    .where("object_changes -> 'banned' ->> 1 = ?", "false").count
+        
+        trend_data[date.to_s] = { bans: bans, unbans: unbans }
+      end
+      trend_data
+    end
+
+    def build_shop_order_trend_data
+      trend_data = {}
+      # Get data for last 60 days
+      (0..59).reverse_each do |days_ago|
+        date = days_ago.days.ago.to_date
+        day_range = date.beginning_of_day..date.end_of_day
+        
+        # Count shop orders by state on this day
+        states = %w[pending awaiting_periodical_fulfillment fulfilled rejected on_hold]
+        state_counts = ShopOrder.where(updated_at: day_range)
+                                .where(aasm_state: states)
+                                .group(:aasm_state).count
+        
+        trend_data[date.to_s] = state_counts.transform_keys(&:to_s)
+      end
+      trend_data
+    end
+
+    def build_report_trend_data
+      trend_data = {}
+      # Get data for last 60 days
+      (0..59).reverse_each do |days_ago|
+        date = days_ago.days.ago.to_date
+        day_range = date.beginning_of_day..date.end_of_day
+        
+        # Count fraud reports by reason on this day
+        reason_counts = Project::Report.where(updated_at: day_range)
+                                       .group(:reason).count
+        
+        trend_data[date.to_s] = reason_counts
+      end
+      trend_data
+    end
+
+    def build_report_status_trend_data
+      trend_data = {}
+      # Get data for last 60 days
+      (0..59).reverse_each do |days_ago|
+        date = days_ago.days.ago.to_date
+        day_range = date.beginning_of_day..date.end_of_day
+        
+        # Count fraud reports by status on this day
+        status_counts = Project::Report.where(updated_at: day_range)
+                                       .group(:status).count
+        
+        # Convert integer statuses to string names
+        status_map = { 0 => "pending", 1 => "reviewed", 2 => "dismissed" }
+        trend_data[date.to_s] = status_counts.transform_keys { |k| status_map[k] || k.to_s }
+      end
+      trend_data
+    end
+
+    def calculate_review_quality
+      # Average time to review reports
+      reviewed_reports = Project::Report.where(status: %w[reviewed dismissed])
+                                        .pluck(:created_at, :updated_at)
+      
+      if reviewed_reports.any?
+        avg_review_hours = reviewed_reports.map { |(created, updated)| ((updated - created) / 1.hour).round(1) }.sum / reviewed_reports.count
+      else
+        avg_review_hours = 0
+      end
+
+      total_reviewed = Project::Report.where(status: %w[reviewed dismissed]).count
+      this_week_reviewed = Project::Report.where(status: %w[reviewed dismissed], updated_at: 7.days.ago..).count
+
+      {
+        total_reviewed: total_reviewed,
+        avg_review_hours: avg_review_hours.round(1),
+        this_week: this_week_reviewed
+      }
+    end
+
+    def fetch_joe_fraud_stats
+      Rails.cache.fetch("joe_fraud_stats", expires_in: 5.minutes) do
+        api_key = ENV["NEONS_JOE_COOKIES"]
+        unless api_key.present?
+          return { error: "NEONS_JOE_COOKIES not configured" }
+        end
+
+        conn = Faraday.new do |f|
+          f.options.timeout = 10
+          f.options.open_timeout = 5
+        end
+
+        response = conn.get("https://joe.fraud.hackclub.com/api/v1/cases/stats?ysws=flavortown") do |req|
+          req.headers["Cookie"] = api_key
+        end
+
+        unless response.success?
+          return { error: "API returned #{response.status}" }
+        end
+
+        data = JSON.parse(response.body, symbolize_names: true)
+        
+        {
+          total: data[:total],
+          open: data[:open],
+          closed: data[:closed],
+          second_chances_given: data.dig(:byStatus, :second_chance_given) || 0,
+          fraudpheus_open: data.dig(:byStatus, :fraudpheus_open) || 0,
+          timeline: data[:timeline] || [],
+          cases_opened: data[:casesOpened] || []
+        }
+      end
+    rescue Faraday::Error
+      { error: "Couldn't reach the API" }
+    rescue JSON::ParserError
+      { error: "Got a weird response" }
     end
 
     def load_payouts_stats
