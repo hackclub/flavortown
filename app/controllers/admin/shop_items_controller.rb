@@ -6,6 +6,7 @@ module Admin
 
     def show
       authorize :admin, :manage_shop?
+      @pagy, @shop_orders = pagy(:offset, @shop_item.shop_orders.order(created_at: :desc), limit: 25)
     end
 
     def new
