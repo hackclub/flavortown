@@ -37,8 +37,8 @@ class Api::V1::ProjectsController < Api::BaseController
   PROJECT_SCHEMA = {
     id: Integer, title: String, description: String, repo_url: String,
     demo_url: String, readme_url: String, ai_declaration: String,
-    ship_status: String, devlog_ids: [ Integer ], created_at: String,
-    updated_at: String
+    ship_status: String, devlog_ids: [ Integer ], banner_url: "String || Null",
+    created_at: String, updated_at: String
   }.freeze
 
   PAGINATION_SCHEMA = {
