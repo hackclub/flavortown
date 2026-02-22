@@ -318,6 +318,20 @@ class Project < ApplicationRecord
     update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
   end
 
+  def readme_is_raw_github_url?
+    return false if readme_url.blank?
+
+    begin
+      uri = URI.parse(readme_url)
+    rescue URI::InvalidURIError
+      return false
+    end
+
+    return false unless uri.host == "raw.githubusercontent.com"
+
+    /https:\/\/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/[^\/]+\/.*README.*\.md/i.match?(uri.to_s)
+  end
+
   private
 
   def has_devlog_since_last_ship?
