@@ -30,31 +30,80 @@
         </div>
 
         <% if Flipper.enabled?(:scrapbook_devlogs, current_user) %>
-          <div class="projects-new__field">
-            <%= render InputComponent.new(
-                  label: "Scrapbook URL (optional)",
-                  placeholder: "https://hackclub.slack.com/...",
-                  form: f,
-                  attribute: :scrapbook_url,
-                  color: :blue,
-                  subtitle: "⚠️ If provided, this will replace the devlog text and attachments with the Slack message content."
-                ) %>
-          </div>
-        <% end %>
+           <div class="projects-new__field">
+             <%= render InputComponent.new(
+                   label: "Scrapbook URL (optional)",
+                   placeholder: "https://hackclub.slack.com/...",
+                   form: f,
+                   attribute: :scrapbook_url,
+                   color: :blue,
+                   subtitle: "⚠️ If provided, this will replace the devlog text and attachments with the Slack message content."
+                 ) %>
+           </div>
+         <% end %>
 
-        <div class="projects-new__field">
-          <%= render FileUploadComponent.new(
-                label: "Attachment",
-                form: f,
-                attribute: :attachments,
-                color: :green,
-                subtitle: "Show your project's output, not your code editor. Screenshots of code (e.g. VS Code) won't be accepted — your repo is already linked! Upload a screenshot or video of what your project actually does.",
-                accept: Post::Devlog::ACCEPTED_CONTENT_TYPES.join(","),
-                multiple: true,
-                max_count: 8,
-                max_size: 50.megabytes
-              ) %>
-        </div>
+         <% if @lapse_timelapses.present? %>
+           <div class="projects-new__media-row projects-new__media-row--equal-height" data-controller="devlog-attachment-selector">
+             <div class="projects-new__field">
+               <%= render MediaShellComponent.new(color: :green, subtitle: "Supports images, video, and GIF. Max 50 MB.") do |shell|
+                 shell.with_label do
+                   render RadioOptionComponent.new(
+                     name: "media_type",
+                     value: "attachment",
+                     label: "Attachment",
+                     radiogroup: "devlog_media",
+                     checked: true
+                   )
+                 end
+
+                 shell.with_body do
+                   render FileUploadComponent.new(
+                     form: f,
+                     attribute: :attachments,
+                     color: :green,
+                     accept: Post::Devlog::ACCEPTED_CONTENT_TYPES.join(","),
+                     multiple: true,
+                     max_count: 8,
+                     max_size: 50.megabytes,
+                     bare: true
+                   )
+                 end
+               end %>
+             </div>
+
+             <div class="projects-new__field">
+               <%= render MediaShellComponent.new(color: :green, subtitle: "Attach a timelapse recording from Lapse.") do |shell|
+                 shell.with_label do
+                   render RadioOptionComponent.new(
+                     name: "media_type",
+                     value: "lapse",
+                     label: "Lapse Timelapse",
+                     radiogroup: "devlog_media",
+                     checked: false
+                   )
+                 end
+
+                 shell.with_body do
+                   render "devlog_lapse_body", f: f, lapse_timelapses: @lapse_timelapses
+                 end
+                 end %>
+             </div>
+           </div>
+         <% else %>
+           <div class="projects-new__field">
+             <%= render FileUploadComponent.new(
+                   label: "Attachment",
+                   form: f,
+                   attribute: :attachments,
+                   color: :green,
+                   subtitle: "Show your project's output, not your code editor. Screenshots of code (e.g. VS Code) won't be accepted — your repo is already linked! Upload a screenshot or video of what your project actually does.",
+                   accept: Post::Devlog::ACCEPTED_CONTENT_TYPES.join(","),
+                   multiple: true,
+                   max_count: 8,
+                   max_size: 50.megabytes
+                 ) %>
+           </div>
+         <% end %>
       </div>
 
       <div class="projects-new__actions">

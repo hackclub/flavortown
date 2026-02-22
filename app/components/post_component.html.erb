@@ -31,7 +31,7 @@
       <% end %>
       <header class="post__header">
         <div class="post__avatar">
-        <%= image_tag post.user&.avatar || "https://ca.slack-edge.com/T0266FRGM-U07GZPGJX1G-g98be5e77f20-512", alt: author_name, class: "post__avatar" %>
+          <%= image_tag post.user&.avatar || "https://ca.slack-edge.com/T0266FRGM-U07GZPGJX1G-g98be5e77f20-512", alt: author_name, class: "post__avatar" %>
         </div>
         <div class="post__meta">
           <div class="post__author">
@@ -59,6 +59,29 @@
             <div class="post__duration"><%= duration_text %> logged</div>
           <% end %>
         </div>
+        <% if show_lapse_badge? %>
+          <button
+            type="button"
+            id="devlog-lapse-badge-<%= postable.id %>"
+            class="post__lapse-badge"
+            aria-label="Tracked with Lapse - Click to view timelapses"
+            data-controller="<%= standalone? ? 'lapse-modal' : 'modal' %>"
+            <% if standalone? %>
+              data-lapse-modal-frame-id-value="<%= lapse_frame_id %>"
+              data-lapse-modal-modal-id-value="<%= lapse_modal_id %>"
+              data-lapse-modal-url-value="<%= lapse_timelapses_url %>"
+            <% else %>
+              data-action="click->modal#open"
+              data-modal-target-value="<%= lapse_modal_id %>"
+            <% end %>>
+            <%= helpers.inline_svg_tag "lapse.svg", class: "post__lapse-icon", aria: { hidden: true } %>
+          </button>
+          <% if standalone? %>
+            <%= helpers.turbo_frame_tag lapse_frame_id %>
+          <% end %>
+        <% elsif devlog? %>
+          <turbo-frame id="devlog-lapse-badge-<%= postable.id %>"></turbo-frame>
+        <% end %>
       </header>
 
       <%= render "shared/inspector", record: postable %>
@@ -120,7 +143,13 @@
         <% end %>
       <% end %>
 
-      <% if attachments.any? %>
+      <% if devlog? && postable.lapse_video_processing? %>
+        <div class="post__attachments">
+          <div class="post__processing-placeholder">
+            <p>🎬 Video processing — check back later!</p>
+          </div>
+        </div>
+      <% elsif attachments.any? %>
         <div class="post__attachments" data-controller="post-attachments">
           <div class="post__viewport">
             <button type="button" class="post__chevron post__chevron--prev" data-post-attachments-target="prevButton" data-action="post-attachments#prev" aria-label="Previous" hidden>

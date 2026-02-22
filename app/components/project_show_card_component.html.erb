@@ -110,8 +110,8 @@
           <span class="project-show-card__title-text"><%= project.title %></span>
         </h1>
 
-        <% if helpers.policy(project).edit? || helpers.policy(project).destroy? %>
-          <div class="projects-show__admin-actions">
+        <div class="projects-show__title-actions">
+          <%= helpers.turbo_frame_tag "lapse-timelapses-#{project.id}", src: helpers.lapse_timelapses_project_path(project), loading: "lazy" %>
             <% if helpers.policy(project).edit? %>
               <%= render ButtonComponent.new(
                     href: helpers.edit_project_path(project),
@@ -123,16 +123,15 @@
                   ) %>
             <% end %>
             <% if helpers.policy(project).destroy? %>
-              <%= button_to helpers.project_path(project),
-                    method: :delete,
-                    class: "btn btn--brown btn--borderless projects-show__icon-btn",
-                    form: { onsubmit: "return confirm('Are you sure you want to delete ' + #{project.title.to_json} + '? This action cannot be undone.')" },
-                    aria: { label: "Delete project" } do %>
-                <%= helpers.inline_svg_tag "icons/trash-bin.svg" %>
-              <% end %>
+            <%= button_to helpers.project_path(project),
+                  method: :delete,
+                  class: "btn btn--brown btn--borderless projects-show__icon-btn",
+                  form: { onsubmit: "return confirm('Are you sure you want to delete ' + #{project.title.to_json} + '? This action cannot be undone.')" },
+                  aria: { label: "Delete project" } do %>
+              <%= helpers.inline_svg_tag "icons/trash-bin.svg" %>
             <% end %>
-          </div>
-        <% end %>
+          <% end %>
+        </div>
       </div>
       <div class="project-show-card__byline">
         <%= byline_text %>
@@ -311,7 +310,3 @@
     <% end %>
   </div>
 </div>
-
-<% if project.readme_url.present? %>
-
-<% end %>

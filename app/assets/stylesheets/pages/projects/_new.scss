@@ -8,6 +8,14 @@
     gap: var(--space-xl);
   }
 
+  & [data-controller="file-upload"] {
+    height: 100%;
+
+    > .file-upload__area {
+      height: 100%;
+    }
+  }
+
   &__card {
     position: relative;
     border-radius: calc(var(--border-radius) * 1.25);
@@ -53,6 +61,134 @@
 
     .input {
       width: 100%;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+  }
+
+  &__media-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+    align-items: start;
+
+    &--equal-height {
+      grid-auto-rows: 1fr;
+      align-items: stretch;
+    }
+  }
+
+  &__media-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    cursor: pointer;
+    user-select: none;
+    padding-bottom: 1em; // this is just so our radio buttons don't get clipped away!
+
+    input[type="radio"] {
+      width: 1.1rem;
+      height: 1.1rem;
+      accent-color: var(--color-green-500);
+      cursor: pointer;
+      margin: 0;
+    }
+  }
+
+  &__media-content {
+    height: 100%;
+
+    > * {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .file-upload__area {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .file-upload__dropzone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  &__lapse-preview {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #d0da90;
+    border: 2px dashed var(--color-green-500);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--space-m);
+    overflow: hidden;
+    z-index: 1;
+
+    &--has-video {
+      border-style: solid;
+      border-color: var(--color-green-400);
+      background-color: #000;
+    }
+  }
+
+  &__lapse-video {
+    display: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: calc(var(--border-radius) - 2px);
+
+    .projects-new__lapse-preview--has-video & {
+      display: block;
+    }
+  }
+
+  &__lapse-select {
+    appearance: none;
+    width: 100%;
+    padding: var(--space-m);
+    border: 2px solid var(--color-green-500);
+    border-radius: var(--border-radius);
+    background-color: #d0da90;
+    background-image: url("icons/chevron-down.svg");
+    background-repeat: no-repeat;
+    background-position: right var(--space-m) center;
+    background-size: 1.75rem 1.5rem;
+    padding-right: calc(var(--space-xxl) * 1.1);
+    font-size: var(--font-size-m);
+    color: var(--color-green-600);
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
+    transition:
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+
+    &:hover {
+      border-color: var(--color-green-600);
+      box-shadow: 0 4px 12px rgba(45, 135, 70, 0.15);
+    }
+
+    &:focus {
+      outline: 4px solid var(--color-green-500);
+      outline-offset: 2px;
+      border-color: var(--color-green-600);
+    }
+
+    option {
+      background-color: var(--color-bg);
+      color: var(--color-text-body);
+      padding: var(--space-m);
     }
   }
 
@@ -201,6 +337,10 @@
         justify-content: center;
         width: 100%;
       }
+    }
+
+    &__media-row {
+      grid-template-columns: 1fr;
     }
   }
 }
