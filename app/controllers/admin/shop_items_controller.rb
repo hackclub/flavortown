@@ -96,6 +96,7 @@ module Admin
         "ShopItem::HCBGrant",
         "ShopItem::HCBPreauthGrant",
         "ShopItem::HQMailItem",
+        "ShopItem::InkthreadableItem",
         "ShopItem::LetterMail",
         "ShopItem::ThirdPartyPhysical",
         "ShopItem::ThirdPartyDigital",
@@ -108,7 +109,7 @@ module Admin
     end
 
     def shop_item_params
-      params.require(:shop_item).permit(
+      permitted = params.require(:shop_item).permit(
         :name,
         :type,
         :description,
@@ -164,11 +165,23 @@ module Admin
         :default_assigned_user_id_au,
         :default_assigned_user_id_in,
         :default_assigned_user_id_xx,
+        :inkthreadable_config,
         :unlisted,
         :source_region,
         attached_shop_item_ids: [],
         blocked_countries: []
       )
+
+      if permitted[:inkthreadable_config].present?
+        begin
+          permitted[:inkthreadable_config] = JSON.parse(permitted[:inkthreadable_config])
+        rescue JSON::ParserError
+          flash.now[:alert] = "Inkthreadable config must be valid JSON."
+          permitted[:inkthreadable_config] = nil
+        end
+      end
+
+      permitted
     end
   end
 end
