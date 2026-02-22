@@ -11,6 +11,11 @@
   background-size: contain;
   background-position: center;
 
+  // Placeholder style for YSWS certified projects — replace with final design
+  &--ysws-certified {
+    border-color: #fbbf24;
+  }
+
   &__content {
     display: flex;
     flex-direction: column;

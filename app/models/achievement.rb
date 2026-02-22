@@ -170,6 +170,14 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       visibility: :secret
     ),
     new(
+      slug: :ysws_certified,
+      name: "YSWS Certified",
+      description: "your project was approved for You Ship, We Ship!",
+      icon: "trophy",
+      earned_check: ->(user) { user.projects.where.not(ysws_approved_at: nil).exists? },
+      cookie_reward: 10
+    ),
+    new(
       slug: :sidequest_extension,
       name: "Sidequest: Extensions",
       description: "Shipped a project for the Extensions sidequest!",

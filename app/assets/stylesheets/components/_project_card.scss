@@ -17,6 +17,11 @@
     transform: translateY(-4px);
   }
 
+  // Placeholder style for YSWS certified projects — replace with final design
+  &--ysws-certified {
+    border-color: #fbbf24;
+  }
+
   &__banner {
     padding: var(--space-s) var(--space-m) 0;
   }
