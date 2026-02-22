@@ -3,7 +3,7 @@
 # Flipper is configured automatically with the ActiveRecord adapter
 # when flipper-active_record gem is loaded
 
-require 'flipper/adapters/active_record'
+require "flipper/adapters/active_record"
 
 Rails.application.configure do
   config.flipper.preload = false
