@@ -80,7 +80,7 @@ module Admin
 
       # Fetch Joe fraud case stats with timeline
       @joe_fraud_stats = fetch_joe_fraud_stats
-      
+
       # Build trend data for charts
       @fraud_shop_order_trend_data = build_shop_order_trend_data
       @fraud_report_trend_data = build_report_trend_data
@@ -110,7 +110,7 @@ module Admin
         end
 
         data = JSON.parse(response.body, symbolize_names: true)
-        
+
         {
           total: data[:total],
           open: data[:open],
@@ -252,13 +252,13 @@ module Admin
       (0..59).reverse_each do |days_ago|
         date = days_ago.days.ago.to_date
         day_range = date.beginning_of_day..date.end_of_day
-        
+
         # Count shop orders by state on this day
         states = %w[pending awaiting_periodical_fulfillment fulfilled rejected on_hold]
         state_counts = ShopOrder.where(updated_at: day_range)
                                 .where(aasm_state: states)
                                 .group(:aasm_state).count
-        
+
         trend_data[date.to_s] = state_counts.transform_keys(&:to_s)
       end
       trend_data
@@ -270,11 +270,11 @@ module Admin
       (0..59).reverse_each do |days_ago|
         date = days_ago.days.ago.to_date
         day_range = date.beginning_of_day..date.end_of_day
-        
+
         # Count fraud reports by reason on this day
         reason_counts = Project::Report.where(updated_at: day_range)
                                        .group(:reason).count
-        
+
         trend_data[date.to_s] = reason_counts
       end
       trend_data
@@ -286,16 +286,16 @@ module Admin
       (0..59).reverse_each do |days_ago|
         date = days_ago.days.ago.to_date
         day_range = date.beginning_of_day..date.end_of_day
-        
+
         # Count fraud reports by status on this day
         status_counts = Project::Report.where(updated_at: day_range)
                                        .group(:status).count
-        
+
         # Convert integer statuses to string names
         status_map = { 0 => "pending", 1 => "reviewed", 2 => "dismissed" }
         trend_data[date.to_s] = status_counts.transform_keys { |k| status_map[k] || k.to_s }
       end
       trend_data
       end
-      end
-      end
+  end
+end

@@ -204,7 +204,7 @@
                 if (!ctx) return;
 
                 const timeline = <%= raw @joe_fraud_stats[:timeline].to_json %>;
-                
+
                 // Group by status
                 const statusMap = {};
                 timeline.forEach(entry => {

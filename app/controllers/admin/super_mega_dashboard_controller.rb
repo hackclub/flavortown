@@ -28,7 +28,7 @@ module Admin
       reviewed = report_counts["reviewed"] || report_counts[1] || 0
       dismissed = report_counts["dismissed"] || report_counts[2] || 0
       new_today_reports = Project::Report.where(created_at: today).count
-      
+
       @fraud_reports = {
         pending: pending,
         pending_pct: total_reports > 0 ? ((pending.to_f / total_reports) * 100).round(1) : 0,
@@ -44,7 +44,7 @@ module Admin
       total_users = User.count
       banned = ban_counts.sum { |(b, _), c| b ? c : 0 }
       shadow_banned = ban_counts.sum { |(_, sb), c| sb ? c : 0 }
-      
+
       @fraud_bans = {
         banned: banned,
         banned_pct: total_users > 0 ? ((banned.to_f / total_users) * 100).round(2) : 0,
@@ -59,7 +59,7 @@ module Admin
       unbans_today = PaperTrail::Version.where(item_type: "User", created_at: today)
                                         .where("object_changes ->> 'banned' IS NOT NULL")
                                         .where("object_changes -> 'banned' ->> 1 = ?", "false").count
-      
+
       @fraud_second_chances = {
         bans_today: bans_today,
         unbans_today: unbans_today,
@@ -74,7 +74,7 @@ module Admin
       on_hold = order_counts["on_hold"] || 0
       rejected = order_counts["rejected"] || 0
       new_today_orders = ShopOrder.where(created_at: today).count
-      
+
       @fraud_orders = {
         pending: pending,
         pending_pct: backlog > 0 ? ((pending.to_f / backlog) * 100).round(1) : 0,
@@ -101,7 +101,7 @@ module Admin
 
       # Build report review trend data
       @fraud_report_trend_data = build_report_trend_data
-      
+
       # Build report status trend data
       @fraud_report_status_trend_data = build_report_status_trend_data
     end
@@ -114,14 +114,14 @@ module Admin
       (0..59).reverse_each do |days_ago|
         date = days_ago.days.ago.to_date
         day_range = date.beginning_of_day..date.end_of_day
-        
+
         bans = PaperTrail::Version.where(item_type: "User", created_at: day_range)
                                   .where("object_changes ->> 'banned' IS NOT NULL")
                                   .where("object_changes -> 'banned' ->> 1 = ?", "true").count
         unbans = PaperTrail::Version.where(item_type: "User", created_at: day_range)
                                     .where("object_changes ->> 'banned' IS NOT NULL")
                                     .where("object_changes -> 'banned' ->> 1 = ?", "false").count
-        
+
         trend_data[date.to_s] = { bans: bans, unbans: unbans }
       end
       trend_data
@@ -133,13 +133,13 @@ module Admin
       (0..59).reverse_each do |days_ago|
         date = days_ago.days.ago.to_date
         day_range = date.beginning_of_day..date.end_of_day
-        
+
         # Count shop orders by state on this day
         states = %w[pending awaiting_periodical_fulfillment fulfilled rejected on_hold]
         state_counts = ShopOrder.where(updated_at: day_range)
                                 .where(aasm_state: states)
                                 .group(:aasm_state).count
-        
+
         trend_data[date.to_s] = state_counts.transform_keys(&:to_s)
       end
       trend_data
@@ -151,11 +151,11 @@ module Admin
       (0..59).reverse_each do |days_ago|
         date = days_ago.days.ago.to_date
         day_range = date.beginning_of_day..date.end_of_day
-        
+
         # Count fraud reports by reason on this day
         reason_counts = Project::Report.where(updated_at: day_range)
                                        .group(:reason).count
-        
+
         trend_data[date.to_s] = reason_counts
       end
       trend_data
@@ -167,11 +167,11 @@ module Admin
       (0..59).reverse_each do |days_ago|
         date = days_ago.days.ago.to_date
         day_range = date.beginning_of_day..date.end_of_day
-        
+
         # Count fraud reports by status on this day
         status_counts = Project::Report.where(updated_at: day_range)
                                        .group(:status).count
-        
+
         # Convert integer statuses to string names
         status_map = { 0 => "pending", 1 => "reviewed", 2 => "dismissed" }
         trend_data[date.to_s] = status_counts.transform_keys { |k| status_map[k] || k.to_s }
@@ -183,7 +183,7 @@ module Admin
       # Average time to review reports
       reviewed_reports = Project::Report.where(status: %w[reviewed dismissed])
                                         .pluck(:created_at, :updated_at)
-      
+
       if reviewed_reports.any?
         avg_review_hours = reviewed_reports.map { |(created, updated)| ((updated - created) / 1.hour).round(1) }.sum / reviewed_reports.count
       else
@@ -221,7 +221,7 @@ module Admin
         end
 
         data = JSON.parse(response.body, symbolize_names: true)
-        
+
         {
           total: data[:total],
           open: data[:open],

@@ -300,7 +300,7 @@
 .fraud-subsection {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
-  
+
   &__title {
     font-size: 1.1rem;
     font-weight: 600;
@@ -332,11 +332,11 @@
 .super-mega-dashboard__card--mini-graph {
   grid-column: span 2;
   padding: 0.75em;
-  
+
   @media (max-width: 1200px) {
     grid-column: 1 / -1;
   }
-  
+
   h3 {
     margin: 0 0 0.5em 0;
     font-size: 1rem;
