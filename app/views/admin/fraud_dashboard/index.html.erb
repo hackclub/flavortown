@@ -117,13 +117,345 @@
 </div>
 
 <div class="fraud-grid">
-  <div class="card fraud-card">
-    <h2>Order Reviewers (All-Time)</h2>
-    <%= render "leaderboard", reviewers: o[:top_reviewers], medals: (1..10).map { |i| "##{i}" } %>
-  </div>
-</div>
+   <div class="card fraud-card">
+     <h2>Order Reviewers (All-Time)</h2>
+     <%= render "leaderboard", reviewers: o[:top_reviewers], medals: (1..10).map { |i| "##{i}" } %>
+   </div>
+ </div>
 
-<%= link_to "← Back", admin_root_path, class: "btn-secondary" %>
+ <div class="fraud-grid">
+   <div class="card fraud-card fraud-card--wide">
+     <h2>Case Status Timeline (Joe)</h2>
+     <% if @joe_fraud_stats && @joe_fraud_stats[:timeline]&.any? && !@joe_fraud_stats[:error] %>
+       <div class="fraud-timeline-graph" style="height: 300px;">
+         <canvas id="fraudTimelineChartDash"></canvas>
+       </div>
+       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+       <script>
+         document.addEventListener('DOMContentLoaded', function() {
+           const ctx = document.getElementById('fraudTimelineChartDash');
+           if (!ctx) return;
+
+           const timeline = <%= raw @joe_fraud_stats[:timeline].to_json %>;
+
+           // Group by status
+           const statusMap = {};
+           timeline.forEach(entry => {
+             if (!statusMap[entry.status]) {
+               statusMap[entry.status] = {};
+             }
+             statusMap[entry.status][entry.date] = entry.count;
+           });
+
+           // Get all unique dates
+           const allDates = [...new Set(timeline.map(e => e.date))].sort();
+           const labels = allDates.map(d => {
+             const date = new Date(d);
+             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+           });
+
+           // Define colors for different statuses
+           const statusColors = {
+             'second_chance_given': { border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+             'banned': { border: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+             'fraudpheus_open': { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+             'other': { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' }
+           };
+
+           // Build datasets
+           const datasets = Object.entries(statusMap).map(([status, dates]) => {
+             const data = allDates.map(d => dates[d] || 0);
+             const colors = statusColors[status] || { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' };
+             return {
+               label: status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+               data: data,
+               borderColor: colors.border,
+               backgroundColor: colors.bg,
+               fill: false,
+               tension: 0.3,
+               pointRadius: 3,
+               borderWidth: 2
+             };
+           });
+
+           new Chart(ctx, {
+             type: 'line',
+             data: { labels: labels, datasets: datasets },
+             options: {
+               responsive: true,
+               maintainAspectRatio: false,
+               plugins: {
+                 legend: {
+                   display: true,
+                   position: 'bottom',
+                   labels: { padding: 12 }
+                 }
+               },
+               scales: {
+                 y: {
+                   beginAtZero: true,
+                   ticks: { precision: 0 }
+                 }
+               }
+             }
+           });
+         });
+       </script>
+     <% else %>
+       <p class="fraud-note">No timeline data available</p>
+     <% end %>
+   </div>
+   </div>
+
+   <div class="fraud-grid">
+    <div class="card fraud-card fraud-card--wide">
+      <h2>Shop Orders Over Time</h2>
+      <% if @fraud_shop_order_trend_data.present? %>
+        <div class="fraud-timeline-graph" style="height: 300px;">
+          <canvas id="shopOrderTrendChart"></canvas>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('shopOrderTrendChart');
+            if (!ctx) return;
+
+            const data = <%= raw @fraud_shop_order_trend_data.to_json %>;
+            const sortedDates = Object.keys(data).sort();
+            const labels = sortedDates.map(d => {
+              const date = new Date(d);
+              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+
+            // Group by state
+            const stateMap = {};
+            sortedDates.forEach(date => {
+              Object.entries(data[date] || {}).forEach(([state, count]) => {
+                if (!stateMap[state]) stateMap[state] = {};
+                stateMap[state][date] = count;
+              });
+            });
+
+            // Define colors for different states
+            const stateColors = {
+              'pending': { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+              'awaiting_periodical_fulfillment': { border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
+              'fulfilled': { border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+              'rejected': { border: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+              'on_hold': { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' }
+            };
+
+            // Build datasets
+            const datasets = Object.entries(stateMap).map(([state, dates]) => {
+              const dataArray = sortedDates.map(d => dates[d] || 0);
+              const colors = stateColors[state] || { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' };
+              return {
+                label: state.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                data: dataArray,
+                borderColor: colors.border,
+                backgroundColor: colors.bg,
+                fill: false,
+                tension: 0.3,
+                pointRadius: 1,
+                borderWidth: 1.5
+              };
+            });
+
+            new Chart(ctx, {
+              type: 'line',
+              data: { labels: labels, datasets: datasets },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: { padding: 12 }
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                  }
+                }
+              }
+            });
+          });
+        </script>
+      <% else %>
+        <p class="fraud-note">No data available</p>
+      <% end %>
+    </div>
+   </div>
+
+   <div class="fraud-grid">
+    <div class="card fraud-card fraud-card--wide">
+      <h2>Reports Over Time (by reason)</h2>
+      <% if @fraud_report_trend_data.present? %>
+        <div class="fraud-timeline-graph" style="height: 300px;">
+          <canvas id="reportReasonTrendChart"></canvas>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('reportReasonTrendChart');
+            if (!ctx) return;
+
+            const data = <%= raw @fraud_report_trend_data.to_json %>;
+            const sortedDates = Object.keys(data).sort();
+            const labels = sortedDates.map(d => {
+              const date = new Date(d);
+              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+
+            // Group by reason
+            const reasonMap = {};
+            sortedDates.forEach(date => {
+              Object.entries(data[date] || {}).forEach(([reason, count]) => {
+                if (!reasonMap[reason]) reasonMap[reason] = {};
+                reasonMap[reason][date] = count;
+              });
+            });
+
+            // Define colors for different reasons
+            const reasonColors = {
+              'low_effort': { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+              'undeclared_ai': { border: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+              'demo_broken': { border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
+              'stolen_code': { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
+              'inappropriate': { border: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)' },
+              'other': { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' }
+            };
+
+            // Build datasets
+            const datasets = Object.entries(reasonMap).map(([reason, dates]) => {
+              const dataArray = sortedDates.map(d => dates[d] || 0);
+              const colors = reasonColors[reason] || { border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' };
+              return {
+                label: reason.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                data: dataArray,
+                borderColor: colors.border,
+                backgroundColor: colors.bg,
+                fill: false,
+                tension: 0.3,
+                pointRadius: 1,
+                borderWidth: 1.5
+              };
+            });
+
+            new Chart(ctx, {
+              type: 'line',
+              data: { labels: labels, datasets: datasets },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: { padding: 12 }
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                  }
+                }
+              }
+            });
+          });
+        </script>
+      <% else %>
+        <p class="fraud-note">No data available</p>
+      <% end %>
+    </div>
+   </div>
+
+   <div class="fraud-grid">
+    <div class="card fraud-card fraud-card--wide">
+      <h2>Reports Over Time (by status)</h2>
+      <% if @fraud_report_status_trend_data.present? %>
+        <div class="fraud-timeline-graph" style="height: 300px;">
+          <canvas id="reportStatusTrendChart"></canvas>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('reportStatusTrendChart');
+            if (!ctx) return;
+
+            const data = <%= raw @fraud_report_status_trend_data.to_json %>;
+            const sortedDates = Object.keys(data).sort();
+            const labels = sortedDates.map(d => {
+              const date = new Date(d);
+              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+
+            // Group by status
+            const statusMap = {};
+            sortedDates.forEach(date => {
+              Object.entries(data[date] || {}).forEach(([status, count]) => {
+                if (!statusMap[status]) statusMap[status] = {};
+                statusMap[status][date] = count;
+              });
+            });
+
+            // Define colors for different statuses
+            const statusColors = {
+              'pending': { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+              'reviewed': { border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+              'dismissed': { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' }
+            };
+
+            // Build datasets
+            const datasets = Object.entries(statusMap).map(([status, dates]) => {
+              const dataArray = sortedDates.map(d => dates[d] || 0);
+              const colors = statusColors[status] || { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' };
+              return {
+                label: status.charAt(0).toUpperCase() + status.slice(1),
+                data: dataArray,
+                borderColor: colors.border,
+                backgroundColor: colors.bg,
+                fill: false,
+                tension: 0.3,
+                pointRadius: 1,
+                borderWidth: 1.5
+              };
+            });
+
+            new Chart(ctx, {
+              type: 'line',
+              data: { labels: labels, datasets: datasets },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: { padding: 12 }
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                  }
+                }
+              }
+            });
+          });
+        </script>
+      <% else %>
+        <p class="fraud-note">No data available</p>
+      <% end %>
+    </div>
+   </div>
+
+   <%= link_to "← Back", admin_root_path, class: "btn-secondary" %>
 
 <style>
 .fraud-grid {

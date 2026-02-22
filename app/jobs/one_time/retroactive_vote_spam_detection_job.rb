@@ -2,7 +2,11 @@ module OneTime
   class RetroactiveVoteSpamDetectionJob < ApplicationJob
     queue_as :default
 
-    VOTE_THRESHOLD = Secrets::VoteSpamDetector::SPAM_DETECTION_VOTE_THRESHOLD
+    begin
+      VOTE_THRESHOLD = Secrets::VoteSpamDetector::SPAM_DETECTION_VOTE_THRESHOLD
+    rescue NameError
+      VOTE_THRESHOLD = 10 # fallback value
+    end
     KARTIKEY_SLACK_ID = "U05F4B48GBF"
 
     def perform
