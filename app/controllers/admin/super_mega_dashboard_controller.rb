@@ -380,7 +380,7 @@ module Admin
         new_ships_today: data["newShipsToday"]
       }
 
-      sync_sw_vibes_history(data["metricsHistory"] || [])
+      @sw_vibes_history = parse_sw_vibes_history(data["metricsHistory"] || [])
     rescue Faraday::Error, JSON::ParserError, Faraday::TimeoutError
       @ship_certs = { error: true }
     end
@@ -414,51 +414,30 @@ module Admin
       rescue JSON::ParserError
         @sw_vibes = { error: "Got a weird response" }
       end
-
-      if @sw_vibes.present? && !@sw_vibes[:error]
-        snapshot = SwVibesSnapshot.find_or_initialize_by(recorded_date: Date.current)
-        snapshot.assign_attributes(
-          result: @sw_vibes.dig(:positive, :result),
-          reason: @sw_vibes.dig(:positive, :reason),
-          payload: @sw_vibes.to_h
-        )
-        begin
-          snapshot.save!
-        rescue ActiveRecord::RecordInvalid => e
-          Rails.logger.error("[SwVibesSnapshot] Failed to save for #{Date.current}: #{e.record.errors.full_messages.join(', ')}")
-        end
-      end
     end
 
     def load_sw_vibes_history
-      @sw_vibes_history = SwVibesSnapshot.order(recorded_date: :desc).limit(90)
+      @sw_vibes_history ||= []
     end
 
-    def sync_sw_vibes_history(metrics_history)
-      return if metrics_history.blank?
-
-      existing_dates = SwVibesSnapshot.pluck(:recorded_date).to_set
-
-      metrics_history.each do |entry|
+    def parse_sw_vibes_history(metrics_history)
+      metrics_history.filter_map do |entry|
         output = entry["output"] || {}
         date_str = output["for_date"]
         next unless date_str.present?
 
-        recorded_date = Date.parse(date_str)
-        next if existing_dates.include?(recorded_date)
-
         inner = output["output"] || {}
         positive = inner["positive"] || {}
 
-        SwVibesSnapshot.create!(
-          recorded_date: recorded_date,
+        OpenStruct.new(
+          recorded_date: Date.parse(date_str),
           result: positive["result"],
           reason: positive["reason"],
           payload: inner
         )
-      rescue Date::Error, ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
-        next
-      end
+      rescue Date::Error
+        nil
+      end.sort_by(&:recorded_date).reverse
     end
 
     def load_voting_stats
