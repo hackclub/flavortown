@@ -17,7 +17,7 @@
   <div id="project-idea-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;" onclick="document.getElementById('project-idea-container').style.display='none'; this.style.display='none';"></div>
 
   <%# This should be a h2 but I'd rather have no headings than incomplete headings on this page %>
-  <%= render PlatformNoticeComponent.new(heading_element: "div") %>
+  <%= render PlatformNoticeComponent.new(title: "Voting is currently paused, so payouts will be delayed", heading_element: "div") %>
 
   <section class="projects-board__grid" aria-label="Projects">
     <% if @projects.any? %>

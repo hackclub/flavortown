@@ -1,7 +1,7 @@
 <div class="platform-notice <%= "platform-notice--with-margin" if with_margin %>">
   <%= content_tag(@heading_element, class: "platform-notice__heading") do %>
     <%= helpers.inline_svg_tag("icons/info.svg", class: "platform-notice__icon", alt: "") %>
-    Voting is currently paused
+    <%= @title %>
   <% end %>
   <p class="platform-notice__message">
     We're <a href="<%= @message_link %>">upgrading the voting system</a> to make it clearer and fairer!
