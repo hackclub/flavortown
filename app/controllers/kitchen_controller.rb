@@ -88,4 +88,3 @@ class KitchenController < ApplicationController
     nil
   end
 end
- 
