@@ -794,22 +794,32 @@
 
             <script>
               document.addEventListener('DOMContentLoaded', function() {
+                function escapeHtml(str) {
+                  return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+                }
+
                 function buildDetailHtml(s) {
                   var payload = s.payload || {};
                   var positive = payload.positive || {};
-                  var reason = (positive.reason || s.reason || '').toString();
-                  var html = '<h4>' + s.date + ' — ' + (s.result ? 'Good' : 'Bad') + '</h4><p>' + (reason || '—') + '</p>';
+                  var reason = escapeHtml(positive.reason || s.reason || '');
+                  var dateText = escapeHtml(s.date || '');
+                  var html = '<h4>' + dateText + ' — ' + (s.result ? 'Good' : 'Bad') + '</h4><p>' + (reason || '—') + '</p>';
                   var quotes = payload.quotes || [];
                   if (quotes.length) {
                     html += '<h4>Quotes</h4><ul class="sw-vibes-popup__quotes">';
                     quotes.forEach(function(q) {
-                      html += '<li><blockquote>' + (q.text || '') + '</blockquote><p>' + (q.reason || '') + '</p></li>';
+                      html += '<li><blockquote>' + escapeHtml(q.text || '') + '</blockquote><p>' + escapeHtml(q.reason || '') + '</p></li>';
                     });
                     html += '</ul>';
                   }
                   var suggestion = payload.suggestion;
                   if (suggestion) {
-                    html += '<h4>Suggestion</h4><p>' + (suggestion.action || '') + '</p><p><strong>Why:</strong> ' + (suggestion.reason || '') + '</p>';
+                    html += '<h4>Suggestion</h4><p>' + escapeHtml(suggestion.action || '') + '</p><p><strong>Why:</strong> ' + escapeHtml(suggestion.reason || '') + '</p>';
                   }
                   return html;
                 }

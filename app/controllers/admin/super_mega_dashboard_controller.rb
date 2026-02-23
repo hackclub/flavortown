@@ -422,7 +422,11 @@ module Admin
           reason: @sw_vibes.dig(:positive, :reason),
           payload: @sw_vibes.to_h
         )
-        snapshot.save
+        begin
+          snapshot.save!
+        rescue ActiveRecord::RecordInvalid => e
+          Rails.logger.error("[SwVibesSnapshot] Failed to save for #{Date.current}: #{e.record.errors.full_messages.join(', ')}")
+        end
       end
     end
 
