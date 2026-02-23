@@ -3,8 +3,14 @@ default: &default
     - polling_interval: 1
       batch_size: 500
   workers:
+    # fast-lane
+    - queues: ["latency_10s", "latency_5m"]
+      threads: 4
+      processes: 2
+      polling_interval: 0.05
+    # Default and scheduled jobs
     - queues: "*"
-      threads: 3
+      threads: 5
       processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
       polling_interval: 0.1
 
