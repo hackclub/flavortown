@@ -1,3 +1,4 @@
+<% content_for :title, "Admin" %>
 <%= render HeadingComponent.new(title: "Admin", tone: :blue, size: :full) %>
 
 <h2>tasks</h2>
@@ -114,6 +115,9 @@
   <% end %>
   <% if policy(:admin).access_voting_dashboard? %>
     <%= link_to "Voting Dashboard", "/admin/voting_dashboard", class: button_class %>
+  <% end %>
+  <% if policy(:admin).access_vote_spam_dashboard? %>
+    <%= link_to "Vote Spam Dashboard", admin_vote_spam_dashboard_path, class: button_class %>
   <% end %>
   <%= link_to "Help bot", "slack://app?team=T0266FRGM&id=A09NP19R7FX&tab=home", class: "btn-primary" %>
   <%= link_to "Ship Cert & YSWS Dashboards", "https://review.hackclub.com/", class: "btn-primary", target: "_blank" %>

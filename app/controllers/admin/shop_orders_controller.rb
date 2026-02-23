@@ -3,6 +3,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   def index
     # Determine view mode
     @view = params[:view] || "shop_orders"
+    @limit = params[:limit] || "10"
 
     # Fulfillment team can only access fulfillment view - auto-redirect if needed
     # But fraud_dept members with fulfillment_person role should have full access
@@ -42,45 +43,9 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       orders = orders.where(aasm_state: @default_status) if @default_status.present?
     end
 
-    # Apply filters
-    orders = orders.where(shop_item_id: params[:shop_item_id]) if params[:shop_item_id].present?
-    orders = orders.where("created_at >= ?", params[:date_from]) if params[:date_from].present?
-    orders = orders.where("created_at <= ?", params[:date_to]) if params[:date_to].present?
-
-    if params[:user_search].present?
-      search = "%#{ActiveRecord::Base.sanitize_sql_like(params[:user_search])}%"
-      orders = orders.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.id::text = ? OR users.slack_id ILIKE ?", search, search, params[:user_search], search)
-    end
-
-    # Apply region filter using database-level query (now that orders have a region column)
-    # Fulfillment persons see orders in their regions OR orders assigned to them OR orders with nil region (legacy/no address)
-    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept? && current_user.has_regions?
-      orders = orders.where(region: current_user.regions)
-                     .or(orders.where(region: nil))
-                     .or(orders.where(assigned_to_user_id: current_user.id))
-    elsif params[:region].present?
-      orders = orders.where(region: params[:region].upcase)
-    end
-
-    # Calculate stats after region filter so counts respect user's assigned regions
-    base = ShopOrder.includes(:shop_item, :user)
-
-    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept? && current_user.has_regions?
-      base = base.where(region: current_user.regions)
-                             .or(base.where(region: nil))
-                             .or(base.where(assigned_to_user_id: current_user.id))
-    elsif params[:region].present?
-      base = base.where(region: params[:region].upcase)
-    end
-
-    base = base.where(shop_item_id: params[:shop_item_id]) if params[:shop_item_id].present?
-    base = base.where("created_at >= ?", params[:date_from]) if params[:date_from].present?
-    base = base.where("created_at <= ?", params[:date_to]) if params[:date_to].present?
-
-    if params[:user_search].present?
-      search = "%#{ActiveRecord::Base.sanitize_sql_like(params[:user_search])}%"
-      base = base.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.id::text = ? OR users.slack_id ILIKE ?", search, search, params[:user_search], search)
-    end
+    # Apply shared filters to both the orders query and the stats base query
+    orders = apply_shared_filters(orders)
+    base = apply_shared_filters(ShopOrder.includes(:shop_item, :user))
 
     @c = {
       pending: base.where(aasm_state: "pending").count,
@@ -119,7 +84,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         }
       end.sort_by { |g| -g[:orders].size }
     else
-      @shop_orders = orders
+      @pagy, @shop_orders = pagy(:offset, orders, limit: 50)
     end
   end
 
@@ -188,7 +153,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       render turbo_stream: turbo_stream.replace(
         "address-content",
         partial: "address_details",
-        locals: { address: @decrypted_address }
+        locals: { address: @decrypted_address, user_email: User.find(@order.user_id)&.email }
       )
     else
       render plain: "Unauthorized", status: :forbidden
@@ -388,6 +353,41 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
   end
   private
+
+  def apply_shared_filters(scope)
+    scope = scope.where(shop_item_id: params[:shop_item_id]) if params[:shop_item_id].present?
+    scope = scope.where("created_at >= ?", params[:date_from]) if params[:date_from].present?
+    scope = scope.where("created_at <= ?", params[:date_to]) if params[:date_to].present?
+
+    if params[:user_search].present?
+      search = "%#{ActiveRecord::Base.sanitize_sql_like(params[:user_search])}%"
+      scope = scope.joins(:user).where("users.display_name ILIKE ? OR users.email ILIKE ? OR users.id::text = ? OR users.slack_id ILIKE ?", search, search, params[:user_search], search)
+    end
+
+    if params[:assignee_ids].present?
+      selected_ids = Array(params[:assignee_ids]).map(&:to_s)
+      has_unassigned = selected_ids.include?("unassigned")
+      user_ids = selected_ids.reject { |id| id == "unassigned" }.map(&:to_i)
+
+      if has_unassigned && user_ids.any?
+        scope = scope.where(assigned_to_user_id: nil).or(scope.where(assigned_to_user_id: user_ids))
+      elsif has_unassigned
+        scope = scope.where(assigned_to_user_id: nil)
+      elsif user_ids.any?
+        scope = scope.where(assigned_to_user_id: user_ids)
+      end
+    end
+
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept? && current_user.has_regions?
+      scope = scope.where(region: current_user.regions)
+                   .or(scope.where(region: nil))
+                   .or(scope.where(assigned_to_user_id: current_user.id))
+    elsif params[:region].present?
+      scope = scope.where(region: params[:region].upcase)
+    end
+
+    scope
+  end
 
   def shop_orders_return_path
     # Preserve the view and status params for redirecting back to the list

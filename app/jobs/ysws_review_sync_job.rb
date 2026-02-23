@@ -185,7 +185,7 @@ class YswsReviewSyncJob < ApplicationJob
       .includes(:shop_item)
 
     hours_spent = adjusted_hours || (total_approved_minutes / 60.0)
-    if approved_orders.none? && hours_spent < 5
+    if approved_orders.none? && hours_spent < 1
       Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - user #{slack_id} has no manually fulfilled orders"
       return
     end
@@ -238,6 +238,7 @@ class YswsReviewSyncJob < ApplicationJob
     primary_address = user_pii[:addresses]&.first || {}
     devlogs = review["devlogs"] || []
     banner_url = banner_url_for_project_id(ship_cert["ftProjectId"])
+    video_thumbnail_url = video_thumbnail_url_for_proof_video(ship_cert["proofVideoUrl"])
     hours_spent = adjusted_hours || (calculate_total_approved_minutes(devlogs) / 60.0).round(2)
 
     {
@@ -261,7 +262,10 @@ class YswsReviewSyncJob < ApplicationJob
       "Code URL" => ship_cert["repoUrl"],
       "Playable URL" => ship_cert["demoUrl"],
       "project_readme" => ship_cert["readmeUrl"],
-      "Screenshot" => banner_url.present? ? [ { "url" => banner_url } ] : [ { "url" => ship_cert["screenshotUrl"] } ],
+      "Screenshot" => [
+        video_thumbnail_url.present? ? { "url" => video_thumbnail_url } : nil,
+        banner_url.present? ? { "url" => banner_url } : { "url" => ship_cert["screenshotUrl"] }
+      ].compact,
       "proof_video" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
       "Description" => ship_cert["description"],
       "Optional - Override Hours Spent" => hours_spent,
@@ -403,6 +407,65 @@ class YswsReviewSyncJob < ApplicationJob
   rescue StandardError => e
     Rails.logger.error("[YswsReviewSyncJob] banner_url_for_project_id: exception project_id=#{ft_project_id.inspect} #{e.class}: #{e.message}")
     nil
+  end
+
+  def video_thumbnail_url_for_proof_video(proof_video_url)
+    return nil if proof_video_url.blank?
+
+    host = default_url_host
+    return nil if host.blank?
+
+    Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: downloading #{proof_video_url.inspect}")
+
+    uri = URI(proof_video_url)
+    raise ArgumentError, "Only HTTP(S) URLs are allowed" unless uri.is_a?(URI::HTTP)
+
+    ext = File.extname(uri.path).downcase.presence || ".mp4"
+
+    video_tmp = Tempfile.new([ "proof_video", ext ])
+    video_tmp.binmode
+    uri.open("rb") { |remote| IO.copy_stream(remote, video_tmp) }
+    video_tmp.rewind
+
+    # Get duration via ffprobe so we can seek to 2/5 of the way through (midpoint of 1/5–3/5)
+    duration_str, = Open3.capture2(
+      "ffprobe", "-v", "error",
+      "-show_entries", "format=duration",
+      "-of", "default=noprint_wrappers=1:nokey=1",
+      video_tmp.path
+    )
+    duration = duration_str.strip.to_f
+    seek_time = (duration > 0 ? duration * 0.4 : 1.0).round(3)
+    Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: duration=#{duration}s seek=#{seek_time}s")
+
+    thumbnail_tmp = Tempfile.new([ "video_thumbnail", ".jpg" ])
+
+    system(
+      "ffmpeg", "-ss", seek_time.to_s,
+      "-i", video_tmp.path,
+      "-frames:v", "1",
+      "-q:v", "2",
+      thumbnail_tmp.path, "-y",
+      exception: true
+    )
+
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: File.open(thumbnail_tmp.path),
+      filename: "video_thumbnail.jpg",
+      content_type: "image/jpeg"
+    )
+
+    url = rails_blob_url(blob, host: host)
+    Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: success url=#{url}")
+    url
+  rescue StandardError => e
+    Rails.logger.error("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: #{e.class}: #{e.message}")
+    nil
+  ensure
+    video_tmp&.close
+    video_tmp&.unlink
+    thumbnail_tmp&.close
+    thumbnail_tmp&.unlink
   end
 
   def default_url_host

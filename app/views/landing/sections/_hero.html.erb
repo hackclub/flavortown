@@ -47,9 +47,9 @@
     <% end %>
     <h3>
       <% if @landing_variant == "challenger" %>
-        Cook space themed projects. Earn cosmic prizes.
+        Ship a space-related project by March 31! Submit it to this sidequest to qualify for space-themed prizes in the shop.
       <% else %>
-        Cook personal projects. Win free prizes.
+        Code personal projects. Win free prizes.
       <% end %>
     </h3>
 
@@ -67,9 +67,20 @@
         <% end %>
       <% end %>
       <%= button_to "or, sign back in", "/auth/hack_club", method: :post, form_class: "sign-back-in-link", class: "link-btn" %>
+      <% if Rails.env.development? && current_user.blank? %>
+        <%= button_to "dev login",
+                      "/dev_login",
+                      method: :get,
+                      form_class: "sign-back-in-link",
+                      class: "link-btn" %>
+      <% end %>
     </div>
 
-    <h4>Ages 13-18. <u>Dec 22</u> to <u>March 31</u>.</h4>
+    <% if @landing_variant == "challenger" %>
+      <h4>Ages 13-18. Deadline: <u>March 31</u>.</h4>
+    <% else %>
+      <h4>Ages 13-18. <u>Dec 22</u> to <u>March 31</u>.</h4>
+    <% end %>
     <h5>19 or older? Get the same prizes by <a href="https://docs.google.com/document/d/e/2PACX-1vRxWWFVm0pr4042oYljyPAdwb5pH7sdRiwfPw4i01PVs436MfiAFJnKtGoyWwRkXIlB6PlIaVyTQbvO/pub" target="_blank">referring teens</a>.</h5>
 
     <%= image_tag image_url("icons/chevrons-red-down.svg"), class: "carat", size: 48, alt: "" %>

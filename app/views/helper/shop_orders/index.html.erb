@@ -1,3 +1,4 @@
+<% content_for :title, "Shop Orders" %>
 <h1>Shop Orders</h1>
 
 <%= form_with url: helper_shop_orders_path, method: :get, local: true, class: "form-basic" do %>
@@ -55,19 +56,20 @@
   <div class="pagination"><%== @pagy.series_nav %></div>
 <% end %>
 
-<%= link_to "← Back", helper_root_path, class: "btn-secondary" %>
+<%= link_to "← Back", helper_root_path, class: "btn-secondary", style: "margin-top: 1rem;" %>
 
 <style>
-.badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  display: inline-block;
-}
-.badge-pending { background-color: #fbbf24; color: #78350f; }
-.badge-awaiting_periodical_fulfillment { background-color: #60a5fa; color: #1e3a8a; }
-.badge-fulfilled { background-color: #10b981; color: white; }
-.badge-rejected { background-color: #ef4444; color: white; }
-.badge-on_hold { background-color: #6b7280; color: white; }
+  .badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: inline-block;
+  }
+
+  .badge-pending { background-color: #fbbf24; color: #78350f; }
+  .badge-awaiting_periodical_fulfillment { background-color: #60a5fa; color: #1e3a8a; }
+  .badge-fulfilled { background-color: #10b981; color: white; }
+  .badge-rejected { background-color: #ef4444; color: white; }
+  .badge-on_hold { background-color: #6b7280; color: white; }
 </style>

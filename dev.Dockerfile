@@ -18,7 +18,8 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
     imagemagick \
     libffi-dev \
     libopenblas-dev \
-    liblapack-dev
+    liblapack-dev \
+    ffmpeg
 
 # Install Node.js and Yarn
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \

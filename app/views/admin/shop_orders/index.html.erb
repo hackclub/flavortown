@@ -27,19 +27,20 @@
   </div>
   <div style="flex-shrink: 0;">
     <% time_range = params[:time_range] || '7_days' %>
+    <% limit = params[:limit] || '10' %>
     <% if @view == 'fulfillment' %>
-      <%= render partial: "action_leaderboard", locals: { mode: :fulfillment, time_range: time_range } %>
+      <%= render partial: "action_leaderboard", locals: { mode: :fulfillment, time_range: time_range, limit: limit } %>
     <% elsif @view == 'shop_orders' %>
-      <%= render partial: "action_leaderboard", locals: { mode: :fraud, time_range: time_range } %>
+      <%= render partial: "action_leaderboard", locals: { mode: :fraud, time_range: time_range, limit: limit } %>
     <% end %>
   </div>
 </div>
 
 <div style="margin-bottom: 2em;">
   <% if params[:goob] == "true" %>
-    <%= link_to "Ungroup", admin_shop_orders_path(params.permit(:user_search, :shop_item_id, :status, :date_from, :date_to, :sort, :view).except(:goob)), class: "btn-secondary slim" %>
+    <%= link_to "Ungroup", admin_shop_orders_path(params.permit(:user_search, :shop_item_id, :status, :date_from, :date_to, :sort, :view, assignee_ids: []).except(:goob)), class: "btn-secondary slim" %>
   <% else %>
-    <%= link_to "Group by User", admin_shop_orders_path(params.permit(:user_search, :shop_item_id, :status, :date_from, :date_to, :sort, :view).merge(goob: true)), class: "btn-primary slim" %>
+    <%= link_to "Group by User", admin_shop_orders_path(params.permit(:user_search, :shop_item_id, :status, :date_from, :date_to, :sort, :view, assignee_ids: []).merge(goob: true)), class: "btn-primary slim" %>
   <% end %>
 </div>
 
@@ -49,6 +50,9 @@
   <%= render partial: "grouped_table", locals: { grouped_orders: @grouped_orders } %>
 <% elsif @shop_orders %>
   <%= render partial: "table", locals: { orders: @shop_orders } %>
+  <% if @pagy %>
+    <%== @pagy.series_nav %>
+  <% end %>
 <% end %>
 
 <div style="margin-top: 2em;">

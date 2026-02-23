@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_05_182813) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_18_163248) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -275,6 +275,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_05_182813) do
     t.integer "duration_seconds"
     t.text "hackatime_projects_key_snapshot"
     t.datetime "hackatime_pulled_at"
+    t.boolean "lapse_video_processing", default: false, null: false
     t.integer "likes_count", default: 0, null: false
     t.string "scrapbook_url"
     t.datetime "synced_at"
@@ -413,6 +414,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_05_182813) do
     t.index ["shadow_banned"], name: "index_projects_on_shadow_banned"
   end
 
+  create_table "report_review_tokens", force: :cascade do |t|
+    t.string "action", null: false
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.bigint "report_id", null: false
+    t.string "token", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "used_at"
+    t.index ["report_id", "action"], name: "index_report_review_tokens_on_report_id_and_action", unique: true
+    t.index ["report_id"], name: "index_report_review_tokens_on_report_id"
+    t.index ["token"], name: "index_report_review_tokens_on_token", unique: true
+  end
+
   create_table "rsvps", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
@@ -438,6 +452,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_05_182813) do
     t.string "accessory_tag"
     t.jsonb "agh_contents"
     t.bigint "attached_shop_item_ids", default: [], array: true
+    t.string "blocked_countries", default: [], array: true
     t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.bigint "default_assigned_user_id"
@@ -564,7 +579,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_05_182813) do
   create_table "sidequest_entries", force: :cascade do |t|
     t.string "aasm_state", default: "pending", null: false
     t.datetime "created_at", null: false
+    t.boolean "is_rejection_fee_charged", default: false, null: false
     t.bigint "project_id", null: false
+    t.text "rejection_message"
     t.datetime "reviewed_at"
     t.bigint "reviewed_by_id"
     t.bigint "sidequest_id", null: false
@@ -594,6 +611,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_05_182813) do
     t.datetime "period_end"
     t.datetime "period_start"
     t.string "rating"
+    t.jsonb "unresolved_queries", default: {}
     t.datetime "updated_at", null: false
     t.index ["period_start"], name: "index_support_vibes_on_period_start"
   end
@@ -744,6 +762,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_05_182813) do
   add_foreign_key "project_reports", "projects"
   add_foreign_key "project_reports", "users", column: "reporter_id"
   add_foreign_key "projects", "users", column: "marked_fire_by_id"
+  add_foreign_key "report_review_tokens", "project_reports", column: "report_id"
   add_foreign_key "shop_card_grants", "shop_items"
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"

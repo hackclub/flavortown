@@ -61,6 +61,9 @@ application.register("markdown-preview", MarkdownPreviewController);
 import ModalController from "./modal_controller";
 application.register("modal", ModalController);
 
+import LapseModalController from "./lapse_modal_controller";
+application.register("lapse-modal", LapseModalController);
+
 import MusicPlayerController from "./music_player_controller";
 application.register("music-player", MusicPlayerController);
 
@@ -109,6 +112,9 @@ application.register("upload-form", UploadFormController);
 import StarsController from "./stars_controller";
 application.register("stars", StarsController);
 
+import SidequestExpandController from "./sidequest_expand_controller";
+application.register("sidequest-expand", SidequestExpandController);
+
 import ShootingStarController from "./shooting_star_controller";
 application.register("shooting-star", ShootingStarController);
 
@@ -118,13 +124,8 @@ application.register("vote-tracker", VoteTrackerController);
 import WelcomeOverlayController from "./welcome_overlay_controller";
 application.register("welcome-overlay", WelcomeOverlayController);
 
-import RocketLaunchController from "./rocket_launch_controller";
-application.register("rocket-launch", RocketLaunchController);
 import ResponsiveImageMapController from "./responsive_image_map_controller";
 application.register("responsive-image-map", ResponsiveImageMapController);
-
-import FlagshipModalController from "./flagship_modal_controller";
-application.register("flagship-modal", FlagshipModalController);
 
 import TutorialVideoModalController from "./tutorial_video_modal_controller";
 application.register("tutorial-video-modal", TutorialVideoModalController);
@@ -137,3 +138,15 @@ application.register("tooltip", TooltipController);
 
 import ReadmeImageController from "./readme_image_controller";
 application.register("readme-image", ReadmeImageController);
+
+import RadioOptionController from "./radio_option_controller";
+application.register("radio-option", RadioOptionController);
+
+import DevlogAttachmentSelectorController from "./devlog_attachment_selector_controller";
+application.register(
+  "devlog-attachment-selector",
+  DevlogAttachmentSelectorController,
+);
+
+import XpWindowController from "./xp_window_controller";
+application.register("xp-window", XpWindowController);

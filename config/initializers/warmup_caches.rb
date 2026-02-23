@@ -3,4 +3,7 @@ Rails.application.config.after_initialize do
 
   Rails.logger.info "Warming up carousel prizes cache..."
   Cache::CarouselPrizesJob.perform_later
+
+  Rails.logger.info "Warming up sitemap cache..."
+  Cache::SitemapJob.perform_later
 end

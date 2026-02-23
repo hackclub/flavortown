@@ -1,6 +1,6 @@
 <% content_for :title, @project.title %>
 <% content_for :og_title, @project.title %>
-<% content_for :og_description, truncate(@project.description.to_s, length: 200) %>
+<% content_for :og_description, truncate(@project.display_description.to_s, length: 200) %>
 <% content_for :og_image, project_og_image_url(@project, format: :png) %>
 <% content_for :twitter_card, "summary_large_image" %>
 <% content_for :og_author, @project.memberships.find_by(role: :owner)&.user&.display_name %>
@@ -70,6 +70,10 @@
             });
           </script>
         <% end %>
+
+        <% if policy(@project).confirm_recertification? && @project.last_ship_event&.certification_status == "rejected" %>
+          <%= link_to "Request Re-certification", confirm_recertification_project_path(@project), class: "btn btn--green" %>
+        <% end %>
       </div>
     <% end %>
 
@@ -100,7 +104,11 @@
       <div class="projects-show__timeline">
         <div class="mt-4" style="display: grid; gap: var(--space-xl);">
           <% @posts.each do |post| %>
-            <%= render PostComponent.new(post: post, current_user: current_user) %>
+            <%= render PostComponent.new(
+                  post: post,
+                  current_user: current_user,
+                  lapse_badge: @devlog_lapse_badges[post.postable_id]
+                ) %>
           <% end %>
         </div>
       </div>

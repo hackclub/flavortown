@@ -6,6 +6,19 @@ class ShipCertService
   def self.ship_data(project, type: nil, ship_event: nil)
     owner = project.memberships.owner.first&.user
     ship_event ||= latest_ship_event(project)
+    sidequest_entries = project.sidequest_entries.includes(:sidequest)
+    sidequest_slugs = sidequest_entries.map { |entry| entry.sidequest&.slug }.compact
+    sidequest_details = sidequest_entries.filter_map do |entry|
+      sidequest = entry.sidequest
+      next unless sidequest
+
+      {
+        id: sidequest.id.to_s,
+        slug: sidequest.slug,
+        title: sidequest.title,
+        entryState: entry.aasm_state
+      }
+    end
 
     devlog_count = project.devlog_posts
       .joins("JOIN post_devlogs ON post_devlogs.id = posts.postable_id")
@@ -35,7 +48,10 @@ class ShipCertService
         metadata: {
           devTime: project.duration_seconds,
           devlogCount: devlog_count,
-          lastShipEventAt: last_ship_at&.iso8601
+          lastShipEventAt: last_ship_at&.iso8601,
+          isSidequestProject: sidequest_slugs.any?,
+          sidequestSlugs: sidequest_slugs,
+          sidequests: sidequest_details
         }
       }
     }

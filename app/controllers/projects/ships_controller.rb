@@ -11,6 +11,11 @@ class Projects::ShipsController < ApplicationController
   def create
     authorize @project, :submit_ship?
 
+    # Warn if readme URL is not a raw GitHub URL
+    unless @project.readme_is_raw_github_url?
+      flash.now[:warning] = "Your README link doesn't appear to be a raw GitHub URL. We require raw README files (from raw.githubusercontent.com) for proper display and consistency. Please update your README URL."
+    end
+
     @project.with_lock do
       @project.submit_for_review!
       @post = @project.posts.create!(user: current_user, postable: Post::ShipEvent.new(body: params[:ship_update].to_s.strip))
@@ -34,6 +39,10 @@ class Projects::ShipsController < ApplicationController
   def initial_ship? = @project.posts.where(postable_type: "Post::ShipEvent").one?
 
   def load_ship_data
+    if @step == 2
+      @space_themed_checked = @project.space_themed?
+      @project.description = @project.description_without_space_theme_prefix if @project.space_themed?
+    end
     @hackatime_projects = @project.hackatime_projects_with_time
     @total_hours = @project.total_hackatime_hours
     @last_ship = @project.last_ship_event
@@ -48,6 +57,11 @@ class Projects::ShipsController < ApplicationController
 
   def create_sidequest_entries!
     sidequest_ids = Array(params[:sidequest_ids]).map(&:to_i).reject(&:zero?)
+    if @project.space_themed?
+      challenger_id = Sidequest.active.find_by(slug: "challenger")&.id
+      sidequest_ids << challenger_id if challenger_id
+    end
+    sidequest_ids.uniq!
     return if sidequest_ids.empty?
 
     active_sidequest_ids = Sidequest.active.where(id: sidequest_ids).pluck(:id)
