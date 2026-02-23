@@ -1,20 +1,10 @@
 import { Controller } from "@hotwired/stimulus";
-import { init, isInitialized } from "@fullstory/browser";
 
 export default class extends Controller {
   static targets = ["timeField", "repoField", "demoField"];
-  static values = { fullstoryOrgId: String };
 
   connect() {
     this.startTime = Date.now();
-    this.initFullStory();
-  }
-
-  initFullStory() {
-    const orgId = this.fullstoryOrgIdValue;
-    if (orgId && !isInitialized()) {
-      init({ orgId });
-    }
   }
 
   trackRepoClick(event) {
