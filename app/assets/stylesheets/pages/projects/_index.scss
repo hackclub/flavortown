@@ -63,6 +63,11 @@
     }
   }
 
+  &__notice-heading {
+    font-weight: 600;
+    font-size: var(--font-size-l);
+  }
+
   &__notice-icon {
     width: 1em;
     height: 1em;
