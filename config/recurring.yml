@@ -123,3 +123,9 @@ production:
     schedule: every 4 hours
     concurrency: 1
     description: "Sync completed YSWS reviews to Airtable with user PII"
+
+  ysws_check_duplicates:
+    class: YswsReview::CheckDuplicatesJob
+    schedule: every day
+    concurrency: 1
+    description: "Check YSWS submissions for duplicates in unified database"
