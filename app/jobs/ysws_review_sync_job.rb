@@ -415,9 +415,25 @@ class YswsReviewSyncJob < ApplicationJob
     # Check if existing record already has 2 screenshots in Airtable
     if ship_cert_id.present?
       existing_record = fetch_existing_airtable_record(ship_cert_id)
-      if existing_record && existing_record["Screenshot"]&.count.to_i >= 2
-        Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{existing_record['Screenshot'].count} screenshots")
-        return nil
+      screenshots = existing_record && existing_record["Screenshot"]
+
+      if screenshots.present? && screenshots.count >= 2
+        # Reuse the existing video thumbnail URL to avoid oscillating the Screenshot array
+        first_screenshot = screenshots.first
+        existing_thumbnail_url =
+          if first_screenshot.is_a?(Hash)
+            first_screenshot["url"]
+          else
+            first_screenshot
+          end
+
+        if existing_thumbnail_url.present?
+          Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{screenshots.count} screenshots, reusing existing thumbnail #{existing_thumbnail_url.inspect}")
+          return existing_thumbnail_url
+        else
+          Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{screenshots.count} screenshots but no reusable thumbnail URL found")
+          return nil
+        end
       end
     end
 
