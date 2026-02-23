@@ -39,7 +39,6 @@ class KitchenController < ApplicationController
       @show_hackatime_tutorial = false
       @show_slack_tutorial = false
     end
-
   end
 
   private
@@ -89,3 +88,4 @@ class KitchenController < ApplicationController
     nil
   end
 end
+ 
