@@ -16,18 +16,8 @@
   </div>
   <div id="project-idea-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;" onclick="document.getElementById('project-idea-container').style.display='none'; this.style.display='none';"></div>
 
-  <div class="projects-board__notice">
-    <div class="projects-board__notice-heading">
-      <%# This should be a h2 but I'd rather have no headings than incomplete headings on this page %>
-      <%= inline_svg_tag("icons/info.svg", class: "projects-board__notice-icon", alt: "") %>
-      Voting, payouts, and shipping are paused
-    </div>
-    <p>
-      We're currently upgrading the voting system to make it fairer for everyone!
-      This is a big effort, so <strong>shipping, voting, and payouts are unavailable during this week</strong>.
-      You can keep working and devlogging as normal!
-    </p>
-  </div>
+  <%# This should be a h2 but I'd rather have no headings than incomplete headings on this page %>
+  <%= render PlatformNoticeComponent.new(heading_element: "div") %>
 
   <section class="projects-board__grid" aria-label="Projects">
     <% if @projects.any? %>
