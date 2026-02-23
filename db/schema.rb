@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_23_150958) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_23_171058) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -612,16 +612,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_150958) do
     t.jsonb "unresolved_queries", default: {}
     t.datetime "updated_at", null: false
     t.index ["period_start"], name: "index_support_vibes_on_period_start"
-  end
-
-  create_table "sw_vibes_snapshots", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.jsonb "payload", default: {}
-    t.text "reason"
-    t.date "recorded_date", null: false
-    t.boolean "result"
-    t.datetime "updated_at", null: false
-    t.index ["recorded_date"], name: "index_sw_vibes_snapshots_on_recorded_date", unique: true
   end
 
   create_table "user_achievements", force: :cascade do |t|
