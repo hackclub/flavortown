@@ -223,7 +223,7 @@ class PostComponent < ViewComponent::Base
   end
 
   def theme_class
-    return nil unless @theme = :explore_mixed
+    return nil unless @theme == :explore_mixed
 
     themes = %i[devlog ship fire certified]
     picked = themes[post.id.to_i % themes.length]
