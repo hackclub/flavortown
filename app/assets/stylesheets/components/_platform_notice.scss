@@ -7,8 +7,7 @@
       transparent 90deg 180deg
     );
   background-size: 120px 120px;
-  outline: 0.4em solid var(--color-yellow-500);
-  outline-offset: 0;
+  border: 0.4em solid var(--color-yellow-500);
   padding: 1em;
   border-radius: 12px;
   line-height: 1.5;
@@ -20,6 +19,10 @@
   & a {
     color: var(--color-brown-700);
     text-decoration: underline;
+  }
+
+  &--with-margin {
+    margin-top: var(--space-xl);
   }
 
   &__heading {

@@ -1,13 +1,13 @@
-<div class="platform-notice">
+<div class="platform-notice <%= "platform-notice--with-margin" if with_margin %>">
   <%= content_tag(@heading_element, class: "platform-notice__heading") do %>
     <%= helpers.inline_svg_tag("icons/info.svg", class: "platform-notice__icon", alt: "") %>
     Voting is currently paused
   <% end %>
   <p class="platform-notice__message">
-    We're upgrading the voting system to make it clearer and fairer!
+    We're <a href="<%= @message_link %>">upgrading the voting system</a> to make it clearer and fairer!
     As part of this effort, <strong>voting is temporarily unavailable this week</strong>.
   </p><p>
-    <a href="https://hackclub.slack.com/archives/C09MATJJZ5J/p1771879301452079">See cwalker's message in #flavortown-bulletin</a>
+    <a href="<%= @message_link %>">See cwalker's message in #flavortown-bulletin</a>
     for more details.
   </p>
 </div>

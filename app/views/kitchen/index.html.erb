@@ -202,7 +202,7 @@
     </div>
   <% end %>
   <% end %>
-  <%= render PlatformNoticeComponent.new(heading_element: "h2") %>
+  <%= render PlatformNoticeComponent.new(heading_element: "h2", with_margin: true) %>
   <% if Flipper.enabled?(:kitchen_comic, current_user) %>
     <div class="kitchen-comic">
       <%= image_tag "kitchen_comic/title.avif", alt: "How to Flavortown", class: "kitchen-comic__title" %>
