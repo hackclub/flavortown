@@ -31,7 +31,7 @@
       </p>
     <% end %>
 
-    <div class="votes-new__main" data-controller="vote-tracker">
+    <div class="votes-new__main" data-controller="vote-tracker"<% if @fullstory_org_id.present? %> data-vote-tracker-fullstory-org-id-value="<%= @fullstory_org_id %>"<% end %>>
       <%= render "project_showcase", project: @project, posts: @posts %>
 
       <div class="votes-new__form">

@@ -6,6 +6,7 @@ class VotesController < ApplicationController
 
   def new
     authorize :vote
+    @fullstory_org_id = Rails.application.credentials.dig(:fullstory, :org_id).presence
     @ship_event = VoteMatchmaker.new(current_user, user_agent: request.user_agent).next_ship_event
     return redirect_to root_path, notice: "No more projects to vote on!" unless @ship_event
 
