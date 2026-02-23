@@ -1,0 +1,17 @@
+<div
+  class="<%= container_classes %>"
+  data-controller="radio-option"
+  data-radio-option-name-value="<%= name %>"
+  data-radio-option-value-value="<%= value %>"
+  data-radiogroup="<%= radiogroup %>"
+  data-checked="<%= checked %>"
+  data-action="click->radio-option#select"
+  role="radio"
+  aria-checked="<%= checked %>"
+  tabindex="0">
+  <input type="hidden" name="<%= name %>" value="<%= value %>" <%= "disabled" unless checked %>>
+  <span class="radio-option__indicator">
+    <%= helpers.inline_svg_tag "icons/checkmark-tick.svg", class: "radio-option__checkmark" %>
+  </span>
+  <span class="radio-option__label"><%= label %></span>
+</div>
