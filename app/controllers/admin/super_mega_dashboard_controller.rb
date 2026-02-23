@@ -13,6 +13,7 @@ module Admin
       load_support_graph_data
       load_ship_certs_stats
       load_sw_vibes_stats
+      load_sw_vibes_history
       load_voting_stats
       load_ysws_review_stats
     end
@@ -389,26 +390,42 @@ module Admin
         return
       end
 
-      @sw_vibes = Rails.cache.fetch("sw_vibes_data", expires_in: 5.minutes) do
-        conn = Faraday.new do |f|
-          f.options.timeout = 10
-          f.options.open_timeout = 5
-        end
+      begin
+        @sw_vibes = Rails.cache.fetch("sw_vibes_data", expires_in: 5.minutes) do
+          conn = Faraday.new do |f|
+            f.options.timeout = 10
+            f.options.open_timeout = 5
+          end
 
-        response = conn.get("https://ai.review.hackclub.com/metrics/qualitative") do |req|
-          req.headers["X-API-Key"] = api_key
-        end
+          response = conn.get("https://ai.review.hackclub.com/metrics/qualitative") do |req|
+            req.headers["X-API-Key"] = api_key
+          end
 
-        unless response.success?
-          next { error: "API died (#{response.status})" }
-        end
+          unless response.success?
+            next { error: "API died (#{response.status})" }
+          end
 
-        JSON.parse(response.body, symbolize_names: true)
+          JSON.parse(response.body, symbolize_names: true)
+        end
+      rescue Faraday::Error
+        @sw_vibes = { error: "Couldn't reach the API" }
+      rescue JSON::ParserError
+        @sw_vibes = { error: "Got a weird response" }
       end
-    rescue Faraday::Error
-      @sw_vibes = { error: "Couldn't reach the API" }
-    rescue JSON::ParserError
-      @sw_vibes = { error: "Got a weird response" }
+
+      if @sw_vibes.present? && !@sw_vibes[:error]
+        snapshot = SwVibesSnapshot.find_or_initialize_by(recorded_date: Date.current)
+        snapshot.assign_attributes(
+          result: @sw_vibes.dig(:positive, :result),
+          reason: @sw_vibes.dig(:positive, :reason),
+          payload: @sw_vibes.to_h
+        )
+        snapshot.save!
+      end
+    end
+
+    def load_sw_vibes_history
+      @sw_vibes_history = SwVibesSnapshot.order(recorded_date: :desc).limit(90)
     end
 
     def load_voting_stats
