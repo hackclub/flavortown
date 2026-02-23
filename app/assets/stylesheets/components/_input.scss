@@ -41,6 +41,12 @@
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
+
+    input,
+    button,
+    select {
+      pointer-events: auto;
+    }
   }
 
   &__field {

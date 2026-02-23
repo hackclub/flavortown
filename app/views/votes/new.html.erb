@@ -1,4 +1,21 @@
 <% content_for :title, "Vote!" %>
+<% if @fullstory_org_id.present? %>
+  <% content_for :head do %>
+    <script>
+      window['_fs_host'] = 'fullstory.com';
+      window['_fs_script'] = 'edge.fullstory.com/s/fs.js';
+      window['_fs_org'] = '<%= j @fullstory_org_id %>';
+      window['_fs_namespace'] = 'FS';
+      (function(){
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://' + window._fs_script;
+        var first = document.getElementsByTagName('script')[0];
+        first.parentNode.insertBefore(s, first);
+      })();
+    </script>
+  <% end %>
+<% end %>
 
 <%= render MusicPlayerComponent.new(audio_url: audio_path("fireentity - voting.mp3")) %>
 

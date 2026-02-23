@@ -270,6 +270,7 @@ Rails.application.routes.draw do
         post :reject
       end
     end
+    resources :special_activities, only: [ :index, :create ]
     resources :support_vibes, only: [ :index, :create ]
     resources :sw_vibes, only: [ :index ]
     resources :suspicious_votes, only: [ :index ]
@@ -315,6 +316,7 @@ Rails.application.routes.draw do
     resource :ships, only: [ :new, :create ], module: :projects
     member do
       get :readme
+      get :lapse_timelapses
       get :stats
       post :mark_fire
       post :unmark_fire
