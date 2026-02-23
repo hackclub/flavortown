@@ -238,7 +238,7 @@ class YswsReviewSyncJob < ApplicationJob
     primary_address = user_pii[:addresses]&.first || {}
     devlogs = review["devlogs"] || []
     banner_url = banner_url_for_project_id(ship_cert["ftProjectId"])
-    video_thumbnail_url = video_thumbnail_url_for_proof_video(ship_cert["proofVideoUrl"])
+    video_thumbnail_url = video_thumbnail_url_for_proof_video(ship_cert["proofVideoUrl"], ship_cert_id: ship_cert["id"].to_s)
     hours_spent = adjusted_hours || (calculate_total_approved_minutes(devlogs) / 60.0).round(2)
 
     {
@@ -520,5 +520,14 @@ class YswsReviewSyncJob < ApplicationJob
     return false if ft_project_id.blank?
 
     Project::Report.where(project_id: ft_project_id, status: [ :pending, :reviewed ]).exists?
+  end
+
+  def fetch_existing_airtable_record(ship_cert_id)
+    return nil if ship_cert_id.blank?
+
+    table.all(filter: "{ship_cert_id} = '#{ship_cert_id}'").first
+  rescue StandardError => e
+    Rails.logger.error("[YswsReviewSyncJob] fetch_existing_airtable_record: #{e.class}: #{e.message}")
+    nil
   end
 end
