@@ -9,7 +9,7 @@
   </div>
   <div>
     <label for="date">Date</label>
-    <%= date_field_tag :date, params[:date], class: "input-primary" %>
+    <%= date_field_tag :date, params[:date], class: "input-primary", autocomplete: "off" %>
   </div>
   <%= submit_tag "Upload", class: "btn-primary" %>
 <% end %>
