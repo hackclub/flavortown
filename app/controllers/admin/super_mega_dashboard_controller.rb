@@ -379,6 +379,8 @@ module Admin
         decisions_today: data["decisionsToday"],
         new_ships_today: data["newShipsToday"]
       }
+
+      sync_sw_vibes_history(data["metricsHistory"] || [])
     rescue Faraday::Error, JSON::ParserError, Faraday::TimeoutError
       @ship_certs = { error: true }
     end
@@ -420,12 +422,39 @@ module Admin
           reason: @sw_vibes.dig(:positive, :reason),
           payload: @sw_vibes.to_h
         )
-        snapshot.save!
+        snapshot.save
       end
     end
 
     def load_sw_vibes_history
       @sw_vibes_history = SwVibesSnapshot.order(recorded_date: :desc).limit(90)
+    end
+
+    def sync_sw_vibes_history(metrics_history)
+      return if metrics_history.blank?
+
+      existing_dates = SwVibesSnapshot.pluck(:recorded_date).to_set
+
+      metrics_history.each do |entry|
+        output = entry["output"] || {}
+        date_str = output["for_date"]
+        next unless date_str.present?
+
+        recorded_date = Date.parse(date_str)
+        next if existing_dates.include?(recorded_date)
+
+        inner = output["output"] || {}
+        positive = inner["positive"] || {}
+
+        SwVibesSnapshot.create!(
+          recorded_date: recorded_date,
+          result: positive["result"],
+          reason: positive["reason"],
+          payload: inner
+        )
+      rescue Date::Error, ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
+        next
+      end
     end
 
     def load_voting_stats

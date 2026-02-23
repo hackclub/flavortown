@@ -794,6 +794,39 @@
 
             <script>
               document.addEventListener('DOMContentLoaded', function() {
+                function buildDetailHtml(s) {
+                  var payload = s.payload || {};
+                  var positive = payload.positive || {};
+                  var reason = (positive.reason || s.reason || '').toString();
+                  var html = '<h4>' + s.date + ' — ' + (s.result ? 'Good' : 'Bad') + '</h4><p>' + (reason || '—') + '</p>';
+                  var quotes = payload.quotes || [];
+                  if (quotes.length) {
+                    html += '<h4>Quotes</h4><ul class="sw-vibes-popup__quotes">';
+                    quotes.forEach(function(q) {
+                      html += '<li><blockquote>' + (q.text || '') + '</blockquote><p>' + (q.reason || '') + '</p></li>';
+                    });
+                    html += '</ul>';
+                  }
+                  var suggestion = payload.suggestion;
+                  if (suggestion) {
+                    html += '<h4>Suggestion</h4><p>' + (suggestion.action || '') + '</p><p><strong>Why:</strong> ' + (suggestion.reason || '') + '</p>';
+                  }
+                  return html;
+                }
+
+                function showDayDetail(entry, parentPopupId) {
+                  var historyPopup = document.getElementById('history-popup');
+                  var graphPopup = document.getElementById('sw-vibes-graph-popup');
+                  historyPopup.style.display = 'flex';
+                  if (graphPopup) graphPopup.style.display = 'none';
+                  document.getElementById('history-popup-detail-content').innerHTML = buildDetailHtml(entry);
+                  document.getElementById('history-popup-list').style.display = 'none';
+                  document.getElementById('history-popup-detail').style.display = 'block';
+                  historyPopup.setAttribute('data-came-from', parentPopupId || '');
+                }
+
+                window._swVibesChartDays = [];
+
                 document.querySelectorAll('[data-popup]').forEach(function(trigger) {
                   trigger.addEventListener('click', function() {
                     var popupId = this.getAttribute('data-popup');
@@ -816,6 +849,7 @@
                             var iso = dt.toISOString().slice(0, 10);
                             days.push({ date: iso, entry: byDate[iso] || null });
                           }
+                          window._swVibesChartDays = days;
 
                           var goodCount = 0, badCount = 0, noData = 0, streak = 0, streakType = '';
                           days.forEach(function(d) {
@@ -875,6 +909,13 @@
                             options: {
                               responsive: true,
                               maintainAspectRatio: false,
+                              onClick: function(evt, elements) {
+                                if (!elements.length) return;
+                                var idx = elements[0].index;
+                                var day = window._swVibesChartDays[idx];
+                                if (!day || !day.entry) return;
+                                showDayDetail(day.entry, 'sw-vibes-graph-popup');
+                              },
                               plugins: {
                                 legend: { display: false },
                                 tooltip: {
@@ -884,7 +925,8 @@
                                       var r = reasons[ctx.dataIndex];
                                       if (r.length > 80) return r.substring(0, 77) + '...';
                                       return r;
-                                    }
+                                    },
+                                    afterLabel: function() { return '(click for details)'; }
                                   }
                                 }
                               },
@@ -913,36 +955,23 @@
                     var historyData = window.SW_VIBES_HISTORY_DATA || [];
                     var s = historyData[idx];
                     if (!s) return;
-                    var payload = s.payload || {};
-                    var positive = payload.positive || payload['positive'] || {};
-                    var reason = (positive.reason || positive['reason'] || s.reason || '').toString();
-                    var html = '<h4>Why ' + (s.result ? 'Good' : 'Bad') + '?</h4><p>' + (reason || '—') + '</p>';
-                    var quotes = payload.quotes || payload['quotes'] || [];
-                    if (quotes.length) {
-                      html += '<h4>Quotes</h4><ul class="sw-vibes-popup__quotes">';
-                      quotes.forEach(function(q) {
-                        var text = (q.text || q['text'] || '').toString();
-                        var reasonQ = (q.reason || q['reason'] || '').toString();
-                        html += '<li><blockquote>' + text + '</blockquote><p>' + reasonQ + '</p></li>';
-                      });
-                      html += '</ul>';
-                    }
-                    var suggestion = payload.suggestion || payload['suggestion'];
-                    if (suggestion) {
-                      var action = (suggestion.action || suggestion['action'] || '').toString();
-                      var suggReason = (suggestion.reason || suggestion['reason'] || '').toString();
-                      html += '<h4>Suggestion</h4><p>' + action + '</p><p><strong>Why:</strong> ' + suggReason + '</p>';
-                    }
-                    document.getElementById('history-popup-detail-content').innerHTML = html;
-                    document.getElementById('history-popup-list').style.display = 'none';
-                    document.getElementById('history-popup-detail').style.display = 'block';
+                    showDayDetail(s, 'history-popup');
                   });
                 });
 
                 document.querySelectorAll('.sw-vibes-history-detail__back').forEach(function(btn) {
                   btn.addEventListener('click', function() {
-                    document.getElementById('history-popup-list').style.display = 'block';
-                    document.getElementById('history-popup-detail').style.display = 'none';
+                    var popup = document.getElementById('history-popup');
+                    var cameFrom = popup.getAttribute('data-came-from');
+                    if (cameFrom === 'sw-vibes-graph-popup') {
+                      popup.style.display = 'none';
+                      var graphPopup = document.getElementById('sw-vibes-graph-popup');
+                      if (graphPopup) graphPopup.style.display = 'flex';
+                    } else {
+                      document.getElementById('history-popup-list').style.display = 'block';
+                      document.getElementById('history-popup-detail').style.display = 'none';
+                    }
+                    popup.removeAttribute('data-came-from');
                   });
                 });
 
