@@ -191,6 +191,51 @@
     }
   }
 
+  .super-mega-dashboard__card--two-thirds {
+    grid-column: span 2;
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 1em;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    max-height: 500px;
+
+    canvas {
+      max-height: 400px;
+    }
+  }
+
+  .super-mega-dashboard__card--one-third {
+    grid-column: span 1;
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 1em;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    max-height: 500px;
+
+    canvas {
+      max-height: 400px;
+    }
+  }
+
+  &__cards--ysws-review {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .ysws-review-graph,
+  .ysws-review-ecdf-graph {
+    flex: 1;
+    min-height: 300px;
+    position: relative;
+  }
+
   .current-concerns-list {
     padding-left: 1.5rem;
     margin: 0;

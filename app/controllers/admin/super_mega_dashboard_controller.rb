@@ -308,11 +308,49 @@ module Admin
         this_week: (@ysws_review_graph_data[:done].select { |date, _| Date.parse(date) >= week_ago_est }.sum { |_, count| count }) +
                    (@ysws_review_graph_data[:returned].select { |date, _| Date.parse(date) >= week_ago_est }.sum { |_, count| count })
       }
+
+      # Calculate ECDF data for devlogs distribution
+      # Fetch done reviews
+      response_data_done = YswsReviewService.fetch_all_reviews(status: "done")
+      reviews_data_done = if response_data_done.is_a?(Hash)
+        response_data_done["reviews"] || response_data_done[:reviews] || []
+      elsif response_data_done.is_a?(Array)
+        response_data_done
+      else
+        []
+      end
+
+      # Extract devlog counts from done reviews
+      devlog_counts_done = reviews_data_done.map do |review|
+        review["devlogCount"] || review[:devlogCount] || 0
+      end.compact
+
+      # Fetch all reviews (no status filter)
+      response_data_all = YswsReviewService.fetch_all_reviews
+      reviews_data_all = if response_data_all.is_a?(Hash)
+        response_data_all["reviews"] || response_data_all[:reviews] || []
+      elsif response_data_all.is_a?(Array)
+        response_data_all
+      else
+        []
+      end
+
+      # Extract devlog counts from all reviews
+      devlog_counts_all = reviews_data_all.map do |review|
+        review["devlogCount"] || review[:devlogCount] || 0
+      end.compact
+
+      # Calculate ECDF for both datasets
+      @ysws_review_ecdf_data = {
+        done: calculate_ecdf(devlog_counts_done),
+        all: calculate_ecdf(devlog_counts_all)
+      }
     rescue StandardError => e
       Rails.logger.error "[SuperMegaDashboard] Error loading YSWS review stats: #{e.message}"
       Rails.logger.error "[SuperMegaDashboard] Backtrace: #{e.backtrace.first(5).join("\n")}"
       @ysws_review_graph_data = nil
       @ysws_review_stats = { error: e.message }
+      @ysws_review_ecdf_data = nil
     end
 
     def find_reviews(days, offset_hours, status)
@@ -339,6 +377,38 @@ module Admin
       end
 
       reviews_data.size
+    end
+
+    def calculate_ecdf(data)
+      return [] if data.empty?
+
+      # Sort the data
+      sorted_data = data.sort
+      n = sorted_data.size
+
+      # Calculate 99th percentile threshold
+      percentile_99_index = [(n * 0.99).ceil - 1, n - 1].min
+      percentile_99_value = sorted_data[percentile_99_index]
+
+      # Filter data to only include values up to 99th percentile
+      filtered_data = sorted_data.select { |x| x <= percentile_99_value }
+      filtered_n = filtered_data.size.to_f
+
+      # Get unique values and calculate cumulative probability for each
+      unique_values = filtered_data.uniq.sort
+
+      ecdf_points = unique_values.map do |value|
+        # Count how many values are <= current value in filtered data
+        count = filtered_data.count { |x| x <= value }
+        cumulative_probability = (count / filtered_n * 100).round(2)
+
+        {
+          devlogs: value,
+          cumulative_percent: cumulative_probability
+        }
+      end
+
+      ecdf_points
     end
   end
 end

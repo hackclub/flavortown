@@ -669,9 +669,9 @@
         <%= link_to "View Full Dashboard →", "https://review.hackclub.com/admin/ysws_reviews", class: "super-mega-link", target: "_blank" %>
       </div>
 
-      <div class="super-mega-dashboard__cards">
+      <div class="super-mega-dashboard__cards super-mega-dashboard__cards--ysws-review">
         <% if @ysws_review_stats && !@ysws_review_stats[:error] %>
-          <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--two-thirds">
             <h3>Reviews Per Day</h3>
             <% if @ysws_review_graph_data.present? %>
               <div class="ysws-review-graph">
@@ -762,6 +762,124 @@
               <p>No review data available</p>
             <% end %>
           </div>
+
+          <% if @ysws_review_ecdf_data.present? %>
+            <div class="super-mega-dashboard__card super-mega-dashboard__card--one-third">
+              <h3>Devlogs Distribution (ECDF)</h3>
+              <div class="ysws-review-ecdf-graph">
+                <canvas id="yswsReviewEcdfChart" height="300"></canvas>
+              </div>
+              <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                  const ctx = document.getElementById('yswsReviewEcdfChart');
+                  if (!ctx) return;
+
+                  const ecdfData = <%= raw @ysws_review_ecdf_data.to_json %>;
+
+                  // Get all unique devlog values from both datasets
+                  const doneData = ecdfData.done || [];
+                  const allData = ecdfData.all || [];
+
+                  const allDevlogs = [...new Set([
+                    ...doneData.map(d => d.devlogs),
+                    ...allData.map(d => d.devlogs)
+                  ])].sort((a, b) => a - b);
+
+                  // Create lookup maps for easier access
+                  const doneMap = new Map(doneData.map(d => [d.devlogs, d.cumulative_percent]));
+                  const allMap = new Map(allData.map(d => [d.devlogs, d.cumulative_percent]));
+
+                  // Fill in values for all devlog counts
+                  const doneValues = [];
+                  const allValues = [];
+                  let lastDoneValue = 0;
+                  let lastAllValue = 0;
+
+                  allDevlogs.forEach(devlogs => {
+                    if (doneMap.has(devlogs)) {
+                      lastDoneValue = doneMap.get(devlogs);
+                    }
+                    if (allMap.has(devlogs)) {
+                      lastAllValue = allMap.get(devlogs);
+                    }
+                    doneValues.push({ x: devlogs, y: lastDoneValue });
+                    allValues.push({ x: devlogs, y: lastAllValue });
+                  });
+
+                  new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                      datasets: [
+                        {
+                          label: 'Done Reviews',
+                          data: doneValues,
+                          borderColor: '#ef4444',
+                          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                          fill: false,
+                          tension: 0.4,
+                          pointRadius: 3,
+                          pointBackgroundColor: '#ef4444',
+                          borderWidth: 2
+                        },
+                        {
+                          label: 'All Reviews',
+                          data: allValues,
+                          borderColor: '#10b981',
+                          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                          fill: false,
+                          tension: 0.4,
+                          pointRadius: 3,
+                          pointBackgroundColor: '#10b981',
+                          borderWidth: 2
+                        }
+                      ]
+                    },
+                    options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: 'bottom'
+                        },
+                        tooltip: {
+                          callbacks: {
+                            title: function(context) {
+                              const devlogs = context[0].parsed.x;
+                              return devlogs + ' devlog' + (devlogs !== 1 ? 's' : '');
+                            },
+                            label: function(context) {
+                              return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '% of reviews';
+                            }
+                          }
+                        }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          max: 100,
+                          title: { display: true, text: 'Cumulative Percentage (%)' },
+                          ticks: {
+                            callback: function(value) {
+                              return value + '%';
+                            }
+                          }
+                        },
+                        x: {
+                          type: 'linear',
+                          title: { display: true, text: 'Number of Devlogs' },
+                          ticks: {
+                            precision: 0,
+                            stepSize: 1
+                          }
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+            </div>
+          <% end %>
         <% else %>
           <div class="super-mega-dashboard__card">
             <h3>Error</h3>
