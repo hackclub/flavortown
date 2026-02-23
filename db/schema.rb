@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_18_163248) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_23_161955) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -575,6 +575,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_18_163248) do
     t.index ["user_id"], name: "index_shop_warehouse_packages_on_user_id"
   end
 
+  create_table "show_and_tell_attendances", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "date"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_show_and_tell_attendances_on_user_id"
+  end
+
   create_table "sidequest_entries", force: :cascade do |t|
     t.string "aasm_state", default: "pending", null: false
     t.datetime "created_at", null: false
@@ -773,6 +781,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_18_163248) do
   add_foreign_key "shop_orders", "users", column: "assigned_to_user_id", on_delete: :nullify
   add_foreign_key "shop_suggestions", "users"
   add_foreign_key "shop_warehouse_packages", "users"
+  add_foreign_key "show_and_tell_attendances", "users"
   add_foreign_key "sidequest_entries", "projects"
   add_foreign_key "sidequest_entries", "sidequests"
   add_foreign_key "sidequest_entries", "users", column: "reviewed_by_id"

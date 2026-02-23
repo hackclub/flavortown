@@ -270,6 +270,7 @@ Rails.application.routes.draw do
         post :reject
       end
     end
+    resources :special_activities, only: [ :index, :create ]
     resources :support_vibes, only: [ :index, :create ]
     resources :sw_vibes, only: [ :index ]
     resources :suspicious_votes, only: [ :index ]

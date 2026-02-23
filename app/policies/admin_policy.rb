@@ -114,4 +114,8 @@ class AdminPolicy < ApplicationPolicy
   def access_sw_vibes?
     user.admin?
   end
+
+  def access_special_activities?
+    user.admin?
+  end
 end
