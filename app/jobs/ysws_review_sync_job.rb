@@ -409,8 +409,17 @@ class YswsReviewSyncJob < ApplicationJob
     nil
   end
 
-  def video_thumbnail_url_for_proof_video(proof_video_url)
+  def video_thumbnail_url_for_proof_video(proof_video_url, ship_cert_id: nil)
     return nil if proof_video_url.blank?
+
+    # Check if existing record already has 2 screenshots in Airtable
+    if ship_cert_id.present?
+      existing_record = fetch_existing_airtable_record(ship_cert_id)
+      if existing_record && existing_record["Screenshot"]&.count.to_i >= 2
+        Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{existing_record['Screenshot'].count} screenshots")
+        return nil
+      end
+    end
 
     host = default_url_host
     return nil if host.blank?
