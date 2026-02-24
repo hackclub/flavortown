@@ -13,82 +13,64 @@ env:
   BUNDLE_WITHOUT: development
 
 jobs:
-
-
   scan_ruby:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
       - name: Install build dependencies
         run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
+      - run: bin/brakeman --no-pager
+
+  scan_js:
+    runs-on: ubuntu-latest
+    steps:
+      - run: true
 
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
       - name: Install build dependencies
         run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
           node-version-file: package.json
           cache: yarn
 
-      - name: Install JS dependencies
-        run: yarn install --frozen-lockfile --prefer-offline
+      - run: yarn install --frozen-lockfile --prefer-offline
 
-      - name: Lint code for consistent style
-        run: bin/rubocop -f github
-        # need to fix this? bin/rubocop -f github --autocorrect
-
-      - name: Lint ERB templates
-        run: bundle exec erb_lint --lint-all
-        # need to fix this? bundle exec erb_lint --lint-all --autocorrect
-
-      - name: Check JavaScript/TypeScript formatting
-        run: yarn -s prettier --check "app/javascript/**/*.{js,jsx,ts,tsx}"
-
-      - name: Check SCSS/CSS formatting
-        run: yarn -s prettier --check "app/assets/stylesheets/**/*.{scss,css}"
+      - run: bin/rubocop -f github
+      - run: bundle exec erb_lint --lint-all
+      - run: yarn -s prettier --check "app/javascript/**/*.{js,jsx,ts,tsx}" "app/assets/stylesheets/**/*.{scss,css}"
 
   zeitwerk_check:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
       - name: Install build dependencies
         run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Check zeitwerk loader
-        run: bin/rails zeitwerk:check
+      - run: bin/rails zeitwerk:check
 
   db_checks:
     runs-on: ubuntu-latest
@@ -107,20 +89,20 @@ jobs:
       DATABASE_URL: postgresql://postgres:password@localhost:5432/flavortown_test
     steps:
       - uses: actions/checkout@v6
+
       - name: Install build dependencies
         run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
+
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Check schema matches migrations
-        id: migration_check
-        run: |
-          bundle exec rails db:migrate
-          git diff --exit-code db/schema.rb
+      - run: bundle exec rails db:migrate
+      - run: git diff --exit-code db/schema.rb
+
       - name: Comment on schema failure
-        if: failure() && steps.migration_check.outcome == 'failure' && github.event_name == 'pull_request'
+        if: failure() && github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           script: |
@@ -131,12 +113,10 @@ jobs:
               body: `### :rage2: you GOOF!\n Schema dump has fallen out of date\n\nRun \`rails db:migrate\` locally and commit the changes to \`db/schema.rb\`.`
             });
 
-      - name: Check annotations are up to date
-        id: annotate_check
-        if: success()
-        run: bundle exec annotaterb models --frozen
+      - run: bundle exec annotaterb models --frozen
+
       - name: Comment on annotation failure
-        if: failure() && steps.annotate_check.outcome == 'failure' && github.event_name == 'pull_request'
+        if: failure() && github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           script: |
