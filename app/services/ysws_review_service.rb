@@ -34,6 +34,16 @@ module YswsReviewService
     response.body
   end
 
+  def fetch_all_reviews(status: nil)
+    return { reviews: [], stats: {}, leaderboard: [] } if DISABLED
+
+    params = {}
+    params[:status] = status if status.present?
+
+    response = connection.get("/api/admin/ysws_reviews", params)
+    response.body
+  end
+
   def fetch_review(review_id)
     return nil if DISABLED
 
