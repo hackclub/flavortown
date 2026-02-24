@@ -13,6 +13,7 @@ module Admin
       load_support_graph_data
       load_ship_certs_stats
       load_sw_vibes_stats
+      load_sw_vibes_history
       load_voting_stats
       load_ysws_review_stats
     end
@@ -411,41 +412,46 @@ module Admin
     end
 
     def load_ship_certs_stats
-      @ship_certs = Rails.cache.fetch("super_mega_ship_certs", expires_in: 5.minutes) do
-        begin
-          conn = Faraday.new do |f|
-            f.options.timeout = 5
-            f.options.open_timeout = 2
-          end
-
-          response = conn.get("https://review.hackclub.com/api/stats/ship-certs") do |req|
-            req.headers["x-api-key"] = ENV["SW_DASHBOARD_API_KEY"]
-          end
-
-          unless response.success?
-            { error: true }
-          else
-            data = JSON.parse(response.body)
-
-            {
-              total_judged: data["totalJudged"],
-              approved: data["approved"],
-              rejected: data["rejected"],
-              pending: data["pending"],
-              approval_rate: data["approvalRate"],
-              median_queue_time: data["medianQueueTime"],
-              oldest_in_queue: data["oldestInQueue"],
-              avg_queue_time_history: data["avgQueueTime"] || {},
-              reviews_per_day: data["reviewsPerDay"] || {},
-              ships_per_day: data["shipsPerDay"] || {},
-              decisions_today: data["decisionsToday"],
-              new_ships_today: data["newShipsToday"]
-            }
-          end
-        rescue Faraday::Error, JSON::ParserError, Faraday::TimeoutError
-          { error: true }
+      raw_data = Rails.cache.fetch("super_mega_ship_certs_raw", expires_in: 5.minutes) do
+        conn = Faraday.new do |f|
+          f.options.timeout = 5
+          f.options.open_timeout = 2
         end
+
+        response = conn.get("https://review.hackclub.com/api/stats/ship-certs") do |req|
+          req.headers["x-api-key"] = ENV["SW_DASHBOARD_API_KEY"]
+        end
+
+        unless response.success?
+          next nil
+        end
+
+        JSON.parse(response.body)
+      rescue Faraday::Error, JSON::ParserError, Faraday::TimeoutError
+        nil
       end
+
+      unless raw_data
+        @ship_certs = { error: true }
+        return
+      end
+
+      @ship_certs = {
+        total_judged: raw_data["totalJudged"],
+        approved: raw_data["approved"],
+        rejected: raw_data["rejected"],
+        pending: raw_data["pending"],
+        approval_rate: raw_data["approvalRate"],
+        median_queue_time: raw_data["medianQueueTime"],
+        oldest_in_queue: raw_data["oldestInQueue"],
+        avg_queue_time_history: raw_data["avgQueueTime"] || {},
+        reviews_per_day: raw_data["reviewsPerDay"] || {},
+        ships_per_day: raw_data["shipsPerDay"] || {},
+        decisions_today: raw_data["decisionsToday"],
+        new_ships_today: raw_data["newShipsToday"]
+      }
+
+      @sw_vibes_history = parse_sw_vibes_history(raw_data["metricsHistory"] || [])
     end
 
     def load_sw_vibes_stats
@@ -455,26 +461,52 @@ module Admin
         return
       end
 
-      @sw_vibes = Rails.cache.fetch("sw_vibes_data", expires_in: 5.minutes) do
-        conn = Faraday.new do |f|
-          f.options.timeout = 10
-          f.options.open_timeout = 5
-        end
+      begin
+        @sw_vibes = Rails.cache.fetch("sw_vibes_data", expires_in: 5.minutes) do
+          conn = Faraday.new do |f|
+            f.options.timeout = 10
+            f.options.open_timeout = 5
+          end
 
-        response = conn.get("https://ai.review.hackclub.com/metrics/qualitative") do |req|
-          req.headers["X-API-Key"] = api_key
-        end
+          response = conn.get("https://ai.review.hackclub.com/metrics/qualitative") do |req|
+            req.headers["X-API-Key"] = api_key
+          end
 
-        unless response.success?
-          next { error: "API died (#{response.status})" }
-        end
+          unless response.success?
+            next { error: "API died (#{response.status})" }
+          end
 
-        JSON.parse(response.body, symbolize_names: true)
+          JSON.parse(response.body, symbolize_names: true)
+        end
+      rescue Faraday::Error
+        @sw_vibes = { error: "Couldn't reach the API" }
+      rescue JSON::ParserError
+        @sw_vibes = { error: "Got a weird response" }
       end
-    rescue Faraday::Error
-      @sw_vibes = { error: "Couldn't reach the API" }
-    rescue JSON::ParserError
-      @sw_vibes = { error: "Got a weird response" }
+    end
+
+    def load_sw_vibes_history
+      @sw_vibes_history ||= []
+    end
+
+    def parse_sw_vibes_history(metrics_history)
+      metrics_history.filter_map do |entry|
+        output = entry["output"] || {}
+        date_str = output["for_date"]
+        next unless date_str.present?
+
+        inner = output["output"] || {}
+        positive = inner["positive"] || {}
+
+        OpenStruct.new(
+          recorded_date: Date.parse(date_str),
+          result: positive["result"],
+          reason: positive["reason"],
+          payload: inner
+        )
+      rescue Date::Error
+        nil
+      end.sort_by(&:recorded_date).reverse
     end
 
     def load_voting_stats

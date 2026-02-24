@@ -359,12 +359,15 @@
 
       <div class="super-mega-dashboard__cards super-mega-dashboard__cards--shipwrights">
         <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-vibes">
-          <h3>SW Vibes</h3>
+          <div class="sw-vibes-mini__header-row">
+            <button type="button" class="sw-vibes-mini__history-link" data-popup="history-popup">History</button>
+            <h3>SW Vibes</h3>
+          </div>
           <% if @sw_vibes && !@sw_vibes[:error] %>
             <div class="sw-vibes-mini">
               <div class="sw-vibes-mini__status">
                 <span class="sw-vibes-mini__badge sw-vibes-mini__badge--clickable <%= @sw_vibes.dig(:positive, :result) ? 'sw-vibes-mini__badge--good' : 'sw-vibes-mini__badge--bad' %>"
-                      data-popup="status-popup">
+                      data-popup="sw-vibes-graph-popup">
                   <%= @sw_vibes.dig(:positive, :result) ? 'Good' : 'Bad' %>
                 </span>
               </div>
@@ -426,21 +429,251 @@
               </div>
             <% end %>
 
-            <div id="status-popup" class="sw-vibes-popup" style="display: none;">
-              <div class="sw-vibes-popup__content">
+          <% else %>
+            <p class="sw-vibes-mini__error"><%= @sw_vibes&.dig(:error) || "nun yet" %></p>
+          <% end %>
+
+            <div id="sw-vibes-graph-popup" class="sw-vibes-popup" style="display: none;">
+              <div class="sw-vibes-popup__content sw-vibes-popup__content--wide">
                 <span class="sw-vibes-popup__close">&times;</span>
-                <h4>Why <%= @sw_vibes.dig(:positive, :result) ? 'Good' : 'Bad' %>?</h4>
-                <p><%= @sw_vibes.dig(:positive, :reason) %></p>
+                <h4>SW Vibes – 30-Day Overview</h4>
+                <div class="sw-vibes-summary" id="sw-vibes-summary"></div>
+                <div class="sw-vibes-graph-wrap">
+                  <canvas id="swVibesHistoryChart"></canvas>
+                </div>
+                <div class="sw-vibes-legend">
+                  <span class="sw-vibes-legend__item sw-vibes-legend__item--good">Good</span>
+                  <span class="sw-vibes-legend__item sw-vibes-legend__item--bad">Bad</span>
+                  <span class="sw-vibes-legend__item sw-vibes-legend__item--missing">No data</span>
+                </div>
+                <% if @sw_vibes && !@sw_vibes[:error] %>
+                  <div class="sw-vibes-popup__today-reason">
+                    <strong>Today:</strong> <%= @sw_vibes.dig(:positive, :reason) %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+
+            <div id="history-popup" class="sw-vibes-popup" style="display: none;">
+              <div class="sw-vibes-popup__content sw-vibes-popup__content--wide">
+                <span class="sw-vibes-popup__close">&times;</span>
+                <div id="history-popup-list" class="sw-vibes-history">
+                  <h4>SW Vibes history</h4>
+                  <% if @sw_vibes_history.present? %>
+                    <div class="sw-vibes-history__cards">
+                      <% @sw_vibes_history.each_with_index do |snapshot, idx| %>
+                        <button type="button" class="sw-vibes-history__card" data-history-index="<%= idx %>">
+                          <span class="sw-vibes-mini__badge <%= snapshot.result ? 'sw-vibes-mini__badge--good' : 'sw-vibes-mini__badge--bad' %>"><%= snapshot.result ? 'Good' : 'Bad' %></span>
+                          <span class="sw-vibes-history__reason"><%= truncate(snapshot.reason.to_s, length: 80) %></span>
+                          <span class="sw-vibes-history__date">For <%= snapshot.recorded_date.strftime('%b %-d, %Y') %></span>
+                        </button>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <p class="sw-vibes-history__empty">No history yet. History is recorded when you view the dashboard.</p>
+                  <% end %>
+                </div>
+                <div id="history-popup-detail" class="sw-vibes-history-detail" style="display: none;">
+                  <button type="button" class="sw-vibes-history-detail__back">&larr; Back</button>
+                  <div id="history-popup-detail-content"></div>
+                </div>
               </div>
             </div>
 
             <script>
+              window.SW_VIBES_HISTORY_DATA = <%= raw (@sw_vibes_history || []).map { |s| { date: s.recorded_date.to_s, result: s.result, reason: s.reason.to_s, payload: s.payload } }.to_json %>;
+            </script>
+
+            <script>
               document.addEventListener('DOMContentLoaded', function() {
+                function escapeHtml(str) {
+                  return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+                }
+
+                function buildDetailHtml(s) {
+                  var payload = s.payload || {};
+                  var positive = payload.positive || {};
+                  var reason = escapeHtml(positive.reason || s.reason || '');
+                  var dateText = escapeHtml(s.date || '');
+                  var html = '<h4>' + dateText + ' — ' + (s.result ? 'Good' : 'Bad') + '</h4><p>' + (reason || '—') + '</p>';
+                  var quotes = payload.quotes || [];
+                  if (quotes.length) {
+                    html += '<h4>Quotes</h4><ul class="sw-vibes-popup__quotes">';
+                    quotes.forEach(function(q) {
+                      html += '<li><blockquote>' + escapeHtml(q.text || '') + '</blockquote><p>' + escapeHtml(q.reason || '') + '</p></li>';
+                    });
+                    html += '</ul>';
+                  }
+                  var suggestion = payload.suggestion;
+                  if (suggestion) {
+                    html += '<h4>Suggestion</h4><p>' + escapeHtml(suggestion.action || '') + '</p><p><strong>Why:</strong> ' + escapeHtml(suggestion.reason || '') + '</p>';
+                  }
+                  return html;
+                }
+
+                function showDayDetail(entry, parentPopupId) {
+                  var historyPopup = document.getElementById('history-popup');
+                  var graphPopup = document.getElementById('sw-vibes-graph-popup');
+                  historyPopup.style.display = 'flex';
+                  if (graphPopup) graphPopup.style.display = 'none';
+                  document.getElementById('history-popup-detail-content').innerHTML = buildDetailHtml(entry);
+                  document.getElementById('history-popup-list').style.display = 'none';
+                  document.getElementById('history-popup-detail').style.display = 'block';
+                  historyPopup.setAttribute('data-came-from', parentPopupId || '');
+                }
+
+                window._swVibesChartDays = [];
+
                 document.querySelectorAll('[data-popup]').forEach(function(trigger) {
                   trigger.addEventListener('click', function() {
                     var popupId = this.getAttribute('data-popup');
                     var popup = document.getElementById(popupId);
-                    if (popup) popup.style.display = 'flex';
+                    if (popup) {
+                      popup.style.display = 'flex';
+                      if (popupId === 'sw-vibes-graph-popup') {
+                        requestAnimationFrame(function() {
+                          var canvas = document.getElementById('swVibesHistoryChart');
+                          if (!canvas || typeof Chart === 'undefined') return;
+                          var historyData = window.SW_VIBES_HISTORY_DATA || [];
+
+                          var byDate = {};
+                          historyData.forEach(function(d) { byDate[d.date] = d; });
+
+                          var days = [];
+                          for (var i = 29; i >= 0; i--) {
+                            var dt = new Date();
+                            dt.setDate(dt.getDate() - i);
+                            var iso = dt.toISOString().slice(0, 10);
+                            days.push({ date: iso, entry: byDate[iso] || null });
+                          }
+                          window._swVibesChartDays = days;
+
+                          var goodCount = 0, badCount = 0, noData = 0, streak = 0, streakType = '';
+                          days.forEach(function(d) {
+                            if (!d.entry) { noData++; return; }
+                            d.entry.result ? goodCount++ : badCount++;
+                          });
+                          for (var j = days.length - 1; j >= 0; j--) {
+                            if (!days[j].entry) break;
+                            var curr = days[j].entry.result ? 'good' : 'bad';
+                            if (streak === 0) { streakType = curr; streak = 1; }
+                            else if (curr === streakType) { streak++; }
+                            else break;
+                          }
+
+                          var total = goodCount + badCount;
+                          var pct = total > 0 ? Math.round((goodCount / total) * 100) : 0;
+                          var summaryEl = document.getElementById('sw-vibes-summary');
+                          summaryEl.innerHTML =
+                            '<div class="sw-vibes-summary__stat sw-vibes-summary__stat--good"><span class="sw-vibes-summary__number">' + goodCount + '</span><span class="sw-vibes-summary__label">Good days</span></div>' +
+                            '<div class="sw-vibes-summary__stat sw-vibes-summary__stat--bad"><span class="sw-vibes-summary__number">' + badCount + '</span><span class="sw-vibes-summary__label">Bad days</span></div>' +
+                            '<div class="sw-vibes-summary__stat"><span class="sw-vibes-summary__number">' + pct + '%</span><span class="sw-vibes-summary__label">Good rate</span></div>' +
+                            '<div class="sw-vibes-summary__stat"><span class="sw-vibes-summary__number">' + streak + '</span><span class="sw-vibes-summary__label">' + (streakType === 'good' ? 'Good' : 'Bad') + ' streak</span></div>';
+
+                          var labels = days.map(function(d) {
+                            var p = d.date.split('-');
+                            return parseInt(p[1]) + '/' + parseInt(p[2]);
+                          });
+                          var barValues = days.map(function() { return 1; });
+                          var bgColors = days.map(function(d) {
+                            if (!d.entry) return '#e5e7eb';
+                            return d.entry.result ? '#22c55e' : '#ef4444';
+                          });
+                          var borderColors = days.map(function(d) {
+                            if (!d.entry) return '#d1d5db';
+                            return d.entry.result ? '#16a34a' : '#dc2626';
+                          });
+                          var reasons = days.map(function(d) {
+                            if (!d.entry) return 'No data recorded';
+                            return (d.entry.result ? 'Good' : 'Bad') + ': ' + (d.entry.reason || '—');
+                          });
+
+                          if (window._swVibesChart) window._swVibesChart.destroy();
+                          window._swVibesChart = new Chart(canvas, {
+                            type: 'bar',
+                            data: {
+                              labels: labels,
+                              datasets: [{
+                                data: barValues,
+                                backgroundColor: bgColors,
+                                borderColor: borderColors,
+                                borderWidth: 1,
+                                borderRadius: 2,
+                                barPercentage: 0.9,
+                                categoryPercentage: 0.95
+                              }]
+                            },
+                            options: {
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              onClick: function(evt, elements) {
+                                if (!elements.length) return;
+                                var idx = elements[0].index;
+                                var day = window._swVibesChartDays[idx];
+                                if (!day || !day.entry) return;
+                                showDayDetail(day.entry, 'sw-vibes-graph-popup');
+                              },
+                              plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                  callbacks: {
+                                    title: function(items) { return items[0].label; },
+                                    label: function(ctx) {
+                                      var r = reasons[ctx.dataIndex];
+                                      if (r.length > 80) return r.substring(0, 77) + '...';
+                                      return r;
+                                    },
+                                    afterLabel: function() { return '(click for details)'; }
+                                  }
+                                }
+                              },
+                              scales: {
+                                y: { display: false, min: 0, max: 1 },
+                                x: {
+                                  grid: { display: false },
+                                  ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }
+                                }
+                              }
+                            }
+                          });
+                        });
+                      }
+                      if (popupId === 'history-popup') {
+                        document.getElementById('history-popup-list').style.display = 'block';
+                        document.getElementById('history-popup-detail').style.display = 'none';
+                      }
+                    }
+                  });
+                });
+
+                document.querySelectorAll('.sw-vibes-history__card').forEach(function(card) {
+                  card.addEventListener('click', function() {
+                    var idx = parseInt(this.getAttribute('data-history-index'), 10);
+                    var historyData = window.SW_VIBES_HISTORY_DATA || [];
+                    var s = historyData[idx];
+                    if (!s) return;
+                    showDayDetail(s, 'history-popup');
+                  });
+                });
+
+                document.querySelectorAll('.sw-vibes-history-detail__back').forEach(function(btn) {
+                  btn.addEventListener('click', function() {
+                    var popup = document.getElementById('history-popup');
+                    var cameFrom = popup.getAttribute('data-came-from');
+                    if (cameFrom === 'sw-vibes-graph-popup') {
+                      popup.style.display = 'none';
+                      var graphPopup = document.getElementById('sw-vibes-graph-popup');
+                      if (graphPopup) graphPopup.style.display = 'flex';
+                    } else {
+                      document.getElementById('history-popup-list').style.display = 'block';
+                      document.getElementById('history-popup-detail').style.display = 'none';
+                    }
+                    popup.removeAttribute('data-came-from');
                   });
                 });
 
@@ -457,9 +690,6 @@
                 });
               });
             </script>
-          <% else %>
-            <p class="sw-vibes-mini__error"><%= @sw_vibes&.dig(:error) || "nun yet" %></p>
-          <% end %>
         </div>
 
         <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-stats">
