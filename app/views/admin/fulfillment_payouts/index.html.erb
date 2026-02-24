@@ -1,7 +1,7 @@
 <h1>Fulfillment Payouts</h1>
 
 <div class="fulfillment-payouts-actions">
-  <%= link_to "Trigger Manual Run", trigger_admin_fulfillment_payouts_path, method: :post, data: { turbo_method: :post, turbo_confirm: "This will calculate payouts only for orders fulfilled since the last run. Continue?" }, class: "btn-primary" %>
+  <%= button_to "Trigger Manual Run", trigger_admin_fulfillment_payouts_path, method: :post, data: { confirm: "This will calculate payouts only for orders fulfilled since the last run. Continue?" }, class: "btn-primary" %>
 </div>
 
 <% if @runs.any? %>
