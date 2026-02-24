@@ -11,6 +11,11 @@ class Projects::ShipsController < ApplicationController
   def create
     authorize @project, :submit_ship?
 
+    # Warn if readme URL is not a raw GitHub URL
+    unless @project.readme_is_raw_github_url?
+      flash.now[:warning] = "Your README link doesn't appear to be a raw GitHub URL. We require raw README files (from raw.githubusercontent.com) for proper display and consistency. Please update your README URL."
+    end
+
     @project.with_lock do
       @project.submit_for_review!
       @post = @project.posts.create!(user: current_user, postable: Post::ShipEvent.new(body: params[:ship_update].to_s.strip))

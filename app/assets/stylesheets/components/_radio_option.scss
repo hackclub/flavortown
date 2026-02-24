@@ -1,0 +1,60 @@
+.radio-option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+
+  input[type="hidden"] {
+    display: none;
+  }
+
+  &__indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: 2px solid #a7c957;
+    pointer-events: all;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  &__checkmark {
+    width: 12px;
+    height: 12px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+
+    path {
+      fill: #fff;
+    }
+  }
+
+  &[data-checked="true"] &__indicator {
+    background-color: #a7c957;
+    border-color: #a7c957;
+  }
+
+  &[data-checked="true"] &__checkmark {
+    opacity: 1;
+  }
+
+  &__label {
+    font-weight: 500;
+  }
+
+  &:hover &__indicator {
+    border-color: #a7c957;
+  }
+
+  &:focus-within &__indicator {
+    outline: 2px solid #a7c957;
+    outline-offset: 2px;
+  }
+}

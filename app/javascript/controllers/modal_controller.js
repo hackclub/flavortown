@@ -25,6 +25,9 @@ export default class extends Controller {
       modal.showModal();
     } else {
       modal.style.display = "flex";
+      requestAnimationFrame(() => {
+        modal.classList.add("lapse-modal--open");
+      });
     }
 
     document.body.style.overflow = "hidden";
@@ -43,14 +46,32 @@ export default class extends Controller {
         if (modal.tagName === "DIALOG") {
           modal.close();
         } else {
-          modal.style.display = "none";
+          modal.classList.remove("lapse-modal--open");
+          modal.classList.add("lapse-modal--closing");
+          modal.addEventListener(
+            "animationend",
+            () => {
+              modal.style.display = "none";
+              modal.classList.remove("lapse-modal--closing");
+            },
+            { once: true },
+          );
         }
       }
       document.body.style.overflow = "";
       return;
     }
 
-    this.element.style.display = "none";
+    this.element.classList.remove("lapse-modal--open");
+    this.element.classList.add("lapse-modal--closing");
+    this.element.addEventListener(
+      "animationend",
+      () => {
+        this.element.style.display = "none";
+        this.element.classList.remove("lapse-modal--closing");
+      },
+      { once: true },
+    );
     document.body.style.overflow = "";
   }
 
