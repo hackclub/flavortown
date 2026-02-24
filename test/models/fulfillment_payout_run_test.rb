@@ -1,11 +1,30 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: fulfillment_payout_runs
+#
+#  id                  :bigint           not null, primary key
+#  aasm_state          :string
+#  approved_at         :datetime
+#  period_end          :datetime
+#  period_start        :datetime
+#  total_amount        :integer
+#  total_orders        :integer
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  approved_by_user_id :bigint
+#
+# Foreign Keys
+#
+#  fk_rails_...  (approved_by_user_id => users.id)
+#
 require "test_helper"
 
 class FulfillmentPayoutRunTest < ActiveSupport::TestCase
   setup do
     @fulfiller = User.create!(slack_id: "UPAYOUT1", display_name: "Payout Fulfiller", email: "payout@test.com")
-    @admin = User.create!(slack_id: "UADMIN1", display_name: "Admin User", email: "admin@test.com", granted_roles: [:admin])
+    @admin = User.create!(slack_id: "UADMIN1", display_name: "Admin User", email: "admin@test.com", granted_roles: [ :admin ])
     @item = ShopItem.create!(name: "Payout Item", ticket_cost: 0, type: "ShopItem::ThirdPartyPhysical", enabled: true)
     @buyer = User.create!(slack_id: "UBUYER2", display_name: "Buyer Two", email: "buyer2@test.com")
   end
