@@ -5,6 +5,7 @@ class Projects::DevlogsController < ApplicationController
   before_action :sync_hackatime_projects, only: %i[new create]
   before_action :load_preview_time, only: %i[new]
   before_action :require_preview_time, only: %i[new]
+  before_action :load_lapse_timelapses, only: %i[new create]
 
   def new
     authorize @project, :create_devlog?
@@ -18,11 +19,24 @@ class Projects::DevlogsController < ApplicationController
       load_preview_time
       return redirect_to @project, alert: "Could not calculate your coding time. Please try again." unless @preview_time.present?
 
-      @devlog = Post::Devlog.new(devlog_params)
+      @devlog = Post::Devlog.new(devlog_params.except(:lapse_timelapse_id))
       @devlog.duration_seconds = @preview_seconds
       @devlog.hackatime_projects_key_snapshot = @project.hackatime_keys.join(",")
 
+      if params[:media_type] == "lapse"
+        timelapse_data = resolve_lapse_timelapse
+        unless timelapse_data
+          flash.now[:alert] = "Failed to attach timelapse. Please try again or use a file upload."
+          load_lapse_timelapses
+          return render :new, status: :unprocessable_entity
+        end
+        @devlog.lapse_video_processing = true
+      end
+
       if @devlog.save
+        if timelapse_data
+          ProcessLapseTimelapseJob.perform_later(@devlog.id, timelapse_data[:id], timelapse_data[:playback_url])
+        end
         Post.create!(project: @project, user: current_user, postable: @devlog)
         Rails.cache.delete("user/#{current_user.id}/devlog_seconds_total")
         Rails.cache.delete("user/#{current_user.id}/devlog_seconds_today/#{Time.zone.today}")
@@ -180,7 +194,7 @@ class Projects::DevlogsController < ApplicationController
   end
 
   def devlog_params
-    params.require(:post_devlog).permit(:body, :scrapbook_url, attachments: [])
+    params.require(:post_devlog).permit(:body, :scrapbook_url, :lapse_timelapse_id, attachments: [])
   end
 
   def update_devlog_params
@@ -213,5 +227,61 @@ class Projects::DevlogsController < ApplicationController
   rescue => e
     Rails.logger.error "Failed to load preview time: #{e.message}"
     @preview_time = nil
+  end
+
+  def resolve_lapse_timelapse
+    timelapse_id = devlog_params[:lapse_timelapse_id]
+    return nil unless timelapse_id.present?
+
+    timelapse = @lapse_timelapses&.find { |t| t["id"] == timelapse_id }
+    return nil unless timelapse
+
+    playback_url = timelapse["playbackUrl"]
+    return nil unless playback_url.present?
+
+    { id: timelapse_id, playback_url: playback_url }
+  end
+
+  def load_lapse_timelapses
+    @lapse_timelapses = []
+
+    hackatime_identity = current_user.hackatime_identity
+    unless hackatime_identity&.uid.present?
+      return
+    end
+
+    unless ENV["LAPSE_API_BASE"].present?
+      return
+    end
+
+    hackatime_keys = @project.hackatime_keys
+    unless hackatime_keys.present?
+      return
+    end
+
+    all_timelapses = LapseService.fetch_all_timelapses_for_projects(
+      hackatime_user_id: hackatime_identity.uid,
+      project_keys: hackatime_keys
+    )
+
+    return unless all_timelapses.present?
+
+    last_devlog = @project.devlogs.order(created_at: :desc).first
+    last_devlog_time = last_devlog&.created_at
+
+    @lapse_timelapses = all_timelapses.select do |timelapse|
+      created_at = Time.at(timelapse["createdAt"].to_i / 1000.0) rescue nil
+      next false unless created_at
+
+      if last_devlog_time
+        created_at > last_devlog_time
+      else
+        true
+      end
+    end
+  rescue => e
+    Rails.logger.error "Failed to load lapse timelapses: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n")
+    @lapse_timelapses = []
   end
 end

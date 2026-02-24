@@ -5,11 +5,13 @@ class PostComponent < ViewComponent::Base
 
   attr_reader :post, :compact
 
-  def initialize(post:, current_user: nil, theme: nil, compact: false)
+  def initialize(post:, current_user: nil, theme: nil, compact: false, lapse_badge: false, standalone: false)
     @post = post
     @current_user = current_user
     @theme = theme
     @compact = compact
+    @lapse_badge = lapse_badge
+    @standalone = standalone
   end
 
   def compact?
@@ -107,6 +109,26 @@ class PostComponent < ViewComponent::Base
 
   def git_commit?
     postable.is_a?(Post::GitCommit)
+  end
+
+  def show_lapse_badge?
+    devlog? && @lapse_badge
+  end
+
+  def standalone?
+    @standalone
+  end
+
+  def lapse_frame_id
+    "lapse-timelapses-#{post.project.id}" if post.project.present?
+  end
+
+  def lapse_modal_id
+    "lapse-modal-#{post.project.id}" if post.project.present?
+  end
+
+  def lapse_timelapses_url
+    helpers.lapse_timelapses_project_path(post.project) if post.project.present?
   end
 
   def author_activity

@@ -270,6 +270,7 @@ Rails.application.routes.draw do
         post :reject
       end
     end
+    resources :special_activities, only: [ :index, :create ]
     resources :support_vibes, only: [ :index, :create ]
     resources :sw_vibes, only: [ :index ]
     resources :suspicious_votes, only: [ :index ]
@@ -290,6 +291,7 @@ Rails.application.routes.draw do
     get "vote_spam_dashboard/users/:user_id", to: "vote_spam_dashboard#show", as: :vote_spam_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
@@ -315,6 +317,7 @@ Rails.application.routes.draw do
     resource :ships, only: [ :new, :create ], module: :projects
     member do
       get :readme
+      get :lapse_timelapses
       get :stats
       post :mark_fire
       post :unmark_fire
