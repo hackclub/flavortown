@@ -1,0 +1,81 @@
+<h1>Fulfillment Payouts</h1>
+
+<div class="fulfillment-payouts-actions">
+  <%= link_to "Trigger Manual Run", trigger_admin_fulfillment_payouts_path, method: :post, data: { turbo_method: :post, turbo_confirm: "This will calculate payouts only for orders fulfilled since the last run. Continue?" }, class: "btn-primary" %>
+</div>
+
+<% if @runs.any? %>
+  <table class="table-data">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Status</th>
+        <th>Period</th>
+        <th>Orders</th>
+        <th>Total Tickets</th>
+        <th>Created</th>
+        <th>Approved By</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @runs.each do |run| %>
+        <tr>
+          <td><%= link_to "##{run.id}", admin_fulfillment_payout_path(run) %></td>
+          <td>
+            <% case run.aasm_state %>
+            <% when "pending_approval" %>
+              <span class="badge badge--warning">Pending Approval</span>
+            <% when "approved" %>
+              <span class="badge badge--success">Approved</span>
+            <% when "rejected" %>
+              <span class="badge badge--danger">Rejected</span>
+            <% end %>
+          </td>
+          <td>
+            <%= run.period_start&.strftime("%b %d, %Y") || "All time" %>
+            &rarr;
+            <%= run.period_end.strftime("%b %d, %Y") %>
+          </td>
+          <td><%= run.total_orders %></td>
+          <td><%= number_with_delimiter(run.total_amount) %> 🍪</td>
+          <td><%= run.created_at.strftime("%b %d, %Y %H:%M") %></td>
+          <td><%= run.approved_by_user&.display_name || "-" %></td>
+          <td><%= link_to "View", admin_fulfillment_payout_path(run), class: "btn-primary" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No payout runs yet. The first run is scheduled for Friday at noon (Europe/London).</p>
+<% end %>
+
+<%= link_to "Go back", "/admin", class: "btn-primary" %>
+
+<style>
+  .fulfillment-payouts-actions {
+    margin-bottom: 1.5rem;
+  }
+
+  .badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .badge--warning {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .badge--success {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .badge--danger {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+</style>
