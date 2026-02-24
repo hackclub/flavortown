@@ -77,11 +77,11 @@ export default class extends Controller {
       const afterPrefix = description
         .substring(updatePrefix.length)
         .trimStart();
-      // Find where the update description ends (look for double space)
-      const doubleSpaceIndex = afterPrefix.indexOf("  ");
-      if (doubleSpaceIndex !== -1) {
+      // Find where the update description ends (look for double space + newline)
+      const separatorIndex = afterPrefix.indexOf("  \n");
+      if (separatorIndex !== -1) {
         this.baseDescription = afterPrefix
-          .substring(doubleSpaceIndex)
+          .substring(separatorIndex + 3)
           .trimStart();
       } else {
         this.baseDescription = "";
@@ -143,10 +143,10 @@ export default class extends Controller {
       const afterPrefix = currentValue
         .substring(updatePrefix.length)
         .trimStart();
-      const doubleSpaceIndex = afterPrefix.indexOf("  ");
-      if (doubleSpaceIndex !== -1) {
+      const separatorIndex = afterPrefix.indexOf("  \n");
+      if (separatorIndex !== -1) {
         this.baseDescription = afterPrefix
-          .substring(doubleSpaceIndex)
+          .substring(separatorIndex + 3)
           .trimStart();
       } else {
         // User might be editing, so be conservative
@@ -446,7 +446,7 @@ export default class extends Controller {
 
     // Use baseDescription (the original description without prefixes)
     const combinedPrefix =
-      prefixes.length > 0 ? `${prefixes.join(", ")}  ` : "";
+      prefixes.length > 0 ? `${prefixes.join(", ")}  \n` : "";
     this.descriptionTarget.value = combinedPrefix + this.baseDescription;
 
     this.validateDescription();
