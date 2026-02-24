@@ -35,7 +35,7 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
   }
 
   def index
-    project = Project.find(params[:project_id])
+    project = Project.find_by!(id: params[:project_id], deleted_at: nil)
 
     @pagy, @devlogs = pagy(
         project.devlogs

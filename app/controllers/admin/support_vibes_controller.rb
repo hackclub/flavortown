@@ -5,6 +5,7 @@ module Admin
     def index
       authorize :admin, :access_support_vibes?
       @vibes = SupportVibes.order(period_end: :desc).limit(20)
+      @support_vibes_history = @vibes.map { |d| [ d.period_end, d.overall_sentiment ] }
     end
 
     def create
@@ -66,7 +67,7 @@ module Admin
               ... (5-7 most common/impactful VERBATIM questions found in the text)
             ],
             "unresolved_queries": {
-              "Theme/Category: Short description of questions (2-3 sentences)": ["Exact question 1", "Exact question 2"],
+              "Theme/Category: Short description of questions (2-3 sentences) [COMMON/UNCOMMON/RARE — assigned priority based on how frequent the concern is amongst open tickets]": ["Exact question 1", "Exact question 2"],
               ... (For all major themes of unresolved questions, group them and list 2 VERBATIM questions for each)
             },
             "overall_sentiment": 0.5, // Float from -1.0 (very negative) to 1.0 (very positive)

@@ -57,6 +57,7 @@ class ShopController < ApplicationController
     @sale_price = @shop_item.price_for_region(@user_region)
     @regional_base_price = @shop_item.ticket_cost + (@shop_item.send("price_offset_#{@user_region.downcase}") || 0)
     @accessories = @shop_item.available_accessories.includes(:image_attachment)
+
     if @shop_item.requires_achievement?
       @required_achievement = Achievement.find(@shop_item.requires_achievement.to_sym)
       @locked_by_achievement = !current_user.earned_achievement?(@shop_item.requires_achievement.to_sym)
@@ -87,7 +88,10 @@ class ShopController < ApplicationController
     end
 
     @shop_item = ShopItem.where(enabled: true).find(params[:shop_item_id])
-
+    unless @shop_item.present?
+      redirect_to shop_path, alert: "This item cannot be ordered."
+      return
+    end
     unless @shop_item.buyable_by_self?
       redirect_to shop_path, alert: "This item cannot be ordered on its own."
       return
@@ -127,6 +131,14 @@ class ShopController < ApplicationController
     return redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "You need to have an address to make an order!" unless current_user.addresses.any?
 
     selected_address = current_user.addresses.find { |a| a["id"] == params[:address_id] } || current_user.addresses.first
+
+    # Check if item is available in the region of the selected address
+    address_country = selected_address&.dig("country")
+    address_region = Shop::Regionalizable.country_to_region(address_country)
+    unless @shop_item.enabled_in_region?(address_region)
+      redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "This item is not available in your region."
+      return
+    end
 
     begin
       ActiveRecord::Base.transaction do

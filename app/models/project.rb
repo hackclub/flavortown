@@ -43,6 +43,8 @@ class Project < ApplicationRecord
   include SoftDeletable
   include Recommendable
 
+  SPACE_THEMED_PREFIX = "Space Themed:".freeze
+
   has_paper_trail only: %i[shadow_banned shadow_banned_at shadow_banned_reason deleted_at]
 
   has_recommended :projects # more projects like this...
@@ -159,6 +161,18 @@ class Project < ApplicationRecord
     GitRepoService.is_cloneable? repo_url
   end
 
+  def validate_repo_url_format
+    return true if repo_url.blank?
+
+    # Check if repo_url ends with .git or contains /main/tree
+    repo_url.strip!
+    if repo_url.end_with?(".git") || repo_url.include?("/main/tree")
+      errors.add(:repo_url, "should not end with .git or contain /main/tree. Please use the root GitHub repository URL.")
+      return false
+    end
+    true
+  end
+
   def calculate_duration_seconds
     posts.of_devlogs(join: true).where(post_devlogs: { deleted_at: nil }).sum("post_devlogs.duration_seconds")
   end
@@ -186,6 +200,18 @@ class Project < ApplicationRecord
 
   def deleted?
     deleted_at.present?
+  end
+
+  def space_themed?
+    description.to_s.lstrip.start_with?(SPACE_THEMED_PREFIX)
+  end
+
+  def description_without_space_theme_prefix
+    description.to_s.sub(/\A\s*#{Regexp.escape(SPACE_THEMED_PREFIX)}\s*/, "")
+  end
+
+  def display_description
+    description_without_space_theme_prefix
   end
 
   def hackatime_keys
@@ -253,6 +279,7 @@ class Project < ApplicationRecord
     [
       { key: :demo_url, label: "Add a demo link so anyone can try your project", passed: demo_url.present? },
       { key: :repo_url, label: "Add a public GitHub URL with your source code", passed: repo_url.present? },
+      { key: :repo_url_format, label: "Use the root GitHub repository URL (no .git or /main/tree)", passed: validate_repo_url_format },
       { key: :repo_cloneable, label: "Make your GitHub repo publicly cloneable", passed: validate_repo_cloneable },
       { key: :readme_url, label: "Add a README URL to your project", passed: readme_url.present? },
       { key: :description, label: "Add a description for your project", passed: description.present? },
@@ -260,7 +287,7 @@ class Project < ApplicationRecord
       { key: :devlog, label: "Post at least one devlog since your last ship", passed: has_devlog_since_last_ship? },
       { key: :payout, label: "Wait for your previous ship's to get a payout", passed: previous_ship_event_has_payout? },
       { key: :vote_balance, label: "Your vote balance is negative", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
-      { key: :project_isnt_rejected, label: "Your project is not approved!", passed: last_ship_event&.certification_status != "rejected" },
+      { key: :project_isnt_rejected, label: "Your project is not rejected!", passed: last_ship_event&.certification_status != "rejected" },
       { key: :project_has_more_then_10s, label: "Your ship event has more then 10s!", passed: duration_seconds > 10 }
     ]
   end
@@ -292,10 +319,24 @@ class Project < ApplicationRecord
     update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
   end
 
+  def readme_is_raw_github_url?
+    return false if readme_url.blank?
+
+    begin
+      uri = URI.parse(readme_url)
+    rescue URI::InvalidURIError
+      return false
+    end
+
+    return false unless uri.host == "raw.githubusercontent.com"
+
+    /https:\/\/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/[^\/]+\/.*README.*\.md/i.match?(uri.to_s)
+  end
+
   private
 
   def has_devlog_since_last_ship?
-    return true if draft? || last_ship_event.nil?
+    return devlogs.exists? if last_ship_event.nil? || draft?
     devlogs.where("post_devlogs.created_at > ?", last_ship_event.created_at).exists?
   end
 

@@ -132,6 +132,18 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.27.0.tgz#64995295227e001f2940258617c6674efb3ac48d"
   integrity sha512-aIitBcjQeyOhMTImhLZmtxfdOcuNRpwlPNmlFKPcHQYPhEssw75Cl1TSXJXpMkzaua9FUetx/4OQKq7eJul5Cg==
 
+"@fullstory/browser@^2.0.6":
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/@fullstory/browser/-/browser-2.0.6.tgz#f34825803d8f99afc9bd812ebe96d29b3413591b"
+  integrity sha512-5cbZldOkb+KhgAFRQ5iMEoJR+TgKhCBRFiZN3PMHr+++EmHqprtNMyEAGppe02GUkASV4+7s4txghq6nkrRj8Q==
+  dependencies:
+    "@fullstory/snippet" "2.0.5"
+
+"@fullstory/snippet@2.0.5":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@fullstory/snippet/-/snippet-2.0.5.tgz#e00bfb13d95ea9638890a0940b1825c55ab987c5"
+  integrity sha512-33GJ/QhzZNk4q2B6LhU6Siha68NalrkPxdOaqrVZbUp0UyNYf3qHmU3ATTe51Vk/aM2J34ylrItJ7u94PQ16sA==
+
 "@hotwired/stimulus@^3.2.2":
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/@hotwired/stimulus/-/stimulus-3.2.2.tgz#071aab59c600fed95b97939e605ff261a4251608"
@@ -239,3 +251,8 @@ spark-md5@^3.0.1:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/spark-md5/-/spark-md5-3.0.2.tgz#7952c4a30784347abcee73268e473b9c0167e3fc"
   integrity sha512-wcFzz9cDfbuqe0FZzfi2or1sgyIrsDwmPwfZC4hiNidPdPINjeUwNfv5kldczoEAcjl9Y1L3SM7Uz2PUEQzxQw==
+
+xp.css@^0.2.6:
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/xp.css/-/xp.css-0.2.6.tgz#ec78a023897a0da594e0d0100a931e7310a4f5cd"
+  integrity sha512-v0qUB4wOvyXIMLNid5bIpm+0n5aL4i8wE5dqJH8LNVxE04PxUUxjwf2rNzengegUIK03XC4vbfLVCPAfMLtuqA==

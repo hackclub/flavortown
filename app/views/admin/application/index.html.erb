@@ -138,4 +138,7 @@
   <% if policy(:admin).access_support_vibes? %>
     <%= link_to "Support Vibes", "/admin/support_vibes", class: button_class %>
   <% end %>
+  <% if policy(:admin).access_special_activities? %>
+    <%= link_to "Special Activities", "/admin/special_activities", class: button_class %>
+  <% end %>
 </div>

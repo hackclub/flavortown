@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_10_182348) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_23_161955) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -275,6 +275,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_10_182348) do
     t.integer "duration_seconds"
     t.text "hackatime_projects_key_snapshot"
     t.datetime "hackatime_pulled_at"
+    t.boolean "lapse_video_processing", default: false, null: false
     t.integer "likes_count", default: 0, null: false
     t.string "scrapbook_url"
     t.datetime "synced_at"
@@ -451,6 +452,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_10_182348) do
     t.string "accessory_tag"
     t.jsonb "agh_contents"
     t.bigint "attached_shop_item_ids", default: [], array: true
+    t.string "blocked_countries", default: [], array: true
     t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.bigint "default_assigned_user_id"
@@ -573,10 +575,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_10_182348) do
     t.index ["user_id"], name: "index_shop_warehouse_packages_on_user_id"
   end
 
+  create_table "show_and_tell_attendances", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "date"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_show_and_tell_attendances_on_user_id"
+  end
+
   create_table "sidequest_entries", force: :cascade do |t|
     t.string "aasm_state", default: "pending", null: false
     t.datetime "created_at", null: false
+    t.boolean "is_rejection_fee_charged", default: false, null: false
     t.bigint "project_id", null: false
+    t.text "rejection_message"
     t.datetime "reviewed_at"
     t.bigint "reviewed_by_id"
     t.bigint "sidequest_id", null: false
@@ -769,6 +781,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_10_182348) do
   add_foreign_key "shop_orders", "users", column: "assigned_to_user_id", on_delete: :nullify
   add_foreign_key "shop_suggestions", "users"
   add_foreign_key "shop_warehouse_packages", "users"
+  add_foreign_key "show_and_tell_attendances", "users"
   add_foreign_key "sidequest_entries", "projects"
   add_foreign_key "sidequest_entries", "sidequests"
   add_foreign_key "sidequest_entries", "users", column: "reviewed_by_id"

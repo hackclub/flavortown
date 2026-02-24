@@ -68,6 +68,7 @@ Rails.application.routes.draw do
   get "shop/order", to: "shop#order"
   post "shop/order", to: "shop#create_order"
   patch "shop/update_region", to: "shop#update_region"
+  resources :shop_suggestions, only: [ :create ]
 
   # Report Reviews
   get "report-reviews/review/:token", to: "report_reviews#review", as: :review_report_token
@@ -86,6 +87,7 @@ Rails.application.routes.draw do
   get "nibbles", to: redirect("/sidequests")
   resources :sidequests, only: [ :index, :show ]
 
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
@@ -99,6 +101,7 @@ Rails.application.routes.draw do
 
     get "og_image_previews", to: "og_image_previews#index"
     get "og_image_previews/*id", to: "og_image_previews#show", as: :og_image_preview
+
   end
 
   # Action Mailbox for incoming HCB and tracking emails
@@ -115,15 +118,14 @@ Rails.application.routes.draw do
   get "auth/:provider/callback", to: "sessions#create"
   get "/auth/failure", to: "sessions#failure"
   delete "logout", to: "sessions#destroy"
+  get "dev_login", to: "sessions#dev_login", as: :dev_login_auto if Rails.env.development?
+  get "dev_login/:id", to: "sessions#dev_login", as: :dev_login if Rails.env.development?
 
   # OAuth callback for HCA
   get "/oauth/callback", to: "sessions#create"
 
   # Kitchen
   get "kitchen", to: "kitchen#index"
-
-  # Launch
-  get "launch", to: "launch#index"
 
   # Leaderboard
   get "leaderboard", to: "leaderboard#index"
@@ -218,8 +220,8 @@ Rails.application.routes.draw do
          post :unshadow_ban
          post :impersonate
          post :refresh_verification
-         get  :votes
          post :toggle_voting_lock
+         get  :votes
        end
        collection do
          post :stop_impersonating
@@ -257,6 +259,22 @@ Rails.application.routes.draw do
         post :refresh_verification
       end
     end
+    resources :shop_suggestions, only: [ :index ] do
+      member do
+        post :dismiss
+        post :disable_for_user
+      end
+    end
+    resources :sidequest_entries, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+    end
+    resources :special_activities, only: [ :index, :create ]
+    resources :support_vibes, only: [ :index, :create ]
+    resources :sw_vibes, only: [ :index ]
+    resources :suspicious_votes, only: [ :index ]
     resources :audit_logs, only: [ :index, :show ]
     resources :reports, only: [ :index, :show ] do
       collection do
@@ -265,12 +283,6 @@ Rails.application.routes.draw do
       member do
         post :review
         post :dismiss
-      end
-    end
-    resources :sidequest_entries, only: [ :index, :show ] do
-      member do
-        post :approve
-        post :reject
       end
     end
     get "payouts_dashboard", to: "payouts_dashboard#index"
@@ -288,15 +300,10 @@ Rails.application.routes.draw do
       end
     end
     resources :support_vibes, only: [ :index, :create ]
+    get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
-      end
-    end
-    resources :shop_suggestions, only: [ :index ] do
-      member do
-        post :dismiss
-        post :disable_for_user
       end
     end
   end
@@ -304,11 +311,7 @@ Rails.application.routes.draw do
   get "queue", to: "queue#index"
 
   # Project Ideas
-  resources :project_ideas, only: [] do
-    collection do
-      post :random
-    end
-  end
+  post "project_ideas/random", to: "project_ideas#random", as: :random_project_ideas
 
   # Projects
   resources :projects, shallow: true do
@@ -323,6 +326,7 @@ Rails.application.routes.draw do
     resource :ships, only: [ :new, :create ], module: :projects
     member do
       get :readme
+      get :lapse_timelapses
       get :stats
       post :mark_fire
       post :unmark_fire
@@ -347,7 +351,4 @@ Rails.application.routes.draw do
       get :stats
     end
   end
-
-  # Shop suggestions
-  resources :shop_suggestions, only: [ :create ]
 end

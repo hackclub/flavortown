@@ -61,12 +61,12 @@
   &__card {
     background-color: white;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 1em;
+    padding: 0.75em;
     border-radius: 1em;
 
     h3 {
-      margin-bottom: 0.5em;
-      font-size: 1.5rem;
+      margin: 0 0 0.4em 0;
+      font-size: 1.2rem;
     }
   }
 
@@ -172,6 +172,174 @@
       flex: 1;
       min-height: 200px;
     }
+  }
+
+  .super-mega-dashboard__card--full {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 1em;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    max-height: 500px;
+
+    canvas {
+      max-height: 400px;
+    }
+  }
+
+  .current-concerns-list {
+    padding-left: 1.5rem;
+    margin: 0;
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    .concern-desc-btn {
+      background: none;
+      border: none;
+      color: #1e40af;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0;
+
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+
+    .modal {
+      background-color: white;
+      border: 5px solid black;
+      padding: 0.8em;
+
+      h3 {
+        display: none;
+      }
+
+      p {
+        color: black;
+        font-size: 1rem;
+        line-height: 1.2;
+      }
+
+      &__actions {
+        .modal__actions-close {
+          position: absolute;
+          right: 0.5em;
+          top: 0.5em;
+          font-size: 1rem;
+          background: transparent;
+          border: none;
+          color: black;
+
+          &:hover {
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+}
+
+.fraud-stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 500;
+  }
+
+  &__value {
+    font-size: 1.1rem;
+    font-weight: bold;
+
+    &--yellow {
+      color: #f59e0b;
+    }
+
+    &--red {
+      color: #ef4444;
+    }
+
+    &--blue {
+      color: #3b82f6;
+    }
+
+    &--green {
+      color: #10b981;
+    }
+
+    &--purple {
+      color: #8b5cf6;
+    }
+  }
+
+  &__pct {
+    font-size: 0.65rem;
+    color: #999;
+    font-weight: 500;
+    margin-left: 0.15rem;
+  }
+}
+
+.fraud-subsection {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  &__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-brown-500);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.fraud-stats-error {
+  color: #666;
+  font-size: 0.9rem;
+  padding: 0.5rem 0;
+  margin: 0;
+}
+
+.fraud-timeline-graph {
+  flex: 1;
+  min-height: 150px;
+  position: relative;
+  width: 100%;
+
+  &--compact {
+    min-height: 100px;
+  }
+}
+
+.super-mega-dashboard__card--mini-graph {
+  grid-column: span 2;
+  padding: 0.75em;
+
+  @media (max-width: 1200px) {
+    grid-column: 1 / -1;
+  }
+
+  h3 {
+    margin: 0 0 0.5em 0;
+    font-size: 1rem;
   }
 }
 
@@ -285,6 +453,21 @@
     }
   }
 
+  &__quote-trigger {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+    font-style: italic;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
   &__suggestion-text {
     font-size: 0.9rem;
     color: #1e40af;
@@ -347,9 +530,11 @@
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: 10000;
   justify-content: center;
   align-items: center;
+  pointer-events: all;
+  cursor: default;
 
   &__content {
     background: white;
@@ -360,6 +545,9 @@
     position: relative;
     max-height: 80vh;
     overflow-y: auto;
+    pointer-events: all;
+    z-index: 10001;
+    cursor: default;
 
     h4 {
       margin: 0 0 1rem 0;
@@ -388,6 +576,7 @@
     font-size: 1.5rem;
     cursor: pointer;
     color: #666;
+    z-index: 10002;
 
     &:hover {
       color: #333;
@@ -418,5 +607,26 @@
     &:hover {
       text-decoration: underline;
     }
+  }
+}
+
+.support-vibes-trend-graph {
+  margin: 2em auto;
+  border: 2px solid black;
+  border-radius: 1em;
+  padding: 1em;
+  width: fit-content;
+
+  h3 {
+    margin-bottom: 0.5em;
+    font-size: 1.5rem;
+    text-align: center;
+    color: black;
+  }
+
+  .support-vibes-graph {
+    position: relative;
+    height: 200px;
+    padding: 1em;
   }
 }

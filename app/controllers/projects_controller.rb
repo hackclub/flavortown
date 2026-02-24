@@ -19,7 +19,7 @@ class ProjectsController < ApplicationController
 
   def index
     authorize Project
-    @projects = current_user.projects.includes(banner_attachment: :blob)
+    @projects = current_user.projects.distinct.includes(banner_attachment: :blob)
   end
 
   def show
@@ -53,6 +53,14 @@ class ProjectsController < ApplicationController
       @liked_devlog_ids = Set.new
     end
 
+    @devlog_lapse_badges = {}
+    devlog_posts = @posts.select { |p| p.postable_type == "Post::Devlog" }
+    if devlog_posts.any?
+      timelapses = cached_lapse_timelapses
+      queue_lapse_timelapses_fetch if timelapses.nil?
+      @devlog_lapse_badges = build_devlog_lapse_badges(devlog_posts, timelapses)
+    end
+
     ahoy.track "Viewed project", project_id: @project.id
 
     latest_ship_post = @posts.find { |post| post.postable_type == "Post::ShipEvent" }
@@ -82,12 +90,14 @@ class ProjectsController < ApplicationController
 
   def new
     @project = Project.new
+    @space_themed_checked = params[:mission] == "challenger"
     authorize @project
     load_project_times
   end
 
   def create
     @project = Project.new(project_params)
+    apply_space_theme_marker!(@project, space_themed: space_themed_param?)
     authorize @project
 
     validate_urls
@@ -139,6 +149,7 @@ class ProjectsController < ApplicationController
       redirect_to @project
     else
       flash[:alert] = "Failed to create project: #{@project.errors.full_messages.join(', ')}"
+      prepare_space_themed_form_state!(space_themed: space_themed_param?)
       load_project_times
       render :new, status: :unprocessable_entity
     end
@@ -146,6 +157,7 @@ class ProjectsController < ApplicationController
 
   def edit
     authorize @project
+    prepare_space_themed_form_state!(space_themed: @project.space_themed?)
     load_project_times
   end
 
@@ -153,6 +165,7 @@ class ProjectsController < ApplicationController
     authorize @project
 
     @project.assign_attributes(project_params)
+    apply_space_theme_marker!(@project, space_themed: space_themed_param?)
     validate_urls
     success = @project.errors.empty? && @project.save
 
@@ -163,6 +176,7 @@ class ProjectsController < ApplicationController
       redirect_to url_from(params[:return_to]) || @project
     else
       flash.now[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
+      prepare_space_themed_form_state!(space_themed: space_themed_param?)
       render_update_error
     end
   end
@@ -384,6 +398,29 @@ class ProjectsController < ApplicationController
     redirect_to @project
   end
 
+  def lapse_timelapses
+    @project = Project.find(params[:id])
+    authorize @project, :show?
+
+    unless turbo_frame_request?
+      redirect_to @project
+      return
+    end
+
+    @is_owner = current_user.present? && @project.users.include?(current_user)
+
+    @lapse_timelapses = cached_lapse_timelapses
+
+    if @lapse_timelapses.nil? && should_fetch_lapse_timelapses?
+      @lapse_timelapses = fetch_lapse_timelapses
+      Rails.cache.write(lapse_timelapses_cache_key, @lapse_timelapses, expires_in: Cache::ProjectLapseTimelapsesJob::CACHE_TTL)
+    end
+
+    @lapse_timelapses ||= []
+    @devlog_lapse_badges = build_devlog_lapse_badges(@project.devlog_posts, @lapse_timelapses)
+    render layout: false
+  end
+
   def readme
     unless turbo_frame_request?
       redirect_to @project
@@ -550,6 +587,58 @@ class ProjectsController < ApplicationController
     @project_times = result&.dig(:projects) || {}
   end
 
+  def fetch_lapse_timelapses
+    ProjectLapseTimelapsesFetcher.new(@project).call
+  end
+
+  def cached_lapse_timelapses
+    Rails.cache.read(lapse_timelapses_cache_key)
+  end
+
+  def queue_lapse_timelapses_fetch
+    return unless should_fetch_lapse_timelapses?
+    return if Rails.cache.exist?(lapse_timelapses_cache_key)
+
+    Cache::ProjectLapseTimelapsesJob.perform_later(@project.id)
+  end
+
+  def should_fetch_lapse_timelapses?
+    return false unless ENV["LAPSE_API_BASE"].present?
+    return false unless @project.hackatime_keys.present?
+
+    hackatime_identity = @project.memberships.owner.first&.user&.hackatime_identity
+    hackatime_identity&.uid.present?
+  end
+
+  def lapse_timelapses_cache_key
+    Cache::ProjectLapseTimelapsesJob.cache_key(@project.id)
+  end
+
+  def build_devlog_lapse_badges(devlog_posts, timelapses)
+    return {} if devlog_posts.blank? || timelapses.blank?
+
+    timelapse_times = timelapses.filter_map do |timelapse|
+      created_at_ms = timelapse["createdAt"]
+      next if created_at_ms.blank?
+
+      Time.at(created_at_ms.to_i / 1000.0)
+    rescue ArgumentError, TypeError
+      nil
+    end.sort
+
+    return {} if timelapse_times.blank?
+
+    badges = {}
+    previous_time = @project.created_at
+    devlog_posts.sort_by(&:created_at).each do |devlog_post|
+      current_time = devlog_post.created_at
+      badges[devlog_post.postable_id] = timelapse_times.any? { |time| time > previous_time && time <= current_time }
+      previous_time = current_time
+    end
+
+    badges
+  end
+
   def render_update_error
     if url_from(params[:return_to])&.include?("ships")
       @hackatime_projects = @project.hackatime_projects_with_time
@@ -562,5 +651,23 @@ class ProjectsController < ApplicationController
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def space_themed_param?
+    ActiveModel::Type::Boolean.new.cast(params.dig(:project, :space_themed))
+  end
+
+  def apply_space_theme_marker!(project, space_themed:)
+    description = project.description_without_space_theme_prefix
+    project.description = if space_themed
+      [ Project::SPACE_THEMED_PREFIX, description.presence ].compact.join(" ")
+    else
+      description
+    end
+  end
+
+  def prepare_space_themed_form_state!(space_themed:)
+    @space_themed_checked = space_themed
+    @project.description = @project.description_without_space_theme_prefix if @project.space_themed?
   end
 end

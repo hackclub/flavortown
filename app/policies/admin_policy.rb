@@ -96,7 +96,7 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def access_vote_spam_dashboard?
-    user.admin?
+    user.admin? || user.fraud_dept?
   end
 
   def access_shop_suggestions?
@@ -115,6 +115,10 @@ class AdminPolicy < ApplicationPolicy
     user.admin?
   end
   def access_sw_vibes?
+    user.admin?
+  end
+
+  def access_special_activities?
     user.admin?
   end
 end
