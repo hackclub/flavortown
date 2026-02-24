@@ -39,17 +39,21 @@ module Admin
       authorize :admin, :approve_fulfillment_payouts?
       @run = FulfillmentPayoutRun.find(params[:id])
 
-      @run.reject!
+      if @run.may_reject?
+        @run.reject!
 
-      PaperTrail::Version.create!(
-        item_type: "FulfillmentPayoutRun",
-        item_id: @run.id,
-        event: "rejected",
-        whodunnit: current_user.id,
-        object_changes: { aasm_state: %w[pending_approval rejected] }.to_json
-      )
+        PaperTrail::Version.create!(
+          item_type: "FulfillmentPayoutRun",
+          item_id: @run.id,
+          event: "rejected",
+          whodunnit: current_user.id,
+          object_changes: { aasm_state: %w[pending_approval rejected] }.to_json
+        )
 
-      redirect_to admin_fulfillment_payout_path(@run), notice: "Payout run rejected. Orders have been released for the next run."
+        redirect_to admin_fulfillment_payout_path(@run), notice: "Payout run rejected. Orders have been released for the next run."
+      else
+        redirect_to admin_fulfillment_payout_path(@run), alert: "Payout run cannot be rejected in its current state."
+      end
     end
 
     def trigger
