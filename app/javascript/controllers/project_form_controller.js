@@ -74,11 +74,15 @@ export default class extends Controller {
 
     // Strip any existing prefix to get the base description
     if (description.startsWith(updatePrefix)) {
-      const afterPrefix = description.substring(updatePrefix.length).trimStart();
+      const afterPrefix = description
+        .substring(updatePrefix.length)
+        .trimStart();
       // Find where the update description ends (look for double space)
       const doubleSpaceIndex = afterPrefix.indexOf("  ");
       if (doubleSpaceIndex !== -1) {
-        this.baseDescription = afterPrefix.substring(doubleSpaceIndex).trimStart();
+        this.baseDescription = afterPrefix
+          .substring(doubleSpaceIndex)
+          .trimStart();
       } else {
         this.baseDescription = "";
       }
@@ -136,10 +140,14 @@ export default class extends Controller {
 
     // Extract the base description from the current value
     if (currentValue.startsWith(updatePrefix)) {
-      const afterPrefix = currentValue.substring(updatePrefix.length).trimStart();
+      const afterPrefix = currentValue
+        .substring(updatePrefix.length)
+        .trimStart();
       const doubleSpaceIndex = afterPrefix.indexOf("  ");
       if (doubleSpaceIndex !== -1) {
-        this.baseDescription = afterPrefix.substring(doubleSpaceIndex).trimStart();
+        this.baseDescription = afterPrefix
+          .substring(doubleSpaceIndex)
+          .trimStart();
       } else {
         // User might be editing, so be conservative
         this.baseDescription = afterPrefix;
@@ -156,7 +164,10 @@ export default class extends Controller {
     let message = "";
 
     // Only require if the update checkbox is checked
-    if (this.hasUpdateDeclarationTarget && this.updateDeclarationTarget.checked) {
+    if (
+      this.hasUpdateDeclarationTarget &&
+      this.updateDeclarationTarget.checked
+    ) {
       if (!value) {
         message = "Update description is required when marking as an update";
       } else if (value.length > 200) {
@@ -396,7 +407,8 @@ export default class extends Controller {
   syncUpdateDescriptionVisibility() {
     if (!this.hasUpdateDescriptionContainerTarget) return;
 
-    const isChecked = this.hasUpdateDeclarationTarget && this.updateDeclarationTarget.checked;
+    const isChecked =
+      this.hasUpdateDeclarationTarget && this.updateDeclarationTarget.checked;
     this.updateDescriptionContainerTarget.hidden = !isChecked;
 
     if (!isChecked && this.hasUpdateDescriptionFieldTarget) {
@@ -433,7 +445,8 @@ export default class extends Controller {
     }
 
     // Use baseDescription (the original description without prefixes)
-    const combinedPrefix = prefixes.length > 0 ? `${prefixes.join(", ")}  ` : "";
+    const combinedPrefix =
+      prefixes.length > 0 ? `${prefixes.join(", ")}  ` : "";
     this.descriptionTarget.value = combinedPrefix + this.baseDescription;
 
     this.validateDescription();
