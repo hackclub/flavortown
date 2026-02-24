@@ -92,7 +92,6 @@ class Shop::CalculateFulfillmentPayoutsJobTest < ActiveJob::TestCase
   test "manual run only includes orders since last run" do
     # First scheduled run covers all orders
     Shop::CalculateFulfillmentPayoutsJob.perform_now
-    first_run = FulfillmentPayoutRun.last
 
     # New order fulfilled after the first run
     new_order = create_fulfilled_order(@buyer, @item, @fulfiller, fulfilled_at: 1.hour.from_now)
