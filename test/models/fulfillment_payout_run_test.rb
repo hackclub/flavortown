@@ -24,7 +24,7 @@ require "test_helper"
 class FulfillmentPayoutRunTest < ActiveSupport::TestCase
   setup do
     @fulfiller = User.create!(slack_id: "UPAYOUT1", display_name: "Payout Fulfiller", email: "payout@test.com")
-    @admin = User.create!(slack_id: "UADMIN1", display_name: "Admin User", email: "admin@test.com", granted_roles: [ :admin ])
+    @admin = User.create!(slack_id: "UADMIN1", display_name: "Admin User", email: "admin@test.com", granted_roles: [:admin])
     @item = ShopItem.create!(name: "Payout Item", ticket_cost: 0, type: "ShopItem::ThirdPartyPhysical", enabled: true)
     @buyer = User.create!(slack_id: "UBUYER2", display_name: "Buyer Two", email: "buyer2@test.com")
   end
@@ -52,9 +52,7 @@ class FulfillmentPayoutRunTest < ActiveSupport::TestCase
     run.reject!
 
     assert_equal "rejected", run.aasm_state
-    order_ids.each do |order_id|
-      assert_nil ShopOrder.find(order_id).fulfillment_payout_line_id
-    end
+    assert_equal [nil] * order_ids.size, ShopOrder.where(id: order_ids).pluck(:fulfillment_payout_line_id)
   end
 
   test "tickets per order is 3" do
