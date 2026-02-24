@@ -32,8 +32,8 @@
 
 <% if @run.pending_approval? %>
   <div class="payout-actions">
-    <%= link_to "Approve & Distribute", approve_admin_fulfillment_payout_path(@run), method: :post, data: { turbo_method: :post, turbo_confirm: "This will distribute #{number_with_delimiter(@run.total_amount)} tickets to #{@run.lines.count} fulfillers. This cannot be undone. Continue?" }, class: "btn-primary btn-approve" %>
-    <%= link_to "Reject", reject_admin_fulfillment_payout_path(@run), method: :post, data: { turbo_method: :post, turbo_confirm: "This will reject this payout run and release the orders for the next run. Continue?" }, class: "btn-primary btn-reject" %>
+    <%= button_to "Approve & Distribute", approve_admin_fulfillment_payout_path(@run), method: :post, data: { confirm: "This will distribute #{number_with_delimiter(@run.total_amount)} tickets to #{@run.lines.count} fulfillers. This cannot be undone. Continue?" }, class: "btn-primary btn-approve" %>
+    <%= button_to "Reject", reject_admin_fulfillment_payout_path(@run), method: :post, data: { confirm: "This will reject this payout run and release the orders for the next run. Continue?" }, class: "btn-primary btn-reject" %>
   </div>
 <% end %>
 
