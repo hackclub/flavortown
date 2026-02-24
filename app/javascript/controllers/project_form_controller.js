@@ -11,8 +11,6 @@ export default class extends Controller {
     "readmeContainer",
     "submit",
     "updateDeclaration",
-    "updateDescriptionContainer",
-    "updateDescriptionField",
   ];
 
   static values = {
@@ -23,9 +21,6 @@ export default class extends Controller {
     this.userEditedReadme = false;
     this.submitting = false;
     this.debouncedDetect = this.debounce(() => this.detectReadme(), 400);
-
-    // Store the base description (without prefixes)
-    this.baseDescription = "";
 
     // Reset submitting flag after direct uploads complete so the form can
     // be re-submitted with the signed blob ID by Active Storage.
@@ -48,14 +43,8 @@ export default class extends Controller {
 
     this.restorReadmeWhenThereIsAError();
 
-    // Initialize base description from current value (strip prefixes if present)
-    this.initializeBaseDescription();
-
     // Sync checkbox state on load if description already has prefix
     this.syncUpdateCheckbox();
-
-    // Sync update description visibility on load
-    this.syncUpdateDescriptionVisibility();
 
     if (
       this.hasRepoUrlTarget &&
@@ -63,31 +52,6 @@ export default class extends Controller {
       !this.readmeUrlTarget.value
     ) {
       setTimeout(() => this.detectReadme(), 0);
-    }
-  }
-
-  initializeBaseDescription() {
-    if (!this.hasDescriptionTarget) return;
-
-    let description = this.descriptionTarget.value.trimStart();
-    const updatePrefix = this.updatePrefixValue;
-
-    // Strip any existing prefix to get the base description
-    if (description.startsWith(updatePrefix)) {
-      const afterPrefix = description
-        .substring(updatePrefix.length)
-        .trimStart();
-      // Find where the update description ends (look for double space)
-      const doubleSpaceIndex = afterPrefix.indexOf("  ");
-      if (doubleSpaceIndex !== -1) {
-        this.baseDescription = afterPrefix
-          .substring(doubleSpaceIndex)
-          .trimStart();
-      } else {
-        this.baseDescription = "";
-      }
-    } else {
-      this.baseDescription = description;
     }
   }
 
@@ -110,11 +74,6 @@ export default class extends Controller {
     this.updateSubmitState();
   }
 
-  onDescriptionInput(event) {
-    this.updateBaseDescription();
-    this.validateDescription(event);
-  }
-
   validateDescription(event) {
     if (!this.hasDescriptionTarget) return;
     const el = this.descriptionTarget;
@@ -129,63 +88,6 @@ export default class extends Controller {
       if (message) this.triggerShake(el);
     }
     this.updateSubmitState();
-  }
-
-  // Track changes to the base description (when user types in the description field)
-  updateBaseDescription() {
-    if (!this.hasDescriptionTarget) return;
-
-    const currentValue = this.descriptionTarget.value.trimStart();
-    const updatePrefix = this.updatePrefixValue;
-
-    // Extract the base description from the current value
-    if (currentValue.startsWith(updatePrefix)) {
-      const afterPrefix = currentValue
-        .substring(updatePrefix.length)
-        .trimStart();
-      const doubleSpaceIndex = afterPrefix.indexOf("  ");
-      if (doubleSpaceIndex !== -1) {
-        this.baseDescription = afterPrefix
-          .substring(doubleSpaceIndex)
-          .trimStart();
-      } else {
-        // User might be editing, so be conservative
-        this.baseDescription = afterPrefix;
-      }
-    } else {
-      this.baseDescription = currentValue;
-    }
-  }
-
-  validateUpdateDescription(event) {
-    if (!this.hasUpdateDescriptionFieldTarget) return;
-    const el = this.updateDescriptionFieldTarget;
-    const value = (el.value || "").trim();
-    let message = "";
-
-    // Only require if the update checkbox is checked
-    if (
-      this.hasUpdateDeclarationTarget &&
-      this.updateDeclarationTarget.checked
-    ) {
-      if (!value) {
-        message = "Update description is required when marking as an update";
-      } else if (value.length > 200) {
-        message = "Update description must be 200 characters or fewer";
-      }
-    }
-
-    el.setCustomValidity(message);
-    if (event?.type === "blur") {
-      el.reportValidity();
-      if (message) this.triggerShake(el);
-    }
-    this.updateSubmitState();
-  }
-
-  onUpdateDescriptionInput(event) {
-    this.validateUpdateDescription(event);
-    this.rebuildPrefixes();
   }
 
   validateUrl(event) {
@@ -392,7 +294,6 @@ export default class extends Controller {
 
   // Update Declaration checkbox handlers
   toggleUpdatePrefix() {
-    this.syncUpdateDescriptionVisibility();
     this.rebuildPrefixes();
   }
 
@@ -404,28 +305,25 @@ export default class extends Controller {
     this.updateDeclarationTarget.checked = hasPrefix;
   }
 
-  syncUpdateDescriptionVisibility() {
-    if (!this.hasUpdateDescriptionContainerTarget) return;
-
-    const isChecked =
-      this.hasUpdateDeclarationTarget && this.updateDeclarationTarget.checked;
-    this.updateDescriptionContainerTarget.hidden = !isChecked;
-
-    if (!isChecked && this.hasUpdateDescriptionFieldTarget) {
-      // Clear the field and validation when hiding
-      this.updateDescriptionFieldTarget.value = "";
-      this.updateDescriptionFieldTarget.setCustomValidity("");
-    } else if (isChecked && this.hasUpdateDescriptionFieldTarget) {
-      // Validate when showing
-      this.validateUpdateDescription();
-    }
-  }
-
   // Rebuild prefixes based on checkbox states
   rebuildPrefixes() {
     if (!this.hasDescriptionTarget) return;
 
+    // Strip all existing prefixes from description
+    let description = this.descriptionTarget.value.trimStart();
     const updatePrefix = this.updatePrefixValue;
+
+    // Remove update prefix (with optional trailing comma/space)
+    const prefixPattern = new RegExp(
+      `^${this.escapeRegex(updatePrefix)}(,\\s*|\\s+)`,
+      "g",
+    );
+    // Keep removing prefixes until none remain
+    let prevDescription;
+    do {
+      prevDescription = description;
+      description = description.replace(prefixPattern, "").trimStart();
+    } while (description !== prevDescription);
 
     // Build new prefix based on checkbox states
     const prefixes = [];
@@ -433,21 +331,10 @@ export default class extends Controller {
       this.hasUpdateDeclarationTarget &&
       this.updateDeclarationTarget.checked
     ) {
-      const updateDesc = this.hasUpdateDescriptionFieldTarget
-        ? (this.updateDescriptionFieldTarget.value || "").trim()
-        : "";
-
-      if (updateDesc) {
-        prefixes.push(`${updatePrefix} ${updateDesc}`);
-      } else {
-        prefixes.push(updatePrefix);
-      }
+      prefixes.push(updatePrefix);
     }
-
-    // Use baseDescription (the original description without prefixes)
-    const combinedPrefix =
-      prefixes.length > 0 ? `${prefixes.join(", ")}  ` : "";
-    this.descriptionTarget.value = combinedPrefix + this.baseDescription;
+    const combinedPrefix = prefixes.length > 0 ? `${prefixes.join(", ")} ` : "";
+    this.descriptionTarget.value = combinedPrefix + description;
 
     this.validateDescription();
   }
