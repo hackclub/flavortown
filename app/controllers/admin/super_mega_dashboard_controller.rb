@@ -11,9 +11,6 @@ module Admin
       load_support_stats
       load_support_vibes_stats
       load_support_graph_data
-      load_ship_certs_stats
-      load_sw_vibes_stats
-      load_sw_vibes_history
       load_voting_stats
       load_ysws_review_stats
     end
@@ -36,6 +33,10 @@ module Admin
         load_support_vibes_stats
       when "support_graph"
         load_support_graph_data
+      when "shipwrights"
+        load_ship_certs_stats
+        load_sw_vibes_stats
+        load_sw_vibes_history
       when "ship_certs"
         load_ship_certs_stats
       when "sw_vibes"
@@ -49,7 +50,7 @@ module Admin
         return
       end
 
-      render partial: "sections/#{section}"
+      render partial: "admin/super_mega_dashboard/sections/#{section}"
     end
 
     private
@@ -412,23 +413,26 @@ module Admin
     end
 
     def load_ship_certs_stats
-      raw_data = Rails.cache.fetch("super_mega_ship_certs_raw", expires_in: 5.minutes) do
-        conn = Faraday.new do |f|
-          f.options.timeout = 5
-          f.options.open_timeout = 2
-        end
+      raw_data = Rails.cache.read("super_mega_ship_certs_raw")
 
-        response = conn.get("https://review.hackclub.com/api/stats/ship-certs") do |req|
-          req.headers["x-api-key"] = ENV["SW_DASHBOARD_API_KEY"]
-        end
+      unless raw_data
+        begin
+          conn = Faraday.new do |f|
+            f.options.timeout = 5
+            f.options.open_timeout = 2
+          end
 
-        unless response.success?
-          next nil
-        end
+          response = conn.get("https://review.hackclub.com/api/stats/ship-certs") do |req|
+            req.headers["x-api-key"] = ENV["SW_DASHBOARD_API_KEY"]
+          end
 
-        JSON.parse(response.body)
-      rescue Faraday::Error, JSON::ParserError, Faraday::TimeoutError
-        nil
+          if response.success?
+            raw_data = JSON.parse(response.body)
+            Rails.cache.write("super_mega_ship_certs_raw", raw_data, expires_in: 10.minutes)
+          end
+        rescue Faraday::Error, JSON::ParserError, Faraday::TimeoutError
+          nil
+        end
       end
 
       unless raw_data
@@ -461,23 +465,30 @@ module Admin
         return
       end
 
+      cached = Rails.cache.read("sw_vibes_data")
+      if cached
+        @sw_vibes = cached
+        return
+      end
+
       begin
-        @sw_vibes = Rails.cache.fetch("sw_vibes_data", expires_in: 5.minutes) do
-          conn = Faraday.new do |f|
-            f.options.timeout = 10
-            f.options.open_timeout = 5
-          end
-
-          response = conn.get("https://ai.review.hackclub.com/metrics/qualitative") do |req|
-            req.headers["X-API-Key"] = api_key
-          end
-
-          unless response.success?
-            next { error: "API died (#{response.status})" }
-          end
-
-          JSON.parse(response.body, symbolize_names: true)
+        conn = Faraday.new do |f|
+          f.options.timeout = 10
+          f.options.open_timeout = 5
         end
+
+        response = conn.get("https://ai.review.hackclub.com/metrics/qualitative") do |req|
+          req.headers["X-API-Key"] = api_key
+        end
+
+        unless response.success?
+          @sw_vibes = { error: "API died (#{response.status})" }
+          return
+        end
+
+        data = JSON.parse(response.body, symbolize_names: true)
+        Rails.cache.write("sw_vibes_data", data, expires_in: 10.minutes)
+        @sw_vibes = data
       rescue Faraday::Error
         @sw_vibes = { error: "Couldn't reach the API" }
       rescue JSON::ParserError
@@ -502,6 +513,7 @@ module Admin
           recorded_date: Date.parse(date_str),
           result: positive["result"],
           reason: positive["reason"],
+          sentiment: positive["sentiment"],
           payload: inner
         )
       rescue Date::Error

@@ -156,6 +156,25 @@
     text-align: right;
   }
 
+  &__placeholder-text {
+    border-radius: 4px;
+    background-color: var(--color-tan-300);
+
+    &--title {
+      height: 1.5rem;
+      width: 220px;
+    }
+  }
+
+  &__placeholder-card {
+    background-color: var(--color-tan-300) !important;
+    min-height: 180px;
+
+    &.super-mega-dashboard__card--sw-graph {
+      min-height: 260px;
+    }
+  }
+
   &__cards--shipwrights {
     grid-template-columns: repeat(2, 1fr);
 
@@ -191,7 +210,6 @@
       position: relative;
 
       canvas {
-        width: 100% !important;
         max-width: 100%;
       }
     }
@@ -449,6 +467,14 @@
     &--blue {
       color: #1e40af;
     }
+
+    &--green {
+      color: #10b981;
+    }
+
+    &--red {
+      color: #ef4444;
+    }
   }
 }
 
@@ -461,13 +487,17 @@
   &__header-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
     margin-bottom: 0.25rem;
 
     h3 {
       margin: 0;
+      flex: 1;
+      text-align: center;
     }
+  }
+
+  &__header-spacer {
+    width: 52px;
   }
 
   &__history-link {
@@ -475,10 +505,11 @@
     border: none;
     padding: 0;
     font: inherit;
-    font-size: 0.95rem;
-    color: #5c4033;
+    font-size: 0.85rem;
+    color: var(--color-brown-500);
     cursor: pointer;
     text-decoration: none;
+    width: 52px;
 
     &:hover {
       text-decoration: underline;
@@ -714,6 +745,18 @@
     }
   }
 
+  &__content--centered {
+    text-align: center;
+
+    .sw-vibes-popup__reason-block {
+      text-align: left;
+    }
+
+    .sw-vibes-graph-wrap {
+      text-align: left;
+    }
+  }
+
   &__today-reason {
     margin-top: 0.75rem;
     padding: 0.75rem;
@@ -774,6 +817,10 @@
   position: relative;
   height: 120px;
   margin: 0.5rem 0;
+
+  &--large {
+    height: 200px;
+  }
 
   canvas {
     width: 100% !important;
@@ -927,5 +974,10 @@
     position: relative;
     height: 200px;
     padding: 1em;
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
   }
 }
+
