@@ -13,30 +13,9 @@ module Admin
       load_support_graph_data
       load_ship_certs_stats
       load_sw_vibes_stats
+      load_sw_vibes_history
       load_voting_stats
       load_ysws_review_stats
-    end
-
-    def sw_vibes_history_data
-      authorize :admin, :access_super_mega_dashboard?
-
-      load_ship_certs_stats
-      load_sw_vibes_stats
-      load_sw_vibes_history
-
-      today_sentiment = extract_today_sentiment(@sw_vibes)
-      history = (@sw_vibes_history || []).map do |s|
-        { date: s.recorded_date.to_s, sentiment: s.sentiment, result: s.result, reason: s.reason.to_s, payload: s.payload }
-      end
-
-      if today_sentiment && history.none? { |h| h[:date] == Date.current.to_s }
-        history.unshift(today_sentiment)
-      elsif today_sentiment
-        idx = history.index { |h| h[:date] == Date.current.to_s }
-        history[idx] = history[idx].merge(sentiment: today_sentiment[:sentiment]) if idx
-      end
-
-      render json: history
     end
 
     def load_section
@@ -518,41 +497,16 @@ module Admin
 
         inner = output["output"] || {}
         positive = inner["positive"] || {}
-        sentiment = extract_sentiment(entry, output, inner, positive)
 
         OpenStruct.new(
           recorded_date: Date.parse(date_str),
           result: positive["result"],
           reason: positive["reason"],
-          sentiment: sentiment,
           payload: inner
         )
       rescue Date::Error
         nil
       end.sort_by(&:recorded_date).reverse
-    end
-
-    def extract_sentiment(entry, output, inner, positive)
-      val = positive["sentiment"] || inner["sentiment"] || output["sentiment"] || entry["sentiment"]
-      return val.to_f.clamp(0.0, 1.0) if val.present?
-
-      positive["result"] ? 0.85 : 0.25
-    end
-
-    def extract_today_sentiment(sw_vibes)
-      return nil unless sw_vibes.present? && !sw_vibes[:error]
-
-      positive = sw_vibes[:positive] || {}
-      val = positive[:sentiment] || sw_vibes[:sentiment]
-      sentiment = val.present? ? val.to_f.clamp(0.0, 1.0) : (positive[:result] ? 0.85 : 0.25)
-
-      {
-        date: Date.current.to_s,
-        sentiment: sentiment,
-        result: positive[:result],
-        reason: (positive[:reason] || "").to_s,
-        payload: sw_vibes.except(:error).to_h
-      }
     end
 
     def load_voting_stats

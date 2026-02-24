@@ -292,7 +292,6 @@ Rails.application.routes.draw do
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
     get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"
-    get "super_mega_dashboard/sw_vibes_history_data", to: "super_mega_dashboard#sw_vibes_history_data"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
