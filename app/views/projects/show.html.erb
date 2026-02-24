@@ -114,6 +114,8 @@
       </div>
     <% end %>
 
+    <%= render "shared/project_recommendations" %>
+
     <% if current_user.present? && (!@project.users.include?(current_user) || Rails.env.development?) %>
       <%= render layout: "shared/modal", locals: { id: "project-report-modal", title: "Report project?" } do %>
         <h2>We want good, high quality projects in Flavortown. If you believe this project violates our community guidelines, please let us know why:</h2>

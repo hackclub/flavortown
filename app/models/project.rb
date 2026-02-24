@@ -41,6 +41,7 @@
 class Project < ApplicationRecord
   include AASM
   include SoftDeletable
+  include Recommendable
 
   SPACE_THEMED_PREFIX = "Space Themed:".freeze
 

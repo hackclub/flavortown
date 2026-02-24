@@ -1,0 +1,56 @@
+<% if Flipper.enabled?(:user_recommendations, current_user) %>
+  flippy
+<% else %>
+  weh
+<% end %>
+
+<% return unless Flipper.enabled?(:user_recommendations, current_user) %>
+<% return unless current_user.present? %>
+
+<% recommendations = current_user.recommended_projects_with_details(limit: 6) %>
+<% return unless recommendations.any? %>
+
+<section class="recommendations recommendations--user">
+  <div class="recommendations__header">
+    <h3 class="recommendations__title">
+      <%= inline_svg "icons/question.svg", class: "recommendations__icon" %>
+      Recommended for You
+    </h3>
+    <%= link_to "Refresh", refresh_recommendations_path, method: :post, class: "recommendations__refresh" if Flipper.enabled?(:refresh_recommendations, current_user) %>
+  </div>
+
+  <div class="recommendations__grid recommendations__grid--horizontal">
+    <% recommendations.each do |rec| %>
+      <% project = rec[:project] %>
+      <% next unless project.present? %>
+
+      <%= link_to project_path(project), class: "recommendations__card" do %>
+        <div class="recommendations__card-image">
+          <% if project.banner.attached? %>
+            <%= image_tag project.banner.variant(:thumb), alt: "#{project.title} banner" %>
+          <% else %>
+            <%= image_tag "default-banner.png", alt: "#{project.title} banner" %>
+          <% end %>
+        </div>
+        <div class="recommendations__card-content">
+          <h4 class="recommendations__card-title"><%= project.title %></h4>
+          <p class="recommendations__card-description">
+            <%= truncate(project.description.to_s, length: 60) %>
+          </p>
+          <% if project.project_categories.any? %>
+            <div class="recommendations__card-tags">
+              <% project.project_categories.first(2).each do |category| %>
+                <span class="recommendations__card-tag"><%= category %></span>
+              <% end %>
+            </div>
+          <% end %>
+          <% if Flipper.enabled?(:recommendation_scores, current_user) %>
+            <span class="recommendations__card-score">
+              <%= (rec[:score] * 100).round(0) %>% match
+            </span>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</section>
