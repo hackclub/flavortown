@@ -387,7 +387,7 @@ module Admin
       n = sorted_data.size
 
       # Calculate 99th percentile threshold
-      percentile_99_index = [(n * 0.99).ceil - 1, n - 1].min
+      percentile_99_index = [ (n * 0.99).ceil - 1, n - 1 ].min
       percentile_99_value = sorted_data[percentile_99_index]
 
       # Filter data to only include values up to 99th percentile
