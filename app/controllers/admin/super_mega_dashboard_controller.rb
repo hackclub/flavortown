@@ -66,24 +66,27 @@ module Admin
         net_change: bans_today - unbans_today
       }
 
-      order_counts = ShopOrder.group(:aasm_state).count
+      # Fraud dept only handles: pending, awaiting_verification, on_hold, rejected
+      # Fulfillment team handles: awaiting_periodical_fulfillment
+      fraud_orders = ShopOrder.where(aasm_state: %w[pending awaiting_verification on_hold rejected])
+      order_counts = fraud_orders.group(:aasm_state).count
       pending = order_counts["pending"] || 0
-      awaiting = order_counts["awaiting_periodical_fulfillment"] || 0
-      total_orders = order_counts.values.sum
-      backlog = pending + awaiting
+      awaiting_verification = order_counts["awaiting_verification"] || 0
+      total_fraud_orders = order_counts.values.sum
+      backlog = pending + awaiting_verification
       on_hold = order_counts["on_hold"] || 0
       rejected = order_counts["rejected"] || 0
-      new_today_orders = ShopOrder.where(created_at: today).count
+      new_today_orders = ShopOrder.where(aasm_state: %w[pending awaiting_verification on_hold rejected], created_at: today).count
 
       @fraud_orders = {
         pending: pending,
         pending_pct: backlog > 0 ? ((pending.to_f / backlog) * 100).round(1) : 0,
-        awaiting: awaiting,
-        awaiting_pct: backlog > 0 ? ((awaiting.to_f / backlog) * 100).round(1) : 0,
+        awaiting: awaiting_verification,
+        awaiting_pct: backlog > 0 ? ((awaiting_verification.to_f / backlog) * 100).round(1) : 0,
         on_hold: on_hold,
         rejected: rejected,
         backlog: backlog,
-        backlog_pct: total_orders > 0 ? ((backlog.to_f / total_orders) * 100).round(1) : 0,
+        backlog_pct: total_fraud_orders > 0 ? ((backlog.to_f / total_fraud_orders) * 100).round(1) : 0,
         new_today: new_today_orders
       }
 
@@ -102,16 +105,15 @@ module Admin
       # Build report review trend data
       @fraud_report_trend_data = build_report_trend_data
 
-      # Build report status trend data
-      @fraud_report_status_trend_data = build_report_status_trend_data
+
     end
 
     private
 
     def build_ban_trend_data
       trend_data = {}
-      # Get data for last 60 days to match Joe timeline span
-      (0..59).reverse_each do |days_ago|
+      # Get data for last 30 days
+      (0..29).reverse_each do |days_ago|
         date = days_ago.days.ago.to_date
         day_range = date.beginning_of_day..date.end_of_day
 
@@ -129,13 +131,13 @@ module Admin
 
     def build_shop_order_trend_data
       trend_data = {}
-      # Get data for last 60 days
-      (0..59).reverse_each do |days_ago|
+      # Get data for last 30 days - fraud dept only (pending, awaiting_verification, on_hold, rejected)
+      (0..29).reverse_each do |days_ago|
         date = days_ago.days.ago.to_date
         day_range = date.beginning_of_day..date.end_of_day
 
-        # Count shop orders by state on this day
-        states = %w[pending awaiting_periodical_fulfillment fulfilled rejected on_hold]
+        # Count shop orders by state on this day (fraud dept only)
+        states = %w[pending awaiting_verification rejected on_hold]
         state_counts = ShopOrder.where(updated_at: day_range)
                                 .where(aasm_state: states)
                                 .group(:aasm_state).count
@@ -147,8 +149,8 @@ module Admin
 
     def build_report_trend_data
       trend_data = {}
-      # Get data for last 60 days
-      (0..59).reverse_each do |days_ago|
+      # Get data for last 30 days
+      (0..29).reverse_each do |days_ago|
         date = days_ago.days.ago.to_date
         day_range = date.beginning_of_day..date.end_of_day
 
@@ -161,23 +163,7 @@ module Admin
       trend_data
     end
 
-    def build_report_status_trend_data
-      trend_data = {}
-      # Get data for last 60 days
-      (0..59).reverse_each do |days_ago|
-        date = days_ago.days.ago.to_date
-        day_range = date.beginning_of_day..date.end_of_day
 
-        # Count fraud reports by status on this day
-        status_counts = Project::Report.where(updated_at: day_range)
-                                       .group(:status).count
-
-        # Convert integer statuses to string names
-        status_map = { 0 => "pending", 1 => "reviewed", 2 => "dismissed" }
-        trend_data[date.to_s] = status_counts.transform_keys { |k| status_map[k] || k.to_s }
-      end
-      trend_data
-    end
 
     def calculate_review_quality
       # Average time to review reports
