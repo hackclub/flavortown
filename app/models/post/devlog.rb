@@ -25,6 +25,9 @@ class Post::Devlog < ApplicationRecord
   include Postable
   include SoftDeletable
 
+  # flag for tracking if attachments are being uploaded during an update
+  attr_accessor :uploading_attachments
+
   # Version history
   has_many :versions, class_name: "DevlogVersion", foreign_key: :devlog_id, dependent: :destroy
 
@@ -144,6 +147,7 @@ class Post::Devlog < ApplicationRecord
 
   def at_least_one_attachment
     return if scrapbook_url.present?
+    return if uploading_attachments # allow update as long as they're planning to include an attachment
     return if lapse_video_processing?
 
     errors.add(:attachments, "must include at least one image or video") unless attachments.attached?
