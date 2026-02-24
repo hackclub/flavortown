@@ -24,13 +24,14 @@
   <div class="card">
     <h2>Moderation</h2>
     <div class="info-rows">
-      <div><b>⚠️ User Banned:</b> <%= @user.banned? ? "Yes" : "No" %></div>
+      <div><b>Voting Locked:</b> <%= @user.voting_locked? ? "Yes" : "No" %></div>
+      <div><b>User Banned:</b> <%= @user.banned? ? "Yes" : "No" %></div>
       <% if @user.banned? && @user.banned_reason.present? %>
         <div><b>- Reason:</b> <%= @user.banned_reason %></div>
         <div><b>- Since:</b> <%= @user.banned_at.strftime("%Y-%m-%d %H:%M") %></div>
       <% end %>
       <% if @user.shadow_banned? %>
-        <div><b>ℹ️ Visibility Restricted (do not tell user, contact an admin if needed)</b></div>
+        <div><b>Visibility Restricted (do not tell user, contact an admin if needed)</b></div>
         <% if @user.shadow_banned_reason.present? %>
           <div><b>- Reason:</b> <%= @user.shadow_banned_reason %></div>
         <% end %>
