@@ -19,9 +19,9 @@ module Admin
 
     def load_section
       authorize :admin, :access_super_mega_dashboard?
-      
+
       section = params[:section]
-      
+
       case section
       when "fraud"
         load_fraud_stats
@@ -47,7 +47,7 @@ module Admin
         render text: "Unknown section", status: 400
         return
       end
-      
+
       render partial: "sections/#{section}"
     end
 
@@ -582,7 +582,7 @@ module Admin
           { graph_data: nil, stats: { error: e.message } }
         end
       end
-      
+
       @ysws_review_graph_data = cached_data&.dig(:graph_data)
       @ysws_review_stats = cached_data&.dig(:stats) || { error: "Unable to load YSWS data" }
     end
