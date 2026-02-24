@@ -193,6 +193,13 @@ class YswsReviewSyncJob < ApplicationJob
     user_pii = extract_user_pii(user)
 
     create_airtable_record(current_review, user_pii, approved_orders, adjusted_hours: adjusted_hours)
+
+    # Mark the project as YSWS approved and award the achievement
+    project = Project.find_by(id: ft_project_id)
+    if project && !project.ysws_approved?
+      project.update!(ysws_approved_at: Time.current)
+    end
+    user.award_achievement!(:ysws_certified)
   end
 
   def extract_user_pii(user)

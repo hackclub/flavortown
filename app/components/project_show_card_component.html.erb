@@ -1,5 +1,5 @@
 <%= render "shared/inspector", record: project %>
-<article class="project-show-card">
+<article class="project-show-card <%= 'project-show-card--ysws-certified' if project.ysws_approved? %>">
   <% ship_feedback_modal_id = "ship-feedback-modal-#{project.id}" %>
   <div class="project-show-card__banner project-card__banner">
     <div class="project-card__banner-frame">

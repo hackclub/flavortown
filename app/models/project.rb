@@ -302,6 +302,10 @@ class Project < ApplicationRecord
     marked_fire_at.present?
   end
 
+  def ysws_approved?
+    ysws_approved_at.present?
+  end
+
   def mark_fire!(user)
     update!(marked_fire_at: Time.current, marked_fire_by: user)
   end

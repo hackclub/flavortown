@@ -1,5 +1,5 @@
 <% cache project do %>
-<%= tag.div id: dom_id(project), class: "project-card" do %>
+<%= tag.div id: dom_id(project), class: ["project-card", ("project-card--ysws-certified" if project.ysws_approved?)] do %>
     <% if project.banner.attached? %>
         <div class="project-card__banner">
             <%= link_to project_path(project), class: "project-card__banner-frame" do %>
