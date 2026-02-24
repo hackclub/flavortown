@@ -73,6 +73,7 @@ jobs:
 
   db_checks:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || contains(github.event.pull_request.changed_files, 'db/') || contains(github.event.pull_request.changed_files, 'Gemfile.lock') || contains(github.event.pull_request.changed_files, '.ruby-version')
     services:
       postgres:
         image: postgres:15
