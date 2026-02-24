@@ -49,7 +49,7 @@
             <div class="shop-order__description"><%= md(@shop_item.description) %></div>
              <%= render MarkdownContentComponent.new(markdown: @shop_item.long_description) %>
              <div class="shop-order__disclaimer">
-                 FYI: If we are unable to find this item we will send something simillar, this can include it being from a diffrent brand!
+                 Heads up! If we can't order this item to you, we'll try our best to send something simillar, which may be from a different brand!
              </div>
              <div class="shop-order__blocked-country-banner" data-blocked-country-banner style="display: none;">
                  This item is currently not available in your specific country due to logistics issues.
