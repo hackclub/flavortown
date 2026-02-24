@@ -143,9 +143,9 @@
         <h2 class="banned-banner__title">Account Banned</h2>
 
         <p class="banned-banner__message">Your account has been banned and you cannot access other parts of the site.</p>
-        <% if current_user.banned_reason.present? %>
-          <p class="banned-banner__reason"><strong>Reason:</strong> <%= current_user.banned_reason %></p>
-        <% end %>
+        <p>
+          Please contact @Fraud Squad for further communications! if you are not on the hackclub slack please email <a href="mailto:fraudsquad@hackclub.com">fraudsquad@hackclub.com</a>
+        </p>
       </div>
     </div>
   <% else %>
