@@ -297,6 +297,15 @@ Rails.application.routes.draw do
         post :send_letter_mail
       end
     end
+    resources :fulfillment_payouts, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+      collection do
+        post :trigger
+      end
+    end
   end
 
   get "queue", to: "queue#index"

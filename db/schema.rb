@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_23_161955) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_24_132226) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -215,6 +215,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_161955) do
     t.datetime "updated_at", null: false
     t.text "value"
     t.index ["feature_key", "key", "value"], name: "index_flipper_gates_on_feature_key_and_key_and_value", unique: true
+  end
+
+  create_table "fulfillment_payout_lines", force: :cascade do |t|
+    t.integer "amount"
+    t.datetime "created_at", null: false
+    t.bigint "fulfillment_payout_run_id", null: false
+    t.integer "order_count"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["fulfillment_payout_run_id"], name: "index_fulfillment_payout_lines_on_fulfillment_payout_run_id"
+    t.index ["user_id"], name: "index_fulfillment_payout_lines_on_user_id"
+  end
+
+  create_table "fulfillment_payout_runs", force: :cascade do |t|
+    t.string "aasm_state"
+    t.datetime "approved_at"
+    t.bigint "approved_by_user_id"
+    t.datetime "created_at", null: false
+    t.datetime "period_end"
+    t.datetime "period_start"
+    t.integer "total_amount"
+    t.integer "total_orders"
+    t.datetime "updated_at", null: false
   end
 
   create_table "funnel_events", force: :cascade do |t|
@@ -527,6 +550,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_161955) do
     t.datetime "fulfilled_at"
     t.string "fulfilled_by"
     t.decimal "fulfillment_cost", precision: 6, scale: 2, default: "0.0"
+    t.bigint "fulfillment_payout_line_id"
     t.text "internal_notes"
     t.datetime "on_hold_at"
     t.bigint "parent_order_id"
@@ -542,6 +566,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_161955) do
     t.bigint "warehouse_package_id"
     t.index ["aasm_state", "created_at"], name: "idx_shop_orders_aasm_state_created_at_desc", order: { created_at: :desc }
     t.index ["assigned_to_user_id"], name: "index_shop_orders_on_assigned_to_user_id"
+    t.index ["fulfillment_payout_line_id"], name: "index_shop_orders_on_fulfillment_payout_line_id"
     t.index ["parent_order_id"], name: "index_shop_orders_on_parent_order_id"
     t.index ["region"], name: "index_shop_orders_on_region"
     t.index ["shop_card_grant_id"], name: "index_shop_orders_on_shop_card_grant_id"
@@ -758,6 +783,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_161955) do
   add_foreign_key "devlog_versions", "users"
   add_foreign_key "extension_usages", "projects"
   add_foreign_key "extension_usages", "users"
+  add_foreign_key "fulfillment_payout_lines", "fulfillment_payout_runs"
+  add_foreign_key "fulfillment_payout_lines", "users"
+  add_foreign_key "fulfillment_payout_runs", "users", column: "approved_by_user_id"
   add_foreign_key "ledger_entries", "users"
   add_foreign_key "likes", "users"
   add_foreign_key "posts", "projects"
@@ -774,6 +802,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_161955) do
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_items", "users", column: "default_assigned_user_id", on_delete: :nullify
+  add_foreign_key "shop_orders", "fulfillment_payout_lines"
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
   add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"
