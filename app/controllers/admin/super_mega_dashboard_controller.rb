@@ -21,36 +21,14 @@ module Admin
       section = params[:section]
 
       case section
-      when "fraud"
-        load_fraud_stats
-      when "payouts"
-        load_payouts_stats
-      when "fulfillment"
-        load_fulfillment_stats
-      when "support"
-        load_support_stats
-      when "support_vibes"
-        load_support_vibes_stats
-      when "support_graph"
-        load_support_graph_data
       when "shipwrights"
         load_ship_certs_stats
         load_sw_vibes_stats
         load_sw_vibes_history
-      when "ship_certs"
-        load_ship_certs_stats
-      when "sw_vibes"
-        load_sw_vibes_stats
-      when "voting"
-        load_voting_stats
-      when "ysws_review"
-        load_ysws_review_stats
+        render partial: "admin/super_mega_dashboard/sections/shipwrights", layout: false
       else
-        render text: "Unknown section", status: 400
-        return
+        render plain: "Unknown section", status: :bad_request
       end
-
-      render "admin/super_mega_dashboard/index"
     end
 
     private

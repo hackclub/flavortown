@@ -158,7 +158,14 @@
 
   &__placeholder-text {
     border-radius: 4px;
-    background-color: var(--color-tan-300);
+    background: linear-gradient(
+      90deg,
+      var(--color-tan-300) 25%,
+      #e8dcc8 37%,
+      var(--color-tan-300) 63%
+    );
+    background-size: 200% 100%;
+    animation: smd-shimmer 1.4s ease-in-out infinite;
 
     &--title {
       height: 1.5rem;
@@ -167,12 +174,87 @@
   }
 
   &__placeholder-card {
-    background-color: var(--color-tan-300) !important;
+    background: linear-gradient(
+      90deg,
+      var(--color-tan-300) 25%,
+      #e8dcc8 37%,
+      var(--color-tan-300) 63%
+    ) !important;
+    background-size: 200% 100% !important;
+    animation: smd-shimmer 1.4s ease-in-out infinite;
     min-height: 180px;
+    position: relative;
 
     &.super-mega-dashboard__card--sw-graph {
       min-height: 260px;
     }
+  }
+
+  @keyframes smd-shimmer {
+    0% {
+      background-position: 100% 0;
+    }
+    100% {
+      background-position: -100% 0;
+    }
+  }
+
+  .smd-skeleton__line {
+    height: 0.75rem;
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 0.6rem;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.06) 25%,
+      rgba(0, 0, 0, 0.1) 37%,
+      rgba(0, 0, 0, 0.06) 63%
+    );
+    background-size: 200% 100%;
+    animation: smd-shimmer 1.4s ease-in-out infinite;
+
+    &--heading {
+      height: 1rem;
+      width: 50%;
+      margin-bottom: 0.8rem;
+    }
+
+    &--short {
+      width: 40%;
+    }
+
+    &--medium {
+      width: 70%;
+    }
+  }
+
+  .smd-skeleton__badge {
+    width: 60px;
+    height: 1.8rem;
+    border-radius: 0.5rem;
+    margin: 0 auto 0.8rem;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.06) 25%,
+      rgba(0, 0, 0, 0.1) 37%,
+      rgba(0, 0, 0, 0.06) 63%
+    );
+    background-size: 200% 100%;
+    animation: smd-shimmer 1.4s ease-in-out infinite;
+  }
+
+  .smd-skeleton__chart {
+    flex: 1;
+    min-height: 160px;
+    border-radius: 8px;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.04) 25%,
+      rgba(0, 0, 0, 0.08) 37%,
+      rgba(0, 0, 0, 0.04) 63%
+    );
+    background-size: 200% 100%;
+    animation: smd-shimmer 1.4s ease-in-out infinite;
   }
 
   &__cards--shipwrights {
