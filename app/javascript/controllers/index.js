@@ -150,3 +150,6 @@ application.register(
 
 import XpWindowController from "./xp_window_controller";
 application.register("xp-window", XpWindowController);
+
+import LazyLoadController from "./lazy_load_controller";
+application.register("lazy-load", LazyLoadController);
