@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_24_132226) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_25_170706) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -707,6 +707,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_24_132226) do
     t.boolean "leaderboard_optin", default: false, null: false
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
+    t.boolean "manual_ysws_override"
     t.integer "projects_count"
     t.string "ref"
     t.string "regions", default: [], array: true

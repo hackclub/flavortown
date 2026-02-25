@@ -23,6 +23,7 @@
 #  leaderboard_optin                       :boolean          default(FALSE), not null
 #  magic_link_token                        :string
 #  magic_link_token_expires_at             :datetime
+#  manual_ysws_override                    :boolean
 #  projects_count                          :integer
 #  ref                                     :string
 #  regions                                 :string           default([]), is an Array

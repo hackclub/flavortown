@@ -221,6 +221,7 @@ Rails.application.routes.draw do
          post :refresh_verification
          post :toggle_voting_lock
          get  :votes
+         patch :set_ysws_eligible_override
        end
        collection do
          post :stop_impersonating

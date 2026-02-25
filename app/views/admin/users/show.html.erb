@@ -246,6 +246,14 @@
             </form>
           <% end %>
         <% end %>
+
+        <% if @user.manual_ysws_override? %>
+          <%= button_to "Remove ysws override", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "false" }, class: "btn-secondary slim" %>
+        <% else %>
+          <% unless @user.ysws_eligible? %>
+            <%= button_to "Make ysws eligible", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "true" }, class: "btn-danger slim" %>
+          <% end %>
+        <% end %>
       <% end %>
 
     </div>
