@@ -17,10 +17,7 @@
 
         <div class="sw-vibes-mini__status">
           <% vibes_result = @sw_vibes.dig(:positive, :result) %>
-          <span
-            class="sw-vibes-mini__badge sw-vibes-mini__badge--clickable sw-vibes-mini__badge--<%= vibes_result ? 'good' : 'bad' %>"
-            onclick="document.getElementById('sw-sentiment-popup').style.display='flex'; if(typeof swInitSentimentChart==='function') requestAnimationFrame(swInitSentimentChart);"
-          >
+          <span class="sw-vibes-mini__badge sw-vibes-mini__badge--clickable sw-vibes-mini__badge--<%= vibes_result ? 'good' : 'bad' %>" onclick="document.getElementById('sw-sentiment-popup').style.display='flex'; if(typeof swInitSentimentChart==='function') requestAnimationFrame(swInitSentimentChart);">
             <%= vibes_result ? "Good" : "Bad" %>
           </span>
         </div>
