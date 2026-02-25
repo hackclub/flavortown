@@ -57,7 +57,7 @@ class ProjectShowCardComponent < ViewComponent::Base
     memberships = project.memberships.includes(:user)
     owner_user = memberships.owner.first&.user
     other_users = memberships.where.not(role: :owner).map(&:user).compact
-    ordered_users = [owner_user, *other_users].compact
+    ordered_users = [ owner_user, *other_users ].compact
     names = ordered_users.map(&:display_name).reject(&:blank?).uniq
     return "" if names.empty?
     "Created by: #{names.map.with_index { |x, i| "<a href=\"/users/#{ordered_users[i].id}\">#{html_escape(x)}</a>" }.join(', ')}".html_safe
