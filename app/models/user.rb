@@ -21,6 +21,7 @@
 #  leaderboard_optin                       :boolean          default(FALSE), not null
 #  magic_link_token                        :string
 #  magic_link_token_expires_at             :datetime
+#  manual_ysws_override                    :boolean
 #  projects_count                          :integer
 #  ref                                     :string
 #  regions                                 :string           default([]), is an Array
@@ -202,6 +203,11 @@ class User < ApplicationRecord
   def has_identity_linked? = !verification_needs_submission?
 
   def identity_verified? = verification_verified?
+
+  def ysws_eligible?
+    return manual_ysws_override if manual_ysws_override.in?([ true, false ])
+    self[:ysws_eligible]
+  end
 
   def eligible_for_shop? = identity_verified? && ysws_eligible?
 
