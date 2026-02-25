@@ -429,13 +429,17 @@ module Admin
           if response.success?
             raw_data = JSON.parse(response.body)
             Rails.cache.write("super_mega_ship_certs_raw", raw_data, expires_in: 10.minutes)
+          else
+            raw_data = :error
+            Rails.cache.write("super_mega_ship_certs_raw", raw_data, expires_in: 1.minute)
           end
         rescue Faraday::Error, JSON::ParserError, Faraday::TimeoutError
-          nil
+          raw_data = :error
+          Rails.cache.write("super_mega_ship_certs_raw", raw_data, expires_in: 1.minute)
         end
       end
 
-      unless raw_data
+      if raw_data.nil? || raw_data == :error
         @ship_certs = { error: true }
         return
       end
