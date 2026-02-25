@@ -50,7 +50,7 @@ module Admin
         return
       end
 
-      render partial: "admin/super_mega_dashboard/sections/#{section}"
+      render "admin/super_mega_dashboard/index"
     end
 
     private
