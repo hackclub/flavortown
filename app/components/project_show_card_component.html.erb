@@ -38,21 +38,9 @@
       <% elsif current_user.present? %>
         <div class="project-show-card__ship-wrapper">
           <% if following? %>
-            <%= render ButtonComponent.new(
-                  text: "Unfollow",
-                  color: :brown,
-                  href: unfollow_project_path(project),
-                  method: :delete,
-                  class: "project-show-card__ship-btn"
-                ) %>
+            <%= button_to "Unfollow", unfollow_project_path(project), method: :delete, class: "btn btn--brown project-show-card__ship-btn" %>
           <% else %>
-            <%= render ButtonComponent.new(
-                  text: "Follow",
-                  color: :brown,
-                  href: follow_project_path(project),
-                  method: :post,
-                  class: "project-show-card__ship-btn"
-                ) %>
+            <%= button_to "Follow", follow_project_path(project), method: :post, class: "btn btn--brown project-show-card__ship-btn" %>
           <% end %>
         </div>
       <% end %>
