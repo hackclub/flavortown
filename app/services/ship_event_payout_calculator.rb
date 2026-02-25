@@ -148,6 +148,8 @@ class ShipEventPayoutCalculator
 
   def notify_vote_deficit(user, votes_needed)
     return unless user.slack_id.present?
+    return unless Flipper.enabled?(:voting, user)
+    return if user.voting_locked?
 
     cache_key = "vote_deficit_notified:#{@ship_event.id}"
     return if Rails.cache.exist?(cache_key)
