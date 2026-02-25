@@ -18,7 +18,7 @@
         <div class="sw-vibes-mini__status">
           <% vibes_result = @sw_vibes.dig(:positive, :result) %>
           <span
-            class="sw-vibes-mini__badge sw-vibes-mini__badge--clickable sw-vibes-mini__badge--<%= vibes_result ? 'good' : 'bad' %>"
+            class="sw-vibes-mini__badge sw-vibes-mini__badge--clickable sw-vibes-mini__badge--<%= vibes_result ? 'good' : 'bad'%>"
             onclick="document.getElementById('sw-sentiment-popup').style.display='flex'; if(typeof swInitSentimentChart==='function') requestAnimationFrame(swInitSentimentChart);"
           >
             <%= vibes_result ? "Good" : "Bad" %>
@@ -172,7 +172,7 @@
       <% if @sw_vibes_history.present? %>
         <div class="sw-vibes-history__cards">
           <% @sw_vibes_history.each_with_index do |entry, idx| %>
-            <button type="button" class="sw-vibes-history__card" onclick="swShowHistoryDetail(<%= idx %>)">
+            <button type="button" class="sw-vibes-history__card" onclick="swShowHistoryDetail(<%= idx.to_json %>)">
               <span class="sw-vibes-mini__badge sw-vibes-mini__badge--<%= entry.result ? 'good' : 'bad' %>">
                 <%= entry.result ? "Good" : "Bad" %>
               </span>
@@ -217,7 +217,7 @@
   </div>
 </div>
 
-<% history_details_json = (@sw_vibes_history || []).map { |e|
+<% history_details_for_js = (@sw_vibes_history || []).map { |e|
   {
     date: e.recorded_date.strftime("%b %d, %Y"),
     result: e.result,
@@ -228,7 +228,14 @@
     },
     suggestion: e.payload["suggestion"] ? { action: e.payload.dig("suggestion", "action"), reason: e.payload.dig("suggestion", "reason") } : nil
   }
-}.to_json %>
+} %>
+<% sentiment_data = (@sw_vibes_history || []).sort_by(&:recorded_date).map { |e| { date: e.recorded_date.to_s, sentiment: e.sentiment.to_f, result: e.result } } %>
+<% current_sentiment = @sw_vibes.is_a?(Hash) && !@sw_vibes[:error] ? @sw_vibes.dig(:positive, :sentiment) : nil %>
+<% if current_sentiment && sentiment_data.none? { |d| d[:date] == Date.current.to_s } %>
+  <% sentiment_data << { date: Date.current.to_s, sentiment: current_sentiment.to_f, result: @sw_vibes.dig(:positive, :result) } %>
+<% end %>
+<% queue_time_data = @ship_certs && !@ship_certs[:error] && @ship_certs[:avg_queue_time_history].present? ? @ship_certs[:avg_queue_time_history] : nil %>
+<% reviews_ships_data = (@ship_certs && !@ship_certs[:error] && @ship_certs[:reviews_per_day].present?) ? { reviews: @ship_certs[:reviews_per_day], ships: @ship_certs[:ships_per_day] } : nil %>
 
 <script>
 (function() {
@@ -240,7 +247,7 @@
     document.head.appendChild(s);
   }
 
-  var historyData = <%= raw history_details_json %>;
+  var historyData = <%= raw history_details_for_js.to_json %>;
 
   window.swShowHistoryDetail = function(idx) {
     var entry = historyData[idx];
@@ -307,12 +314,6 @@
     }).observe(historyPopup, { attributes: true, attributeFilter: ['style'] });
   }
 
-  <% sentiment_data = (@sw_vibes_history || []).sort_by(&:recorded_date).map { |e| { date: e.recorded_date.to_s, sentiment: e.sentiment.to_f, result: e.result } } %>
-  <% current_sentiment = @sw_vibes.is_a?(Hash) && !@sw_vibes[:error] ? @sw_vibes.dig(:positive, :sentiment) : nil %>
-  <% if current_sentiment && sentiment_data.none? { |d| d[:date] == Date.current.to_s } %>
-    <% sentiment_data << { date: Date.current.to_s, sentiment: current_sentiment.to_f, result: @sw_vibes.dig(:positive, :result) } %>
-  <% end %>
-
   var swSentimentInited = false;
   window.swInitSentimentChart = function() {
     if (swSentimentInited) return;
@@ -368,10 +369,10 @@
   };
 
   ensureChartJs(function() {
-    <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:avg_queue_time_history].present? %>
+    var qtData = <%= raw (queue_time_data || {}).to_json %>;
+    if (Object.keys(qtData).length > 0) {
       var qtEl = document.getElementById('swQueueTimeChart');
       if (qtEl) {
-        var qtData = <%= raw @ship_certs[:avg_queue_time_history].to_json %>;
         var qtDates = Object.keys(qtData).sort();
         var qtLabels = qtDates.map(function(d) {
           return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -404,13 +405,14 @@
           }
         });
       }
-    <% end %>
+    }
 
-    <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:reviews_per_day].present? %>
+    var rsData = <%= raw (reviews_ships_data || {}).to_json %>;
+    if (rsData.reviews && rsData.ships) {
       var rsEl = document.getElementById('swReviewsShipsChart');
       if (rsEl) {
-        var revData = <%= raw @ship_certs[:reviews_per_day].to_json %>;
-        var shipData = <%= raw @ship_certs[:ships_per_day].to_json %>;
+        var revData = rsData.reviews;
+        var shipData = rsData.ships;
         var rsDates = Object.keys(revData).sort();
         var rsLabels = rsDates.map(function(d) {
           return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -454,7 +456,7 @@
           }
         });
       }
-    <% end %>
+    }
   });
 })();
 </script>
