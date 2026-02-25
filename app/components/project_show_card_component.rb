@@ -23,6 +23,18 @@ class ProjectShowCardComponent < ViewComponent::Base
     project.demo_url.present? || project.repo_url.present? || project.readme_url.present?
   end
 
+  def can_ship?
+    project.draft? || project.shippable?
+  end
+
+  def can_request_re_cert?
+    project.last_ship_event&.certification_status == "rejected"
+  end
+
+  def ship_btn_wrapper_id
+    "ship-btn-wrapper-#{project.id}"
+  end
+
   def followers_count
     @followers_count ||= if project.respond_to?(:project_follows_count) && project.has_attribute?(:project_follows_count)
       project.project_follows_count
@@ -35,7 +47,7 @@ class ProjectShowCardComponent < ViewComponent::Base
     memberships = project.memberships.includes(:user)
     owner_user = memberships.owner.first&.user
     other_users = memberships.where.not(role: :owner).map(&:user).compact
-    ordered_users = [ owner_user, *other_users ].compact
+    ordered_users = [owner_user, *other_users].compact
     names = ordered_users.map(&:display_name).reject(&:blank?).uniq
     return "" if names.empty?
     "Created by: #{names.map.with_index { |x, i| "<a href=\"/users/#{ordered_users[i].id}\">#{html_escape(x)}</a>" }.join(', ')}".html_safe
