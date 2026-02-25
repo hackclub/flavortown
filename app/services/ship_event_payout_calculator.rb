@@ -131,7 +131,9 @@ class ShipEventPayoutCalculator
     if project&.shadow_banned?
       reason = project.shadow_banned_reason
       parts = []
-      parts << "Hey! After review, your project won't be going into voting this time."
+      if Flipper.enabled?(:voting, user)
+        parts << "Hey! After review, your project won't be going into voting this time."
+      end
       parts << "Reason: #{reason}" if reason.present?
       parts << "We've issued a minimum payout for your work on this ship."
       parts << "If you have questions, reach out in #flavortown-help. Keep building — you can ship again anytime!"

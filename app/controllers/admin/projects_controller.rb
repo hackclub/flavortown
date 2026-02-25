@@ -108,7 +108,9 @@ class Admin::ProjectsController < Admin::ApplicationController
       next unless member.user&.slack_id.present?
 
       parts = []
-      parts << "Hey! After review, your project won't be going into voting this time."
+      if Flipper.enabled?(:voting, member.user)
+        parts << "Hey! After review, your project won't be going into voting this time."
+      end
       parts << "Reason: #{reason}" if reason.present?
       parts << "We've issued a minimum payout for your work on this ship." if issued_min_payout
       parts << "If you have questions, reach out in #flavortown-help. Keep building — you can ship again anytime!"
