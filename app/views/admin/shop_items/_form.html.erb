@@ -260,11 +260,9 @@
   "brand_name": "Your Brand"
 }' %>
             <span class="shop-item-form__hint">
-              <strong>pn:</strong> Inkthreadable product number (e.g., JH001)<br>
-              <strong>designs:</strong> Object with print positions and design URLs<br>
-              <strong>shipping_method:</strong> "regular", "recorded", or "courier"<br>
-              <strong>brand_name:</strong> Your brand name on Inkthreadable
+              Valid JSON configuration for Inkthreadable order fulfillment.
             </span>
+          </div>
         <div class="card" id="source_region_settings" style="display: none;">
           <h3>Source Region</h3>
           <div class="shop-item-form__field">
@@ -734,7 +732,10 @@
 </style>
 
 <script>
-    (function () {
+    document.addEventListener('turbo:load', initializeShopItemForm);
+    document.addEventListener('DOMContentLoaded', initializeShopItemForm);
+
+    function initializeShopItemForm() {
         const gameConstants = {
             doubloons_per_dollar: <%= Rails.configuration.game_constants.tickets_per_dollar.to_json %>,
             dollars_per_mean_hour: <%= Rails.configuration.game_constants.dollars_per_mean_hour.to_json %>
@@ -959,6 +960,8 @@
 
             if (inkthreadableSettings) {
                 inkthreadableSettings.style.display = (selectedType === 'ShopItem::InkthreadableItem') ? 'block' : 'none';
+            }
+
             if (sourceSettings) {
                 sourceSettings.style.display = SOURCE_REGION_TYPES.includes(selectedType) ? 'block' : 'none';
             }
@@ -968,5 +971,5 @@
             typeSelect.addEventListener('change', updateTypeVisibility);
             updateTypeVisibility();
         }
-    })();
-</script>
+        }
+        </script>
