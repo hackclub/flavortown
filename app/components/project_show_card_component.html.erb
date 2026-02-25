@@ -35,6 +35,26 @@
             </ul>
           <% end %>
         <% end %>
+      <% elsif current_user.present? %>
+        <div class="project-show-card__ship-wrapper">
+          <% if following? %>
+            <%= render ButtonComponent.new(
+                  text: "Unfollow",
+                  color: :brown,
+                  href: unfollow_project_path(project),
+                  method: :delete,
+                  class: "project-show-card__ship-btn"
+                ) %>
+          <% else %>
+            <%= render ButtonComponent.new(
+                  text: "Follow",
+                  color: :brown,
+                  href: follow_project_path(project),
+                  method: :post,
+                  class: "project-show-card__ship-btn"
+                ) %>
+          <% end %>
+        </div>
       <% end %>
 
       <% if helpers.current_user.present? && helpers.policy(:admin).manage_projects? %>
@@ -74,14 +94,24 @@
                   ) %>
             <% end %>
             <% if helpers.policy(project).destroy? %>
-            <%= button_to helpers.project_path(project),
-                  method: :delete,
-                  class: "btn btn--brown btn--borderless projects-show__icon-btn",
-                  form: { onsubmit: "return confirm('Are you sure you want to delete ' + #{project.title.to_json} + '? This action cannot be undone.')" },
-                  aria: { label: "Delete project" } do %>
-              <%= helpers.inline_svg_tag "icons/trash-bin.svg" %>
+              <%= button_to helpers.project_path(project),
+                    method: :delete,
+                    class: "btn btn--brown btn--borderless projects-show__icon-btn",
+                    form: { onsubmit: "return confirm('Are you sure you want to delete ' + #{project.title.to_json} + '? This action cannot be undone.')" },
+                    aria: { label: "Delete project" } do %>
+                <%= helpers.inline_svg_tag "icons/trash-bin.svg" %>
+              <% end %>
             <% end %>
-          <% end %>
+            <% if show_report_button? %>
+              <%= render ButtonComponent.new(
+                    text: "Report",
+                    color: :brown,
+                    variant: :borderless,
+                    icon: "icons/flag.svg",
+                    aria: { label: "Report" },
+                    onclick: "document.getElementById('project-report-modal').showModal()"
+                  ) %>
+            <% end %>
         </div>
       </div>
       <div class="project-show-card__byline">

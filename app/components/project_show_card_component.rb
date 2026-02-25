@@ -14,6 +14,16 @@ class ProjectShowCardComponent < ViewComponent::Base
     project.users.include?(current_user)
   end
 
+  def following?
+    return false unless current_user
+
+    current_user.project_follows.exists?(project: project)
+  end
+
+  def show_report_button?
+    current_user.present? && (!owner? || Rails.env.development?)
+  end
+
   def banner_variant
     return nil unless project.banner.attached?
     project.banner.variant(:card)
