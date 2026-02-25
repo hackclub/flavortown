@@ -32,7 +32,9 @@ export default class extends Controller {
       if (!response.ok) return;
       el.innerHTML = await response.text();
       await this.activateScripts(el);
-    } catch {}
+    } catch (e) {
+      console.error("[lazy-load] failed to load section:", section, e);
+    }
   }
 
   async activateScripts(container) {
