@@ -3,12 +3,14 @@
 .tutorial-steps {
   position: relative;
   z-index: 1;
+  width: 100%;
+  transition: max-width 180ms ease;
 
   &__header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--space-m);
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-s);
     cursor: pointer;
     list-style: none;
 
@@ -19,14 +21,18 @@
 
   &__toggle-icon {
     display: flex;
+    align-self: flex-start;
     align-items: center;
     justify-content: center;
+    margin-top: 0;
+    line-height: 1;
     transition: transform 0.2s ease;
     transform: rotate(-90deg);
 
     svg {
       width: 20px;
       height: 20px;
+      display: block;
       fill: var(--color-brown-500);
     }
   }
@@ -75,10 +81,28 @@
     border-radius: 999px;
   }
 
+  &__subtext {
+    margin: 0 0 var(--space-xl);
+    color: var(--color-brown-500);
+    font-family: var(--font-family-text);
+    font-size: var(--font-size-m);
+    line-height: 1.35;
+  }
+
   &__grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--space-xl);
+  }
+
+  &:not([open]) {
+    max-width: 760px;
+    margin-left: 0;
+    margin-right: 0;
+
+    > .tutorial-steps__header {
+      margin-bottom: 0;
+    }
   }
 }
 
