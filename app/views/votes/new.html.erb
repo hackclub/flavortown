@@ -4,7 +4,7 @@
     <script>
       window['_fs_host'] = 'fullstory.com';
       window['_fs_script'] = 'edge.fullstory.com/s/fs.js';
-      window['_fs_org'] = '<%= j @fullstory_org_id %>';
+      window['_fs_org'] = <%= @fullstory_org_id.to_json %>;
       window['_fs_namespace'] = 'FS';
       (function(){
         var s = document.createElement('script');

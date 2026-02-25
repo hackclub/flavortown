@@ -29,7 +29,7 @@
           input_html: {
             rows: 4,
             data: {
-              action: "input->project-form#validateDescription input->project-form#syncUpdateCheckbox blur->project-form#validateDescription",
+              action: "input->project-form#onDescriptionInput input->project-form#syncUpdateCheckbox blur->project-form#validateDescription",
               "project-form-target": "description"
             }
           },
@@ -48,7 +48,7 @@
              data-action="change->project-form#toggleUpdatePrefix">
       <span class="projects-new__checkbox-label">This is an update</span>
     </label>
-    <div class="input__subtitle">Tick if updating a project previously submitted to Hack Club. Remember to describe what's new.</div>
+    <div class="input__subtitle">Tick if your project was started before December 15th 2025, or if it was previously submitted to another Hack Club program.</div>
   </div>
 
   <div class="input input--blue">
@@ -64,6 +64,32 @@
     <div class="input__subtitle">May be eligible for cosmic prizes!</div>
   </div>
 </div>
+
+  <div data-project-form-target="updateDescriptionContainer" hidden>
+    <style>
+      [data-project-form-target="updateDescriptionContainer"] .input {
+        width: 100%;
+      }
+    </style>
+    <%= render(
+          InputComponent.new(
+            label: "Update Description",
+            placeholder: "What did you update and why?",
+            form: form,
+            attribute: :update_description,
+            color: :yellow,
+            as: :textarea,
+            input_html: {
+              rows: 2,
+              data: {
+                action: "input->project-form#onUpdateDescriptionInput blur->project-form#validateUpdateDescription",
+                "project-form-target": "updateDescriptionField"
+              }
+            },
+            subtitle: "Please describe the features you've added or updated, and the impact these changes have had on your project overall. Please be specific, we will ask you to clarify your update description if it's too vague."
+          )
+        ) %>
+  </div>
 
 <div class="projects-new__field projects-new__field--banner">
   <%= render(
