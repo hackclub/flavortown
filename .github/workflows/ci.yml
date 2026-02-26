@@ -16,60 +16,77 @@ jobs:
   scan_ruby:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
       - name: Install build dependencies
         run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev liblapack3
 
-      - uses: ruby/setup-ruby@v1
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - run: bin/brakeman --no-pager
+      - name: Run Brakeman security scan
+        run: bin/brakeman --no-pager
 
   scan_js:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-      - uses: oven-sh/setup-bun@v1
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
 
-      - run: bun install --frozen-lockfile
-      - run: bun audit --audit-level=moderate
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Run security audit
+        run: bun audit --audit-level=moderate
 
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-      - uses: ruby/setup-ruby@v1
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - uses: oven-sh/setup-bun@v1
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
 
-      - run: bun install --frozen-lockfile
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
 
-      - run: bin/rubocop -f github
-      - run: bundle exec erb_lint --lint-all
-      - run: bun prettier --check "app/javascript/**/*.{js,jsx,ts,tsx}" "app/assets/stylesheets/**/*.{scss,css}"
+      - name: Run RuboCop
+        run: bin/rubocop -f github
+      - name: Run ERB linting
+        run: bundle exec erb_lint --lint-all
+      - name: Lint thy code
+        run: bun prettier --check "app/javascript/**/*.{js,jsx,ts,tsx}" "app/assets/stylesheets/**/*.{scss,css}"
 
   zeitwerk_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
       - name: Install build dependencies
         run: sudo apt-get update && sudo apt-get install -y liblapack3
 
-      - uses: ruby/setup-ruby@v1
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - run: bin/rails zeitwerk:check
+      - name: Zeitwerk check
+        run: bin/rails zeitwerk:check
 
   db_checks:
     runs-on: ubuntu-latest
@@ -88,20 +105,24 @@ jobs:
       RAILS_ENV: test
       DATABASE_URL: postgresql://postgres:password@localhost:5432/flavortown_test
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
       - name: Install build dependencies
         run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev liblapack3
 
-      - uses: ruby/setup-ruby@v1
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - run: bundle exec rails db:migrate
-      - run: git diff --exit-code db/schema.rb
+      - name: Db migrations
+        run: bundle exec rails db:migrate
+      - name: Check schema is up to date
+        run: git diff --exit-code db/schema.rb
 
-      - name: Comment on schema failure
+      - name: Comment reminder msg
         if: failure() && github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
@@ -113,7 +134,8 @@ jobs:
               body: `### :rage2: you GOOF!\n Schema dump has fallen out of date\n\nRun \`rails db:migrate\` locally and commit the changes to \`db/schema.rb\`.`
             });
 
-      - run: bundle exec annotaterb models --frozen
+      - name: Check model annotations
+        run: bundle exec annotaterb models --frozen
 
       - name: Comment on annotation failure
         if: failure() && github.event_name == 'pull_request'
