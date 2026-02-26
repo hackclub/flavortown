@@ -1,0 +1,141 @@
+<%= render HeadingComponent.new(title: "Flavortime Dashboard", tone: :blue, size: :full) %>
+
+<%= form_with url: admin_flavortime_dashboard_path, method: :get, local: true do |f| %>
+  <div class="button-grid">
+    <%= f.select :range,
+      options_for_select(
+        [
+          [ "Last 15 minutes", "15m" ],
+          [ "Last 1 hour", "1h" ],
+          [ "Last 6 hours", "6h" ],
+          [ "Last 24 hours", "24h" ],
+          [ "Last 7 days", "7d" ],
+          [ "Last 30 days", "30d" ],
+          [ "All time", "all" ],
+          [ "Custom", "custom" ]
+        ],
+        @selected_range
+      ),
+      {},
+      class: "input" %>
+    <%= f.datetime_local_field :from, value: @from_time&.strftime("%Y-%m-%dT%H:%M"), class: "input" %>
+    <%= f.datetime_local_field :to, value: @to_time&.strftime("%Y-%m-%dT%H:%M"), class: "input" %>
+    <%= f.submit "Apply", class: "btn-primary" %>
+  </div>
+<% end %>
+
+<div class="dashboard-stats">
+  <div class="card">
+    <h3>Currently Active Users</h3>
+    <p class="stat-value"><%= number_with_delimiter(@active_users) %></p>
+  </div>
+  <div class="card">
+    <h3>Total Unique Users</h3>
+    <p class="stat-value"><%= number_with_delimiter(@total_unique_users) %></p>
+  </div>
+  <div class="card">
+    <h3>Total Sessions</h3>
+    <p class="stat-value"><%= number_with_delimiter(@total_sessions) %></p>
+  </div>
+  <div class="card">
+    <h3>Total Hours Logged</h3>
+    <p class="stat-value"><%= number_with_delimiter(@total_hours_logged) %></p>
+  </div>
+</div>
+
+<div class="dashboard-stats">
+  <div class="card">
+    <h3>Voluntary Closes</h3>
+    <p class="stat-value"><%= number_with_delimiter(@voluntary_closed_sessions) %></p>
+  </div>
+  <div class="card">
+    <h3>Timed Out Sessions</h3>
+    <p class="stat-value"><%= number_with_delimiter(@timed_out_sessions) %></p>
+  </div>
+</div>
+
+<div class="dashboard-stats">
+  <div class="card">
+    <h3>Sessions Over Time</h3>
+    <%= line_chart @sessions_over_time, height: "280px", xtitle: "Time", ytitle: "Sessions" %>
+  </div>
+  <div class="card">
+    <h3>Hours Over Time</h3>
+    <%= line_chart @hours_over_time, height: "280px", xtitle: "Time", ytitle: "Hours" %>
+  </div>
+</div>
+
+<div class="dashboard-stats">
+  <div class="card">
+    <h3>Sessions by Platform</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @sessions_by_platform.each do |platform, count| %>
+          <tr>
+            <td><%= platform %></td>
+            <td><%= number_with_delimiter(count) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Sessions by App Version</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>App Version</th>
+          <th>Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @sessions_by_app_version.each do |app_version, count| %>
+          <tr>
+            <td><%= app_version %></td>
+            <td><%= number_with_delimiter(count) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="dashboard-stats">
+  <div class="card">
+    <h3>Recent Sessions</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Started</th>
+          <th>Ended</th>
+          <th>End Reason</th>
+          <th>Session ID</th>
+          <th>Platform</th>
+          <th>App Version</th>
+          <th>Shared Seconds</th>
+          <th>User</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @recent_sessions.each do |session| %>
+          <tr>
+            <td><%= session.created_at.in_time_zone.strftime("%Y-%m-%d %H:%M:%S") %></td>
+            <td><%= session.ended_at&.in_time_zone&.strftime("%Y-%m-%d %H:%M:%S") || "active" %></td>
+            <td><%= session.ended_reason.presence || "active" %></td>
+            <td><%= session.session_id.presence || "closed" %></td>
+            <td><%= session.platform.presence || "unknown" %></td>
+            <td><%= session.app_version.presence || "unknown" %></td>
+            <td><%= number_with_delimiter(session.discord_shared_seconds) %></td>
+            <td><%= session.user&.display_name.presence || session.user_id %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

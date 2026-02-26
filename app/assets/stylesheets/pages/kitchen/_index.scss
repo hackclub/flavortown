@@ -132,6 +132,261 @@
   }
 }
 
+.kitchen-flavortime-banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(1rem, 2.4vw, 2rem);
+  margin-top: -1px;
+  margin-bottom: var(--space-xl);
+  padding: clamp(1.2rem, 2.2vw, 1.8rem) clamp(1.2rem, 2.4vw, 2rem);
+  border: 2px solid #5a7694;
+  border-top: 0;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  background: linear-gradient(
+    to bottom,
+    #4e6580 0%,
+    #3d4f66 35%,
+    #3d4f66 65%,
+    #4e6580 100%
+  );
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("flavortime/wire-clock-pattern.png");
+    background-size: 160px;
+    background-repeat: repeat;
+    opacity: 0.28;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &__content,
+  &__mascot {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__content {
+    max-width: 54rem;
+  }
+
+  &__title {
+    margin: 0;
+    color: #ffffff;
+    font-family: var(--font-family-jua);
+    font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+
+  &__title-icon {
+    height: 1.2em;
+    width: auto;
+  }
+
+  &__text {
+    margin: var(--space-s) 0 0;
+    max-width: 56ch;
+    color: #d0dcea;
+    font-size: clamp(1rem, 1.45vw, 1.2rem);
+    line-height: 1.35;
+  }
+
+  &__downloads {
+    margin-top: var(--space-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  &__download-icon {
+    width: 1.1em;
+    height: 1.1em;
+    flex-shrink: 0;
+  }
+
+  &__download-detail {
+    font-size: 0.78em;
+    opacity: 0.7;
+    font-weight: 400;
+  }
+
+  &__primary-download {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+    min-height: 44px;
+    width: fit-content;
+    border-radius: calc(var(--border-radius) * 0.65);
+    border: 1px solid #8fb6aa;
+    background: #5f8f7f;
+    color: #fff;
+    text-decoration: none;
+    font-family: var(--font-family-subtitle);
+    font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+    padding: 0.45rem 0.95rem;
+    transition:
+      filter 120ms ease,
+      transform 120ms ease;
+
+    &:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+  }
+
+  &__download-links {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: clamp(0.78rem, 1vw, 0.9rem);
+    line-height: 1.3;
+    color: #b8c8da;
+  }
+
+  &__download-prefix {
+    opacity: 0.95;
+  }
+
+  &__download-link {
+    color: #ffffff;
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.45);
+    transition: border-color 120ms ease;
+
+    &:hover {
+      border-bottom-color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  &__download-separator {
+    opacity: 0.7;
+  }
+
+  &__mascot {
+    flex-shrink: 0;
+    width: clamp(130px, 18vw, 200px);
+    height: auto;
+  }
+
+  @media (max-width: 820px) {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--space-m);
+    gap: var(--space-s);
+
+    &__mascot {
+      width: clamp(120px, 32vw, 170px);
+      align-self: center;
+    }
+  }
+}
+
+.kitchen-pyramid-banner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+  margin: var(--space-xl) 0 0;
+  padding: 1em;
+  border: 2px solid #3d343b;
+  border-bottom: 0;
+  border-radius: calc(var(--border-radius) * 0.5)
+    calc(var(--border-radius) * 0.5) 0 0;
+  background: #050505;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+  text-decoration: none;
+  color: #ffffff;
+  transition:
+    filter 120ms ease,
+    transform 120ms ease;
+
+  &:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+  }
+
+  &__icon {
+    width: 46px;
+    height: auto;
+    flex-shrink: 0;
+  }
+
+  &__copy {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__title {
+    margin: 0;
+    white-space: nowrap;
+    color: #ffffff;
+    font-family: var(--font-family-subtitle);
+    font-size: 0.88rem;
+    line-height: 1.2;
+  }
+
+  &__text {
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.82rem;
+    line-height: 1.2;
+  }
+
+  &__cta {
+    margin-left: 0.2rem;
+    display: inline-flex;
+    align-items: center;
+    align-self: center;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 960px) {
+    gap: 0.55rem;
+    padding: 1em;
+
+    &__icon {
+      width: 40px;
+    }
+
+    &__title {
+      font-size: 0.84rem;
+    }
+
+    &__text {
+      font-size: 0.8rem;
+    }
+  }
+}
 .kitchen-setup {
   position: relative;
   border-radius: var(--border-radius);
@@ -383,206 +638,6 @@
   @media (max-width: 640px) {
     &__items {
       grid-template-columns: 1fr;
-    }
-  }
-}
-
-.flagship-modal {
-  position: fixed;
-  z-index: 100;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  border: none;
-  padding: 0;
-  background-color: transparent;
-
-  &::backdrop {
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: brightness(0.7);
-  }
-
-  &[open] {
-    display: flex;
-  }
-
-  &__content {
-    position: relative;
-    background-color: #1a1a2e;
-    background-image: url("wood-tile.png");
-    background-repeat: repeat;
-    background-size: 400px;
-    border-radius: var(--border-radius);
-    padding: 5rem 2rem 2rem;
-    width: 90%;
-    max-width: 600px;
-  }
-
-  &__close {
-    position: absolute;
-    top: -0.5rem;
-    right: -0.5rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #362262;
-    color: #8b6bb8;
-    border: none;
-    border-radius: 50%;
-    font-size: 1.2rem;
-    line-height: 1;
-    padding: 0;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: #4a2f7f;
-    }
-  }
-
-  &__header {
-    position: absolute;
-    top: -2.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    justify-content: center;
-  }
-
-  &__logo {
-    width: auto;
-    height: 75px;
-    display: block;
-  }
-
-  &__body {
-    color: white;
-  }
-
-  &__headline {
-    font-size: var(--font-size-xl);
-    font-weight: 600;
-    line-height: 1.3;
-    margin-bottom: 1.5rem;
-    text-align: center;
-
-    a {
-      color: #fff;
-      text-decoration: underline;
-      transition: color 0.2s ease;
-
-      &:hover {
-        color: #e0e0e0;
-      }
-    }
-  }
-
-  &__subheading {
-    font-size: var(--font-size-l);
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    color: white;
-  }
-
-  &__list {
-    list-style: disc;
-    padding-left: 1.5rem;
-    margin-bottom: 1.25rem;
-
-    li {
-      font-size: var(--font-size-l);
-      line-height: 1.3;
-      margin-bottom: 0.5rem;
-      color: white;
-
-      .highlight {
-        color: #fbf1b3;
-      }
-    }
-  }
-
-  &__cta-section {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 1.75rem 0 2rem;
-    width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  &__button {
-    background-color: #443268;
-    color: #e3d6ff;
-    padding: 1rem 4.5rem 1rem 1.75rem;
-    border-radius: calc(var(--border-radius) * 0.6);
-    text-decoration: none;
-    font-size: var(--font-size-l);
-    font-weight: 600;
-    display: inline-block;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: #574180;
-    }
-  }
-
-  &__sticker {
-    position: absolute;
-    right: -1.5rem;
-    top: 35%;
-    transform: translateY(-50%);
-    width: auto;
-    height: 100px;
-    display: block;
-  }
-
-  &__footer {
-    text-align: center;
-    font-size: var(--font-size-l);
-    line-height: 1.3;
-    color: white;
-
-    a {
-      color: #fbf1b3;
-      text-decoration: underline;
-      transition: color 0.2s ease;
-
-      &:hover {
-        color: #fff;
-      }
-    }
-  }
-
-  @media (max-width: 768px) {
-    &__content {
-      padding: 2.5rem 1.5rem 1.5rem;
-    }
-
-    &__logo {
-      height: 70px;
-    }
-
-    &__headline {
-      font-size: var(--font-size-l);
-    }
-
-    &__button {
-      padding: 0.75rem 1.5rem;
-      font-size: var(--font-size-m);
-    }
-
-    &__sticker {
-      height: 100px;
-      right: -2.5rem;
     }
   }
 }

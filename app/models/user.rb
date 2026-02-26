@@ -21,6 +21,7 @@
 #  leaderboard_optin                       :boolean          default(FALSE), not null
 #  magic_link_token                        :string
 #  magic_link_token_expires_at             :datetime
+#  manual_ysws_override                    :boolean
 #  projects_count                          :integer
 #  ref                                     :string
 #  regions                                 :string           default([]), is an Array
@@ -50,7 +51,6 @@
 #
 # Indexes
 #
-#  index_users_on_api_key           (api_key) UNIQUE
 #  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #  index_users_on_session_token     (session_token) UNIQUE
@@ -75,6 +75,7 @@ class User < ApplicationRecord
   has_many :likes, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :ledger_entries, dependent: :destroy
+  has_many :flavortime_sessions, dependent: :destroy
   has_many :project_follows, dependent: :destroy
   has_many :followed_projects, through: :project_follows, source: :project
   has_many :shop_suggestions, dependent: :destroy
@@ -203,6 +204,11 @@ class User < ApplicationRecord
 
   def identity_verified? = verification_verified?
 
+  def ysws_eligible?
+    return manual_ysws_override if manual_ysws_override.in?([ true, false ])
+    self[:ysws_eligible]
+  end
+
   def eligible_for_shop? = identity_verified? && ysws_eligible?
 
   def should_reject_orders?
@@ -270,6 +276,19 @@ class User < ApplicationRecord
     soft_delete_projects!
   end
 
+  def lock_voting_and_mark_votes_suspicious!(notify: false)
+    return if voting_locked?
+
+    transaction do
+      update!(voting_locked: true)
+      votes.update_all(suspicious: true)
+    end
+
+    if notify
+      dm_user("Your voting has been locked due to suspicious activity. Please contact @Fraud Squad if you believe this is a mistake.")
+    end
+  end
+
   def reject_pending_orders!(reason: "User banned")
     shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).find_each do |order|
       order.mark_rejected(reason)
@@ -288,10 +307,12 @@ class User < ApplicationRecord
   end
 
   def shadow_ban!(reason: nil)
+    Rails.logger.warn("DEPRECATED: User#shadow_ban! is deprecated. Use project shadow banning instead.")
     update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
   end
 
   def unshadow_ban!
+    Rails.logger.warn("DEPRECATED: User#unshadow_ban! is deprecated. Use project shadow banning instead.")
     update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
   end
 
@@ -391,6 +412,7 @@ class User < ApplicationRecord
     if result[:banned] && !banned?
       Rails.logger.warn "User #{id} (#{slack_id}) is banned on Hackatime, auto-banning"
       ban!(reason: "Automatically banned: User is banned on Hackatime")
+      lock_voting_and_mark_votes_suspicious!
     end
 
     if result[:projects].any?

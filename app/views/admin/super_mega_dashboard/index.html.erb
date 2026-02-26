@@ -1,4 +1,4 @@
-<div class="super-mega-dashboard">
+<div class="super-mega-dashboard" data-controller="lazy-load">
   <%= render HeadingComponent.new(title: "Super Mega Dashboard", tone: :red, size: :full) %>
 
   <h2>COMICALLY LARGE TEXT THANKING ROWAN AND SHREYAS</h2>
@@ -11,64 +11,271 @@
         <%= link_to "View Full Dashboard →", admin_fraud_dashboard_path, class: "super-mega-link" %>
       </div>
 
-      <div class="super-mega-dashboard__cards">
-        <div class="super-mega-dashboard__card">
-          <h3>Reports</h3>
-          <div class="super-mega-dashboard__stats">
-            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--info">
-              <span class="super-mega-dashboard__stat--value blue"><%= @fraud_reports[:new_today] %></span>
-              <span class="super-mega-dashboard__stat--label">New Today</span>
-            </div>
-            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--warning">
-              <span class="super-mega-dashboard__stat--value yellow"><%= @fraud_reports[:pending] %></span>
-              <span class="super-mega-dashboard__stat--label">Pending</span>
-            </div>
-            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--success">
-              <span class="super-mega-dashboard__stat--value red"><%= @fraud_reports[:reviewed] %></span>
-              <span class="super-mega-dashboard__stat--label">Reviewed</span>
-            </div>
-            <div class="super-mega-dashboard__stat">
-              <span class="super-mega-dashboard__stat--value green"><%= @fraud_reports[:dismissed] %></span>
-              <span class="super-mega-dashboard__stat--label">Dismissed</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="super-mega-dashboard__card">
-          <h3>Bans</h3>
-          <div class="super-mega-dashboard__stats">
-            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--danger">
-              <span class="super-mega-dashboard__stat--value red"><%= @fraud_bans[:banned] %></span>
-              <span class="super-mega-dashboard__stat--label">Banned</span>
-            </div>
-            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--purple">
-              <span class="super-mega-dashboard__stat--value purple"><%= @fraud_bans[:shadow_banned_users] %></span>
-              <span class="super-mega-dashboard__stat--label">Shadow Banned</span>
-            </div>
-          </div>
-        </div>
-
+      <!-- SHOP ORDERS SECTION -->
+      <div class="fraud-subsection">
+        <h3 class="fraud-subsection__title">Shop Orders</h3>
+        <div class="super-mega-dashboard__cards">
         <div class="super-mega-dashboard__card">
           <h3>Order Queue</h3>
-          <div class="super-mega-dashboard__stats">
-            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--warning">
-              <span class="super-mega-dashboard__stat--value yellow"><%= @fraud_orders[:pending] %></span>
-              <span class="super-mega-dashboard__stat--label">Pending</span>
+          <div class="fraud-stats-grid">
+            <div class="fraud-stats-grid__row">
+              <span class="fraud-stats-grid__label">Pending</span>
+              <span class="fraud-stats-grid__value fraud-stats-grid__value--yellow"><%= @fraud_orders[:pending] %><span class="fraud-stats-grid__pct">(<%= @fraud_orders[:pending_pct] %>%)</span></span>
             </div>
-            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--info">
-              <span class="super-mega-dashboard__stat--value blue"><%= @fraud_orders[:awaiting] %></span>
-              <span class="super-mega-dashboard__stat--label">Awaiting</span>
+            <div class="fraud-stats-grid__row">
+              <span class="fraud-stats-grid__label">Awaiting</span>
+              <span class="fraud-stats-grid__value fraud-stats-grid__value--blue"><%= @fraud_orders[:awaiting] %><span class="fraud-stats-grid__pct">(<%= @fraud_orders[:awaiting_pct] %>%)</span></span>
             </div>
-            <div class="super-mega-dashboard__stat super-mega-dashboard__stat--danger">
-              <span class="super-mega-dashboard__stat--value red"><%= @fraud_orders[:backlog] %></span>
-              <span class="super-mega-dashboard__stat--label">Total Backlog</span>
+            <div class="fraud-stats-grid__row">
+              <span class="fraud-stats-grid__label">Total Backlog</span>
+              <span class="fraud-stats-grid__value fraud-stats-grid__value--red"><%= @fraud_orders[:backlog] %><span class="fraud-stats-grid__pct">(<%= @fraud_orders[:backlog_pct] %>%)</span></span>
             </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="super-mega-dashboard__dashboard">
+        </div>
+      </div>
+
+      <!-- JOE SECTION -->
+      <div class="fraud-subsection">
+        <h3 class="fraud-subsection__title">Joe Cases</h3>
+        <div class="super-mega-dashboard__cards">
+        <div class="super-mega-dashboard__card">
+          <h3>Case Stats</h3>
+          <% if @joe_fraud_stats && !@joe_fraud_stats[:error] %>
+            <% total_joe_cases = @joe_fraud_stats[:total] %>
+            <% fraudpheus_pct = @joe_fraud_stats[:open] > 0 ? ((@joe_fraud_stats[:fraudpheus_open].to_f / @joe_fraud_stats[:open]) * 100).round(1) : 0 %>
+            <% open_pct = (((@joe_fraud_stats[:open].to_f / total_joe_cases) * 100).round(1)) %>
+            <% closed_pct = (((@joe_fraud_stats[:closed].to_f / total_joe_cases) * 100).round(1)) %>
+            <div class="fraud-stats-grid">
+              <div class="fraud-stats-grid__row">
+                <span class="fraud-stats-grid__label">Second Chances Given</span>
+                <span class="fraud-stats-grid__value fraud-stats-grid__value--green"><%= @joe_fraud_stats[:second_chances_given] %></span>
+              </div>
+              <div class="fraud-stats-grid__row">
+                <span class="fraud-stats-grid__label">Open</span>
+                <span class="fraud-stats-grid__value fraud-stats-grid__value--yellow"><%= @joe_fraud_stats[:open] %><span class="fraud-stats-grid__pct">(<%= open_pct %>%)</span></span>
+              </div>
+              <div class="fraud-stats-grid__row">
+                <span class="fraud-stats-grid__label">Closed</span>
+                <span class="fraud-stats-grid__value fraud-stats-grid__value--green"><%= @joe_fraud_stats[:closed] %><span class="fraud-stats-grid__pct">(<%= closed_pct %>%)</span></span>
+              </div>
+            </div>
+          <% else %>
+            <p class="fraud-stats-error"><%= @joe_fraud_stats&.dig(:error) || "No Joe data" %></p>
+          <% end %>
+        </div>
+
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph">
+          <h3>Bans Over Time</h3>
+          <% if @fraud_ban_trend_data.present? %>
+            <div class="fraud-timeline-graph fraud-timeline-graph--compact">
+              <canvas id="banTrendChart" height="100"></canvas>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                const ctx = document.getElementById('banTrendChart');
+                if (!ctx) return;
+
+                const data = <%= raw @fraud_ban_trend_data.to_json %>;
+                const sortedDates = Object.keys(data).sort();
+                const labels = sortedDates.map(d => {
+                  const date = new Date(d);
+                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+
+                const bansData = sortedDates.map(d => data[d].bans);
+                const unbansData = sortedDates.map(d => data[d].unbans);
+
+                new Chart(ctx, {
+                  type: 'line',
+                  data: {
+                    labels: labels,
+                    datasets: [
+                      {
+                        label: 'Bans',
+                        data: bansData,
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 1,
+                        borderWidth: 1.5
+                      },
+                      {
+                        label: 'Unbans',
+                        data: unbansData,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 1,
+                        borderWidth: 1.5
+                      }
+                    ]
+                  },
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: { font: { size: 8 }, padding: 4 }
+                      }
+                    },
+                    scales: {
+                      x: {
+                        ticks: { font: { size: 7 }, maxRotation: 45, minRotation: 0 }
+                      },
+                      y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0, font: { size: 7 } }
+                      }
+                    }
+                  }
+                });
+              });
+            </script>
+          <% else %>
+            <p class="fraud-stats-error">No trend data available</p>
+          <% end %>
+          </div>
+          </div>
+          </div>
+
+          <!-- REPORTS SECTION -->
+          <div class="fraud-subsection">
+          <h3 class="fraud-subsection__title">Fraud Reports</h3>
+          <div class="super-mega-dashboard__cards">
+          <div class="super-mega-dashboard__card">
+          <h3>Report Stats</h3>
+          <div class="fraud-stats-grid">
+           <div class="fraud-stats-grid__row">
+             <span class="fraud-stats-grid__label">New Today</span>
+             <span class="fraud-stats-grid__value fraud-stats-grid__value--blue"><%= @fraud_reports[:new_today] %></span>
+           </div>
+           <div class="fraud-stats-grid__row">
+             <span class="fraud-stats-grid__label">Pending</span>
+             <span class="fraud-stats-grid__value fraud-stats-grid__value--yellow"><%= @fraud_reports[:pending] %><span class="fraud-stats-grid__pct">(<%= @fraud_reports[:pending_pct] %>%)</span></span>
+           </div>
+           <div class="fraud-stats-grid__row">
+             <span class="fraud-stats-grid__label">Reviewed</span>
+             <span class="fraud-stats-grid__value fraud-stats-grid__value--red"><%= @fraud_reports[:reviewed] %><span class="fraud-stats-grid__pct">(<%= @fraud_reports[:reviewed_pct] %>%)</span></span>
+           </div>
+           <div class="fraud-stats-grid__row">
+             <span class="fraud-stats-grid__label">Dismissed</span>
+             <span class="fraud-stats-grid__value fraud-stats-grid__value--green"><%= @fraud_reports[:dismissed] %><span class="fraud-stats-grid__pct">(<%= @fraud_reports[:dismissed_pct] %>%)</span></span>
+           </div>
+          </div>
+          </div>
+
+          <div class="super-mega-dashboard__card">
+          <h3>Ban Stats</h3>
+          <div class="fraud-stats-grid">
+           <div class="fraud-stats-grid__row">
+             <span class="fraud-stats-grid__label">Banned</span>
+             <span class="fraud-stats-grid__value fraud-stats-grid__value--red"><%= @fraud_bans[:banned] %><span class="fraud-stats-grid__pct">(<%= @fraud_bans[:banned_pct] %>%)</span></span>
+           </div>
+           <div class="fraud-stats-grid__row">
+             <span class="fraud-stats-grid__label">Shadow Banned</span>
+             <span class="fraud-stats-grid__value fraud-stats-grid__value--purple"><%= @fraud_bans[:shadow_banned_users] %><span class="fraud-stats-grid__pct">(<%= @fraud_bans[:shadow_banned_pct] %>%)</span></span>
+           </div>
+          </div>
+
+          </div>
+
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph">
+          <h3>Reports Over Time (by reason)</h3>
+          <% if @fraud_report_trend_data.present? %>
+            <div class="fraud-timeline-graph fraud-timeline-graph--compact">
+              <canvas id="reportTrendChart" height="100"></canvas>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                const ctx = document.getElementById('reportTrendChart');
+                if (!ctx) return;
+
+                const data = <%= raw @fraud_report_trend_data.to_json %>;
+                const sortedDates = Object.keys(data).sort();
+                const labels = sortedDates.map(d => {
+                  const date = new Date(d);
+                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+
+                // Group by reason
+                const reasonMap = {};
+                sortedDates.forEach(date => {
+                  Object.entries(data[date] || {}).forEach(([reason, count]) => {
+                    if (!reasonMap[reason]) reasonMap[reason] = {};
+                    reasonMap[reason][date] = count;
+                  });
+                });
+
+                // Define colors for different reasons
+                const reasonColors = {
+                  'low_effort': { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+                  'undeclared_ai': { border: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+                  'demo_broken': { border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
+                  'stolen_code': { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
+                  'inappropriate': { border: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)' },
+                  'other': { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' }
+                };
+
+                // Build datasets
+                const datasets = Object.entries(reasonMap).map(([reason, dates]) => {
+                  const dataArray = sortedDates.map(d => dates[d] || 0);
+                  const colors = reasonColors[reason] || { border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' };
+                  return {
+                    label: reason.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                    data: dataArray,
+                    borderColor: colors.border,
+                    backgroundColor: colors.bg,
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 1,
+                    borderWidth: 1.5
+                  };
+                });
+
+                new Chart(ctx, {
+                  type: 'line',
+                  data: { labels: labels, datasets: datasets },
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: { font: { size: 8 }, padding: 4 }
+                      }
+                    },
+                    scales: {
+                      x: {
+                        ticks: { font: { size: 7 }, maxRotation: 45, minRotation: 0 }
+                      },
+                      y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0, font: { size: 7 } }
+                      }
+                    }
+                  }
+                });
+              });
+            </script>
+          <% else %>
+            <p class="fraud-stats-error">No data available</p>
+          <% end %>
+          </div>
+
+          </div>
+          </div>
+          </div>
+
+          <div class="super-mega-dashboard__dashboard">
       <div class="super-mega-dashboard__header super-mega-dashboard__header--payouts">
         <h2>Payouts Overview</h2>
         <%= link_to "View Full Dashboard →", admin_payouts_dashboard_path, class: "super-mega-link" %>
@@ -144,359 +351,33 @@
       </div>
     </div>
 
-    <div class="super-mega-dashboard__dashboard">
+    <div data-lazy-section="shipwrights" class="super-mega-dashboard__dashboard">
       <div class="super-mega-dashboard__header super-mega-dashboard__header--ship-certs">
-        <h2>Shipwrights Overview</h2>
-        <%= link_to "View Full Dashboard →", "https://review.hackclub.com", class: "super-mega-link", target: "_blank" %>
+        <div class="super-mega-dashboard__placeholder-text super-mega-dashboard__placeholder-text--title"></div>
       </div>
-
       <div class="super-mega-dashboard__cards super-mega-dashboard__cards--shipwrights">
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-vibes">
-          <h3>SW Vibes</h3>
-          <% if @sw_vibes && !@sw_vibes[:error] %>
-            <div class="sw-vibes-mini">
-              <div class="sw-vibes-mini__status">
-                <span class="sw-vibes-mini__badge sw-vibes-mini__badge--clickable <%= @sw_vibes.dig(:positive, :result) ? 'sw-vibes-mini__badge--good' : 'sw-vibes-mini__badge--bad' %>"
-                      data-popup="status-popup">
-                  <%= @sw_vibes.dig(:positive, :result) ? 'Good' : 'Bad' %>
-                </span>
-              </div>
-
-              <% if @sw_vibes[:quotes]&.any? %>
-                <div class="sw-vibes-mini__section">
-                  <h4 class="sw-vibes-mini__header">Quotes (<%= @sw_vibes[:quotes].size %>)</h4>
-                  <ul class="sw-vibes-mini__quotes-list">
-                    <% @sw_vibes[:quotes].each_with_index do |quote, idx| %>
-                      <li class="sw-vibes-mini__quote-item">
-                        <button type="button"
-                                class="sw-vibes-mini__quote-trigger"
-                                data-popup="quote-popup-<%= idx %>">
-                          "<%= truncate(quote[:text], length: 150) %>"
-                        </button>
-                      </li>
-                    <% end %>
-                  </ul>
-                </div>
-              <% end %>
-
-              <% if @sw_vibes[:suggestion] %>
-                <div class="sw-vibes-mini__section">
-                  <h4 class="sw-vibes-mini__header">Suggestion</h4>
-                  <p class="sw-vibes-mini__suggestion-text" data-popup="suggestion-popup">
-                    <%= truncate(@sw_vibes.dig(:suggestion, :action), length: 120) %>
-                  </p>
-                </div>
-              <% end %>
-
-              <p class="sw-vibes-mini__disclaimer">*AI generated, take with a grain of salt*</p>
-            </div>
-
-            <!-- Popups moved outside nested structure -->
-            <% if @sw_vibes[:quotes]&.any? %>
-              <% @sw_vibes[:quotes].each_with_index do |quote, idx| %>
-                <div id="quote-popup-<%= idx %>" class="sw-vibes-popup" style="display: none;">
-                  <div class="sw-vibes-popup__content">
-                    <span class="sw-vibes-popup__close">&times;</span>
-                    <h4><%= quote[:ticket_id] %></h4>
-                    <blockquote>"<%= quote[:text] %>"</blockquote>
-                    <div class="sw-vibes-popup__reason-block">
-                      <%= quote[:reason] %>
-                    </div>
-                    <%= link_to "View in Slack →", quote[:link], target: "_blank", class: "sw-vibes-popup__link" %>
-                  </div>
-                </div>
-              <% end %>
-            <% end %>
-
-            <% if @sw_vibes[:suggestion] %>
-              <div id="suggestion-popup" class="sw-vibes-popup" style="display: none;">
-                <div class="sw-vibes-popup__content">
-                  <span class="sw-vibes-popup__close">&times;</span>
-                  <h4>Suggestion</h4>
-                  <p><%= @sw_vibes.dig(:suggestion, :action) %></p>
-                  <p class="sw-vibes-popup__reason"><strong>Why:</strong> <%= @sw_vibes.dig(:suggestion, :reason) %></p>
-                </div>
-              </div>
-            <% end %>
-
-            <div id="status-popup" class="sw-vibes-popup" style="display: none;">
-              <div class="sw-vibes-popup__content">
-                <span class="sw-vibes-popup__close">&times;</span>
-                <h4>Why <%= @sw_vibes.dig(:positive, :result) ? 'Good' : 'Bad' %>?</h4>
-                <p><%= @sw_vibes.dig(:positive, :reason) %></p>
-              </div>
-            </div>
-
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                document.querySelectorAll('[data-popup]').forEach(function(trigger) {
-                  trigger.addEventListener('click', function() {
-                    var popupId = this.getAttribute('data-popup');
-                    var popup = document.getElementById(popupId);
-                    if (popup) popup.style.display = 'flex';
-                  });
-                });
-
-                document.querySelectorAll('.sw-vibes-popup__close').forEach(function(closeBtn) {
-                  closeBtn.addEventListener('click', function() {
-                    this.closest('.sw-vibes-popup').style.display = 'none';
-                  });
-                });
-
-                document.querySelectorAll('.sw-vibes-popup').forEach(function(popup) {
-                  popup.addEventListener('click', function(e) {
-                    if (e.target === this) this.style.display = 'none';
-                  });
-                });
-              });
-            </script>
-          <% else %>
-            <p class="sw-vibes-mini__error"><%= @sw_vibes&.dig(:error) || "nun yet" %></p>
-          <% end %>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-vibes super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__badge"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+          <div class="smd-skeleton__line"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
         </div>
-
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-stats">
-          <h3>Stats</h3>
-          <% if @ship_certs && !@ship_certs[:error] %>
-            <div class="sw-stats-grid">
-              <div class="sw-stats-grid__section">
-                <h4>Decisions</h4>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Approved</span>
-                  <span class="sw-stats-grid__value" id="sw-approved"><%= number_with_delimiter(@ship_certs[:approved]) %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Rejected</span>
-                  <span class="sw-stats-grid__value" id="sw-rejected"><%= number_with_delimiter(@ship_certs[:rejected]) %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Pending</span>
-                  <span class="sw-stats-grid__value" id="sw-pending"><%= number_with_delimiter(@ship_certs[:pending]) %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Total</span>
-                  <span class="sw-stats-grid__value sw-stats-grid__value--blue" id="sw-total"><%= number_with_delimiter(@ship_certs[:total_judged]) %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Approval Rate</span>
-                  <span class="sw-stats-grid__value sw-stats-grid__value--blue" id="sw-approval-rate"><%= @ship_certs[:approval_rate] %>%</span>
-                </div>
-              </div>
-              <div class="sw-stats-grid__section">
-                <h4>Queue</h4>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Median Wait</span>
-                  <span class="sw-stats-grid__value" id="sw-median-wait"><%= @ship_certs[:median_queue_time] %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Oldest</span>
-                  <span class="sw-stats-grid__value sw-stats-grid__value--blue" id="sw-oldest"><%= @ship_certs[:oldest_in_queue] %></span>
-                </div>
-              </div>
-              <div class="sw-stats-grid__section">
-                <h4>Today</h4>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">New Ships</span>
-                  <span class="sw-stats-grid__value" id="sw-new-ships"><%= @ship_certs[:new_ships_today] %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Decisions</span>
-                  <span class="sw-stats-grid__value sw-stats-grid__value--blue" id="sw-decisions"><%= @ship_certs[:decisions_today] %></span>
-                </div>
-              </div>
-            </div>
-
-            <%= render TooltipComponent.new(target_id: "sw-approved", position: :top) do %>
-              <strong>Approved Ships</strong><br>
-              Total number of ships that have been approved by shipwrights
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-rejected", position: :top) do %>
-              <strong>Rejected Ships</strong><br>
-              Total number of ships that have been rejected by shipwrights
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-pending", position: :top) do %>
-              <strong>Pending Ships</strong><br>
-              Number of ships currently waiting for review
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-total", position: :top) do %>
-              <strong>Total Judged</strong><br>
-              Total number of ships that have been reviewed (approved + rejected)
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-approval-rate", position: :top) do %>
-              <strong>Approval Rate</strong><br>
-              Percentage of reviewed ships that were approved
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-median-wait", position: :top) do %>
-              <strong>Median Queue Time</strong><br>
-              The median time ships spend waiting in the queue before being reviewed
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-oldest", position: :top) do %>
-              <strong>Oldest in Queue</strong><br>
-              How long the oldest pending ship has been waiting for review
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-new-ships", position: :top) do %>
-              <strong>New Ships Today</strong><br>
-              Number of new ships submitted today
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-decisions", position: :top) do %>
-              <strong>Decisions Today</strong><br>
-              Number of ships reviewed (approved or rejected) today
-            <% end %>
-          <% else %>
-            <p>Couldn't load ship certs data</p>
-          <% end %>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-stats super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__line"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+          <div class="smd-skeleton__line"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
         </div>
-
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph">
-          <h3>Avg Queue Time (30 Days)</h3>
-          <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:avg_queue_time_history].present? %>
-            <div class="sw-queue-graph">
-              <canvas id="avgQueueTimeChart" height="200"></canvas>
-            </div>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('avgQueueTimeChart');
-                if (!ctx) return;
-
-                const rawData = <%= raw @ship_certs[:avg_queue_time_history].to_json %>;
-                const sortedDates = Object.keys(rawData).sort();
-                const labels = sortedDates.map(d => {
-                  const date = new Date(d);
-                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                });
-                const values = sortedDates.map(d => {
-                  const seconds = rawData[d];
-                  return Math.round(seconds / 3600 * 10) / 10;
-                });
-
-                new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                    labels: labels,
-                    datasets: [{
-                      label: 'Avg Queue Time (hours)',
-                      data: values,
-                      borderColor: '#6366f1',
-                      backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                      fill: true,
-                      tension: 0.3,
-                      pointRadius: 4,
-                      pointBackgroundColor: '#6366f1'
-                    }]
-                  },
-                  options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: { display: false },
-                      tooltip: {
-                        callbacks: {
-                          label: function(context) {
-                            const hours = context.raw;
-                            if (hours >= 24) {
-                              const days = Math.floor(hours / 24);
-                              const remainingHours = Math.round(hours % 24);
-                              return days + 'd ' + remainingHours + 'h';
-                            }
-                            return hours.toFixed(1) + 'h';
-                          }
-                        }
-                      }
-                    },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Hours' }
-                      }
-                    }
-                  }
-                });
-              });
-            </script>
-          <% else %>
-            <p>No queue time data available</p>
-          <% end %>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__chart"></div>
         </div>
-
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph">
-          <h3>Review Rates (30 Days)</h3>
-          <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:reviews_per_day].present? %>
-            <div class="sw-queue-graph">
-              <canvas id="reviewRatesChart" height="200"></canvas>
-            </div>
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('reviewRatesChart');
-                if (!ctx) return;
-
-                const reviewsData = <%= raw @ship_certs[:reviews_per_day].to_json %>;
-                const shipsData = <%= raw @ship_certs[:ships_per_day].to_json %>;
-                const sortedDates = Object.keys(reviewsData).sort();
-                const labels = sortedDates.map(d => {
-                  const date = new Date(d);
-                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                });
-                const reviewValues = sortedDates.map(d => reviewsData[d]);
-                const shipValues = sortedDates.map(d => shipsData[d] || 0);
-
-                new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                    labels: labels,
-                    datasets: [
-                      {
-                        label: 'Reviews',
-                        data: reviewValues,
-                        borderColor: '#6b7280',
-                        backgroundColor: 'rgba(107, 114, 128, 0.1)',
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#6b7280'
-                      },
-                      {
-                        label: 'Ships',
-                        data: shipValues,
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#f59e0b'
-                      }
-                    ]
-                  },
-                  options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        display: true,
-                        position: 'bottom'
-                      }
-                    },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Count' }
-                      }
-                    }
-                  }
-                });
-              });
-            </script>
-          <% else %>
-            <p>No review data available</p>
-          <% end %>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__chart"></div>
         </div>
       </div>
     </div>
@@ -662,6 +543,355 @@
         </div>
       </div>
     <% end %>
+
+    <div class="super-mega-dashboard__dashboard">
+      <div class="super-mega-dashboard__header super-mega-dashboard__header--ysws-review">
+        <h2>YSWS Review Overview</h2>
+        <%= link_to "View Full Dashboard →", "https://review.hackclub.com/admin/ysws_reviews", class: "super-mega-link", target: "_blank" %>
+      </div>
+
+      <div class="super-mega-dashboard__cards">
+        <% if @ysws_review_stats && !@ysws_review_stats[:error] %>
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--two-thirds">
+            <h3>Reviews Per Day</h3>
+            <% if @ysws_review_graph_data.present? %>
+              <div class="ysws-review-graph">
+                <canvas id="yswsReviewChart" height="300"></canvas>
+              </div>
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                  const ctx = document.getElementById('yswsReviewChart');
+                  if (!ctx) return;
+
+                  const data = <%= raw @ysws_review_graph_data.to_json %>;
+                  const doneData = data.done;
+                  const returnedData = data.returned;
+
+                  const sortedDates = Object.keys(doneData).sort();
+                  const labels = sortedDates.map(d => {
+                    const date = new Date(d);
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  });
+
+                  const doneValues = sortedDates.map(d => doneData[d]);
+                  const returnedValues = sortedDates.map(d => returnedData[d]);
+
+                  new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                      labels: labels,
+                      datasets: [
+                        {
+                          label: 'Done',
+                          data: doneValues,
+                          borderColor: '#10b981',
+                          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                          fill: true,
+                          tension: 0.3,
+                          pointRadius: 4,
+                          pointBackgroundColor: '#10b981'
+                        },
+                        {
+                          label: 'Returned',
+                          data: returnedValues,
+                          borderColor: '#f59e0b',
+                          backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                          fill: true,
+                          tension: 0.3,
+                          pointRadius: 4,
+                          pointBackgroundColor: '#f59e0b'
+                        }
+                      ]
+                    },
+                    options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: 'bottom'
+                        },
+                        tooltip: {
+                          callbacks: {
+                            title: function(context) {
+                              return context[0].label;
+                            },
+                            label: function(context) {
+                              return context.dataset.label + ': ' + context.raw + ' review' + (context.raw !== 1 ? 's' : '');
+                            }
+                          }
+                        }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          title: { display: true, text: 'Reviews' },
+                          ticks: {
+                            precision: 0
+                          }
+                        },
+                        x: {
+                          title: { display: true, text: 'Date (EST)' }
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+            <% else %>
+              <p>No review data available</p>
+            <% end %>
+          </div>
+
+          <% if @ysws_review_ecdf_data.present? %>
+            <div class="super-mega-dashboard__card super-mega-dashboard__card--two-thirds">
+              <h3>Devlogs Distribution (ECDF)</h3>
+              <div class="ysws-review-ecdf-graph">
+                <canvas id="yswsReviewEcdfChart" height="300"></canvas>
+              </div>
+              <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                  const ctx = document.getElementById('yswsReviewEcdfChart');
+                  if (!ctx) return;
+
+                  const ecdfData = <%= raw @ysws_review_ecdf_data.to_json %>;
+
+                  // Get all unique devlog values from both datasets
+                  const doneData = ecdfData.done || [];
+                  const allData = ecdfData.all || [];
+
+                  const allDevlogs = [...new Set([
+                    ...doneData.map(d => d.devlogs),
+                    ...allData.map(d => d.devlogs)
+                  ])].sort((a, b) => a - b);
+
+                  // Create lookup maps for easier access
+                  const doneMap = new Map(doneData.map(d => [d.devlogs, d.cumulative_percent]));
+                  const allMap = new Map(allData.map(d => [d.devlogs, d.cumulative_percent]));
+
+                  // Fill in values for all devlog counts
+                  const doneValues = [];
+                  const allValues = [];
+                  let lastDoneValue = 0;
+                  let lastAllValue = 0;
+
+                  allDevlogs.forEach(devlogs => {
+                    if (doneMap.has(devlogs)) {
+                      lastDoneValue = doneMap.get(devlogs);
+                    }
+                    if (allMap.has(devlogs)) {
+                      lastAllValue = allMap.get(devlogs);
+                    }
+                    doneValues.push({ x: devlogs, y: lastDoneValue });
+                    allValues.push({ x: devlogs, y: lastAllValue });
+                  });
+
+                  new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                      datasets: [
+                        {
+                          label: 'Done Reviews',
+                          data: doneValues,
+                          borderColor: '#ef4444',
+                          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                          fill: false,
+                          tension: 0.4,
+                          pointRadius: 3,
+                          pointBackgroundColor: '#ef4444',
+                          borderWidth: 2
+                        },
+                        {
+                          label: 'All Reviews',
+                          data: allValues,
+                          borderColor: '#10b981',
+                          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                          fill: false,
+                          tension: 0.4,
+                          pointRadius: 3,
+                          pointBackgroundColor: '#10b981',
+                          borderWidth: 2
+                        }
+                      ]
+                    },
+                    options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: 'bottom'
+                        },
+                        tooltip: {
+                          callbacks: {
+                            title: function(context) {
+                              const devlogs = context[0].parsed.x;
+                              return devlogs + ' devlog' + (devlogs !== 1 ? 's' : '');
+                            },
+                            label: function(context) {
+                              return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '% of reviews';
+                            }
+                          }
+                        }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          max: 100,
+                          title: { display: true, text: 'Cumulative Percentage (%)' },
+                          ticks: {
+                            callback: function(value) {
+                              return value + '%';
+                            }
+                          }
+                        },
+                        x: {
+                          type: 'linear',
+                          title: { display: true, text: 'Number of Devlogs' },
+                          ticks: {
+                            precision: 0,
+                            stepSize: 1
+                          }
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+            </div>
+          <% end %>
+
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+            <h3>Devlogs Reviewed per Day (Trend)</h3>
+            <% if @ysws_reviewer_trend_data.present? %>
+              <div class="ysws-reviewer-trend-graph">
+                <canvas id="yswsReviewerTrendChart" height="300"></canvas>
+              </div>
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                  const ctx = document.getElementById('yswsReviewerTrendChart');
+                  if (!ctx) return;
+
+                  const trendData = <%= raw @ysws_reviewer_trend_data.to_json %>;
+
+                  // Color palette for different reviewers
+                  const colors = [
+                    '#ef4444', // red
+                    '#3b82f6', // blue
+                    '#10b981', // green
+                    '#f59e0b', // orange
+                    '#8b5cf6', // purple
+                    '#ec4899', // pink
+                    '#14b8a6', // teal
+                    '#f97316'  // orange-600
+                  ];
+
+                  // Build datasets for each reviewer
+                  const datasets = [];
+                  let colorIndex = 0;
+
+                  // Add total line first (thicker)
+                  const totalData = trendData.dates.map(date => trendData.totals[date] || 0);
+                  datasets.push({
+                    label: 'Total',
+                    data: totalData,
+                    borderColor: '#000000',
+                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#000000',
+                    borderWidth: 3,
+                    borderDash: []
+                  });
+
+                  // Add each reviewer's line
+                  Object.entries(trendData.reviewers).forEach(([reviewerId, reviewerInfo]) => {
+                    const color = colors[colorIndex % colors.length];
+                    const data = trendData.dates.map(date => reviewerInfo.counts[date] || 0);
+
+                    datasets.push({
+                      label: reviewerInfo.username,
+                      data: data,
+                      borderColor: color,
+                      backgroundColor: color.replace(')', ', 0.1)').replace('rgb', 'rgba'),
+                      fill: false,
+                      tension: 0.3,
+                      pointRadius: 3,
+                      pointBackgroundColor: color,
+                      borderWidth: 2
+                    });
+
+                    colorIndex++;
+                  });
+
+                  new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                      labels: trendData.dates,
+                      datasets: datasets
+                    },
+                    options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: 'bottom',
+                          labels: {
+                            boxWidth: 12,
+                            padding: 8,
+                            font: { size: 11 }
+                          }
+                        },
+                        tooltip: {
+                          callbacks: {
+                            title: function(context) {
+                              return context[0].label;
+                            },
+                            label: function(context) {
+                              const count = context.parsed.y;
+                              return context.dataset.label + ': ' + count + ' devlog' + (count !== 1 ? 's' : '');
+                            }
+                          }
+                        }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          title: { display: true, text: 'Devlogs Reviewed' },
+                          ticks: {
+                            precision: 0,
+                            stepSize: 1
+                          }
+                        },
+                        x: {
+                          title: { display: true, text: 'Date' },
+                          ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            font: { size: 10 }
+                          }
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+            <% else %>
+              <p>Reviewer trend data not available. Data: <%= @ysws_reviewer_trend_data.inspect %></p>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="super-mega-dashboard__card">
+            <h3>Error</h3>
+            <p>Couldn't load YSWS review data: <%= @ysws_review_stats&.dig(:error) || "Unknown error" %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
 
     <div class="super-mega-dashboard__dashboard">
       <div class="super-mega-dashboard__header super-mega-dashboard__header--voting">

@@ -140,6 +140,7 @@
       <%= render 'role_toggle', user: @user, role_icon: '📦', role_name: 'fulfillment_person', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '🚢', role_name: 'project_certifier', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '✋', role_name: 'helper', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_icon: '⏱️', role_name: 'flavortime', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '⚡', role_name: 'admin', disabled: !current_user&.super_admin? %>
 
       <% if @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).any? %>
@@ -244,6 +245,14 @@
                 <button type="button" onclick="document.getElementById('ban-user-modal').close()" class="btn-secondary slim">Cancel</button>
               </div>
             </form>
+          <% end %>
+        <% end %>
+
+        <% if @user.manual_ysws_override? %>
+          <%= button_to "Remove ysws override", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "false" }, class: "btn-secondary slim" %>
+        <% else %>
+          <% unless @user.ysws_eligible? %>
+            <%= button_to "Make ysws eligible", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "true" }, class: "btn-danger slim" %>
           <% end %>
         <% end %>
       <% end %>

@@ -96,6 +96,14 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def access_vote_spam_dashboard?
+    user.admin? || user.fraud_dept?
+  end
+
+  def access_fulfillment_payouts?
+    user.admin?
+  end
+
+  def approve_fulfillment_payouts?
     user.admin?
   end
 
@@ -113,5 +121,13 @@ class AdminPolicy < ApplicationPolicy
 
   def access_sw_vibes?
     user.admin?
+  end
+
+  def access_special_activities?
+    user.admin?
+  end
+
+  def access_flavortime_dashboard?
+    user.admin? || user.flavortime?
   end
 end

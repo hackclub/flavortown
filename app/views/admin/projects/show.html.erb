@@ -109,18 +109,45 @@
       <button type="button" onclick="document.getElementById('shadow-ban-project-modal').showModal()" class="btn-secondary">
         👻 Shadow Ban
       </button>
-      <%= render layout: "shared/modal", locals: { id: "shadow-ban-project-modal", title: "Shadow Ban Project", description: "This project will be hidden from other users but visible to its members." } do %>
+      <%= render layout: "shared/modal", locals: { id: "shadow-ban-project-modal", title: "Shadow Ban Project", description: "This project will be hidden from other users but visible to its members. A notification will be sent via Slack DM to all project members." } do %>
         <form action="<%= shadow_ban_admin_project_path(@project) %>" method="post">
           <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+
+          <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 12px; margin-bottom: 16px;">
+            <p style="margin: 0 0 8px 0; font-weight: bold; color: #856404;">⚠️ DM will be sent to all project members:</p>
+            <div style="background: white; border-radius: 4px; padding: 10px; font-size: 12px; line-height: 1.6; color: #333; font-family: monospace;">
+              <p style="margin: 0 0 8px 0;">Hey! After review, your project "<%= @project.title %>" has been flagged by moderation.</p>
+              <p style="margin: 0 0 8px 0;">Reason: <span id="shadow-ban-reason-preview"></span></p>
+              <p style="margin: 0 0 8px 0;">Your project will not be able to ship again until this flag is removed.</p>
+              <p style="margin: 0 0 8px 0;">We've issued a minimum payout for your work on this ship.</p>
+              <p style="margin: 0;">If you'd like to appeal this decision, please DM @Fraud Squad with any additional context.</p>
+            </div>
+          </div>
+
           <div class="modal__field">
             <%= label_tag :reason, "Shadow Ban Reason (optional)" %>
-            <%= text_area_tag :reason, "", placeholder: "Enter reason for shadow ban..." %>
+            <%= text_area_tag :reason, "", placeholder: "Enter reason for shadow ban...", id: "shadow-ban-reason-input" %>
           </div>
           <div class="modal__actions">
             <button type="submit" class="btn-secondary">Confirm Shadow Ban</button>
             <button type="button" onclick="document.getElementById('shadow-ban-project-modal').close()" class="btn-secondary">Cancel</button>
           </div>
         </form>
+
+        <script>
+          const reasonInput = document.getElementById('shadow-ban-reason-input');
+          const reasonPreview = document.getElementById('shadow-ban-reason-preview');
+
+          reasonInput.addEventListener('input', function() {
+            reasonPreview.textContent = this.value || '[reason you provide]';
+          });
+
+          reasonInput.addEventListener('focus', function() {
+            if (!this.value) {
+              reasonPreview.textContent = '[reason you provide]';
+            }
+          });
+        </script>
       <% end %>
     <% end %>
   <% end %>
