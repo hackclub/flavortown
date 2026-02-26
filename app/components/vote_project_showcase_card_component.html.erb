@@ -1,0 +1,128 @@
+<article class="votes-new__project-card">
+  <div class="votes-new__project-details">
+    <%= image_tag(banner_variant.present? ? project.banner.variant(:card) : "default-banner.png", class: "votes-new__project-banner-image", alt: "#{project.title} banner") %>
+
+    <div class="votes-new__project-card-content">
+      <div class="votes-new__project-card-content-header">
+        <h1><%= project.title %></h1>
+        <% if show_report_button? %>
+          <%= render ButtonComponent.new(
+                color: :brown,
+                variant: :borderless,
+                icon: "icons/flag.svg",
+                aria: { label: "Report project" },
+                class: "votes-new__project-report-btn",
+                onclick: "document.getElementById('#{report_modal_id}').showModal()"
+              ) %>
+        <% end %>
+      </div>
+
+      <div class="votes-new__project-card-byline"><%= byline_text %></div>
+
+      <div class="votes-new__project-card-stats">
+        <div class="votes-new__project-card-stat">
+          <%= helpers.inline_svg_tag "icons/user.svg" %>
+          <span><%= followers_count %> <%= "follower".pluralize(followers_count) %></span>
+        </div>
+        <div class="votes-new__project-card-stat">
+          <%= helpers.inline_svg_tag "icons/paper.svg" %>
+          <span><%= project.devlogs_count %> devlogs</span>
+        </div>
+        <div class="votes-new__project-card-stat">
+          <%= helpers.inline_svg_tag "icons/time.svg" %>
+          <span><%= helpers.format_seconds(project.duration_seconds) %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="votes-new__project-description"><%= truncate(project.display_description.to_s, length: 220) %></p>
+
+  <% if has_any_links? %>
+    <div class="votes-new__project-buttons">
+      <% if project.demo_url.present? %>
+        <%= render ButtonComponent.new(
+              href: project.demo_url,
+              color: :brown,
+              variant: :borderless,
+              text: "Demo",
+              icon: "icons/globe2.svg",
+              aria: { label: "Demo" },
+              target: "_blank",
+              data: { action: "click->vote-tracker#trackDemoClick auxclick->vote-tracker#trackDemoClick" }
+            ) %>
+      <% end %>
+
+      <% if project.repo_url.present? %>
+        <%= render ButtonComponent.new(
+              href: project.repo_url,
+              color: :brown,
+              variant: :borderless,
+              text: "Repository",
+              icon: "icons/code.svg",
+              aria: { label: "Repository" },
+              target: "_blank",
+              data: { action: "click->vote-tracker#trackRepoClick auxclick->vote-tracker#trackRepoClick" }
+            ) %>
+      <% end %>
+
+      <% if project.readme_url.present? %>
+        <%= render ButtonComponent.new(
+              href: project.readme_url,
+              color: :brown,
+              variant: :borderless,
+              text: "Readme",
+              icon: "icons/paper.svg",
+              aria: { label: "Readme" },
+              target: "_blank",
+              rel: "noopener noreferrer"
+            ) %>
+      <% end %>
+    </div>
+  <% end %>
+</article>
+
+<% if show_report_button? %>
+  <%= render layout: "shared/modal", locals: { id: report_modal_id, title: "Report project?" } do %>
+    <h2>We want good, high quality projects in Flavortown. If you believe this project violates our community guidelines, please let us know why:</h2>
+
+    <%= form_with model: Project::Report.new, url: project_reports_path(project), local: true do |f| %>
+      <div class="form-field">
+        <div class="form-checkbox">
+          <%= f.radio_button :reason, "low_effort", id: "project_report_reason_low_effort_#{project.id}", required: true %>
+          <%= f.label :reason, "Low-effort project", for: "project_report_reason_low_effort_#{project.id}" %>
+        </div>
+
+        <div class="form-checkbox">
+          <%= f.radio_button :reason, "undeclared_ai", id: "project_report_reason_undeclared_ai_#{project.id}" %>
+          <%= f.label :reason, "Uses AI but it's undeclared", for: "project_report_reason_undeclared_ai_#{project.id}" %>
+        </div>
+
+        <div class="form-checkbox">
+          <%= f.radio_button :reason, "demo_broken", id: "project_report_reason_demo_broken_#{project.id}" %>
+          <%= f.label :reason, "Demo does not work", for: "project_report_reason_demo_broken_#{project.id}" %>
+        </div>
+
+        <div class="form-checkbox">
+          <%= f.radio_button :reason, "other", id: "project_report_reason_other_#{project.id}" %>
+          <%= f.label :reason, "Other", for: "project_report_reason_other_#{project.id}" %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.text_area :details,
+              rows: 4,
+              minlength: 20,
+              required: true,
+              class: "form-field",
+              placeholder: "Share a short explanation (20+ characters)." %>
+        <small>Why are you reporting this project? (20+ characters)</small>
+      </div>
+
+      <div class="modal__actions">
+        <%= f.submit "Submit", class: "modal__actions-close" %>
+        <button type="button" class="modal__actions-close" onclick="document.getElementById('<%= report_modal_id %>').close()">Cancel</button>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
