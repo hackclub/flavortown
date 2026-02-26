@@ -11,8 +11,6 @@ module Admin
       load_support_stats
       load_support_vibes_stats
       load_support_graph_data
-      load_ship_certs_stats
-      load_sw_vibes_stats
       load_voting_stats
       load_ysws_review_stats
     end
@@ -23,32 +21,14 @@ module Admin
       section = params[:section]
 
       case section
-      when "fraud"
-        load_fraud_stats
-      when "payouts"
-        load_payouts_stats
-      when "fulfillment"
-        load_fulfillment_stats
-      when "support"
-        load_support_stats
-      when "support_vibes"
-        load_support_vibes_stats
-      when "support_graph"
-        load_support_graph_data
-      when "ship_certs"
+      when "shipwrights"
         load_ship_certs_stats
-      when "sw_vibes"
         load_sw_vibes_stats
-      when "voting"
-        load_voting_stats
-      when "ysws_review"
-        load_ysws_review_stats
+        load_sw_vibes_history
+        render partial: "admin/super_mega_dashboard/sections/shipwrights", layout: false
       else
-        render text: "Unknown section", status: 400
-        return
+        render plain: "Unknown section", status: :bad_request
       end
-
-      render partial: "sections/#{section}"
     end
 
     private
@@ -411,7 +391,9 @@ module Admin
     end
 
     def load_ship_certs_stats
-      @ship_certs = Rails.cache.fetch("super_mega_ship_certs", expires_in: 5.minutes) do
+      raw_data = Rails.cache.read("super_mega_ship_certs_raw")
+
+      unless raw_data
         begin
           conn = Faraday.new do |f|
             f.options.timeout = 5
@@ -422,30 +404,40 @@ module Admin
             req.headers["x-api-key"] = ENV["SW_DASHBOARD_API_KEY"]
           end
 
-          unless response.success?
-            { error: true }
+          if response.success?
+            raw_data = JSON.parse(response.body)
+            Rails.cache.write("super_mega_ship_certs_raw", raw_data, expires_in: 10.minutes)
           else
-            data = JSON.parse(response.body)
-
-            {
-              total_judged: data["totalJudged"],
-              approved: data["approved"],
-              rejected: data["rejected"],
-              pending: data["pending"],
-              approval_rate: data["approvalRate"],
-              median_queue_time: data["medianQueueTime"],
-              oldest_in_queue: data["oldestInQueue"],
-              avg_queue_time_history: data["avgQueueTime"] || {},
-              reviews_per_day: data["reviewsPerDay"] || {},
-              ships_per_day: data["shipsPerDay"] || {},
-              decisions_today: data["decisionsToday"],
-              new_ships_today: data["newShipsToday"]
-            }
+            raw_data = :error
+            Rails.cache.write("super_mega_ship_certs_raw", raw_data, expires_in: 1.minute)
           end
         rescue Faraday::Error, JSON::ParserError, Faraday::TimeoutError
-          { error: true }
+          raw_data = :error
+          Rails.cache.write("super_mega_ship_certs_raw", raw_data, expires_in: 1.minute)
         end
       end
+
+      if raw_data.nil? || raw_data == :error
+        @ship_certs = { error: true }
+        return
+      end
+
+      @ship_certs = {
+        total_judged: raw_data["totalJudged"],
+        approved: raw_data["approved"],
+        rejected: raw_data["rejected"],
+        pending: raw_data["pending"],
+        approval_rate: raw_data["approvalRate"],
+        median_queue_time: raw_data["medianQueueTime"],
+        oldest_in_queue: raw_data["oldestInQueue"],
+        avg_queue_time_history: raw_data["avgQueueTime"] || {},
+        reviews_per_day: raw_data["reviewsPerDay"] || {},
+        ships_per_day: raw_data["shipsPerDay"] || {},
+        decisions_today: raw_data["decisionsToday"],
+        new_ships_today: raw_data["newShipsToday"]
+      }
+
+      @sw_vibes_history = parse_sw_vibes_history(raw_data["metricsHistory"] || [])
     end
 
     def load_sw_vibes_stats
@@ -455,7 +447,13 @@ module Admin
         return
       end
 
-      @sw_vibes = Rails.cache.fetch("sw_vibes_data", expires_in: 5.minutes) do
+      cached = Rails.cache.read("sw_vibes_data")
+      if cached
+        @sw_vibes = cached
+        return
+      end
+
+      begin
         conn = Faraday.new do |f|
           f.options.timeout = 10
           f.options.open_timeout = 5
@@ -466,15 +464,43 @@ module Admin
         end
 
         unless response.success?
-          next { error: "API died (#{response.status})" }
+          @sw_vibes = { error: "API died (#{response.status})" }
+          return
         end
 
-        JSON.parse(response.body, symbolize_names: true)
+        data = JSON.parse(response.body, symbolize_names: true)
+        Rails.cache.write("sw_vibes_data", data, expires_in: 10.minutes)
+        @sw_vibes = data
+      rescue Faraday::Error
+        @sw_vibes = { error: "Couldn't reach the API" }
+      rescue JSON::ParserError
+        @sw_vibes = { error: "Got a weird response" }
       end
-    rescue Faraday::Error
-      @sw_vibes = { error: "Couldn't reach the API" }
-    rescue JSON::ParserError
-      @sw_vibes = { error: "Got a weird response" }
+    end
+
+    def load_sw_vibes_history
+      @sw_vibes_history ||= []
+    end
+
+    def parse_sw_vibes_history(metrics_history)
+      metrics_history.filter_map do |entry|
+        output = entry["output"] || {}
+        date_str = output["for_date"]
+        next unless date_str.present?
+
+        inner = output["output"] || {}
+        positive = inner["positive"] || {}
+
+        OpenStruct.new(
+          recorded_date: Date.parse(date_str),
+          result: positive["result"],
+          reason: positive["reason"],
+          sentiment: positive["sentiment"],
+          payload: inner
+        )
+      rescue Date::Error
+        nil
+      end.sort_by(&:recorded_date).reverse
     end
 
     def load_voting_stats
@@ -625,6 +651,74 @@ module Admin
       [:done, :returned].sum do |status|
         graph_data[status].select { |date, _| Date.parse(date) >= week_ago_date }.sum { |_, count| count }
       end
+    end
+
+    def calculate_ecdf(data)
+      return [] if data.empty?
+
+      # Sort the data
+      sorted_data = data.sort
+      n = sorted_data.size
+
+      # Calculate 99th percentile threshold
+      percentile_99_index = [ (n * 0.99).ceil - 1, n - 1 ].min
+      percentile_99_value = sorted_data[percentile_99_index]
+
+      # Filter data to only include values up to 99th percentile
+      filtered_data = sorted_data.select { |x| x <= percentile_99_value }
+      filtered_n = filtered_data.size.to_f
+
+      # Get unique values and calculate cumulative probability for each
+      unique_values = filtered_data.uniq.sort
+
+      ecdf_points = unique_values.map do |value|
+        # Count how many values are <= current value in filtered data
+        count = filtered_data.count { |x| x <= value }
+        cumulative_probability = (count / filtered_n * 100).round(2)
+
+        {
+          devlogs: value,
+          cumulative_percent: cumulative_probability
+        }
+      end
+
+      ecdf_points
+    end
+
+    def build_ysws_ecdf_data
+      response_data_done = YswsReviewService.fetch_all_reviews(status: "done")
+      reviews_data_done = if response_data_done.is_a?(Hash)
+        response_data_done["reviews"] || response_data_done[:reviews] || []
+      elsif response_data_done.is_a?(Array)
+        response_data_done
+      else
+        []
+      end
+
+      devlog_counts_done = reviews_data_done.map do |review|
+        review["devlogCount"] || review[:devlogCount] || 0
+      end.compact
+
+      response_data_all = YswsReviewService.fetch_all_reviews
+      reviews_data_all = if response_data_all.is_a?(Hash)
+        response_data_all["reviews"] || response_data_all[:reviews] || []
+      elsif response_data_all.is_a?(Array)
+        response_data_all
+      else
+        []
+      end
+
+      devlog_counts_all = reviews_data_all.map do |review|
+        review["devlogCount"] || review[:devlogCount] || 0
+      end.compact
+
+      {
+        done: calculate_ecdf(devlog_counts_done),
+        all: calculate_ecdf(devlog_counts_all)
+      }
+    rescue StandardError => e
+      Rails.logger.error "[SuperMegaDashboard] Error building YSWS ECDF: #{e.message}"
+      nil
     end
 
     def calculate_ecdf(data)

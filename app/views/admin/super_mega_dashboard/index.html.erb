@@ -351,359 +351,33 @@
       </div>
     </div>
 
-    <div class="super-mega-dashboard__dashboard">
+    <div data-lazy-section="shipwrights" class="super-mega-dashboard__dashboard">
       <div class="super-mega-dashboard__header super-mega-dashboard__header--ship-certs">
-        <h2>Shipwrights Overview</h2>
-        <%= link_to "View Full Dashboard →", "https://review.hackclub.com", class: "super-mega-link", target: "_blank" %>
+        <div class="super-mega-dashboard__placeholder-text super-mega-dashboard__placeholder-text--title"></div>
       </div>
-
       <div class="super-mega-dashboard__cards super-mega-dashboard__cards--shipwrights">
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-vibes">
-          <h3>SW Vibes</h3>
-          <% if @sw_vibes && !@sw_vibes[:error] %>
-            <div class="sw-vibes-mini">
-              <div class="sw-vibes-mini__status">
-                <span class="sw-vibes-mini__badge sw-vibes-mini__badge--clickable <%= @sw_vibes.dig(:positive, :result) ? 'sw-vibes-mini__badge--good' : 'sw-vibes-mini__badge--bad' %>"
-                      data-popup="status-popup">
-                  <%= @sw_vibes.dig(:positive, :result) ? 'Good' : 'Bad' %>
-                </span>
-              </div>
-
-              <% if @sw_vibes[:quotes]&.any? %>
-                <div class="sw-vibes-mini__section">
-                  <h4 class="sw-vibes-mini__header">Quotes (<%= @sw_vibes[:quotes].size %>)</h4>
-                  <ul class="sw-vibes-mini__quotes-list">
-                    <% @sw_vibes[:quotes].each_with_index do |quote, idx| %>
-                      <li class="sw-vibes-mini__quote-item">
-                        <button type="button"
-                                class="sw-vibes-mini__quote-trigger"
-                                data-popup="quote-popup-<%= idx %>">
-                          "<%= truncate(quote[:text], length: 150) %>"
-                        </button>
-                      </li>
-                    <% end %>
-                  </ul>
-                </div>
-              <% end %>
-
-              <% if @sw_vibes[:suggestion] %>
-                <div class="sw-vibes-mini__section">
-                  <h4 class="sw-vibes-mini__header">Suggestion</h4>
-                  <p class="sw-vibes-mini__suggestion-text" data-popup="suggestion-popup">
-                    <%= truncate(@sw_vibes.dig(:suggestion, :action), length: 120) %>
-                  </p>
-                </div>
-              <% end %>
-
-              <p class="sw-vibes-mini__disclaimer">*AI generated, take with a grain of salt*</p>
-            </div>
-
-            <!-- Popups moved outside nested structure -->
-            <% if @sw_vibes[:quotes]&.any? %>
-              <% @sw_vibes[:quotes].each_with_index do |quote, idx| %>
-                <div id="quote-popup-<%= idx %>" class="sw-vibes-popup" style="display: none;">
-                  <div class="sw-vibes-popup__content">
-                    <span class="sw-vibes-popup__close">&times;</span>
-                    <h4><%= quote[:ticket_id] %></h4>
-                    <blockquote>"<%= quote[:text] %>"</blockquote>
-                    <div class="sw-vibes-popup__reason-block">
-                      <%= quote[:reason] %>
-                    </div>
-                    <%= link_to "View in Slack →", quote[:link], target: "_blank", class: "sw-vibes-popup__link" %>
-                  </div>
-                </div>
-              <% end %>
-            <% end %>
-
-            <% if @sw_vibes[:suggestion] %>
-              <div id="suggestion-popup" class="sw-vibes-popup" style="display: none;">
-                <div class="sw-vibes-popup__content">
-                  <span class="sw-vibes-popup__close">&times;</span>
-                  <h4>Suggestion</h4>
-                  <p><%= @sw_vibes.dig(:suggestion, :action) %></p>
-                  <p class="sw-vibes-popup__reason"><strong>Why:</strong> <%= @sw_vibes.dig(:suggestion, :reason) %></p>
-                </div>
-              </div>
-            <% end %>
-
-            <div id="status-popup" class="sw-vibes-popup" style="display: none;">
-              <div class="sw-vibes-popup__content">
-                <span class="sw-vibes-popup__close">&times;</span>
-                <h4>Why <%= @sw_vibes.dig(:positive, :result) ? 'Good' : 'Bad' %>?</h4>
-                <p><%= @sw_vibes.dig(:positive, :reason) %></p>
-              </div>
-            </div>
-
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                document.querySelectorAll('[data-popup]').forEach(function(trigger) {
-                  trigger.addEventListener('click', function() {
-                    var popupId = this.getAttribute('data-popup');
-                    var popup = document.getElementById(popupId);
-                    if (popup) popup.style.display = 'flex';
-                  });
-                });
-
-                document.querySelectorAll('.sw-vibes-popup__close').forEach(function(closeBtn) {
-                  closeBtn.addEventListener('click', function() {
-                    this.closest('.sw-vibes-popup').style.display = 'none';
-                  });
-                });
-
-                document.querySelectorAll('.sw-vibes-popup').forEach(function(popup) {
-                  popup.addEventListener('click', function(e) {
-                    if (e.target === this) this.style.display = 'none';
-                  });
-                });
-              });
-            </script>
-          <% else %>
-            <p class="sw-vibes-mini__error"><%= @sw_vibes&.dig(:error) || "nun yet" %></p>
-          <% end %>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-vibes super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__badge"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+          <div class="smd-skeleton__line"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
         </div>
-
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-stats">
-          <h3>Stats</h3>
-          <% if @ship_certs && !@ship_certs[:error] %>
-            <div class="sw-stats-grid">
-              <div class="sw-stats-grid__section">
-                <h4>Decisions</h4>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Approved</span>
-                  <span class="sw-stats-grid__value" id="sw-approved"><%= number_with_delimiter(@ship_certs[:approved]) %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Rejected</span>
-                  <span class="sw-stats-grid__value" id="sw-rejected"><%= number_with_delimiter(@ship_certs[:rejected]) %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Pending</span>
-                  <span class="sw-stats-grid__value" id="sw-pending"><%= number_with_delimiter(@ship_certs[:pending]) %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Total</span>
-                  <span class="sw-stats-grid__value sw-stats-grid__value--blue" id="sw-total"><%= number_with_delimiter(@ship_certs[:total_judged]) %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Approval Rate</span>
-                  <span class="sw-stats-grid__value sw-stats-grid__value--blue" id="sw-approval-rate"><%= @ship_certs[:approval_rate] %>%</span>
-                </div>
-              </div>
-              <div class="sw-stats-grid__section">
-                <h4>Queue</h4>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Median Wait</span>
-                  <span class="sw-stats-grid__value" id="sw-median-wait"><%= @ship_certs[:median_queue_time] %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Oldest</span>
-                  <span class="sw-stats-grid__value sw-stats-grid__value--blue" id="sw-oldest"><%= @ship_certs[:oldest_in_queue] %></span>
-                </div>
-              </div>
-              <div class="sw-stats-grid__section">
-                <h4>Today</h4>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">New Ships</span>
-                  <span class="sw-stats-grid__value" id="sw-new-ships"><%= @ship_certs[:new_ships_today] %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Decisions</span>
-                  <span class="sw-stats-grid__value sw-stats-grid__value--blue" id="sw-decisions"><%= @ship_certs[:decisions_today] %></span>
-                </div>
-              </div>
-            </div>
-
-            <%= render TooltipComponent.new(target_id: "sw-approved", position: :top) do %>
-              <strong>Approved Ships</strong><br>
-              Total number of ships that have been approved by shipwrights
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-rejected", position: :top) do %>
-              <strong>Rejected Ships</strong><br>
-              Total number of ships that have been rejected by shipwrights
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-pending", position: :top) do %>
-              <strong>Pending Ships</strong><br>
-              Number of ships currently waiting for review
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-total", position: :top) do %>
-              <strong>Total Judged</strong><br>
-              Total number of ships that have been reviewed (approved + rejected)
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-approval-rate", position: :top) do %>
-              <strong>Approval Rate</strong><br>
-              Percentage of reviewed ships that were approved
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-median-wait", position: :top) do %>
-              <strong>Median Queue Time</strong><br>
-              The median time ships spend waiting in the queue before being reviewed
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-oldest", position: :top) do %>
-              <strong>Oldest in Queue</strong><br>
-              How long the oldest pending ship has been waiting for review
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-new-ships", position: :top) do %>
-              <strong>New Ships Today</strong><br>
-              Number of new ships submitted today
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-decisions", position: :top) do %>
-              <strong>Decisions Today</strong><br>
-              Number of ships reviewed (approved or rejected) today
-            <% end %>
-          <% else %>
-            <p>Couldn't load ship certs data</p>
-          <% end %>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-stats super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__line"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+          <div class="smd-skeleton__line"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
         </div>
-
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph">
-          <h3>Avg Queue Time (30 Days)</h3>
-          <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:avg_queue_time_history].present? %>
-            <div class="sw-queue-graph">
-              <canvas id="avgQueueTimeChart" height="200"></canvas>
-            </div>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('avgQueueTimeChart');
-                if (!ctx) return;
-
-                const rawData = <%= raw @ship_certs[:avg_queue_time_history].to_json %>;
-                const sortedDates = Object.keys(rawData).sort();
-                const labels = sortedDates.map(d => {
-                  const date = new Date(d);
-                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                });
-                const values = sortedDates.map(d => {
-                  const seconds = rawData[d];
-                  return Math.round(seconds / 3600 * 10) / 10;
-                });
-
-                new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                    labels: labels,
-                    datasets: [{
-                      label: 'Avg Queue Time (hours)',
-                      data: values,
-                      borderColor: '#6366f1',
-                      backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                      fill: true,
-                      tension: 0.3,
-                      pointRadius: 4,
-                      pointBackgroundColor: '#6366f1'
-                    }]
-                  },
-                  options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: { display: false },
-                      tooltip: {
-                        callbacks: {
-                          label: function(context) {
-                            const hours = context.raw;
-                            if (hours >= 24) {
-                              const days = Math.floor(hours / 24);
-                              const remainingHours = Math.round(hours % 24);
-                              return days + 'd ' + remainingHours + 'h';
-                            }
-                            return hours.toFixed(1) + 'h';
-                          }
-                        }
-                      }
-                    },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Hours' }
-                      }
-                    }
-                  }
-                });
-              });
-            </script>
-          <% else %>
-            <p>No queue time data available</p>
-          <% end %>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__chart"></div>
         </div>
-
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph">
-          <h3>Review Rates (30 Days)</h3>
-          <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:reviews_per_day].present? %>
-            <div class="sw-queue-graph">
-              <canvas id="reviewRatesChart" height="200"></canvas>
-            </div>
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('reviewRatesChart');
-                if (!ctx) return;
-
-                const reviewsData = <%= raw @ship_certs[:reviews_per_day].to_json %>;
-                const shipsData = <%= raw @ship_certs[:ships_per_day].to_json %>;
-                const sortedDates = Object.keys(reviewsData).sort();
-                const labels = sortedDates.map(d => {
-                  const date = new Date(d);
-                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                });
-                const reviewValues = sortedDates.map(d => reviewsData[d]);
-                const shipValues = sortedDates.map(d => shipsData[d] || 0);
-
-                new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                    labels: labels,
-                    datasets: [
-                      {
-                        label: 'Reviews',
-                        data: reviewValues,
-                        borderColor: '#6b7280',
-                        backgroundColor: 'rgba(107, 114, 128, 0.1)',
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#6b7280'
-                      },
-                      {
-                        label: 'Ships',
-                        data: shipValues,
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#f59e0b'
-                      }
-                    ]
-                  },
-                  options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        display: true,
-                        position: 'bottom'
-                      }
-                    },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Count' }
-                      }
-                    }
-                  }
-                });
-              });
-            </script>
-          <% else %>
-            <p>No review data available</p>
-          <% end %>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__chart"></div>
         </div>
       </div>
     </div>
@@ -971,7 +645,7 @@
           </div>
 
           <% if @ysws_review_ecdf_data.present? %>
-            <div class="super-mega-dashboard__card super-mega-dashboard__card--one-third">
+            <div class="super-mega-dashboard__card super-mega-dashboard__card--two-thirds">
               <h3>Devlogs Distribution (ECDF)</h3>
               <div class="ysws-review-ecdf-graph">
                 <canvas id="yswsReviewEcdfChart" height="300"></canvas>

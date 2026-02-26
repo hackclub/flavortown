@@ -1,75 +1,81 @@
 import { Controller } from "@hotwired/stimulus";
 
-// This controller defers non-critical dashboard sections to load on scroll
-// Keeps initial page load fast by splitting data loading
 export default class extends Controller {
   connect() {
-    // Immediately visible sections load right away
-    this.loadImmediatelyVisibleSections();
-
-    // Setup observer for sections that come into view
-    this.setupIntersectionObserver();
-  }
-
-  setupIntersectionObserver() {
-    const observer = new IntersectionObserver(
+    this.observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const section = entry.target.dataset.lazySection;
-            if (section && !entry.target.dataset.loaded) {
-              this.reloadSection(section);
-              observer.unobserve(entry.target);
-            }
+            this.loadSection(entry.target);
+            this.observer.unobserve(entry.target);
           }
         });
       },
       { rootMargin: "200px" },
     );
 
-    // Observe all lazy-loadable sections
-    document.querySelectorAll("[data-lazy-section]").forEach((el) => {
-      if (!el.dataset.loaded) {
-        observer.observe(el);
+    this.element
+      .querySelectorAll("[data-lazy-section]")
+      .forEach((el) => this.observer.observe(el));
+  }
+
+  disconnect() {
+    this.observer?.disconnect();
+  }
+
+  async loadSection(el) {
+    const section = el.dataset.lazySection;
+    try {
+      const response = await fetch(
+        `/admin/super_mega_dashboard/load_section?section=${encodeURIComponent(section)}`,
+      );
+      if (!response.ok) return;
+      el.innerHTML = await response.text();
+      await this.activateScripts(el);
+    } catch (e) {
+      console.error("[lazy-load] failed to load section:", section, e);
+    }
+  }
+
+  async activateScripts(container) {
+    const scripts = [...container.querySelectorAll("script")];
+
+    for (const script of scripts) {
+      const parent = script.parentNode;
+      if (!parent) continue;
+
+      const fresh = document.createElement("script");
+
+      // Copy all attributes (src, type, async, etc.) to the new script element.
+      for (const { name, value } of [...script.attributes]) {
+        fresh.setAttribute(name, value);
       }
-    });
-  }
 
-  loadImmediatelyVisibleSections() {
-    // Load sections that are in viewport immediately (fraud, voting)
-    document.querySelectorAll("[data-lazy-section]").forEach((el) => {
-      if (!el.dataset.loaded && this.isInViewport(el)) {
-        const section = el.dataset.lazySection;
-        this.reloadSection(section);
+      if (fresh.src) {
+        // Lazily initialize the set of already-loaded script srcs.
+        if (!this.loadedScriptSrcs) {
+          this.loadedScriptSrcs = new Set();
+        }
+
+        // Skip loading the same external script multiple times.
+        if (this.loadedScriptSrcs.has(fresh.src)) {
+          parent.removeChild(script);
+          continue;
+        }
+
+        this.loadedScriptSrcs.add(fresh.src);
+
+        await new Promise((resolve) => {
+          fresh.onload = resolve;
+          fresh.onerror = resolve;
+          parent.replaceChild(fresh, script);
+        });
+      } else {
+        // Inline script: avoid eval/new Function; let the browser execute it
+        // by inserting a fresh <script> node with the same contents.
+        fresh.textContent = script.textContent;
+        parent.replaceChild(fresh, script);
       }
-    });
-  }
-
-  isInViewport(el) {
-    const rect = el.getBoundingClientRect();
-    return rect.top < window.innerHeight + 100 && rect.bottom > -100;
-  }
-
-  reloadSection(section) {
-    const container = document.querySelector(
-      `[data-lazy-section="${section}"]`,
-    );
-    if (!container) return;
-
-    const url = `/admin/super_mega_dashboard/load_section?section=${section}`;
-
-    fetch(url)
-      .then((response) => response.text())
-      .then((html) => {
-        container.innerHTML = html;
-        container.dataset.loaded = "true";
-        // Dispatch event in case any JS needs to initialize charts, etc.
-        container.dispatchEvent(
-          new CustomEvent("section-loaded", { detail: { section } }),
-        );
-      })
-      .catch((error) => {
-        console.error(`Failed to load section ${section}:`, error);
-      });
+    }
   }
 }
