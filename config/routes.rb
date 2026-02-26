@@ -291,9 +291,19 @@ Rails.application.routes.draw do
     get "vote_spam_dashboard/users/:user_id", to: "vote_spam_dashboard#show", as: :vote_spam_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
+      end
+    end
+    resources :fulfillment_payouts, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+      collection do
+        post :trigger
       end
     end
   end
