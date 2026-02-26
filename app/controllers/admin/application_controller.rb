@@ -34,6 +34,8 @@ module Admin
           raise Pundit::NotAuthorizedError
         end
         # If shop_orders_fulfillment? is true, allow access without further checks
+      elsif flavortime_dashboard_request? && policy(:admin).access_flavortime_dashboard?
+        true
       else
         authorize :admin, :access_admin_endpoints?  # calls AdminPolicy#access_admin_endpoints?
       end
@@ -55,6 +57,10 @@ module Admin
       else
         false
       end
+    end
+
+    def flavortime_dashboard_request?
+      controller_name == "flavortime_dashboard"
     end
 
     # Handles unauthorized access

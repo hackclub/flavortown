@@ -1,0 +1,56 @@
+<%= render HeadingComponent.new(title: "Flavortime Dashboard", tone: :blue, size: :full) %>
+
+<%= form_with url: admin_flavortime_dashboard_path, method: :get, local: true do |f| %>
+  <div class="button-grid">
+    <%= f.select :range,
+      options_for_select(
+        [
+          [ "Last 15 minutes", "15m" ],
+          [ "Last 1 hour", "1h" ],
+          [ "Last 6 hours", "6h" ],
+          [ "Last 24 hours", "24h" ],
+          [ "Last 7 days", "7d" ],
+          [ "Last 30 days", "30d" ],
+          [ "All time", "all" ],
+          [ "Custom", "custom" ]
+        ],
+        @selected_range
+      ),
+      {},
+      class: "input"
+    %>
+    <%= f.datetime_local_field :from, value: @from_time&.strftime("%Y-%m-%dT%H:%M"), class: "input" %>
+    <%= f.datetime_local_field :to, value: @to_time&.strftime("%Y-%m-%dT%H:%M"), class: "input" %>
+    <%= f.submit "Apply", class: "btn-primary" %>
+  </div>
+<% end %>
+
+<div class="dashboard-stats">
+  <div class="card">
+    <h3>Currently Active Users</h3>
+    <p class="stat-value"><%= number_with_delimiter(@active_users) %></p>
+  </div>
+  <div class="card">
+    <h3>Total Unique Users</h3>
+    <p class="stat-value"><%= number_with_delimiter(@total_unique_users) %></p>
+  </div>
+  <div class="card">
+    <h3>Total Sessions</h3>
+    <p class="stat-value"><%= number_with_delimiter(@total_sessions) %></p>
+  </div>
+  <div class="card">
+    <h3>Total Hours Logged</h3>
+    <p class="stat-value"><%= number_with_delimiter(@total_hours_logged) %></p>
+  </div>
+</div>
+
+<div class="dashboard-stats">
+  <div class="card">
+    <h3>Sessions Over Time</h3>
+    <%= line_chart @sessions_over_time, height: "280px", xtitle: "Time", ytitle: "Sessions" %>
+  </div>
+  <div class="card">
+    <h3>Hours Over Time</h3>
+    <%= line_chart @hours_over_time, height: "280px", xtitle: "Time", ytitle: "Hours" %>
+  </div>
+</div>

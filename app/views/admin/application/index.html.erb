@@ -119,6 +119,9 @@
   <% if policy(:admin).access_vote_spam_dashboard? %>
     <%= link_to "Vote Spam Dashboard", admin_vote_spam_dashboard_path, class: button_class %>
   <% end %>
+  <% if policy(:admin).access_flavortime_dashboard? %>
+    <%= link_to "Flavortime Dashboard", admin_flavortime_dashboard_path, class: button_class %>
+  <% end %>
   <%= link_to "Help bot", "slack://app?team=T0266FRGM&id=A09NP19R7FX&tab=home", class: "btn-primary" %>
   <%= link_to "Ship Cert & YSWS Dashboards", "https://review.hackclub.com/", class: "btn-primary", target: "_blank" %>
 </div>
