@@ -3,7 +3,7 @@
 
   <div class="votes-new__devlogs">
     <% posts.each do |post| %>
-      <%= render PostComponent.new(post: post, current_user: current_user) %>
+      <%= render PostComponent.new(post: post, current_user: current_user, show_likes: false, show_comments: false, show_actions: false) %>
     <% end %>
   </div>
 </div>
