@@ -128,6 +128,6 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def access_flavortime_dashboard?
-    user.admin? || user.super_admin? || user.flavortime?
+    user.admin? || user.flavortime?
   end
 end

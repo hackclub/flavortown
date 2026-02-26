@@ -13,7 +13,7 @@ class AdminConstraint
     # Allow admins, fraud dept, and fulfillment persons (who have limited access)
     policy.access_admin_endpoints? ||
       policy.access_fulfillment_view? ||
-      (request.path.start_with?("/admin/flavortime_dashboard") && policy.access_flavortime_dashboard?)
+      (request.path == "/admin/flavortime_dashboard" && policy.access_flavortime_dashboard?)
   end
 
   def self.admin_user_for(request)

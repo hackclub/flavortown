@@ -220,7 +220,7 @@
       current_user: current_user
     ) %>
   </div>
-  <%= link_to "https://pyramid.hackclub.com/c/flavortown/?ref=ft-dash", class: "kitchen-pyramid-banner", target: "_blank", rel: "noopener noreferrer", aria: { label: "Open Pyramid Scheme referral program" } do %>
+  <%= link_to "https://pyramid.hackclub.com/c/flavortown/?ref=ft-dash", class: "kitchen-pyramid-banner", target: "_blank", rel: "noopener noreferrer" do %>
     <%= image_tag "pyramid/logo.png", alt: "Pyramid Scheme icon", class: "kitchen-pyramid-banner__icon" %>
     <span class="kitchen-pyramid-banner__copy">
       <span class="kitchen-pyramid-banner__title">Referral Program: Pyramid Scheme</span>
@@ -237,6 +237,7 @@
             class: "kitchen-flavortime-banner__primary-download",
             target: "_blank",
             rel: "noopener noreferrer" do %>
+          <svg class="kitchen-flavortime-banner__download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
           <span class="kitchen-flavortime-banner__download-label">Download for <%= platform_short_labels[default_download_platform] %> <span class="kitchen-flavortime-banner__download-detail">(<%= platform_details[default_download_platform] %>)</span></span>
         <% end %>
         <p class="kitchen-flavortime-banner__download-links">
