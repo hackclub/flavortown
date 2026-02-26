@@ -11,6 +11,7 @@
   <div class="card">
     <h2>Details</h2>
     <div class="info-rows">
+      <div><b>Author(s):</b> <%= @project.users.map { |u| link_to(u.display_name, helper_user_path(u)) }.to_sentence.html_safe %></div>
       <div><b>Title:</b> <%= @project.title %></div>
       <div><b>Description:</b> <%= @project.description.presence || "None" %></div>
       <div><b>Has Banner:</b> <%= @project.banner.present? ? "Yes" : "No" %></div>
@@ -24,16 +25,19 @@
   </div>
 
   <div class="card">
-    <h2>Members</h2>
-    <% if @project.users.any? %>
-      <ul style="margin: 0; padding-left: 1.25rem;">
-        <% @project.users.each do |u| %>
-          <li><%= link_to u.display_name, helper_user_path(u) %></li>
+    <h2>Moderation</h2>
+    <div class="info-rows">
+      <% if @project.shadow_banned? %>
+        <div><b>Project has been shadow banned, do not tell user, contact an admin if needed</b></div>
+        <% if @project.shadow_banned_reason.present? %>
+          <div><b>- Reason:</b> <%= @project.shadow_banned_reason %></div>
         <% end %>
-      </ul>
-    <% else %>
-      <p>No members.</p>
-    <% end %>
+
+        <% if @project.shadow_banned_at.present? %>
+          <div><b>- Since:</b> <%= @project.shadow_banned_at.strftime("%Y-%m-%d %H:%M") %></div>
+        <% end %>
+      <% end %>
+    </div>
   </div>
 </div>
 
