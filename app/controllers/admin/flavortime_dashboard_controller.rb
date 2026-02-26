@@ -21,7 +21,12 @@ module Admin
       @active_users = FlavortimeSession.active_users_count
       @total_unique_users = scoped_sessions.select(:user_id).distinct.count
       @total_sessions = scoped_sessions.count
+      @voluntary_closed_sessions = scoped_sessions.where(ended_reason: FlavortimeSession::END_REASON_VOLUNTARY_CLOSE).count
+      @timed_out_sessions = scoped_sessions.where(ended_reason: FlavortimeSession::END_REASON_TIMED_OUT).count
       @total_hours_logged = (scoped_sessions.sum(:discord_shared_seconds).to_f / 3600).round(2)
+      @sessions_by_platform = grouped_counts(scoped_sessions, :platform)
+      @sessions_by_app_version = grouped_counts(scoped_sessions, :app_version)
+      @recent_sessions = scoped_sessions.includes(:user).order(created_at: :desc).limit(50)
 
       @sessions_over_time = grouped_series(scoped_sessions, "COUNT(*)")
       @hours_over_time = grouped_series(scoped_sessions, "SUM(discord_shared_seconds) / 3600.0")
@@ -75,6 +80,13 @@ module Admin
       rows.to_h do |time_bucket, value|
         [ time_bucket.in_time_zone, value.to_f.round(2) ]
       end
+    end
+
+    def grouped_counts(scope, column)
+      scope
+        .group(Arel.sql("COALESCE(NULLIF(#{column}, ''), 'unknown')"))
+        .order(Arel.sql("COUNT(*) DESC"))
+        .count
     end
 
     def hourly_bucket?

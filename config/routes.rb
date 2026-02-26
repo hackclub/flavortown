@@ -164,8 +164,9 @@ Rails.application.routes.draw do
       resources :store, only: [ :index, :show ]
       resources :users, only: [ :index, :show ]
 
-      post "flavortime/fingerprint", to: "flavortime#create_fingerprint"
+      post "flavortime/session", to: "flavortime#create_session"
       post "flavortime/heartbeat", to: "flavortime#heartbeat"
+      post "flavortime/close", to: "flavortime#close"
       get "flavortime/active_users", to: "flavortime#active_users"
     end
   end
