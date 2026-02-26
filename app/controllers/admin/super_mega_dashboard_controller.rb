@@ -555,37 +555,26 @@ module Admin
     end
 
     def load_ysws_review_stats
-      cached_data = Rails.cache.fetch("super_mega_ysws_review", expires_in: 1.hour) do
+      cached_data = Rails.cache.fetch("super_mega_ysws_review_v2", expires_in: 1.hour) do
         begin
-          # Build 14-day trend data using EST timezone
           est_timezone = ActiveSupport::TimeZone["Eastern Time (US & Canada)"]
+
+          # Fetch all "done" and "returned" reviews at once (2 API calls total)
+          # The API returns ALL reviews with their createdAt timestamps
+          done_reviews = YswsReviewService.fetch_all_reviews(status: "done")
+          returned_reviews = YswsReviewService.fetch_all_reviews(status: "returned")
+
+          # Extract review arrays
+          done_data = extract_reviews(done_reviews)
+          returned_data = extract_reviews(returned_reviews)
+
+          # Build 14-day trend by grouping reviews by date CLIENT-SIDE
           ysws_review_graph_data = {
-            done: {},
-            returned: {}
+            done: count_reviews_by_date(done_data, est_timezone, 14),
+            returned: count_reviews_by_date(returned_data, est_timezone, 14)
           }
 
-          # Generate data for each of the last 14 days in EST
-          (0..13).reverse_each do |days_ago|
-            date = days_ago.days.ago.in_time_zone(est_timezone).to_date
-
-            if days_ago == 0
-              # For today, calculate hours since midnight EST and call API directly
-              now_est = Time.current.in_time_zone(est_timezone)
-              midnight_est = now_est.beginning_of_day
-              hours_since_midnight = ((now_est - midnight_est) / 1.hour).round
-              done_count = find_number_of_reviews(hours_since_midnight, "done")
-              returned_count = find_number_of_reviews(hours_since_midnight, "returned")
-            else
-              # For historical days, use the difference method
-              done_count = find_reviews(days_ago, 24, "done")
-              returned_count = find_reviews(days_ago, 24, "returned")
-            end
-
-            ysws_review_graph_data[:done][date.to_s] = done_count
-            ysws_review_graph_data[:returned][date.to_s] = returned_count
-          end
-
-          # Calculate summary stats using EST dates
+          # Calculate summary stats
           today_est = Time.current.in_time_zone(est_timezone).to_date
           week_ago_est = 7.days.ago.in_time_zone(est_timezone).to_date
 
@@ -596,50 +585,109 @@ module Admin
             total: done_total + returned_total,
             done_total: done_total,
             returned_total: returned_total,
-            today: (ysws_review_graph_data[:done][today_est.to_s] || 0) + (ysws_review_graph_data[:returned][today_est.to_s] || 0),
-            this_week: (ysws_review_graph_data[:done].select { |date, _| Date.parse(date) >= week_ago_est }.sum { |_, count| count }) +
-                       (ysws_review_graph_data[:returned].select { |date, _| Date.parse(date) >= week_ago_est }.sum { |_, count| count })
+            today: (ysws_review_graph_data[:done][today_est.to_s] || 0) +
+                   (ysws_review_graph_data[:returned][today_est.to_s] || 0),
+            this_week: calculate_week_total(ysws_review_graph_data, week_ago_est)
           }
 
-          ecdf_data = build_ysws_ecdf_data
+          # ECDF data - reuse the done_data we already have!
+          devlog_counts_done = done_data.map { |r| r["devlogCount"] || r[:devlogCount] || 0 }.compact
 
-          { graph_data: ysws_review_graph_data, stats: ysws_review_stats, ecdf_data: ecdf_data }
+          # Fetch all reviews for ECDF comparison (3rd API call)
+          all_reviews = YswsReviewService.fetch_all_reviews
+          all_data = extract_reviews(all_reviews)
+          devlog_counts_all = all_data.map { |r| r["devlogCount"] || r[:devlogCount] || 0 }.compact
+
+          ysws_review_ecdf_data = {
+            done: calculate_ecdf(devlog_counts_done),
+            all: calculate_ecdf(devlog_counts_all)
+          }
+
+          # Fetch daily stats for reviewer trend graph
+          daily_stats = YswsReviewService.fetch_daily_stats
+          ysws_reviewer_trend_data = process_daily_stats(daily_stats, est_timezone, 14)
+
+          { graph_data: ysws_review_graph_data, stats: ysws_review_stats, ecdf_data: ysws_review_ecdf_data, reviewer_trend_data: ysws_reviewer_trend_data }
         rescue StandardError => e
           Rails.logger.error "[SuperMegaDashboard] Error loading YSWS review stats: #{e.message}"
           Rails.logger.error "[SuperMegaDashboard] Backtrace: #{e.backtrace.first(5).join("\n")}"
-          { graph_data: nil, stats: { error: e.message }, ecdf_data: nil }
+          { graph_data: nil, stats: { error: e.message }, ecdf_data: nil, reviewer_trend_data: nil }
         end
       end
 
       @ysws_review_graph_data = cached_data&.dig(:graph_data)
       @ysws_review_stats = cached_data&.dig(:stats) || { error: "Unable to load YSWS data" }
       @ysws_review_ecdf_data = cached_data&.dig(:ecdf_data)
+      @ysws_reviewer_trend_data = cached_data&.dig(:reviewer_trend_data)
     end
 
-    def find_reviews(days, offset_hours, status)
-      # Total reviews by day before (at the start of the day)
-      total_by_day_before = find_number_of_reviews(days * 24, status)
-
-      # Total reviews by end of day (after offset_hours)
-      total_by_end_of_day = find_number_of_reviews(days * 24 + offset_hours, status)
-
-      # Total for the day = difference
-      total_by_end_of_day - total_by_day_before
-    end
-
-    def find_number_of_reviews(hours, status)
-      response_data = YswsReviewService.fetch_reviews(hours: hours, status: status)
-
-      # Handle different response formats - API might return a hash or array
-      reviews_data = if response_data.is_a?(Hash)
+    def extract_reviews(response_data)
+      if response_data.is_a?(Hash)
         response_data["reviews"] || response_data[:reviews] || []
       elsif response_data.is_a?(Array)
         response_data
       else
         []
       end
+    end
 
-      reviews_data.size
+    def count_reviews_by_date(reviews, timezone, num_days)
+      counts = {}
+
+      # Initialize all dates with 0
+      (0...num_days).each do |days_ago|
+        date = days_ago.days.ago.in_time_zone(timezone).to_date
+        counts[date.to_s] = 0
+      end
+
+      # Count reviews by grouping their createdAt dates
+      reviews.each do |review|
+        created_at_str = review["createdAt"] || review[:createdAt]
+        next unless created_at_str
+
+        created_date = Time.parse(created_at_str).in_time_zone(timezone).to_date
+        counts[created_date.to_s] += 1 if counts.key?(created_date.to_s)
+      end
+
+      counts
+    end
+
+    def calculate_week_total(graph_data, week_ago_date)
+      [ :done, :returned ].sum do |status|
+        graph_data[status].select { |date, _| Date.parse(date) >= week_ago_date }.sum { |_, count| count }
+      end
+    end
+
+    def calculate_ecdf(data)
+      return [] if data.empty?
+
+      # Sort the data
+      sorted_data = data.sort
+      n = sorted_data.size
+
+      # Calculate 99th percentile threshold
+      percentile_99_index = [ (n * 0.99).ceil - 1, n - 1 ].min
+      percentile_99_value = sorted_data[percentile_99_index]
+
+      # Filter data to only include values up to 99th percentile
+      filtered_data = sorted_data.select { |x| x <= percentile_99_value }
+      filtered_n = filtered_data.size.to_f
+
+      # Get unique values and calculate cumulative probability for each
+      unique_values = filtered_data.uniq.sort
+
+      ecdf_points = unique_values.map do |value|
+        # Count how many values are <= current value in filtered data
+        count = filtered_data.count { |x| x <= value }
+        cumulative_probability = (count / filtered_n * 100).round(2)
+
+        {
+          devlogs: value,
+          cumulative_percent: cumulative_probability
+        }
+      end
+
+      ecdf_points
     end
 
     def build_ysws_ecdf_data
@@ -708,6 +756,49 @@ module Admin
       end
 
       ecdf_points
+    end
+
+    def process_daily_stats(daily_stats, timezone, num_days)
+      return nil if daily_stats.blank?
+
+      # Get the last num_days dates
+      dates = (0...num_days).map { |days_ago| days_ago.days.ago.in_time_zone(timezone).to_date.to_s }.reverse
+
+      # Initialize data structure
+      reviewer_data = {}
+      total_by_date = {}
+
+      # Process each day's data
+      daily_stats.each do |day_stat|
+        date = day_stat["date"] || day_stat[:date]
+        next unless dates.include?(date)
+
+        total_by_date[date] = day_stat["devlogtotal"] || day_stat[:devlogtotal] || 0
+        leaderboard = day_stat["leaderboard"] || day_stat[:leaderboard] || []
+
+        leaderboard.each do |reviewer|
+          reviewer_id = reviewer["reviewerId"] || reviewer[:reviewerId]
+          username = reviewer["username"] || reviewer[:username]
+          devlog_count = reviewer["devlogCount"] || reviewer[:devlogCount] || 0
+
+          reviewer_data[reviewer_id] ||= { username: username, counts: {} }
+          reviewer_data[reviewer_id][:counts][date] = devlog_count
+        end
+      end
+
+      # Fill in missing dates with 0 for all reviewers
+      dates.each do |date|
+        total_by_date[date] ||= 0
+        reviewer_data.each do |reviewer_id, data|
+          data[:counts][date] ||= 0
+        end
+      end
+
+      {
+        dates: dates,
+        reviewers: reviewer_data,
+        totals: total_by_date
+      }
     end
   end
 end
