@@ -278,6 +278,12 @@
           </label>
           <span class="shop-item-form__hint">If unchecked, this accessory can only be purchased with an attached item</span>
 
+          <label class="shop-item-form__checkbox" style="margin-top: 1rem;">
+            <%= f.check_box :multi_quantity_per_unit, id: "shop_item_multi_quantity_per_unit" %>
+            <span>Allow Multiple Quantities Per Unit</span>
+          </label>
+          <span class="shop-item-form__hint">If enabled, users can select multiple quantities of this accessory per item ordered</span>
+
           <div class="shop-item-form__field" style="margin-top: 1rem;">
             <%= f.label :accessory_tag, "Accessory Tag", class: "shop-item-form__label" %>
             <%= f.text_field :accessory_tag, class: "form-control", placeholder: "e.g., color_item, ram_type" %>

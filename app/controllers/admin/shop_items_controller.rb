@@ -152,6 +152,7 @@ module Admin
         :image,
         :buyable_by_self,
         :accessory_tag,
+        :multi_quantity_per_unit,
         :requires_ship,
         :required_ships_count,
         :required_ships_start_date,

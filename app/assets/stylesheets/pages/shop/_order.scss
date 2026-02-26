@@ -543,6 +543,12 @@
       cursor: pointer;
     }
 
+    .shop-order__accessory-multi-quantity {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
     .shop-order__accessory-option-block {
       display: flex;
       align-items: center;
@@ -553,6 +559,39 @@
       background: var(--color-tan-300) url("landing/hero/hero-bg.webp") repeat
         center center / 1200px;
       box-shadow: var(--shadow);
+      flex: 1;
+    }
+
+    .shop-order__accessory-quantity-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: 2px solid var(--color-tan-400);
+      border-radius: 12px;
+      background: white;
+      white-space: nowrap;
+    }
+
+    .shop-order__accessory-quantity-label {
+      font-weight: 500;
+      color: var(--color-brown-700);
+      font-size: 0.95rem;
+    }
+
+    .shop-order__accessory-quantity-input {
+      width: 70px;
+      padding: 0.5rem;
+      border: 1px solid var(--color-tan-400);
+      border-radius: 6px;
+      font-size: 1rem;
+      text-align: center;
+
+      &:focus {
+        outline: none;
+        border-color: var(--color-brown-500);
+        box-shadow: 0 0 0 3px rgba(139, 100, 70, 0.1);
+      }
     }
 
     .shop-order__accessory-option-input:checked

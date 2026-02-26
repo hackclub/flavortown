@@ -99,11 +99,17 @@ class ShopController < ApplicationController
 
     quantity = params[:quantity].to_i
     accessory_ids = Array(params[:accessory_ids]).map(&:to_i).reject(&:zero?)
+    accessory_quantities = {} # Track per-accessory quantities
 
     # Collect accessory IDs from tagged radio buttons (accessory_tag_* params)
     params.each do |key, value|
       if key.to_s.start_with?("accessory_tag_") && value.present?
         accessory_ids << value.to_i
+      elsif key.to_s.start_with?("accessory_quantity_") && value.present?
+        # Extract accessory ID from key: "accessory_quantity_123" -> 123
+        accessory_id = key.to_s.sub("accessory_quantity_", "").to_i
+        qty = value.to_i
+        accessory_quantities[accessory_id] = qty if qty > 0
       end
     end
     accessory_ids = accessory_ids.uniq.reject(&:zero?)
@@ -114,18 +120,28 @@ class ShopController < ApplicationController
     end
 
     # Validate accessories belong to this item
-    @accessories = if accessory_ids.any?
-                     @shop_item.available_accessories.where(id: accessory_ids)
+    @accessories = if accessory_ids.any? || accessory_quantities.any?
+                     available = @shop_item.available_accessories
+                     available = available.where(id: accessory_ids) if accessory_ids.any?
+                     available = available.or(@shop_item.available_accessories.where(id: accessory_quantities.keys)) if accessory_quantities.any?
+                     available
     else
                      []
     end
 
     # Calculate total cost (applying sale discount via price_for_region)
-    # Accessories are multiplied by quantity (e.g., 10 RPis with 8GB RAM = 10 accessories)
+    # Accessories with multi_quantity_per_unit use their individual quantities
+    # Others are multiplied by main item quantity
     region = user_region
     item_price = @shop_item.price_for_region(region)
     item_total = item_price * quantity
-    accessories_total = @accessories.sum { |a| a.price_for_region(region) } * quantity
+    accessories_total = @accessories.sum do |a|
+      if a.multi_quantity_per_unit?
+        a.price_for_region(region) * (accessory_quantities[a.id] || 0)
+      else
+        a.price_for_region(region) * quantity
+      end
+    end
     total_cost = item_total + accessories_total
 
     return redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "You need to have an address to make an order!" unless current_user.addresses.any?
@@ -159,11 +175,21 @@ class ShopController < ApplicationController
         @order.aasm_state = "pending" if @order.respond_to?(:aasm_state=)
         @order.save!
 
-        # Create orders for each accessory (matching main item quantity)
+        # Create orders for each accessory
+        # For multi_quantity_per_unit accessories, use their individual quantities
+        # For others, match main item quantity
         @accessories.each do |accessory|
+          acc_quantity = if accessory.multi_quantity_per_unit?
+                           accessory_quantities[accessory.id] || 0
+                         else
+                           quantity
+                         end
+
+          next if acc_quantity <= 0
+
           accessory_order = current_user.shop_orders.new(
             shop_item: accessory,
-            quantity: quantity,
+            quantity: acc_quantity,
             frozen_address: selected_address,
             parent_order_id: @order.id
           )

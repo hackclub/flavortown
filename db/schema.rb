@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_25_170706) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_26_044012) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -504,6 +504,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_25_170706) do
     t.boolean "limited"
     t.text "long_description"
     t.integer "max_qty"
+    t.boolean "multi_quantity_per_unit", default: false
     t.string "name"
     t.integer "old_prices", default: [], array: true
     t.boolean "one_per_person_ever"
