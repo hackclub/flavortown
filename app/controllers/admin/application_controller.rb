@@ -33,7 +33,6 @@ module Admin
         unless shop_orders_fulfillment?
           raise Pundit::NotAuthorizedError
         end
-        # If shop_orders_fulfillment? is true, allow access without further checks
       elsif flavortime_dashboard_request? && policy(:admin).access_flavortime_dashboard?
         true
       else
