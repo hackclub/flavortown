@@ -351,589 +351,33 @@
       </div>
     </div>
 
-    <div class="super-mega-dashboard__dashboard">
+    <div data-lazy-section="shipwrights" class="super-mega-dashboard__dashboard">
       <div class="super-mega-dashboard__header super-mega-dashboard__header--ship-certs">
-        <h2>Shipwrights Overview</h2>
-        <%= link_to "View Full Dashboard →", "https://review.hackclub.com", class: "super-mega-link", target: "_blank" %>
+        <div class="super-mega-dashboard__placeholder-text super-mega-dashboard__placeholder-text--title"></div>
       </div>
-
       <div class="super-mega-dashboard__cards super-mega-dashboard__cards--shipwrights">
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-vibes">
-          <div class="sw-vibes-mini__header-row">
-            <button type="button" class="sw-vibes-mini__history-link" data-popup="history-popup">History</button>
-            <h3>SW Vibes</h3>
-          </div>
-          <% if @sw_vibes && !@sw_vibes[:error] %>
-            <div class="sw-vibes-mini">
-              <div class="sw-vibes-mini__status">
-                <span class="sw-vibes-mini__badge sw-vibes-mini__badge--clickable <%= @sw_vibes.dig(:positive, :result) ? 'sw-vibes-mini__badge--good' : 'sw-vibes-mini__badge--bad' %>"
-                      data-popup="sw-vibes-graph-popup">
-                  <%= @sw_vibes.dig(:positive, :result) ? 'Good' : 'Bad' %>
-                </span>
-              </div>
-
-              <% if @sw_vibes[:quotes]&.any? %>
-                <div class="sw-vibes-mini__section">
-                  <h4 class="sw-vibes-mini__header">Quotes (<%= @sw_vibes[:quotes].size %>)</h4>
-                  <ul class="sw-vibes-mini__quotes-list">
-                    <% @sw_vibes[:quotes].each_with_index do |quote, idx| %>
-                      <li class="sw-vibes-mini__quote-item">
-                        <button type="button"
-                                class="sw-vibes-mini__quote-trigger"
-                                data-popup="quote-popup-<%= idx %>">
-                          "<%= truncate(quote[:text], length: 150) %>"
-                        </button>
-                      </li>
-                    <% end %>
-                  </ul>
-                </div>
-              <% end %>
-
-              <% if @sw_vibes[:suggestion] %>
-                <div class="sw-vibes-mini__section">
-                  <h4 class="sw-vibes-mini__header">Suggestion</h4>
-                  <p class="sw-vibes-mini__suggestion-text" data-popup="suggestion-popup">
-                    <%= truncate(@sw_vibes.dig(:suggestion, :action), length: 120) %>
-                  </p>
-                </div>
-              <% end %>
-
-              <p class="sw-vibes-mini__disclaimer">*AI generated, take with a grain of salt*</p>
-            </div>
-
-            <!-- Popups moved outside nested structure -->
-            <% if @sw_vibes[:quotes]&.any? %>
-              <% @sw_vibes[:quotes].each_with_index do |quote, idx| %>
-                <div id="quote-popup-<%= idx %>" class="sw-vibes-popup" style="display: none;">
-                  <div class="sw-vibes-popup__content">
-                    <span class="sw-vibes-popup__close">&times;</span>
-                    <h4><%= quote[:ticket_id] %></h4>
-                    <blockquote>"<%= quote[:text] %>"</blockquote>
-                    <div class="sw-vibes-popup__reason-block">
-                      <%= quote[:reason] %>
-                    </div>
-                    <%= link_to "View in Slack →", quote[:link], target: "_blank", class: "sw-vibes-popup__link" %>
-                  </div>
-                </div>
-              <% end %>
-            <% end %>
-
-            <% if @sw_vibes[:suggestion] %>
-              <div id="suggestion-popup" class="sw-vibes-popup" style="display: none;">
-                <div class="sw-vibes-popup__content">
-                  <span class="sw-vibes-popup__close">&times;</span>
-                  <h4>Suggestion</h4>
-                  <p><%= @sw_vibes.dig(:suggestion, :action) %></p>
-                  <p class="sw-vibes-popup__reason"><strong>Why:</strong> <%= @sw_vibes.dig(:suggestion, :reason) %></p>
-                </div>
-              </div>
-            <% end %>
-
-          <% else %>
-            <p class="sw-vibes-mini__error"><%= @sw_vibes&.dig(:error) || "nun yet" %></p>
-          <% end %>
-
-            <div id="sw-vibes-graph-popup" class="sw-vibes-popup" style="display: none;">
-              <div class="sw-vibes-popup__content sw-vibes-popup__content--wide">
-                <span class="sw-vibes-popup__close">&times;</span>
-                <h4>SW Vibes – 30-Day Overview</h4>
-                <div class="sw-vibes-summary" id="sw-vibes-summary"></div>
-                <div class="sw-vibes-graph-wrap">
-                  <canvas id="swVibesHistoryChart"></canvas>
-                </div>
-                <div class="sw-vibes-legend">
-                  <span class="sw-vibes-legend__item sw-vibes-legend__item--good">Good</span>
-                  <span class="sw-vibes-legend__item sw-vibes-legend__item--bad">Bad</span>
-                  <span class="sw-vibes-legend__item sw-vibes-legend__item--missing">No data</span>
-                </div>
-                <% if @sw_vibes && !@sw_vibes[:error] %>
-                  <div class="sw-vibes-popup__today-reason">
-                    <strong>Today:</strong> <%= @sw_vibes.dig(:positive, :reason) %>
-                  </div>
-                <% end %>
-              </div>
-            </div>
-
-            <div id="history-popup" class="sw-vibes-popup" style="display: none;">
-              <div class="sw-vibes-popup__content sw-vibes-popup__content--wide">
-                <span class="sw-vibes-popup__close">&times;</span>
-                <div id="history-popup-list" class="sw-vibes-history">
-                  <h4>SW Vibes history</h4>
-                  <% if @sw_vibes_history.present? %>
-                    <div class="sw-vibes-history__cards">
-                      <% @sw_vibes_history.each_with_index do |snapshot, idx| %>
-                        <button type="button" class="sw-vibes-history__card" data-history-index="<%= idx %>">
-                          <span class="sw-vibes-mini__badge <%= snapshot.result ? 'sw-vibes-mini__badge--good' : 'sw-vibes-mini__badge--bad' %>"><%= snapshot.result ? 'Good' : 'Bad' %></span>
-                          <span class="sw-vibes-history__reason"><%= truncate(snapshot.reason.to_s, length: 80) %></span>
-                          <span class="sw-vibes-history__date">For <%= snapshot.recorded_date.strftime('%b %-d, %Y') %></span>
-                        </button>
-                      <% end %>
-                    </div>
-                  <% else %>
-                    <p class="sw-vibes-history__empty">No history yet. History is recorded when you view the dashboard.</p>
-                  <% end %>
-                </div>
-                <div id="history-popup-detail" class="sw-vibes-history-detail" style="display: none;">
-                  <button type="button" class="sw-vibes-history-detail__back">&larr; Back</button>
-                  <div id="history-popup-detail-content"></div>
-                </div>
-              </div>
-            </div>
-
-            <script>
-              window.SW_VIBES_HISTORY_DATA = <%= raw (@sw_vibes_history || []).map { |s| { date: s.recorded_date.to_s, result: s.result, reason: s.reason.to_s, payload: s.payload } }.to_json %>;
-            </script>
-
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                function escapeHtml(str) {
-                  return String(str)
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#39;');
-                }
-
-                function buildDetailHtml(s) {
-                  var payload = s.payload || {};
-                  var positive = payload.positive || {};
-                  var reason = escapeHtml(positive.reason || s.reason || '');
-                  var dateText = escapeHtml(s.date || '');
-                  var html = '<h4>' + dateText + ' — ' + (s.result ? 'Good' : 'Bad') + '</h4><p>' + (reason || '—') + '</p>';
-                  var quotes = payload.quotes || [];
-                  if (quotes.length) {
-                    html += '<h4>Quotes</h4><ul class="sw-vibes-popup__quotes">';
-                    quotes.forEach(function(q) {
-                      html += '<li><blockquote>' + escapeHtml(q.text || '') + '</blockquote><p>' + escapeHtml(q.reason || '') + '</p></li>';
-                    });
-                    html += '</ul>';
-                  }
-                  var suggestion = payload.suggestion;
-                  if (suggestion) {
-                    html += '<h4>Suggestion</h4><p>' + escapeHtml(suggestion.action || '') + '</p><p><strong>Why:</strong> ' + escapeHtml(suggestion.reason || '') + '</p>';
-                  }
-                  return html;
-                }
-
-                function showDayDetail(entry, parentPopupId) {
-                  var historyPopup = document.getElementById('history-popup');
-                  var graphPopup = document.getElementById('sw-vibes-graph-popup');
-                  historyPopup.style.display = 'flex';
-                  if (graphPopup) graphPopup.style.display = 'none';
-                  document.getElementById('history-popup-detail-content').innerHTML = buildDetailHtml(entry);
-                  document.getElementById('history-popup-list').style.display = 'none';
-                  document.getElementById('history-popup-detail').style.display = 'block';
-                  historyPopup.setAttribute('data-came-from', parentPopupId || '');
-                }
-
-                window._swVibesChartDays = [];
-
-                document.querySelectorAll('[data-popup]').forEach(function(trigger) {
-                  trigger.addEventListener('click', function() {
-                    var popupId = this.getAttribute('data-popup');
-                    var popup = document.getElementById(popupId);
-                    if (popup) {
-                      popup.style.display = 'flex';
-                      if (popupId === 'sw-vibes-graph-popup') {
-                        requestAnimationFrame(function() {
-                          var canvas = document.getElementById('swVibesHistoryChart');
-                          if (!canvas || typeof Chart === 'undefined') return;
-                          var historyData = window.SW_VIBES_HISTORY_DATA || [];
-
-                          var byDate = {};
-                          historyData.forEach(function(d) { byDate[d.date] = d; });
-
-                          var days = [];
-                          for (var i = 29; i >= 0; i--) {
-                            var dt = new Date();
-                            dt.setDate(dt.getDate() - i);
-                            var iso = dt.toISOString().slice(0, 10);
-                            days.push({ date: iso, entry: byDate[iso] || null });
-                          }
-                          window._swVibesChartDays = days;
-
-                          var goodCount = 0, badCount = 0, noData = 0, streak = 0, streakType = '';
-                          days.forEach(function(d) {
-                            if (!d.entry) { noData++; return; }
-                            d.entry.result ? goodCount++ : badCount++;
-                          });
-                          for (var j = days.length - 1; j >= 0; j--) {
-                            if (!days[j].entry) break;
-                            var curr = days[j].entry.result ? 'good' : 'bad';
-                            if (streak === 0) { streakType = curr; streak = 1; }
-                            else if (curr === streakType) { streak++; }
-                            else break;
-                          }
-
-                          var total = goodCount + badCount;
-                          var pct = total > 0 ? Math.round((goodCount / total) * 100) : 0;
-                          var summaryEl = document.getElementById('sw-vibes-summary');
-                          summaryEl.innerHTML =
-                            '<div class="sw-vibes-summary__stat sw-vibes-summary__stat--good"><span class="sw-vibes-summary__number">' + goodCount + '</span><span class="sw-vibes-summary__label">Good days</span></div>' +
-                            '<div class="sw-vibes-summary__stat sw-vibes-summary__stat--bad"><span class="sw-vibes-summary__number">' + badCount + '</span><span class="sw-vibes-summary__label">Bad days</span></div>' +
-                            '<div class="sw-vibes-summary__stat"><span class="sw-vibes-summary__number">' + pct + '%</span><span class="sw-vibes-summary__label">Good rate</span></div>' +
-                            '<div class="sw-vibes-summary__stat"><span class="sw-vibes-summary__number">' + streak + '</span><span class="sw-vibes-summary__label">' + (streakType === 'good' ? 'Good' : 'Bad') + ' streak</span></div>';
-
-                          var labels = days.map(function(d) {
-                            var p = d.date.split('-');
-                            return parseInt(p[1]) + '/' + parseInt(p[2]);
-                          });
-                          var barValues = days.map(function() { return 1; });
-                          var bgColors = days.map(function(d) {
-                            if (!d.entry) return '#e5e7eb';
-                            return d.entry.result ? '#22c55e' : '#ef4444';
-                          });
-                          var borderColors = days.map(function(d) {
-                            if (!d.entry) return '#d1d5db';
-                            return d.entry.result ? '#16a34a' : '#dc2626';
-                          });
-                          var reasons = days.map(function(d) {
-                            if (!d.entry) return 'No data recorded';
-                            return (d.entry.result ? 'Good' : 'Bad') + ': ' + (d.entry.reason || '—');
-                          });
-
-                          if (window._swVibesChart) window._swVibesChart.destroy();
-                          window._swVibesChart = new Chart(canvas, {
-                            type: 'bar',
-                            data: {
-                              labels: labels,
-                              datasets: [{
-                                data: barValues,
-                                backgroundColor: bgColors,
-                                borderColor: borderColors,
-                                borderWidth: 1,
-                                borderRadius: 2,
-                                barPercentage: 0.9,
-                                categoryPercentage: 0.95
-                              }]
-                            },
-                            options: {
-                              responsive: true,
-                              maintainAspectRatio: false,
-                              onClick: function(evt, elements) {
-                                if (!elements.length) return;
-                                var idx = elements[0].index;
-                                var day = window._swVibesChartDays[idx];
-                                if (!day || !day.entry) return;
-                                showDayDetail(day.entry, 'sw-vibes-graph-popup');
-                              },
-                              plugins: {
-                                legend: { display: false },
-                                tooltip: {
-                                  callbacks: {
-                                    title: function(items) { return items[0].label; },
-                                    label: function(ctx) {
-                                      var r = reasons[ctx.dataIndex];
-                                      if (r.length > 80) return r.substring(0, 77) + '...';
-                                      return r;
-                                    },
-                                    afterLabel: function() { return '(click for details)'; }
-                                  }
-                                }
-                              },
-                              scales: {
-                                y: { display: false, min: 0, max: 1 },
-                                x: {
-                                  grid: { display: false },
-                                  ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }
-                                }
-                              }
-                            }
-                          });
-                        });
-                      }
-                      if (popupId === 'history-popup') {
-                        document.getElementById('history-popup-list').style.display = 'block';
-                        document.getElementById('history-popup-detail').style.display = 'none';
-                      }
-                    }
-                  });
-                });
-
-                document.querySelectorAll('.sw-vibes-history__card').forEach(function(card) {
-                  card.addEventListener('click', function() {
-                    var idx = parseInt(this.getAttribute('data-history-index'), 10);
-                    var historyData = window.SW_VIBES_HISTORY_DATA || [];
-                    var s = historyData[idx];
-                    if (!s) return;
-                    showDayDetail(s, 'history-popup');
-                  });
-                });
-
-                document.querySelectorAll('.sw-vibes-history-detail__back').forEach(function(btn) {
-                  btn.addEventListener('click', function() {
-                    var popup = document.getElementById('history-popup');
-                    var cameFrom = popup.getAttribute('data-came-from');
-                    if (cameFrom === 'sw-vibes-graph-popup') {
-                      popup.style.display = 'none';
-                      var graphPopup = document.getElementById('sw-vibes-graph-popup');
-                      if (graphPopup) graphPopup.style.display = 'flex';
-                    } else {
-                      document.getElementById('history-popup-list').style.display = 'block';
-                      document.getElementById('history-popup-detail').style.display = 'none';
-                    }
-                    popup.removeAttribute('data-came-from');
-                  });
-                });
-
-                document.querySelectorAll('.sw-vibes-popup__close').forEach(function(closeBtn) {
-                  closeBtn.addEventListener('click', function() {
-                    this.closest('.sw-vibes-popup').style.display = 'none';
-                  });
-                });
-
-                document.querySelectorAll('.sw-vibes-popup').forEach(function(popup) {
-                  popup.addEventListener('click', function(e) {
-                    if (e.target === this) this.style.display = 'none';
-                  });
-                });
-              });
-            </script>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-vibes super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__badge"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+          <div class="smd-skeleton__line"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
         </div>
-
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-stats">
-          <h3>Stats</h3>
-          <% if @ship_certs && !@ship_certs[:error] %>
-            <div class="sw-stats-grid">
-              <div class="sw-stats-grid__section">
-                <h4>Decisions</h4>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Approved</span>
-                  <span class="sw-stats-grid__value" id="sw-approved"><%= number_with_delimiter(@ship_certs[:approved]) %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Rejected</span>
-                  <span class="sw-stats-grid__value" id="sw-rejected"><%= number_with_delimiter(@ship_certs[:rejected]) %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Pending</span>
-                  <span class="sw-stats-grid__value" id="sw-pending"><%= number_with_delimiter(@ship_certs[:pending]) %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Total</span>
-                  <span class="sw-stats-grid__value sw-stats-grid__value--blue" id="sw-total"><%= number_with_delimiter(@ship_certs[:total_judged]) %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Approval Rate</span>
-                  <span class="sw-stats-grid__value sw-stats-grid__value--blue" id="sw-approval-rate"><%= @ship_certs[:approval_rate] %>%</span>
-                </div>
-              </div>
-              <div class="sw-stats-grid__section">
-                <h4>Queue</h4>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Median Wait</span>
-                  <span class="sw-stats-grid__value" id="sw-median-wait"><%= @ship_certs[:median_queue_time] %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Oldest</span>
-                  <span class="sw-stats-grid__value sw-stats-grid__value--blue" id="sw-oldest"><%= @ship_certs[:oldest_in_queue] %></span>
-                </div>
-              </div>
-              <div class="sw-stats-grid__section">
-                <h4>Today</h4>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">New Ships</span>
-                  <span class="sw-stats-grid__value" id="sw-new-ships"><%= @ship_certs[:new_ships_today] %></span>
-                </div>
-                <div class="sw-stats-grid__row">
-                  <span class="sw-stats-grid__label">Decisions</span>
-                  <span class="sw-stats-grid__value sw-stats-grid__value--blue" id="sw-decisions"><%= @ship_certs[:decisions_today] %></span>
-                </div>
-              </div>
-            </div>
-
-            <%= render TooltipComponent.new(target_id: "sw-approved", position: :top) do %>
-              <strong>Approved Ships</strong><br>
-              Total number of ships that have been approved by shipwrights
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-rejected", position: :top) do %>
-              <strong>Rejected Ships</strong><br>
-              Total number of ships that have been rejected by shipwrights
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-pending", position: :top) do %>
-              <strong>Pending Ships</strong><br>
-              Number of ships currently waiting for review
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-total", position: :top) do %>
-              <strong>Total Judged</strong><br>
-              Total number of ships that have been reviewed (approved + rejected)
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-approval-rate", position: :top) do %>
-              <strong>Approval Rate</strong><br>
-              Percentage of reviewed ships that were approved
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-median-wait", position: :top) do %>
-              <strong>Median Queue Time</strong><br>
-              The median time ships spend waiting in the queue before being reviewed
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-oldest", position: :top) do %>
-              <strong>Oldest in Queue</strong><br>
-              How long the oldest pending ship has been waiting for review
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-new-ships", position: :top) do %>
-              <strong>New Ships Today</strong><br>
-              Number of new ships submitted today
-            <% end %>
-
-            <%= render TooltipComponent.new(target_id: "sw-decisions", position: :top) do %>
-              <strong>Decisions Today</strong><br>
-              Number of ships reviewed (approved or rejected) today
-            <% end %>
-          <% else %>
-            <p>Couldn't load ship certs data</p>
-          <% end %>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-stats super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__line"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+          <div class="smd-skeleton__line"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
         </div>
-
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph">
-          <h3>Avg Queue Time (30 Days)</h3>
-          <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:avg_queue_time_history].present? %>
-            <div class="sw-queue-graph">
-              <canvas id="avgQueueTimeChart" height="200"></canvas>
-            </div>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('avgQueueTimeChart');
-                if (!ctx) return;
-
-                const rawData = <%= raw @ship_certs[:avg_queue_time_history].to_json %>;
-                const sortedDates = Object.keys(rawData).sort();
-                const labels = sortedDates.map(d => {
-                  const date = new Date(d);
-                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                });
-                const values = sortedDates.map(d => {
-                  const seconds = rawData[d];
-                  return Math.round(seconds / 3600 * 10) / 10;
-                });
-
-                new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                    labels: labels,
-                    datasets: [{
-                      label: 'Avg Queue Time (hours)',
-                      data: values,
-                      borderColor: '#6366f1',
-                      backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                      fill: true,
-                      tension: 0.3,
-                      pointRadius: 4,
-                      pointBackgroundColor: '#6366f1'
-                    }]
-                  },
-                  options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: { display: false },
-                      tooltip: {
-                        callbacks: {
-                          label: function(context) {
-                            const hours = context.raw;
-                            if (hours >= 24) {
-                              const days = Math.floor(hours / 24);
-                              const remainingHours = Math.round(hours % 24);
-                              return days + 'd ' + remainingHours + 'h';
-                            }
-                            return hours.toFixed(1) + 'h';
-                          }
-                        }
-                      }
-                    },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Hours' }
-                      }
-                    }
-                  }
-                });
-              });
-            </script>
-          <% else %>
-            <p>No queue time data available</p>
-          <% end %>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__chart"></div>
         </div>
-
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph">
-          <h3>Review Rates (30 Days)</h3>
-          <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:reviews_per_day].present? %>
-            <div class="sw-queue-graph">
-              <canvas id="reviewRatesChart" height="200"></canvas>
-            </div>
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('reviewRatesChart');
-                if (!ctx) return;
-
-                const reviewsData = <%= raw @ship_certs[:reviews_per_day].to_json %>;
-                const shipsData = <%= raw @ship_certs[:ships_per_day].to_json %>;
-                const sortedDates = Object.keys(reviewsData).sort();
-                const labels = sortedDates.map(d => {
-                  const date = new Date(d);
-                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                });
-                const reviewValues = sortedDates.map(d => reviewsData[d]);
-                const shipValues = sortedDates.map(d => shipsData[d] || 0);
-
-                new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                    labels: labels,
-                    datasets: [
-                      {
-                        label: 'Reviews',
-                        data: reviewValues,
-                        borderColor: '#6b7280',
-                        backgroundColor: 'rgba(107, 114, 128, 0.1)',
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#6b7280'
-                      },
-                      {
-                        label: 'Ships',
-                        data: shipValues,
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#f59e0b'
-                      }
-                    ]
-                  },
-                  options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        display: true,
-                        position: 'bottom'
-                      }
-                    },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Count' }
-                      }
-                    }
-                  }
-                });
-              });
-            </script>
-          <% else %>
-            <p>No review data available</p>
-          <% end %>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__chart"></div>
         </div>
       </div>
     </div>
@@ -1108,7 +552,7 @@
 
       <div class="super-mega-dashboard__cards">
         <% if @ysws_review_stats && !@ysws_review_stats[:error] %>
-          <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--two-thirds">
             <h3>Reviews Per Day</h3>
             <% if @ysws_review_graph_data.present? %>
               <div class="ysws-review-graph">
@@ -1201,7 +645,7 @@
           </div>
 
           <% if @ysws_review_ecdf_data.present? %>
-            <div class="super-mega-dashboard__card super-mega-dashboard__card--one-third">
+            <div class="super-mega-dashboard__card super-mega-dashboard__card--two-thirds">
               <h3>Devlogs Distribution (ECDF)</h3>
               <div class="ysws-review-ecdf-graph">
                 <canvas id="yswsReviewEcdfChart" height="300"></canvas>
@@ -1317,6 +761,129 @@
               </script>
             </div>
           <% end %>
+
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+            <h3>Devlogs Reviewed per Day (Trend)</h3>
+            <% if @ysws_reviewer_trend_data.present? %>
+              <div class="ysws-reviewer-trend-graph">
+                <canvas id="yswsReviewerTrendChart" height="300"></canvas>
+              </div>
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                  const ctx = document.getElementById('yswsReviewerTrendChart');
+                  if (!ctx) return;
+
+                  const trendData = <%= raw @ysws_reviewer_trend_data.to_json %>;
+
+                  // Color palette for different reviewers
+                  const colors = [
+                    '#ef4444', // red
+                    '#3b82f6', // blue
+                    '#10b981', // green
+                    '#f59e0b', // orange
+                    '#8b5cf6', // purple
+                    '#ec4899', // pink
+                    '#14b8a6', // teal
+                    '#f97316'  // orange-600
+                  ];
+
+                  // Build datasets for each reviewer
+                  const datasets = [];
+                  let colorIndex = 0;
+
+                  // Add total line first (thicker)
+                  const totalData = trendData.dates.map(date => trendData.totals[date] || 0);
+                  datasets.push({
+                    label: 'Total',
+                    data: totalData,
+                    borderColor: '#000000',
+                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#000000',
+                    borderWidth: 3,
+                    borderDash: []
+                  });
+
+                  // Add each reviewer's line
+                  Object.entries(trendData.reviewers).forEach(([reviewerId, reviewerInfo]) => {
+                    const color = colors[colorIndex % colors.length];
+                    const data = trendData.dates.map(date => reviewerInfo.counts[date] || 0);
+
+                    datasets.push({
+                      label: reviewerInfo.username,
+                      data: data,
+                      borderColor: color,
+                      backgroundColor: color.replace(')', ', 0.1)').replace('rgb', 'rgba'),
+                      fill: false,
+                      tension: 0.3,
+                      pointRadius: 3,
+                      pointBackgroundColor: color,
+                      borderWidth: 2
+                    });
+
+                    colorIndex++;
+                  });
+
+                  new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                      labels: trendData.dates,
+                      datasets: datasets
+                    },
+                    options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: 'bottom',
+                          labels: {
+                            boxWidth: 12,
+                            padding: 8,
+                            font: { size: 11 }
+                          }
+                        },
+                        tooltip: {
+                          callbacks: {
+                            title: function(context) {
+                              return context[0].label;
+                            },
+                            label: function(context) {
+                              const count = context.parsed.y;
+                              return context.dataset.label + ': ' + count + ' devlog' + (count !== 1 ? 's' : '');
+                            }
+                          }
+                        }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          title: { display: true, text: 'Devlogs Reviewed' },
+                          ticks: {
+                            precision: 0,
+                            stepSize: 1
+                          }
+                        },
+                        x: {
+                          title: { display: true, text: 'Date' },
+                          ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            font: { size: 10 }
+                          }
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+            <% else %>
+              <p>Reviewer trend data not available. Data: <%= @ysws_reviewer_trend_data.inspect %></p>
+            <% end %>
+          </div>
         <% else %>
           <div class="super-mega-dashboard__card">
             <h3>Error</h3>

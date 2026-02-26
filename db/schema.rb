@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_24_132226) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_26_235000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -199,6 +199,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_24_132226) do
     t.index ["project_id"], name: "index_extension_usages_on_project_id"
     t.index ["recorded_at"], name: "index_extension_usages_on_recorded_at"
     t.index ["user_id"], name: "index_extension_usages_on_user_id"
+  end
+
+  create_table "flavortime_sessions", force: :cascade do |t|
+    t.string "app_version"
+    t.datetime "created_at", null: false
+    t.integer "discord_shared_seconds", default: 0, null: false
+    t.datetime "ended_at"
+    t.string "ended_reason"
+    t.datetime "expires_at", null: false
+    t.datetime "last_heartbeat_at", null: false
+    t.string "platform"
+    t.string "session_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["expires_at"], name: "index_flavortime_sessions_on_expires_at"
+    t.index ["session_id"], name: "index_flavortime_sessions_on_session_id", unique: true
+    t.index ["user_id", "created_at"], name: "index_flavortime_sessions_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_flavortime_sessions_on_user_id"
   end
 
   create_table "flipper_features", force: :cascade do |t|
@@ -707,6 +725,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_24_132226) do
     t.boolean "leaderboard_optin", default: false, null: false
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
+    t.boolean "manual_ysws_override"
     t.integer "projects_count"
     t.string "ref"
     t.string "regions", default: [], array: true
@@ -732,7 +751,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_24_132226) do
     t.integer "votes_count"
     t.boolean "voting_locked", default: false, null: false
     t.boolean "ysws_eligible", default: false, null: false
-    t.index ["api_key"], name: "index_users_on_api_key", unique: true
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["session_token"], name: "index_users_on_session_token", unique: true
@@ -783,6 +801,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_24_132226) do
   add_foreign_key "devlog_versions", "users"
   add_foreign_key "extension_usages", "projects"
   add_foreign_key "extension_usages", "users"
+  add_foreign_key "flavortime_sessions", "users"
   add_foreign_key "fulfillment_payout_lines", "fulfillment_payout_runs"
   add_foreign_key "fulfillment_payout_lines", "users"
   add_foreign_key "fulfillment_payout_runs", "users", column: "approved_by_user_id"

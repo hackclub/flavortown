@@ -156,6 +156,107 @@
     text-align: right;
   }
 
+  &__placeholder-text {
+    border-radius: 4px;
+    background: linear-gradient(
+      90deg,
+      var(--color-tan-300) 25%,
+      #e8dcc8 37%,
+      var(--color-tan-300) 63%
+    );
+    background-size: 200% 100%;
+    animation: smd-shimmer 1.4s ease-in-out infinite;
+
+    &--title {
+      height: 1.5rem;
+      width: 220px;
+    }
+  }
+
+  &__placeholder-card {
+    background: linear-gradient(
+      90deg,
+      var(--color-tan-300) 25%,
+      #e8dcc8 37%,
+      var(--color-tan-300) 63%
+    ) !important;
+    background-size: 200% 100% !important;
+    animation: smd-shimmer 1.4s ease-in-out infinite;
+    min-height: 180px;
+    position: relative;
+
+    &.super-mega-dashboard__card--sw-graph {
+      min-height: 260px;
+    }
+  }
+
+  @keyframes smd-shimmer {
+    0% {
+      background-position: 100% 0;
+    }
+    100% {
+      background-position: -100% 0;
+    }
+  }
+
+  .smd-skeleton__line {
+    height: 0.75rem;
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 0.6rem;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.06) 25%,
+      rgba(0, 0, 0, 0.1) 37%,
+      rgba(0, 0, 0, 0.06) 63%
+    );
+    background-size: 200% 100%;
+    animation: smd-shimmer 1.4s ease-in-out infinite;
+
+    &--heading {
+      height: 1rem;
+      width: 50%;
+      margin-bottom: 0.8rem;
+    }
+
+    &--short {
+      width: 40%;
+    }
+
+    &--medium {
+      width: 70%;
+    }
+  }
+
+  .smd-skeleton__badge {
+    width: 60px;
+    height: 1.8rem;
+    border-radius: 0.5rem;
+    margin: 0 auto 0.8rem;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.06) 25%,
+      rgba(0, 0, 0, 0.1) 37%,
+      rgba(0, 0, 0, 0.06) 63%
+    );
+    background-size: 200% 100%;
+    animation: smd-shimmer 1.4s ease-in-out infinite;
+  }
+
+  .smd-skeleton__chart {
+    flex: 1;
+    min-height: 160px;
+    border-radius: 8px;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.04) 25%,
+      rgba(0, 0, 0, 0.08) 37%,
+      rgba(0, 0, 0, 0.04) 63%
+    );
+    background-size: 200% 100%;
+    animation: smd-shimmer 1.4s ease-in-out infinite;
+  }
+
   &__cards--shipwrights {
     grid-template-columns: repeat(2, 1fr);
 
@@ -191,7 +292,6 @@
       position: relative;
 
       canvas {
-        width: 100% !important;
         max-width: 100%;
       }
     }
@@ -449,6 +549,14 @@
     &--blue {
       color: #1e40af;
     }
+
+    &--green {
+      color: #10b981;
+    }
+
+    &--red {
+      color: #ef4444;
+    }
   }
 }
 
@@ -461,13 +569,17 @@
   &__header-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
     margin-bottom: 0.25rem;
 
     h3 {
       margin: 0;
+      flex: 1;
+      text-align: center;
     }
+  }
+
+  &__header-spacer {
+    width: 52px;
   }
 
   &__history-link {
@@ -475,10 +587,11 @@
     border: none;
     padding: 0;
     font: inherit;
-    font-size: 0.95rem;
-    color: #5c4033;
+    font-size: 0.85rem;
+    color: var(--color-brown-500);
     cursor: pointer;
     text-decoration: none;
+    width: 52px;
 
     &:hover {
       text-decoration: underline;
@@ -714,6 +827,18 @@
     }
   }
 
+  &__content--centered {
+    text-align: center;
+
+    .sw-vibes-popup__reason-block {
+      text-align: left;
+    }
+
+    .sw-vibes-graph-wrap {
+      text-align: left;
+    }
+  }
+
   &__today-reason {
     margin-top: 0.75rem;
     padding: 0.75rem;
@@ -774,6 +899,10 @@
   position: relative;
   height: 120px;
   margin: 0.5rem 0;
+
+  &--large {
+    height: 200px;
+  }
 
   canvas {
     width: 100% !important;

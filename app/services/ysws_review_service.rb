@@ -52,6 +52,13 @@ module YswsReviewService
     response.body
   end
 
+  def fetch_daily_stats
+    return [] if DISABLED
+
+    response = connection.get("/api/admin/ysws_reviews/daily-stats")
+    response.body
+  end
+
   def last_synced_at
     Rails.cache.read(LAST_SYNC_CACHE_KEY)
   end
