@@ -51,7 +51,6 @@
 #
 # Indexes
 #
-#  index_users_on_api_key           (api_key) UNIQUE
 #  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #  index_users_on_session_token     (session_token) UNIQUE
@@ -76,6 +75,7 @@ class User < ApplicationRecord
   has_many :likes, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :ledger_entries, dependent: :destroy
+  has_many :flavortime_sessions, dependent: :destroy
   has_many :project_follows, dependent: :destroy
   has_many :followed_projects, through: :project_follows, source: :project
   has_many :shop_suggestions, dependent: :destroy
