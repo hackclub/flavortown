@@ -307,10 +307,12 @@ class User < ApplicationRecord
   end
 
   def shadow_ban!(reason: nil)
+    Rails.logger.warn("DEPRECATED: User#shadow_ban! is deprecated. Use project shadow banning instead.")
     update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
   end
 
   def unshadow_ban!
+    Rails.logger.warn("DEPRECATED: User#unshadow_ban! is deprecated. Use project shadow banning instead.")
     update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
   end
 
