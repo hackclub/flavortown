@@ -82,28 +82,49 @@
                     <div class="shop-order__accessories">
 
                          <% tagged_accessories.each do |tag, accessories_in_group| %>
-                             <div class="shop-order__accessory-group-section">
-                                 <h5><%= tag.titleize.gsub('_', ' ') %></h5>
-                                 <div class="shop-order__accessory-options">
-                                     <% accessories_in_group.each do |accessory| %>
-                                         <label class="shop-order__accessory-option-label">
-                                             <input type="radio"
-                                                    name="accessory_tag_<%= tag %>"
-                                                    value="<%= accessory.id %>"
-                                                    class="shop-order__accessory-option-input"
-                                                    data-price="<%= accessory.ticket_cost %>"
-                                                    data-tag="<%= tag %>"
-                                                    form="order-form"
-                                                    style="display: none;">
-                                             <div class="shop-order__accessory-option-block">
-                                                 <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
-                                                 <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
-                                             </div>
-                                         </label>
-                                     <% end %>
-                                 </div>
-                             </div>
-                         <% end %>
+                              <div class="shop-order__accessory-group-section">
+                                  <h5><%= tag.titleize.gsub('_', ' ') %></h5>
+                                  <div class="shop-order__accessory-options">
+                                      <% accessories_in_group.each do |accessory| %>
+                                          <% if accessory.multi_quantity_per_unit? %>
+                                              <div class="shop-order__accessory-option-label shop-order__accessory-multi-quantity">
+                                                  <div class="shop-order__accessory-option-block">
+                                                      <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
+                                                      <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                                  </div>
+                                                  <div class="shop-order__accessory-quantity-wrapper">
+                                                      <label for="accessory_quantity_<%= accessory.id %>" class="shop-order__accessory-quantity-label">Qty:</label>
+                                                      <input type="number"
+                                                             id="accessory_quantity_<%= accessory.id %>"
+                                                             name="accessory_quantity_<%= accessory.id %>"
+                                                             min="0"
+                                                             value="0"
+                                                             class="shop-order__accessory-quantity-input"
+                                                             data-price="<%= accessory.ticket_cost %>"
+                                                             data-accessory-id="<%= accessory.id %>"
+                                                             form="order-form">
+                                                  </div>
+                                              </div>
+                                          <% else %>
+                                              <label class="shop-order__accessory-option-label">
+                                                  <input type="radio"
+                                                         name="accessory_tag_<%= tag %>"
+                                                         value="<%= accessory.id %>"
+                                                         class="shop-order__accessory-option-input"
+                                                         data-price="<%= accessory.ticket_cost %>"
+                                                         data-tag="<%= tag %>"
+                                                         form="order-form"
+                                                         style="display: none;">
+                                                  <div class="shop-order__accessory-option-block">
+                                                      <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
+                                                      <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                                  </div>
+                                              </label>
+                                          <% end %>
+                                      <% end %>
+                                  </div>
+                              </div>
+                          <% end %>
 
                         <% if untagged_accessories.any? %>
                             <div class="shop-order__accessory-group-section">

@@ -39,6 +39,7 @@
 #  limited                           :boolean
 #  long_description                  :text
 #  max_qty                           :integer
+#  multi_quantity_per_unit           :boolean          default(FALSE)
 #  name                              :string
 #  old_prices                        :integer          default([]), is an Array
 #  one_per_person_ever               :boolean
