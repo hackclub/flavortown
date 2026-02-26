@@ -653,7 +653,7 @@ module Admin
     end
 
     def calculate_week_total(graph_data, week_ago_date)
-      [:done, :returned].sum do |status|
+      [ :done, :returned ].sum do |status|
         graph_data[status].select { |date, _| Date.parse(date) >= week_ago_date }.sum { |_, count| count }
       end
     end
