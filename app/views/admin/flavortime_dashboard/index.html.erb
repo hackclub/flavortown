@@ -17,8 +17,7 @@
         @selected_range
       ),
       {},
-      class: "input"
-    %>
+      class: "input" %>
     <%= f.datetime_local_field :from, value: @from_time&.strftime("%Y-%m-%dT%H:%M"), class: "input" %>
     <%= f.datetime_local_field :to, value: @to_time&.strftime("%Y-%m-%dT%H:%M"), class: "input" %>
     <%= f.submit "Apply", class: "btn-primary" %>
