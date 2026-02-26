@@ -3,19 +3,22 @@
 # Table name: flavortime_sessions
 #
 #  id                     :bigint           not null, primary key
+#  app_version            :string
 #  discord_shared_seconds :integer          default(0), not null
 #  ended_at               :datetime
+#  ended_reason           :string
 #  expires_at             :datetime         not null
-#  fingerprint            :string
 #  last_heartbeat_at      :datetime         not null
+#  platform               :string
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
+#  session_id             :string
 #  user_id                :bigint           not null
 #
 # Indexes
 #
 #  index_flavortime_sessions_on_expires_at              (expires_at)
-#  index_flavortime_sessions_on_fingerprint             (fingerprint) UNIQUE
+#  index_flavortime_sessions_on_session_id              (session_id) UNIQUE
 #  index_flavortime_sessions_on_user_id                 (user_id)
 #  index_flavortime_sessions_on_user_id_and_created_at  (user_id,created_at)
 #
