@@ -456,7 +456,7 @@ reports_created = 0
         status: %i[pending reviewed dismissed].sample
       )
       reports_created += 1
-    rescue ActiveRecord::RecordInvalid => e
+    rescue ActiveRecord::RecordInvalid
       # Silently skip if reporter has already reported this project
     end
   end
