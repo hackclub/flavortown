@@ -1,6 +1,6 @@
 # db/seeds/dev_full_seed.rb
 # Comprehensive development seed script
-# 
+#
 # Creates:
 #   • All shop items from CSV (65+ items across 8 different types)
 #   • Users with all 7 global roles (one per role)
@@ -42,7 +42,7 @@ else
   parse_bool = ->(v) {
     return nil if v.nil? || v == ''
     s = v.to_s.strip.downcase
-    ['t', 'true', '1', 'yes'].include?(s)
+    [ 't', 'true', '1', 'yes' ].include?(s)
   }
 
   parse_int = ->(v) {
@@ -237,7 +237,7 @@ all_roles.each do |role|
     u.first_name = first
     u.last_name = last
     u.display_name = "#{first} #{last} (#{role.name})"
-    u.granted_roles = [role.name]
+    u.granted_roles = [ role.name ]
   end
   users_by_role[role.name] = user
   users_list << user
@@ -318,7 +318,7 @@ PROJECT_DESCRIPTIONS = [
   "My attempt at recreating a popular app from scratch."
 ].freeze
 
-PROJECT_TYPES = [nil, "web", "mobile", "desktop", "cli", "game", "hardware"].freeze
+PROJECT_TYPES = [ nil, "web", "mobile", "desktop", "cli", "game", "hardware" ].freeze
 SHIP_STATUSES = %w[draft submitted under_review approved rejected].freeze
 
 projects_created = 0
@@ -334,11 +334,11 @@ reports_created = 0
     title: title,
     description: PROJECT_DESCRIPTIONS.sample,
     project_type: PROJECT_TYPES.sample,
-    demo_url: [nil, "https://example.com/demo/#{SecureRandom.hex(4)}"].sample,
-    repo_url: [nil, "https://github.com/hackclub/#{title.parameterize}"].sample,
-    readme_url: [nil, "https://github.com/hackclub/#{title.parameterize}/blob/main/README.md"].sample,
+    demo_url: [ nil, "https://example.com/demo/#{SecureRandom.hex(4)}" ].sample,
+    repo_url: [ nil, "https://github.com/hackclub/#{title.parameterize}" ].sample,
+    readme_url: [ nil, "https://github.com/hackclub/#{title.parameterize}/blob/main/README.md" ].sample,
     ship_status: SHIP_STATUSES.sample,
-    shipped_at: [nil, rand(1..30).days.ago].sample
+    shipped_at: [ nil, rand(1..30).days.ago ].sample
   )
 
   projects_created += 1
@@ -353,7 +353,7 @@ reports_created = 0
 
   # Maybe add a contributor
   if rand < 0.5 && users_list.size > 1
-    contributor = (users_list - [owner]).sample
+    contributor = (users_list - [ owner ]).sample
     Project::Membership.create!(
       project: project,
       user: contributor,
@@ -368,12 +368,12 @@ reports_created = 0
 
     # Prepare placeholder image
     placeholder_path = Rails.root.join('app', 'assets', 'images', 'landing', 'pattern.webp')
-    
+
     # Create devlog with attachment (if available)
     devlog = Post::Devlog.new(
       body: body,
       duration_seconds: rand(15.minutes..8.hours).to_i,
-      tutorial: [true, false].sample
+      tutorial: [ true, false ].sample
     )
 
     # Attach placeholder image before saving
@@ -433,18 +433,18 @@ reports_created = 0
   rand(0..2).times do |report_idx|
     reason = Project::Report::USER_REASONS.sample
     details = case reason
-              when "low_effort"
+    when "low_effort"
                 "This project appears to have minimal effort. The code is simple and doesn't demonstrate sufficient skills."
-              when "undeclared_ai"
+    when "undeclared_ai"
                 "Suspicion that AI was used to generate the code without proper declaration."
-              when "demo_broken"
+    when "demo_broken"
                 "The demo link is broken or the project doesn't work as advertised."
-              else
+    else
                 "This project has issues that need review and investigation by the team."
-              end
+    end
 
     # Pick a reporter who is NOT a project member
-    reporter = (users_list - [project.users]).sample
+    reporter = (users_list - [ project.users ]).sample
     next unless reporter # Skip if no valid reporter available
 
     begin
@@ -475,7 +475,7 @@ shop_items = ShopItem.enabled.limit(20).to_a
 abort "  ✗ No shop items found. Ensure shop items are seeded first." if shop_items.empty?
 
 shop_orders_created = 0
-states = [:pending, :awaiting_periodical_fulfillment, :fulfilled, :rejected, :on_hold]
+states = [ :pending, :awaiting_periodical_fulfillment, :fulfilled, :rejected, :on_hold ]
 
 rand(10..20).times do |order_idx|
   user = users_list.sample
