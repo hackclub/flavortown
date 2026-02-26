@@ -99,6 +99,14 @@ class AdminPolicy < ApplicationPolicy
     user.admin? || user.fraud_dept?
   end
 
+  def access_fulfillment_payouts?
+    user.admin?
+  end
+
+  def approve_fulfillment_payouts?
+    user.admin?
+  end
+
   def access_shop_suggestions?
     user.admin?
   end
@@ -117,5 +125,9 @@ class AdminPolicy < ApplicationPolicy
 
   def access_special_activities?
     user.admin?
+  end
+
+  def access_flavortime_dashboard?
+    user.admin? || user.flavortime?
   end
 end

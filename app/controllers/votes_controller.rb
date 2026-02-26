@@ -76,7 +76,6 @@ class VotesController < ApplicationController
       locals: {
         project: vote.project,
         reason: vote.reason,
-        anonymous: current_user.vote_anonymously,
         voter_slack_id: current_user.slack_id
       }
     )

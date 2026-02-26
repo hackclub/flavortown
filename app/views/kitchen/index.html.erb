@@ -7,6 +7,36 @@
     <%= render HeadingComponent.new(title: "Kitchen", tone: :blue, size: :full) %>
   </div>
 
+  <% flavortime_release_download_base = "https://github.com/hackclub/flavortime/releases/latest/download" %>
+  <% flavortime_download_links = {
+    macos: "#{flavortime_release_download_base}/flavortime-macos-universal.dmg",
+    windows: "#{flavortime_release_download_base}/flavortime-windows-x64.exe",
+    linux: "#{flavortime_release_download_base}/flavortime-linux-x64.AppImage"
+  } %>
+  <% user_agent = request.user_agent.to_s.downcase %>
+  <% default_download_platform = if user_agent.include?("macintosh") || user_agent.include?("mac os")
+                                  :macos
+                                elsif user_agent.include?("linux") && !user_agent.include?("android")
+                                  :linux
+                                else
+                                  :windows
+                                end %>
+  <% platform_labels = {
+    macos: "macOS (universal)",
+    windows: "Windows (x64)",
+    linux: "Linux (x64 AppImage)"
+  } %>
+  <% platform_short_labels = {
+    macos: "Mac",
+    windows: "Windows",
+    linux: "Linux"
+  } %>
+  <% platform_details = {
+    macos: "universal",
+    windows: "x64",
+    linux: "x64 AppImage"
+  } %>
+
   <% if @show_welcome_overlay %>
     <div class="dialogue-box-container"
          data-controller="kitchen-dialogue"
@@ -143,9 +173,9 @@
         <h2 class="banned-banner__title">Account Banned</h2>
 
         <p class="banned-banner__message">Your account has been banned and you cannot access other parts of the site.</p>
-        <% if current_user.banned_reason.present? %>
-          <p class="banned-banner__reason"><strong>Reason:</strong> <%= current_user.banned_reason %></p>
-        <% end %>
+        <p>
+          Please contact @Fraud Squad for further communications! if you are not on the hackclub slack please email <a href="mailto:fraudsquad@hackclub.com">fraudsquad@hackclub.com</a>
+        </p>
       </div>
     </div>
   <% else %>
@@ -190,6 +220,40 @@
       current_user: current_user
     ) %>
   </div>
+  <%= link_to "https://pyramid.hackclub.com/c/flavortown/?ref=ft-dash", class: "kitchen-pyramid-banner", target: "_blank", rel: "noopener noreferrer" do %>
+    <%= image_tag "pyramid/logo.png", alt: "Pyramid Scheme icon", class: "kitchen-pyramid-banner__icon" %>
+    <span class="kitchen-pyramid-banner__copy">
+      <span class="kitchen-pyramid-banner__title">Referral Program: Pyramid Scheme</span>
+      <span class="kitchen-pyramid-banner__text">Get a Flavortown referral link and invite your friends, put up posters and make videos to earn additional prizes!</span>
+    </span>
+    <span class="kitchen-pyramid-banner__cta" aria-hidden="true">↗</span>
+  <% end %>
+  <section class="kitchen-flavortime-banner" aria-label="Flavortime">
+    <div class="kitchen-flavortime-banner__content">
+      <h2 class="kitchen-flavortime-banner__title">Flavortime <%= image_tag "flavortime/clock-icon.png", alt: "", class: "kitchen-flavortime-banner__title-icon", aria: { hidden: true } %></h2>
+      <p class="kitchen-flavortime-banner__text">Share your referral link and/or time spent coding on Discord!</p>
+      <div class="kitchen-flavortime-banner__downloads">
+        <%= link_to flavortime_download_links[default_download_platform],
+            class: "kitchen-flavortime-banner__primary-download",
+            target: "_blank",
+            rel: "noopener noreferrer" do %>
+          <svg class="kitchen-flavortime-banner__download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+          <span class="kitchen-flavortime-banner__download-label">Download for <%= platform_short_labels[default_download_platform] %> <span class="kitchen-flavortime-banner__download-detail">(<%= platform_details[default_download_platform] %>)</span></span>
+        <% end %>
+        <p class="kitchen-flavortime-banner__download-links">
+          <span class="kitchen-flavortime-banner__download-prefix">Alternatively,</span> download for
+          <% other_platforms = %i[macos windows linux].reject { |p| p == default_download_platform } %>
+          <% other_platforms.each_with_index do |platform, i| %>
+            <%= link_to platform_labels[platform], flavortime_download_links[platform], class: "kitchen-flavortime-banner__download-link", target: "_blank", rel: "noopener noreferrer" %>
+            <% if i < other_platforms.length - 1 %>
+              <span class="kitchen-flavortime-banner__download-separator">|</span>
+            <% end %>
+          <% end %>
+        </p>
+      </div>
+    </div>
+    <%= image_tag "flavortime/flavortime-background.webp", alt: "Flavortime mascot", class: "kitchen-flavortime-banner__mascot" %>
+  </section>
   <% if current_user.verification_pending? %>
     <div class="kitchen-verification-notice kitchen-verification-notice--compact">
       <%= render StateCardComponent.new(
@@ -202,6 +266,7 @@
     </div>
   <% end %>
   <% end %>
+  <%= render PlatformNoticeComponent.new(title: "The voting system is being upgraded", heading_element: "h2", with_margin: true) %>
   <% if Flipper.enabled?(:kitchen_comic, current_user) %>
     <div class="kitchen-comic">
       <%= image_tag "kitchen_comic/title.avif", alt: "How to Flavortown", class: "kitchen-comic__title" %>

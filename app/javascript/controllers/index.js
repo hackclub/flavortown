@@ -130,6 +130,9 @@ application.register("responsive-image-map", ResponsiveImageMapController);
 import TutorialVideoModalController from "./tutorial_video_modal_controller";
 application.register("tutorial-video-modal", TutorialVideoModalController);
 
+import TutorialStepsExpandController from "./tutorial_steps_expand_controller";
+application.register("tutorial-steps-expand", TutorialStepsExpandController);
+
 import StatsHoverController from "./stats_hover_controller";
 application.register("stats-hover", StatsHoverController);
 
@@ -150,3 +153,6 @@ application.register(
 
 import XpWindowController from "./xp_window_controller";
 application.register("xp-window", XpWindowController);
+
+import LazyLoadController from "./lazy_load_controller";
+application.register("lazy-load", LazyLoadController);
