@@ -552,7 +552,7 @@
 
       <div class="super-mega-dashboard__cards">
         <% if @ysws_review_stats && !@ysws_review_stats[:error] %>
-          <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--two-thirds">
             <h3>Reviews Per Day</h3>
             <% if @ysws_review_graph_data.present? %>
               <div class="ysws-review-graph">
@@ -761,6 +761,129 @@
               </script>
             </div>
           <% end %>
+
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+            <h3>Devlogs Reviewed per Day (Trend)</h3>
+            <% if @ysws_reviewer_trend_data.present? %>
+              <div class="ysws-reviewer-trend-graph">
+                <canvas id="yswsReviewerTrendChart" height="300"></canvas>
+              </div>
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                  const ctx = document.getElementById('yswsReviewerTrendChart');
+                  if (!ctx) return;
+
+                  const trendData = <%= raw @ysws_reviewer_trend_data.to_json %>;
+
+                  // Color palette for different reviewers
+                  const colors = [
+                    '#ef4444', // red
+                    '#3b82f6', // blue
+                    '#10b981', // green
+                    '#f59e0b', // orange
+                    '#8b5cf6', // purple
+                    '#ec4899', // pink
+                    '#14b8a6', // teal
+                    '#f97316'  // orange-600
+                  ];
+
+                  // Build datasets for each reviewer
+                  const datasets = [];
+                  let colorIndex = 0;
+
+                  // Add total line first (thicker)
+                  const totalData = trendData.dates.map(date => trendData.totals[date] || 0);
+                  datasets.push({
+                    label: 'Total',
+                    data: totalData,
+                    borderColor: '#000000',
+                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#000000',
+                    borderWidth: 3,
+                    borderDash: []
+                  });
+
+                  // Add each reviewer's line
+                  Object.entries(trendData.reviewers).forEach(([reviewerId, reviewerInfo]) => {
+                    const color = colors[colorIndex % colors.length];
+                    const data = trendData.dates.map(date => reviewerInfo.counts[date] || 0);
+
+                    datasets.push({
+                      label: reviewerInfo.username,
+                      data: data,
+                      borderColor: color,
+                      backgroundColor: color.replace(')', ', 0.1)').replace('rgb', 'rgba'),
+                      fill: false,
+                      tension: 0.3,
+                      pointRadius: 3,
+                      pointBackgroundColor: color,
+                      borderWidth: 2
+                    });
+
+                    colorIndex++;
+                  });
+
+                  new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                      labels: trendData.dates,
+                      datasets: datasets
+                    },
+                    options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: 'bottom',
+                          labels: {
+                            boxWidth: 12,
+                            padding: 8,
+                            font: { size: 11 }
+                          }
+                        },
+                        tooltip: {
+                          callbacks: {
+                            title: function(context) {
+                              return context[0].label;
+                            },
+                            label: function(context) {
+                              const count = context.parsed.y;
+                              return context.dataset.label + ': ' + count + ' devlog' + (count !== 1 ? 's' : '');
+                            }
+                          }
+                        }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          title: { display: true, text: 'Devlogs Reviewed' },
+                          ticks: {
+                            precision: 0,
+                            stepSize: 1
+                          }
+                        },
+                        x: {
+                          title: { display: true, text: 'Date' },
+                          ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            font: { size: 10 }
+                          }
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+            <% else %>
+              <p>Reviewer trend data not available. Data: <%= @ysws_reviewer_trend_data.inspect %></p>
+            <% end %>
+          </div>
         <% else %>
           <div class="super-mega-dashboard__card">
             <h3>Error</h3>

@@ -555,7 +555,7 @@ module Admin
     end
 
     def load_ysws_review_stats
-      cached_data = Rails.cache.fetch("super_mega_ysws_review", expires_in: 1.hour) do
+      cached_data = Rails.cache.fetch("super_mega_ysws_review_v2", expires_in: 1.hour) do
         begin
           est_timezone = ActiveSupport::TimeZone["Eastern Time (US & Canada)"]
 
@@ -603,17 +603,22 @@ module Admin
             all: calculate_ecdf(devlog_counts_all)
           }
 
-          { graph_data: ysws_review_graph_data, stats: ysws_review_stats, ecdf_data: ysws_review_ecdf_data }
+          # Fetch daily stats for reviewer trend graph
+          daily_stats = YswsReviewService.fetch_daily_stats
+          ysws_reviewer_trend_data = process_daily_stats(daily_stats, est_timezone, 14)
+
+          { graph_data: ysws_review_graph_data, stats: ysws_review_stats, ecdf_data: ysws_review_ecdf_data, reviewer_trend_data: ysws_reviewer_trend_data }
         rescue StandardError => e
           Rails.logger.error "[SuperMegaDashboard] Error loading YSWS review stats: #{e.message}"
           Rails.logger.error "[SuperMegaDashboard] Backtrace: #{e.backtrace.first(5).join("\n")}"
-          { graph_data: nil, stats: { error: e.message }, ecdf_data: nil }
+          { graph_data: nil, stats: { error: e.message }, ecdf_data: nil, reviewer_trend_data: nil }
         end
       end
 
       @ysws_review_graph_data = cached_data&.dig(:graph_data)
       @ysws_review_stats = cached_data&.dig(:stats) || { error: "Unable to load YSWS data" }
       @ysws_review_ecdf_data = cached_data&.dig(:ecdf_data)
+      @ysws_reviewer_trend_data = cached_data&.dig(:reviewer_trend_data)
     end
 
     def extract_reviews(response_data)
@@ -751,6 +756,49 @@ module Admin
       end
 
       ecdf_points
+    end
+
+    def process_daily_stats(daily_stats, timezone, num_days)
+      return nil if daily_stats.blank?
+
+      # Get the last num_days dates
+      dates = (0...num_days).map { |days_ago| days_ago.days.ago.in_time_zone(timezone).to_date.to_s }.reverse
+
+      # Initialize data structure
+      reviewer_data = {}
+      total_by_date = {}
+
+      # Process each day's data
+      daily_stats.each do |day_stat|
+        date = day_stat["date"] || day_stat[:date]
+        next unless dates.include?(date)
+
+        total_by_date[date] = day_stat["devlogtotal"] || day_stat[:devlogtotal] || 0
+        leaderboard = day_stat["leaderboard"] || day_stat[:leaderboard] || []
+
+        leaderboard.each do |reviewer|
+          reviewer_id = reviewer["reviewerId"] || reviewer[:reviewerId]
+          username = reviewer["username"] || reviewer[:username]
+          devlog_count = reviewer["devlogCount"] || reviewer[:devlogCount] || 0
+
+          reviewer_data[reviewer_id] ||= { username: username, counts: {} }
+          reviewer_data[reviewer_id][:counts][date] = devlog_count
+        end
+      end
+
+      # Fill in missing dates with 0 for all reviewers
+      dates.each do |date|
+        total_by_date[date] ||= 0
+        reviewer_data.each do |reviewer_id, data|
+          data[:counts][date] ||= 0
+        end
+      end
+
+      {
+        dates: dates,
+        reviewers: reviewer_data,
+        totals: total_by_date
+      }
     end
   end
 end
