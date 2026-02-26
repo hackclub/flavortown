@@ -77,3 +77,9 @@ chromebook.update!(requires_achievement: "sidequest_webos")
 user = User.find_or_create_by!(email: "max@hackclub.com", slack_id: "U09UQ385LSG")
 user.make_super_admin!
 user.make_admin!
+
+# Load comprehensive development seed in development environments
+if Rails.env.development? && ENV.fetch("USE_BIG_SEED", false)
+  puts "Loading comprehensive development seed..."
+  load Rails.root.join('db', 'seeds', 'dev_full_seed.rb')
+end
