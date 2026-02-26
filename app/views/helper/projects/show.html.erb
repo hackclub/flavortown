@@ -11,7 +11,7 @@
   <div class="card">
     <h2>Details</h2>
     <div class="info-rows">
-      <div><b>Author(s):</b> <%= @project.users.map { |u| link_to(u.display_name, helper_user_path(u)) }.to_sentence.html_safe %></div>
+      <div><b>Author(s):</b> <%= sanitize @project.users.map { |u| link_to(u.display_name, helper_user_path(u)) }.to_sentence, tags: %w[a], attributes: %w[href] %></div>
       <div><b>Title:</b> <%= @project.title %></div>
       <div><b>Description:</b> <%= @project.description.presence || "None" %></div>
       <div><b>Has Banner:</b> <%= @project.banner.present? ? "Yes" : "No" %></div>
