@@ -121,29 +121,6 @@
     }
   }
 
-  &__ai-declaration {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 0.75em;
-    margin-top: 0.75em;
-
-    &-header {
-      display: flex;
-      align-items: center;
-      gap: 0.5em;
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: var(--color-bg);
-    }
-
-    &-content {
-      margin-top: 0.5em;
-      font-size: var(--font-size-s);
-      color: var(--color-tan-400);
-      font-family: var(--font-family-text);
-    }
-  }
-
   &__project-card-stats {
     display: flex;
     flex-direction: row;
@@ -318,7 +295,6 @@
   }
 
   .modal {
-    border: none;
     border-radius: var(--border-radius);
     border: 0.5rem solid var(--color-brown-700);
     padding: var(--space-l);
