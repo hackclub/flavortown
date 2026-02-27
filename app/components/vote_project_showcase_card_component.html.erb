@@ -12,7 +12,7 @@
                 icon: "icons/flag.svg",
                 aria: { label: "Report project" },
                 class: "votes-new__project-report-btn",
-                onclick: "document.getElementById('#{report_modal_id}').showModal()"
+                onclick: "document.getElementById(#{report_modal_id.to_json}).showModal()"
               ) %>
         <% end %>
       </div>
@@ -121,7 +121,7 @@
 
       <div class="modal__actions">
         <%= f.submit "Submit", class: "modal__actions-close" %>
-        <button type="button" class="modal__actions-close" onclick="document.getElementById('<%= report_modal_id %>').close()">Cancel</button>
+        <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= report_modal_id.to_json %>).close()">Cancel</button>
       </div>
     <% end %>
   <% end %>
