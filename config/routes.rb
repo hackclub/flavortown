@@ -11,7 +11,9 @@ class AdminConstraint
 
     policy = AdminPolicy.new(user, :admin)
     # Allow admins, fraud dept, and fulfillment persons (who have limited access)
-    policy.access_admin_endpoints? || policy.access_fulfillment_view?
+    policy.access_admin_endpoints? ||
+      policy.access_fulfillment_view? ||
+      (request.path == "/admin/flavortime_dashboard" && policy.access_flavortime_dashboard?)
   end
 
   def self.admin_user_for(request)
@@ -161,6 +163,11 @@ Rails.application.routes.draw do
       resources :devlogs, only: [ :index, :show ]
       resources :store, only: [ :index, :show ]
       resources :users, only: [ :index, :show ]
+
+      post "flavortime/session", to: "flavortime#create_session"
+      post "flavortime/heartbeat", to: "flavortime#heartbeat"
+      post "flavortime/close", to: "flavortime#close"
+      get "flavortime/active_users", to: "flavortime#active_users"
     end
   end
 
@@ -221,6 +228,7 @@ Rails.application.routes.draw do
          post :refresh_verification
          post :toggle_voting_lock
          get  :votes
+         patch :set_ysws_eligible_override
        end
        collection do
          post :stop_impersonating
@@ -291,10 +299,20 @@ Rails.application.routes.draw do
     get "vote_spam_dashboard/users/:user_id", to: "vote_spam_dashboard#show", as: :vote_spam_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    get "flavortime_dashboard", to: "flavortime_dashboard#index"
     get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
+      end
+    end
+    resources :fulfillment_payouts, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+      collection do
+        post :trigger
       end
     end
   end

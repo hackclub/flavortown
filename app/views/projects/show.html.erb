@@ -25,23 +25,6 @@
                 color: :brown,
                 href: new_project_devlog_path(@project)
               ) %>
-        <% else %>
-          <% if current_user.project_follows.exists?(project: @project) %>
-            <%= button_to unfollow_project_path(@project), method: :delete, class: "btn btn--brown" do %>
-              Unfollow
-            <% end %>
-          <% else %>
-            <%= button_to follow_project_path(@project), method: :post, class: "btn btn--brown" do %>
-              Follow
-            <% end %>
-          <% end %>
-        <% end %>
-
-        <% if !@project.users.include?(current_user) || Rails.env.development? %>
-          <button type="button" class="btn btn--yellow btn--borderless report-btn" aria-label="Report" onclick="document.getElementById('project-report-modal').showModal()">
-            <%= inline_svg_tag "icons/flag.svg" %>
-            REPORT
-          </button>
         <% end %>
 
         <% if policy(@project).resend_webhook? %>

@@ -276,6 +276,7 @@ class Project < ApplicationRecord
 
   def shipping_requirements
     [
+      { key: :not_shadow_banned, label: "This project has been flagged by moderation and cannot ship", passed: !shadow_banned? },
       { key: :demo_url, label: "Add a demo link so anyone can try your project", passed: demo_url.present? },
       { key: :repo_url, label: "Add a public GitHub URL with your source code", passed: repo_url.present? },
       { key: :repo_url_format, label: "Use the root GitHub repository URL (no .git or /main/tree)", passed: validate_repo_url_format },
@@ -287,7 +288,7 @@ class Project < ApplicationRecord
       { key: :payout, label: "Wait for your previous ship's to get a payout", passed: previous_ship_event_has_payout? },
       { key: :vote_balance, label: "Your vote balance is negative", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
       { key: :project_isnt_rejected, label: "Your project is not rejected!", passed: last_ship_event&.certification_status != "rejected" },
-      { key: :project_has_more_then_10s, label: "Your ship event has more then 10s!", passed: duration_seconds > 10 }
+      { key: :project_has_more_then_10s, label: "Your ship event has actual time attached to it! (all devlogs have more then 10s)", passed: duration_seconds > 10 }
     ]
   end
 
@@ -335,8 +336,8 @@ class Project < ApplicationRecord
   private
 
   def has_devlog_since_last_ship?
-    return devlogs.exists? if last_ship_event.nil? || draft?
-    devlogs.where("post_devlogs.created_at > ?", last_ship_event.created_at).exists?
+    return true if last_ship_event.nil?
+    devlog_posts.where("posts.created_at > ?", last_ship_event.created_at).exists?
   end
 
   def previous_ship_event_has_payout?
