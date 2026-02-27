@@ -12,7 +12,7 @@
 
   <div class="vote-category__body">
     <div class="vote-category__stars">
-      <% 6.downto(1) do |i| %>
+      <% 9.downto(1) do |i| %>
         <%= form.radio_button :"#{category}_score", i, class: "vote-category__input", id: "vote_#{category}_score_#{i}" %>
         <%= form.label :"#{category}_score", value: i, for: "vote_#{category}_score_#{i}", class: "vote-category__star" do %>
           <%= inline_svg_tag "icons/star_fill.svg" %>

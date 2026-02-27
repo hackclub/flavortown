@@ -15,6 +15,7 @@ class Api::V1::DevlogsController < Api::BaseController
   DEVLOG_SCHEMA = {
     id: Integer, body: String, comments_count: Integer, duration_seconds: Integer,
     likes_count: Integer, scrapbook_url: String, created_at: String, updated_at: String,
+    media: [ { url: String, content_type: String } ],
     comments: [
       {
         id: Integer,
@@ -39,11 +40,11 @@ class Api::V1::DevlogsController < Api::BaseController
   }
 
   def index
-    devlogs = Post::Devlog.includes(comments: :user).order(created_at: :desc)
+    devlogs = Post::Devlog.includes(comments: :user).includes(attachments_attachments: :blob).where(deleted_at: nil).order(created_at: :desc)
     @pagy, @devlogs = pagy(devlogs)
   end
 
   def show
-    @devlog = Post::Devlog.includes(comments: :user).find_by!(id: params[:id])
+    @devlog = Post::Devlog.includes(comments: :user).includes(attachments_attachments: :blob).where(deleted_at: nil).find_by!(id: params[:id])
   end
 end
