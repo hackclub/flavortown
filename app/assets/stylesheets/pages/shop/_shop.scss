@@ -526,7 +526,7 @@
     gap: 1.5rem;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    padding: 1rem 0.5rem;
+    padding: 1rem 0;
     scrollbar-width: thin;
     scrollbar-color: var(--color-brown-300) transparent;
 
@@ -546,6 +546,20 @@
     .shop-item-card {
       flex: 0 0 300px;
       scroll-snap-align: start;
+      align-self: stretch;
+      height: auto;
+
+      .shop-item-card__link {
+        flex: 1;
+      }
+
+      &:first-child {
+        margin-left: 4px;
+      }
+
+      &:last-child {
+        margin-right: 4px;
+      }
     }
   }
 }
