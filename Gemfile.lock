@@ -444,8 +444,9 @@ GEM
       validate_url
       webfinger (~> 2.0)
     ostruct (0.6.3)
-    pagy (43.2.9)
+    pagy (43.3.1)
       json
+      uri
       yaml
     paper_trail (17.0.0)
       activerecord (>= 7.1)
@@ -782,7 +783,7 @@ DEPENDENCIES
   omniauth-oauth2
   omniauth-rails_csrf_protection
   omniauth_openid_connect
-  pagy (~> 43.2)
+  pagy (~> 43.3)
   paper_trail
   pg (~> 1.1)
   phlex-rails
