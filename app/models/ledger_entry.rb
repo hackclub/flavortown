@@ -73,9 +73,10 @@ class LedgerEntry < ApplicationRecord
 
     source = case ledgerable_type
     when "ShopOrder" then "shop purchase"
-    when "Post::ShipEvent" then "tutorial"
+    when "Post::ShipEvent" then "ship event payout"
     when "User" then "user grant"
     when "User::Achievement" then "achievement: #{ledgerable.achievement.name}"
+    when "FulfillmentPayoutLine" then "fulfillment payout"
     when "SidequestEntry" then "sidequest rejection fee"
     else ledgerable_type.underscore.humanize.downcase
     end

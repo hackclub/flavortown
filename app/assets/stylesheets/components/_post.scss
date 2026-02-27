@@ -1,5 +1,6 @@
 .post {
   border: 14px solid var(--color-brown-400);
+  --post-border-color: var(--color-brown-400);
   border-radius: calc(var(--border-radius) * 1.8);
   background-clip: padding-box;
   position: relative;
@@ -183,6 +184,40 @@
     gap: var(--space-m);
   }
 
+  &__lapse-badge {
+    position: absolute;
+    top: -24px;
+    right: -24px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--post-border-color, var(--color-brown-400));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &:hover {
+      transform: scale(1.15);
+    }
+
+    &:active {
+      transform: scale(1.05);
+      transition-duration: 0.1s;
+    }
+  }
+
+  &__lapse-icon {
+    width: 44px;
+    height: 44px;
+    transform: rotate(13deg);
+    pointer-events: none;
+  }
+
   &__avatar {
     width: 48px;
     height: 48px;
@@ -220,6 +255,24 @@
       &:hover {
         text-decoration: underline;
       }
+    }
+  }
+
+  &__author-activity {
+    opacity: 0.8;
+  }
+
+  &__admin-tools {
+    display: inline-flex;
+    gap: 0.25rem;
+    border: 1px solid orange;
+    background-color: #fff3e0;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin-left: 4px;
+
+    a {
+      text-decoration: none;
     }
   }
 
@@ -333,6 +386,19 @@
     [hidden] {
       display: none !important;
     }
+  }
+
+  &__processing-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--border-radius);
+    background: var(--color-brown-300);
+    color: var(--color-brown-700);
+    font-weight: 600;
+    text-align: center;
+    padding: 1rem;
   }
 
   &__viewport {
@@ -731,6 +797,12 @@
     }
   }
 
+  &__actions {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
+  }
+
   &__action-btn {
     display: inline-flex;
     align-items: center;
@@ -772,6 +844,8 @@
   &--theme-fire {
     background-color: var(--color-red-400);
     border-color: var(--color-red-300);
+    --post-bg-color: var(--color-red-400);
+    --post-border-color: var(--color-red-300);
 
     .post__avatar {
       background-color: var(--color-red-300);
@@ -804,6 +878,8 @@
   &--theme-devlog {
     background-color: var(--color-green-400);
     border-color: var(--color-green-300);
+    --post-bg-color: var(--color-green-400);
+    --post-border-color: var(--color-green-300);
 
     .post__avatar {
       background-color: var(--color-green-300);
@@ -836,6 +912,8 @@
   &--theme-certified {
     background-color: var(--color-blue-400);
     border-color: var(--color-teal-400);
+    --post-bg-color: var(--color-blue-400);
+    --post-border-color: var(--color-teal-400);
 
     .post__avatar {
       background-color: var(--color-blue-300);
@@ -868,6 +946,8 @@
   &--theme-ship {
     background-color: var(--color-yellow-500);
     border-color: var(--color-yellow-300);
+    --post-bg-color: var(--color-yellow-500);
+    --post-border-color: var(--color-yellow-300);
 
     .post__avatar {
       background-color: var(--color-yellow-400);

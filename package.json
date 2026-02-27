@@ -5,6 +5,7 @@
     "build": "esbuild app/javascript/*.* --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets"
   },
   "dependencies": {
+    "@fullstory/browser": "^2.0.6",
     "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo-rails": "^8.0.20",
     "@rails/activestorage": "^8.1.100",
