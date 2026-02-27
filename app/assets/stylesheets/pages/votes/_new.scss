@@ -35,7 +35,6 @@
   }
 
   &__project {
-    // background-color: var(--color-brown-400);
     padding: 0.5em;
     width: 100%;
     max-width: 56rem;
@@ -49,6 +48,7 @@
     flex-direction: column;
     gap: 1rem;
     background-color: var(--color-brown-500);
+    border: 0.50rem solid var(--color-brown-400);
     border-radius: var(--border-radius);
     color: var(--color-bg);
     padding: 1em;
@@ -106,7 +106,6 @@
     color: var(--color-bg);
     font-size: var(--font-size-l);
     line-height: 1.45;
-    // margin: var(--space-m) 0 0;
     padding: 0;
   }
 
@@ -213,13 +212,6 @@
     display: flex;
     flex-direction: column;
     gap: 0.5em;
-    max-height: 850px;
-    overflow-y: auto;
-
-    @supports (-moz-appearance: none) {
-      scrollbar-width: 15px;
-      scrollbar-color: var(--color-brown-700) transparent;
-    }
 
     .post {
       padding: 1em;
@@ -230,22 +222,98 @@
         display: none;
       }
     }
+  }
 
-    &::-webkit-scrollbar {
-      width: 10px;
+  &__score-card {
+    --score-card-tab-width: 5rem;
+    --score-card-toggle-overlap: 1.5rem;
+
+    position: fixed;
+    top: 8rem;
+    right: 0;
+    width: 32rem;
+    max-height: calc(100vh - 10rem);
+    overflow: visible;
+    background-color: var(--color-bg);
+    border-radius: calc(2.5 * var(--border-radius)) 0 0 calc(2.5 * var(--border-radius));
+    box-shadow:
+      -3px 4px 8px rgba(0, 0, 0, 0.14),
+      -1px 0 0 rgba(102, 64, 43, 0.2);
+    padding: 1rem;
+    transform: translateX(100%);
+    transition: transform 220ms ease;
+    z-index: 30;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background-color: var(--color-bg);
+      background-image: repeating-conic-gradient(
+        from 0deg,
+        rgba(0, 0, 0, 0.02) 0deg 90deg,
+        transparent 90deg 180deg
+      );
+      background-size: 100px 100px;
+      z-index: 0;
+    }
+    &.is-open {
+      transform: translateX(0);
+    }
+  }
+
+  &__score-card-toggle {
+    position: absolute;
+    top: 0rem;
+    left: calc((var(--score-card-tab-width) * -1) + var(--score-card-toggle-overlap));
+    width: var(--score-card-tab-width);
+    height: 10rem;
+    padding-right: 0.75rem;
+    border: 0;
+    border-radius: 2rem 0 0 2rem;
+    box-shadow:
+      -2px 3px 6px rgba(0, 0, 0, 0.16),
+      -1px 0 0 rgba(102, 64, 43, 0.24);
+    background-color: var(--color-brown-500);
+    color: var(--color-bg);
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-xxl);
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    cursor: pointer;
+    z-index: -1;
+  }
+
+  &__score-card-header {
+    margin-left: var(--score-card-tab-width);
+    margin-right: var(--score-card-tab-width);
+    margin-bottom: 1rem;
+
+    h2 {
+      margin: 0;
+      font-family: var(--font-family-subtitle);
+      font-size: var(--font-size-xxl);
+      color: var(--color-text-header);
+      line-height: var(--line-height-headers);
+      font-weight: normal;
+    }
+  }
+
+  &__score-card-form {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-height: calc(100vh - 16rem);
+    overflow-y: auto;
+
+    .vote-category__stars {
+      gap: 0.2rem;
+      justify-content: space-between;
     }
 
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: var(--color-brown-700);
-      border-radius: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-      background: var(--color-brown-600);
+    .vote-category__star svg {
+      width: 1.5rem;
+      height: 1.5rem;
     }
   }
 
@@ -394,7 +462,7 @@
   }
 
   &--red {
-    --vote-category-accent: var(--color-red-500);
+    --vote-category-accent: var(--color-red-400);
     --vote-category-footer-bg: var(--color-red-300);
     --vote-category-footer-text: var(--color-red-500);
   }
@@ -406,13 +474,13 @@
   }
 
   &--blue {
-    --vote-category-accent: var(--color-blue-500);
+    --vote-category-accent: var(--color-blue-400);
     --vote-category-footer-bg: var(--color-blue-300);
     --vote-category-footer-text: var(--color-blue-600);
   }
 
   &--green {
-    --vote-category-accent: var(--color-green-500);
+    --vote-category-accent: var(--color-green-400);
     --vote-category-footer-bg: var(--color-green-300);
     --vote-category-footer-text: var(--color-green-500);
   }
