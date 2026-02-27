@@ -1,7 +1,13 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["timeField", "repoField", "demoField", "panel", "toggleButton"];
+  static targets = [
+    "timeField",
+    "repoField",
+    "demoField",
+    "panel",
+    "toggleButton",
+  ];
 
   connect() {
     this.startTime = Date.now();
