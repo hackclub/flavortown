@@ -24,23 +24,6 @@
     </div>
   </div>
 
-  <div class="card">
-    <h2>Moderation</h2>
-    <div class="info-rows">
-      <% if @project.shadow_banned? %>
-        <div><b>Project has been shadow banned, do not tell user, contact an admin if needed</b></div>
-        <% if @project.shadow_banned_reason.present? %>
-          <div><b>- Reason:</b> <%= @project.shadow_banned_reason %></div>
-        <% end %>
-
-        <% if @project.shadow_banned_at.present? %>
-          <div><b>- Since:</b> <%= @project.shadow_banned_at.strftime("%Y-%m-%d %H:%M") %></div>
-        <% end %>
-      <% end %>
-    </div>
-  </div>
-</div>
-
 <div style="display: flex; gap: 0.5rem;">
   <%= link_to "← Back", helper_projects_path, class: "btn-secondary no-margin" %>
   <% if @project.deleted? %>
