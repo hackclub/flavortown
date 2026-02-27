@@ -48,7 +48,7 @@
     flex-direction: column;
     gap: 1rem;
     background-color: var(--color-brown-500);
-    border: 0.50rem solid var(--color-brown-400);
+    border: 0.5rem solid var(--color-brown-400);
     border-radius: var(--border-radius);
     color: var(--color-bg);
     padding: 1em;
@@ -212,7 +212,8 @@
     max-height: calc(100vh - 10rem);
     overflow: visible;
     background-color: var(--color-bg);
-    border-radius: calc(2.5 * var(--border-radius)) 0 0 calc(2.5 * var(--border-radius));
+    border-radius: calc(2.5 * var(--border-radius)) 0 0
+      calc(2.5 * var(--border-radius));
     box-shadow:
       -3px 4px 8px rgba(0, 0, 0, 0.14),
       -1px 0 0 rgba(102, 64, 43, 0.2);
@@ -243,7 +244,9 @@
   &__score-card-toggle {
     position: absolute;
     top: 0rem;
-    left: calc((var(--score-card-tab-width) * -1) + var(--score-card-toggle-overlap));
+    left: calc(
+      (var(--score-card-tab-width) * -1) + var(--score-card-toggle-overlap)
+    );
     width: var(--score-card-tab-width);
     height: 10rem;
     padding-right: 0.75rem;
