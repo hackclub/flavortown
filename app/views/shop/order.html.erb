@@ -181,7 +181,7 @@
                             <h4>Base Price:</h4>
                             <% if @shop_item.on_sale? %>
                                 <h4>
-                                    <span class="shop-order__original-price">🍪 <%= @regional_base_price.round %></span>
+                                    <span class="shop-order__original-price">🍪 <span class="shop-order__strikethrough"><%= @regional_base_price.round %></span></span>
                                     🍪 <%= @sale_price.round %>
                                 </h4>
                             <% else %>
