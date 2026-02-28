@@ -374,22 +374,43 @@
   }
 
   &__body {
-    padding: 0.2rem 0;
+    padding: 0rem;
     display: flex;
-    justify-content: center;
-    background-color: var(--color-bg);
+    align-items: center;
+    gap: 0.25rem;
+    background-color: var(--vote-category-accent);
     border: 1rem solid var(--vote-category-accent);
     border-radius: var(--border-radius);
+    overflow: hidden;
     position: relative;
     z-index: 1;
   }
 
   &__stars {
-    width: 100%;
+    flex: 1;
     display: flex;
     flex-direction: row-reverse;
     gap: 0.5rem;
-    justify-content: space-evenly;
+    justify-content: space-between;
+    padding: 0.2rem 0.5rem;
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: var(--color-bg);
+      border-radius: calc(0.8 * var(--border-radius));
+    }
+  }
+
+  &__score {
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-xl);
+    color: var(--color-bg);
+    min-width: 2.5rem;
+    text-align: center;
+    flex-shrink: 0;
   }
 
   &__input {
@@ -400,6 +421,7 @@
     cursor: pointer;
     color: var(--color-tan-300);
     transition: color 0.2s;
+    position: relative;
 
     svg {
       width: 3rem;

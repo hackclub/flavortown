@@ -118,6 +118,9 @@ application.register("sidequest-expand", SidequestExpandController);
 import ShootingStarController from "./shooting_star_controller";
 application.register("shooting-star", ShootingStarController);
 
+import VoteCategoryController from "./vote_category_controller";
+application.register("vote-category", VoteCategoryController);
+
 import VoteTrackerController from "./vote_tracker_controller";
 application.register("vote-tracker", VoteTrackerController);
 
