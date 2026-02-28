@@ -50,7 +50,7 @@
   }
 
   &__field {
-    padding: var(--space-m) var(--space-m);
+    padding: var(--space-s) var(--space-s);
     border-radius: calc(var(--border-radius) * 0.8);
     border: none;
     background-color: var(--color-bg);
@@ -201,6 +201,16 @@
     --input-subtitle-bg: var(--color-yellow-400);
     --input-subtitle-color: var(--color-yellow-600);
     --input-icon-bg: var(--color-yellow-500);
+    --input-icon-color: var(--color-bg);
+  }
+
+  &--brown {
+    --input-bg: var(--color-brown-400);
+    --input-focus-ring: var(--color-brown-500);
+    --input-placeholder-color: var(--color-brown-400);
+    --input-subtitle-bg: var(--color-brown-300);
+    --input-subtitle-color: var(--color-brown-600);
+    --input-icon-bg: var(--color-brown-500);
     --input-icon-color: var(--color-bg);
   }
 

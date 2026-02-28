@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class InputComponent < ViewComponent::Base
-  COLORS = %i[red blue green yellow].freeze
+  COLORS = %i[red blue green yellow brown].freeze
 
   attr_reader :label, :placeholder, :color, :subtitle, :form, :attribute, :collection, :icon
 

@@ -35,14 +35,14 @@
 class Vote < ApplicationRecord
   CATEGORIES = {
     originality: "How distinct it is from common projects?",
-    technical: "How much effort did the baker put into the implementation?",
+    technicality: "How much effort did the baker put into the implementation?",
     usability: "Did you like using it? Could you use it at all?",
     storytelling: "How well does the baker document the development journey through devlogs, documentation, and READMEs?"
   }.freeze
 
   SCORE_COLUMNS_BY_CATEGORY = {
     originality: :originality_score,
-    technical: :technical_score,
+    technicality: :technical_score,
     usability: :usability_score,
     storytelling: :storytelling_score
   }.freeze
