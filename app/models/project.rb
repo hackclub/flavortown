@@ -44,7 +44,7 @@ class Project < ApplicationRecord
 
   SPACE_THEMED_PREFIX = "Space Themed:".freeze
 
-  has_paper_trail only: %i[shadow_banned shadow_banned_at shadow_banned_reason deleted_at]
+  has_paper_trail
 
   has_recommended :projects # more projects like this...
 

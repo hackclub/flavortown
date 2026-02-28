@@ -537,7 +537,7 @@
 
   @media (min-width: 1300px) {
     padding: 0;
-    width: 1000px;
+    width: min(100%, 1100px);
     height: 1000px;
     display: block;
     margin: 2em auto;
