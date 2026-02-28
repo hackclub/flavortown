@@ -476,7 +476,7 @@
           </div>
 
           <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
-            <h3>Trend Graph</h3>
+            <h3>Unresolved Tickets v/s Hang Time</h3>
             <% if @support_graph_data %>
               <div class="support-graph">
                 <canvas id="supportGraphChart" height="300"></canvas>
@@ -504,8 +504,8 @@
                         {
                           label: 'Unresolved Tickets',
                           data: unresolved,
-                          borderColor: '#6366f1',
-                          backgroundColor: 'rgba(99,102,241,0.1)',
+                          borderColor: '#f1802d',
+                          backgroundColor: 'rgba(241, 128, 45, 0.1)',
                           fill: false,
                           tension: 0.3,
                           pointRadius: 4
@@ -513,8 +513,8 @@
                         {
                           label: 'Hang Time (min)',
                           data: hangTime,
-                          borderColor: '#f59e0b',
-                          backgroundColor: 'rgba(245,158,11,0.1)',
+                          borderColor: '#6366f1',
+                          backgroundColor: 'rgba(99,102,241,0.1)',
                           fill: false,
                           tension: 0.3,
                           pointRadius: 4
@@ -1020,7 +1020,6 @@
             (<%= winner.date %>)
           </div>
         <% end %>
-        </div>
       </div>
     </div>
   </div>
