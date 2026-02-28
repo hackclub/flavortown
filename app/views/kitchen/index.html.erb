@@ -223,7 +223,7 @@
           <span class="willsbuilds-banner__subtitle">now in the shop!</span>
         </span>
       <% end %>
-      <button class="willsbuilds-banner__close" aria-label="Dismiss" onclick="fetch('<%= dismiss_thing_path %>', {method: 'POST', headers: {'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content, 'Content-Type': 'application/x-www-form-urlencoded'}, body: 'thing_name=willsbuilds_banner'}); this.closest('.willsbuilds-banner').remove();">
+      <button class="willsbuilds-banner__close" aria-label="Dismiss" data-dismiss-url="<%= dismiss_thing_path %>" onclick="fetch(this.dataset.dismissUrl, {method: 'POST', headers: {'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content, 'Content-Type': 'application/x-www-form-urlencoded'}, body: 'thing_name=willsbuilds_banner'}); this.closest('.willsbuilds-banner').remove();">
         <%= inline_svg_tag "icons/close.svg" %>
       </button>
     </div>
