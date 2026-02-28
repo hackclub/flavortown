@@ -44,7 +44,7 @@ class Project < ApplicationRecord
 
   SPACE_THEMED_PREFIX = "Space Themed:".freeze
 
-  has_paper_trail 
+  has_paper_trail
 
   has_recommended :projects # more projects like this...
 
