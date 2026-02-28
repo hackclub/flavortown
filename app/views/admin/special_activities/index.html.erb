@@ -23,28 +23,128 @@
   </div>
 <% end %>
 
-<% if @attendances.present? %>
-  <div class="card" style="margin-top: 2em;">
-    <h2>Attendance for <%= @date || "All Dates" %></h2>
+<% if @date.present? && @attendances.present? %>
+  <% frozen = @payout_record.present? %>
+
+  <div style="margin-top: 2em;">
+    <h2>Attendance for <%= @date %></h2>
+
+    <% if frozen %>
+      <div class="frozen-banner">
+        Payout finalized for this Show & Tell
+        <% if @payout_record.payout_given_by %>
+          by <%= @payout_record.payout_given_by.display_name %>
+          on <%= @payout_record.created_at.strftime("%b %d, %Y %H:%M") %>
+        <% end %>
+      </div>
+    <% end %>
+
     <table class="table-data">
       <thead>
         <tr>
           <th>Date</th>
           <th>User</th>
-          <th>Admin Profile</th>
-          <th>Public Profile</th>
+          <th>Project</th>
+          <th>Payout Eligible</th>
+          <th>Payout Given</th>
+          <th>Winner</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <% @attendances.each do |attendance| %>
           <tr>
             <td><%= attendance.date %></td>
-            <td><%= attendance.user&.display_name || "Unknown" %></td>
-            <td><%= link_to "View", admin_user_path(attendance.user), class: "btn-primary slim" %></td>
-            <td><%= link_to "View", user_path(attendance.user), class: "btn-secondary slim" %></td>
+            <td><%= link_to attendance.user&.display_name || "Unknown", admin_user_path(attendance.user) %></td>
+            <td>
+              <% if attendance.project %>
+                <%= link_to attendance.project.title, project_path(attendance.project) %>
+              <% else %>
+                <span class="text-muted">—</span>
+              <% end %>
+            </td>
+            <td>
+              <% if frozen %>
+                <%= attendance.give_presentation_payout ? "✅" : "—" %>
+              <% else %>
+                <%= button_to toggle_payout_admin_special_activity_path(attendance),
+                      method: :post,
+                      class: attendance.give_presentation_payout ? "btn-primary slim" : "btn-secondary slim" do %>
+                  <%= attendance.give_presentation_payout ? "✅ Yes" : "❌ No" %>
+                <% end %>
+                <% if attendance.monthly_payout_limit_reached? %>
+                  <small class="text-muted">(monthly limit reached)</small>
+                <% end %>
+              <% end %>
+            </td>
+            <td>
+              <% if attendance.payout_given? %>
+                <span title="Paid at <%= attendance.payout_given_at&.strftime('%b %d, %Y %H:%M') %>">✅ Yes</span>
+              <% else %>
+                <span class="text-muted">—</span>
+              <% end %>
+            </td>
+            <td>
+              <% if attendance.winner? %>
+                🏆 Winner
+              <% else %>
+                <span class="text-muted">—</span>
+              <% end %>
+            </td>
+            <td>
+              <% if attendance.presented_project? && !attendance.winner? && !frozen %>
+                <%= button_to "Mark Winner",
+                      mark_winner_admin_special_activity_path(attendance),
+                      method: :post,
+                      class: "btn-primary slim" %>
+              <% end %>
+              <%= link_to "Profile", user_path(attendance.user), class: "btn-secondary slim" %>
+            </td>
           </tr>
         <% end %>
       </tbody>
     </table>
+
+    <div class="actions">
+      <% if frozen %>
+        <p class="frozen-notice">Payout system is frozen for this date.</p>
+      <% else %>
+        <%= button_to "Give Payout (#{ShowAndTellAttendance::PRESENTATION_PAYOUT_AMOUNT} 🍪 each)",
+              give_payout_admin_special_activities_path(date: @date),
+              method: :post,
+              class: "btn-primary" %>
+
+        <%= button_to "Mark Payout Given (Historical)",
+              mark_payout_given_admin_special_activities_path(date: @date),
+              method: :post,
+              class: "btn-secondary" %>
+      <% end %>
+    </div>
+  </div>
+<% elsif @date.present? %>
+  <div class="card">
+    <p>No attendances found for <%= @date %>.</p>
   </div>
 <% end %>
+
+<style>
+  .frozen-banner {
+    padding: 0.75rem 1rem;
+    border: 0.1em solid var(--color-brown-500);
+    border-radius: 0.5em;
+    margin: 1rem 0;
+  }
+
+  .actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .frozen-notice {
+    color: var(--color-brown-500);
+    font-style: italic;
+    margin: 0;
+  }
+</style>

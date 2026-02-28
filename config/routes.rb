@@ -278,7 +278,16 @@ Rails.application.routes.draw do
         post :reject
       end
     end
-    resources :special_activities, only: [ :index, :create ]
+    resources :special_activities, only: [ :index, :create ] do
+      member do
+        post :toggle_payout
+        post :mark_winner
+      end
+      collection do
+        post :give_payout
+        post :mark_payout_given
+      end
+    end
     resources :support_vibes, only: [ :index, :create ]
     resources :sw_vibes, only: [ :index ]
     resources :suspicious_votes, only: [ :index ]
