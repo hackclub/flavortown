@@ -8,4 +8,12 @@
     <%= render "category", form: form, category: category %>
   <% end %>
 
+  <%= render InputComponent.new(
+    form: form,
+    attribute: :reason,
+    label: "Feedback",
+    placeholder: "Any thoughts for the maker?",
+    color: :brown,
+    subtitle: "Write a short feedback on this project that will be helpful to the creator."
+  ) %>
 <% end %>
