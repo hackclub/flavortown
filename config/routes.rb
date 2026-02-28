@@ -159,7 +159,7 @@ Rails.application.routes.draw do
         resources :devlogs, only: [ :index ], controller: "project_devlogs"
       end
 
-      resources :docs, only: [ :index ]
+      get "docs", to: "docs#index", as: :docs
       resources :devlogs, only: [ :index, :show ]
       resources :store, only: [ :index, :show ]
       resources :users, only: [ :index, :show ]

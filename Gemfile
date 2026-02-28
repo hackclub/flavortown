@@ -53,6 +53,10 @@ group :development, :test do
 
   # Load .env
   gem "dotenv-rails"
+
+  # Standardized OpenAPI generation
+  gem "rspec-rails"
+  gem "rswag-specs"
 end
 
 # Bullet gem to catch N+1
