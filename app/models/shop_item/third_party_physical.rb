@@ -22,6 +22,7 @@
 #  enabled_eu                        :boolean
 #  enabled_in                        :boolean
 #  enabled_uk                        :boolean
+#  enabled_until                     :datetime
 #  enabled_us                        :boolean
 #  enabled_xx                        :boolean
 #  hacker_score                      :integer

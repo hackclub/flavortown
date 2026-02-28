@@ -374,6 +374,12 @@
     min-height: 2.4em;
   }
 
+  &__enabled-until {
+    font-size: 0.8rem;
+    color: #a87254;
+    font-style: italic;
+  }
+
   &__order-button {
     width: 100%;
     margin-top: auto;
