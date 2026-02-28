@@ -204,6 +204,16 @@
     --input-icon-color: var(--color-bg);
   }
 
+  &--brown {
+    --input-bg: var(--color-brown-400);
+    --input-focus-ring: var(--color-brown-500);
+    --input-placeholder-color: var(--color-brown-400);
+    --input-subtitle-bg: var(--color-brown-300);
+    --input-subtitle-color: var(--color-brown-600);
+    --input-icon-bg: var(--color-brown-500);
+    --input-icon-color: var(--color-bg);
+  }
+
   &--shake {
     animation: input-shake 0.32s ease both;
   }
