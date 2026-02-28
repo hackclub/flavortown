@@ -4,16 +4,18 @@
   <%= form.hidden_field :repo_url_clicked, value: false, data: { vote_tracker_target: "repoField" } %>
   <%= form.hidden_field :demo_url_clicked, value: false, data: { vote_tracker_target: "demoField" } %>
 
-  <% Vote.enabled_categories.each do |category| %>
-    <%= render "category", form: form, category: category %>
-  <% end %>
+  <div class="vote-form">
+    <% Vote.enabled_categories.each do |category| %>
+      <%= render "category", form: form, category: category %>
+    <% end %>
 
-  <%= render InputComponent.new(
-    form: form,
-    attribute: :reason,
-    label: "Feedback",
-    placeholder: "Any thoughts for the maker?",
-    color: :brown,
-    subtitle: "Write a short feedback on this project that will be helpful to the creator."
-  ) %>
+    <%= render InputComponent.new(
+      form: form,
+      attribute: :reason,
+      label: "Feedback",
+      placeholder: "Any thoughts for the maker?",
+      color: :brown,
+      subtitle: "Write a short feedback on this project that will be helpful to the creator."
+    ) %>
+  </div>
 <% end %>
