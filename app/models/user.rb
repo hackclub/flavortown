@@ -61,7 +61,7 @@ class User < ApplicationRecord
 
   has_recommended :projects # you might like these projects...
 
-  DISMISSIBLE_THINGS = %w[flagship_ad shop_suggestion_box].freeze
+  DISMISSIBLE_THINGS = %w[flagship_ad shop_suggestion_box willsbuilds_banner].freeze
 
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy

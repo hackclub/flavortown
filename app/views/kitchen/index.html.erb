@@ -213,6 +213,22 @@
       ) %>
     </div>
   <% end %>
+  <% if Date.current < Date.new(2026, 3, 9) && current_user&.ref == "willsbuilds" && !current_user&.has_dismissed?("willsbuilds_banner") %>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap">
+    <div class="willsbuilds-banner">
+      <%= link_to "/shop/order?shop_item_id=101", class: "willsbuilds-banner__link" do %>
+        <%= image_tag "willsbuilds.jpg", alt: "Willsbuilds", class: "willsbuilds-banner__image" %>
+        <span class="willsbuilds-banner__text">
+          <span class="willsbuilds-banner__title">WillsBuilds' Items</span>
+          <span class="willsbuilds-banner__subtitle">now in the shop!</span>
+        </span>
+      <% end %>
+      <button class="willsbuilds-banner__close" aria-label="Dismiss" data-dismiss-url="<%= dismiss_thing_path %>" onclick="fetch(this.dataset.dismissUrl, {method: 'POST', headers: {'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content, 'Content-Type': 'application/x-www-form-urlencoded'}, body: 'thing_name=willsbuilds_banner'}); this.closest('.willsbuilds-banner').remove();">
+        <%= inline_svg_tag "icons/close.svg" %>
+      </button>
+    </div>
+  <% end %>
+
   <div class="kitchen-setup">
     <%= render KitchenTutorialStepsComponent.new(
       tutorial_steps: @tutorial_steps,
