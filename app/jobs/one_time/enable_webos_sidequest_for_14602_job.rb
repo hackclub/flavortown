@@ -1,4 +1,4 @@
-class OneTime::EnableWebosSidequestFor14602Job < ApplicationJob
+class OneTime::EnableWebOSSidequestFor14602Job < ApplicationJob
     queue_as :literally_whenever
 
     def perform
