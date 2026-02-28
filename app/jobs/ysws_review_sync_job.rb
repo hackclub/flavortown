@@ -122,6 +122,19 @@ class YswsReviewSyncJob < ApplicationJob
   def process_review(review_id)
     adjusted_hours = nil
     current_review = YswsReviewService.fetch_review(review_id)
+
+    ship_cert = current_review["shipCert"] || {}
+    ship_cert_id = ship_cert["id"].to_s
+
+    if ship_cert_id.present? && current_review["updatedAt"].present?
+      existing_record = fetch_existing_airtable_record(ship_cert_id)
+      if existing_record && existing_record["synced_at"].present?
+        if Time.parse(existing_record["synced_at"]) >= Time.parse(current_review["updatedAt"])
+          return
+        end
+      end
+    end
+
     devlogs = current_review["devlogs"] || []
     total_approved_minutes = calculate_total_approved_minutes(devlogs) || 0
 
@@ -130,7 +143,6 @@ class YswsReviewSyncJob < ApplicationJob
       return
     end
 
-    ship_cert = current_review["shipCert"] || {}
     code_url = ship_cert["repoUrl"]
     ft_project_id = ship_cert["ftProjectId"]
 
