@@ -79,9 +79,21 @@
   }
 
   &__original-price {
-    text-decoration: line-through;
     color: #999;
     margin-right: 0.5rem;
+  }
+
+  &__strikethrough {
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      border-top: 2px solid #999;
+    }
   }
 
   &__stock-indicator {
