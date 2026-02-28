@@ -376,12 +376,10 @@
   &__body {
     padding: 0rem;
     display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    background-color: var(--vote-category-accent);
+    justify-content: center;
+    background-color: var(--color-bg);
     border: 1rem solid var(--vote-category-accent);
     border-radius: var(--border-radius);
-    overflow: hidden;
     position: relative;
     z-index: 1;
   }

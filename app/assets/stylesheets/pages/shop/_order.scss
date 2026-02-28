@@ -79,9 +79,21 @@
   }
 
   &__original-price {
-    text-decoration: line-through;
     color: #999;
     margin-right: 0.5rem;
+  }
+
+  &__strikethrough {
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      border-top: 2px solid #999;
+    }
   }
 
   &__stock-indicator {
@@ -496,6 +508,22 @@
         padding: 0.2rem 0;
       }
     }
+  }
+
+  &__disclaimer {
+    background: var(--color-yellow-300)
+      repeating-conic-gradient(
+        from 0deg,
+        rgba(0, 0, 0, 0.02) 0deg 90deg,
+        transparent 90deg 180deg
+      );
+    background-size: 120px 120px;
+    outline: 0.4em solid var(--color-yellow-500);
+    outline-offset: 0;
+    padding: 1em;
+    border-radius: 12px;
+    line-height: 1.5;
+    margin-top: 2em;
   }
 
   &__accessories {
