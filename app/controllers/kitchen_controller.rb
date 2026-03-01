@@ -3,6 +3,8 @@ class KitchenController < ApplicationController
   before_action :require_login
 
   def index
+    authorize :kitchen, :index?
+
     identities = current_user.identities
 
     unless current_user.verification_verified? && current_user.ysws_eligible == true
