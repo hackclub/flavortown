@@ -206,6 +206,76 @@
       <% end %>
 
       <div class="card">
+        <div class="shop-item-detail__orders-header">
+          <h3>Orders for this Item</h3>
+          <span class="shop-item-detail__order-count"><%= @shop_item.shop_orders.count %> orders</span>
+        </div>
+
+        <% if @shop_orders.any? %>
+          <div class="shop-item-detail__orders-table-wrapper">
+            <table class="table-data">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>User</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Region</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @shop_orders.each do |order| %>
+                  <tr>
+                    <td>#<%= order.id %></td>
+                    <td>
+                      <%= link_to order.user.display_name || "Unknown", admin_user_path(order.user), class: "btn-primary slim" %><br>
+                      <small style="color: #6b7280;"><%= order.user.email %></small>
+                    </td>
+                    <td><%= order.quantity %></td>
+                    <td><%= order.total_cost %></td>
+                    <td>
+                      <span class="badge badge-<%= order.aasm_state %>">
+                        <%= order.aasm_state.humanize %>
+                      </span>
+                    </td>
+                    <td>
+                      <% if order.frozen_address.present? %>
+                        <span style="background: #e0f2fe; color: #0369a1; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500;">
+                          <%= country_name_from_code(order.frozen_address["country"]) %>
+                        </span>
+                      <% else %>
+                        <span style="color: #9ca3af;">—</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <%= order.created_at.strftime("%b %d, %Y") %><br>
+                      <small style="color: #6b7280;"><%= order.created_at.strftime("%l:%M %p") %></small>
+                    </td>
+                    <td>
+                      <%= link_to "View", admin_shop_order_path(order), class: "btn-primary slim" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <% if @pagy.pages > 1 %>
+            <div class="shop-item-detail__orders-pagination">
+              <%== pagy_nav(@pagy) %>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="shop-item-detail__no-orders">
+            <p>No orders for this item yet.</p>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="card">
         <div class="shop-item-detail__audit-header">
           <h3>Audit Log</h3>
           <span class="shop-item-detail__audit-count"><%= @shop_item.versions.count %> changes</span>
@@ -690,5 +760,65 @@
   text-align: center;
   margin: 1rem 0 0 0;
   font-size: 0.875rem;
+}
+
+/* Orders Section */
+.shop-item-detail__orders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.shop-item-detail__orders-header h3 {
+  margin: 0;
+}
+
+.shop-item-detail__order-count {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.shop-item-detail__orders-table-wrapper {
+  overflow-x: auto;
+}
+
+.shop-item-detail__orders-pagination {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.shop-item-detail__orders-pagination nav {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.shop-item-detail__orders-pagination a,
+.shop-item-detail__orders-pagination span {
+  padding: 0.375rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  border: 1px solid var(--color-brown-500);
+  background: var(--color-tan-400);
+  color: var(--color-brown-700);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.shop-item-detail__orders-pagination a:hover {
+  background: var(--color-tan-500);
+}
+
+.shop-item-detail__orders-pagination .current {
+  background: var(--color-brown-700);
+  color: white;
+  border-color: var(--color-brown-700);
+}
+
+.shop-item-detail__no-orders {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
 }
 </style>
