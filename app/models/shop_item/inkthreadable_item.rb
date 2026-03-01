@@ -77,6 +77,29 @@
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #
-class ShopItem::Inkthreadable < ShopItem
-  # ur mom
+class ShopItem::InkthreadableItem < ShopItem
+  def fulfill!(shop_order)
+    Shop::SendInkthreadableOrderJob.perform_later(shop_order.id)
+    shop_order.queue_for_fulfillment!
+  end
+
+  def inkthreadable_config
+    super || {}
+  end
+
+  def product_number
+    inkthreadable_config["pn"]
+  end
+
+  def design_urls
+    inkthreadable_config["designs"] || {}
+  end
+
+  def shipping_method
+    inkthreadable_config["shipping_method"] || "regular"
+  end
+
+  def brand_name
+    inkthreadable_config["brand_name"]
+  end
 end

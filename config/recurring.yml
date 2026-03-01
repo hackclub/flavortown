@@ -112,6 +112,11 @@ production:
     concurrency: 1
     description: "Process demo_broken reports: auto-review and re-certify projects with 5+ pending, notify Slack for 15+ total"
 
+  sync_inkthreadable_status:
+    class: Shop::SyncInkthreadableStatusJob
+    schedule: every hour
+    concurrency: 1
+    description: "Poll Inkthreadable API for order status updates and mark shipped orders as fulfilled"
   fraud_daily_summary:
     class: FraudDailySummaryJob
     schedule: every day at 8pm America/New_York
