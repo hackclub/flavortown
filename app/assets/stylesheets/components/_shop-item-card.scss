@@ -341,7 +341,19 @@
   &__original-price {
     color: #999;
     font-size: 1rem;
-    text-decoration: line-through;
+  }
+
+  &__strikethrough {
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      border-top: 2px solid #999;
+    }
   }
 
   &__title {

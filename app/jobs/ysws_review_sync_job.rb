@@ -122,6 +122,19 @@ class YswsReviewSyncJob < ApplicationJob
   def process_review(review_id)
     adjusted_hours = nil
     current_review = YswsReviewService.fetch_review(review_id)
+
+    ship_cert = current_review["shipCert"] || {}
+    ship_cert_id = ship_cert["id"].to_s
+
+    if ship_cert_id.present? && current_review["updatedAt"].present?
+      existing_record = fetch_existing_airtable_record(ship_cert_id)
+      if existing_record && existing_record["synced_at"].present?
+        if Time.parse(existing_record["synced_at"]) >= Time.parse(current_review["updatedAt"])
+          return
+        end
+      end
+    end
+
     devlogs = current_review["devlogs"] || []
     total_approved_minutes = calculate_total_approved_minutes(devlogs) || 0
 
@@ -130,7 +143,6 @@ class YswsReviewSyncJob < ApplicationJob
       return
     end
 
-    ship_cert = current_review["shipCert"] || {}
     code_url = ship_cert["repoUrl"]
     ft_project_id = ship_cert["ftProjectId"]
 
@@ -185,7 +197,7 @@ class YswsReviewSyncJob < ApplicationJob
       .includes(:shop_item)
 
     hours_spent = adjusted_hours || (total_approved_minutes / 60.0)
-    if approved_orders.none? && hours_spent < 3
+    if approved_orders.none? && hours_spent < 1
       Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - user #{slack_id} has no manually fulfilled orders"
       return
     end
@@ -238,6 +250,7 @@ class YswsReviewSyncJob < ApplicationJob
     primary_address = user_pii[:addresses]&.first || {}
     devlogs = review["devlogs"] || []
     banner_url = banner_url_for_project_id(ship_cert["ftProjectId"])
+    video_thumbnail_url = video_thumbnail_url_for_proof_video(ship_cert["proofVideoUrl"], ship_cert_id: ship_cert["id"].to_s)
     hours_spent = adjusted_hours || (calculate_total_approved_minutes(devlogs) / 60.0).round(2)
 
     {
@@ -261,7 +274,10 @@ class YswsReviewSyncJob < ApplicationJob
       "Code URL" => ship_cert["repoUrl"],
       "Playable URL" => ship_cert["demoUrl"],
       "project_readme" => ship_cert["readmeUrl"],
-      "Screenshot" => banner_url.present? ? [ { "url" => banner_url } ] : [ { "url" => ship_cert["screenshotUrl"] } ],
+      "Screenshot" => [
+        video_thumbnail_url.present? ? { "url" => video_thumbnail_url } : nil,
+        banner_url.present? ? { "url" => banner_url } : { "url" => ship_cert["screenshotUrl"] }
+      ].compact,
       "proof_video" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
       "Description" => ship_cert["description"],
       "Optional - Override Hours Spent" => hours_spent,
@@ -405,6 +421,90 @@ class YswsReviewSyncJob < ApplicationJob
     nil
   end
 
+  def video_thumbnail_url_for_proof_video(proof_video_url, ship_cert_id: nil)
+    return nil if proof_video_url.blank?
+
+    # Check if existing record already has 2 screenshots in Airtable
+    if ship_cert_id.present?
+      existing_record = fetch_existing_airtable_record(ship_cert_id)
+      screenshots = existing_record && existing_record["Screenshot"]
+
+      if screenshots.present? && screenshots.count >= 2
+        # Reuse the existing video thumbnail URL to avoid oscillating the Screenshot array
+        first_screenshot = screenshots.first
+        existing_thumbnail_url =
+          if first_screenshot.is_a?(Hash)
+            first_screenshot["url"]
+          else
+            first_screenshot
+          end
+
+        if existing_thumbnail_url.present?
+          Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{screenshots.count} screenshots, reusing existing thumbnail #{existing_thumbnail_url.inspect}")
+          return existing_thumbnail_url
+        else
+          Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{screenshots.count} screenshots but no reusable thumbnail URL found")
+          return nil
+        end
+      end
+    end
+
+    host = default_url_host
+    return nil if host.blank?
+
+    Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: downloading #{proof_video_url.inspect}")
+
+    uri = URI(proof_video_url)
+    raise ArgumentError, "Only HTTP(S) URLs are allowed" unless uri.is_a?(URI::HTTP)
+
+    ext = File.extname(uri.path).downcase.presence || ".mp4"
+
+    video_tmp = Tempfile.new([ "proof_video", ext ])
+    video_tmp.binmode
+    uri.open("rb") { |remote| IO.copy_stream(remote, video_tmp) }
+    video_tmp.rewind
+
+    # Get duration via ffprobe so we can seek to 2/5 of the way through (midpoint of 1/5–3/5)
+    duration_str, = Open3.capture2(
+      "ffprobe", "-v", "error",
+      "-show_entries", "format=duration",
+      "-of", "default=noprint_wrappers=1:nokey=1",
+      video_tmp.path
+    )
+    duration = duration_str.strip.to_f
+    seek_time = (duration > 0 ? duration * 0.4 : 1.0).round(3)
+    Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: duration=#{duration}s seek=#{seek_time}s")
+
+    thumbnail_tmp = Tempfile.new([ "video_thumbnail", ".jpg" ])
+
+    system(
+      "ffmpeg", "-ss", seek_time.to_s,
+      "-i", video_tmp.path,
+      "-frames:v", "1",
+      "-q:v", "2",
+      thumbnail_tmp.path, "-y",
+      exception: true
+    )
+
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: File.open(thumbnail_tmp.path),
+      filename: "video_thumbnail.jpg",
+      content_type: "image/jpeg"
+    )
+
+    url = rails_blob_url(blob, host: host)
+    Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: success url=#{url}")
+    url
+  rescue StandardError => e
+    Rails.logger.error("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: #{e.class}: #{e.message}")
+    nil
+  ensure
+    video_tmp&.close
+    video_tmp&.unlink
+    thumbnail_tmp&.close
+    thumbnail_tmp&.unlink
+  end
+
   def default_url_host
     ENV["APP_HOST"]
   end
@@ -448,5 +548,14 @@ class YswsReviewSyncJob < ApplicationJob
     return false if ft_project_id.blank?
 
     Project::Report.where(project_id: ft_project_id, status: [ :pending, :reviewed ]).exists?
+  end
+
+  def fetch_existing_airtable_record(ship_cert_id)
+    return nil if ship_cert_id.blank?
+
+    table.all(filter: "{ship_cert_id} = '#{ship_cert_id}'").first
+  rescue StandardError => e
+    Rails.logger.error("[YswsReviewSyncJob] fetch_existing_airtable_record: #{e.class}: #{e.message}")
+    nil
   end
 end

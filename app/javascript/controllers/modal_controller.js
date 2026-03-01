@@ -9,6 +9,8 @@ export default class extends Controller {
     if (!this.hasTargetValue) {
       this.element.addEventListener("click", this._boundBackdropClick);
     }
+
+    this.openSettingsModalFromQueryParam();
   }
 
   disconnect() {
@@ -25,6 +27,9 @@ export default class extends Controller {
       modal.showModal();
     } else {
       modal.style.display = "flex";
+      requestAnimationFrame(() => {
+        modal.classList.add("lapse-modal--open");
+      });
     }
 
     document.body.style.overflow = "hidden";
@@ -43,14 +48,32 @@ export default class extends Controller {
         if (modal.tagName === "DIALOG") {
           modal.close();
         } else {
-          modal.style.display = "none";
+          modal.classList.remove("lapse-modal--open");
+          modal.classList.add("lapse-modal--closing");
+          modal.addEventListener(
+            "animationend",
+            () => {
+              modal.style.display = "none";
+              modal.classList.remove("lapse-modal--closing");
+            },
+            { once: true },
+          );
         }
       }
       document.body.style.overflow = "";
       return;
     }
 
-    this.element.style.display = "none";
+    this.element.classList.remove("lapse-modal--open");
+    this.element.classList.add("lapse-modal--closing");
+    this.element.addEventListener(
+      "animationend",
+      () => {
+        this.element.style.display = "none";
+        this.element.classList.remove("lapse-modal--closing");
+      },
+      { once: true },
+    );
     document.body.style.overflow = "";
   }
 
@@ -68,5 +91,24 @@ export default class extends Controller {
       event.clientY <= rect.bottom;
 
     if (!clickedInside) this.close();
+  }
+
+  openSettingsModalFromQueryParam() {
+    if (this.element.id !== "settings-modal") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const settingsParam = params.get("settings");
+    if (!["1", "true"].includes(settingsParam)) return;
+
+    if (!this.element.open) {
+      this.element.showModal();
+    }
+
+    params.delete("settings");
+    const query = params.toString();
+    const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${
+      window.location.hash
+    }`;
+    window.history.replaceState(window.history.state, "", nextUrl);
   }
 }

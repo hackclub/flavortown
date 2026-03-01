@@ -2,14 +2,16 @@
 #
 # Table name: sidequest_entries
 #
-#  id             :bigint           not null, primary key
-#  aasm_state     :string           default("pending"), not null
-#  reviewed_at    :datetime
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
-#  project_id     :bigint           not null
-#  reviewed_by_id :bigint
-#  sidequest_id   :bigint           not null
+#  id                       :bigint           not null, primary key
+#  aasm_state               :string           default("pending"), not null
+#  is_rejection_fee_charged :boolean          default(FALSE), not null
+#  rejection_message        :text
+#  reviewed_at              :datetime
+#  created_at               :datetime         not null
+#  updated_at               :datetime         not null
+#  project_id               :bigint           not null
+#  reviewed_by_id           :bigint
+#  sidequest_id             :bigint           not null
 #
 # Indexes
 #
@@ -26,6 +28,9 @@
 #
 class SidequestEntry < ApplicationRecord
   include AASM
+  include Ledgerable
+
+  REJECTION_FEE = 5
 
   has_paper_trail
 
@@ -58,6 +63,7 @@ class SidequestEntry < ApplicationRecord
         self.reviewed_by = reviewer
         self.reviewed_at = Time.current
         save!
+        charge_rejection_fee! if is_rejection_fee_charged?
         run_sidequest_callback(:on_reject)
       end
     end
@@ -68,6 +74,18 @@ class SidequestEntry < ApplicationRecord
   end
 
   private
+
+  def charge_rejection_fee!
+    user = project_owner
+    return unless user
+
+    user.ledger_entries.create!(
+      amount: -REJECTION_FEE,
+      reason: "Sidequest rejection fee: #{sidequest.title}",
+      created_by: "#{reviewed_by.display_name} (#{reviewed_by.id})",
+      ledgerable: self
+    )
+  end
 
   # Each sidequest can define callbacks in Sidequest::Callbacks module
   # e.g., Sidequest::Callbacks::Extension.on_approve(entry)

@@ -22,6 +22,7 @@
 #  created_at                         :datetime         not null
 #  updated_at                         :datetime         not null
 #  assigned_to_user_id                :bigint
+#  fulfillment_payout_line_id         :bigint
 #  parent_order_id                    :bigint
 #  shop_card_grant_id                 :bigint
 #  shop_item_id                       :bigint           not null
@@ -30,22 +31,24 @@
 #
 # Indexes
 #
-#  idx_shop_orders_aasm_state_created_at_desc  (aasm_state,created_at DESC)
-#  idx_shop_orders_item_state_qty              (shop_item_id,aasm_state,quantity)
-#  idx_shop_orders_stock_calc                  (shop_item_id,aasm_state)
-#  idx_shop_orders_user_item_state             (user_id,shop_item_id,aasm_state)
-#  idx_shop_orders_user_item_unique            (user_id,shop_item_id)
-#  index_shop_orders_on_assigned_to_user_id    (assigned_to_user_id)
-#  index_shop_orders_on_parent_order_id        (parent_order_id)
-#  index_shop_orders_on_region                 (region)
-#  index_shop_orders_on_shop_card_grant_id     (shop_card_grant_id)
-#  index_shop_orders_on_shop_item_id           (shop_item_id)
-#  index_shop_orders_on_user_id                (user_id)
-#  index_shop_orders_on_warehouse_package_id   (warehouse_package_id)
+#  idx_shop_orders_aasm_state_created_at_desc       (aasm_state,created_at DESC)
+#  idx_shop_orders_item_state_qty                   (shop_item_id,aasm_state,quantity)
+#  idx_shop_orders_stock_calc                       (shop_item_id,aasm_state)
+#  idx_shop_orders_user_item_state                  (user_id,shop_item_id,aasm_state)
+#  idx_shop_orders_user_item_unique                 (user_id,shop_item_id)
+#  index_shop_orders_on_assigned_to_user_id         (assigned_to_user_id)
+#  index_shop_orders_on_fulfillment_payout_line_id  (fulfillment_payout_line_id)
+#  index_shop_orders_on_parent_order_id             (parent_order_id)
+#  index_shop_orders_on_region                      (region)
+#  index_shop_orders_on_shop_card_grant_id          (shop_card_grant_id)
+#  index_shop_orders_on_shop_item_id                (shop_item_id)
+#  index_shop_orders_on_user_id                     (user_id)
+#  index_shop_orders_on_warehouse_package_id        (warehouse_package_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (assigned_to_user_id => users.id) ON DELETE => nullify
+#  fk_rails_...  (fulfillment_payout_line_id => fulfillment_payout_lines.id)
 #  fk_rails_...  (parent_order_id => shop_orders.id)
 #  fk_rails_...  (shop_item_id => shop_items.id)
 #  fk_rails_...  (user_id => users.id)
@@ -64,6 +67,7 @@ class ShopOrder < ApplicationRecord
   has_many :accessory_orders, class_name: "ShopOrder", foreign_key: :parent_order_id, dependent: :destroy
   belongs_to :warehouse_package, class_name: "ShopWarehousePackage", optional: true
   belongs_to :assigned_to_user, class_name: "User", optional: true
+  belongs_to :fulfillment_payout_line, optional: true
 
   # has_many :payouts, as: :payable, dependent: :destroy
 
@@ -318,6 +322,11 @@ class ShopOrder < ApplicationRecord
 
     address_country = frozen_address["country"]
     return unless address_country.present?
+
+    if shop_item.blocked_countries&.include?(address_country.upcase)
+      errors.add(:base, "This item cannot be shipped to that country due to logistical constraints.")
+      return
+    end
 
     address_region = Shop::Regionalizable.country_to_region(address_country)
 

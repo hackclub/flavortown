@@ -77,6 +77,54 @@ module Admin
         top_reviewers: all_time_performers(order_states),
         avg_response_hours: avg_response("shop_orders", "ShopOrder", "aasm_state", %w[awaiting_periodical_fulfillment rejected fulfilled])
       }
+
+      # Fetch Joe fraud case stats with timeline
+      @joe_fraud_stats = fetch_joe_fraud_stats
+
+      # Build trend data for charts
+      @fraud_shop_order_trend_data = build_shop_order_trend_data
+      @fraud_report_trend_data = build_report_trend_data
+      @fraud_report_status_trend_data = build_report_status_trend_data
+    end
+
+    private
+
+    def fetch_joe_fraud_stats
+      Rails.cache.fetch("joe_fraud_stats", expires_in: 5.minutes) do
+        api_key = ENV["NEONS_JOE_COOKIES"]
+        unless api_key.present?
+          return { error: "NEONS_JOE_COOKIES not configured" }
+        end
+
+        conn = Faraday.new do |f|
+          f.options.timeout = 10
+          f.options.open_timeout = 5
+        end
+
+        response = conn.get("https://joe.fraud.hackclub.com/api/v1/cases/stats?ysws=flavortown") do |req|
+          req.headers["Cookie"] = api_key
+        end
+
+        unless response.success?
+          return { error: "API returned #{response.status}" }
+        end
+
+        data = JSON.parse(response.body, symbolize_names: true)
+
+        {
+          total: data[:total],
+          open: data[:open],
+          closed: data[:closed],
+          second_chances_given: data.dig(:byStatus, :second_chance_given) || 0,
+          fraudpheus_open: data.dig(:byStatus, :fraudpheus_open) || 0,
+          timeline: data[:timeline] || [],
+          cases_opened: data[:casesOpened] || []
+        }
+      end
+    rescue Faraday::Error
+      { error: "Couldn't reach the API" }
+    rescue JSON::ParserError
+      { error: "Got a weird response" }
     end
 
     private
@@ -196,6 +244,58 @@ module Admin
         ) v ON true
       SQL
       ActiveRecord::Base.connection.select_one(sql)&.dig("avg_hours")&.to_f&.round(1)
-    end
+      end
+
+      def build_shop_order_trend_data
+      trend_data = {}
+      # Get data for last 60 days
+      (0..59).reverse_each do |days_ago|
+        date = days_ago.days.ago.to_date
+        day_range = date.beginning_of_day..date.end_of_day
+
+        # Count shop orders by state on this day
+        states = %w[pending awaiting_periodical_fulfillment fulfilled rejected on_hold]
+        state_counts = ShopOrder.where(updated_at: day_range)
+                                .where(aasm_state: states)
+                                .group(:aasm_state).count
+
+        trend_data[date.to_s] = state_counts.transform_keys(&:to_s)
+      end
+      trend_data
+      end
+
+      def build_report_trend_data
+      trend_data = {}
+      # Get data for last 60 days
+      (0..59).reverse_each do |days_ago|
+        date = days_ago.days.ago.to_date
+        day_range = date.beginning_of_day..date.end_of_day
+
+        # Count fraud reports by reason on this day
+        reason_counts = Project::Report.where(updated_at: day_range)
+                                       .group(:reason).count
+
+        trend_data[date.to_s] = reason_counts
+      end
+      trend_data
+      end
+
+      def build_report_status_trend_data
+      trend_data = {}
+      # Get data for last 60 days
+      (0..59).reverse_each do |days_ago|
+        date = days_ago.days.ago.to_date
+        day_range = date.beginning_of_day..date.end_of_day
+
+        # Count fraud reports by status on this day
+        status_counts = Project::Report.where(updated_at: day_range)
+                                       .group(:status).count
+
+        # Convert integer statuses to string names
+        status_map = { 0 => "pending", 1 => "reviewed", 2 => "dismissed" }
+        trend_data[date.to_s] = status_counts.transform_keys { |k| status_map[k] || k.to_s }
+      end
+      trend_data
+      end
   end
 end

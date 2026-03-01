@@ -2,7 +2,7 @@ module Admin
   class ShopItemsController < Admin::ApplicationController
     before_action :set_shop_item, only: [ :show, :edit, :update, :destroy ]
     before_action :set_shop_item_types, only: [ :new, :edit ]
-    before_action :set_fulfillment_users, only: [ :new, :edit ]
+    before_action :set_fulfillment_users, only: [ :new, :edit, :create, :update ]
 
     def show
       authorize :admin, :manage_shop?
@@ -39,6 +39,21 @@ module Admin
         if @shop_item.saved_change_to_ticket_cost?
           @shop_item.old_prices << @shop_item.ticket_cost_before_last_save
           @shop_item.save
+        end
+
+        if @shop_item.saved_change_to_blocked_countries?
+          PaperTrail::Version.create!(
+            item_type: "ShopItem",
+            item_id: @shop_item.id,
+            event: "blocked_countries_changed",
+            whodunnit: current_user.id,
+            object_changes: {
+              blocked_countries: [
+                @shop_item.blocked_countries_before_last_save,
+                @shop_item.blocked_countries
+              ]
+            }.to_yaml
+          )
         end
 
         redirect_to admin_shop_item_path(@shop_item), notice: "Shop item updated successfully."
@@ -152,7 +167,8 @@ module Admin
         :unlisted,
         :source_region,
         :requires_verification_call,
-        attached_shop_item_ids: []
+        attached_shop_item_ids: [],
+        blocked_countries: []
       )
     end
   end

@@ -1,0 +1,50 @@
+<%= render HeadingComponent.new(title: "Angry Chihuahua Dashboard", tone: :red, size: :full) %>
+
+<h1 align="center">Show & Tells</h1>
+
+<%= form_with url: admin_special_activities_path, method: :post, local: true, html: { multipart: true } do %>
+  <div>
+    <label for="csv_file">CSV File</label>
+    <%= file_field_tag :csv_file, accept: ".csv", class: "input-primary" %>
+  </div>
+  <div>
+    <label for="date">Date</label>
+    <%= date_field_tag :date, params[:date], class: "input-primary", autocomplete: "off" %>
+  </div>
+  <%= submit_tag "Upload", class: "btn-primary" %>
+<% end %>
+
+<% if @dates.present? %>
+  <div style="margin: 1em 0;">
+    <strong>Show & Tell Dates:</strong>
+    <% @dates.each do |d| %>
+      <%= link_to d, admin_special_activities_path(date: d), class: ("btn-secondary" + (d.to_s == @date.to_s ? " active" : "")) %>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @attendances.present? %>
+  <div class="card" style="margin-top: 2em;">
+    <h2>Attendance for <%= @date || "All Dates" %></h2>
+    <table class="table-data">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>User</th>
+          <th>Admin Profile</th>
+          <th>Public Profile</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @attendances.each do |attendance| %>
+          <tr>
+            <td><%= attendance.date %></td>
+            <td><%= attendance.user&.display_name || "Unknown" %></td>
+            <td><%= link_to "View", admin_user_path(attendance.user), class: "btn-primary slim" %></td>
+            <td><%= link_to "View", user_path(attendance.user), class: "btn-secondary slim" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

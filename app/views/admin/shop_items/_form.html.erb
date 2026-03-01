@@ -266,6 +266,18 @@
           </div>
         </div>
 
+        <div class="card">
+          <h3>Country Blacklist</h3>
+          <div class="shop-item-form__field">
+            <%= f.label :blocked_countries, "Blocked Countries", class: "shop-item-form__label" %>
+            <%= f.select :blocked_countries,
+                ISO3166::Country.all.sort_by { |c| c.common_name.presence || c.iso_short_name }.map { |c| [c.common_name.presence || c.iso_short_name, c.alpha2] },
+                { include_hidden: false },
+                { multiple: true, class: "form-control", size: 8 } %>
+            <span class="shop-item-form__hint">Select countries to block. Addresses with these countries will be blocked, even if the item is enabled for their region. This trumps all other regional restrictions.</span>
+          </div>
+        </div>
+
         <div class="card" id="accessory_settings" style="display: none;">
           <h3>Accessory Settings</h3>
           <label class="shop-item-form__checkbox">

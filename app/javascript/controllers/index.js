@@ -61,6 +61,9 @@ application.register("markdown-preview", MarkdownPreviewController);
 import ModalController from "./modal_controller";
 application.register("modal", ModalController);
 
+import LapseModalController from "./lapse_modal_controller";
+application.register("lapse-modal", LapseModalController);
+
 import MusicPlayerController from "./music_player_controller";
 application.register("music-player", MusicPlayerController);
 
@@ -115,6 +118,9 @@ application.register("sidequest-expand", SidequestExpandController);
 import ShootingStarController from "./shooting_star_controller";
 application.register("shooting-star", ShootingStarController);
 
+import VoteCategoryController from "./vote_category_controller";
+application.register("vote-category", VoteCategoryController);
+
 import VoteTrackerController from "./vote_tracker_controller";
 application.register("vote-tracker", VoteTrackerController);
 
@@ -124,11 +130,11 @@ application.register("welcome-overlay", WelcomeOverlayController);
 import ResponsiveImageMapController from "./responsive_image_map_controller";
 application.register("responsive-image-map", ResponsiveImageMapController);
 
-import FlagshipModalController from "./flagship_modal_controller";
-application.register("flagship-modal", FlagshipModalController);
-
 import TutorialVideoModalController from "./tutorial_video_modal_controller";
 application.register("tutorial-video-modal", TutorialVideoModalController);
+
+import TutorialStepsExpandController from "./tutorial_steps_expand_controller";
+application.register("tutorial-steps-expand", TutorialStepsExpandController);
 
 import StatsHoverController from "./stats_hover_controller";
 application.register("stats-hover", StatsHoverController);
@@ -139,5 +145,17 @@ application.register("tooltip", TooltipController);
 import ReadmeImageController from "./readme_image_controller";
 application.register("readme-image", ReadmeImageController);
 
+import RadioOptionController from "./radio_option_controller";
+application.register("radio-option", RadioOptionController);
+
+import DevlogAttachmentSelectorController from "./devlog_attachment_selector_controller";
+application.register(
+  "devlog-attachment-selector",
+  DevlogAttachmentSelectorController,
+);
+
 import XpWindowController from "./xp_window_controller";
 application.register("xp-window", XpWindowController);
+
+import LazyLoadController from "./lazy_load_controller";
+application.register("lazy-load", LazyLoadController);

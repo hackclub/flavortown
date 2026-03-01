@@ -35,14 +35,14 @@
 class Vote < ApplicationRecord
   CATEGORIES = {
     originality: "How distinct it is from common projects?",
-    technical: "How much effort did the baker put into the implementation?",
+    technicality: "How much effort did the baker put into the implementation?",
     usability: "Did you like using it? Could you use it at all?",
     storytelling: "How well does the baker document the development journey through devlogs, documentation, and READMEs?"
   }.freeze
 
   SCORE_COLUMNS_BY_CATEGORY = {
     originality: :originality_score,
-    technical: :technical_score,
+    technicality: :technical_score,
     usability: :usability_score,
     storytelling: :storytelling_score
   }.freeze
@@ -66,6 +66,7 @@ class Vote < ApplicationRecord
   after_commit :trigger_payout_calculation, on: [ :create, :destroy ]
   after_commit :increment_user_vote_balance, on: :create
   after_commit :detect_vote_spam, on: :create
+  after_commit :broadcast_vote_to_channel, on: :create
 
   validates(*score_columns, inclusion: { in: 1..6, message: "must be between 1 and 6" }, allow_nil: true)
   validate :all_categories_scored
@@ -119,5 +120,9 @@ class Vote < ApplicationRecord
 
   def detect_vote_spam
     Secrets::VoteSpamDetector.new(user).call
+  end
+
+  def broadcast_vote_to_channel
+    BroadcastVoteToChannelJob.perform_later(self)
   end
 end

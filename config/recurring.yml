@@ -120,6 +120,18 @@ production:
 
   ysws_review_sync:
     class: YswsReviewSyncJob
-    schedule: every 15 minutes
+    schedule: every 4 hours
     concurrency: 1
     description: "Sync completed YSWS reviews to Airtable with user PII"
+
+  shop_calculate_fulfillment_payouts:
+    class: Shop::CalculateFulfillmentPayoutsJob
+    schedule: every Friday at 12pm Europe/London
+    concurrency: 1
+    description: "Calculate weekly fulfillment payouts (3 tickets per fulfilled order)"
+
+  ysws_check_duplicates:
+    class: YswsReview::CheckDuplicatesJob
+    schedule: every day
+    concurrency: 1
+    description: "Check YSWS submissions for duplicates in unified database"

@@ -57,7 +57,7 @@
           <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
           <div class="shop-item-card__prices">
             <% if on_sale && original_price %>
-              <span class="shop-item-card__original-price"><%= number_to_currency(original_price, precision: 0).gsub('$', '🍪') %></span>
+              <span class="shop-item-card__original-price">🍪<span class="shop-item-card__strikethrough"><%= number_to_currency(original_price, precision: 0).delete('$') %></span></span>
             <% end %>
             <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
           </div>
@@ -83,7 +83,7 @@
           <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
           <div class="shop-item-card__prices">
             <% if on_sale && original_price %>
-              <span class="shop-item-card__original-price"><%= number_to_currency(original_price, precision: 0).gsub('$', '🍪') %></span>
+              <span class="shop-item-card__original-price">🍪<span class="shop-item-card__strikethrough"><%= number_to_currency(original_price, precision: 0).delete('$') %></span></span>
             <% end %>
             <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
           </div>
