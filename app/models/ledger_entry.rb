@@ -78,6 +78,7 @@ class LedgerEntry < ApplicationRecord
     when "User::Achievement" then "achievement: #{ledgerable.achievement.name}"
     when "FulfillmentPayoutLine" then "fulfillment payout"
     when "SidequestEntry" then "sidequest rejection fee"
+    when "ShowAndTellAttendance" then "show and tell payout"
     else ledgerable_type.underscore.humanize.downcase
     end
     change_emoji = amount.positive? ? "📈" : "📉"

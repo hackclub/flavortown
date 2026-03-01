@@ -476,7 +476,7 @@
           </div>
 
           <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
-            <h3>Trend Graph</h3>
+            <h3>Unresolved Tickets v/s Hang Time</h3>
             <% if @support_graph_data %>
               <div class="support-graph">
                 <canvas id="supportGraphChart" height="300"></canvas>
@@ -504,8 +504,8 @@
                         {
                           label: 'Unresolved Tickets',
                           data: unresolved,
-                          borderColor: '#6366f1',
-                          backgroundColor: 'rgba(99,102,241,0.1)',
+                          borderColor: '#f1802d',
+                          backgroundColor: 'rgba(241, 128, 45, 0.1)',
                           fill: false,
                           tension: 0.3,
                           pointRadius: 4
@@ -513,8 +513,8 @@
                         {
                           label: 'Hang Time (min)',
                           data: hangTime,
-                          borderColor: '#f59e0b',
-                          backgroundColor: 'rgba(245,158,11,0.1)',
+                          borderColor: '#6366f1',
+                          backgroundColor: 'rgba(99,102,241,0.1)',
                           fill: false,
                           tension: 0.3,
                           pointRadius: 4
@@ -957,6 +957,69 @@
             <% end %>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="super-mega-dashboard__dashboard">
+      <div class="super-mega-dashboard__header super-mega-dashboard__header--community">
+        <h2>Community Engagement</h2>
+        <%= link_to "View Special Activities →", admin_special_activities_path, class: "super-mega-link" %>
+      </div>
+      <div class="super-mega-dashboard__cards">
+        <div class="super-mega-dashboard__card">
+          <h3 align="center">Show & Tell Attendance</h3>
+          <div id="show-and-tell-attendance-graph" style="height: 220px;">
+            <canvas id="showAndTellAttendanceChart" height="180"></canvas>
+          </div>
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const ctx = document.getElementById('showAndTellAttendanceChart');
+              if (!ctx) return;
+              const data = <%= raw @show_and_tell_stats[:attendance_by_date].to_json %>;
+              const dates = Object.keys(data).sort();
+              const counts = dates.map(d => data[d]);
+              new Chart(ctx, {
+                type: 'line',
+                data: {
+                  labels: dates.map(d => {
+                    const date = new Date(d);
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+                  }),
+                  datasets: [{
+                    label: 'Attendance',
+                    data: counts,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    borderWidth: 2
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { display: false }
+                  },
+                  scales: {
+                    y: { beginAtZero: true }
+                  }
+                }
+              });
+            });
+          </script>
+        </div>
+        <% if @show_and_tell_stats[:last_winner] %>
+          <div class="super-mega-dashboard__card" style="text-align: center; display: flex; flex-direction: column; justify-content: center; gap: 0.2em;">
+            <h3>Last Winner:</h3>
+            <% winner = @show_and_tell_stats[:last_winner] %>
+            <%= link_to winner.project.title, project_path(winner.project), class: "show-and-tell-winner-link" %>
+            <span>by <%= link_to winner.user.display_name, admin_user_path(winner.user), style: "color: #1e40af; text-decoration: none; font-size: 1.5rem" %></span>
+            (<%= winner.date %>)
+          </div>
+        <% end %>
       </div>
     </div>
   </div>

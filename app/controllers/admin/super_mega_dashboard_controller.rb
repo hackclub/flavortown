@@ -13,6 +13,7 @@ module Admin
       load_support_graph_data
       load_voting_stats
       load_ysws_review_stats
+      load_community_engagement_stats
     end
 
     def load_section
@@ -619,6 +620,20 @@ module Admin
       @ysws_review_stats = cached_data&.dig(:stats) || { error: "Unable to load YSWS data" }
       @ysws_review_ecdf_data = cached_data&.dig(:ecdf_data)
       @ysws_reviewer_trend_data = cached_data&.dig(:reviewer_trend_data)
+    end
+
+    def load_community_engagement_stats
+      attendance_data = ShowAndTellAttendance.group(:date).count
+      last_winner_attendance = ShowAndTellAttendance
+        .where(winner: true)
+        .order(date: :desc, updated_at: :desc)
+        .includes(:project, :user)
+        .first
+
+      @show_and_tell_stats = {
+        attendance_by_date: attendance_data,
+        last_winner: last_winner_attendance
+      }
     end
 
     def extract_reviews(response_data)
