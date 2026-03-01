@@ -22,6 +22,7 @@
 #  enabled_eu                        :boolean
 #  enabled_in                        :boolean
 #  enabled_uk                        :boolean
+#  enabled_until                     :datetime
 #  enabled_us                        :boolean
 #  enabled_xx                        :boolean
 #  hacker_score                      :integer
@@ -107,7 +108,7 @@ class ShopItem < ApplicationRecord
 
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
-  scope :enabled, -> { where(enabled: true) }
+  scope :enabled, -> { where(enabled: true).where("shop_items.enabled_until IS NULL OR shop_items.enabled_until > ?", Time.current) }
   scope :listed, -> { where(unlisted: [ nil, false ]) }
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
   scope :recently_added, -> { where(created_at: 2.weeks.ago..).order(created_at: :desc) }
@@ -216,8 +217,12 @@ class ShopItem < ApplicationRecord
 
   def new_item? = created_at.present? && created_at > 7.days.ago
 
+  def expired?
+    enabled_until.present? && enabled_until <= Time.current
+  end
+
   def available_accessories
-    ShopItem::Accessory.where("? = ANY(attached_shop_item_ids)", id).where(enabled: true)
+    ShopItem::Accessory.where("? = ANY(attached_shop_item_ids)", id).enabled
   end
 
   def has_accessories?

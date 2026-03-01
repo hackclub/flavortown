@@ -149,6 +149,12 @@
             <span class="shop-item-form__hint">Number of items available for purchase</span>
           </div>
 
+          <div class="shop-item-form__field shop-item-form__enabled-until">
+            <%= f.label :enabled_until, "Enabled Until", class: "shop-item-form__label" %>
+            <%= f.datetime_local_field :enabled_until, class: "form-control" %>
+            <span class="shop-item-form__hint">If set, the item will auto-disable after this date. Leave blank to keep enabled indefinitely.</span>
+          </div>
+
           <div class="shop-item-form__field">
             <%= f.label :max_qty, "Max Per Order", class: "shop-item-form__label" %>
             <%= f.number_field :max_qty, min: 1, class: "form-control", placeholder: "Unlimited" %>
@@ -705,6 +711,10 @@
         background: var(--color-tan-400);
         font-size: 0.875rem;
         color: inherit;
+    }
+
+    .shop-item-form__enabled-until .form-control {
+        color: #1a1a1a;
     }
 
     .form-control:focus {

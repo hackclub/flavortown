@@ -53,6 +53,9 @@
       <div class="shop-item-card__content">
         <h4 class="shop-item-card__title"><%= name %></h4>
         <div class="shop-item-card__description"><%= md(description) %></div>
+        <% if enabled_until.present? %>
+          <div class="shop-item-card__enabled-until">Enabled until <%= enabled_until.strftime("%b %d, %Y") %></div>
+        <% end %>
         <div class="shop-item-card__details">
           <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
           <div class="shop-item-card__prices">
@@ -79,6 +82,9 @@
       <div class="shop-item-card__content">
         <h4 class="shop-item-card__title"><%= name %></h4>
         <div class="shop-item-card__description"><%= md(description) %></div>
+        <% if enabled_until.present? %>
+          <div class="shop-item-card__enabled-until">Enabled until <%= enabled_until.strftime("%b %d, %Y") %></div>
+        <% end %>
         <div class="shop-item-card__details">
           <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
           <div class="shop-item-card__prices">

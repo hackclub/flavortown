@@ -157,7 +157,8 @@
               sale_percentage: item.sale_percentage,
               original_price: item.ticket_cost,
               purchase_count: item.display_purchase_count,
-              is_new: item.new_item?
+              is_new: item.new_item?,
+              enabled_until: item.enabled_until
             ) %>
           <% end %>
         <% end %>

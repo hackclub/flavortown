@@ -5,7 +5,13 @@
       <h1><%= @shop_item.name %></h1>
       <div class="shop-item-detail__badges">
         <% if @shop_item.enabled %>
-          <span class="badge badge-enabled">Enabled</span>
+          <% if @shop_item.expired? %>
+            <span class="badge badge-disabled">Expired</span>
+          <% elsif @shop_item.enabled_until.present? %>
+            <span class="badge badge-enabled">Enabled until <%= @shop_item.enabled_until.strftime("%b %d, %Y %H:%M") %></span>
+          <% else %>
+            <span class="badge badge-enabled">Enabled</span>
+          <% end %>
         <% else %>
           <span class="badge badge-disabled">Disabled</span>
         <% end %>
