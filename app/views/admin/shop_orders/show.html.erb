@@ -50,10 +50,20 @@
     </div>
 
     <div>
-      <span style="font-size: 0.75rem; color: #6b7280; display: block;">Qty / Cost</span>
+      <span style="font-size: 0.75rem; color: #6b7280; display: block;">Quantity</span>
+      <span style="font-size: 1.25rem; font-weight: 700;<%= ' color: #dc2626;' if @order.quantity > 1 %>">
+        ×<%= @order.quantity %>
+      </span>
+      <% if @order.quantity > 1 %>
+        <span class="badge" style="background: #fef2f2; color: #dc2626; font-size: 0.65rem; margin-left: 0.25rem;">MORE THAN ONE</span>
+      <% end %>
+    </div>
+
+    <div>
+      <span style="font-size: 0.75rem; color: #6b7280; display: block;">Cost</span>
       <span style="font-size: 0.875rem;">
         <%= @order.quantity %> × <%= @order.frozen_item_price %> tickets
-        <strong style="color: #15803d;">(<%= @order.total_cost %> total)</strong>
+        = <strong style="color: #15803d;"><%= @order.total_cost %> total</strong>
       </span>
     </div>
   </div>
