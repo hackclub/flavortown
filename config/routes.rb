@@ -295,6 +295,7 @@ Rails.application.routes.draw do
         post :dismiss
       end
     end
+    resources :time_loss, only: [ :index ], controller: "time_loss"
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
     get "voting_dashboard", to: "voting_dashboard#index"
