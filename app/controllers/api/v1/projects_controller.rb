@@ -6,7 +6,7 @@ class Api::V1::ProjectsController < Api::BaseController
     show: "Fetch a specific project by ID. Ratelimit: 30 reqs/min",
     create: "Create a new project.",
     update: "Update an existing project.",
-    random: "Fetch random projects. Ratelimit: 10 reqs/min"
+    random: "Fetch random projects."
   }
 
   class_attribute :url_params_model, default: {
