@@ -22,6 +22,7 @@ module Admin
       end
 
       @item_types = ShopItem.distinct.pluck(:type).compact.sort
+      @pagy, @shop_items = pagy(@shop_items)
     end
 
     def clear_carousel_cache
