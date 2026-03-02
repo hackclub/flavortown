@@ -175,6 +175,14 @@
         <small class="settings-form__hint">Enable/Disable visual effects during special events</small>
       </div>
 
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
+          <%= check_box_tag :search_engine_opt_in, "1", current_user.search_engine_opt_in, id: "search_engine_opt_in" %>
+          <span>Opt in to indexing</span>
+        </label>
+        <small class="settings-form__hint">If unchecked, your profile will be hidden from Google and other search engines.</small>
+      </div>
+
       <div class="modal__actions">
         <%= f.submit "Save", class: "modal__actions-close" %>
         <button type="button" class="modal__actions-close" onclick="document.getElementById('settings-form').reset(); document.getElementById('settings-modal').close()">Cancel</button>

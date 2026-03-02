@@ -273,23 +273,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_021101) do
     t.index ["user_id"], name: "index_funnel_events_on_user_id"
   end
 
-  create_table "hackatime_time_loss_audits", force: :cascade do |t|
-    t.datetime "audited_at", null: false
-    t.datetime "created_at", null: false
-    t.integer "devlog_total_seconds", default: 0, null: false
-    t.integer "difference_seconds", default: 0, null: false
-    t.text "hackatime_keys", default: "", null: false
-    t.integer "per_project_sum_seconds", default: 0, null: false
-    t.bigint "project_id", null: false
-    t.integer "ungrouped_total_seconds", default: 0, null: false
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["audited_at"], name: "index_hackatime_time_loss_audits_on_audited_at"
-    t.index ["difference_seconds"], name: "index_hackatime_time_loss_audits_on_difference_seconds"
-    t.index ["project_id"], name: "index_hackatime_time_loss_audits_on_project_id"
-    t.index ["user_id"], name: "index_hackatime_time_loss_audits_on_user_id"
-  end
-
   create_table "hcb_credentials", force: :cascade do |t|
     t.text "access_token_ciphertext"
     t.string "base_url"
@@ -769,6 +752,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_021101) do
     t.integer "projects_count"
     t.string "ref"
     t.string "regions", default: [], array: true
+    t.boolean "search_engine_opt_in", default: false, null: false
     t.boolean "send_notifications_for_followed_devlogs", default: true, null: false
     t.boolean "send_notifications_for_new_comments", default: true, null: false
     t.boolean "send_notifications_for_new_followers", default: true, null: false
@@ -846,8 +830,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_021101) do
   add_foreign_key "fulfillment_payout_lines", "fulfillment_payout_runs"
   add_foreign_key "fulfillment_payout_lines", "users"
   add_foreign_key "fulfillment_payout_runs", "users", column: "approved_by_user_id"
-  add_foreign_key "hackatime_time_loss_audits", "projects"
-  add_foreign_key "hackatime_time_loss_audits", "users"
   add_foreign_key "ledger_entries", "users"
   add_foreign_key "likes", "users"
   add_foreign_key "posts", "projects"
