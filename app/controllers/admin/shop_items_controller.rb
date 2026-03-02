@@ -167,6 +167,7 @@ module Admin
         :unlisted,
         :enabled_until,
         :source_region,
+        :requires_verification_call,
         attached_shop_item_ids: [],
         blocked_countries: []
       )

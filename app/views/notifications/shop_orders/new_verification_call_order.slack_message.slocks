@@ -1,0 +1,17 @@
+header "📞 New Verification Call Order ##{order.id}"
+
+section "*#{order.user.display_name}* ordered *#{order.shop_item.name}* (×#{order.quantity}) and it requires a verification call.", markdown: true
+
+section "Details:",
+  fields: [
+    mrkdwn_text("*Order ID:* #{order.id}"),
+    mrkdwn_text("*User:* #{order.user.display_name}"),
+    mrkdwn_text("*Item:* #{order.shop_item.name}"),
+    mrkdwn_text("*Total:* 🍪 #{order.total_cost}"),
+  ]
+
+divider
+
+context [
+  mrkdwn_text("<https://flavortown.hackclub.com/admin/shop_orders/#{order.id}|View in Admin>")
+]

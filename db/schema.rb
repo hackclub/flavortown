@@ -558,6 +558,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_214919) do
     t.date "required_ships_start_date"
     t.string "requires_achievement"
     t.boolean "requires_ship", default: false
+    t.boolean "requires_verification_call", default: false, null: false
     t.integer "sale_percentage"
     t.boolean "show_in_carousel"
     t.integer "site_action"
