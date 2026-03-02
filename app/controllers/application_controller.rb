@@ -212,13 +212,8 @@ class ApplicationController < ActionController::Base
     return if identity_payload.blank?
 
     latest_status = identity_payload["verification_status"].to_s
-    return unless User.verification_statuses.key?(latest_status)
-
     current_user.complete_tutorial_step!(:identity_verified) if %w[pending verified].include?(latest_status)
-    current_user.update!(
-      verification_status: latest_status,
-      ysws_eligible: identity_payload["ysws_eligible"] == true
-    )
+    current_user.apply_hca_verification_payload!(identity_payload)
   rescue StandardError => e
     Rails.logger.warn("Portal return identity refresh failed: #{e.class}: #{e.message}")
   end
