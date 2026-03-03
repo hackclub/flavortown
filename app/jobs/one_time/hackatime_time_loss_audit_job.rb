@@ -1,5 +1,5 @@
 class OneTime::HackatimeTimeLossAuditJob < ApplicationJob
-  queue_as :default
+  queue_as :literally_whenever
 
   THROTTLE_DELAY = 0.25 # seconds between API calls to avoid overwhelming Hackatime
 
