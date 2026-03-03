@@ -1,5 +1,6 @@
 class KitchenController < ApplicationController
   prepend_before_action :load_current_user_with_identities
+  before_action :require_login
 
   def index
     authorize :kitchen, :index?
@@ -42,6 +43,10 @@ class KitchenController < ApplicationController
   end
 
   private
+
+  def require_login
+    redirect_to root_path, alert: "Please log in first" and return unless current_user
+  end
 
   def load_current_user_with_identities
     current_user(:identities)

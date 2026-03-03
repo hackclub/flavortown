@@ -38,8 +38,12 @@
     <p class="stat-value"><%= number_with_delimiter(@total_sessions) %></p>
   </div>
   <div class="card">
-    <h3>Total Hours Logged</h3>
-    <p class="stat-value"><%= number_with_delimiter(@total_hours_logged) %></p>
+    <h3>Total Hackatime Hours Co-recorded</h3>
+    <p class="stat-value"><%= number_with_delimiter(@total_hackatime_corecorded_hours) %></p>
+  </div>
+  <div class="card">
+    <h3>Total Discord Status Hours</h3>
+    <p class="stat-value"><%= number_with_delimiter(@total_status_hours) %></p>
   </div>
 </div>
 
@@ -52,6 +56,10 @@
     <h3>Timed Out Sessions</h3>
     <p class="stat-value"><%= number_with_delimiter(@timed_out_sessions) %></p>
   </div>
+  <div class="card">
+    <h3>Updated Sessions</h3>
+    <p class="stat-value"><%= number_with_delimiter(@updated_sessions) %></p>
+  </div>
 </div>
 
 <div class="dashboard-stats">
@@ -60,8 +68,12 @@
     <%= line_chart @sessions_over_time, height: "280px", xtitle: "Time", ytitle: "Sessions" %>
   </div>
   <div class="card">
-    <h3>Hours Over Time</h3>
-    <%= line_chart @hours_over_time, height: "280px", xtitle: "Time", ytitle: "Hours" %>
+    <h3>Hackatime Hours Co-recorded Over Time</h3>
+    <%= line_chart @hackatime_corecorded_hours_over_time, height: "280px", xtitle: "Time", ytitle: "Hours" %>
+  </div>
+  <div class="card">
+    <h3>Discord Status Hours Over Time</h3>
+    <%= line_chart @status_hours_over_time, height: "280px", xtitle: "Time", ytitle: "Hours" %>
   </div>
 </div>
 
@@ -118,7 +130,7 @@
           <th>Session ID</th>
           <th>Platform</th>
           <th>App Version</th>
-          <th>Shared Seconds</th>
+          <th>Hackatime Co-recorded Seconds</th>
           <th>User</th>
         </tr>
       </thead>

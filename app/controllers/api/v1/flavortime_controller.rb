@@ -34,7 +34,8 @@ class Api::V1::FlavortimeController < Api::BaseController
     session.record_heartbeat!(
       heartbeat_params[:sharing_active_seconds_total],
       platform: session_metadata_params[:platform],
-      app_version: session_metadata_params[:app_version]
+      app_version: session_metadata_params[:app_version],
+      discord_status_seconds_total: heartbeat_params[:discord_status_seconds_total]
     )
 
     render json: {
@@ -59,7 +60,8 @@ class Api::V1::FlavortimeController < Api::BaseController
     session.close!(
       close_params[:sharing_active_seconds_total],
       platform: session_metadata_params[:platform],
-      app_version: session_metadata_params[:app_version]
+      app_version: session_metadata_params[:app_version],
+      discord_status_seconds_total: close_params[:discord_status_seconds_total]
     )
 
     render json: {
@@ -76,11 +78,11 @@ class Api::V1::FlavortimeController < Api::BaseController
   private
 
   def heartbeat_params
-    params.permit(:session_id, :sessionId, :sharing_active_seconds_total)
+    params.permit(:session_id, :sessionId, :sharing_active_seconds_total, :discord_status_seconds_total)
   end
 
   def close_params
-    params.permit(:session_id, :sessionId, :sharing_active_seconds_total)
+    params.permit(:session_id, :sessionId, :sharing_active_seconds_total, :discord_status_seconds_total)
   end
 
   def session_metadata_params
