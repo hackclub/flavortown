@@ -141,12 +141,26 @@
                 <span class="shop-item-form__toggle-desc">Enable inventory tracking for this item</span>
               </span>
             </label>
+
+            <label class="shop-item-form__toggle">
+              <%= f.check_box :requires_verification_call %>
+              <span class="shop-item-form__toggle-content">
+                <strong>Requires Call</strong>
+                <span class="shop-item-form__toggle-desc">Orders require a verification call before fulfillment</span>
+              </span>
+            </label>
           </div>
 
           <div class="shop-item-form__field" id="stock_field_container">
             <%= f.label :stock, "Stock Quantity", class: "shop-item-form__label" %>
             <%= f.number_field :stock, min: 0, class: "form-control", id: "shop_item_stock" %>
             <span class="shop-item-form__hint">Number of items available for purchase</span>
+          </div>
+
+          <div class="shop-item-form__field shop-item-form__enabled-until">
+            <%= f.label :enabled_until, "Enabled Until", class: "shop-item-form__label" %>
+            <%= f.datetime_local_field :enabled_until, class: "form-control" %>
+            <span class="shop-item-form__hint">If set, the item will auto-disable after this date. Leave blank to keep enabled indefinitely.</span>
           </div>
 
           <div class="shop-item-form__field">
@@ -705,6 +719,10 @@
         background: var(--color-tan-400);
         font-size: 0.875rem;
         color: inherit;
+    }
+
+    .shop-item-form__enabled-until .form-control {
+        color: #1a1a1a;
     }
 
     .form-control:focus {

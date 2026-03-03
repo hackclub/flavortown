@@ -32,7 +32,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       case @view
       when "shop_orders"
         # Show pending, awaiting_verification, rejected, on_hold
-        orders = orders.where(aasm_state: %w[pending awaiting_verification rejected on_hold])
+        orders = orders.where(aasm_state: %w[pending awaiting_verification awaiting_verification_call rejected on_hold])
       when "fulfillment"
         # Show awaiting_periodical_fulfillment and fulfilled
         orders = orders.where(aasm_state: %w[awaiting_periodical_fulfillment fulfilled])
@@ -50,6 +50,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @c = {
       pending: base.where(aasm_state: "pending").count,
       awaiting_verification: base.where(aasm_state: "awaiting_verification").count,
+      awaiting_verification_call: base.where(aasm_state: "awaiting_verification_call").count,
       awaiting_fulfillment: base.where(aasm_state: "awaiting_periodical_fulfillment").count,
       fulfilled: base.where(aasm_state: "fulfilled").count,
       rejected: base.where(aasm_state: "rejected").count,
@@ -170,7 +171,15 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to shop_orders_return_path, notice: "Order approved and fulfilled" and return
     end
 
-    if @order.queue_for_fulfillment && @order.save
+    if @order.shop_item.requires_verification_call?
+      success = @order.queue_for_verification_call && @order.save
+      notice = "Order queued for verification call"
+    else
+      success = @order.queue_for_fulfillment && @order.save
+      notice = "Order approved for fulfillment"
+    end
+
+    if success
       PaperTrail::Version.create!(
         item_type: "ShopOrder",
         item_id: @order.id,
@@ -180,7 +189,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           aasm_state: [ old_state, @order.aasm_state ]
         }
       )
-      redirect_to shop_orders_return_path, notice: "Order approved for fulfillment"
+      redirect_to shop_orders_return_path, notice: notice
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to approve order: #{@order.errors.full_messages.join(', ')}"
     end
@@ -258,6 +267,11 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       authorize :admin, :access_shop_orders?
     end
     @order = ShopOrder.find(params[:id])
+
+    if @order.shop_item.requires_verification_call? && !current_user.admin?
+      redirect_to admin_shop_order_path(@order), alert: "Only admins can fulfill verification-call items" and return
+    end
+
     old_state = @order.aasm_state
 
     if @order.mark_fulfilled(params[:external_ref].presence, params[:fulfillment_cost].presence, current_user.display_name) && @order.save

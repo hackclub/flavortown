@@ -23,13 +23,16 @@ module Admin
       @total_sessions = scoped_sessions.count
       @voluntary_closed_sessions = scoped_sessions.where(ended_reason: FlavortimeSession::END_REASON_VOLUNTARY_CLOSE).count
       @timed_out_sessions = scoped_sessions.where(ended_reason: FlavortimeSession::END_REASON_TIMED_OUT).count
-      @total_hours_logged = (scoped_sessions.sum(:discord_shared_seconds).to_f / 3600).round(2)
+      @updated_sessions = scoped_sessions.where(ended_reason: FlavortimeSession::END_REASON_UPDATED).count
+      @total_hackatime_corecorded_hours = (scoped_sessions.sum(:discord_shared_seconds).to_f / 3600).round(2)
+      @total_status_hours = (scoped_sessions.sum(:discord_status_seconds).to_f / 3600).round(2)
       @sessions_by_platform = grouped_counts(scoped_sessions, :platform)
       @sessions_by_app_version = grouped_counts(scoped_sessions, :app_version)
       @recent_sessions = scoped_sessions.includes(:user).order(created_at: :desc).limit(50)
 
       @sessions_over_time = grouped_series(scoped_sessions, "COUNT(*)")
-      @hours_over_time = grouped_series(scoped_sessions, "SUM(discord_shared_seconds) / 3600.0")
+      @hackatime_corecorded_hours_over_time = grouped_series(scoped_sessions, "SUM(discord_shared_seconds) / 3600.0")
+      @status_hours_over_time = grouped_series(scoped_sessions, "SUM(discord_status_seconds) / 3600.0")
     end
 
     private
@@ -38,7 +41,7 @@ module Admin
       value = params[:range].to_s
       return value if RANGE_OPTIONS.key?(value) || value == "all" || value == "custom"
 
-      "24h"
+      "30d"
     end
 
     def selected_time_window

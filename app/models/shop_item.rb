@@ -22,6 +22,7 @@
 #  enabled_eu                        :boolean
 #  enabled_in                        :boolean
 #  enabled_uk                        :boolean
+#  enabled_until                     :datetime
 #  enabled_us                        :boolean
 #  enabled_xx                        :boolean
 #  hacker_score                      :integer
@@ -50,6 +51,7 @@
 #  required_ships_start_date         :date
 #  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
+#  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
@@ -107,7 +109,7 @@ class ShopItem < ApplicationRecord
 
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
-  scope :enabled, -> { where(enabled: true) }
+  scope :enabled, -> { where(enabled: true).where("shop_items.enabled_until IS NULL OR shop_items.enabled_until > ?", Time.current) }
   scope :listed, -> { where(unlisted: [ nil, false ]) }
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
   scope :recently_added, -> { where(created_at: 2.weeks.ago..).order(created_at: :desc) }
@@ -197,7 +199,7 @@ class ShopItem < ApplicationRecord
   def remaining_stock
     return nil unless limited? && stock.present?
 
-    reserved_quantity = shop_orders.where(aasm_state: %w[pending awaiting_verification awaiting_periodical_fulfillment on_hold fulfilled]).sum(:quantity)
+    reserved_quantity = shop_orders.where(aasm_state: %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold fulfilled]).sum(:quantity)
     stock - reserved_quantity
   end
 
@@ -216,8 +218,12 @@ class ShopItem < ApplicationRecord
 
   def new_item? = created_at.present? && created_at > 7.days.ago
 
+  def expired?
+    enabled_until.present? && enabled_until <= Time.current
+  end
+
   def available_accessories
-    ShopItem::Accessory.where("? = ANY(attached_shop_item_ids)", id).where(enabled: true)
+    ShopItem::Accessory.where("? = ANY(attached_shop_item_ids)", id).enabled
   end
 
   def has_accessories?

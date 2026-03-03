@@ -13,6 +13,8 @@ module Admin
       load_support_graph_data
       load_voting_stats
       load_ysws_review_stats
+      load_community_engagement_stats
+      load_fraud_happiness_data
     end
 
     def load_section
@@ -619,6 +621,28 @@ module Admin
       @ysws_review_stats = cached_data&.dig(:stats) || { error: "Unable to load YSWS data" }
       @ysws_review_ecdf_data = cached_data&.dig(:ecdf_data)
       @ysws_reviewer_trend_data = cached_data&.dig(:reviewer_trend_data)
+    end
+
+    def load_community_engagement_stats
+      attendance_data = ShowAndTellAttendance.group(:date).count
+      last_winner_attendance = ShowAndTellAttendance
+        .where(winner: true)
+        .order(date: :desc, updated_at: :desc)
+        .includes(:project, :user)
+        .first
+
+      @show_and_tell_stats = {
+        attendance_by_date: attendance_data,
+        last_winner: last_winner_attendance
+      }
+    end
+
+    def load_fraud_happiness_data
+      data = FraudAirtableService.fetch_fraud_happy_by_week || {}
+      @fraud_happiness_week = data[:week]
+      @fraud_happiness_records = data[:records] || []
+      @fraud_happiness_avg_scores = data[:avg_scores] || { total_responses: 0 }
+      @fraud_happiness_error = data[:error]
     end
 
     def extract_reviews(response_data)
