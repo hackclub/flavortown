@@ -145,12 +145,27 @@
           </div>
           </div>
 
-          <!-- REPORTS SECTION -->
+          <!-- TEAM VIBES SECTION -->
           <div class="fraud-subsection">
-          <h3 class="fraud-subsection__title">Fraud Reports</h3>
-          <div class="super-mega-dashboard__cards">
-          <div class="super-mega-dashboard__card">
-          <h3>Report Stats</h3>
+            <h3 class="fraud-subsection__title">Team Vibes</h3>
+            <div class="super-mega-dashboard__cards">
+              <div class="super-mega-dashboard__card">
+                <%= render FraudHappinessComponent.new(
+                  week: @fraud_happiness_week,
+                  records: @fraud_happiness_records,
+                  avg_scores: @fraud_happiness_avg_scores,
+                  error: @fraud_happiness_error
+                ) %>
+              </div>
+            </div>
+          </div>
+
+          <!-- REPORTS SECTION -->
+              <div class="fraud-subsection">
+              <h3 class="fraud-subsection__title">Fraud Reports</h3>
+              <div class="super-mega-dashboard__cards">
+              <div class="super-mega-dashboard__card">
+              <h3>Report Stats</h3>
           <div class="fraud-stats-grid">
            <div class="fraud-stats-grid__row">
              <span class="fraud-stats-grid__label">New Today</span>
