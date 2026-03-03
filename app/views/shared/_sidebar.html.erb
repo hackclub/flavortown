@@ -177,7 +177,7 @@
 
       <div class="settings-form__field">
         <label class="settings-form__checkbox">
-          <%= check_box_tag :search_engine_opt_in, "1", current_user.search_engine_opt_in, id: "search_engine_opt_in" %>
+          <%= check_box_tag :search_engine_indexing_on, "1", current_user.search_engine_indexing_on, id: "search_engine_indexing_on" %>
           <span>Opt in to indexing</span>
         </label>
         <small class="settings-form__hint">If unchecked, your profile will be hidden from Google and other search engines.</small>

@@ -25,7 +25,7 @@
 #  projects_count                          :integer
 #  ref                                     :string
 #  regions                                 :string           default([]), is an Array
-#  search_engine_opt_in                    :boolean          default(TRUE), not null
+#  search_engine_indexing_on               :boolean          default(TRUE), not null
 #  send_notifications_for_followed_devlogs :boolean          default(TRUE), not null
 #  send_notifications_for_new_comments     :boolean          default(TRUE), not null
 #  send_notifications_for_new_followers    :boolean          default(TRUE), not null

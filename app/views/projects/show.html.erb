@@ -6,7 +6,7 @@
 <% content_for :og_author, @project.memberships.find_by(role: :owner)&.user&.display_name %>
 
 <% owner = @project.memberships.find_by(role: :owner)&.user %>
-<% unless owner&.search_engine_opt_in? %>
+<% unless owner&.search_engine_indexing_on? %>
   <meta name="robots" content="noindex, nofollow">
 <% end %>
 
