@@ -26,8 +26,8 @@
 
 <div style="margin: 1rem 0;">
   <%= link_to "All", admin_time_loss_index_path, class: "btn-primary slim #{params[:filter].blank? ? '' : 'secondary'}" %>
-  <%= link_to "Inflation only", admin_time_loss_index_path(filter: "inflation"), class: "btn-primary slim" %>
-  <%= link_to "Deflation only", admin_time_loss_index_path(filter: "deflation"), class: "btn-primary slim" %>
+  <%= link_to "Inflation only", admin_time_loss_index_path(filter: "inflation"), class: "btn-primary slim #{params[:filter] == 'inflation' ? '' : 'secondary'}" %>
+  <%= link_to "Deflation only", admin_time_loss_index_path(filter: "deflation"), class: "btn-primary slim #{params[:filter] == 'deflation' ? '' : 'secondary'}" %>
 </div>
 
 <% if @audits.any? %>
