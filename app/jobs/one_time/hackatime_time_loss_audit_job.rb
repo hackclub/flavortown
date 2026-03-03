@@ -77,7 +77,7 @@ class OneTime::HackatimeTimeLossAuditJob < ApplicationJob
         Rails.logger.error "[HackatimeTimeLossAudit] Error for project #{project.id}: #{e.message}"
       end
     rescue => e
-      failed += data[:projects].size
+      failed += 1
       Rails.logger.error "[HackatimeTimeLossAudit] Error for user #{hackatime_uid}: #{e.message}"
     end
 
