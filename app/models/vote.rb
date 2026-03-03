@@ -68,6 +68,8 @@ class Vote < ApplicationRecord
   after_commit :detect_vote_spam, on: :create
   after_commit :broadcast_vote_to_channel, on: :create
 
+  validates :reason, presence: { message: "can't be blank" }
+  validate :reason_minimum_words
   validates(*score_columns, inclusion: { in: 1..6, message: "must be between 1 and 6" }, allow_nil: true)
   validate :all_categories_scored
   validate :user_cannot_vote_on_own_projects
@@ -76,6 +78,13 @@ class Vote < ApplicationRecord
   def category_description(category) = CATEGORIES[category.to_sym]
 
   private
+
+  def reason_minimum_words
+    return if reason.blank?
+
+    word_count = reason.split(/\s+/).count
+    errors.add(:reason, "must be at least 10 words (you have #{word_count})") if word_count < 10
+  end
 
   def all_categories_scored
     missing = self.class.score_columns.select { |col| self[col].blank? }
