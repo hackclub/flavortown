@@ -507,6 +507,10 @@
     }
   }
 
+  &__star--typical {
+    color: var(--color-tan-400);
+  }
+
   &__input:checked ~ .vote-category__star {
     color: var(--color-yellow-450);
   }
