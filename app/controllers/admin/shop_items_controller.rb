@@ -165,6 +165,7 @@ module Admin
         :default_assigned_user_id_in,
         :default_assigned_user_id_xx,
         :unlisted,
+        :enabled_until,
         :source_region,
         :requires_verification_call,
         attached_shop_item_ids: [],

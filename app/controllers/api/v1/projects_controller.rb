@@ -5,13 +5,21 @@ class Api::V1::ProjectsController < Api::BaseController
     index: "Fetch a list of projects. Ratelimit: 5 reqs/min, 20 reqs/min if searching",
     show: "Fetch a specific project by ID. Ratelimit: 30 reqs/min",
     create: "Create a new project.",
-    update: "Update an existing project."
+    update: "Update an existing project.",
+    random: "Fetch random projects."
   }
 
   class_attribute :url_params_model, default: {
     index: {
       page: { type: Integer, desc: "Page number for pagination", required: false },
       query: { type: String, desc: "Search projects by title or description", required: false }
+    },
+    random: {
+      count: { type: Integer, desc: "Number of random projects to return (1-50, default 1)", required: false },
+      approved: { type: String, desc: "Filter to only approved projects (true/false)", required: false },
+      shipped: { type: String, desc: "Filter to only shipped projects (true/false)", required: false },
+      has_banner: { type: String, desc: "Filter to only projects with a banner image (true/false)", required: false },
+      fire: { type: String, desc: "Filter to only well cooked projects (true/false)", required: false }
     }
   }
 
@@ -50,7 +58,8 @@ class Api::V1::ProjectsController < Api::BaseController
     index: { projects: [ PROJECT_SCHEMA ], pagination: PAGINATION_SCHEMA },
     show: PROJECT_SCHEMA,
     create: PROJECT_SCHEMA,
-    update: PROJECT_SCHEMA
+    update: PROJECT_SCHEMA,
+    random: { projects: [ PROJECT_SCHEMA ] }
   }
 
   def index
@@ -65,6 +74,18 @@ class Api::V1::ProjectsController < Api::BaseController
     end
 
     @pagy, @projects = pagy(projects, limit: 100)
+  end
+
+  def random
+    count = (params[:count] || 1).to_i.clamp(1, 50)
+
+    projects = Project.where(deleted_at: nil).excluding_shadow_banned.includes(:devlogs)
+    projects = projects.where(ship_status: :approved) if ActiveModel::Type::Boolean.new.cast(params[:approved])
+    projects = projects.where.not(shipped_at: nil) if ActiveModel::Type::Boolean.new.cast(params[:shipped])
+    projects = projects.where.associated(:banner_attachment) if ActiveModel::Type::Boolean.new.cast(params[:has_banner])
+    projects = projects.fire if ActiveModel::Type::Boolean.new.cast(params[:fire])
+
+    @projects = projects.order("RANDOM()").limit(count)
   end
 
   def show

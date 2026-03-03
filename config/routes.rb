@@ -155,6 +155,9 @@ Rails.application.routes.draw do
 
     namespace :v1 do
       resources :projects, only: [ :index, :show, :create, :update ] do
+        collection do
+          get :random
+        end
         resource :report, only: [ :create ], controller: "external_reports"
         resources :devlogs, only: [ :index ], controller: "project_devlogs"
       end
@@ -278,7 +281,16 @@ Rails.application.routes.draw do
         post :reject
       end
     end
-    resources :special_activities, only: [ :index, :create ]
+    resources :special_activities, only: [ :index, :create ] do
+      member do
+        post :toggle_payout
+        post :mark_winner
+      end
+      collection do
+        post :give_payout
+        post :mark_payout_given
+      end
+    end
     resources :support_vibes, only: [ :index, :create ]
     resources :sw_vibes, only: [ :index ]
     resources :suspicious_votes, only: [ :index ]
