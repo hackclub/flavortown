@@ -1,6 +1,6 @@
 class Admin::TimeLossController < Admin::ApplicationController
   def index
-    authorize :admin, :access_admin_endpoints?
+    authorize :admin, :access_time_loss_dashboard?
 
     audits = HackatimeTimeLossAudit.includes(:project, :user).order(difference_seconds: :desc)
 
