@@ -323,14 +323,12 @@
       <%= link_to "View User", admin_user_path(@order.user), class: "admin-btn admin-btn--primary" %>
     <% end %>
 
-    <% if @order.pending? %>
-      <form method="post" action="<%= approve_admin_shop_order_path(@order) %>">
-        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
-        <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
-        <button type="submit" class="admin-btn admin-btn--primary" onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
-      </form>
-    <% end %>
+    <form method="post" action="<%= approve_admin_shop_order_path(@order) %>">
+      <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+      <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
+      <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
+      <button type="submit" class="admin-btn admin-btn--primary" <% unless @order.pending? %> disabled<% end %> onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
+    </form>
 
     <%# Reject button for all non-fulfilled states %>
     <% if %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold].include?(@order.aasm_state) %>

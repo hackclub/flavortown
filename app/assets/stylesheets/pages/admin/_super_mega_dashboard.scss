@@ -1074,3 +1074,67 @@
 .show-and-tell-winner-link:hover {
   background-color: #f3f4f6;
 }
+
+.fraud-happiness {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__week {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--color-brown-500);
+    font-weight: 600;
+    border-bottom: 1px solid var(--color-tan-200);
+    padding-bottom: 0.35rem;
+  }
+
+  &__scores {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.5rem;
+  }
+
+  &__score-card {
+    background: var(--color-tan-100);
+    border: 1px solid var(--color-tan-300);
+    border-radius: 4px;
+    padding: 0.5rem;
+    text-align: center;
+  }
+
+  &__score-card-label {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.7rem;
+    color: var(--color-brown-500);
+    text-transform: uppercase;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  &__score-card-value {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--color-blue-500);
+  }
+
+  &__empty {
+    font-size: 0.85rem;
+    color: var(--color-brown-400);
+    margin: 0;
+    text-align: center;
+  }
+
+  &__error {
+    background: #ffebee;
+    border: 1px solid #ef5350;
+    border-radius: 4px;
+    padding: 0.5rem;
+    color: #c62828;
+    font-size: 0.85rem;
+
+    p {
+      margin: 0;
+    }
+  }
+}
