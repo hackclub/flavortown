@@ -330,8 +330,11 @@
       <button type="submit" class="admin-btn admin-btn--primary" <% unless @order.pending? %> disabled<% end %> onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
     </form>
 
-    <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="admin-btn admin-btn--danger">✗ Reject</button>
-    <%= render "reject_modal", order: @order %>
+    <%# Reject button for all non-fulfilled states %>
+    <% if %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold].include?(@order.aasm_state) %>
+      <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="admin-btn admin-btn--danger">✗ Reject</button>
+      <%= render "reject_modal", order: @order %>
+    <% end %>
 
     <%# Refresh verification button for awaiting_verification state %>
     <% if @order.awaiting_verification? %>
@@ -341,12 +344,31 @@
       </form>
     <% end %>
 
-    <form method="post" action="<%= place_on_hold_admin_shop_order_path(@order) %>">
-      <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-      <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
-      <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
-      <button type="submit" class="admin-btn admin-btn--secondary" <% unless (%w[pending awaiting_verification awaiting_periodical_fulfillment].include?(@order.aasm_state) && !current_user.fulfillment_person?) %> disabled<% end %> onclick="return confirm('Place this order on hold?')">⏸ Hold</button>
-    </form>
+    <% if (@order.pending? || @order.awaiting_verification? || @order.awaiting_verification_call? || @order.awaiting_periodical_fulfillment?) && !current_user.fulfillment_person? %>
+      <form method="post" action="<%= place_on_hold_admin_shop_order_path(@order) %>">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
+        <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
+        <button type="submit" class="admin-btn admin-btn--secondary" onclick="return confirm('Place this order on hold?')">⏸ Hold</button>
+      </form>
+    <% end %>
+
+    <% if @order.awaiting_verification_call? && current_user.admin? %>
+      <% m = 'verification-call-fulfillment-modal' %>
+      <button type="button" class="admin-btn admin-btn--primary" onclick="document.getElementById(<%= m.to_json %>).showModal()">✓ Mark as Fulfilled</button>
+      <dialog id="<%= m %>" class="fulfill-dialog">
+        <h3>Mark verification call order fulfilled</h3>
+        <form method="post" action="<%= mark_fulfilled_admin_shop_order_path(@order) %>">
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <label>Spent (USD)<input type="number" name="fulfillment_cost" step="0.01" min="0" placeholder="0.00" autocomplete="off"></label>
+          <label>Order #<input type="text" name="external_ref" placeholder="e.g. ORD-12345" autocomplete="off"></label>
+          <div class="fulfill-actions">
+            <button type="button" class="btn-secondary" onclick="document.getElementById(<%= m.to_json %>).close()">Cancel</button>
+            <button type="submit" class="btn-primary">Mark as Fulfilled</button>
+          </div>
+        </form>
+      </dialog>
+    <% end %>
 
     <% if @order.awaiting_periodical_fulfillment? && (current_user.admin? || current_user.fulfillment_person?) %>
       <% m = 'fulfillment-modal' %>
@@ -436,6 +458,8 @@
                   ✔ Order Fulfilled
                 <% elsif new_state == 'rejected' %>
                   ✗ Order Rejected
+                <% elsif new_state == 'awaiting_verification_call' %>
+                  📞 Order Queued for Verification Call
                 <% elsif new_state == 'on_hold' %>
                   ⏸ Order Placed on Hold
                 <% elsif new_state == 'pending' %>
@@ -512,6 +536,11 @@
 
 .badge-on_hold {
   background-color: #6b7280;
+  color: white;
+}
+
+.badge-awaiting_verification_call {
+  background-color: #f97316;
   color: white;
 }
 
