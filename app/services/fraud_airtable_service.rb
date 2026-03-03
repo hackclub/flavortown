@@ -17,18 +17,18 @@ class FraudAirtableService
 
   def fetch_and_process
     Rails.logger.info("[FraudAirtableService] Starting fetch_and_process")
-    
+
     week = fetch_current_week
     Rails.logger.info("[FraudAirtableService] Fetched week: #{week.inspect}")
-    
+
     return { week: nil, records: [], avg_scores: { total_responses: 0, responses_text: "0/0" }, error: "Could not fetch week from Fraud - Config" } if week.nil?
 
     records = fetch_fraud_happy_records(week)
     Rails.logger.info("[FraudAirtableService] Fetched #{records.count} records for week #{week}")
-    
+
     total_team_size = fetch_total_team_size
     Rails.logger.info("[FraudAirtableService] Total team size: #{total_team_size}")
-    
+
     avg_scores = calculate_average_scores(records)
     avg_scores[:responses_text] = "#{records.count}/#{total_team_size}"
     Rails.logger.info("[FraudAirtableService] Calculated scores: #{avg_scores.inspect}")
@@ -54,7 +54,7 @@ class FraudAirtableService
 
   def fetch_total_team_size
     Rails.logger.debug("[FraudAirtableService] Fetching total team size from 'Fraud - Config' table")
-    
+
     config_table = Norairrecord.table(
       airtable_api_key,
       airtable_base_id,
@@ -77,7 +77,7 @@ class FraudAirtableService
 
   def fetch_current_week
     Rails.logger.debug("[FraudAirtableService] Fetching from 'Fraud - Config' table")
-    
+
     config_table = Norairrecord.table(
       airtable_api_key,
       airtable_base_id,
@@ -104,7 +104,7 @@ class FraudAirtableService
 
   def fetch_fraud_happy_records(week)
     Rails.logger.debug("[FraudAirtableService] Fetching from 'Fraud happy' table for week: #{week.inspect}")
-    
+
     happiness_table = Norairrecord.table(
       airtable_api_key,
       airtable_base_id,
@@ -135,7 +135,7 @@ class FraudAirtableService
         extra_comments: fields["extra comments"]
       }
     end.compact
-    
+
     Rails.logger.debug("[FraudAirtableService] Mapped #{mapped_records.count} records")
     mapped_records
   end
@@ -161,10 +161,10 @@ class FraudAirtableService
     # Handle nil and numeric values
     return nil if feeling.nil?
     return feeling.to_i if feeling.is_a?(Integer)
-    
+
     # Convert to string and normalize
     feeling_str = feeling.to_s.downcase.strip
-    
+
     case feeling_str
     when "😭", "very unhappy", "very unhappy (crying face)" then 1
     when "😞", "unhappy", "unhappy (sad face)" then 2
