@@ -33,6 +33,9 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Vote < ApplicationRecord
+  MIN_SCORE = 1
+  MAX_SCORE = 9
+
   CATEGORIES = {
     originality: "How distinct it is from common projects?",
     technicality: "How much effort did the baker put into the implementation?",
@@ -70,7 +73,7 @@ class Vote < ApplicationRecord
 
   validates :reason, presence: { message: "can't be blank" }
   validate :reason_minimum_words
-  validates(*score_columns, inclusion: { in: 1..6, message: "must be between 1 and 6" }, allow_nil: true)
+  validates(*score_columns, inclusion: { in: MIN_SCORE..MAX_SCORE, message: "must be between 1 and 9" }, allow_nil: true)
   validate :all_categories_scored
   validate :user_cannot_vote_on_own_projects
   validate :ship_event_matches_project

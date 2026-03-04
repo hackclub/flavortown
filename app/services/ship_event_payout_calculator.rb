@@ -9,6 +9,8 @@ class ShipEventPayoutCalculator
   end
 
   def apply!
+    return unless @ship_event.current_voting_scale?
+
     payout_user = @ship_event.payout_recipient
     return unless payout_user
 
@@ -28,7 +30,6 @@ class ShipEventPayoutCalculator
       return unless payout_eligible?
 
       hours_used = base_hours
-      puts hours_used
       return if hours_used <= 0
 
       if is_shadow_banned
@@ -36,37 +37,41 @@ class ShipEventPayoutCalculator
       else
         percentile = @ship_event.overall_percentile
         return if percentile.nil?
-        puts percentile
 
         hourly_rate = dollars_per_hour_for_percentile(percentile)
       end
 
       return if hourly_rate <= 0
-      puts hourly_rate
-
-      dollars = hours_used * hourly_rate
-      cookies = (dollars * tickets_per_dollar).round
-      return if cookies <= 0
-      puts cookies
 
       # mult is like if mult is 30 then you have $6/hr. or you get 30 cookies so its how many cookies you get
       mult = (hourly_rate * tickets_per_dollar).round(6)
+      bridge_payout = apply_legacy_bridge?(project)
+      payout_hours = bridge_payout ? bridge_total_hours(project: project, hours_used: hours_used) : hours_used
+      cookies = calculate_cookies(
+        hours: payout_hours,
+        multiplier: mult,
+        project: project,
+        bridge: bridge_payout
+      )
+      return if cookies.nil?
 
       ActiveRecord::Base.transaction do
-        attrs = { payout: cookies, multiplier: mult, hours: hours_used }
+        attrs = { payout: cookies, multiplier: mult, hours: payout_hours }
 
         @ship_event.update!(attrs)
 
-        payout_user.ledger_entries.create!(
-          ledgerable: @ship_event,
-          amount: cookies,
-          reason: payout_reason,
-          created_by: "ship_event_payout"
-        )
+        if cookies.positive?
+          payout_user.ledger_entries.create!(
+            ledgerable: @ship_event,
+            amount: cookies,
+            reason: payout_reason,
+            created_by: "ship_event_payout"
+          )
+        end
       end
 
       notify_payout_issued(payout_user)
-      broadcast_payout(payout_user, cookies, hours_used, mult, is_shadow_banned)
+      broadcast_payout(payout_user, cookies, payout_hours, mult, is_shadow_banned)
     end
   end
 
@@ -123,6 +128,33 @@ class ShipEventPayoutCalculator
   def highest_dollar_per_hour = @game_constants.highest_dollar_per_hour.to_f
   def dollars_per_mean_hour = @game_constants.dollars_per_mean_hour.to_f
   def tickets_per_dollar = @game_constants.tickets_per_dollar.to_f
+
+  def calculate_cookies(hours:, multiplier:, project:, bridge:)
+    return nil if multiplier <= 0
+
+    if bridge
+      bridge_cookies = (hours * multiplier) - project.legacy_payout_total
+      bridge_cookies.round.clamp(0, Float::INFINITY)
+    else
+      cookies = (hours * multiplier).round
+      return nil if cookies <= 0
+
+      cookies
+    end
+  end
+
+  def bridge_total_hours(project:, hours_used:)
+    total_hours = project.total_ship_hours
+    # current ship hours
+    total_hours += hours_used.to_f if @ship_event[:hours].blank?
+    total_hours
+  end
+
+  def apply_legacy_bridge?(project)
+    return false unless project.has_legacy_ship_events?
+
+    !project.has_paid_current_scale_ship_events?(excluding_ship_event_id: @ship_event.id)
+  end
 
   def notify_payout_issued(user)
     return unless user.slack_id.present?

@@ -94,7 +94,7 @@
             <span class="category-avg__label">Average</span>
             </div>
             <div class="score-distribution">
-            <% (1..6).each do |score| %>
+            <% (Vote::MIN_SCORE..Vote::MAX_SCORE).each do |score| %>
                 <% count = @category_stats[category][:distribution][score] || 0 %>
                 <% max = @category_stats[category][:distribution].values.max.to_f.nonzero? || 1 %>
                 <div class="score-bar-container">
