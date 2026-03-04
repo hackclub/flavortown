@@ -33,6 +33,7 @@ class Post::ShipEvent < ApplicationRecord
   LEGACY_VOTING_SCALE_VERSION = 1
   CURRENT_VOTING_SCALE_VERSION = 2
   VOTES_REQUIRED_FOR_PAYOUT = 12
+  VOTES_TO_LEAVE_POOL = VOTES_REQUIRED_FOR_PAYOUT
 
   has_one :project, through: :post
   has_many :project_memberships, through: :project, source: :memberships
