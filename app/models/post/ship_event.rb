@@ -22,6 +22,7 @@
 #  usability_median        :decimal(5, 2)
 #  usability_percentile    :decimal(5, 2)
 #  votes_count             :integer          default(0), not null
+#  voting_scale_version    :integer          default(2), not null
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
 #
@@ -29,6 +30,8 @@ class Post::ShipEvent < ApplicationRecord
   include Postable
   include Ledgerable
 
+  LEGACY_VOTING_SCALE_VERSION = 1
+  CURRENT_VOTING_SCALE_VERSION = 2
   VOTES_REQUIRED_FOR_PAYOUT = 12
 
   has_one :project, through: :post
@@ -36,6 +39,9 @@ class Post::ShipEvent < ApplicationRecord
   has_many :project_members, through: :project, source: :users
 
   has_many :votes, foreign_key: :ship_event_id, dependent: :nullify, inverse_of: :ship_event
+
+  scope :current_voting_scale, -> { where(voting_scale_version: CURRENT_VOTING_SCALE_VERSION) }
+  scope :legacy_voting_scale, -> { where(voting_scale_version: LEGACY_VOTING_SCALE_VERSION) }
 
   after_commit :decrement_user_vote_balance, on: :create
 
@@ -75,6 +81,7 @@ class Post::ShipEvent < ApplicationRecord
 
   def payout_eligible?
     return false unless certification_status == "approved"
+    return false unless current_voting_scale?
     return false unless payout.blank?
     return false unless votes.legitimate.count >= VOTES_REQUIRED_FOR_PAYOUT
 
@@ -87,6 +94,14 @@ class Post::ShipEvent < ApplicationRecord
 
   def payout_recipient
     post&.user
+  end
+
+  def current_voting_scale?
+    voting_scale_version == CURRENT_VOTING_SCALE_VERSION
+  end
+
+  def legacy_voting_scale?
+    voting_scale_version == LEGACY_VOTING_SCALE_VERSION
   end
 
   private

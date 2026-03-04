@@ -299,6 +299,30 @@ class Project < ApplicationRecord
     ship_events.first
   end
 
+  def has_legacy_ship_events?
+    ship_events.where(voting_scale_version: Post::ShipEvent::LEGACY_VOTING_SCALE_VERSION).exists?
+  end
+
+  def has_paid_current_scale_ship_events?(excluding_ship_event_id: nil)
+    scope = ship_events
+              .where(voting_scale_version: Post::ShipEvent::CURRENT_VOTING_SCALE_VERSION)
+              .where.not(payout: nil)
+    scope = scope.where.not(id: excluding_ship_event_id) if excluding_ship_event_id.present?
+    scope.exists?
+  end
+
+  def legacy_payout_total
+    ship_events
+      .where(voting_scale_version: Post::ShipEvent::LEGACY_VOTING_SCALE_VERSION)
+      .where.not(payout: nil)
+      .sum(:payout)
+      .to_f
+  end
+
+  def total_ship_hours
+    ship_events.sum(&:hours).to_f
+  end
+
   def fire?
     marked_fire_at.present?
   end
@@ -342,7 +366,7 @@ class Project < ApplicationRecord
 
   def previous_ship_event_has_payout?
     return true if last_ship_event.nil?
-    last_ship_event.payout.present? && last_ship_event.payout > 0
+    last_ship_event.payout.present?
   end
 
   def notify_slack_channel

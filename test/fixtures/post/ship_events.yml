@@ -24,6 +24,7 @@
 #  usability_median        :decimal(5, 2)
 #  usability_percentile    :decimal(5, 2)
 #  votes_count             :integer          default(0), not null
+#  voting_scale_version    :integer          default(2), not null
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
 #

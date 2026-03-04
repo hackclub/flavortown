@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_01_214919) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_04_021101) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -386,6 +386,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_214919) do
     t.decimal "usability_median", precision: 5, scale: 2
     t.decimal "usability_percentile", precision: 5, scale: 2
     t.integer "votes_count", default: 0, null: false
+    t.integer "voting_scale_version", default: 2, null: false
   end
 
   create_table "posts", force: :cascade do |t|
