@@ -324,6 +324,11 @@
       padding-top: var(--space-xl);
       padding-bottom: var(--space-xl);
 
+      &__feedback {
+        display: flex;
+        margin-top: calc(0.74 * var(--space-l)); // I have created a very fragile balance that I eyeballed. Do not get ur AI to fuck this!
+      }
+
       .input {
         width: 100%;
       }

@@ -9,7 +9,7 @@
       <%= render "category", form: form, category: category %>
     <% end %>
 
-    <div data-controller="word-count" data-word-count-min-words-value="10">
+    <div class="vote-form__feedback" data-controller="word-count" data-word-count-min-words-value="10">
       <%= render InputComponent.new(
         form: form,
         attribute: :reason,
@@ -19,7 +19,7 @@
         subtitle: "Required. Write at least 10 words of feedback for the creator.",
         input_html: { data: { word_count_target: "input", action: "input->word-count#update" } }
       ) %>
-      <span class="word-count" data-word-count-target="output">0 / 10 words</span>
+      <%# <span class="word-count" data-word-count-target="output">0 / 10 words</span> %>
     </div>
   </div>
 <% end %>
