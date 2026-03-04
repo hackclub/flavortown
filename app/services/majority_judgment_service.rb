@@ -148,12 +148,12 @@ class MajorityJudgmentService
   def self.persisted_attributes(medians:, overall_score:, percentiles:, overall_percentile:)
     {
       originality_median: medians[:originality],
-      technical_median: medians[:technical],
+      technical_median: medians[:technicality],
       usability_median: medians[:usability],
       storytelling_median: medians[:storytelling],
       overall_score: overall_score,
       originality_percentile: percentiles[:originality],
-      technical_percentile: percentiles[:technical],
+      technical_percentile: percentiles[:technicality],
       usability_percentile: percentiles[:usability],
       storytelling_percentile: percentiles[:storytelling],
       overall_percentile: overall_percentile
