@@ -275,8 +275,8 @@ class YswsReviewSyncJob < ApplicationJob
       "Playable URL" => ship_cert["demoUrl"],
       "project_readme" => ship_cert["readmeUrl"],
       "Screenshot" => [
-        video_thumbnail_url.present? ? { "url" => video_thumbnail_url } : nil,
-        banner_url.present? ? { "url" => banner_url } : (ship_cert["screenshotUrl"].present? ? { "url" => ship_cert["screenshotUrl"] } : nil)
+        banner_url.present? ? { "url" => banner_url } : (ship_cert["screenshotUrl"].present? ? { "url" => ship_cert["screenshotUrl"] } : nil),
+        video_thumbnail_url.present? ? { "url" => video_thumbnail_url } : nil
       ].compact,
       "proof_video" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
       "Description" => ship_cert["description"],
