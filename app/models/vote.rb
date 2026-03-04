@@ -123,11 +123,7 @@ class Vote < ApplicationRecord
   end
 
   def mark_suspicious
-    self.suspicious = Secrets::VoteSuspicion.suspicious_vote?(
-      time_taken_to_vote: time_taken_to_vote,
-      demo_url_clicked: demo_url_clicked,
-      repo_url_clicked: repo_url_clicked
-    )
+    self.suspicious = Secrets::VoteSuspicion.suspicious_vote?(vote: self)
   end
 
   def detect_vote_spam
