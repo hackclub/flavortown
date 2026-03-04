@@ -23,10 +23,17 @@ module TheseusService
         shop_orders = Array(shop_orders)
         first_order = shop_orders.first
 
+        item_quantities = shop_orders.group_by { |o| o.shop_item.name }
+                                     .transform_values { |group| group.sum(&:quantity) }
+        rubber_stamps = item_quantities.map { |name, qty| "#{qty}x #{name}" }.join("\n")
+
+        coalesced_key = Digest::SHA256.hexdigest(shop_orders.map(&:id).sort.join("_"))[0, 16]
+
         response = create_letter_v1(queue, {
           recipient_email: first_order.user.email,
           address: first_order.frozen_address,
-          idempotency_key: "flavortown_letter_#{Rails.env}_#{shop_orders.map(&:id).sort.join("_")}",
+          rubber_stamps: rubber_stamps,
+          idempotency_key: "flavortown_letter_#{Rails.env}_#{coalesced_key}",
           metadata: {
             flavortown_user_id: first_order.user_id,
             flavortown_order_ids: shop_orders.map(&:id),
