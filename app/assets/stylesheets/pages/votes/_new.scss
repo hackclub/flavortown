@@ -326,7 +326,9 @@
 
       &__feedback {
         display: flex;
-        margin-top: calc(0.74 * var(--space-l)); // I have created a very fragile balance that I eyeballed. Do not get ur AI to fuck this!
+        margin-top: calc(
+          0.74 * var(--space-l)
+        ); // I have created a very fragile balance that I eyeballed. Do not get ur AI to fuck this!
       }
 
       .input {
