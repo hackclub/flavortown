@@ -13,6 +13,7 @@ class VoteableShipEventsQuery
 
   def call
     scope = Post::ShipEvent
+      .current_voting_scale
       .joins(post: :project)
       .joins(project_memberships: :user)
       .where(certification_status: "approved", payout: nil)

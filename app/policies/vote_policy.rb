@@ -19,6 +19,7 @@ class VotePolicy < ApplicationPolicy
 
     raise Pundit::NotAuthorizedError, "Your voting has been locked temporarily. Please contact @Fraud Squad for more information." if user.voting_locked?
     raise Pundit::NotAuthorizedError, "You must have shipped at least one project to vote." unless user.has_shipped?
+    raise Pundit::NotAuthorizedError, "You've used all available votes for now. Ship again to unlock more votes." unless user.vote_balance < 0
     raise Pundit::NotAuthorizedError, "Voting is currently disabled." unless Flipper.enabled?(:voting, user)
 
     true

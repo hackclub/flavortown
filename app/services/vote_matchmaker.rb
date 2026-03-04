@@ -55,6 +55,7 @@ class VoteMatchmaker
 
   def voteable_ship_events
     scope = Post::ShipEvent
+      .current_voting_scale
       .joins(:project, :project_members)
       .where(certification_status: "approved")
       .where(payout: nil)
