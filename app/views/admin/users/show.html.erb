@@ -257,6 +257,14 @@
         <% end %>
       <% end %>
 
+      <% if policy(:admin).ban_users? %>
+        <%= button_to toggle_voting_lock_admin_user_path(@user),
+              method: :post,
+              class: "btn-secondary slim",
+              title: @user.voting_locked? ? "Unlock Voting" : "Lock Voting" do %>
+          <%= @user.voting_locked? ? "Unlock Voting" : "Lock Voting" %>
+        <% end %>
+      <% end %>
     </div>
   </div>
   <div class="card">
