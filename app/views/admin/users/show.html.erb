@@ -141,6 +141,7 @@
       <%= render 'role_toggle', user: @user, role_icon: '🚢', role_name: 'project_certifier', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '✋', role_name: 'helper', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '⏱️', role_name: 'flavortime', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_icon: '🏆', role_name: 'sidequest_reviewer', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '⚡', role_name: 'admin', disabled: !current_user&.super_admin? %>
 
       <% if @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).any? %>
