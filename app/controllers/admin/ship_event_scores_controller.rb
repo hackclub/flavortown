@@ -4,14 +4,17 @@ module Admin
       "overall_score" => "overall_score",
       "overall_percentile" => "overall_percentile",
       "originality_median" => "originality_median",
-      "technicality_median" => "technicality_median",
+      "technical_median" => "technical_median",
       "usability_median" => "usability_median",
       "storytelling_median" => "storytelling_median",
       "originality_percentile" => "originality_percentile",
-      "technicality_percentile" => "technicality_percentile",
+      "technical_percentile" => "technical_percentile",
       "usability_percentile" => "usability_percentile",
       "storytelling_percentile" => "storytelling_percentile",
       "votes_count" => "votes_count",
+      "payout" => "payout",
+      "hours" => "hours",
+      "multiplier" => "multiplier",
       "created_at" => "created_at"
     }.freeze
 
