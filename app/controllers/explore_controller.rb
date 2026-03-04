@@ -40,17 +40,22 @@ class ExploreController < ApplicationController
   end
 
   def gallery
-    scope = Project.includes(banner_attachment: :blob)
+    scope = Project.left_joins(:banner_attachment)
+                   .includes(banner_attachment: :blob)
                    .where(tutorial: false)
                    .excluding_member(current_user)
                    .excluding_shadow_banned
 
+    # Prioritise projects that have a banner
+    banner_order_sql = "CASE WHEN active_storage_attachments.id IS NULL THEN 1 ELSE 0 END"
+
     if params[:sort] == "following" && current_user
       scope = scope.where(id: current_user.project_follows.select(:project_id))
+      scope = scope.order(Arel.sql("#{banner_order_sql}, created_at DESC"))
     elsif params[:sort] == "top"
-      scope = scope.order(devlogs_count: :desc)
+      scope = scope.order(Arel.sql("#{banner_order_sql}, devlogs_count DESC"))
     else
-      scope = scope.order(created_at: :desc)
+      scope = scope.order(Arel.sql("#{banner_order_sql}, created_at DESC"))
     end
 
     @pagy, @projects = pagy(scope)
