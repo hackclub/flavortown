@@ -142,3 +142,4 @@ gem "redis", "~> 5.4"
 gem "ahoy_matey"
 
 gem "countries"
+gem "strong_migrations"
