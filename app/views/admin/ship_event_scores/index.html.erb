@@ -191,8 +191,8 @@
               },
               y: {
                 title: { display: true, text: 'Average median (1-9)' },
-                min: <%= Vote::MIN_SCORE %>,
-                max: <%= Vote::MAX_SCORE %>
+                min: <%= Vote::MIN_SCORE.to_json %>,
+                max: <%= Vote::MAX_SCORE.to_json %>
               }
             },
             plugins: {
