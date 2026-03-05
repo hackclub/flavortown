@@ -57,11 +57,11 @@ class ShipCertService
     }
   end
 
-  def self.ship_to_dash(project, type: nil, force: false)
+  def self.ship_to_dash(project, type: nil)
     ship_event = latest_ship_event(project)
     return false unless ship_event
 
-    ShipCertWebhookJob.perform_now(ship_event_id: ship_event.id, type: type, force: force)
+    send_webhook(project, type: type, ship_event: ship_event)
     true
   end
 

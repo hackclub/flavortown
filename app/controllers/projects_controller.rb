@@ -325,7 +325,7 @@ class ProjectsController < ApplicationController
     authorize @project
 
     PaperTrail.request(whodunnit: current_user.id) do
-      success = ShipCertService.ship_to_dash(@project, type: "resend", force: true)
+      success = ShipCertService.ship_to_dash(@project, type: "resend")
 
       PaperTrail::Version.create!(
         item_type: "Project",
@@ -374,7 +374,7 @@ class ProjectsController < ApplicationController
 
     PaperTrail.request(whodunnit: current_user.id) do
       begin
-        ShipCertService.ship_to_dash(@project, type: "recertification", force: true)
+        ShipCertService.ship_to_dash(@project, type: "recertification")
         ship_event.update!(certification_status: "pending")
 
         PaperTrail::Version.create!(
