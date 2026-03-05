@@ -11,7 +11,8 @@ class User
       new(4, :ysws_reviewer, "Can approve/reject projects for YSWS DB"),
       new(5, :fulfillment_person, "Can approve/reject/on-hold shop orders, fulfill them, and see addresses; access to read-only admin User w/ pII"),
       new(6, :helper, "Support team with read-only access to users (no PII), projects, and shop orders"),
-      new(7, :flavortime, "Can access the Flavortime admin dashboard")
+      new(7, :flavortime, "Can access the Flavortime admin dashboard"),
+      new(8, :sidequest_reviewer, "Can see/review sidequest submissions")
     ].freeze
 
     self::SLUGGED = self::ALL.index_by(&:name).freeze

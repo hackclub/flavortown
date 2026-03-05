@@ -264,7 +264,7 @@
       <div>
         <b>Tracking/External Reference:</b>
         <% if @order.shop_item.type.in?(%w[ShopItem::LetterMail ShopItem::FreeStickers]) %>
-          <a href="https://mail.hackclub.com/back_office/letters/#{@order.external_ref}" target="_blank"><%= @order.external_ref %></a>
+          <a href="<%= "https://mail.hackclub.com/back_office/letters/#{@order.external_ref}" %>" target="_blank"><%= @order.external_ref %></a>
         <% else %>
           <%= @order.external_ref %>
         <% end %>
