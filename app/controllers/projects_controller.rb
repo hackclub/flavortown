@@ -325,24 +325,28 @@ class ProjectsController < ApplicationController
     authorize @project
 
     PaperTrail.request(whodunnit: current_user.id) do
-      success = ShipCertService.ship_to_dash(@project, type: "resend", force: true)
+      begin
+        success = ShipCertService.ship_to_dash(@project, type: "resend")
 
-      PaperTrail::Version.create!(
-        item_type: "Project",
-        item_id: @project.id,
-        event: "resend_webhook",
-        whodunnit: current_user.id,
-        object_changes: {
-          admin_action: [ nil, "resend_webhook" ],
-          triggered_by_id: [ nil, current_user.id ],
-          success: [ nil, success ]
-        }
-      )
+        PaperTrail::Version.create!(
+          item_type: "Project",
+          item_id: @project.id,
+          event: "resend_webhook",
+          whodunnit: current_user.id,
+          object_changes: {
+            admin_action: [ nil, "resend_webhook" ],
+            triggered_by_id: [ nil, current_user.id ],
+            success: [ nil, success ]
+          }
+        )
 
-      if success
-        render json: { message: "Webhook resent successfully" }, status: :ok
-      else
-        render json: { message: "Failed to resend webhook" }, status: :unprocessable_entity
+        if success
+          render json: { message: "Webhook resent successfully" }, status: :ok
+        else
+          render json: { message: "Failed to resend webhook" }, status: :unprocessable_entity
+        end
+      rescue => e
+        render json: { message: "Webhook failed: #{e.message}" }, status: :unprocessable_entity
       end
     end
   end
@@ -374,7 +378,7 @@ class ProjectsController < ApplicationController
 
     PaperTrail.request(whodunnit: current_user.id) do
       begin
-        ShipCertService.ship_to_dash(@project, type: "recertification", force: true)
+        ShipCertService.ship_to_dash(@project, type: "recertification")
         ship_event.update!(certification_status: "pending")
 
         PaperTrail::Version.create!(
@@ -391,7 +395,7 @@ class ProjectsController < ApplicationController
         flash[:notice] = "Re-certification requested! Your project has been resubmitted for review."
       rescue => e
         Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
-        flash[:alert] = "Failed to request re-certification. Please try again later."
+        flash[:alert] = "Failed to request re-certification: #{e.message}"
       end
     end
 

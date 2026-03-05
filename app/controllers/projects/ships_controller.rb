@@ -23,8 +23,12 @@ class Projects::ShipsController < ApplicationController
     end
 
     if initial_ship?
-      ShipCertWebhookJob.perform_now(ship_event_id: @post.postable_id, type: "initial", force: false)
-      redirect_to @project, notice: "Congratulations! Your project has been submitted for review!"
+      begin
+        ShipCertService.ship_to_dash(@project, type: "initial")
+        redirect_to @project, notice: "Congratulations! Your project has been submitted for review!"
+      rescue => e
+        redirect_to @project, alert: "Your project was saved but certification failed: #{e.message}"
+      end
     else
       @post.postable.update!(certification_status: "approved")
       redirect_to @project, notice: "Ship submitted! Your project is now out for voting."
