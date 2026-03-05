@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_04_185344) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_05_062122) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -365,18 +365,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_185344) do
   end
 
   create_table "post_ship_events", force: :cascade do |t|
+    t.float "base_hours"
     t.string "body"
+    t.boolean "bridge", default: false, null: false
     t.string "certification_status", default: "pending"
     t.datetime "created_at", null: false
     t.text "feedback_reason"
     t.string "feedback_video_url"
     t.float "hours"
+    t.float "legacy_payout_deduction"
     t.float "multiplier"
     t.decimal "originality_median", precision: 5, scale: 2
     t.decimal "originality_percentile", precision: 5, scale: 2
     t.decimal "overall_percentile", precision: 5, scale: 2
     t.decimal "overall_score", precision: 5, scale: 2
     t.float "payout"
+    t.datetime "payout_basis_locked_at"
+    t.decimal "payout_basis_overall_score", precision: 5, scale: 2
+    t.decimal "payout_basis_percentile", precision: 5, scale: 2
+    t.string "payout_curve_version"
     t.decimal "storytelling_median", precision: 5, scale: 2
     t.decimal "storytelling_percentile", precision: 5, scale: 2
     t.datetime "synced_at"

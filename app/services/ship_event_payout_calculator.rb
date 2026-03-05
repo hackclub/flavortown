@@ -45,18 +45,26 @@ class ShipEventPayoutCalculator
 
       # mult is like if mult is 30 then you have $6/hr. or you get 30 cookies so its how many cookies you get
       mult = (hourly_rate * tickets_per_dollar).round(6)
-      bridge_payout = apply_legacy_bridge?(project)
-      payout_hours = bridge_payout ? bridge_total_hours(project: project, hours_used: hours_used) : hours_used
+      is_bridge = apply_legacy_bridge?(project)
+      payout_hours = is_bridge ? bridge_total_hours(project: project) : hours_used
+      legacy_deduction = is_bridge ? project.legacy_payout_total : 0.0
       cookies = calculate_cookies(
         hours: payout_hours,
         multiplier: mult,
-        project: project,
-        bridge: bridge_payout
+        legacy_deduction: legacy_deduction,
+        bridge: is_bridge
       )
       return if cookies.nil?
 
       ActiveRecord::Base.transaction do
-        attrs = { payout: cookies, multiplier: mult, hours: payout_hours }
+        attrs = {
+          payout: cookies,
+          multiplier: mult,
+          hours: payout_hours,
+          bridge: is_bridge,
+          base_hours: hours_used,
+          legacy_payout_deduction: is_bridge ? legacy_deduction : nil
+        }
 
         @ship_event.update!(attrs)
 
@@ -64,7 +72,7 @@ class ShipEventPayoutCalculator
           payout_user.ledger_entries.create!(
             ledgerable: @ship_event,
             amount: cookies,
-            reason: payout_reason,
+            reason: build_payout_reason(project: project, bridge: is_bridge, total_hours: payout_hours, legacy_deduction: legacy_deduction),
             created_by: "ship_event_payout"
           )
         end
@@ -117,11 +125,14 @@ class ShipEventPayoutCalculator
     rate.clamp(low, high)
   end
 
-  def payout_reason
-    project = @ship_event.post&.project
-    return "Ship event payout" unless project
+  def build_payout_reason(project:, bridge:, total_hours:, legacy_deduction:)
+    title = project&.title || "Unknown"
 
-    "Ship event payout: #{project.title}"
+    if bridge
+      "Bridge payout: #{title} (#{total_hours.round(2)}h total × multiplier, minus #{legacy_deduction.round(0)} legacy cookies)"
+    else
+      "Ship event payout: #{title}"
+    end
   end
 
   def lowest_dollar_per_hour = @game_constants.lowest_dollar_per_hour.to_f
@@ -129,11 +140,11 @@ class ShipEventPayoutCalculator
   def dollars_per_mean_hour = @game_constants.dollars_per_mean_hour.to_f
   def tickets_per_dollar = @game_constants.tickets_per_dollar.to_f
 
-  def calculate_cookies(hours:, multiplier:, project:, bridge:)
+  def calculate_cookies(hours:, multiplier:, legacy_deduction:, bridge:)
     return nil if multiplier <= 0
 
     if bridge
-      bridge_cookies = (hours * multiplier) - project.legacy_payout_total
+      bridge_cookies = (hours * multiplier) - legacy_deduction
       bridge_cookies.round.clamp(0, Float::INFINITY)
     else
       cookies = (hours * multiplier).round
@@ -143,11 +154,8 @@ class ShipEventPayoutCalculator
     end
   end
 
-  def bridge_total_hours(project:, hours_used:)
-    total_hours = project.total_ship_hours
-    # current ship hours
-    total_hours += hours_used.to_f if @ship_event[:hours].blank?
-    total_hours
+  def bridge_total_hours(project:)
+    project.total_ship_hours
   end
 
   def apply_legacy_bridge?(project)
