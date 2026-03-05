@@ -61,7 +61,7 @@ class ShipCertService
     ship_event = latest_ship_event(project)
     return false unless ship_event
 
-    ShipCertWebhookJob.perform_later(ship_event_id: ship_event.id, type: type, force: force)
+    ShipCertWebhookJob.perform_now(ship_event_id: ship_event.id, type: type, force: force)
     true
   end
 
