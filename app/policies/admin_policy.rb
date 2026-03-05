@@ -1,6 +1,6 @@
 class AdminPolicy < ApplicationPolicy
   def access_admin_dashboard?
-    user.admin? || user.fraud_dept? || user.sidequest_reviewer?
+    user.admin? || user.fraud_dept?
   end
 
   def index?
