@@ -147,10 +147,6 @@ Rails.application.routes.draw do
 
 
   # API
-  namespace :webhooks do
-    post "ship_cert", to: "ship_cert#update_status"
-  end
-
   namespace :api do
     get "/", to: "root#index"
 
@@ -161,6 +157,11 @@ Rails.application.routes.draw do
         end
         resource :report, only: [ :create ], controller: "external_reports"
         resources :devlogs, only: [ :index ], controller: "project_devlogs"
+      end
+      resources :shipwrights, only: [] do
+        collection do
+          post :update_status
+        end
       end
 
       get "docs", to: "docs#index", as: :docs
