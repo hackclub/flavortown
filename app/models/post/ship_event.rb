@@ -12,7 +12,6 @@
 #  hours                      :float
 #  legacy_payout_deduction    :float
 #  multiplier                 :float
-#  needs_recalc               :boolean          default(FALSE), not null
 #  originality_median         :decimal(5, 2)
 #  originality_percentile     :decimal(5, 2)
 #  overall_percentile         :decimal(5, 2)
