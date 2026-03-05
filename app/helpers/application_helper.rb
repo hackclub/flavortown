@@ -163,6 +163,18 @@ module ApplicationHelper
     end
   end
 
+  def modal_open_data(modal_id)
+    {
+      controller: "modal",
+      action: "click->modal#open",
+      modal_target_value: modal_id
+    }
+  end
+
+  def modal_open_attrs(modal_id)
+    tag.attributes(data: modal_open_data(modal_id))
+  end
+
   private
 
   def find_achievement_asset(icon_name)

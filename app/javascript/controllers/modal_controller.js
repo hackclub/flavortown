@@ -1,5 +1,21 @@
 import { Controller } from "@hotwired/stimulus";
 
+export function openDialog(dialog) {
+  if (!dialog || dialog.tagName !== "DIALOG") return;
+  if (!dialog.open) {
+    dialog.showModal();
+  }
+  document.body.style.overflow = "hidden";
+}
+
+export function closeDialog(dialog) {
+  if (!dialog || dialog.tagName !== "DIALOG") return;
+  if (dialog.open) {
+    dialog.close();
+  }
+  document.body.style.overflow = "";
+}
+
 export default class extends Controller {
   static values = { target: String };
 
@@ -21,67 +37,24 @@ export default class extends Controller {
 
   open() {
     const modal = document.getElementById(this.targetValue);
-    if (!modal) return;
-
-    if (modal.tagName === "DIALOG") {
-      modal.showModal();
-    } else {
-      modal.style.display = "flex";
-      requestAnimationFrame(() => {
-        modal.classList.add("lapse-modal--open");
-      });
-    }
-
-    document.body.style.overflow = "hidden";
+    openDialog(modal);
   }
 
   close() {
     if (this.element.tagName === "DIALOG") {
-      this.element.close();
-      document.body.style.overflow = "";
+      closeDialog(this.element);
       return;
     }
 
     if (this.hasTargetValue) {
       const modal = document.getElementById(this.targetValue);
-      if (modal) {
-        if (modal.tagName === "DIALOG") {
-          modal.close();
-        } else {
-          modal.classList.remove("lapse-modal--open");
-          modal.classList.add("lapse-modal--closing");
-          modal.addEventListener(
-            "animationend",
-            () => {
-              modal.style.display = "none";
-              modal.classList.remove("lapse-modal--closing");
-            },
-            { once: true },
-          );
-        }
-      }
-      document.body.style.overflow = "";
+      closeDialog(modal);
       return;
     }
-
-    this.element.classList.remove("lapse-modal--open");
-    this.element.classList.add("lapse-modal--closing");
-    this.element.addEventListener(
-      "animationend",
-      () => {
-        this.element.style.display = "none";
-        this.element.classList.remove("lapse-modal--closing");
-      },
-      { once: true },
-    );
-    document.body.style.overflow = "";
   }
 
   backdropClick(event) {
-    if (this.element.tagName !== "DIALOG") {
-      if (event.target === this.element) this.close();
-      return;
-    }
+    if (this.element.tagName !== "DIALOG") return;
 
     const rect = this.element.getBoundingClientRect();
     const clickedInside =
@@ -100,9 +73,7 @@ export default class extends Controller {
     const settingsParam = params.get("settings");
     if (!["1", "true"].includes(settingsParam)) return;
 
-    if (!this.element.open) {
-      this.element.showModal();
-    }
+    openDialog(this.element);
 
     params.delete("settings");
     const query = params.toString();

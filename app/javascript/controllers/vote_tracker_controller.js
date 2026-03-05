@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus";
+import { closeDialog, openDialog } from "./modal_controller";
 
 export default class extends Controller {
   static targets = [
@@ -108,14 +109,14 @@ export default class extends Controller {
   }
 
   openExtremeModal() {
-    if (this.hasExtremeModalTarget && !this.extremeModalTarget.open) {
-      this.extremeModalTarget.showModal();
+    if (this.hasExtremeModalTarget) {
+      openDialog(this.extremeModalTarget);
     }
   }
 
   closeExtremeModal() {
-    if (this.hasExtremeModalTarget && this.extremeModalTarget.open) {
-      this.extremeModalTarget.close();
+    if (this.hasExtremeModalTarget) {
+      closeDialog(this.extremeModalTarget);
     }
   }
 

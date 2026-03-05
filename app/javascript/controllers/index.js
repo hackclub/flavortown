@@ -61,9 +61,6 @@ application.register("markdown-preview", MarkdownPreviewController);
 import ModalController from "./modal_controller";
 application.register("modal", ModalController);
 
-import LapseModalController from "./lapse_modal_controller";
-application.register("lapse-modal", LapseModalController);
-
 import MusicPlayerController from "./music_player_controller";
 application.register("music-player", MusicPlayerController);
 

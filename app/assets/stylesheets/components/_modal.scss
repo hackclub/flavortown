@@ -1,0 +1,121 @@
+.modal {
+  margin: 0;
+  width: min(42rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  border: 0.5rem solid var(--color-brown-700);
+  border-radius: var(--border-radius);
+  padding: var(--space-l);
+  background: var(--color-bg);
+  color: var(--color-text-body);
+  box-shadow: var(--shadow);
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+  }
+
+  .modal__header {
+    margin-bottom: var(--space-s);
+  }
+
+  .modal__title {
+    margin: 0;
+    text-align: center;
+    font-family: var(--font-family-subtitle);
+    font-size: 2rem;
+    line-height: 1.1;
+    border-radius: calc(var(--border-radius) * 0.6);
+    background-color: var(--color-brown-700);
+    color: var(--color-bg);
+    padding: 0.2em 0.5em;
+  }
+
+  .modal__description {
+    margin: var(--space-s) 0 0;
+    color: var(--color-text-muted);
+  }
+
+  .modal__field {
+    margin-bottom: var(--space-m);
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+      color: var(--color-text-body);
+    }
+
+    input:not([type="checkbox"]):not([type="radio"]),
+    textarea {
+      width: 100%;
+      padding: var(--space-xs);
+      border: 2px solid var(--color-brown-500);
+      border-radius: 0.5em;
+      background: var(--color-tan-400);
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--color-text-body);
+
+      &::placeholder {
+        color: var(--color-text-muted);
+      }
+    }
+  }
+
+  .modal__loading {
+    text-align: center;
+    color: var(--color-text-muted);
+    margin-top: 0.5em;
+  }
+
+  .modal__actions {
+    margin-top: var(--space-m);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1em;
+  }
+
+  .modal__follower-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .modal__follower-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: background 0.2s;
+
+    &:hover {
+      background: var(--color-tan-400);
+    }
+  }
+
+  .modal__follower-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .modal__follower-name {
+    font-weight: 500;
+  }
+
+  .modal__empty-state {
+    color: var(--color-text-muted);
+    text-align: center;
+    margin: 0;
+  }
+
+}
