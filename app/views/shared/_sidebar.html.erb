@@ -81,11 +81,11 @@
           <span class="sidebar__user-region" style="font-size: 0.75rem; opacity: 0.7;">📍 <%= current_user.regions_display %></span>
         <% end %>
         <div class="sidebar__user-actions">
-          <button type="button" class="sidebar__user-balance" onclick="document.getElementById('balance-modal').showModal()">
+          <button type="button" class="sidebar__user-balance" <%= modal_open_attrs("balance-modal") %>>
             🍪 <%= current_user.cached_balance %>
           </button>
 
-          <button type="button" class="sidebar__user-settings" onclick="document.getElementById('settings-modal').showModal()" aria-label="Settings">
+          <button type="button" class="sidebar__user-settings" <%= modal_open_attrs("settings-modal") %> aria-label="Settings">
             <%= inline_svg_tag "icons/gear.svg", class: "sidebar__user-settings-icon" %>
           </button>
 
@@ -101,16 +101,14 @@
     </div>
   </div>
 
-  <%= render layout: "shared/modal", locals: { id: "balance-modal", title: "Transaction History" } do %>
+  <%= render ModalComponent.new(id: "balance-modal", title: "Transaction History") do |modal| %>
     <%= turbo_frame_tag "balance_history", src: my_balance_path, loading: "lazy" do %>
       <div class="modal__loading">Loading history...</div>
     <% end %>
-    <div class="modal__actions">
-      <button type="button" class="modal__actions-close" onclick="document.getElementById('balance-modal').close()">Close</button>
-    </div>
+    <% modal.with_close_button %>
   <% end %>
 
-  <%= render layout: "shared/modal", locals: { id: "settings-modal", title: "Settings" } do %>
+  <%= render ModalComponent.new(id: "settings-modal", title: "Settings") do |modal| %>
     <%= form_with url: my_settings_path, method: :patch, local: true, class: "settings-form", id: "settings-form" do |f| %>
       <div class="settings-form__field">
         <label class="settings-form__label" for="hcb_email">HCB Email</label>
@@ -175,10 +173,12 @@
         <small class="settings-form__hint">Enable/Disable visual effects during special events</small>
       </div>
 
-      <div class="modal__actions">
-        <%= f.submit "Save", class: "modal__actions-close" %>
-        <button type="button" class="modal__actions-close" onclick="document.getElementById('settings-form').reset(); document.getElementById('settings-modal').close()">Cancel</button>
-      </div>
+      <% modal.with_submit_and_cancel(
+           submit_text: "Save",
+           cancel_options: {
+             onclick: "document.getElementById('settings-form').reset(); document.getElementById('settings-modal').close()"
+           }
+         ) %>
     <% end %>
 
     <div class="api-key-section">

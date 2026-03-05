@@ -38,10 +38,18 @@ class VoteProjectShowcaseCardComponent < ViewComponent::Base
   end
 
   def has_any_links?
-    project.demo_url.present? || project.repo_url.present? || project.readme_url.present?
+    project.demo_url.present? || project.repo_url.present? || shipwright_review_video_url.present?
+  end
+
+  def shipwright_review_video_url
+    project.last_ship_event&.feedback_video_url
   end
 
   def report_modal_id
     "vote-project-report-modal-#{project.id}"
+  end
+
+  def demo_video_modal_id
+    "vote-project-demo-video-modal-#{project.id}"
   end
 end

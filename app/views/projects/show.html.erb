@@ -98,7 +98,7 @@
     <% end %>
 
     <% if current_user.present? && (!@project.users.include?(current_user) || Rails.env.development?) %>
-      <%= render layout: "shared/modal", locals: { id: "project-report-modal", title: "Report project?" } do %>
+      <%= render ModalComponent.new(id: "project-report-modal", title: "Report project?") do |modal| %>
         <h2>We want good, high quality projects in Flavortown. If you believe this project violates our community guidelines, please let us know why:</h2>
 
         <%= form_with model: Project::Report.new, url: project_reports_path(@project), local: true do |f| %>
@@ -134,10 +134,7 @@
             <small>Why are you reporting this project? (20+ characters)</small>
           </div>
 
-          <div class="modal__actions">
-            <%= f.submit "Submit", class: "modal__actions-close" %>
-            <button type="button" class="modal__actions-close" onclick="document.getElementById('project-report-modal').close()">Cancel</button>
-          </div>
+          <% modal.with_submit_and_cancel %>
         <% end %>
       <% end %>
     <% end %>

@@ -380,37 +380,6 @@
       }
     }
 
-    .modal {
-      background-color: white;
-      border: 5px solid black;
-      padding: 0.8em;
-
-      h3 {
-        display: none;
-      }
-
-      p {
-        color: black;
-        font-size: 1rem;
-        line-height: 1.2;
-      }
-
-      &__actions {
-        .modal__actions-close {
-          position: absolute;
-          right: 0.5em;
-          top: 0.5em;
-          font-size: 1rem;
-          background: transparent;
-          border: none;
-          color: black;
-
-          &:hover {
-            cursor: pointer;
-          }
-        }
-      }
-    }
   }
 }
 

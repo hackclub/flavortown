@@ -473,13 +473,12 @@
                       <button
                         type="button"
                         class="concern-desc-btn"
-                        onclick="document.getElementById(<%= "concern-#{idx}".to_json %>).showModal()">
+                        data-action="click->modal#open"
+                        data-modal-target-value="<%= "concern-#{idx}" %>">
                         <%= concern["title"] %>
                       </button>
-                      <%= render layout: "shared/modal", locals: { id: "concern-#{idx}", title: concern["title"], description: concern["description"] } do %>
-                        <div class="modal__actions">
-                          <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= "concern-#{idx}".to_json %>).close()">X</button>
-                        </div>
+                      <%= render ModalComponent.new(id: "concern-#{idx}", title: concern["title"], description: concern["description"]) do |modal| %>
+                        <% modal.with_close_button %>
                       <% end %>
                     </div>
                   </li>

@@ -33,17 +33,22 @@
   disable_with: "Submitting vote..."
 ) %>
 
-<dialog id="vote-extreme-score-modal" class="modal" data-controller="modal" data-vote-tracker-target="extremeModal">
-  <h3 class="modal__title">Extreme score check</h3>
-  <p class="modal__description">
-    You selected an extreme score (1 or 9). These should be rare and used only for truly exceptional cases.
-  </p>
-  <div class="modal__actions">
-    <button type="button" class="modal__actions-close" data-action="click->modal#close">
-      Review scores
-    </button>
-    <button type="button" class="btn btn--brown slim" data-action="click->vote-tracker#confirmExtreme">
-      Submit anyway
-    </button>
-  </div>
-</dialog>
+<%= render ModalComponent.new(
+      id: "vote-extreme-score-modal",
+      title: "Extreme score check",
+      description: "You selected an extreme score (1 or 9). These should be rare and used only for truly exceptional cases.",
+      data: { vote_tracker_target: "extremeModal" }
+    ) do |modal| %>
+  <% modal.with_button(
+         text: "Review scores",
+         color: :brown,
+         variant: :borderless,
+         data: { action: "click->modal#close" }
+       ) %>
+  <% modal.with_button(
+         text: "Submit anyway",
+         color: :brown,
+         variant: :borderless,
+         data: { action: "click->vote-tracker#confirmExtreme" }
+       ) %>
+<% end %>

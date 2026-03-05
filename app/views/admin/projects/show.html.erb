@@ -106,10 +106,14 @@
         class: "btn-primary",
         data: { confirm: "Remove shadow ban from this project?" } %>
     <% else %>
-      <button type="button" onclick="document.getElementById('shadow-ban-project-modal').showModal()" class="btn-secondary">
+      <button type="button" class="btn-secondary" <%= modal_open_attrs("shadow-ban-project-modal") %>>
         👻 Shadow Ban
       </button>
-      <%= render layout: "shared/modal", locals: { id: "shadow-ban-project-modal", title: "Shadow Ban Project", description: "This project will be hidden from other users but visible to its members. A notification will be sent via Slack DM to all project members." } do %>
+      <%= render ModalComponent.new(
+            id: "shadow-ban-project-modal",
+            title: "Shadow Ban Project",
+            description: "This project will be hidden from other users but visible to its members. A notification will be sent via Slack DM to all project members."
+          ) do |modal| %>
         <form action="<%= shadow_ban_admin_project_path(@project) %>" method="post">
           <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
 
@@ -128,10 +132,7 @@
             <%= label_tag :reason, "Shadow Ban Reason (optional)" %>
             <%= text_area_tag :reason, "", placeholder: "Enter reason for shadow ban...", id: "shadow-ban-reason-input" %>
           </div>
-          <div class="modal__actions">
-            <button type="submit" class="btn-secondary">Confirm Shadow Ban</button>
-            <button type="button" onclick="document.getElementById('shadow-ban-project-modal').close()" class="btn-secondary">Cancel</button>
-          </div>
+          <% modal.with_submit_and_cancel(submit_text: "Confirm Shadow Ban") %>
         </form>
 
         <script>

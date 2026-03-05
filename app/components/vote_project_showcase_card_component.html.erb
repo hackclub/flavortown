@@ -12,7 +12,7 @@
                 icon: "icons/flag.svg",
                 aria: { label: "Report project" },
                 class: "votes-new__project-report-btn",
-                onclick: "document.getElementById(#{report_modal_id.to_json}).showModal()"
+                data: modal_open_data(report_modal_id)
               ) %>
         <% end %>
       </div>
@@ -66,24 +66,35 @@
             ) %>
       <% end %>
 
-      <% if project.readme_url.present? %>
+      <% if shipwright_review_video_url.present? %>
         <%= render ButtonComponent.new(
-              href: project.readme_url,
               color: :brown,
               variant: :borderless,
-              text: "Readme",
-              icon: "icons/paper.svg",
-              aria: { label: "Readme" },
-              target: "_blank",
-              rel: "noopener noreferrer"
+              text: "Demo Video",
+              icon: "icons/link.svg",
+              aria: { label: "Demo Video" },
+              data: modal_open_data(demo_video_modal_id)
             ) %>
       <% end %>
+
     </div>
   <% end %>
 </article>
 
+<% if shipwright_review_video_url.present? %>
+  <%= render ModalComponent.new(id: demo_video_modal_id, title: "Demo Video") do |modal| %>
+    <div class="votes-new__project-video">
+      <video controls preload="metadata">
+        <source src="<%= shipwright_review_video_url %>" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    <% modal.with_close_button %>
+  <% end %>
+<% end %>
+
 <% if show_report_button? %>
-  <%= render layout: "shared/modal", locals: { id: report_modal_id, title: "Report project?" } do %>
+  <%= render ModalComponent.new(id: report_modal_id, title: "Report project?") do |modal| %>
     <h2>We want good, high quality projects in Flavortown. If you believe this project violates our community guidelines, please let us know why:</h2>
 
     <%= form_with model: Project::Report.new, url: project_reports_path(project), local: true do |f| %>
@@ -119,10 +130,7 @@
         <small>Why are you reporting this project? (20+ characters)</small>
       </div>
 
-      <div class="modal__actions">
-        <%= f.submit "Submit", class: "modal__actions-close" %>
-        <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= report_modal_id.to_json %>).close()">Cancel</button>
-      </div>
+      <% modal.with_submit_and_cancel %>
     <% end %>
   <% end %>
 <% end %>

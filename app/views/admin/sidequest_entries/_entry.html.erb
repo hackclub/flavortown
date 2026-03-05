@@ -35,7 +35,12 @@
     <div class="actions-cell">
       <% if entry.pending? %>
         <%= button_to "Approve", approve_admin_sidequest_entry_path(entry), method: :post, class: "btn-primary slim" %>
-        <button type="button" onclick="document.getElementById(<%= "reject-modal-#{entry.id}".to_json %>).showModal()" class="btn-danger slim">Reject</button>
+        <button
+          type="button"
+          class="btn-danger slim"
+          <%= modal_open_attrs("reject-modal-#{entry.id}") %>>
+          Reject
+        </button>
       <% end %>
     </div>
   </td>

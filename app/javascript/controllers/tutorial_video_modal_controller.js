@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
 import * as Turbo from "@hotwired/turbo";
+import { closeDialog, openDialog } from "./modal_controller";
 
 export default class extends Controller {
   static targets = ["dialog", "iframe"];
@@ -16,11 +17,11 @@ export default class extends Controller {
       this.iframeTarget.src = videoUrl;
     }
 
-    this.dialogTarget.showModal();
+    openDialog(this.dialogTarget);
   }
 
   close() {
-    this.dialogTarget.close();
+    closeDialog(this.dialogTarget);
     this.stopVideo();
   }
 

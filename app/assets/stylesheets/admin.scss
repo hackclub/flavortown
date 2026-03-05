@@ -1,3 +1,5 @@
+@use "components/modal";
+
 /* Admin Layout */
 body {
   background: var(--color-bg);
@@ -333,67 +335,6 @@ body {
   font-weight: 500;
 }
 
-/* Modal */
-.modal {
-  background: var(--color-tan-300);
-  border: 2px solid var(--color-brown-500);
-  border-radius: var(--border-radius);
-  padding: var(--space-l);
-  box-shadow: var(--shadow);
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  margin: 0;
-  max-width: 90vw;
-  width: 400px;
-
-  &::backdrop {
-    background: rgba(0, 0, 0, 0.5);
-  }
-
-  &__title {
-    margin: 0 0 var(--space-s) 0;
-    color: var(--color-text-header);
-  }
-
-  &__description {
-    color: var(--color-text-muted);
-    margin: 0 0 var(--space-m) 0;
-  }
-
-  &__field {
-    margin-bottom: var(--space-m);
-
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: var(--space-xs);
-      color: var(--color-text-body);
-    }
-
-    input,
-    textarea {
-      width: 100%;
-      padding: var(--space-xs);
-      border: 2px solid var(--color-brown-500);
-      border-radius: 0.5em;
-      background: var(--color-tan-400);
-      font-family: inherit;
-      font-size: 1rem;
-      color: var(--color-text-body);
-
-      &::placeholder {
-        color: var(--color-text-muted);
-      }
-    }
-  }
-
-  &__actions {
-    display: flex;
-    gap: var(--space-s);
-  }
-}
 
 /* Tooltips */
 .tooltip-wrapper {
@@ -487,58 +428,6 @@ body {
 .pagy {
   display: flex;
   gap: 0.25rem;
-}
-
-/* Dialog / Modal */
-dialog {
-  border: none;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  max-width: 500px;
-  width: 90%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  background: var(--color-tan-300);
-  margin: auto;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  &::backdrop {
-    background: rgba(0, 0, 0, 0.5);
-  }
-
-  h2 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-  }
-}
-
-.fulfill-dialog {
-  h3 {
-    margin: 0 0 1rem;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 1rem;
-    font-weight: 500;
-  }
-
-  input {
-    display: block;
-    width: 100%;
-    margin-top: 0.25rem;
-    padding: 0.5rem;
-    border: 1px solid var(--color-brown-500);
-    border-radius: 4px;
-  }
-}
-
-.fulfill-actions {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
 }
 
 .admin-section {

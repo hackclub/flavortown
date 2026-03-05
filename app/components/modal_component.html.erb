@@ -1,0 +1,20 @@
+<%= tag.dialog(id: id, class: dialog_classes, data: dialog_data) do %>
+  <header class="modal__header">
+    <h3 class="modal__title"><%= title %></h3>
+    <% if description.present? %>
+      <p class="modal__description"><%= description %></p>
+    <% end %>
+  </header>
+
+  <div class="modal__body">
+    <%= body_content %>
+  </div>
+
+  <% if has_actions? %>
+    <div class="<%= action_classes %>">
+      <% action_buttons.each do |button| %>
+        <%= render button %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
