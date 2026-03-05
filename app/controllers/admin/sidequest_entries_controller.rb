@@ -3,7 +3,7 @@ module Admin
     before_action :set_entry, only: [ :show, :approve, :reject ]
 
     def index
-      authorize :admin, :access_admin_endpoints?
+      authorize :admin, :process_sidequest_entry?
 
       # Only show entries for projects that have been shipped (have a ship_event)
       @entries = SidequestEntry
@@ -25,11 +25,11 @@ module Admin
     end
 
     def show
-      authorize :admin, :access_admin_endpoints?
+      authorize :admin, :process_sidequest_entry?
     end
 
     def approve
-      authorize :admin, :access_admin_endpoints?
+      authorize :admin, :process_sidequest_entry?
 
       if @entry.may_approve?
         @entry.approve!(current_user)
@@ -50,7 +50,7 @@ module Admin
     end
 
     def reject
-      authorize :admin, :access_admin_endpoints?
+      authorize :admin, :process_sidequest_entry?
 
       if @entry.may_reject?
         @entry.rejection_message = params[:rejection_message].presence

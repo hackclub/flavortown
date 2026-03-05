@@ -83,7 +83,7 @@
             <div class="post__payout-footer">
               <div class="post__payout-item">
                 <span class="post__payout-label">Hours:</span>
-                <span class="post__payout-value"><%= postable.hours&.round(2) || '—' %></span>
+                <span class="post__payout-value"><%= postable.read_attribute(:hours)&.round(2) || '—' %></span>
               </div>
               <div class="post__payout-item">
                 <span class="post__payout-label">Cookies:</span>

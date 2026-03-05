@@ -13,6 +13,7 @@ class AdminConstraint
     # Allow admins, fraud dept, and fulfillment persons (who have limited access)
     policy.access_admin_endpoints? ||
       policy.access_fulfillment_view? ||
+      policy.process_sidequest_entry? ||
       (request.path == "/admin/flavortime_dashboard" && policy.access_flavortime_dashboard?) ||
       (request.path == "/admin/time_loss" && policy.access_time_loss_dashboard?)
   end

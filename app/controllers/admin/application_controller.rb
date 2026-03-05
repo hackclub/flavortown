@@ -33,6 +33,8 @@ module Admin
         unless shop_orders_fulfillment?
           raise Pundit::NotAuthorizedError
         end
+      elsif (sidequest_entries_request? || admin_dashboard_request?) && policy(:admin).process_sidequest_entry?
+        true
       elsif flavortime_dashboard_request? && policy(:admin).access_flavortime_dashboard?
         true
       elsif time_loss_dashboard_request? && policy(:admin).access_time_loss_dashboard?
@@ -58,6 +60,14 @@ module Admin
       else
         false
       end
+    end
+
+    def admin_dashboard_request?
+      controller_name == "application" && action_name == "index"
+    end
+
+    def sidequest_entries_request?
+      controller_name == "sidequest_entries"
     end
 
     def flavortime_dashboard_request?

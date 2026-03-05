@@ -305,6 +305,32 @@
       flex: 1;
       min-height: 0;
       overflow-y: auto;
+
+      @media (max-height: 1000px) {
+        padding-right: 0.2em; // only apply padding when scrollbar is present
+      }
+
+      @supports (-moz-appearance: none) {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-brown-700) transparent;
+      }
+
+      &::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: var(--color-brown-700);
+        border-radius: 8px;
+      }
+
+      &::-webkit-scrollbar-thumb:hover {
+        background-color: var(--color-brown-500);
+      }
     }
 
     .vote-category__stars {
@@ -326,9 +352,7 @@
 
       &__feedback {
         display: flex;
-        margin-top: calc(
-          0.74 * var(--space-l)
-        ); // I have created a very fragile balance that I eyeballed. Do not get ur AI to fuck this!
+        margin-top: var(--space-m);
       }
 
       .input {
