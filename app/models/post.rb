@@ -32,6 +32,9 @@ class Post < ApplicationRecord
 
     delegated_type :postable, types: Postable.types
 
+    validates :postable_id, presence: true
+    validates :postable_type, presence: true
+
     after_commit :invalidate_project_time_cache, on: [ :create, :destroy ]
     after_commit :increment_devlogs_count, on: :create
     after_commit :decrement_devlogs_count, on: :destroy
