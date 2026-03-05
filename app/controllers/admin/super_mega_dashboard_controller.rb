@@ -369,7 +369,7 @@ module Admin
           data = JSON.parse(response.body)
 
           unresolved = data.dig("unresolved_tickets") || {}
-          hang_time = data.dig("p95") || {}
+          hang_time = data.dig("hang_time", "p95") || {}
 
           all_dates = (unresolved.keys + hang_time.keys).uniq.sort
 
@@ -377,7 +377,7 @@ module Admin
             {
               date: date,
               unresolved_tickets: unresolved[date] || 0,
-              hang_time_p95: hang_time[date].nil? ? nil : hang_time[date].round(2)
+              hang_time_p95: hang_time[date].nil? ? nil : (hang_time[date]/3600).round(2)
             }
           end
         rescue Faraday::Error, JSON::ParserError
