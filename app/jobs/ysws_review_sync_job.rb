@@ -197,13 +197,7 @@ class YswsReviewSyncJob < ApplicationJob
       .includes(:shop_item)
 
     hours_spent = adjusted_hours || (total_approved_minutes / 60.0)
-    if approved_orders.none? && hours_spent < 1
-      Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - user #{slack_id} has no manually fulfilled orders"
-      return
-    end
-
     user_pii = extract_user_pii(user)
-
     create_airtable_record(current_review, user_pii, approved_orders, adjusted_hours: adjusted_hours)
   end
 
