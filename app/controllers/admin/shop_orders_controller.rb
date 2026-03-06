@@ -119,6 +119,15 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     # Load user's order history for fraud dept or order review
     @user_orders = @order.user.shop_orders.where.not(id: @order.id).order(created_at: :desc).limit(10)
 
+    # Find sibling LetterMail orders for Theseus coalesce button
+    if @order.shop_item.type == "ShopItem::LetterMail" && @order.awaiting_periodical_fulfillment?
+      @theseus_sibling_orders = ShopOrder.joins(:shop_item)
+                                         .where(shop_items: { type: "ShopItem::LetterMail" })
+                                         .where(user_id: @order.user_id, frozen_address_ciphertext: @order.frozen_address_ciphertext)
+                                         .where(aasm_state: "awaiting_periodical_fulfillment")
+                                         .where.not(id: @order.id)
+    end
+
     # User's shop orders summary stats
     user_orders = @order.user.shop_orders
     @user_order_stats = {
@@ -412,6 +421,33 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   public
+
+  def send_to_theseus
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+
+    order_ids = (Array(params[:order_ids]).map(&:to_i) | [ @order.id ]).uniq
+
+    @order.user.with_advisory_lock("theseus_send", timeout_seconds: 10) do
+      orders_to_send = ShopOrder.joins(:shop_item)
+                                .where(id: order_ids, shop_items: { type: "ShopItem::LetterMail" }, aasm_state: "awaiting_periodical_fulfillment")
+                                .to_a
+
+      stale_ids = order_ids - orders_to_send.map(&:id)
+      if stale_ids.any?
+        redirect_to admin_shop_order_path(@order), alert: "Order(s) #{stale_ids.join(', ')} no longer awaiting fulfillment. Please refresh and try again." and return
+      end
+
+      letter_id = TheseusService.create_letter(orders_to_send, queue: "flavortown-envelope")
+      orders_to_send.each { |o| o.mark_fulfilled!(letter_id, nil, "#{current_user.display_name} - Letter Mail (Theseus)") }
+
+      notice = "Sent to Theseus (letter #{letter_id})"
+      notice += " — #{orders_to_send.size} orders coalesced" if orders_to_send.size > 1
+      redirect_to admin_shop_order_path(@order), notice: notice
+    rescue => e
+      redirect_to admin_shop_order_path(@order), alert: "Failed to send to Theseus: #{e.message}"
+    end
+  end
 
   def refresh_verification
     authorize :admin, :access_shop_orders?

@@ -269,6 +269,7 @@ Rails.application.routes.draw do
         post :assign_user
         post :cancel_hcb_grant
         post :refresh_verification
+        post :send_to_theseus
       end
     end
     resources :shop_suggestions, only: [ :index ] do
