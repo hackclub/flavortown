@@ -229,12 +229,21 @@
     </div>
   <% end %>
 
-  <div class="kitchen-open-sauce">
+  <button class="kitchen-open-sauce" data-controller="modal" data-modal-target-value="kitchen-opensauce-modal" data-action="click->modal#open">
     <%= image_tag "opensauce_left.avif", alt: "William Osman's Coke", class: "kitchen-open-sauce__left-image" %>
-    <h2><a href="https://www.youtube.com/watch?v=1qzcum2P1Ko" target="_blank" rel="noopener noreferrer">William's Coke</a> & Open Sauce Tickets</h2>
-    <h3>are now <span>available!</span></h3>
+    <h2>Hack Club x Open Sauce</h2>
+    <h3>new items <span>available!</span></h3>
     <%= image_tag "opensauce_right.avif", alt: "William Osman's Coke", class: "kitchen-open-sauce__right-image" %>
-  </div>
+  </button>
+
+  <dialog id="kitchen-opensauce-modal" class="modal" data-controller="modal">
+    <h3 class="modal__title" style="border-radius: calc(var(--border-radius)*.6);">Hack Club x Open Sauce</h3>
+    <h4>
+      <p>Hack Club has partnered with Open Sauce to bring you free tickets and travel scholarships to Open Sauce 2026! Get them from the shop. Bonus: You can now also buy William Osman's <a href="https://www.youtube.com/watch?v=1qzcum2P1Ko" target="_blank" rel="noopener noreferrer">pirated coke</a>!</p>
+      <%= link_to "Go to the shop", "/shop", class: "modal__button" %>
+      <%= image_tag "landing-page-opensauce.avif", alt: "Modal Image", class: "modal__image" %>
+    </h4>
+  </dialog>
 
   <div class="kitchen-setup">
     <%= render KitchenTutorialStepsComponent.new(

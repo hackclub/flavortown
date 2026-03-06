@@ -2251,7 +2251,7 @@ body:has(.hero--challenger) .launch-stars-svg {
 }
 
 .open-sauce {
-  padding: 1em;
+  padding: 1em 1em 0.5em 1em;
   background: var(--color-brown-500);
   border: 0.5em solid var(--color-brown-400);
   border-radius: 1em;
@@ -2281,7 +2281,7 @@ body:has(.hero--challenger) .launch-stars-svg {
     font-size: 1.6rem;
     font-weight: 400;
     text-shadow: -4px 4px 0 var(--color-brown-700);
-    margin: 0.2em 3em 0 3em;
+    margin: 0 3em 0.25em 3em;
     position: relative;
     z-index: 5;
 
@@ -2333,9 +2333,9 @@ body:has(.hero--challenger) .launch-stars-svg {
     position: absolute;
     left: 50%;
     transform: translateX(-50%) rotate(-3deg);
-    bottom: -1.1em;
-    height: 200%;
-    width: calc(100% + 4rem);
+    bottom: -1.5em;
+    height: 250%;
+    width: calc(100% + 2rem);
     background-color: var(--color-brown-700);
     z-index: -1;
   }
@@ -2346,7 +2346,7 @@ body:has(.hero--challenger) .launch-stars-svg {
     top: -0.1em;
     height: 150%;
 
-    @media (max-width: 1300px) {
+    @media (max-width: 1200px) {
       display: none;
     }
   }
@@ -2357,12 +2357,12 @@ body:has(.hero--challenger) .launch-stars-svg {
     bottom: -2em;
     height: 120%;
 
-    @media (max-width: 1300px) {
+    @media (max-width: 1200px) {
       display: none;
     }
   }
 
-  @media (max-width: 1300px) {
+  @media (max-width: 1200px) {
     width: fit-content;
     border-radius: 100%;
     padding: 0.1em 0.5em;
@@ -2370,6 +2370,7 @@ body:has(.hero--challenger) .launch-stars-svg {
 
     h2 {
       margin: 0.2em 0 0 0;
+      text-shadow: none;
     }
 
     h2.normal {
@@ -2463,5 +2464,15 @@ body:has(.hero--challenger) .launch-stars-svg {
     z-index: -1;
     bottom: -5em;
     left: -4em;
+  }
+
+  @media (max-width: 1000px) {
+    &__image {
+      display: none;
+    }
+
+    &__button {
+      margin-bottom: 0;
+    }
   }
 }
