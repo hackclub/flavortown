@@ -370,6 +370,22 @@
       </dialog>
     <% end %>
 
+    <% if @order.awaiting_periodical_fulfillment? && @order.shop_item.type == "ShopItem::LetterMail" && (current_user.admin? || current_user.fulfillment_person?) %>
+      <form method="post" action="<%= send_to_theseus_admin_shop_order_path(@order) %>" style="display: inline;">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <button type="submit" class="admin-btn admin-btn--primary" onclick="return confirm('Send this order to Theseus?')">Send to Theseus</button>
+      </form>
+      <% if @theseus_sibling_orders&.any? %>
+        <form method="post" action="<%= send_to_theseus_admin_shop_order_path(@order) %>" style="display: inline;">
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <% @theseus_sibling_orders.each do |sibling| %>
+            <%= hidden_field_tag "order_ids[]", sibling.id %>
+          <% end %>
+          <button type="submit" class="admin-btn admin-btn--primary" onclick="return confirm(<%= "Send #{@theseus_sibling_orders.size + 1} orders to Theseus as one letter?".to_json %>)">Send all to Theseus (<%= @theseus_sibling_orders.size + 1 %> orders)</button>
+        </form>
+      <% end %>
+    <% end %>
+
     <% if @order.awaiting_periodical_fulfillment? && (current_user.admin? || current_user.fulfillment_person?) %>
       <% m = 'fulfillment-modal' %>
       <button type="button" class="admin-btn admin-btn--primary" onclick="document.getElementById(<%= m.to_json %>).showModal()">Mark as Fulfilled</button>
