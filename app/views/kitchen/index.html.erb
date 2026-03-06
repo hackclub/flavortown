@@ -229,6 +229,13 @@
     </div>
   <% end %>
 
+  <div class="kitchen-open-sauce">
+    <%= image_tag "opensauce_left.avif", alt: "William Osman's Coke", class: "kitchen-open-sauce__left-image" %>
+    <h2><a href="https://www.youtube.com/watch?v=1qzcum2P1Ko" target="_blank" rel="noopener noreferrer">William's Coke</a> & Open Sauce Tickets</h2>
+    <h3>are now <span>available!</span></h3>
+    <%= image_tag "opensauce_right.avif", alt: "William Osman's Coke", class: "kitchen-open-sauce__right-image" %>
+  </div>
+
   <div class="kitchen-setup">
     <%= render KitchenTutorialStepsComponent.new(
       tutorial_steps: @tutorial_steps,

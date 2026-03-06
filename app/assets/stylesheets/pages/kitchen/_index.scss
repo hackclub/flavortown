@@ -740,3 +740,111 @@
     }
   }
 }
+
+.kitchen-open-sauce {
+  width: 100%;
+  padding: 1em;
+  background: var(--color-brown-500);
+  border: 0.5em solid var(--color-brown-400);
+  border-radius: 1em;
+  margin-bottom: 2em;
+  text-align: center;
+  color: var(--color-bg);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    border-radius: inherit;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("landing/pattern.avif") repeat center center / 1200px;
+    opacity: 0.15;
+    z-index: 0;
+  }
+
+  h2 {
+    font-size: 2.6rem;
+    font-weight: 400;
+    text-shadow: -4px 4px 0 var(--color-brown-700);
+    margin-top: 0.2em;
+    position: relative;
+    z-index: 5;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        cursor: pointer;
+        text-decoration-line: underline;
+        text-decoration-style: wavy;
+      }
+    }
+  }
+
+  h3 {
+    font-size: 2rem;
+    font-weight: 400;
+    text-shadow: -4px 4px 0 var(--color-brown-700);
+    margin-top: 0.5em;
+    position: relative;
+    display: inline-block;
+    z-index: 1;
+
+    span {
+      position: relative;
+      display: inline-block;
+    }
+
+    span::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -3px;
+      width: 100%;
+      height: 5px;
+      border-radius: 3px;
+      background-color: var(--color-brown-300);
+      z-index: 1;
+      display: block;
+    }
+  }
+
+  h3::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    bottom: -1.1em;
+    height: 200%;
+    width: calc(100% + 4rem);
+    background-color: var(--color-brown-700);
+    z-index: -1;
+  }
+
+  &__left-image {
+    position: absolute;
+    left: -0.6em;
+    top: -0.1em;
+    height: 150%;
+
+    @media (max-width: 1300px) {
+      display: none;
+    }
+  }
+
+  &__right-image {
+    position: absolute;
+    right: -3em;
+    bottom: -2em;
+    height: 120%;
+
+    @media (max-width: 1300px) {
+      display: none;
+    }
+  }
+}
