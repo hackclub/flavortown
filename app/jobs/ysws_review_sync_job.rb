@@ -197,9 +197,7 @@ class YswsReviewSyncJob < ApplicationJob
       .includes(:shop_item)
 
     hours_spent = adjusted_hours || (total_approved_minutes / 60.0)
-    
     user_pii = extract_user_pii(user)
-
     create_airtable_record(current_review, user_pii, approved_orders, adjusted_hours: adjusted_hours)
   end
 
