@@ -29,6 +29,25 @@
 =end
 %>
 
+  <% if @show_opensauce_banner %>
+    <button class="open-sauce" data-controller="modal" data-modal-target-value="opensauce-modal" data-action="click->modal#open">
+      <%= image_tag "opensauce_left.avif", alt: "William Osman's Coke", class: "open-sauce__left-image" %>
+      <h2 class="normal"><a href="https://www.youtube.com/watch?v=1qzcum2P1Ko" target="_blank" rel="noopener noreferrer">William's Coke</a> & Open Sauce Tickets</h2>
+      <h3>are now <span>available!</span></h3>
+      <%= image_tag "opensauce_right.avif", alt: "William Osman's Coke", class: "open-sauce__right-image" %>
+      <h2 class="only-mobile">&#9432;</h2>
+    </button>
+
+    <dialog id="opensauce-modal" class="modal" data-controller="modal">
+      <h3 class="modal__title" style="border-radius: calc(var(--border-radius)*.6);">William's Coke & Open Sauce Tickets</h3>
+      <h4>
+        <p>Hack Club has partnered with William Osman to bring you his special <a href="https://www.youtube.com/watch?v=1qzcum2P1Ko" target="_blank" rel="noopener noreferrer">hand-made coke</a>, and tickets to Open Sauce 2026! Join Flavortown today to get them from the shop.</p>
+        <%= button_to "Sign up for free stickers", "/auth/hack_club", method: :post, class: "modal__button" %>
+        <%= image_tag "landing-page-opensauce.avif", alt: "Modal Image", class: "modal__image" %>
+      </h4>
+    </dialog>
+  <% end %>
+
   <% unless @landing_variant == "challenger" %>
     <div class="top-collab">
       <%= image_tag image_url("landing/hero/hc-gh-collab.avif"), loading: "lazy", decoding: "async", alt: "Hack Club + Github" %>
