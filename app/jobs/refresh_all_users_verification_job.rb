@@ -16,20 +16,13 @@ class RefreshAllUsersVerificationJob < ApplicationJob
   private
 
   def refresh_verification_status(user)
-    identity = user.identities.find_by(provider: "hack_club")
+    identity = user.hack_club_identity
     return unless identity&.access_token.present?
 
     payload = HCAService.identity(identity.access_token)
     return if payload.blank?
 
-    status = payload["verification_status"].to_s
-    return unless User.verification_statuses.key?(status)
-
-    ysws_eligible = payload["ysws_eligible"] == true
-
-    user.verification_status = status
-    user.ysws_eligible = ysws_eligible
-    user.save!
+    user.apply_hca_verification_payload!(payload, persist_with_callbacks: false)
   rescue StandardError => e
     Rails.logger.error "Failed to refresh verification status for user #{user.id}: #{e.message}"
     Sentry.capture_exception(e, extra: { user_id: user.id })
