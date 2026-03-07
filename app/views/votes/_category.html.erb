@@ -1,24 +1,40 @@
 <% theme = {
    originality: "vote-category--red",
-   technical: "vote-category--yellow",
+   technicality: "vote-category--yellow",
    usability: "vote-category--blue",
    storytelling: "vote-category--green"
  }.fetch(category.to_sym, "") %>
+<% score_tooltip = ->(score) do
+  case score
+  when 1 then "Rare: reserve for clearly weak projects."
+  when 2..3 then "Below average."
+  when 4..6 then "Typical range — score most projects here."
+  when 7..8 then "Above average."
+  else "Rare: reserve for truly standout projects."
+  end
+end %>
 
-<div class="vote-category <%= theme %>">
+<div class="vote-category <%= theme %>" data-controller="vote-category">
   <div class="vote-category__header">
     <%= category.to_s.humanize %>
   </div>
 
   <div class="vote-category__body">
     <div class="vote-category__stars">
-      <% 6.downto(1) do |i| %>
-        <%= form.radio_button :"#{category}_score", i, class: "vote-category__input", id: "vote_#{category}_score_#{i}" %>
-        <%= form.label :"#{category}_score", value: i, for: "vote_#{category}_score_#{i}", class: "vote-category__star" do %>
+      <% 9.downto(1) do |i| %>
+        <% hint = score_tooltip.call(i) %>
+        <% star_id = "vote_#{category}_star_#{i}" %>
+        <% score_column = Vote.score_column_for!(category) %>
+        <%= form.radio_button score_column, i, class: "vote-category__input", id: "vote_#{score_column}_#{i}", data: { action: "change->vote-category#updateScore" } %>
+        <%= form.label score_column, value: i, for: "vote_#{score_column}_#{i}", class: class_names("vote-category__star", "vote-category__star--typical" => (4..6).cover?(i)), id: star_id, aria: { label: "#{i} out of 9. #{hint}" } do %>
           <%= inline_svg_tag "icons/star_fill.svg" %>
+        <% end %>
+        <%= render TooltipComponent.new(target_id: star_id, position: :top) do %>
+          <%= hint %>
         <% end %>
       <% end %>
     </div>
+    <span class="vote-category__score" data-vote-category-target="score">-</span>
   </div>
 
   <div class="vote-category__footer">

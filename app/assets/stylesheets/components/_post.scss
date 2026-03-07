@@ -258,6 +258,24 @@
     }
   }
 
+  &__author-activity {
+    opacity: 0.8;
+  }
+
+  &__admin-tools {
+    display: inline-flex;
+    gap: 0.25rem;
+    border: 1px solid orange;
+    background-color: #fff3e0;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin-left: 4px;
+
+    a {
+      text-decoration: none;
+    }
+  }
+
   &__time {
     font-size: var(--font-size-l);
   }
@@ -777,6 +795,12 @@
       background-color: var(--color-brown-400);
       left: -5.1em;
     }
+  }
+
+  &__actions {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
   }
 
   &__action-btn {

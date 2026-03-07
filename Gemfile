@@ -53,6 +53,10 @@ group :development, :test do
 
   # Load .env
   gem "dotenv-rails"
+
+  # Standardized OpenAPI generation
+  gem "rspec-rails"
+  gem "rswag-specs"
 end
 
 # Bullet gem to catch N+1
@@ -109,8 +113,8 @@ gem "faraday-retry"
 gem "faker", "~> 3.5"
 gem "jsbundling-rails", "~> 1.3"
 gem "stackprof"
-gem "sentry-ruby"
-gem "sentry-rails"
+gem "sentry-ruby", "~> 6.4"
+gem "sentry-rails", "~> 6.4"
 
 # for pagination
 gem "pagy", "~> 43.2"
@@ -138,3 +142,4 @@ gem "redis", "~> 5.4"
 gem "ahoy_matey"
 
 gem "countries"
+gem "strong_migrations"

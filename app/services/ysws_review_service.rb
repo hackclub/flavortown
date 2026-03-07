@@ -70,6 +70,9 @@ module YswsReviewService
   end
 
   def hours_since_last_sync
-    240000
+    last_sync = last_synced_at
+    return 8 unless last_sync
+
+    ((Time.current - last_sync) / 1.hour).ceil.clamp(1, 240)
   end
 end

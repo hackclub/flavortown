@@ -51,6 +51,7 @@
 #
 # Indexes
 #
+#  index_users_on_api_key           (api_key) UNIQUE
 #  index_users_on_email             (email)
 #  index_users_on_magic_link_token  (magic_link_token) UNIQUE
 #  index_users_on_session_token     (session_token) UNIQUE
@@ -61,7 +62,7 @@ class User < ApplicationRecord
 
   has_recommended :projects # you might like these projects...
 
-  DISMISSIBLE_THINGS = %w[flagship_ad shop_suggestion_box].freeze
+  DISMISSIBLE_THINGS = %w[flagship_ad shop_suggestion_box willsbuilds_banner].freeze
 
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy
@@ -440,7 +441,7 @@ class User < ApplicationRecord
 
   def devlog_seconds_total
     Rails.cache.fetch("user/#{id}/devlog_seconds_total", expires_in: 10.minutes) do
-      devlog_postable_ids = Post.where(user_id: id, postable_type: "Post::Devlog")
+      devlog_postable_ids = Post.joins(:project).where(user_id: id, postable_type: "Post::Devlog")
                                 .select("postable_id::bigint")
       Post::Devlog.where(id: devlog_postable_ids).not_deleted.sum(:duration_seconds) || 0
     end
@@ -448,7 +449,7 @@ class User < ApplicationRecord
 
   def devlog_seconds_today
     Rails.cache.fetch("user/#{id}/devlog_seconds_today/#{Time.zone.today}", expires_in: 10.minutes) do
-      devlog_postable_ids = Post.where(user_id: id, postable_type: "Post::Devlog")
+      devlog_postable_ids = Post.joins(:project).where(user_id: id, postable_type: "Post::Devlog")
                                 .where(created_at: Time.zone.now.beginning_of_day..Time.zone.now.end_of_day)
                                 .select("postable_id::bigint")
       Post::Devlog.where(id: devlog_postable_ids).not_deleted.sum(:duration_seconds) || 0

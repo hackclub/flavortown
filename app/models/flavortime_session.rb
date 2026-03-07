@@ -5,6 +5,7 @@
 #  id                     :bigint           not null, primary key
 #  app_version            :string
 #  discord_shared_seconds :integer          default(0), not null
+#  discord_status_seconds :integer          default(0), not null
 #  ended_at               :datetime
 #  ended_reason           :string
 #  expires_at             :datetime         not null
@@ -30,6 +31,7 @@ class FlavortimeSession < ApplicationRecord
   SESSION_TTL = 2.minutes
   END_REASON_TIMED_OUT = "timed_out"
   END_REASON_VOLUNTARY_CLOSE = "voluntary_close"
+  END_REASON_UPDATED = "updated"
 
   belongs_to :user
 
@@ -58,7 +60,7 @@ class FlavortimeSession < ApplicationRecord
     active.select(:user_id).distinct.count
   end
 
-  def record_heartbeat!(reported_shared_seconds, platform: nil, app_version: nil, now: Time.current)
+  def record_heartbeat!(reported_shared_seconds, platform: nil, app_version: nil, discord_status_seconds_total: nil, now: Time.current)
     normalized_seconds = [ reported_shared_seconds.to_i, 0 ].max
 
     attrs = {
@@ -68,13 +70,16 @@ class FlavortimeSession < ApplicationRecord
       ended_reason: nil,
       discord_shared_seconds: [ discord_shared_seconds, normalized_seconds ].max
     }
+    if discord_status_seconds_total.present?
+      attrs[:discord_status_seconds] = [ discord_status_seconds, discord_status_seconds_total.to_i.clamp(0, 2_147_483_647) ].max
+    end
     attrs[:platform] = platform if platform.present?
     attrs[:app_version] = app_version if app_version.present?
 
     update!(attrs)
   end
 
-  def close!(reported_shared_seconds, platform: nil, app_version: nil, now: Time.current)
+  def close!(reported_shared_seconds, platform: nil, app_version: nil, discord_status_seconds_total: nil, now: Time.current)
     normalized_seconds = [ reported_shared_seconds.to_i, 0 ].max
 
     attrs = {
@@ -84,6 +89,9 @@ class FlavortimeSession < ApplicationRecord
       ended_reason: END_REASON_VOLUNTARY_CLOSE,
       discord_shared_seconds: [ discord_shared_seconds, normalized_seconds ].max
     }
+    if discord_status_seconds_total.present?
+      attrs[:discord_status_seconds] = [ discord_status_seconds, discord_status_seconds_total.to_i.clamp(0, 2_147_483_647) ].max
+    end
     attrs[:platform] = platform if platform.present?
     attrs[:app_version] = app_version if app_version.present?
 
@@ -91,6 +99,13 @@ class FlavortimeSession < ApplicationRecord
   end
 
   def self.start_for!(user, session_id:, platform: nil, app_version: nil, now: Time.current)
+    active.where(user: user).update_all(
+      session_id: nil,
+      ended_at: now,
+      ended_reason: END_REASON_UPDATED,
+      updated_at: now
+    )
+
     create!(
       user: user,
       session_id: session_id,

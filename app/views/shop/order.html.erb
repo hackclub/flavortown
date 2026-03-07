@@ -47,10 +47,15 @@
                 </div>
             <% end %>
             <div class="shop-order__description"><%= md(@shop_item.description) %></div>
-            <%= render MarkdownContentComponent.new(markdown: @shop_item.long_description) %>
-            <div class="shop-order__blocked-country-banner" data-blocked-country-banner style="display: none;">
-                This item is currently not available in your specific country due to logistics issues.
-            </div>
+             <%= render MarkdownContentComponent.new(markdown: @shop_item.long_description) %>
+          <% if @shop_item.type == "ShopItem::ThirdPartyPhysical" %>
+             <div class="shop-order__disclaimer">
+                 Heads up! If we can't order this item to you, we'll try our best to send something similar, which may be from a different brand!
+             </div>
+             <div class="shop-order__blocked-country-banner" data-blocked-country-banner style="display: none;">
+                 This item is currently not available in your specific country due to logistics issues.
+             </div>
+             <% end %>
             <div class="shop-order__customs-warning" data-customs-warning-target="warning" style="display: none;"></div>
         </div>
         <div class="shop-order__details" data-controller="order-form" data-order-form-has-addresses-value="<%= current_user.addresses.any? %>" data-order-form-base-ticket-cost-value="<%= @sale_price || @shop_item.ticket_cost || 0 %>" data-order-form-user-balance-value="<%= current_user.balance || 0 %>" data-order-form-addresses-value="<%= current_user.addresses.to_json %>" data-order-form-blocked-countries-value="<%= @shop_item.blocked_countries.to_json %>" data-action="address-select:change@document->order-form#addressChanged">
@@ -181,7 +186,7 @@
                             <h4>Base Price:</h4>
                             <% if @shop_item.on_sale? %>
                                 <h4>
-                                    <span class="shop-order__original-price">🍪 <%= @regional_base_price.round %></span>
+                                    <span class="shop-order__original-price">🍪 <span class="shop-order__strikethrough"><%= @regional_base_price.round %></span></span>
                                     🍪 <%= @sale_price.round %>
                                 </h4>
                             <% else %>

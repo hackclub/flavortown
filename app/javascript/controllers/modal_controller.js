@@ -9,6 +9,8 @@ export default class extends Controller {
     if (!this.hasTargetValue) {
       this.element.addEventListener("click", this._boundBackdropClick);
     }
+
+    this.openSettingsModalFromQueryParam();
   }
 
   disconnect() {
@@ -89,5 +91,24 @@ export default class extends Controller {
       event.clientY <= rect.bottom;
 
     if (!clickedInside) this.close();
+  }
+
+  openSettingsModalFromQueryParam() {
+    if (this.element.id !== "settings-modal") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const settingsParam = params.get("settings");
+    if (!["1", "true"].includes(settingsParam)) return;
+
+    if (!this.element.open) {
+      this.element.showModal();
+    }
+
+    params.delete("settings");
+    const query = params.toString();
+    const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${
+      window.location.hash
+    }`;
+    window.history.replaceState(window.history.state, "", nextUrl);
   }
 }

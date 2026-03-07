@@ -36,38 +36,36 @@
       color: :brown
     ) %>
   </div>
-  <% unless current_page?(explore_extensions_path) %>
-    <div class="explore__nav--sort">
-      <%
-        base_path = request.path
-        sort_options = [
-          { label: "Newest", value: "#{base_path}?sort=newest" },
-          { label: "Top", value: "#{base_path}?sort=top" }
-        ]
+  <div class="explore__nav--sort">
+    <%
+      base_path = request.path
+      sort_options = [
+        { label: "Newest", value: "#{base_path}?sort=newest" },
+        { label: "Top", value: "#{base_path}?sort=top" }
+      ]
 
-        if current_user
-          sort_options << { label: "Following", value: "#{base_path}?sort=following" }
-        end
+      if current_user
+        sort_options << { label: "Following", value: "#{base_path}?sort=following" }
+      end
 
-        selected_label = case params[:sort]
-                         when "top" then "Top"
-                         when "following" then "Following"
-                         else "Newest"
-                         end
+      selected_label = case params[:sort]
+                       when "top" then "Top"
+                       when "following" then "Following"
+                       else "Newest"
+                       end
 
-        sort_color = case selected_label
-                     when "Top" then :red
-                     when "Following" then :blue
-                     else :green
-                     end
-      %>
-      <%= render DropdownComponent.new(
-        label: "Sort",
-        options: sort_options,
-        selected_option: selected_label,
-        longest_option_string: "Following",
-        color: sort_color
-      ) %>
-    </div>
-  <% end %>
+      sort_color = case selected_label
+                   when "Top" then :red
+                   when "Following" then :blue
+                   else :green
+                   end
+    %>
+    <%= render DropdownComponent.new(
+      label: "Sort",
+      options: sort_options,
+      selected_option: selected_label,
+      longest_option_string: "Following",
+      color: sort_color
+    ) %>
+  </div>
 </div>

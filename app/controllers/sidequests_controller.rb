@@ -42,7 +42,10 @@ class SidequestsController < ApplicationController
       redirect_to @sidequest.external_page_link, allow_other_host: true and return
     end
 
-    @approved_entries = @sidequest.sidequest_entries.approved.includes(project: :memberships)
+    @approved_entries = @sidequest.sidequest_entries
+      .approved
+      .joins(:project)
+      .includes(project: :memberships)
 
     # Load prizes for webOS sidequest
     if @sidequest.slug == "webos"

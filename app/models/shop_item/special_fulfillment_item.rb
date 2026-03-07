@@ -22,6 +22,7 @@
 #  enabled_eu                        :boolean
 #  enabled_in                        :boolean
 #  enabled_uk                        :boolean
+#  enabled_until                     :datetime
 #  enabled_us                        :boolean
 #  enabled_xx                        :boolean
 #  hacker_score                      :integer
@@ -50,6 +51,7 @@
 #  required_ships_start_date         :date
 #  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
+#  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer

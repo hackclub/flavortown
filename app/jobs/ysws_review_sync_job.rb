@@ -122,6 +122,19 @@ class YswsReviewSyncJob < ApplicationJob
   def process_review(review_id)
     adjusted_hours = nil
     current_review = YswsReviewService.fetch_review(review_id)
+
+    ship_cert = current_review["shipCert"] || {}
+    ship_cert_id = ship_cert["id"].to_s
+
+    if ship_cert_id.present? && current_review["updatedAt"].present?
+      existing_record = fetch_existing_airtable_record(ship_cert_id)
+      if existing_record && existing_record["synced_at"].present?
+        if Time.parse(existing_record["synced_at"]) >= Time.parse(current_review["updatedAt"])
+          return
+        end
+      end
+    end
+
     devlogs = current_review["devlogs"] || []
     total_approved_minutes = calculate_total_approved_minutes(devlogs) || 0
 
@@ -130,7 +143,6 @@ class YswsReviewSyncJob < ApplicationJob
       return
     end
 
-    ship_cert = current_review["shipCert"] || {}
     code_url = ship_cert["repoUrl"]
     ft_project_id = ship_cert["ftProjectId"]
 
@@ -185,13 +197,7 @@ class YswsReviewSyncJob < ApplicationJob
       .includes(:shop_item)
 
     hours_spent = adjusted_hours || (total_approved_minutes / 60.0)
-    if approved_orders.none? && hours_spent < 1
-      Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - user #{slack_id} has no manually fulfilled orders"
-      return
-    end
-
     user_pii = extract_user_pii(user)
-
     create_airtable_record(current_review, user_pii, approved_orders, adjusted_hours: adjusted_hours)
   end
 
@@ -263,8 +269,8 @@ class YswsReviewSyncJob < ApplicationJob
       "Playable URL" => ship_cert["demoUrl"],
       "project_readme" => ship_cert["readmeUrl"],
       "Screenshot" => [
-        video_thumbnail_url.present? ? { "url" => video_thumbnail_url } : nil,
-        banner_url.present? ? { "url" => banner_url } : { "url" => ship_cert["screenshotUrl"] }
+        banner_url.present? ? { "url" => banner_url } : (ship_cert["screenshotUrl"].present? ? { "url" => ship_cert["screenshotUrl"] } : nil),
+        video_thumbnail_url.present? ? { "url" => video_thumbnail_url } : nil
       ].compact,
       "proof_video" => ship_cert["proofVideoUrl"].present? ? [ { "url" => ship_cert["proofVideoUrl"] } ] : nil,
       "Description" => ship_cert["description"],

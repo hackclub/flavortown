@@ -5,13 +5,16 @@ class PostComponent < ViewComponent::Base
 
   attr_reader :post, :compact
 
-  def initialize(post:, current_user: nil, theme: nil, compact: false, lapse_badge: false, standalone: false)
+  def initialize(post:, current_user: nil, theme: nil, compact: false, lapse_badge: false, standalone: false, show_likes: true, show_comments: true, show_actions: true)
     @post = post
     @current_user = current_user
     @theme = theme
     @compact = compact
     @lapse_badge = lapse_badge
     @standalone = standalone
+    @show_likes = show_likes
+    @show_comments = show_comments
+    @show_actions = show_actions
   end
 
   def compact?
@@ -119,6 +122,22 @@ class PostComponent < ViewComponent::Base
     @standalone
   end
 
+  def show_likes?
+    @show_likes
+  end
+
+  def show_comments?
+    @show_comments
+  end
+
+  def show_actions?
+    @show_actions
+  end
+
+  def show_interactions?
+    devlog? && !compact? && (show_likes? || show_comments? || (show_actions? && (can_edit? || can_force_delete?)))
+  end
+
   def lapse_frame_id
     "lapse-timelapses-#{post.project.id}" if post.project.present?
   end
@@ -129,6 +148,23 @@ class PostComponent < ViewComponent::Base
 
   def lapse_timelapses_url
     helpers.lapse_timelapses_project_path(post.project) if post.project.present?
+  end
+
+  def lapse_badge_data
+    if standalone?
+      {
+        controller: "lapse-modal",
+        "lapse-modal-frame-id-value": lapse_frame_id,
+        "lapse-modal-modal-id-value": lapse_modal_id,
+        "lapse-modal-url-value": lapse_timelapses_url
+      }
+    else
+      {
+        controller: "modal",
+        action: "click->modal#open",
+        "modal-target-value": lapse_modal_id
+      }
+    end
   end
 
   def author_activity
@@ -163,20 +199,19 @@ class PostComponent < ViewComponent::Base
     postable.scrapbook_url
   end
 
-  def image?(attachment)
-    attachment.content_type.start_with?("image/")
-  end
-
-  def gif?(attachment)
-    attachment.content_type == "image/gif"
-  end
-
-  def video?(attachment)
-    attachment.content_type.start_with?("video/")
-  end
-
   def variant_class
     "post--#{variant}"
+  end
+
+  def article_classes
+    class_names(
+      "post",
+      variant_class,
+      theme_class,
+      "post--deleted": deleted?,
+      "post--compact": compact?,
+      "post--admin-only": unapproved_ship_event? && @current_user&.admin?
+    )
   end
 
   def commentable
