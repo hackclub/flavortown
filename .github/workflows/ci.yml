@@ -7,16 +7,20 @@ on:
     branches:
       - main
 
+env:
+  BUNDLE_PATH: vendor/bundle
+  BUNDLE_CLEAN: true
+  BUNDLE_WITHOUT: development
+
 jobs:
   scan_ruby:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev liblapack3
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -24,25 +28,22 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Scan for common Rails security vulnerabilities using static analysis
+      - name: Run Brakeman security scan
         run: bin/brakeman --no-pager
 
   scan_js:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Run security audit
+        run: bun audit --audit-level=moderate
 
   lint:
     runs-on: ubuntu-latest
@@ -50,37 +51,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
-
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: package.json
-          cache: yarn
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
 
-      - name: Install JS dependencies
-        run: yarn install --frozen-lockfile
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
 
-      - name: Lint code for consistent style
+      - name: Run RuboCop
         run: bin/rubocop -f github
-        # need to fix this? bin/rubocop -f github --autocorrect
-
-      - name: Lint ERB templates
+      - name: Run ERB linting
         run: bundle exec erb_lint --lint-all
-        # need to fix this? bundle exec erb_lint --lint-all --autocorrect
-
-      - name: Check JavaScript/TypeScript formatting
-        run: yarn -s prettier --check "app/javascript/**/*.{js,jsx,ts,tsx}"
-
-      - name: Check SCSS/CSS formatting
-        run: yarn -s prettier --check "app/assets/stylesheets/**/*.{scss,css}"
+      - name: Lint thy code
+        run: bun prettier --check "app/javascript/**/*.{js,jsx,ts,tsx}" "app/assets/stylesheets/**/*.{scss,css}"
 
   zeitwerk_check:
     runs-on: ubuntu-latest
@@ -88,8 +76,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev libvips-dev
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y liblapack3
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -97,11 +85,12 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Check zeitwerk loader
+      - name: Zeitwerk check
         run: bin/rails zeitwerk:check
 
   db_checks:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || contains(github.event.pull_request.changed_files, 'db/') || contains(github.event.pull_request.changed_files, 'Gemfile.lock') || contains(github.event.pull_request.changed_files, '.ruby-version')
     services:
       postgres:
         image: postgres:15
@@ -116,21 +105,25 @@ jobs:
       RAILS_ENV: test
       DATABASE_URL: postgresql://postgres:password@localhost:5432/flavortown_test
     steps:
-      - uses: actions/checkout@v6
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
-      - uses: ruby/setup-ruby@v1
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev liblapack3
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Check schema matches migrations
-        id: migration_check
-        run: |
-          bundle exec rails db:migrate
-          git diff --exit-code db/schema.rb
-      - name: Comment on schema failure
-        if: failure() && steps.migration_check.outcome == 'failure' && github.event_name == 'pull_request'
+      - name: Db migrations
+        run: bundle exec rails db:migrate
+      - name: Check schema is up to date
+        run: git diff --exit-code db/schema.rb
+
+      - name: Comment reminder msg
+        if: failure() && github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           script: |
@@ -141,12 +134,11 @@ jobs:
               body: `### :rage2: you GOOF!\n Schema dump has fallen out of date\n\nRun \`rails db:migrate\` locally and commit the changes to \`db/schema.rb\`.`
             });
 
-      - name: Check annotations are up to date
-        id: annotate_check
-        if: success()
+      - name: Check model annotations
         run: bundle exec annotaterb models --frozen
+
       - name: Comment on annotation failure
-        if: failure() && steps.annotate_check.outcome == 'failure' && github.event_name == 'pull_request'
+        if: failure() && github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           script: |
