@@ -1,9 +1,3 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-# This model initially had no columns defined. If you add columns to the
-# model remove the "{}" from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
 # == Schema Information
 #
 # Table name: shop_items
@@ -28,7 +22,6 @@
 #  enabled_eu                        :boolean
 #  enabled_in                        :boolean
 #  enabled_uk                        :boolean
-#  enabled_until                     :datetime
 #  enabled_us                        :boolean
 #  enabled_xx                        :boolean
 #  hacker_score                      :integer
@@ -58,7 +51,6 @@
 #  required_ships_start_date         :date
 #  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
-#  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
@@ -85,8 +77,29 @@
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #
-one: {}
-# column: value
-#
-two: {}
-# column: value
+class ShopItem::InkthreadableItem < ShopItem
+  def fulfill!(shop_order)
+    Shop::SendInkthreadableOrderJob.perform_later(shop_order.id)
+    shop_order.queue_for_fulfillment!
+  end
+
+  def inkthreadable_config
+    super || {}
+  end
+
+  def product_number
+    inkthreadable_config["pn"]
+  end
+
+  def design_urls
+    inkthreadable_config["designs"] || {}
+  end
+
+  def shipping_method
+    inkthreadable_config["shipping_method"] || "regular"
+  end
+
+  def brand_name
+    inkthreadable_config["brand_name"]
+  end
+end

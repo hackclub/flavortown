@@ -545,6 +545,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_05_062122) do
     t.string "hcb_keyword_lock"
     t.string "hcb_merchant_lock"
     t.text "hcb_preauthorization_instructions"
+    t.jsonb "inkthreadable_config"
     t.string "internal_description"
     t.boolean "limited"
     t.text "long_description"
