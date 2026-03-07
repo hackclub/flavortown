@@ -776,6 +776,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_05_062122) do
     t.integer "projects_count"
     t.string "ref"
     t.string "regions", default: [], array: true
+    t.boolean "search_engine_indexing_on", default: true, null: false
     t.boolean "send_notifications_for_followed_devlogs", default: true, null: false
     t.boolean "send_notifications_for_new_comments", default: true, null: false
     t.boolean "send_notifications_for_new_followers", default: true, null: false
