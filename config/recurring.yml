@@ -120,7 +120,7 @@ production:
 
   ysws_review_sync:
     class: YswsReviewSyncJob
-    schedule: every 4 hours
+    schedule: every day at 9am America/New_York
     concurrency: 1
     description: "Sync completed YSWS reviews to Airtable with user PII"
 
