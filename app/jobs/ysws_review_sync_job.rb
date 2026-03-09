@@ -99,7 +99,7 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def perform
-    hours = YswsReviewService.hours_since_last_sync
+    hours = 24000 # YswsReviewService.hours_since_last_sync
     Rails.logger.info "[YswsReviewSyncJob] Fetching reviews from last #{hours} hours"
 
     reviews_response = YswsReviewService.fetch_reviews(hours: hours, status: "done")
