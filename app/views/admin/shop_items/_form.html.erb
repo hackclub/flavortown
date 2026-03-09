@@ -342,9 +342,9 @@
             <th>Region</th>
             <th>Enabled</th>
             <th>Default Assignee</th>
-            <th>Δ Tickets</th>
-            <th>Δ Hours</th>
             <th>Δ USD</th>
+            <th>Δ Hours</th>
+            <th>Δ Tickets</th>
             <th>Final Price</th>
             <th>Est. Hours</th>
           </tr>
@@ -378,17 +378,17 @@
                     { class: "form-control form-control--sm", style: "width: 120px;" } %>
               </td>
               <td>
-                <%= f.number_field "price_offset_#{code.downcase}", step: 1, class: "form-control form-control--sm price-offset", data: { region: code.downcase }, placeholder: "0" %>
+                <%= f.number_field "usd_offset_#{code.downcase}", step: 0.01, class: "form-control form-control--sm usd-offset", data: { region: code.downcase }, placeholder: "0.00", value: shop_item.send("usd_offset_#{code.downcase}") %>
               </td>
               <td>
                 <input type="number" step="0.1" class="form-control form-control--sm delta-hours-input" data-region="<%= code.downcase %>" placeholder="0.0" autocomplete="off">
               </td>
               <td>
-                <input type="number" step="0.01" class="form-control form-control--sm delta-dollars-input" data-region="<%= code.downcase %>" placeholder="0.00" autocomplete="off">
+                <code class="delta-tickets-display shop-item-form__muted" data-region="<%= code.downcase %>">0</code>
               </td>
               <td>
                 <code class="shop-item-form__final-price" data-region="<%= code.downcase %>">
-                  <%= ((shop_item.ticket_cost || 0) + (shop_item.send("price_offset_#{code.downcase}") || 0)).to_i %>
+                  <%= shop_item.base_price_for_region(code).to_i %>
                 </code>
               </td>
               <td>
@@ -850,11 +850,18 @@
             return 0.5 + (1 - hackerScore / 100);
         }
 
-        function updateFromPriceOffset(region, skipHours = false, skipDollars = false) {
+        // usd_offset is the canonical stored value. All other regional fields derive from it.
+        function updateFromUsdOffset(region, skipHours = false) {
             const basePrice = parseFloat(ticketCostField.value) || 0;
-            const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
-            const offset = parseFloat(offsetField.value) || 0;
-            const finalPrice = basePrice + offset;
+            const usdOffsetField = document.querySelector(`[data-region="${region}"].usd-offset`);
+            const usdOffset = parseFloat(usdOffsetField.value) || 0;
+            const hackerMultiplier = getHackerMultiplier();
+
+            const deltaTickets = usdOffset * gameConstants.doubloons_per_dollar * hackerMultiplier;
+            const finalPrice = basePrice + deltaTickets;
+
+            const deltaTicketsDisplay = document.querySelector(`[data-region="${region}"].delta-tickets-display`);
+            if (deltaTicketsDisplay) deltaTicketsDisplay.textContent = Math.round(deltaTickets);
 
             const finalPriceSpan = document.querySelector(`[data-region="${region}"].shop-item-form__final-price`);
             if (finalPriceSpan) finalPriceSpan.textContent = Math.round(finalPrice);
@@ -863,60 +870,42 @@
             const estimatedHoursSpan = document.querySelector(`[data-region="${region}"].estimated-hours`);
             if (estimatedHoursSpan) estimatedHoursSpan.textContent = estimatedHours.toFixed(1);
 
-            const hackerMultiplier = getHackerMultiplier();
-
             if (!skipHours) {
-                const deltaHours = offset / (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour * hackerMultiplier);
+                // delta_hours = usd_offset * hacker_multiplier / dollars_per_mean_hour
+                const deltaHours = usdOffset * hackerMultiplier / gameConstants.dollars_per_mean_hour;
                 const deltaHoursInput = document.querySelector(`[data-region="${region}"].delta-hours-input`);
                 if (deltaHoursInput) deltaHoursInput.value = deltaHours.toFixed(1);
-            }
-
-            if (!skipDollars) {
-                const deltaDollars = offset / (gameConstants.doubloons_per_dollar * hackerMultiplier);
-                const deltaDollarsInput = document.querySelector(`[data-region="${region}"].delta-dollars-input`);
-                if (deltaDollarsInput) deltaDollarsInput.value = deltaDollars.toFixed(2);
             }
         }
 
         function updateFromDeltaHours(region) {
             const deltaHoursInput = document.querySelector(`[data-region="${region}"].delta-hours-input`);
             const deltaHours = parseFloat(deltaHoursInput.value) || 0;
-            const offset = deltaHours * (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour) * getHackerMultiplier();
-            const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
-            if (offsetField) offsetField.value = Math.round(offset);
-            updateFromPriceOffset(region, true, false);
-        }
-
-        function updateFromDeltaDollars(region) {
-            const deltaDollarsInput = document.querySelector(`[data-region="${region}"].delta-dollars-input`);
-            const deltaDollars = parseFloat(deltaDollarsInput.value) || 0;
-            const offset = deltaDollars * gameConstants.doubloons_per_dollar * getHackerMultiplier();
-            const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
-            if (offsetField) offsetField.value = Math.round(offset);
-            updateFromPriceOffset(region, false, true);
+            const hackerMultiplier = getHackerMultiplier();
+            // usd_offset = delta_hours * dollars_per_mean_hour / hacker_multiplier
+            const usdOffset = hackerMultiplier > 0
+                ? (deltaHours * gameConstants.dollars_per_mean_hour / hackerMultiplier)
+                : 0;
+            const usdOffsetField = document.querySelector(`[data-region="${region}"].usd-offset`);
+            if (usdOffsetField) usdOffsetField.value = usdOffset.toFixed(2);
+            updateFromUsdOffset(region, true);
         }
 
         function updateAllRegionalPricing() {
-            document.querySelectorAll('.price-offset').forEach(offsetField => {
-                updateFromPriceOffset(offsetField.dataset.region);
+            document.querySelectorAll('.usd-offset').forEach(field => {
+                updateFromUsdOffset(field.dataset.region);
             });
         }
 
-        document.querySelectorAll('.price-offset').forEach(field => {
+        document.querySelectorAll('.usd-offset').forEach(field => {
             field.addEventListener('input', function () {
-                updateFromPriceOffset(this.dataset.region);
+                updateFromUsdOffset(this.dataset.region);
             });
         });
 
         document.querySelectorAll('.delta-hours-input').forEach(field => {
             field.addEventListener('input', function () {
                 updateFromDeltaHours(this.dataset.region);
-            });
-        });
-
-        document.querySelectorAll('.delta-dollars-input').forEach(field => {
-            field.addEventListener('input', function () {
-                updateFromDeltaDollars(this.dataset.region);
             });
         });
 
