@@ -813,6 +813,7 @@
             hackerScoreField.addEventListener('input', function () {
                 updateCalculations();
                 autoFillTicketCost();
+                updateAllRegionalPricing();
             });
         }
 
@@ -844,6 +845,11 @@
             toggleShipRequirementFields();
         }
 
+        function getHackerMultiplier() {
+            const hackerScore = parseFloat(hackerScoreField.value) || 50;
+            return 0.5 + (1 - hackerScore / 100);
+        }
+
         function updateFromPriceOffset(region, skipHours = false, skipDollars = false) {
             const basePrice = parseFloat(ticketCostField.value) || 0;
             const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
@@ -857,14 +863,16 @@
             const estimatedHoursSpan = document.querySelector(`[data-region="${region}"].estimated-hours`);
             if (estimatedHoursSpan) estimatedHoursSpan.textContent = estimatedHours.toFixed(1);
 
+            const hackerMultiplier = getHackerMultiplier();
+
             if (!skipHours) {
-                const deltaHours = offset / (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour);
+                const deltaHours = offset / (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour * hackerMultiplier);
                 const deltaHoursInput = document.querySelector(`[data-region="${region}"].delta-hours-input`);
                 if (deltaHoursInput) deltaHoursInput.value = deltaHours.toFixed(1);
             }
 
             if (!skipDollars) {
-                const deltaDollars = offset / gameConstants.doubloons_per_dollar;
+                const deltaDollars = offset / (gameConstants.doubloons_per_dollar * hackerMultiplier);
                 const deltaDollarsInput = document.querySelector(`[data-region="${region}"].delta-dollars-input`);
                 if (deltaDollarsInput) deltaDollarsInput.value = deltaDollars.toFixed(2);
             }
@@ -873,7 +881,7 @@
         function updateFromDeltaHours(region) {
             const deltaHoursInput = document.querySelector(`[data-region="${region}"].delta-hours-input`);
             const deltaHours = parseFloat(deltaHoursInput.value) || 0;
-            const offset = deltaHours * (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour);
+            const offset = deltaHours * (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour) * getHackerMultiplier();
             const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
             if (offsetField) offsetField.value = Math.round(offset);
             updateFromPriceOffset(region, true, false);
@@ -882,7 +890,7 @@
         function updateFromDeltaDollars(region) {
             const deltaDollarsInput = document.querySelector(`[data-region="${region}"].delta-dollars-input`);
             const deltaDollars = parseFloat(deltaDollarsInput.value) || 0;
-            const offset = deltaDollars * gameConstants.doubloons_per_dollar;
+            const offset = deltaDollars * gameConstants.doubloons_per_dollar * getHackerMultiplier();
             const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
             if (offsetField) offsetField.value = Math.round(offset);
             updateFromPriceOffset(region, false, true);
