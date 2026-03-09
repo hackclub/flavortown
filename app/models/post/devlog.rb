@@ -24,6 +24,7 @@
 class Post::Devlog < ApplicationRecord
   include Postable
   include SoftDeletable
+  has_paper_trail ignore: [ :likes_count, :comments_count, :lapse_video_processing, :hackatime_pulled_at, :synced_at ]
 
   # flag for tracking if attachments are being uploaded during an update
   attr_accessor :uploading_attachments
