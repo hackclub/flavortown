@@ -9,7 +9,7 @@ class RenamePriceOffsetsToUsdOffsets < ActiveRecord::Migration[8.1]
 
   def up
     REGION_CODES.each do |code|
-      add_column :shop_items, "usd_offset_#{code}", :decimal
+      add_column :shop_items, "usd_offset_#{code}", :decimal, precision: 10, scale: 2
     end
 
     ShopItem.reset_column_information
@@ -36,7 +36,7 @@ class RenamePriceOffsetsToUsdOffsets < ActiveRecord::Migration[8.1]
 
   def down
     REGION_CODES.each do |code|
-      add_column :shop_items, "price_offset_#{code}", :decimal
+      add_column :shop_items, "price_offset_#{code}", :decimal, precision: 10, scale: 2
     end
 
     ShopItem.reset_column_information
