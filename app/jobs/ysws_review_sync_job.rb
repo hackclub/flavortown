@@ -121,6 +121,7 @@ class YswsReviewSyncJob < ApplicationJob
 
   def process_review(review_id)
     adjusted_hours = nil
+    @rejected_project = false
     current_review = YswsReviewService.fetch_review(review_id)
 
     ship_cert = current_review["shipCert"] || {}
@@ -139,8 +140,8 @@ class YswsReviewSyncJob < ApplicationJob
     total_approved_minutes = calculate_total_approved_minutes(devlogs) || 0
 
     if total_approved_minutes < 5
-      Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - only #{total_approved_minutes} approved minutes (< 5)"
-      return
+      @rejected_project = true
+      Rails.logger.info "[YswsReviewSyncJob] review #{review_id} - only #{total_approved_minutes} approved minutes (< 5), marking as rejected"
     end
 
     code_url = ship_cert["repoUrl"]
@@ -276,7 +277,8 @@ class YswsReviewSyncJob < ApplicationJob
       "Description" => ship_cert["description"],
       "Optional - Override Hours Spent" => hours_spent,
       "Optional - Override Hours Spent Justification" => adjusted_hours ? "Project Updated: #{build_justification(review, devlogs, approved_orders)}" : build_justification(review, devlogs, approved_orders),
-      "in_unified_db" => project_exists_in_unified_db?(ship_cert["repoUrl"])
+      "in_unified_db" => project_exists_in_unified_db?(ship_cert["repoUrl"]),
+      "rejected_project" => @rejected_project || false
     }
   end
 
@@ -392,6 +394,7 @@ class YswsReviewSyncJob < ApplicationJob
 
     project = Project.find_by(id: ft_project_id)
     if project.nil?
+      @rejected_project = true
       Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project not found by id=#{ft_project_id.inspect}")
       return nil
     end
