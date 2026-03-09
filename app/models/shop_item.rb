@@ -51,7 +51,7 @@
 #  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
-#  ticket_cost                       :decimal(, )
+#  ticket_cost                       :integer
 #  type                              :string
 #  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
@@ -84,6 +84,7 @@ class ShopItem < ApplicationRecord
   include Shop::Regionalizable
 
   before_validation :fix_blacklist
+  before_validation :floor_ticket_cost
 
   after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
   after_commit :invalidate_buyable_standalone_cache
@@ -154,7 +155,7 @@ class ShopItem < ApplicationRecord
                        saver: { strip: true, quality: 75 }
   end
   validates :name, :description, :ticket_cost, :type, presence: true
-  validates :ticket_cost, numericality: { greater_than_or_equal_to: 0 }
+  validates :ticket_cost, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :image, presence: true, on: :create
   validates :required_ships_count, numericality: { only_integer: true, greater_than: 0 }, if: :requires_ship?
   validates :required_ships_start_date, :required_ships_end_date, presence: true, if: :requires_ship?
@@ -278,5 +279,9 @@ class ShopItem < ApplicationRecord
   def fix_blacklist
     return unless blocked_countries.present?
     self.blocked_countries = blocked_countries.map(&:upcase).reject(&:blank?).uniq
+  end
+
+  def floor_ticket_cost
+    self.ticket_cost = ticket_cost.floor if ticket_cost.present?
   end
 end
