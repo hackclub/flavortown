@@ -31,20 +31,24 @@ class SupportVibecheckJob < ApplicationJob
         return
     end
 
-    questions_list = tickets.map { |t| t["description"].to_s }
-    questions = questions_list.map.with_index(1) { |q, i| "#{i}. #{q}" }.join("\n")
+    questions_with_ts = tickets.map.with_index(1) do |t, i|
+      ts = t["message_ts"]
+      "#{i}. #{t["description"]} (#{ts || 'none'})"
+    end.join("\n")
 
-    open_questions_list = open_tickets.map { |t| t["description"].to_s }
-    open_questions = open_questions_list.map.with_index(1) { |q, i| "#{i}. #{q}" }.join("\n")
+    open_questions_with_ts = open_tickets.map.with_index(1) do |t, i|
+      ts = t["message_ts"]
+      "#{i}. #{t["description"]} (#{ts || 'none'})"
+    end.join("\n")
 
     prompt = <<~PROMPT
         Analyze the following support questions and summarize the current vibes.
 
-        INPUT DATA:
-        #{questions}
+        INPUT DATA (each question includes a message_ts in brackets):
+        #{questions_with_ts}
 
-        OPEN QUESTIONS:
-        #{open_questions}
+        OPEN QUESTIONS (each question includes a message_ts in brackets):
+        #{open_questions_with_ts}
 
         OUTPUT INSTRUCTIONS:
         Return ONLY valid JSON (no markdown formatting, no code blocks) with this exact schema:
@@ -52,6 +56,10 @@ class SupportVibecheckJob < ApplicationJob
         "concerns": [
             { "title": "Short catchy title", "description": "Detailed explanation (2-3 sentences) of what users are worried about including context." },
             ... (Top 5 concerns)
+        ],
+        "concern_message_ts": [
+            ["message_ts1", "message_ts2"], // 2 message_ts for concern 1 (or fewer if not enough)
+            ... (one array per concern, order matches concerns)
         ],
         "prominent_questions": [
             "Exact question asked by user?",
@@ -88,6 +96,12 @@ class SupportVibecheckJob < ApplicationJob
 
     data = JSON.parse(cleaned_content)
 
+    concern_message_links = Array(data["concern_message_ts"]).map do |ts_arr|
+        Array(ts_arr).map do |ts|
+            ts.present? ? "https://hackclub.slack.com/archives/C09MATKQM8C/p#{ts.gsub('.', '')}" : nil
+        end.compact
+    end
+
     SupportVibes.create!(
         period_start: start_time,
         period_end: end_time,
@@ -95,7 +109,8 @@ class SupportVibecheckJob < ApplicationJob
         overall_sentiment: data["overall_sentiment"],
         notable_quotes: data["prominent_questions"],
         unresolved_queries: data["unresolved_queries"],
-        rating: data["rating"]
+        rating: data["rating"],
+        concern_message_links: concern_message_links
     )
     Rails.logger.info "SupportVibecheckJob: Support vibes updated successfully."
 

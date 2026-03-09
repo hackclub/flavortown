@@ -365,6 +365,10 @@
 
     li {
       margin-bottom: 0.5rem;
+
+      button {
+        text-align: left;
+      }
     }
 
     .concern-desc-btn {
@@ -408,6 +412,20 @@
           &:hover {
             cursor: pointer;
           }
+        }
+      }
+
+      &__link {
+        margin: 1em 0;
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        color: gray;
+        font-size: 1.2rem;
+
+        &:hover {
+          color: black;
+          text-decoration: underline;
         }
       }
     }

@@ -467,6 +467,7 @@
             <h3>Current Concerns</h3>
             <% if @latest_support_vibes&.concerns.present? %>
               <ol class="current-concerns-list">
+                <% links = @latest_support_vibes.concern_message_links || [] %>
                 <% @latest_support_vibes.concerns.each_with_index do |concern, idx| %>
                   <li>
                     <div data-controller="modal">
@@ -477,6 +478,13 @@
                         <%= concern["title"] %>
                       </button>
                       <%= render layout: "shared/modal", locals: { id: "concern-#{idx}", title: concern["title"], description: concern["description"] } do %>
+                        <% if links[idx].present? %>
+                          <% Array(links[idx]).each_with_index do |link, lidx| %>
+                            <a href="<%= link %>" target="_blank" rel="noopener" class="modal__link">
+                              View sample question <%= links[idx].size > 1 ? "##{lidx+1}" : "on Slack" %>
+                            </a>
+                          <% end %>
+                        <% end %>
                         <div class="modal__actions">
                           <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= "concern-#{idx}".to_json %>).close()">X</button>
                         </div>
