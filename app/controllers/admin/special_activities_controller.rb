@@ -36,7 +36,7 @@ module Admin
 
         project = extract_project_from_url(row["Project URL"])
 
-        attendance = ShowAndTellAttendance.find_or_initialize_by(user: user, date: date)
+        attendance = ShowAndTellAttendance.new(user: user, date: date)
         attendance.project = project if project
         attendance.give_presentation_payout = project.present? && !attendance.monthly_payout_limit_reached?
         attendance.save!
