@@ -350,7 +350,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def approve_verification_call
-    authorize :admin, :access_shop_orders?
+    authorize :admin, :manage_shop?
     @order = ShopOrder.find(params[:id])
     old_state = @order.aasm_state
 
