@@ -9,6 +9,7 @@
 #
 class Post::FireEvent < ApplicationRecord
   include Postable
+  has_paper_trail
 
   validates :body, presence: { message: "Message can't be blank" }
 end
