@@ -180,7 +180,7 @@ class ShopOrder < ApplicationRecord
     end
 
     event :queue_for_fulfillment do
-      transitions from: :pending, to: :awaiting_periodical_fulfillment
+      transitions from: %i[pending awaiting_verification_call], to: :awaiting_periodical_fulfillment
       after do
         assign_default_user
       end
