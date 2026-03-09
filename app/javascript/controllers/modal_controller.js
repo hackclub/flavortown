@@ -64,7 +64,7 @@ export default class extends Controller {
       return;
     }
 
-if (this.element.classList.contains("lapse-modal--open")) {
+    if (this.element.classList.contains("lapse-modal--open")) {
       this.element.classList.remove("lapse-modal--open");
       this.element.classList.add("lapse-modal--closing");
       this.element.addEventListener(
@@ -78,6 +78,7 @@ if (this.element.classList.contains("lapse-modal--open")) {
     } else {
       this.element.style.display = "none";
     }
+
     document.body.style.overflow = "";
   }
 
