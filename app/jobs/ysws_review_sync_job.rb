@@ -407,12 +407,12 @@ class YswsReviewSyncJob < ApplicationJob
     project = Project.find_by(id: ft_project_id)
     if project.nil?
       @rejected_project = true
-     # Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project not found by id=#{ft_project_id.inspect}")
+      # Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project not found by id=#{ft_project_id.inspect}")
       return nil
     end
 
     unless project.banner.attached?
-    # Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project #{project.id} has no banner attached")
+      # Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project #{project.id} has no banner attached")
       return nil
     end
 
@@ -449,7 +449,7 @@ class YswsReviewSyncJob < ApplicationJob
           end
 
         if existing_thumbnail_url.present?
-          #Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{screenshots.count} screenshots, reusing existing thumbnail #{existing_thumbnail_url.inspect}")
+          # Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{screenshots.count} screenshots, reusing existing thumbnail #{existing_thumbnail_url.inspect}")
           return existing_thumbnail_url
         else
           # Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{screenshots.count} screenshots but no reusable thumbnail URL found")
