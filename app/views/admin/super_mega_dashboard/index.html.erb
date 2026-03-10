@@ -363,6 +363,157 @@
             </div>
           </div>
         <% end %>
+
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph">
+          <h3>Fulfilment Trend (30d)</h3>
+          <% if @fulfillment_trend_data.present? %>
+            <div class="fraud-timeline-graph fraud-timeline-graph--compact">
+              <canvas id="fulfillmentTrendChart" height="100"></canvas>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                const ctx = document.getElementById('fulfillmentTrendChart');
+                if (!ctx) return;
+
+                const data = <%= raw @fulfillment_trend_data.to_json %>;
+                const sortedDates = Object.keys(data).sort();
+                const labels = sortedDates.map(d => {
+                  const date = new Date(d);
+                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+
+                const fulfilledData = sortedDates.map(d => data[d].fulfilled);
+                const createdData = sortedDates.map(d => data[d].created);
+
+                new Chart(ctx, {
+                  type: 'line',
+                  data: {
+                    labels: labels,
+                    datasets: [
+                      {
+                        label: 'Fulfilled',
+                        data: fulfilledData,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 1,
+                        borderWidth: 1.5
+                      },
+                      {
+                        label: 'New Orders',
+                        data: createdData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 1,
+                        borderWidth: 1.5
+                      }
+                    ]
+                  },
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: { font: { size: 8 }, padding: 4 }
+                      }
+                    },
+                    scales: {
+                      x: {
+                        ticks: { font: { size: 7 }, maxRotation: 45, minRotation: 0 }
+                      },
+                      y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0, font: { size: 7 } }
+                      }
+                    }
+                  }
+                });
+              });
+            </script>
+          <% else %>
+            <p class="fraud-stats-error">No trend data available</p>
+          <% end %>
+        </div>
+
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph">
+          <h3>Order States (30d)</h3>
+          <% if @order_states_trend_data.present? %>
+            <div class="fraud-timeline-graph fraud-timeline-graph--compact">
+              <canvas id="orderStatesTrendChart" height="100"></canvas>
+            </div>
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                const ctx = document.getElementById('orderStatesTrendChart');
+                if (!ctx) return;
+
+                const data = <%= raw @order_states_trend_data.to_json %>;
+                const sortedDates = Object.keys(data).sort();
+                const labels = sortedDates.map(d => {
+                  const date = new Date(d);
+                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+
+                const stateConfig = {
+                  'pending':                          { label: 'Pending',            border: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+                  'awaiting_periodical_fulfillment':  { label: 'Awaiting Fulfilment', border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+                  'on_hold':                          { label: 'On Hold',            border: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' },
+                  'closed':                           { label: 'Closed (Fulfilled / Rejected / Refunded)', border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' }
+                };
+
+                const stateKeys = Object.keys(data[sortedDates[0]] || {});
+                const datasets = stateKeys.map(state => {
+                  const cfg = stateConfig[state] || { label: state, border: '#999', bg: 'rgba(153, 153, 153, 0.1)' };
+                  return {
+                    label: cfg.label,
+                    data: sortedDates.map(d => data[d][state] || 0),
+                    borderColor: cfg.border,
+                    backgroundColor: cfg.bg,
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 1,
+                    borderWidth: 1.5
+                  };
+                });
+
+                new Chart(ctx, {
+                  type: 'line',
+                  data: {
+                    labels: labels,
+                    datasets: datasets
+                  },
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: { font: { size: 8 }, padding: 4 }
+                      }
+                    },
+                    scales: {
+                      x: {
+                        ticks: { font: { size: 7 }, maxRotation: 45, minRotation: 0 }
+                      },
+                      y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0, font: { size: 7 } }
+                      }
+                    }
+                  }
+                });
+              });
+            </script>
+          <% else %>
+            <p class="fraud-stats-error">No trend data available</p>
+          <% end %>
+        </div>
       </div>
     </div>
 

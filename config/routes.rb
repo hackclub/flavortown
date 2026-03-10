@@ -283,6 +283,7 @@ Rails.application.routes.draw do
       member do
         post :approve
         post :reject
+        post :undo
       end
     end
     resources :special_activities, only: [ :index, :create ] do

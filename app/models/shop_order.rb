@@ -89,6 +89,7 @@ class ShopOrder < ApplicationRecord
   after_create :create_negative_payout
   after_create :assign_default_user
   after_create :notify_amber_if_verification_call_required
+  after_create :hold_if_usps_suspended
   before_create :freeze_item_price
   before_create :set_region_from_address
   after_commit :notify_user_of_status_change, if: :saved_change_to_aasm_state?
@@ -317,11 +318,25 @@ class ShopOrder < ApplicationRecord
     end
   end
 
+  USPS_SUSPENDED_COUNTRIES = %w[
+    AM AE BH DJ DZ ER IL IQ IR KW LY MG OM PK QA SC SY TZ
+  ].freeze
+
+  USPS_SUSPENSION_EXEMPT_TYPES = %w[
+    ShopItem::HCBGrant
+    ShopItem::ThirdPartyDigital
+  ].freeze
+
   def check_regional_availability
     return unless shop_item.present? && frozen_address.present?
 
     address_country = frozen_address["country"]
     return unless address_country.present?
+
+    if USPS_SUSPENDED_COUNTRIES.include?(address_country.upcase) && !USPS_SUSPENSION_EXEMPT_TYPES.include?(shop_item.type)
+      errors.add(:base, "Orders to this country are currently suspended due to USPS service restrictions.")
+      return
+    end
 
     if shop_item.blocked_countries&.include?(address_country.upcase)
       errors.add(:base, "This item cannot be shipped to that country due to logistical constraints.")
@@ -433,6 +448,17 @@ class ShopOrder < ApplicationRecord
       blocks_path: "notifications/shop_orders/new_verification_call_order",
       locals: { order: self }
     )
+  end
+
+  def hold_if_usps_suspended
+    return unless frozen_address.present?
+
+    address_country = frozen_address["country"]
+    return unless address_country.present?
+    return if USPS_SUSPENSION_EXEMPT_TYPES.include?(shop_item.type)
+    return unless USPS_SUSPENDED_COUNTRIES.include?(address_country.upcase)
+
+    place_on_hold! if may_place_on_hold?
   end
 
   def notify_assigned_user

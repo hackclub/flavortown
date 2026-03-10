@@ -25,6 +25,32 @@
   <% else %>
     <%= render HeadingComponent.new(title: "Vote", tone: :blue, size: :full) %>
 
+    <% if current_user.vote_balance < 0 %>
+      <%
+        cycle_size  = Post::ShipEvent::VOTE_COST_PER_SHIP
+        debt        = current_user.vote_balance.abs
+        cycles_owed = (debt.to_f / cycle_size).ceil
+        total       = cycles_owed * cycle_size
+        votes_cast  = total - debt
+      %>
+      <div class="votes-new__payout-meter">
+        <div class="votes-new__payout-meter-header">
+          <span class="votes-new__payout-meter-label">
+            <%= debt %> more <%= "vote".pluralize(debt) %> to unlock your payout
+          </span>
+          <span class="votes-new__payout-meter-count">
+            <%= votes_cast %> / <%= total %>
+          </span>
+        </div>
+        <progress
+          class="projects-show__payout-votes-progress"
+          value="<%= votes_cast %>"
+          max="<%= total %>"
+          aria-label="<%= votes_cast %> of <%= total %> votes cast to unlock payout">
+        </progress>
+      </div>
+    <% end %>
+
     <div class="votes-new__main" data-controller="vote-tracker" data-action="keydown.esc->vote-tracker#closePanel">
       <%= render "project_showcase", project: @project, posts: @posts %>
 
