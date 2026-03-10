@@ -163,10 +163,10 @@ class Project < ApplicationRecord
   def validate_repo_url_format
     return true if repo_url.blank?
 
-    # Check if repo_url ends with .git or contains /main/tree
+    # Check if repo_url ends with .git or contains /tree/main
     repo_url.strip!
-    if repo_url.end_with?(".git") || repo_url.include?("/main/tree")
-      errors.add(:repo_url, "should not end with .git or contain /main/tree. Please use the root GitHub repository URL.")
+    if repo_url.end_with?(".git") || repo_url.include?("/tree/main")
+      errors.add(:repo_url, "should not end with .git or contain /tree/main. Please use the root GitHub repository URL.")
       return false
     end
     true
@@ -279,7 +279,7 @@ class Project < ApplicationRecord
       { key: :not_shadow_banned, label: "This project has been flagged by moderation and cannot ship", passed: !shadow_banned? },
       { key: :demo_url, label: "Add a demo link so anyone can try your project", passed: demo_url.present? },
       { key: :repo_url, label: "Add a public GitHub URL with your source code", passed: repo_url.present? },
-      { key: :repo_url_format, label: "Use the root GitHub repository URL (no .git or /main/tree)", passed: validate_repo_url_format },
+      { key: :repo_url_format, label: "Use the root GitHub repository URL (no .git or /tree/main)", passed: validate_repo_url_format },
       { key: :repo_cloneable, label: "Make your GitHub repo publicly cloneable", passed: validate_repo_cloneable },
       { key: :readme_url, label: "Add a README URL to your project", passed: readme_url.present? },
       { key: :description, label: "Add a description for your project", passed: description.present? },
