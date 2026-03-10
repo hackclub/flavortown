@@ -185,6 +185,15 @@
             </label>
           </div>
 
+          <div class="shop-item-form__field" style="margin-top: 1rem;">
+            <%= f.label :requires_achievement, "Requires Achievement", class: "shop-item-form__label" %>
+            <%= f.select :requires_achievement,
+                Achievement::ALL.select { |a| !a.hidden? }.map { |a| ["#{a.name} (#{a.slug})", a.slug] },
+                { include_blank: "None" },
+                { class: "form-control" } %>
+            <span class="shop-item-form__hint">User must have earned this achievement to purchase. Sidequest achievements are awarded automatically when a sidequest entry is approved.</span>
+          </div>
+
           <div id="ship_requirement_fields" style="display: none; margin-top: 1rem;">
             <div class="shop-item-form__field">
               <%= f.label :required_ships_count, "Required Ships Count", class: "shop-item-form__label" %>
