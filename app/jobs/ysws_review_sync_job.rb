@@ -147,11 +147,6 @@ class YswsReviewSyncJob < ApplicationJob
     code_url = ship_cert["repoUrl"]
     ft_project_id = ship_cert["ftProjectId"]
 
-    if project_has_active_reports?(ft_project_id)
-      Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - project has pending or reviewed reports"
-      return
-    end
-
     # Check if project already exists in unified database             111 not implemented 110 implemented 101 implemented 100 implemented
     if code_url.present?
       existing_flavortown_record = find_project_in_unified_db_with_flavortown(code_url)
@@ -199,7 +194,17 @@ class YswsReviewSyncJob < ApplicationJob
 
     hours_spent = adjusted_hours || (total_approved_minutes / 60.0)
     user_pii = extract_user_pii(user)
-    create_airtable_record(current_review, user_pii, approved_orders, adjusted_hours: adjusted_hours)
+    if user.shadow_banned? || user.banned?
+      @rejected_project = true
+      if user.shadow_banned?
+        report_status = "shadow_banned"
+      else
+        report_status = "banned"
+      end
+    else
+      report_status = ""
+    end
+    create_airtable_record(current_review, report_status, user_pii, approved_orders, adjusted_hours: adjusted_hours)
   end
 
   def extract_user_pii(user)
@@ -231,22 +236,28 @@ class YswsReviewSyncJob < ApplicationJob
     existing_flavortown_record.save
   end
 
-  def create_airtable_record(review, user_pii, approved_orders, adjusted_hours: nil)
+  def create_airtable_record(review, report_status, user_pii, approved_orders, adjusted_hours: nil)
     ship_cert = review["shipCert"] || {}
     ship_cert_id = ship_cert["id"].to_s
-    fields = build_record_fields(review, user_pii, approved_orders, adjusted_hours: adjusted_hours)
+    fields = build_record_fields(review, report_status, user_pii, approved_orders, adjusted_hours: adjusted_hours)
 
     Rails.logger.info "[YswsReviewSyncJob] Upserting Airtable record for ship_cert_id #{ship_cert_id}"
     table.upsert(fields, "ship_cert_id")
   end
 
-  def build_record_fields(review, user_pii, approved_orders, adjusted_hours: nil)
+  def build_record_fields(review, report_status, user_pii, approved_orders, adjusted_hours: nil)
     ship_cert = review["shipCert"] || {}
     primary_address = user_pii[:addresses]&.first || {}
     devlogs = review["devlogs"] || []
     banner_url = banner_url_for_project_id(ship_cert["ftProjectId"])
     video_thumbnail_url = video_thumbnail_url_for_proof_video(ship_cert["proofVideoUrl"], ship_cert_id: ship_cert["id"].to_s)
     hours_spent = adjusted_hours || (calculate_total_approved_minutes(devlogs) / 60.0).round(2)
+
+    if report_status == ""
+      if project_has_pending_reports?(ship_cert["ftProjectId"])
+        report_status = "pending_reports"
+      end
+    end
 
     {
       "review_id" => review["id"].to_s,
@@ -278,7 +289,8 @@ class YswsReviewSyncJob < ApplicationJob
       "Optional - Override Hours Spent" => hours_spent,
       "Optional - Override Hours Spent Justification" => adjusted_hours ? "Project Updated: #{build_justification(review, devlogs, approved_orders)}" : build_justification(review, devlogs, approved_orders),
       "in_unified_db" => project_exists_in_unified_db?(ship_cert["repoUrl"]),
-      "rejected_project" => @rejected_project || false
+      "rejected_project" => @rejected_project || false,
+      "report_status" => report_status
     }
   end
 
@@ -541,10 +553,9 @@ class YswsReviewSyncJob < ApplicationJob
     )
   end
 
-  def project_has_active_reports?(ft_project_id)
+  def project_has_pending_reports?(ft_project_id)
     return false if ft_project_id.blank?
-
-    Project::Report.where(project_id: ft_project_id, status: [ :pending, :reviewed ]).exists?
+    Project::Report.where(project_id: ft_project_id, status: [ :pending ]).exists?
   end
 
   def fetch_existing_airtable_record(ship_cert_id)
