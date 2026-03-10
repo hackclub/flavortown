@@ -70,6 +70,8 @@ class ProjectsController < ApplicationController
     if current_user.present?
       is_owner = @project.memberships.where(role: :owner, user_id: current_user.id).exists?
 
+      @show_ai_coding_time_ignored_card = is_owner && !current_user.has_dismissed?("ai_coding_time_ignored_card")
+
       if is_owner &&
           latest_ship_event.present? &&
           latest_ship_event.certification_status == "approved" &&
