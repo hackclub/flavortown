@@ -189,12 +189,22 @@
         </p>
         <%= button_to "Unlink club", my_club_path, method: :delete, class: "settings-form__club-unlink" %>
       <% elsif current_user.club_link.present? %>
-        <%= link_to "Link your club",
-              current_user.club_link,
-              target: "_blank",
-              rel: "noopener",
-              class: "settings-form__club-link" %>
-        <small class="settings-form__hint" style="margin-left: 0;">Connect your Flavortown account to your Hack Club.</small>
+        <% club_link_raw = current_user.club_link.to_s %>
+        <% begin
+             club_link_uri = URI.parse(club_link_raw)
+           rescue URI::InvalidURIError
+             club_link_uri = nil
+           end %>
+        <% if club_link_uri && club_link_uri.scheme&.downcase.in?(%w[http https]) %>
+          <%= link_to "Link your club",
+                club_link_raw,
+                target: "_blank",
+                rel: "noopener",
+                class: "settings-form__club-link" %>
+          <small class="settings-form__hint" style="margin-left: 0;">Connect your Flavortown account to your Hack Club.</small>
+        <% else %>
+          <small class="settings-form__hint" style="margin-left: 0;">Club linking will be available once your account syncs. Check back soon!</small>
+        <% end %>
       <% else %>
         <small class="settings-form__hint" style="margin-left: 0;">Club linking will be available once your account syncs. Check back soon!</small>
       <% end %>
