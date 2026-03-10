@@ -317,11 +317,25 @@ class ShopOrder < ApplicationRecord
     end
   end
 
+  USPS_SUSPENDED_COUNTRIES = %w[
+    AM AE BH DJ DZ ER IL IQ IR KW LY MG OM PK QA SC SY TZ
+  ].freeze
+
+  USPS_SUSPENSION_EXEMPT_TYPES = %w[
+    ShopItem::HCBGrant
+    ShopItem::ThirdPartyDigital
+  ].freeze
+
   def check_regional_availability
     return unless shop_item.present? && frozen_address.present?
 
     address_country = frozen_address["country"]
     return unless address_country.present?
+
+    if USPS_SUSPENDED_COUNTRIES.include?(address_country.upcase) && !USPS_SUSPENSION_EXEMPT_TYPES.include?(shop_item.type)
+      errors.add(:base, "Orders to this country are currently suspended due to USPS service restrictions.")
+      return
+    end
 
     if shop_item.blocked_countries&.include?(address_country.upcase)
       errors.add(:base, "This item cannot be shipped to that country due to logistical constraints.")
