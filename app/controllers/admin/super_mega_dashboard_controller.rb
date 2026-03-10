@@ -203,8 +203,6 @@ module Admin
       end
     end
 
-
-
     def calculate_review_quality
       # Average time to review reports
       reviewed_reports = Project::Report.where(status: %w[reviewed dismissed])
@@ -308,6 +306,48 @@ module Admin
         }
       end
       @fulfillment = cached_data || { all: {}, hq_mail: {}, third_party: {}, warehouse: {}, other: {} }
+      @fulfillment_trend_data = build_fulfillment_trend_data
+      @order_states_trend_data = build_order_states_trend_data
+    end
+
+    def build_fulfillment_trend_data
+      Rails.cache.fetch("super_mega_fulfillment_trend", expires_in: 1.hour) do
+        trend_data = {}
+        (0..29).reverse_each do |days_ago|
+          date = days_ago.days.ago.to_date
+          day_range = date.beginning_of_day..date.end_of_day
+
+          fulfilled = ShopOrder.where(fulfilled_at: day_range).count
+          created = ShopOrder.real.where(created_at: day_range).count
+
+          trend_data[date.to_s] = { fulfilled: fulfilled, created: created }
+        end
+        trend_data
+      end
+    end
+
+    def build_order_states_trend_data
+      Rails.cache.fetch("super_mega_order_states_trend", expires_in: 1.hour) do
+        trend_data = {}
+        (0..29).reverse_each do |days_ago|
+          date = days_ago.days.ago.to_date
+          day_range = date.beginning_of_day..date.end_of_day
+
+          pending = ShopOrder.real.where(created_at: day_range).count
+          awaiting = ShopOrder.where(awaiting_periodical_fulfillment_at: day_range).count
+          fulfilled = ShopOrder.where(fulfilled_at: day_range).count
+          on_hold = ShopOrder.where(on_hold_at: day_range).count
+          closed = fulfilled + ShopOrder.where(rejected_at: day_range).count
+
+          trend_data[date.to_s] = {
+            pending: pending,
+            awaiting_periodical_fulfillment: awaiting,
+            on_hold: on_hold,
+            closed: closed
+          }
+        end
+        trend_data
+      end
     end
 
     def calculate_type_totals(type_counts, filter_types = nil)
@@ -377,7 +417,7 @@ module Admin
             {
               date: date,
               unresolved_tickets: unresolved[date] || 0,
-              hang_time_p95: hang_time[date].nil? ? nil : (hang_time[date]/3600).round(2)
+              hang_time_p95: hang_time[date].nil? ? nil : (hang_time[date] / 3600).round(2)
             }
           end
         rescue Faraday::Error, JSON::ParserError
@@ -516,7 +556,7 @@ module Admin
         end.join(", ")
 
         select_sql = Vote.sanitize_sql_array([
-          <<-SQL.squish,
+                                               <<-SQL.squish,
             COUNT(*) AS total_votes,
             COUNT(*) FILTER (WHERE created_at >= ? AND created_at <= ?) AS votes_today,
             COUNT(*) FILTER (WHERE created_at >= ?) AS votes_this_week,
@@ -525,9 +565,9 @@ module Admin
             COUNT(*) FILTER (WHERE demo_url_clicked = true) AS demo_clicks,
             COUNT(*) FILTER (WHERE reason IS NOT NULL AND reason != '') AS with_reason,
             #{avg_columns}
-          SQL
-          today.begin, today.end, this_week.begin
-        ])
+                                               SQL
+                                               today.begin, today.end, this_week.begin
+                                             ])
 
         vote_stats = Vote.select(select_sql).take
         total = vote_stats.total_votes.to_i
@@ -588,7 +628,7 @@ module Admin
             done_total: done_total,
             returned_total: returned_total,
             today: (ysws_review_graph_data[:done][today_est.to_s] || 0) +
-                   (ysws_review_graph_data[:returned][today_est.to_s] || 0),
+              (ysws_review_graph_data[:returned][today_est.to_s] || 0),
             this_week: calculate_week_total(ysws_review_graph_data, week_ago_est)
           }
 
@@ -626,10 +666,10 @@ module Admin
     def load_community_engagement_stats
       attendance_data = ShowAndTellAttendance.group(:date).count
       last_winner_attendance = ShowAndTellAttendance
-        .where(winner: true)
-        .order(date: :desc, updated_at: :desc)
-        .includes(:project, :user)
-        .first
+                                 .where(winner: true)
+                                 .order(date: :desc, updated_at: :desc)
+                                 .includes(:project, :user)
+                                 .first
 
       @show_and_tell_stats = {
         attendance_by_date: attendance_data,
@@ -717,11 +757,11 @@ module Admin
     def build_ysws_ecdf_data
       response_data_done = YswsReviewService.fetch_all_reviews(status: "done")
       reviews_data_done = if response_data_done.is_a?(Hash)
-        response_data_done["reviews"] || response_data_done[:reviews] || []
+                            response_data_done["reviews"] || response_data_done[:reviews] || []
       elsif response_data_done.is_a?(Array)
-        response_data_done
+                            response_data_done
       else
-        []
+                            []
       end
 
       devlog_counts_done = reviews_data_done.map do |review|
@@ -730,11 +770,11 @@ module Admin
 
       response_data_all = YswsReviewService.fetch_all_reviews
       reviews_data_all = if response_data_all.is_a?(Hash)
-        response_data_all["reviews"] || response_data_all[:reviews] || []
+                           response_data_all["reviews"] || response_data_all[:reviews] || []
       elsif response_data_all.is_a?(Array)
-        response_data_all
+                           response_data_all
       else
-        []
+                           []
       end
 
       devlog_counts_all = reviews_data_all.map do |review|
