@@ -43,7 +43,11 @@ class MyController < ApplicationController
   end
 
   def unlink_club
-    current_user.update!(club_name: nil)
+    current_user.update!(
+      club_name: nil,
+      club_link: nil,
+      airtable_record_id: nil
+    )
     redirect_back fallback_location: root_path, notice: "Club unlinked"
   end
 
