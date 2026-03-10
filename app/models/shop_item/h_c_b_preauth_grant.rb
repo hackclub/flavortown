@@ -39,13 +39,6 @@
 #  one_per_person_ever               :boolean
 #  past_purchases                    :integer          default(0)
 #  payout_percentage                 :integer          default(0)
-#  price_offset_au                   :decimal(, )
-#  price_offset_ca                   :decimal(, )
-#  price_offset_eu                   :decimal(, )
-#  price_offset_in                   :decimal(, )
-#  price_offset_uk                   :decimal(10, 2)
-#  price_offset_us                   :decimal(, )
-#  price_offset_xx                   :decimal(, )
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
@@ -58,11 +51,18 @@
 #  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
-#  ticket_cost                       :decimal(, )
+#  ticket_cost                       :integer
 #  type                              :string
 #  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
+#  usd_offset_au                     :decimal(, )
+#  usd_offset_ca                     :decimal(, )
+#  usd_offset_eu                     :decimal(, )
+#  usd_offset_in                     :decimal(, )
+#  usd_offset_uk                     :decimal(, )
+#  usd_offset_us                     :decimal(, )
+#  usd_offset_xx                     :decimal(, )
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
 #  default_assigned_user_id          :bigint

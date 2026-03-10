@@ -134,7 +134,7 @@
           <% Shop::Regionalizable::REGIONS.each do |code, config| %>
             <%
               enabled = @shop_item.send("enabled_#{code.downcase}")
-              offset = @shop_item.send("price_offset_#{code.downcase}") || 0
+              offset = @shop_item.send("usd_offset_#{code.downcase}") || 0
               flag = case code
                      when "US" then "🇺🇸"
                      when "EU" then "🇪🇺"
