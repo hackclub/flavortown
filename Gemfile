@@ -143,3 +143,4 @@ gem "ahoy_matey"
 
 gem "countries"
 gem "strong_migrations"
+gem "skylight"
