@@ -333,6 +333,11 @@ class ShopOrder < ApplicationRecord
     address_country = frozen_address["country"]
     return unless address_country.present?
 
+    if USPS_SUSPENDED_COUNTRIES.include?(address_country.upcase) && !USPS_SUSPENSION_EXEMPT_TYPES.include?(shop_item.type)
+      errors.add(:base, "Orders to this country are currently suspended due to USPS service restrictions.")
+      return
+    end
+
     if shop_item.blocked_countries&.include?(address_country.upcase)
       errors.add(:base, "This item cannot be shipped to that country due to logistical constraints.")
       return
