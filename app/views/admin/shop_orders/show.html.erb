@@ -104,8 +104,17 @@
     <div style="font-size: 0.875rem; line-height: 1.6; margin-top: 0.5rem;">
       <div><strong>Description:</strong> <%= item.description %></div>
       <div><strong>Internal description:</strong> <%= item.internal_description %></div>
-      <div><strong>USD cost:</strong> $<%= number_with_precision(item.usd_cost, precision: 2) %></div>
-      <div><strong>Ticket cost:</strong> <%= item.ticket_cost %></div>
+      <% regional_usd_offset = @order.region.present? ? (item.send("usd_offset_#{@order.region.downcase}") || item.send("usd_offset_xx") || 0) : 0 %>
+      <div><strong>USD cost:</strong> $<%= number_with_precision((item.usd_cost || 0) + regional_usd_offset, precision: 2) %>
+        <% if regional_usd_offset != 0 %>
+          <small style="color: #6b7280;">(base $<%= number_with_precision(item.usd_cost, precision: 2) %> + $<%= number_with_precision(regional_usd_offset, precision: 2) %> <%= @order.region %> offset)</small>
+        <% end %>
+      </div>
+      <div><strong>Ticket cost:</strong> <%= @order.frozen_item_price.to_i %>
+        <% if @order.frozen_item_price.to_i != item.ticket_cost %>
+          <small style="color: #6b7280;">(base: <%= item.ticket_cost %>)</small>
+        <% end %>
+      </div>
       <div><strong>Type:</strong> <%= item.type %></div>
     </div>
     <% if item.image.attached? %>
