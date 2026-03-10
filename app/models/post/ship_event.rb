@@ -41,6 +41,7 @@ class Post::ShipEvent < ApplicationRecord
   CURRENT_VOTING_SCALE_VERSION = 2
   VOTES_REQUIRED_FOR_PAYOUT = 12
   VOTES_TO_LEAVE_POOL = VOTES_REQUIRED_FOR_PAYOUT
+  VOTE_COST_PER_SHIP = 15
 
   has_one :project, through: :post
   has_many :project_memberships, through: :project, source: :memberships
@@ -122,6 +123,6 @@ class Post::ShipEvent < ApplicationRecord
   def decrement_user_vote_balance
     return unless post&.user
 
-    post.user.increment!(:vote_balance, -15)
+    post.user.increment!(:vote_balance, -VOTE_COST_PER_SHIP)
   end
 end

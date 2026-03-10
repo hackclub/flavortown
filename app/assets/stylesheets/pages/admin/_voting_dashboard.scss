@@ -272,6 +272,14 @@
   font-weight: 500;
 }
 
+.voting-row--suspicious td {
+  background-color: color-mix(
+    in srgb,
+    var(--color-red-500, #ef4444) 8%,
+    transparent
+  );
+}
+
 .voting-table--wide {
   font-size: 0.8rem;
 

@@ -27,6 +27,40 @@
     }
   }
 
+  &__payout-meter {
+    width: 100%;
+    max-width: 56rem;
+    margin-inline: auto;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  &__payout-meter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-s);
+  }
+
+  &__payout-meter-label {
+    font-family: var(--font-family-text);
+    font-size: var(--font-size-m);
+    color: var(--color-text-body);
+  }
+
+  &__payout-meter-count {
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-s);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .projects-show__payout-votes-progress {
+    height: 18px;
+  }
+
   &__main {
     width: 100%;
     display: flex;
