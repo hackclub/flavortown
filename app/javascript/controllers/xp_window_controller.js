@@ -23,6 +23,8 @@ export default class extends Controller {
 
     this.startX = 0;
     this.startY = 0;
+    this.lastX = 0;
+    this.lastY = 0;
     this.offsetX = 0;
     this.offsetY = 0;
 
@@ -31,6 +33,7 @@ export default class extends Controller {
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.onScroll = this.onScroll.bind(this);
   }
 
   disconnect() {
@@ -38,6 +41,7 @@ export default class extends Controller {
     document.removeEventListener("mouseup", this.onMouseUp);
     document.removeEventListener("touchmove", this.onTouchMove);
     document.removeEventListener("touchend", this.onTouchEnd);
+    document.removeEventListener("scroll", this.onScroll);
   }
 
   // --- Drag (titlebar) ---
@@ -53,10 +57,13 @@ export default class extends Controller {
     const rect = this.dragTarget.getBoundingClientRect();
     this.startX = event.clientX;
     this.startY = event.clientY;
+    this.lastX = event.clientX;
+    this.lastY = event.clientY;
     this.offsetX = event.clientX - rect.left;
     this.offsetY = event.clientY - rect.top;
 
     document.addEventListener("mousemove", this.onMouseMove);
+    document.addEventListener("scroll", this.onScroll);
     document.addEventListener("mouseup", this.onMouseUp);
     event.preventDefault();
   }
@@ -102,6 +109,18 @@ export default class extends Controller {
     return this.element;
   }
 
+  onScroll(_) {
+    // Detach if it hasn't been already
+    if (!this.hasMoved) {
+      this.hasMoved = true;
+      if (this.dragTarget === this.element) {
+        this.detachFromFlow();
+      }
+    }
+
+    this.handleDragMove(this.lastX, this.lastY);
+  }
+
   onMouseMove(event) {
     if (this.isDragging) {
       this.handleDragMove(event.clientX, event.clientY);
@@ -122,6 +141,8 @@ export default class extends Controller {
   }
 
   handleDragMove(clientX, clientY) {
+    this.lastX = clientX;
+    this.lastY = clientY;
     const dx = clientX - this.startX;
     const dy = clientY - this.startY;
 
@@ -142,7 +163,7 @@ export default class extends Controller {
     }
 
     this.dragTarget.style.left = `${clientX - this.offsetX}px`;
-    this.dragTarget.style.top = `${clientY - this.offsetY}px`;
+    this.dragTarget.style.top = `${clientY - this.offsetY + window.scrollY}px`;
   }
 
   onMouseUp() {
@@ -150,6 +171,7 @@ export default class extends Controller {
     this.isResizing = false;
     document.removeEventListener("mousemove", this.onMouseMove);
     document.removeEventListener("mouseup", this.onMouseUp);
+    document.removeEventListener("scroll", this.onScroll);
   }
 
   onTouchEnd() {
@@ -274,7 +296,7 @@ export default class extends Controller {
 
     if (this.hasErrorSoundTarget) {
       this.errorSoundTarget.currentTime = 0;
-      this.errorSoundTarget.play().catch(() => {});
+      this.errorSoundTarget.play().catch(() => { });
     }
   }
 
