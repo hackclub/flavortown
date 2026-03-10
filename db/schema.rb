@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_09_174706) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_09_193952) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -754,10 +754,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_174706) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.string "airtable_record_id"
     t.string "api_key"
     t.boolean "banned", default: false, null: false
     t.datetime "banned_at"
     t.text "banned_reason"
+    t.string "club_link"
+    t.string "club_name"
     t.integer "cookie_clicks", default: 0, null: false
     t.datetime "created_at", null: false
     t.string "display_name"
@@ -799,6 +802,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_174706) do
     t.integer "votes_count"
     t.boolean "voting_locked", default: false, null: false
     t.boolean "ysws_eligible", default: false, null: false
+    t.index ["airtable_record_id"], name: "index_users_on_airtable_record_id", unique: true
     t.index ["api_key"], name: "index_users_on_api_key", unique: true
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true

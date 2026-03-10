@@ -141,3 +141,9 @@ production:
     schedule: every day at 12pm America/New_York
     concurrency: 1
     description: "Run support vibecheck at 12pm EST"
+
+  pull_user_club_data:
+    class: Airtable::UserClubPullJob
+    schedule: every hour
+    concurrency: 1
+    description: "Pull Airtable record IDs and club names from Airtable to local DB"
