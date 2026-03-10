@@ -3,7 +3,7 @@ class Airtable::UserClubPullJob < ApplicationJob
   retry_on Norairrecord::Error, wait: :polynomially_longer, attempts: 3
 
   def perform
-    User.where.not(email: [nil, ""]).find_each do |user|
+    User.where.not(email: [ nil, "" ]).find_each do |user|
       record = table.all(filter: "{email} = '#{user.email}'").first
       next unless record
 
