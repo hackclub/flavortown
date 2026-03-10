@@ -118,10 +118,17 @@ export default class extends Controller {
       }
     }
 
-    this.handleDragMove(this.lastX, this.lastY);
+    if (this.isDragging) {
+      this.handleDragMove(this.lastX, this.lastY);
+    }
+    else if (this.isResizing) {
+      this.handleResizeMove(this.lastX, this.lastY);
+    }
   }
 
   onMouseMove(event) {
+    this.lastX = event.clientX;
+    this.lastY = event.clientY;
     if (this.isDragging) {
       this.handleDragMove(event.clientX, event.clientY);
     } else if (this.isResizing) {
@@ -141,8 +148,6 @@ export default class extends Controller {
   }
 
   handleDragMove(clientX, clientY) {
-    this.lastX = clientX;
-    this.lastY = clientY;
     const dx = clientX - this.startX;
     const dy = clientY - this.startY;
 
@@ -191,18 +196,21 @@ export default class extends Controller {
     this.detachFromFlow();
     this.resizeStartX = event.clientX;
     this.resizeStartY = event.clientY;
+    this.lastX = event.clientX;
+    this.lastY = event.clientY;
     this.resizeStartW = this.element.offsetWidth;
-    this.resizeStartH = this.element.offsetHeight;
+    this.resizeStartH = this.element.offsetHeight - window.scrollY;
 
     document.addEventListener("mousemove", this.onMouseMove);
     document.addEventListener("mouseup", this.onMouseUp);
+    document.addEventListener("scroll", this.onScroll);
     event.preventDefault();
     event.stopPropagation();
   }
 
   handleResizeMove(clientX, clientY) {
     const newW = this.resizeStartW + (clientX - this.resizeStartX);
-    const newH = this.resizeStartH + (clientY - this.resizeStartY);
+    const newH = this.resizeStartH + (clientY - this.resizeStartY + window.scrollY);
     this.element.style.width = `${Math.max(200, newW)}px`;
     this.element.style.height = `${Math.max(100, newH)}px`;
   }
