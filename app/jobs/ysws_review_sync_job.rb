@@ -156,12 +156,12 @@ class YswsReviewSyncJob < ApplicationJob
         new_hours = (total_approved_minutes / 60.0).round(2)
 
         if new_hours > (existing_hours + 0.5)
-          Rails.logger.info "[YswsReviewSyncJob] Review #{review_id}: project exists in unified database under Flavortown with #{existing_hours}h, new review has #{new_hours}h (greater)"
+          # Rails.logger.info "[YswsReviewSyncJob] Review #{review_id}: project exists in unified database under Flavortown with #{existing_hours}h, new review has #{new_hours}h (greater)"
           update_existing_record_unified_db(current_review, existing_flavortown_record, existing_hours, new_hours)  # will update the record in the unified db.
-          return
+          # Continue to upsert to Airtable with in_unified_db flag
         else
-          Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - project exists in unified database under Flavortown with #{existing_hours}h, new review has #{new_hours}h (less or equal)"
-          return
+          # Rails.logger.info "[YswsReviewSyncJob] Review #{review_id}: project exists in unified database under Flavortown with #{existing_hours}h, new review has #{new_hours}h (less or equal) - will still upsert to Airtable"
+          # Continue to upsert to Airtable with in_unified_db flag
         end
       elsif project_exists_in_unified_db?(code_url)
         unified_db_hours = unified_db_hours_for_project(code_url)
@@ -169,10 +169,10 @@ class YswsReviewSyncJob < ApplicationJob
 
         if new_hours > (unified_db_hours.to_f + 0.5)
           adjusted_hours = (new_hours - unified_db_hours.to_f).round(2)
-          Rails.logger.info "[YswsReviewSyncJob] Review #{review_id}: project exists in unified database (non-Flavortown) with #{unified_db_hours}h, new review has #{new_hours}h - using adjusted hours: #{adjusted_hours}h"
+          # Rails.logger.info "[YswsReviewSyncJob] Review #{review_id}: project exists in unified database (non-Flavortown) with #{unified_db_hours}h, new review has #{new_hours}h - using adjusted hours: #{adjusted_hours}h"
         else
-          Rails.logger.info "[YswsReviewSyncJob] SKIPPING: review #{review_id} - project exists in unified database (non-Flavortown) with #{unified_db_hours}h, new review has #{new_hours}h (less or equal)"
-          return
+          # Rails.logger.info "[YswsReviewSyncJob] Review #{review_id}: project exists in unified database (non-Flavortown) with #{unified_db_hours}h, new review has #{new_hours}h (less or equal) - will still upsert to Airtable"
+          # Continue to upsert to Airtable with in_unified_db flag
         end
       end
     else
@@ -241,7 +241,7 @@ class YswsReviewSyncJob < ApplicationJob
     ship_cert_id = ship_cert["id"].to_s
     fields = build_record_fields(review, report_status, user_pii, approved_orders, adjusted_hours: adjusted_hours)
 
-    Rails.logger.info "[YswsReviewSyncJob] Upserting Airtable record for ship_cert_id #{ship_cert_id}"
+    # Rails.logger.info "[YswsReviewSyncJob] Upserting Airtable record for ship_cert_id #{ship_cert_id}"
     table.upsert(fields, "ship_cert_id")
   end
 
@@ -397,36 +397,36 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def banner_url_for_project_id(ft_project_id)
-    Rails.logger.info("[YswsReviewSyncJob] banner_url_for_project_id: start ft_project_id=#{ft_project_id.inspect} (class=#{ft_project_id.class})")
+    # Rails.logger.info("[YswsReviewSyncJob] banner_url_for_project_id: start ft_project_id=#{ft_project_id.inspect} (class=#{ft_project_id.class})")
 
     if ft_project_id.blank?
-      Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: ft_project_id is blank")
+      # Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: ft_project_id is blank")
       return nil
     end
 
     project = Project.find_by(id: ft_project_id)
     if project.nil?
       @rejected_project = true
-      Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project not found by id=#{ft_project_id.inspect}")
+      # Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project not found by id=#{ft_project_id.inspect}")
       return nil
     end
 
     unless project.banner.attached?
-      Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project #{project.id} has no banner attached")
+      # Rails.logger.warn("[YswsReviewSyncJob] banner_url_for_project_id: Project #{project.id} has no banner attached")
       return nil
     end
 
     host = default_url_host
     if host.blank?
-      Rails.logger.error("[YswsReviewSyncJob] banner_url_for_project_id: host missing. action_mailer=#{Rails.application.config.action_mailer.default_url_options.inspect} routes=#{Rails.application.routes.default_url_options.inspect} ENV[APP_HOST]=#{ENV['APP_HOST'].inspect}")
+      # Rails.logger.error("[YswsReviewSyncJob] banner_url_for_project_id: host missing. action_mailer=#{Rails.application.config.action_mailer.default_url_options.inspect} routes=#{Rails.application.routes.default_url_options.inspect} ENV[APP_HOST]=#{ENV['APP_HOST'].inspect}")
       return nil
     end
 
     url = rails_blob_url(project.banner, host: host)
-    Rails.logger.info("[YswsReviewSyncJob] banner_url_for_project_id: success project_id=#{project.id} url=#{url}")
+    # Rails.logger.info("[YswsReviewSyncJob] banner_url_for_project_id: success project_id=#{project.id} url=#{url}")
     url
   rescue StandardError => e
-    Rails.logger.error("[YswsReviewSyncJob] banner_url_for_project_id: exception project_id=#{ft_project_id.inspect} #{e.class}: #{e.message}")
+    # Rails.logger.error("[YswsReviewSyncJob] banner_url_for_project_id: exception project_id=#{ft_project_id.inspect} #{e.class}: #{e.message}")
     nil
   end
 
@@ -449,10 +449,10 @@ class YswsReviewSyncJob < ApplicationJob
           end
 
         if existing_thumbnail_url.present?
-          Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{screenshots.count} screenshots, reusing existing thumbnail #{existing_thumbnail_url.inspect}")
+          # Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{screenshots.count} screenshots, reusing existing thumbnail #{existing_thumbnail_url.inspect}")
           return existing_thumbnail_url
         else
-          Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{screenshots.count} screenshots but no reusable thumbnail URL found")
+          # Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: skipping ffmpeg - record already has #{screenshots.count} screenshots but no reusable thumbnail URL found")
           return nil
         end
       end
@@ -461,7 +461,7 @@ class YswsReviewSyncJob < ApplicationJob
     host = default_url_host
     return nil if host.blank?
 
-    Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: downloading #{proof_video_url.inspect}")
+    # Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: downloading #{proof_video_url.inspect}")
 
     uri = URI(proof_video_url)
     raise ArgumentError, "Only HTTP(S) URLs are allowed" unless uri.is_a?(URI::HTTP)
@@ -482,7 +482,7 @@ class YswsReviewSyncJob < ApplicationJob
     )
     duration = duration_str.strip.to_f
     seek_time = (duration > 0 ? duration * 0.4 : 1.0).round(3)
-    Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: duration=#{duration}s seek=#{seek_time}s")
+    # Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: duration=#{duration}s seek=#{seek_time}s")
 
     thumbnail_tmp = Tempfile.new([ "video_thumbnail", ".jpg" ])
 
@@ -502,10 +502,10 @@ class YswsReviewSyncJob < ApplicationJob
     )
 
     url = rails_blob_url(blob, host: host)
-    Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: success url=#{url}")
+    # Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: success url=#{url}")
     url
   rescue StandardError => e
-    Rails.logger.error("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: #{e.class}: #{e.message}")
+    # Rails.logger.error("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: #{e.class}: #{e.message}")
     nil
   ensure
     video_tmp&.close
@@ -563,7 +563,7 @@ class YswsReviewSyncJob < ApplicationJob
 
     table.all(filter: "{ship_cert_id} = '#{ship_cert_id}'").first
   rescue StandardError => e
-    Rails.logger.error("[YswsReviewSyncJob] fetch_existing_airtable_record: #{e.class}: #{e.message}")
+    # Rails.logger.error("[YswsReviewSyncJob] fetch_existing_airtable_record: #{e.class}: #{e.message}")
     nil
   end
 end
