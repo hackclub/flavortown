@@ -449,6 +449,7 @@ GEM
       tzinfo
       validate_url
       webfinger (~> 2.0)
+    optimist (3.2.1)
     ostruct (0.6.3)
     pagy (43.3.1)
       json
@@ -554,6 +555,10 @@ GEM
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.3.1)
+    rbtrace (0.5.2)
+      ffi (>= 1.0.6)
+      msgpack (>= 0.4.3)
+      optimist (>= 3.0.0)
     rdoc (7.2.0)
       erb
       psych (>= 4.0.0)
@@ -660,6 +665,8 @@ GEM
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
       logger
+    skylight (7.0.0)
+      activesupport (>= 7.1.0)
     slack-ruby-client (3.1.0)
       faraday (>= 2.0.1)
       faraday-mashify
@@ -826,6 +833,7 @@ DEPENDENCIES
   rack-mini-profiler
   rails (~> 8.1.1)
   rails_performance
+  rbtrace
   redis (~> 5.4)
   rspec-rails
   rswag-specs
@@ -834,6 +842,7 @@ DEPENDENCIES
   selenium-webdriver
   sentry-rails (~> 6.4)
   sentry-ruby (~> 6.4)
+  skylight
   slack-ruby-client
   slocks
   solid_cable

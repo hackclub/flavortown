@@ -143,3 +143,5 @@ gem "ahoy_matey"
 
 gem "countries"
 gem "strong_migrations"
+gem "skylight"
+gem "rbtrace", require: String(ENV.fetch("FEATURE_ENABLE_MEMORY_DUMPS", false)) == "true"
