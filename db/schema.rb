@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_09_121342) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_09_174706) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -554,13 +554,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_121342) do
     t.boolean "one_per_person_ever"
     t.integer "past_purchases", default: 0
     t.integer "payout_percentage", default: 0
-    t.decimal "price_offset_au"
-    t.decimal "price_offset_ca"
-    t.decimal "price_offset_eu"
-    t.decimal "price_offset_in"
-    t.decimal "price_offset_uk", precision: 10, scale: 2
-    t.decimal "price_offset_us"
-    t.decimal "price_offset_xx"
     t.integer "required_ships_count", default: 1
     t.date "required_ships_end_date"
     t.date "required_ships_start_date"
@@ -573,12 +566,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_121342) do
     t.string "source_region"
     t.boolean "special"
     t.integer "stock"
-    t.decimal "ticket_cost"
+    t.integer "ticket_cost"
     t.string "type"
     t.boolean "unlisted", default: false
     t.date "unlock_on"
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"
+    t.decimal "usd_offset_au"
+    t.decimal "usd_offset_ca"
+    t.decimal "usd_offset_eu"
+    t.decimal "usd_offset_in"
+    t.decimal "usd_offset_uk"
+    t.decimal "usd_offset_us"
+    t.decimal "usd_offset_xx"
     t.bigint "user_id"
     t.index ["default_assigned_user_id"], name: "index_shop_items_on_default_assigned_user_id"
     t.index ["user_id"], name: "index_shop_items_on_user_id"
