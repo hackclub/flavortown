@@ -28,7 +28,7 @@ module Admin
       legitimate_total = vote_stats.legitimate_votes.to_i
 
       current_scale_ships = Post::ShipEvent.current_voting_scale
-      paid_ships   = current_scale_ships.where.not(payout: nil).count
+      paid_ships   = Post::ShipEvent.where.not(payout: nil).count
       unpaid = current_scale_ships.where(certification_status: "approved", payout: nil)
       unpaid_ships = unpaid.count
       unpaid_ships_without_bugs = unpaid.count { |s| s.hours > 0 }
