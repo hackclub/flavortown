@@ -4,7 +4,8 @@ class Airtable::UserClubPullJob < ApplicationJob
 
   def perform
     User.where.not(email: [ nil, "" ]).find_each do |user|
-      record = table.all(filter: "{email} = '#{user.email}'").first
+      escaped_email = user.email.to_s.gsub("'", "''")
+      record = table.all(filter: "{email} = '#{escaped_email}'").first
       next unless record
 
       updates = {}
