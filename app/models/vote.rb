@@ -56,6 +56,9 @@ class Vote < ApplicationRecord
 
   scope :legitimate, -> { where(suspicious: false) }
   scope :suspicious, -> { where(suspicious: true) }
+  scope :current_voting_scale, -> {
+    joins(:ship_event).where(post_ship_events: { voting_scale_version: Post::ShipEvent::CURRENT_VOTING_SCALE_VERSION })
+  }
 
   before_save :mark_suspicious
 
