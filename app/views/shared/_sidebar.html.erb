@@ -181,6 +181,25 @@
       </div>
     <% end %>
 
+    <div class="settings-form__section">
+      <label class="settings-form__label">Club</label>
+      <% if current_user.club_name.present? %>
+        <p class="settings-form__club-status">
+          🏫 Linked to <strong><%= current_user.club_name %></strong>
+        </p>
+        <%= button_to "Unlink club", my_club_path, method: :delete, class: "settings-form__club-unlink" %>
+      <% elsif current_user.valid_club_link? %>
+          <%= link_to "Link your club",
+                current_user.club_link,
+                target: "_blank",
+                rel: "noopener",
+                class: "settings-form__club-link" %>
+          <small class="settings-form__hint" style="margin-left: 0;">Connect your Flavortown account to your Hack Club.</small>
+      <% else %>
+        <small class="settings-form__hint" style="margin-left: 0;">Club linking will be available once your account syncs. Check back soon!</small>
+      <% end %>
+    </div>
+
     <div class="api-key-section">
       <label class="settings-form__label">API Key</label>
 
