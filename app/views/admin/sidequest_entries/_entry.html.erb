@@ -36,6 +36,8 @@
       <% if entry.pending? %>
         <%= button_to "Approve", approve_admin_sidequest_entry_path(entry), method: :post, class: "btn-primary slim" %>
         <button type="button" onclick="document.getElementById(<%= "reject-modal-#{entry.id}".to_json %>).showModal()" class="btn-danger slim">Reject</button>
+      <% elsif entry.approved? || entry.rejected? %>
+        <button type="button" onclick="document.getElementById(<%= "undo-modal-#{entry.id}".to_json %>).showModal()" class="btn-secondary slim">Undo</button>
       <% end %>
     </div>
   </td>

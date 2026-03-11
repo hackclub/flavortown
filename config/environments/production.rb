@@ -2,7 +2,7 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   config.after_initialize do
-    Bullet.enable        = true
+    Bullet.enable        = ActiveModel::Type::Boolean.new.cast(ENV.fetch("BULLET_ENABLE", false))
     Bullet.sentry        = false
     Bullet.rails_logger  = true
     Bullet.add_footer    = true

@@ -349,6 +349,31 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
   end
 
+  def approve_verification_call
+    authorize :admin, :manage_shop?
+    @order = ShopOrder.find(params[:id])
+    old_state = @order.aasm_state
+
+    unless @order.awaiting_verification_call?
+      redirect_to shop_orders_return_path, alert: "Order cannot be approved because it is not currently awaiting a verification call." and return
+    end
+
+    if @order.queue_for_fulfillment && @order.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "update",
+        whodunnit: current_user.id,
+        object_changes: {
+          aasm_state: [ old_state, @order.aasm_state ]
+        }
+      )
+      redirect_to shop_orders_return_path, notice: "Order approved for fulfillment, thanks for verifying they are legit amber :3"
+    else
+      redirect_to admin_shop_order_path(@order), alert: "Failed to approve order: #{@order.errors.full_messages.join(', ')}"
+    end
+  end
+
   def cancel_hcb_grant
     authorize :admin, :manage_users?
     @order = ShopOrder.find(params[:id])

@@ -82,11 +82,11 @@ production:
     concurrency: 1
     description: "Refresh sitemap XML cache"
 
-  sync_git_commits:
-    class: GitCommitSyncJob
-    schedule: every hour
-    concurrency: 1
-    description: "Sync git commits from project repos to timeline"
+  # sync_git_commits:
+  #   class: GitCommitSyncJob
+  #   schedule: every hour
+  #   concurrency: 1
+  #   description: "Sync git commits from project repos to timeline"
 
   flush_extension_usage:
     class: FlushExtensionUsageJob
@@ -120,7 +120,7 @@ production:
 
   ysws_review_sync:
     class: YswsReviewSyncJob
-    schedule: every 4 hours
+    schedule: every day at 9am America/New_York
     concurrency: 1
     description: "Sync completed YSWS reviews to Airtable with user PII"
 
@@ -135,3 +135,9 @@ production:
     schedule: every day
     concurrency: 1
     description: "Check YSWS submissions for duplicates in unified database"
+  
+  support_vibecheck_est:
+    class: SupportVibecheckJob
+    schedule: every day at 12pm America/New_York
+    concurrency: 1
+    description: "Run support vibecheck at 12pm EST"

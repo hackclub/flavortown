@@ -39,13 +39,6 @@
 #  one_per_person_ever               :boolean
 #  past_purchases                    :integer          default(0)
 #  payout_percentage                 :integer          default(0)
-#  price_offset_au                   :decimal(, )
-#  price_offset_ca                   :decimal(, )
-#  price_offset_eu                   :decimal(, )
-#  price_offset_in                   :decimal(, )
-#  price_offset_uk                   :decimal(10, 2)
-#  price_offset_us                   :decimal(, )
-#  price_offset_xx                   :decimal(, )
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
@@ -58,11 +51,18 @@
 #  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
-#  ticket_cost                       :decimal(, )
+#  ticket_cost                       :integer
 #  type                              :string
 #  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
+#  usd_offset_au                     :decimal(, )
+#  usd_offset_ca                     :decimal(, )
+#  usd_offset_eu                     :decimal(, )
+#  usd_offset_in                     :decimal(, )
+#  usd_offset_uk                     :decimal(, )
+#  usd_offset_us                     :decimal(, )
+#  usd_offset_xx                     :decimal(, )
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
 #  default_assigned_user_id          :bigint
@@ -84,6 +84,7 @@ class ShopItem < ApplicationRecord
   include Shop::Regionalizable
 
   before_validation :fix_blacklist
+  before_validation :floor_ticket_cost
 
   after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
   after_commit :invalidate_shop_page_cache
@@ -159,7 +160,7 @@ class ShopItem < ApplicationRecord
                        saver: { strip: true, quality: 75 }
   end
   validates :name, :description, :ticket_cost, :type, presence: true
-  validates :ticket_cost, numericality: { greater_than_or_equal_to: 0 }
+  validates :ticket_cost, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :image, presence: true, on: :create
   validates :required_ships_count, numericality: { only_integer: true, greater_than: 0 }, if: :requires_ship?
   validates :required_ships_start_date, :required_ships_end_date, presence: true, if: :requires_ship?
@@ -283,5 +284,9 @@ class ShopItem < ApplicationRecord
   def fix_blacklist
     return unless blocked_countries.present?
     self.blocked_countries = blocked_countries.map(&:upcase).reject(&:blank?).uniq
+  end
+
+  def floor_ticket_cost
+    self.ticket_cost = ticket_cost.floor if ticket_cost.present?
   end
 end

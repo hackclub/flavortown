@@ -55,7 +55,7 @@ class ShopController < ApplicationController
 
     @user_region = user_region
     @sale_price = @shop_item.price_for_region(@user_region)
-    @regional_base_price = @shop_item.ticket_cost + (@shop_item.send("price_offset_#{@user_region.downcase}") || 0)
+    @regional_base_price = @shop_item.base_price_for_region(@user_region)
     @accessories = @shop_item.available_accessories.includes(:image_attachment)
 
     if @shop_item.requires_achievement?

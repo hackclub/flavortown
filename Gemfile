@@ -117,7 +117,7 @@ gem "sentry-ruby", "~> 6.4"
 gem "sentry-rails", "~> 6.4"
 
 # for pagination
-gem "pagy", "~> 43.2"
+gem "pagy", "~> 43.3"
 gem "norairrecord"
 
 gem "awesome_print"
@@ -143,3 +143,5 @@ gem "ahoy_matey"
 
 gem "countries"
 gem "strong_migrations"
+gem "skylight"
+gem "rbtrace", require: String(ENV.fetch("FEATURE_ENABLE_MEMORY_DUMPS", false)) == "true"

@@ -13,6 +13,7 @@ class Webhooks::ShipCertController < ApplicationController
     video_url = body["video_url"]
     reason = body["reason"]
     project_type = body["project_type"]
+    whodunnit = body["ft_user_id"] || "system"
 
     Rails.logger.info "Ship cert webhook received: id=#{project_id} status=#{status} project_type=#{project_type}"
 
@@ -28,15 +29,29 @@ class Webhooks::ShipCertController < ApplicationController
       return
     end
 
-    ship_event.update!(
-      certification_status: status,
-      feedback_video_url: video_url,
-      feedback_reason: reason
-    )
+    PaperTrail.request(whodunnit: whodunnit) do
+      ship_event.update!(
+        certification_status: status,
+        feedback_video_url: video_url,
+        feedback_reason: reason
+      )
 
-    if project_type.present?
-      normalized_type = normalize_category(project_type)
-      project.update!(project_categories: [ normalized_type ])
+      if project_type.present?
+        normalized_type = normalize_category(project_type)
+        project.update!(project_categories: [ normalized_type ])
+      end
+
+      PaperTrail::Version.create!(
+        item: project,
+        event: "SHIP_CERT_WEBHOOK_ACTION",
+        whodunnit: whodunnit,
+        object_changes: {
+          certification_status: status,
+          feedback_video_url: video_url,
+          feedback_reason: reason,
+          project_type: project_type
+        }.to_yaml
+      )
     end
 
     notify_project_owner(project, status, video_url, reason)
