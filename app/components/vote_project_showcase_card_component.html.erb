@@ -26,7 +26,7 @@
         </div>
         <div class="votes-new__project-card-stat">
           <%= helpers.inline_svg_tag "icons/paper.svg" %>
-          <span><%= project.devlogs_count %> devlogs</span>
+          <span><%= project.devlogs_count %> <%= "devlog".pluralize(project.devlogs_count) %></span>
         </div>
         <div class="votes-new__project-card-stat">
           <%= helpers.inline_svg_tag "icons/time.svg" %>
