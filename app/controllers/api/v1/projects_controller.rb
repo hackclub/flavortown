@@ -17,7 +17,8 @@ class Api::V1::ProjectsController < Api::BaseController
     },
     search: {
       q: { type: String, desc: "Search query", required: true },
-      limit: { type: Integer, desc: "Max results to return (1-100, default 20)", required: false }
+      limit: { type: Integer, desc: "Max results to return (1-100, default 20)", required: false },
+      rerank: { type: String, desc: "Enable cross-encoder reranking for better relevance (1 to enable)", required: false }
     },
     random: {
       count: { type: Integer, desc: "Number of random projects to return (1-50, default 1)", required: false },
@@ -83,7 +84,7 @@ class Api::V1::ProjectsController < Api::BaseController
   end
 
   def search
-    result = ProjectSearchService.new(params[:q], limit: params[:limit]).call
+    result = ProjectSearchService.new(params[:q], limit: params[:limit], rerank: params[:rerank] == "1").call
     @projects = result.projects
     @query = result.query
     @ms = result.ms

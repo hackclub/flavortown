@@ -5,11 +5,13 @@ class ProjectSearchService
   DEFAULT_POOL = 40
   DEFAULT_LIMIT = 20
   MAX_LIMIT = 100
+  DESC_LEN_THRESHOLD = 100
 
-  def initialize(query, limit: DEFAULT_LIMIT)
+  def initialize(query, limit: DEFAULT_LIMIT, rerank: false)
     @query = query.to_s.strip
     @limit = limit.to_i.clamp(1, MAX_LIMIT)
     @pool = [ DEFAULT_POOL, @limit * 2 ].max
+    @rerank = rerank
   end
 
   def call
@@ -23,7 +25,9 @@ class ProjectSearchService
 
     return SearchResult.new(Project.none, @query, 0) if fused_ids.empty?
 
-    # Preserve RRF ordering via SQL CASE
+    fused_ids = rerank_ids(fused_ids) if @rerank
+
+    # Preserve ordering via SQL CASE
     order_clause = fused_ids.each_with_index.map { |id, i| "WHEN #{id} THEN #{i}" }.join(" ")
     projects = Project.where(id: fused_ids)
                       .includes(:devlogs)
@@ -73,11 +77,34 @@ class ProjectSearchService
       scores[id] += FTS_WEIGHT / (RRF_K + i + 1)
     end
 
-    scores.sort_by { |_, s| -s }.first(@limit).map(&:first)
+    scores.sort_by { |_, s| -s }.first(@pool).map(&:first)
+  end
+
+  def rerank_ids(candidate_ids)
+    projects = Project.where(id: candidate_ids).pluck(:id, :description)
+    docs = projects.map { |_, desc| desc.to_s[0, 256] }
+
+    reranked = reranker.(@query, docs)
+
+    # Discount short descriptions — they tend to be noisy
+    reranked.each do |r|
+      desc_len = docs[r[:doc_id]].length
+      if desc_len < DESC_LEN_THRESHOLD
+        r[:score] *= (desc_len.to_f / DESC_LEN_THRESHOLD)
+      end
+    end
+
+    reranked.sort_by { |r| -r[:score] }
+            .first(@limit)
+            .map { |r| projects[r[:doc_id]].first }
   end
 
   def embed_model
     self.class.embed_model
+  end
+
+  def reranker
+    self.class.reranker
   end
 
   class << self
@@ -85,8 +112,13 @@ class ProjectSearchService
       @@embed_model ||= Informers.pipeline("embedding", "sentence-transformers/all-mpnet-base-v2")
     end
 
+    def reranker
+      @@reranker ||= Informers.pipeline("reranking", "cross-encoder/ms-marco-MiniLM-L-6-v2")
+    end
+
     def warmup
       embed_model
+      reranker
     end
   end
 
