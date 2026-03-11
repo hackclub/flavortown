@@ -117,7 +117,7 @@ gem "sentry-ruby", "~> 6.4"
 gem "sentry-rails", "~> 6.4"
 
 # for pagination
-gem "pagy", "~> 43.2"
+gem "pagy", "~> 43.3"
 gem "norairrecord"
 
 gem "awesome_print"
