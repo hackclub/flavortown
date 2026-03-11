@@ -1,7 +1,7 @@
 class SidequestsController < ApplicationController
   def index
-    @active_sidequests = Sidequest.active
-    @expired_sidequests = Sidequest.expired
+    @active_sidequests = Sidequest.active.with_approved_count
+    @expired_sidequests = Sidequest.expired.with_approved_count
   end
 
   def show

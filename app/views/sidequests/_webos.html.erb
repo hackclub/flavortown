@@ -14,6 +14,9 @@
     </div>
     <div class="window-body">
       <p><%= sidequest.description %></p>
+      <% if sidequest.approved_count > 0 %>
+        <p style="color: #666; font-size: 11px;"><%= pluralize(sidequest.approved_count, "submission") %></p>
+      <% end %>
       <% if sidequest.expires_at.present? %>
         <p style="color: #666; font-size: 11px;"><%= sidequest.expired? ? "Ended" : "Ends" %> <%= sidequest.expires_at.strftime("%B %d, %Y") %></p>
       <% end %>
