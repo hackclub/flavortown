@@ -113,6 +113,17 @@ class User < ApplicationRecord
 
   def has_role?(role_name) = roles.include?(role_name.to_sym)
 
+  def club_link_uri
+    return nil if club_link.blank?
+
+    uri = URI.parse(club_link.to_s)
+    uri if uri.scheme&.downcase.in?(%w[http https])
+  rescue URI::InvalidURIError
+    nil
+  end
+
+  def valid_club_link? = club_link_uri.present?
+
   def admin? = has_role?(:admin) || has_role?(:super_admin)
 
   def can_see_deleted_devlogs? = admin? || has_role?(:fraud_dept)
