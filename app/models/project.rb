@@ -9,12 +9,14 @@
 #  description          :text
 #  devlogs_count        :integer          default(0), not null
 #  duration_seconds     :integer          default(0), not null
+#  embedding            :vector(768)
 #  marked_fire_at       :datetime
 #  memberships_count    :integer          default(0), not null
 #  project_categories   :string           default([]), is an Array
 #  project_type         :string
 #  readme_url           :text
 #  repo_url             :text
+#  searchable_tsv       :tsvector
 #  shadow_banned        :boolean          default(FALSE), not null
 #  shadow_banned_at     :datetime
 #  shadow_banned_reason :text
@@ -31,7 +33,9 @@
 # Indexes
 #
 #  index_projects_on_deleted_at         (deleted_at)
+#  index_projects_on_embedding          (embedding) USING hnsw
 #  index_projects_on_marked_fire_by_id  (marked_fire_by_id)
+#  index_projects_on_searchable_tsv     (searchable_tsv) USING gin
 #  index_projects_on_shadow_banned      (shadow_banned)
 #
 # Foreign Keys
@@ -41,6 +45,7 @@
 class Project < ApplicationRecord
   include AASM
   include SoftDeletable
+  include ProjectSearchable
 
   SPACE_THEMED_PREFIX = "Space Themed:".freeze
 
@@ -52,6 +57,7 @@ class Project < ApplicationRecord
   has_many :sidequests, through: :sidequest_entries
 
   after_create :notify_slack_channel
+  after_commit :enqueue_vectorize, on: [ :create, :update ], if: :saved_change_to_searchable_fields?
 
   ACCEPTED_CONTENT_TYPES = %w[image/jpeg image/png image/webp image/heic image/heif].freeze
   MAX_BANNER_SIZE = 10.megabytes
@@ -358,6 +364,14 @@ class Project < ApplicationRecord
   end
 
   private
+
+  def enqueue_vectorize
+    VectorizeProjectJob.perform_later(id)
+  end
+
+  def saved_change_to_searchable_fields?
+    saved_change_to_title? || saved_change_to_description?
+  end
 
   def has_devlog_since_last_ship?
     return true if last_ship_event.nil?
