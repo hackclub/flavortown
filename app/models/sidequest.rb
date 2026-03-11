@@ -24,6 +24,11 @@ class Sidequest < ApplicationRecord
 
   scope :active, ->(date: Date.current) { where("expires_at IS NULL OR expires_at >= ?", date) }
   scope :expired, ->(date: Date.current) { where.not("expires_at IS NULL OR expires_at >= ?", date) }
+  scope :with_approved_count, -> {
+    left_joins(:sidequest_entries)
+      .select("sidequests.*, COUNT(sidequest_entries.id) FILTER (WHERE sidequest_entries.aasm_state = 'approved') AS approved_count")
+      .group("sidequests.id")
+  }
 
   def to_param
     slug
