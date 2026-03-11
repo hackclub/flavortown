@@ -62,7 +62,7 @@
           </script>
         <% end %>
 
-        <% if policy(@project).confirm_recertification? && @project.last_ship_event&.certification_status == "rejected" %>
+        <% if Flipper.enabled?(:shipping) && policy(@project).confirm_recertification? && @project.last_ship_event&.certification_status == "rejected" %>
           <%= link_to "Request Re-certification", confirm_recertification_project_path(@project), class: "btn btn--green" %>
         <% end %>
       </div>
