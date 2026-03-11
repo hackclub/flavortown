@@ -27,11 +27,10 @@ class ProjectSearchService
 
     fused_ids = rerank_ids(fused_ids) if @rerank
 
-    # Preserve ordering via SQL CASE
-    order_clause = fused_ids.each_with_index.map { |id, i| "WHEN #{id} THEN #{i}" }.join(" ")
+    # Preserve RRF ranking order
     projects = Project.where(id: fused_ids)
                       .includes(:devlogs)
-                      .order(Arel.sql("CASE projects.id #{order_clause} END"))
+                      .in_order_of(:id, fused_ids)
 
     ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0) * 1000).round
     SearchResult.new(projects, @query, ms)
