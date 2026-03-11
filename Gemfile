@@ -60,7 +60,7 @@ group :development, :test do
 end
 
 # Bullet gem to catch N+1
-gem "bullet"
+gem "bullet", group: :development
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
