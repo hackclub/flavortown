@@ -3,9 +3,14 @@ class Airtable::UserClubPullJob < ApplicationJob
   retry_on Norairrecord::Error, wait: :polynomially_longer, attempts: 3
 
   def perform
+    airtable_records = table.all(fields: %w[email club_name\ (from\ club) club_link])
+    records_by_email = airtable_records.each_with_object({}) do |record, hash|
+      email = record["email"].to_s.downcase.strip
+      hash[email] = record if email.present?
+    end
+
     User.where.not(email: [ nil, "" ]).find_each do |user|
-      escaped_email = user.email.to_s.gsub("'", "''")
-      record = table.all(filter: "{email} = '#{escaped_email}'").first
+      record = records_by_email[user.email.to_s.downcase.strip]
       next unless record
 
       updates = {}
