@@ -120,8 +120,7 @@ export default class extends Controller {
 
     if (this.isDragging) {
       this.handleDragMove(this.lastX, this.lastY);
-    }
-    else if (this.isResizing) {
+    } else if (this.isResizing) {
       this.handleResizeMove(this.lastX, this.lastY);
     }
   }
@@ -210,7 +209,8 @@ export default class extends Controller {
 
   handleResizeMove(clientX, clientY) {
     const newW = this.resizeStartW + (clientX - this.resizeStartX);
-    const newH = this.resizeStartH + (clientY - this.resizeStartY + window.scrollY);
+    const newH =
+      this.resizeStartH + (clientY - this.resizeStartY + window.scrollY);
     this.element.style.width = `${Math.max(200, newW)}px`;
     this.element.style.height = `${Math.max(100, newH)}px`;
   }
@@ -304,7 +304,7 @@ export default class extends Controller {
 
     if (this.hasErrorSoundTarget) {
       this.errorSoundTarget.currentTime = 0;
-      this.errorSoundTarget.play().catch(() => { });
+      this.errorSoundTarget.play().catch(() => {});
     }
   }
 
