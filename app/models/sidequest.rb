@@ -29,7 +29,15 @@ class Sidequest < ApplicationRecord
     slug
   end
 
-  # Ensures Challenger and Extensions sidequests exist (e.g. when visiting /sidequests without running seeds).
+  def expired?
+    expires_at.present? && expires_at < Time.current
+  end
+
+  def to_partial_path
+    "sidequests/#{slug}"
+  end
+
+  # Ensures default sidequests exist (e.g. when visiting /sidequests without running seeds).
   def self.ensure_default_sidequests!
     find_or_create_by!(slug: "extension") do |sq|
       sq.title = "Extensions"
