@@ -87,18 +87,23 @@ class ShopItem < ApplicationRecord
   before_validation :floor_ticket_cost
 
   after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
-  after_commit :invalidate_buyable_standalone_cache
+  after_commit :invalidate_shop_page_cache
 
-  BUYABLE_STANDALONE_CACHE_KEY = "shop_items/buyable_standalone"
+  RECENTLY_ADDED_WINDOW = 2.weeks
+  SHOP_PAGE_CACHE_KEY = "shop_items/shop_page"
 
-  def self.cached_buyable_standalone
-    Rails.cache.fetch(BUYABLE_STANDALONE_CACHE_KEY, expires_in: 5.minutes) do
-      enabled.listed.buyable_standalone.includes(:image_attachment, image_attachment: [ :blob, :record ]).to_a
+  def self.cached_shop_page_data
+    Rails.cache.fetch(SHOP_PAGE_CACHE_KEY, expires_in: 5.minutes) do
+      buyable = enabled.listed.buyable_standalone.includes(image_attachment: :blob).to_a
+      cutoff = RECENTLY_ADDED_WINDOW.ago
+      recently_added = buyable.select { |item| item.created_at >= cutoff }.sort_by(&:created_at).reverse
+
+      { buyable_standalone: buyable, recently_added: recently_added }
     end
   end
 
-  def self.invalidate_buyable_standalone_cache!
-    Rails.cache.delete(BUYABLE_STANDALONE_CACHE_KEY)
+  def self.invalidate_shop_page_cache!
+    Rails.cache.delete(SHOP_PAGE_CACHE_KEY)
   end
 
   MANUAL_FULFILLMENT_TYPES = [
@@ -113,7 +118,7 @@ class ShopItem < ApplicationRecord
   scope :enabled, -> { where(enabled: true).where("shop_items.enabled_until IS NULL OR shop_items.enabled_until > ?", Time.current) }
   scope :listed, -> { where(unlisted: [ nil, false ]) }
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
-  scope :recently_added, -> { where(created_at: 2.weeks.ago..).order(created_at: :desc) }
+  scope :recently_added, -> { where(created_at: RECENTLY_ADDED_WINDOW.ago..).order(created_at: :desc) }
 
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
   belongs_to :default_assigned_user, class_name: "User", optional: true
@@ -272,8 +277,8 @@ class ShopItem < ApplicationRecord
     Cache::CarouselPrizesJob.perform_later(force: true)
   end
 
-  def invalidate_buyable_standalone_cache
-    self.class.invalidate_buyable_standalone_cache!
+  def invalidate_shop_page_cache
+    self.class.invalidate_shop_page_cache!
   end
 
   def fix_blacklist

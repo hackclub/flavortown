@@ -60,7 +60,7 @@ group :development, :test do
 end
 
 # Bullet gem to catch N+1
-gem "bullet"
+gem "bullet", group: :development
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
@@ -117,7 +117,7 @@ gem "sentry-ruby", "~> 6.4"
 gem "sentry-rails", "~> 6.4"
 
 # for pagination
-gem "pagy", "~> 43.2"
+gem "pagy", "~> 43.3"
 gem "norairrecord"
 
 gem "awesome_print"

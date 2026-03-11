@@ -357,6 +357,10 @@ class ProjectsController < ApplicationController
     @project = Project.find(params[:id])
     authorize @project
 
+    unless Flipper.enabled?(:shipping)
+      redirect_to @project, alert: "Shipping is currently disabled." and return
+    end
+
     ship_event = ShipCertService.latest_ship_event(@project)
 
     unless ship_event&.certification_status == "rejected"
@@ -370,6 +374,10 @@ class ProjectsController < ApplicationController
   def request_recertification
     @project = Project.find(params[:id])
     authorize @project
+
+    unless Flipper.enabled?(:shipping)
+      redirect_to @project, alert: "Shipping is currently disabled." and return
+    end
 
     ship_event = ShipCertService.latest_ship_event(@project)
 

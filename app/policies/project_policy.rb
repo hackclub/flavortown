@@ -47,6 +47,10 @@ class ProjectPolicy < ApplicationPolicy
         member? || user&.project_certifier?
     end
 
+    def see_votes?
+        member? || user.admin?
+    end
+
     def request_recertification?
         member? || user&.project_certifier?
     end

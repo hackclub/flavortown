@@ -3,7 +3,7 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   config.after_initialize do
     Bullet.enable        = true
-    Bullet.alert         = false
+    Bullet.alert         = true
     Bullet.bullet_logger = true
     Bullet.console       = true
     Bullet.rails_logger  = true
