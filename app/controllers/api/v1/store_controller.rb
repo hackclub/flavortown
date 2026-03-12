@@ -1,6 +1,8 @@
 class Api::V1::StoreController < Api::BaseController
   include ApiAuthenticatable
 
+  before_action :open!
+
   class_attribute :description, default: {
     index: "Fetch a list of store items. Ratelimit: 5 reqs/min",
     show: "Fetch a specific store item by ID. Ratelimit: 30 reqs/min"
@@ -59,5 +61,13 @@ class Api::V1::StoreController < Api::BaseController
 
   def show
     @item = ShopItem.enabled.listed.find_by!(id: params[:id])
+  end
+
+  private
+
+  def open!
+    unless Flipper.enabled?(:shop_open)
+      render json: { error: "Shop is currently closed" }, status: :service_unavailable
+    end
   end
 end
