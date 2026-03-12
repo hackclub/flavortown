@@ -154,6 +154,7 @@ module Admin
         :accessory_tag,
         :requires_achievement,
         :requires_ship,
+        :requires_cooked_project,
         :required_ships_count,
         :required_ships_start_date,
         :required_ships_end_date,

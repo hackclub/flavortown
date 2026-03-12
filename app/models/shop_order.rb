@@ -85,6 +85,7 @@ class ShopOrder < ApplicationRecord
   validate :check_stock, on: :create
   validate :check_ship_requirement, on: :create
   validate :check_achievement_requirement, on: :create
+  validate :check_cooked, on: :create
 
   after_create :create_negative_payout
   after_create :assign_default_user
@@ -398,6 +399,13 @@ class ShopOrder < ApplicationRecord
 
     achievement = Achievement.find(shop_item.requires_achievement.to_sym)
     errors.add(:base, "You must earn the \"#{achievement.name}\" achievement to purchase this item.")
+  end
+
+  def check_cooked
+    return unless shop_item&.requires_cooked_project?
+    return if shop_item.meet_cooked_project_require?(user)
+
+    errors.add(:base, "You need at least one well cooked project to purchase this!")
   end
 
   def create_negative_payout

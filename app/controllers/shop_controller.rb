@@ -62,6 +62,10 @@ class ShopController < ApplicationController
       @required_achievement = Achievement.find(@shop_item.requires_achievement.to_sym)
       @locked_by_achievement = !current_user.earned_achievement?(@shop_item.requires_achievement.to_sym)
     end
+
+    if @shop_item.requires_cooked_project?
+      @locked_by_cooked_project = !current_user.projects.fire.exists?
+    end
     ahoy.track "Viewed shop item", shop_item_id: @shop_item.id
   end
 
