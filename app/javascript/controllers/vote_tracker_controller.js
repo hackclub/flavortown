@@ -49,9 +49,7 @@ export default class extends Controller {
   submit(event) {
     this.rmErr();
 
-    const reasonField = this.formTarget.querySelector(
-      '[name="vote[reason]"]',
-    );
+    const reasonField = this.formTarget.querySelector('[name="vote[reason]"]');
     if (reasonField) {
       const text = (reasonField.value ?? "").trim();
       const wordCount = text ? text.split(/\s+/).length : 0;
