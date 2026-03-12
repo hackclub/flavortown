@@ -34,6 +34,9 @@ export default class extends Controller {
 
   trackRepoClick(event) {
     if (event.type === "auxclick" && event.button === 2) {
+      event.preventDefault();
+      this.repoFieldTarget.value = "true";
+      window.open(event.currentTarget.href, "_blank", "noopener,noreferrer");
       return;
     }
     this.repoFieldTarget.value = "true";
@@ -41,6 +44,9 @@ export default class extends Controller {
 
   trackDemoClick(event) {
     if (event.type === "auxclick" && event.button === 2) {
+      event.preventDefault();
+      this.demoFieldTarget.value = "true";
+      window.open(event.currentTarget.href, "_blank", "noopener,noreferrer");
       return;
     }
     this.demoFieldTarget.value = "true";
