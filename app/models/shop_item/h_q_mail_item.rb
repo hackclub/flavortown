@@ -43,6 +43,7 @@
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
 #  requires_achievement              :string
+#  requires_cooked_project           :boolean          default(FALSE)
 #  requires_ship                     :boolean          default(FALSE)
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
