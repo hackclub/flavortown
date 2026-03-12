@@ -245,6 +245,16 @@
             <%= f.label :hcb_keyword_lock, "HCB Keyword Lock", class: "shop-item-form__label" %>
             <%= f.text_field :hcb_keyword_lock, class: "form-control" %>
           </div>
+
+          <div class="shop-item-form__toggles" style="margin-top: 1rem;">
+            <label class="shop-item-form__toggle">
+              <%= f.check_box :hcb_one_time_use %>
+              <span class="shop-item-form__toggle-content">
+                <strong>One-Time Use</strong>
+                <span class="shop-item-form__toggle-desc">freeze card after one txn</span>
+              </span>
+            </label>
+          </div>
         </div>
 
         <div class="card" id="hcb_preauth_settings" style="display: none;">

@@ -148,6 +148,7 @@ module Admin
         :hcb_keyword_lock,
         :hcb_merchant_lock,
         :hcb_preauthorization_instructions,
+        :hcb_one_time_use,
         :agh_contents,
         :image,
         :buyable_by_self,
