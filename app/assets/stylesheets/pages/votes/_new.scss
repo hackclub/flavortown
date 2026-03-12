@@ -222,11 +222,13 @@
     margin-top: 0.5em;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.5em;
 
     .post {
       padding: 1em;
       border-width: 0.5em;
+      width: 100%;
 
       &::before,
       &::after {
