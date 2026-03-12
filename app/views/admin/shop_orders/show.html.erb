@@ -432,19 +432,19 @@
   </div>
 </div>
 
-<div class="admin-section">
-  <details style="cursor: pointer;">
-    <summary class="admin-section__summary">
-      📝 Internal Notes
-    </summary>
-    <div class="admin-section__content">
-      <form method="post" action="<%= update_internal_notes_admin_shop_order_path(@order) %>">
-        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <textarea name="internal_notes" rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; resize: vertical;"><%= @order.internal_notes %></textarea>
-        <button type="submit" class="btn-primary" style="margin-top: 0.5rem; padding: 0.25rem 0.75rem; font-size: 0.8rem;">Save Notes</button>
-      </form>
+<div class="admin-section<%= ' admin-section--highlighted' if @order.internal_notes.present? %>">
+  <h2 class="admin-section__header">📝 Internal Notes</h2>
+  <p class="admin-section__note">⚠️ Shared between fraud, fulfilment, and admins. Changes are audit logged.</p>
+  <% if @order.internal_notes.present? %>
+    <div class="admin-alert admin-alert--warning">
+      <strong>Note:</strong> <%= simple_format(@order.internal_notes, {}, wrapper_tag: "span") %>
     </div>
-  </details>
+  <% end %>
+  <form method="post" action="<%= update_internal_notes_admin_shop_order_path(@order) %>">
+    <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+    <textarea name="internal_notes" rows="3" class="admin-textarea" placeholder="Add internal notes about this order..."><%= @order.internal_notes %></textarea>
+    <button type="submit" class="btn-primary slim">Save Notes</button>
+  </form>
 </div>
 
 <%= render Admin::PastOrdersComponent.new(user: @order.user, orders: @user_orders) %>
