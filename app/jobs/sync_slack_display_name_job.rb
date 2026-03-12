@@ -13,7 +13,11 @@ class SyncSlackDisplayNameJob < ApplicationJob
       slack_user = response.user
       profile = slack_user.profile
 
-      new_display_name = profile.display_name.presence || profile.real_name.presence || slack_user.real_name.presence
+      slack_display_name = profile.display_name.presence
+      slack_real_name = profile.real_name.presence || slack_user.real_name.presence
+
+      # Prefer the explicit Slack display name. Only fall back to Slack real_name
+      new_display_name = slack_display_name || (user.display_name.to_s.strip.blank? ? slack_real_name : nil)
 
       if new_display_name.present? && user.display_name != new_display_name
         user.update!(display_name: new_display_name)

@@ -386,7 +386,12 @@
 
       &__feedback {
         display: flex;
+        flex-direction: column;
         margin-top: var(--space-m);
+
+        &--invalid .input__subtitle {
+          color: var(--color-red-600, #dc2626);
+        }
       }
 
       .input {

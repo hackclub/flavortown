@@ -140,6 +140,7 @@ Rails.application.routes.draw do
   post "my/roll_api_key", to: "my#roll_api_key", as: :roll_api_key
   post "my/cookie_click", to: "my#cookie_click", as: :my_cookie_click
   post "my/dismiss_thing", to: "my#dismiss_thing", as: :dismiss_thing
+  delete "my/club", to: "my#unlink_club", as: :my_club
   get "my/achievements", to: "achievements#index", as: :my_achievements
 
   # Magic Links

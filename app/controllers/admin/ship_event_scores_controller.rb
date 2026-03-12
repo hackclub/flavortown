@@ -77,6 +77,7 @@ module Admin
       return {} if ship_event_ids.empty?
 
       vote_rows = Vote
+        .legitimate
         .where(ship_event_id: ship_event_ids)
         .order(:created_at)
         .pluck(:ship_event_id, *Vote.score_columns, :created_at)

@@ -29,6 +29,7 @@
 #  hcb_category_lock                 :string
 #  hcb_keyword_lock                  :string
 #  hcb_merchant_lock                 :string
+#  hcb_one_time_use                  :boolean          default(FALSE)
 #  hcb_preauthorization_instructions :text
 #  internal_description              :string
 #  limited                           :boolean
@@ -56,13 +57,13 @@
 #  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
-#  usd_offset_au                     :decimal(, )
-#  usd_offset_ca                     :decimal(, )
-#  usd_offset_eu                     :decimal(, )
-#  usd_offset_in                     :decimal(, )
-#  usd_offset_uk                     :decimal(, )
-#  usd_offset_us                     :decimal(, )
-#  usd_offset_xx                     :decimal(, )
+#  usd_offset_au                     :decimal(10, 2)
+#  usd_offset_ca                     :decimal(10, 2)
+#  usd_offset_eu                     :decimal(10, 2)
+#  usd_offset_in                     :decimal(10, 2)
+#  usd_offset_uk                     :decimal(10, 2)
+#  usd_offset_us                     :decimal(10, 2)
+#  usd_offset_xx                     :decimal(10, 2)
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
 #  default_assigned_user_id          :bigint
@@ -110,7 +111,8 @@ class ShopItem::HCBGrant < ShopItem
               merchant_lock: merchant_lock,
               keyword_lock: keyword_lock,
               category_lock: category_lock,
-              purpose: name
+              purpose: name,
+              one_time_use: hcb_one_time_use?
             )
 
             grant_rec.hcb_grant_hashid = grant_res["id"]
