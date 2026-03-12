@@ -12,13 +12,13 @@ json.array! @items do |item|
   end
 
   json.ticket_cost do
-    json.base_cost item.ticket_cost.to_f
-    json.au item.base_price_for_region("AU").to_f.round
-    json.ca item.base_price_for_region("CA").to_f.round
-    json.eu item.base_price_for_region("EU").to_f.round
-    json.in item.base_price_for_region("IN").to_f.round
-    json.uk item.base_price_for_region("UK").to_f.round
-    json.us item.base_price_for_region("US").to_f.round
-    json.xx item.base_price_for_region("XX").to_f.round
+    json.base_cost item.ticket_cost
+    json.au item.base_price_for_region("AU")
+    json.ca item.base_price_for_region("CA")
+    json.eu item.base_price_for_region("EU")
+    json.in item.base_price_for_region("IN")
+    json.uk item.base_price_for_region("UK")
+    json.us item.base_price_for_region("US")
+    json.xx item.base_price_for_region("XX")
   end
 end
