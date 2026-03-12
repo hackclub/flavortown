@@ -54,8 +54,6 @@ class Projects::ShipsController < ApplicationController
       @space_themed_checked = @project.space_themed?
       @project.description = @project.description_without_space_theme_prefix if @project.space_themed?
     end
-    @hackatime_projects = @project.hackatime_projects_with_time
-    @total_hours = @project.total_hackatime_hours
     @last_ship = @project.last_ship_event
     @devlogs_for_ship = devlogs_since_last_ship
     @active_sidequests = Sidequest.active
