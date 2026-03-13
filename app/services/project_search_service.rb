@@ -38,25 +38,22 @@ class ProjectSearchService
 
   private
 
-  # Use a subquery for visible IDs to avoid DISTINCT + ORDER BY conflicts
-  def visible_ids_subquery
-    Project.where(deleted_at: nil).excluding_shadow_banned.select(:id)
+  def visible_ids
+    @visible_ids ||= Project.where(deleted_at: nil).excluding_shadow_banned.pluck(:id).to_set
   end
 
   def vector_search
     embedding = embed_model.(@query)
-    Project.where(id: visible_ids_subquery)
-           .where.not(embedding: nil)
-           .nearest_neighbors(:embedding, embedding, distance: :cosine)
-           .limit(@pool)
-           .pluck(:id)
+    ids = ProjectEmbedding.search(embedding, limit: @pool * 2)
+    ids.select { |id| visible_ids.include?(id) }.first(@pool)
   rescue => e
     Rails.logger.warn("Vector search failed: #{e.message}")
     []
   end
 
   def fulltext_search
-    Project.where(id: visible_ids_subquery)
+    Project.where(deleted_at: nil)
+           .excluding_shadow_banned
            .text_search(@query)
            .limit(@pool)
            .pluck(:id)

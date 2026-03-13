@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: report_review_tokens
+# Database name: primary
 #
 #  id         :bigint           not null, primary key
 #  action     :string           not null

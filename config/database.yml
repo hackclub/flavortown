@@ -20,10 +20,15 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
-  <<: *default
-  database: battlemage_development
-  
-  url: <%= ENV['DATABASE_URL'] %>
+  primary:
+    <<: *default
+    database: battlemage_development
+    url: <%= ENV['DATABASE_URL'] %>
+  vector:
+    adapter: sqlite3
+    database: storage/vector_search.db
+    migrations_paths: db/vector_migrate
+    schema_dump: false
 
   # Uncomment this line to use the production database for development! Must have PROD_DATABASE_URL set in the environment.
   # url: <%= ENV['PROD_DATABASE_URL'] %>
@@ -59,8 +64,13 @@ development:
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
-  <<: *default
-  database: battlemage_test
+  primary:
+    <<: *default
+    database: battlemage_test
+  vector:
+    adapter: sqlite3
+    database: storage/vector_search_test.db
+    migrations_paths: db/vector_migrate
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -111,3 +121,9 @@ production:
     url: <%= ENV['AHOY_DB_URL'] %>
     migrations_paths: db/ahoy_migrate
     database: flavortown_ahoy
+
+  vector:
+    adapter: sqlite3
+    database: storage/vector_search.db
+    migrations_paths: db/vector_migrate
+    schema_dump: false

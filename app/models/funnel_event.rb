@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: funnel_events
+# Database name: primary
 #
 #  id         :bigint           not null, primary key
 #  email      :string

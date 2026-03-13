@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: flavortime_sessions
+# Database name: primary
 #
 #  id                     :bigint           not null, primary key
 #  app_version            :string

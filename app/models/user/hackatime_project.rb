@@ -2,6 +2,7 @@
 # == Schema Information
 #
 # Table name: user_hackatime_projects
+# Database name: primary
 #
 #  id         :bigint           not null, primary key
 #  name       :string           not null

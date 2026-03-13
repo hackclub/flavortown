@@ -7,7 +7,7 @@ class VectorizeProjectJob < ApplicationJob
     return if project.searchable_text.strip.length < 10
 
     embedding = embed_model.(project.searchable_text)
-    project.update_column(:embedding, embedding)
+    ProjectEmbedding.upsert_embedding(project_id: project.id, embedding: embedding)
   end
 
   private

@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: ledger_entries
+# Database name: primary
 #
 #  id              :bigint           not null, primary key
 #  amount          :integer

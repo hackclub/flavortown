@@ -19,7 +19,10 @@ class VectorizeProjectsBatchJob < ApplicationJob
   end
 
   def vectorize_embeddings
-    projects = Project.needs_embedding.limit(BATCH_SIZE)
+    embedded_ids = ProjectEmbedding.embedded_project_ids
+    projects = Project.where.not(description: [ nil, "" ])
+                      .where.not(id: embedded_ids.to_a)
+                      .limit(BATCH_SIZE)
     return if projects.empty?
 
     model = ProjectSearchService.embed_model
@@ -29,14 +32,15 @@ class VectorizeProjectsBatchJob < ApplicationJob
       next if project.searchable_text.strip.length < 10
 
       embedding = model.(project.searchable_text)
-      project.update_column(:embedding, embedding)
+      ProjectEmbedding.upsert_embedding(project_id: project.id, embedding: embedding)
       count += 1
     end
 
     Rails.logger.info("[VectorizeProjectsBatchJob] Vectorized #{count} projects")
 
     # Re-enqueue if there's more work
-    if Project.needs_embedding.exists? || Project.where(searchable_tsv: nil).exists?
+    remaining = Project.where.not(description: [ nil, "" ]).where.not(id: ProjectEmbedding.embedded_project_ids.to_a)
+    if remaining.exists? || Project.where(searchable_tsv: nil).exists?
       self.class.perform_later
     else
       Rails.logger.info("[VectorizeProjectsBatchJob] All projects vectorized!")

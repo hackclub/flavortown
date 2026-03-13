@@ -1,5 +1,6 @@
 services:
   web:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: dev.Dockerfile
@@ -17,7 +18,7 @@ services:
       - db
 
   db:
-    image: pgvector/pgvector:pg16
+    image: postgres:16
     volumes:
       - flavortown_postgres_data:/var/lib/postgresql/data
     environment:

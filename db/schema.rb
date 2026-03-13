@@ -13,7 +13,6 @@
 ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
-  enable_extension "vector"
 
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
@@ -460,7 +459,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.text "description"
     t.integer "devlogs_count", default: 0, null: false
     t.integer "duration_seconds", default: 0, null: false
-    t.vector "embedding", limit: 768
     t.string "fire_letter_id"
     t.datetime "marked_fire_at"
     t.bigint "marked_fire_by_id"
@@ -480,7 +478,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.boolean "tutorial", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "index_projects_on_deleted_at"
-    t.index ["embedding"], name: "index_projects_on_embedding", opclass: :vector_cosine_ops, using: :hnsw
     t.index ["marked_fire_by_id"], name: "index_projects_on_marked_fire_by_id"
     t.index ["searchable_tsv"], name: "index_projects_on_searchable_tsv", using: :gin
     t.index ["shadow_banned"], name: "index_projects_on_shadow_banned"

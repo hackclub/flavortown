@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: votes
+# Database name: primary
 #
 #  id                 :bigint           not null, primary key
 #  demo_url_clicked   :boolean          default(FALSE)

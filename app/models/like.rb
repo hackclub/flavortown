@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: likes
+# Database name: primary
 #
 #  id            :bigint           not null, primary key
 #  likeable_type :string           not null

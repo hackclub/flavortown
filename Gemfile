@@ -135,8 +135,9 @@ gem "disco"
 gem "faiss"
 
 # for semantic search
-gem "neighbor"
 gem "informers"
+gem "sqlite3"
+gem "sqlite-vec"
 
 # Rack Mini Profiler gem for performance monitoring
 gem "rack-mini-profiler"

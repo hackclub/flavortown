@@ -3,9 +3,6 @@ class AddVectorSearchToProjects < ActiveRecord::Migration[8.1]
 
   def up
     safety_assured do
-      enable_extension "vector"
-
-      add_column :projects, :embedding, :vector, limit: 768
       add_column :projects, :searchable_tsv, :tsvector
 
       add_index :projects, :searchable_tsv, using: :gin, algorithm: :concurrently
@@ -23,7 +20,5 @@ class AddVectorSearchToProjects < ActiveRecord::Migration[8.1]
   def down
     execute "DROP TRIGGER IF EXISTS projects_searchable_tsv_update ON projects"
     remove_column :projects, :searchable_tsv
-    remove_column :projects, :embedding
-    disable_extension "vector"
   end
 end
