@@ -185,6 +185,15 @@
             </label>
           </div>
 
+          <div class="shop-item-form__field" style="margin-top: 1rem;">
+            <%= f.label :requires_achievement, "Requires Achievement", class: "shop-item-form__label" %>
+            <%= f.select :requires_achievement,
+                Achievement.all.select { |a| !a.hidden? }.map { |a| ["#{a.name} (#{a.slug})", a.slug] },
+                { include_blank: "None" },
+                { class: "form-control" } %>
+            <span class="shop-item-form__hint">User must have earned this achievement to purchase. Sidequest achievements are awarded automatically when a sidequest entry is approved.</span>
+          </div>
+
           <div id="ship_requirement_fields" style="display: none; margin-top: 1rem;">
             <div class="shop-item-form__field">
               <%= f.label :required_ships_count, "Required Ships Count", class: "shop-item-form__label" %>
@@ -235,6 +244,16 @@
           <div class="shop-item-form__field">
             <%= f.label :hcb_keyword_lock, "HCB Keyword Lock", class: "shop-item-form__label" %>
             <%= f.text_field :hcb_keyword_lock, class: "form-control" %>
+          </div>
+
+          <div class="shop-item-form__toggles" style="margin-top: 1rem;">
+            <label class="shop-item-form__toggle">
+              <%= f.check_box :hcb_one_time_use %>
+              <span class="shop-item-form__toggle-content">
+                <strong>One-Time Use</strong>
+                <span class="shop-item-form__toggle-desc">freeze card after one txn</span>
+              </span>
+            </label>
           </div>
         </div>
 

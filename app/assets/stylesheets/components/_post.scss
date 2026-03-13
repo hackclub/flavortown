@@ -943,6 +943,36 @@
     }
   }
 
+  &__votes-breakdown {
+    margin-top: var(--space-m);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: var(--border-radius);
+
+    summary {
+      cursor: pointer;
+      padding: var(--space-s) var(--space-m);
+      font-weight: 600;
+    }
+  }
+
+  &__vote-entry {
+    padding: var(--space-s) var(--space-m);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+    p {
+      margin: 0 0 var(--space-xs);
+    }
+  }
+
+  &__vote-reason {
+    margin: 0;
+    padding-left: var(--space-m);
+    border-left: 3px solid rgba(0, 0, 0, 0.2);
+    font-style: italic;
+    font-size: var(--font-size-s);
+    opacity: 0.85;
+  }
+
   &--theme-ship {
     background-color: var(--color-yellow-500);
     border-color: var(--color-yellow-300);

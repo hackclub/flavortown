@@ -67,7 +67,7 @@ module Shop
       hacker_multiplier = 0.5 + (1.0 - (hacker_score || 50) / 100.0)
       tickets_per_dollar = Rails.configuration.game_constants.tickets_per_dollar
 
-      ticket_cost + (usd_offset * tickets_per_dollar * hacker_multiplier)
+      ((ticket_cost || 0) + (usd_offset * tickets_per_dollar * hacker_multiplier)).round
     end
 
     private

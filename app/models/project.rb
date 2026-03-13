@@ -163,10 +163,10 @@ class Project < ApplicationRecord
   def validate_repo_url_format
     return true if repo_url.blank?
 
-    # Check if repo_url ends with .git or contains /main/tree
+    # Check if repo_url ends with .git or contains /tree/main
     repo_url.strip!
-    if repo_url.end_with?(".git") || repo_url.include?("/main/tree")
-      errors.add(:repo_url, "should not end with .git or contain /main/tree. Please use the root GitHub repository URL.")
+    if repo_url.end_with?(".git") || repo_url.include?("/tree/main")
+      errors.add(:repo_url, "should not end with .git or contain /tree/main. Please use the root GitHub repository URL.")
       return false
     end
     true
@@ -220,31 +220,13 @@ class Project < ApplicationRecord
   def total_hackatime_hours
     return 0 if hackatime_projects.empty?
 
-    owner = memberships.owner.first&.user
-    return 0 unless owner
+    hackatime_uid = memberships.owner.first&.user&.hackatime_identity&.uid
+    return 0 unless hackatime_uid
 
-    result = owner.try_sync_hackatime_data!
-    return 0 unless result
+    total_seconds = HackatimeService.fetch_total_seconds_for_projects(hackatime_uid, hackatime_keys)
+    return 0 unless total_seconds
 
-    project_times = result[:projects]
-    total_seconds = hackatime_projects.sum { |hp| project_times[hp.name].to_i }
     (total_seconds / 3600.0).round(1)
-  end
-
-  def hackatime_projects_with_time
-    owner = memberships.owner.first&.user
-    return [] unless owner
-
-    result = owner.try_sync_hackatime_data!
-    return [] unless result
-
-    project_times = result[:projects]
-    hackatime_projects.map do |hp|
-      {
-        name: hp.name,
-        hours: (project_times[hp.name].to_i / 3600.0).round(1)
-      }
-    end
   end
 
   aasm column: :ship_status do
@@ -279,7 +261,7 @@ class Project < ApplicationRecord
       { key: :not_shadow_banned, label: "This project has been flagged by moderation and cannot ship", passed: !shadow_banned? },
       { key: :demo_url, label: "Add a demo link so anyone can try your project", passed: demo_url.present? },
       { key: :repo_url, label: "Add a public GitHub URL with your source code", passed: repo_url.present? },
-      { key: :repo_url_format, label: "Use the root GitHub repository URL (no .git or /main/tree)", passed: validate_repo_url_format },
+      { key: :repo_url_format, label: "Use the root GitHub repository URL (no .git or /tree/main)", passed: validate_repo_url_format },
       { key: :repo_cloneable, label: "Make your GitHub repo publicly cloneable", passed: validate_repo_cloneable },
       { key: :readme_url, label: "Add a README URL to your project", passed: readme_url.present? },
       { key: :description, label: "Add a description for your project", passed: description.present? },

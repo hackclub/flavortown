@@ -104,8 +104,19 @@
     <div style="font-size: 0.875rem; line-height: 1.6; margin-top: 0.5rem;">
       <div><strong>Description:</strong> <%= item.description %></div>
       <div><strong>Internal description:</strong> <%= item.internal_description %></div>
-      <div><strong>USD cost:</strong> $<%= number_with_precision(item.usd_cost, precision: 2) %></div>
-      <div><strong>Ticket cost:</strong> <%= item.ticket_cost %></div>
+      <% regional_usd_offset = @order.region.present? ? (item.send("usd_offset_#{@order.region.downcase}") || item.send("usd_offset_xx") || 0) : 0 %>
+      <div><strong>USD cost:</strong> $<%= number_with_precision((item.usd_cost || 0) + regional_usd_offset, precision: 2) %>
+        <% if regional_usd_offset != 0 %>
+          <small style="color: #6b7280;">(base $<%= number_with_precision(item.usd_cost, precision: 2) %> + $<%= number_with_precision(regional_usd_offset, precision: 2) %> <%= @order.region %> offset)</small>
+        <% end %>
+      </div>
+      <% displayed_frozen_ticket_cost = number_with_precision(@order.frozen_item_price || 0, precision: 0) %>
+      <% displayed_base_ticket_cost   = number_with_precision(item.ticket_cost || 0, precision: 0) %>
+      <div><strong>Ticket cost:</strong> <%= displayed_frozen_ticket_cost %>
+        <% if displayed_frozen_ticket_cost.to_i != displayed_base_ticket_cost.to_i %>
+          <small style="color: #6b7280;">(base: <%= displayed_base_ticket_cost %>)</small>
+        <% end %>
+      </div>
       <div><strong>Type:</strong> <%= item.type %></div>
     </div>
     <% if item.image.attached? %>
@@ -421,19 +432,19 @@
   </div>
 </div>
 
-<div class="admin-section">
-  <details style="cursor: pointer;">
-    <summary class="admin-section__summary">
-      📝 Internal Notes
-    </summary>
-    <div class="admin-section__content">
-      <form method="post" action="<%= update_internal_notes_admin_shop_order_path(@order) %>">
-        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <textarea name="internal_notes" rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; resize: vertical;"><%= @order.internal_notes %></textarea>
-        <button type="submit" class="btn-primary" style="margin-top: 0.5rem; padding: 0.25rem 0.75rem; font-size: 0.8rem;">Save Notes</button>
-      </form>
+<div class="admin-section<%= ' admin-section--highlighted' if @order.internal_notes.present? %>">
+  <h2 class="admin-section__header">📝 Internal Notes</h2>
+  <p class="admin-section__note">⚠️ Shared between fraud, fulfilment, and admins. Changes are audit logged.</p>
+  <% if @order.internal_notes.present? %>
+    <div class="admin-alert admin-alert--warning">
+      <strong>Note:</strong> <%= simple_format(@order.internal_notes, {}, wrapper_tag: "span") %>
     </div>
-  </details>
+  <% end %>
+  <form method="post" action="<%= update_internal_notes_admin_shop_order_path(@order) %>">
+    <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+    <textarea name="internal_notes" rows="3" class="admin-textarea" placeholder="Add internal notes about this order..."><%= @order.internal_notes %></textarea>
+    <button type="submit" class="btn-primary slim">Save Notes</button>
+  </form>
 </div>
 
 <%= render Admin::PastOrdersComponent.new(user: @order.user, orders: @user_orders) %>

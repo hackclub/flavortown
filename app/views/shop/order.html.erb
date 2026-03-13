@@ -186,11 +186,11 @@
                             <h4>Base Price:</h4>
                             <% if @shop_item.on_sale? %>
                                 <h4>
-                                    <span class="shop-order__original-price">🍪 <span class="shop-order__strikethrough"><%= @regional_base_price.round %></span></span>
+                                    <span class="shop-order__original-price">🍪 <span class="shop-order__strikethrough"><%= @regional_base_price %></span></span>
                                     🍪 <%= @sale_price.round %>
                                 </h4>
                             <% else %>
-                                <h4>🍪 <%= @regional_base_price.round %></h4>
+                                <h4>🍪 <%= @regional_base_price %></h4>
                             <% end %>
                         </div>
                         <div class="shop-order__summary-accessories-list" id="shop-order__summary-accessories-list" style="display: none;" data-order-form-target="accessoriesListContainer">

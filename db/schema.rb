@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_09_174706) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -544,6 +544,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_174706) do
     t.string "hcb_category_lock"
     t.string "hcb_keyword_lock"
     t.string "hcb_merchant_lock"
+    t.boolean "hcb_one_time_use", default: false
     t.text "hcb_preauthorization_instructions"
     t.string "internal_description"
     t.boolean "limited"
@@ -572,13 +573,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_174706) do
     t.date "unlock_on"
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"
-    t.decimal "usd_offset_au"
-    t.decimal "usd_offset_ca"
-    t.decimal "usd_offset_eu"
-    t.decimal "usd_offset_in"
-    t.decimal "usd_offset_uk"
-    t.decimal "usd_offset_us"
-    t.decimal "usd_offset_xx"
+    t.decimal "usd_offset_au", precision: 10, scale: 2
+    t.decimal "usd_offset_ca", precision: 10, scale: 2
+    t.decimal "usd_offset_eu", precision: 10, scale: 2
+    t.decimal "usd_offset_in", precision: 10, scale: 2
+    t.decimal "usd_offset_uk", precision: 10, scale: 2
+    t.decimal "usd_offset_us", precision: 10, scale: 2
+    t.decimal "usd_offset_xx", precision: 10, scale: 2
     t.bigint "user_id"
     t.index ["default_assigned_user_id"], name: "index_shop_items_on_default_assigned_user_id"
     t.index ["user_id"], name: "index_shop_items_on_user_id"
@@ -754,10 +755,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_174706) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.string "airtable_record_id"
     t.string "api_key"
     t.boolean "banned", default: false, null: false
     t.datetime "banned_at"
     t.text "banned_reason"
+    t.string "club_link"
+    t.string "club_name"
     t.integer "cookie_clicks", default: 0, null: false
     t.datetime "created_at", null: false
     t.string "display_name"
@@ -799,6 +803,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_174706) do
     t.integer "votes_count"
     t.boolean "voting_locked", default: false, null: false
     t.boolean "ysws_eligible", default: false, null: false
+    t.index ["airtable_record_id"], name: "index_users_on_airtable_record_id", unique: true
     t.index ["api_key"], name: "index_users_on_api_key", unique: true
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true

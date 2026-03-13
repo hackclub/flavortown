@@ -115,6 +115,25 @@
             </div>
           <% end %>
         <% end %>
+
+        <% if show_votes_breakdown? %>
+          <% votes = ship_event_legitimate_votes %>
+          <details class="post__votes-breakdown">
+            <summary><%= votes.size %> vote<%= votes.size == 1 ? "" : "s" %> received</summary>
+            <% votes.each_with_index do |vote, index| %>
+              <div class="post__vote-entry">
+                <p>
+                  <strong>Voter #<%= votes.size - index %></strong>
+                  &nbsp; <%= vote.time_taken_to_vote ? "#{vote.time_taken_to_vote}s" : "—" %>
+                  <% opened = [ vote.demo_url_clicked? ? "Demo" : nil, vote.repo_url_clicked? ? "Repo" : nil ].compact %>
+                  <%= "· Opened #{opened.join(", ")}" if opened.any? %>
+                </p>
+                <p><%= Vote::SCORE_COLUMNS_BY_CATEGORY.map { |cat, col| "#{cat.to_s.humanize} #{vote[col]}/9" }.join(" · ") %></p>
+                <blockquote class="post__vote-reason"><%= vote.reason %></blockquote>
+              </div>
+            <% end %>
+          </details>
+        <% end %>
       <% end %>
 
       <% if fire_event? %>

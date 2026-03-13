@@ -29,6 +29,7 @@ Rails.application.config.after_initialize do
     Flipper.add(:admin_dark_brown_buttons) unless Flipper.exist?(:admin_dark_brown_buttons)
     Flipper.add(:grant_cookies) unless Flipper.exist?(:grant_cookies)
     Flipper.add(:fraud_daily_summary) unless Flipper.exist?(:fraud_daily_summary)
+    Flipper.add(:shipping) unless Flipper.exist?(:shipping)
   rescue StandardError => e
     Rails.logger.warn "Could not initialize flipper: #{e.message}"
   end
