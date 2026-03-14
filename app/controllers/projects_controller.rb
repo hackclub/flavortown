@@ -33,10 +33,18 @@ class ProjectsController < ApplicationController
     @shadow_banned = user_shadow_banned || project_shadow_banned
     @can_view_shadow_banned = is_member || is_admin
 
-    @posts = @project.posts
-                     .includes(:user, postable: [ :attachments_attachments ])
-                     .order(created_at: :desc)
-                     .select { |post| post.postable.present? }
+    load_posts = -> {
+      @project.posts
+               .includes(:user, postable: [ :attachments_attachments ])
+               .order(created_at: :desc)
+               .select { |post| post.postable.present? }
+    }
+
+    @posts = if current_user&.can_see_deleted_devlogs?
+      Post::Devlog.unscoped { load_posts.call }
+    else
+      load_posts.call
+    end
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
       @posts = @posts.reject { |post| post.postable_type == "Post::GitCommit" }
