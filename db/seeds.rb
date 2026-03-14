@@ -43,6 +43,11 @@ Sidequest.find_or_create_by!(slug: "webos") do |sq|
   sq.description = "Build a project for the webOS sidequest! Unlock webOS prizes in the shop."
 end
 
+Sidequest.find_or_create_by!(slug: "optimization") do |sq|
+  sq.title = "Optimization"
+  sq.description = "Build and ship a project for the Optimization sidequest to unlock Optimization prizes in the shop."
+end
+
 Sidequest.find_or_create_by!(slug: "the_hackazine") do |sq|
   sq.title = "The Hackazine"
   sq.description = "This January: make a page for your project and get it in the Hack Club 2025 magazine! Join #magazine and submit before January 22nd. Projects selected for the magazine receive 50 cookies + stickers! Please note, magazine submissions have 0% AI tolerance."
@@ -85,6 +90,31 @@ chromebook = ShopItem.find_or_create_by!(id: 97) do |item|
   item.image.attach(io: downloaded_image, filename: "chromebook.png")
 end
 chromebook.update!(requires_achievement: "sidequest_webos")
+
+# Optimization shop items - require Optimization sidequest achievement ( NOT ADDED YET TO SHOP, THIS IS ONLY FOR SEEDING THE ACHIEVEMENT AND NOTIFICATIONS)
+usb_c_hub = ShopItem::ThirdPartyPhysical.find_or_create_by!(name: "USB-C Hub") do |item|
+  item.description = "USB-C hub"
+  item.ticket_cost = 0
+  downloaded_image = URI.parse("https://placecats.com/300/200").open
+  item.image.attach(io: downloaded_image, filename: "usb-c-hub.png")
+end
+usb_c_hub.update!(requires_achievement: "sidequest_optimization")
+
+ddr5_ram_8gb = ShopItem::ThirdPartyPhysical.find_or_create_by!(name: "DDR5 RAM 8GB") do |item|
+  item.description = "8GB DDR5 RAM"
+  item.ticket_cost = 0
+  downloaded_image = URI.parse("https://placecats.com/300/200").open
+  item.image.attach(io: downloaded_image, filename: "ddr5-8gb.png")
+end
+ddr5_ram_8gb.update!(requires_achievement: "sidequest_optimization")
+
+ssd_512gb = ShopItem::ThirdPartyPhysical.find_or_create_by!(name: "512GB SSD") do |item|
+  item.description = "512GB SSD"
+  item.ticket_cost = 0
+  downloaded_image = URI.parse("https://placecats.com/300/200").open
+  item.image.attach(io: downloaded_image, filename: "512gb-ssd.png")
+end
+ssd_512gb.update!(requires_achievement: "sidequest_optimization")
 
 user = User.find_or_create_by!(email: "max@hackclub.com", slack_id: "U09UQ385LSG")
 user.make_super_admin!

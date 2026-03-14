@@ -1,0 +1,11 @@
+header "🎉 Optimization Sidequest Complete!"
+
+section "Your project *#{entry.project.title}* has been approved for the Optimization sidequest!", markdown: true
+
+section "You've unlocked the *Sidequest: Optimization* achievement and can now purchase Optimization prizes in the shop.", markdown: true
+
+divider
+
+context [
+  mrkdwn_text("Keep optimizing! ⚡")
+]
