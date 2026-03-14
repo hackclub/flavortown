@@ -10,13 +10,14 @@ services:
       - .:/app
       - node_modules_cache:/app/node_modules
       - bundle_cache:/usr/local/bundle
+      - hf_cache:/root/.cache/huggingface
     environment:
       - RAILS_ENV=development
     depends_on:
       - db
 
   db:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     volumes:
       - flavortown_postgres_data:/var/lib/postgresql/data
     environment:
@@ -30,3 +31,4 @@ volumes:
   flavortown_postgres_data:
   bundle_cache:
   node_modules_cache:
+  hf_cache:

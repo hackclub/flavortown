@@ -8,6 +8,11 @@ default: &default
       threads: 2
       processes: 1
       polling_interval: 0.05
+    # Vectorization — single thread so it doesn't peg the server
+    - queues: ["vectorize"]
+      threads: 1
+      processes: 1
+      polling_interval: 5
     # Default and scheduled jobs
     - queues: "*"
       threads: 12

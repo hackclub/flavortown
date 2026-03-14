@@ -6,13 +6,19 @@ class Api::V1::ProjectsController < Api::BaseController
     show: "Fetch a specific project by ID. Ratelimit: 30 reqs/min",
     create: "Create a new project.",
     update: "Update an existing project.",
-    random: "Fetch random projects."
+    random: "Fetch random projects.",
+    search: "Semantic search over projects using vector + full-text search. Ratelimit: 20 reqs/min"
   }
 
   class_attribute :url_params_model, default: {
     index: {
       page: { type: Integer, desc: "Page number for pagination", required: false },
       query: { type: String, desc: "Search projects by title or description", required: false }
+    },
+    search: {
+      q: { type: String, desc: "Search query", required: true },
+      limit: { type: Integer, desc: "Max results to return (1-100, default 20)", required: false },
+      rerank: { type: String, desc: "Enable cross-encoder reranking for better relevance (1 to enable)", required: false }
     },
     random: {
       count: { type: Integer, desc: "Number of random projects to return (1-50, default 1)", required: false },
@@ -59,7 +65,8 @@ class Api::V1::ProjectsController < Api::BaseController
     show: PROJECT_SCHEMA,
     create: PROJECT_SCHEMA,
     update: PROJECT_SCHEMA,
-    random: { projects: [ PROJECT_SCHEMA ] }
+    random: { projects: [ PROJECT_SCHEMA ] },
+    search: { projects: [ PROJECT_SCHEMA ], query: String, ms: Integer }
   }
 
   def index
@@ -74,6 +81,13 @@ class Api::V1::ProjectsController < Api::BaseController
     end
 
     @pagy, @projects = pagy(projects, limit: 100)
+  end
+
+  def search
+    result = ProjectSearchService.new(params[:q], limit: params[:limit], rerank: params[:rerank] == "1").call
+    @projects = result.projects
+    @query = result.query
+    @ms = result.ms
   end
 
   def random

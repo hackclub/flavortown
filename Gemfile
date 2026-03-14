@@ -134,6 +134,10 @@ gem "query_count"
 gem "disco"
 gem "faiss"
 
+# for semantic search
+gem "neighbor"
+gem "informers"
+
 # Rack Mini Profiler gem for performance monitoring
 gem "rack-mini-profiler"
 
