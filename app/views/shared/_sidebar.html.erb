@@ -188,15 +188,16 @@
           🏫 Linked to <strong><%= current_user.club_name %></strong>
         </p>
         <%= button_to "Unlink club", my_club_path, method: :delete, class: "settings-form__club-unlink" %>
-      <% elsif current_user.valid_club_link? %>
-          <%= link_to "Link your club",
-                current_user.club_link,
-                target: "_blank",
-                rel: "noopener",
-                class: "settings-form__club-link" %>
-          <small class="settings-form__hint" style="margin-left: 0;">Connect your Flavortown account to your Hack Club.</small>
+      <% elsif current_user.airtable_record_id.present? %>
+        <%= link_to "Link your club",
+              current_user.fillout_club_url,
+              target: "_blank",
+              rel: "noopener",
+              class: "settings-form__club-link" %>
+        <small class="settings-form__hint" style="margin-left: 0;">Connect your Flavortown account to your Hack Club.</small>
       <% else %>
-        <small class="settings-form__hint" style="margin-left: 0;">Club linking will be available once your account syncs. Check back soon!</small>
+        <button class="settings-form__club-link settings-form__club-link--pending" disabled>Link your club</button>
+        <small class="settings-form__hint" style="margin-left: 0;">Sync pending — check back soon!</small>
       <% end %>
     </div>
 
