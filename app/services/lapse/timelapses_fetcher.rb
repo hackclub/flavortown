@@ -20,12 +20,10 @@ module Lapse
 
     # @return [Array<Hash>] timelapse hashes sorted by createdAt descending, or [] on failure
     def call
-      Rails.logger.info "is fetchable: #{fetchable?}, project_id: #{@project.id}, hackatime_user_id: #{hackatime_user_id}, since: #{@since}"
       return [] unless fetchable?
 
       timelapses = []
       @project.hackatime_keys.each do |project_key|
-        Rails.logger.info "Fetching timelapses for project #{@project.id} with hackatime key #{project_key}"
         result = Lapse::Api::Hackatime::timelapses_for_project(
           hackatime_user_id: hackatime_user_id,
           project_key: project_key
@@ -34,12 +32,7 @@ module Lapse
         timelapses.concat(result["timelapses"]) if result.present?
       end
       
-      Rails.logger.info "Fetched #{timelapses.size} timelapses for project #{@project.id} before filtering"
-
       timelapses = filter_since(timelapses) if @since.present?
-
-      Rails.logger.info "Returning #{timelapses.size} timelapses for project #{@project.id} after filtering since #{@since}"
-
       timelapses.sort_by { |t| -(t["createdAt"] || 0) }
     rescue StandardError => e
       Rails.logger.error "Lapse::TimelapsesFetcher error: #{e.class} - #{e.message}"
