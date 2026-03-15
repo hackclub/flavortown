@@ -11,7 +11,6 @@
 #  hackatime_pulled_at             :datetime
 #  lapse_playback_url              :string
 #  lapse_playback_url_refreshed_at :datetime
-#  lapse_video_processing          :boolean          default(FALSE), not null
 #  likes_count                     :integer          default(0), not null
 #  scrapbook_url                   :string
 #  synced_at                       :datetime
