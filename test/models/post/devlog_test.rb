@@ -9,6 +9,8 @@
 #  duration_seconds                :integer
 #  hackatime_projects_key_snapshot :text
 #  hackatime_pulled_at             :datetime
+#  lapse_playback_url              :string
+#  lapse_playback_url_refreshed_at :datetime
 #  lapse_video_processing          :boolean          default(FALSE), not null
 #  likes_count                     :integer          default(0), not null
 #  scrapbook_url                   :string
@@ -16,6 +18,7 @@
 #  tutorial                        :boolean          default(FALSE), not null
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null
+#  lapse_timelapse_id              :string
 #
 # Indexes
 #

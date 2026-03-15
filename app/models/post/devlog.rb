@@ -9,6 +9,8 @@
 #  duration_seconds                :integer
 #  hackatime_projects_key_snapshot :text
 #  hackatime_pulled_at             :datetime
+#  lapse_playback_url              :string
+#  lapse_playback_url_refreshed_at :datetime
 #  lapse_video_processing          :boolean          default(FALSE), not null
 #  likes_count                     :integer          default(0), not null
 #  scrapbook_url                   :string
@@ -16,6 +18,7 @@
 #  tutorial                        :boolean          default(FALSE), not null
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null
+#  lapse_timelapse_id              :string
 #
 # Indexes
 #
@@ -24,7 +27,7 @@
 class Post::Devlog < ApplicationRecord
   include Postable
   include SoftDeletable
-  has_paper_trail ignore: [ :likes_count, :comments_count, :lapse_video_processing, :hackatime_pulled_at, :synced_at ]
+  has_paper_trail ignore: [ :likes_count, :comments_count, :lapse_timelapse_id, :lapse_playback_url, :lapse_playback_url_refreshed_at, :hackatime_pulled_at, :synced_at ]
 
   # flag for tracking if attachments are being uploaded during an update
   attr_accessor :uploading_attachments
@@ -144,12 +147,41 @@ class Post::Devlog < ApplicationRecord
     result
   end
 
+  def lapse_playback_url_stale?
+    lapse_playback_url_refreshed_at.blank? || lapse_playback_url_refreshed_at <= 6.hours.ago
+  end
+
+  def refresh_lapse_playback_url!
+    return unless lapse_timelapse_id.present?
+    return unless lapse_playback_url_stale?
+
+    data = Lapse::Api::Timelapse.query(lapse_timelapse_id)
+    timelapse = data&.dig("timelapse")
+
+    if timelapse && timelapse["playbackUrl"].present?
+      update_columns(
+        lapse_playback_url: timelapse["playbackUrl"],
+        lapse_playback_url_refreshed_at: Time.current
+      )
+    else
+      update_columns(lapse_playback_url_refreshed_at: Time.current)
+      Rails.logger.error "Failed to refresh Lapse playback URL for devlog #{id} (timelapse #{lapse_timelapse_id})"
+    end
+  rescue => e
+    Rails.logger.error "Error refreshing Lapse playback URL for devlog #{id}: #{e.class} - #{e.message}"
+  end
+
+  def current_lapse_playback_url
+    refresh_lapse_playback_url!
+    lapse_playback_url
+  end
+
   private
 
   def at_least_one_attachment
     return if scrapbook_url.present?
     return if uploading_attachments # allow update as long as they're planning to include an attachment
-    return if lapse_video_processing?
+    return if lapse_playback_url.present?
 
     errors.add(:attachments, "must include at least one image or video") unless attachments.attached?
   end
