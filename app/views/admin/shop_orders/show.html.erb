@@ -199,6 +199,20 @@
               turbo_method: "post"
             } %>
       </div></turbo-frame>
+      <turbo-frame id="phone-content">
+        <div style="padding: 1em; background: #f3f4f6; border-radius: 4px; text-align: center; margin-top: 1em;">
+          <p style="margin: 0 0 1em 0; color: #374151;">
+            📱 Phone number is encrypted. Click below to decrypt and view.
+          </p>
+          <%= button_to "Reveal Phone Number", reveal_phone_admin_shop_order_path(@order),
+              method: :post,
+              class: "btn-primary",
+              data: {
+                turbo_frame: "phone-content",
+                turbo_method: "post"
+              } %>
+        </div>
+      </turbo-frame>
     </div>
   <% else %>
     <div style="padding: 1em; background: #fee2e2; border-radius: 4px;">
