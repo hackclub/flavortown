@@ -17,6 +17,7 @@ class VoteableShipEventsQuery
       .joins(post: :project)
       .joins(project_memberships: :user)
       .where(certification_status: "approved")
+      .where(payout: nil)
       .where(projects: { deleted_at: nil, shadow_banned: false })
       .where(project_memberships: { role: "owner" })
       .where(users: { shadow_banned: false })

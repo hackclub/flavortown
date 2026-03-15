@@ -58,6 +58,7 @@ class VoteMatchmaker
       .current_voting_scale
       .joins(:project, :project_members)
       .where(certification_status: "approved")
+      .where(payout: nil)
       .where.not(id: @user.votes.select(:ship_event_id))
       .where.not(projects: { id: @user.projects })
       .where.not(projects: { id: @user.reports.select(:project_id) })
