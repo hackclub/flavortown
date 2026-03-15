@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_13_154803) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -334,7 +334,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.integer "duration_seconds"
     t.text "hackatime_projects_key_snapshot"
     t.datetime "hackatime_pulled_at"
-    t.boolean "lapse_video_processing", default: false, null: false
+    t.string "lapse_playback_url"
+    t.datetime "lapse_playback_url_refreshed_at"
+    t.string "lapse_timelapse_id"
     t.integer "likes_count", default: 0, null: false
     t.string "scrapbook_url"
     t.datetime "synced_at"

@@ -335,6 +335,7 @@
     margin: 0;
     line-height: 1.4;
     margin: 0 1em;
+    text-wrap: balance;
   }
 
   &__link {
@@ -352,8 +353,8 @@
   &__grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, 240px);
-    gap: 24px;
-    justify-content: space-between;
+    gap: 48px;
+    justify-content: center;
   }
 
   &__card {
