@@ -9,8 +9,7 @@ module Lapse
       project = Project.find_by(id: project_id)
       return unless project
 
-      timelapses = TimelapsesFetcher.new(project: project).call
-      TimelapsesCache.write(project, timelapses)
+      TimelapsesFetcher.new(project: project).call
     end
   end
 end

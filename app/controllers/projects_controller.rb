@@ -64,7 +64,7 @@ class ProjectsController < ApplicationController
     @devlog_lapse_badges = {}
     devlog_posts = @posts.select { |p| p.postable_type == "Post::Devlog" }
     if devlog_posts.any?
-      timelapses = Lapse::TimelapsesCache.read(@project)
+      timelapses = Lapse::TimelapsesFetcher.cached(@project)
 
       if timelapses.nil? && Lapse::TimelapsesFetcher.new(project: @project).fetchable?
         Lapse::CacheProjectTimelapsesJob.perform_later(@project.id)
@@ -443,17 +443,7 @@ class ProjectsController < ApplicationController
 
     @is_owner = current_user.present? && @project.users.include?(current_user)
 
-    @lapse_timelapses = Lapse::TimelapsesCache.read(@project)
-    logger.info ("timelapses cache read for project #{params[:id]}: #{@lapse_timelapses.present?}")
-
-    fetcher = Lapse::TimelapsesFetcher.new(project: @project)
-    if @lapse_timelapses.nil? && fetcher.fetchable?
-      logger.info "timelapses cache miss for project #{params[:id]}, fetching from API"
-      @lapse_timelapses = fetcher.call
-      Lapse::TimelapsesCache.write(@project, @lapse_timelapses)
-    end
-
-    @lapse_timelapses ||= []
+    @lapse_timelapses = Lapse::TimelapsesFetcher.new(project: @project).call
     @devlog_lapse_badges = Lapse::DevlogBadgeBuilder.new(
       project: @project, devlog_posts: @project.devlog_posts, timelapses: @lapse_timelapses
     ).call
