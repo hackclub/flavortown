@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e
 
+# Ensure gems are installed (needed when bundle_cache volume is fresh)
+bundle check || bundle install
+
+# sqlite-vec arm64-linux gem ships a 32-bit binary; replace with our compiled 64-bit one
+if [ -f /usr/local/lib/sqlite-vec/vec0.so ]; then
+  gem install sqlite-vec -v 0.1.6 --platform arm64-linux --ignore-dependencies --install-dir /usr/local/bundle 2>/dev/null || true
+  find /usr/local/bundle/gems/sqlite-vec-*/lib -name vec0.so -exec cp /usr/local/lib/sqlite-vec/vec0.so {} \; 2>/dev/null || true
+fi
+
 if [ -f "package.json" ]; then
   echo "Checking/Installing JavaScript dependencies..."
   yarn install
