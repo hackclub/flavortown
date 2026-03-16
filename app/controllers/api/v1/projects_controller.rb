@@ -95,8 +95,7 @@ class Api::V1::ProjectsController < Api::BaseController
     return render json: { error: "q parameter is required" }, status: :bad_request if params[:q].blank?
 
     limit = (params[:limit] || 20).to_i.clamp(1, 50)
-    rerank = params[:rerank].present? ? ActiveModel::Type::Boolean.new.cast(params[:rerank]) : true
-    @results = Project.ferret_search(params[:q], limit: limit, rerank: rerank)
+    @results = Project.ferret_search(params[:q], limit: limit)
     @results = @results.select { |p| p.deleted_at.nil? && !p.shadow_banned? }
   end
 
