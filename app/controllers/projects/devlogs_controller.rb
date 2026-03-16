@@ -24,15 +24,16 @@ class Projects::DevlogsController < ApplicationController
       @devlog.hackatime_projects_key_snapshot = @project.hackatime_keys.join(",")
 
       if params[:media_type] == "lapse"
-        timelapse = @lapse_timelapses&.find { |t| t["id"] == devlog_params[:lapse_timelapse_id] }
+        timelapse_data = @lapse_timelapses&.find { |t| t["id"] == devlog_params[:lapse_timelapse_id] }
 
         unless timelapse_data
           flash.now[:alert] = "Failed to attach timelapse. Please try again or use a file upload."
           load_lapse_timelapses
           return render :new, status: :unprocessable_entity
         end
-        @devlog.lapse_timelapse_id = timelapse_data[:id]
-        @devlog.lapse_playback_url = timelapse_data[:playback_url]
+
+        @devlog.lapse_timelapse_id = timelapse_data["id"]
+        @devlog.lapse_playback_url = timelapse_data["playbackUrl"]
         @devlog.lapse_playback_url_refreshed_at = Time.current
       end
 
@@ -231,10 +232,13 @@ class Projects::DevlogsController < ApplicationController
 
   def load_lapse_timelapses
     last_devlog_time = @project.devlogs.maximum(:created_at)
-    @lapse_timelapses = Lapse::TimelapsesFetcher.new(
+    fetcher = Lapse::TimelapsesFetcher.new(
       project: @project,
       user: current_user,
       since: last_devlog_time
-    ).call
+    )
+    Rails.logger.info "[LapseDebug] load_lapse_timelapses: project=#{@project.id}, last_devlog_time=#{last_devlog_time.inspect}, fetchable=#{fetcher.fetchable?}"
+    @lapse_timelapses = fetcher.call
+    Rails.logger.info "[LapseDebug] load_lapse_timelapses: result count=#{@lapse_timelapses&.size}, result=#{@lapse_timelapses.inspect}"
   end
 end
