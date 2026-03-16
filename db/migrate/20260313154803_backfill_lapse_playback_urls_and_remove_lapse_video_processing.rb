@@ -1,10 +1,10 @@
 # This migration exists because for Lapse v1 we were treating Lapse uploads as just a convenience feature - we downloaded the videos from Lapse,
 # and reuploaded them to our servers. This changes with Lapse v2.
-# 
+#
 # As we now track timelapse IDs, as well as using the playback URL provided by Lapse directly, we need to figure out what timelapse IDs we were using
 # for these legacy timelapse devlogs. Fortunately, we were storing all timelapse attachments with filenames that have the format of "timelapse-<ID>.<extension>".
 # This means that for each devlog that has a proper Lapse attachment, we can extract the timelapse ID of.
-# 
+#
 # However - some devlogs uploaded with Lapse failed their processing, as we didn't bypass attachment size limits when uploading them.
 # Such devlogs are stuck with their `lapse_video_processing` column set to `true`. These devlogs will NOT change. As we don't have an attachment to get the ID from,
 # we unfortunately have to guess which timelapse was used. However, we can make that guess as best as it can be - we know when the devlog was uploaded, so we can simply
@@ -215,7 +215,7 @@ class BackfillLapsePlaybackUrlsAndRemoveLapseVideoProcessing < ActiveRecord::Mig
   def project_hackatime_keys(project_id)
     ActiveRecord::Base.connection.select_values(
       ActiveRecord::Base.sanitize_sql_array(
-        ["SELECT name FROM user_hackatime_projects WHERE project_id = ?", project_id]
+        [ "SELECT name FROM user_hackatime_projects WHERE project_id = ?", project_id ]
       )
     ).presence
   rescue => e

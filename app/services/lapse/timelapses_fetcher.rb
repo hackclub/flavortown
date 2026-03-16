@@ -49,7 +49,7 @@ module Lapse
     def fetch_from_api
       timelapses = []
       @project.hackatime_keys.each do |project_key|
-        result = Lapse::Api::Hackatime::timelapses_for_project(
+        result = Lapse::Api::Hackatime.timelapses_for_project(
           hackatime_user_id: hackatime_user_id,
           project_key: project_key
         )
