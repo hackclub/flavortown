@@ -324,6 +324,7 @@ class ShopOrder < ApplicationRecord
 
   USPS_SUSPENSION_EXEMPT_TYPES = %w[
     ShopItem::HCBGrant
+    ShopItem::HCBPreauthGrant
     ShopItem::ThirdPartyDigital
   ].freeze
 
