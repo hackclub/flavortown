@@ -18,7 +18,6 @@ WORKDIR /rails
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     curl \
-    wget \
     procps \
     lsof \
     strace \
@@ -60,33 +59,9 @@ RUN apt-get update -qq && \
     npm install -g yarn && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# sqlite-vec: on aarch64 the published gem ships a 32-bit binary, so we
-# compile from source. On x86_64 the gem works out of the box.
-RUN if [ "$(uname -m)" = "aarch64" ]; then \
-      apt-get update -qq && apt-get install --no-install-recommends -y wget && \
-      cd /tmp && \
-      wget -q https://github.com/asg017/sqlite-vec/archive/refs/tags/v0.1.6.tar.gz && \
-      tar xzf v0.1.6.tar.gz && \
-      cd sqlite-vec-0.1.6 && \
-      make loadable && \
-      mkdir -p /usr/local/lib/sqlite-vec && \
-      cp dist/vec0.so /usr/local/lib/sqlite-vec/ && \
-      rm -rf /tmp/v0.1.6.tar.gz /tmp/sqlite-vec-0.1.6; \
-    fi
-
 # Install application gems
 COPY Gemfile Gemfile.lock ./
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" = "aarch64" ]; then \
-      gem install sqlite-vec -v 0.1.6 --platform arm64-linux --ignore-dependencies && \
-      bundle install && \
-      find /usr/local/bundle/gems/sqlite-vec-*/lib -name vec0.so -exec cp /usr/local/lib/sqlite-vec/vec0.so {} \; ; \
-    elif [ "$ARCH" = "x86_64" ]; then \
-      gem install sqlite-vec -v 0.1.6 --platform x86_64-linux --ignore-dependencies && \
-      bundle install; \
-    else \
-      bundle install; \
-    fi && \
+RUN bundle install && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
 
