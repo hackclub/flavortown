@@ -237,8 +237,6 @@ class Projects::DevlogsController < ApplicationController
       user: current_user,
       since: last_devlog_time
     )
-    Rails.logger.info "[LapseDebug] load_lapse_timelapses: project=#{@project.id}, last_devlog_time=#{last_devlog_time.inspect}, fetchable=#{fetcher.fetchable?}"
     @lapse_timelapses = fetcher.call
-    Rails.logger.info "[LapseDebug] load_lapse_timelapses: result count=#{@lapse_timelapses&.size}, result=#{@lapse_timelapses.inspect}"
   end
 end
