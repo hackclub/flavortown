@@ -415,17 +415,26 @@
         }
       }
 
-      &__link {
-        margin: 1em 0;
-        display: block;
+      .concern-count {
+        color: #c62828;
         text-align: center;
-        text-decoration: none;
-        color: gray;
-        font-size: 1.2rem;
+        font-style: italic;
+        display: block;
+        margin-bottom: 1rem;
+      }
 
-        &:hover {
-          color: black;
-          text-decoration: underline;
+      .concern-message-item {
+        margin-left: 1rem;
+        margin-bottom: 0.5rem;
+
+        a {
+          color: #666;
+          text-decoration: none;
+
+          &:hover {
+            color: black;
+            text-decoration: underline;
+          }
         }
       }
     }
