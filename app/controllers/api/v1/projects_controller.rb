@@ -6,7 +6,8 @@ class Api::V1::ProjectsController < Api::BaseController
     show: "Fetch a specific project by ID. Ratelimit: 30 reqs/min",
     create: "Create a new project.",
     update: "Update an existing project.",
-    random: "Fetch random projects."
+    random: "Fetch random projects.",
+    search: "Semantic search across projects using vector search + reranking. Ratelimit: 20 reqs/min"
   }
 
   class_attribute :url_params_model, default: {
@@ -59,7 +60,8 @@ class Api::V1::ProjectsController < Api::BaseController
     show: PROJECT_SCHEMA,
     create: PROJECT_SCHEMA,
     update: PROJECT_SCHEMA,
-    random: { projects: [ PROJECT_SCHEMA ] }
+    random: { projects: [ PROJECT_SCHEMA ] },
+    search: { results: [ PROJECT_SCHEMA ], query: String, count: Integer }
   }
 
   def index
@@ -86,6 +88,16 @@ class Api::V1::ProjectsController < Api::BaseController
     projects = projects.fire if ActiveModel::Type::Boolean.new.cast(params[:fire])
 
     @projects = projects.order("RANDOM()").limit(count)
+  end
+
+  def search
+    return render json: { error: "Search is not enabled. Set FERRET=true to activate." }, status: :service_unavailable unless ENV["FERRET"].present?
+    return render json: { error: "q parameter is required" }, status: :bad_request if params[:q].blank?
+
+    limit = (params[:limit] || 20).to_i.clamp(1, 50)
+    rerank = params[:rerank].present? ? ActiveModel::Type::Boolean.new.cast(params[:rerank]) : true
+    @results = Project.ferret_search(params[:q], limit: limit, rerank: rerank)
+    @results = @results.select { |p| p.deleted_at.nil? && !p.shadow_banned? }
   end
 
   def show

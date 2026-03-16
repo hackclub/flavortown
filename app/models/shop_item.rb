@@ -84,6 +84,8 @@ class ShopItem < ApplicationRecord
 
   include Shop::Regionalizable
 
+  has_ferret_search :name, :description, type: -> { type.demodulize.underscore.humanize }
+
   before_validation :fix_blacklist
   before_validation :floor_ticket_cost
 

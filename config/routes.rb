@@ -160,6 +160,7 @@ Rails.application.routes.draw do
       resources :projects, only: [ :index, :show, :create, :update ] do
         collection do
           get :random
+          get :search
         end
         resource :report, only: [ :create ], controller: "external_reports"
         resources :devlogs, only: [ :index ], controller: "project_devlogs"
@@ -167,7 +168,11 @@ Rails.application.routes.draw do
 
       get "docs", to: "docs#index", as: :docs
       resources :devlogs, only: [ :index, :show ]
-      resources :store, only: [ :index, :show ]
+      resources :store, only: [ :index, :show ] do
+        collection do
+          get :search
+        end
+      end
       resources :users, only: [ :index, :show ]
 
       post "flavortime/session", to: "flavortime#create_session"
