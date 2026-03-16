@@ -11,7 +11,11 @@ class AdminConstraint
 
     policy = AdminPolicy.new(user, :admin)
     # Allow admins, fraud dept, and fulfillment persons (who have limited access)
-    policy.access_admin_endpoints? || policy.access_fulfillment_view?
+    policy.access_admin_endpoints? ||
+      policy.access_fulfillment_view? ||
+      policy.process_sidequest_entry? ||
+      (request.path == "/admin/flavortime_dashboard" && policy.access_flavortime_dashboard?) ||
+      (request.path == "/admin/time_loss" && policy.access_time_loss_dashboard?)
   end
 
   def self.admin_user_for(request)
@@ -136,6 +140,7 @@ Rails.application.routes.draw do
   post "my/roll_api_key", to: "my#roll_api_key", as: :roll_api_key
   post "my/cookie_click", to: "my#cookie_click", as: :my_cookie_click
   post "my/dismiss_thing", to: "my#dismiss_thing", as: :dismiss_thing
+  delete "my/club", to: "my#unlink_club", as: :my_club
   get "my/achievements", to: "achievements#index", as: :my_achievements
 
   # Magic Links
@@ -153,14 +158,22 @@ Rails.application.routes.draw do
 
     namespace :v1 do
       resources :projects, only: [ :index, :show, :create, :update ] do
+        collection do
+          get :random
+        end
         resource :report, only: [ :create ], controller: "external_reports"
         resources :devlogs, only: [ :index ], controller: "project_devlogs"
       end
 
-      resources :docs, only: [ :index ]
+      get "docs", to: "docs#index", as: :docs
       resources :devlogs, only: [ :index, :show ]
       resources :store, only: [ :index, :show ]
       resources :users, only: [ :index, :show ]
+
+      post "flavortime/session", to: "flavortime#create_session"
+      post "flavortime/heartbeat", to: "flavortime#heartbeat"
+      post "flavortime/close", to: "flavortime#close"
+      get "flavortime/active_users", to: "flavortime#active_users"
     end
   end
 
@@ -178,7 +191,11 @@ Rails.application.routes.draw do
 
   namespace :helper, constraints: HelperConstraint do
     root to: "application#index"
-    resources :users, only: [ :index, :show ]
+    resources :users, only: [ :index, :show ] do
+      member do
+        get :balance
+      end
+    end
     resources :projects, only: [ :index, :show ] do
       member do
         post :restore
@@ -221,6 +238,7 @@ Rails.application.routes.draw do
          post :refresh_verification
          post :toggle_voting_lock
          get  :votes
+         patch :set_ysws_eligible_override
        end
        collection do
          post :stop_impersonating
@@ -256,6 +274,8 @@ Rails.application.routes.draw do
         post :assign_user
         post :cancel_hcb_grant
         post :refresh_verification
+        post :send_to_theseus
+        post :approve_verification_call
       end
     end
     resources :shop_suggestions, only: [ :index ] do
@@ -268,6 +288,17 @@ Rails.application.routes.draw do
       member do
         post :approve
         post :reject
+        post :undo
+      end
+    end
+    resources :special_activities, only: [ :index, :create ] do
+      member do
+        post :toggle_payout
+        post :mark_winner
+      end
+      collection do
+        post :give_payout
+        post :mark_payout_given
       end
     end
     resources :support_vibes, only: [ :index, :create ]
@@ -283,6 +314,7 @@ Rails.application.routes.draw do
         post :dismiss
       end
     end
+    resources :time_loss, only: [ :index ], controller: "time_loss"
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
     get "voting_dashboard", to: "voting_dashboard#index"
@@ -290,9 +322,20 @@ Rails.application.routes.draw do
     get "vote_spam_dashboard/users/:user_id", to: "vote_spam_dashboard#show", as: :vote_spam_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    get "flavortime_dashboard", to: "flavortime_dashboard#index"
+    get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
+      end
+    end
+    resources :fulfillment_payouts, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+      collection do
+        post :trigger
       end
     end
   end
@@ -315,6 +358,7 @@ Rails.application.routes.draw do
     resource :ships, only: [ :new, :create ], module: :projects
     member do
       get :readme
+      get :lapse_timelapses
       get :stats
       post :mark_fire
       post :unmark_fire

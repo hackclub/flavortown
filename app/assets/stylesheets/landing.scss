@@ -2249,3 +2249,230 @@ body:has(.hero--challenger) .launch-stars-svg {
   overflow: hidden !important;
   transition: opacity 0.3s ease-out;
 }
+
+.open-sauce {
+  padding: 1em 1em 0.5em 1em;
+  background: var(--color-brown-500);
+  border: 0.5em solid var(--color-brown-400);
+  border-radius: 1em;
+  margin-bottom: 2em;
+  text-align: center;
+  color: var(--color-bg);
+  position: absolute;
+  right: 1em;
+  top: 1em;
+  z-index: 100;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    border-radius: inherit;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("landing/pattern.avif") repeat center center / 1200px;
+    opacity: 0.15;
+    z-index: 0;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 400;
+    text-shadow: -4px 4px 0 var(--color-brown-700);
+    margin: 0 3em 0.25em 3em;
+    position: relative;
+    z-index: 5;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        cursor: pointer;
+        text-decoration: underline wavy;
+      }
+    }
+  }
+
+  h2.only-mobile {
+    display: none;
+  }
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 400;
+    text-shadow: -4px 4px 0 var(--color-brown-700);
+    margin: 0.5em 3em 0 3em;
+    position: relative;
+    display: inline-block;
+    z-index: 1;
+
+    span {
+      position: relative;
+      display: inline-block;
+    }
+
+    span::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -3px;
+      width: 100%;
+      height: 5px;
+      border-radius: 3px;
+      background-color: var(--color-brown-300);
+      z-index: 1;
+      display: block;
+    }
+  }
+
+  h3::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    bottom: -1.5em;
+    height: 250%;
+    width: calc(100% + 2rem);
+    background-color: var(--color-brown-700);
+    z-index: -1;
+  }
+
+  &__left-image {
+    position: absolute;
+    left: -0.6em;
+    top: -0.1em;
+    height: 150%;
+
+    @media (max-width: 1200px) {
+      display: none;
+    }
+  }
+
+  &__right-image {
+    position: absolute;
+    right: -3em;
+    bottom: -2em;
+    height: 120%;
+
+    @media (max-width: 1200px) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    width: fit-content;
+    border-radius: 100%;
+    padding: 0.1em 0.5em;
+    border-width: 0.3em;
+
+    h2 {
+      margin: 0.2em 0 0 0;
+      text-shadow: none;
+    }
+
+    h2.normal {
+      display: none;
+    }
+
+    h2.only-mobile {
+      display: block;
+      font-weight: 700;
+    }
+
+    h3 {
+      display: none;
+    }
+  }
+}
+
+.modal {
+  background: var(--color-brown-600);
+  border: 0.5em solid var(--color-brown-400);
+  color: var(--color-bg);
+  border-radius: 1em;
+  padding: var(--space-l);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  max-width: 90vw;
+  width: 600px;
+  position: relative;
+  overflow: hidden;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    border-radius: inherit;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("landing/pattern.avif") repeat center center / 800px;
+    opacity: 0.08;
+    z-index: 0;
+  }
+
+  &__title {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 0.2em;
+  }
+
+  h4 {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin: 0;
+    position: relative;
+    z-index: 5;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline wavy;
+      }
+    }
+  }
+
+  &__button {
+    background: var(--color-brown-700);
+    font-size: 1.2rem;
+    padding: 0.5em 1em;
+    border: none;
+    border-radius: 0.5em;
+    color: var(--color-bg);
+    margin-top: 0.75em;
+    margin-bottom: 5em;
+  }
+
+  &__image {
+    width: 130%;
+    position: absolute;
+    z-index: -1;
+    bottom: -5em;
+    left: -4em;
+  }
+
+  @media (max-width: 1000px) {
+    &__image {
+      display: none;
+    }
+
+    &__button {
+      margin-bottom: 0;
+    }
+  }
+}

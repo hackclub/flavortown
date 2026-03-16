@@ -4,7 +4,7 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def index?
-    user.admin? || user.fraud_dept?
+    user.admin? || user.fraud_dept? || user.sidequest_reviewer?
   end
 
   def access_blazer?
@@ -45,6 +45,10 @@ class AdminPolicy < ApplicationPolicy
 
   def access_fulfillment_view?
     user.admin? || user.fulfillment_person?
+  end
+
+  def process_sidequest_entry?
+    user.admin? || user.sidequest_reviewer?
   end
 
   def assign_shop_order?
@@ -99,6 +103,14 @@ class AdminPolicy < ApplicationPolicy
     user.admin? || user.fraud_dept?
   end
 
+  def access_fulfillment_payouts?
+    user.admin?
+  end
+
+  def approve_fulfillment_payouts?
+    user.admin?
+  end
+
   def access_shop_suggestions?
     user.admin?
   end
@@ -113,5 +125,17 @@ class AdminPolicy < ApplicationPolicy
 
   def access_sw_vibes?
     user.admin?
+  end
+
+  def access_special_activities?
+    user.admin?
+  end
+
+  def access_flavortime_dashboard?
+    user.admin? || user.flavortime?
+  end
+
+  def access_time_loss_dashboard?
+    user.admin? || user.flavortime?
   end
 end

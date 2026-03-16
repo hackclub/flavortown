@@ -1,5 +1,7 @@
-<div class="<%= wrapper_classes %>" data-controller="file-upload"<% if max_size.present? %> data-file-upload-max-size-value="<%= max_size %>"<% end %><% if max_count.present? %> data-file-upload-max-count-value="<%= max_count %>"<% end %><% if initial_preview_url.present? %> data-file-upload-initial-url-value="<%= initial_preview_url %>"<% end %><% if initial_filename.present? %> data-file-upload-initial-filename-value="<%= initial_filename %>"<% end %><% if initial_previews.any? %> data-file-upload-initial-previews-value="<%= j(initial_previews.to_json) %>"<% end %>>
-  <label class="input__label" for="<%= form.field_id(attribute) %>"><%= label %></label>
+<%= tag.div class: wrapper_classes, data: wrapper_data do %>
+  <% unless bare? %>
+    <label class="input__label" for="<%= form.field_id(attribute) %>"><%= label %></label>
+  <% end %>
 
   <%= form.file_field attribute, **file_field_html_options %>
 
@@ -49,7 +51,7 @@
     <p class="file-upload__status" data-file-upload-target="status" hidden></p>
   </div>
 
-  <% if has_subtitle? %>
+  <% if !bare? && has_subtitle? %>
     <div class="input__subtitle"><%= subtitle %></div>
   <% end %>
-</div>
+<% end %>

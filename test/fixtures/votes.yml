@@ -37,11 +37,27 @@
 one:
   user: one
   project: one
-  score: 1
-  category: 1
+  ship_event: one
+  reason: Solid project with a clear idea and good implementation details.
+  originality_score: 6
+  technical_score: 6
+  usability_score: 6
+  storytelling_score: 6
+  suspicious: false
+  time_taken_to_vote: 35
+  demo_url_clicked: true
+  repo_url_clicked: true
 
 two:
   user: two
   project: two
-  score: 1
-  category: 1
+  ship_event: two
+  reason: Good project with thoughtful design tradeoffs and useful presentation.
+  originality_score: 7
+  technical_score: 7
+  usability_score: 7
+  storytelling_score: 7
+  suspicious: false
+  time_taken_to_vote: 42
+  demo_url_clicked: true
+  repo_url_clicked: true

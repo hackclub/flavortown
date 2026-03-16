@@ -30,6 +30,7 @@
       <% icon, variant = case type.to_s
         when "notice", ":success" then ["icons/checked.svg", "success"]
         when "alert", "error", "danger" then ["icons/delete.svg", "error"]
+        when "warning" then ["icons/warning.svg", "warning"]
         else [ "icons/info.svg", "info"]
       end %>
       <div class="alert alert-<%= variant %>" role="alert" aria-live="assertive" data-controller="flash" data-flash-timeout-value="5000">

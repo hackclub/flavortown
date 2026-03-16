@@ -7,6 +7,8 @@
 #  banned                                  :boolean          default(FALSE), not null
 #  banned_at                               :datetime
 #  banned_reason                           :text
+#  club_link                               :string
+#  club_name                               :string
 #  cookie_clicks                           :integer          default(0), not null
 #  display_name                            :string
 #  email                                   :string
@@ -21,6 +23,7 @@
 #  leaderboard_optin                       :boolean          default(FALSE), not null
 #  magic_link_token                        :string
 #  magic_link_token_expires_at             :datetime
+#  manual_ysws_override                    :boolean
 #  projects_count                          :integer
 #  ref                                     :string
 #  regions                                 :string           default([]), is an Array
@@ -46,15 +49,17 @@
 #  ysws_eligible                           :boolean          default(FALSE), not null
 #  created_at                              :datetime         not null
 #  updated_at                              :datetime         not null
+#  airtable_record_id                      :string
 #  slack_id                                :string
 #
 # Indexes
 #
-#  index_users_on_api_key           (api_key) UNIQUE
-#  index_users_on_email             (email)
-#  index_users_on_magic_link_token  (magic_link_token) UNIQUE
-#  index_users_on_session_token     (session_token) UNIQUE
-#  index_users_on_slack_id          (slack_id) UNIQUE
+#  index_users_on_airtable_record_id  (airtable_record_id) UNIQUE
+#  index_users_on_api_key             (api_key) UNIQUE
+#  index_users_on_email               (email)
+#  index_users_on_magic_link_token    (magic_link_token) UNIQUE
+#  index_users_on_session_token       (session_token) UNIQUE
+#  index_users_on_slack_id            (slack_id) UNIQUE
 #
 require "test_helper"
 

@@ -11,7 +11,14 @@ class KitchenTutorialStepsComponent < ApplicationComponent
   def view_template
     div(data: { controller: "tutorial-video-modal" }) do
       turbo_frame_tag("tutorial-steps-container") do
-        details(class: "tutorial-steps", open: !all_completed?) do
+        details(
+          class: "tutorial-steps",
+          data: {
+            controller: "tutorial-steps-expand",
+            tutorial_steps_expand_auto_expand_value: !all_completed?,
+            tutorial_steps_expand_delay_value: 500
+          }
+        ) do
           summary(class: "tutorial-steps__header") do
             span(class: "tutorial-steps__toggle-icon") do
               inline_svg_tag("icons/chevron-down.svg", alt: "")
@@ -23,6 +30,10 @@ class KitchenTutorialStepsComponent < ApplicationComponent
                 div(class: "tutorial-steps__progress-fill", style: "width: #{progress_percentage}%")
               end
             end
+          end
+
+          p(class: "tutorial-steps__subtext") do
+            "Additional cookies are rewarded upon completion of various stages of the tutorial, so complete all 8 steps!"
           end
 
           div(class: "tutorial-steps__grid") do

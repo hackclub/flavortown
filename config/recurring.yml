@@ -82,11 +82,11 @@ production:
     concurrency: 1
     description: "Refresh sitemap XML cache"
 
-  sync_git_commits:
-    class: GitCommitSyncJob
-    schedule: every hour
-    concurrency: 1
-    description: "Sync git commits from project repos to timeline"
+  # sync_git_commits:
+  #   class: GitCommitSyncJob
+  #   schedule: every hour
+  #   concurrency: 1
+  #   description: "Sync git commits from project repos to timeline"
 
   flush_extension_usage:
     class: FlushExtensionUsageJob
@@ -120,6 +120,30 @@ production:
 
   ysws_review_sync:
     class: YswsReviewSyncJob
-    schedule: every 15 minutes
+    schedule: every day at 9am America/New_York
     concurrency: 1
     description: "Sync completed YSWS reviews to Airtable with user PII"
+
+  shop_calculate_fulfillment_payouts:
+    class: Shop::CalculateFulfillmentPayoutsJob
+    schedule: every Friday at 12pm Europe/London
+    concurrency: 1
+    description: "Calculate weekly fulfillment payouts (3 tickets per fulfilled order)"
+
+  ysws_check_duplicates:
+    class: YswsReview::CheckDuplicatesJob
+    schedule: every day
+    concurrency: 1
+    description: "Check YSWS submissions for duplicates in unified database"
+  
+  support_vibecheck_est:
+    class: SupportVibecheckJob
+    schedule: every day at 12pm America/New_York
+    concurrency: 1
+    description: "Run support vibecheck at 12pm EST"
+
+  pull_user_club_data:
+    class: Airtable::UserClubPullJob
+    schedule: every day at 3am America/New_York
+    concurrency: 1
+    description: "Pull Airtable record IDs and club names from Airtable to local DB (daily off-peak sync)"

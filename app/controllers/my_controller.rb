@@ -42,6 +42,11 @@ class MyController < ApplicationController
     end
   end
 
+  def unlink_club
+    current_user.update!(club_name: nil, club_link: nil)
+    redirect_back fallback_location: root_path, notice: "Club unlinked"
+  end
+
   def cookie_click
     clicks = params[:clicks].to_i.clamp(1, 100)
     current_user.increment!(:cookie_clicks, clicks)

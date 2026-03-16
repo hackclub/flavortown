@@ -296,6 +296,49 @@
     padding-top: var(--space-l);
     border-top: 2px solid var(--color-tan-300);
   }
+
+  &__club-status {
+    font-family: var(--font-family-text);
+    font-size: var(--font-size-m);
+    color: var(--color-text-body);
+    margin: 0;
+  }
+
+  &__club-unlink {
+    margin-top: var(--space-xs);
+    padding: var(--space-xs) var(--space-m);
+    font-family: var(--font-family-subtitle);
+    font-size: var(--font-size-s);
+    color: var(--color-red-500);
+    background: none;
+    border: 1px solid var(--color-red-500);
+    border-radius: calc(var(--border-radius) * 0.6);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--color-red-500);
+      color: var(--color-bg);
+    }
+  }
+
+  &__club-link {
+    display: inline-block;
+    font-family: var(--font-family-subtitle);
+    font-size: var(--font-size-m);
+    color: var(--color-brown-500);
+    text-decoration: underline;
+
+    &:hover {
+      color: var(--color-brown-400);
+    }
+
+    &--pending {
+      opacity: 0.5;
+      cursor: not-allowed;
+      text-decoration: none;
+      pointer-events: none;
+    }
+  }
 }
 
 // Field errors

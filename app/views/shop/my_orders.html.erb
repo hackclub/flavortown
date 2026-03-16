@@ -82,7 +82,6 @@
                     <% elsif order.grant? && order.shop_card_grant.present? %>
                       <div class="my-orders__grant-actions">
                         <%= render ButtonComponent.new(text: "Open Grant", href: order.shop_card_grant.hcb_url, color: :brown, target: "_blank") %>
-                        <%= render ButtonComponent.new(text: "Top Up", href: order.shop_card_grant.topup_url, color: :brown, target: "_blank") %>
                       </div>
                     <% end %>
                   <% end %>

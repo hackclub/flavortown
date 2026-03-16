@@ -33,10 +33,18 @@ class ProjectsController < ApplicationController
     @shadow_banned = user_shadow_banned || project_shadow_banned
     @can_view_shadow_banned = is_member || is_admin
 
-    @posts = @project.posts
-                     .includes(:user, postable: [ :attachments_attachments ])
-                     .order(created_at: :desc)
-                     .select { |post| post.postable.present? }
+    load_posts = -> {
+      @project.posts
+               .includes(:user, postable: [ :attachments_attachments ])
+               .order(created_at: :desc)
+               .select { |post| post.postable.present? }
+    }
+
+    @posts = if current_user&.can_see_deleted_devlogs?
+      Post::Devlog.unscoped { load_posts.call }
+    else
+      load_posts.call
+    end
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
       @posts = @posts.reject { |post| post.postable_type == "Post::GitCommit" }
@@ -53,6 +61,14 @@ class ProjectsController < ApplicationController
       @liked_devlog_ids = Set.new
     end
 
+    @devlog_lapse_badges = {}
+    devlog_posts = @posts.select { |p| p.postable_type == "Post::Devlog" }
+    if devlog_posts.any?
+      timelapses = cached_lapse_timelapses
+      queue_lapse_timelapses_fetch if timelapses.nil?
+      @devlog_lapse_badges = build_devlog_lapse_badges(devlog_posts, timelapses)
+    end
+
     ahoy.track "Viewed project", project_id: @project.id
 
     latest_ship_post = @posts.find { |post| post.postable_type == "Post::ShipEvent" }
@@ -61,6 +77,8 @@ class ProjectsController < ApplicationController
     @votes_for_payout = nil
     if current_user.present?
       is_owner = @project.memberships.where(role: :owner, user_id: current_user.id).exists?
+
+      @show_ai_coding_time_ignored_card = is_owner && !current_user.has_dismissed?("ai_coding_time_ignored_card")
 
       if is_owner &&
           latest_ship_event.present? &&
@@ -317,24 +335,28 @@ class ProjectsController < ApplicationController
     authorize @project
 
     PaperTrail.request(whodunnit: current_user.id) do
-      success = ShipCertService.ship_to_dash(@project, type: "resend", force: true)
+      begin
+        success = ShipCertService.ship_to_dash(@project, type: "resend")
 
-      PaperTrail::Version.create!(
-        item_type: "Project",
-        item_id: @project.id,
-        event: "resend_webhook",
-        whodunnit: current_user.id,
-        object_changes: {
-          admin_action: [ nil, "resend_webhook" ],
-          triggered_by_id: [ nil, current_user.id ],
-          success: [ nil, success ]
-        }
-      )
+        PaperTrail::Version.create!(
+          item_type: "Project",
+          item_id: @project.id,
+          event: "resend_webhook",
+          whodunnit: current_user.id,
+          object_changes: {
+            admin_action: [ nil, "resend_webhook" ],
+            triggered_by_id: [ nil, current_user.id ],
+            success: [ nil, success ]
+          }
+        )
 
-      if success
-        render json: { message: "Webhook resent successfully" }, status: :ok
-      else
-        render json: { message: "Failed to resend webhook" }, status: :unprocessable_entity
+        if success
+          render json: { message: "Webhook resent successfully" }, status: :ok
+        else
+          render json: { message: "Failed to resend webhook" }, status: :unprocessable_entity
+        end
+      rescue => e
+        render json: { message: "Webhook failed: #{e.message}" }, status: :unprocessable_entity
       end
     end
   end
@@ -342,6 +364,10 @@ class ProjectsController < ApplicationController
   def confirm_recertification
     @project = Project.find(params[:id])
     authorize @project
+
+    unless Flipper.enabled?(:shipping)
+      redirect_to @project, alert: "Shipping is currently disabled." and return
+    end
 
     ship_event = ShipCertService.latest_ship_event(@project)
 
@@ -357,6 +383,10 @@ class ProjectsController < ApplicationController
     @project = Project.find(params[:id])
     authorize @project
 
+    unless Flipper.enabled?(:shipping)
+      redirect_to @project, alert: "Shipping is currently disabled." and return
+    end
+
     ship_event = ShipCertService.latest_ship_event(@project)
 
     unless ship_event&.certification_status == "rejected"
@@ -366,7 +396,7 @@ class ProjectsController < ApplicationController
 
     PaperTrail.request(whodunnit: current_user.id) do
       begin
-        ShipCertService.ship_to_dash(@project, type: "recertification", force: true)
+        ShipCertService.ship_to_dash(@project, type: "recertification")
         ship_event.update!(certification_status: "pending")
 
         PaperTrail::Version.create!(
@@ -383,11 +413,34 @@ class ProjectsController < ApplicationController
         flash[:notice] = "Re-certification requested! Your project has been resubmitted for review."
       rescue => e
         Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
-        flash[:alert] = "Failed to request re-certification. Please try again later."
+        flash[:alert] = "Failed to request re-certification: #{e.message}"
       end
     end
 
     redirect_to @project
+  end
+
+  def lapse_timelapses
+    @project = Project.find(params[:id])
+    authorize @project, :show?
+
+    unless turbo_frame_request?
+      redirect_to @project
+      return
+    end
+
+    @is_owner = current_user.present? && @project.users.include?(current_user)
+
+    @lapse_timelapses = cached_lapse_timelapses
+
+    if @lapse_timelapses.nil? && should_fetch_lapse_timelapses?
+      @lapse_timelapses = fetch_lapse_timelapses
+      Rails.cache.write(lapse_timelapses_cache_key, @lapse_timelapses, expires_in: Cache::ProjectLapseTimelapsesJob::CACHE_TTL)
+    end
+
+    @lapse_timelapses ||= []
+    @devlog_lapse_badges = build_devlog_lapse_badges(@project.devlog_posts, @lapse_timelapses)
+    render layout: false
   end
 
   def readme
@@ -556,10 +609,60 @@ class ProjectsController < ApplicationController
     @project_times = result&.dig(:projects) || {}
   end
 
+  def fetch_lapse_timelapses
+    ProjectLapseTimelapsesFetcher.new(@project).call
+  end
+
+  def cached_lapse_timelapses
+    Rails.cache.read(lapse_timelapses_cache_key)
+  end
+
+  def queue_lapse_timelapses_fetch
+    return unless should_fetch_lapse_timelapses?
+    return if Rails.cache.exist?(lapse_timelapses_cache_key)
+
+    Cache::ProjectLapseTimelapsesJob.perform_later(@project.id)
+  end
+
+  def should_fetch_lapse_timelapses?
+    return false unless ENV["LAPSE_API_BASE"].present?
+    return false unless @project.hackatime_keys.present?
+
+    hackatime_identity = @project.memberships.owner.first&.user&.hackatime_identity
+    hackatime_identity&.uid.present?
+  end
+
+  def lapse_timelapses_cache_key
+    Cache::ProjectLapseTimelapsesJob.cache_key(@project.id)
+  end
+
+  def build_devlog_lapse_badges(devlog_posts, timelapses)
+    return {} if devlog_posts.blank? || timelapses.blank?
+
+    timelapse_times = timelapses.filter_map do |timelapse|
+      created_at_ms = timelapse["createdAt"]
+      next if created_at_ms.blank?
+
+      Time.at(created_at_ms.to_i / 1000.0)
+    rescue ArgumentError, TypeError
+      nil
+    end.sort
+
+    return {} if timelapse_times.blank?
+
+    badges = {}
+    previous_time = @project.created_at
+    devlog_posts.sort_by(&:created_at).each do |devlog_post|
+      current_time = devlog_post.created_at
+      badges[devlog_post.postable_id] = timelapse_times.any? { |time| time > previous_time && time <= current_time }
+      previous_time = current_time
+    end
+
+    badges
+  end
+
   def render_update_error
     if url_from(params[:return_to])&.include?("ships")
-      @hackatime_projects = @project.hackatime_projects_with_time
-      @total_hours = @project.total_hackatime_hours
       @last_ship = @project.last_ship_event
       @devlogs_for_ship = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
       @devlogs_for_ship = @devlogs_for_ship.where("posts.created_at > ?", @last_ship.created_at) if @last_ship

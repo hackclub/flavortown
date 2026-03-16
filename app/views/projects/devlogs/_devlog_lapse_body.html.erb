@@ -1,0 +1,13 @@
+<div class="projects-new__lapse-preview" data-devlog-attachment-selector-target="preview">
+  <video class="projects-new__lapse-video" data-devlog-attachment-selector-target="video" muted loop playsinline autoplay controls></video>
+</div>
+<%= f.select :lapse_timelapse_id,
+       options_for_select(lapse_timelapses.map { |t|
+         [
+           t["name"].presence || "Untitled (#{Time.at(t["createdAt"].to_i / 1000).strftime('%b %d, %Y')})",
+           t["id"],
+           { "data-playback-url" => t["playbackUrl"], "data-thumbnail-url" => t["thumbnailUrl"] }
+         ]
+       }, lapse_timelapses.max_by { |t| t["duration"].to_i }["id"]),
+       {},
+       { class: "projects-new__lapse-select", data: { action: "change->devlog-attachment-selector#selectTimelapse", "devlog-attachment-selector-target": "select" } } %>

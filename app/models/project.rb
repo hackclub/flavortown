@@ -44,7 +44,7 @@ class Project < ApplicationRecord
 
   SPACE_THEMED_PREFIX = "Space Themed:".freeze
 
-  has_paper_trail only: %i[shadow_banned shadow_banned_at shadow_banned_reason deleted_at]
+  has_paper_trail
 
   has_recommended :projects # more projects like this...
 
@@ -160,6 +160,18 @@ class Project < ApplicationRecord
     GitRepoService.is_cloneable? repo_url
   end
 
+  def validate_repo_url_format
+    return true if repo_url.blank?
+
+    # Check if repo_url ends with .git or contains /tree/main
+    repo_url.strip!
+    if repo_url.end_with?(".git") || repo_url.include?("/tree/main")
+      errors.add(:repo_url, "should not end with .git or contain /tree/main. Please use the root GitHub repository URL.")
+      return false
+    end
+    true
+  end
+
   def calculate_duration_seconds
     posts.of_devlogs(join: true).where(post_devlogs: { deleted_at: nil }).sum("post_devlogs.duration_seconds")
   end
@@ -208,31 +220,13 @@ class Project < ApplicationRecord
   def total_hackatime_hours
     return 0 if hackatime_projects.empty?
 
-    owner = memberships.owner.first&.user
-    return 0 unless owner
+    hackatime_uid = memberships.owner.first&.user&.hackatime_identity&.uid
+    return 0 unless hackatime_uid
 
-    result = owner.try_sync_hackatime_data!
-    return 0 unless result
+    total_seconds = HackatimeService.fetch_total_seconds_for_projects(hackatime_uid, hackatime_keys)
+    return 0 unless total_seconds
 
-    project_times = result[:projects]
-    total_seconds = hackatime_projects.sum { |hp| project_times[hp.name].to_i }
     (total_seconds / 3600.0).round(1)
-  end
-
-  def hackatime_projects_with_time
-    owner = memberships.owner.first&.user
-    return [] unless owner
-
-    result = owner.try_sync_hackatime_data!
-    return [] unless result
-
-    project_times = result[:projects]
-    hackatime_projects.map do |hp|
-      {
-        name: hp.name,
-        hours: (project_times[hp.name].to_i / 3600.0).round(1)
-      }
-    end
   end
 
   aasm column: :ship_status do
@@ -264,8 +258,10 @@ class Project < ApplicationRecord
 
   def shipping_requirements
     [
+      { key: :not_shadow_banned, label: "This project has been flagged by moderation and cannot ship", passed: !shadow_banned? },
       { key: :demo_url, label: "Add a demo link so anyone can try your project", passed: demo_url.present? },
       { key: :repo_url, label: "Add a public GitHub URL with your source code", passed: repo_url.present? },
+      { key: :repo_url_format, label: "Use the root GitHub repository URL (no .git or /tree/main)", passed: validate_repo_url_format },
       { key: :repo_cloneable, label: "Make your GitHub repo publicly cloneable", passed: validate_repo_cloneable },
       { key: :readme_url, label: "Add a README URL to your project", passed: readme_url.present? },
       { key: :description, label: "Add a description for your project", passed: description.present? },
@@ -274,7 +270,7 @@ class Project < ApplicationRecord
       { key: :payout, label: "Wait for your previous ship's to get a payout", passed: previous_ship_event_has_payout? },
       { key: :vote_balance, label: "Your vote balance is negative", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
       { key: :project_isnt_rejected, label: "Your project is not rejected!", passed: last_ship_event&.certification_status != "rejected" },
-      { key: :project_has_more_then_10s, label: "Your ship event has more then 10s!", passed: duration_seconds > 10 }
+      { key: :project_has_more_then_10s, label: "Your ship event has actual time attached to it! (all devlogs have more then 10s)", passed: duration_seconds > 10 }
     ]
   end
 
@@ -283,6 +279,30 @@ class Project < ApplicationRecord
 
   def last_ship_event
     ship_events.first
+  end
+
+  def has_legacy_ship_events?
+    ship_events.where(voting_scale_version: Post::ShipEvent::LEGACY_VOTING_SCALE_VERSION).exists?
+  end
+
+  def has_paid_current_scale_ship_events?(excluding_ship_event_id: nil)
+    scope = ship_events
+              .where(voting_scale_version: Post::ShipEvent::CURRENT_VOTING_SCALE_VERSION)
+              .where.not(payout: nil)
+    scope = scope.where.not(id: excluding_ship_event_id) if excluding_ship_event_id.present?
+    scope.exists?
+  end
+
+  def legacy_payout_total
+    ship_events
+      .where(voting_scale_version: Post::ShipEvent::LEGACY_VOTING_SCALE_VERSION)
+      .where.not(payout: nil)
+      .sum(:payout)
+      .to_f
+  end
+
+  def total_ship_hours
+    ship_events.sum(&:hours).to_f
   end
 
   def fire?
@@ -305,16 +325,30 @@ class Project < ApplicationRecord
     update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
   end
 
+  def readme_is_raw_github_url?
+    return false if readme_url.blank?
+
+    begin
+      uri = URI.parse(readme_url)
+    rescue URI::InvalidURIError
+      return false
+    end
+
+    return false unless uri.host == "raw.githubusercontent.com"
+
+    /https:\/\/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/[^\/]+\/.*README.*\.md/i.match?(uri.to_s)
+  end
+
   private
 
   def has_devlog_since_last_ship?
-    return devlogs.exists? if last_ship_event.nil? || draft?
-    devlogs.where("post_devlogs.created_at > ?", last_ship_event.created_at).exists?
+    return true if last_ship_event.nil?
+    devlog_posts.where("posts.created_at > ?", last_ship_event.created_at).exists?
   end
 
   def previous_ship_event_has_payout?
     return true if last_ship_event.nil?
-    last_ship_event.payout.present? && last_ship_event.payout > 0
+    last_ship_event.payout.present?
   end
 
   def notify_slack_channel

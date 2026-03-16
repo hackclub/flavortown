@@ -108,10 +108,11 @@ class Admin::ProjectsController < Admin::ApplicationController
       next unless member.user&.slack_id.present?
 
       parts = []
-      parts << "Hey! After review, your project won't be going into voting this time."
+      parts << "Hey! After review, your project \"#{@project.title}\" has been flagged by moderation."
       parts << "Reason: #{reason}" if reason.present?
+      parts << "Your project will not be able to ship again until this flag is removed."
       parts << "We've issued a minimum payout for your work on this ship." if issued_min_payout
-      parts << "If you have questions, reach out in #flavortown-help. Keep building — you can ship again anytime!"
+      parts << "If you'd like to appeal this decision, please DM @Fraud Squad with any additional context."
       SendSlackDmJob.perform_later(member.user.slack_id, parts.join("\n\n"))
     end
     log_to_user_audit(@project, "shadow_banned", reason)

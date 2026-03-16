@@ -11,6 +11,7 @@
   <div class="card">
     <h2>Details</h2>
     <div class="info-rows">
+      <div><b>Author(s):</b> <%= sanitize @project.users.map { |u| link_to(u.display_name, helper_user_path(u)) }.to_sentence, tags: %w[a], attributes: %w[href] %></div>
       <div><b>Title:</b> <%= @project.title %></div>
       <div><b>Description:</b> <%= @project.description.presence || "None" %></div>
       <div><b>Has Banner:</b> <%= @project.banner.present? ? "Yes" : "No" %></div>
@@ -22,20 +23,6 @@
       <div><b>Deleted:</b> <%= @project.deleted? ? "Yes" : "No" %></div>
     </div>
   </div>
-
-  <div class="card">
-    <h2>Members</h2>
-    <% if @project.users.any? %>
-      <ul style="margin: 0; padding-left: 1.25rem;">
-        <% @project.users.each do |u| %>
-          <li><%= link_to u.display_name, helper_user_path(u) %></li>
-        <% end %>
-      </ul>
-    <% else %>
-      <p>No members.</p>
-    <% end %>
-  </div>
-</div>
 
 <div style="display: flex; gap: 0.5rem;">
   <%= link_to "← Back", helper_projects_path, class: "btn-secondary no-margin" %>

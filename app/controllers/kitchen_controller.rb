@@ -1,5 +1,6 @@
 class KitchenController < ApplicationController
   prepend_before_action :load_current_user_with_identities
+  before_action :require_login
 
   def index
     authorize :kitchen, :index?
@@ -39,11 +40,13 @@ class KitchenController < ApplicationController
       @show_hackatime_tutorial = false
       @show_slack_tutorial = false
     end
-
-    @show_flagship_ad = current_user.has_logged_one_hour? && !current_user.has_dismissed?(:flagship_ad)
   end
 
   private
+
+  def require_login
+    redirect_to root_path, alert: "Please log in first" and return unless current_user
+  end
 
   def load_current_user_with_identities
     current_user(:identities)

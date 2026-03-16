@@ -10,7 +10,7 @@ section "Order Details:",
     mrkdwn_text("*Tickets Refunded:* 🍪 #{order.total_cost}"),
   ]
 
-section "*Reason:* #{order.rejection_reason}", markdown: true unless order.rejection_reason.blank?
+
 
 divider
 

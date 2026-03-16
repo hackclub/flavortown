@@ -5,7 +5,7 @@ class FileUploadComponent < ViewComponent::Base
 
   attr_reader :label, :form, :attribute, :color, :subtitle, :accept, :max_size, :max_count
 
-  def initialize(label:, form:, attribute:, color: :yellow, subtitle: nil, accept: nil, multiple: false, direct_upload: true, max_size: nil, max_count: nil)
+  def initialize(label: nil, form:, attribute:, color: :yellow, subtitle: nil, accept: nil, multiple: false, direct_upload: true, max_size: nil, max_count: nil, bare: false)
     @label = label
     @form = form
     @attribute = attribute
@@ -16,10 +16,29 @@ class FileUploadComponent < ViewComponent::Base
     @direct_upload = direct_upload
     @max_size = max_size
     @max_count = max_count
+    @bare = bare
   end
 
   def wrapper_classes
-    class_names("input", "file-upload", "input--#{color}")
+    if bare?
+      nil
+    else
+      class_names("input", "file-upload", "input--#{color}")
+    end
+  end
+
+  def wrapper_data
+    data = { controller: "file-upload" }
+    data[:"file-upload-max-size-value"] = max_size if max_size.present?
+    data[:"file-upload-max-count-value"] = max_count if max_count.present?
+    data[:"file-upload-initial-url-value"] = initial_preview_url if initial_preview_url.present?
+    data[:"file-upload-initial-filename-value"] = initial_filename if initial_filename.present?
+    data[:"file-upload-initial-previews-value"] = initial_previews.to_json if initial_previews.any?
+    data
+  end
+
+  def bare?
+    !!@bare
   end
 
   def has_subtitle?

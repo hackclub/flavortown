@@ -1,0 +1,459 @@
+<div class="super-mega-dashboard__header super-mega-dashboard__header--ship-certs">
+  <h2>Shipwrights Overview</h2>
+</div>
+
+<div class="super-mega-dashboard__cards super-mega-dashboard__cards--shipwrights">
+  <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-vibes">
+    <% if @sw_vibes.is_a?(Hash) && @sw_vibes[:error] %>
+      <h3>SW Vibes</h3>
+      <p class="sw-vibes-mini__error"><%= @sw_vibes[:error] %></p>
+    <% else %>
+      <div class="sw-vibes-mini">
+        <div class="sw-vibes-mini__header-row">
+          <button type="button" class="sw-vibes-mini__history-link" onclick="document.getElementById('sw-history-popup').style.display='flex'">History</button>
+          <h3>SW Vibes</h3>
+          <span class="sw-vibes-mini__header-spacer"></span>
+        </div>
+
+        <div class="sw-vibes-mini__status">
+          <% vibes_result = @sw_vibes.dig(:positive, :result) %>
+          <span class="sw-vibes-mini__badge sw-vibes-mini__badge--clickable sw-vibes-mini__badge--<%= vibes_result ? 'good' : 'bad' %>" onclick="document.getElementById('sw-sentiment-popup').style.display='flex'; if(typeof swInitSentimentChart==='function') requestAnimationFrame(swInitSentimentChart);">
+            <%= vibes_result ? "Good" : "Bad" %>
+          </span>
+        </div>
+
+        <% quotes = @sw_vibes[:quotes] || [] %>
+        <% if quotes.any? %>
+          <div class="sw-vibes-mini__section">
+            <span class="sw-vibes-mini__label">Quotes</span>
+            <ul class="sw-vibes-mini__quotes-list">
+              <% quotes.first(3).each_with_index do |q, i| %>
+                <li class="sw-vibes-mini__quote-item">
+                  <button type="button" class="sw-vibes-mini__quote-trigger" onclick="document.getElementById(<%= "sw-quote-#{i}".to_json %>).style.display='flex'">
+                    &ldquo;<%= truncate(q[:text], length: 80) %>&rdquo;
+                  </button>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <% suggestion = @sw_vibes[:suggestion] %>
+        <% if suggestion %>
+          <div class="sw-vibes-mini__section">
+            <span class="sw-vibes-mini__label">Suggestion</span>
+            <p class="sw-vibes-mini__suggestion-text" onclick="document.getElementById('sw-suggestion-popup').style.display='flex'">
+              <%= suggestion[:action] %>
+            </p>
+          </div>
+        <% end %>
+
+        <p class="sw-vibes-mini__disclaimer">This is ai generated take it with a grain of salt</p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-stats">
+    <h3>Review Stats</h3>
+    <% if @ship_certs && !@ship_certs[:error] %>
+      <div class="sw-stats-grid">
+        <div class="sw-stats-grid__section">
+          <h4>Queue</h4>
+          <div class="sw-stats-grid__row">
+            <span class="sw-stats-grid__label">Pending</span>
+            <span class="sw-stats-grid__value"><%= @ship_certs[:pending] %></span>
+          </div>
+          <div class="sw-stats-grid__row">
+            <span class="sw-stats-grid__label">Median Wait</span>
+            <span class="sw-stats-grid__value"><%= @ship_certs[:median_queue_time] %></span>
+          </div>
+          <div class="sw-stats-grid__row">
+            <span class="sw-stats-grid__label">Oldest</span>
+            <span class="sw-stats-grid__value"><%= @ship_certs[:oldest_in_queue] %></span>
+          </div>
+        </div>
+
+        <div class="sw-stats-grid__section">
+          <h4>Decisions</h4>
+          <div class="sw-stats-grid__row">
+            <span class="sw-stats-grid__label">Total Judged</span>
+            <span class="sw-stats-grid__value"><%= number_with_delimiter(@ship_certs[:total_judged]) %></span>
+          </div>
+          <div class="sw-stats-grid__row">
+            <span class="sw-stats-grid__label">Approved</span>
+            <span class="sw-stats-grid__value"><%= number_with_delimiter(@ship_certs[:approved]) %></span>
+          </div>
+          <div class="sw-stats-grid__row">
+            <span class="sw-stats-grid__label">Rejected</span>
+            <span class="sw-stats-grid__value"><%= number_with_delimiter(@ship_certs[:rejected]) %></span>
+          </div>
+          <div class="sw-stats-grid__row">
+            <span class="sw-stats-grid__label">Approval Rate</span>
+            <span class="sw-stats-grid__value"><%= @ship_certs[:approval_rate] %>%</span>
+          </div>
+        </div>
+
+        <div class="sw-stats-grid__section">
+          <h4>Today</h4>
+          <div class="sw-stats-grid__row">
+            <span class="sw-stats-grid__label">Decisions</span>
+            <span class="sw-stats-grid__value"><%= @ship_certs[:decisions_today] %></span>
+          </div>
+          <div class="sw-stats-grid__row">
+            <span class="sw-stats-grid__label">New Ships</span>
+            <span class="sw-stats-grid__value"><%= @ship_certs[:new_ships_today] %></span>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <p class="sw-vibes-mini__error">Couldn't load ship cert stats</p>
+    <% end %>
+  </div>
+
+  <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph">
+    <h3>Avg Queue Time</h3>
+    <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:avg_queue_time_history].present? %>
+      <div class="sw-queue-graph">
+        <canvas id="swQueueTimeChart" height="200"></canvas>
+      </div>
+    <% else %>
+      <p class="sw-vibes-mini__error">No queue time data</p>
+    <% end %>
+  </div>
+
+  <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph">
+    <h3>Reviews &amp; Ships Per Day</h3>
+    <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:reviews_per_day].present? %>
+      <div class="sw-queue-graph">
+        <canvas id="swReviewsShipsChart" height="200"></canvas>
+      </div>
+    <% else %>
+      <p class="sw-vibes-mini__error">No review data</p>
+    <% end %>
+  </div>
+</div>
+
+<% if @sw_vibes.is_a?(Hash) && !@sw_vibes[:error] %>
+  <% (@sw_vibes[:quotes] || []).first(3).each_with_index do |q, i| %>
+    <div id="sw-quote-<%= i %>" class="sw-vibes-popup" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+      <div class="sw-vibes-popup__content">
+        <span class="sw-vibes-popup__close" onclick="this.closest('.sw-vibes-popup').style.display='none'">&times;</span>
+        <h4><%= q[:ticket_id] %></h4>
+        <blockquote>&ldquo;<%= q[:text] %>&rdquo;</blockquote>
+        <p class="sw-vibes-popup__reason"><%= q[:reason] %></p>
+        <% if q[:link].present? %>
+          <a href="<%= q[:link] %>" target="_blank" class="sw-vibes-popup__link">View in Slack &rarr;</a>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @sw_vibes[:suggestion] %>
+    <div id="sw-suggestion-popup" class="sw-vibes-popup" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+      <div class="sw-vibes-popup__content">
+        <span class="sw-vibes-popup__close" onclick="this.closest('.sw-vibes-popup').style.display='none'">&times;</span>
+        <h4>Suggestion</h4>
+        <p><strong><%= @sw_vibes[:suggestion][:action] %></strong></p>
+        <div class="sw-vibes-popup__reason-block"><%= @sw_vibes[:suggestion][:reason] %></div>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
+<div id="sw-history-popup" class="sw-vibes-popup" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="sw-vibes-popup__content sw-vibes-popup__content--wide">
+    <span class="sw-vibes-popup__close" onclick="this.closest('.sw-vibes-popup').style.display='none'">&times;</span>
+
+    <div id="sw-history-list" class="sw-vibes-history">
+      <h4>Vibes History</h4>
+      <% if @sw_vibes_history.present? %>
+        <div class="sw-vibes-history__cards">
+          <% @sw_vibes_history.each_with_index do |entry, idx| %>
+            <button type="button" class="sw-vibes-history__card" onclick="swShowHistoryDetail(<%= idx.to_json %>)">
+              <span class="sw-vibes-mini__badge sw-vibes-mini__badge--<%= entry.result ? 'good' : 'bad' %>">
+                <%= entry.result ? "Good" : "Bad" %>
+              </span>
+              <span class="sw-vibes-history__reason"><%= truncate(entry.reason, length: 120) %></span>
+              <span class="sw-vibes-history__date"><%= entry.recorded_date.strftime("%b %d, %Y") %></span>
+            </button>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="sw-vibes-history__empty">No history available.</p>
+      <% end %>
+    </div>
+
+    <div id="sw-history-detail" style="display:none"></div>
+  </div>
+</div>
+
+<div id="sw-sentiment-popup" class="sw-vibes-popup" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="sw-vibes-popup__content sw-vibes-popup__content--wide sw-vibes-popup__content--centered">
+    <span class="sw-vibes-popup__close" onclick="this.closest('.sw-vibes-popup').style.display='none'">&times;</span>
+
+    <% vibes_result_popup = @sw_vibes.is_a?(Hash) && !@sw_vibes[:error] ? @sw_vibes.dig(:positive, :result) : nil %>
+    <h4>User Sentiment</h4>
+    <div class="sw-vibes-mini__status">
+      <span class="sw-vibes-mini__badge sw-vibes-mini__badge--<%= vibes_result_popup ? 'good' : 'bad' %>">
+        <%= vibes_result_popup ? "Good" : "Bad" %>
+      </span>
+    </div>
+
+    <% vibes_reason = @sw_vibes.is_a?(Hash) && !@sw_vibes[:error] ? @sw_vibes.dig(:positive, :reason) : nil %>
+    <% if vibes_reason.present? %>
+      <div class="sw-vibes-popup__reason-block"><%= vibes_reason %></div>
+    <% end %>
+
+    <div class="sw-vibes-graph-wrap sw-vibes-graph-wrap--large">
+      <canvas id="swSentimentChart" height="200"></canvas>
+    </div>
+    <div class="sw-vibes-legend">
+      <span class="sw-vibes-legend__item sw-vibes-legend__item--good">Good</span>
+      <span class="sw-vibes-legend__item sw-vibes-legend__item--bad">Bad</span>
+    </div>
+  </div>
+</div>
+
+<% history_details_for_js = (@sw_vibes_history || []).map { |e|
+  {
+    date: e.recorded_date.strftime("%b %d, %Y"),
+    result: e.result,
+    reason: e.reason,
+    sentiment: e.sentiment,
+    quotes: (e.payload["quotes"] || []).map { |q|
+      { ticket_id: q["ticket_id"], text: q["text"], reason: q["reason"], link: q["link"] }
+    },
+    suggestion: e.payload["suggestion"] ? { action: e.payload.dig("suggestion", "action"), reason: e.payload.dig("suggestion", "reason") } : nil
+  }
+} %>
+<% sentiment_data = (@sw_vibes_history || []).sort_by(&:recorded_date).map { |e| { date: e.recorded_date.to_s, sentiment: e.sentiment.to_f, result: e.result } } %>
+<% current_sentiment = @sw_vibes.is_a?(Hash) && !@sw_vibes[:error] ? @sw_vibes.dig(:positive, :sentiment) : nil %>
+<% if current_sentiment && sentiment_data.none? { |d| d[:date] == Date.current.to_s } %>
+  <% sentiment_data << { date: Date.current.to_s, sentiment: current_sentiment.to_f, result: @sw_vibes.dig(:positive, :result) } %>
+<% end %>
+<% queue_time_data = @ship_certs && !@ship_certs[:error] && @ship_certs[:avg_queue_time_history].present? ? @ship_certs[:avg_queue_time_history] : nil %>
+<% reviews_ships_data = (@ship_certs && !@ship_certs[:error] && @ship_certs[:reviews_per_day].present?) ? { reviews: @ship_certs[:reviews_per_day], ships: @ship_certs[:ships_per_day] } : nil %>
+
+<script>
+(function() {
+  function ensureChartJs(cb) {
+    if (typeof Chart !== 'undefined') { cb(); return; }
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+    s.onload = cb;
+    document.head.appendChild(s);
+  }
+
+  var historyData = <%= raw history_details_for_js.to_json %>;
+
+  window.swShowHistoryDetail = function(idx) {
+    var entry = historyData[idx];
+    if (!entry) return;
+
+    var html = '<div class="sw-vibes-history-detail">';
+    html += '<button type="button" class="sw-vibes-history-detail__back" onclick="swBackToHistoryList()">&#8592; Back</button>';
+    html += '<h4>' + escHtml(entry.date) + '</h4>';
+    html += '<div class="sw-vibes-mini__status"><span class="sw-vibes-mini__badge sw-vibes-mini__badge--' + (entry.result ? 'good' : 'bad') + '">' + (entry.result ? 'Good' : 'Bad') + '</span></div>';
+
+    if (entry.sentiment != null) {
+      html += '<div class="sw-vibes-popup__today-reason"><strong>Sentiment:</strong> ' + entry.sentiment + '</div>';
+    }
+
+    html += '<div class="sw-vibes-popup__reason-block">' + escHtml(entry.reason) + '</div>';
+
+    if (entry.quotes && entry.quotes.length > 0) {
+      html += '<h4 style="margin-top:1rem">Quotes</h4>';
+      html += '<ul class="sw-vibes-popup__quotes">';
+      entry.quotes.forEach(function(q) {
+        html += '<li>';
+        html += '<blockquote>&ldquo;' + escHtml(q.text) + '&rdquo;</blockquote>';
+        html += '<p>' + escHtml(q.reason) + '</p>';
+        if (q.link) {
+          html += '<a href="' + escHtml(q.link) + '" target="_blank" class="sw-vibes-popup__link">' + escHtml(q.ticket_id || 'View') + ' in Slack &rarr;</a>';
+        }
+        html += '</li>';
+      });
+      html += '</ul>';
+    }
+
+    if (entry.suggestion) {
+      html += '<h4 style="margin-top:1rem">Suggestion</h4>';
+      html += '<p><strong>' + escHtml(entry.suggestion.action) + '</strong></p>';
+      html += '<div class="sw-vibes-popup__reason-block">' + escHtml(entry.suggestion.reason) + '</div>';
+    }
+
+    html += '</div>';
+
+    document.getElementById('sw-history-list').style.display = 'none';
+    var detail = document.getElementById('sw-history-detail');
+    detail.innerHTML = html;
+    detail.style.display = 'block';
+  };
+
+  window.swBackToHistoryList = function() {
+    document.getElementById('sw-history-detail').style.display = 'none';
+    document.getElementById('sw-history-list').style.display = 'block';
+  };
+
+  function escHtml(str) {
+    if (!str) return '';
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  var historyPopup = document.getElementById('sw-history-popup');
+  if (historyPopup) {
+    new MutationObserver(function() {
+      if (historyPopup.style.display === 'none') {
+        swBackToHistoryList();
+      }
+    }).observe(historyPopup, { attributes: true, attributeFilter: ['style'] });
+  }
+
+  var swSentimentInited = false;
+  window.swInitSentimentChart = function() {
+    if (swSentimentInited) return;
+    ensureChartJs(function() {
+      swSentimentInited = true;
+      var sentimentEl = document.getElementById('swSentimentChart');
+      if (!sentimentEl) return;
+      var sData = <%= raw sentiment_data.to_json %>;
+      var sLabels = sData.map(function(d) {
+        return new Date(d.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      });
+      var sValues = sData.map(function(d) { return parseFloat(d.sentiment) || 0; });
+      var sColors = sData.map(function(d) { return d.result ? '#22c55e' : '#ef4444'; });
+
+      new Chart(sentimentEl, {
+        type: 'line',
+        data: {
+          labels: sLabels,
+          datasets: [{
+            label: 'Sentiment',
+            data: sValues,
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99,102,241,0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 5,
+            pointBackgroundColor: sColors,
+            pointBorderColor: sColors,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  var d = sData[ctx.dataIndex];
+                  return (d.result ? 'Good' : 'Bad') + ' \u2014 ' + ctx.raw;
+                }
+              }
+            }
+          },
+          scales: {
+            y: { min: 0, max: 1, ticks: { stepSize: 0.2, font: { size: 10 } } },
+            x: { ticks: { font: { size: 9 }, maxRotation: 45 } }
+          }
+        }
+      });
+    });
+  };
+
+  ensureChartJs(function() {
+    var qtData = <%= raw (queue_time_data || {}).to_json %>;
+    if (Object.keys(qtData).length > 0) {
+      var qtEl = document.getElementById('swQueueTimeChart');
+      if (qtEl) {
+        var qtDates = Object.keys(qtData).sort();
+        var qtLabels = qtDates.map(function(d) {
+          return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        });
+        var qtValues = qtDates.map(function(d) { return Math.round(qtData[d] / 60); });
+
+        new Chart(qtEl, {
+          type: 'line',
+          data: {
+            labels: qtLabels,
+            datasets: [{
+              label: 'Avg Queue (min)',
+              data: qtValues,
+              borderColor: '#f59e0b',
+              backgroundColor: 'rgba(245,158,11,0.1)',
+              fill: true,
+              tension: 0.3,
+              pointRadius: 2,
+              borderWidth: 1.5
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 9 } } } },
+            scales: {
+              x: { ticks: { font: { size: 8 }, maxRotation: 45 } },
+              y: { beginAtZero: true, ticks: { font: { size: 8 } } }
+            }
+          }
+        });
+      }
+    }
+
+    var rsData = <%= raw (reviews_ships_data || {}).to_json %>;
+    if (rsData.reviews && rsData.ships) {
+      var rsEl = document.getElementById('swReviewsShipsChart');
+      if (rsEl) {
+        var revData = rsData.reviews;
+        var shipData = rsData.ships;
+        var rsDates = Object.keys(revData).sort();
+        var rsLabels = rsDates.map(function(d) {
+          return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        });
+
+        new Chart(rsEl, {
+          type: 'line',
+          data: {
+            labels: rsLabels,
+            datasets: [
+              {
+                label: 'Reviews',
+                data: rsDates.map(function(d) { return revData[d] || 0; }),
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59,130,246,0.1)',
+                fill: false,
+                tension: 0.3,
+                pointRadius: 2,
+                borderWidth: 1.5
+              },
+              {
+                label: 'New Ships',
+                data: rsDates.map(function(d) { return shipData[d] || 0; }),
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16,185,129,0.1)',
+                fill: false,
+                tension: 0.3,
+                pointRadius: 2,
+                borderWidth: 1.5
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 9 } } } },
+            scales: {
+              x: { ticks: { font: { size: 8 }, maxRotation: 45 } },
+              y: { beginAtZero: true, ticks: { precision: 0, font: { size: 8 } } }
+            }
+          }
+        });
+      }
+    }
+  });
+})();
+</script>

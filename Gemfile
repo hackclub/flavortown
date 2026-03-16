@@ -53,10 +53,14 @@ group :development, :test do
 
   # Load .env
   gem "dotenv-rails"
+
+  # Standardized OpenAPI generation
+  gem "rspec-rails"
+  gem "rswag-specs"
 end
 
 # Bullet gem to catch N+1
-gem "bullet"
+gem "bullet", group: :development
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
@@ -106,14 +110,14 @@ gem "aws-sdk-s3"
 gem "faraday"
 gem "faraday-retry"
 
-gem "faker", "~> 3.5"
+gem "faker", "~> 3.6"
 gem "jsbundling-rails", "~> 1.3"
 gem "stackprof"
-gem "sentry-ruby"
-gem "sentry-rails"
+gem "sentry-ruby", "~> 6.4"
+gem "sentry-rails", "~> 6.4"
 
 # for pagination
-gem "pagy", "~> 43.2"
+gem "pagy", "~> 43.3"
 gem "norairrecord"
 
 gem "awesome_print"
@@ -138,3 +142,6 @@ gem "redis", "~> 5.4"
 gem "ahoy_matey"
 
 gem "countries"
+gem "strong_migrations"
+gem "skylight"
+gem "rbtrace", require: String(ENV.fetch("FEATURE_ENABLE_MEMORY_DUMPS", false)) == "true"

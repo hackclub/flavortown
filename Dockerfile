@@ -19,6 +19,10 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     curl \
     wget \
+    procps \
+    lsof \
+    strace \
+    less \
     libjemalloc2 \
     libvips \
     imagemagick \
@@ -27,7 +31,7 @@ RUN apt-get update -qq && \
     libopenblas0 \
     liblapack3 \
     ffmpeg && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Set production environment
 ENV RAILS_ENV="production" \
