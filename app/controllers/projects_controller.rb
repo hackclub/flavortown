@@ -672,22 +672,4 @@ class ProjectsController < ApplicationController
       render :edit, status: :unprocessable_entity
     end
   end
-
-  def space_themed_param?
-    ActiveModel::Type::Boolean.new.cast(params.dig(:project, :space_themed))
-  end
-
-  def apply_space_theme_marker!(project, space_themed:)
-    description = project.description_without_space_theme_prefix
-    project.description = if space_themed
-      [ Project::SPACE_THEMED_PREFIX, description.presence ].compact.join(" ")
-    else
-      description
-    end
-  end
-
-  def prepare_space_themed_form_state!(space_themed:)
-    @space_themed_checked = space_themed
-    @project.description = @project.description_without_space_theme_prefix if @project.space_themed?
-  end
 end
