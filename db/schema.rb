@@ -756,6 +756,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_17_153201) do
     t.index ["user_id"], name: "index_user_identities_on_user_id"
   end
 
+  create_table "user_profiles", force: :cascade do |t|
+    t.text "bio"
+    t.datetime "created_at", null: false
+    t.text "custom_css"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_user_profiles_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "airtable_record_id"
     t.string "api_key"
@@ -898,6 +907,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_17_153201) do
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"
+  add_foreign_key "user_profiles", "users"
   add_foreign_key "votes", "post_ship_events", column: "ship_event_id"
   add_foreign_key "votes", "projects"
   add_foreign_key "votes", "users"

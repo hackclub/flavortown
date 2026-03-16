@@ -384,6 +384,7 @@ Rails.application.routes.draw do
 
   # Public user profiles
   resources :users, only: [ :show ] do
+    resource :profile, only: [ :edit, :update ], controller: "user_profiles"
     resource :og_image, only: [ :show ], module: :users, defaults: { format: :png }
     member do
       get :stats
