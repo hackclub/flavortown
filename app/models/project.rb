@@ -42,8 +42,6 @@ class Project < ApplicationRecord
   include AASM
   include SoftDeletable
 
-  SPACE_THEMED_PREFIX = "Space Themed:".freeze
-
   has_paper_trail
 
   has_recommended :projects # more projects like this...
@@ -201,16 +199,8 @@ class Project < ApplicationRecord
     deleted_at.present?
   end
 
-  def space_themed?
-    description.to_s.lstrip.start_with?(SPACE_THEMED_PREFIX)
-  end
-
-  def description_without_space_theme_prefix
-    description.to_s.sub(/\A\s*#{Regexp.escape(SPACE_THEMED_PREFIX)}\s*/, "")
-  end
-
   def display_description
-    description_without_space_theme_prefix
+    description
   end
 
   def hackatime_keys
