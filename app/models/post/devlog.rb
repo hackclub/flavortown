@@ -147,31 +147,18 @@ class Post::Devlog < ApplicationRecord
   end
 
   def lapse_playback_url_stale?
-    lapse_playback_url_refreshed_at.blank? || lapse_playback_url_refreshed_at <= 6.hours.ago
+    lapse_playback_url_refreshed_at.blank? || lapse_playback_url_refreshed_at <= 2.hours.ago
   end
 
-  def refresh_lapse_playback_url!
+  def refresh_lapse_playback_url_later
     return unless lapse_timelapse_id.present?
     return unless lapse_playback_url_stale?
 
-    data = Lapse::Api::Timelapse.query(lapse_timelapse_id)
-    timelapse = data&.dig("timelapse")
-
-    if timelapse && timelapse["playbackUrl"].present?
-      update_columns(
-        lapse_playback_url: timelapse["playbackUrl"],
-        lapse_playback_url_refreshed_at: Time.current
-      )
-    else
-      update_columns(lapse_playback_url_refreshed_at: Time.current)
-      Rails.logger.error "Failed to refresh Lapse playback URL for devlog #{id} (timelapse #{lapse_timelapse_id})"
-    end
-  rescue => e
-    Rails.logger.error "Error refreshing Lapse playback URL for devlog #{id}: #{e.class} - #{e.message}"
+    RefreshLapsePlaybackUrlJob.perform_later(id)
   end
 
   def current_lapse_playback_url
-    refresh_lapse_playback_url!
+    refresh_lapse_playback_url_later
     lapse_playback_url
   end
 
