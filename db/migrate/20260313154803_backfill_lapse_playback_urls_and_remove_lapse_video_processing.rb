@@ -44,18 +44,23 @@ class BackfillLapsePlaybackUrlsAndRemoveLapseVideoProcessing < ActiveRecord::Mig
     self.table_name = "active_storage_blobs"
   end
 
-  def up # migrate
+  def up
     backfill_finished_devlogs
     backfill_processing_devlogs
 
-    # This seems dangerous, and very well might be! This assumes that we do a full restart before migrating. Coolify *does* do that.
-    # From this point onward, no code can reach lapse_video_processing, as the V2 integration update removes all references.
-    # It's still extremely scary, though.
-    safety_assured { remove_column :post_devlogs, :lapse_video_processing, :boolean }
+    remaining = PostDevlog.where(lapse_video_processing: true).count
+    if remaining > 0
+      Rails.logger.warn "[LapseMigration] #{remaining} devlog(s) still have lapse_video_processing=true. " \
+        "These need manual resolution before the column can be dropped."
+    else
+      Rails.logger.info "[LapseMigration] All devlogs resolved. The lapse_video_processing column can be safely dropped in a follow-up migration."
+    end
   end
 
-  def down # rollback
-    add_column :post_devlogs, :lapse_video_processing, :boolean, default: false, null: false
+  def down
+    # This migration only backfills data columns (lapse_timelapse_id, lapse_playback_url, lapse_playback_url_refreshed_at)
+    # and flips lapse_video_processing to false on success. No schema changes to reverse.
+    raise ActiveRecord::IrreversibleMigration
   end
 
   private
@@ -72,37 +77,44 @@ class BackfillLapsePlaybackUrlsAndRemoveLapseVideoProcessing < ActiveRecord::Mig
 
     attachments = query.select("active_storage_attachments.id, active_storage_attachments.record_id, active_storage_blobs.filename")
 
+    seen_devlog_ids = Set.new
+
     attachments.find_each do |attachment|
+      next if seen_devlog_ids.include?(attachment.record_id)
+      seen_devlog_ids.add(attachment.record_id)
+
       devlog = PostDevlog.find_by(id: attachment.record_id)
       next unless devlog
       next if devlog.lapse_video_processing # these are handled in backfill_processing_devlogs
+      next if devlog.lapse_timelapse_id.present? && devlog.lapse_playback_url.present? # already backfilled
 
       filename = attachment.filename.to_s
       match = filename.match(/\Atimelapse-(?<id>[^.]+)\.[^.]+\z/)
-      if not match
-        Rails.logger.warn("[Lapse] Devlog #{devlog.id} matched timelapse filename regex in query, but manual match failed.")
+      unless match
+        Rails.logger.warn("[LapseMigration] Devlog #{devlog.id} matched timelapse filename regex in query, but manual match failed.")
         next
       end
 
       timelapse_id = match[:id]
 
       if devlog.lapse_timelapse_id.present? && devlog.lapse_timelapse_id != timelapse_id
-        Rails.logger.warn "[Lapse] Devlog #{devlog.id} has lapse_timelapse_id=#{devlog.lapse_timelapse_id} but attachment suggests #{timelapse_id}. Trusting lapse_timelapse_id."
+        Rails.logger.warn "[LapseMigration] Devlog #{devlog.id} has lapse_timelapse_id=#{devlog.lapse_timelapse_id} but attachment suggests #{timelapse_id}. Trusting lapse_timelapse_id."
         next
       end
 
       playback_url = fetch_playback_url(timelapse_id)
       if playback_url.blank?
-        Rails.logger.error "[Lapse] Could not fetch playback URL for timelapse #{timelapse_id} (devlog #{devlog.id})"
+        Rails.logger.error "[LapseMigration] Could not fetch playback URL for timelapse #{timelapse_id} (devlog #{devlog.id}). Skipping."
+        next
       end
 
       devlog.update_columns(
         lapse_timelapse_id: timelapse_id,
         lapse_playback_url: playback_url,
-        lapse_playback_url_refreshed_at: playback_url.present? ? Time.current : nil
+        lapse_playback_url_refreshed_at: Time.current
       )
 
-      Rails.logger.info "[Lapse] Devlog #{devlog.id} migrated successfully!"
+      Rails.logger.info "[LapseMigration] Devlog #{devlog.id} migrated successfully!"
     end
   end
 
@@ -115,19 +127,19 @@ class BackfillLapsePlaybackUrlsAndRemoveLapseVideoProcessing < ActiveRecord::Mig
     devlogs.find_each do |devlog|
       post = MigrationPost.find_by(postable_type: "Post::Devlog", postable_id: devlog.id)
       unless post
-        Rails.logger.error "[LapseMigration] No post found for devlog #{devlog.id} with lapse_video_processing=true"
+        Rails.logger.error "[LapseMigration] No post found for devlog #{devlog.id} with lapse_video_processing=true. Skipping."
         next
       end
 
       project = MigrationProject.find_by(id: post.project_id)
       unless project
-        Rails.logger.error "[LapseMigration] No project found for post #{post.id} (devlog #{devlog.id})"
+        Rails.logger.error "[LapseMigration] No project found for post #{post.id} (devlog #{devlog.id}). Skipping."
         next
       end
 
       hackatime_uid = resolve_hackatime_uid(post.user_id, project.id)
       unless hackatime_uid
-        Rails.logger.error "[LapseMigration] No hackatime UID for devlog #{devlog.id} (user #{post.user_id}, project #{project.id})"
+        Rails.logger.error "[LapseMigration] No hackatime UID for devlog #{devlog.id} (user #{post.user_id}, project #{project.id}). Skipping."
         next
       end
 
@@ -138,7 +150,7 @@ class BackfillLapsePlaybackUrlsAndRemoveLapseVideoProcessing < ActiveRecord::Mig
       end
 
       unless project_keys.present?
-        Rails.logger.error "[LapseMigration] No hackatime project keys for devlog #{devlog.id} (project #{project.id})"
+        Rails.logger.error "[LapseMigration] No hackatime project keys for devlog #{devlog.id} (project #{project.id}). Skipping."
         next
       end
 
@@ -167,13 +179,11 @@ class BackfillLapsePlaybackUrlsAndRemoveLapseVideoProcessing < ActiveRecord::Mig
       timelapses.sort_by! { |t| -(t["createdAt"].to_i) }
       chosen = timelapses.first
 
-      # Huh?! No timelapse matches! Let's just assume it was deleted.
+      # No timelapse matches - leave lapse_video_processing=true so it can be retried or manually resolved.
       if chosen.nil?
         Rails.logger.error "[LapseMigration] No matching timelapse found for devlog #{devlog.id} " \
           "(project #{project.id}, user #{post.user_id}, keys #{project_keys}). " \
-          "Assuming timelapse was deleted."
-
-        devlog.update_columns(lapse_video_processing: false)
+          "Leaving lapse_video_processing=true for manual resolution."
         next
       end
 
@@ -183,6 +193,8 @@ class BackfillLapsePlaybackUrlsAndRemoveLapseVideoProcessing < ActiveRecord::Mig
         lapse_playback_url_refreshed_at: Time.current,
         lapse_video_processing: false
       )
+
+      Rails.logger.info "[LapseMigration] Devlog #{devlog.id} (processing) migrated successfully with timelapse #{chosen['id']}."
     end
   end
 
@@ -194,9 +206,6 @@ class BackfillLapsePlaybackUrlsAndRemoveLapseVideoProcessing < ActiveRecord::Mig
     return nil unless timelapse.is_a?(Hash)
 
     timelapse["playbackUrl"]
-  rescue => e
-    Rails.logger.error "[LapseMigration] Error fetching timelapse #{timelapse_id}: #{e.class} - #{e.message}"
-    nil
   end
 
   def resolve_hackatime_uid(user_id, project_id)
