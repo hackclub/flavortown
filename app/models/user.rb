@@ -113,6 +113,13 @@ class User < ApplicationRecord
 
   def has_role?(role_name) = roles.include?(role_name.to_sym)
 
+  FILLOUT_CLUB_FORM_URL = "https://forms.hackclub.com/t/24dbqdeN93us"
+
+  def fillout_club_url
+    return nil if airtable_record_id.blank?
+    "#{FILLOUT_CLUB_FORM_URL}?id=#{airtable_record_id}"
+  end
+
   def club_link_uri
     return nil if club_link.blank?
 

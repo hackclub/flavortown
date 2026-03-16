@@ -132,6 +132,10 @@ class ShopController < ApplicationController
 
     selected_address = current_user.addresses.find { |a| a["id"] == params[:address_id] } || current_user.addresses.first
 
+    unless selected_address&.dig("phone_number").present?
+      return redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "You need to have a phone number on file to place an order! Please update your profile."
+    end
+
     # Check if item is available in the region of the selected address
     address_country = selected_address&.dig("country")
     address_region = Shop::Regionalizable.country_to_region(address_country)

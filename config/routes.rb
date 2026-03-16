@@ -191,7 +191,11 @@ Rails.application.routes.draw do
 
   namespace :helper, constraints: HelperConstraint do
     root to: "application#index"
-    resources :users, only: [ :index, :show ]
+    resources :users, only: [ :index, :show ] do
+      member do
+        get :balance
+      end
+    end
     resources :projects, only: [ :index, :show ] do
       member do
         post :restore
@@ -261,6 +265,7 @@ Rails.application.routes.draw do
     resources :shop_orders, only: [ :index, :show ] do
       member do
         post :reveal_address
+        post :reveal_phone
         post :approve
         post :reject
         post :place_on_hold

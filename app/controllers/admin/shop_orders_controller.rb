@@ -170,6 +170,35 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
   end
 
+  def reveal_phone
+    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
+      authorize :admin, :access_fulfillment_view?
+    else
+      authorize :admin, :access_shop_orders?
+    end
+    @order = ShopOrder.find(params[:id])
+
+    if @order.can_view_address?(current_user)
+      decrypted_address = @order.decrypted_address_for(current_user)
+      phone_number = decrypted_address&.dig("phone_number")
+
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: @order.user_id,
+        event: "phone_revealed",
+        whodunnit: current_user.id.to_s,
+        object_changes: { order_id: @order.id, shop_item: @order.shop_item&.name }
+      )
+
+      render turbo_stream: turbo_stream.replace(
+        "phone-content",
+        html: "<div class='info-rows'><div><b>Phone:</b> #{phone_number.present? ? ERB::Util.html_escape(phone_number) : 'N/A'}</div></div><div style='margin-top: 1em; padding: 0.5em; background: #fef3c7; border-radius: 4px;'><small style='color: #92400e;'>🔒 Phone access has been logged for security purposes.</small></div>".html_safe
+      )
+    else
+      render plain: "Unauthorized", status: :forbidden
+    end
+  end
+
   def approve
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
