@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/hackclub/ferret-gem.git
-  revision: e0c3f33979f9a7543520093c36002464cbe1ca11
+  revision: 76fdc27de782b94c418dd7ec6a0825d2d01d756e
   specs:
     ferret (0.1.0)
       activejob (>= 7.0)
