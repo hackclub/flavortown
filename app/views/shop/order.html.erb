@@ -100,9 +100,17 @@
                                                     data-tag="<%= tag %>"
                                                     form="order-form"
                                                     style="display: none;">
-                                             <div class="shop-order__accessory-option-block">
-                                                 <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
-                                                 <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                             <div class="shop-order__accessory-option-block<%= ' shop-order__accessory-option-block--with-image' if accessory.show_image_in_shop && accessory.image.attached? %>">
+                                                 <% if accessory.show_image_in_shop && accessory.image.attached? %>
+                                                     <%= image_tag accessory.image.variant(:carousel_sm), class: "shop-order__accessory-option-image", loading: "lazy" %>
+                                                     <div class="shop-order__accessory-option-details">
+                                                         <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
+                                                         <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                                     </div>
+                                                 <% else %>
+                                                     <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
+                                                     <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                                 <% end %>
                                              </div>
                                          </label>
                                      <% end %>

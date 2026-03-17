@@ -317,6 +317,12 @@
             <span class="shop-item-form__hint">Accessories with the same tag are mutually exclusive (only one can be selected)</span>
           </div>
 
+          <label class="shop-item-form__checkbox" style="margin-top: 1rem;">
+            <%= f.check_box :show_image_in_shop, id: "shop_item_show_image_in_shop" %>
+            <span>Show Image in Shop</span>
+          </label>
+          <span class="shop-item-form__hint">Display this accessory's image on the order page</span>
+
           <div class="shop-item-form__field">
             <%= f.label :attached_shop_item_ids, "Attached To (Shop Items)", class: "shop-item-form__label" %>
             <div class="shop-item-form__checkbox-list">
