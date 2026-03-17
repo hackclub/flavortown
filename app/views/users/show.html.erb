@@ -5,7 +5,7 @@
 
 <% if (custom_css = @user.user_profile&.custom_css).present? %>
     <% content_for :head do %>
-        <%= tag.style sanitize_css(custom_css).html_safe %>
+        <%= tag.style sanitize_css(custom_css) %>
     <% end %>
 <% end %>
 
