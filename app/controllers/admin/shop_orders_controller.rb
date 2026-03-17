@@ -555,4 +555,33 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     Rails.logger.error "Failed to refresh verification status for order #{@order.id}: #{e.message}"
     redirect_to admin_shop_order_path(@order), alert: "Error refreshing verification: #{e.message}"
   end
+
+  def force_state
+    authorize :admin, :manage_shop?
+    @order = ShopOrder.find(params[:id])
+
+    old_state = @order.aasm_state
+    new_state = params[:target_state]
+
+    unless ShopOrder.aasm.states.map { |s| s.name.to_s }.include?(new_state)
+      redirect_to admin_shop_order_path(@order), alert: "Invalid state."
+      return
+    end
+
+    if old_state == new_state
+      redirect_to admin_shop_order_path(@order), alert: "Order is already #{new_state}."
+      return
+    end
+
+    @order.update_column(:aasm_state, new_state)
+
+    PaperTrail::Version.create!(
+      item: @order,
+      event: "update",
+      whodunnit: current_user.id.to_s,
+      object_changes: { aasm_state: [ old_state, new_state ] }
+    )
+
+    redirect_to admin_shop_order_path(@order), notice: "State forced from #{old_state} to #{new_state}."
+  end
 end

@@ -256,6 +256,8 @@ Rails.application.routes.draw do
         post :delete
         post :shadow_ban
         post :unshadow_ban
+        post :update_ship_status
+        post :force_state
         get  :votes
       end
     end
@@ -282,6 +284,7 @@ Rails.application.routes.draw do
         post :refresh_verification
         post :send_to_theseus
         post :approve_verification_call
+        post :force_state
       end
     end
     resources :shop_suggestions, only: [ :index ] do
