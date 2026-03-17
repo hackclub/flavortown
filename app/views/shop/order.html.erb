@@ -8,6 +8,13 @@
             color: :brown,
             variant: :borderless
         ) %>
+        <% if current_user&.admin? %>
+            <div class="admin-banner">
+                <div class="admin-banner__content">
+                    <%= link_to "Admin View →", admin_shop_item_path(@shop_item), class: "admin-banner__link" %>
+                </div>
+            </div>
+        <% end %>
     </div>
     <div class="shop-order__content">
         <div class="shop-order__view"
