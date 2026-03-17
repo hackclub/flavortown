@@ -4,6 +4,8 @@
 <% limit = local_assigns.fetch(:limit, 10) %>
 <% item_type = local_assigns.fetch(:item_type, record.class.name) %>
 <% versions = record.versions.order(created_at: :desc) %>
+<% displayed_versions = versions.limit(limit) %>
+<% users_by_id = User.where(id: displayed_versions.map(&:whodunnit).compact.uniq).index_by { |u| u.id.to_s } %>
 
 <style>
 .audit-logs__timestamp { white-space: nowrap; }
@@ -50,7 +52,7 @@
         </tr>
       </thead>
       <tbody>
-        <% versions.limit(limit).each do |version| %>
+        <% displayed_versions.each do |version| %>
           <tr>
             <td class="audit-logs__timestamp">
               <span class="audit-logs__date"><%= version.created_at.strftime("%b %d, %Y") %></span>
@@ -58,7 +60,7 @@
             </td>
             <td>
               <% if version.whodunnit.present? %>
-                <% user = User.find_by(id: version.whodunnit) %>
+                <% user = users_by_id[version.whodunnit.to_s] %>
                 <% if user %>
                   <div class="audit-logs__user">
                     <img src="<%= user.avatar %>" alt="" class="audit-logs__user-avatar">
