@@ -211,7 +211,7 @@
             <% primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first %>
             <% has_phone = primary_address&.dig("phone_number").present? %>
             <% unless has_phone %>
-              <div class="shop-order__no-phone-warning" style="padding: 0.75em; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; margin-bottom: 0.75em; text-align: center;">
+              <div class="shop-order__no-phone-warning" style="padding: 0.75em; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; text-align: center; margin-top: 4rem;">
                 <p style="margin: 0 0 0.5em 0; color: #92400e; font-weight: 600;">📱 Phone number required</p>
                 <p style="margin: 0; color: #92400e; font-size: 0.875rem;">You need a phone number on file to place an order. Please update your profile on the address portal.</p>
               </div>
