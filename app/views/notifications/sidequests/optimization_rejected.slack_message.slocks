@@ -1,4 +1,4 @@
-header "❌ Optimization Sidequest Entry Not Approved"
+header ":nooo: Optimization Sidequest Entry Not Approved"
 
 section "Your project *#{entry.project.title}* wasn't approved for the Optimization sidequest.", markdown: true
 
