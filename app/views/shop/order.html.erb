@@ -79,8 +79,8 @@
                 <% end %>
 
                 <%
-                  tagged_accessories = @accessories.select(&:has_tag?).group_by(&:accessory_tag).transform_values { |accessories| accessories.sort_by(&:ticket_cost) }
-                  untagged_accessories = @accessories.reject(&:has_tag?).sort_by(&:ticket_cost)
+                  tagged_accessories = @accessories.select(&:has_tag?).group_by(&:accessory_tag).transform_values { |accessories| accessories.sort_by { |a| a.price_for_region(@user_region) } }
+                  untagged_accessories = @accessories.reject(&:has_tag?).sort_by { |a| a.price_for_region(@user_region) }
                 %>
 
                 <% if tagged_accessories.any? || untagged_accessories.any? %>
@@ -96,13 +96,13 @@
                                                     name="accessory_tag_<%= tag %>"
                                                     value="<%= accessory.id %>"
                                                     class="shop-order__accessory-option-input"
-                                                    data-price="<%= accessory.ticket_cost %>"
+                                                    data-price="<%= accessory.price_for_region(@user_region) %>"
                                                     data-tag="<%= tag %>"
                                                     form="order-form"
                                                     style="display: none;">
-                                             <div class="shop-order__accessory-option-block">
-                                                 <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
-                                                 <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                                    <div class="shop-order__accessory-option-block">
+                                                    <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
+                                                    <div class="shop-order__accessory-option-price">🍪 <%= accessory.price_for_region(@user_region).round %></div>
                                              </div>
                                          </label>
                                      <% end %>
@@ -120,7 +120,7 @@
                                                    name="accessory_ids[]"
                                                    value="<%= accessory.id %>"
                                                    class="shop-order__accessory-option-input"
-                                                   data-price="<%= accessory.ticket_cost %>"
+                                                   data-price="<%= accessory.price_for_region(@user_region) %>"
                                                    style="display: none;">
                                             <div class="shop-order__accessory-option-block shop-order__accessory-option-block--with-image">
                                                 <% if accessory.image.attached? %>
@@ -128,7 +128,7 @@
                                                 <% end %>
                                                 <div class="shop-order__accessory-option-details">
                                                     <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
-                                                    <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                                     <div class="shop-order__accessory-option-price">🍪 <%= accessory.price_for_region(@user_region).round %></div>
                                                 </div>
                                             </div>
                                         </label>
