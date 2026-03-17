@@ -127,6 +127,40 @@
         </div>
       </div>
 
+      <% if @shop_item.is_a?(ShopItem::Accessory) %>
+        <div class="card">
+          <h3>Parent Items</h3>
+          <% parent_items = @shop_item.attached_shop_items %>
+          <% if parent_items.any? %>
+            <div class="shop-item-detail__related-items">
+              <% parent_items.each do |item| %>
+                <div class="shop-item-detail__related-item">
+                  <%= link_to item.name, admin_shop_item_path(item), class: "btn-primary slim" %>
+                  <span class="shop-item-detail__related-item-type"><%= item.type.to_s.demodulize.underscore.humanize %></span>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="shop-item-detail__muted">No parent items attached.</p>
+          <% end %>
+        </div>
+      <% elsif @shop_item.has_accessories? %>
+        <div class="card">
+          <h3>Accessories</h3>
+          <div class="shop-item-detail__related-items">
+            <% @shop_item.available_accessories.each do |accessory| %>
+              <div class="shop-item-detail__related-item">
+                <%= link_to accessory.name, admin_shop_item_path(accessory), class: "btn-primary slim" %>
+                <% if accessory.has_tag? %>
+                  <span class="shop-item-detail__related-item-tag"><%= accessory.accessory_tag.titleize %></span>
+                <% end %>
+                <span class="shop-item-detail__related-item-price">🍪 <%= accessory.ticket_cost.to_i %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
       <div class="card">
         <h3>Regional Availability</h3>
 
@@ -744,5 +778,33 @@
   padding: 1rem;
   text-align: center;
   color: #6b7280;
+}
+
+.shop-item-detail__related-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.shop-item-detail__related-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--color-tan-400);
+  border-radius: 4px;
+}
+
+.shop-item-detail__related-item-type,
+.shop-item-detail__related-item-tag {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.shop-item-detail__related-item-price {
+  margin-left: auto;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
 }
 </style>
