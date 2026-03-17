@@ -12,9 +12,8 @@ module Admin
     end
 
     def send_letter_mail
-      # TODO replace with the real job
-      # Shop::ProcessLetterMailOrdersJob.perform_later
-      redirect_to "https://mail.hackclub.com/back_office/letter/queues/flavortown-fulfillment#letters", allow_other_host: true
+      Shop::ProcessLetterMailOrdersJob.perform_later
+      redirect_to admin_fulfillment_dashboard_index_path, notice: "Letter mail processing job enqueued"
     end
 
     private

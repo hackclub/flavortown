@@ -43,6 +43,10 @@ body {
     }
   }
 
+  tbody tr:nth-child(odd) {
+    background: var(--color-tan-400);
+  }
+
   tbody tr {
     background: var(--color-tan-300);
   }
@@ -547,6 +551,24 @@ dialog {
   border-radius: 0.5rem;
   padding: var(--space-m);
   margin-top: var(--space-m);
+
+  &--highlighted {
+    border: 2px solid #d97706;
+    background: #fffbeb;
+  }
+}
+
+.admin-alert {
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: var(--space-s);
+  font-size: 0.875rem;
+
+  &--warning {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    color: #92400e;
+  }
 }
 
 .admin-section__header {

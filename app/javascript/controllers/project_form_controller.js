@@ -170,8 +170,8 @@ export default class extends Controller {
     ) {
       if (!value) {
         message = "Update description is required when marking as an update";
-      } else if (value.length > 200) {
-        message = "Update description must be 200 characters or fewer";
+      } else if (value.length > 1000) {
+        message = "Update description must be 1000 characters or fewer";
       }
     }
 

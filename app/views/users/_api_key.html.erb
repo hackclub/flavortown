@@ -4,7 +4,8 @@
        onmouseenter="this.style.filter='blur(0px)'"
        onmouseleave="<%= local_assigns[:just_generated] ? '' : "this.style.filter='blur(8px)'" %>"
        <% if user.api_key.present? %>
-       onclick="navigator.clipboard.writeText(this.textContent.trim()); this.dataset.originalText = this.textContent; this.textContent = 'Copied!'; setTimeout(() => this.textContent = this.dataset.originalText, 1500);"
+       data-api-key="<%= user.api_key %>"
+       onclick="navigator.clipboard.writeText(this.dataset.apiKey); if (this.textContent !== 'Copied!') { this.dataset.originalText = this.textContent; } this.textContent = 'Copied!'; clearTimeout(this._copyTimeout); this._copyTimeout = setTimeout(() => this.textContent = this.dataset.originalText, 1500);"
        title="Click to copy"
        <% end %>>
     <%= user.api_key.present? ? user.api_key : "No API Key, press generate!" %>

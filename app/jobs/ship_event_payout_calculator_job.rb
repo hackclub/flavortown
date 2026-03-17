@@ -3,6 +3,7 @@ class ShipEventPayoutCalculatorJob < ApplicationJob
 
   def perform
     Post::ShipEvent
+      .current_voting_scale
       .joins(post: :project)
       .where(certification_status: "approved", payout: nil)
       .find_each do |ship_event|

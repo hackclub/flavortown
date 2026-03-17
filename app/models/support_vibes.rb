@@ -2,16 +2,18 @@
 #
 # Table name: support_vibes
 #
-#  id                 :bigint           not null, primary key
-#  concerns           :jsonb
-#  notable_quotes     :jsonb
-#  overall_sentiment  :decimal(3, 2)
-#  period_end         :datetime
-#  period_start       :datetime
-#  rating             :string
-#  unresolved_queries :jsonb
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
+#  id                    :bigint           not null, primary key
+#  concern_message_links :jsonb
+#  concern_messages      :jsonb
+#  concerns              :jsonb
+#  notable_quotes        :jsonb
+#  overall_sentiment     :decimal(3, 2)
+#  period_end            :datetime
+#  period_start          :datetime
+#  rating                :string
+#  unresolved_queries    :jsonb
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
 #
 # Indexes
 #

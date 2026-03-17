@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Ensure gems are installed (needed when bundle_cache volume is fresh)
+bundle check || bundle install
+
 if [ -f "package.json" ]; then
   echo "Checking/Installing JavaScript dependencies..."
   yarn install

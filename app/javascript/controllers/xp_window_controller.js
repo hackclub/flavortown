@@ -23,6 +23,8 @@ export default class extends Controller {
 
     this.startX = 0;
     this.startY = 0;
+    this.lastX = 0;
+    this.lastY = 0;
     this.offsetX = 0;
     this.offsetY = 0;
 
@@ -31,6 +33,7 @@ export default class extends Controller {
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.onScroll = this.onScroll.bind(this);
   }
 
   disconnect() {
@@ -38,6 +41,7 @@ export default class extends Controller {
     document.removeEventListener("mouseup", this.onMouseUp);
     document.removeEventListener("touchmove", this.onTouchMove);
     document.removeEventListener("touchend", this.onTouchEnd);
+    document.removeEventListener("scroll", this.onScroll);
   }
 
   // --- Drag (titlebar) ---
@@ -53,10 +57,13 @@ export default class extends Controller {
     const rect = this.dragTarget.getBoundingClientRect();
     this.startX = event.clientX;
     this.startY = event.clientY;
+    this.lastX = event.clientX;
+    this.lastY = event.clientY;
     this.offsetX = event.clientX - rect.left;
     this.offsetY = event.clientY - rect.top;
 
     document.addEventListener("mousemove", this.onMouseMove);
+    document.addEventListener("scroll", this.onScroll);
     document.addEventListener("mouseup", this.onMouseUp);
     event.preventDefault();
   }
@@ -102,7 +109,25 @@ export default class extends Controller {
     return this.element;
   }
 
+  onScroll(_) {
+    // Detach if it hasn't been already
+    if (!this.hasMoved) {
+      this.hasMoved = true;
+      if (this.dragTarget === this.element) {
+        this.detachFromFlow();
+      }
+    }
+
+    if (this.isDragging) {
+      this.handleDragMove(this.lastX, this.lastY);
+    } else if (this.isResizing) {
+      this.handleResizeMove(this.lastX, this.lastY);
+    }
+  }
+
   onMouseMove(event) {
+    this.lastX = event.clientX;
+    this.lastY = event.clientY;
     if (this.isDragging) {
       this.handleDragMove(event.clientX, event.clientY);
     } else if (this.isResizing) {
@@ -142,7 +167,7 @@ export default class extends Controller {
     }
 
     this.dragTarget.style.left = `${clientX - this.offsetX}px`;
-    this.dragTarget.style.top = `${clientY - this.offsetY}px`;
+    this.dragTarget.style.top = `${clientY - this.offsetY + window.scrollY}px`;
   }
 
   onMouseUp() {
@@ -150,6 +175,7 @@ export default class extends Controller {
     this.isResizing = false;
     document.removeEventListener("mousemove", this.onMouseMove);
     document.removeEventListener("mouseup", this.onMouseUp);
+    document.removeEventListener("scroll", this.onScroll);
   }
 
   onTouchEnd() {
@@ -169,18 +195,22 @@ export default class extends Controller {
     this.detachFromFlow();
     this.resizeStartX = event.clientX;
     this.resizeStartY = event.clientY;
+    this.lastX = event.clientX;
+    this.lastY = event.clientY;
     this.resizeStartW = this.element.offsetWidth;
-    this.resizeStartH = this.element.offsetHeight;
+    this.resizeStartH = this.element.offsetHeight - window.scrollY;
 
     document.addEventListener("mousemove", this.onMouseMove);
     document.addEventListener("mouseup", this.onMouseUp);
+    document.addEventListener("scroll", this.onScroll);
     event.preventDefault();
     event.stopPropagation();
   }
 
   handleResizeMove(clientX, clientY) {
     const newW = this.resizeStartW + (clientX - this.resizeStartX);
-    const newH = this.resizeStartH + (clientY - this.resizeStartY);
+    const newH =
+      this.resizeStartH + (clientY - this.resizeStartY + window.scrollY);
     this.element.style.width = `${Math.max(200, newW)}px`;
     this.element.style.height = `${Math.max(100, newH)}px`;
   }

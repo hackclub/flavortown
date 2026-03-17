@@ -141,6 +141,7 @@
       <%= render 'role_toggle', user: @user, role_icon: '🚢', role_name: 'project_certifier', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '✋', role_name: 'helper', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '⏱️', role_name: 'flavortime', disabled: !current_user&.admin? %>
+      <%= render 'role_toggle', user: @user, role_icon: '🏆', role_name: 'sidequest_reviewer', disabled: !current_user&.admin? %>
       <%= render 'role_toggle', user: @user, role_icon: '⚡', role_name: 'admin', disabled: !current_user&.super_admin? %>
 
       <% if @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).any? %>
@@ -257,6 +258,14 @@
         <% end %>
       <% end %>
 
+      <% if policy(:admin).ban_users? %>
+        <%= button_to toggle_voting_lock_admin_user_path(@user),
+              method: :post,
+              class: "btn-secondary slim",
+              title: @user.voting_locked? ? "Unlock Voting" : "Lock Voting" do %>
+          <%= @user.voting_locked? ? "Unlock Voting" : "Lock Voting" %>
+        <% end %>
+      <% end %>
     </div>
   </div>
   <div class="card">
@@ -290,9 +299,14 @@
   </div>
 </div>
 
-<div class="admin-section">
+<div class="admin-section<%= ' admin-section--highlighted' if @user.internal_notes.present? %>">
   <h2 class="admin-section__header">📝 Internal Notes</h2>
-  <p class="admin-section__note">Only visible to admins and fraud dept. Changes are audit logged.</p>
+  <p class="admin-section__note">⚠️ Shared between fraud, fulfilment, and admins. Changes are audit logged.</p>
+  <% if @user.internal_notes.present? %>
+    <div class="admin-alert admin-alert--warning">
+      <strong>Note:</strong> <%= simple_format(@user.internal_notes, {}, wrapper_tag: "span") %>
+    </div>
+  <% end %>
   <form action="<%= admin_user_path(@user) %>" method="post">
     <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
     <%= hidden_field_tag :_method, "patch" %>

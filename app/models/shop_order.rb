@@ -11,7 +11,7 @@
 #  frozen_item_price                  :decimal(6, 2)
 #  fulfilled_at                       :datetime
 #  fulfilled_by                       :string
-#  fulfillment_cost                   :decimal(6, 2)    default(0.0)
+#  fulfillment_cost                   :decimal(6, 2)
 #  internal_notes                     :text
 #  on_hold_at                         :datetime
 #  quantity                           :integer
@@ -88,6 +88,8 @@ class ShopOrder < ApplicationRecord
 
   after_create :create_negative_payout
   after_create :assign_default_user
+  after_create :notify_amber_if_verification_call_required
+  after_create :hold_if_usps_suspended
   before_create :freeze_item_price
   before_create :set_region_from_address
   after_commit :notify_user_of_status_change, if: :saved_change_to_aasm_state?
@@ -161,6 +163,7 @@ class ShopOrder < ApplicationRecord
     # Normal states
     state :pending, initial: true
     state :awaiting_verification
+    state :awaiting_verification_call
     state :awaiting_periodical_fulfillment
     state :fulfilled
 
@@ -173,15 +176,19 @@ class ShopOrder < ApplicationRecord
       transitions from: :pending, to: :awaiting_verification
     end
 
+    event :queue_for_verification_call do
+      transitions from: :pending, to: :awaiting_verification_call
+    end
+
     event :queue_for_fulfillment do
-      transitions from: :pending, to: :awaiting_periodical_fulfillment
+      transitions from: %i[pending awaiting_verification_call], to: :awaiting_periodical_fulfillment
       after do
         assign_default_user
       end
     end
 
     event :mark_rejected do
-      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment on_hold], to: :rejected
+      transitions from: %i[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold], to: :rejected
       before do |rejection_reason|
         self.rejection_reason = rejection_reason
       end
@@ -203,7 +210,7 @@ class ShopOrder < ApplicationRecord
     end
 
     event :place_on_hold do
-      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment], to: :on_hold
+      transitions from: %i[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment], to: :on_hold
     end
 
     event :take_off_hold do
@@ -211,7 +218,7 @@ class ShopOrder < ApplicationRecord
     end
 
     event :refund do
-      transitions from: %i[pending awaiting_verification awaiting_periodical_fulfillment fulfilled], to: :refunded
+      transitions from: %i[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment fulfilled], to: :refunded
       after do
         create_refund_payout
       end
@@ -252,6 +259,7 @@ class ShopOrder < ApplicationRecord
     template = case aasm_state
     when "rejected" then "notifications/shop_orders/rejected"
     when "awaiting_verification" then "notifications/shop_orders/awaiting_verification"
+    when "awaiting_verification_call" then "notifications/shop_orders/awaiting_verification_call"
     when "awaiting_periodical_fulfillment" then "notifications/shop_orders/awaiting_fulfillment"
     when "fulfilled" then "notifications/shop_orders/fulfilled"
     else "notifications/shop_orders/default"
@@ -310,11 +318,26 @@ class ShopOrder < ApplicationRecord
     end
   end
 
+  USPS_SUSPENDED_COUNTRIES = %w[
+    AM AE BH DJ DZ ER IL IQ IR KW LY MG OM PK QA SC SY TZ
+  ].freeze
+
+  USPS_SUSPENSION_EXEMPT_TYPES = %w[
+    ShopItem::HCBGrant
+    ShopItem::HCBPreauthGrant
+    ShopItem::ThirdPartyDigital
+  ].freeze
+
   def check_regional_availability
     return unless shop_item.present? && frozen_address.present?
 
     address_country = frozen_address["country"]
     return unless address_country.present?
+
+    if USPS_SUSPENDED_COUNTRIES.include?(address_country.upcase) && !USPS_SUSPENSION_EXEMPT_TYPES.include?(shop_item.type)
+      errors.add(:base, "Orders to this country are currently suspended due to USPS service restrictions.")
+      return
+    end
 
     if shop_item.blocked_countries&.include?(address_country.upcase)
       errors.add(:base, "This item cannot be shipped to that country due to logistical constraints.")
@@ -415,6 +438,28 @@ class ShopOrder < ApplicationRecord
     return unless assignee_id.present?
 
     update(assigned_to_user_id: assignee_id)
+  end
+
+  def notify_amber_if_verification_call_required
+    return unless shop_item.requires_verification_call?
+
+    SendSlackDmJob.perform_later(
+      "U054VC2KM9P",
+      nil,
+      blocks_path: "notifications/shop_orders/new_verification_call_order",
+      locals: { order: self }
+    )
+  end
+
+  def hold_if_usps_suspended
+    return unless frozen_address.present?
+
+    address_country = frozen_address["country"]
+    return unless address_country.present?
+    return if USPS_SUSPENSION_EXEMPT_TYPES.include?(shop_item.type)
+    return unless USPS_SUSPENDED_COUNTRIES.include?(address_country.upcase)
+
+    place_on_hold! if may_place_on_hold?
   end
 
   def notify_assigned_user

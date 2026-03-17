@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_01_214919) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_15_160622) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -365,18 +365,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_214919) do
   end
 
   create_table "post_ship_events", force: :cascade do |t|
+    t.float "base_hours"
     t.string "body"
+    t.boolean "bridge", default: false, null: false
     t.string "certification_status", default: "pending"
     t.datetime "created_at", null: false
     t.text "feedback_reason"
     t.string "feedback_video_url"
     t.float "hours"
+    t.float "legacy_payout_deduction"
     t.float "multiplier"
     t.decimal "originality_median", precision: 5, scale: 2
     t.decimal "originality_percentile", precision: 5, scale: 2
     t.decimal "overall_percentile", precision: 5, scale: 2
     t.decimal "overall_score", precision: 5, scale: 2
     t.float "payout"
+    t.datetime "payout_basis_locked_at"
+    t.decimal "payout_basis_overall_score", precision: 5, scale: 2
+    t.decimal "payout_basis_percentile", precision: 5, scale: 2
+    t.string "payout_curve_version"
     t.decimal "storytelling_median", precision: 5, scale: 2
     t.decimal "storytelling_percentile", precision: 5, scale: 2
     t.datetime "synced_at"
@@ -386,6 +393,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_214919) do
     t.decimal "usability_median", precision: 5, scale: 2
     t.decimal "usability_percentile", precision: 5, scale: 2
     t.integer "votes_count", default: 0, null: false
+    t.integer "voting_scale_version", default: 2, null: false
   end
 
   create_table "posts", force: :cascade do |t|
@@ -536,6 +544,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_214919) do
     t.string "hcb_category_lock"
     t.string "hcb_keyword_lock"
     t.string "hcb_merchant_lock"
+    t.boolean "hcb_one_time_use", default: false
     t.text "hcb_preauthorization_instructions"
     t.string "internal_description"
     t.boolean "limited"
@@ -546,30 +555,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_214919) do
     t.boolean "one_per_person_ever"
     t.integer "past_purchases", default: 0
     t.integer "payout_percentage", default: 0
-    t.decimal "price_offset_au"
-    t.decimal "price_offset_ca"
-    t.decimal "price_offset_eu"
-    t.decimal "price_offset_in"
-    t.decimal "price_offset_uk", precision: 10, scale: 2
-    t.decimal "price_offset_us"
-    t.decimal "price_offset_xx"
     t.integer "required_ships_count", default: 1
     t.date "required_ships_end_date"
     t.date "required_ships_start_date"
     t.string "requires_achievement"
     t.boolean "requires_ship", default: false
+    t.boolean "requires_verification_call", default: false, null: false
     t.integer "sale_percentage"
     t.boolean "show_in_carousel"
     t.integer "site_action"
     t.string "source_region"
     t.boolean "special"
     t.integer "stock"
-    t.decimal "ticket_cost"
+    t.integer "ticket_cost"
     t.string "type"
     t.boolean "unlisted", default: false
     t.date "unlock_on"
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"
+    t.decimal "usd_offset_au", precision: 10, scale: 2
+    t.decimal "usd_offset_ca", precision: 10, scale: 2
+    t.decimal "usd_offset_eu", precision: 10, scale: 2
+    t.decimal "usd_offset_in", precision: 10, scale: 2
+    t.decimal "usd_offset_uk", precision: 10, scale: 2
+    t.decimal "usd_offset_us", precision: 10, scale: 2
+    t.decimal "usd_offset_xx", precision: 10, scale: 2
     t.bigint "user_id"
     t.index ["default_assigned_user_id"], name: "index_shop_items_on_default_assigned_user_id"
     t.index ["user_id"], name: "index_shop_items_on_user_id"
@@ -586,7 +596,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_214919) do
     t.decimal "frozen_item_price", precision: 6, scale: 2
     t.datetime "fulfilled_at"
     t.string "fulfilled_by"
-    t.decimal "fulfillment_cost", precision: 6, scale: 2, default: "0.0"
+    t.decimal "fulfillment_cost", precision: 6, scale: 2
     t.bigint "fulfillment_payout_line_id"
     t.text "internal_notes"
     t.datetime "on_hold_at"
@@ -692,6 +702,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_214919) do
   end
 
   create_table "support_vibes", force: :cascade do |t|
+    t.jsonb "concern_message_links"
+    t.jsonb "concern_messages"
     t.jsonb "concerns", default: []
     t.datetime "created_at", null: false
     t.jsonb "notable_quotes", default: []
@@ -744,10 +756,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_214919) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.string "airtable_record_id"
     t.string "api_key"
     t.boolean "banned", default: false, null: false
     t.datetime "banned_at"
     t.text "banned_reason"
+    t.string "club_link"
+    t.string "club_name"
     t.integer "cookie_clicks", default: 0, null: false
     t.datetime "created_at", null: false
     t.string "display_name"
@@ -789,6 +804,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_214919) do
     t.integer "votes_count"
     t.boolean "voting_locked", default: false, null: false
     t.boolean "ysws_eligible", default: false, null: false
+    t.index ["airtable_record_id"], name: "index_users_on_airtable_record_id", unique: true
     t.index ["api_key"], name: "index_users_on_api_key", unique: true
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true

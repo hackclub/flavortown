@@ -29,6 +29,7 @@
 #  hcb_category_lock                 :string
 #  hcb_keyword_lock                  :string
 #  hcb_merchant_lock                 :string
+#  hcb_one_time_use                  :boolean          default(FALSE)
 #  hcb_preauthorization_instructions :text
 #  internal_description              :string
 #  limited                           :boolean
@@ -39,29 +40,30 @@
 #  one_per_person_ever               :boolean
 #  past_purchases                    :integer          default(0)
 #  payout_percentage                 :integer          default(0)
-#  price_offset_au                   :decimal(, )
-#  price_offset_ca                   :decimal(, )
-#  price_offset_eu                   :decimal(, )
-#  price_offset_in                   :decimal(, )
-#  price_offset_uk                   :decimal(10, 2)
-#  price_offset_us                   :decimal(, )
-#  price_offset_xx                   :decimal(, )
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
 #  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
+#  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
 #  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
-#  ticket_cost                       :decimal(, )
+#  ticket_cost                       :integer
 #  type                              :string
 #  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
+#  usd_offset_au                     :decimal(10, 2)
+#  usd_offset_ca                     :decimal(10, 2)
+#  usd_offset_eu                     :decimal(10, 2)
+#  usd_offset_in                     :decimal(10, 2)
+#  usd_offset_uk                     :decimal(10, 2)
+#  usd_offset_us                     :decimal(10, 2)
+#  usd_offset_xx                     :decimal(10, 2)
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
 #  default_assigned_user_id          :bigint
@@ -82,21 +84,29 @@ class ShopItem < ApplicationRecord
 
   include Shop::Regionalizable
 
+  has_ferret_search :name, :description, type: -> { type.demodulize.underscore.humanize }
+
   before_validation :fix_blacklist
+  before_validation :floor_ticket_cost
 
   after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
-  after_commit :invalidate_buyable_standalone_cache
+  after_commit :invalidate_shop_page_cache
 
-  BUYABLE_STANDALONE_CACHE_KEY = "shop_items/buyable_standalone"
+  RECENTLY_ADDED_WINDOW = 2.weeks
+  SHOP_PAGE_CACHE_KEY = "shop_items/shop_page"
 
-  def self.cached_buyable_standalone
-    Rails.cache.fetch(BUYABLE_STANDALONE_CACHE_KEY, expires_in: 5.minutes) do
-      enabled.listed.buyable_standalone.includes(:image_attachment, image_attachment: [ :blob, :record ]).to_a
+  def self.cached_shop_page_data
+    Rails.cache.fetch(SHOP_PAGE_CACHE_KEY, expires_in: 5.minutes) do
+      buyable = enabled.listed.buyable_standalone.includes(image_attachment: :blob).to_a
+      cutoff = RECENTLY_ADDED_WINDOW.ago
+      recently_added = buyable.select { |item| item.created_at >= cutoff }.sort_by(&:created_at).reverse
+
+      { buyable_standalone: buyable, recently_added: recently_added }
     end
   end
 
-  def self.invalidate_buyable_standalone_cache!
-    Rails.cache.delete(BUYABLE_STANDALONE_CACHE_KEY)
+  def self.invalidate_shop_page_cache!
+    Rails.cache.delete(SHOP_PAGE_CACHE_KEY)
   end
 
   MANUAL_FULFILLMENT_TYPES = [
@@ -111,7 +121,7 @@ class ShopItem < ApplicationRecord
   scope :enabled, -> { where(enabled: true).where("shop_items.enabled_until IS NULL OR shop_items.enabled_until > ?", Time.current) }
   scope :listed, -> { where(unlisted: [ nil, false ]) }
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
-  scope :recently_added, -> { where(created_at: 2.weeks.ago..).order(created_at: :desc) }
+  scope :recently_added, -> { where(created_at: RECENTLY_ADDED_WINDOW.ago..).order(created_at: :desc) }
 
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
   belongs_to :default_assigned_user, class_name: "User", optional: true
@@ -153,7 +163,7 @@ class ShopItem < ApplicationRecord
                        saver: { strip: true, quality: 75 }
   end
   validates :name, :description, :ticket_cost, :type, presence: true
-  validates :ticket_cost, numericality: { greater_than_or_equal_to: 0 }
+  validates :ticket_cost, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :image, presence: true, on: :create
   validates :required_ships_count, numericality: { only_integer: true, greater_than: 0 }, if: :requires_ship?
   validates :required_ships_start_date, :required_ships_end_date, presence: true, if: :requires_ship?
@@ -198,7 +208,7 @@ class ShopItem < ApplicationRecord
   def remaining_stock
     return nil unless limited? && stock.present?
 
-    reserved_quantity = shop_orders.where(aasm_state: %w[pending awaiting_verification awaiting_periodical_fulfillment on_hold fulfilled]).sum(:quantity)
+    reserved_quantity = shop_orders.where(aasm_state: %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold fulfilled]).sum(:quantity)
     stock - reserved_quantity
   end
 
@@ -270,12 +280,16 @@ class ShopItem < ApplicationRecord
     Cache::CarouselPrizesJob.perform_later(force: true)
   end
 
-  def invalidate_buyable_standalone_cache
-    self.class.invalidate_buyable_standalone_cache!
+  def invalidate_shop_page_cache
+    self.class.invalidate_shop_page_cache!
   end
 
   def fix_blacklist
     return unless blocked_countries.present?
     self.blocked_countries = blocked_countries.map(&:upcase).reject(&:blank?).uniq
+  end
+
+  def floor_ticket_cost
+    self.ticket_cost = ticket_cost.floor if ticket_cost.present?
   end
 end

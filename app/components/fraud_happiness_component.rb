@@ -1,0 +1,74 @@
+# frozen_string_literal: true
+
+class FraudHappinessComponent < ApplicationComponent
+  include Phlex::Rails::Helpers::NumberWithPrecision
+  include Phlex::Rails::Helpers::Truncate
+
+  def initialize(week:, records:, avg_scores:, error: nil)
+    @week = week
+    @records = records
+    @avg_scores = avg_scores
+    @error = error
+  end
+
+  def render?
+    @week.present? || @error.present?
+  end
+
+  def view_template
+    if @error.present?
+      div(class: "fraud-happiness") do
+        div(class: "fraud-happiness__error") do
+          p { "Error: #{@error}" }
+        end
+      end
+    elsif @week.present?
+      div(class: "fraud-happiness") do
+        h3(class: "fraud-happiness__week") { "Week: #{@week}" }
+
+        if has_scores?
+          div(class: "fraud-happiness__scores") do
+            score_card("Overall", @avg_scores[:avg_feeling])
+            score_card("Shop Orders", @avg_scores[:avg_shop_order_feeling])
+            score_card("Reports", @avg_scores[:avg_reports_order_feeling])
+            response_card(@avg_scores[:responses_text])
+          end
+        else
+          p(class: "fraud-happiness__empty") { "No data" }
+        end
+      end
+    end
+  end
+
+  private
+
+  def has_scores?
+    return false unless @avg_scores.is_a?(Hash)
+    return false if @avg_scores.empty?
+
+    total = @avg_scores[:total_responses]
+    total.present? && total.to_i.positive?
+  end
+
+  def score_card(label, value)
+    div(class: "fraud-happiness__score-card") do
+      h4(class: "fraud-happiness__score-card-label") { label }
+      div(class: "fraud-happiness__score-card-value") do
+        if value.is_a?(Float)
+          plain number_with_precision(value, precision: 2)
+        else
+          plain value
+        end
+      end
+    end
+  end
+
+  def response_card(responses_text)
+    div(class: "fraud-happiness__score-card") do
+      h4(class: "fraud-happiness__score-card-label") { "Responses" }
+      div(class: "fraud-happiness__score-card-value") do
+        plain responses_text
+      end
+    end
+  end
+end

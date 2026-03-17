@@ -13,7 +13,9 @@ class AdminConstraint
     # Allow admins, fraud dept, and fulfillment persons (who have limited access)
     policy.access_admin_endpoints? ||
       policy.access_fulfillment_view? ||
-      (request.path == "/admin/flavortime_dashboard" && policy.access_flavortime_dashboard?)
+      policy.process_sidequest_entry? ||
+      (request.path == "/admin/flavortime_dashboard" && policy.access_flavortime_dashboard?) ||
+      (request.path == "/admin/time_loss" && policy.access_time_loss_dashboard?)
   end
 
   def self.admin_user_for(request)
@@ -138,6 +140,7 @@ Rails.application.routes.draw do
   post "my/roll_api_key", to: "my#roll_api_key", as: :roll_api_key
   post "my/cookie_click", to: "my#cookie_click", as: :my_cookie_click
   post "my/dismiss_thing", to: "my#dismiss_thing", as: :dismiss_thing
+  delete "my/club", to: "my#unlink_club", as: :my_club
   get "my/achievements", to: "achievements#index", as: :my_achievements
 
   # Magic Links
@@ -157,6 +160,7 @@ Rails.application.routes.draw do
       resources :projects, only: [ :index, :show, :create, :update ] do
         collection do
           get :random
+          get :search
         end
         resource :report, only: [ :create ], controller: "external_reports"
         resources :devlogs, only: [ :index ], controller: "project_devlogs"
@@ -164,7 +168,11 @@ Rails.application.routes.draw do
 
       get "docs", to: "docs#index", as: :docs
       resources :devlogs, only: [ :index, :show ]
-      resources :store, only: [ :index, :show ]
+      resources :store, only: [ :index, :show ] do
+        collection do
+          get :search
+        end
+      end
       resources :users, only: [ :index, :show ]
 
       post "flavortime/session", to: "flavortime#create_session"
@@ -188,7 +196,11 @@ Rails.application.routes.draw do
 
   namespace :helper, constraints: HelperConstraint do
     root to: "application#index"
-    resources :users, only: [ :index, :show ]
+    resources :users, only: [ :index, :show ] do
+      member do
+        get :balance
+      end
+    end
     resources :projects, only: [ :index, :show ] do
       member do
         post :restore
@@ -258,6 +270,7 @@ Rails.application.routes.draw do
     resources :shop_orders, only: [ :index, :show ] do
       member do
         post :reveal_address
+        post :reveal_phone
         post :approve
         post :reject
         post :place_on_hold
@@ -267,6 +280,8 @@ Rails.application.routes.draw do
         post :assign_user
         post :cancel_hcb_grant
         post :refresh_verification
+        post :send_to_theseus
+        post :approve_verification_call
       end
     end
     resources :shop_suggestions, only: [ :index ] do
@@ -279,6 +294,7 @@ Rails.application.routes.draw do
       member do
         post :approve
         post :reject
+        post :undo
       end
     end
     resources :special_activities, only: [ :index, :create ] do
@@ -304,6 +320,7 @@ Rails.application.routes.draw do
         post :dismiss
       end
     end
+    resources :time_loss, only: [ :index ], controller: "time_loss"
     get "payouts_dashboard", to: "payouts_dashboard#index"
     get "fraud_dashboard", to: "fraud_dashboard#index"
     get "voting_dashboard", to: "voting_dashboard#index"

@@ -33,8 +33,11 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Vote < ApplicationRecord
+  MIN_SCORE = 1
+  MAX_SCORE = 9
+
   CATEGORIES = {
-    originality: "How distinct it is from common projects?",
+    originality: "How distinct is the project from common projects?",
     technicality: "How much effort did the baker put into the implementation?",
     usability: "Did you like using it? Could you use it at all?",
     storytelling: "How well does the baker document the development journey through devlogs, documentation, and READMEs?"
@@ -53,6 +56,9 @@ class Vote < ApplicationRecord
 
   scope :legitimate, -> { where(suspicious: false) }
   scope :suspicious, -> { where(suspicious: true) }
+  scope :current_voting_scale, -> {
+    joins(:ship_event).where(post_ship_events: { voting_scale_version: Post::ShipEvent::CURRENT_VOTING_SCALE_VERSION })
+  }
 
   before_save :mark_suspicious
 
@@ -68,7 +74,9 @@ class Vote < ApplicationRecord
   after_commit :detect_vote_spam, on: :create
   after_commit :broadcast_vote_to_channel, on: :create
 
-  validates(*score_columns, inclusion: { in: 1..6, message: "must be between 1 and 6" }, allow_nil: true)
+  validates :reason, presence: { message: "can't be blank" }
+  validate :reason_minimum_words
+  validates(*score_columns, inclusion: { in: MIN_SCORE..MAX_SCORE, message: "must be between 1 and 9" }, allow_nil: true)
   validate :all_categories_scored
   validate :user_cannot_vote_on_own_projects
   validate :ship_event_matches_project
@@ -76,6 +84,13 @@ class Vote < ApplicationRecord
   def category_description(category) = CATEGORIES[category.to_sym]
 
   private
+
+  def reason_minimum_words
+    return if reason.blank?
+
+    word_count = reason.split(/\s+/).count
+    errors.add(:reason, "must be at least 10 words (you have #{word_count})") if word_count < 10
+  end
 
   def all_categories_scored
     missing = self.class.score_columns.select { |col| self[col].blank? }
@@ -111,11 +126,7 @@ class Vote < ApplicationRecord
   end
 
   def mark_suspicious
-    self.suspicious = Secrets::VoteSuspicion.suspicious_vote?(
-      time_taken_to_vote: time_taken_to_vote,
-      demo_url_clicked: demo_url_clicked,
-      repo_url_clicked: repo_url_clicked
-    )
+    self.suspicious = Secrets::VoteSuspicion.suspicious_vote?(vote: self)
   end
 
   def detect_vote_spam
