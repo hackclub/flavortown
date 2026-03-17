@@ -70,6 +70,7 @@ module Admin
             shadow_banned_pct: total_users > 0 ? ((shadow_banned.to_f / total_users) * 100).round(2) : 0
           }
 
+          # Second chances vs bans (ban changes today)
           bans_today = PaperTrail::Version.where(item_type: "User", created_at: today)
                                           .where("object_changes ->> 'banned' IS NOT NULL")
                                           .where("object_changes -> 'banned' ->> 1 = ?", "true").count
@@ -83,6 +84,7 @@ module Admin
             net_change: bans_today - unbans_today
           }
 
+          # Fraud dept only handles: pending, awaiting_verification, on_hold, rejected
           fraud_order_counts = ShopOrder.where(aasm_state: %w[pending awaiting_verification on_hold rejected])
                                         .group(:aasm_state).count
           pending = fraud_order_counts["pending"] || 0
@@ -145,6 +147,7 @@ module Admin
     def build_ban_trend_data
       Rails.cache.fetch("super_mega_ban_trend", expires_in: 1.hour) do
         trend_data = {}
+        # Get data for last 30 days
         (0..29).reverse_each do |days_ago|
           date = days_ago.days.ago.to_date
           day_range = date.beginning_of_day..date.end_of_day
@@ -165,10 +168,12 @@ module Admin
     def build_shop_order_trend_data
       Rails.cache.fetch("super_mega_order_trend", expires_in: 1.hour) do
         trend_data = {}
+        # Get data for last 30 days - fraud dept only (pending, awaiting_verification, on_hold, rejected)
         (0..29).reverse_each do |days_ago|
           date = days_ago.days.ago.to_date
           day_range = date.beginning_of_day..date.end_of_day
 
+          # Count shop orders by state on this day (fraud dept only)
           states = %w[pending awaiting_verification rejected on_hold]
           state_counts = ShopOrder.where(updated_at: day_range)
                                   .where(aasm_state: states)
@@ -183,10 +188,12 @@ module Admin
     def build_report_trend_data
       Rails.cache.fetch("super_mega_report_trend", expires_in: 1.hour) do
         trend_data = {}
+        # Get data for last 30 days
         (0..29).reverse_each do |days_ago|
           date = days_ago.days.ago.to_date
           day_range = date.beginning_of_day..date.end_of_day
 
+          # Count fraud reports by reason on this day
           reason_counts = Project::Report.where(updated_at: day_range)
                                          .group(:reason).count
 
@@ -197,6 +204,7 @@ module Admin
     end
 
     def calculate_review_quality
+      # Average time to review reports
       reviewed_reports = Project::Report.where(status: %w[reviewed dismissed])
                                         .pluck(:created_at, :updated_at)
 
@@ -639,17 +647,22 @@ module Admin
         begin
           est_timezone = ActiveSupport::TimeZone["Eastern Time (US & Canada)"]
 
+          # Fetch all "done" and "returned" reviews at once (2 API calls total)
+          # The API returns ALL reviews with their createdAt timestamps
           done_reviews = YswsReviewService.fetch_all_reviews(status: "done")
           returned_reviews = YswsReviewService.fetch_all_reviews(status: "returned")
 
+          # Extract review arrays
           done_data = extract_reviews(done_reviews)
           returned_data = extract_reviews(returned_reviews)
 
+          # Build 14-day trend by grouping reviews by date CLIENT-SIDE
           ysws_review_graph_data = {
             done: count_reviews_by_date(done_data, est_timezone, 14),
             returned: count_reviews_by_date(returned_data, est_timezone, 14)
           }
 
+          # Calculate summary stats
           today_est = Time.current.in_time_zone(est_timezone).to_date
           week_ago_est = 7.days.ago.in_time_zone(est_timezone).to_date
 
@@ -665,8 +678,10 @@ module Admin
             this_week: calculate_week_total(ysws_review_graph_data, week_ago_est)
           }
 
+          # ECDF data - reuse the done_data we already have!
           devlog_counts_done = done_data.map { |r| r["devlogCount"] || r[:devlogCount] || 0 }.compact
 
+          # Fetch all reviews for ECDF comparison (3rd API call)
           all_reviews = YswsReviewService.fetch_all_reviews
           all_data = extract_reviews(all_reviews)
           devlog_counts_all = all_data.map { |r| r["devlogCount"] || r[:devlogCount] || 0 }.compact
@@ -676,6 +691,7 @@ module Admin
             all: calculate_ecdf(devlog_counts_all)
           }
 
+          # Fetch daily stats for reviewer trend graph
           daily_stats = YswsReviewService.fetch_daily_stats
           ysws_reviewer_trend_data = process_daily_stats(daily_stats, est_timezone, 14)
 
@@ -728,11 +744,13 @@ module Admin
     def count_reviews_by_date(reviews, timezone, num_days)
       counts = {}
 
+      # Initialize all dates with 0
       (0...num_days).each do |days_ago|
         date = days_ago.days.ago.in_time_zone(timezone).to_date
         counts[date.to_s] = 0
       end
 
+      # Count reviews by grouping their createdAt dates
       reviews.each do |review|
         created_at_str = review["createdAt"] || review[:createdAt]
         next unless created_at_str
@@ -753,18 +771,23 @@ module Admin
     def calculate_ecdf(data)
       return [] if data.empty?
 
+      # Sort the data
       sorted_data = data.sort
       n = sorted_data.size
 
+      # Calculate 99th percentile threshold
       percentile_99_index = [ (n * 0.99).ceil - 1, n - 1 ].min
       percentile_99_value = sorted_data[percentile_99_index]
 
+      # Filter data to only include values up to 99th percentile
       filtered_data = sorted_data.select { |x| x <= percentile_99_value }
       filtered_n = filtered_data.size.to_f
 
+      # Get unique values and calculate cumulative probability for each
       unique_values = filtered_data.uniq.sort
 
       ecdf_points = unique_values.map do |value|
+        # Count how many values are <= current value in filtered data
         count = filtered_data.count { |x| x <= value }
         cumulative_probability = (count / filtered_n * 100).round(2)
 
@@ -816,18 +839,23 @@ module Admin
     def calculate_ecdf(data)
       return [] if data.empty?
 
+      # Sort the data
       sorted_data = data.sort
       n = sorted_data.size
 
+      # Calculate 99th percentile threshold
       percentile_99_index = [ (n * 0.99).ceil - 1, n - 1 ].min
       percentile_99_value = sorted_data[percentile_99_index]
 
+      # Filter data to only include values up to 99th percentile
       filtered_data = sorted_data.select { |x| x <= percentile_99_value }
       filtered_n = filtered_data.size.to_f
 
+      # Get unique values and calculate cumulative probability for each
       unique_values = filtered_data.uniq.sort
 
       ecdf_points = unique_values.map do |value|
+        # Count how many values are <= current value in filtered data
         count = filtered_data.count { |x| x <= value }
         cumulative_probability = (count / filtered_n * 100).round(2)
 
@@ -843,11 +871,14 @@ module Admin
     def process_daily_stats(daily_stats, timezone, num_days)
       return nil if daily_stats.blank?
 
+      # Get the last num_days dates
       dates = (0...num_days).map { |days_ago| days_ago.days.ago.in_time_zone(timezone).to_date.to_s }.reverse
 
+      # Initialize data structure
       reviewer_data = {}
       total_by_date = {}
 
+      # Process each day's data
       daily_stats.each do |day_stat|
         date = day_stat["date"] || day_stat[:date]
         next unless dates.include?(date)
@@ -865,6 +896,7 @@ module Admin
         end
       end
 
+      # Fill in missing dates with 0 for all reviewers
       dates.each do |date|
         total_by_date[date] ||= 0
         reviewer_data.each do |reviewer_id, data|
