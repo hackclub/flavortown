@@ -887,7 +887,9 @@
     border-radius: 50%;
     line-height: 0;
     text-decoration: none;
-    transition: color 0.15s ease, background-color 0.15s ease;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
 
     &:hover {
       color: #334155;
