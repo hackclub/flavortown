@@ -18,6 +18,9 @@
       <div><b>Ship Status:</b> <%= @project.ship_status.titleize %></div>
       <div><b>Devlog Count:</b> <%= @project.devlogs.count %></div>
       <div><b>Time Spent: </b> <%= distance_of_time_in_words(@project.duration_seconds) %></div>
+      <% if @project.ai_declaration.present? %>
+        <div><b>This user declared ai:</b> <%= @project.ai_declaration %></div>
+      <% end %>
       <div><b>Type:</b> <%= @project.project_type.presence || "Not set" %></div>
       <div><b>Created:</b> <%= @project.created_at.strftime("%Y-%m-%d") %></div>
       <div><b>Deleted:</b> <%= @project.deleted? ? "Yes" : "No" %></div>
@@ -47,7 +50,7 @@
   </div>
 </div>
 
-<div style="display: flex; gap: 0.5rem;">
+<div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
   <%= link_to "← Back", helper_projects_path, class: "btn-secondary no-margin" %>
   <% if @project.deleted? %>
     <%= button_to "Restore Project", restore_helper_project_path(@project),
@@ -60,7 +63,9 @@
       class: "btn-primary",
       form: { target: "_blank", rel: "noopener" } %>
   <% end %>
+</div>
 
+<div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
   <% if @project.repo_url.present? && (URI.parse(@project.repo_url).scheme.in?(%w[http https]) rescue false) %>
     <%= link_to "View Repo", URI.parse(@project.repo_url).to_s, class: "btn-primary", target: "_blank", rel: "noopener" %>
   <% end %>
