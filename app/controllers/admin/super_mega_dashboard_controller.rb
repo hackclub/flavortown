@@ -461,8 +461,11 @@ module Admin
 
       if raw_data.nil? || raw_data == :error
         @ship_certs = { error: true }
+        @sw_metrics_history = []
         return
       end
+
+      metrics_history = raw_data["metricsHistory"] || []
 
       @ship_certs = {
         total_judged: raw_data["totalJudged"],
@@ -476,10 +479,14 @@ module Admin
         reviews_per_day: raw_data["reviewsPerDay"] || {},
         ships_per_day: raw_data["shipsPerDay"] || {},
         decisions_today: raw_data["decisionsToday"],
-        new_ships_today: raw_data["newShipsToday"]
+        new_ships_today: raw_data["newShipsToday"],
+        overall_nps_mean: raw_data["overallNpsMean"],
+        weekly_nps: raw_data["weeklyNps"] || {},
+        all_ticket_feedback: parse_all_ticket_feedback(raw_data["allTicketFeedback"])
       }
 
-      @sw_vibes_history = parse_sw_vibes_history(raw_data["metricsHistory"] || [])
+      @sw_vibes_history = parse_sw_vibes_history(metrics_history)
+      @sw_metrics_history = parse_sw_metrics_history(metrics_history)
     end
 
     def load_sw_vibes_stats
@@ -545,6 +552,45 @@ module Admin
       end.sort_by(&:recorded_date).reverse
     end
 
+    def parse_sw_metrics_history(metrics_history)
+      metrics_history.filter_map do |entry|
+        output = entry["output"] || {}
+        next if output["for_date"].present?
+
+        avg_secs = output["avgReviewSecs"]
+        next if avg_secs.nil?
+
+        created = entry["createdAt"]
+        recorded_at = created.present? ? Time.zone.parse(created) : nil
+
+        OpenStruct.new(
+          recorded_at: recorded_at,
+          avg_review_secs: avg_secs.to_i,
+          p95_review_secs: output["p95ReviewSecs"].to_i,
+          active_reviewers: output["activeReviewers"].to_i
+        )
+      rescue ArgumentError, Date::Error
+        nil
+      end.sort_by { |e| e.recorded_at || Time.zone.at(0) }.reverse
+    end
+
+    def parse_all_ticket_feedback(rows)
+      Array(rows).filter_map do |row|
+        next unless row.is_a?(Hash)
+
+        created = row["createdAt"]
+        OpenStruct.new(
+          id: row["id"],
+          ticket_id: row["ticketId"],
+          rating: row["rating"],
+          comment: row["comment"].to_s,
+          created_at: created.present? ? Time.zone.parse(created) : nil
+        )
+      rescue ArgumentError, Date::Error
+        nil
+      end.sort_by { |f| f.created_at || Time.zone.at(0) }.reverse
+    end
+
     def load_voting_stats
       cached_data = Rails.cache.fetch("super_mega_voting", expires_in: 10.minutes) do
         today = Time.current.beginning_of_day..Time.current.end_of_day
@@ -555,19 +601,19 @@ module Admin
           "AVG(#{column}) AS avg_#{category}"
         end.join(", ")
 
+        select_core = <<~SQL.squish
+          COUNT(*) AS total_votes,
+          COUNT(*) FILTER (WHERE created_at >= ? AND created_at <= ?) AS votes_today,
+          COUNT(*) FILTER (WHERE created_at >= ?) AS votes_this_week,
+          AVG(time_taken_to_vote) AS avg_time,
+          COUNT(*) FILTER (WHERE repo_url_clicked = true) AS repo_clicks,
+          COUNT(*) FILTER (WHERE demo_url_clicked = true) AS demo_clicks,
+          COUNT(*) FILTER (WHERE reason IS NOT NULL AND reason != '') AS with_reason
+        SQL
         select_sql = Vote.sanitize_sql_array([
-                                               <<-SQL.squish,
-            COUNT(*) AS total_votes,
-            COUNT(*) FILTER (WHERE created_at >= ? AND created_at <= ?) AS votes_today,
-            COUNT(*) FILTER (WHERE created_at >= ?) AS votes_this_week,
-            AVG(time_taken_to_vote) AS avg_time,
-            COUNT(*) FILTER (WHERE repo_url_clicked = true) AS repo_clicks,
-            COUNT(*) FILTER (WHERE demo_url_clicked = true) AS demo_clicks,
-            COUNT(*) FILTER (WHERE reason IS NOT NULL AND reason != '') AS with_reason,
-            #{avg_columns}
-                                               SQL
-                                               today.begin, today.end, this_week.begin
-                                             ])
+          avg_columns.present? ? "#{select_core}, #{avg_columns}" : select_core,
+          today.begin, today.end, this_week.begin
+        ])
 
         vote_stats = Vote.select(select_sql).take
         total = vote_stats.total_votes.to_i
