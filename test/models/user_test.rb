@@ -78,6 +78,7 @@ class UserTest < ActiveSupport::TestCase
   test "grant_email falls back to email when hcb_email is blank" do
     user = users(:one)
     user.hcb_email = ""
+    assert user.email.present?, "Expected fixture user.email to be present for fallback test"
     assert_equal user.email, user.grant_email
   end
 
