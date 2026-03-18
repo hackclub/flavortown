@@ -45,11 +45,6 @@ module Admin
 
       # CSV export (before pagination)
       respond_to do |format|
-        format.csv do
-          csv_versions = @versions.limit(5000)
-          send_data generate_csv(csv_versions), filename: "audit_logs_#{Date.current}.csv", type: "text/csv"
-          return
-        end
         format.html
       end
 
@@ -98,7 +93,7 @@ module Admin
     def generate_csv(versions)
       users_by_id = User.where(id: versions.pluck(:whodunnit).compact.uniq).index_by { |u| u.id.to_s }
       CSV.generate(headers: true) do |csv|
-        csv << ["ID", "Timestamp", "User", "Event", "Model", "Record ID", "Changes"]
+        csv << [ "ID", "Timestamp", "User", "Event", "Model", "Record ID", "Changes" ]
         versions.each do |v|
           user = users_by_id[v.whodunnit.to_s]
           csv << [

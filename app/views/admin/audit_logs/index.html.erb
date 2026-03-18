@@ -96,7 +96,6 @@
       <div class="audit-logs__actions">
         <%= f.submit "Apply Filters", class: "btn-primary slim" %>
         <%= link_to "Clear All", admin_audit_logs_path, class: "btn-secondary slim" %>
-        <%= link_to "📥 Export CSV", admin_audit_logs_path(format: :csv, **request.query_parameters), class: "btn-secondary slim" %>
       </div>
     <% end %>
   </div>

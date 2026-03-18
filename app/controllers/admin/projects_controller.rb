@@ -140,8 +140,8 @@ class Admin::ProjectsController < Admin::ApplicationController
       event: action,
       whodunnit: current_user.id.to_s,
       object_changes: {
-        action: [nil, action],
-        reason: [nil, reason]
+        action: [ nil, action ],
+        reason: [ nil, reason ]
       }
     )
 
@@ -152,7 +152,7 @@ class Admin::ProjectsController < Admin::ApplicationController
         event: "update",
         whodunnit: current_user.id.to_s,
         object_changes: {
-          project_shadow_ban: [action, { project_id: project.id, project_title: project.title, reason: reason }]
+          project_shadow_ban: [ action, { project_id: project.id, project_title: project.title, reason: reason } ]
         }
       )
     end

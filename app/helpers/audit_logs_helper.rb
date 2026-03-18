@@ -48,7 +48,7 @@ module AuditLogsHelper
     if raw.is_a?(Hash)
       raw
     elsif raw.is_a?(String)
-      YAML.safe_load(raw, permitted_classes: [Time, Date, DateTime, BigDecimal, Symbol]) rescue {}
+      YAML.safe_load(raw, permitted_classes: [ Time, Date, DateTime, BigDecimal, Symbol ]) rescue {}
     else
       {}
     end
