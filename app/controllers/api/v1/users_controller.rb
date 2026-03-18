@@ -23,7 +23,7 @@ class Api::V1::UsersController < Api::BaseController
   }.freeze
 
   ACHIEVEMENT_SCHEMA = {
-    slug: String, name: String, description: String, icon: String,
+    slug: String, name: String, description: String, icon: String
   }.freeze
 
   class_attribute :response_body_model, default: {
