@@ -294,6 +294,17 @@ module Admin
           Arel.sql("COALESCE(SUM(ABS(amount)), 0)")
         ).first
 
+        total_distributed_cookies = LedgerEntry.where("amount > 0").sum(:amount)
+        used_cookies = LedgerEntry.where("amount < 0").sum(:amount).abs
+        cookie_utilization_percentage = ((used_cookies.to_f / total_distributed_cookies) * 100).round(2)
+
+        total_approved_ysws_db_hours = fetch_approved_ysws_db_hours
+        if total_approved_ysws_db_hours > 0
+          dollars_per_hour = (total_distributed_cookies / 5) / total_approved_ysws_db_hours
+        else
+          dollars_per_hour = 0
+        end
+
         {
           payouts_cap: payouts_cap,
           payouts: {
@@ -301,11 +312,16 @@ module Admin
             destroyed: recent_stats[1],
             txns: recent_stats[2],
             volume: recent_stats[3]
-          }
+          },
+          cookie_utilization_percentage: cookie_utilization_percentage,
+          dollars_per_hour: dollars_per_hour
         }
       end
       @payouts_cap = cached_data&.dig(:payouts_cap) || 0
       @payouts = cached_data&.dig(:payouts) || { created: 0, destroyed: 0, txns: 0, volume: 0 }
+
+      @dollars_per_hour = cached_data&.dig(:dollars_per_hour) || 0
+      @cookie_utilization_percentage = cached_data&.dig(:cookie_utilization_percentage) || 0
     end
 
     def load_fulfillment_stats
@@ -928,6 +944,22 @@ module Admin
         reviewers: reviewer_data,
         totals: total_by_date
       }
+    end
+
+    private
+
+    def fetch_approved_ysws_db_hours
+      api_key = ENV["UNIFIED_DB_INTEGRATION_AIRTABLE_KEY"]
+
+      table = Norairrecord.table(api_key, "app3A5kJwYqxMLOgh", "YSWS Programs")
+      record = table.all(filter: "{Name} = 'Flavortown'").first
+
+      weighted_total = record&.fields&.dig("Weighted–Total")
+
+      weighted_total.to_f
+    rescue StandardError => e
+      Rails.logger.error("[SuperMegaDashboard] Error fetching approved YSWS hours: #{e.class} - #{e.message}")
+      0
     end
   end
 end

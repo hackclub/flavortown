@@ -328,6 +328,26 @@
             </div>
           </div>
         </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Dollars per hour</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @dollars_per_hour.round(2) %></span>
+              <span class="super-mega-dashboard__stat--label">$/hr</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Cookie Utilization Ratio</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @cookie_utilization_percentage %>%</span>
+              <span class="super-mega-dashboard__stat--label">Utilization</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
