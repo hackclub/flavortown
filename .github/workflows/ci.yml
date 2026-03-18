@@ -3,9 +3,6 @@ name: CI
 on:
   pull_request:
   merge_group:
-  push:
-    branches:
-      - main
 
 env:
   BUNDLE_WITHOUT: development
