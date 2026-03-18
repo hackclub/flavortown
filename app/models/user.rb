@@ -344,6 +344,7 @@ class User < ApplicationRecord
     return { success: false, error: "Your order can not be canceled" } unless order.pending?
 
     order.refund!
+    order.accessory_orders.each { |a| a.refund! if a.may_refund? }
     { success: true, order: order }
   rescue ActiveRecord::RecordNotFound
     { success: false, error: "wuh" }
