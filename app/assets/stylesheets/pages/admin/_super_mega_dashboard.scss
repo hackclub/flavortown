@@ -236,10 +236,18 @@
     font-weight: 800;
     line-height: 1;
 
-    &.orange { color: #f97316; }
-    &.green { color: #10b981; }
-    &.blue { color: #3b82f6; }
-    &.purple { color: #8b5cf6; }
+    &.orange {
+      color: #f97316;
+    }
+    &.green {
+      color: #10b981;
+    }
+    &.blue {
+      color: #3b82f6;
+    }
+    &.purple {
+      color: #8b5cf6;
+    }
   }
 
   &__total-numbers-label {
@@ -253,8 +261,12 @@
     font-weight: 600;
     white-space: nowrap;
 
-    .green { color: #10b981; }
-    .red { color: #ef4444; }
+    .green {
+      color: #10b981;
+    }
+    .red {
+      color: #ef4444;
+    }
   }
 
   &__total-numbers-range {
