@@ -191,7 +191,7 @@ module OgImage
         tempfile.write(source.download)
       elsif source.is_a?(String) && source.start_with?("http")
         require "open-uri"
-        tempfile.write(URI.open(source).read)
+        tempfile.write(URI(source).open.read)
       else
         tempfile.write(File.binread(source))
       end
