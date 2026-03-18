@@ -13,7 +13,7 @@
             image_url: item.image.variant(:carousel_lg),
             item_type: item.type,
             balance: @user_balance,
-            enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
+            enabled_regions: item.enabled_region_codes,
             regional_price: sale_price,
             logged_in: true,
             remaining_stock: item.remaining_stock,
