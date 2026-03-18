@@ -357,6 +357,10 @@
         <%= link_to "View Full Dashboard →", admin_fulfillment_dashboard_index_path, class: "super-mega-link" %>
       </div>
 
+      <% if @fulfillment_temporarily_disabled %>
+        <p class="fraud-stats-error">Fulfillment is temporarily disabled so the rest of the dashboard can load.</p>
+      <% end %>
+
       <div class="super-mega-dashboard__cards">
         <% [
           [:all, "All"],
@@ -1236,6 +1240,9 @@
         <% end %>
       </div>
     </div>
+
+    <%= render "admin/super_mega_dashboard/sections/pyramid_scheme" %>
+    <%= render "admin/super_mega_dashboard/sections/flavortime" %>
   </div>
 
   <div class="super-mega-dashboard__actions">

@@ -26,12 +26,14 @@ module Admin
 
       load_fraud_stats
       load_payouts_stats
-      load_fulfillment_stats
+      load_fulfillment_stats_safely
       load_support_stats
       load_support_vibes_stats
       load_support_graph_data
       load_voting_stats
       load_ysws_review_stats
+      load_flavortime_summary
+      load_pyramid_scheme_stats
       load_community_engagement_stats
       load_fraud_happiness_data
     end
@@ -160,8 +162,6 @@ module Admin
       @fraud_shop_order_trend_data = cached_data&.dig(:fraud_shop_order_trend_data) || {}
       @fraud_report_trend_data = cached_data&.dig(:fraud_report_trend_data) || {}
     end
-
-    private
 
     def build_ban_trend_data
       Rails.cache.fetch("super_mega_ban_trend", expires_in: 1.hour) do
@@ -343,6 +343,29 @@ module Admin
       @fulfillment = cached_data || { all: {}, hq_mail: {}, third_party: {}, warehouse: {}, other: {} }
       @fulfillment_trend_data = build_fulfillment_trend_data
       @order_states_trend_data = build_order_states_trend_data
+    end
+
+    def load_fulfillment_stats_safely
+      load_fulfillment_stats
+    rescue StandardError => e
+      Rails.logger.warn("[SuperMegaDashboard] Temporarily disabling fulfillment stats (#{e.class}): #{e.message}")
+
+      blank_stats = {
+        pending: "—",
+        awaiting: "—",
+        total: "—"
+      }
+
+      @fulfillment_temporarily_disabled = true
+      @fulfillment = {
+        all: blank_stats.dup,
+        hq_mail: blank_stats.dup,
+        third_party: blank_stats.dup,
+        warehouse: blank_stats.dup,
+        other: blank_stats.dup
+      }
+      @fulfillment_trend_data = nil
+      @order_states_trend_data = nil
     end
 
     def build_fulfillment_trend_data
@@ -758,6 +781,88 @@ module Admin
       }
     end
 
+    def load_flavortime_summary
+      with_dashboard_timing("flavortime") do
+        cached_data = Rails.cache.fetch("super_mega_flavortime_summary", expires_in: dashboard_cache_ttl(30.seconds, 2.minutes)) do
+          scoped_sessions = FlavortimeSession.all
+          platform_counts = grouped_flavortime_counts(scoped_sessions, :platform)
+          version_counts = grouped_flavortime_counts(scoped_sessions, :app_version)
+
+          {
+            summary: {
+              active_users: FlavortimeSession.active_users_count,
+              total_users: FlavortimeSession.select(:user_id).distinct.count,
+              total_sessions: FlavortimeSession.count,
+              status_hours: (FlavortimeSession.sum(:discord_status_seconds).to_f / 3600).round(1),
+              sessions_by_platform: compact_flavortime_breakdown(platform_counts),
+              sessions_by_version: compact_flavortime_breakdown(version_counts),
+              activity_chart: build_flavortime_activity_chart(scoped_sessions)
+            },
+            slack_ids: FlavortimeSession
+              .joins(:user)
+              .where.not(users: { slack_id: [ nil, "" ] })
+              .distinct
+              .pluck("users.slack_id")
+          }
+        end
+
+        @flavortime_summary = empty_flavortime_summary.merge(cached_data.fetch(:summary, {}))
+        @flavortime_slack_ids = Array(cached_data.fetch(:slack_ids, []))
+      end
+    rescue StandardError => e
+      Rails.logger.warn("[SuperMegaDashboard] Flavortime section unavailable (#{e.class}): #{e.message}")
+      @flavortime_summary = empty_flavortime_summary.merge(error: "Flavortime data is temporarily unavailable")
+      @flavortime_slack_ids = []
+    end
+
+    def load_pyramid_scheme_stats
+      payload = with_dashboard_timing("pyramid_scheme") do
+        Rails.cache.fetch("super_mega_pyramid_scheme_stats_v2", expires_in: dashboard_cache_ttl(30.seconds, 5.minutes)) do
+          PyramidReferralService.fetch_dashboard_stats
+        end
+      end
+
+      if payload.blank? || payload["error"].present?
+        @pyramid_scheme_stats = { error: payload&.dig("error") || "Pyramid dashboard stats are unavailable" }
+        return
+      end
+
+      overlap_count = ((payload.dig("activity", "user_slack_ids") || []) & Array(@flavortime_slack_ids)).count
+
+      @pyramid_scheme_stats = {
+        total_hours_logged: payload.dig("activity", "total_hours_logged") || 0,
+        total_users: payload.dig("activity", "all_users") || 0,
+        flavortime_users: overlap_count,
+        users_gained_last_week: payload.dig("activity", "users_gained_last_week") || 0,
+        users_gained_previous_week: payload.dig("activity", "users_gained_previous_week") || 0,
+        verified_hours_last_week: payload.dig("activity", "verified_hours_last_week") || 0,
+        verified_hours_previous_week: payload.dig("activity", "verified_hours_previous_week") || 0,
+        shipped_projects_with_pyramid_refs: payload.dig("activity", "shipped_projects") || 0,
+        partial_data: payload["partial_data"] == true,
+        data_source: payload["data_source"],
+        activity_timeline: payload.dig("activity", "timeline") || [],
+        referral_chart: {
+          labels: [ "Pending", "ID Verified", "Completed" ],
+          values: [
+            payload.dig("referrals", "pending") || 0,
+            payload.dig("referrals", "id_verified") || 0,
+            payload.dig("referrals", "completed") || 0
+          ]
+        },
+        poster_chart: {
+          labels: [ "Completed Physical", "Digital", "Rejected" ],
+          values: [
+            payload.dig("posters", "completed_physical") || 0,
+            payload.dig("posters", "completed_digital") || 0,
+            payload.dig("posters", "rejected_physical") || 0
+          ]
+        }
+      }
+    rescue StandardError => e
+      Rails.logger.warn("[SuperMegaDashboard] Pyramid section unavailable (#{e.class}): #{e.message}")
+      @pyramid_scheme_stats = { error: "Pyramid dashboard stats are temporarily unavailable" }
+    end
+
     def load_fraud_happiness_data
       data = FraudAirtableService.fetch_fraud_happy_by_week || {}
       @fraud_happiness_week = data[:week]
@@ -803,72 +908,68 @@ module Admin
       end
     end
 
-    def calculate_ecdf(data)
-      return [] if data.empty?
-
-      # Sort the data
-      sorted_data = data.sort
-      n = sorted_data.size
-
-      # Calculate 99th percentile threshold
-      percentile_99_index = [ (n * 0.99).ceil - 1, n - 1 ].min
-      percentile_99_value = sorted_data[percentile_99_index]
-
-      # Filter data to only include values up to 99th percentile
-      filtered_data = sorted_data.select { |x| x <= percentile_99_value }
-      filtered_n = filtered_data.size.to_f
-
-      # Get unique values and calculate cumulative probability for each
-      unique_values = filtered_data.uniq.sort
-
-      ecdf_points = unique_values.map do |value|
-        # Count how many values are <= current value in filtered data
-        count = filtered_data.count { |x| x <= value }
-        cumulative_probability = (count / filtered_n * 100).round(2)
-
-        {
-          devlogs: value,
-          cumulative_percent: cumulative_probability
-        }
-      end
-
-      ecdf_points
+    def grouped_flavortime_counts(scope, column)
+      scope
+        .group(Arel.sql("COALESCE(NULLIF(#{column}, ''), 'unknown')"))
+        .order(Arel.sql("COUNT(*) DESC"))
+        .count
     end
 
-    def build_ysws_ecdf_data
-      response_data_done = YswsReviewService.fetch_all_reviews(status: "done")
-      reviews_data_done = if response_data_done.is_a?(Hash)
-                            response_data_done["reviews"] || response_data_done[:reviews] || []
-      elsif response_data_done.is_a?(Array)
-                            response_data_done
-      else
-                            []
-      end
-
-      devlog_counts_done = reviews_data_done.map do |review|
-        review["devlogCount"] || review[:devlogCount] || 0
-      end.compact
-
-      response_data_all = YswsReviewService.fetch_all_reviews
-      reviews_data_all = if response_data_all.is_a?(Hash)
-                           response_data_all["reviews"] || response_data_all[:reviews] || []
-      elsif response_data_all.is_a?(Array)
-                           response_data_all
-      else
-                           []
-      end
-
-      devlog_counts_all = reviews_data_all.map do |review|
-        review["devlogCount"] || review[:devlogCount] || 0
-      end.compact
+    def build_flavortime_activity_chart(scope)
+      date_range = 13.days.ago.to_date..Time.current.to_date
+      sessions_by_day = scope
+        .where(created_at: date_range.first.beginning_of_day..date_range.last.end_of_day)
+        .group(Arel.sql("DATE(created_at)"))
+        .count
+      status_hours_by_day = scope
+        .where(created_at: date_range.first.beginning_of_day..date_range.last.end_of_day)
+        .group(Arel.sql("DATE(created_at)"))
+        .sum(:discord_status_seconds)
 
       {
-        done: calculate_ecdf(devlog_counts_done),
-        all: calculate_ecdf(devlog_counts_all)
+        labels: date_range.map { |date| date.strftime("%b %-d") },
+        sessions: date_range.map { |date| sessions_by_day[date] || 0 },
+        status_hours: date_range.map { |date| ((status_hours_by_day[date] || 0).to_f / 3600).round(1) }
       }
-    rescue StandardError => e
-      Rails.logger.error "[SuperMegaDashboard] Error building YSWS ECDF: #{e.message}"
-      nil
+    end
+
+    def empty_flavortime_summary
+      {
+        active_users: 0,
+        total_users: 0,
+        total_sessions: 0,
+        status_hours: 0,
+        sessions_by_platform: {},
+        sessions_by_version: {},
+        activity_chart: {
+          labels: [],
+          sessions: [],
+          status_hours: []
+        }
+      }
+    end
+
+    def compact_flavortime_breakdown(counts, limit: 5)
+      return {} if counts.blank?
+
+      top_counts = counts.to_a.first(limit)
+      remaining_count = counts.to_a.drop(limit).sum { |(_, count)| count }
+
+      chart_data = top_counts.to_h
+      chart_data["other"] = remaining_count if remaining_count.positive?
+      chart_data
+    end
+
+    def dashboard_cache_ttl(development_ttl, production_ttl)
+      Rails.env.development? ? development_ttl : production_ttl
+    end
+
+    def with_dashboard_timing(section_name)
+      started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      result = yield
+      elapsed_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at) * 1000).round(1)
+      Rails.logger.info("[SuperMegaDashboard] #{section_name} loaded in #{elapsed_ms}ms")
+      result
     end
 
     def calculate_ecdf(data)
