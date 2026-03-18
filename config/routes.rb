@@ -384,7 +384,7 @@ Rails.application.routes.draw do
 
   # Public user profiles
   resources :users, only: [ :show ] do
-    if Flipper.enabled?(:user_profiles)
+    constraints ->(_req) { Flipper.enabled?(:user_profiles) } do
       resource :profile, only: [ :edit, :update ], controller: "user_profiles"
     end
     resource :og_image, only: [ :show ], module: :users, defaults: { format: :png }
