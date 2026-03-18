@@ -2,6 +2,25 @@
 
 module Admin
   class SuperMegaDashboardController < Admin::ApplicationController
+    CACHE_KEYS = %w[
+      super_mega_fraud_stats
+      super_mega_ban_trend
+      super_mega_order_trend
+      super_mega_report_trend
+      joe_fraud_stats
+      super_mega_payouts
+      super_mega_fulfillment
+      super_mega_fulfillment_trend
+      super_mega_order_states_trend
+      super_mega_support
+      super_mega_support_vibes
+      super_mega_support_graph
+      super_mega_voting
+      super_mega_ysws_review_v2
+      super_mega_ship_certs_raw
+      sw_vibes_data
+    ].freeze
+
     def index
       authorize :admin, :access_super_mega_dashboard?
 
