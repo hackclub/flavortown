@@ -949,18 +949,18 @@ module Admin
     private
 
     def fetch_approved_ysws_db_hours
-      reviews_response = YswsReviewService.fetch_all_reviews(status: "done")
-      reviews = reviews_response["reviews"] || []
+      api_key = ENV["UNIFIED_DB_INTEGRATION_AIRTABLE_KEY"]
+      base_id = ENV["UNIFIED_DB_BASE_ID"]
 
-      total_approved_minutes = 0
-      reviews.each do |review|
-        current_review = YswsReviewService.fetch_review(review["id"])
-        devlogs = current_review["devlogs"] || []
-        approved_minutes = devlogs.sum { |d| d["approvedMins"].to_i }
-        total_approved_minutes += approved_minutes
-      end
+      table = Norairrecord.table(api_key, base_id, "YSWS Programs")
+      record = table.all(filter: "{Name} = 'Flavortown'").first
 
-      (total_approved_minutes / 60.0)
+      weighted_total = record&.fields&.dig("Weighted–Total")
+
+      weighted_total.to_f
+    rescue StandardError => e
+      Rails.logger.error("[SuperMegaDashboard] Error fetching approved YSWS hours: #{e.class} - #{e.message}")
+      0
     end
   end
 end
