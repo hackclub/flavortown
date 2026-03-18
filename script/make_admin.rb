@@ -2,12 +2,18 @@
 # frozen_string_literal: true
 
 # Usage:
-#   bin/rails runner scripts/make_admin.rb --email person@example.com
+#   script/make_admin.rb --email person@example.com
+#   bin/rails runner script/make_admin.rb --email person@example.com
+#
+# This script only runs in development/test.
+
+require_relative "../config/environment" unless defined?(Rails)
 
 def usage
-  puts "Usage: bin/rails runner scripts/make_admin.rb --email EMAIL"
+  puts "Usage: script/make_admin.rb --email EMAIL"
   puts "Examples:"
-  puts "  bin/rails runner scripts/make_admin.rb --email person@example.com"
+  puts "  script/make_admin.rb --email person@example.com"
+  puts "  bin/rails runner script/make_admin.rb --email person@example.com"
 end
 
 def parse_args(argv)
@@ -41,16 +47,23 @@ if args[:invalid]
   exit 1
 end
 
-if args[:email].blank?
+if args[:email].to_s.strip.empty?
   puts "Missing required option: --email"
   usage
   exit 1
 end
 
-user = User.find_by(email: args[:email])
+if !Rails.env.development? && !Rails.env.test?
+  puts "Refusing to run in #{Rails.env}"
+  exit 1
+end
+
+email = args[:email].to_s.strip.downcase
+
+user = User.where("LOWER(email) = ?", email).first
 
 unless user
-  puts "User not found (email=#{args[:email]})"
+  puts "User not found (email=#{email})"
   exit 1
 end
 
