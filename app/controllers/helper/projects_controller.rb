@@ -25,6 +25,7 @@ module Helper
     def show
       authorize :helper, :view_projects?
       @project = Project.unscoped.find(params[:id])
+      @ship_events = @project.ship_events.includes(:votes).order(created_at: :desc)
     end
 
     def restore

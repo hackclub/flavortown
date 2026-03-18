@@ -545,6 +545,20 @@
           <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
           <div class="smd-skeleton__chart"></div>
         </div>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__chart"></div>
+        </div>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-nps super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+          <div class="smd-skeleton__chart"></div>
+        </div>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-performance super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__line"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
+        </div>
       </div>
     </div>
 
@@ -618,7 +632,6 @@
             <h3>Current Concerns</h3>
             <% if @latest_support_vibes&.concerns.present? %>
               <ol class="current-concerns-list">
-                <% links = @latest_support_vibes.concern_message_links || [] %>
                 <% @latest_support_vibes.concerns.each_with_index do |concern, idx| %>
                   <li>
                     <div data-controller="modal">
@@ -629,12 +642,19 @@
                         <%= concern["title"] %>
                       </button>
                       <%= render layout: "shared/modal", locals: { id: "concern-#{idx}", title: concern["title"], description: concern["description"] } do %>
-                        <% if links[idx].present? %>
-                          <% Array(links[idx]).each_with_index do |link, lidx| %>
-                            <a href="<%= link %>" target="_blank" rel="noopener" class="modal__link">
-                              View sample question <%= links[idx].size > 1 ? "##{lidx+1}" : "on Slack" %>
-                            </a>
-                          <% end %>
+                        <% if concern["messages"].present? %>
+                          <span class="concern-count">(<%= concern["count"] %> total messages)</span>
+                          <ul class="concern-messages-list">
+                            <% concern["messages"].each do |msg| %>
+                              <li class="concern-message-item">
+                                <% if msg["message_ts"].present? %>
+                                  <a href="https://hackclub.slack.com/archives/C09MATKQM8C/p<%= msg["message_ts"].gsub('.', '') %>" target="_blank" rel="noopener" class="modal__link">
+                                    <%= msg["content"] %>
+                                  </a>
+                                <% end %>
+                              </li>
+                            <% end %>
+                          </ul>
                         <% end %>
                         <div class="modal__actions">
                           <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= "concern-#{idx}".to_json %>).close()">X</button>
@@ -1200,5 +1220,9 @@
 
   <div class="super-mega-dashboard__actions">
     <%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
+    <%= button_to "Clear Dashboard Cache", admin_super_mega_dashboard_clear_cache_path,
+          method: :delete,
+          class: "btn-danger",
+          form: { data: { turbo_confirm: "You're about to delete all Super Mega Dashboard cache! Are you sure?" } } %>
   </div>
 </div>

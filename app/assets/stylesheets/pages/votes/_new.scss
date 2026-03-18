@@ -1,7 +1,6 @@
 .votes-new {
   margin-top: 4rem;
   margin-bottom: 4rem;
-
   &__no-projects {
     font-size: 1.5rem;
     font-family: var(--font-family-text);
@@ -380,6 +379,7 @@
     }
 
     .vote-form {
+      margin-top: 5px;
       display: flex;
       flex-direction: column;
       gap: calc(1.2 * var(--space-xxxxl));
@@ -504,7 +504,9 @@
     transform: translateY(-70%);
     color: var(--color-bg);
     font-size: var(--font-size-xl);
-    padding: var(--space-xs) var(--space-l);
+    line-height: 1.2;
+    padding: calc(var(--space-xs) + 3px) var(--space-l)
+      calc(var(--space-xs) + 6px);
     border-top-left-radius: calc(var(--border-radius) * 0.8);
     border-top-right-radius: calc(var(--border-radius) * 0.8);
     pointer-events: none;

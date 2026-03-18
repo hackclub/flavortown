@@ -47,6 +47,7 @@
 #  requires_ship                     :boolean          default(FALSE)
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
+#  show_image_in_shop                :boolean          default(FALSE)
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
 #  source_region                     :string
@@ -57,13 +58,13 @@
 #  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
-#  usd_offset_au                     :decimal(10, 2)
-#  usd_offset_ca                     :decimal(10, 2)
-#  usd_offset_eu                     :decimal(10, 2)
-#  usd_offset_in                     :decimal(10, 2)
-#  usd_offset_uk                     :decimal(10, 2)
-#  usd_offset_us                     :decimal(10, 2)
-#  usd_offset_xx                     :decimal(10, 2)
+#  usd_offset_au                     :decimal(, )
+#  usd_offset_ca                     :decimal(, )
+#  usd_offset_eu                     :decimal(, )
+#  usd_offset_in                     :decimal(, )
+#  usd_offset_uk                     :decimal(, )
+#  usd_offset_us                     :decimal(, )
+#  usd_offset_xx                     :decimal(, )
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
 #  default_assigned_user_id          :bigint
@@ -83,6 +84,8 @@ class ShopItem < ApplicationRecord
   has_paper_trail
 
   include Shop::Regionalizable
+
+  has_ferret_search :name, :description, type: -> { type.demodulize.underscore.humanize }
 
   before_validation :fix_blacklist
   before_validation :floor_ticket_cost

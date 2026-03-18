@@ -199,6 +199,20 @@
               turbo_method: "post"
             } %>
       </div></turbo-frame>
+      <turbo-frame id="phone-content">
+        <div style="padding: 1em; background: #f3f4f6; border-radius: 4px; text-align: center; margin-top: 1em;">
+          <p style="margin: 0 0 1em 0; color: #374151;">
+            📱 Phone number is encrypted. Click below to decrypt and view.
+          </p>
+          <%= button_to "Reveal Phone Number", reveal_phone_admin_shop_order_path(@order),
+              method: :post,
+              class: "btn-primary",
+              data: {
+                turbo_frame: "phone-content",
+                turbo_method: "post"
+              } %>
+        </div>
+      </turbo-frame>
     </div>
   <% else %>
     <div style="padding: 1em; background: #fee2e2; border-radius: 4px;">
@@ -449,94 +463,7 @@
 
 <%= render Admin::PastOrdersComponent.new(user: @order.user, orders: @user_orders) %>
 
-<div class="admin-section">
-  <% versions = @order.versions.order(created_at: :desc) %>
-  <details style="cursor: pointer;">
-    <summary class="admin-section__summary">
-      📜 Audit Log (<%= versions.count %>)
-    </summary>
-    <div class="admin-section__content">
-  <% if versions.any? %>
-    <ul style="list-style: none; padding: 0; margin: 0;">
-      <% versions.each do |version| %>
-        <%
-          changes = version.changeset.except('frozen_address_ciphertext')
-          state_change = changes.dig('aasm_state') rescue nil
-          old_state = state_change.is_a?(Array) ? state_change.first : nil
-          new_state = state_change.is_a?(Array) ? state_change.last : nil
-          rejection_reason = changes.dig('rejection_reason')
-          new_reason = rejection_reason.is_a?(Array) ? rejection_reason.last : nil
-          notes_change = changes.dig('internal_notes')
-          who = version.whodunnit.present? ? User.find_by(id: version.whodunnit)&.display_name || "Unknown User" : "System"
-        %>
-        <li style="padding: 0.75rem; margin-bottom: 0.5rem; border-left: 3px solid
-          <% case version.event %>
-            <% when 'create' %>
-              #3b82f6
-            <% when 'update' %>
-              <% if new_state %>
-                #10b981
-              <% else %>
-                #f59e0b
-              <% end %>
-            <% else %>
-              #6b7280
-          <% end %>
-        ; background: #f9fafb; border-radius: 4px;">
-          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-            <div>
-              <div style="font-weight: 600; font-size: 0.875rem;">
-                <% if new_state == 'awaiting_periodical_fulfillment' %>
-                  ✓ Order Approved for Fulfillment
-                <% elsif new_state == 'fulfilled' %>
-                  ✔ Order Fulfilled
-                <% elsif new_state == 'rejected' %>
-                  ✗ Order Rejected
-                <% elsif new_state == 'awaiting_verification_call' %>
-                  📞 Order Queued for Verification Call
-                <% elsif new_state == 'on_hold' %>
-                  ⏸ Order Placed on Hold
-                <% elsif new_state == 'pending' %>
-                  ⟲ Released from Hold
-                <% elsif new_state == 'refunded' %>
-                  ↩ Order Refunded
-                <% elsif notes_change %>
-                  ✎ Internal Notes Updated
-                <% elsif version.event == 'create' %>
-                  📝 Order Created
-                <% else %>
-                  🔄 Updated
-                <% end %>
-              </div>
-              <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
-                By <strong><%= who %></strong> • Order #<%= version.item_id %>
-              </div>
-            </div>
-            <div style="font-size: 0.75rem; color: #6b7280; text-align: right;">
-              <%= version.created_at.strftime("%b %d, %Y %l:%M%p") %>
-            </div>
-          </div>
-
-          <% if new_state %>
-            <div style="font-size: 0.8rem; color: #374151; margin-top: 0.5rem;">
-              Updated from <code style="background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 2px; font-weight: 500;"><%= old_state %></code> to <code style="background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 2px; font-weight: 500;"><%= new_state %></code>
-            </div>
-          <% end %>
-
-          <% if new_reason %>
-            <div style="font-size: 0.8rem; color: #991b1b; background: #fee2e2; padding: 0.5rem; border-radius: 3px; margin-top: 0.5rem;">
-              <strong>Rejection Reason:</strong> <%= new_reason %>
-            </div>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
-  <% else %>
-    <p style="color: #6b7280; margin: 0; font-size: 0.875rem;">No audit history yet.</p>
-  <% end %>
-    </div>
-  </details>
-</div>
+<%= render "admin/shared/audit_log", record: @order, item_type: "ShopOrder" %>
 
 <style>
 .badge {

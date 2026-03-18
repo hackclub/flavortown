@@ -1,3 +1,14 @@
+GIT
+  remote: https://github.com/hackclub/ferret-gem.git
+  revision: 73ffb48381e7916b2a3687f6f296656492a23f30
+  specs:
+    ferret (0.1.0)
+      activejob (>= 7.0)
+      activerecord (>= 7.0)
+      informers
+      sqlite-vec (~> 0.1.7.alpha.10)
+      sqlite3 (~> 2.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -163,11 +174,10 @@ GEM
     chartkick (5.2.1)
     childprocess (5.1.0)
       logger (~> 1.5)
-    commonmarker (2.6.3-aarch64-linux)
-    commonmarker (2.6.3-arm-linux)
-    commonmarker (2.6.3-arm64-darwin)
-    commonmarker (2.6.3-x86_64-linux)
-    commonmarker (2.6.3-x86_64-linux-musl)
+    commonmarker (2.7.0)
+      rb_sys (~> 0.9)
+    commonmarker (2.7.0-arm64-darwin)
+    commonmarker (2.7.0-x86_64-linux)
     concurrent-ruby (1.3.6)
     connection_pool (3.0.2)
     countries (8.1.0)
@@ -228,13 +238,9 @@ GEM
       net-http-persistent (>= 4.0.4, < 5)
     faraday-retry (2.4.0)
       faraday (~> 2.0)
-    ffi (1.17.3-aarch64-linux-gnu)
-    ffi (1.17.3-aarch64-linux-musl)
-    ffi (1.17.3-arm-linux-gnu)
-    ffi (1.17.3-arm-linux-musl)
+    ffi (1.17.3)
     ffi (1.17.3-arm64-darwin)
     ffi (1.17.3-x86_64-linux-gnu)
-    ffi (1.17.3-x86_64-linux-musl)
     fiddle (1.1.8)
     flipper (1.4.0)
       concurrent-ruby (< 2)
@@ -261,19 +267,10 @@ GEM
     google-protobuf (4.34.0)
       bigdecimal
       rake (~> 13.3)
-    google-protobuf (4.34.0-aarch64-linux-gnu)
-      bigdecimal
-      rake (~> 13.3)
-    google-protobuf (4.34.0-aarch64-linux-musl)
-      bigdecimal
-      rake (~> 13.3)
     google-protobuf (4.34.0-arm64-darwin)
       bigdecimal
       rake (~> 13.3)
     google-protobuf (4.34.0-x86_64-linux-gnu)
-      bigdecimal
-      rake (~> 13.3)
-    google-protobuf (4.34.0-x86_64-linux-musl)
       bigdecimal
       rake (~> 13.3)
     hashie (5.1.0)
@@ -287,6 +284,9 @@ GEM
       actionpack (>= 6.0.0)
       activesupport (>= 6.0.0)
       railties (>= 6.0.0)
+    informers (1.2.1)
+      onnxruntime (>= 0.9)
+      tokenizers (>= 0.5.3)
     inline_svg (1.10.0)
       activesupport (>= 3.0)
       nokogiri (>= 1.6)
@@ -359,6 +359,7 @@ GEM
     mini_magick (5.3.1)
       logger
     mini_mime (1.1.5)
+    mini_portile2 (2.8.9)
     minitest (6.0.2)
       drb (~> 2.0)
       prism (~> 1.5)
@@ -395,19 +396,12 @@ GEM
       net-protocol
     net-ssh (7.3.0)
     nio4r (2.7.5)
-    nokogiri (1.19.1-aarch64-linux-gnu)
-      racc (~> 1.4)
-    nokogiri (1.19.1-aarch64-linux-musl)
-      racc (~> 1.4)
-    nokogiri (1.19.1-arm-linux-gnu)
-      racc (~> 1.4)
-    nokogiri (1.19.1-arm-linux-musl)
+    nokogiri (1.19.1)
+      mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     nokogiri (1.19.1-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.19.1-x86_64-linux-gnu)
-      racc (~> 1.4)
-    nokogiri (1.19.1-x86_64-linux-musl)
       racc (~> 1.4)
     norairrecord (0.5.1)
       faraday (>= 1.0, < 3.0)
@@ -436,6 +430,12 @@ GEM
     omniauth_openid_connect (0.8.0)
       omniauth (>= 1.9, < 3)
       openid_connect (~> 2.2)
+    onnxruntime (0.11.1)
+      ffi
+    onnxruntime (0.11.1-arm64-darwin)
+      ffi
+    onnxruntime (0.11.1-x86_64-linux)
+      ffi
     openid_connect (2.3.1)
       activemodel
       attr_required (>= 1.0.0)
@@ -451,7 +451,7 @@ GEM
       webfinger (~> 2.0)
     optimist (3.2.1)
     ostruct (0.6.3)
-    pagy (43.3.2)
+    pagy (43.4.0)
       json
       uri
       yaml
@@ -463,11 +463,8 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.6.3)
-    pg (1.6.3-aarch64-linux)
-    pg (1.6.3-aarch64-linux-musl)
     pg (1.6.3-arm64-darwin)
     pg (1.6.3-x86_64-linux)
-    pg (1.6.3-x86_64-linux-musl)
     phlex (2.4.1)
       refract (~> 1.0)
       zeitwerk (~> 2.7)
@@ -555,6 +552,9 @@ GEM
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.3.1)
+    rake-compiler-dock (1.11.0)
+    rb_sys (0.9.124)
+      rake-compiler-dock (= 1.11.0)
     rbtrace (0.5.3)
       ffi (>= 1.0.6)
       msgpack (>= 0.4.3)
@@ -637,19 +637,12 @@ GEM
     sanitize (7.0.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.16.8)
-    sass-embedded (1.98.0-aarch64-linux-gnu)
+    sass-embedded (1.98.0)
       google-protobuf (~> 4.31)
-    sass-embedded (1.98.0-aarch64-linux-musl)
-      google-protobuf (~> 4.31)
-    sass-embedded (1.98.0-arm-linux-gnueabihf)
-      google-protobuf (~> 4.31)
-    sass-embedded (1.98.0-arm-linux-musleabihf)
-      google-protobuf (~> 4.31)
+      rake (>= 13)
     sass-embedded (1.98.0-arm64-darwin)
       google-protobuf (~> 4.31)
     sass-embedded (1.98.0-x86_64-linux-gnu)
-      google-protobuf (~> 4.31)
-    sass-embedded (1.98.0-x86_64-linux-musl)
       google-protobuf (~> 4.31)
     securerandom (0.4.1)
     selenium-webdriver (4.41.0)
@@ -658,15 +651,15 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 4.0)
       websocket (~> 1.0)
-    sentry-rails (6.4.1)
+    sentry-rails (6.5.0)
       railties (>= 5.2.0)
-      sentry-ruby (~> 6.4.1)
-    sentry-ruby (6.4.1)
+      sentry-ruby (~> 6.5.0)
+    sentry-ruby (6.5.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
       logger
-    skylight (7.0.0)
-      activesupport (>= 7.1.0)
+    skylight (7.1.0)
+      activesupport (>= 7.2.0)
     slack-ruby-client (3.1.0)
       faraday (>= 2.0.1)
       faraday-mashify
@@ -697,6 +690,13 @@ GEM
       fugit (~> 1.11)
       railties (>= 7.1)
       thor (>= 1.3.1)
+    sqlite-vec (0.1.7.alpha.10-arm64-darwin)
+    sqlite-vec (0.1.7.alpha.10-arm64-linux)
+    sqlite-vec (0.1.7.alpha.10-x86_64-linux)
+    sqlite3 (2.9.2)
+      mini_portile2 (~> 2.8.0)
+    sqlite3 (2.9.2-arm64-darwin)
+    sqlite3 (2.9.2-x86_64-linux-gnu)
     sshkit (1.25.0)
       base64
       logger
@@ -717,10 +717,13 @@ GEM
       faraday-follow_redirects
     thor (1.5.0)
     thruster (0.1.19)
-    thruster (0.1.19-aarch64-linux)
     thruster (0.1.19-arm64-darwin)
     thruster (0.1.19-x86_64-linux)
     timeout (0.6.1)
+    tokenizers (0.6.3)
+      rb_sys
+    tokenizers (0.6.3-arm64-darwin)
+    tokenizers (0.6.3-x86_64-linux)
     tsort (0.2.0)
     turbo-rails (2.0.23)
       actionpack (>= 7.1.0)
@@ -764,18 +767,10 @@ GEM
     zeitwerk (2.7.5)
 
 PLATFORMS
-  aarch64-linux
-  aarch64-linux-gnu
-  aarch64-linux-musl
-  arm-linux-gnu
-  arm-linux-gnueabihf
-  arm-linux-musl
-  arm-linux-musleabihf
   arm64-darwin-24
   arm64-darwin-25
+  arm64-linux
   x86_64-linux
-  x86_64-linux-gnu
-  x86_64-linux-musl
 
 DEPENDENCIES
   aasm
@@ -803,6 +798,7 @@ DEPENDENCIES
   faker (~> 3.6)
   faraday
   faraday-retry
+  ferret!
   flipper
   flipper-active_record
   flipper-active_support_cache_store
@@ -821,7 +817,7 @@ DEPENDENCIES
   omniauth-oauth2
   omniauth-rails_csrf_protection
   omniauth_openid_connect
-  pagy (~> 43.3)
+  pagy (~> 43.4)
   paper_trail
   pg (~> 1.1)
   phlex-rails
@@ -840,7 +836,7 @@ DEPENDENCIES
   rubocop
   rubocop-rails-omakase
   selenium-webdriver
-  sentry-rails (~> 6.4)
+  sentry-rails (~> 6.5)
   sentry-ruby (~> 6.4)
   skylight
   slack-ruby-client

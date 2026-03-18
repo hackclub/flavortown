@@ -43,6 +43,10 @@ body {
     }
   }
 
+  tbody tr:nth-child(odd) {
+    background: color-mix(in hsl, var(--color-tan-400), var(--color-tan-300));
+  }
+
   tbody tr {
     background: var(--color-tan-300);
   }

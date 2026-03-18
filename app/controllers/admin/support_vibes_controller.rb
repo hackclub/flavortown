@@ -63,12 +63,16 @@ module Admin
           Return ONLY valid JSON (no markdown formatting, no code blocks) with this exact schema:
           {
             "concerns": [
-              { "title": "Short catchy title", "description": "Detailed explanation (2-3 sentences) of what users are worried about including context." },
+              {
+                "title": "Short catchy title",
+                "description": "Detailed explanation (2-3 sentences) of what users are worried about including context.",
+                "messages": [
+                  { "message_ts": "1234567890.12345", "content": "Exact message content here" },
+                  ...
+                ],
+                "count": 3
+              },
               ... (Top 5 concerns)
-            ],
-            "concern_message_ts": [
-              ["message_ts1", "message_ts2"], // 2 message_ts for concern 1 (or fewer if not enough)
-              ... (one array per concern, order matches concerns)
             ],
             "prominent_questions": [
               "Exact question asked by user?",
@@ -106,12 +110,6 @@ module Admin
 
         data = JSON.parse(cleaned_content)
 
-        concern_message_links = Array(data["concern_message_ts"]).map do |ts_arr|
-            Array(ts_arr).map do |ts|
-                ts.present? ? "https://hackclub.slack.com/archives/C09MATKQM8C/p#{ts.gsub('.', '')}" : nil
-            end.compact
-        end
-
         SupportVibes.create!(
           period_start: start_time,
           period_end: end_time,
@@ -120,7 +118,7 @@ module Admin
           notable_quotes: data["prominent_questions"],
           unresolved_queries: data["unresolved_queries"],
           rating: data["rating"],
-          concern_message_links: concern_message_links
+          concern_messages: data["concerns"].map { |c| c["messages"] }
         )
 
         redirect_to admin_support_vibes_path, notice: "Support vibes updated successfully."

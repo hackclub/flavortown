@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_17_153201) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -562,6 +562,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.boolean "requires_ship", default: false
     t.boolean "requires_verification_call", default: false, null: false
     t.integer "sale_percentage"
+    t.boolean "show_image_in_shop", default: false
     t.boolean "show_in_carousel"
     t.integer "site_action"
     t.string "source_region"
@@ -573,13 +574,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.date "unlock_on"
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"
-    t.decimal "usd_offset_au", precision: 10, scale: 2
-    t.decimal "usd_offset_ca", precision: 10, scale: 2
-    t.decimal "usd_offset_eu", precision: 10, scale: 2
-    t.decimal "usd_offset_in", precision: 10, scale: 2
-    t.decimal "usd_offset_uk", precision: 10, scale: 2
-    t.decimal "usd_offset_us", precision: 10, scale: 2
-    t.decimal "usd_offset_xx", precision: 10, scale: 2
+    t.decimal "usd_offset_au"
+    t.decimal "usd_offset_ca"
+    t.decimal "usd_offset_eu"
+    t.decimal "usd_offset_in"
+    t.decimal "usd_offset_uk"
+    t.decimal "usd_offset_us"
+    t.decimal "usd_offset_xx"
     t.bigint "user_id"
     t.index ["default_assigned_user_id"], name: "index_shop_items_on_default_assigned_user_id"
     t.index ["user_id"], name: "index_shop_items_on_user_id"
@@ -703,6 +704,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
 
   create_table "support_vibes", force: :cascade do |t|
     t.jsonb "concern_message_links"
+    t.jsonb "concern_messages"
     t.jsonb "concerns", default: []
     t.datetime "created_at", null: false
     t.jsonb "notable_quotes", default: []
@@ -752,6 +754,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.index ["refresh_token_bidx"], name: "index_user_identities_on_refresh_token_bidx"
     t.index ["user_id", "provider"], name: "index_user_identities_on_user_id_and_provider", unique: true
     t.index ["user_id"], name: "index_user_identities_on_user_id"
+  end
+
+  create_table "user_profiles", force: :cascade do |t|
+    t.text "bio"
+    t.datetime "created_at", null: false
+    t.text "custom_css"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_user_profiles_on_user_id", unique: true
   end
 
   create_table "users", force: :cascade do |t|
@@ -896,6 +907,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"
+  add_foreign_key "user_profiles", "users"
   add_foreign_key "votes", "post_ship_events", column: "ship_event_id"
   add_foreign_key "votes", "projects"
   add_foreign_key "votes", "users"

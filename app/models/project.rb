@@ -42,6 +42,8 @@ class Project < ApplicationRecord
   include AASM
   include SoftDeletable
 
+  has_ferret_search :title, :description
+
   SPACE_THEMED_PREFIX = "Space Themed:".freeze
 
   has_paper_trail
