@@ -2,12 +2,12 @@
 # frozen_string_literal: true
 
 # Usage:
-#   bin/rails runner scripts/make_admin.rb --email person@example.com
+#   bin/rails runner script/make_admin.rb --email person@example.com
 
 def usage
-  puts "Usage: bin/rails runner scripts/make_admin.rb --email EMAIL"
+  puts "Usage: bin/rails runner script/make_admin.rb --email EMAIL"
   puts "Examples:"
-  puts "  bin/rails runner scripts/make_admin.rb --email person@example.com"
+  puts "  bin/rails runner script/make_admin.rb --email person@example.com"
 end
 
 def parse_args(argv)
