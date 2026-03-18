@@ -950,9 +950,8 @@ module Admin
 
     def fetch_approved_ysws_db_hours
       api_key = ENV["UNIFIED_DB_INTEGRATION_AIRTABLE_KEY"]
-      base_id = ENV["UNIFIED_DB_BASE_ID"]
 
-      table = Norairrecord.table(api_key, base_id, "YSWS Programs")
+      table = Norairrecord.table(api_key, "app3A5kJwYqxMLOgh", "YSWS Programs")
       record = table.all(filter: "{Name} = 'Flavortown'").first
 
       weighted_total = record&.fields&.dig("Weighted–Total")
