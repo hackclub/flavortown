@@ -71,6 +71,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "grant_email falls back to email when hcb_email is nil" do
     user = users(:one)
+    assert user.email.present?, "Fixture user(:one) must have a non-nil email for this test"
     user.hcb_email = nil
     assert_equal user.email, user.grant_email
   end
