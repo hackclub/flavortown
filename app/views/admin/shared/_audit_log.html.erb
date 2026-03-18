@@ -4,7 +4,7 @@
 <% limit = local_assigns.fetch(:limit, 10) %>
 <% item_type = local_assigns.fetch(:item_type, record.class.name) %>
 <% versions = record.versions.order(created_at: :desc) %>
-<% displayed_versions = versions.limit(limit) %>
+<% displayed_versions = dedupe_versions(versions.limit(limit * 2).to_a).first(limit) %>
 <% users_by_id = User.where(id: displayed_versions.map(&:whodunnit).compact.uniq).index_by { |u| u.id.to_s } %>
 
 <style>
@@ -32,6 +32,36 @@
 .badge-create { background-color: #d1fae5; color: #065f46; }
 .badge-update { background-color: #dbeafe; color: #1e40af; }
 .badge-destroy { background-color: #fee2e2; color: #991b1b; }
+.badge-force_delete { background-color: #fecaca; color: #7f1d1d; border: 1px solid #f87171; }
+.badge-banned, .badge-shadow_banned { background-color: #fee2e2; color: #991b1b; }
+.badge-unbanned, .badge-shadow_unbanned, .badge-unshadow_banned { background-color: #d1fae5; color: #065f46; }
+.badge-role_promoted { background-color: #fef3c7; color: #92400e; }
+.badge-role_demoted { background-color: #fef3c7; color: #92400e; }
+.badge-impersonation_started, .badge-impersonation_stopped { background-color: #e0e7ff; color: #3730a3; }
+.badge-mark_fire { background: linear-gradient(135deg, #fef3c7, #fed7aa); color: #9a3412; }
+.badge-unmark_fire { background-color: #f3f4f6; color: #6b7280; }
+.badge-flipper_enable { background-color: #dbeafe; color: #1e40af; }
+.badge-flipper_disable { background-color: #fef3c7; color: #92400e; }
+.badge-approved { background-color: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.badge-rejected { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.badge-address_revealed, .badge-phone_revealed, .badge-address_access { background-color: #fae8ff; color: #86198f; }
+.badge-blocked_countries_changed { background-color: #fef3c7; color: #92400e; }
+.badge-assignment_updated { background-color: #e0e7ff; color: #3730a3; }
+.badge-resend_webhook, .badge-SHIP_CERT_WEBHOOK_ACTION { background-color: #cffafe; color: #155e75; }
+.badge-request_recertification { background-color: #fce7f3; color: #9d174d; }
+.badge-ship\.submitted { background-color: #d1fae5; color: #065f46; }
+.badge-manual_ysws_override_set { background-color: #fef3c7; color: #92400e; }
+.badge-voting_lock_toggled { background-color: #ede9fe; color: #5b21b6; }
+.badge-balance_adjustment { background-color: #ccfbf1; color: #134e4a; }
+.badge-pending { background-color: #fef3c7; color: #92400e; }
+.badge-awaiting_periodical_fulfillment, .badge-awaiting_fulfillment { background-color: #e0e7ff; color: #3730a3; }
+.badge-fulfilled, .badge-shipped { background-color: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.badge-on_hold { background-color: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+.badge-submitted { background-color: #dbeafe; color: #1e40af; }
+.badge-under_review { background-color: #fae8ff; color: #86198f; }
+.badge-draft { background-color: #f3f4f6; color: #6b7280; }
+.badge-cancelled, .badge-canceled { background-color: #fee2e2; color: #991b1b; }
+.badge-queued_for_verification { background-color: #fef3c7; color: #92400e; }
 </style>
 
 <div class="card">
@@ -74,7 +104,8 @@
               <% end %>
             </td>
             <td>
-              <span class="badge badge-<%= version.event %>"><%= version.event %></span>
+              <% display = audit_event_display(version) %>
+              <span class="badge badge-<%= display[:css_class] %>"><%= display[:label] %></span>
             </td>
             <td>
               <% if version.object_changes.present? %>

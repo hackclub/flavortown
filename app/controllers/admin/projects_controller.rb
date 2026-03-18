@@ -134,6 +134,17 @@ class Admin::ProjectsController < Admin::ApplicationController
   private
 
   def log_to_user_audit(project, action, reason)
+    PaperTrail::Version.create!(
+      item_type: "Project",
+      item_id: project.id,
+      event: action,
+      whodunnit: current_user.id.to_s,
+      object_changes: {
+        action: [nil, action],
+        reason: [nil, reason]
+      }
+    )
+
     project.users.each do |user|
       PaperTrail::Version.create!(
         item_type: "User",
@@ -141,7 +152,7 @@ class Admin::ProjectsController < Admin::ApplicationController
         event: "update",
         whodunnit: current_user.id.to_s,
         object_changes: {
-          project_shadow_ban: [ action, { project_id: project.id, project_title: project.title, reason: reason } ]
+          project_shadow_ban: [action, { project_id: project.id, project_title: project.title, reason: reason }]
         }
       )
     end
