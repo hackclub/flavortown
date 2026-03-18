@@ -63,28 +63,6 @@ class Admin::UsersController < Admin::ApplicationController
     def show
       @user = User.includes(:identities).find(params[:id])
 
-      # Get all actions performed on this user (filter out empty updates)
-      user_versions = PaperTrail::Version
-        .where(item_type: "User", item_id: @user.id)
-        .order(created_at: :desc)
-        .select do |v|
-          next true unless v.event == "update"
-          changes = v.object_changes || {}
-          if changes.is_a?(String)
-            changes = begin
-              JSON.parse(changes)
-            rescue JSON::ParserError
-              YAML.safe_load(changes, permitted_classes: [ Symbol ])
-            end
-          end
-          changes.keys.any? { |k| !%w[updated_at synced_at].include?(k.to_s) }
-        end
-
-      # Get ledger entries for this user
-      ledger_entries = @user.ledger_entries.includes(:ledgerable).order(created_at: :desc)
-
-      # Combine and sort by created_at (role changes are now in user_versions as role_promoted/role_demoted events)
-      @user_actions = (user_versions + ledger_entries).sort_by(&:created_at).reverse
       @all_projects = @user.projects.with_deleted.order(deleted_at: :desc)
     end
 

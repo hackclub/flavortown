@@ -185,4 +185,9 @@ module ApplicationHelper
         File.exist?(Rails.root.join("secrets/assets/images", path))
     end
   end
+
+  def sanitize_css(css)
+    return "" if css.blank?
+    Sanitize::CSS.stylesheet(css, Sanitize::Config::RELAXED)
+  end
 end

@@ -250,7 +250,19 @@ class Admin::ShopOrdersController < Admin::ApplicationController
           rejection_reason: [ nil, reason ]
         }
       )
-      redirect_to shop_orders_return_path, notice: "Order rejected"
+
+      n = @order.accessory_orders.select(&:may_mark_rejected?).count { |a|
+        old = a.aasm_state
+        next unless a.mark_rejected(reason) && a.save
+        PaperTrail::Version.create!(
+          item_type: "ShopOrder", item_id: a.id, event: "update", whodunnit: current_user.id,
+          object_changes: { aasm_state: [ old, a.aasm_state ], rejection_reason: [ nil, reason ], parent_order_cancelled: [ nil, @order.id ] }
+        )
+      }
+
+      notice = "Order rejected"
+      notice += " (#{n} #{'accessory'.pluralize(n)} also rejected)" if n > 0
+      redirect_to shop_orders_return_path, notice: notice
     else
       redirect_to admin_shop_order_path(@order), alert: "Failed to reject order: #{@order.errors.full_messages.join(', ')}"
     end
