@@ -86,6 +86,7 @@ class UserTest < ActiveSupport::TestCase
     user.hcb_email = "not-an-email"
     assert_not user.valid?
     assert_includes user.errors[:hcb_email], "is invalid"
+    assert_not user.save, "User with invalid hcb_email should not be saved"
   end
 
   test "hcb_email allows valid email format" do
