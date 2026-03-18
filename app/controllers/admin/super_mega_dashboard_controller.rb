@@ -294,6 +294,10 @@ module Admin
           Arel.sql("COALESCE(SUM(ABS(amount)), 0)")
         ).first
 
+        total_distributed_cookies = LedgerEntry.where("amount > 0").sum(:amount)
+        used_cookies = LedgerEntry.where("amount < 0").sum(:amount).abs
+        cookie_utilization_percentage = ((used_cookies.to_f / total_distributed_cookies) * 100).round(2)
+
         total_approved_ysws_db_hours = fetch_approved_ysws_db_hours
         if total_approved_ysws_db_hours > 0
           dollars_per_hour = (total_distributed_cookies / 5) / total_approved_ysws_db_hours
@@ -309,6 +313,7 @@ module Admin
             txns: recent_stats[2],
             volume: recent_stats[3]
           },
+          cookie_utilization_percentage: cookie_utilization_percentage,
           dollars_per_hour: dollars_per_hour
         }
       end
@@ -316,10 +321,7 @@ module Admin
       @payouts = cached_data&.dig(:payouts) || { created: 0, destroyed: 0, txns: 0, volume: 0 }
 
       @dollars_per_hour = cached_data&.dig(:dollars_per_hour) || 0
-
-      total_distributed_cookies = LedgerEntry.where("amount > 0").sum(:amount)
-      used_cookies = LedgerEntry.where("amount < 0").sum(:amount).abs
-      @cookie_utilization_percentage = ((used_cookies.to_f / total_distributed_cookies) * 100).round(2)
+      @cookie_utilization_percentage = cached_data&.dig(:cookie_utilization_percentage) || 0
     end
 
     def load_fulfillment_stats
@@ -958,7 +960,7 @@ module Admin
         total_approved_minutes += approved_minutes
       end
 
-      (total_approved_minutes / 60)
+      (total_approved_minutes / 60.0)
     end
   end
 end
