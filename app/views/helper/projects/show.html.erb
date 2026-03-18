@@ -49,13 +49,13 @@
           </li>
 
           <% if legitimate_votes.any? %>
-            <%= render layout: "shared/modal", locals: { id: "ship-event-feedback-modal-#{ship_event.id}", title: "Voter Feedback & Ratings" } do %>
+            <%= render layout: "shared/modal", locals: { id: "ship-event-feedback-modal-#{ship_event.id}", title: "Feedback with ratings" } do %>
               <p style="margin-bottom: 0.75rem;"><strong><%= legitimate_votes.size %></strong> vote<%= legitimate_votes.size == 1 ? "" : "s" %> received</p>
 
               <% legitimate_votes.each_with_index do |vote, index| %>
                 <div class="post__vote-entry">
                   <p>
-                    <strong>Voter #<%= legitimate_votes.size - index %></strong>
+                    <strong>Feedback:</strong>
                     &nbsp; <%= vote.time_taken_to_vote ? "#{vote.time_taken_to_vote}s" : "—" %>
                     <% opened = [ vote.demo_url_clicked? ? "Demo" : nil, vote.repo_url_clicked? ? "Repo" : nil ].compact %>
                     <%= "· Opened #{opened.join(', ')}" if opened.any? %>
