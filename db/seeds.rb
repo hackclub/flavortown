@@ -33,6 +33,22 @@ chrome_license = ShopItem::HCBGrant.find_or_create_by!(name: "Chrome Webstore Li
 end
 chrome_license.update!(requires_achievement: "sidequest_extension")
 
+ram_grant_50 = ShopItem::HCBGrant.find_or_create_by!(name: "$50 Ram/Storage Grant") do |item|
+  item.description = "A $50 grant to help you upgrade your setup"
+  item.ticket_cost = 0
+  downloaded_image = URI.parse("https://placecats.com/300/200").open
+  item.image.attach(io: downloaded_image, filename: "ram-grant-50.png")
+end
+ram_grant_50.update!(requires_achievement: "sidequest_optimization")
+
+ram_grant_100 = ShopItem::HCBGrant.find_or_create_by!(name: "$100 Ram/Storage Grant") do |item|
+  item.description = "A $100 grant to help you upgrade your setup"
+  item.ticket_cost = 0
+  downloaded_image = URI.parse("https://placecats.com/300/200").open
+  item.image.attach(io: downloaded_image, filename: "ram-grant-100.png")
+end
+ram_grant_100.update!(requires_achievement: "sidequest_optimization")
+
 Sidequest.find_or_create_by!(slug: "challenger") do |sq|
   sq.title = "Challenger Center"
   sq.description = "Build a space-themed project for the Challenger Center space challenge!"
