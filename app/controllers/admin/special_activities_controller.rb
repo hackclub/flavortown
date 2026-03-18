@@ -34,7 +34,7 @@ module Admin
         user = User.find_by(slack_id: slack_id)
         next unless user
 
-        project = extract_project_from_url(row["Project URL"])
+        project = extract_project_from_url(row["Your Project's URL"])
 
         attendance = ShowAndTellAttendance.new(user: user, date: date)
         attendance.project = project if project

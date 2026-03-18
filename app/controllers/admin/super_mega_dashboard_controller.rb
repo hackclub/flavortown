@@ -294,6 +294,13 @@ module Admin
           Arel.sql("COALESCE(SUM(ABS(amount)), 0)")
         ).first
 
+        total_approved_ysws_db_hours = fetch_approved_ysws_db_hours
+        if total_approved_ysws_db_hours > 0
+          dollars_per_hour = (total_distributed_cookies / 5) / total_approved_ysws_db_hours
+        else
+          dollars_per_hour = 0
+        end
+
         {
           payouts_cap: payouts_cap,
           payouts: {
@@ -301,11 +308,18 @@ module Admin
             destroyed: recent_stats[1],
             txns: recent_stats[2],
             volume: recent_stats[3]
-          }
+          },
+          dollars_per_hour: dollars_per_hour
         }
       end
       @payouts_cap = cached_data&.dig(:payouts_cap) || 0
       @payouts = cached_data&.dig(:payouts) || { created: 0, destroyed: 0, txns: 0, volume: 0 }
+
+      @dollars_per_hour = cached_data&.dig(:dollars_per_hour) || 0
+
+      total_distributed_cookies = LedgerEntry.where("amount > 0").sum(:amount)
+      used_cookies = LedgerEntry.where("amount < 0").sum(:amount).abs
+      @cookie_utilization_percentage = ((used_cookies.to_f / total_distributed_cookies) * 100).round(2)
     end
 
     def load_fulfillment_stats
@@ -928,6 +942,23 @@ module Admin
         reviewers: reviewer_data,
         totals: total_by_date
       }
+    end
+
+    private
+
+    def fetch_approved_ysws_db_hours
+      reviews_response = YswsReviewService.fetch_all_reviews(status: "done")
+      reviews = reviews_response["reviews"] || []
+
+      total_approved_minutes = 0
+      reviews.each do |review|
+        current_review = YswsReviewService.fetch_review(review["id"])
+        devlogs = current_review["devlogs"] || []
+        approved_minutes = devlogs.sum { |d| d["approvedMins"].to_i }
+        total_approved_minutes += approved_minutes
+      end
+
+      (total_approved_minutes / 60)
     end
   end
 end
