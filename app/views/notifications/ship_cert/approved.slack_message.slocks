@@ -9,9 +9,3 @@ end
 if reason.present?
   section "*Reviewer Notes:* #{reason}", markdown: true
 end
-
-divider
-
-context [
-  mrkdwn_text("Keep building awesome things! 🚀")
-]

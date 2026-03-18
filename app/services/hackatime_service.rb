@@ -42,6 +42,33 @@ class HackatimeService
     nil
   end
 
+  def self.fetch_total_seconds_for_projects(hackatime_uid, project_keys, start_date: START_DATE, end_date: nil)
+    return nil if hackatime_uid.blank? || project_keys.blank?
+
+    filter = Array(project_keys).join(",")
+    params = {
+      features: "projects",
+      start_date: start_date,
+      test_param: true,
+      total_seconds: true,
+      filter_by_project: filter
+    }
+    params[:end_date] = end_date if end_date
+
+    response = connection.get("users/#{hackatime_uid}/stats", params)
+
+    if response.success?
+      data = JSON.parse(response.body)
+      data["total_seconds"].to_i
+    else
+      Rails.logger.error "HackatimeService.fetch_total_seconds_for_projects error: #{response.status} - #{response.body}"
+      nil
+    end
+  rescue => e
+    Rails.logger.error "HackatimeService.fetch_total_seconds_for_projects exception: #{e.message}"
+    nil
+  end
+
   def self.sync_devlog_duration(devlog, hackatime_uid, start_date, end_date)
     return false if devlog.hackatime_projects_key_snapshot.blank?
 

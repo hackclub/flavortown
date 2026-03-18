@@ -1,0 +1,130 @@
+<h1>Fulfillment Payout Run #<%= @run.id %></h1>
+
+<div class="dashboard-stats">
+  <div class="card">
+    <h3>Status</h3>
+    <p class="stat-value">
+      <% case @run.aasm_state %>
+      <% when "pending_approval" %>
+        <span class="badge badge--warning">Pending Approval</span>
+      <% when "approved" %>
+        <span class="badge badge--success">Approved</span>
+      <% when "rejected" %>
+        <span class="badge badge--danger">Rejected</span>
+      <% end %>
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Period</h3>
+    <p><%= @run.period_start&.strftime("%b %d, %Y %H:%M") || "All time" %> &rarr; <%= @run.period_end.strftime("%b %d, %Y %H:%M") %></p>
+  </div>
+
+  <div class="card">
+    <h3>Totals</h3>
+    <table class="stats-table">
+      <tr><td>Orders</td><td><%= @run.total_orders %></td></tr>
+      <tr><td>Tickets</td><td><%= number_with_delimiter(@run.total_amount) %> 🍪</td></tr>
+      <tr><td>Fulfillers</td><td><%= @run.lines.count %></td></tr>
+    </table>
+  </div>
+</div>
+
+<% if @run.pending_approval? %>
+  <div class="payout-actions">
+    <%= button_to "Approve & Distribute", approve_admin_fulfillment_payout_path(@run), method: :post, data: { confirm: "This will distribute #{number_with_delimiter(@run.total_amount)} tickets to #{@run.lines.count} fulfillers. This cannot be undone. Continue?" }, class: "btn-primary btn-approve" %>
+    <%= button_to "Reject", reject_admin_fulfillment_payout_path(@run), method: :post, data: { confirm: "This will reject this payout run and release the orders for the next run. Continue?" }, class: "btn-primary btn-reject" %>
+  </div>
+<% end %>
+
+<% if @run.approved? && @run.approved_by_user %>
+  <p>Approved by <%= link_to @run.approved_by_user.display_name, admin_user_path(@run.approved_by_user) %> on <%= @run.approved_at&.strftime("%b %d, %Y %H:%M") %></p>
+<% end %>
+
+<h2>Payout Lines</h2>
+<table class="table-data">
+  <thead>
+    <tr>
+      <th>Fulfiller</th>
+      <th>Orders Fulfilled</th>
+      <th>Tickets Earned</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @run.lines.includes(:user).order(amount: :desc).each do |line| %>
+      <tr>
+        <td><%= link_to line.user.display_name, admin_user_path(line.user) %></td>
+        <td><%= line.order_count %></td>
+        <td><%= number_with_delimiter(line.amount) %> 🍪</td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to "Back to Payouts", admin_fulfillment_payouts_path, class: "btn-primary" %>
+
+<style>
+  .dashboard-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .stats-table {
+    width: 100%;
+  }
+
+  .stats-table td {
+    padding: 0.25rem 0;
+  }
+
+  .stats-table td:last-child {
+    text-align: right;
+    font-weight: bold;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+  }
+
+  .badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .badge--warning {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .badge--success {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .badge--danger {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .payout-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-approve {
+    background: #059669;
+    color: #fff;
+  }
+
+  .btn-reject {
+    background: #dc2626;
+    color: #fff;
+  }
+</style>

@@ -12,6 +12,12 @@ if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
 
   # ...and background the slow avif conversion task.
   nohup ./bin/rake assets:avif >> log/avif_conversion.log 2>&1 &
+
+  # Warm up Ferret search index in the background so the server can start accepting healthchecks.
+  # Only heavy on first run — subsequent boots skip unchanged records.
+  if [ "$FERRET" = "true" ]; then
+    nohup ./bin/rails runner "Rails.application.eager_load!; Ferret.embed_all!" >> log/ferret_embed.log 2>&1 &
+  fi
 fi
 
 exec "${@}"

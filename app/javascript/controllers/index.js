@@ -118,17 +118,26 @@ application.register("sidequest-expand", SidequestExpandController);
 import ShootingStarController from "./shooting_star_controller";
 application.register("shooting-star", ShootingStarController);
 
+import VoteCategoryController from "./vote_category_controller";
+application.register("vote-category", VoteCategoryController);
+
 import VoteTrackerController from "./vote_tracker_controller";
 application.register("vote-tracker", VoteTrackerController);
 
 import WelcomeOverlayController from "./welcome_overlay_controller";
 application.register("welcome-overlay", WelcomeOverlayController);
 
+import WordCountController from "./word_count_controller";
+application.register("word-count", WordCountController);
+
 import ResponsiveImageMapController from "./responsive_image_map_controller";
 application.register("responsive-image-map", ResponsiveImageMapController);
 
 import TutorialVideoModalController from "./tutorial_video_modal_controller";
 application.register("tutorial-video-modal", TutorialVideoModalController);
+
+import TutorialStepsExpandController from "./tutorial_steps_expand_controller";
+application.register("tutorial-steps-expand", TutorialStepsExpandController);
 
 import StatsHoverController from "./stats_hover_controller";
 application.register("stats-hover", StatsHoverController);
@@ -150,3 +159,6 @@ application.register(
 
 import XpWindowController from "./xp_window_controller";
 application.register("xp-window", XpWindowController);
+
+import LazyLoadController from "./lazy_load_controller";
+application.register("lazy-load", LazyLoadController);

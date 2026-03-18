@@ -37,7 +37,14 @@
                 <br><small style="color: #10b981;">🎁 +<%= order.accessory_orders.count %> accessories</small>
               <% end %>
             </td>
-            <td><%= order.quantity %></td>
+            <td>
+              <span style="font-weight: 700;<%= ' color: #dc2626;' if order.quantity > 1 %>">
+                <%= order.quantity %>
+              </span>
+              <% if order.quantity > 1 %>
+                <br><span class="badge" style="background: #fef2f2; color: #dc2626; font-size: 0.6rem;">+1</span>
+              <% end %>
+            </td>
             <td><%= order.total_cost %></td>
             <td>
               <span class="badge badge-<%= order.aasm_state %>">

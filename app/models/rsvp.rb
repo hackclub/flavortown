@@ -12,6 +12,8 @@
 #  updated_at :datetime         not null
 #
 class Rsvp < ApplicationRecord
+  has_paper_trail ignore: [ :ip_address, :user_agent ]
+
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   before_validation :downcase_email
   # after_commit :send_signup_confirmation_email, on: :create

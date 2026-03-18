@@ -7,6 +7,8 @@
 #  banned                                  :boolean          default(FALSE), not null
 #  banned_at                               :datetime
 #  banned_reason                           :text
+#  club_link                               :string
+#  club_name                               :string
 #  cookie_clicks                           :integer          default(0), not null
 #  display_name                            :string
 #  email                                   :string
@@ -21,6 +23,7 @@
 #  leaderboard_optin                       :boolean          default(FALSE), not null
 #  magic_link_token                        :string
 #  magic_link_token_expires_at             :datetime
+#  manual_ysws_override                    :boolean
 #  projects_count                          :integer
 #  ref                                     :string
 #  regions                                 :string           default([]), is an Array
@@ -46,22 +49,25 @@
 #  ysws_eligible                           :boolean          default(FALSE), not null
 #  created_at                              :datetime         not null
 #  updated_at                              :datetime         not null
+#  airtable_record_id                      :string
 #  slack_id                                :string
 #
 # Indexes
 #
-#  index_users_on_api_key           (api_key) UNIQUE
-#  index_users_on_email             (email)
-#  index_users_on_magic_link_token  (magic_link_token) UNIQUE
-#  index_users_on_session_token     (session_token) UNIQUE
-#  index_users_on_slack_id          (slack_id) UNIQUE
+#  index_users_on_airtable_record_id  (airtable_record_id) UNIQUE
+#  index_users_on_api_key             (api_key) UNIQUE
+#  index_users_on_email               (email)
+#  index_users_on_magic_link_token    (magic_link_token) UNIQUE
+#  index_users_on_session_token       (session_token) UNIQUE
+#  index_users_on_slack_id            (slack_id) UNIQUE
 #
 class User < ApplicationRecord
-  has_paper_trail ignore: [ :projects_count, :votes_count ], on: [ :update, :destroy ]
+  has_one :user_profile, dependent: :destroy
+  has_paper_trail ignore: [ :projects_count, :votes_count, :updated_at, :shop_region ], on: [ :update, :destroy ]
 
   has_recommended :projects # you might like these projects...
 
-  DISMISSIBLE_THINGS = %w[flagship_ad shop_suggestion_box].freeze
+  DISMISSIBLE_THINGS = %w[flagship_ad shop_suggestion_box willsbuilds_banner ai_coding_time_ignored_card].freeze
 
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy
@@ -75,6 +81,7 @@ class User < ApplicationRecord
   has_many :likes, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :ledger_entries, dependent: :destroy
+  has_many :flavortime_sessions, dependent: :destroy
   has_many :project_follows, dependent: :destroy
   has_many :followed_projects, through: :project_follows, source: :project
   has_many :shop_suggestions, dependent: :destroy
@@ -106,6 +113,24 @@ class User < ApplicationRecord
   def roles = granted_roles&.map(&:to_sym) || []
 
   def has_role?(role_name) = roles.include?(role_name.to_sym)
+
+  FILLOUT_CLUB_FORM_URL = "https://forms.hackclub.com/t/24dbqdeN93us"
+
+  def fillout_club_url
+    return nil if airtable_record_id.blank?
+    "#{FILLOUT_CLUB_FORM_URL}?id=#{airtable_record_id}"
+  end
+
+  def club_link_uri
+    return nil if club_link.blank?
+
+    uri = URI.parse(club_link.to_s)
+    uri if uri.scheme&.downcase.in?(%w[http https])
+  rescue URI::InvalidURIError
+    nil
+  end
+
+  def valid_club_link? = club_link_uri.present?
 
   def admin? = has_role?(:admin) || has_role?(:super_admin)
 
@@ -203,11 +228,14 @@ class User < ApplicationRecord
 
   def identity_verified? = verification_verified?
 
+  def ysws_eligible?
+    return manual_ysws_override if manual_ysws_override.in?([ true, false ])
+    self[:ysws_eligible]
+  end
+
   def eligible_for_shop? = identity_verified? && ysws_eligible?
 
-  def should_reject_orders?
-    verification_ineligible? || (identity_verified? && !ysws_eligible?)
-  end
+  def should_reject_orders? = verification_ineligible? || (identity_verified? && !ysws_eligible?)
 
   def setup_complete?
     has_hackatime? && has_identity_linked?
@@ -301,10 +329,12 @@ class User < ApplicationRecord
   end
 
   def shadow_ban!(reason: nil)
+    Rails.logger.warn("DEPRECATED: User#shadow_ban! is deprecated. Use project shadow banning instead.")
     update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
   end
 
   def unshadow_ban!
+    Rails.logger.warn("DEPRECATED: User#unshadow_ban! is deprecated. Use project shadow banning instead.")
     update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
   end
 
@@ -313,6 +343,7 @@ class User < ApplicationRecord
     return { success: false, error: "Your order can not be canceled" } unless order.pending?
 
     order.refund!
+    order.accessory_orders.each { |a| a.refund! if a.may_refund? }
     { success: true, order: order }
   rescue ActiveRecord::RecordNotFound
     { success: false, error: "wuh" }
@@ -432,7 +463,7 @@ class User < ApplicationRecord
 
   def devlog_seconds_total
     Rails.cache.fetch("user/#{id}/devlog_seconds_total", expires_in: 10.minutes) do
-      devlog_postable_ids = Post.where(user_id: id, postable_type: "Post::Devlog")
+      devlog_postable_ids = Post.joins(:project).where(user_id: id, postable_type: "Post::Devlog")
                                 .select("postable_id::bigint")
       Post::Devlog.where(id: devlog_postable_ids).not_deleted.sum(:duration_seconds) || 0
     end
@@ -440,7 +471,7 @@ class User < ApplicationRecord
 
   def devlog_seconds_today
     Rails.cache.fetch("user/#{id}/devlog_seconds_today/#{Time.zone.today}", expires_in: 10.minutes) do
-      devlog_postable_ids = Post.where(user_id: id, postable_type: "Post::Devlog")
+      devlog_postable_ids = Post.joins(:project).where(user_id: id, postable_type: "Post::Devlog")
                                 .where(created_at: Time.zone.now.beginning_of_day..Time.zone.now.end_of_day)
                                 .select("postable_id::bigint")
       Post::Devlog.where(id: devlog_postable_ids).not_deleted.sum(:duration_seconds) || 0
@@ -469,6 +500,34 @@ class User < ApplicationRecord
       end
       order.mark_rejected!(reason)
     end
+  end
+
+  def apply_hca_verification_payload!(payload, persist_with_callbacks: true)
+    status = payload["verification_status"].to_s
+    return :invalid_status unless self.class.verification_statuses.key?(status)
+
+    fatal_rejection = payload["fatal_rejection"] == true
+    return :ignored_ineligible if status == "ineligible" && !fatal_rejection
+    fatal_ineligible = status == "ineligible" && fatal_rejection
+
+    ysws_eligible = payload["ysws_eligible"] == true
+    attrs = { verification_status: status, ysws_eligible: ysws_eligible }
+    changed = attrs.any? { |key, value| self[key] != value }
+
+    if changed
+      if persist_with_callbacks
+        update!(attrs)
+      else
+        update_columns(attrs.merge(updated_at: Time.current))
+      end
+    end
+
+    enforce_fatal_rejection! if fatal_ineligible
+
+    return :fatal_ineligible if fatal_ineligible
+    return :updated if changed
+
+    :unchanged
   end
 
   private
@@ -503,5 +562,17 @@ class User < ApplicationRecord
     role_info = User::Role.find(role)
     message = "🎉 Congratulations! You've been granted the *#{role_info.name.to_s.titleize}* role on Flavortown."
     dm_user(message)
+  end
+
+  def enforce_fatal_rejection!
+    reject_awaiting_verification_orders!
+    return if banned?
+
+    update_columns(
+      banned: true,
+      banned_at: Time.current,
+      banned_reason: "Fatal identity verification rejection",
+      updated_at: Time.current
+    )
   end
 end

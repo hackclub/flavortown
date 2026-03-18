@@ -1,138 +1,272 @@
 <% content_for :title, "Report ##{@report.id}" %>
-<h1>Report #<%= @report.id %></h1>
+<h1>🚩 Report #<%= @report.id %></h1>
 
-<div class="card" style="margin-bottom: 2rem;">
-  <h2>Report Details</h2>
-
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-    <div>
-      <strong>Status:</strong>
-      <span class="badge badge-<%= @report.status %>"><%= @report.status %></span>
-    </div>
-    <div>
-      <strong>Reason:</strong> <%= @report.reason.titleize %>
-    </div>
-    <div>
-      <strong>Reporter:</strong>
-      <%= link_to @report.reporter.display_name || @report.reporter.email, admin_user_path(@report.reporter) %>
-      <% if @report.reporter.slack_id.present? %>
-        <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;"><%= @report.reporter.slack_id %></code>
-      <% end %>
-    </div>
-    <div>
-      <strong>Created:</strong> <%= @report.created_at.strftime("%Y-%m-%d %H:%M:%S") %>
-    </div>
-  </div>
-
-  <div style="margin-top: 1rem;">
-    <strong>Details:</strong>
-    <p style="background: #f9fafb; padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
-      <%= @report.details %>
-    </p>
-  </div>
-</div>
-
-<div class="card" style="margin-bottom: 2rem;">
-  <h2>Reported Project</h2>
-
-  <% if @report.project.present? %>
-    <% reported_user = @report.project.memberships.owner.first&.user %>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-      <div>
-        <strong>Title:</strong> <%= link_to @report.project.title, project_path(@report.project) %>
+<div class="flex">
+  <div class="card" style="flex: 1;">
+    <h3>Report Info</h3>
+    <div class="report-detail-grid">
+      <div class="report-detail-row">
+        <span class="report-detail-label">Status</span>
+        <span class="badge badge-status-<%= @report.status %>"><%= @report.status %></span>
       </div>
-      <div>
-        <strong>Demo URL:</strong>
-        <% if @report.project.demo_url.present? %>
-          <%= link_to @report.project.demo_url, @report.project.demo_url, target: "_blank" %>
-        <% else %>
-          <em>Not provided</em>
-        <% end %>
+      <div class="report-detail-row">
+        <span class="report-detail-label">Reason</span>
+        <span class="badge badge-reason-<%= @report.reason.parameterize(separator: '_') %>"><%= @report.reason.titleize %></span>
       </div>
-      <div>
-        <strong>Repo URL:</strong>
-        <% if @report.project.repo_url.present? %>
-          <%= link_to @report.project.repo_url, @report.project.repo_url, target: "_blank" %>
-        <% else %>
-          <em>Not provided</em>
-        <% end %>
-      </div>
-      <div>
-        <strong>Members:</strong>
-        <%= @report.project.users.map { |u| u.display_name || u.email }.join(", ") %>
-      </div>
-      <% owner = @report.project.memberships.find_by(role: :owner)&.user %>
-      <% if owner %>
-        <div>
-          <strong>Owner Slack ID:</strong>
-          <% if owner.slack_id.present? %>
-            <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;"><%= owner.slack_id %></code>
-          <% else %>
-            <em>Not linked</em>
+      <div class="report-detail-row">
+        <span class="report-detail-label">Reporter</span>
+        <div class="report-user">
+          <img src="<%= @report.reporter.avatar %>" alt="" class="report-avatar">
+          <%= link_to @report.reporter.display_name, admin_user_path(@report.reporter) %>
+          <% if @report.reporter.slack_id.present? %>
+            <code class="report-code"><%= @report.reporter.slack_id %></code>
           <% end %>
         </div>
-      <% end %>
+      </div>
+      <div class="report-detail-row">
+        <span class="report-detail-label">Created</span>
+        <span><%= @report.created_at.strftime("%b %d, %Y at %H:%M") %> (<%= time_ago_in_words(@report.created_at) %> ago)</span>
+      </div>
     </div>
 
-    <% if @report.project.description.present? %>
-      <div style="margin-top: 1rem;">
-        <strong>Description:</strong>
-        <p style="background: #f9fafb; padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
-          <%= @report.project.description %>
-        </p>
+    <div class="report-details-box">
+      <strong>Details:</strong>
+      <p><%= @report.details %></p>
+    </div>
+
+    <% if @report.pending? %>
+      <div class="report-action-buttons">
+        <%= button_to "✅ Mark as Reviewed", review_admin_report_path(@report), method: :post, class: "btn-primary" %>
+        <%= button_to "🗑️ Dismiss Report", dismiss_admin_report_path(@report), method: :post, class: "btn-secondary" %>
+      </div>
+    <% elsif @report.reviewed? %>
+      <div class="report-resolved-banner report-resolved-banner--reviewed">
+        ✅ This report has been reviewed
+      </div>
+    <% elsif @report.dismissed? %>
+      <div class="report-resolved-banner report-resolved-banner--dismissed">
+        🗑️ This report has been dismissed
       </div>
     <% end %>
+  </div>
 
-    <% if reported_user.present? %>
-      <div style="margin-top: 1rem;">
-        <%= link_to "View reported user →", admin_user_path(reported_user), class: "btn-primary slim" %>
+  <div class="card" style="flex: 1;">
+    <h3>Reported Project</h3>
+    <% if @report.project.present? %>
+      <div class="report-detail-grid">
+        <div class="report-detail-row">
+          <span class="report-detail-label">Title</span>
+          <strong><%= @report.project.title %></strong>
+        </div>
+        <div class="report-detail-row">
+          <span class="report-detail-label">Owner</span>
+          <% owner = @report.project.memberships.find_by(role: :owner)&.user %>
+          <% if owner %>
+            <div class="report-user">
+              <img src="<%= owner.avatar %>" alt="" class="report-avatar">
+              <%= link_to owner.display_name, admin_user_path(owner) %>
+              <% if owner.slack_id.present? %>
+                <code class="report-code"><%= owner.slack_id %></code>
+              <% end %>
+            </div>
+          <% else %>
+            <span class="report-muted">Unknown</span>
+          <% end %>
+        </div>
+        <div class="report-detail-row">
+          <span class="report-detail-label">Demo URL</span>
+          <% if @report.project.demo_url.present? %>
+            <%= link_to truncate(@report.project.demo_url, length: 50), @report.project.demo_url, target: "_blank" %>
+          <% else %>
+            <span class="report-muted">Not provided</span>
+          <% end %>
+        </div>
+        <div class="report-detail-row">
+          <span class="report-detail-label">Repo URL</span>
+          <% if @report.project.repo_url.present? %>
+            <%= link_to truncate(@report.project.repo_url, length: 50), @report.project.repo_url, target: "_blank" %>
+          <% else %>
+            <span class="report-muted">Not provided</span>
+          <% end %>
+        </div>
+        <div class="report-detail-row">
+          <span class="report-detail-label">Members</span>
+          <span><%= @report.project.users.map(&:display_name).join(", ") %></span>
+        </div>
+        <% if @report.project.shadow_banned? %>
+          <div class="report-detail-row">
+            <span class="report-detail-label">⚠️ Status</span>
+            <span class="badge badge-reason-fraud">Shadow Banned</span>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @report.project.description.present? %>
+        <div class="report-details-box">
+          <strong>Description:</strong>
+          <p><%= @report.project.description %></p>
+        </div>
+      <% end %>
+
+      <div class="report-action-buttons">
+        <%= link_to "View Project →", admin_project_path(@report.project), class: "btn-primary slim" %>
+        <% reported_user = @report.project.memberships.find_by(role: :owner)&.user %>
+        <% if reported_user %>
+          <%= link_to "View Owner →", admin_user_path(reported_user), class: "btn-secondary slim" %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="report-resolved-banner report-resolved-banner--dismissed">
+        This project has been deleted.
       </div>
     <% end %>
-  <% else %>
-    <p class="text-muted" style="padding: 1rem; background: #f9fafb; border-radius: 6px;">
-      This project has been deleted.
-    </p>
-  <% end %>
+  </div>
 </div>
 
-<div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-  <% if @report.pending? %>
-    <%= button_to "Mark as Reviewed", review_admin_report_path(@report), method: :post, class: "btn-primary" %>
-    <%= button_to "Dismiss Report", dismiss_admin_report_path(@report), method: :post, class: "btn-secondary" %>
-  <% elsif @report.reviewed? %>
-    <span class="badge badge-reviewed" style="padding: 0.5rem 1rem;">Already Reviewed</span>
-  <% elsif @report.dismissed? %>
-    <span class="badge badge-dismissed" style="padding: 0.5rem 1rem;">Already Dismissed</span>
-  <% end %>
-</div>
+<%= render "admin/shared/audit_log", record: @report, item_type: "Project::Report" %>
 
-<div>
+<div style="margin-top: 2rem;">
   <%= link_to "← Back to Reports", admin_reports_path, class: "btn-secondary" %>
 </div>
 
 <style>
+.report-detail-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.report-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.report-detail-label {
+  font-weight: 600;
+  min-width: 80px;
+  color: #6b7280;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.report-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.report-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.report-code {
+  background: var(--color-tan-400);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.report-muted {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.report-details-box {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  background: var(--color-tan-400);
+  border: 1px solid var(--color-brown-500);
+  border-radius: 0.5rem;
+}
+
+.report-details-box p {
+  margin: 0.5rem 0 0;
+}
+
+.report-action-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.report-resolved-banner {
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.report-resolved-banner--reviewed {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.report-resolved-banner--dismissed {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+/* Status badges */
 .badge {
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-transform: capitalize;
-  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
-.badge-pending {
-  background-color: #fbbf24;
-  color: #78350f;
+.badge-status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
 }
 
-.badge-reviewed {
-  background-color: #10b981;
-  color: white;
+.badge-status-reviewed {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
 }
 
-.badge-dismissed {
-  background-color: #6b7280;
-  color: white;
+.badge-status-dismissed {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+/* Reason badges */
+.badge-reason-fraud,
+.badge-reason-external_flag,
+.badge-reason-ysws_project_flag,
+.badge-reason-shipwrights_project_flag {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-reason-low_effort {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-reason-undeclared_ai {
+  background-color: #ede9fe;
+  color: #5b21b6;
+}
+
+.badge-reason-demo_broken {
+  background-color: #cffafe;
+  color: #155e75;
+}
+
+.badge-reason-other {
+  background-color: #f3f4f6;
+  color: #6b7280;
 }
 </style>

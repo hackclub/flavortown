@@ -1,3 +1,5 @@
+require "csv"
+
 module Admin
   class AuditLogsController < Admin::ApplicationController
     def index
@@ -41,11 +43,17 @@ module Admin
         @versions = @versions.where("object_changes::text ILIKE ?", "%#{params[:search]}%")
       end
 
+      # CSV export (before pagination)
+      respond_to do |format|
+        format.html
+      end
+
       # Pagination
       @pagy, @versions = pagy(:offset, @versions, limit: 50)
 
       # Get unique item types and users for filters
       @item_types = PaperTrail::Version.distinct.pluck(:item_type).compact.sort
+      @events = PaperTrail::Version.distinct.pluck(:event).compact.sort
       @users = User.where(id: PaperTrail::Version.distinct.pluck(:whodunnit).compact).order(:display_name)
 
       # For item_id filter, show the affected record info
@@ -61,23 +69,52 @@ module Admin
 
     # Map of allowed item types to their classes for safe lookup
     ALLOWED_ITEM_CLASSES = {
-      "User" => User,
-      "Project" => Project,
-      "ShopOrder" => ShopOrder,
-      "ShopItem" => ShopItem,
-      "Post" => Post,
-      "Post::Devlog" => Post::Devlog,
-      "Post::ShipEvent" => Post::ShipEvent,
-      "Comment" => Comment,
-      "LedgerEntry" => LedgerEntry
+      "User" => "User",
+      "User::Identity" => "User::Identity",
+      "Project" => "Project",
+      "Project::Membership" => "Project::Membership",
+      "Project::Report" => "Project::Report",
+      "ShopOrder" => "ShopOrder",
+      "ShopItem" => "ShopItem",
+      "Post" => "Post",
+      "Post::Devlog" => "Post::Devlog",
+      "Post::ShipEvent" => "Post::ShipEvent",
+      "Post::FireEvent" => "Post::FireEvent",
+      "Comment" => "Comment",
+      "LedgerEntry" => "LedgerEntry",
+      "Vote" => "Vote",
+      "Like" => "Like",
+      "Rsvp" => "Rsvp",
+      "FunnelEvent" => "FunnelEvent",
+      "SidequestEntry" => "SidequestEntry",
+      "FulfillmentPayoutRun" => "FulfillmentPayoutRun"
     }.freeze
+
+    def generate_csv(versions)
+      users_by_id = User.where(id: versions.pluck(:whodunnit).compact.uniq).index_by { |u| u.id.to_s }
+      CSV.generate(headers: true) do |csv|
+        csv << [ "ID", "Timestamp", "User", "Event", "Model", "Record ID", "Changes" ]
+        versions.each do |v|
+          user = users_by_id[v.whodunnit.to_s]
+          csv << [
+            v.id,
+            v.created_at.iso8601,
+            user&.display_name || v.whodunnit || "System",
+            v.event,
+            v.item_type,
+            v.item_id,
+            v.object_changes.to_json
+          ]
+        end
+      end
+    end
 
     def find_affected_record
       return nil unless params[:item_type].present? && params[:item_id].present?
+      return nil unless ALLOWED_ITEM_CLASSES.key?(params[:item_type])
 
-      klass = ALLOWED_ITEM_CLASSES[params[:item_type]]
-      return nil unless klass
-
+      class_name = ALLOWED_ITEM_CLASSES[params[:item_type]]
+      klass = class_name.constantize
       klass.find_by(id: params[:item_id])
     rescue StandardError
       nil

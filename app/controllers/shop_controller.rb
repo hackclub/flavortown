@@ -46,7 +46,7 @@ class ShopController < ApplicationController
   end
 
   def order
-    @shop_item = ShopItem.where(enabled: true).find(params[:shop_item_id])
+    @shop_item = ShopItem.enabled.find(params[:shop_item_id])
 
     unless @shop_item.buyable_by_self?
       redirect_to shop_path, alert: "This item cannot be ordered on its own."
@@ -55,7 +55,7 @@ class ShopController < ApplicationController
 
     @user_region = user_region
     @sale_price = @shop_item.price_for_region(@user_region)
-    @regional_base_price = @shop_item.ticket_cost + (@shop_item.send("price_offset_#{@user_region.downcase}") || 0)
+    @regional_base_price = @shop_item.base_price_for_region(@user_region)
     @accessories = @shop_item.available_accessories.includes(:image_attachment)
 
     if @shop_item.requires_achievement?
@@ -87,7 +87,7 @@ class ShopController < ApplicationController
       return
     end
 
-    @shop_item = ShopItem.where(enabled: true).find(params[:shop_item_id])
+    @shop_item = ShopItem.enabled.find(params[:shop_item_id])
     unless @shop_item.present?
       redirect_to shop_path, alert: "This item cannot be ordered."
       return
@@ -131,6 +131,10 @@ class ShopController < ApplicationController
     return redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "You need to have an address to make an order!" unless current_user.addresses.any?
 
     selected_address = current_user.addresses.find { |a| a["id"] == params[:address_id] } || current_user.addresses.first
+
+    unless selected_address&.dig("phone_number").present? || Rails.env.development? || @shop_item.is_a?(ShopItem::FreeStickers)
+      return redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "You need to have a phone number on file to place an order! Please update your profile."
+    end
 
     # Check if item is available in the region of the selected address
     address_country = selected_address&.dig("country")
@@ -192,10 +196,11 @@ class ShopController < ApplicationController
 
   def load_shop_items
     excluded_free_stickers = current_user && has_ordered_free_stickers?
-    @shop_items = ShopItem.cached_buyable_standalone
+    shop_page_data = ShopItem.cached_shop_page_data
+    @shop_items = shop_page_data[:buyable_standalone]
     @shop_items = @shop_items.reject { |item| item.type == "ShopItem::FreeStickers" } if excluded_free_stickers
     @featured_item = featured_free_stickers_item unless excluded_free_stickers
-    @recently_added_items = ShopItem.enabled.listed.buyable_standalone.recently_added.includes(:image_attachment)
+    @recently_added_items = shop_page_data[:recently_added]
     @user_balance = current_user&.balance || 0
   end
 

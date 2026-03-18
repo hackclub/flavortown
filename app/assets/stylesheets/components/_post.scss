@@ -258,6 +258,24 @@
     }
   }
 
+  &__author-activity {
+    opacity: 0.8;
+  }
+
+  &__admin-tools {
+    display: inline-flex;
+    gap: 0.25rem;
+    border: 1px solid orange;
+    background-color: #fff3e0;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin-left: 4px;
+
+    a {
+      text-decoration: none;
+    }
+  }
+
   &__time {
     font-size: var(--font-size-l);
   }
@@ -779,6 +797,12 @@
     }
   }
 
+  &__actions {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
+  }
+
   &__action-btn {
     display: inline-flex;
     align-items: center;
@@ -917,6 +941,36 @@
     .comment-form {
       --comment-box-col: var(--color-teal-400);
     }
+  }
+
+  &__votes-breakdown {
+    margin-top: var(--space-m);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: var(--border-radius);
+
+    summary {
+      cursor: pointer;
+      padding: var(--space-s) var(--space-m);
+      font-weight: 600;
+    }
+  }
+
+  &__vote-entry {
+    padding: var(--space-s) var(--space-m);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+    p {
+      margin: 0 0 var(--space-xs);
+    }
+  }
+
+  &__vote-reason {
+    margin: 0;
+    padding-left: var(--space-m);
+    border-left: 3px solid rgba(0, 0, 0, 0.2);
+    font-style: italic;
+    font-size: var(--font-size-s);
+    opacity: 0.85;
   }
 
   &--theme-ship {

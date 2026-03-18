@@ -43,6 +43,18 @@ Sidequest.find_or_create_by!(slug: "webos") do |sq|
   sq.description = "Build a project for the webOS sidequest! Unlock webOS prizes in the shop."
 end
 
+Sidequest.find_or_create_by!(slug: "the_hackazine") do |sq|
+  sq.title = "The Hackazine"
+  sq.description = "This January: make a page for your project and get it in the Hack Club 2025 magazine! Join #magazine and submit before January 22nd. Projects selected for the magazine receive 50 cookies + stickers! Please note, magazine submissions have 0% AI tolerance."
+  sq.expires_at = Date.new(2025, 1, 22)
+end
+
+Sidequest.find_or_create_by!(slug: "borked_ui_jam") do |sq|
+  sq.title = "Borked UI Jam"
+  sq.description = "Running until January 25th — make a project with delightfully broken UI/UX and submit it for the Borked UI Jam! The top 5 best (worst) projects will receive cookies + other prizes. Check out #borked for more details."
+  sq.expires_at = Date.new(2025, 1, 25)
+end
+
 # webOS shop items - require webOS sidequest achievement
 webos_stickers = ShopItem.find_or_create_by!(id: 95) do |item|
   item.name = "webOS Stickers"
@@ -77,3 +89,9 @@ chromebook.update!(requires_achievement: "sidequest_webos")
 user = User.find_or_create_by!(email: "max@hackclub.com", slack_id: "U09UQ385LSG")
 user.make_super_admin!
 user.make_admin!
+
+# Load comprehensive development seed in development environments
+if Rails.env.development? && ENV.fetch("USE_BIG_SEED", false)
+  puts "Loading comprehensive development seed..."
+  load Rails.root.join('db', 'seeds', 'dev_full_seed.rb')
+end

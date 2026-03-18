@@ -1,11 +1,17 @@
 default: &default
   dispatchers:
-    - polling_interval: 1
-      batch_size: 500
+    - polling_interval: 0.5
+      batch_size: 200
   workers:
+    # fast-lane
+    - queues: ["latency_10s", "latency_5m"]
+      threads: 2
+      processes: 1
+      polling_interval: 0.05
+    # Default and scheduled jobs
     - queues: "*"
-      threads: 3
-      processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
+      threads: 12
+      processes: <%= ENV.fetch("JOB_CONCURRENCY", 8) %>
       polling_interval: 0.1
 
 development:
