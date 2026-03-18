@@ -113,7 +113,8 @@ module Admin
       return nil unless params[:item_type].present? && params[:item_id].present?
       return nil unless ALLOWED_ITEM_CLASSES.key?(params[:item_type])
 
-      klass = params[:item_type].constantize
+      class_name = ALLOWED_ITEM_CLASSES[params[:item_type]]
+      klass = class_name.constantize
       klass.find_by(id: params[:item_id])
     rescue StandardError
       nil
