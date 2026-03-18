@@ -44,7 +44,7 @@
             — <%= ship_event.body.presence || "No message for this event" %>
             <% if legitimate_votes.any? %>
               —
-              <button type="button" class="btn-primary slim" onclick="document.getElementById('ship-event-feedback-modal-#{ship_event.id}').showModal()">View Feedback</button>
+              <button type="button" class="btn-primary slim" onclick="document.getElementById(<%= "ship-event-feedback-modal-#{ship_event.id}".to_json %>).showModal()">View Feedback</button>
             <% end %>
           </li>
 
