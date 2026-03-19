@@ -12,7 +12,7 @@ class Api::V1::LinksController < Api::BaseController
 
     # project_links are internal ft paths; returns a relative path to avoid needing host
     @project_links = projects.select(:id, :title).map do |p|
-      { id: p.id, title: p.title, link: "/projects/#{p.id}" }
+      { id: p.id, title: p.title, link: project_path(p) }
     end
   end
 
@@ -22,7 +22,7 @@ class Api::V1::LinksController < Api::BaseController
     projects = Project.where(deleted_at: nil).excluding_shadow_banned
     limit = limit_param
     relation = projects.where.not(demo_url: [ nil, "" ]).select(:id, :title, :demo_url)
-    relation = relation.limit(limit) if limit
+    relation = relation.order(:id).limit(limit) if limit
     @demo_links = relation
   end
 
@@ -32,7 +32,7 @@ class Api::V1::LinksController < Api::BaseController
     projects = Project.where(deleted_at: nil).excluding_shadow_banned
     limit = limit_param
     relation = projects.where.not(repo_url: [ nil, "" ]).select(:id, :title, :repo_url)
-    relation = relation.limit(limit) if limit
+    relation = relation.order(:id).limit(limit) if limit
     @repo_links = relation
   end
 
@@ -42,7 +42,7 @@ class Api::V1::LinksController < Api::BaseController
     projects = Project.where(deleted_at: nil).excluding_shadow_banned
     limit = limit_param
     relation = projects.where.not(readme_url: [ nil, "" ]).select(:id, :title, :readme_url)
-    relation = relation.limit(limit) if limit
+    relation = relation.order(:id).limit(limit) if limit
     @readme_links = relation
   end
 
@@ -51,8 +51,8 @@ class Api::V1::LinksController < Api::BaseController
   def projects
     projects = Project.where(deleted_at: nil).excluding_shadow_banned.select(:id, :title)
     limit = limit_param
-    projects = projects.limit(limit) if limit
-    @project_links = projects.map { |p| { id: p.id, title: p.title, link: "/projects/#{p.id}" } }
+    projects = projects.order(:id).limit(limit) if limit
+    @project_links = projects.map { |p| { id: p.id, title: p.title, link: project_path(p) } }
   end
 
   private
@@ -61,6 +61,7 @@ class Api::V1::LinksController < Api::BaseController
     value = params[:limit].to_i
     return nil unless value.positive?
 
-    value.clamp(1, 50)
+    # No Limit cap
+    value.clamp(1, Float::INFINITY)
   end
 end
