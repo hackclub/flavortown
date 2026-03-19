@@ -20,7 +20,7 @@ class Api::V1::LinksController < Api::BaseController
   # Returns only demo links for projects that have a demo url
   def demos
     projects = Project.where(deleted_at: nil).excluding_shadow_banned
-    limit = params[:limit].to_i.positive? ? params[:limit].to_i.clamp(1, 1000) : nil
+    limit = params[:limit].to_i.positive? ? params[:limit].to_i : nil
     relation = projects.where.not(demo_url: [nil, ""]).select(:id, :demo_url)
     relation = relation.limit(limit) if limit
     @demo_links = relation
@@ -30,7 +30,7 @@ class Api::V1::LinksController < Api::BaseController
   # Returns only repo links for projects that have a repo url
   def repo
     projects = Project.where(deleted_at: nil).excluding_shadow_banned
-    limit = params[:limit].to_i.positive? ? params[:limit].to_i.clamp(1, 1000) : nil
+    limit = params[:limit].to_i.positive? ? params[:limit].to_i : nil
     relation = projects.where.not(repo_url: [nil, ""]).select(:id, :repo_url)
     relation = relation.limit(limit) if limit
     @repo_links = relation
@@ -40,7 +40,7 @@ class Api::V1::LinksController < Api::BaseController
   # Returns only readme links for projects that have a readme url
   def readme
     projects = Project.where(deleted_at: nil).excluding_shadow_banned
-    limit = params[:limit].to_i.positive? ? params[:limit].to_i.clamp(1, 1000) : nil
+    limit = params[:limit].to_i.positive? ? params[:limit].to_i : nil
     relation = projects.where.not(readme_url: [nil, ""]).select(:id, :readme_url)
     relation = relation.limit(limit) if limit
     @readme_links = relation
@@ -50,7 +50,7 @@ class Api::V1::LinksController < Api::BaseController
   # Returns only project links for all projects
   def projects
     projects = Project.where(deleted_at: nil).excluding_shadow_banned.select(:id)
-    limit = params[:limit].to_i.positive? ? params[:limit].to_i.clamp(1, 1000) : nil
+    limit = params[:limit].to_i.positive? ? params[:limit].to_i : nil
     projects = projects.limit(limit) if limit
     @project_links = projects.map { |p| { id: p.id, link: "/projects/#{p.id}" } }
   end
