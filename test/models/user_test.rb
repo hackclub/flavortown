@@ -102,4 +102,10 @@ class UserTest < ActiveSupport::TestCase
     user.hcb_email = ""
     assert user.valid?
   end
+
+  test "hcb_email allows nil value" do
+    user = users(:one)
+    user.hcb_email = nil
+    assert user.valid?
+  end
 end
