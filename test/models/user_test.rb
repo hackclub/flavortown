@@ -71,6 +71,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "grant_email falls back to email when hcb_email is nil" do
     user = users(:one)
+    assert user.email.present?, "Fixture user(:one) must have a non-nil email for this test"
     user.hcb_email = nil
     assert_equal user.email, user.grant_email
   end
@@ -78,6 +79,7 @@ class UserTest < ActiveSupport::TestCase
   test "grant_email falls back to email when hcb_email is blank" do
     user = users(:one)
     user.hcb_email = ""
+    assert user.email.present?, "Expected fixture user.email to be present for fallback test"
     assert_equal user.email, user.grant_email
   end
 
@@ -86,6 +88,7 @@ class UserTest < ActiveSupport::TestCase
     user.hcb_email = "not-an-email"
     assert_not user.valid?
     assert_includes user.errors[:hcb_email], "is invalid"
+    assert_not user.save, "User with invalid hcb_email should not be saved"
   end
 
   test "hcb_email allows valid email format" do
