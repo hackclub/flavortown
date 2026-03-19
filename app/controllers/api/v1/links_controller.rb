@@ -29,4 +29,18 @@ class Api::V1::LinksController < Api::BaseController
     projects = Project.where(deleted_at: nil).excluding_shadow_banned
     @repo_links = projects.where.not(repo_url: [nil, ""]).select(:id, :repo_url)
   end
+
+  # GET /api/v1/links/readme
+  # Returns only readme links for projects that have a readme url
+  def readme
+    projects = Project.where(deleted_at: nil).excluding_shadow_banned
+    @readme_links = projects.where.not(readme_url: [nil, ""]).select(:id, :readme_url)
+  end
+
+  # GET /api/v1/links/projects
+  # Returns only project links for all projects
+  def projects
+    projects = Project.where(deleted_at: nil).excluding_shadow_banned.select(:id)
+    @project_links = projects.map { |p| { id: p.id, link: "/projects/#{p.id}" } }
+  end
 end
