@@ -1,5 +1,5 @@
 # Run `rails secret`, or copy this from your `.env` file.
-secret_key_base: 91a016c2f22f34fcc57179e7f50fb74c4d7642f61be81b5044b544a008b67e1ce421cb0b7a357d62e262ac969654b9e71d98b32e5ca162072032a86720892ecc
+secret_key_base: 232482e43af224857b1fc54028247290c62876af69a6d9c7782318fa66972be7697019f5e6985d3798fc3afeb1aac4a16d6590d194b3cc85636c2428a3c698a5
 
 # Run `Lockbox.generate_key` in `rails console`, or copy this from your `.env` file.
 lockbox:
@@ -13,8 +13,8 @@ constants:
   joe_url: https://joe.fraud.hackclub.com
 
 idv:
-  client_id: client_id
-  client_secret: secrets
+  client_id: 52155330c02a65e9e0a4662ab2d59b23
+  client_secret: adcdac937fce3f7ae1a7f18ebea5376e54dea36756f13bc204f10a4af202741e
   redirect_url: http://localhost:3000/oauth/callback
   site: https://hca.dinosaurbbq.org
 
