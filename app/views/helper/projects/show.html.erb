@@ -19,7 +19,7 @@
       <div><b>Devlog Count:</b> <%= @project.devlogs.count %></div>
       <div><b>Time Spent: </b> <%= distance_of_time_in_words(@project.duration_seconds) %></div>
       <% if @project.ai_declaration.present? %>
-        <div><b>This user declared ai:</b> <%= @project.ai_declaration %></div>
+        <div><b>This user declared AI:</b> <%= @project.ai_declaration %></div>
       <% end %>
       <div><b>Type:</b> <%= @project.project_type.presence || "Not set" %></div>
       <div><b>Created:</b> <%= @project.created_at.strftime("%Y-%m-%d") %></div>
