@@ -168,6 +168,7 @@ Rails.application.routes.draw do
 
       get "docs", to: "docs#index", as: :docs
       resources :devlogs, only: [ :index, :show ]
+      get "votes/stats", to: "votes#stats"
       resources :store, only: [ :index, :show ] do
         collection do
           get :search
