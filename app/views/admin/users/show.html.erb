@@ -27,7 +27,7 @@
 
 <div class="flex">
   <div class="card">
-    <h2>basic info</h2>
+    <h2>Basic info</h2>
 
     <div class="info-rows">
       <div><b>Name:</b> <%= @user.display_name %></div>
@@ -74,7 +74,7 @@
     </div>
   </div>
   <div class="card">
-    <h2>identities</h2>
+    <h2>Identities</h2>
     <div class="info-rows">
       <div>
         <b>slack_id:</b>
@@ -110,7 +110,7 @@
 
 <div class="flex">
   <div class="card">
-    <h2>actions</h2>
+    <h2>Actions</h2>
     <div class="admin-actions-wrap">
       <% if policy(:admin).generate_magic_links? %>
         <%= link_to "🔗 Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
@@ -268,7 +268,7 @@
     </div>
   </div>
   <div class="card">
-    <h2>flipper features</h2>
+    <h2>Flipper Features</h2>
     <div class="flipper-features-wrap">
       <%
         features = [
