@@ -99,7 +99,7 @@
             <%= link_to "go to joe", "https://joe.fraud.hackclub.com/profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
 
-            <% if identity.provider == "hack_club" %>
+          <% if identity.provider == "hack_club" %>
             <%= link_to "go to idv backend", "#{HCAService.backend_url("/identities/#{identity.uid}")}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
         </div>
@@ -300,7 +300,7 @@
 
 <div class="admin-section<%= ' admin-section--highlighted' if @user.internal_notes.present? %>">
   <h2 class="admin-section__header">📝 Internal Notes</h2>
-  <p class="admin-section__note">⚠️ Shared between fraud, fulfilment, and admins. Changes are audit logged.</p>
+  <p class="admin-section__note">⚠️ Shared between fraud, fulfillment, and admins. Changes are audit logged.</p>
   <% if @user.internal_notes.present? %>
     <div class="admin-alert admin-alert--warning">
       <strong>Note:</strong> <%= simple_format(@user.internal_notes, {}, wrapper_tag: "span") %>
