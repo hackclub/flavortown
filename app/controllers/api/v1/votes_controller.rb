@@ -38,5 +38,113 @@ class Api::V1::VotesController < Api::BaseController
     render json: { total_votes: total, recent_votes: recent_votes }
   end
 
+  # Final aggregated results for a project.
+  def results
+    if params[:project_id].present?
+      project = Project.find_by(id: params[:project_id])
+      return render(json: { error: "Project not found" }, status: :not_found) unless project
+
+      # Prefer the most recent ship event using the current voting scale, fall back to latest ship event.
+      ship_event = Post::ShipEvent.joins(:post)
+        .where(posts: { project_id: project.id }, voting_scale_version: Post::ShipEvent::CURRENT_VOTING_SCALE_VERSION)
+        .order("post_ship_events.created_at DESC").first
+
+      ship_event ||= project.posts.of_ship_events.order("posts.created_at DESC").first&.ship_event
+      return render(json: { error: "No ship event found for project" }, status: :not_found) unless ship_event
+
+      mj = ship_event.majority_judgment
+
+      render json: {
+        ship_event_id: ship_event.id,
+        project_id: project.id,
+        project_title: project.title,
+        votes_count: ship_event.votes.legitimate.count,
+        majority_judgment: mj
+      }
+    else
+      render json: { error: "project_id required" }, status: :bad_request
+    end
+  end
+
+  # Return every vote record for a given project.
+  def records
+    unless params[:project_id].present?
+      return render json: { error: "project_id required" }, status: :bad_request
+    end
+
+    scope = Vote.legitimate.includes(:user).order(created_at: :desc)
+
+    if params[:project_id].present?
+      # Return votes for the project
+      scope = scope.where(project_id: params[:project_id])
+    end
+
+    limit = (params[:limit] || 100).to_i.clamp(1, 1000)
+    votes = scope.limit(limit)
+
+    result = votes.map do |v|
+      user_info = if v.user&.vote_anonymously?
+        nil
+      else
+        { id: v.user&.id, display_name: v.user&.display_name }
+      end
+
+      {
+        id: v.id,
+        user: user_info,
+        project_id: v.project_id,
+        ship_event_id: v.ship_event_id,
+        originality_score: v.originality_score,
+        technical_score: v.technical_score,
+        usability_score: v.usability_score,
+        storytelling_score: v.storytelling_score,
+        reason: v.reason,
+        time_taken_to_vote: v.time_taken_to_vote,
+        suspicious: v.suspicious,
+        created_at: v.created_at.iso8601
+      }
+    end
+
+    render json: { votes: result }
+  end
+
+  # Latest global votes across all projects. Defaults to 100.
+  def global
+    limit = (params[:limit] || 100).to_i.clamp(1, 1000)
+
+    scope = Vote.legitimate.includes(:user, :project).order(created_at: :desc)
+
+    if params[:project_ids].present?
+      ids = params[:project_ids].to_s.split(",").map!(&:to_i)
+      scope = scope.where(project_id: ids)
+    end
+
+    votes = scope.limit(limit)
+
+    result = votes.map do |v|
+      user_info = if v.user&.vote_anonymously?
+        nil
+      else
+        { id: v.user&.id, display_name: v.user&.display_name }
+      end
+
+      {
+        id: v.id,
+        project_id: v.project_id,
+        project_title: v.project&.title,
+        user: user_info,
+        originality_score: v.originality_score,
+        technical_score: v.technical_score,
+        usability_score: v.usability_score,
+        storytelling_score: v.storytelling_score,
+        reason: v.reason,
+        time_taken_to_vote: v.time_taken_to_vote,
+        created_at: v.created_at.iso8601
+      }
+    end
+
+    render json: { votes: result }
+  end
+
   private
 end
