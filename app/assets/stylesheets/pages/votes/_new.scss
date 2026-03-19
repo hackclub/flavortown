@@ -522,6 +522,10 @@
     align-items: center;
     gap: 0.25rem;
     background-color: var(--input-bg);
+    background-image: url("mask/title.webp");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
     border-radius: calc(var(--border-radius) * 0.8);
     overflow: hidden;
     position: relative;
