@@ -6,8 +6,8 @@ class Api::V1::LinksController < Api::BaseController
   def index
     projects = Project.where(deleted_at: nil).excluding_shadow_banned
 
-    @readme_links = projects.where.not(readme_url: [nil, ""]).select(:id, :title, :readme_url)
-    @demo_links = projects.where.not(demo_url: [nil, ""]).select(:id, :demo_url)
+    @readme_links = projects.where.not(readme_url: [ nil, "" ]).select(:id, :title, :readme_url)
+    @demo_links = projects.where.not(demo_url: [ nil, "" ]).select(:id, :demo_url)
     @github_links = projects.where("repo_url ILIKE ?", "%github.com%").select(:id, :title, :repo_url)
 
     # project_links are internal ft paths; returns a relative path to avoid needing host
@@ -21,7 +21,7 @@ class Api::V1::LinksController < Api::BaseController
   def demos
     projects = Project.where(deleted_at: nil).excluding_shadow_banned
     limit = params[:limit].to_i.positive? ? params[:limit].to_i : nil
-    relation = projects.where.not(demo_url: [nil, ""]).select(:id, :demo_url)
+    relation = projects.where.not(demo_url: [ nil, "" ]).select(:id, :demo_url)
     relation = relation.limit(limit) if limit
     @demo_links = relation
   end
@@ -31,7 +31,7 @@ class Api::V1::LinksController < Api::BaseController
   def repo
     projects = Project.where(deleted_at: nil).excluding_shadow_banned
     limit = params[:limit].to_i.positive? ? params[:limit].to_i : nil
-    relation = projects.where.not(repo_url: [nil, ""]).select(:id, :repo_url)
+    relation = projects.where.not(repo_url: [ nil, "" ]).select(:id, :repo_url)
     relation = relation.limit(limit) if limit
     @repo_links = relation
   end
@@ -41,7 +41,7 @@ class Api::V1::LinksController < Api::BaseController
   def readme
     projects = Project.where(deleted_at: nil).excluding_shadow_banned
     limit = params[:limit].to_i.positive? ? params[:limit].to_i : nil
-    relation = projects.where.not(readme_url: [nil, ""]).select(:id, :readme_url)
+    relation = projects.where.not(readme_url: [ nil, "" ]).select(:id, :readme_url)
     relation = relation.limit(limit) if limit
     @readme_links = relation
   end
