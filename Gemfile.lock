@@ -215,6 +215,9 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
+    faiss (0.5.3)
+      numo-narray
+      rice (>= 4.8)
     faker (3.6.1)
       i18n (>= 1.8.11, < 2)
     faraday (2.14.1)
@@ -573,6 +576,7 @@ GEM
     request_store (1.7.0)
       rack (>= 1.4)
     rexml (3.4.4)
+    rice (4.11.2)
     rspec-core (3.13.6)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.5)
@@ -790,6 +794,7 @@ DEPENDENCIES
   disco
   dotenv-rails
   erb_lint
+  faiss
   faker (~> 3.6)
   faraday
   faraday-retry
