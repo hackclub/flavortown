@@ -299,7 +299,7 @@
 
 <div class="admin-section<%= ' admin-section--highlighted' if @user.internal_notes.present? %>">
   <h2 class="admin-section__header">📝 Internal Notes</h2>
-  <p class="admin-section__note">⚠️ Shared between fraud, fulfilment, and admins. Changes are audit logged.</p>
+  <p class="admin-section__note">⚠️ Shared between fraud, fulfillment, and admins. Changes are audit logged.</p>
   <% if @user.internal_notes.present? %>
     <div class="admin-alert admin-alert--warning">
       <strong>Note:</strong> <%= simple_format(@user.internal_notes, {}, wrapper_tag: "span") %>
