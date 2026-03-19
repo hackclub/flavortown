@@ -176,6 +176,7 @@ Rails.application.routes.draw do
       resources :users, only: [ :index, :show ]
 
       get "links", to: "links#index", as: :links
+      get "links/demos", to: "links#demos", as: :links_demos
       post "flavortime/session", to: "flavortime#create_session"
       post "flavortime/heartbeat", to: "flavortime#heartbeat"
       post "flavortime/close", to: "flavortime#close"
