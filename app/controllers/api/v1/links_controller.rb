@@ -17,9 +17,16 @@ class Api::V1::LinksController < Api::BaseController
   end
 
   # GET /api/v1/links/demos
-  # Returns only demo links for projects that have a demo_url
+  # Returns only demo links for projects that have a demo url
   def demos
     projects = Project.where(deleted_at: nil).excluding_shadow_banned
-    @demo_links = projects.where.not(demo_url: [nil, ""]).select(:id, :title, :demo_url)
+    @demo_links = projects.where.not(demo_url: [nil, ""]).select(:id, :demo_url)
+  end
+
+  # GET /api/v1/links/repo
+  # Returns only repo links for projects that have a repo url
+  def repo
+    projects = Project.where(deleted_at: nil).excluding_shadow_banned
+    @repo_links = projects.where.not(repo_url: [nil, ""]).select(:id, :repo_url)
   end
 end

@@ -177,6 +177,7 @@ Rails.application.routes.draw do
 
       get "links", to: "links#index", as: :links
       get "links/demos", to: "links#demos", as: :links_demos
+      get "links/repo", to: "links#repo", as: :links_repo
       post "flavortime/session", to: "flavortime#create_session"
       post "flavortime/heartbeat", to: "flavortime#heartbeat"
       post "flavortime/close", to: "flavortime#close"
