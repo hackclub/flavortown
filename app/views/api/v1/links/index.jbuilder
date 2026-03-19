@@ -6,7 +6,7 @@ json.demo_links @demo_links do |p|
   json.extract! p, :id, :title, :demo_url
 end
 
-json.github_links @github_links do |p|
+json.repo_links @repo_links do |p|
   json.extract! p, :id, :title, :repo_url
 end
 
