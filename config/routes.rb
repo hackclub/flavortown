@@ -175,6 +175,7 @@ Rails.application.routes.draw do
       end
       resources :users, only: [ :index, :show ]
 
+      get "links", to: "links#index", as: :links
       post "flavortime/session", to: "flavortime#create_session"
       post "flavortime/heartbeat", to: "flavortime#heartbeat"
       post "flavortime/close", to: "flavortime#close"
