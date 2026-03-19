@@ -18,7 +18,7 @@ class Api::V1::VotesController < Api::BaseController
   def stats
     limit = (params[:limit] || 20).to_i.clamp(1, 100)
 
-    recent = Vote.legitimate.includes(:project, :ship_event. :post).order(created_at: :desc).limit(limit)
+    recent = Vote.legitimate.includes(:project, ship_event: :post).order(created_at: :desc).limit(limit)
     total = Vote.legitimate.count
 
     recent_votes = recent.map do |v|
