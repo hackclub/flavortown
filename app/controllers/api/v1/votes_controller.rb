@@ -18,7 +18,7 @@ class Api::V1::VotesController < Api::BaseController
   def stats
     limit = (params[:limit] || 20).to_i.clamp(1, 100)
 
-    recent = Vote.legitimate.includes(:project, :ship_event).order(created_at: :desc).limit(limit)
+    recent = Vote.legitimate.includes(:project, :ship_event. :post).order(created_at: :desc).limit(limit)
     total = Vote.legitimate.count
 
     recent_votes = recent.map do |v|
@@ -115,7 +115,13 @@ class Api::V1::VotesController < Api::BaseController
     scope = Vote.legitimate.includes(:user, :project).order(created_at: :desc)
 
     if params[:project_ids].present?
-      ids = params[:project_ids].to_s.split(",").map!(&:to_i)
+      raw_ids = params[:project_ids].to_s.split(",")
+      normalized_ids = raw_ids.map { |id| id.strip }.reject(&:blank?)
+
+      unless normalized_ids.present? && normalized_ids.all? { |id| id.match?(/\A\d+\z/) }
+        return render json: { error: "Invalid project_ids format, expected comma-separated list of integers" }, status: :bad_request
+      end
+      ids = normalized_ids.map(&:to_i)
       scope = scope.where(project_id: ids)
     end
 
