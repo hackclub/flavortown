@@ -662,7 +662,7 @@ paths:
       summary: List grouped links
       tags:
       - Links
-      description: 'Fetch link collections (readme, demo, repo, project). Per-endpoint `limit` to cap results.'
+      description: 'Fetch link collections (readme, demo, repo, project).'
       operationId: listLinks
       responses:
         '200':
