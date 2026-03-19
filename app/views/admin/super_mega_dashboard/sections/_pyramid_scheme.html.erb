@@ -20,38 +20,39 @@
       </div>
     <% end %>
 
-    <div class="super-mega-dashboard__stats super-mega-dashboard__stats--dashboard">
-      <div class="super-mega-dashboard__stat">
-        <span class="super-mega-dashboard__stat--value orange"><%= number_with_precision(@pyramid_scheme_stats[:total_hours_logged], precision: 1, strip_insignificant_zeros: true) %></span>
-        <span class="super-mega-dashboard__stat--label">Verified Hours</span>
-      </div>
-      <div class="super-mega-dashboard__stat">
-        <span class="super-mega-dashboard__stat--value blue"><%= number_with_delimiter(@pyramid_scheme_stats[:total_users]) %></span>
-        <span class="super-mega-dashboard__stat--label">All Users</span>
-      </div>
-      <div class="super-mega-dashboard__stat">
-        <span class="super-mega-dashboard__stat--value purple"><%= @pyramid_scheme_stats[:flavortime_users] %></span>
-        <span class="super-mega-dashboard__stat--label">Also On Flavortime</span>
-      </div>
-      <div class="super-mega-dashboard__stat">
-        <span class="super-mega-dashboard__stat--value green"><%= number_with_delimiter(@pyramid_scheme_stats[:users_gained_last_week]) %></span>
-        <span class="super-mega-dashboard__stat--label">Users Gained Last 7 Days</span>
-        <% users_delta = @pyramid_scheme_stats[:users_gained_last_week] - @pyramid_scheme_stats[:users_gained_previous_week] %>
-        <span class="super-mega-dashboard__stat--change <%= users_delta >= 0 ? "green" : "red" %>">
-          <%= users_delta >= 0 ? "+" : "" %><%= users_delta %> vs previous 7d
-        </span>
-      </div>
-      <div class="super-mega-dashboard__stat">
-        <span class="super-mega-dashboard__stat--value yellow"><%= number_with_precision(@pyramid_scheme_stats[:verified_hours_last_week], precision: 1, strip_insignificant_zeros: true) %></span>
-        <span class="super-mega-dashboard__stat--label">Verified Hours Last 7 Days</span>
-        <% hours_delta = @pyramid_scheme_stats[:verified_hours_last_week] - @pyramid_scheme_stats[:verified_hours_previous_week] %>
-        <span class="super-mega-dashboard__stat--change <%= hours_delta >= 0 ? "green" : "red" %>">
-          <%= hours_delta >= 0 ? "+" : "" %><%= number_with_precision(hours_delta, precision: 1, strip_insignificant_zeros: true) %> vs previous 7d
-        </span>
-      </div>
-      <div class="super-mega-dashboard__stat">
-        <span class="super-mega-dashboard__stat--value blue"><%= number_with_delimiter(@pyramid_scheme_stats[:shipped_projects_with_pyramid_refs]) %></span>
-        <span class="super-mega-dashboard__stat--label">Projects Shipped</span>
+    <% hours_prev = @pyramid_scheme_stats[:verified_hours_previous_week] %>
+    <% hours_curr = @pyramid_scheme_stats[:verified_hours_last_week] %>
+    <% hours_delta = hours_curr - hours_prev %>
+    <% refs_prev = @pyramid_scheme_stats[:referrals_gained_previous_week] %>
+    <% refs_curr = @pyramid_scheme_stats[:referrals_gained_last_week] %>
+    <% refs_delta = refs_curr - refs_prev %>
+    <div class="super-mega-dashboard__card super-mega-dashboard__card--total-numbers">
+      <h3>Total Numbers</h3>
+      <div class="super-mega-dashboard__total-numbers-grid">
+        <div class="super-mega-dashboard__total-numbers-metric">
+          <span class="super-mega-dashboard__total-numbers-value orange"><%= number_with_precision(@pyramid_scheme_stats[:total_hours_logged], precision: 1, strip_insignificant_zeros: true) %></span>
+          <span class="super-mega-dashboard__total-numbers-label">Verified Hours</span>
+          <span class="super-mega-dashboard__total-numbers-delta">
+            <span class="<%= hours_delta >= 0 ? "green" : "red" %>"><%= hours_delta >= 0 ? "+" : "" %><%= number_with_precision(hours_delta, precision: 1, strip_insignificant_zeros: true) %>h last 7d</span>
+            <span class="super-mega-dashboard__total-numbers-range">(<%= number_with_precision(hours_prev, precision: 1, strip_insignificant_zeros: true) %> &rarr; <%= number_with_precision(hours_curr, precision: 1, strip_insignificant_zeros: true) %>)</span>
+          </span>
+        </div>
+        <div class="super-mega-dashboard__total-numbers-metric">
+          <span class="super-mega-dashboard__total-numbers-value blue"><%= number_with_delimiter(@pyramid_scheme_stats[:total_referrals_verified]) %></span>
+          <span class="super-mega-dashboard__total-numbers-label">Verified Referrals</span>
+          <span class="super-mega-dashboard__total-numbers-delta">
+            <span class="<%= refs_delta >= 0 ? "green" : "red" %>"><%= refs_delta >= 0 ? "+" : "" %><%= refs_delta %> last 7d</span>
+            <span class="super-mega-dashboard__total-numbers-range">(<%= number_with_delimiter(refs_prev) %> &rarr; <%= number_with_delimiter(refs_curr) %>)</span>
+          </span>
+        </div>
+        <div class="super-mega-dashboard__total-numbers-metric">
+          <span class="super-mega-dashboard__total-numbers-value purple"><%= number_with_delimiter(@pyramid_scheme_stats[:shipped_projects]) %></span>
+          <span class="super-mega-dashboard__total-numbers-label">Projects Shipped</span>
+        </div>
+        <div class="super-mega-dashboard__total-numbers-metric">
+          <span class="super-mega-dashboard__total-numbers-value green"><%= number_with_delimiter(@pyramid_scheme_stats[:total_users]) %></span>
+          <span class="super-mega-dashboard__total-numbers-label">All Users (<%= @pyramid_scheme_stats[:flavortime_users] %> also on Flavortime)</span>
+        </div>
       </div>
     </div>
 
@@ -94,6 +95,7 @@
 
 <% unless @pyramid_scheme_stats[:error].present? %>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const activityCtx = document.getElementById('pyramidActivityChart');
@@ -277,12 +279,20 @@
             borderRadius: 10
           }]
         },
+        plugins: [ChartDataLabels],
         options: {
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: false }
+            legend: { display: false },
+            datalabels: {
+              anchor: 'end',
+              align: 'end',
+              color: '#e2e8f0',
+              font: { weight: 'bold', size: 13 },
+              formatter: (value) => value.toLocaleString()
+            }
           },
           scales: {
             x: {

@@ -1,7 +1,6 @@
 class PyramidReferralService
   PRODUCTION_BASE_URL = "https://pyramid.hackclub.com"
   DEVELOPMENT_BASE_URL = "http://host.docker.internal:4444"
-  REFERRAL_STATUSES = %w[pending id_verified completed].freeze
 
   class << self
     # Fetch the list of valid referral codes from Pyramid API
@@ -34,28 +33,25 @@ class PyramidReferralService
       fallback_dashboard_stats || { "error" => e.message }
     end
 
-    # Sync enriched_ref by cross-checking user ref values against valid Pyramid codes
+    # Sync enriched_ref by cross-checking user ref values against valid Pyramid codes.
+    # All matching users are labelled "pyramid scheme" so they group under one attribution bucket.
     def sync_enriched_refs!
       valid_codes = fetch_valid_referral_codes
       return { success: false, error: "Failed to fetch valid referral codes" } unless valid_codes
 
-      valid_codes_by_normalized = valid_codes.each_with_object({}) do |code, index|
-        normalized = normalize_referral_code(code)
-        index[normalized] ||= code if normalized.present?
-      end
+      valid_codes_set = Set.new(valid_codes.filter_map { |code| normalize_referral_code(code) })
 
-      # Find all users with a ref that exists in the valid codes list
       users_with_refs = User.where.not(ref: [ nil, "" ])
       updated_count = 0
       checked_count = 0
 
       users_with_refs.find_each do |user|
         checked_count += 1
-        matched_code = valid_codes_by_normalized[normalize_referral_code(user.ref)]
+        normalized_ref = normalize_referral_code(user.ref)
+        next unless valid_codes_set.include?(normalized_ref)
 
-        # Preserve Pyramid's canonical code casing once we have a match.
-        if matched_code.present? && user.enriched_ref != matched_code
-          user.update!(enriched_ref: matched_code)
+        if user.enriched_ref != "pyramid scheme"
+          user.update!(enriched_ref: "pyramid scheme")
           updated_count += 1
         end
       end
@@ -69,7 +65,7 @@ class PyramidReferralService
     private
 
     def fallback_dashboard_stats
-      referrals_by_status = REFERRAL_STATUSES.index_with do |status|
+      referrals_by_status = %w[pending id_verified completed].index_with do |status|
         fetch_referrals(status)
       end
 
@@ -143,6 +139,12 @@ class PyramidReferralService
         counts[date] += 1
       end
 
+      referral_creations_by_date = Hash.new(0)
+      all_referrals.each do |referral|
+        created_at = parse_time(referral["created_at"])&.to_date
+        referral_creations_by_date[created_at] += 1 if created_at
+      end
+
       {
         "user_slack_ids" => user_slack_ids.uniq,
         "engaged_users" => first_seen_by_identifier.size,
@@ -151,6 +153,8 @@ class PyramidReferralService
         "users_gained_previous_week" => sum_previous_n_days(user_additions_by_date, 7).to_i,
         "verified_hours_last_week" => sum_last_n_days(completed_hours_by_date, 7).round(1),
         "verified_hours_previous_week" => sum_previous_n_days(completed_hours_by_date, 7).round(1),
+        "referrals_gained_last_week" => sum_last_n_days(referral_creations_by_date, 7).to_i,
+        "referrals_gained_previous_week" => sum_previous_n_days(referral_creations_by_date, 7).to_i,
         "timeline" => build_fallback_timeline(all_referrals, user_additions_by_date, completed_hours_by_date)
       }
     end
