@@ -99,7 +99,7 @@
             <%= link_to "go to joe", "https://joe.fraud.hackclub.com/profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
 
-            <% if identity.provider == "hack_club" %>
+          <% if identity.provider == "hack_club" %>
             <%= link_to "go to idv backend", "#{HCAService.backend_url("/identities/#{identity.uid}")}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
         </div>
