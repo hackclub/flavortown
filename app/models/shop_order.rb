@@ -108,6 +108,7 @@ class ShopOrder < ApplicationRecord
     ShopItem::WarehouseItem
     ShopItem::FreeStickers
     ShopItem::PileOfStickersItem
+    ShopItem::SillyItemType
   ].freeze
 
   DIGITAL_ITEM_TYPES = %w[
@@ -329,6 +330,7 @@ class ShopOrder < ApplicationRecord
     ShopItem::HCBGrant
     ShopItem::HCBPreauthGrant
     ShopItem::ThirdPartyDigital
+    ShopItem::SillyItemType
   ].freeze
 
   def check_regional_availability
