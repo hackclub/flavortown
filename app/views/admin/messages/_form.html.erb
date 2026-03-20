@@ -100,10 +100,10 @@
 
   <div style="margin-bottom: 1rem;">
     <%= label_tag :block_path, "Block path" %>
-    <p class="admin-section__note">Optional if content is set. Example: slack_messages/some_template</p>
+    <p class="admin-section__note">Optional if content is set. Example: notifications/some_template</p>
     <%= text_field_tag :block_path, nil,
       class: "input-primary",
-      placeholder: "slack_messages/some_template",
+      placeholder: "notifications/some_template",
       autocomplete: "off",
       form: "message-form",
       style: "width: 100%;",
