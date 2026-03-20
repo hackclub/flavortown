@@ -7,7 +7,7 @@
 #  content    :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#  sent_by_id :bigint           not null
+#  sent_by_id :bigint
 #  user_id    :bigint           not null
 #
 # Indexes
@@ -24,10 +24,9 @@ class Message < ApplicationRecord
   has_paper_trail
 
   belongs_to :user
-  belongs_to :sent_by, class_name: "User"
+  belongs_to :sent_by, class_name: "User", optional: true
 
   validates :user, presence: true
-  validates :sent_by, presence: true
   validate :content_or_block_path_present
 
   private

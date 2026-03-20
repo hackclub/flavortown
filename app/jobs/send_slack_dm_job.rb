@@ -1,10 +1,12 @@
 class SendSlackDmJob < ApplicationJob
   queue_as :latency_5m
 
-  def perform(recipient_id, message = nil, blocks_path: nil, locals: {}, thread_ts: nil)
-    if Rails.env.development?
-      return
-    end
+  def perform(recipient_id, message = nil, blocks_path: nil, locals: {}, thread_ts: nil, sent_by_id: nil)
+    record_message(recipient_id, message, blocks_path, sent_by_id)
+
+    # if Rails.env.development?
+    #   return
+    # end
 
     client = Slack::Web::Client.new(token: Rails.application.credentials.dig(:slack, :bot_token))
 
@@ -38,16 +40,17 @@ class SendSlackDmJob < ApplicationJob
   private
 
   def record_message(recipient_id, message, blocks_path, sent_by_id)
-    return unless sent_by_id
-
     user = User.find_by(slack_id: recipient_id.to_s)
     return unless user
+    return if message.blank? && blocks_path.blank?
 
-    Message.create!(
-      user: user,
-      sent_by_id: sent_by_id,
-      content: message,
-      block_path: blocks_path
-    )
+    PaperTrail.request(whodunnit: sent_by_id&.to_s) do
+      Message.create!(
+        user: user,
+        sent_by_id: sent_by_id,
+        content: message,
+        block_path: blocks_path
+      )
+    end
   end
 end

@@ -6,8 +6,10 @@ module Admin
       if params[:slack_id].present?
         @target_user = User.find_by(slack_id: params[:slack_id])
         if @target_user
-          @messages = Message.where(user: @target_user).order(created_at: :desc)
+          @messages = Message.where(user: @target_user).includes(:sent_by, :user).order(created_at: :desc)
         end
+      else
+        @messages = Message.includes(:sent_by, :user).order(created_at: :desc)
       end
 
       @user_count = params[:slack_id].present? ? (@target_user ? 1 : 0) : User.count
@@ -37,11 +39,23 @@ module Admin
         recipients = User.all
         recipient_count = recipients.count
 
-        expected_confirmation = "I am confirming that i know i am sending to a total of #{recipient_count} people"
-        if recipient_count > 2 && params[:confirmation] != expected_confirmation
+        expected_confirmation = "I know im about to mass dm #{recipient_count} users and cant revert this"
+        if params[:confirmation] != expected_confirmation
           redirect_to admin_messages_path, alert: "Confirmation text did not match. Message not sent."
           return
         end
+
+        PaperTrail::Version.create!(
+          item_type: "User",
+          item_id: current_user.id,
+          event: "mass_dm_sent",
+          whodunnit: current_user.id.to_s,
+          object_changes: {
+            recipient_count: recipient_count,
+            content: content,
+            block_path: block_path
+          }.to_json
+        )
 
         recipients.find_each do |user|
           send_message_to_user(user, content, block_path)

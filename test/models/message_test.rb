@@ -7,7 +7,7 @@
 #  content    :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#  sent_by_id :bigint           not null
+#  sent_by_id :bigint
 #  user_id    :bigint           not null
 #
 # Indexes
@@ -44,8 +44,8 @@ class MessageTest < ActiveSupport::TestCase
     assert_not message.valid?
   end
 
-  test "invalid without sent_by" do
+  test "valid without sent_by (system message)" do
     message = Message.new(user: users(:one), content: "Hello")
-    assert_not message.valid?
+    assert message.valid?
   end
 end

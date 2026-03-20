@@ -1,0 +1,177 @@
+<% confirmation_text = mass_send ? "I know im about to mass dm #{user_count} users and cant revert this" : nil %>
+<div id="message-compose">
+  <div style="margin-bottom: 1rem;">
+    <%= label_tag :content, "Message content" %>
+    <p class="admin-section__note">Optional if block path is set.</p>
+    <%= text_area_tag :content, nil,
+      rows: 5,
+      class: "admin-textarea",
+      placeholder: "Write the message to send...",
+      form: "message-form",
+      oninput: "updateMessagePreview()" %>
+  </div>
+
+  <div style="margin-bottom: 1rem;">
+    <%= label_tag :block_path, "Block path" %>
+    <p class="admin-section__note">Optional if content is set. Example: slack_messages/some_template</p>
+    <%= text_field_tag :block_path, nil,
+      class: "input-primary",
+      placeholder: "slack_messages/some_template",
+      autocomplete: "off",
+      form: "message-form",
+      style: "width: 100%;",
+      oninput: "updateMessagePreview()" %>
+  </div>
+
+  <div class="admin-section" id="message-preview-section" style="display: none;">
+    <h2 class="admin-section__header">Preview</h2>
+    <div id="message-preview" class="message-preview-box"></div>
+  </div>
+
+  <% if mass_send %>
+    <div class="admin-actions-wrap">
+      <button type="button" class="btn-primary" onclick="openSendModal()">
+        <%= submit_label %>
+      </button>
+    </div>
+
+    <%= render layout: "shared/modal", locals: {
+      id: "send-confirm-modal",
+      title: "Confirm mass send",
+      description: "You are about to send this message to #{user_count} #{'person'.pluralize(user_count)}."
+    } do %>
+      <div id="modal-preview" class="message-preview-box" style="margin-bottom: 1rem;"></div>
+
+      <div class="modal__field">
+        <%= label_tag :confirmation, "Type the following to confirm:" %>
+        <div class="confirmation-phrase" oncopy="return false" oncut="return false">
+          <%= confirmation_text %>
+        </div>
+        <%= text_field_tag :confirmation, nil,
+          class: "input-primary",
+          form: "message-form",
+          required: true,
+          autocomplete: "off",
+          autocorrect: "off",
+          spellcheck: "false",
+          style: "width: 100%;",
+          placeholder: "Type the text above..." %>
+      </div>
+      <div class="modal__actions">
+        <button type="button" id="modal-submit-btn" class="btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled onclick="submitMessageForm()"><%= submit_label %></button>
+        <button type="button" onclick="document.getElementById('send-confirm-modal').close()" class="btn-secondary slim">Cancel</button>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="admin-actions-wrap">
+      <button type="submit" form="message-form" class="btn-primary"><%= submit_label %></button>
+    </div>
+  <% end %>
+</div>
+
+<form id="message-form" action="<%= path %>" method="post" style="display: none;">
+  <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+</form>
+
+<script>
+  function openSendModal() {
+    updateMessagePreview();
+    var confirmInput = document.getElementById('confirmation');
+    if (confirmInput) confirmInput.value = '';
+    validateConfirmation();
+    document.getElementById('send-confirm-modal').showModal();
+  }
+
+  function validateConfirmation() {
+    var input = document.getElementById('confirmation');
+    var btn = document.getElementById('modal-submit-btn');
+    if (!input || !btn) return;
+
+    var expected = '<%= j(confirmation_text || "") %>';
+    if (input.value === expected) {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    } else {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+    }
+  }
+
+  function submitMessageForm() {
+    document.getElementById('message-form').submit();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var input = document.getElementById('confirmation');
+    if (input) input.addEventListener('input', validateConfirmation);
+  });
+
+  function updateMessagePreview() {
+    const content = document.getElementById('content').value;
+    const blockPath = document.getElementById('block_path').value;
+    const previewSection = document.getElementById('message-preview-section');
+    const preview = document.getElementById('message-preview');
+    const modalPreview = document.getElementById('modal-preview');
+
+    if (!content && !blockPath) {
+      previewSection.style.display = 'none';
+      return;
+    }
+
+    previewSection.style.display = '';
+
+    let html = '';
+    if (content) {
+      html += '<div><b>Content:</b></div>';
+      html += '<div class="message-preview-content">' + escapeHtml(content) + '</div>';
+    }
+    if (blockPath) {
+      html += '<div><b>Block path:</b> <code>' + escapeHtml(blockPath) + '</code></div>';
+    }
+
+    preview.innerHTML = html;
+    if (modalPreview) modalPreview.innerHTML = html;
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
+
+<style>
+  .message-preview-box {
+    background: var(--color-tan-300, #f5f0e8);
+    border: 2px solid var(--color-brown-500, #8b6c47);
+    border-radius: var(--border-radius, 0.5rem);
+    padding: 1rem;
+  }
+
+  .message-preview-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0.5rem 0;
+    padding: 0.75rem;
+    background: var(--color-tan-100, #fff);
+    border-radius: calc(var(--border-radius, 0.5rem) * 0.6);
+  }
+
+  .confirmation-phrase {
+    user-select: none;
+    -webkit-user-select: none;
+    font-family: monospace;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #b91c1c;
+    background: var(--color-tan-300, #f5f0e8);
+    border: 2px dashed #b91c1c;
+    border-radius: var(--border-radius, 0.5rem);
+    padding: 0.75rem 1rem;
+    margin: 0.5rem 0 1rem;
+    pointer-events: none;
+  }
+</style>

@@ -7,7 +7,7 @@
 #  content    :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#  sent_by_id :bigint           not null
+#  sent_by_id :bigint
 #  user_id    :bigint           not null
 #
 # Indexes
