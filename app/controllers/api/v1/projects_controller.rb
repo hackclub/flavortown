@@ -1,6 +1,6 @@
 class Api::V1::ProjectsController < Api::BaseController
   include ApiAuthenticatable
-  
+
   def index
     limit = params.fetch(:limit, 100).to_i
     return render json: { error: "Limit cannot exceed 100" }, status: :bad_request if limit > 100
