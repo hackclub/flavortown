@@ -152,36 +152,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_18_000001) do
     t.index ["creator_id"], name: "index_blazer_queries_on_creator_id"
   end
 
-  create_table "club_memberships", force: :cascade do |t|
-    t.boolean "active", default: true, null: false
-    t.bigint "club_id", null: false
-    t.datetime "created_at", null: false
-    t.string "external_source", default: "clubapi", null: false
-    t.datetime "last_synced_at"
-    t.string "role", default: "member", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["active"], name: "index_club_memberships_on_active"
-    t.index ["club_id"], name: "index_club_memberships_on_club_id"
-    t.index ["user_id", "club_id"], name: "index_club_memberships_on_user_id_and_club_id", unique: true
-    t.index ["user_id"], name: "index_club_memberships_on_user_id"
-  end
-
-  create_table "clubs", force: :cascade do |t|
-    t.string "club_website"
-    t.datetime "created_at", null: false
-    t.string "external_id"
-    t.string "join_code"
-    t.datetime "last_synced_at"
-    t.integer "level"
-    t.jsonb "metadata", default: {}, null: false
-    t.string "name", null: false
-    t.string "status"
-    t.datetime "updated_at", null: false
-    t.index ["external_id"], name: "index_clubs_on_external_id", unique: true
-    t.index ["name"], name: "index_clubs_on_name", unique: true
-  end
-
   create_table "comments", force: :cascade do |t|
     t.text "body", null: false
     t.bigint "commentable_id", null: false
@@ -792,7 +762,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_18_000001) do
     t.text "custom_css"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
-    t.index ["user_id"], name: "index_user_profiles_on_user_id", unique: true
+    t.index ["user_id"], name: "index_user_profiles_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -801,10 +771,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_18_000001) do
     t.boolean "banned", default: false, null: false
     t.datetime "banned_at"
     t.text "banned_reason"
+    t.text "bio"
     t.string "club_link"
     t.string "club_name"
     t.integer "cookie_clicks", default: 0, null: false
     t.datetime "created_at", null: false
+    t.text "custom_css"
     t.string "display_name"
     t.string "email"
     t.string "enriched_ref"
@@ -823,6 +795,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_18_000001) do
     t.string "ref"
     t.string "regions", default: [], array: true
     t.boolean "search_engine_indexing_off", default: false, null: false
+    t.boolean "search_engine_indexing_on", default: true, null: false
     t.boolean "send_notifications_for_followed_devlogs", default: true, null: false
     t.boolean "send_notifications_for_new_comments", default: true, null: false
     t.boolean "send_notifications_for_new_followers", default: true, null: false
@@ -846,6 +819,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_18_000001) do
     t.boolean "voting_locked", default: false, null: false
     t.boolean "ysws_eligible", default: false, null: false
     t.index ["airtable_record_id"], name: "index_users_on_airtable_record_id", unique: true
+    t.index ["api_key"], name: "index_users_on_api_key", unique: true
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["session_token"], name: "index_users_on_session_token", unique: true
@@ -891,8 +865,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_18_000001) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "club_memberships", "clubs"
-  add_foreign_key "club_memberships", "users"
   add_foreign_key "comments", "users"
   add_foreign_key "devlog_versions", "post_devlogs", column: "devlog_id"
   add_foreign_key "devlog_versions", "users"
