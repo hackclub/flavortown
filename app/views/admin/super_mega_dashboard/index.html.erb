@@ -330,7 +330,7 @@
         </div>
 
         <div class="super-mega-dashboard__card">
-          <h3>Dollars per hour</h3>
+          <h3>Dollars per hour <span id="dollars-per-hour-formula">ⓘ</span></h3>
           <div class="super-mega-dashboard__stats">
             <div class="super-mega-dashboard__stat">
               <span class="super-mega-dashboard__stat--value"><%= @dollars_per_hour.round(2) %></span>
@@ -1253,3 +1253,7 @@
           form: { data: { turbo_confirm: "You're about to delete all Super Mega Dashboard cache! Are you sure?" } } %>
   </div>
 </div>
+
+<%= render TooltipComponent.new(target_id: "dollars-per-hour-formula", position: :top) do %>
+  <span>[(total_cookies/5)/weighted_hours]</span>
+<% end %>
