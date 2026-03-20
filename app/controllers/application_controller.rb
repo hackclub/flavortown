@@ -20,6 +20,11 @@ class ApplicationController < ActionController::Base
   before_action :allow_profiler
   before_action :bullet_for_admins
 
+  # Track who makes changes in PaperTrail
+  def user_for_paper_trail
+    current_user&.id
+  end
+
   rescue_from StandardError, with: :handle_error
   rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_auth_token
   rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
@@ -212,13 +217,8 @@ class ApplicationController < ActionController::Base
     return if identity_payload.blank?
 
     latest_status = identity_payload["verification_status"].to_s
-    return unless User.verification_statuses.key?(latest_status)
-
     current_user.complete_tutorial_step!(:identity_verified) if %w[pending verified].include?(latest_status)
-    current_user.update!(
-      verification_status: latest_status,
-      ysws_eligible: identity_payload["ysws_eligible"] == true
-    )
+    current_user.apply_hca_verification_payload!(identity_payload)
   rescue StandardError => e
     Rails.logger.warn("Portal return identity refresh failed: #{e.class}: #{e.message}")
   end

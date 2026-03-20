@@ -256,6 +256,9 @@ class ShopOrder < ApplicationRecord
   def notify_user_of_status_change
     return unless user.slack_id.present?
 
+    # Don't notify the user when an order is placed on hold — they shouldn't know
+    return if aasm_state == "on_hold"
+
     template = case aasm_state
     when "rejected" then "notifications/shop_orders/rejected"
     when "awaiting_verification" then "notifications/shop_orders/awaiting_verification"

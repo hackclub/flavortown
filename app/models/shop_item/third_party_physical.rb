@@ -47,6 +47,7 @@
 #  requires_ship                     :boolean          default(FALSE)
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
+#  show_image_in_shop                :boolean          default(FALSE)
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
 #  source_region                     :string

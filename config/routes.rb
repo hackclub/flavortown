@@ -331,6 +331,7 @@ Rails.application.routes.draw do
     get "vote_spam_dashboard/users/:user_id", to: "vote_spam_dashboard#show", as: :vote_spam_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    delete "super_mega_dashboard/clear_cache", to: "super_mega_dashboard#clear_cache", as: :super_mega_dashboard_clear_cache
     get "flavortime_dashboard", to: "flavortime_dashboard#index"
     get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"
     resources :fulfillment_dashboard, only: [ :index ] do
@@ -387,6 +388,9 @@ Rails.application.routes.draw do
 
   # Public user profiles
   resources :users, only: [ :show ] do
+    constraints ->(_req) { Flipper.enabled?(:user_profiles) } do
+      resource :profile, only: [ :edit, :update ], controller: "user_profiles"
+    end
     resource :og_image, only: [ :show ], module: :users, defaults: { format: :png }
     member do
       get :stats

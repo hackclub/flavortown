@@ -154,6 +154,7 @@ module Admin
         :image,
         :buyable_by_self,
         :accessory_tag,
+        :show_image_in_shop,
         :requires_achievement,
         :requires_ship,
         :required_ships_count,

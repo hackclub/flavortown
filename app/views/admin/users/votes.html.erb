@@ -1,8 +1,12 @@
 <% content_for :title, "Votes by #{@user.display_name}" %>
 <h1 align="center">Votes by <%= @user.display_name %></h1>
 
-<div style="margin: 1.5em 0;">
+<div style="display: flex; justify-content: space-between; margin: 1.5em 0;">
   <%= link_to "← Back to User", admin_user_path(@user), class: "btn-secondary" %>
+  <label style="display: flex; align-items: center; gap: 0.5em;">
+    <input type="checkbox" id="toggle-reasons" checked>
+    Show vote reasons
+  </label>
 </div>
 
 <div class="card voting-card voting-card--full">
@@ -19,7 +23,7 @@
           <th>Time</th>
           <th>Demo</th>
           <th>Repo</th>
-          <th>Reason</th>
+          <th class="vote-reasons">Reason</th>
         </tr>
       </thead>
       <tbody>
@@ -40,7 +44,7 @@
             <td><%= vote.time_taken_to_vote ? "#{vote.time_taken_to_vote}s" : "—" %></td>
             <td><%= vote.demo_url_clicked ? "✓" : "—" %></td>
             <td><%= vote.repo_url_clicked ? "✓" : "—" %></td>
-            <td>
+            <td class="vote-reasons">
               <% if vote.reason.present? %>
                 <details>
                   <summary>View</summary>
@@ -63,3 +67,20 @@
     <p>No votes cast yet.</p>
   <% end %>
 </div>
+
+<script>
+  (function() {
+    const toggle = document.getElementById("toggle-reasons");
+    if (!toggle) return;
+
+    const setReasonsExpanded = (expanded) => {
+      document.querySelectorAll("td.vote-reasons details").forEach((details) => {
+        details.open = expanded;
+      });
+    };
+    setReasonsExpanded(toggle.checked);
+    toggle.addEventListener("change", function() {
+      setReasonsExpanded(this.checked);
+    });
+  })();
+</script>
