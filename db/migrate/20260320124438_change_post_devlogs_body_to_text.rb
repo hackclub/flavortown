@@ -8,8 +8,6 @@ class ChangePostDevlogsBodyToText < ActiveRecord::Migration[8.1]
   end
 
   def down
-    safety_assured do
-      change_column :post_devlogs, :body, :string, limit: 255
-    end
+    raise ActiveRecord::IrreversibleMigration, "Cannot safely convert post_devlogs.body from text back to string(255)."
   end
 end
