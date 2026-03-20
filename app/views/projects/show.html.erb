@@ -7,7 +7,9 @@
 
 <% owner = @project.memberships.find_by(role: :owner)&.user %>
 <% if owner&.search_engine_indexing_off? %>
-  <meta name="robots" content="noindex, nofollow">
+  <% content_for :head do %>
+    <meta name="robots" content="noindex, nofollow">
+  <% end %>
 <% end %>
 
 <div class="projects-show">
