@@ -87,7 +87,7 @@
     var btn = document.getElementById('modal-submit-btn');
     if (!input || !btn) return;
 
-    var expected = '<%= j(confirmation_text || "") %>';
+    var expected = <%= (confirmation_text || "").to_json %>;
     if (input.value === expected) {
       btn.disabled = false;
       btn.style.opacity = '1';
