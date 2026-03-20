@@ -4,9 +4,9 @@ class SendSlackDmJob < ApplicationJob
   def perform(recipient_id, message = nil, blocks_path: nil, locals: {}, thread_ts: nil, sent_by_id: nil)
     record_message(recipient_id, message, blocks_path, sent_by_id)
 
-    # if Rails.env.development?
-    #   return
-    # end
+    if Rails.env.development?
+      return
+    end
 
     client = Slack::Web::Client.new(token: Rails.application.credentials.dig(:slack, :bot_token))
 

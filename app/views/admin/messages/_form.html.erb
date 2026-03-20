@@ -1,4 +1,91 @@
 <% confirmation_text = mass_send ? "I know im about to mass dm #{user_count} users and cant revert this" : nil %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var expected = <%== (confirmation_text || "").to_json %>;
+
+    var contentEl = document.getElementById('content');
+    var blockPathEl = document.getElementById('block_path');
+    var previewSection = document.getElementById('message-preview-section');
+    var preview = document.getElementById('message-preview');
+    var modalPreview = document.getElementById('modal-preview');
+    var confirmInput = document.getElementById('confirmation');
+    var submitBtn = document.getElementById('modal-submit-btn');
+    var openBtn = document.getElementById('open-send-modal-btn');
+    var cancelBtn = document.getElementById('modal-cancel-btn');
+    var modal = document.getElementById('send-confirm-modal');
+    var form = document.getElementById('message-form');
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function updatePreview() {
+      var content = contentEl ? contentEl.value : '';
+      var blockPath = blockPathEl ? blockPathEl.value : '';
+
+      if (!content && !blockPath) {
+        if (previewSection) previewSection.style.display = 'none';
+        return;
+      }
+
+      if (previewSection) previewSection.style.display = '';
+
+      var html = '';
+      if (content) {
+        html += '<div><b>Content:</b></div>';
+        html += '<div class="message-preview-content">' + escapeHtml(content) + '</div>';
+      }
+      if (blockPath) {
+        html += '<div><b>Block path:</b> <code>' + escapeHtml(blockPath) + '</code></div>';
+      }
+
+      if (preview) preview.innerHTML = html;
+      if (modalPreview) modalPreview.innerHTML = html;
+    }
+
+    function validateConfirmation() {
+      if (!confirmInput || !submitBtn) return;
+      if (confirmInput.value === expected) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
+      }
+    }
+
+    if (contentEl) contentEl.addEventListener('input', updatePreview);
+    if (blockPathEl) blockPathEl.addEventListener('input', updatePreview);
+    if (confirmInput) confirmInput.addEventListener('input', validateConfirmation);
+
+    if (openBtn && modal) {
+      openBtn.addEventListener('click', function() {
+        updatePreview();
+        if (confirmInput) confirmInput.value = '';
+        validateConfirmation();
+        modal.showModal();
+      });
+    }
+
+    if (submitBtn && form) {
+      submitBtn.addEventListener('click', function() {
+        form.submit();
+      });
+    }
+
+    if (cancelBtn && modal) {
+      cancelBtn.addEventListener('click', function() {
+        modal.close();
+      });
+    }
+  });
+</script>
+
 <div id="message-compose">
   <div style="margin-bottom: 1rem;">
     <%= label_tag :content, "Message content" %>
@@ -8,7 +95,7 @@
       class: "admin-textarea",
       placeholder: "Write the message to send...",
       form: "message-form",
-      oninput: "updateMessagePreview()" %>
+      id: "content" %>
   </div>
 
   <div style="margin-bottom: 1rem;">
@@ -20,7 +107,7 @@
       autocomplete: "off",
       form: "message-form",
       style: "width: 100%;",
-      oninput: "updateMessagePreview()" %>
+      id: "block_path" %>
   </div>
 
   <div class="admin-section" id="message-preview-section" style="display: none;">
@@ -30,7 +117,7 @@
 
   <% if mass_send %>
     <div class="admin-actions-wrap">
-      <button type="button" class="btn-primary" onclick="openSendModal()">
+      <button type="button" class="btn-primary" id="open-send-modal-btn">
         <%= submit_label %>
       </button>
     </div>
@@ -58,8 +145,8 @@
           placeholder: "Type the text above..." %>
       </div>
       <div class="modal__actions">
-        <button type="button" id="modal-submit-btn" class="btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled onclick="submitMessageForm()"><%= submit_label %></button>
-        <button type="button" onclick="document.getElementById('send-confirm-modal').close()" class="btn-secondary slim">Cancel</button>
+        <button type="button" id="modal-submit-btn" class="btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled><%= submit_label %></button>
+        <button type="button" id="modal-cancel-btn" class="btn-secondary slim">Cancel</button>
       </div>
     <% end %>
   <% else %>
@@ -72,75 +159,6 @@
 <form id="message-form" action="<%= path %>" method="post" style="display: none;">
   <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
 </form>
-
-<script>
-  function openSendModal() {
-    updateMessagePreview();
-    var confirmInput = document.getElementById('confirmation');
-    if (confirmInput) confirmInput.value = '';
-    validateConfirmation();
-    document.getElementById('send-confirm-modal').showModal();
-  }
-
-  function validateConfirmation() {
-    var input = document.getElementById('confirmation');
-    var btn = document.getElementById('modal-submit-btn');
-    if (!input || !btn) return;
-
-    var expected = <%= (confirmation_text || "").to_json %>;
-    if (input.value === expected) {
-      btn.disabled = false;
-      btn.style.opacity = '1';
-      btn.style.cursor = 'pointer';
-    } else {
-      btn.disabled = true;
-      btn.style.opacity = '0.5';
-      btn.style.cursor = 'not-allowed';
-    }
-  }
-
-  function submitMessageForm() {
-    document.getElementById('message-form').submit();
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    var input = document.getElementById('confirmation');
-    if (input) input.addEventListener('input', validateConfirmation);
-  });
-
-  function updateMessagePreview() {
-    const content = document.getElementById('content').value;
-    const blockPath = document.getElementById('block_path').value;
-    const previewSection = document.getElementById('message-preview-section');
-    const preview = document.getElementById('message-preview');
-    const modalPreview = document.getElementById('modal-preview');
-
-    if (!content && !blockPath) {
-      previewSection.style.display = 'none';
-      return;
-    }
-
-    previewSection.style.display = '';
-
-    let html = '';
-    if (content) {
-      html += '<div><b>Content:</b></div>';
-      html += '<div class="message-preview-content">' + escapeHtml(content) + '</div>';
-    }
-    if (blockPath) {
-      html += '<div><b>Block path:</b> <code>' + escapeHtml(blockPath) + '</code></div>';
-    }
-
-    preview.innerHTML = html;
-    if (modalPreview) modalPreview.innerHTML = html;
-  }
-
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-</script>
 
 <style>
   .message-preview-box {
