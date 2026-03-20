@@ -3,13 +3,19 @@ module Admin
     def index
       authorize :admin, :manage_messages?
 
+      base_scope = Message.includes(:sent_by, :user).order(created_at: :desc)
+
       if params[:slack_id].present?
         @target_user = User.find_by(slack_id: params[:slack_id])
         if @target_user
-          @messages = Message.where(user: @target_user).includes(:sent_by, :user).order(created_at: :desc)
+          scoped_messages = base_scope.where(user: @target_user)
+          @pagy, @messages = pagy(scoped_messages)
+        else
+          @pagy = nil
+          @messages = Message.none
         end
       else
-        @messages = Message.includes(:sent_by, :user).order(created_at: :desc)
+        @pagy, @messages = pagy(base_scope)
       end
 
       @user_count = params[:slack_id].present? ? (@target_user ? 1 : 0) : User.count
