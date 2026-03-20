@@ -5,7 +5,12 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
     index: "Fetch all devlogs for a specific project."
   }
 
-  class_attribute :url_params_model, default: {}
+  class_attribute :url_params_model, default: {
+    index: {
+      page: { type: Integer, desc: "Page number for pagination", required: false },
+      limit: { type: Integer, desc: "Number of results per page (max 100)", required: false }
+    }
+  }
   class_attribute :request_body_model, default: {}
 
   DEVLOG_SCHEMA = {
@@ -35,13 +40,16 @@ class Api::V1::ProjectDevlogsController < Api::BaseController
   }
 
   def index
+    limit = params.fetch(:limit, 100).to_i
+    return render json: { error: "Limit cannot exceed 100" }, status: :bad_request if limit > 100
+
     project = Project.find_by!(id: params[:project_id], deleted_at: nil)
 
     @pagy, @devlogs = pagy(
         project.devlogs
                 .where(deleted_at: nil)
                 .order(created_at: :desc),
-        items: 100
+        limit: limit
     )
   end
 end

@@ -63,6 +63,13 @@ class Api::V1::StoreController < Api::BaseController
     ticket_cost: Integer
   }.freeze
 
+  class_attribute :url_params_model, default: {
+    search: {
+      q: { type: String, desc: "Search query", required: true },
+      limit: { type: Integer, desc: "Number of results to return (max 50, default 20)", required: false }
+    }
+  }
+
   class_attribute :response_body_model, default: {
     index: [ response ],
     show: response,
@@ -77,7 +84,9 @@ class Api::V1::StoreController < Api::BaseController
     return render json: { error: "Search is not enabled. Set FERRET=true to activate." }, status: :service_unavailable unless ENV["FERRET"].present?
     return render json: { error: "q parameter is required" }, status: :bad_request if params[:q].blank?
 
-    limit = (params[:limit] || 20).to_i.clamp(1, 50)
+    limit = (params[:limit] || 20).to_i
+    return render json: { error: "Limit cannot exceed 50" }, status: :bad_request if limit > 50
+
     @results = ShopItem.ferret_search(params[:q], limit: limit)
     @results = @results.select { |item| item.enabled? && !item.unlisted? }
   end

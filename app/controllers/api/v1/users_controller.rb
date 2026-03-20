@@ -9,6 +9,7 @@ class Api::V1::UsersController < Api::BaseController
   class_attribute :url_params_model, default: {
     index: {
       page: { type: Integer, desc: "Page number for pagination", required: false },
+      limit: { type: Integer, desc: "Number of results per page (max 100)", required: false },
       query: { type: String, desc: "Search users by display name or slack ID", required: false }
     }
   }
@@ -39,7 +40,10 @@ class Api::V1::UsersController < Api::BaseController
       users = users.where("display_name ILIKE :q OR slack_id ILIKE :q", q: q)
     end
 
-    @pagy, @users = pagy(users, page: params[:page], limit: 100)
+    limit = params.fetch(:limit, 100).to_i
+    return render json: { error: "Limit cannot exceed 100" }, status: :bad_request if limit > 100
+
+    @pagy, @users = pagy(users, page: params[:page], limit: limit)
   end
 
   def show

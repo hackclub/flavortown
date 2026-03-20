@@ -13,7 +13,12 @@ class Api::V1::ProjectsController < Api::BaseController
   class_attribute :url_params_model, default: {
     index: {
       page: { type: Integer, desc: "Page number for pagination", required: false },
+      limit: { type: Integer, desc: "Number of results per page (max 100)", required: false },
       query: { type: String, desc: "Search projects by title or description", required: false }
+    },
+    search: {
+      q: { type: String, desc: "Search query", required: true },
+      limit: { type: Integer, desc: "Number of results to return (max 50, default 20)", required: false }
     },
     random: {
       count: { type: Integer, desc: "Number of random projects to return (1-50, default 1)", required: false },
@@ -65,6 +70,9 @@ class Api::V1::ProjectsController < Api::BaseController
   }
 
   def index
+    limit = params.fetch(:limit, 100).to_i
+    return render json: { error: "Limit cannot exceed 100" }, status: :bad_request if limit > 100
+
     projects = Project.where(deleted_at: nil).excluding_shadow_banned.includes(:devlogs)
 
     if params[:query].present?
@@ -75,7 +83,7 @@ class Api::V1::ProjectsController < Api::BaseController
       )
     end
 
-    @pagy, @projects = pagy(projects, limit: 100)
+    @pagy, @projects = pagy(projects, limit: limit)
   end
 
   def random
@@ -94,7 +102,9 @@ class Api::V1::ProjectsController < Api::BaseController
     return render json: { error: "Search is not enabled. Set FERRET=true to activate." }, status: :service_unavailable unless ENV["FERRET"].present?
     return render json: { error: "q parameter is required" }, status: :bad_request if params[:q].blank?
 
-    limit = (params[:limit] || 20).to_i.clamp(1, 50)
+    limit = (params[:limit] || 20).to_i
+    return render json: { error: "Limit cannot exceed 50" }, status: :bad_request if limit > 50
+
     @results = Project.ferret_search(params[:q], limit: limit)
     @results = @results.select { |p| p.deleted_at.nil? && !p.shadow_banned? }
   end
