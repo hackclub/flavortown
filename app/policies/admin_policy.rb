@@ -119,6 +119,10 @@ class AdminPolicy < ApplicationPolicy
     user.admin? || user.fraud_dept?
   end
 
+  def manage_messages?
+    user.admin?
+  end
+
   def access_support_vibes?
     user.admin?
   end

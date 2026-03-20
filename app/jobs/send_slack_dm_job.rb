@@ -34,4 +34,20 @@ class SendSlackDmJob < ApplicationJob
     Rails.logger.error("Unexpected error sending Slack DM: #{e.message}")
     Rails.logger.error(e.backtrace.join("\n")) if Rails.env.development?
   end
+
+  private
+
+  def record_message(recipient_id, message, blocks_path, sent_by_id)
+    return unless sent_by_id
+
+    user = User.find_by(slack_id: recipient_id.to_s)
+    return unless user
+
+    Message.create!(
+      user: user,
+      sent_by_id: sent_by_id,
+      content: message,
+      block_path: blocks_path
+    )
+  end
 end

@@ -307,6 +307,7 @@ Rails.application.routes.draw do
         post :mark_payout_given
       end
     end
+    resources :messages, only: [ :index, :create ]
     resources :support_vibes, only: [ :index, :create ]
     resources :sw_vibes, only: [ :index ]
     resources :suspicious_votes, only: [ :index ]

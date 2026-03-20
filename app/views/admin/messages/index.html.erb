@@ -1,0 +1,80 @@
+<% content_for :title, "Messages" %>
+<%= render HeadingComponent.new(title: "Messages", tone: :blue, size: :full) %>
+
+<% if @target_user %>
+  <div class="card">
+    <h3>Sending to: <%= @target_user.display_name || @target_user.slack_id %></h3>
+    <p>Slack ID: <code><%= @target_user.slack_id %></code></p>
+  </div>
+
+  <%= form_tag admin_messages_path(slack_id: @target_user.slack_id), method: :post do %>
+    <div class="form-group">
+      <label for="content">Message content (optional if block path is set)</label>
+      <textarea name="content" id="content" rows="4" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="block_path">Block path (optional if content is set)</label>
+      <input type="text" name="block_path" id="block_path" class="form-control" placeholder="e.g. slack_messages/some_template">
+    </div>
+    <button type="submit" class="btn-primary">Send Message</button>
+  <% end %>
+
+  <h3>Previous messages sent to <%= @target_user.display_name || @target_user.slack_id %></h3>
+  <% if @messages.any? %>
+    <table class="table-data">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Content</th>
+          <th>Block Path</th>
+          <th>Sent By</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @messages.each do |message| %>
+          <tr>
+            <td><%= message.created_at.strftime("%b %-d, %Y %H:%M") %></td>
+            <td><%= message.content.presence || "—" %></td>
+            <td><code><%= message.block_path.presence || "—" %></code></td>
+            <td><%= message.sent_by.display_name || message.sent_by.slack_id %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>No messages have been sent to this user yet.</p>
+  <% end %>
+
+<% elsif params[:slack_id].present? && @target_user.nil? %>
+  <div class="card">
+    <p>No user found with Slack ID: <code><%= params[:slack_id] %></code></p>
+  </div>
+
+<% else %>
+  <div class="card">
+    <h3>Mass Send Message</h3>
+    <p>This will send a message to <strong>all <%= @user_count %> users</strong>.</p>
+  </div>
+
+  <%= form_tag admin_messages_path, method: :post do %>
+    <div class="form-group">
+      <label for="content">Message content (optional if block path is set)</label>
+      <textarea name="content" id="content" rows="4" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="block_path">Block path (optional if content is set)</label>
+      <input type="text" name="block_path" id="block_path" class="form-control" placeholder="e.g. slack_messages/some_template">
+    </div>
+
+    <% if @user_count > 2 %>
+      <div class="form-group">
+        <label for="confirmation">
+          To confirm, type: <strong>I am confirming that i know i am sending to a total of <%= @user_count %> people</strong>
+        </label>
+        <input type="text" name="confirmation" id="confirmation" class="form-control" required>
+      </div>
+    <% end %>
+
+    <button type="submit" class="btn-primary">Send to All Users</button>
+  <% end %>
+<% end %>
