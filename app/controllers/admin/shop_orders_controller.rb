@@ -262,27 +262,45 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to admin_shop_order_path(@order), alert: "You cannot review your own order." and return
     end
 
-    review = @order.reviews.build(
-      user: current_user,
-      verdict: params[:verdict],
-      reason: params[:review_reason]
-    )
+    success = false
+    notice_message = nil
+    alert_message = nil
 
-    if review.save
-      PaperTrail::Version.create!(
-        item_type: "ShopOrder",
-        item_id: @order.id,
-        event: "review",
-        whodunnit: current_user.id,
-        object_changes: {
-          review_count: [ @order.reviews.count - 1, @order.reviews.count ],
-          verdict: review.verdict,
-          reason: review.reason
-        }
+    @order.with_lock do
+      previous_review_count = @order.reviews.count
+
+      review = @order.reviews.build(
+        user: current_user,
+        verdict: params[:verdict],
+        reason: params[:review_reason]
       )
-      redirect_to admin_shop_order_path(@order), notice: "Review submitted — #{review.verdict} (#{@order.reviews.count}/2)."
+
+      if review.save
+        new_review_count = previous_review_count + 1
+
+        PaperTrail::Version.create!(
+          item_type: "ShopOrder",
+          item_id: @order.id,
+          event: "review",
+          whodunnit: current_user.id,
+          object_changes: {
+            review_count: [ previous_review_count, new_review_count ],
+            verdict: review.verdict,
+            reason: review.reason
+          }
+        )
+
+        success = true
+        notice_message = "Review submitted — #{review.verdict} (#{new_review_count}/2)."
+      else
+        alert_message = review.errors.full_messages.to_sentence
+      end
+    end
+
+    if success
+      redirect_to admin_shop_order_path(@order), notice: notice_message
     else
-      redirect_to admin_shop_order_path(@order), alert: review.errors.full_messages.to_sentence
+      redirect_to admin_shop_order_path(@order), alert: alert_message
     end
   end
 
