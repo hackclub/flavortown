@@ -99,6 +99,21 @@ class ShopItem < ApplicationRecord
   def self.cached_shop_page_data
     Rails.cache.fetch(SHOP_PAGE_CACHE_KEY, expires_in: 5.minutes) do
       buyable = enabled.listed.buyable_standalone.includes(image_attachment: :blob).to_a
+      item_ids = buyable.map(&:id)
+
+      reserved_counts = ShopOrder
+        .where(shop_item_id: item_ids, aasm_state: %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold fulfilled])
+        .group(:shop_item_id).sum(:quantity)
+
+      purchase_counts = ShopOrder
+        .where(shop_item_id: item_ids, aasm_state: %w[awaiting_fulfillment fulfilled])
+        .group(:shop_item_id).sum(:quantity)
+
+      buyable.each do |item|
+        item.instance_variable_set(:@preloaded_reserved_quantity, reserved_counts[item.id] || 0)
+        item.instance_variable_set(:@preloaded_purchase_count, purchase_counts[item.id] || 0)
+      end
+
       cutoff = RECENTLY_ADDED_WINDOW.ago
       recently_added = buyable.select { |item| item.created_at >= cutoff }.sort_by(&:created_at).reverse
 
@@ -209,7 +224,11 @@ class ShopItem < ApplicationRecord
   def remaining_stock
     return nil unless limited? && stock.present?
 
-    reserved_quantity = shop_orders.where(aasm_state: %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold fulfilled]).sum(:quantity)
+    reserved_quantity = if instance_variable_defined?(:@preloaded_reserved_quantity)
+                          @preloaded_reserved_quantity
+    else
+                          shop_orders.where(aasm_state: %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold fulfilled]).sum(:quantity)
+    end
     stock - reserved_quantity
   end
 
@@ -218,7 +237,11 @@ class ShopItem < ApplicationRecord
   end
 
   def current_event_purchases
-    shop_orders.where(aasm_state: %w[awaiting_fulfillment fulfilled]).sum(:quantity)
+    if instance_variable_defined?(:@preloaded_purchase_count)
+      @preloaded_purchase_count
+    else
+      shop_orders.where(aasm_state: %w[awaiting_fulfillment fulfilled]).sum(:quantity)
+    end
   end
 
   def display_purchase_count
