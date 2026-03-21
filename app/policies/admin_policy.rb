@@ -40,7 +40,7 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def access_audit_logs?
-    user.admin?
+    user.admin? || user.fraud_dept? || user.fulfillment_person?
   end
 
   def access_fulfillment_view?

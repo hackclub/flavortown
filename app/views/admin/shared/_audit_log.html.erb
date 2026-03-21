@@ -119,9 +119,21 @@
                     {}
                   end
                 %>
+                <% sensitive_fields = %w[magic_link_token magic_link_token_digest encrypted_password password_digest frozen_address frozen_address_ciphertext frozen_phone_ciphertext email address ip_address phone phone_number hcb_email] %>
                 <div class="audit-logs__changes">
-                  <% changes.keys.take(3).each_with_index do |k, i| %>
-                    <code><%= k %></code><%= ", " unless i == [changes.keys.take(3).count - 1, 2].min %>
+                  <% changes.keys.take(3).each do |k| %>
+                    <% v = changes[k] %>
+                    <div>
+                      <code><%= k %></code>
+                      <% if sensitive_fields.include?(k.to_s) %>
+                        <span class="audit-log-detail__redacted">🔒 [REDACTED]</span>
+                      <% elsif v.is_a?(Array) && v.length == 2 %>
+                        <span class="audit-logs__muted"><%= truncate(v[0].to_s, length: 30) %></span>
+                        → <span><%= truncate(v[1].to_s, length: 30) %></span>
+                      <% else %>
+                        <span><%= truncate(v.to_s, length: 50) %></span>
+                      <% end %>
+                    </div>
                   <% end %>
                   <% if changes.keys.count > 3 %>
                     <span class="audit-logs__muted">(+<%= changes.keys.count - 3 %> more)</span>
