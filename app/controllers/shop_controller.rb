@@ -254,7 +254,7 @@ class ShopController < ApplicationController
     end
 
     cached = cookies[:geoip_region]
-    return cached if cached.present? && Shop::Regionalizable::REGION_CODES.include?(cached)
+    return cached if cached.present? && cached != "XX" && Shop::Regionalizable::REGION_CODES.include?(cached)
 
     tz_region = Shop::Regionalizable.timezone_to_region(cookies[:timezone])
     return tz_region if tz_region.present? && tz_region != "XX"
