@@ -103,20 +103,20 @@
                                                     name="accessory_tag_<%= tag %>"
                                                     value="<%= accessory.id %>"
                                                     class="shop-order__accessory-option-input"
-                                                    data-price="<%= accessory.ticket_cost %>"
+                                                    data-price="<%= accessory.price_for_region(@user_region) %>"
                                                     data-tag="<%= tag %>"
                                                     form="order-form"
                                                     style="display: none;">
-                                             <div class="shop-order__accessory-option-block<%= ' shop-order__accessory-option-block--with-image' if accessory.show_image_in_shop && accessory.image.attached? %>">
-                                                 <% if accessory.show_image_in_shop && accessory.image.attached? %>
+                                                    <div class="shop-order__accessory-option-block<%= ' shop-order__accessory-option-block--with-image' if accessory.show_image_in_shop && accessory.image.attached? %>">
+                                                    <% if accessory.show_image_in_shop && accessory.image.attached? %>
                                                      <%= image_tag accessory.image.variant(:carousel_sm), class: "shop-order__accessory-option-image", loading: "lazy" %>
                                                      <div class="shop-order__accessory-option-details">
                                                          <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
-                                                         <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                                         <div class="shop-order__accessory-option-price">🍪 <%= accessory.price_for_region(@user_region).round %></div>
                                                      </div>
-                                                 <% else %>
+                                                    <% else %>
                                                      <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
-                                                     <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                                     <div class="shop-order__accessory-option-price">🍪 <%= accessory.price_for_region(@user_region).round %></div>
                                                  <% end %>
                                              </div>
                                          </label>
@@ -135,7 +135,7 @@
                                                    name="accessory_ids[]"
                                                    value="<%= accessory.id %>"
                                                    class="shop-order__accessory-option-input"
-                                                   data-price="<%= accessory.ticket_cost %>"
+                                                   data-price="<%= accessory.price_for_region(@user_region) %>"
                                                    style="display: none;">
                                             <div class="shop-order__accessory-option-block shop-order__accessory-option-block--with-image">
                                                 <% if accessory.image.attached? %>
@@ -143,7 +143,7 @@
                                                 <% end %>
                                                 <div class="shop-order__accessory-option-details">
                                                     <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
-                                                    <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                                    <div class="shop-order__accessory-option-price">🍪 <%= accessory.price_for_region(@user_region).round %></div>
                                                 </div>
                                             </div>
                                         </label>

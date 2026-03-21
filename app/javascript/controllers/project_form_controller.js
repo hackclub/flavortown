@@ -54,8 +54,8 @@ export default class extends Controller {
     // Sync checkbox state on load if description already has prefix
     this.syncUpdateCheckbox();
 
-    // Sync update description visibility on load
-    this.syncUpdateDescriptionVisibility();
+    // made it sync the update description on load so people don't have to retype everything
+    this.syncUpdateDescriptionVisibility({ clearWhenHidden: false });
 
     if (
       this.hasRepoUrlTarget &&
@@ -401,17 +401,20 @@ export default class extends Controller {
 
     const prefix = this.updatePrefixValue;
     const hasPrefix = this.descriptionTarget.value.trimStart().includes(prefix);
-    this.updateDeclarationTarget.checked = hasPrefix;
+    const hasUpdateDescription =
+      this.hasUpdateDescriptionFieldTarget &&
+      (this.updateDescriptionFieldTarget.value || "").trim().length > 0;
+    this.updateDeclarationTarget.checked = hasPrefix || hasUpdateDescription;
   }
 
-  syncUpdateDescriptionVisibility() {
+  syncUpdateDescriptionVisibility({ clearWhenHidden = true } = {}) {
     if (!this.hasUpdateDescriptionContainerTarget) return;
 
     const isChecked =
       this.hasUpdateDeclarationTarget && this.updateDeclarationTarget.checked;
     this.updateDescriptionContainerTarget.hidden = !isChecked;
 
-    if (!isChecked && this.hasUpdateDescriptionFieldTarget) {
+    if (!isChecked && this.hasUpdateDescriptionFieldTarget && clearWhenHidden) {
       // Clear the field and validation when hiding
       this.updateDescriptionFieldTarget.value = "";
       this.updateDescriptionFieldTarget.setCustomValidity("");
