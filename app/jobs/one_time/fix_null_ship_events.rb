@@ -20,7 +20,7 @@ class OneTime::FixNullShipEvents < ApplicationJob
         unless dry_run
           ship_event.update_column(:hours, calculated_hours)
 
-          if ship_event.certification_status == "approved" && ship_event.overall_percentile.present? && ship_event.payout.blank?
+          if ship_event.certification_status == "approved" && ship_event.payout.blank?
             ShipEventPayoutCalculator.apply!(ship_event)
             Rails.logger.info "[FixNullShipEvents] ShipEvent ##{ship_event.id} payout issued: #{ship_event.reload.payout} cookies"
           end
