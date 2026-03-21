@@ -187,6 +187,13 @@ class ShopController < ApplicationController
       end
 
       return if @shop_item.is_a?(ShopItem::FreeStickers) && !fulfill_free_stickers!
+
+      if @shop_item.is_a?(ShopItem::SillyItemType)
+        @order.approve!
+        redirect_to shop_my_orders_path, notice: "Order placed and fulfilled!"
+        return
+      end
+
       redirect_to shop_my_orders_path, notice: "Order placed successfully!"
     rescue ActiveRecord::RecordInvalid => e
       redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{e.record.errors.full_messages.join(', ')}"

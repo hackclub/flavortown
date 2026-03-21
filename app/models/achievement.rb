@@ -207,6 +207,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
           .where(project_memberships: { user_id: user.id, role: "owner" })
           .exists?
       }
+    ),
+    new(
+      slug: :sidequest_optimization,
+      name: "Sidequest: Optimization",
+      description: "Shipped a project for the Optimization sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "optimization" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
     )
   ].freeze
 

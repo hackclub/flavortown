@@ -328,6 +328,26 @@
             </div>
           </div>
         </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Dollars per hour <span id="dollars-per-hour-formula">ⓘ</span></h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @dollars_per_hour.round(2) %></span>
+              <span class="super-mega-dashboard__stat--label">$/hr</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Cookie Utilization Ratio</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @cookie_utilization_percentage %>%</span>
+              <span class="super-mega-dashboard__stat--label">Utilization</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -336,6 +356,10 @@
         <h2>Fulfillment Overview</h2>
         <%= link_to "View Full Dashboard →", admin_fulfillment_dashboard_index_path, class: "super-mega-link" %>
       </div>
+
+      <% if @fulfillment_temporarily_disabled %>
+        <p class="fraud-stats-error">Fulfillment is temporarily disabled so the rest of the dashboard can load.</p>
+      <% end %>
 
       <div class="super-mega-dashboard__cards">
         <% [
@@ -1216,9 +1240,20 @@
         <% end %>
       </div>
     </div>
+
+    <%= render "admin/super_mega_dashboard/sections/pyramid_scheme" %>
+    <%= render "admin/super_mega_dashboard/sections/flavortime" %>
   </div>
 
   <div class="super-mega-dashboard__actions">
     <%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
+    <%= button_to "Clear Dashboard Cache", admin_super_mega_dashboard_clear_cache_path,
+          method: :delete,
+          class: "btn-danger",
+          form: { data: { turbo_confirm: "You're about to delete all Super Mega Dashboard cache! Are you sure?" } } %>
   </div>
 </div>
+
+<%= render TooltipComponent.new(target_id: "dollars-per-hour-formula", position: :top) do %>
+  <span>[(total_cookies/5)/weighted_hours]</span>
+<% end %>

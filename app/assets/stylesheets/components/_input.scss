@@ -158,6 +158,8 @@
     transform: translateY(calc(100% - var(--space-m)));
     padding: calc(1.2 * var(--space-m)) var(--space-s) var(--space-xs);
     border-radius: var(--border-radius);
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
     font-size: var(--font-size-s);
     z-index: 0;
     background-color: var(--input-subtitle-bg);

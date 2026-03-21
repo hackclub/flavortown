@@ -27,6 +27,7 @@
 #  projects_count                          :integer
 #  ref                                     :string
 #  regions                                 :string           default([]), is an Array
+#  search_engine_indexing_off              :boolean          default(FALSE), not null
 #  send_notifications_for_followed_devlogs :boolean          default(TRUE), not null
 #  send_notifications_for_new_comments     :boolean          default(TRUE), not null
 #  send_notifications_for_new_followers    :boolean          default(TRUE), not null
@@ -55,7 +56,6 @@
 # Indexes
 #
 #  index_users_on_airtable_record_id  (airtable_record_id) UNIQUE
-#  index_users_on_api_key             (api_key) UNIQUE
 #  index_users_on_email               (email)
 #  index_users_on_magic_link_token    (magic_link_token) UNIQUE
 #  index_users_on_session_token       (session_token) UNIQUE
@@ -343,6 +343,7 @@ class User < ApplicationRecord
     return { success: false, error: "Your order can not be canceled" } unless order.pending?
 
     order.refund!
+    order.accessory_orders.each { |a| a.refund! if a.may_refund? }
     { success: true, order: order }
   rescue ActiveRecord::RecordNotFound
     { success: false, error: "wuh" }
