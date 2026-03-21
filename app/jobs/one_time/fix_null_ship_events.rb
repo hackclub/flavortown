@@ -18,6 +18,7 @@ class OneTime::FixNullShipEvents < ApplicationJob
         next if dry_run
 
         ship_event_id = ship_event.id
+        ship_event.votes.delete_all
         ship_event.destroy
         notify_admin("ShipEvent ##{ship_event_id} deleted: #{reason}.")
         deleted += 1
