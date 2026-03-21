@@ -240,6 +240,14 @@ components:
           items:
             type: string
   responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+          example:
+            error: Limit cannot exceed 100
     Unauthorized:
       description: Missing or invalid API key
       content:
@@ -284,6 +292,13 @@ paths:
         schema:
           type: integer
         description: Page number for pagination
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+        description: Number of results per page (max 100)
       - name: query
         in: query
         required: false
@@ -304,6 +319,8 @@ paths:
                       "$ref": "#/components/schemas/Project"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
         '401':
           "$ref": "#/components/responses/Unauthorized"
     post:
@@ -436,6 +453,19 @@ paths:
         required: true
         schema:
           type: integer
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: Page number for pagination
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+        description: Number of results per page (max 100)
       responses:
         '200':
           description: A paginated list of devlogs for the project
@@ -450,6 +480,8 @@ paths:
                       "$ref": "#/components/schemas/Devlog"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
         '401':
           "$ref": "#/components/responses/Unauthorized"
         '404':
@@ -468,6 +500,13 @@ paths:
         schema:
           type: integer
         description: Page number for pagination
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+        description: Number of results per page (max 100)
       responses:
         '200':
           description: A paginated list of devlogs
@@ -482,6 +521,8 @@ paths:
                       "$ref": "#/components/schemas/Devlog"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
         '401':
           "$ref": "#/components/responses/Unauthorized"
   "/devlogs/{id}":
@@ -564,6 +605,13 @@ paths:
         schema:
           type: integer
         description: Page number for pagination
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+        description: Number of results per page (max 100)
       - name: query
         in: query
         required: false
@@ -584,6 +632,8 @@ paths:
                       "$ref": "#/components/schemas/User"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
         '401':
           "$ref": "#/components/responses/Unauthorized"
   "/users/{id}":
