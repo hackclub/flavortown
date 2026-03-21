@@ -1,4 +1,4 @@
-class OneTime::FixNullShipEventsJob < ApplicationJob
+class OneTime::FixNullShipEvents < ApplicationJob
   queue_as :literally_whenever
 
   NOTIFY_USER_ID = "U05F4B48GBF"
