@@ -425,7 +425,7 @@
 
     <%# Reject button for all non-fulfilled states %>
     <% if %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold].include?(@order.aasm_state) %>
-      <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="admin-btn admin-btn--danger" <% if @order.requires_additional_review? %>disabled<% end %>>✗ Reject</button>
+      <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="admin-btn admin-btn--danger" <% if @order.requires_additional_review? %> disabled<% end %>>✗ Reject</button>
       <%= render "reject_modal", order: @order %>
     <% end %>
 
