@@ -213,6 +213,20 @@
       ) %>
     </div>
   <% end %>
+  <% if current_user&.vote_balance.to_i < 0 %>
+    <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
+      <%= render StateCardComponent.new(
+        title: "Vote Debt",
+        description: "You're #{current_user.vote_balance.abs} votes in debt. Your payouts are on hold until you vote! Head over and review some projects.",
+        variant: :warning,
+        badge_text: "-#{current_user.vote_balance.abs} votes",
+        icon: "info",
+        cta_text: "Vote now",
+        cta_href: new_vote_path
+      ) %>
+    </div>
+  <% end %>
+
   <% if Date.current < Date.new(2026, 3, 9) && current_user&.ref == "willsbuilds" && !current_user&.has_dismissed?("willsbuilds_banner") %>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap">
     <div class="willsbuilds-banner">
