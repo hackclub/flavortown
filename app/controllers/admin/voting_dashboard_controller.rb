@@ -32,6 +32,7 @@ module Admin
       unpaid = current_scale_ships.where(certification_status: "approved", payout: nil)
       unpaid_ships = unpaid.count
       unpaid_ships_without_bugs = unpaid.count { |s| s.hours > 0 }
+      unpaid_ships_negative_balance = unpaid.joins(post: :user).where("users.vote_balance < 0").count
 
       @overview = {
         total:                 vote_stats.total_votes.to_i,
@@ -44,9 +45,10 @@ module Admin
         repo_click_rate:       legitimate_total > 0 ? (vote_stats.repo_clicks.to_f / legitimate_total * 100).round(1) : 0,
         demo_click_rate:       legitimate_total > 0 ? (vote_stats.demo_clicks.to_f / legitimate_total * 100).round(1) : 0,
         reason_rate:           legitimate_total > 0 ? (vote_stats.with_reason.to_f / legitimate_total * 100).round(1) : 0,
-        paid_ships:                  paid_ships,
-        unpaid_ships:                unpaid_ships,
-        unpaid_ships_without_bugs:   unpaid_ships_without_bugs
+        paid_ships:                       paid_ships,
+        unpaid_ships:                     unpaid_ships,
+        unpaid_ships_without_bugs:        unpaid_ships_without_bugs,
+        unpaid_ships_negative_balance:    unpaid_ships_negative_balance
       }
 
       @suspicious_stats = calculate_suspicious_stats
