@@ -4,6 +4,12 @@
     style="cursor: help;">Order #<%= @order.id %></span>
 </h1>
 
+<% if @other_viewers.any? %>
+  <div class="admin-alert admin-alert--warning">
+    👀 <%= @other_viewers.to_sentence %> <%= @other_viewers.one? ? "is" : "are" %> also looking at this order
+  </div>
+<% end %>
+
 <%= render "shared/admin_state_machine", record: @order %>
 
 <div class="admin-section">

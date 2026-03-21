@@ -111,6 +111,14 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @can_view_address = @order.can_view_address?(current_user)
     @is_digital_fulfillment_type = ShopOrder::DIGITAL_FULFILLMENT_TYPES.include?(@order.shop_item.type)
 
+    # Track who is viewing this order (cache-based presence)
+    viewer_cache_key = "shop_order_viewers:#{@order.id}"
+    viewers = Rails.cache.read(viewer_cache_key) || {}
+    viewers.reject! { |_uid, ts| ts < 2.minutes.ago }
+    @other_viewers = User.where(id: viewers.keys.reject { |uid| uid == current_user.id }).pluck(:display_name)
+    viewers[current_user.id] = Time.current
+    Rails.cache.write(viewer_cache_key, viewers, expires_in: 5.minutes)
+
     # Load fulfillment users for assignment (admins and fulfillment peeps)
     if current_user.admin? || current_user.fulfillment_person?
       @fulfillment_users = User.where("'fulfillment_person' = ANY(granted_roles)").order(:display_name)
@@ -205,6 +213,10 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     if @order.user_id == current_user.id
       redirect_to admin_shop_order_path(@order), alert: "You cannot approve your own order." and return
+    end
+
+    unless @order.pending? || @order.awaiting_verification_call?
+      redirect_to admin_shop_order_path(@order), alert: "This order has already been processed." and return
     end
 
     old_state = @order.aasm_state
