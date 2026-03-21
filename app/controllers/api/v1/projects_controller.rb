@@ -7,7 +7,8 @@ class Api::V1::ProjectsController < Api::BaseController
     create: "Create a new project.",
     update: "Update an existing project.",
     random: "Fetch random projects.",
-    search: "Semantic search across projects using vector search + reranking. Ratelimit: 20 reqs/min"
+    search: "Semantic search across projects using vector search + reranking. Ratelimit: 20 reqs/min",
+    ban_status: "Check if a project is banned or shadow banned. Requires admin API key."
   }
 
   class_attribute :url_params_model, default: {
@@ -55,13 +56,19 @@ class Api::V1::ProjectsController < Api::BaseController
     total_count: Integer, next_page: "Integer || Null"
   }.freeze
 
+  BAN_STATUS_SCHEMA = {
+    id: Integer, banned: "Boolean", shadow_banned: "Boolean",
+    shadow_banned_at: "String || Null", shadow_banned_reason: "String || Null"
+  }.freeze
+
   class_attribute :response_body_model, default: {
     index: { projects: [ PROJECT_SCHEMA ], pagination: PAGINATION_SCHEMA },
     show: PROJECT_SCHEMA,
     create: PROJECT_SCHEMA,
     update: PROJECT_SCHEMA,
     random: { projects: [ PROJECT_SCHEMA ] },
-    search: { results: [ PROJECT_SCHEMA ], query: String, count: Integer }
+    search: { results: [ PROJECT_SCHEMA ], query: String, count: Integer },
+    ban_status: BAN_STATUS_SCHEMA
   }
 
   def index
@@ -103,6 +110,14 @@ class Api::V1::ProjectsController < Api::BaseController
     @project = Project.find_by!(id: params[:id], deleted_at: nil)
   end
 
+  def ban_status
+    unless current_api_user.admin?
+      return render json: { error: "Admin API key required" }, status: :forbidden
+    end
+
+    @project = Project.unscoped.find(params[:id])
+  end
+
   def create
     @project = Project.new(project_params)
 
@@ -131,6 +146,11 @@ class Api::V1::ProjectsController < Api::BaseController
   end
 
   private
+
+  def admin_api_user?
+    current_api_user&.admin?
+  end
+  helper_method :admin_api_user?
 
   def project_params
     params.permit(:title, :description, :repo_url, :demo_url, :readme_url, :ai_declaration)
