@@ -736,3 +736,52 @@ dialog {
 .admin-section__content {
   padding-top: var(--space-xs);
 }
+
+.role-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.role-dropdown__menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  min-width: 200px;
+  background: white;
+  border: 1px solid var(--color-tan-500, #d1d5db);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 0.25rem 0;
+  margin-top: 0.25rem;
+
+  &--open {
+    display: block;
+  }
+}
+
+.role-dropdown__menu form {
+  margin: 0;
+}
+
+.role-dropdown__item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.875rem;
+  border-radius: 0;
+
+  &:hover {
+    background: var(--color-tan-300, #f3f4f6);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
