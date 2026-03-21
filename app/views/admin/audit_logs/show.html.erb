@@ -92,7 +92,7 @@
           </tr>
         </thead>
         <tbody>
-          <% sensitive_fields = %w[magic_link_token magic_link_token_digest encrypted_password password_digest frozen_address frozen_address_ciphertext frozen_phone_ciphertext] %>
+          <% sensitive_fields = %w[magic_link_token magic_link_token_digest encrypted_password password_digest frozen_address frozen_address_ciphertext frozen_phone_ciphertext email address ip_address phone phone_number hcb_email] %>
           <% changes.each do |field, values| %>
             <tr>
               <td><code class="audit-log-detail__field"><%= field %></code></td>
@@ -145,6 +145,9 @@
           YAML.safe_load(raw_obj, permitted_classes: [Symbol, Time, Date, DateTime, BigDecimal, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]) rescue raw_obj
         else
           raw_obj
+        end
+        if parsed_obj.is_a?(Hash)
+          sensitive_fields.each { |f| parsed_obj[f] = "[REDACTED]" if parsed_obj.key?(f) }
         end
       %>
       <pre class="json-block json-block--large" data-json-highlight-target="code"><%= parsed_obj.is_a?(Hash) ? JSON.pretty_generate(parsed_obj) : parsed_obj %></pre>
