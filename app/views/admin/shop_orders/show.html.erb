@@ -311,7 +311,19 @@
       <div><b>Related Project:</b> <%= link_to "##{@order.fraud_related_project_id}", project_path(@order.fraud_related_project_id) %></div>
     <% end %>
     <% if @order.joe_case_url.present? %>
-      <div><b>Joe Case:</b> <%= link_to @order.joe_case_url, @order.joe_case_url, target: "_blank", rel: "noopener" %></div>
+      <div>
+        <b>Joe Case:</b>
+        <% begin %>
+          <% uri = URI.parse(@order.joe_case_url.to_s) %>
+          <% if uri.is_a?(URI::HTTP) && uri.host.present? %>
+            <%= link_to @order.joe_case_url, uri.to_s, target: "_blank", rel: "noopener" %>
+          <% else %>
+            <%= @order.joe_case_url %>
+          <% end %>
+        <% rescue URI::InvalidURIError %>
+          <%= @order.joe_case_url %>
+        <% end %>
+      </div>
     <% end %>
     <% if @order.internal_notes.present? %>
       <div><b>Internal Notes:</b> <%= @order.internal_notes %></div>
