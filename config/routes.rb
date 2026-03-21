@@ -256,6 +256,8 @@ Rails.application.routes.draw do
         post :delete
         post :shadow_ban
         post :unshadow_ban
+        post :update_ship_status
+        post :force_state
         get  :votes
       end
     end
@@ -282,6 +284,7 @@ Rails.application.routes.draw do
         post :refresh_verification
         post :send_to_theseus
         post :approve_verification_call
+        post :force_state
       end
     end
     resources :shop_suggestions, only: [ :index ] do
@@ -385,7 +388,9 @@ Rails.application.routes.draw do
 
   # Public user profiles
   resources :users, only: [ :show ] do
-    resource :profile, only: [ :edit, :update ], controller: "user_profiles"
+    constraints ->(_req) { Flipper.enabled?(:user_profiles) } do
+      resource :profile, only: [ :edit, :update ], controller: "user_profiles"
+    end
     resource :og_image, only: [ :show ], module: :users, defaults: { format: :png }
     member do
       get :stats

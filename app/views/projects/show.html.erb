@@ -5,6 +5,13 @@
 <% content_for :twitter_card, "summary_large_image" %>
 <% content_for :og_author, @project.memberships.find_by(role: :owner)&.user&.display_name %>
 
+<% owner = @project.memberships.find_by(role: :owner)&.user %>
+<% if owner&.search_engine_indexing_off? %>
+  <% content_for :head do %>
+    <meta name="robots" content="noindex, nofollow">
+  <% end %>
+<% end %>
+
 <div class="projects-show">
   <div class="projects-show__container" style="position: relative;">
     <%= render "shared/debug_info", record: @project %>
