@@ -1,0 +1,63 @@
+class OneTime::FixNullShipEvents < ApplicationJob
+  queue_as :literally_whenever
+
+  NOTIFY_USER_ID = "U05F4B48GBF"
+
+  def perform(dry_run: true)
+    migrated_legacy = false
+
+    Post::ShipEvent.where(hours: nil).find_each do |ship_event|
+      project = ship_event.project
+      calculated_hours = project ? ship_event.hours : nil
+
+      log_prefix = "[FixNullShipEvents]#{" (DRY RUN)" if dry_run} ShipEvent ##{ship_event.id}"
+
+      if project.nil? || calculated_hours <= 0
+        reason = project.nil? ? "no project" : "0 hours (#{project_url(project)})"
+        Rails.logger.warn "#{log_prefix} deleting: #{reason}"
+        next if dry_run
+
+        ship_event_id = ship_event.id
+        ship_event.destroy
+        notify_admin("ShipEvent ##{ship_event_id} deleted: #{reason}.")
+        next
+      end
+
+      Rails.logger.info "#{log_prefix} -> #{calculated_hours} hours"
+      next if dry_run
+
+      if ship_event.legacy_voting_scale? && ship_event.certification_status == "approved" && ship_event.payout.blank?
+        clear_legacy_votes!(ship_event)
+        migrated_legacy = true
+      end
+    end
+
+    ShipEventMajorityJudgmentRefreshJob.perform_later if migrated_legacy
+  end
+
+  private
+
+  def project_url(project)
+    "https://flavortown.hackclub.com/projects/#{project.id}"
+  end
+
+  def notify_admin(message)
+    SendSlackDmJob.perform_later(NOTIFY_USER_ID, message)
+  end
+
+  # wipes legacy-scale votes if any and bumps to current scale so voting can run normally.
+  def clear_legacy_votes!(ship_event)
+    ActiveRecord::Base.transaction do
+      user_ids = ship_event.votes.distinct.pluck(:user_id)
+
+      ship_event.votes.delete_all
+
+      Post::ShipEvent.reset_counters(ship_event.id, :votes)
+      user_ids.each { |uid| User.reset_counters(uid, :votes) }
+
+      ship_event.update_column(:voting_scale_version, Post::ShipEvent::CURRENT_VOTING_SCALE_VERSION)
+    end
+
+    Rails.logger.info "[FixNullShipEvents] ShipEvent ##{ship_event.id} migrated from legacy voting scale (votes cleared)"
+  end
+end
