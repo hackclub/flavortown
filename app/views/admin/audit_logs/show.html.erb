@@ -147,6 +147,7 @@
           raw_obj
         end
         if parsed_obj.is_a?(Hash)
+          sensitive_fields ||= []
           sensitive_fields.each { |f| parsed_obj[f] = "[REDACTED]" if parsed_obj.key?(f) }
         end
       %>
