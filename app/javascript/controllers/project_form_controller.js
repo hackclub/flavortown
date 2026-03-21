@@ -55,7 +55,7 @@ export default class extends Controller {
     this.syncUpdateCheckbox();
 
     // made it sync the update description on load so people don't have to retype everything
-    this.syncUpdateDescriptionVisibility({clearWhenHidden: false});
+    this.syncUpdateDescriptionVisibility({ clearWhenHidden: false });
 
     if (
       this.hasRepoUrlTarget &&
@@ -407,7 +407,7 @@ export default class extends Controller {
     this.updateDeclarationTarget.checked = hasPrefix || hasUpdateDescription;
   }
 
-  syncUpdateDescriptionVisibility({clearWhenHidden = true} = {}) {
+  syncUpdateDescriptionVisibility({ clearWhenHidden = true } = {}) {
     if (!this.hasUpdateDescriptionContainerTarget) return;
 
     const isChecked =
