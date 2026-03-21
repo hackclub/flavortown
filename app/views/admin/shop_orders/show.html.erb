@@ -304,6 +304,15 @@
     <% if @order.rejection_reason.present? %>
       <div><b>Rejection Reason:</b> <%= @order.rejection_reason %></div>
     <% end %>
+    <% if @order.internal_rejection_reason.present? %>
+      <div><b>Internal Reason:</b> <%= @order.internal_rejection_reason %></div>
+    <% end %>
+    <% if @order.fraud_related_project_id.present? %>
+      <div><b>Related Project:</b> <%= link_to "##{@order.fraud_related_project_id}", project_path(@order.fraud_related_project_id) %></div>
+    <% end %>
+    <% if @order.joe_case_url.present? %>
+      <div><b>Joe Case:</b> <%= link_to @order.joe_case_url, @order.joe_case_url, target: "_blank", rel: "noopener" %></div>
+    <% end %>
     <% if @order.internal_notes.present? %>
       <div><b>Internal Notes:</b> <%= @order.internal_notes %></div>
     <% end %>

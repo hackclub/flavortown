@@ -545,6 +545,30 @@ dialog {
   }
 }
 
+.reject-modal__field {
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  textarea,
+  input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--color-brown-500);
+    border-radius: 4px;
+  }
+}
+
+.reject-modal__actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
 .fulfill-actions {
   display: flex;
   gap: 0.5rem;

@@ -242,7 +242,14 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
     reason = params[:reason].presence || "No reason provided"
+    internal_reason = params[:internal_rejection_reason]
+    joe_case_url = params[:joe_case_url]
+    fraud_project_id = params[:fraud_related_project_id]
     old_state = @order.aasm_state
+
+    @order.internal_rejection_reason = internal_reason
+    @order.joe_case_url = joe_case_url.presence
+    @order.fraud_related_project_id = fraud_project_id.presence
 
     if @order.mark_rejected(reason) && @order.save
       PaperTrail::Version.create!(
@@ -252,12 +259,18 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         whodunnit: current_user.id,
         object_changes: {
           aasm_state: [ old_state, @order.aasm_state ],
-          rejection_reason: [ nil, reason ]
-        }
+          rejection_reason: [ nil, reason ],
+          internal_rejection_reason: [ nil, internal_reason ],
+          joe_case_url: [ nil, joe_case_url.presence ],
+          fraud_related_project_id: [ nil, fraud_project_id.presence ]
+        }.compact_blank
       )
 
       n = @order.accessory_orders.select(&:may_mark_rejected?).count { |a|
         old = a.aasm_state
+        a.internal_rejection_reason = internal_reason
+        a.joe_case_url = joe_case_url.presence
+        a.fraud_related_project_id = fraud_project_id.presence
         next unless a.mark_rejected(reason) && a.save
         PaperTrail::Version.create!(
           item_type: "ShopOrder", item_id: a.id, event: "update", whodunnit: current_user.id,

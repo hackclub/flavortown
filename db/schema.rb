@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_21_222004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -634,6 +634,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
     t.datetime "awaiting_periodical_fulfillment_at"
     t.datetime "created_at", null: false
     t.string "external_ref"
+    t.bigint "fraud_related_project_id"
     t.text "frozen_address_ciphertext"
     t.decimal "frozen_item_price", precision: 6, scale: 2
     t.datetime "fulfilled_at"
@@ -641,6 +642,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
     t.decimal "fulfillment_cost", precision: 6, scale: 2
     t.bigint "fulfillment_payout_line_id"
     t.text "internal_notes"
+    t.text "internal_rejection_reason"
+    t.string "joe_case_url"
     t.datetime "on_hold_at"
     t.bigint "parent_order_id"
     t.integer "quantity"
@@ -934,6 +937,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_items", "users", column: "default_assigned_user_id", on_delete: :nullify
   add_foreign_key "shop_orders", "fulfillment_payout_lines"
+  add_foreign_key "shop_orders", "projects", column: "fraud_related_project_id", on_delete: :nullify, validate: false
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
   add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"
