@@ -219,6 +219,10 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to admin_shop_order_path(@order), alert: "This order has already been processed." and return
     end
 
+    if @order.requires_additional_review?
+      redirect_to admin_shop_order_path(@order), alert: "This is a high-value order and requires 2 fraud dept reviews before approval (#{@order.reviews.count}/2 so far)." and return
+    end
+
     old_state = @order.aasm_state
 
     if @order.shop_item.respond_to?(:fulfill!)
@@ -250,9 +254,46 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
   end
 
+  def review_order
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+
+    if !current_user.admin? && @order.user_id == current_user.id
+      redirect_to admin_shop_order_path(@order), alert: "You cannot review your own order." and return
+    end
+
+    review = @order.reviews.build(
+      user: current_user,
+      verdict: params[:verdict],
+      reason: params[:review_reason]
+    )
+
+    if review.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder",
+        item_id: @order.id,
+        event: "review",
+        whodunnit: current_user.id,
+        object_changes: {
+          review_count: [ @order.reviews.count - 1, @order.reviews.count ],
+          verdict: review.verdict,
+          reason: review.reason
+        }
+      )
+      redirect_to admin_shop_order_path(@order), notice: "Review submitted — #{review.verdict} (#{@order.reviews.count}/2)."
+    else
+      redirect_to admin_shop_order_path(@order), alert: review.errors.full_messages.to_sentence
+    end
+  end
+
   def reject
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
+
+    if @order.requires_additional_review?
+      redirect_to admin_shop_order_path(@order), alert: "This is a high-value order and requires 2 fraud dept reviews before rejection (#{@order.reviews.count}/2 so far)." and return
+    end
+
     reason = params[:reason].presence || "No reason provided"
     internal_reason = params[:internal_rejection_reason]
     joe_case_url = params[:joe_case_url]

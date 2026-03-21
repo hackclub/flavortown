@@ -69,6 +69,7 @@ class ShopOrder < ApplicationRecord
   belongs_to :shop_card_grant, optional: true
   belongs_to :parent_order, class_name: "ShopOrder", optional: true
   has_many :accessory_orders, class_name: "ShopOrder", foreign_key: :parent_order_id, dependent: :destroy
+  has_many :reviews, class_name: "ShopOrderReview", dependent: :destroy
   belongs_to :warehouse_package, class_name: "ShopWarehousePackage", optional: true
   belongs_to :assigned_to_user, class_name: "User", optional: true
   belongs_to :fulfillment_payout_line, optional: true
@@ -93,6 +94,7 @@ class ShopOrder < ApplicationRecord
 
   validates :internal_rejection_reason, presence: true, if: :rejected?
   validates :fraud_related_project_id, presence: true, if: :rejected?
+  validate :fraud_related_project_exists, if: -> { fraud_related_project_id.present? }
 
   after_create :create_negative_payout
   after_create :assign_default_user
@@ -248,8 +250,24 @@ class ShopOrder < ApplicationRecord
     "https://ui3.hcb.hackclub.com/donations/start/flavortown?email=#{user.email}&message=#{}"
   end
 
+  HIGH_VALUE_THRESHOLD = 2000
+
   def total_cost
     frozen_item_price * quantity
+  end
+
+  def total_cost_with_accessories
+    total_cost + accessory_orders.sum(&:total_cost)
+  end
+
+  def high_value?
+    frozen_item_price > HIGH_VALUE_THRESHOLD ||
+      total_cost > HIGH_VALUE_THRESHOLD ||
+      total_cost_with_accessories > HIGH_VALUE_THRESHOLD
+  end
+
+  def requires_additional_review?
+    high_value? && reviews.count < 2
   end
 
   def approve!
@@ -435,6 +453,12 @@ class ShopOrder < ApplicationRecord
       created_by: "System",
       ledgerable: self
     )
+  end
+
+  def fraud_related_project_exists
+    unless Project.exists?(fraud_related_project_id)
+      errors.add(:fraud_related_project_id, "project ##{fraud_related_project_id} does not exist")
+    end
   end
 
   def set_region_from_address

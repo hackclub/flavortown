@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_21_222004) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_21_232438) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -627,6 +627,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_21_222004) do
     t.index ["user_id"], name: "index_shop_items_on_user_id"
   end
 
+  create_table "shop_order_reviews", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "reason"
+    t.bigint "shop_order_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "verdict"
+    t.index ["shop_order_id", "user_id"], name: "index_shop_order_reviews_on_shop_order_id_and_user_id", unique: true
+    t.index ["shop_order_id"], name: "index_shop_order_reviews_on_shop_order_id"
+    t.index ["user_id"], name: "index_shop_order_reviews_on_user_id"
+  end
+
   create_table "shop_orders", force: :cascade do |t|
     t.string "aasm_state"
     t.bigint "accessory_ids", default: [], array: true
@@ -936,6 +948,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_21_222004) do
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_items", "users", column: "default_assigned_user_id", on_delete: :nullify
+  add_foreign_key "shop_order_reviews", "shop_orders"
+  add_foreign_key "shop_order_reviews", "users"
   add_foreign_key "shop_orders", "fulfillment_payout_lines"
   add_foreign_key "shop_orders", "projects", column: "fraud_related_project_id", on_delete: :nullify, validate: false
   add_foreign_key "shop_orders", "shop_items"
