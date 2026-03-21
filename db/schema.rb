@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_18_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -354,6 +354,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_18_000001) do
     t.index ["likeable_type", "likeable_id"], name: "index_likes_on_likeable"
     t.index ["user_id", "likeable_type", "likeable_id"], name: "index_likes_on_user_id_and_likeable_type_and_likeable_id", unique: true
     t.index ["user_id"], name: "index_likes_on_user_id"
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.string "block_path"
+    t.string "content"
+    t.datetime "created_at", null: false
+    t.bigint "sent_by_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["sent_by_id"], name: "index_messages_on_sent_by_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
   create_table "post_devlogs", force: :cascade do |t|
@@ -906,6 +917,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_18_000001) do
   add_foreign_key "hackatime_time_loss_audits", "users"
   add_foreign_key "ledger_entries", "users"
   add_foreign_key "likes", "users"
+  add_foreign_key "messages", "users"
+  add_foreign_key "messages", "users", column: "sent_by_id"
   add_foreign_key "posts", "projects"
   add_foreign_key "posts", "users"
   add_foreign_key "project_follows", "projects"

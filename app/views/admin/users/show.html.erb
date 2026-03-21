@@ -112,6 +112,9 @@
   <div class="card">
     <h2>Actions</h2>
     <div class="admin-actions-wrap">
+      <% if policy(:admin).manage_messages? %>
+        <%= link_to "✉️ Send Message", admin_messages_path(slack_id: @user.slack_id), class: "btn-primary slim" %>
+      <% end %>
       <% if policy(:admin).generate_magic_links? %>
         <%= link_to "🔗 Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
       <% end %>

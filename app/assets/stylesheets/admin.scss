@@ -319,6 +319,12 @@ body {
     background-color: #a855f7;
     color: white;
   }
+
+  &.badge-mass_dm_sent {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    font-weight: 700;
+  }
 }
 
 /* Action Status Indicators */
