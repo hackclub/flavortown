@@ -13,7 +13,10 @@
               <%= inline_svg_tag("icons/check_thick.svg") %>
             <% end %>
           </span>
-          <span class="projects-ship__validation-label"><%= validation[:label] %></span>
+          <span class="projects-ship__validation-label"
+                title="<%= validation[:tooltip] %>">
+                <%= validation[:label] %>
+          </span>
         </div>
       <% end %>
     </div>
