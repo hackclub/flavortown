@@ -7,7 +7,7 @@ class MarkdownRenderer
     return "".freeze if text.blank?
 
     cache_key = text.hash
-    cached = CACHE[cache_key]
+    cached = CACHE_MUTEX.synchronize { CACHE[cache_key] }
     return cached if cached
 
     html = get_markdown(text)
