@@ -116,7 +116,7 @@ class Project < ApplicationRecord
 
     # for explore and projects#index
     attachable.variant :card,
-                       resize_to_limit: [1600, 900],
+                       resize_to_limit: [ 1600, 900 ],
                        format: :webp,
                        preprocessed: true,
                        saver: { strip: true, quality: 75 }
@@ -128,7 +128,7 @@ class Project < ApplicationRecord
 
     # for voting
     attachable.variant :thumb,
-                       resize_to_limit: [400, 210],
+                       resize_to_limit: [ 400, 210 ],
                        format: :webp,
                        preprocessed: true,
                        saver: { strip: true, quality: 75 }
@@ -239,7 +239,7 @@ class Project < ApplicationRecord
     state :rejected
 
     event :submit_for_review do
-      transitions from: [:draft, :submitted, :under_review, :approved, :rejected], to: :submitted, guard: :shippable?
+      transitions from: [ :draft, :submitted, :under_review, :approved, :rejected ], to: :submitted, guard: :shippable?
       after do
         self.shipped_at = Time.current
       end
@@ -275,7 +275,7 @@ class Project < ApplicationRecord
       { key: :project_has_more_then_10s, label: nil, fail_label: "This project doesn't have any time attached to it! (devlog some time, then try again)", passed: duration_seconds > 10 }
     ]
       .map.with_index
-      .sort_by { |pair| [pair[0][:passed] ? 1 : 0, pair[1]] }
+      .sort_by { |pair| [ pair[0][:passed] ? 1 : 0, pair[1] ] }
       .map { |it| it[0] }
   end
 

@@ -21,8 +21,8 @@
             <% end %>
           </span>
           <span class="projects-ship__validation-label"><%=
-            (validation[:passed] ? validation[:label] : (validation[:fail_label] || validation[:label])).html_safe
-          %></span>
+            (validation[:passed] ? validation[:label] : (validation[:fail_label] || validation[:label]))
+                                                        %></span>
         </div>
       <% end %>
     </div>
