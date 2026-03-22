@@ -111,14 +111,25 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @can_view_address = @order.can_view_address?(current_user)
     @is_digital_fulfillment_type = ShopOrder::DIGITAL_FULFILLMENT_TYPES.include?(@order.shop_item.type)
 
-    # Track who is viewing this order (cache-based presence)
-    viewer_cache_key = "shop_order_viewers:#{@order.id}"
-    viewers = Rails.cache.read(viewer_cache_key) || {}
-    viewers.reject! { |_uid, ts| ts < 2.minutes.ago }
-    @other_viewers = User.where(id: viewers.keys.reject { |uid| uid == current_user.id }).pluck(:display_name)
-    viewers[current_user.id] = Time.current
-    Rails.cache.write(viewer_cache_key, viewers, expires_in: 5.minutes)
+    # Track who is viewing this order using an atomic Redis structure (sorted set)
+    @other_viewers = []
+    if Rails.cache.respond_to?(:redis)
+      redis = Rails.cache.redis
+      viewer_set_key = "shop_order_viewers:zset:#{@order.id}"
+      now = Time.current.to_i
+      cutoff = 2.minutes.ago.to_i
 
+      # Add/update the current viewer with the current timestamp as score
+      redis.zadd(viewer_set_key, now, current_user.id)
+      # Remove viewers that have not been active in the last 2 minutes
+      redis.zremrangebyscore(viewer_set_key, 0, cutoff)
+      # Fetch IDs of other active viewers
+      active_viewer_ids = redis.zrangebyscore(viewer_set_key, cutoff, '+inf').map(&:to_i)
+      other_viewer_ids = active_viewer_ids - [current_user.id]
+      @other_viewers = User.where(id: other_viewer_ids).pluck(:display_name) if other_viewer_ids.any?
+      # Ensure the presence key expires if nobody refreshes it
+      redis.expire(viewer_set_key, 5.minutes.to_i)
+    end
     # Load fulfillment users for assignment (admins and fulfillment peeps)
     if current_user.admin? || current_user.fulfillment_person?
       @fulfillment_users = User.where("'fulfillment_person' = ANY(granted_roles)").order(:display_name)
