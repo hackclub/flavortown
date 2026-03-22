@@ -1058,7 +1058,7 @@ module Admin
 
       weighted_total = record&.fields&.dig("Weighted–Total")
 
-      weighted_total.to_f
+      weighted_total.to_f * 10
     rescue StandardError => e
       Rails.logger.error("[SuperMegaDashboard] Error fetching approved YSWS hours: #{e.class} - #{e.message}")
       0

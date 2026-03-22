@@ -32,6 +32,10 @@
             <span class="voting-stat__value"><%= number_with_delimiter(@overview[:unpaid_ships_without_bugs]) %></span>
             <span class="voting-stat__label">Unpaid (no bugs)</span>
         </div>
+        <div class="voting-stat voting-stat--error">
+            <span class="voting-stat__value"><%= number_with_delimiter(@overview[:unpaid_ships_negative_balance]) %></span>
+            <span class="voting-stat__label">Unpaid (neg. balance)</span>
+        </div>
         </div>
     </div>
 

@@ -1,0 +1,126 @@
+<% content_for :title, "Messages" %>
+<%= render HeadingComponent.new(title: "Messages", tone: :blue, size: :full) %>
+
+<div class="admin-actions-wrap" style="margin-bottom: 1rem;">
+  <% if @target_user %>
+    <%= link_to "All messages", admin_messages_path, class: "btn-secondary slim" %>
+    <%= link_to "User profile", admin_user_path(@target_user), class: "btn-secondary slim" %>
+  <% else %>
+    <%= link_to "Back to admin", admin_root_path, class: "btn-secondary slim" %>
+  <% end %>
+</div>
+
+<% if @target_user %>
+  <div class="admin-section">
+    <h2 class="admin-section__header">Recipient</h2>
+    <div class="info-rows">
+      <div><b>Name:</b> <%= @target_user.display_name || "—" %></div>
+      <div><b>Slack ID:</b> <code><%= @target_user.slack_id %></code></div>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <h2 class="admin-section__header">Compose message</h2>
+    <p class="admin-section__note">Send a DM to this user. Provide message content, a block path, or both.</p>
+
+    <%= render "form",
+      path: admin_messages_path(slack_id: @target_user.slack_id),
+      submit_label: "Send message",
+      mass_send: false,
+      user_count: 0 %>
+  </div>
+
+  <div class="admin-section">
+    <h2 class="admin-section__header">Previous messages (<%= @messages.size %>)</h2>
+    <% if @messages.any? %>
+      <table class="table-data">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Content</th>
+            <th>Block Path</th>
+            <th>Sent By</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @messages.each do |message| %>
+            <tr>
+              <td><%= message.created_at.strftime("%b %-d, %Y %H:%M") %></td>
+              <td><%= message.content.presence || "—" %></td>
+              <td><code><%= message.block_path.presence || "—" %></code></td>
+              <td>
+                <% if message.sent_by %>
+                  <%= link_to(message.sent_by.display_name || message.sent_by.slack_id, admin_user_path(message.sent_by)) %>
+                <% else %>
+                  System
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="admin-section__note">No messages have been sent to this user yet.</p>
+    <% end %>
+  </div>
+
+<% elsif params[:slack_id].present? %>
+  <div class="admin-section">
+    <h2 class="admin-section__header">Recipient not found</h2>
+    <div class="admin-alert admin-alert--warning">
+      No user found with Slack ID: <code><%= params[:slack_id] %></code>
+    </div>
+  </div>
+
+<% else %>
+  <div class="admin-section admin-section--highlighted">
+    <h2 class="admin-section__header">Mass send</h2>
+    <div class="admin-alert admin-alert--warning">
+      You are about to send a message to <strong>all <%= @user_count %> users</strong>.
+      Double-check wording and block path before submitting.
+    </div>
+
+    <%= render "form",
+      path: admin_messages_path,
+      submit_label: "Send to all users",
+      mass_send: true,
+      require_confirmation: @user_count > 2,
+      user_count: @user_count %>
+  </div>
+
+  <div class="admin-section">
+    <h2 class="admin-section__header">All previous messages (<%= @messages.size %>)</h2>
+    <% if @messages.any? %>
+      <table class="table-data">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Recipient</th>
+            <th>Content</th>
+            <th>Block Path</th>
+            <th>Sent By</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @messages.each do |message| %>
+            <tr>
+              <td><%= message.created_at.strftime("%b %-d, %Y %H:%M") %></td>
+              <td><%= link_to(message.user.display_name || message.user.slack_id, admin_messages_path(slack_id: message.user.slack_id)) %></td>
+              <td><%= message.content.presence || "—" %></td>
+              <td><code><%= message.block_path.presence || "—" %></code></td>
+              <td>
+                <% if message.sent_by %>
+                  <%= link_to(message.sent_by.display_name || message.sent_by.slack_id, admin_user_path(message.sent_by)) %>
+                <% else %>
+                  System
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="admin-section__note">No messages have been sent yet.</p>
+    <% end %>
+  </div>
+<% end %>

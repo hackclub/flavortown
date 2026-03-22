@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_20_124438) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_21_232438) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -356,6 +356,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_124438) do
     t.index ["user_id"], name: "index_likes_on_user_id"
   end
 
+  create_table "messages", force: :cascade do |t|
+    t.string "block_path"
+    t.string "content"
+    t.datetime "created_at", null: false
+    t.bigint "sent_by_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["sent_by_id"], name: "index_messages_on_sent_by_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
+  end
+
   create_table "post_devlogs", force: :cascade do |t|
     t.text "body"
     t.integer "comments_count", default: 0, null: false
@@ -616,6 +627,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_124438) do
     t.index ["user_id"], name: "index_shop_items_on_user_id"
   end
 
+  create_table "shop_order_reviews", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "reason"
+    t.bigint "shop_order_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "verdict"
+    t.index ["shop_order_id", "user_id"], name: "index_shop_order_reviews_on_shop_order_id_and_user_id", unique: true
+    t.index ["shop_order_id"], name: "index_shop_order_reviews_on_shop_order_id"
+    t.index ["user_id"], name: "index_shop_order_reviews_on_user_id"
+  end
+
   create_table "shop_orders", force: :cascade do |t|
     t.string "aasm_state"
     t.bigint "accessory_ids", default: [], array: true
@@ -623,6 +646,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_124438) do
     t.datetime "awaiting_periodical_fulfillment_at"
     t.datetime "created_at", null: false
     t.string "external_ref"
+    t.bigint "fraud_related_project_id"
     t.text "frozen_address_ciphertext"
     t.decimal "frozen_item_price", precision: 6, scale: 2
     t.datetime "fulfilled_at"
@@ -630,6 +654,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_124438) do
     t.decimal "fulfillment_cost", precision: 6, scale: 2
     t.bigint "fulfillment_payout_line_id"
     t.text "internal_notes"
+    t.text "internal_rejection_reason"
+    t.string "joe_case_url"
     t.datetime "on_hold_at"
     t.bigint "parent_order_id"
     t.integer "quantity"
@@ -822,6 +848,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_124438) do
     t.integer "projects_count"
     t.string "ref"
     t.string "regions", default: [], array: true
+    t.boolean "search_engine_indexing_off", default: false, null: false
     t.boolean "send_notifications_for_followed_devlogs", default: true, null: false
     t.boolean "send_notifications_for_new_comments", default: true, null: false
     t.boolean "send_notifications_for_new_followers", default: true, null: false
@@ -905,6 +932,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_124438) do
   add_foreign_key "hackatime_time_loss_audits", "users"
   add_foreign_key "ledger_entries", "users"
   add_foreign_key "likes", "users"
+  add_foreign_key "messages", "users"
+  add_foreign_key "messages", "users", column: "sent_by_id"
   add_foreign_key "posts", "projects"
   add_foreign_key "posts", "users"
   add_foreign_key "project_follows", "projects"
@@ -919,7 +948,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_124438) do
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_items", "users", column: "default_assigned_user_id", on_delete: :nullify
+  add_foreign_key "shop_order_reviews", "shop_orders"
+  add_foreign_key "shop_order_reviews", "users"
   add_foreign_key "shop_orders", "fulfillment_payout_lines"
+  add_foreign_key "shop_orders", "projects", column: "fraud_related_project_id", on_delete: :nullify, validate: false
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
   add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"

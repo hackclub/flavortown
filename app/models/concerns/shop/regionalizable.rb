@@ -35,7 +35,8 @@ module Shop
     end
 
     def any_region_enabled?
-      REGION_CODES.any? { |code| send("enabled_#{code.downcase}") }
+      return @_any_region_enabled if defined?(@_any_region_enabled)
+      @_any_region_enabled = REGION_CODES.any? { |code| send("enabled_#{code.downcase}") }
     end
 
     def enabled_in_region?(region_code)
@@ -50,6 +51,10 @@ module Shop
 
       # Only fall back to XX (Rest of World) if region is not explicitly set
       enabled_xx
+    end
+
+    def enabled_region_codes
+      @_enabled_region_codes ||= REGION_CODES.select { |code| enabled_in_region?(code) }
     end
 
     def price_for_region(region_code)
@@ -81,7 +86,7 @@ module Shop
     end
 
     def regions_enabled
-      REGION_CODES.select { |code| enabled_in_region?(code) }
+      enabled_region_codes
     end
 
     def self.country_to_region(country_code)

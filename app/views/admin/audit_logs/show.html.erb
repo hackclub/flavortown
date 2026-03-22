@@ -92,14 +92,15 @@
           </tr>
         </thead>
         <tbody>
-          <% sensitive_fields = %w[magic_link_token magic_link_token_digest encrypted_password password_digest frozen_address frozen_address_ciphertext frozen_phone_ciphertext] %>
+          <% sensitive_fields = %w[magic_link_token magic_link_token_digest encrypted_password password_digest frozen_address frozen_address_ciphertext frozen_phone_ciphertext email address ip_address phone phone_number hcb_email] %>
           <% changes.each do |field, values| %>
             <tr>
               <td><code class="audit-log-detail__field"><%= field %></code></td>
-              <td>
-                <% if sensitive_fields.include?(field.to_s) %>
-                  <span class="audit-log-detail__redacted">🔒 [REDACTED]</span>
-                <% elsif values.is_a?(Array) && values.length == 2 %>
+              <% if sensitive_fields.include?(field.to_s) %>
+                <td><span class="audit-log-detail__redacted">🔒 [REDACTED]</span></td>
+                <td><span class="audit-log-detail__redacted">🔒 [REDACTED]</span></td>
+              <% elsif values.is_a?(Array) && values.length == 2 %>
+                <td>
                   <% old_val = values[0] %>
                   <% if old_val.is_a?(Hash) || old_val.is_a?(Array) %>
                     <pre class="json-block" data-json-highlight-target="code"><%= JSON.pretty_generate(old_val) %></pre>
@@ -108,14 +109,8 @@
                   <% else %>
                     <code class="audit-log-detail__value-code"><%= old_val.inspect %></code>
                   <% end %>
-                <% else %>
-                  <span class="audit-log-detail__muted">—</span>
-                <% end %>
-              </td>
-              <td>
-                <% if sensitive_fields.include?(field.to_s) %>
-                  <span class="audit-log-detail__redacted">🔒 [REDACTED]</span>
-                <% elsif values.is_a?(Array) && values.length == 2 %>
+                </td>
+                <td>
                   <% new_val = values[1] %>
                   <% if new_val.is_a?(Hash) || new_val.is_a?(Array) %>
                     <pre class="json-block" data-json-highlight-target="code"><%= JSON.pretty_generate(new_val) %></pre>
@@ -124,10 +119,12 @@
                   <% else %>
                     <code class="audit-log-detail__value-code"><%= new_val.inspect %></code>
                   <% end %>
-                <% else %>
-                  <span class="audit-log-detail__muted">—</span>
-                <% end %>
-              </td>
+                </td>
+              <% else %>
+                <td colspan="2">
+                  <code class="audit-log-detail__value-code"><%= values %></code>
+                </td>
+              <% end %>
             </tr>
           <% end %>
         </tbody>
@@ -148,6 +145,10 @@
           YAML.safe_load(raw_obj, permitted_classes: [Symbol, Time, Date, DateTime, BigDecimal, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]) rescue raw_obj
         else
           raw_obj
+        end
+        if parsed_obj.is_a?(Hash)
+          sensitive_fields ||= []
+          sensitive_fields.each { |f| parsed_obj[f] = "[REDACTED]" if parsed_obj.key?(f) }
         end
       %>
       <pre class="json-block json-block--large" data-json-highlight-target="code"><%= parsed_obj.is_a?(Hash) ? JSON.pretty_generate(parsed_obj) : parsed_obj %></pre>

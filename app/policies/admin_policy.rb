@@ -40,7 +40,7 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def access_audit_logs?
-    user.admin?
+    user.admin? || user.fraud_dept? || user.fulfillment_person?
   end
 
   def access_fulfillment_view?
@@ -117,6 +117,10 @@ class AdminPolicy < ApplicationPolicy
 
   def access_suspicious_votes?
     user.admin? || user.fraud_dept?
+  end
+
+  def manage_messages?
+    user.admin?
   end
 
   def access_support_vibes?
