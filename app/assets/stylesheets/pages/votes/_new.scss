@@ -141,6 +141,27 @@
     font-size: var(--font-size-l);
     line-height: 1.45;
     padding: 0;
+
+    &--truncatable {
+      cursor: pointer;
+
+      .votes-new__project-description-truncated {
+        display: block;
+      }
+      .votes-new__project-description-full {
+        display: none;
+      }
+
+      &:hover {
+        .votes-new__project-description-truncated {
+          display: none;
+        }
+
+        .votes-new__project-description-full {
+          display: block;
+        }
+      }
+    }
   }
 
   &__project-card-byline {
