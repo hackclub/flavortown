@@ -73,7 +73,7 @@ class ShopOrder < ApplicationRecord
   belongs_to :warehouse_package, class_name: "ShopWarehousePackage", optional: true
   belongs_to :assigned_to_user, class_name: "User", optional: true
   belongs_to :fulfillment_payout_line, optional: true
-  belongs_to :fraud_related_project, class_name: "Project", optional: true
+  belongs_to :fraud_related_project, class_name: "Project", optional: true, foreign_key: :fraud_related_project_id, inverse_of: false
 
   # has_many :payouts, as: :payable, dependent: :destroy
 
