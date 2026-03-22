@@ -68,6 +68,11 @@ class Project < ApplicationRecord
     user ? where.not(id: user.projects) : all
   }
   scope :fire, -> { where.not(marked_fire_at: nil) }
+  scope :with_banner_priority, -> {
+    left_joins(:banner_attachment)
+      .includes(banner_attachment: :blob)
+      .order(ActiveStorage::Attachment.arel_table[:id].eq(nil).asc)
+  }
   scope :excluding_shadow_banned, -> {
     where(shadow_banned: false)
       .joins(:memberships)
