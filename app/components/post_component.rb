@@ -123,7 +123,7 @@ class PostComponent < ViewComponent::Base
   end
 
   def show_lapse_badge?
-    devlog? && @lapse_badge
+    devlog? && (postable.lapse_timelapse_id.present? || @lapse_badge)
   end
 
   def standalone?
@@ -185,6 +185,12 @@ class PostComponent < ViewComponent::Base
     else
       "worked on"
     end
+  end
+
+  def lapse_playback_url
+    return nil unless devlog?
+
+    @lapse_playback_url ||= postable.current_lapse_playback_url
   end
 
   def attachments

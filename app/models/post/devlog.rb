@@ -9,13 +9,15 @@
 #  duration_seconds                :integer
 #  hackatime_projects_key_snapshot :text
 #  hackatime_pulled_at             :datetime
-#  lapse_video_processing          :boolean          default(FALSE), not null
+#  lapse_playback_url              :string
+#  lapse_playback_url_refreshed_at :datetime
 #  likes_count                     :integer          default(0), not null
 #  scrapbook_url                   :string
 #  synced_at                       :datetime
 #  tutorial                        :boolean          default(FALSE), not null
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null
+#  lapse_timelapse_id              :string
 #
 # Indexes
 #
@@ -24,7 +26,7 @@
 class Post::Devlog < ApplicationRecord
   include Postable
   include SoftDeletable
-  has_paper_trail ignore: [ :likes_count, :comments_count, :lapse_video_processing, :hackatime_pulled_at, :synced_at ]
+  has_paper_trail ignore: [ :likes_count, :comments_count, :lapse_timelapse_id, :lapse_playback_url, :lapse_playback_url_refreshed_at, :hackatime_pulled_at, :synced_at ]
 
   # flag for tracking if attachments are being uploaded during an update
   attr_accessor :uploading_attachments
@@ -144,12 +146,28 @@ class Post::Devlog < ApplicationRecord
     result
   end
 
+  def lapse_playback_url_stale?
+    lapse_playback_url_refreshed_at.blank? || lapse_playback_url_refreshed_at <= 2.hours.ago
+  end
+
+  def refresh_lapse_playback_url_later
+    return unless lapse_timelapse_id.present?
+    return unless lapse_playback_url_stale?
+
+    RefreshLapsePlaybackUrlJob.perform_later(id)
+  end
+
+  def current_lapse_playback_url
+    refresh_lapse_playback_url_later
+    lapse_playback_url
+  end
+
   private
 
   def at_least_one_attachment
     return if scrapbook_url.present?
     return if uploading_attachments # allow update as long as they're planning to include an attachment
-    return if lapse_video_processing?
+    return if lapse_playback_url.present?
 
     errors.add(:attachments, "must include at least one image or video") unless attachments.attached?
   end

@@ -150,10 +150,10 @@
         <% end %>
       <% end %>
 
-      <% if devlog? && postable.lapse_video_processing? %>
+      <% if devlog? && lapse_playback_url.present? && attachments.none? %>
         <div class="post__attachments">
-          <div class="post__processing-placeholder">
-            <p>🎬 Video processing — check back later!</p>
+          <div class="post__viewport">
+            <%= video_tag lapse_playback_url, class: "post__attachment post__attachment--video", controls: true, preload: "none" %>
           </div>
         </div>
       <% elsif attachments.any? %>

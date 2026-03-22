@@ -375,7 +375,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_21_232438) do
     t.integer "duration_seconds"
     t.text "hackatime_projects_key_snapshot"
     t.datetime "hackatime_pulled_at"
-    t.boolean "lapse_video_processing", default: false, null: false
+    t.string "lapse_playback_url"
+    t.datetime "lapse_playback_url_refreshed_at"
+    t.string "lapse_timelapse_id"
     t.integer "likes_count", default: 0, null: false
     t.string "scrapbook_url"
     t.datetime "synced_at"
