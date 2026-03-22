@@ -4,6 +4,12 @@
     style="cursor: help;">Order #<%= @order.id %></span>
 </h1>
 
+<% if @other_viewers.any? %>
+  <div class="admin-alert admin-alert--warning">
+    👀 <%= @other_viewers.to_sentence %> <%= @other_viewers.one? ? "is" : "are" %> also looking at this order
+  </div>
+<% end %>
+
 <%= render "shared/admin_state_machine", record: @order %>
 
 <div class="admin-section">
@@ -304,6 +310,27 @@
     <% if @order.rejection_reason.present? %>
       <div><b>Rejection Reason:</b> <%= @order.rejection_reason %></div>
     <% end %>
+    <% if @order.internal_rejection_reason.present? %>
+      <div><b>Internal Reason:</b> <%= @order.internal_rejection_reason %></div>
+    <% end %>
+    <% if @order.fraud_related_project_id.present? %>
+      <div><b>Related Project:</b> <%= link_to "##{@order.fraud_related_project_id}", project_path(@order.fraud_related_project_id) %></div>
+    <% end %>
+    <% if @order.joe_case_url.present? %>
+      <div>
+        <b>Joe Case:</b>
+        <% begin %>
+          <% uri = URI.parse(@order.joe_case_url.to_s) %>
+          <% if uri.is_a?(URI::HTTP) && uri.host.present? %>
+            <%= link_to @order.joe_case_url, uri.to_s, target: "_blank", rel: "noopener" %>
+          <% else %>
+            <%= @order.joe_case_url %>
+          <% end %>
+        <% rescue URI::InvalidURIError %>
+          <%= @order.joe_case_url %>
+        <% end %>
+      </div>
+    <% end %>
     <% if @order.internal_notes.present? %>
       <div><b>Internal Notes:</b> <%= @order.internal_notes %></div>
     <% end %>
@@ -342,6 +369,47 @@
 
 <div class="admin-section" style="width: 50%;">
   <h2 class="admin-section__header">Actions</h2>
+  <% if @order.reviews.any? %>
+    <div class="review-list">
+      <% @order.reviews.includes(:user).each do |review| %>
+        <div class="review-list__item review-list__item--<%= review.verdict %>">
+          <strong><%= review.user.display_name %></strong> — <%= review.verdict == "approve" ? "✓ Approve" : "✗ Reject" %>
+          <p><%= review.reason %></p>
+          <small><%= review.created_at.strftime("%m/%d %l:%M%p") %></small>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @order.high_value? && @order.pending? %>
+    <div class="admin-alert admin-alert--warning">
+      ⚠️ High-value order (<%= @order.total_cost_with_accessories %> tickets) — requires 2 fraud dept reviews before approval (<%= @order.reviews.count %>/2).
+    </div>
+
+    <% unless @order.reviews.exists?(user: current_user) %>
+      <%= form_with url: review_order_admin_shop_order_path(@order), method: :post, local: true, class: "review-form" do |f| %>
+        <div class="reject-modal__field">
+          <label>Your verdict</label>
+          <div class="review-form__verdicts">
+            <label class="review-form__verdict">
+              <%= radio_button_tag :verdict, "approve", false, required: true %>
+              ✓ Approve
+            </label>
+            <label class="review-form__verdict">
+              <%= radio_button_tag :verdict, "reject", false, required: true %>
+              ✗ Reject
+            </label>
+          </div>
+        </div>
+        <div class="reject-modal__field">
+          <%= f.label :review_reason, "Reason (required)" %>
+          <%= text_area_tag :review_reason, nil, placeholder: "Why are you approving or rejecting this order?", rows: 3, required: true %>
+        </div>
+        <%= f.submit "Submit Review", class: "admin-btn admin-btn--primary" %>
+      <% end %>
+    <% end %>
+  <% end %>
+
   <div class="admin-button-grid">
     <%= link_to "← Back", admin_shop_orders_path, class: "admin-btn admin-btn--secondary" %>
     <% unless current_user.fulfillment_person? %>
@@ -352,12 +420,12 @@
       <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
       <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
       <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
-      <button type="submit" class="admin-btn admin-btn--primary" <% unless @order.pending? %> disabled<% end %> onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
+      <button type="submit" class="admin-btn admin-btn--primary" <% unless (@order.pending? || @order.awaiting_verification_call?) && !@order.requires_additional_review? %> disabled<% end %> onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
     </form>
 
     <%# Reject button for all non-fulfilled states %>
     <% if %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold].include?(@order.aasm_state) %>
-      <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="admin-btn admin-btn--danger">✗ Reject</button>
+      <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="admin-btn admin-btn--danger" <% if @order.requires_additional_review? %> disabled<% end %>>✗ Reject</button>
       <%= render "reject_modal", order: @order %>
     <% end %>
 

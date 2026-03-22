@@ -226,6 +226,16 @@ class ProjectsController < ApplicationController
 
     return render(json: { message: "Project not found" }, status: :not_found) unless @project
 
+    if @project.users.include?(current_user)
+      return render(json: { message: "You cannot mark your own project as well cooked." }, status: :forbidden)
+    end
+
+    if current_user.fraud_dept? && !current_user.admin?
+      if @project.users.any? { |u| u.fraud_dept? }
+        return render(json: { message: "You cannot mark a fellow fraud department member's project as well cooked." }, status: :forbidden)
+      end
+    end
+
     PaperTrail.request(whodunnit: current_user.id) do
       fire_event = Post::FireEvent.new(
         body: "🔥 #{current_user.display_name} marked your project as well cooked! As a prize for your nicely cooked project, look out for a bonus prize in the mail :)"

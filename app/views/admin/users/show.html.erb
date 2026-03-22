@@ -373,4 +373,6 @@
 
 <%= render Admin::PastOrdersComponent.new(user: @user, title: "Shop Orders") %>
 
+<%= render "admin/shared/ledger_log", entries: @user.ledger_entries, title: "Ledger History" %>
+
 <%= render "admin/shared/audit_log", record: @user, limit: 15 %>

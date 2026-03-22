@@ -111,6 +111,25 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     @can_view_address = @order.can_view_address?(current_user)
     @is_digital_fulfillment_type = ShopOrder::DIGITAL_FULFILLMENT_TYPES.include?(@order.shop_item.type)
 
+    # Track who is viewing this order using an atomic Redis structure (sorted set)
+    @other_viewers = []
+    if Rails.cache.respond_to?(:redis)
+      redis = Rails.cache.redis
+      viewer_set_key = "shop_order_viewers:zset:#{@order.id}"
+      now = Time.current.to_i
+      cutoff = 2.minutes.ago.to_i
+
+      # Add/update the current viewer with the current timestamp as score
+      redis.zadd(viewer_set_key, now, current_user.id)
+      # Remove viewers that have not been active in the last 2 minutes
+      redis.zremrangebyscore(viewer_set_key, 0, cutoff)
+      # Fetch IDs of other active viewers
+      active_viewer_ids = redis.zrangebyscore(viewer_set_key, cutoff, "+inf").map(&:to_i)
+      other_viewer_ids = active_viewer_ids - [ current_user.id ]
+      @other_viewers = User.where(id: other_viewer_ids).pluck(:display_name) if other_viewer_ids.any?
+      # Ensure the presence key expires if nobody refreshes it
+      redis.expire(viewer_set_key, 5.minutes.to_i)
+    end
     # Load fulfillment users for assignment (admins and fulfillment peeps)
     if current_user.admin? || current_user.fulfillment_person?
       @fulfillment_users = User.where("'fulfillment_person' = ANY(granted_roles)").order(:display_name)
@@ -202,6 +221,19 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   def approve
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
+
+    if @order.user_id == current_user.id
+      redirect_to admin_shop_order_path(@order), alert: "You cannot approve your own order." and return
+    end
+
+    unless @order.pending? || @order.awaiting_verification_call?
+      redirect_to admin_shop_order_path(@order), alert: "This order has already been processed." and return
+    end
+
+    if @order.requires_additional_review?
+      redirect_to admin_shop_order_path(@order), alert: "This is a high-value order and requires 2 fraud dept reviews before approval (#{@order.reviews.count}/2 so far)." and return
+    end
+
     old_state = @order.aasm_state
 
     if @order.shop_item.respond_to?(:fulfill!)
@@ -233,11 +265,73 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
   end
 
+  def review_order
+    authorize :admin, :access_shop_orders?
+    @order = ShopOrder.find(params[:id])
+
+    if !current_user.admin? && @order.user_id == current_user.id
+      redirect_to admin_shop_order_path(@order), alert: "You cannot review your own order." and return
+    end
+
+    success = false
+    notice_message = nil
+    alert_message = nil
+
+    @order.with_lock do
+      previous_review_count = @order.reviews.count
+
+      review = @order.reviews.build(
+        user: current_user,
+        verdict: params[:verdict],
+        reason: params[:review_reason]
+      )
+
+      if review.save
+        new_review_count = previous_review_count + 1
+
+        PaperTrail::Version.create!(
+          item_type: "ShopOrder",
+          item_id: @order.id,
+          event: "review",
+          whodunnit: current_user.id,
+          object_changes: {
+            review_count: [ previous_review_count, new_review_count ],
+            verdict: review.verdict,
+            reason: review.reason
+          }
+        )
+
+        success = true
+        notice_message = "Review submitted — #{review.verdict} (#{new_review_count}/2)."
+      else
+        alert_message = review.errors.full_messages.to_sentence
+      end
+    end
+
+    if success
+      redirect_to admin_shop_order_path(@order), notice: notice_message
+    else
+      redirect_to admin_shop_order_path(@order), alert: alert_message
+    end
+  end
+
   def reject
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
+
+    if @order.requires_additional_review?
+      redirect_to admin_shop_order_path(@order), alert: "This is a high-value order and requires 2 fraud dept reviews before rejection (#{@order.reviews.count}/2 so far)." and return
+    end
+
     reason = params[:reason].presence || "No reason provided"
+    internal_reason = params[:internal_rejection_reason]
+    joe_case_url = params[:joe_case_url]
+    fraud_project_id = params[:fraud_related_project_id]
     old_state = @order.aasm_state
+
+    @order.internal_rejection_reason = internal_reason
+    @order.joe_case_url = joe_case_url.presence
+    @order.fraud_related_project_id = fraud_project_id.presence
 
     if @order.mark_rejected(reason) && @order.save
       PaperTrail::Version.create!(
@@ -247,12 +341,18 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         whodunnit: current_user.id,
         object_changes: {
           aasm_state: [ old_state, @order.aasm_state ],
-          rejection_reason: [ nil, reason ]
-        }
+          rejection_reason: [ nil, reason ],
+          internal_rejection_reason: [ nil, internal_reason ],
+          joe_case_url: [ nil, joe_case_url.presence ],
+          fraud_related_project_id: [ nil, fraud_project_id.presence ]
+        }.compact_blank
       )
 
       n = @order.accessory_orders.select(&:may_mark_rejected?).count { |a|
         old = a.aasm_state
+        a.internal_rejection_reason = internal_reason
+        a.joe_case_url = joe_case_url.presence
+        a.fraud_related_project_id = fraud_project_id.presence
         next unless a.mark_rejected(reason) && a.save
         PaperTrail::Version.create!(
           item_type: "ShopOrder", item_id: a.id, event: "update", whodunnit: current_user.id,

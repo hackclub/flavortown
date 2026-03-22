@@ -277,6 +277,7 @@ Rails.application.routes.draw do
         post :reveal_address
         post :reveal_phone
         post :approve
+        post :review_order
         post :reject
         post :place_on_hold
         post :release_from_hold
