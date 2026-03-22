@@ -124,8 +124,8 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       # Remove viewers that have not been active in the last 2 minutes
       redis.zremrangebyscore(viewer_set_key, 0, cutoff)
       # Fetch IDs of other active viewers
-      active_viewer_ids = redis.zrangebyscore(viewer_set_key, cutoff, '+inf').map(&:to_i)
-      other_viewer_ids = active_viewer_ids - [current_user.id]
+      active_viewer_ids = redis.zrangebyscore(viewer_set_key, cutoff, "+inf").map(&:to_i)
+      other_viewer_ids = active_viewer_ids - [ current_user.id ]
       @other_viewers = User.where(id: other_viewer_ids).pluck(:display_name) if other_viewer_ids.any?
       # Ensure the presence key expires if nobody refreshes it
       redis.expire(viewer_set_key, 5.minutes.to_i)
