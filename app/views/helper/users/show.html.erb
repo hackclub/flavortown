@@ -30,7 +30,17 @@
   <div class="card">
     <h2>Moderation</h2>
     <div class="info-rows">
-      <div><b>Voting Locked:</b> <%= @user.voting_locked? ? "Yes" : "No" %></div>
+      <div><b>Voting Locked:</b> <%= @user.voting_locked? ? "Yes (permanent)" : "No" %></div>
+      <div>
+        <b>Voting Cooldown:</b>
+        <% if @user.voting_on_cooldown? %>
+          Stage <%= @user.voting_cooldown_stage %>, expires in <%= time_ago_in_words(@user.voting_cooldown_until) %>
+        <% elsif @user.voting_cooldown_stage > 0 %>
+          Inactive (Stage <%= @user.voting_cooldown_stage %>, decaying)
+        <% else %>
+          None
+        <% end %>
+      </div>
       <div><b>User Banned:</b> <%= @user.banned? ? "Yes" : "No" %></div>
       <% if @user.banned? && @user.banned_reason.present? %>
         <div><b>- Reason:</b> <%= @user.banned_reason %></div>

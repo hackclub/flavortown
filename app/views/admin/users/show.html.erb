@@ -312,11 +312,22 @@
       <% end %>
 
       <% if policy(:admin).ban_users? %>
-        <%= button_to toggle_voting_lock_admin_user_path(@user),
-              method: :post,
-              class: "btn-secondary slim",
-              title: @user.voting_locked? ? "Unlock Voting" : "Lock Voting" do %>
-          <%= @user.voting_locked? ? "Unlock Voting" : "Lock Voting" %>
+        <% if @user.voting_on_cooldown? %>
+          <p>
+            Cooldown active, stage <%= @user.voting_cooldown_stage %>/<%= VotingCooldownService::MAX_STAGE %>,
+            expires <%= time_ago_in_words(@user.voting_cooldown_until) %> from now
+            (<%= @user.voting_cooldown_until.strftime("%Y-%m-%d %H:%M") %>)
+          </p>
+          <%= button_to "Clear Cooldown", toggle_voting_lock_admin_user_path(@user), method: :post, class: "btn-secondary slim" %>
+        <% elsif @user.voting_locked? %>
+          <p>Voting permanently locked</p>
+          <%= button_to "Unlock Voting", toggle_voting_lock_admin_user_path(@user), method: :post, class: "btn-secondary slim" %>
+        <% else %>
+          <p>
+            Stage: <%= @user.voting_cooldown_stage %>/<%= VotingCooldownService::MAX_STAGE %>
+            (lifetime offenses: <%= @user.voting_lock_count %>)
+          </p>
+          <%= button_to "Apply Cooldown", toggle_voting_lock_admin_user_path(@user), method: :post, class: "btn-danger slim" %>
         <% end %>
       <% end %>
     </div>

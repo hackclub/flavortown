@@ -20,7 +20,7 @@ module OneTime
 
       spammer_rows.each do |row|
         user = User.find_by(id: row[:user_id])
-        next if user.nil? || user.voting_locked?
+        next if user.nil? || user.voting_locked? || user.voting_on_cooldown?
 
         (to_lock[user.id] ||= { user: user, reasons: [] })[:reasons] << :sus_votes
       end

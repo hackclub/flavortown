@@ -340,17 +340,49 @@ class Admin::UsersController < Admin::ApplicationController
   def toggle_voting_lock
     authorize :admin, :ban_users?
     @user = User.find(params[:id])
-    @user.toggle!(:voting_locked)
 
-    PaperTrail::Version.create!(
-      item_type: "User",
-      item_id: @user.id,
-      event: "voting_lock_toggled",
-      whodunnit: current_user.id.to_s,
-      object_changes: { voting_locked: [ !@user.voting_locked, @user.voting_locked ] }.to_json
-    )
+    notice =
+      if @user.voting_on_cooldown?
+        prev_until = @user.voting_cooldown_until
+        VotingCooldownService.new(@user).clear!
+        PaperTrail::Version.create!(
+          item_type: "User",
+          item_id: @user.id,
+          event: "voting_cooldown_cleared",
+          whodunnit: current_user.id.to_s,
+          object_changes: {
+            voting_cooldown_until: [ prev_until, nil ],
+            cleared_by: current_user.display_name
+          }
+        )
+        "Voting cooldown cleared for #{@user.display_name}."
+      elsif @user.voting_locked?
+        @user.update!(voting_locked: false)
+        PaperTrail::Version.create!(
+          item_type: "User",
+          item_id: @user.id,
+          event: "voting_lock_toggled",
+          whodunnit: current_user.id.to_s,
+          object_changes: { voting_locked: [ true, false ] }
+        )
+        "Permanent voting lock removed for #{@user.display_name}."
+      else
+        VotingCooldownService.new(@user).apply!(notify: true)
+        PaperTrail::Version.create!(
+          item_type: "User",
+          item_id: @user.id,
+          event: "voting_cooldown_applied_by_admin",
+          whodunnit: current_user.id.to_s,
+          object_changes: {
+            stage: @user.voting_cooldown_stage,
+            voting_cooldown_until: @user.voting_cooldown_until,
+            applied_by: current_user.display_name
+          }
+        )
+        "Voting cooldown applied to #{@user.display_name}."
+      end
 
-    redirect_back(fallback_location: admin_user_path(@user), notice: "Voting lock has been #{@user.voting_locked ? 'enabled' : 'disabled'} for #{@user.display_name}.")
+    redirect_back(fallback_location: admin_user_path(@user), notice: notice)
   end
 
   def refresh_verification

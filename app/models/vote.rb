@@ -72,6 +72,7 @@ class Vote < ApplicationRecord
   after_commit :trigger_payout_calculation, on: [ :create, :destroy ]
   after_commit :increment_user_vote_balance, on: :create
   after_commit :detect_vote_spam, on: :create
+  after_commit :record_clean_vote, on: :create
   after_commit :broadcast_vote_to_channel, on: :create
 
   validates :reason, presence: { message: "can't be blank" }
@@ -131,6 +132,12 @@ class Vote < ApplicationRecord
 
   def detect_vote_spam
     Secrets::VoteSpamDetector.new(user).call
+  end
+
+  def record_clean_vote
+    return if suspicious?
+
+    VotingCooldownService.new(user).record_clean_vote!
   end
 
   def broadcast_vote_to_channel

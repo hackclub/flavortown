@@ -26,11 +26,14 @@
           </td>
           <td>
             <%= link_to "View Votes", votes_admin_user_path(user), class: "btn-primary slim" %>
-            <%= button_to toggle_voting_lock_admin_user_path(user),
-                  method: :post,
-                  class: "btn-secondary slim",
-                  title: user.voting_locked? ? "Unlock Voting" : "Lock Voting" do %>
-              <%= user.voting_locked? ? "Unlock" : "Lock" %>
+            <% if user.voting_locked? %>
+              <span>Locked</span>
+              <%= button_to "Unlock", toggle_voting_lock_admin_user_path(user), method: :post, class: "btn-secondary slim" %>
+            <% elsif user.voting_on_cooldown? %>
+              <span>Stage <%= user.voting_cooldown_stage %></span>
+              <%= button_to "Clear", toggle_voting_lock_admin_user_path(user), method: :post, class: "btn-secondary slim" %>
+            <% else %>
+              <%= button_to "Cooldown", toggle_voting_lock_admin_user_path(user), method: :post, class: "btn-danger slim" %>
             <% end %>
           </td>
         </tr>

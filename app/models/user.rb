@@ -19,6 +19,7 @@
 #  has_pending_achievements                :boolean          default(FALSE), not null
 #  hcb_email                               :string
 #  internal_notes                          :text
+#  last_clean_vote_at                      :datetime
 #  last_name                               :string
 #  leaderboard_optin                       :boolean          default(FALSE), not null
 #  magic_link_token                        :string
@@ -46,6 +47,9 @@
 #  vote_anonymously                        :boolean          default(FALSE), not null
 #  vote_balance                            :integer          default(0), not null
 #  votes_count                             :integer
+#  voting_cooldown_stage                   :integer          default(0), not null
+#  voting_cooldown_until                   :datetime
+#  voting_lock_count                       :integer          default(0), not null
 #  voting_locked                           :boolean          default(FALSE), not null
 #  ysws_eligible                           :boolean          default(FALSE), not null
 #  created_at                              :datetime         not null
@@ -299,16 +303,11 @@ class User < ApplicationRecord
   end
 
   def lock_voting_and_mark_votes_suspicious!(notify: false)
-    return if voting_locked?
+    VotingCooldownService.new(self).apply!(notify: notify)
+  end
 
-    transaction do
-      update!(voting_locked: true)
-      votes.update_all(suspicious: true)
-    end
-
-    if notify
-      dm_user("Your voting has been locked due to suspicious activity. Please contact @Fraud Squad if you believe this is a mistake.")
-    end
+  def voting_on_cooldown?
+    VotingCooldownService.new(self).active?
   end
 
   def reject_pending_orders!(reason: "User banned")
