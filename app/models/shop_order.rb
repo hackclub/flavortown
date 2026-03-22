@@ -256,8 +256,12 @@ class ShopOrder < ApplicationRecord
     frozen_item_price * quantity
   end
 
+  def accessory_orders_total_cost
+    accessory_orders.sum(Arel.sql("frozen_item_price * quantity"))
+  end
+
   def total_cost_with_accessories
-    total_cost + accessory_orders.sum(&:total_cost)
+    total_cost + (accessory_orders_total_cost || 0)
   end
 
   def high_value?
