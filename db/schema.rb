@@ -839,6 +839,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_15_130341) do
     t.boolean "has_pending_achievements", default: false, null: false
     t.string "hcb_email"
     t.text "internal_notes"
+    t.datetime "last_clean_vote_at"
     t.string "last_name"
     t.boolean "leaderboard_optin", default: false, null: false
     t.string "magic_link_token"
@@ -872,6 +873,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_15_130341) do
     t.boolean "vote_anonymously", default: false, null: false
     t.integer "vote_balance", default: 0, null: false
     t.integer "votes_count"
+    t.integer "voting_cooldown_stage", default: 0, null: false
+    t.datetime "voting_cooldown_until"
+    t.integer "voting_lock_count", default: 0, null: false
     t.boolean "voting_locked", default: false, null: false
     t.boolean "ysws_eligible", default: false, null: false
     t.index ["airtable_record_id"], name: "index_users_on_airtable_record_id", unique: true

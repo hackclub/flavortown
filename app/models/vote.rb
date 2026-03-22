@@ -86,6 +86,7 @@ class Vote < ApplicationRecord
   after_commit :increment_user_vote_balance, on: :create
   after_commit :detect_vote_spam, on: :create
   after_commit :enqueue_reason_quality_scoring, on: :create
+  after_commit :record_clean_vote, on: :create
   after_commit :broadcast_vote_to_channel, on: :create
 
   validates :reason, presence: { message: "can't be blank" }
@@ -153,6 +154,12 @@ class Vote < ApplicationRecord
 
   def enqueue_reason_quality_scoring
     Vote::ScoreReasonQualityJob.perform_later(id)
+  end
+
+  def record_clean_vote
+    return if suspicious?
+
+    VotingCooldownService.new(user).record_clean_vote!
   end
 
   def broadcast_vote_to_channel
