@@ -7,14 +7,14 @@ module Admin
         .joins(:votes)
         .where(votes: { suspicious: true })
         .group("users.id")
-        .select("users.id, users.display_name, users.voting_locked, COUNT(votes.id) AS suspicious_votes_count")
+        .select("users.id, users.display_name, users.voting_locked, users.voting_cooldown_stage, users.voting_cooldown_until, COUNT(votes.id) AS suspicious_votes_count")
         .order("suspicious_votes_count DESC")
         .limit(100)
 
       user_ids = @users.map(&:id)
 
       raw_timestamps = PaperTrail::Version
-        .where(item_type: "User", item_id: user_ids, event: "voting_lock_toggled")
+        .where(item_type: "User", item_id: user_ids, event: [ "voting_lock_toggled", "voting_cooldown_applied_by_admin", "voting_cooldown_cleared" ])
         .group(:item_id)
         .pluck("item_id, MAX(created_at)")
 
