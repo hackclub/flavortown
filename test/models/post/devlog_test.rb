@@ -3,7 +3,7 @@
 # Table name: post_devlogs
 #
 #  id                              :bigint           not null, primary key
-#  body                            :string
+#  body                            :text
 #  comments_count                  :integer          default(0), not null
 #  deleted_at                      :datetime
 #  duration_seconds                :integer

@@ -368,7 +368,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_21_232438) do
   end
 
   create_table "post_devlogs", force: :cascade do |t|
-    t.string "body"
+    t.text "body"
     t.integer "comments_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "deleted_at"
