@@ -37,6 +37,7 @@
 #  hcb_merchant_lock                 :string
 #  hcb_one_time_use                  :boolean          default(FALSE)
 #  hcb_preauthorization_instructions :text
+#  inkthreadable_config              :jsonb
 #  internal_description              :string
 #  limited                           :boolean
 #  long_description                  :text

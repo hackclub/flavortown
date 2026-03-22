@@ -22,14 +22,12 @@
 #  enabled_eu                        :boolean
 #  enabled_in                        :boolean
 #  enabled_uk                        :boolean
-#  enabled_until                     :datetime
 #  enabled_us                        :boolean
 #  enabled_xx                        :boolean
 #  hacker_score                      :integer
 #  hcb_category_lock                 :string
 #  hcb_keyword_lock                  :string
 #  hcb_merchant_lock                 :string
-#  hcb_one_time_use                  :boolean          default(FALSE)
 #  hcb_preauthorization_instructions :text
 #  inkthreadable_config              :jsonb
 #  internal_description              :string
@@ -41,31 +39,29 @@
 #  one_per_person_ever               :boolean
 #  past_purchases                    :integer          default(0)
 #  payout_percentage                 :integer          default(0)
+#  price_offset_au                   :decimal(, )
+#  price_offset_ca                   :decimal(, )
+#  price_offset_eu                   :decimal(, )
+#  price_offset_in                   :decimal(, )
+#  price_offset_uk                   :decimal(10, 2)
+#  price_offset_us                   :decimal(, )
+#  price_offset_xx                   :decimal(, )
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
 #  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
-#  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
-#  show_image_in_shop                :boolean          default(FALSE)
 #  show_in_carousel                  :boolean
 #  site_action                       :integer
 #  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
-#  ticket_cost                       :integer
+#  ticket_cost                       :decimal(, )
 #  type                              :string
 #  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
-#  usd_offset_au                     :decimal(10, 2)
-#  usd_offset_ca                     :decimal(10, 2)
-#  usd_offset_eu                     :decimal(10, 2)
-#  usd_offset_in                     :decimal(10, 2)
-#  usd_offset_uk                     :decimal(10, 2)
-#  usd_offset_us                     :decimal(10, 2)
-#  usd_offset_xx                     :decimal(10, 2)
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
 #  default_assigned_user_id          :bigint
@@ -81,5 +77,29 @@
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #
-class ShopItem::SpecialFulfillmentItem < ShopItem
+class ShopItem::InkthreadableItem < ShopItem
+  def fulfill!(shop_order)
+    Shop::SendInkthreadableOrderJob.perform_later(shop_order.id)
+    shop_order.queue_for_fulfillment!
+  end
+
+  def inkthreadable_config
+    super || {}
+  end
+
+  def product_number
+    inkthreadable_config["pn"]
+  end
+
+  def design_urls
+    inkthreadable_config["designs"] || {}
+  end
+
+  def shipping_method
+    inkthreadable_config["shipping_method"] || "regular"
+  end
+
+  def brand_name
+    inkthreadable_config["brand_name"]
+  end
 end
