@@ -260,7 +260,7 @@ class Project < ApplicationRecord
 
   def shipping_requirements
     [
-      { key: :not_shadow_banned, label: "This project has been flagged by moderation and cannot ship", passed: !shadow_banned? },
+      { key: :not_shadow_banned, label: nil, fail_label: "Your project has been flagged by moderation and cannot be shipped!", passed: !shadow_banned? },
       { key: :demo_url, label: "Add a demo link so anyone can try your project", passed: demo_url.present? },
       { key: :repo_url, label: "Add a public GitHub URL with your source code", passed: repo_url.present? },
       { key: :repo_url_format, label: "Use the root GitHub repository URL (no .git or /tree/main)", passed: validate_repo_url_format },
@@ -269,14 +269,19 @@ class Project < ApplicationRecord
       { key: :description, label: "Add a description for your project", passed: description.present? },
       { key: :banner, label: "Upload a banner image for your project", passed: banner.attached? },
       { key: :devlog, label: "Post at least one devlog since your last ship", passed: has_devlog_since_last_ship? },
-      { key: :payout, label: "Wait for your previous ship's to get a payout", passed: previous_ship_event_has_payout? },
-      { key: :vote_balance, label: "Your vote balance is negative", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
-      { key: :project_isnt_rejected, label: "Your project is not rejected!", passed: last_ship_event&.certification_status != "rejected" },
-      { key: :project_has_more_then_10s, label: "Your ship event has actual time attached to it! (all devlogs have more then 10s)", passed: duration_seconds > 10 }
+      { key: :payout, label: nil, fail_label: "Wait for your previous ship to get a payout before shipping again", passed: previous_ship_event_has_payout? },
+      { key: :vote_balance, label: nil, fail_label: "Your vote balance is negative! Vote on other projects before shipping this one.", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
+      { key: :project_isnt_rejected, label: nil, fail_label: "Your project is rejected!", passed: last_ship_event&.certification_status != "rejected" },
+      { key: :project_has_more_then_10s, label: nil, fail_label: "This project doesn't have any time attached to it! (devlog some time, then try again)", passed: duration_seconds > 10 }
     ]
       .map.with_index
       .sort_by { |pair| [pair[0][:passed] ? 1 : 0, pair[1]] }
       .map { |it| it[0] }
+  end
+
+  def visual_shipping_requirements
+    # only those that have a label we could use right now
+    shipping_requirements.select { |elem| !elem[:passed] || elem[:label] }
   end
 
   def shippable? = shipping_requirements.all? { |r| r[:passed] }
