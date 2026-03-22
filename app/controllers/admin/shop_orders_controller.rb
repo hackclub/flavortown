@@ -27,6 +27,10 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     # Apply status filter first if explicitly set (takes priority over view)
     if params[:status].present?
       orders = orders.where(aasm_state: params[:status])
+      # we don't want warehouse items showing up in fulfillment view at all, even if someone explicitly filters for a status they could be in, since fulfillment nerds doesn't handle them!
+      if @view == "fulfillment"
+        orders = orders.joins(:shop_item).where.not(shop_items: { type: "ShopItem::WarehouseItem" })
+      end
     else
       # Apply view-specific scopes only if no explicit status filter
       case @view
@@ -36,6 +40,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       when "fulfillment"
         # Show awaiting_periodical_fulfillment and fulfilled
         orders = orders.where(aasm_state: %w[awaiting_periodical_fulfillment fulfilled])
+                       .joins(:shop_item).where.not(shop_items: { type: "ShopItem::WarehouseItem" })
       end
 
       # Set default status for fraud dept
