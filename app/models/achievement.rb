@@ -221,6 +221,22 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
           .exists?
       }
     ),
+      new(
+      slug: :show_and_tell,
+      name: "Show and tell",
+      description: "Showed up and presented at a show an tell",
+      icon: "trophy",
+      earned_check: ->(user) { ShowAndTellAttendance.where(user_id: user.id).exists? },
+    ),
+     new(
+      slug: :show_and_tell,
+      name: "Show and tell local",
+      description: "Showed up 10 times!",
+      icon: "trophy",
+       earned_check: ->(user) { ShowAndTellAttendance.where(user_id: user.id).size >= 10 },
+      progress: ->(user) { { current: ShowAndTellAttendance.where(user_id: user.id).size, target: 10 } },
+      cookie_reward: 5
+    ),
     new(
       slug: :show_and_tell_winner,
       name: "Crowd Pleaser",
@@ -233,17 +249,17 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       name: "Show Stopper",
       description: "10 show and tell wins?! you own the stage!",
       icon: "trophy",
-      earned_check: ->(user) { ShowAndTellAttendance.where(user_id: user.id, winner: true).count >= 10 },
-      progress: ->(user) { { current: ShowAndTellAttendance.where(user_id: user.id, winner: true).count, target: 10 } },
-      cookie_reward: 5
+      earned_check: ->(user) { ShowAndTellAttendance.where(user_id: user.id, winner: true).size >= 10 },
+      progress: ->(user) { { current: ShowAndTellAttendance.where(user_id: user.id, winner: true).size, target: 10 } },
+      cookie_reward: 30
     ),
     new(
       slug: :five_ships,
       name: "Fleet Captain",
       description: "5 projects shipped - you're running a whole fleet!",
       icon: "ship",
-      earned_check: ->(user) { user.projects.joins(:ship_events).distinct.count >= 5 },
-      progress: ->(user) { { current: user.projects.joins(:ship_events).distinct.count, target: 5 } },
+      earned_check: ->(user) { user.projects.joins(:ship_events).distinct.size >= 5 },
+      progress: ->(user) { { current: user.projects.joins(:ship_events).distinct.size, target: 5 } },
       cookie_reward: 5
     ),
     new(
@@ -254,12 +270,12 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       earned_check: ->(user) {
         Post::ShipEvent.joins(:post)
           .where(posts: { user_id: user.id }, certification_status: "approved")
-          .select("post_ship_events.id").distinct.count >= 5
+          .select("post_ship_events.id").distinct.size >= 5
       },
       progress: ->(user) {
         count = Post::ShipEvent.joins(:post)
           .where(posts: { user_id: user.id }, certification_status: "approved")
-          .select("post_ship_events.id").distinct.count
+          .select("post_ship_events.id").distinct.size
         { current: count, target: 5 }
       },
       cookie_reward: 15
@@ -267,7 +283,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
     new(
       slug: :ten_hours,
       name: "Warming Up",
-      description: "10 hours logged - the stove is getting hot!",
+      description: "10 hours logged - Nice work, your getting somewhere now!",
       icon: "fire",
       earned_check: ->(user) { user.devlog_seconds_total >= 10 * 3600 },
       progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 10 } },
@@ -275,7 +291,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
     new(
       slug: :fifty_hours,
       name: "Sous Chef",
-      description: "50 hours in the kitchen - you're running the line!",
+      description: "50 hours in the kitchen - Your locked in i see...",
       icon: "fire",
       earned_check: ->(user) { user.devlog_seconds_total >= 50 * 3600 },
       progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 50 } },
@@ -283,8 +299,8 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
     ),
     new(
       slug: :hundred_hours,
-      name: "Head Chef",
-      description: "100 hours of pure dedication - the kitchen is yours!",
+      name: "Chef who cooked",
+      description: "100 hours of pure dedication - please, touch grass!",
       icon: "fire",
       earned_check: ->(user) { user.devlog_seconds_total >= 100 * 3600 },
       progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 100 } },
