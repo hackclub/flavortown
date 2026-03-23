@@ -3,6 +3,16 @@
 
 <h1 align="center">Show & Tells</h1>
 
+<div class="show-and-tell-live-toggle">
+  <% live = Flipper.enabled?(:show_and_tell_live) %>
+  <%= button_to toggle_live_admin_special_activities_path(date: params[:date]),
+        method: :post,
+        class: live ? "btn-danger" : "btn-primary",
+        form: { onsubmit: "return confirm('#{live ? "Turn off" : "Turn on"} the Show & Tell live banner on the Kitchen page?')" } do %>
+    <%= live ? "🔴 Show & Tell is LIVE — Click to Turn Off" : "📡 Go Live — Show Banner on Kitchen" %>
+  <% end %>
+</div>
+
 <%= form_with url: admin_special_activities_path, method: :post, local: true, html: { multipart: true } do %>
   <div>
     <label for="csv_file">CSV File</label>
@@ -141,6 +151,11 @@
     display: flex;
     gap: 1rem;
     align-items: center;
+  }
+
+  .show-and-tell-live-toggle {
+    text-align: center;
+    margin-bottom: 1.5rem;
   }
 
   .frozen-notice {
