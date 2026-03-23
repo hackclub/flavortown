@@ -1,0 +1,11 @@
+header ":robot_face: Converge Sidequest Complete!"
+
+section "Your project *#{entry.project.title}* has been approved for the Converge sidequest!", markdown: true
+
+section "You've unlocked the *Sidequest: Converge* achievement! Your bot is officially part of the Converge lineup.", markdown: true
+
+divider
+
+context [
+  mrkdwn_text("Keep building bots that bring communities together!")
+]

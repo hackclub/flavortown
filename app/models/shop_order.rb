@@ -51,7 +51,6 @@
 # Foreign Keys
 #
 #  fk_rails_...  (assigned_to_user_id => users.id) ON DELETE => nullify
-#  fk_rails_...  (fraud_related_project_id => projects.id) ON DELETE => nullify
 #  fk_rails_...  (fulfillment_payout_line_id => fulfillment_payout_lines.id)
 #  fk_rails_...  (parent_order_id => shop_orders.id)
 #  fk_rails_...  (shop_item_id => shop_items.id)

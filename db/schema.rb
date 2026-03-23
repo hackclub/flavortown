@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_21_232438) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_23_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -152,36 +152,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_21_232438) do
     t.index ["creator_id"], name: "index_blazer_queries_on_creator_id"
   end
 
-  create_table "club_memberships", force: :cascade do |t|
-    t.boolean "active", default: true, null: false
-    t.bigint "club_id", null: false
-    t.datetime "created_at", null: false
-    t.string "external_source", default: "clubapi", null: false
-    t.datetime "last_synced_at"
-    t.string "role", default: "member", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["active"], name: "index_club_memberships_on_active"
-    t.index ["club_id"], name: "index_club_memberships_on_club_id"
-    t.index ["user_id", "club_id"], name: "index_club_memberships_on_user_id_and_club_id", unique: true
-    t.index ["user_id"], name: "index_club_memberships_on_user_id"
-  end
-
-  create_table "clubs", force: :cascade do |t|
-    t.string "club_website"
-    t.datetime "created_at", null: false
-    t.string "external_id"
-    t.string "join_code"
-    t.datetime "last_synced_at"
-    t.integer "level"
-    t.jsonb "metadata", default: {}, null: false
-    t.string "name", null: false
-    t.string "status"
-    t.datetime "updated_at", null: false
-    t.index ["external_id"], name: "index_clubs_on_external_id", unique: true
-    t.index ["name"], name: "index_clubs_on_name", unique: true
-  end
-
   create_table "comments", force: :cascade do |t|
     t.text "body", null: false
     t.bigint "commentable_id", null: false
@@ -192,6 +162,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_21_232438) do
     t.index ["commentable_type", "commentable_id", "created_at"], name: "index_comments_on_commentable_and_created_at"
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "cookie_transfers", force: :cascade do |t|
+    t.string "aasm_state", default: "pending", null: false
+    t.integer "amount", null: false
+    t.datetime "created_at", null: false
+    t.string "note"
+    t.bigint "recipient_id", null: false
+    t.string "rejection_reason"
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.bigint "sender_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aasm_state"], name: "index_cookie_transfers_on_aasm_state"
+    t.index ["recipient_id"], name: "index_cookie_transfers_on_recipient_id"
+    t.index ["sender_id"], name: "index_cookie_transfers_on_sender_id"
   end
 
   create_table "devlog_versions", force: :cascade do |t|
@@ -629,11 +615,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_21_232438) do
 
   create_table "shop_order_reviews", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.text "reason"
+    t.text "reason", null: false
     t.bigint "shop_order_id", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
-    t.string "verdict"
+    t.string "verdict", null: false
     t.index ["shop_order_id", "user_id"], name: "index_shop_order_reviews_on_shop_order_id_and_user_id", unique: true
     t.index ["shop_order_id"], name: "index_shop_order_reviews_on_shop_order_id"
     t.index ["user_id"], name: "index_shop_order_reviews_on_user_id"
@@ -872,6 +858,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_21_232438) do
     t.boolean "voting_locked", default: false, null: false
     t.boolean "ysws_eligible", default: false, null: false
     t.index ["airtable_record_id"], name: "index_users_on_airtable_record_id", unique: true
+    t.index ["api_key"], name: "index_users_on_api_key", unique: true
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["session_token"], name: "index_users_on_session_token", unique: true
@@ -917,9 +904,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_21_232438) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "club_memberships", "clubs"
-  add_foreign_key "club_memberships", "users"
   add_foreign_key "comments", "users"
+  add_foreign_key "cookie_transfers", "users", column: "recipient_id"
+  add_foreign_key "cookie_transfers", "users", column: "reviewed_by_id"
+  add_foreign_key "cookie_transfers", "users", column: "sender_id"
   add_foreign_key "devlog_versions", "post_devlogs", column: "devlog_id"
   add_foreign_key "devlog_versions", "users"
   add_foreign_key "extension_usages", "projects"
@@ -951,7 +939,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_21_232438) do
   add_foreign_key "shop_order_reviews", "shop_orders"
   add_foreign_key "shop_order_reviews", "users"
   add_foreign_key "shop_orders", "fulfillment_payout_lines"
-  add_foreign_key "shop_orders", "projects", column: "fraud_related_project_id", on_delete: :nullify, validate: false
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
   add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"

@@ -3,8 +3,8 @@
 # Table name: shop_order_reviews
 #
 #  id            :bigint           not null, primary key
-#  reason        :text
-#  verdict       :string
+#  reason        :text             not null
+#  verdict       :string           not null
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #  shop_order_id :bigint           not null
