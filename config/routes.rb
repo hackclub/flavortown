@@ -188,6 +188,7 @@ Rails.application.routes.draw do
           collection do
             get :stats
             get :leaderboard
+            get :order
           end
         end
       end

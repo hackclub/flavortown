@@ -1,5 +1,5 @@
 class Api::V1::Admin::ShopOrdersController < Api::V1::Admin::BaseController
-  before_action :set_item
+  before_action :set_item, except: :order
 
   def stats
     orders = @item.shop_orders.where.not(aasm_state: "rejected")
@@ -8,6 +8,11 @@ class Api::V1::Admin::ShopOrdersController < Api::V1::Admin::BaseController
       total_orders: orders.count,
       unique_buyers: orders.distinct.count(:user_id)
     }
+  end
+
+  def order
+    o = ShopOrder.find(params[:order_id])
+    render json: o.as_json(except: %i[frozen_address_ciphertext])
   end
 
   def leaderboard
