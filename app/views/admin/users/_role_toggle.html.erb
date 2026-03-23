@@ -5,4 +5,4 @@
               params: { role_name: role_name },
               class: "btn-primary slim",
               disabled: disabled,
-              form: { onsubmit: "return confirm('Are you sure you want to #{has_role ? "demote" : "promote"} #{user.display_name} #{has_role ? "from" : "to"} #{role_name.titleize}?')" } %>
+              form: { onsubmit: "return confirm(#{("Are you sure you want to #{has_role ? "demote" : "promote"} #{user.display_name} #{has_role ? "from" : "to"} #{role_name.titleize}?").to_json})" } %>

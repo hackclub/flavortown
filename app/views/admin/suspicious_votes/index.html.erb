@@ -31,7 +31,7 @@
                   method: :post,
                   class: "btn-secondary slim",
                   title: user.voting_locked? ? "Unlock Voting" : "Lock Voting",
-                  form: { onsubmit: "return confirm('Are you sure you want to #{user.voting_locked? ? "unlock" : "lock"} voting for #{user.display_name}?')" } do %>
+                  form: { onsubmit: "return confirm(#{("Are you sure you want to #{user.voting_locked? ? "unlock" : "lock"} voting for #{user.display_name}?").to_json})" } do %>
               <%= user.voting_locked? ? "Unlock" : "Lock" %>
             <% end %>
           </td>
