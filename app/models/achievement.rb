@@ -220,6 +220,76 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
           .where(project_memberships: { user_id: user.id, role: "owner" })
           .exists?
       }
+    ),
+    new(
+      slug: :show_and_tell_winner,
+      name: "Crowd Pleaser",
+      description: "won your first show and tell - the audience loved it!",
+      icon: "trophy",
+      earned_check: ->(user) { ShowAndTellAttendance.where(user_id: user.id, winner: true).exists? },
+    ),
+    new(
+      slug: :show_and_tell_ten_wins,
+      name: "Show Stopper",
+      description: "10 show and tell wins?! you own the stage!",
+      icon: "trophy",
+      earned_check: ->(user) { ShowAndTellAttendance.where(user_id: user.id, winner: true).count >= 10 },
+      progress: ->(user) { { current: ShowAndTellAttendance.where(user_id: user.id, winner: true).count, target: 10 } },
+      cookie_reward: 5
+    ),
+    new(
+      slug: :five_ships,
+      name: "Fleet Captain",
+      description: "5 projects shipped - you're running a whole fleet!",
+      icon: "ship",
+      earned_check: ->(user) { user.projects.joins(:ship_events).distinct.count >= 5 },
+      progress: ->(user) { { current: user.projects.joins(:ship_events).distinct.count, target: 5 } },
+      cookie_reward: 5
+    ),
+    new(
+      slug: :five_certified_ships,
+      name: "Five Star Chef",
+      description: "5 certified ships - the critics can't stop raving!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        Post::ShipEvent.joins(:post)
+          .where(posts: { user_id: user.id }, certification_status: "approved")
+          .select("post_ship_events.id").distinct.count >= 5
+      },
+      progress: ->(user) {
+        count = Post::ShipEvent.joins(:post)
+          .where(posts: { user_id: user.id }, certification_status: "approved")
+          .select("post_ship_events.id").distinct.count
+        { current: count, target: 5 }
+      },
+      cookie_reward: 15
+    ),
+    new(
+      slug: :ten_hours,
+      name: "Warming Up",
+      description: "10 hours logged - the stove is getting hot!",
+      icon: "fire",
+      earned_check: ->(user) { user.devlog_seconds_total >= 10 * 3600 },
+      progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 10 } },
+    ),
+    new(
+      slug: :fifty_hours,
+      name: "Sous Chef",
+      description: "50 hours in the kitchen - you're running the line!",
+      icon: "fire",
+      earned_check: ->(user) { user.devlog_seconds_total >= 50 * 3600 },
+      progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 50 } },
+      cookie_reward: 15
+    ),
+    new(
+      slug: :hundred_hours,
+      name: "Head Chef",
+      description: "100 hours of pure dedication - the kitchen is yours!",
+      icon: "fire",
+      earned_check: ->(user) { user.devlog_seconds_total >= 100 * 3600 },
+      progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 100 } },
+      cookie_reward: 30,
+      visibility: :secret
     )
   ].freeze
 
