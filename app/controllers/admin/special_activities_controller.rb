@@ -150,6 +150,18 @@ module Admin
       redirect_to admin_special_activities_path(date: attendance.date), notice: "#{attendance.user.display_name} marked as winner and awarded #{WINNER_PAYOUT_AMOUNT} cookies!"
     end
 
+    def toggle_live
+      authorize :admin, :access_special_activities?
+
+      if Flipper.enabled?(:show_and_tell_live)
+        Flipper.disable(:show_and_tell_live)
+        redirect_to admin_special_activities_path(date: params[:date]), notice: "Show & Tell banner is now OFF."
+      else
+        Flipper.enable(:show_and_tell_live)
+        redirect_to admin_special_activities_path(date: params[:date]), notice: "Show & Tell banner is now LIVE!"
+      end
+    end
+
     private
 
     def extract_project_from_url(url)

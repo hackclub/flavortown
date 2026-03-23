@@ -312,6 +312,7 @@ Rails.application.routes.draw do
       collection do
         post :give_payout
         post :mark_payout_given
+        post :toggle_live
       end
     end
     resources :messages, only: [ :index, :create ]
