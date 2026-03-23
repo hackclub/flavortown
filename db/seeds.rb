@@ -121,3 +121,8 @@ if Rails.env.development? && ENV.fetch("USE_BIG_SEED", false)
   puts "Loading comprehensive development seed..."
   load Rails.root.join('db', 'seeds', 'dev_full_seed.rb')
 end
+
+# Load funnel events seed in development
+if Rails.env.development?
+  load Rails.root.join('db', 'seeds', 'funnel_events.rb')
+end

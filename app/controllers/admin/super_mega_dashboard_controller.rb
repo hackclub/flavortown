@@ -19,6 +19,7 @@ module Admin
       super_mega_ysws_review_v2
       super_mega_ship_certs_raw
       sw_vibes_data
+      super_mega_funnel_stats
     ].freeze
 
     def index
@@ -36,6 +37,7 @@ module Admin
       load_pyramid_scheme_stats
       load_community_engagement_stats
       load_fraud_happiness_data
+      load_funnel_stats
     end
 
     def load_section
@@ -1051,6 +1053,56 @@ module Admin
         reviewers: reviewer_data,
         totals: total_by_date
       }
+    end
+
+    def load_funnel_stats
+      cached_data = Rails.cache.fetch("super_mega_funnel_stats", expires_in: 5.minutes) do
+        begin
+          # Define the funnel steps in order
+          funnel_steps = [
+            "start_flow_started",
+            "start_flow_name",
+            "start_flow_project",
+            "start_flow_devlog",
+            "start_flow_signin",
+            "identity_verified",
+            "hackatime_linked",
+            "project_created",
+            "devlog_created"
+          ]
+
+          # Get count of unique users/emails for each step
+          funnel_data = {}
+          funnel_steps.each do |step|
+            count = FunnelEvent.by_event(step).distinct.count(:email)
+            funnel_data[step] = count
+          end
+
+          # Get total unique users who started the flow (baseline)
+          total_started = funnel_data["start_flow_started"]
+
+          # Calculate drop-off percentages
+          funnel_with_percentages = funnel_steps.map.with_index do |step, index|
+            count = funnel_data[step]
+            percentage = total_started > 0 ? ((count.to_f / total_started) * 100).round(2) : 0
+            drop_off = index > 0 ? (funnel_data[funnel_steps[index - 1]] - count) : 0
+
+            {
+              name: step,
+              count: count,
+              percentage: percentage,
+              drop_off: drop_off
+            }
+          end
+
+          { funnel_steps: funnel_with_percentages }
+        rescue StandardError => e
+          Rails.logger.error("[SuperMegaDashboard] Error in load_funnel_stats: #{e.message}")
+          { funnel_steps: [] }
+        end
+      end
+
+      @funnel_steps = cached_data&.dig(:funnel_steps) || []
     end
 
     private

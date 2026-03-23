@@ -1,0 +1,386 @@
+<div class="super-mega-dashboard__dashboard">
+  <div class="super-mega-dashboard__header super-mega-dashboard__header--primary">
+    <h2>Super Mega Funnel</h2>
+    <p class="super-mega-dashboard__subtitle">User journey from start_flow to identity verification</p>
+  </div>
+
+  <% if @funnel_steps.blank? %>
+    <div class="super-mega-dashboard__empty-state">
+      <p class="super-mega-dashboard__empty-title">📊 No funnel data available yet.</p>
+      <p class="super-mega-dashboard__empty-subtitle">Make sure the database is seeded with <code class="super-mega-dashboard__code-inline">bin/rails db:seed</code></p>
+    </div>
+  <% elsif @funnel_steps.any? %>
+    <div class="d3-funnel-container">
+      <div id="d3FunnelChart"></div>
+      <div id="funnelDebug" class="d3-funnel-debug">
+        Loaded <%= @funnel_steps.length %> funnel steps
+      </div>
+      <div id="funnelTooltip" class="d3-funnel-tooltip" aria-hidden="true"></div>
+    </div>
+
+    <script type="module">
+      import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+      (function renderSignupFunnel() {
+        try {
+          const funnelStepsData = <%= raw @funnel_steps.to_json %>;
+
+          if (!funnelStepsData || funnelStepsData.length === 0) {
+            console.warn("[Funnel] No data available");
+            return;
+          }
+
+          const data = funnelStepsData.map((step) => {
+            const rawName = String(step.name || "");
+            let stepName = rawName
+              .replace(/start_flow_/g, "")
+              .replace(/_/g, " ");
+            stepName = stepName.charAt(0).toUpperCase() + stepName.slice(1);
+            if (rawName === "identity_verified") stepName = "Identity Verified";
+
+            return {
+              key: rawName,
+              label: stepName,
+              value: parseInt(step.count, 10) || 0,
+            };
+          });
+
+          if (!data.some((d) => d.value > 0)) {
+            console.error("[Funnel] All values are zero");
+            return;
+          }
+
+          const container = document.querySelector("#d3FunnelChart");
+          const tooltip = document.getElementById("funnelTooltip");
+          if (!container) {
+            console.error("[Funnel] Container not found");
+            return;
+          }
+
+          const containerWidth = container.clientWidth || 960;
+          const margin = { top: 32, right: 32, bottom: 48, left: 120 };
+          const width = containerWidth;
+          const height = 420;
+          const innerWidth = width - margin.left - margin.right;
+          const innerHeight = height - margin.top - margin.bottom;
+          const centerY = innerHeight / 2;
+
+          const maxValue = d3.max(data, (d) => d.value) || 1;
+          const maxBandHeight = innerHeight * 0.9;
+
+          const xScale = d3
+            .scalePoint()
+            .domain(data.map((d) => d.label))
+            .range([0, innerWidth])
+            .padding(0.6);
+
+          const points = data.map((d) => {
+            const heightForStep = maxBandHeight * (d.value / maxValue);
+            return {
+              ...d,
+              x: xScale(d.label),
+              bandHeight: heightForStep,
+            };
+          });
+
+          const topPoints = points.map((p) => [p.x, centerY - p.bandHeight / 2]);
+          const bottomPoints = points
+            .slice()
+            .reverse()
+            .map((p) => [p.x, centerY + p.bandHeight / 2]);
+
+          const allPoints = topPoints.concat(bottomPoints);
+
+          const buildLinearPath = (pts) => {
+            if (!pts.length) return "";
+
+            const [first, ...rest] = pts;
+            const moveTo = `M${first[0]},${first[1]}`;
+            const lineTos = rest.map((d) => `L${d[0]},${d[1]}`).join(" ");
+
+            return `${moveTo} ${lineTos} Z`;
+          };
+
+          const pathData = buildLinearPath(allPoints);
+
+          const svg = d3
+            .create("svg")
+            .attr("viewBox", `0 0 ${width} ${height}`)
+            .attr("preserveAspectRatio", "xMidYMid meet");
+
+          const defs = svg.append("defs");
+          const gradient = defs
+            .append("linearGradient")
+            .attr("id", "funnelGradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "100%")
+            .attr("y2", "0%");
+
+          gradient.append("stop").attr("offset", "0%").attr("stop-color", "#4c6fff");
+          gradient.append("stop").attr("offset", "100%").attr("stop-color", "#93c5fd");
+
+          const g = svg
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+          g.append("path")
+            .attr("d", pathData)
+            .attr("fill", "url(#funnelGradient)")
+            .attr("fill-opacity", 0.9);
+
+          g.append("path")
+            .attr("d", pathData)
+            .attr("fill", "none")
+            .attr("stroke", "#1d4ed8")
+            .attr("stroke-width", 1)
+            .attr("stroke-opacity", 0.9);
+
+          // vertical separators aligned with funnel vertices so each
+          // section between two lines is a single straight segment
+          const separatorGroup = g.append("g");
+          for (let i = 0; i < points.length; i += 1) {
+            const x = points[i].x;
+            separatorGroup
+              .append("line")
+              .attr("x1", x)
+              .attr("y1", centerY - maxBandHeight / 2 - 16)
+              .attr("x2", x)
+              .attr("y2", centerY + maxBandHeight / 2 + 16)
+              .attr("stroke", "#ffffff")
+              .attr("stroke-width", 1)
+              .attr("stroke-opacity", 0.9);
+          }
+
+          const overlay = g.append("g");
+
+          const firstValue = data[0].value || 1;
+
+          const formatPercent = (value) => `${(value * 100).toFixed(1)}%`;
+          const formatDelta = (value) => {
+            const sign = value > 0 ? "+" : "";
+            return `${sign}${(value * 100).toFixed(1)}%`;
+          };
+
+          const stepWidth = innerWidth / Math.max(data.length, 1);
+
+          points.forEach((point, index) => {
+            const currentValue = point.value;
+            const prevValue = index === 0 ? currentValue : points[index - 1].value || currentValue;
+            const retention = index === 0 ? 1 : currentValue / prevValue;
+
+            const prevRetention = index <= 1
+              ? 1
+              : points[index - 1].value / (points[index - 2].value || points[index - 1].value);
+
+            const comparedToPrevious = index === 0 ? 0 : retention - prevRetention;
+
+            overlay
+              .append("rect")
+              .attr("x", point.x - stepWidth / 2)
+              .attr("y", centerY - maxBandHeight / 2 - 16)
+              .attr("width", stepWidth)
+              .attr("height", maxBandHeight + 32)
+              .attr("fill", "transparent")
+              .on("mousemove", (event) => {
+                if (!tooltip) return;
+
+                const retainedFromFirst = currentValue / firstValue;
+
+                tooltip.innerHTML = `
+                  <div class="d3-funnel-tooltip__step">Step: <span>${point.key}</span></div>
+                  <div class="d3-funnel-tooltip__count">Count: ${currentValue.toLocaleString()}</div>
+                  <hr />
+                  <div class="d3-funnel-tooltip__row">
+                    <span>Retained</span>
+                    <span>${formatPercent(retention)}</span>
+                  </div>
+                  <div class="d3-funnel-tooltip__row">
+                    <span>Compared to previous</span>
+                    <span>${index === 0 ? "—" : formatDelta(comparedToPrevious)}</span>
+                  </div>
+                  <div class="d3-funnel-tooltip__row d3-funnel-tooltip__row--muted">
+                    <span>From first step</span>
+                    <span>${formatPercent(retainedFromFirst)}</span>
+                  </div>
+                `;
+
+                const bounds = container.getBoundingClientRect();
+                const offsetX = event.clientX - bounds.left;
+                const offsetY = event.clientY - bounds.top;
+
+                tooltip.style.display = "block";
+                tooltip.style.opacity = "1";
+                tooltip.style.left = `${offsetX + 16}px`;
+                tooltip.style.top = `${offsetY - 10}px`;
+                tooltip.setAttribute("aria-hidden", "false");
+              })
+              .on("mouseleave", () => {
+                if (!tooltip) return;
+                tooltip.style.display = "none";
+                tooltip.style.opacity = "0";
+                tooltip.setAttribute("aria-hidden", "true");
+              });
+
+            g
+              .append("text")
+              .attr("class", "d3-funnel-label d3-funnel-label--step")
+              .attr("x", point.x)
+              .attr("y", centerY - maxBandHeight / 2 - 12)
+              .attr("text-anchor", "middle")
+              .text(point.key);
+
+            g
+              .append("text")
+              .attr("class", "d3-funnel-label d3-funnel-label--metric")
+              .attr("x", point.x)
+              .attr("y", centerY + maxBandHeight / 2 + 20)
+              .attr("text-anchor", "middle")
+              .text(`${currentValue.toLocaleString()} · ${formatPercent(currentValue / firstValue)}`);
+          });
+
+          const leftLabelGroup = svg
+            .append("g")
+            .attr("transform", `translate(24,${margin.top + centerY})`);
+
+          leftLabelGroup
+            .append("text")
+            .attr("class", "d3-funnel-total-label")
+            .attr("x", 0)
+            .attr("y", -6)
+            .text(firstValue.toLocaleString());
+
+          leftLabelGroup
+            .append("text")
+            .attr("class", "d3-funnel-total-subtitle")
+            .attr("x", 0)
+            .attr("y", 14)
+            .text("Count");
+
+          container.innerHTML = "";
+          container.appendChild(svg.node());
+        } catch (error) {
+          console.error("[Funnel] Chart rendering failed:", error);
+          const funnelDebug = document.getElementById("funnelDebug");
+          if (funnelDebug) {
+            funnelDebug.innerHTML = `❌ Chart rendering failed: ${error.message}`;
+            funnelDebug.style.display = "block";
+            funnelDebug.style.color = "#d00";
+          }
+        }
+      })();
+    </script>
+  <% end %>
+</div>
+
+<style>
+  .super-mega-dashboard__empty-state {
+    padding: 3rem 2rem;
+    text-align: center;
+    background: #f8fafc;
+    margin-top: 1rem;
+    border: 1px dashed #e5e7eb;
+  }
+
+  .super-mega-dashboard__empty-title {
+    font-size: 16px;
+    color: #4b5563;
+    margin-bottom: 0.5rem;
+  }
+
+  .super-mega-dashboard__empty-subtitle {
+    font-size: 13px;
+    color: #9ca3af;
+  }
+
+  .super-mega-dashboard__code-inline {
+    background: #f3f4f6;
+    padding: 2px 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+
+  .d3-funnel-container {
+    position: relative;
+    margin-top: 1rem;
+  }
+
+  .d3-funnel-debug {
+    font-size: 11px;
+    color: #9ca3af;
+    padding: 10px;
+    margin-top: 10px;
+    background: #f9fafb;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    display: none;
+  }
+
+  .d3-funnel-tooltip {
+    position: absolute;
+    min-width: 210px;
+    max-width: 260px;
+    background: #111827;
+    color: #f9fafb;
+    padding: 10px 12px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35);
+    font-size: 13px;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .d3-funnel-tooltip__step {
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .d3-funnel-tooltip__step span {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+
+  .d3-funnel-tooltip__count {
+    color: #e5e7eb;
+    margin-bottom: 6px;
+  }
+
+  .d3-funnel-tooltip hr {
+    border: none;
+    border-top: 1px solid rgba(55, 65, 81, 0.8);
+    margin: 6px 0;
+  }
+
+  .d3-funnel-tooltip__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2px;
+  }
+
+  .d3-funnel-tooltip__row--muted {
+    color: #9ca3af;
+  }
+
+  .d3-funnel-label {
+    font-size: 13px;
+    fill: #4b5563;
+  }
+
+  .d3-funnel-label--step {
+    text-transform: none;
+  }
+
+  .d3-funnel-label--metric {
+    fill: #6b7280;
+  }
+
+  .d3-funnel-total-label {
+    font-size: 26px;
+    font-weight: 600;
+    fill: #111827;
+  }
+
+  .d3-funnel-total-subtitle {
+    font-size: 13px;
+    fill: #6b7280;
+  }
+</style>
