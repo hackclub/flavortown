@@ -2,7 +2,6 @@
 # Seed script to create fake funnel events for dashboard visualization
 #
 # Creates a realistic funnel dataset:
-#   • 1,000 users starting the flow  
 #   • Drop-offs at each step reflecting real user behavior
 #   • Realistic percentages matching typical conversion funnels
 
@@ -49,7 +48,6 @@ FUNNEL_STEPS.each do |step_name, users_at_this_step|
 
   users_at_this_step.times do
     created_at = 30.days.ago + rand(30.days).seconds
-    
     FunnelEvent.create!(
       event_name: step_name,
       email: "user_#{user_id}@example.com",
@@ -58,7 +56,7 @@ FUNNEL_STEPS.each do |step_name, users_at_this_step|
     )
     user_id += 1
   end
-  
+
   total_created += users_at_this_step
   puts "    ✓ #{users_at_this_step} events created"
 end
@@ -75,11 +73,12 @@ puts
 first_step_count = FunnelEvent.by_event(FUNNEL_STEPS.keys.first).count
 FUNNEL_STEPS.each do |step_name, _|
   count = FunnelEvent.by_event(step_name).count
-  pct = if first_step_count > 0
-          (count.to_f / first_step_count * 100).round(2)
-        else
-          0
-        end
+  pct =
+    if first_step_count > 0
+      (count.to_f / first_step_count * 100).round(2)
+    else
+      0
+    end
   puts "  #{step_name.ljust(25)} #{count.to_s.rjust(10)} (#{pct}%)"
 end
 
