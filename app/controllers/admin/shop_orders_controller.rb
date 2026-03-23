@@ -312,9 +312,16 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     reason = params[:reason].presence || "No reason provided"
-    internal_reason = params[:internal_rejection_reason]
-    joe_case_url = params[:joe_case_url]
-    fraud_project_id = params[:fraud_related_project_id]
+
+    if current_user.fraud_dept?
+      internal_reason = params[:internal_rejection_reason]
+      joe_case_url = params[:joe_case_url]
+      fraud_project_id = params[:fraud_related_project_id]
+    else
+      internal_reason = reason
+      joe_case_url = nil
+      fraud_project_id = 1
+    end
     old_state = @order.aasm_state
 
     @order.internal_rejection_reason = internal_reason
