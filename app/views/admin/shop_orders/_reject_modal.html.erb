@@ -1,4 +1,4 @@
-<% is_fraud_dept = current_user.fraud_dept? %>
+<% is_fraud_dept = current_user.fraud_dept? && params[:return_view] != "fulfillment" %>
 <dialog id="reject-modal">
   <h2>Reject Order #<%= order.id %></h2>
 
