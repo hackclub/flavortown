@@ -189,6 +189,7 @@ Rails.application.routes.draw do
             get :stats
             get :leaderboard
             get :order
+            post :fulfill
           end
         end
       end

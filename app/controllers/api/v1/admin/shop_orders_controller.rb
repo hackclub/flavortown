@@ -1,5 +1,5 @@
 class Api::V1::Admin::ShopOrdersController < Api::V1::Admin::BaseController
-  before_action :set_item, except: :order
+  before_action :set_item, except: %i[order fulfill]
 
   def stats
     orders = @item.shop_orders.where.not(aasm_state: "rejected")
@@ -13,6 +13,20 @@ class Api::V1::Admin::ShopOrdersController < Api::V1::Admin::BaseController
   def order
     o = ShopOrder.find(params[:order_id])
     render json: o.as_json(except: %i[frozen_address_ciphertext])
+  end
+
+  def fulfill
+    o = ShopOrder.find(params[:order_id])
+
+    unless o.may_mark_fulfilled?
+      render json: { error: "order is in #{o.aasm_state} and can not be marked as fulfilled" }, status: :unprocessable_entity and return
+    end
+
+    if o.mark_fulfilled(params[:external_ref].presence, params[:fulfillment_cost].presence, current_api_user.display_name) && o.save
+      render json: o.as_json(except: %i[frozen_address_ciphertext])
+    else
+      render json: { errors: o.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   def leaderboard
