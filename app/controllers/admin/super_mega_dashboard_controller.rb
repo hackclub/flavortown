@@ -1066,13 +1066,13 @@ module Admin
             "devlog_created"
           ]
 
-          # Get count of unique users/emails for each step
-          funnel_data = {}
-          funnel_steps.each do |step|
-            count = FunnelEvent.by_event(step).distinct.count(:email)
-            funnel_data[step] = count
-          end
+          # Get count of unique users/emails for each step in a single query
+          grouped_counts = FunnelEvent.where(event_name: funnel_steps)
+                                       .group(:event_name)
+                                       .distinct
+                                       .count(:email)
 
+          funnel_data = funnel_steps.index_with { |step| grouped_counts[step] || 0 }
           # Get total unique users who started the flow (baseline)
           total_started = funnel_data["start_flow_started"]
 
