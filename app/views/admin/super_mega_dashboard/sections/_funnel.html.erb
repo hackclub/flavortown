@@ -1,7 +1,7 @@
 <div class="super-mega-dashboard__dashboard">
   <div class="super-mega-dashboard__header super-mega-dashboard__header--primary">
     <h2>Super Mega Funnel</h2>
-    <p class="super-mega-dashboard__subtitle">User journey from start_flow to identity verification</p>
+    <p class="super-mega-dashboard__subtitle">User journey from start_flow to devlog_created</p>
   </div>
 
   <% if @funnel_steps.blank? %>
@@ -51,34 +51,47 @@
           }
 
           const container = document.querySelector("#d3FunnelChart");
-          const tooltip = document.getElementById("funnelTooltip");
+          let tooltip = document.getElementById("funnelTooltip");
           if (!container) {
             console.error("[Funnel] Container not found");
             return;
           }
 
+          if (tooltip && tooltip.parentElement !== document.body) {
+            document.body.appendChild(tooltip);
+          }
+
           const containerWidth = container.clientWidth || 960;
-          const margin = { top: 32, right: 32, bottom: 48, left: 120 };
-          const width = containerWidth;
+          const margin = { top: 32, right: 0, bottom: 48, left: 16 };
           const height = 420;
-          const innerWidth = width - margin.left - margin.right;
+
+          const baseInnerWidth = containerWidth - margin.left - margin.right;
           const innerHeight = height - margin.top - margin.bottom;
           const centerY = innerHeight / 2;
 
           const maxValue = d3.max(data, (d) => d.value) || 1;
           const maxBandHeight = innerHeight * 0.9;
 
-          const xScale = d3
-            .scalePoint()
-            .domain(data.map((d) => d.label))
-            .range([0, innerWidth])
-            .padding(0.6);
+          const minChartInnerWidth = 640;
+          const minStepWidth = 140;
 
-          const points = data.map((d) => {
+          let chartInnerWidth = Math.max(baseInnerWidth, minChartInnerWidth);
+          const stepCount = Math.max(data.length - 1, 1);
+          let stepWidth = chartInnerWidth / stepCount;
+
+          if (stepWidth < minStepWidth) {
+            stepWidth = minStepWidth;
+            chartInnerWidth = stepWidth * stepCount;
+          }
+
+          const width = chartInnerWidth + margin.left + margin.right;
+          const innerWidth = width - margin.left - margin.right;
+
+          const points = data.map((d, index) => {
             const heightForStep = maxBandHeight * (d.value / maxValue);
             return {
               ...d,
-              x: xScale(d.label),
+              x: index * stepWidth,
               bandHeight: heightForStep,
             };
           });
@@ -106,6 +119,8 @@
           const svg = d3
             .create("svg")
             .attr("viewBox", `0 0 ${width} ${height}`)
+            .attr("width", width)
+            .attr("height", height)
             .attr("preserveAspectRatio", "xMidYMid meet");
 
           const defs = svg.append("defs");
@@ -154,7 +169,7 @@
 
           const overlay = g.append("g");
 
-          const firstValue = data[0].value || 1;
+          const firstValue = data[0].value || 0;
 
           const formatPercent = (value) => `${(value * 100).toFixed(1)}%`;
           const formatDelta = (value) => {
@@ -162,18 +177,11 @@
             return `${sign}${(value * 100).toFixed(1)}%`;
           };
 
-          const stepWidth = innerWidth / Math.max(data.length, 1);
-
           points.forEach((point, index) => {
             const currentValue = point.value;
             const prevValue = index === 0 ? currentValue : points[index - 1].value || currentValue;
-            const retention = index === 0 ? 1 : currentValue / prevValue;
-
-            const prevRetention = index <= 1
-              ? 1
-              : points[index - 1].value / (points[index - 2].value || points[index - 1].value);
-
-            const comparedToPrevious = index === 0 ? 0 : retention - prevRetention;
+            const retentionFromPrevious = index === 0 ? 1 : prevValue === 0 ? 0 : currentValue / prevValue;
+            const changeVsPrevious = index === 0 ? 0 : prevValue === 0 ? 0 : (currentValue - prevValue) / prevValue;
 
             overlay
               .append("rect")
@@ -185,7 +193,7 @@
               .on("mousemove", (event) => {
                 if (!tooltip) return;
 
-                const retainedFromFirst = currentValue / firstValue;
+                const retainedFromFirst = firstValue === 0 ? 0 : currentValue / firstValue;
 
                 tooltip.innerHTML = `
                   <div class="d3-funnel-tooltip__step">Step: <span>${point.key}</span></div>
@@ -193,27 +201,42 @@
                   <hr />
                   <div class="d3-funnel-tooltip__row">
                     <span>Retained</span>
-                    <span>${formatPercent(retention)}</span>
+                    <span>${formatPercent(retentionFromPrevious)}</span>
                   </div>
                   <div class="d3-funnel-tooltip__row">
                     <span>Compared to previous</span>
-                    <span>${index === 0 ? "—" : formatDelta(comparedToPrevious)}</span>
+                    <span>${index === 0 ? "—" : formatDelta(changeVsPrevious)}</span>
                   </div>
                   <div class="d3-funnel-tooltip__row d3-funnel-tooltip__row--muted">
                     <span>From first step</span>
                     <span>${formatPercent(retainedFromFirst)}</span>
                   </div>
                 `;
-
-                const bounds = container.getBoundingClientRect();
-                const offsetX = event.clientX - bounds.left;
-                const offsetY = event.clientY - bounds.top;
-
                 tooltip.style.display = "block";
                 tooltip.style.opacity = "1";
-                tooltip.style.left = `${offsetX + 16}px`;
-                tooltip.style.top = `${offsetY - 10}px`;
                 tooltip.setAttribute("aria-hidden", "false");
+
+                const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+                const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+                const padding = 16;
+
+                const rect = tooltip.getBoundingClientRect();
+
+                let left = event.clientX + padding;
+                let top = event.clientY - rect.height / 2;
+
+                if (left + rect.width + padding > viewportWidth) {
+                  left = event.clientX - rect.width - padding;
+                }
+
+                if (top < padding) {
+                  top = padding;
+                } else if (top + rect.height + padding > viewportHeight) {
+                  top = viewportHeight - rect.height - padding;
+                }
+
+                tooltip.style.left = `${left + window.scrollX}px`;
+                tooltip.style.top = `${top + window.scrollY}px`;
               })
               .on("mouseleave", () => {
                 if (!tooltip) return;
@@ -225,18 +248,18 @@
             g
               .append("text")
               .attr("class", "d3-funnel-label d3-funnel-label--step")
-              .attr("x", point.x)
+              .attr("x", point.x + 4)
               .attr("y", centerY - maxBandHeight / 2 - 12)
-              .attr("text-anchor", "middle")
+              .attr("text-anchor", "start")
               .text(point.key);
 
             g
               .append("text")
               .attr("class", "d3-funnel-label d3-funnel-label--metric")
-              .attr("x", point.x)
+              .attr("x", point.x + 4)
               .attr("y", centerY + maxBandHeight / 2 + 20)
-              .attr("text-anchor", "middle")
-              .text(`${currentValue.toLocaleString()} · ${formatPercent(currentValue / firstValue)}`);
+              .attr("text-anchor", "start")
+              .text(`${currentValue.toLocaleString()} · ${formatPercent(firstValue === 0 ? 0 : currentValue / firstValue)}`);
           });
 
           const leftLabelGroup = svg
@@ -302,6 +325,7 @@
   .d3-funnel-container {
     position: relative;
     margin-top: 1rem;
+    overflow-x: auto;
   }
 
   .d3-funnel-debug {
@@ -324,7 +348,7 @@
     box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35);
     font-size: 13px;
     pointer-events: none;
-    z-index: 10;
+    z-index: 9999;
     opacity: 0;
     transform: translate3d(0, 0, 0);
   }
@@ -339,7 +363,7 @@
   }
 
   .d3-funnel-tooltip__count {
-    color: #e5e7eb;
+    color: #fff;
     margin-bottom: 6px;
   }
 
@@ -363,6 +387,7 @@
   .d3-funnel-label {
     font-size: 13px;
     fill: #4b5563;
+    white-space: nowrap;
   }
 
   .d3-funnel-label--step {
