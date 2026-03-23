@@ -340,13 +340,13 @@ class YswsReviewSyncJob < ApplicationJob
 
       This project was initially ship certified by #{ship_certifier}.
 
-      Following this it was reviewed through Guardians of Integrity by #{reviewer_username}.
+      Following this it was reviewed by the Guardian of Integrity, #{reviewer_username}.
 
       #{reviewer_username} approved:
 
       #{devlog_list}
       ====================================================
-      The Full Guardians of Integrity review + devlogs are at https://review.hackclub.com/admin/ysws_reviews/#{review_id}
+      The Full Integrity report + devlogs are at https://review.hackclub.com/admin/ysws_reviews/#{review_id}
 
       The Ship Cert is at https://review.hackclub.com/admin/ship_certifications/#{ship_cert_id}/edit
       ====================================================
