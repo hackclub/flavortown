@@ -1,3 +1,4 @@
+<% is_fraud_dept = current_user.fraud_dept? %>
 <dialog id="reject-modal">
   <h2>Reject Order #<%= order.id %></h2>
 
@@ -10,20 +11,22 @@
       <%= f.text_area :reason, placeholder: "Enter reason for rejection...", rows: 3 %>
     </div>
 
-    <div class="reject-modal__field">
-      <%= f.label :internal_rejection_reason, "Internal Reason (required, staff only)" %>
-      <%= f.text_area :internal_rejection_reason, placeholder: "Detailed internal reason for this rejection...", rows: 3, required: true %>
-    </div>
+    <% if is_fraud_dept %>
+      <div class="reject-modal__field">
+        <%= f.label :internal_rejection_reason, "Internal Reason (required, staff only)" %>
+        <%= f.text_area :internal_rejection_reason, placeholder: "Detailed internal reason for this rejection...", rows: 3, required: true %>
+      </div>
 
-    <div class="reject-modal__field">
-      <%= f.label :fraud_related_project_id, "Related Project ID (required)" %>
-      <%= f.number_field :fraud_related_project_id, placeholder: "e.g. 1234", required: true %>
-    </div>
+      <div class="reject-modal__field">
+        <%= f.label :fraud_related_project_id, "Related Project ID (required)" %>
+        <%= f.number_field :fraud_related_project_id, placeholder: "e.g. 1234", required: true %>
+      </div>
 
-    <div class="reject-modal__field">
-      <%= f.label :joe_case_url, "Joe Case URL (optional)" %>
-      <%= f.url_field :joe_case_url, placeholder: "https://..." %>
-    </div>
+      <div class="reject-modal__field">
+        <%= f.label :joe_case_url, "Joe Case URL (optional)" %>
+        <%= f.url_field :joe_case_url, placeholder: "https://..." %>
+      </div>
+    <% end %>
 
     <div class="reject-modal__actions">
       <button type="button" onclick="document.getElementById('reject-modal').close()" class="btn-secondary">Cancel</button>
