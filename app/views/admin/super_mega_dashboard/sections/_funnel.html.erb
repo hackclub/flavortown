@@ -18,7 +18,7 @@
       <div id="funnelTooltip" class="d3-funnel-tooltip" aria-hidden="true"></div>
     </div>
 
-    <script>
+    <script type="module">
       import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
       (function renderSignupFunnel() {
@@ -162,7 +162,7 @@
               .attr("y1", centerY - maxBandHeight / 2 - 16)
               .attr("x2", x)
               .attr("y2", centerY + maxBandHeight / 2 + 16)
-              .attr("stroke", "#ffffff")
+              .attr("stroke", "#000000")
               .attr("stroke-width", 1)
               .attr("stroke-opacity", 0.9);
           }
@@ -326,6 +326,11 @@
     position: relative;
     margin-top: 1rem;
     overflow-x: auto;
+    border-radius: 1em;
+  }
+
+  .d3-funnel-container svg {
+    background: #ffffff;
   }
 
   .d3-funnel-debug {
