@@ -6,6 +6,8 @@
   <h3>(prob remove before merging in prod)</h3>
 
   <div class="super-mega-dashboard__dashboards">
+    <%= render "admin/super_mega_dashboard/sections/funnel" %>
+
     <div class="super-mega-dashboard__dashboard">
       <div class="super-mega-dashboard__header super-mega-dashboard__header--fraud">
         <h2>Fraud Overview</h2>
@@ -1253,7 +1255,6 @@
       </div>
     </div>
 
-    <%= render "admin/super_mega_dashboard/sections/funnel" %>
     <%= render "admin/super_mega_dashboard/sections/pyramid_scheme" %>
     <%= render "admin/super_mega_dashboard/sections/flavortime" %>
   </div>
