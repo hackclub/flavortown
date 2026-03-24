@@ -9,7 +9,7 @@
       <p class="super-mega-dashboard__empty-title">📊 No funnel data available yet.</p>
       <p class="super-mega-dashboard__empty-subtitle">Make sure the database is seeded with <code class="super-mega-dashboard__code-inline">bin/rails db:seed</code></p>
     </div>
-  <% elsif @funnel_steps.any? %>
+  <% else %>
     <div class="d3-funnel-container">
       <div id="d3FunnelChart" style="background-color: #ffffff;"></div>
       <div id="funnelDebug" class="d3-funnel-debug">
