@@ -50,6 +50,7 @@
 @use "components/debug_overlay";
 @use "components/stats_hover";
 @use "components/state_machine";
+@use "components/super_mega_dashboard" as super_mega_dashboard_components;
 
 // Themes
 @use "themes/christmas";

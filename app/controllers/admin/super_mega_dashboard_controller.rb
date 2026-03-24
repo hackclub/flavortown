@@ -1085,7 +1085,8 @@ module Admin
           funnel_with_percentages = funnel_steps.map.with_index do |step, index|
             count = funnel_data[step]
             percentage = total_started > 0 ? ((count.to_f / total_started) * 100).round(2) : 0
-            drop_off = index > 0 ? (funnel_data[funnel_steps[index - 1]] - count) : 0
+            drop_off = index > 0 ? [funnel_data[funnel_steps[index - 1]] - count, 0].max : 0
+
 
             {
               name: step,
