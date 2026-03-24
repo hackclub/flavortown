@@ -18,9 +18,8 @@
       <div id="funnelTooltip" class="d3-funnel-tooltip" aria-hidden="true"></div>
     </div>
 
-    <script type="module">
-      import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script>
       (function renderSignupFunnel() {
         try {
           const funnelStepsData = <%= raw @funnel_steps.to_json %>;
