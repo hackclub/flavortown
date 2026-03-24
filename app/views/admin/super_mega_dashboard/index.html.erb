@@ -1,3 +1,4 @@
+<% content_for :title, "Super Mega Dashboard" %>
 <div class="super-mega-dashboard" data-controller="lazy-load">
   <%= render HeadingComponent.new(title: "Super Mega Dashboard", tone: :red, size: :full) %>
 
@@ -328,6 +329,36 @@
             </div>
           </div>
         </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Cookie $ per hour <span id="cookie-dollars-per-hour-formula">ⓘ</span></h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @dollars_per_hour.round(2) %></span>
+              <span class="super-mega-dashboard__stat--label">$/hr</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Expenses $ per hour <span id="expenses-dollars-per-hour-formula">ⓘ</span></h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @expenses_dollars_per_hour.round(2) %></span>
+              <span class="super-mega-dashboard__stat--label">$/hr</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Cookie Utilization Ratio</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @cookie_utilization_percentage %>%</span>
+              <span class="super-mega-dashboard__stat--label">Utilization</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -336,6 +367,10 @@
         <h2>Fulfillment Overview</h2>
         <%= link_to "View Full Dashboard →", admin_fulfillment_dashboard_index_path, class: "super-mega-link" %>
       </div>
+
+      <% if @fulfillment_temporarily_disabled %>
+        <p class="fraud-stats-error">Fulfillment is temporarily disabled so the rest of the dashboard can load.</p>
+      <% end %>
 
       <div class="super-mega-dashboard__cards">
         <% [
@@ -740,7 +775,7 @@
 
     <div class="super-mega-dashboard__dashboard">
       <div class="super-mega-dashboard__header super-mega-dashboard__header--ysws-review">
-        <h2>YSWS Review Overview</h2>
+        <h2>Guardians of Integrity Overview</h2>
         <%= link_to "View Full Dashboard →", "https://review.hackclub.com/admin/ysws_reviews", class: "super-mega-link", target: "_blank" %>
       </div>
 
@@ -1081,7 +1116,7 @@
         <% else %>
           <div class="super-mega-dashboard__card">
             <h3>Error</h3>
-            <p>Couldn't load YSWS review data: <%= @ysws_review_stats&.dig(:error) || "Unknown error" %></p>
+            <p>Couldn't load Guardians of Integrity data: <%= @ysws_review_stats&.dig(:error) || "Unknown error" %></p>
           </div>
         <% end %>
       </div>
@@ -1216,9 +1251,24 @@
         <% end %>
       </div>
     </div>
+
+    <%= render "admin/super_mega_dashboard/sections/pyramid_scheme" %>
+    <%= render "admin/super_mega_dashboard/sections/flavortime" %>
   </div>
 
   <div class="super-mega-dashboard__actions">
     <%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
+    <%= button_to "Clear Dashboard Cache", admin_super_mega_dashboard_clear_cache_path,
+          method: :delete,
+          class: "btn-danger",
+          form: { data: { turbo_confirm: "You're about to delete all Super Mega Dashboard cache! Are you sure?" } } %>
   </div>
 </div>
+
+<%= render TooltipComponent.new(target_id: "cookie-dollars-per-hour-formula", position: :top) do %>
+  <span>[(total_cookies/5)/weighted_hours]</span>
+<% end %>
+
+<%= render TooltipComponent.new(target_id: "expenses-dollars-per-hour-formula", position: :top) do %>
+  <span>(total_expenses/weighted_hours)</span>
+<% end %>

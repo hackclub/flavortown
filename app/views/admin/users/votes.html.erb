@@ -69,10 +69,18 @@
 </div>
 
 <script>
-  document.getElementById("toggle-reasons").addEventListener("change", function() {
-    const showReasons = this.checked;
-    document.querySelectorAll(".vote-reasons").forEach(cell => {
-      cell.style.display = showReasons ? "table-cell" : "none";
+  (function() {
+    const toggle = document.getElementById("toggle-reasons");
+    if (!toggle) return;
+
+    const setReasonsExpanded = (expanded) => {
+      document.querySelectorAll("td.vote-reasons details").forEach((details) => {
+        details.open = expanded;
+      });
+    };
+    setReasonsExpanded(toggle.checked);
+    toggle.addEventListener("change", function() {
+      setReasonsExpanded(this.checked);
     });
-  });
+  })();
 </script>

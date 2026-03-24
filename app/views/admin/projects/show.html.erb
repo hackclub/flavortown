@@ -1,3 +1,4 @@
+<% content_for :title, "Project ##{@project.id}" %>
 <h1>Project #<%= @project.id %></h1>
 
 <% if @project.deleted? %>
@@ -25,7 +26,10 @@
     <div class="info-rows">
       <div><b>Title:</b> <%= @project.title %></div>
       <div><b>Description:</b> <%= @project.description.presence || "None" %></div>
-      <div><b>Ship Status:</b> <%= @project.ship_status.titleize %></div>
+      <div class="flex" style="align-items: center; gap: 0.5rem;">
+        <b>Ship Status:</b> <%= @project.ship_status.titleize %>
+        <button type="button" onclick="document.getElementById('change-ship-status-modal').showModal()" class="btn-secondary slim" style="font-size: 0.75rem; padding: 2px 8px;">Change</button>
+      </div>
       <div><b>Type:</b> <%= @project.project_type.presence || "Not set" %></div>
       <div><b>Categories:</b> <%= @project.project_categories.any? ? @project.project_categories.join(", ") : "None" %></div>
       <div><b>Created:</b> <%= @project.created_at.strftime("%Y-%m-%d %H:%M") %></div>
@@ -152,6 +156,28 @@
     <% end %>
   <% end %>
 </div>
+
+<%= render layout: "shared/modal", locals: { id: "change-ship-status-modal", title: "Change Ship Status", description: "Override the ship status for this project. This bypasses AASM transitions and is logged to PaperTrail." } do %>
+  <form action="<%= update_ship_status_admin_project_path(@project) %>" method="post">
+    <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+
+    <div class="modal__field">
+      <%= label_tag :ship_status, "New Status" %>
+      <%= select_tag :ship_status,
+            options_for_select(
+              Project.aasm.states.map { |s| [s.name.to_s.titleize, s.name.to_s] },
+              @project.ship_status
+            ) %>
+    </div>
+    <div class="modal__actions">
+      <button type="submit" class="btn-primary">Update Status</button>
+      <button type="button" onclick="document.getElementById('change-ship-status-modal').close()" class="btn-secondary">Cancel</button>
+    </div>
+  </form>
+<% end %>
+<%= render "admin/shared/ledger_log",
+    entries: LedgerEntry.where(ledgerable_type: "Post::ShipEvent", ledgerable_id: @project.ship_events.select(:id)),
+    title: "Project Ledger" %>
 
 <div style="margin-top: 1.5rem;">
   <%= render "admin/shared/audit_log", record: @project %>
