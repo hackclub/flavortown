@@ -6,8 +6,7 @@
 
   <% if @funnel_steps.blank? %>
     <div class="super-mega-dashboard__empty-state">
-      <p class="super-mega-dashboard__empty-title">📊 No funnel data available yet.</p>
-      <p class="super-mega-dashboard__empty-subtitle">Make sure the database is seeded with <code class="super-mega-dashboard__code-inline">bin/rails db:seed</code></p>
+      <p class="super-mega-dashboard__empty-title">No funnel data available</p>
     </div>
   <% else %>
     <div class="d3-funnel-container">
@@ -168,8 +167,6 @@
             .attr("stroke-width", 1)
             .attr("stroke-opacity", 0.9);
 
-          // vertical separators aligned with band boundaries so each
-          // step label, metric, and hover region share the same width
           const separatorGroup = g.append("g");
           const sectionTop = centerY - maxBandHeight / 2 - 16;
           const sectionBottom = centerY + maxBandHeight / 2 + 16;
@@ -187,9 +184,7 @@
           }
 
           const overlay = g.append("g");
-
           const firstValue = data[0].value || 0;
-
           const formatPercent = (value) => `${(value * 100).toFixed(1)}%`;
           const formatDelta = (value) => {
             const sign = value > 0 ? "+" : "";

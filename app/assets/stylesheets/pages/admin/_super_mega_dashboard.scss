@@ -700,7 +700,6 @@
     position: relative;
     margin-top: 1rem;
     overflow-x: auto;
-    border-radius: 1em;
     background-color: white;
     padding: 1em;
   }
@@ -716,7 +715,6 @@
 
   .d3-funnel-container::-webkit-scrollbar-track {
     background: transparent;
-    border-radius: 1em;
   }
 
   .d3-funnel-container::-webkit-scrollbar-thumb {

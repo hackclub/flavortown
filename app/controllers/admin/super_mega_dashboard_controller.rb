@@ -1058,7 +1058,6 @@ module Admin
     def load_funnel_stats
       cached_data = Rails.cache.fetch("super_mega_funnel_stats", expires_in: 5.minutes) do
         begin
-          # Define the funnel steps in order
           funnel_steps = [
             "start_flow_started",
             "start_flow_name",
@@ -1071,17 +1070,13 @@ module Admin
             "devlog_created"
           ]
 
-          # Get count of unique users/emails for each step in a single query
           grouped_counts = FunnelEvent.where(event_name: funnel_steps)
                                        .group(:event_name)
                                        .distinct
                                        .count(:email)
 
           funnel_data = funnel_steps.index_with { |step| grouped_counts[step] || 0 }
-          # Get total unique users who started the flow (baseline)
-          total_started = funnel_data["start_flow_started"]
 
-          # Build data for each funnel step with name and count only
           funnel_with_counts = funnel_steps.map do |step|
             count = funnel_data[step]
 
