@@ -44,7 +44,9 @@
     padding: 0.75rem 1.5rem;
     border-radius: 0.8rem;
     text-decoration: none;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
     box-shadow: 0px 4px 0px hsl(356, 49%, 33%);
 
     &:hover {
@@ -60,7 +62,14 @@
 }
 
 @keyframes not-authorized-wobble {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-5deg); }
-  75% { transform: rotate(5deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
 }
