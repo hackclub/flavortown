@@ -296,7 +296,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
     new(
       slug: :ten_hours,
       name: "Warming Up",
-      description: "10 hours logged - Nice work, your getting somewhere now!",
+      description: "10 hours logged - Nice work, you're getting somewhere now!",
       icon: "fire",
       earned_check: ->(user) { user.devlog_seconds_total >= 10 * 3600 },
       progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 10 } },
@@ -304,7 +304,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
     new(
       slug: :fifty_hours,
       name: "Sous Chef",
-      description: "50 hours in the kitchen - Your locked in i see...",
+      description: "50 hours in the kitchen - You're locked in i see...",
       icon: "fire",
       earned_check: ->(user) { user.devlog_seconds_total >= 50 * 3600 },
       progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 50 } },
