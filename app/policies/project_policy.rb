@@ -16,15 +16,15 @@ class ProjectPolicy < ApplicationPolicy
     end
 
     def edit?
-        owns? || user&.admin? || raise(Pundit::NotAuthorizedError, "Sorry, you can only edit your own projects.")
+        owns? || user&.admin?
     end
 
     def update?
-        owns? || user&.admin? || raise(Pundit::NotAuthorizedError, "Sorry, you can only edit your own projects.")
+        owns? || user&.admin?
     end
 
     def destroy?
-        owns? || user&.admin? || user&.has_role?(:fraud_dept) || raise(Pundit::NotAuthorizedError, "Sorry, you don't have permission to delete this project.")
+        owns? || user&.admin? || user&.has_role?(:fraud_dept)
     end
 
     def force_destroy?
