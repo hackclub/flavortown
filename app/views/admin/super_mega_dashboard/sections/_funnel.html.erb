@@ -31,15 +31,9 @@
 
           const data = funnelStepsData.map((step) => {
             const rawName = String(step.name || "");
-            let stepName = rawName
-              .replace(/start_flow_/g, "")
-              .replace(/_/g, " ");
-            stepName = stepName.charAt(0).toUpperCase() + stepName.slice(1);
-            if (rawName === "identity_verified") stepName = "Identity Verified";
 
             return {
               key: rawName,
-              label: stepName,
               value: parseInt(step.count, 10) || 0,
             };
           });
