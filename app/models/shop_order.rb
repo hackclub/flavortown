@@ -361,6 +361,7 @@ class ShopOrder < ApplicationRecord
     ShopItem::HCBPreauthGrant
     ShopItem::ThirdPartyDigital
     ShopItem::SillyItemType
+    ShopItem::SpecialFulfillmentItem
   ].freeze
 
   def check_regional_availability
