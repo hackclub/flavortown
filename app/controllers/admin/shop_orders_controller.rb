@@ -413,7 +413,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
     @order = ShopOrder.find(params[:id])
 
-    if @order.shop_item.requires_verification_call? && !current_user.admin?
+    if @order.shop_item.requires_verification_call? && !current_user.admin? && !@order.awaiting_periodical_fulfillment?
       redirect_to admin_shop_order_path(@order), alert: "Only admins can fulfill verification-call items" and return
     end
 
