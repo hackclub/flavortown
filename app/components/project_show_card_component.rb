@@ -76,7 +76,7 @@ class ProjectShowCardComponent < ViewComponent::Base
   def ship_disabled_reasons
     reasons = []
     reasons << "Shipping is currently disabled." unless shipping_enabled?
-    reasons + project.shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:label] }
+    reasons + project.shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:fail_label] || r[:label] }
   end
 
   def ship_status
