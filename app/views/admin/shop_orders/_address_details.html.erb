@@ -1,19 +1,19 @@
 <div class="info-rows">
-  <div><b>Name:</b> <span class="address-value"><%= address["first_name"] %> <%= address["last_name"] %></span> <button type="button" class="address-copy-btn" data-copy="<%= "#{address["first_name"]} #{address["last_name"]}" %>" aria-label="Copy name">📋</button></div>
+  <div><b>Name:</b> <div class="address-value"><%= address["first_name"] %> <%= address["last_name"] %></div> <button type="button" class="address-copy-btn" data-copy="<%= "#{address["first_name"]} #{address["last_name"]}" %>" aria-label="Copy name">📋</button></div>
   <% if user_email.present? %>
-  <div><b>Email:</b> <span class="address-value"><%= user_email %></span> <button type="button" class="address-copy-btn" data-copy="<%= user_email %>" aria-label="Copy email">📋</button></div>
+  <div><b>Email:</b> <div class="address-value"><%= user_email %></div> <button type="button" class="address-copy-btn" data-copy="<%= user_email %>" aria-label="Copy email">📋</button></div>
   <% end %>
 
-  <div><b>Address Line 1:</b> <span class="address-value"><%= address["line_1"] %></span> <button type="button" class="address-copy-btn" data-copy="<%= address["line_1"] %>" aria-label="Copy address line 1">📋</button></div>
+  <div><b>Address Line 1:</b> <div class="address-value"><%= address["line_1"] %></div> <button type="button" class="address-copy-btn" data-copy="<%= address["line_1"] %>" aria-label="Copy address line 1">📋</button></div>
   <% if address["line_2"].present? %>
-    <div><b>Address Line 2:</b> <span class="address-value"><%= address["line_2"] %></span> <button type="button" class="address-copy-btn" data-copy="<%= address["line_2"] %>" aria-label="Copy address line 2">📋</button></div>
+    <div><b>Address Line 2:</b> <div class="address-value"><%= address["line_2"] %></div> <button type="button" class="address-copy-btn" data-copy="<%= address["line_2"] %>" aria-label="Copy address line 2">📋</button></div>
   <% end %>
-  <div><b>City:</b> <span class="address-value"><%= address["city"] %></span> <button type="button" class="address-copy-btn" data-copy="<%= address["city"] %>" aria-label="Copy city">📋</button></div>
-  <div><b>State/Province:</b> <span class="address-value"><%= address["state"] %></span> <button type="button" class="address-copy-btn" data-copy="<%= address["state"] %>" aria-label="Copy state">📋</button></div>
-  <div><b>Postal Code:</b> <span class="address-value"><%= address["postal_code"] %></span> <button type="button" class="address-copy-btn" data-copy="<%= address["postal_code"] %>" aria-label="Copy postal code">📋</button></div>
-  <div><b>Country:</b> <span class="address-value"><%= address["country"] %></span> <button type="button" class="address-copy-btn" data-copy="<%= address["country"] %>" aria-label="Copy country">📋</button></div>
+  <div><b>City:</b> <div class="address-value"><%= address["city"] %></div> <button type="button" class="address-copy-btn" data-copy="<%= address["city"] %>" aria-label="Copy city">📋</button></div>
+  <div><b>State/Province:</b> <div class="address-value"><%= address["state"] %></div> <button type="button" class="address-copy-btn" data-copy="<%= address["state"] %>" aria-label="Copy state">📋</button></div>
+  <div><b>Postal Code:</b> <div class="address-value"><%= address["postal_code"] %></div> <button type="button" class="address-copy-btn" data-copy="<%= address["postal_code"] %>" aria-label="Copy postal code">📋</button></div>
+  <div><b>Country:</b> <div class="address-value"><%= address["country"] %></div> <button type="button" class="address-copy-btn" data-copy="<%= address["country"] %>" aria-label="Copy country">📋</button></div>
   <% if address["phone_number"].present? %>
-    <div><b>Phone:</b> <span class="address-value"><%= address["phone_number"] %></span> <button type="button" class="address-copy-btn" data-copy="<%= address["phone_number"] %>" aria-label="Copy phone">📋</button></div>
+    <div><b>Phone:</b> <div class="address-value"><%= address["phone_number"] %></div> <button type="button" class="address-copy-btn" data-copy="<%= address["phone_number"] %>" aria-label="Copy phone">📋</button></div>
   <% else %>
     <div><b>Phone:</b> N/A</div>
   <% end %>
