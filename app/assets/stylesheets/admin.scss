@@ -168,6 +168,25 @@ body {
 
 .info-rows > * {
   margin: 0.25em 0 0 0.5em;
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.address-copy-btn {
+  background: none;
+  border: 1px solid var(--color-brown-500);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.3rem;
+  margin-left: 0.25rem;
+  vertical-align: middle;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .flex {
@@ -509,10 +528,6 @@ dialog {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   background: var(--color-tan-300);
   margin: auto;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 
   &::backdrop {
     background: rgba(0, 0, 0, 0.5);

@@ -7,6 +7,14 @@
     <%= render HeadingComponent.new(title: "Kitchen", tone: :blue, size: :full) %>
   </div>
 
+  <% if @show_and_tell_live %>
+    <div class="show-and-tell-banner">
+      <span class="show-and-tell-banner__live-dot"></span>
+      <span class="show-and-tell-banner__text">🎤 Show & Tell is happening right now!</span>
+      <%= link_to "Join the Huddle", "https://app.slack.com/huddle/T0266FRGM/C09MPB8NE8H", target: "_blank", class: "show-and-tell-banner__link" %>
+    </div>
+  <% end %>
+
   <% flavortime_release_download_base = "https://github.com/hackclub/flavortime/releases/latest/download" %>
   <% flavortime_download_links = {
     macos: "#{flavortime_release_download_base}/flavortime-macos-universal.dmg",

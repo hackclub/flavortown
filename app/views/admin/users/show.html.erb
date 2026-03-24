@@ -261,7 +261,7 @@
 
       <% if policy(:admin).ban_users? %>
         <% if @user.shadow_banned? %>
-          <%= button_to "👁️ Remove Shadow Ban", unshadow_ban_admin_user_path(@user), method: :post, class: "btn-primary slim" %>
+          <%= button_to "👁️ Remove Shadow Ban", unshadow_ban_admin_user_path(@user), method: :post, class: "btn-primary slim", form: { onsubmit: "return confirm(#{("Are you sure you want to remove the shadow ban from #{@user.display_name}?").to_json})" } %>
         <% else %>
           <button type="button" onclick="document.getElementById('shadow-ban-modal').showModal()" class="btn-secondary slim">
             👻 Shadow Ban
@@ -282,7 +282,7 @@
         <% end %>
 
         <% if @user.banned? %>
-          <%= button_to "🔓 Unban User", unban_admin_user_path(@user), method: :post, class: "btn-primary slim" %>
+          <%= button_to "🔓 Unban User", unban_admin_user_path(@user), method: :post, class: "btn-primary slim", form: { onsubmit: "return confirm(#{("Are you sure you want to unban #{@user.display_name}?").to_json})" } %>
         <% else %>
           <button type="button" onclick="document.getElementById('ban-user-modal').showModal()" class="btn-danger slim">
             🚫 Ban User
@@ -303,10 +303,10 @@
         <% end %>
 
         <% if @user.manual_ysws_override? %>
-          <%= button_to "Remove ysws override", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "false" }, class: "btn-secondary slim" %>
+          <%= button_to "Remove ysws override", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "false" }, class: "btn-secondary slim", form: { onsubmit: "return confirm(#{("Are you sure you want to remove the YSWS eligibility override for #{@user.display_name}?").to_json})" } %>
         <% else %>
           <% unless @user.ysws_eligible? %>
-            <%= button_to "Make ysws eligible", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "true" }, class: "btn-danger slim" %>
+            <%= button_to "Make ysws eligible", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "true" }, class: "btn-danger slim", form: { onsubmit: "return confirm(#{("Are you sure you want to manually override YSWS eligibility for #{@user.display_name}?").to_json})" } %>
           <% end %>
         <% end %>
       <% end %>
@@ -315,7 +315,8 @@
         <%= button_to toggle_voting_lock_admin_user_path(@user),
               method: :post,
               class: "btn-secondary slim",
-              title: @user.voting_locked? ? "Unlock Voting" : "Lock Voting" do %>
+              title: @user.voting_locked? ? "Unlock Voting" : "Lock Voting",
+              form: { onsubmit: "return confirm(#{("Are you sure you want to #{@user.voting_locked? ? "unlock" : "lock"} voting for #{@user.display_name}?").to_json})" } do %>
           <%= @user.voting_locked? ? "Unlock Voting" : "Lock Voting" %>
         <% end %>
       <% end %>

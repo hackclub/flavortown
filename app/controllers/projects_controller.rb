@@ -397,15 +397,15 @@ class ProjectsController < ApplicationController
       redirect_to @project, alert: "Shipping is currently disabled." and return
     end
 
-    ship_event = ShipCertService.latest_ship_event(@project)
+    @project.with_lock do
+      ship_event = ShipCertService.latest_ship_event(@project)
 
-    unless ship_event&.certification_status == "rejected"
-      flash[:alert] = "Re-certification can only be requested for rejected ships."
-      redirect_to @project and return
-    end
+      unless ship_event&.certification_status == "rejected"
+        flash[:alert] = "Re-certification can only be requested for rejected ships."
+        redirect_to @project and return
+      end
 
-    PaperTrail.request(whodunnit: current_user.id) do
-      begin
+      PaperTrail.request(whodunnit: current_user.id) do
         ShipCertService.ship_to_dash(@project, type: "recertification")
         ship_event.update!(certification_status: "pending")
 
@@ -421,13 +421,13 @@ class ProjectsController < ApplicationController
         )
 
         flash[:notice] = "Re-certification requested! Your project has been resubmitted for review."
-      rescue => e
-        Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
-        flash[:alert] = "Failed to request re-certification: #{e.message}"
       end
     end
 
     redirect_to @project
+  rescue => e
+    Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
+    redirect_to @project, alert: "Failed to request re-certification: #{e.message}"
   end
 
   def lapse_timelapses

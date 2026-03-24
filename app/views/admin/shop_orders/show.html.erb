@@ -1,3 +1,4 @@
+<% content_for :title, "Order ##{@order.id}" %>
 <h1 class="admin-section__header" style="font-size: 1.5rem; margin-bottom: 1rem;">
   <span
     title="ID: <%= @order.id %>&#10;User: <%= @order.user.display_name %> (Slack: <%= @order.user.slack_id || 'N/A' %>)&#10;Item: <%= @order.shop_item.name %>&#10;Qty: <%= @order.quantity %> × <%= @order.frozen_item_price %> = <%= @order.total_cost %> tickets&#10;Status: <%= @order.aasm_state.humanize %>&#10;Created: <%= @order.created_at.strftime('%Y-%m-%d %H:%M') %><%= @order.assigned_to_user.present? ? "&#10;Assigned: #{@order.assigned_to_user.display_name}" : '' %>"
@@ -420,7 +421,10 @@
       <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
       <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
       <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
-      <button type="submit" class="admin-btn admin-btn--primary" <% unless (@order.pending? || @order.awaiting_verification_call?) && !@order.requires_additional_review? %> disabled<% end %> onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
+      <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+        <input type="text" name="tracking_number" placeholder="Tracking # (optional)" autocomplete="off" style="padding: 0.4rem; font-size: 0.85rem; width: 180px;">
+        <button type="submit" class="admin-btn admin-btn--primary" <% unless (@order.pending? || @order.awaiting_verification_call?) && !@order.requires_additional_review? %> disabled<% end %> onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
+      </div>
     </form>
 
     <%# Reject button for all non-fulfilled states %>

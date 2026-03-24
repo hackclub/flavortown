@@ -182,6 +182,17 @@ Rails.application.routes.draw do
       post "flavortime/heartbeat", to: "flavortime#heartbeat"
       post "flavortime/close", to: "flavortime#close"
       get "flavortime/active_users", to: "flavortime#active_users"
+
+      namespace :admin do
+        resources :shop_orders, only: [] do
+          collection do
+            get :stats
+            get :leaderboard
+            get :order
+            post :fulfill
+          end
+        end
+      end
     end
   end
 
@@ -312,6 +323,7 @@ Rails.application.routes.draw do
       collection do
         post :give_payout
         post :mark_payout_given
+        post :toggle_live
       end
     end
     resources :messages, only: [ :index, :create ]

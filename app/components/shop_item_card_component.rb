@@ -68,6 +68,6 @@ class ShopItemCardComponent < ViewComponent::Base
   end
 
   def show_stock_indicator?
-    limited && remaining_stock.present?
+    limited && remaining_stock.present? && remaining_stock <= 10
   end
 end
