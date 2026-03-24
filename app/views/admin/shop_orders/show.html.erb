@@ -421,7 +421,10 @@
       <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
       <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
       <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
-      <button type="submit" class="admin-btn admin-btn--primary" <% unless (@order.pending? || @order.awaiting_verification_call?) && !@order.requires_additional_review? %> disabled<% end %> onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
+      <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+        <input type="text" name="tracking_number" placeholder="Tracking # (optional)" autocomplete="off" style="padding: 0.4rem; font-size: 0.85rem; width: 180px;">
+        <button type="submit" class="admin-btn admin-btn--primary" <% unless (@order.pending? || @order.awaiting_verification_call?) && !@order.requires_additional_review? %> disabled<% end %> onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
+      </div>
     </form>
 
     <%# Reject button for all non-fulfilled states %>

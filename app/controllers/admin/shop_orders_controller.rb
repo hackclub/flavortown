@@ -229,10 +229,15 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to shop_orders_return_path, notice: "Order approved and fulfilled" and return
     end
 
+    tracking_number = params[:tracking_number].presence
+
     if @order.shop_item.requires_verification_call?
       success = @order.queue_for_verification_call && @order.save
       notice = "Order queued for verification call"
     else
+      if tracking_number.present?
+        @order.tracking_number = tracking_number
+      end
       success = @order.queue_for_fulfillment && @order.save
       notice = "Order approved for fulfillment"
     end
