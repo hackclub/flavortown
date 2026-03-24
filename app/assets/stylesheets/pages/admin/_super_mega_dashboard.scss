@@ -701,10 +701,29 @@
     margin-top: 1rem;
     overflow-x: auto;
     border-radius: 1em;
+    background-color: white;
+    padding: 1em;
   }
 
   .d3-funnel-container svg {
     background: #ffffff;
+    display: block;
+  }
+
+  .d3-funnel-container::-webkit-scrollbar {
+    height: 10px;
+  }
+
+  .d3-funnel-container::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 1em;
+  }
+
+  .d3-funnel-container::-webkit-scrollbar-thumb {
+    background-color: rgba(15, 23, 42, 0.25);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
   }
 
   .d3-funnel-debug {
@@ -717,54 +736,6 @@
       ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
     display: none;
-  }
-
-  .d3-funnel-tooltip {
-    position: absolute;
-    min-width: 210px;
-    max-width: 260px;
-    background: #111827;
-    color: #f9fafb;
-    padding: 10px 12px;
-    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35);
-    font-size: 13px;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0;
-    transform: translate3d(0, 0, 0);
-  }
-
-  .d3-funnel-tooltip__step {
-    font-weight: 600;
-    margin-bottom: 2px;
-  }
-
-  .d3-funnel-tooltip__step span {
-    font-family:
-      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-      "Courier New", monospace;
-  }
-
-  .d3-funnel-tooltip__count {
-    color: #fff;
-    margin-bottom: 6px;
-  }
-
-  .d3-funnel-tooltip hr {
-    border: none;
-    border-top: 1px solid rgba(55, 65, 81, 0.8);
-    margin: 6px 0;
-  }
-
-  .d3-funnel-tooltip__row {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 2px;
-  }
-
-  .d3-funnel-tooltip__row--muted {
-    color: #9ca3af;
   }
 
   .d3-funnel-label {
@@ -1805,4 +1776,52 @@
   .sw-ticket-feedback__time {
     color: #94a3b8;
   }
+}
+
+.d3-funnel-tooltip {
+  position: absolute;
+  min-width: 210px;
+  max-width: 260px;
+  background: #111827;
+  color: #f9fafb;
+  padding: 10px 12px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35);
+  font-size: 13px;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  transform: translate3d(0, 0, 0);
+}
+
+.d3-funnel-tooltip__step {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.d3-funnel-tooltip__step span {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}
+
+.d3-funnel-tooltip__count {
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.d3-funnel-tooltip hr {
+  border: none;
+  border-top: 1px solid rgba(55, 65, 81, 0.8);
+  margin: 6px 0;
+}
+
+.d3-funnel-tooltip__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2px;
+}
+
+.d3-funnel-tooltip__row--muted {
+  color: #9ca3af;
 }

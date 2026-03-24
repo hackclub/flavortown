@@ -11,7 +11,7 @@
     </div>
   <% elsif @funnel_steps.any? %>
     <div class="d3-funnel-container">
-      <div id="d3FunnelChart"></div>
+      <div id="d3FunnelChart" style="background-color: #ffffff;"></div>
       <div id="funnelDebug" class="d3-funnel-debug">
         Loaded <%= @funnel_steps.length %> funnel steps
       </div>
@@ -61,7 +61,7 @@
           }
 
           const containerWidth = container.clientWidth || 960;
-          const margin = { top: 32, right: 0, bottom: 48, left: 16 };
+          const margin = { top: 32, right: 0, bottom: 24, left: 16 };
           const height = 420;
 
           const baseInnerWidth = containerWidth - margin.left - margin.right;
