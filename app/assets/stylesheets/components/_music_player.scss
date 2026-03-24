@@ -7,7 +7,7 @@
   align-items: center;
   gap: 1em;
 
-  &:hover .music-player__volume {
+  &:hover .music-player__controls {
     opacity: 1;
     visibility: visible;
   }
@@ -22,22 +22,65 @@
     background: var(--color-brown-700);
     border: none;
     filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
   }
 
-  &__volume {
+  &__controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4em;
     background: var(--color-brown-700);
-    padding: 0.5em 1em 0.2em 1em;
+    padding: 0.6em 1em 0.5em 1em;
     border-radius: 16px;
     opacity: 0;
     visibility: hidden;
     transition:
       opacity 0.2s ease,
       visibility 0.2s ease;
+  }
+
+  &__volume {
+    width: 100%;
 
     input[type="range"] {
+      width: 100%;
+
       &::-webkit-slider-thumb {
         cursor: pointer;
       }
+    }
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+    width: 100%;
+  }
+
+  &__skip {
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--color-bg);
+    font-size: 1rem;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      opacity: 0.7;
+    }
+
+    &--play {
+      font-size: 1.2rem;
     }
   }
 }

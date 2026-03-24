@@ -3,7 +3,7 @@
 <% content_for :og_description, "Spend your cookies on stickers, hardware, and other prizes. Earn cookies by building projects and voting!" %>
 <% content_for :og_image, og_image_url('shop', format: :png) %>
 
-<%= render MusicPlayerComponent.new(audio_url: audio_path("fireentity - shop.mp3")) %>
+<%= render MusicPlayerComponent.new(audio_urls: [audio_path("fireentity - shop.mp3"), audio_path("fireentity - voting.mp3")], default_index: 0) %>
 
 <% if @show_shop_tutorial && session[:tutorial_redirect_url].present? %>
   <%= render DialogueBoxComponent.new(

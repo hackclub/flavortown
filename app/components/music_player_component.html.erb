@@ -1,10 +1,21 @@
-<div class="music-player" data-controller="music-player" data-music-player-audio-url-value="<%= audio_url %>">
+<div class="music-player" data-controller="music-player" data-music-player-audio-urls-value="<%= audio_urls_json %>" data-music-player-default-index-value="<%= default_index %>">
   <button class="music-player__play-pause" data-action="click->music-player#togglePlay">
     <span class="music-player__icon music-player__icon--play" aria-hidden="true">&#x266A;</span>
     <span class="music-player__icon music-player__icon--pause" aria-hidden="true" hidden>&#x23F8;</span>
   </button>
 
-  <div class="music-player__volume">
-    <input type="range" data-action="input->music-player#changeVolume" min="0" max="1" step="0.1" value="0.5" autocomplete="off">
+  <div class="music-player__controls">
+    <div class="music-player__volume">
+      <input type="range" data-action="input->music-player#changeVolume" min="0" max="1" step="0.1" value="0.5" autocomplete="off">
+    </div>
+
+    <div class="music-player__row">
+      <button class="music-player__skip" data-action="click->music-player#prevTrack">&#x23EE;</button>
+      <button class="music-player__skip music-player__skip--play" data-action="click->music-player#togglePlay">
+        <span class="music-player__icon music-player__icon--play" aria-hidden="true">&#x25B6;</span>
+        <span class="music-player__icon music-player__icon--pause" aria-hidden="true" hidden>&#x23F8;</span>
+      </button>
+      <button class="music-player__skip" data-action="click->music-player#nextTrack">&#x23ED;</button>
+    </div>
   </div>
 </div>
