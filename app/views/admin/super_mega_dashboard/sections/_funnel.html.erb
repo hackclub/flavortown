@@ -55,7 +55,7 @@
           }
 
           const containerWidth = container.clientWidth || 960;
-          const margin = { top: 32, right: 0, bottom: 24, left: 16 };
+          const margin = { top: 32, right: 16, bottom: 24, left: 16 };
           const height = 420;
 
           const baseInnerWidth = containerWidth - margin.left - margin.right;
@@ -65,11 +65,11 @@
           const maxValue = d3.max(data, (d) => d.value) || 1;
           const maxBandHeight = innerHeight * 0.9;
 
-          const minChartInnerWidth = 640;
-          const minStepWidth = 140;
+          const minChartInnerWidth = 540;
+          const minStepWidth = 150; // widen sections so labels overlap less
 
           let chartInnerWidth = Math.max(baseInnerWidth, minChartInnerWidth);
-          const stepCount = Math.max(data.length - 1, 1);
+          const stepCount = Math.max(data.length, 1);
           let stepWidth = chartInnerWidth / stepCount;
 
           if (stepWidth < minStepWidth) {
@@ -77,23 +77,47 @@
             chartInnerWidth = stepWidth * stepCount;
           }
 
+          const bandWidth = stepWidth;
+
           const width = chartInnerWidth + margin.left + margin.right;
           const innerWidth = width - margin.left - margin.right;
 
           const points = data.map((d, index) => {
             const heightForStep = maxBandHeight * (d.value / maxValue);
+            const centerX = (index + 0.5) * bandWidth;
             return {
               ...d,
-              x: index * stepWidth,
+              x: centerX,
               bandHeight: heightForStep,
             };
           });
 
-          const topPoints = points.map((p) => [p.x, centerY - p.bandHeight / 2]);
-          const bottomPoints = points
-            .slice()
-            .reverse()
-            .map((p) => [p.x, centerY + p.bandHeight / 2]);
+          const topPoints = [];
+          const bottomPoints = [];
+
+          if (points.length > 0) {
+            // Extend the funnel to touch the first and last dividers
+            topPoints.push([0, centerY - points[0].bandHeight / 2]);
+            points.forEach((p) => {
+              topPoints.push([p.x, centerY - p.bandHeight / 2]);
+            });
+            topPoints.push([
+              bandWidth * stepCount,
+              centerY - points[points.length - 1].bandHeight / 2,
+            ]);
+
+            bottomPoints.push([
+              bandWidth * stepCount,
+              centerY + points[points.length - 1].bandHeight / 2,
+            ]);
+            points
+              .slice()
+              .reverse()
+              .forEach((p) => {
+                bottomPoints.push([p.x, centerY + p.bandHeight / 2]);
+              });
+            bottomPoints.push([0, centerY + points[0].bandHeight / 2]);
+          }
 
           const allPoints = topPoints.concat(bottomPoints);
 
@@ -144,17 +168,19 @@
             .attr("stroke-width", 1)
             .attr("stroke-opacity", 0.9);
 
-          // vertical separators aligned with funnel vertices so each
-          // section between two lines is a single straight segment
+          // vertical separators aligned with band boundaries so each
+          // step label, metric, and hover region share the same width
           const separatorGroup = g.append("g");
-          for (let i = 0; i < points.length; i += 1) {
-            const x = points[i].x;
+          const sectionTop = centerY - maxBandHeight / 2 - 16;
+          const sectionBottom = centerY + maxBandHeight / 2 + 16;
+          for (let i = 0; i <= stepCount; i += 1) {
+            const x = i * bandWidth;
             separatorGroup
               .append("line")
               .attr("x1", x)
-              .attr("y1", centerY - maxBandHeight / 2 - 16)
+              .attr("y1", sectionTop)
               .attr("x2", x)
-              .attr("y2", centerY + maxBandHeight / 2 + 16)
+              .attr("y2", sectionBottom)
               .attr("stroke", "#000000")
               .attr("stroke-width", 1)
               .attr("stroke-opacity", 0.9);
@@ -176,11 +202,14 @@
             const retentionFromPrevious = index === 0 ? 1 : prevValue === 0 ? 0 : currentValue / prevValue;
             const changeVsPrevious = index === 0 ? 0 : prevValue === 0 ? 0 : (currentValue - prevValue) / prevValue;
 
+            const bandLeft = index * bandWidth;
+            const bandCenter = bandLeft + bandWidth / 2;
+
             overlay
               .append("rect")
-              .attr("x", point.x - stepWidth / 2)
+              .attr("x", bandLeft)
               .attr("y", centerY - maxBandHeight / 2 - 16)
-              .attr("width", stepWidth)
+              .attr("width", bandWidth)
               .attr("height", maxBandHeight + 32)
               .attr("fill", "transparent")
               .on("mousemove", (event) => {
@@ -241,17 +270,17 @@
             g
               .append("text")
               .attr("class", "d3-funnel-label d3-funnel-label--step")
-              .attr("x", point.x + 4)
+              .attr("x", bandCenter)
               .attr("y", centerY - maxBandHeight / 2 - 12)
-              .attr("text-anchor", "start")
+              .attr("text-anchor", "middle")
               .text(point.key);
 
             g
               .append("text")
               .attr("class", "d3-funnel-label d3-funnel-label--metric")
-              .attr("x", point.x + 4)
+              .attr("x", bandCenter)
               .attr("y", centerY + maxBandHeight / 2 + 20)
-              .attr("text-anchor", "start")
+              .attr("text-anchor", "middle")
               .text(`${currentValue.toLocaleString()} · ${formatPercent(firstValue === 0 ? 0 : currentValue / firstValue)}`);
           });
 
