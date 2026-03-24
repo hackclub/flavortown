@@ -22,7 +22,12 @@ class Api::V1::Admin::ShopOrdersController < Api::V1::Admin::BaseController
       render json: { error: "order is in #{o.aasm_state} and can not be marked as fulfilled" }, status: :unprocessable_entity and return
     end
 
+    s = o.aasm_state
     if o.mark_fulfilled(params[:external_ref].presence, params[:fulfillment_cost].presence, current_api_user.display_name) && o.save
+      PaperTrail::Version.create!(
+        item_type: "ShopOrder", item_id: o.id, event: "update",
+        whodunnit: current_api_user.id, object_changes: { aasm_state: [s, o.aasm_state] }
+      )
       render json: o.as_json(except: %i[frozen_address_ciphertext])
     else
       render json: { errors: o.errors.full_messages }, status: :unprocessable_entity
