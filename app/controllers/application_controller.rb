@@ -122,8 +122,14 @@ class ApplicationController < ActionController::Base
   end
 
   def user_not_authorized(exception)
-    flash[:alert] = exception.message.presence || "You are not authorized to perform this action."
-    redirect_to(safe_referrer || root_path)
+    @error_title = "Whoa there, chef!"
+    @error_message = exception.message.presence || "You don't have the right ingredients to access this page."
+    @back_path = safe_referrer
+
+    respond_to do |format|
+      format.html { render "errors/not_authorized", status: :forbidden }
+      format.json { render json: { error: @error_message }, status: :forbidden }
+    end
   end
 
   def safe_referrer
