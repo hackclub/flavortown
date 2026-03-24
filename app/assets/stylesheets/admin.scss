@@ -168,12 +168,8 @@ body {
 
 .info-rows > * {
   margin: 0.25em 0 0 0.5em;
-}
-
-.address-value {
-  display: inline-block;
-  cursor: text;
-  user-select: all;
+  display: flex;
+  gap: var(--space-xs);
 }
 
 .address-copy-btn {
