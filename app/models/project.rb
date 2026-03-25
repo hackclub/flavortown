@@ -272,7 +272,7 @@ class Project < ApplicationRecord
       { key: :payout, label: nil, fail_label: "Wait for your previous ship to get a payout before shipping again", passed: previous_ship_event_has_payout? },
       { key: :vote_balance, label: nil, fail_label: "Your vote balance is negative! Vote on other projects before shipping this one.", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
       { key: :project_isnt_rejected, label: nil, fail_label: "Your project is rejected!", passed: last_ship_event&.certification_status != "rejected" },
-      { key: :project_has_more_then_10s, label: nil, fail_label: "This project doesn't have any time attached to it! (devlog some time, then try again)", passed: duration_seconds > 10 },
+      { key: :project_has_more_then_10s, label: nil, fail_label: "This project doesn't have any time attached to it! (devlog some time, then try again)", passed: duration_seconds_since_last_ship > 10 },
       { key: :ai_declaration, label: "Declare your AI usage for this project (write 'None' if you didn't use any)", passed: ai_declaration.present? }
     ]
       .map.with_index
@@ -352,6 +352,12 @@ class Project < ApplicationRecord
   end
 
   private
+
+  def duration_seconds_since_last_ship
+    scope = posts.of_devlogs(join: true).where(post_devlogs: { deleted_at: nil })
+    scope = scope.where("posts.created_at > ?", last_ship_event.created_at) if last_ship_event
+    scope.sum("post_devlogs.duration_seconds").to_i
+  end
 
   def has_devlog_since_last_ship?
     return true if last_ship_event.nil?

@@ -56,6 +56,7 @@ class Post::ShipEvent < ApplicationRecord
 
   validates :body, presence: { message: "Update message can't be blank" }
   validate :project_can_be_shipped, on: :create
+  validate :must_have_hours, on: :create
   has_paper_trail ignore: [ :votes_count, :synced_at ]
   def status
     project = post&.project
@@ -118,6 +119,11 @@ class Post::ShipEvent < ApplicationRecord
   def project_can_be_shipped
     return unless project
     project.ship_blocking_errors.each { |msg| errors.add(:base, msg) }
+  end
+
+  def must_have_hours
+    return unless project
+    errors.add(:base, "Cannot ship with 0 hours — log some time first") if hours <= 0
   end
 
   def decrement_user_vote_balance
