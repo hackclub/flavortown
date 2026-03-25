@@ -6,7 +6,7 @@ class UpdateSlackMessageCountsJob < ApplicationJob
   # Update Slack message counts for all users or a specific user
   # @param user [User, nil] Optional user to update. If nil, updates all users with slack_id
   def perform(user = nil)
-    users_to_update = user ? [user] : User.where.not(slack_id: nil)
+    users_to_update = user ? [ user ] : User.where.not(slack_id: nil)
 
     users_to_update.find_each do |u|
       update_user_message_counts(u)
