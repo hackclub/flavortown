@@ -331,6 +331,13 @@
     &:hover {
       color: var(--color-brown-400);
     }
+
+    &--pending {
+      opacity: 0.5;
+      cursor: not-allowed;
+      text-decoration: none;
+      pointer-events: none;
+    }
   }
 }
 

@@ -1,0 +1,195 @@
+<% confirmation_text = mass_send ? "I know im about to mass dm #{user_count} users and cant revert this" : nil %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var expected = <%== (confirmation_text || "").to_json %>;
+
+    var contentEl = document.getElementById('content');
+    var blockPathEl = document.getElementById('block_path');
+    var previewSection = document.getElementById('message-preview-section');
+    var preview = document.getElementById('message-preview');
+    var modalPreview = document.getElementById('modal-preview');
+    var confirmInput = document.getElementById('confirmation');
+    var submitBtn = document.getElementById('modal-submit-btn');
+    var openBtn = document.getElementById('open-send-modal-btn');
+    var cancelBtn = document.getElementById('modal-cancel-btn');
+    var modal = document.getElementById('send-confirm-modal');
+    var form = document.getElementById('message-form');
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function updatePreview() {
+      var content = contentEl ? contentEl.value : '';
+      var blockPath = blockPathEl ? blockPathEl.value : '';
+
+      if (!content && !blockPath) {
+        if (previewSection) previewSection.style.display = 'none';
+        return;
+      }
+
+      if (previewSection) previewSection.style.display = '';
+
+      var html = '';
+      if (content) {
+        html += '<div><b>Content:</b></div>';
+        html += '<div class="message-preview-content">' + escapeHtml(content) + '</div>';
+      }
+      if (blockPath) {
+        html += '<div><b>Block path:</b> <code>' + escapeHtml(blockPath) + '</code></div>';
+      }
+
+      if (preview) preview.innerHTML = html;
+      if (modalPreview) modalPreview.innerHTML = html;
+    }
+
+    function validateConfirmation() {
+      if (!confirmInput || !submitBtn) return;
+      if (confirmInput.value === expected) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
+      }
+    }
+
+    if (contentEl) contentEl.addEventListener('input', updatePreview);
+    if (blockPathEl) blockPathEl.addEventListener('input', updatePreview);
+    if (confirmInput) confirmInput.addEventListener('input', validateConfirmation);
+
+    if (openBtn && modal) {
+      openBtn.addEventListener('click', function() {
+        updatePreview();
+        if (confirmInput) confirmInput.value = '';
+        validateConfirmation();
+        modal.showModal();
+      });
+    }
+
+    if (submitBtn && form) {
+      submitBtn.addEventListener('click', function() {
+        form.submit();
+      });
+    }
+
+    if (cancelBtn && modal) {
+      cancelBtn.addEventListener('click', function() {
+        modal.close();
+      });
+    }
+  });
+</script>
+
+<div id="message-compose">
+  <div style="margin-bottom: 1rem;">
+    <%= label_tag :content, "Message content" %>
+    <p class="admin-section__note">Optional if block path is set.</p>
+    <%= text_area_tag :content, nil,
+      rows: 5,
+      class: "admin-textarea",
+      placeholder: "Write the message to send...",
+      form: "message-form",
+      id: "content" %>
+  </div>
+
+  <div style="margin-bottom: 1rem;">
+    <%= label_tag :block_path, "Block path" %>
+    <p class="admin-section__note">Optional if content is set. Example: notifications/some_template</p>
+    <%= text_field_tag :block_path, nil,
+      class: "input-primary",
+      placeholder: "notifications/some_template",
+      autocomplete: "off",
+      form: "message-form",
+      style: "width: 100%;",
+      id: "block_path" %>
+  </div>
+
+  <div class="admin-section" id="message-preview-section" style="display: none;">
+    <h2 class="admin-section__header">Preview</h2>
+    <div id="message-preview" class="message-preview-box"></div>
+  </div>
+
+  <% if mass_send %>
+    <div class="admin-actions-wrap">
+      <button type="button" class="btn-primary" id="open-send-modal-btn">
+        <%= submit_label %>
+      </button>
+    </div>
+
+    <%= render layout: "shared/modal", locals: {
+      id: "send-confirm-modal",
+      title: "Confirm mass send",
+      description: "You are about to send this message to #{user_count} #{'person'.pluralize(user_count)}."
+    } do %>
+      <div id="modal-preview" class="message-preview-box" style="margin-bottom: 1rem;"></div>
+
+      <div class="modal__field">
+        <%= label_tag :confirmation, "Type the following to confirm:" %>
+        <div class="confirmation-phrase" oncopy="return false" oncut="return false">
+          <%= confirmation_text %>
+        </div>
+        <%= text_field_tag :confirmation, nil,
+          class: "input-primary",
+          form: "message-form",
+          required: true,
+          autocomplete: "off",
+          autocorrect: "off",
+          spellcheck: "false",
+          style: "width: 100%;",
+          placeholder: "Type the text above..." %>
+      </div>
+      <div class="modal__actions">
+        <button type="button" id="modal-submit-btn" class="btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled><%= submit_label %></button>
+        <button type="button" id="modal-cancel-btn" class="btn-secondary slim">Cancel</button>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="admin-actions-wrap">
+      <button type="submit" form="message-form" class="btn-primary"><%= submit_label %></button>
+    </div>
+  <% end %>
+</div>
+
+<form id="message-form" action="<%= path %>" method="post" style="display: none;">
+  <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+</form>
+
+<style>
+  .message-preview-box {
+    background: var(--color-tan-300, #f5f0e8);
+    border: 2px solid var(--color-brown-500, #8b6c47);
+    border-radius: var(--border-radius, 0.5rem);
+    padding: 1rem;
+  }
+
+  .message-preview-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0.5rem 0;
+    padding: 0.75rem;
+    background: var(--color-tan-100, #fff);
+    border-radius: calc(var(--border-radius, 0.5rem) * 0.6);
+  }
+
+  .confirmation-phrase {
+    user-select: none;
+    -webkit-user-select: none;
+    font-family: monospace;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #b91c1c;
+    background: var(--color-tan-300, #f5f0e8);
+    border: 2px dashed #b91c1c;
+    border-radius: var(--border-radius, 0.5rem);
+    padding: 0.75rem 1rem;
+    margin: 0.5rem 0 1rem;
+    pointer-events: none;
+  }
+</style>

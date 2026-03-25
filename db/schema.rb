@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_23_150835) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -326,6 +326,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.index ["user_id"], name: "index_likes_on_user_id"
   end
 
+  create_table "messages", force: :cascade do |t|
+    t.string "block_path"
+    t.string "content"
+    t.datetime "created_at", null: false
+    t.bigint "sent_by_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["sent_by_id"], name: "index_messages_on_sent_by_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
+  end
+
   create_table "post_devlogs", force: :cascade do |t|
     t.string "body"
     t.integer "comments_count", default: 0, null: false
@@ -560,9 +571,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.date "required_ships_start_date"
     t.string "requires_achievement"
     t.boolean "requires_ship", default: false
+    t.boolean "requires_sidequest_entry", default: false, null: false
     t.boolean "requires_verification_call", default: false, null: false
     t.integer "sale_percentage"
+    t.boolean "show_image_in_shop", default: false
     t.boolean "show_in_carousel"
+    t.boolean "sidequest_approval_required", default: true, null: false
+    t.bigint "sidequest_id"
     t.integer "site_action"
     t.string "source_region"
     t.boolean "special"
@@ -582,7 +597,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.decimal "usd_offset_xx", precision: 10, scale: 2
     t.bigint "user_id"
     t.index ["default_assigned_user_id"], name: "index_shop_items_on_default_assigned_user_id"
+    t.index ["sidequest_id"], name: "index_shop_items_on_sidequest_id"
     t.index ["user_id"], name: "index_shop_items_on_user_id"
+  end
+
+  create_table "shop_order_reviews", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "reason", null: false
+    t.bigint "shop_order_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "verdict", null: false
+    t.index ["shop_order_id", "user_id"], name: "index_shop_order_reviews_on_shop_order_id_and_user_id", unique: true
+    t.index ["shop_order_id"], name: "index_shop_order_reviews_on_shop_order_id"
+    t.index ["user_id"], name: "index_shop_order_reviews_on_user_id"
   end
 
   create_table "shop_orders", force: :cascade do |t|
@@ -592,6 +620,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.datetime "awaiting_periodical_fulfillment_at"
     t.datetime "created_at", null: false
     t.string "external_ref"
+    t.bigint "fraud_related_project_id"
     t.text "frozen_address_ciphertext"
     t.decimal "frozen_item_price", precision: 6, scale: 2
     t.datetime "fulfilled_at"
@@ -599,6 +628,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.decimal "fulfillment_cost", precision: 6, scale: 2
     t.bigint "fulfillment_payout_line_id"
     t.text "internal_notes"
+    t.text "internal_rejection_reason"
+    t.string "joe_case_url"
     t.datetime "on_hold_at"
     t.bigint "parent_order_id"
     t.integer "quantity"
@@ -703,6 +734,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
 
   create_table "support_vibes", force: :cascade do |t|
     t.jsonb "concern_message_links"
+    t.jsonb "concern_messages"
     t.jsonb "concerns", default: []
     t.datetime "created_at", null: false
     t.jsonb "notable_quotes", default: []
@@ -754,6 +786,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.index ["user_id"], name: "index_user_identities_on_user_id"
   end
 
+  create_table "user_profiles", force: :cascade do |t|
+    t.text "bio"
+    t.datetime "created_at", null: false
+    t.text "custom_css"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_user_profiles_on_user_id", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "airtable_record_id"
     t.string "api_key"
@@ -781,6 +822,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
     t.integer "projects_count"
     t.string "ref"
     t.string "regions", default: [], array: true
+    t.boolean "search_engine_indexing_off", default: false, null: false
     t.boolean "send_notifications_for_followed_devlogs", default: true, null: false
     t.boolean "send_notifications_for_new_comments", default: true, null: false
     t.boolean "send_notifications_for_new_followers", default: true, null: false
@@ -863,6 +905,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
   add_foreign_key "hackatime_time_loss_audits", "users"
   add_foreign_key "ledger_entries", "users"
   add_foreign_key "likes", "users"
+  add_foreign_key "messages", "users"
+  add_foreign_key "messages", "users", column: "sent_by_id"
   add_foreign_key "posts", "projects"
   add_foreign_key "posts", "users"
   add_foreign_key "project_follows", "projects"
@@ -875,8 +919,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
   add_foreign_key "report_review_tokens", "project_reports", column: "report_id"
   add_foreign_key "shop_card_grants", "shop_items"
   add_foreign_key "shop_card_grants", "users"
+  add_foreign_key "shop_items", "sidequests", validate: false
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_items", "users", column: "default_assigned_user_id", on_delete: :nullify
+  add_foreign_key "shop_order_reviews", "shop_orders"
+  add_foreign_key "shop_order_reviews", "users"
   add_foreign_key "shop_orders", "fulfillment_payout_lines"
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
@@ -896,6 +943,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_173208) do
   add_foreign_key "user_hackatime_projects", "projects"
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"
+  add_foreign_key "user_profiles", "users"
   add_foreign_key "votes", "post_ship_events", column: "ship_event_id"
   add_foreign_key "votes", "projects"
   add_foreign_key "votes", "users"

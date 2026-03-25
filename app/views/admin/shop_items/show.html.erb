@@ -127,6 +127,40 @@
         </div>
       </div>
 
+      <% if @shop_item.is_a?(ShopItem::Accessory) %>
+        <div class="card">
+          <h3>Parent Items</h3>
+          <% parent_items = @shop_item.attached_shop_items %>
+          <% if parent_items.any? %>
+            <div class="shop-item-detail__related-items">
+              <% parent_items.each do |item| %>
+                <div class="shop-item-detail__related-item">
+                  <%= link_to item.name, admin_shop_item_path(item), class: "btn-primary slim" %>
+                  <span class="shop-item-detail__related-item-type"><%= item.type.to_s.demodulize.underscore.humanize %></span>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="shop-item-detail__muted">No parent items attached.</p>
+          <% end %>
+        </div>
+      <% elsif @shop_item.has_accessories? %>
+        <div class="card">
+          <h3>Accessories</h3>
+          <div class="shop-item-detail__related-items">
+            <% @shop_item.available_accessories.each do |accessory| %>
+              <div class="shop-item-detail__related-item">
+                <%= link_to accessory.name, admin_shop_item_path(accessory), class: "btn-primary slim" %>
+                <% if accessory.has_tag? %>
+                  <span class="shop-item-detail__related-item-tag"><%= accessory.accessory_tag.titleize %></span>
+                <% end %>
+                <span class="shop-item-detail__related-item-price">🍪 <%= accessory.ticket_cost.to_i %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
       <div class="card">
         <h3>Regional Availability</h3>
 
@@ -212,88 +246,76 @@
       <% end %>
 
       <div class="card">
-        <div class="shop-item-detail__audit-header">
-          <h3>Audit Log</h3>
-          <span class="shop-item-detail__audit-count"><%= @shop_item.versions.count %> changes</span>
+        <div class="shop-item-detail__orders-header">
+          <h3>Orders for this Item</h3>
+          <span class="shop-item-detail__order-count"><%= @shop_item.shop_orders.count %> orders</span>
         </div>
 
-        <% if @shop_item.versions.any? %>
-          <table class="table-data">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>User</th>
-                <th>Action</th>
-                <th>Changes</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @shop_item.versions.order(created_at: :desc).limit(10).each do |version| %>
+        <% if @shop_orders.any? %>
+          <div class="shop-item-detail__orders-table-wrapper">
+            <table class="table-data">
+              <thead>
                 <tr>
-                  <td class="shop-item-detail__audit-date">
-                    <span><%= version.created_at.strftime("%b %d, %Y") %></span>
-                    <span class="shop-item-detail__audit-time"><%= version.created_at.strftime("%H:%M") %></span>
-                  </td>
-                  <td>
-                    <% if version.whodunnit.present? %>
-                      <% user = User.find_by(id: version.whodunnit) %>
-                      <% if user %>
-                        <div class="shop-item-detail__audit-user">
-                          <img src="<%= user.avatar %>" alt="" class="shop-item-detail__audit-avatar">
-                          <span><%= user.display_name %></span>
-                        </div>
-                      <% else %>
-                        <span class="shop-item-detail__muted">User #<%= version.whodunnit %></span>
-                      <% end %>
-                    <% else %>
-                      <span class="shop-item-detail__system-badge">System</span>
-                    <% end %>
-                  </td>
-                  <td>
-                    <span class="badge badge-<%= version.event %>"><%= version.event %></span>
-                  </td>
-                  <td>
-                    <% if version.object_changes.present? %>
-                      <%
-                        raw_changes = version.object_changes
-                        changes = if raw_changes.is_a?(Hash)
-                          raw_changes
-                        elsif raw_changes.is_a?(String)
-                          YAML.safe_load(raw_changes, permitted_classes: [Time, Date, DateTime, BigDecimal, Symbol]) rescue {}
-                        else
-                          {}
-                        end
-                      %>
-                      <div class="shop-item-detail__audit-changes">
-                        <% changes.keys.take(3).each_with_index do |k, i| %>
-                          <code><%= k %></code><%= ", " unless i == [changes.keys.take(3).count - 1, 2].min %>
-                        <% end %>
-                        <% if changes.keys.count > 3 %>
-                          <span class="shop-item-detail__muted">(+<%= changes.keys.count - 3 %>)</span>
-                        <% end %>
-                      </div>
-                    <% else %>
-                      <span class="shop-item-detail__muted">—</span>
-                    <% end %>
-                  </td>
-                  <td>
-                    <%= link_to "View", admin_audit_log_path(version), class: "btn-primary slim" %>
-                  </td>
+                  <th>Order ID</th>
+                  <th>User</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Region</th>
+                  <th>Created</th>
+                  <th>Actions</th>
                 </tr>
-              <% end %>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <% @shop_orders.each do |order| %>
+                  <tr>
+                    <td>#<%= order.id %></td>
+                    <td>
+                      <%= link_to order.user.display_name || "Unknown", admin_user_path(order.user), class: "btn-primary slim" %><br>
+                      <small style="color: #6b7280;"><%= order.user.email %></small>
+                    </td>
+                    <td><%= order.quantity %></td>
+                    <td><%= order.total_cost %></td>
+                    <td>
+                      <span class="badge badge-<%= order.aasm_state %>">
+                        <%= order.aasm_state.humanize %>
+                      </span>
+                    </td>
+                    <td>
+                      <% if order.frozen_address.present? %>
+                        <span style="background: #e0f2fe; color: #0369a1; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500;">
+                          <%= country_name_from_code(order.frozen_address["country"]) %>
+                        </span>
+                      <% else %>
+                        <span style="color: #9ca3af;">—</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <%= order.created_at.strftime("%b %d, %Y") %><br>
+                      <small style="color: #6b7280;"><%= order.created_at.strftime("%l:%M %p") %></small>
+                    </td>
+                    <td>
+                      <%= link_to "View", admin_shop_order_path(order), class: "btn-primary slim" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
 
-          <% if @shop_item.versions.count > 10 %>
-            <p class="shop-item-detail__audit-more">
-              <%= link_to "View all #{@shop_item.versions.count} changes →", admin_audit_logs_path(item_type: "ShopItem", item_id: @shop_item.id) %>
-            </p>
+          <% if @pagy.pages > 1 %>
+            <div class="shop-item-detail__orders-pagination">
+              <%== @pagy.series_nav %>
+            </div>
           <% end %>
         <% else %>
-          <p class="shop-item-detail__muted">No changes recorded yet.</p>
+          <div class="shop-item-detail__no-orders">
+            <p>No orders for this item yet.</p>
+          </div>
         <% end %>
       </div>
+
+      <%= render "admin/shared/audit_log", record: @shop_item, item_type: "ShopItem" %>
     </div>
 
     <div class="shop-item-detail__sidebar">
@@ -696,5 +718,93 @@
   text-align: center;
   margin: 1rem 0 0 0;
   font-size: 0.875rem;
+}
+
+/* Orders Section */
+.shop-item-detail__orders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.shop-item-detail__orders-header h3 {
+  margin: 0;
+}
+
+.shop-item-detail__order-count {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.shop-item-detail__orders-table-wrapper {
+  overflow-x: auto;
+}
+
+.shop-item-detail__orders-pagination {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.shop-item-detail__orders-pagination nav {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.shop-item-detail__orders-pagination a,
+.shop-item-detail__orders-pagination span {
+  padding: 0.375rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  border: 1px solid var(--color-brown-500);
+  background: var(--color-tan-400);
+  color: var(--color-brown-700);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.shop-item-detail__orders-pagination a:hover {
+  background: var(--color-tan-500);
+}
+
+.shop-item-detail__orders-pagination .current {
+  background: var(--color-brown-700);
+  color: white;
+  border-color: var(--color-brown-700);
+}
+
+.shop-item-detail__no-orders {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.shop-item-detail__related-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.shop-item-detail__related-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--color-tan-400);
+  border-radius: 4px;
+}
+
+.shop-item-detail__related-item-type,
+.shop-item-detail__related-item-tag {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.shop-item-detail__related-item-price {
+  margin-left: auto;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
 }
 </style>

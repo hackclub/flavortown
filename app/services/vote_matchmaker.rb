@@ -16,11 +16,13 @@ class VoteMatchmaker
   end
 
   def next_ship_event
-    if rand(100) < EARLIEST_WEIGHT
+    result = if rand(100) < EARLIEST_WEIGHT
       find_earliest_ship_event || find_near_payout_ship_event
     else
       find_near_payout_ship_event || find_earliest_ship_event
     end
+
+    result || (@user.vote_balance.negative? ? find_paid_fallback_ship_event : nil)
   end
 
   private
@@ -53,17 +55,21 @@ class VoteMatchmaker
     voteable_ship_events.order(votes_count: :desc, created_at: :asc).find { |ship_event| ship_event.hours.to_f.positive? }
   end
 
-  def voteable_ship_events
-    scope = Post::ShipEvent
+  def base_ship_events
+    Post::ShipEvent
       .current_voting_scale
       .joins(:project, :project_members)
       .where(certification_status: "approved")
-      .where(payout: nil)
       .where.not(id: @user.votes.select(:ship_event_id))
       .where.not(projects: { id: @user.projects })
       .where.not(projects: { id: @user.reports.select(:project_id) })
       .where(project_members: { shadow_banned: false })
       .where(projects: { shadow_banned: false })
+  end
+
+  def voteable_ship_events
+    scope = base_ship_events
+      .where(payout: nil)
       .where.not(id: full_ship_event_ids)
       .where.not(id: vote_deficit_blocked_ship_event_ids)
 
@@ -80,6 +86,14 @@ class VoteMatchmaker
       .where(id: Vote.legitimate.group(:ship_event_id).having("COUNT(*) >= ?", Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT).select(:ship_event_id))
       .where("users.vote_balance < 0")
       .select("post_ship_events.id")
+  end
+
+  def find_paid_fallback_ship_event
+    base_ship_events
+      .where.not(payout: nil)
+      .order(created_at: :desc)
+      .limit(50)
+      .sample
   end
 
   def full_ship_event_ids

@@ -38,6 +38,17 @@
 
   <p class="votes-new__project-description"><%= truncate(project.display_description.to_s, length: 220) %></p>
 
+  <% if project.ai_declaration.present? %>
+    <div class="project-show-card__ai-declaration">
+      <div class="project-show-card__ai-declaration-header">
+        <span aria-hidden="true">🤖</span> <span>This project uses AI</span>
+      </div>
+      <div style="margin-top: 8px; font-size: 0.9em; color: var(--color-blue-600);">
+        <%= helpers.md project.ai_declaration %>
+      </div>
+    </div>
+  <% end %>
+
   <% if has_any_links? %>
     <div class="votes-new__project-buttons">
       <% if project.demo_url.present? %>

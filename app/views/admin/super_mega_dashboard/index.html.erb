@@ -1,3 +1,4 @@
+<% content_for :title, "Super Mega Dashboard" %>
 <div class="super-mega-dashboard" data-controller="lazy-load">
   <%= render HeadingComponent.new(title: "Super Mega Dashboard", tone: :red, size: :full) %>
 
@@ -5,10 +6,13 @@
   <h3>(prob remove before merging in prod)</h3>
 
   <div class="super-mega-dashboard__dashboards">
+        <%= render "admin/super_mega_dashboard/sections/funnel" %>
+
     <div class="super-mega-dashboard__dashboard">
       <div class="super-mega-dashboard__header super-mega-dashboard__header--fraud">
         <h2>Fraud Overview</h2>
         <%= link_to "View Full Dashboard →", admin_fraud_dashboard_path, class: "super-mega-link" %>
+        <%= link_to "View Joe Dashboard →", "https://joe.fraud.hackclub.com/cases/dashboard?ysws=Flavortown", class: "super-mega-link" %>
       </div>
 
       <!-- SHOP ORDERS SECTION -->
@@ -328,6 +332,36 @@
             </div>
           </div>
         </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Cookie $ per hour <span id="cookie-dollars-per-hour-formula">ⓘ</span></h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @dollars_per_hour.round(2) %></span>
+              <span class="super-mega-dashboard__stat--label">$/hr</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Expenses $ per hour <span id="expenses-dollars-per-hour-formula">ⓘ</span></h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @expenses_dollars_per_hour.round(2) %></span>
+              <span class="super-mega-dashboard__stat--label">$/hr</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Cookie Utilization Ratio</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @cookie_utilization_percentage %>%</span>
+              <span class="super-mega-dashboard__stat--label">Utilization</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -336,6 +370,10 @@
         <h2>Fulfillment Overview</h2>
         <%= link_to "View Full Dashboard →", admin_fulfillment_dashboard_index_path, class: "super-mega-link" %>
       </div>
+
+      <% if @fulfillment_temporarily_disabled %>
+        <p class="fraud-stats-error">Fulfillment is temporarily disabled so the rest of the dashboard can load.</p>
+      <% end %>
 
       <div class="super-mega-dashboard__cards">
         <% [
@@ -545,6 +583,20 @@
           <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
           <div class="smd-skeleton__chart"></div>
         </div>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__chart"></div>
+        </div>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-nps super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+          <div class="smd-skeleton__chart"></div>
+        </div>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-performance super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__line"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
+        </div>
       </div>
     </div>
 
@@ -618,7 +670,6 @@
             <h3>Current Concerns</h3>
             <% if @latest_support_vibes&.concerns.present? %>
               <ol class="current-concerns-list">
-                <% links = @latest_support_vibes.concern_message_links || [] %>
                 <% @latest_support_vibes.concerns.each_with_index do |concern, idx| %>
                   <li>
                     <div data-controller="modal">
@@ -629,12 +680,19 @@
                         <%= concern["title"] %>
                       </button>
                       <%= render layout: "shared/modal", locals: { id: "concern-#{idx}", title: concern["title"], description: concern["description"] } do %>
-                        <% if links[idx].present? %>
-                          <% Array(links[idx]).each_with_index do |link, lidx| %>
-                            <a href="<%= link %>" target="_blank" rel="noopener" class="modal__link">
-                              View sample question <%= links[idx].size > 1 ? "##{lidx+1}" : "on Slack" %>
-                            </a>
-                          <% end %>
+                        <% if concern["messages"].present? %>
+                          <span class="concern-count">(<%= concern["count"] %> total messages)</span>
+                          <ul class="concern-messages-list">
+                            <% concern["messages"].each do |msg| %>
+                              <li class="concern-message-item">
+                                <% if msg["message_ts"].present? %>
+                                  <a href="https://hackclub.slack.com/archives/C09MATKQM8C/p<%= msg["message_ts"].gsub('.', '') %>" target="_blank" rel="noopener" class="modal__link">
+                                    <%= msg["content"] %>
+                                  </a>
+                                <% end %>
+                              </li>
+                            <% end %>
+                          </ul>
                         <% end %>
                         <div class="modal__actions">
                           <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= "concern-#{idx}".to_json %>).close()">X</button>
@@ -720,7 +778,7 @@
 
     <div class="super-mega-dashboard__dashboard">
       <div class="super-mega-dashboard__header super-mega-dashboard__header--ysws-review">
-        <h2>YSWS Review Overview</h2>
+        <h2>Guardians of Integrity Overview</h2>
         <%= link_to "View Full Dashboard →", "https://review.hackclub.com/admin/ysws_reviews", class: "super-mega-link", target: "_blank" %>
       </div>
 
@@ -1061,7 +1119,7 @@
         <% else %>
           <div class="super-mega-dashboard__card">
             <h3>Error</h3>
-            <p>Couldn't load YSWS review data: <%= @ysws_review_stats&.dig(:error) || "Unknown error" %></p>
+            <p>Couldn't load Guardians of Integrity data: <%= @ysws_review_stats&.dig(:error) || "Unknown error" %></p>
           </div>
         <% end %>
       </div>
@@ -1196,9 +1254,24 @@
         <% end %>
       </div>
     </div>
+
+    <%= render "admin/super_mega_dashboard/sections/pyramid_scheme" %>
+    <%= render "admin/super_mega_dashboard/sections/flavortime" %>
   </div>
 
   <div class="super-mega-dashboard__actions">
     <%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
+    <%= button_to "Clear Dashboard Cache", admin_super_mega_dashboard_clear_cache_path,
+          method: :delete,
+          class: "btn-danger",
+          form: { data: { turbo_confirm: "You're about to delete all Super Mega Dashboard cache! Are you sure?" } } %>
   </div>
 </div>
+
+<%= render TooltipComponent.new(target_id: "cookie-dollars-per-hour-formula", position: :top) do %>
+  <span>[(total_cookies/5)/weighted_hours]</span>
+<% end %>
+
+<%= render TooltipComponent.new(target_id: "expenses-dollars-per-hour-formula", position: :top) do %>
+  <span>(total_expenses/weighted_hours)</span>
+<% end %>

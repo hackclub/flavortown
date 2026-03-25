@@ -63,7 +63,7 @@ class LedgerEntry < ApplicationRecord
       item_type: "User",
       item_id: ledgerable.id,
       event: "balance_adjustment",
-      whodunnit: nil,
+      whodunnit: PaperTrail.request.whodunnit || created_by&.match(/\((\d+)\)$/)&.captures&.first,
       object_changes: { balance: [ new_balance - amount, new_balance ], reason: reason, created_by: created_by }.to_json
     )
   end

@@ -1,200 +1,322 @@
 <% content_for :title, "Project Reports" %>
-<h1>Project Reports</h1>
+<h1>🚩 Project Reports</h1>
 
-<div style="display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap;">
-  <div class="card" style="flex: 1; min-width: 300px;">
-    <h2>Stats</h2>
-  <div style="display: flex; gap: 2rem; align-items: center;">
+<div class="reports-stats">
+  <div class="reports-stat-card reports-stat-card--pending">
+    <span class="reports-stat-icon">⏳</span>
     <div>
-      <strong>Pending:</strong> <%= @counts[:pending] %>
-    </div>
-    <div>
-      <strong>Reviewed:</strong> <%= @counts[:reviewed] %>
-    </div>
-    <div>
-      <strong>Dismissed:</strong> <%= @counts[:dismissed] %>
-    </div>
-    <div style="margin-left: auto;">
-      <%= button_to "Process Demo Broken", process_demo_broken_admin_reports_path, method: :post, class: "btn-primary", data: { confirm: "This will auto-review projects with 5+ pending demo_broken reports and re-certify them. Continue?" } %>
+      <span class="reports-stat-value"><%= @counts[:pending] %></span>
+      <span class="reports-stat-label">Pending</span>
     </div>
   </div>
+  <div class="reports-stat-card reports-stat-card--reviewed">
+    <span class="reports-stat-icon">✅</span>
+    <div>
+      <span class="reports-stat-value"><%= @counts[:reviewed] %></span>
+      <span class="reports-stat-label">Reviewed</span>
+    </div>
+  </div>
+  <div class="reports-stat-card reports-stat-card--dismissed">
+    <span class="reports-stat-icon">🗑️</span>
+    <div>
+      <span class="reports-stat-value"><%= @counts[:dismissed] %></span>
+      <span class="reports-stat-label">Dismissed</span>
+    </div>
+  </div>
+  <div class="reports-stat-card">
+    <%= button_to "⚡ Process Demo Broken", process_demo_broken_admin_reports_path, method: :post, class: "btn-primary slim", data: { confirm: "This will auto-review projects with 5+ pending demo_broken reports and re-certify them. Continue?" } %>
+  </div>
+</div>
+
+<div class="flex">
+  <div class="card" style="flex: 2;">
+    <h3>Filters</h3>
+
+    <%= form_with url: admin_reports_path, method: :get, local: true do |f| %>
+      <div class="reports-filters">
+        <div class="reports-filter-group">
+          <%= f.label :status, "Status", class: "reports-filter-label" %>
+          <%= f.select :status, options_for_select([["Pending", "pending"], ["Reviewed", "reviewed"], ["Dismissed", "dismissed"]], params[:status]), { include_blank: "All" }, class: "form-control" %>
+        </div>
+
+        <div class="reports-filter-group">
+          <%= f.label :reason, "Reason", class: "reports-filter-label" %>
+          <%= f.select :reason, options_for_select(Project::Report::REASONS.map { |r| [r.titleize, r] }, params[:reason]), { include_blank: "All" }, class: "form-control" %>
+        </div>
+
+        <div class="reports-filter-actions">
+          <%= f.submit "Apply", class: "btn-primary slim" %>
+          <%= link_to "Clear", admin_reports_path, class: "btn-secondary slim" %>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <%= render partial: "action_leaderboard", locals: { time_range: @time_range, limit: @limit } %>
 </div>
 
-<div class="card" style="margin-bottom: 2rem;">
-  <h2>Filters</h2>
-
-  <%= form_with url: admin_reports_path, method: :get, local: true do |f| %>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-      <div>
-        <%= f.label :status, "Status" %>
-        <%= f.select :status, options_for_select([["Pending", "pending"], ["Reviewed", "reviewed"], ["Dismissed", "dismissed"]], params[:status]), { include_blank: "All" }, class: "form-control" %>
-      </div>
-
-      <div>
-        <%= f.label :reason, "Reason" %>
-        <%= f.select :reason, options_for_select(Project::Report::USER_REASONS.map { |r| [r.titleize, r] }, params[:reason]), { include_blank: "All" }, class: "form-control" %>
-      </div>
-    </div>
-
-    <div>
-      <%= f.submit "Filter", class: "btn-primary" %>
-      <%= link_to "Clear Filters", admin_reports_path, class: "btn-secondary" %>
-    </div>
-  <% end %>
-</div>
-
 <div class="card">
-  <table class="reports-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Project</th>
-        <th>Reporter</th>
-        <th>Reason</th>
-        <th>Status</th>
-        <th>Actioned By</th>
-        <th>Created</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @reports.each do |report| %>
+  <% if @reports.any? %>
+    <table class="table-data">
+      <thead>
         <tr>
-          <td>#<%= report.id %></td>
-          <td>
-            <% if report.project %>
-              <%= link_to report.project.title, project_path(report.project) %>
-            <% else %>
-              <span class="text-muted">(Deleted Project)</span>
-            <% end %>
-          </td>
-          <td>
-            <div class="user-cell">
-              <%= image_tag report.reporter.avatar, class: "avatar-sm", alt: report.reporter.display_name %>
-              <span><%= report.reporter.display_name || report.reporter.email %></span>
-            </div>
-          </td>
-          <td><%= report.reason.titleize %></td>
-          <td>
-            <span class="badge badge-<%= report.status %>">
-              <%= report.status %>
-            </span>
-          </td>
-          <td>
-            <% reviewer_info = @reviewers_by_report[report.id] %>
-            <% if reviewer_info.is_a?(User) %>
-              <div class="user-cell">
-                <%= image_tag reviewer_info.avatar, class: "avatar-sm", alt: reviewer_info.display_name %>
-                <span><%= reviewer_info.display_name %></span>
-              </div>
-            <% elsif reviewer_info == :auto %>
-              <span class="badge" style="background: #8b5cf6; color: white;">🤖 Auto</span>
-            <% else %>
-              <span class="text-muted">—</span>
-            <% end %>
-          </td>
-          <td><%= report.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-          <td>
-            <div class="actions-cell">
-              <%= link_to "View", admin_report_path(report), class: "btn-primary slim" %>
-              <% if report.pending? %>
-                <%= button_to "Review", review_admin_report_path(report), method: :post, class: "btn-secondary slim" %>
-                <%= button_to "Dismiss", dismiss_admin_report_path(report), method: :post, class: "btn-secondary slim" %>
-              <% end %>
-            </div>
-          </td>
+          <th>Report</th>
+          <th>Project</th>
+          <th>Reporter</th>
+          <th>Reason</th>
+          <th>Status</th>
+          <th>Actioned By</th>
+          <th>Age</th>
+          <th></th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
-
-  <% if @reports.empty? %>
-    <p style="text-align: center; padding: 2rem;">No reports found.</p>
+      </thead>
+      <tbody>
+        <% @reports.each do |report| %>
+          <tr>
+            <td><code class="reports-id">#<%= report.id %></code></td>
+            <td>
+              <% if report.project %>
+                <%= link_to report.project.title, admin_project_path(report.project), class: "reports-project-link" %>
+              <% else %>
+                <span class="reports-muted">(Deleted)</span>
+              <% end %>
+            </td>
+            <td>
+              <div class="reports-user">
+                <img src="<%= report.reporter.avatar %>" alt="" class="reports-avatar">
+                <%= link_to report.reporter.display_name, admin_user_path(report.reporter) %>
+              </div>
+            </td>
+            <td>
+              <span class="badge badge-reason-<%= report.reason.parameterize(separator: '_') %>">
+                <%= report.reason.titleize %>
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-status-<%= report.status %>">
+                <%= report.status %>
+              </span>
+            </td>
+            <td>
+              <% reviewer_info = @reviewers_by_report[report.id] %>
+              <% if reviewer_info.is_a?(User) %>
+                <div class="reports-user">
+                  <img src="<%= reviewer_info.avatar %>" alt="" class="reports-avatar">
+                  <span><%= reviewer_info.display_name %></span>
+                </div>
+              <% elsif reviewer_info == :auto %>
+                <span class="reports-auto-badge">🤖 Auto</span>
+              <% else %>
+                <span class="reports-muted">—</span>
+              <% end %>
+            </td>
+            <td>
+              <span class="reports-age" title="<%= report.created_at.strftime('%Y-%m-%d %H:%M') %>">
+                <%= time_ago_in_words(report.created_at) %> ago
+              </span>
+            </td>
+            <td>
+              <div class="reports-actions">
+                <%= link_to "View", admin_report_path(report), class: "btn-primary slim" %>
+                <% if report.pending? %>
+                  <%= button_to "✓", review_admin_report_path(report), method: :post, class: "btn-secondary slim", title: "Mark reviewed" %>
+                  <%= button_to "✗", dismiss_admin_report_path(report), method: :post, class: "btn-secondary slim", title: "Dismiss" %>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="reports-empty">No reports found matching your filters.</p>
   <% end %>
 </div>
 
-<div style="margin-top: 2em;">
-  <%= link_to "← Back", admin_root_path, class: "btn-secondary" %>
+<div style="margin-top: 2rem;">
+  <%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
 </div>
 
 <style>
-.reports-table {
-  width: 100%;
-  border-collapse: collapse;
+.reports-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.reports-table th,
-.reports-table td {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  vertical-align: middle;
+.reports-stat-card {
+  background: var(--color-tan-300);
+  border: 1px solid var(--color-brown-500);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.reports-table th {
-  font-weight: 600;
-  white-space: nowrap;
+.reports-stat-card--pending { border-left: 4px solid #f59e0b; }
+.reports-stat-card--reviewed { border-left: 4px solid #10b981; }
+.reports-stat-card--dismissed { border-left: 4px solid #6b7280; }
+
+.reports-stat-icon { font-size: 1.5rem; }
+
+.reports-stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
-.reports-table tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+.reports-stat-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.user-cell {
+.reports-filters {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.reports-filter-group { flex: 1; min-width: 150px; }
+
+.reports-filter-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.reports-filter-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.reports-id {
+  background: var(--color-tan-400);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+}
+
+.reports-project-link {
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.reports-user {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.avatar-sm {
-  width: 28px;
-  height: 28px;
+.reports-avatar {
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   object-fit: cover;
-  flex-shrink: 0;
 }
 
-.actions-cell {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.text-muted {
+.reports-muted {
   color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.reports-auto-badge {
+  background: #ede9fe;
+  color: #5b21b6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.reports-age {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.reports-actions {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.reports-empty {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem;
+  margin: 0;
+}
+
+/* Status badges */
+.badge-status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.badge-status-reviewed {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.badge-status-dismissed {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+/* Reason badges */
+.badge-reason-fraud,
+.badge-reason-external_flag,
+.badge-reason-ysws_project_flag,
+.badge-reason-shipwrights_project_flag {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-reason-low_effort {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-reason-undeclared_ai {
+  background-color: #ede9fe;
+  color: #5b21b6;
+}
+
+.badge-reason-demo_broken {
+  background-color: #cffafe;
+  color: #155e75;
+}
+
+.badge-reason-other {
+  background-color: #f3f4f6;
+  color: #6b7280;
 }
 
 .badge {
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-transform: capitalize;
-  display: inline-block;
-}
-
-.badge-pending {
-  background-color: #fbbf24;
-  color: #78350f;
-}
-
-.badge-reviewed {
-  background-color: #10b981;
-  color: white;
-}
-
-.badge-dismissed {
-  background-color: #6b7280;
-  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 .form-control {
   width: 100%;
-  padding: 0.5em;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  background: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-brown-500);
+  background: var(--color-tan-400);
+  font-size: 0.875rem;
+  color: inherit;
 }
 </style>

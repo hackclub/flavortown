@@ -175,6 +175,14 @@
         <small class="settings-form__hint">Enable/Disable visual effects during special events</small>
       </div>
 
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
+          <%= check_box_tag :search_engine_indexing_off, "1", current_user.search_engine_indexing_off, id: "search_engine_indexing_off" %>
+          <span>Opt out of search engine indexing</span>
+        </label>
+        <small class="settings-form__hint">Your profile will not be indexed by search engines</small>
+      </div>
+
       <div class="modal__actions">
         <%= f.submit "Save", class: "modal__actions-close" %>
         <button type="button" class="modal__actions-close" onclick="document.getElementById('settings-form').reset(); document.getElementById('settings-modal').close()">Cancel</button>
@@ -187,16 +195,17 @@
         <p class="settings-form__club-status">
           🏫 Linked to <strong><%= current_user.club_name %></strong>
         </p>
-        <%= button_to "Unlink club", my_club_path, method: :delete, class: "settings-form__club-unlink" %>
-      <% elsif current_user.valid_club_link? %>
-          <%= link_to "Link your club",
-                current_user.club_link,
-                target: "_blank",
-                rel: "noopener",
-                class: "settings-form__club-link" %>
-          <small class="settings-form__hint" style="margin-left: 0;">Connect your Flavortown account to your Hack Club.</small>
+        <%= button_to "Unlink club", my_club_path, method: :delete, class: "settings-form__club-unlink", form: { onsubmit: "return confirm('Are you sure you want to unlink your club?')" } %>
+      <% elsif current_user.airtable_record_id.present? %>
+        <%= link_to "Link your club",
+              current_user.fillout_club_url,
+              target: "_blank",
+              rel: "noopener",
+              class: "settings-form__club-link" %>
+        <small class="settings-form__hint" style="margin-left: 0;">Connect your Flavortown account to your Hack Club.</small>
       <% else %>
-        <small class="settings-form__hint" style="margin-left: 0;">Club linking will be available once your account syncs. Check back soon!</small>
+        <button class="settings-form__club-link settings-form__club-link--pending" disabled>Link your club</button>
+        <small class="settings-form__hint" style="margin-left: 0;">Sync pending — check back soon!</small>
       <% end %>
     </div>
 

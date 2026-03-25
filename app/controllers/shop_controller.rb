@@ -1,4 +1,5 @@
 class ShopController < ApplicationController
+  skip_before_action :refresh_identity_on_portal_return, only: [ :index ]
   before_action :require_login, except: [ :index ]
 
   def index
@@ -132,6 +133,10 @@ class ShopController < ApplicationController
 
     selected_address = current_user.addresses.find { |a| a["id"] == params[:address_id] } || current_user.addresses.first
 
+    unless selected_address&.dig("phone_number").present? || Rails.env.development? || @shop_item.is_a?(ShopItem::FreeStickers)
+      return redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "You need to have a phone number on file to place an order! Please update your profile."
+    end
+
     # Check if item is available in the region of the selected address
     address_country = selected_address&.dig("country")
     address_region = Shop::Regionalizable.country_to_region(address_country)
@@ -182,6 +187,13 @@ class ShopController < ApplicationController
       end
 
       return if @shop_item.is_a?(ShopItem::FreeStickers) && !fulfill_free_stickers!
+
+      if @shop_item.is_a?(ShopItem::SillyItemType)
+        @order.approve!
+        redirect_to shop_my_orders_path, notice: "Order placed and fulfilled!"
+        return
+      end
+
       redirect_to shop_my_orders_path, notice: "Order placed successfully!"
     rescue ActiveRecord::RecordInvalid => e
       redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{e.record.errors.full_messages.join(', ')}"
@@ -197,7 +209,7 @@ class ShopController < ApplicationController
     @shop_items = @shop_items.reject { |item| item.type == "ShopItem::FreeStickers" } if excluded_free_stickers
     @featured_item = featured_free_stickers_item unless excluded_free_stickers
     @recently_added_items = shop_page_data[:recently_added]
-    @user_balance = current_user&.balance || 0
+    @user_balance = current_user&.cached_balance || 0
   end
 
   def has_ordered_free_stickers?
@@ -239,10 +251,7 @@ class ShopController < ApplicationController
 
   def user_region
     if current_user
-      # Use explicitly set shop region if available
       return current_user.shop_region if current_user.shop_region.present?
-
-      # For fulfillment persons with regions, return the first one for shop filtering
       return current_user.regions.first if current_user.has_regions?
 
       primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
@@ -251,30 +260,13 @@ class ShopController < ApplicationController
       return region_from_address if region_from_address != "XX" || country.present?
     end
 
-    geoip = geoip_region
-    return geoip if geoip.present? && geoip != "XX"
+    cached = cookies[:geoip_region]
+    return cached if cached.present? && cached != "XX" && Shop::Regionalizable::REGION_CODES.include?(cached)
 
-    Shop::Regionalizable.timezone_to_region(cookies[:timezone])
-  end
+    tz_region = Shop::Regionalizable.timezone_to_region(cookies[:timezone])
+    return tz_region if tz_region.present? && tz_region != "XX"
 
-  def geoip_region
-    cache = cookies[:geoip_region]
-    return cache if cache.present? && Shop::Regionalizable::REGION_CODES.include?(cache)
-
-    return nil unless ENV["GEOCODER_HC_API_KEY"].present?
-
-    # cloudflare go brrr
-    client_ip = request.headers["X-Forwarded-For"]&.split(",")&.first&.strip.presence || request.remote_ip
-
-    return nil if client_ip.blank? || client_ip.match?(/\A(127\.|::1|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/)
-
-    res = HackclubGeocoder.geocode_ip(client_ip)
-    return nil unless res&.dig(:country).present?
-
-    region = Shop::Regionalizable.country_to_region(res[:country])
-    cookies[:geoip_region] = { value: region, expires: 24.hours.from_now }
-
-    region
+    "US"
   end
 
   def require_login

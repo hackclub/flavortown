@@ -4,6 +4,7 @@
 #
 #  id                    :bigint           not null, primary key
 #  concern_message_links :jsonb
+#  concern_messages      :jsonb
 #  concerns              :jsonb
 #  notable_quotes        :jsonb
 #  overall_sentiment     :decimal(3, 2)

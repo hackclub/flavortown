@@ -11,12 +11,12 @@ You'll need Docker Compose, Ruby, and Rails to run Flavortown. We strongly encou
 
 2. Set up a PostgreSQL database.
     ```sh
-    docker-compose up -d db
+    docker compose up -d db
     ```
 
 3. Enter Rails via Docker Compose. Run all other commands within this container!
     ```sh
-    docker-compose run --service-ports web /bin/bash
+    docker compose run --service-ports web /bin/bash
     ```
 
 4. Install all dependencies.
@@ -88,12 +88,12 @@ If you already did all of the steps above previously, but e.g. your PC or Codesp
 
 1. Set up a PostgreSQL database.
     ```sh
-    docker-compose up -d db
+    docker compose up -d db
     ```
 
 2. Enter Rails via Docker Compose. Run all other commands within this container!
     ```sh
-    docker-compose run --service-ports web /bin/bash
+    docker compose run --service-ports web /bin/bash
     ```
 
 3. Some dependencies might've changed from the last time you've worked on Flavortown. Doesn't hurt to check!

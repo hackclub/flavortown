@@ -27,6 +27,7 @@
 #  projects_count                          :integer
 #  ref                                     :string
 #  regions                                 :string           default([]), is an Array
+#  search_engine_indexing_off              :boolean          default(FALSE), not null
 #  send_notifications_for_followed_devlogs :boolean          default(TRUE), not null
 #  send_notifications_for_new_comments     :boolean          default(TRUE), not null
 #  send_notifications_for_new_followers    :boolean          default(TRUE), not null
@@ -62,6 +63,7 @@
 #  index_users_on_slack_id            (slack_id) UNIQUE
 #
 class User < ApplicationRecord
+  has_one :user_profile, dependent: :destroy
   has_paper_trail ignore: [ :projects_count, :votes_count, :updated_at, :shop_region ], on: [ :update, :destroy ]
 
   has_recommended :projects # you might like these projects...
@@ -112,6 +114,13 @@ class User < ApplicationRecord
   def roles = granted_roles&.map(&:to_sym) || []
 
   def has_role?(role_name) = roles.include?(role_name.to_sym)
+
+  FILLOUT_CLUB_FORM_URL = "https://forms.hackclub.com/t/24dbqdeN93us"
+
+  def fillout_club_url
+    return nil if airtable_record_id.blank?
+    "#{FILLOUT_CLUB_FORM_URL}?id=#{airtable_record_id}"
+  end
 
   def club_link_uri
     return nil if club_link.blank?
@@ -227,9 +236,7 @@ class User < ApplicationRecord
 
   def eligible_for_shop? = identity_verified? && ysws_eligible?
 
-  def should_reject_orders?
-    verification_ineligible? || (identity_verified? && !ysws_eligible?)
-  end
+  def should_reject_orders? = verification_ineligible? || (identity_verified? && !ysws_eligible?)
 
   def setup_complete?
     has_hackatime? && has_identity_linked?
@@ -334,9 +341,14 @@ class User < ApplicationRecord
 
   def cancel_shop_order(order_id)
     order = shop_orders.find(order_id)
-    return { success: false, error: "Your order can not be canceled" } unless order.pending?
+    return { success: false, error: "Your order can not be canceled" } unless order.may_refund?
 
-    order.refund!
+    order.with_lock do
+      return { success: false, error: "Your order can not be canceled" } unless order.may_refund?
+
+      order.refund!
+      order.accessory_orders.each { |a| a.refund! if a.may_refund? }
+    end
     { success: true, order: order }
   rescue ActiveRecord::RecordNotFound
     { success: false, error: "wuh" }
@@ -495,6 +507,34 @@ class User < ApplicationRecord
     end
   end
 
+  def apply_hca_verification_payload!(payload, persist_with_callbacks: true)
+    status = payload["verification_status"].to_s
+    return :invalid_status unless self.class.verification_statuses.key?(status)
+
+    fatal_rejection = payload["fatal_rejection"] == true
+    return :ignored_ineligible if status == "ineligible" && !fatal_rejection
+    fatal_ineligible = status == "ineligible" && fatal_rejection
+
+    ysws_eligible = payload["ysws_eligible"] == true
+    attrs = { verification_status: status, ysws_eligible: ysws_eligible }
+    changed = attrs.any? { |key, value| self[key] != value }
+
+    if changed
+      if persist_with_callbacks
+        update!(attrs)
+      else
+        update_columns(attrs.merge(updated_at: Time.current))
+      end
+    end
+
+    enforce_fatal_rejection! if fatal_ineligible
+
+    return :fatal_ineligible if fatal_ineligible
+    return :updated if changed
+
+    :unchanged
+  end
+
   private
 
   def should_check_verification_eligibility?
@@ -527,5 +567,17 @@ class User < ApplicationRecord
     role_info = User::Role.find(role)
     message = "🎉 Congratulations! You've been granted the *#{role_info.name.to_s.titleize}* role on Flavortown."
     dm_user(message)
+  end
+
+  def enforce_fatal_rejection!
+    reject_awaiting_verification_orders!
+    return if banned?
+
+    update_columns(
+      banned: true,
+      banned_at: Time.current,
+      banned_reason: "Fatal identity verification rejection",
+      updated_at: Time.current
+    )
   end
 end

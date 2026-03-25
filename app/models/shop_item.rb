@@ -45,9 +45,12 @@
 #  required_ships_start_date         :date
 #  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
+#  requires_sidequest_entry          :boolean          default(FALSE), not null
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
+#  show_image_in_shop                :boolean          default(FALSE)
 #  show_in_carousel                  :boolean
+#  sidequest_approval_required       :boolean          default(TRUE), not null
 #  site_action                       :integer
 #  source_region                     :string
 #  special                           :boolean
@@ -67,22 +70,27 @@
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
 #  default_assigned_user_id          :bigint
+#  sidequest_id                      :bigint
 #  user_id                           :bigint
 #
 # Indexes
 #
 #  index_shop_items_on_default_assigned_user_id  (default_assigned_user_id)
+#  index_shop_items_on_sidequest_id              (sidequest_id)
 #  index_shop_items_on_user_id                   (user_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
+#  fk_rails_...  (sidequest_id => sidequests.id)
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem < ApplicationRecord
   has_paper_trail
 
   include Shop::Regionalizable
+
+  has_ferret_search :name, :description, type: -> { type.demodulize.underscore.humanize }
 
   before_validation :fix_blacklist
   before_validation :floor_ticket_cost
@@ -96,6 +104,21 @@ class ShopItem < ApplicationRecord
   def self.cached_shop_page_data
     Rails.cache.fetch(SHOP_PAGE_CACHE_KEY, expires_in: 5.minutes) do
       buyable = enabled.listed.buyable_standalone.includes(image_attachment: :blob).to_a
+      item_ids = buyable.map(&:id)
+
+      reserved_counts = ShopOrder
+        .where(shop_item_id: item_ids, aasm_state: %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold fulfilled])
+        .group(:shop_item_id).sum(:quantity)
+
+      purchase_counts = ShopOrder
+        .where(shop_item_id: item_ids, aasm_state: %w[awaiting_fulfillment fulfilled])
+        .group(:shop_item_id).sum(:quantity)
+
+      buyable.each do |item|
+        item.instance_variable_set(:@preloaded_reserved_quantity, reserved_counts[item.id] || 0)
+        item.instance_variable_set(:@preloaded_purchase_count, purchase_counts[item.id] || 0)
+      end
+
       cutoff = RECENTLY_ADDED_WINDOW.ago
       recently_added = buyable.select { |item| item.created_at >= cutoff }.sort_by(&:created_at).reverse
 
@@ -121,6 +144,7 @@ class ShopItem < ApplicationRecord
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
   scope :recently_added, -> { where(created_at: RECENTLY_ADDED_WINDOW.ago..).order(created_at: :desc) }
 
+  belongs_to :sidequest, optional: true
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
   belongs_to :default_assigned_user, class_name: "User", optional: true
   belongs_to :default_assigned_user_us, class_name: "User", optional: true
@@ -206,7 +230,11 @@ class ShopItem < ApplicationRecord
   def remaining_stock
     return nil unless limited? && stock.present?
 
-    reserved_quantity = shop_orders.where(aasm_state: %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold fulfilled]).sum(:quantity)
+    reserved_quantity = if instance_variable_defined?(:@preloaded_reserved_quantity)
+                          @preloaded_reserved_quantity
+    else
+                          shop_orders.where(aasm_state: %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold fulfilled]).sum(:quantity)
+    end
     stock - reserved_quantity
   end
 
@@ -215,7 +243,11 @@ class ShopItem < ApplicationRecord
   end
 
   def current_event_purchases
-    shop_orders.where(aasm_state: %w[awaiting_fulfillment fulfilled]).sum(:quantity)
+    if instance_variable_defined?(:@preloaded_purchase_count)
+      @preloaded_purchase_count
+    else
+      shop_orders.where(aasm_state: %w[awaiting_fulfillment fulfilled]).sum(:quantity)
+    end
   end
 
   def display_purchase_count
@@ -258,6 +290,21 @@ class ShopItem < ApplicationRecord
 
   def requires_achievement?
     requires_achievement.present?
+  end
+
+  def meet_sidequest_require?(user)
+    return true unless requires_sidequest_entry?
+    return false unless user.present?
+
+    allowed_states = sidequest_approval_required? ? [ "approved" ] : [ "pending", "approved" ]
+
+    entries = SidequestEntry.joins(project: :memberships)
+      .where(memberships: { user_id: user.id, role: "owner" })
+      .where(aasm_state: allowed_states)
+
+    entries = entries.where(sidequest_id: sidequest_id) if sidequest_id.present?
+
+    entries.exists?
   end
 
   private

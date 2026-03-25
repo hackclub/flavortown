@@ -33,6 +33,22 @@ chrome_license = ShopItem::HCBGrant.find_or_create_by!(name: "Chrome Webstore Li
 end
 chrome_license.update!(requires_achievement: "sidequest_extension")
 
+ram_grant_50 = ShopItem::HCBGrant.find_or_create_by!(name: "$50 Ram/Storage Grant") do |item|
+  item.description = "A $50 grant to help you upgrade your setup"
+  item.ticket_cost = 0
+  downloaded_image = URI.parse("https://placecats.com/300/200").open
+  item.image.attach(io: downloaded_image, filename: "ram-grant-50.png")
+end
+ram_grant_50.update!(requires_achievement: "sidequest_optimization")
+
+ram_grant_100 = ShopItem::HCBGrant.find_or_create_by!(name: "$100 Ram/Storage Grant") do |item|
+  item.description = "A $100 grant to help you upgrade your setup"
+  item.ticket_cost = 0
+  downloaded_image = URI.parse("https://placecats.com/300/200").open
+  item.image.attach(io: downloaded_image, filename: "ram-grant-100.png")
+end
+ram_grant_100.update!(requires_achievement: "sidequest_optimization")
+
 Sidequest.find_or_create_by!(slug: "challenger") do |sq|
   sq.title = "Challenger Center"
   sq.description = "Build a space-themed project for the Challenger Center space challenge!"
@@ -41,6 +57,11 @@ end
 Sidequest.find_or_create_by!(slug: "webos") do |sq|
   sq.title = "webOS"
   sq.description = "Build a project for the webOS sidequest! Unlock webOS prizes in the shop."
+end
+
+Sidequest.find_or_create_by!(slug: "optimization") do |sq|
+  sq.title = "Optimization"
+  sq.description = "Build and ship a project for the Optimization sidequest to unlock Optimization prizes in the shop."
 end
 
 Sidequest.find_or_create_by!(slug: "the_hackazine") do |sq|
@@ -53,6 +74,11 @@ Sidequest.find_or_create_by!(slug: "borked_ui_jam") do |sq|
   sq.title = "Borked UI Jam"
   sq.description = "Running until January 25th — make a project with delightfully broken UI/UX and submit it for the Borked UI Jam! The top 5 best (worst) projects will receive cookies + other prizes. Check out #borked for more details."
   sq.expires_at = Date.new(2025, 1, 25)
+end
+
+Sidequest.find_or_create_by!(slug: "converge") do |sq|
+  sq.title = "Converge"
+  sq.description = "Build a Slack or Discord bot that does something useful or creative. Ship it on Flavortown and submit it to unlock Converge prizes in the shop!"
 end
 
 # webOS shop items - require webOS sidequest achievement

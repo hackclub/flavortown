@@ -27,7 +27,7 @@
 
 <div class="flex">
   <div class="card">
-    <h2>basic info</h2>
+    <h2>Basic info</h2>
 
     <div class="info-rows">
       <div><b>Name:</b> <%= @user.display_name %></div>
@@ -74,7 +74,7 @@
     </div>
   </div>
   <div class="card">
-    <h2>identities</h2>
+    <h2>Identities</h2>
     <div class="info-rows">
       <div>
         <b>slack_id:</b>
@@ -99,7 +99,7 @@
             <%= link_to "go to joe", "https://joe.fraud.hackclub.com/profile/#{identity.uid}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
 
-            <% if identity.provider == "hack_club" %>
+          <% if identity.provider == "hack_club" %>
             <%= link_to "go to idv backend", "#{HCAService.backend_url("/identities/#{identity.uid}")}", class: "btn-primary slim", target: "_blank" %>
           <% end %>
         </div>
@@ -110,8 +110,11 @@
 
 <div class="flex">
   <div class="card">
-    <h2>actions</h2>
+    <h2>Actions</h2>
     <div class="admin-actions-wrap">
+      <% if policy(:admin).manage_messages? %>
+        <%= link_to "✉️ Send Message", admin_messages_path(slack_id: @user.slack_id), class: "btn-primary slim" %>
+      <% end %>
       <% if policy(:admin).generate_magic_links? %>
         <%= link_to "🔗 Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
       <% end %>
@@ -124,8 +127,7 @@
                         confirm: "Are you sure you want to impersonate #{@user.display_name}? You will see the site as they do."
                       } %>
       <% end %>
-      <% slack_identity = @user.identities.find { |i| i.provider == "slack" } %>
-      <%= button_to "🕰️ Sync Hackatime Data",
+      <%= button_to "🔄 Sync Hackatime Data",
                     sync_hackatime_admin_user_path(@user),
                     method: :post,
                     title: "Sync Hackatime Data",
@@ -136,13 +138,64 @@
                     title: "Refresh verification status from HCA",
                     class: "btn-primary slim",
                     data: { confirm: "Refresh verification status for #{@user.display_name}?" } %>
-      <%= render 'role_toggle', user: @user, role_icon: '🕵️‍♀️', role_name: 'fraud_dept', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_icon: '📦', role_name: 'fulfillment_person', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_icon: '🚢', role_name: 'project_certifier', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_icon: '✋', role_name: 'helper', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_icon: '⏱️', role_name: 'flavortime', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_icon: '🏆', role_name: 'sidequest_reviewer', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_icon: '⚡', role_name: 'admin', disabled: !current_user&.super_admin? %>
+      <%
+        all_roles = [
+          { icon: '🕵️‍♀️', name: 'fraud_dept', disabled: !current_user&.admin? },
+          { icon: '📦', name: 'fulfillment_person', disabled: !current_user&.admin? },
+          { icon: '🚢', name: 'project_certifier', disabled: !current_user&.admin? },
+          { icon: '✋', name: 'helper', disabled: !current_user&.admin? },
+          { icon: '⏱️', name: 'flavortime', disabled: !current_user&.admin? },
+          { icon: '🏆', name: 'sidequest_reviewer', disabled: !current_user&.admin? },
+          { icon: '⚡', name: 'admin', disabled: !current_user&.super_admin? },
+        ]
+        promotable_roles = all_roles.reject { |r| @user.has_role?(r[:name]) }
+        demotable_roles = all_roles.select { |r| @user.has_role?(r[:name]) }
+      %>
+      <% if promotable_roles.any? %>
+        <div class="role-dropdown">
+          <button type="button" class="btn-primary slim" data-role-dropdown-toggle>⬆ Promote to…</button>
+          <div class="role-dropdown__menu">
+            <% promotable_roles.each do |role| %>
+              <%= button_to "#{role[:icon]} #{role[:name].titleize}",
+                            promote_role_admin_user_path(@user),
+                            method: :post,
+                            params: { role_name: role[:name] },
+                            class: "role-dropdown__item",
+                            disabled: role[:disabled] %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <% if demotable_roles.any? %>
+        <div class="role-dropdown">
+          <button type="button" class="btn-danger slim" data-role-dropdown-toggle>⬇ Demote from…</button>
+          <div class="role-dropdown__menu">
+            <% demotable_roles.each do |role| %>
+              <%= button_to "#{role[:icon]} #{role[:name].titleize}",
+                            demote_role_admin_user_path(@user),
+                            method: :post,
+                            params: { role_name: role[:name] },
+                            class: "role-dropdown__item",
+                            disabled: role[:disabled] %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <script>
+        document.querySelectorAll("[data-role-dropdown-toggle]").forEach(function(btn) {
+          btn.addEventListener("click", function(e) {
+            var menu = btn.nextElementSibling;
+            var isOpen = menu.classList.contains("role-dropdown__menu--open");
+            document.querySelectorAll(".role-dropdown__menu--open").forEach(function(m) { m.classList.remove("role-dropdown__menu--open"); });
+            if (!isOpen) menu.classList.add("role-dropdown__menu--open");
+          });
+        });
+        document.addEventListener("click", function(e) {
+          if (!e.target.closest(".role-dropdown")) {
+            document.querySelectorAll(".role-dropdown__menu--open").forEach(function(m) { m.classList.remove("role-dropdown__menu--open"); });
+          }
+        });
+      </script>
 
       <% if @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).any? %>
         <button type="button" onclick="document.getElementById('reject-modal-orders').showModal()" class="btn-danger slim">
@@ -208,7 +261,7 @@
 
       <% if policy(:admin).ban_users? %>
         <% if @user.shadow_banned? %>
-          <%= button_to "👁️ Remove Shadow Ban", unshadow_ban_admin_user_path(@user), method: :post, class: "btn-primary slim" %>
+          <%= button_to "👁️ Remove Shadow Ban", unshadow_ban_admin_user_path(@user), method: :post, class: "btn-primary slim", form: { onsubmit: "return confirm(#{("Are you sure you want to remove the shadow ban from #{@user.display_name}?").to_json})" } %>
         <% else %>
           <button type="button" onclick="document.getElementById('shadow-ban-modal').showModal()" class="btn-secondary slim">
             👻 Shadow Ban
@@ -229,7 +282,7 @@
         <% end %>
 
         <% if @user.banned? %>
-          <%= button_to "🔓 Unban User", unban_admin_user_path(@user), method: :post, class: "btn-primary slim" %>
+          <%= button_to "🔓 Unban User", unban_admin_user_path(@user), method: :post, class: "btn-primary slim", form: { onsubmit: "return confirm(#{("Are you sure you want to unban #{@user.display_name}?").to_json})" } %>
         <% else %>
           <button type="button" onclick="document.getElementById('ban-user-modal').showModal()" class="btn-danger slim">
             🚫 Ban User
@@ -250,10 +303,10 @@
         <% end %>
 
         <% if @user.manual_ysws_override? %>
-          <%= button_to "Remove ysws override", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "false" }, class: "btn-secondary slim" %>
+          <%= button_to "Remove ysws override", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "false" }, class: "btn-secondary slim", form: { onsubmit: "return confirm(#{("Are you sure you want to remove the YSWS eligibility override for #{@user.display_name}?").to_json})" } %>
         <% else %>
           <% unless @user.ysws_eligible? %>
-            <%= button_to "Make ysws eligible", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "true" }, class: "btn-danger slim" %>
+            <%= button_to "Make ysws eligible", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "true" }, class: "btn-danger slim", form: { onsubmit: "return confirm(#{("Are you sure you want to manually override YSWS eligibility for #{@user.display_name}?").to_json})" } %>
           <% end %>
         <% end %>
       <% end %>
@@ -262,14 +315,15 @@
         <%= button_to toggle_voting_lock_admin_user_path(@user),
               method: :post,
               class: "btn-secondary slim",
-              title: @user.voting_locked? ? "Unlock Voting" : "Lock Voting" do %>
+              title: @user.voting_locked? ? "Unlock Voting" : "Lock Voting",
+              form: { onsubmit: "return confirm(#{("Are you sure you want to #{@user.voting_locked? ? "unlock" : "lock"} voting for #{@user.display_name}?").to_json})" } do %>
           <%= @user.voting_locked? ? "Unlock Voting" : "Lock Voting" %>
         <% end %>
       <% end %>
     </div>
   </div>
   <div class="card">
-    <h2>flipper features</h2>
+    <h2>Flipper Features</h2>
     <div class="flipper-features-wrap">
       <%
         features = [
@@ -301,7 +355,7 @@
 
 <div class="admin-section<%= ' admin-section--highlighted' if @user.internal_notes.present? %>">
   <h2 class="admin-section__header">📝 Internal Notes</h2>
-  <p class="admin-section__note">⚠️ Shared between fraud, fulfilment, and admins. Changes are audit logged.</p>
+  <p class="admin-section__note">⚠️ Shared between fraud, fulfillment, and admins. Changes are audit logged.</p>
   <% if @user.internal_notes.present? %>
     <div class="admin-alert admin-alert--warning">
       <strong>Note:</strong> <%= simple_format(@user.internal_notes, {}, wrapper_tag: "span") %>
@@ -320,190 +374,6 @@
 
 <%= render Admin::PastOrdersComponent.new(user: @user, title: "Shop Orders") %>
 
-<% if @user_actions.any? %>
-  <div class="admin-section">
-    <h2 class="admin-section__header">Action History</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Event</th>
-          <th>Changes</th>
-          <th>Performed By</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @user_actions.each do |action| %>
-          <% if action.is_a?(LedgerEntry) %>
-            <tr>
-              <td><%= action.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-              <td>
-                <% if action.amount < 0 %>
-                  <span style="color: #ef4444; font-weight: 500;">🛒 Shop Purchase</span>
-                <% else %>
-                  <span style="color: #10b981; font-weight: 500;">💰 Balance Credit</span>
-                <% end %>
-              </td>
-              <td>
-                <strong><%= action.amount > 0 ? "+#{action.amount}" : action.amount %> tickets</strong>
-                <% if action.reason.present? %>
-                  (<%= action.reason %>)
-                <% end %>
-              </td>
-              <td>
-                <% if action.created_by.present? && (match = action.created_by.match(/\((\d+)\)$/)) && (performer = User.find_by(id: match[1])) %>
-                  <%= link_to performer.display_name, admin_user_path(performer) %>
-                <% elsif action.created_by.present? %>
-                  <%= action.created_by %>
-                <% else %>
-                  <em>System</em>
-                <% end %>
-              </td>
-            </tr>
-          <% else %>
-            <%
-              version = action
-              # Handle both YAML strings (old data) and native JSONB hashes (new data)
-              raw_changes = version.object_changes
-              changes = if raw_changes.is_a?(Hash)
-                raw_changes.with_indifferent_access
-              elsif raw_changes.is_a?(String) && raw_changes.present?
-                (YAML.safe_load(raw_changes, permitted_classes: [Time, Date, DateTime, BigDecimal, Symbol]) || {}).with_indifferent_access rescue {}
-              else
-                {}.with_indifferent_access
-              end
-              admin = User.find_by(id: version.whodunnit)
-              is_ban_event = changes["banned"].is_a?(Array) rescue false
-              is_magic_link_event = changes["magic_link_token"].is_a?(Array) rescue false
-              is_internal_notes_event = changes["internal_notes"].is_a?(Array) rescue false
-            %>
-            <tr>
-              <td><%= version.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-              <td>
-                <% if version.event == "role_promoted" %>
-                  <span style="color: #10b981; font-weight: 500;">👑 Role Promoted</span>
-                <% elsif version.event == "role_demoted" %>
-                  <span style="color: #ef4444; font-weight: 500;">👑 Role Demoted</span>
-                <% elsif is_ban_event %>
-                  <% if changes["banned"]&.last == true %>
-                    <span style="color: #ef4444; font-weight: 500;">🚫 Banned</span>
-                  <% else %>
-                    <span style="color: #10b981; font-weight: 500;">✅ Unbanned</span>
-                  <% end %>
-                <% elsif is_magic_link_event && changes["magic_link_token"]&.last.present? %>
-                  <span style="color: #f59e0b; font-weight: 500;">🔗 Magic Link Created</span>
-                <% elsif is_internal_notes_event %>
-                  <span style="color: #6366f1; font-weight: 500;">📝 Internal Notes Updated</span>
-                <% elsif version.event == "address_revealed" %>
-                  <span style="color: #f59e0b; font-weight: 500;">📍 Address Revealed</span>
-                <% else %>
-                  <% case version.event
-                     when "flipper_enable" %>
-                    <span style="color: #10b981; font-weight: 500;">🔓 Feature Enabled</span>
-                  <% when "flipper_disable" %>
-                    <span style="color: #ef4444; font-weight: 500;">🔒 Feature Disabled</span>
-                  <% when "balance_adjustment" %>
-                    <span style="color: #3b82f6; font-weight: 500;">💰 Balance Adjusted</span>
-                  <% when "update" %>
-                    <span style="color: #3b82f6; font-weight: 500;">✏️ Updated</span>
-                  <% when "create" %>
-                    <span style="color: #10b981; font-weight: 500;">✓ Created</span>
-                  <% else %>
-                    <%= version.event.titleize %>
-                  <% end %>
-                <% end %>
-              </td>
-              <td>
-                <% if version.event == "role_promoted" || version.event == "role_demoted" %>
-                  <% role_name_str = changes["role"] || changes[:role] %>
-                  <strong><%= role_name_str&.to_s&.titleize || "Unknown Role" %></strong>
-                <% elsif is_ban_event %>
-                  <% ban_reason = changes["banned_reason"]&.last %>
-                  <% if ban_reason.present? %>
-                    Reason: <%= ban_reason %>
-                  <% else %>
-                    <em>No reason provided</em>
-                  <% end %>
-                <% elsif is_magic_link_event && changes["magic_link_token"]&.last.present? %>
-                  Expires: <%= changes["magic_link_token_expires_at"]&.last %>
-                <% elsif is_internal_notes_event %>
-                  <% new_notes = changes["internal_notes"]&.last %>
-                  <% if new_notes.present? %>
-                    Changed to: "<%= truncate(new_notes, length: 100) %>"
-                  <% else %>
-                    <em>Notes cleared</em>
-                  <% end %>
-                <% elsif version.event == "address_revealed" %>
-                  <% order_id = changes["order_id"] || changes[:order_id] %>
-                  <% shop_item_name = changes["shop_item"] || changes[:shop_item] %>
-                  <% if order_id.present? %>
-                    <%= link_to "Order ##{order_id}", admin_shop_order_path(order_id) %> (<%= shop_item_name %>)
-                  <% else %>
-                    <em>Order details unavailable</em>
-                  <% end %>
-                <% elsif version.event.starts_with?("flipper_") %>
-                <%
-                  feature_array = changes["feature"] || changes[:feature]
-                  feature_name = if feature_array.is_a?(Array)
-                    feature_array.compact.first
-                  else
-                    feature_array
-                  end
-                %>
-                <strong><%= feature_name&.titleize || "Unknown Feature" %></strong>
-                <% if changes["status"] || changes[:status] %>
-                  <% status = changes["status"] || changes[:status] %>
-                  (<%= status.first %> → <%= status.last %>)
-                <% end %>
-              <% elsif version.event == "balance_adjustment" %>
-                <%
-                  balance = changes["balance"] || changes[:balance]
-                  reason = changes["reason"] || changes[:reason]
-                  reason = reason.is_a?(Array) ? reason.last : reason
-                  created_by = changes["created_by"] || changes[:created_by]
-                  created_by = created_by.is_a?(Array) ? created_by.last : created_by
-                %>
-                <% if balance.is_a?(Array) %>
-                  <%= balance.first %> → <%= balance.last %> tickets
-                <% end %>
-                <% if reason.present? %>
-                  (<%= reason %>)
-                <% end %>
-              <% elsif changes.any? %>
-                <% changes.except("amount", "ledger_entry_id").each do |key, value| %>
-                  <div><strong><%= key.to_s.titleize %>:</strong>
-                  <% if value.is_a?(Array) %>
-                    <%= value.first.inspect %> → <%= value.last.inspect %>
-                  <% else %>
-                    <%= value.inspect %>
-                  <% end %>
-                  </div>
-                <% end %>
-              <% else %>
-                <em>No changes recorded</em>
-              <% end %>
-            </td>
-            <td>
-              <% if admin %>
-                <%= link_to admin.display_name, admin_user_path(admin) %>
-              <% elsif version.whodunnit %>
-                User #<%= version.whodunnit %>
-              <% elsif version.event == "balance_adjustment" && defined?(created_by) && created_by.present? %>
-                <% if (match = created_by.match(/\((\d+)\)$/)) && (adjuster = User.find_by(id: match[1])) %>
-                  <%= link_to adjuster.display_name, admin_user_path(adjuster) %>
-                <% else %>
-                  <%= created_by %>
-                <% end %>
-              <% else %>
-                <em>System</em>
-              <% end %>
-            </td>
-          </tr>
-          <% end %>
-        <% end %>
-      </tbody>
-    </table>
+<%= render "admin/shared/ledger_log", entries: @user.ledger_entries, title: "Ledger History" %>
 
-    <%= link_to "View Full Audit Log →", admin_audit_logs_path(item_type: "User", item_id: @user.id), class: "btn-secondary slim" %>
-  </div>
-<% end %>
+<%= render "admin/shared/audit_log", record: @user, limit: 15 %>

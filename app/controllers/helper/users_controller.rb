@@ -17,5 +17,15 @@ module Helper
       authorize :helper, :view_users?
       @user = User.includes(:identities, :projects).find(params[:id])
     end
+
+    def balance
+      authorize :helper, :view_users?
+      return head :bad_request unless turbo_frame_request?
+
+      @user = User.find(params[:id])
+      @balance = @user.ledger_entries.includes(:ledgerable).order(created_at: :desc)
+
+      render "helper/users/balance"
+    end
   end
 end

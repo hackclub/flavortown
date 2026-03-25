@@ -20,6 +20,10 @@ class SidequestsController < ApplicationController
       @prizes = ShopItem.where(requires_achievement: "sidequest_webos", enabled: true)
     end
 
+    if @sidequest.slug == "optimization"
+      @prizes = ShopItem.where(requires_achievement: "sidequest_optimization", enabled: true)
+    end
+
     custom_template = "sidequests/show_#{@sidequest.slug}"
     if lookup_context.exists?(custom_template)
       render custom_template
