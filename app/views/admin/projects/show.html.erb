@@ -1,3 +1,4 @@
+<% content_for :title, "Project ##{@project.id}" %>
 <h1>Project #<%= @project.id %></h1>
 
 <% if @project.deleted? %>
@@ -174,6 +175,10 @@
     </div>
   </form>
 <% end %>
+<%= render "admin/shared/ledger_log",
+    entries: LedgerEntry.where(ledgerable_type: "Post::ShipEvent", ledgerable_id: @project.ship_events.select(:id)),
+    title: "Project Ledger" %>
+
 <div style="margin-top: 1.5rem;">
   <%= render "admin/shared/audit_log", record: @project %>
 </div>

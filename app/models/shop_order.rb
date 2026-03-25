@@ -13,6 +13,8 @@
 #  fulfilled_by                       :string
 #  fulfillment_cost                   :decimal(6, 2)
 #  internal_notes                     :text
+#  internal_rejection_reason          :text
+#  joe_case_url                       :string
 #  on_hold_at                         :datetime
 #  quantity                           :integer
 #  region                             :string(2)
@@ -22,6 +24,7 @@
 #  created_at                         :datetime         not null
 #  updated_at                         :datetime         not null
 #  assigned_to_user_id                :bigint
+#  fraud_related_project_id           :bigint
 #  fulfillment_payout_line_id         :bigint
 #  parent_order_id                    :bigint
 #  shop_card_grant_id                 :bigint
@@ -65,9 +68,11 @@ class ShopOrder < ApplicationRecord
   belongs_to :shop_card_grant, optional: true
   belongs_to :parent_order, class_name: "ShopOrder", optional: true
   has_many :accessory_orders, class_name: "ShopOrder", foreign_key: :parent_order_id, dependent: :destroy
+  has_many :reviews, class_name: "ShopOrderReview", dependent: :destroy
   belongs_to :warehouse_package, class_name: "ShopWarehousePackage", optional: true
   belongs_to :assigned_to_user, class_name: "User", optional: true
   belongs_to :fulfillment_payout_line, optional: true
+  belongs_to :fraud_related_project, class_name: "Project", optional: true, foreign_key: :fraud_related_project_id, inverse_of: false
 
   # has_many :payouts, as: :payable, dependent: :destroy
 
@@ -85,6 +90,11 @@ class ShopOrder < ApplicationRecord
   validate :check_stock, on: :create
   validate :check_ship_requirement, on: :create
   validate :check_achievement_requirement, on: :create
+  validate :check_sidequest_requirement, on: :create
+
+  validates :internal_rejection_reason, presence: true, if: :rejected?
+  validates :fraud_related_project_id, presence: true, if: :rejected?
+  validate :fraud_related_project_exists, if: -> { fraud_related_project_id.present? }
 
   after_create :create_negative_payout
   after_create :assign_default_user
@@ -240,8 +250,28 @@ class ShopOrder < ApplicationRecord
     "https://ui3.hcb.hackclub.com/donations/start/flavortown?email=#{user.email}&message=#{}"
   end
 
+  HIGH_VALUE_THRESHOLD = 2000
+
   def total_cost
     frozen_item_price * quantity
+  end
+
+  def accessory_orders_total_cost
+    accessory_orders.sum(Arel.sql("frozen_item_price * quantity"))
+  end
+
+  def total_cost_with_accessories
+    total_cost + (accessory_orders_total_cost || 0)
+  end
+
+  def high_value?
+    frozen_item_price > HIGH_VALUE_THRESHOLD ||
+      total_cost > HIGH_VALUE_THRESHOLD ||
+      total_cost_with_accessories > HIGH_VALUE_THRESHOLD
+  end
+
+  def requires_additional_review?
+    high_value? && reviews.count < 2
   end
 
   def approve!
@@ -331,6 +361,7 @@ class ShopOrder < ApplicationRecord
     ShopItem::HCBPreauthGrant
     ShopItem::ThirdPartyDigital
     ShopItem::SillyItemType
+    ShopItem::SpecialFulfillmentItem
   ].freeze
 
   def check_regional_availability
@@ -406,6 +437,20 @@ class ShopOrder < ApplicationRecord
     errors.add(:base, "You must earn the \"#{achievement.name}\" achievement to purchase this item.")
   end
 
+  def check_sidequest_requirement
+    return unless shop_item&.requires_sidequest_entry?
+    return if shop_item.meet_sidequest_require?(user)
+
+    if shop_item.sidequest_id.present?
+      sidequest_name = shop_item.sidequest&.title || "this sidequest"
+      qualifier = shop_item.sidequest_approval_required? ? "an approved submission for" : "a submission for"
+      errors.add(:base, "You must have #{qualifier} the \"#{sidequest_name}\" sidequest to purchase this item.")
+    else
+      qualifier = shop_item.sidequest_approval_required? ? "an approved sidequest submission" : "a sidequest submission"
+      errors.add(:base, "You must have #{qualifier} to purchase this item.")
+    end
+  end
+
   def create_negative_payout
     return unless frozen_item_price.present? && frozen_item_price > 0 && quantity.present?
 
@@ -427,6 +472,12 @@ class ShopOrder < ApplicationRecord
       created_by: "System",
       ledgerable: self
     )
+  end
+
+  def fraud_related_project_exists
+    unless Project.exists?(fraud_related_project_id)
+      errors.add(:fraud_related_project_id, "project ##{fraud_related_project_id} does not exist")
+    end
   end
 
   def set_region_from_address

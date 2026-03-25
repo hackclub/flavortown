@@ -56,6 +56,7 @@
 # Indexes
 #
 #  index_users_on_airtable_record_id  (airtable_record_id) UNIQUE
+#  index_users_on_api_key             (api_key) UNIQUE
 #  index_users_on_email               (email)
 #  index_users_on_magic_link_token    (magic_link_token) UNIQUE
 #  index_users_on_session_token       (session_token) UNIQUE
@@ -340,10 +341,14 @@ class User < ApplicationRecord
 
   def cancel_shop_order(order_id)
     order = shop_orders.find(order_id)
-    return { success: false, error: "Your order can not be canceled" } unless order.pending?
+    return { success: false, error: "Your order can not be canceled" } unless order.may_refund?
 
-    order.refund!
-    order.accessory_orders.each { |a| a.refund! if a.may_refund? }
+    order.with_lock do
+      return { success: false, error: "Your order can not be canceled" } unless order.may_refund?
+
+      order.refund!
+      order.accessory_orders.each { |a| a.refund! if a.may_refund? }
+    end
     { success: true, order: order }
   rescue ActiveRecord::RecordNotFound
     { success: false, error: "wuh" }

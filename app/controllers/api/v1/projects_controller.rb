@@ -45,6 +45,14 @@ class Api::V1::ProjectsController < Api::BaseController
     @project = Project.find_by!(id: params[:id], deleted_at: nil)
   end
 
+  def ban_status
+    unless current_api_user.admin?
+      return render json: { error: "Admin API key required" }, status: :forbidden
+    end
+
+    @project = Project.unscoped.find(params[:id])
+  end
+
   def create
     @project = Project.new(project_params)
 
@@ -73,6 +81,11 @@ class Api::V1::ProjectsController < Api::BaseController
   end
 
   private
+
+  def admin_api_user?
+    current_api_user&.admin?
+  end
+  helper_method :admin_api_user?
 
   def project_params
     params.permit(:title, :description, :repo_url, :demo_url, :readme_url, :ai_declaration)

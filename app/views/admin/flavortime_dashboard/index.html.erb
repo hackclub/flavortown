@@ -1,3 +1,4 @@
+<% content_for :title, "Flavortime Dashboard" %>
 <%= render HeadingComponent.new(title: "Flavortime Dashboard", tone: :blue, size: :full) %>
 
 <%= form_with url: admin_flavortime_dashboard_path, method: :get, local: true do |f| %>
