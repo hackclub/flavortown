@@ -700,12 +700,10 @@
     position: relative;
     margin-top: 1rem;
     overflow-x: auto;
-    background-color: white;
     padding: 1em;
   }
 
   .d3-funnel-container svg {
-    background: #ffffff;
     display: block;
   }
 
@@ -726,7 +724,7 @@
 
   .d3-funnel-debug {
     font-size: 11px;
-    color: #9ca3af;
+    color: var(--color-brown-500);
     padding: 10px;
     margin-top: 10px;
     background: #f9fafb;
@@ -738,7 +736,7 @@
 
   .d3-funnel-label {
     font-size: 13px;
-    fill: #4b5563;
+    fill: var(--color-brown-700);
     white-space: nowrap;
   }
 
@@ -747,18 +745,18 @@
   }
 
   .d3-funnel-label--metric {
-    fill: #6b7280;
+    fill: var(--color-brown-500);
   }
 
   .d3-funnel-total-label {
     font-size: 26px;
     font-weight: 600;
-    fill: #111827;
+    fill: var(--color-brown-700);
   }
 
   .d3-funnel-total-subtitle {
     font-size: 13px;
-    fill: #6b7280;
+    fill: var(--color-brown-500);
   }
 
   .super-mega-dashboard__card--full {

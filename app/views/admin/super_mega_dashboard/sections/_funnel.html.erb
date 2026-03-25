@@ -10,7 +10,7 @@
     </div>
   <% else %>
     <div class="d3-funnel-container">
-      <div id="d3FunnelChart" style="background-color: #ffffff;"></div>
+      <div id="d3FunnelChart"></div>
       <div id="funnelDebug" class="d3-funnel-debug">
         Loaded <%= @funnel_steps.length %> funnel steps
       </div>
@@ -163,7 +163,7 @@
           g.append("path")
             .attr("d", pathData)
             .attr("fill", "none")
-            .attr("stroke", "#1d4ed8")
+            .attr("stroke", "var(--color-brown-700)")
             .attr("stroke-width", 1)
             .attr("stroke-opacity", 0.9);
 
@@ -178,7 +178,7 @@
               .attr("y1", sectionTop)
               .attr("x2", x)
               .attr("y2", sectionBottom)
-              .attr("stroke", "#000000")
+              .attr("stroke", "var(--color-brown-500)")
               .attr("stroke-width", 1)
               .attr("stroke-opacity", 0.9);
           }
