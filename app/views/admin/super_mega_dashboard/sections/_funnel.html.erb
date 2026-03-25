@@ -65,8 +65,7 @@
           const maxBandHeight = innerHeight * 0.9;
 
           const minChartInnerWidth = 540;
-          const minStepWidth = 150; // widen sections so labels overlap less
-
+          const minStepWidth = 150; 
           let chartInnerWidth = Math.max(baseInnerWidth, minChartInnerWidth);
           const stepCount = Math.max(data.length, 1);
           let stepWidth = chartInnerWidth / stepCount;
@@ -75,12 +74,9 @@
             stepWidth = minStepWidth;
             chartInnerWidth = stepWidth * stepCount;
           }
-
           const bandWidth = stepWidth;
-
           const width = chartInnerWidth + margin.left + margin.right;
           const innerWidth = width - margin.left - margin.right;
-
           const points = data.map((d, index) => {
             const heightForStep = maxBandHeight * (d.value / maxValue);
             const centerX = (index + 0.5) * bandWidth;
@@ -95,43 +91,42 @@
           const bottomPoints = [];
 
           if (points.length > 0) {
-            // Extend the funnel to touch the first and last dividers
-            topPoints.push([0, centerY - points[0].bandHeight / 2]);
-            points.forEach((p) => {
-              topPoints.push([p.x, centerY - p.bandHeight / 2]);
-            });
-            topPoints.push([
-              bandWidth * stepCount,
-              centerY - points[points.length - 1].bandHeight / 2,
-            ]);
+            const boundaryHeights = [];
+            for (let i = 0; i <= points.length; i += 1) {
+              let bandHeight = 0;
+              if (i === 0) {
+                bandHeight = points[0].bandHeight;
+              } else if (i === points.length) {
+                bandHeight = points[points.length - 1].bandHeight;
+              } else {
+                bandHeight = (points[i - 1].bandHeight + points[i].bandHeight) / 2;
+              }
+              boundaryHeights.push(bandHeight);
+            }
 
-            bottomPoints.push([
-              bandWidth * stepCount,
-              centerY + points[points.length - 1].bandHeight / 2,
-            ]);
-            points
-              .slice()
-              .reverse()
-              .forEach((p) => {
-                bottomPoints.push([p.x, centerY + p.bandHeight / 2]);
-              });
-            bottomPoints.push([0, centerY + points[0].bandHeight / 2]);
+            for (let i = 0; i <= stepCount; i += 1) {
+              const x = i * bandWidth;
+              const bandHeight = boundaryHeights[i];
+              topPoints.push([x, centerY - bandHeight / 2]);
+            }
+            for (let i = stepCount; i >= 0; i -= 1) {
+              const x = i * bandWidth;
+              const bandHeight = boundaryHeights[i];
+              bottomPoints.push([x, centerY + bandHeight / 2]);
+            }
           }
 
           const allPoints = topPoints.concat(bottomPoints);
 
           const buildLinearPath = (pts) => {
             if (!pts.length) return "";
-
             const [first, ...rest] = pts;
             const moveTo = `M${first[0]},${first[1]}`;
             const lineTos = rest.map((d) => `L${d[0]},${d[1]}`).join(" ");
-
             return `${moveTo} ${lineTos} Z`;
           };
 
           const pathData = buildLinearPath(allPoints);
-
           const svg = d3
             .create("svg")
             .attr("viewBox", `0 0 ${width} ${height}`)
@@ -303,7 +298,7 @@
           console.error("[Funnel] Chart rendering failed:", error);
           const funnelDebug = document.getElementById("funnelDebug");
           if (funnelDebug) {
-            funnelDebug.innerHTML = `❌ Chart rendering failed: ${error.message}`;
+            funnelDebug.innerHTML = `rendering failed: ${error.message}`;
             funnelDebug.style.display = "block";
             funnelDebug.style.color = "#d00";
           }
