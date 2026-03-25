@@ -33,12 +33,16 @@ class ProjectShowCardComponent < ViewComponent::Base
     project.demo_url.present? || project.repo_url.present? || project.readme_url.present?
   end
 
+  def shipping_enabled?
+    Flipper.enabled?(:shipping)
+  end
+
   def can_ship?
-    project.draft? || project.shippable?
+    shipping_enabled? && (project.draft? || project.shippable?)
   end
 
   def can_request_re_cert?
-    project.last_ship_event&.certification_status == "rejected"
+    shipping_enabled? && project.last_ship_event&.certification_status == "rejected"
   end
 
   def ship_btn_wrapper_id
@@ -70,7 +74,9 @@ class ProjectShowCardComponent < ViewComponent::Base
   end
 
   def ship_disabled_reasons
-    project.shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:label] }
+    reasons = []
+    reasons << "Shipping is currently disabled." unless shipping_enabled?
+    reasons + project.shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:fail_label] || r[:label] }
   end
 
   def ship_status

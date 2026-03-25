@@ -6,6 +6,7 @@ module Admin
 
     def show
       authorize :admin, :manage_shop?
+      @pagy, @shop_orders = pagy(:offset, @shop_item.shop_orders.order(created_at: :desc), limit: 25)
     end
 
     def new
@@ -103,7 +104,8 @@ module Admin
         "ShopItem::SpecialFulfillmentItem",
         "ShopItem::HackClubberItem",
         "ShopItem::FreeStickers",
-        "ShopItem::PileOfStickersItem"
+        "ShopItem::PileOfStickersItem",
+        "ShopItem::SillyItemType"
       ]
     end
 
@@ -124,13 +126,13 @@ module Admin
         :enabled_in,
         :enabled_au,
         :enabled_xx,
-        :price_offset_us,
-        :price_offset_ca,
-        :price_offset_eu,
-        :price_offset_uk,
-        :price_offset_in,
-        :price_offset_au,
-        :price_offset_xx,
+        :usd_offset_us,
+        :usd_offset_ca,
+        :usd_offset_eu,
+        :usd_offset_uk,
+        :usd_offset_in,
+        :usd_offset_au,
+        :usd_offset_xx,
         :limited,
         :stock,
         :max_qty,
@@ -148,14 +150,20 @@ module Admin
         :hcb_keyword_lock,
         :hcb_merchant_lock,
         :hcb_preauthorization_instructions,
+        :hcb_one_time_use,
         :agh_contents,
         :image,
         :buyable_by_self,
         :accessory_tag,
+        :show_image_in_shop,
+        :requires_achievement,
         :requires_ship,
         :required_ships_count,
         :required_ships_start_date,
         :required_ships_end_date,
+        :requires_sidequest_entry,
+        :sidequest_id,
+        :sidequest_approval_required,
         :default_assigned_user_id,
         :default_assigned_user_id_us,
         :default_assigned_user_id_eu,

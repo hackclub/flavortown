@@ -34,9 +34,9 @@ module Admin
         user = User.find_by(slack_id: slack_id)
         next unless user
 
-        project = extract_project_from_url(row["Project URL"])
+        project = extract_project_from_url(row["Your Project's URL"])
 
-        attendance = ShowAndTellAttendance.find_or_initialize_by(user: user, date: date)
+        attendance = ShowAndTellAttendance.new(user: user, date: date)
         attendance.project = project if project
         attendance.give_presentation_payout = project.present? && !attendance.monthly_payout_limit_reached?
         attendance.save!
@@ -148,6 +148,18 @@ module Admin
       end
 
       redirect_to admin_special_activities_path(date: attendance.date), notice: "#{attendance.user.display_name} marked as winner and awarded #{WINNER_PAYOUT_AMOUNT} cookies!"
+    end
+
+    def toggle_live
+      authorize :admin, :access_special_activities?
+
+      if Flipper.enabled?(:show_and_tell_live)
+        Flipper.disable(:show_and_tell_live)
+        redirect_to admin_special_activities_path(date: params[:date]), notice: "Show & Tell banner is now OFF."
+      else
+        Flipper.enable(:show_and_tell_live)
+        redirect_to admin_special_activities_path(date: params[:date]), notice: "Show & Tell banner is now LIVE!"
+      end
     end
 
     private

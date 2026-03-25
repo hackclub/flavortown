@@ -1,6 +1,6 @@
 module Admin
   class SidequestEntriesController < Admin::ApplicationController
-    before_action :set_entry, only: [ :show, :approve, :reject ]
+    before_action :set_entry, only: [ :show, :approve, :reject, :undo ]
 
     def index
       authorize :admin, :process_sidequest_entry?
@@ -70,6 +70,33 @@ module Admin
         end
       else
         redirect_to admin_sidequest_entries_path, alert: "Cannot reject this entry."
+      end
+    end
+
+    def undo
+      authorize :admin, :process_sidequest_entry?
+
+      unless @entry.may_undo?
+        redirect_to admin_sidequest_entries_path, alert: "Cannot undo this entry."
+        return
+      end
+
+      previous_state = @entry.aasm_state
+      @entry.undo!
+
+      respond_to do |format|
+        format.turbo_stream {
+          counts = shipped_counts
+          streams = [
+            turbo_stream.replace(dom_id(@entry), partial: "admin/sidequest_entries/entry", locals: { entry: @entry }),
+            turbo_stream.replace("count-pending", html: "<span id='count-pending'>#{counts[:pending]}</span>"),
+            turbo_stream.remove("undo-modal-#{@entry.id}")
+          ]
+          streams << turbo_stream.replace("count-approved", html: "<span id='count-approved'>#{counts[:approved]}</span>") if previous_state == "approved"
+          streams << turbo_stream.replace("count-rejected", html: "<span id='count-rejected'>#{counts[:rejected]}</span>") if previous_state == "rejected"
+          render turbo_stream: streams
+        }
+        format.html { redirect_to admin_sidequest_entries_path, notice: "Decision undone. Entry is pending again." }
       end
     end
 

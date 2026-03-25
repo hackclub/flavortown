@@ -24,6 +24,8 @@
 #  fk_rails_...  (reporter_id => users.id)
 #
 class Project::Report < ApplicationRecord
+    has_paper_trail
+
     belongs_to :reporter, class_name: "User"
     belongs_to :project
     has_many :review_tokens, class_name: "Report::ReviewToken", foreign_key: :report_id, dependent: :destroy

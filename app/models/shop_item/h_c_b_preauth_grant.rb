@@ -29,6 +29,7 @@
 #  hcb_category_lock                 :string
 #  hcb_keyword_lock                  :string
 #  hcb_merchant_lock                 :string
+#  hcb_one_time_use                  :boolean          default(FALSE)
 #  hcb_preauthorization_instructions :text
 #  internal_description              :string
 #  limited                           :boolean
@@ -39,44 +40,154 @@
 #  one_per_person_ever               :boolean
 #  past_purchases                    :integer          default(0)
 #  payout_percentage                 :integer          default(0)
-#  price_offset_au                   :decimal(, )
-#  price_offset_ca                   :decimal(, )
-#  price_offset_eu                   :decimal(, )
-#  price_offset_in                   :decimal(, )
-#  price_offset_uk                   :decimal(10, 2)
-#  price_offset_us                   :decimal(, )
-#  price_offset_xx                   :decimal(, )
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
 #  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
+#  requires_sidequest_entry          :boolean          default(FALSE), not null
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
+#  show_image_in_shop                :boolean          default(FALSE)
 #  show_in_carousel                  :boolean
+#  sidequest_approval_required       :boolean          default(TRUE), not null
 #  site_action                       :integer
 #  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
-#  ticket_cost                       :decimal(, )
+#  ticket_cost                       :integer
 #  type                              :string
 #  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
+#  usd_offset_au                     :decimal(10, 2)
+#  usd_offset_ca                     :decimal(10, 2)
+#  usd_offset_eu                     :decimal(10, 2)
+#  usd_offset_in                     :decimal(10, 2)
+#  usd_offset_uk                     :decimal(10, 2)
+#  usd_offset_us                     :decimal(10, 2)
+#  usd_offset_xx                     :decimal(10, 2)
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
 #  default_assigned_user_id          :bigint
+#  sidequest_id                      :bigint
 #  user_id                           :bigint
 #
 # Indexes
 #
 #  index_shop_items_on_default_assigned_user_id  (default_assigned_user_id)
+#  index_shop_items_on_sidequest_id              (sidequest_id)
 #  index_shop_items_on_user_id                   (user_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
+#  fk_rails_...  (sidequest_id => sidequests.id)
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::HCBPreauthGrant < ShopItem
+  after_save :enqueue_hcb_locks_update, if: :hcb_locks_changed?
+
+  has_many :shop_card_grants, through: :shop_orders
+
+  def fulfill!(shop_order)
+    amount_cents = (usd_cost * shop_order.quantity * 100).to_i
+    email = shop_order.user.grant_email
+
+    grant_rec = ShopCardGrant.find_or_initialize_by(
+      user: shop_order.user,
+      shop_item: self
+    )
+
+    user_canceled = false
+    latest_disbursement = nil
+    memo = nil
+
+    grant_rec.transaction do
+      begin
+        if grant_rec.new_record? || user_canceled
+          Rails.logger.info "Creating new #{amount_cents}¢ HCB preauth grant for #{email}"
+
+          grant_res = HCBService.create_card_grant(
+            email: email,
+            amount_cents: amount_cents,
+            merchant_lock: hcb_merchant_lock,
+            keyword_lock: hcb_keyword_lock,
+            category_lock: hcb_category_lock,
+            purpose: name,
+            pre_authorization_required: true,
+            one_time_use: hcb_one_time_use?,
+            instructions: hcb_preauthorization_instructions
+          )
+
+          grant_rec.hcb_grant_hashid = grant_res["id"]
+          grant_rec.expected_amount_cents = amount_cents
+          grant_rec.save!
+
+          latest_disbursement = grant_res.dig("disbursements", 0, "transaction_id")
+          memo = "[preauth grant] #{name} for #{shop_order.user.display_name}"
+        else
+          hashid = grant_rec.hcb_grant_hashid
+
+          begin
+            hcb_grant = HCBService.show_card_grant(hashid: hashid)
+            if hcb_grant["status"] == "canceled"
+              user_canceled = true
+              raise StandardError, "Grant canceled"
+            end
+          rescue => e
+            Rails.logger.error "Error checking grant status: #{e.message}"
+            user_canceled = true
+            raise StandardError, "Grant canceled"
+          end
+
+          Rails.logger.info "Topping up #{hashid} by #{amount_cents}¢"
+          topup_res = HCBService.topup_card_grant(hashid: hashid, amount_cents: amount_cents)
+
+          latest_disbursement = topup_res.dig("disbursements", 0, "transaction_id")
+          grant_rec.expected_amount_cents = (grant_rec.expected_amount_cents || 0) + amount_cents
+          grant_rec.save!
+
+          memo = "[preauth grant] topping up #{shop_order.user.display_name}'s #{name}"
+        end
+
+        Rails.logger.info "Got disbursement #{latest_disbursement}"
+      rescue => e
+        if user_canceled
+          Rails.logger.info "Grant was canceled, creating new grant"
+          grant_rec = ShopCardGrant.new(user: shop_order.user, shop_item: self)
+          user_canceled = false
+          retry
+        else
+          raise e
+        end
+      end
+    end
+
+    shop_order.shop_card_grant = grant_rec
+    shop_order.mark_fulfilled! "SCG #{grant_rec.id}", nil, "System"
+
+    if latest_disbursement && memo
+      begin
+        HCBService.rename_transaction(hashid: latest_disbursement, new_memo: memo)
+      rescue => e
+        Rails.logger.error "Couldn't rename transaction #{latest_disbursement}: #{e.message}"
+      end
+    end
+
+    grant_rec
+  end
+
+  private
+
+  def hcb_locks_changed?
+    saved_change_to_hcb_merchant_lock? ||
+      saved_change_to_hcb_keyword_lock? ||
+      saved_change_to_hcb_category_lock? ||
+      saved_change_to_hcb_preauthorization_instructions?
+  end
+
+  def enqueue_hcb_locks_update
+    Shop::UpdateHCBLocksJob.perform_later(id)
+  end
 end

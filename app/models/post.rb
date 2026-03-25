@@ -22,6 +22,8 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Post < ApplicationRecord
+    has_paper_trail
+
     # Eager load all Post::* classes so Postable.types is populated
     Dir[Rails.root.join("app/models/post/*.rb")].each { |f| require_dependency f }
 

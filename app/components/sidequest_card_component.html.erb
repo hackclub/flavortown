@@ -8,6 +8,9 @@
             <% end %>
         </div>
         <h2><%= description %></h2>
+        <% if approved_count > 0 %>
+            <p class="sidequest-card__expires"><%= pluralize(approved_count, "submission") %></p>
+        <% end %>
     </div>
     <div class="sidequest-card__buttons">
         <%= link_to "Learn More", learn_more_link, class: "btn btn--blue btn-learn-more", target: "_blank", rel: "noopener" %>

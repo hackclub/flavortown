@@ -11,7 +11,7 @@ Rails.application.config.after_initialize do
   # Only enable batching in production
   next unless Rails.env.production?
 
-  # Unsubscribe from the original ActiveInsights subscribers
+  # Unsubscribe from the original ActiveInsights subscribers.
   ActiveSupport::Notifications.unsubscribe("process_action.action_controller")
   ActiveSupport::Notifications.unsubscribe("perform.active_job")
 
@@ -56,6 +56,12 @@ Rails.application.config.after_initialize do
     }
 
     InsightsBuffer.instance.push_job(attributes)
+  end
+
+  # Re-register Skylight's subscribers so it receives process_action and perform again
+  if defined?(Skylight) && Skylight.respond_to?(:instrumenter) && Skylight.instrumenter&.subscriber
+    Skylight.instrumenter.subscriber.register!
+    Rails.logger.info "[ActiveInsights] Re-registered Skylight notification subscribers"
   end
 
   Rails.logger.info "[ActiveInsights] Batched recording enabled (max buffer: #{InsightsBuffer::MAX_BUFFER_SIZE}, flush interval: #{InsightsBuffer::FLUSH_INTERVAL_SECONDS}s)"

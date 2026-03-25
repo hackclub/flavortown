@@ -40,26 +40,38 @@ module Admin
           return
         end
 
-        questions_list = tickets.map { |t| t["description"].to_s }
-        questions = questions_list.map.with_index(1) { |q, i| "#{i}. #{q}" }.join("\n")
+        questions_with_ts = tickets.map.with_index(1) do |t, i|
+          ts = t["message_ts"]
+          "#{i}. #{t["description"]} (#{ts || 'none'})"
+        end.join("\n")
 
-        open_questions_list = open_tickets.map { |t| t["description"].to_s }
-        open_questions = open_questions_list.map.with_index(1) { |q, i| "#{i}. #{q}" }.join("\n")
+        open_questions_with_ts = open_tickets.map.with_index(1) do |t, i|
+          ts = t["message_ts"]
+          "#{i}. #{t["description"]} (#{ts || 'none'})"
+        end.join("\n")
 
         prompt = <<~PROMPT
           Analyze the following support questions and summarize the current vibes.
 
-          INPUT DATA:
-          #{questions}
+          INPUT DATA (each question includes a message_ts in brackets):
+          #{questions_with_ts}
 
-          OPEN QUESTIONS:
-          #{open_questions}
+          OPEN QUESTIONS (each question includes a message_ts in brackets):
+          #{open_questions_with_ts}
 
           OUTPUT INSTRUCTIONS:
           Return ONLY valid JSON (no markdown formatting, no code blocks) with this exact schema:
           {
             "concerns": [
-              { "title": "Short catchy title", "description": "Detailed explanation (2-3 sentences) of what users are worried about including context." },
+              {
+                "title": "Short catchy title",
+                "description": "Detailed explanation (2-3 sentences) of what users are worried about including context.",
+                "messages": [
+                  { "message_ts": "1234567890.12345", "content": "Exact message content here" },
+                  ...
+                ],
+                "count": 3
+              },
               ... (Top 5 concerns)
             ],
             "prominent_questions": [
@@ -105,7 +117,8 @@ module Admin
           overall_sentiment: data["overall_sentiment"],
           notable_quotes: data["prominent_questions"],
           unresolved_queries: data["unresolved_queries"],
-          rating: data["rating"]
+          rating: data["rating"],
+          concern_messages: data["concerns"].map { |c| c["messages"] }
         )
 
         redirect_to admin_support_vibes_path, notice: "Support vibes updated successfully."

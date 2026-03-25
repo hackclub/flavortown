@@ -1,8 +1,15 @@
+<% content_for :title, "Order ##{@order.id}" %>
 <h1 class="admin-section__header" style="font-size: 1.5rem; margin-bottom: 1rem;">
   <span
     title="ID: <%= @order.id %>&#10;User: <%= @order.user.display_name %> (Slack: <%= @order.user.slack_id || 'N/A' %>)&#10;Item: <%= @order.shop_item.name %>&#10;Qty: <%= @order.quantity %> × <%= @order.frozen_item_price %> = <%= @order.total_cost %> tickets&#10;Status: <%= @order.aasm_state.humanize %>&#10;Created: <%= @order.created_at.strftime('%Y-%m-%d %H:%M') %><%= @order.assigned_to_user.present? ? "&#10;Assigned: #{@order.assigned_to_user.display_name}" : '' %>"
     style="cursor: help;">Order #<%= @order.id %></span>
 </h1>
+
+<% if @other_viewers.any? %>
+  <div class="admin-alert admin-alert--warning">
+    👀 <%= @other_viewers.to_sentence %> <%= @other_viewers.one? ? "is" : "are" %> also looking at this order
+  </div>
+<% end %>
 
 <%= render "shared/admin_state_machine", record: @order %>
 
@@ -104,8 +111,19 @@
     <div style="font-size: 0.875rem; line-height: 1.6; margin-top: 0.5rem;">
       <div><strong>Description:</strong> <%= item.description %></div>
       <div><strong>Internal description:</strong> <%= item.internal_description %></div>
-      <div><strong>USD cost:</strong> $<%= number_with_precision(item.usd_cost, precision: 2) %></div>
-      <div><strong>Ticket cost:</strong> <%= item.ticket_cost %></div>
+      <% regional_usd_offset = @order.region.present? ? (item.send("usd_offset_#{@order.region.downcase}") || item.send("usd_offset_xx") || 0) : 0 %>
+      <div><strong>USD cost:</strong> $<%= number_with_precision((item.usd_cost || 0) + regional_usd_offset, precision: 2) %>
+        <% if regional_usd_offset != 0 %>
+          <small style="color: #6b7280;">(base $<%= number_with_precision(item.usd_cost, precision: 2) %> + $<%= number_with_precision(regional_usd_offset, precision: 2) %> <%= @order.region %> offset)</small>
+        <% end %>
+      </div>
+      <% displayed_frozen_ticket_cost = number_with_precision(@order.frozen_item_price || 0, precision: 0) %>
+      <% displayed_base_ticket_cost   = number_with_precision(item.ticket_cost || 0, precision: 0) %>
+      <div><strong>Ticket cost:</strong> <%= displayed_frozen_ticket_cost %>
+        <% if displayed_frozen_ticket_cost.to_i != displayed_base_ticket_cost.to_i %>
+          <small style="color: #6b7280;">(base: <%= displayed_base_ticket_cost %>)</small>
+        <% end %>
+      </div>
       <div><strong>Type:</strong> <%= item.type %></div>
     </div>
     <% if item.image.attached? %>
@@ -188,6 +206,20 @@
               turbo_method: "post"
             } %>
       </div></turbo-frame>
+      <turbo-frame id="phone-content">
+        <div style="padding: 1em; background: #f3f4f6; border-radius: 4px; text-align: center; margin-top: 1em;">
+          <p style="margin: 0 0 1em 0; color: #374151;">
+            📱 Phone number is encrypted. Click below to decrypt and view.
+          </p>
+          <%= button_to "Reveal Phone Number", reveal_phone_admin_shop_order_path(@order),
+              method: :post,
+              class: "btn-primary",
+              data: {
+                turbo_frame: "phone-content",
+                turbo_method: "post"
+              } %>
+        </div>
+      </turbo-frame>
     </div>
   <% else %>
     <div style="padding: 1em; background: #fee2e2; border-radius: 4px;">
@@ -279,6 +311,27 @@
     <% if @order.rejection_reason.present? %>
       <div><b>Rejection Reason:</b> <%= @order.rejection_reason %></div>
     <% end %>
+    <% if @order.internal_rejection_reason.present? %>
+      <div><b>Internal Reason:</b> <%= @order.internal_rejection_reason %></div>
+    <% end %>
+    <% if @order.fraud_related_project_id.present? %>
+      <div><b>Related Project:</b> <%= link_to "##{@order.fraud_related_project_id}", project_path(@order.fraud_related_project_id) %></div>
+    <% end %>
+    <% if @order.joe_case_url.present? %>
+      <div>
+        <b>Joe Case:</b>
+        <% begin %>
+          <% uri = URI.parse(@order.joe_case_url.to_s) %>
+          <% if uri.is_a?(URI::HTTP) && uri.host.present? %>
+            <%= link_to @order.joe_case_url, uri.to_s, target: "_blank", rel: "noopener" %>
+          <% else %>
+            <%= @order.joe_case_url %>
+          <% end %>
+        <% rescue URI::InvalidURIError %>
+          <%= @order.joe_case_url %>
+        <% end %>
+      </div>
+    <% end %>
     <% if @order.internal_notes.present? %>
       <div><b>Internal Notes:</b> <%= @order.internal_notes %></div>
     <% end %>
@@ -317,6 +370,47 @@
 
 <div class="admin-section" style="width: 50%;">
   <h2 class="admin-section__header">Actions</h2>
+  <% if @order.reviews.any? %>
+    <div class="review-list">
+      <% @order.reviews.includes(:user).each do |review| %>
+        <div class="review-list__item review-list__item--<%= review.verdict %>">
+          <strong><%= review.user.display_name %></strong> — <%= review.verdict == "approve" ? "✓ Approve" : "✗ Reject" %>
+          <p><%= review.reason %></p>
+          <small><%= review.created_at.strftime("%m/%d %l:%M%p") %></small>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @order.high_value? && @order.pending? %>
+    <div class="admin-alert admin-alert--warning">
+      ⚠️ High-value order (<%= @order.total_cost_with_accessories %> tickets) — requires 2 fraud dept reviews before approval (<%= @order.reviews.count %>/2).
+    </div>
+
+    <% unless @order.reviews.exists?(user: current_user) %>
+      <%= form_with url: review_order_admin_shop_order_path(@order), method: :post, local: true, class: "review-form" do |f| %>
+        <div class="reject-modal__field">
+          <label>Your verdict</label>
+          <div class="review-form__verdicts">
+            <label class="review-form__verdict">
+              <%= radio_button_tag :verdict, "approve", false, required: true %>
+              ✓ Approve
+            </label>
+            <label class="review-form__verdict">
+              <%= radio_button_tag :verdict, "reject", false, required: true %>
+              ✗ Reject
+            </label>
+          </div>
+        </div>
+        <div class="reject-modal__field">
+          <%= f.label :review_reason, "Reason (required)" %>
+          <%= text_area_tag :review_reason, nil, placeholder: "Why are you approving or rejecting this order?", rows: 3, required: true %>
+        </div>
+        <%= f.submit "Submit Review", class: "admin-btn admin-btn--primary" %>
+      <% end %>
+    <% end %>
+  <% end %>
+
   <div class="admin-button-grid">
     <%= link_to "← Back", admin_shop_orders_path, class: "admin-btn admin-btn--secondary" %>
     <% unless current_user.fulfillment_person? %>
@@ -327,12 +421,15 @@
       <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
       <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
       <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
-      <button type="submit" class="admin-btn admin-btn--primary" <% unless @order.pending? %> disabled<% end %> onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
+      <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+        <input type="text" name="tracking_number" placeholder="Tracking # (optional)" autocomplete="off" style="padding: 0.4rem; font-size: 0.85rem; width: 180px;">
+        <button type="submit" class="admin-btn admin-btn--primary" <% unless (@order.pending? || @order.awaiting_verification_call?) && !@order.requires_additional_review? %> disabled<% end %> onclick="return confirm('Approve this order for fulfillment?')">✓ Approve</button>
+      </div>
     </form>
 
     <%# Reject button for all non-fulfilled states %>
     <% if %w[pending awaiting_verification awaiting_verification_call awaiting_periodical_fulfillment on_hold].include?(@order.aasm_state) %>
-      <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="admin-btn admin-btn--danger">✗ Reject</button>
+      <button type="button" onclick="document.getElementById('reject-modal').showModal()" class="admin-btn admin-btn--danger" <% if @order.requires_additional_review? %> disabled<% end %>>✗ Reject</button>
       <%= render "reject_modal", order: @order %>
     <% end %>
 
@@ -354,6 +451,13 @@
     <% end %>
 
     <% if @order.awaiting_verification_call? && current_user.admin? %>
+      <form method="post" action="<%= approve_verification_call_admin_shop_order_path(@order) %>">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <%= hidden_field_tag :return_view, params[:return_view] if params[:return_view].present? %>
+        <%= hidden_field_tag :return_status, params[:return_status] if params[:return_status].present? %>
+        <button type="submit" class="admin-btn admin-btn--primary">I have verified this person is legit</button>
+      </form>
+
       <% m = 'verification-call-fulfillment-modal' %>
       <button type="button" class="admin-btn admin-btn--primary" onclick="document.getElementById(<%= m.to_json %>).showModal()">✓ Mark as Fulfilled</button>
       <dialog id="<%= m %>" class="fulfill-dialog">
@@ -368,6 +472,22 @@
           </div>
         </form>
       </dialog>
+    <% end %>
+
+    <% if @order.awaiting_periodical_fulfillment? && @order.shop_item.type == "ShopItem::LetterMail" && (current_user.admin? || current_user.fulfillment_person?) %>
+      <form method="post" action="<%= send_to_theseus_admin_shop_order_path(@order) %>" style="display: inline;">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <button type="submit" class="admin-btn admin-btn--primary" onclick="return confirm('Send this order to Theseus?')">Send to Theseus</button>
+      </form>
+      <% if @theseus_sibling_orders&.any? %>
+        <form method="post" action="<%= send_to_theseus_admin_shop_order_path(@order) %>" style="display: inline;">
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <% @theseus_sibling_orders.each do |sibling| %>
+            <%= hidden_field_tag "order_ids[]", sibling.id %>
+          <% end %>
+          <button type="submit" class="admin-btn admin-btn--primary" onclick="return confirm(<%= "Send #{@theseus_sibling_orders.size + 1} orders to Theseus as one letter?".to_json %>)">Send all to Theseus (<%= @theseus_sibling_orders.size + 1 %> orders)</button>
+        </form>
+      <% end %>
     <% end %>
 
     <% if @order.awaiting_periodical_fulfillment? && (current_user.admin? || current_user.fulfillment_person?) %>
@@ -398,111 +518,24 @@
   </div>
 </div>
 
-<div class="admin-section">
-  <details style="cursor: pointer;">
-    <summary class="admin-section__summary">
-      📝 Internal Notes
-    </summary>
-    <div class="admin-section__content">
-      <form method="post" action="<%= update_internal_notes_admin_shop_order_path(@order) %>">
-        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-        <textarea name="internal_notes" rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; resize: vertical;"><%= @order.internal_notes %></textarea>
-        <button type="submit" class="btn-primary" style="margin-top: 0.5rem; padding: 0.25rem 0.75rem; font-size: 0.8rem;">Save Notes</button>
-      </form>
+<div class="admin-section<%= ' admin-section--highlighted' if @order.internal_notes.present? %>">
+  <h2 class="admin-section__header">📝 Internal Notes</h2>
+  <p class="admin-section__note">⚠️ Shared between fraud, fulfilment, and admins. Changes are audit logged.</p>
+  <% if @order.internal_notes.present? %>
+    <div class="admin-alert admin-alert--warning">
+      <strong>Note:</strong> <%= simple_format(@order.internal_notes, {}, wrapper_tag: "span") %>
     </div>
-  </details>
+  <% end %>
+  <form method="post" action="<%= update_internal_notes_admin_shop_order_path(@order) %>">
+    <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+    <textarea name="internal_notes" rows="3" class="admin-textarea" placeholder="Add internal notes about this order..."><%= @order.internal_notes %></textarea>
+    <button type="submit" class="btn-primary slim">Save Notes</button>
+  </form>
 </div>
 
 <%= render Admin::PastOrdersComponent.new(user: @order.user, orders: @user_orders) %>
 
-<div class="admin-section">
-  <% versions = @order.versions.order(created_at: :desc) %>
-  <details style="cursor: pointer;">
-    <summary class="admin-section__summary">
-      📜 Audit Log (<%= versions.count %>)
-    </summary>
-    <div class="admin-section__content">
-  <% if versions.any? %>
-    <ul style="list-style: none; padding: 0; margin: 0;">
-      <% versions.each do |version| %>
-        <%
-          changes = version.changeset.except('frozen_address_ciphertext')
-          state_change = changes.dig('aasm_state') rescue nil
-          old_state = state_change.is_a?(Array) ? state_change.first : nil
-          new_state = state_change.is_a?(Array) ? state_change.last : nil
-          rejection_reason = changes.dig('rejection_reason')
-          new_reason = rejection_reason.is_a?(Array) ? rejection_reason.last : nil
-          notes_change = changes.dig('internal_notes')
-          who = version.whodunnit.present? ? User.find_by(id: version.whodunnit)&.display_name || "Unknown User" : "System"
-        %>
-        <li style="padding: 0.75rem; margin-bottom: 0.5rem; border-left: 3px solid
-          <% case version.event %>
-            <% when 'create' %>
-              #3b82f6
-            <% when 'update' %>
-              <% if new_state %>
-                #10b981
-              <% else %>
-                #f59e0b
-              <% end %>
-            <% else %>
-              #6b7280
-          <% end %>
-        ; background: #f9fafb; border-radius: 4px;">
-          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-            <div>
-              <div style="font-weight: 600; font-size: 0.875rem;">
-                <% if new_state == 'awaiting_periodical_fulfillment' %>
-                  ✓ Order Approved for Fulfillment
-                <% elsif new_state == 'fulfilled' %>
-                  ✔ Order Fulfilled
-                <% elsif new_state == 'rejected' %>
-                  ✗ Order Rejected
-                <% elsif new_state == 'awaiting_verification_call' %>
-                  📞 Order Queued for Verification Call
-                <% elsif new_state == 'on_hold' %>
-                  ⏸ Order Placed on Hold
-                <% elsif new_state == 'pending' %>
-                  ⟲ Released from Hold
-                <% elsif new_state == 'refunded' %>
-                  ↩ Order Refunded
-                <% elsif notes_change %>
-                  ✎ Internal Notes Updated
-                <% elsif version.event == 'create' %>
-                  📝 Order Created
-                <% else %>
-                  🔄 Updated
-                <% end %>
-              </div>
-              <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
-                By <strong><%= who %></strong> • Order #<%= version.item_id %>
-              </div>
-            </div>
-            <div style="font-size: 0.75rem; color: #6b7280; text-align: right;">
-              <%= version.created_at.strftime("%b %d, %Y %l:%M%p") %>
-            </div>
-          </div>
-
-          <% if new_state %>
-            <div style="font-size: 0.8rem; color: #374151; margin-top: 0.5rem;">
-              Updated from <code style="background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 2px; font-weight: 500;"><%= old_state %></code> to <code style="background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 2px; font-weight: 500;"><%= new_state %></code>
-            </div>
-          <% end %>
-
-          <% if new_reason %>
-            <div style="font-size: 0.8rem; color: #991b1b; background: #fee2e2; padding: 0.5rem; border-radius: 3px; margin-top: 0.5rem;">
-              <strong>Rejection Reason:</strong> <%= new_reason %>
-            </div>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
-  <% else %>
-    <p style="color: #6b7280; margin: 0; font-size: 0.875rem;">No audit history yet.</p>
-  <% end %>
-    </div>
-  </details>
-</div>
+<%= render "admin/shared/audit_log", record: @order, item_type: "ShopOrder" %>
 
 <style>
 .badge {

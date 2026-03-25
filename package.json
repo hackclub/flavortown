@@ -1,6 +1,9 @@
 {
   "name": "app",
   "private": true,
+  "engines": {
+    "node": ">=18 <=25"
+  },
   "scripts": {
     "build": "esbuild app/javascript/*.* --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets"
   },

@@ -13,7 +13,9 @@ class User
     # N.B.: this is not a proper graph, so be careful with your preconditions!
     # revoking a tutorial step (i.e. on delete) does not propagate up through dependency chains.
     Dep = Data.define(:slug, :hint) do
-      def satisfied?(completed_steps) = completed_steps.include? slug
+      def satisfied?(s)
+        s.include?(slug)
+      end
     end
 
     self::ALL = [
@@ -69,26 +71,38 @@ class User
     self::ALL_SLUGS = self::SLUGGED.keys.freeze
 
     class << self
-      def all = self::ALL
+      def all
+        self::ALL
+      end
 
-      def slugged = self::SLUGGED
+      def slugged
+        self::SLUGGED
+      end
 
-      def all_slugs = self::ALL_SLUGS
+      def all_slugs
+        self::ALL_SLUGS
+      end
 
-      def find(slug) = self::SLUGGED.fetch slug.to_sym
+      def find(s)
+        self::SLUGGED.fetch(s.to_sym)
+      end
 
       # console affordance - don't let me catch you using this in application code
       alias_method :[], :find
     end
 
-    def deps_satisfied?(completed_steps)
+    def deps_satisfied?(s)
       return true unless deps&.any?
 
-      deps.all? { |dep| dep.satisfied?(completed_steps) }
+      deps.all? { |d| d.satisfied?(s) }
     end
 
-    def to_param = slug
+    def to_param
+      slug
+    end
 
-    def persisted? = true
+    def persisted?
+      true
+    end
   end
 end

@@ -19,8 +19,13 @@ class VotesController < ApplicationController
     @vote = Vote.new(ship_event: @ship_event, project: @ship_event.post.project)
     @project = @ship_event.post.project
     @posts = @project.posts.where("created_at <= ?", @ship_event.post.created_at)
-                     .where.not(postable_type: "Post::GitCommit")
+                     .where(postable_type: %w[Post::Devlog Post::ShipEvent])
+                     .includes(:user, :project, :postable)
                      .order(created_at: :desc)
+                     .to_a
+
+    devlogs = @posts.filter_map { |post| post.postable if post.postable_type == "Post::Devlog" }
+    ActiveRecord::Associations::Preloader.new(records: devlogs, associations: :attachments_attachments).call if devlogs.any?
   end
 
   def create

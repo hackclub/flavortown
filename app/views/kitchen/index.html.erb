@@ -7,6 +7,14 @@
     <%= render HeadingComponent.new(title: "Kitchen", tone: :blue, size: :full) %>
   </div>
 
+  <% if @show_and_tell_live %>
+    <div class="show-and-tell-banner">
+      <span class="show-and-tell-banner__live-dot"></span>
+      <span class="show-and-tell-banner__text">🎤 Show & Tell is happening right now!</span>
+      <%= link_to "Join the Huddle", "https://app.slack.com/huddle/T0266FRGM/C09MPB8NE8H", target: "_blank", class: "show-and-tell-banner__link" %>
+    </div>
+  <% end %>
+
   <% flavortime_release_download_base = "https://github.com/hackclub/flavortime/releases/latest/download" %>
   <% flavortime_download_links = {
     macos: "#{flavortime_release_download_base}/flavortime-macos-universal.dmg",
@@ -229,6 +237,22 @@
     </div>
   <% end %>
 
+  <button class="kitchen-open-sauce" data-controller="modal" data-modal-target-value="kitchen-opensauce-modal" data-action="click->modal#open">
+    <%= image_tag "opensauce_left.avif", alt: "William Osman's Coke", class: "kitchen-open-sauce__left-image" %>
+    <h2>Hack Club x Open Sauce</h2>
+    <h3>new items <span>available!</span></h3>
+    <%= image_tag "opensauce_right.avif", alt: "William Osman's Coke", class: "kitchen-open-sauce__right-image" %>
+  </button>
+
+  <dialog id="kitchen-opensauce-modal" class="modal" data-controller="modal">
+    <h3 class="modal__title" style="border-radius: calc(var(--border-radius)*.6);">Hack Club x Open Sauce</h3>
+    <h4>
+      <p>Hack Club has partnered with Open Sauce to bring you free tickets and travel scholarships to Open Sauce 2026! Get them from the shop. Bonus: You can now also buy William Osman's <a href="https://www.youtube.com/watch?v=1qzcum2P1Ko" target="_blank" rel="noopener noreferrer">pirated coke</a>!</p>
+      <%= link_to "Go to the shop", "/shop", class: "modal__button" %>
+      <%= image_tag "landing-page-opensauce.avif", alt: "Modal Image", class: "modal__image" %>
+    </h4>
+  </dialog>
+
   <div class="kitchen-setup">
     <%= render KitchenTutorialStepsComponent.new(
       tutorial_steps: @tutorial_steps,
@@ -365,14 +389,14 @@
             image_url: item.image.variant(:carousel_lg),
             item_type: item.type,
             balance: @user_balance,
-            enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
+            enabled_regions: item.enabled_region_codes,
             regional_price: sale_price,
             logged_in: current_user.present?,
             remaining_stock: item.remaining_stock,
             limited: item.limited?,
             on_sale: item.on_sale?,
             sale_percentage: item.sale_percentage,
-            original_price: item.ticket_cost,
+            original_price: item.base_price_for_region(@user_region),
             created_at: item.created_at,
             show_bow: true,
             show_time_ago: true,

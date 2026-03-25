@@ -19,7 +19,8 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
     libffi-dev \
     libopenblas-dev \
     liblapack-dev \
-    ffmpeg
+    ffmpeg \
+    gettext-base
 
 # Install Node.js and Yarn
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
@@ -29,7 +30,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
 # Set working directory
 WORKDIR /app
 
-# Install application dependencies
+# Install application gems
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
 

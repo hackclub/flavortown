@@ -20,7 +20,7 @@ module Shop
     class_methods do
       def region_columns
         @region_columns ||= REGION_CODES.flat_map do |code|
-          [ "enabled_#{code.downcase}", "price_offset_#{code.downcase}" ]
+          [ "enabled_#{code.downcase}", "usd_offset_#{code.downcase}" ]
         end
       end
     end
@@ -35,7 +35,8 @@ module Shop
     end
 
     def any_region_enabled?
-      REGION_CODES.any? { |code| send("enabled_#{code.downcase}") }
+      return @_any_region_enabled if defined?(@_any_region_enabled)
+      @_any_region_enabled = REGION_CODES.any? { |code| send("enabled_#{code.downcase}") }
     end
 
     def enabled_in_region?(region_code)
@@ -52,16 +53,26 @@ module Shop
       enabled_xx
     end
 
+    def enabled_region_codes
+      @_enabled_region_codes ||= REGION_CODES.select { |code| enabled_in_region?(code) }
+    end
+
     def price_for_region(region_code)
+      apply_sale_discount(base_price_for_region(region_code))
+    end
+
+    def base_price_for_region(region_code)
       region_code = region_code.upcase
       region_code = "XX" unless REGION_CODES.include?(region_code)
 
-      # Get region-specific offset, falling back to XX offset if not set
-      region_offset = send("price_offset_#{region_code.downcase}")
-      offset = region_offset.present? ? region_offset : (send("price_offset_xx") || 0)
+      # Get region-specific USD offset, falling back to XX offset if not set
+      region_usd_offset = send("usd_offset_#{region_code.downcase}")
+      usd_offset = region_usd_offset.present? ? region_usd_offset : (send("usd_offset_xx") || 0)
 
-      base_price = ticket_cost + offset
-      apply_sale_discount(base_price)
+      hacker_multiplier = 0.5 + (1.0 - (hacker_score || 50) / 100.0)
+      tickets_per_dollar = Rails.configuration.game_constants.tickets_per_dollar
+
+      ((ticket_cost || 0) + (usd_offset * tickets_per_dollar * hacker_multiplier)).round
     end
 
     private
@@ -75,7 +86,7 @@ module Shop
     end
 
     def regions_enabled
-      REGION_CODES.select { |code| enabled_in_region?(code) }
+      enabled_region_codes
     end
 
     def self.country_to_region(country_code)

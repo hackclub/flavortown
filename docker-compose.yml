@@ -12,6 +12,7 @@ services:
       - bundle_cache:/usr/local/bundle
     environment:
       - RAILS_ENV=development
+      - FERRET=${FERRET:-}
     depends_on:
       - db
 

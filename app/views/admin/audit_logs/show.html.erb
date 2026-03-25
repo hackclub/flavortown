@@ -1,3 +1,4 @@
+<% content_for :title, "Audit Log Details" %>
 <div class="audit-log-detail" data-controller="json-highlight">
   <div class="audit-log-detail__header">
     <h1>Audit Log Details</h1>
@@ -51,8 +52,15 @@
       <div class="audit-log-detail__row">
         <span class="audit-log-detail__label">Record ID</span>
         <span class="audit-log-detail__value">
-          <% if @version.item_type == 'User' && @version.item_id %>
+          <% case @version.item_type
+             when "User" %>
             <%= link_to "##{@version.item_id}", admin_user_path(@version.item_id), class: "btn-primary slim" %>
+          <% when "Project" %>
+            <%= link_to "##{@version.item_id}", admin_project_path(@version.item_id), class: "btn-primary slim" %>
+          <% when "ShopOrder" %>
+            <%= link_to "##{@version.item_id}", admin_shop_order_path(@version.item_id), class: "btn-primary slim" %>
+          <% when "ShopItem" %>
+            <%= link_to "##{@version.item_id}", admin_shop_item_path(@version.item_id), class: "btn-primary slim" %>
           <% else %>
             <code class="audit-log-detail__id">#<%= @version.item_id %></code>
           <% end %>
@@ -85,11 +93,15 @@
           </tr>
         </thead>
         <tbody>
+          <% sensitive_fields = %w[magic_link_token magic_link_token_digest encrypted_password password_digest frozen_address frozen_address_ciphertext frozen_phone_ciphertext email address ip_address phone phone_number hcb_email] %>
           <% changes.each do |field, values| %>
             <tr>
               <td><code class="audit-log-detail__field"><%= field %></code></td>
-              <td>
-                <% if values.is_a?(Array) && values.length == 2 %>
+              <% if sensitive_fields.include?(field.to_s) %>
+                <td><span class="audit-log-detail__redacted">🔒 [REDACTED]</span></td>
+                <td><span class="audit-log-detail__redacted">🔒 [REDACTED]</span></td>
+              <% elsif values.is_a?(Array) && values.length == 2 %>
+                <td>
                   <% old_val = values[0] %>
                   <% if old_val.is_a?(Hash) || old_val.is_a?(Array) %>
                     <pre class="json-block" data-json-highlight-target="code"><%= JSON.pretty_generate(old_val) %></pre>
@@ -98,12 +110,8 @@
                   <% else %>
                     <code class="audit-log-detail__value-code"><%= old_val.inspect %></code>
                   <% end %>
-                <% else %>
-                  <span class="audit-log-detail__muted">—</span>
-                <% end %>
-              </td>
-              <td>
-                <% if values.is_a?(Array) && values.length == 2 %>
+                </td>
+                <td>
                   <% new_val = values[1] %>
                   <% if new_val.is_a?(Hash) || new_val.is_a?(Array) %>
                     <pre class="json-block" data-json-highlight-target="code"><%= JSON.pretty_generate(new_val) %></pre>
@@ -112,10 +120,12 @@
                   <% else %>
                     <code class="audit-log-detail__value-code"><%= new_val.inspect %></code>
                   <% end %>
-                <% else %>
-                  <span class="audit-log-detail__muted">—</span>
-                <% end %>
-              </td>
+                </td>
+              <% else %>
+                <td colspan="2">
+                  <code class="audit-log-detail__value-code"><%= values %></code>
+                </td>
+              <% end %>
             </tr>
           <% end %>
         </tbody>
@@ -136,6 +146,10 @@
           YAML.safe_load(raw_obj, permitted_classes: [Symbol, Time, Date, DateTime, BigDecimal, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]) rescue raw_obj
         else
           raw_obj
+        end
+        if parsed_obj.is_a?(Hash)
+          sensitive_fields ||= []
+          sensitive_fields.each { |f| parsed_obj[f] = "[REDACTED]" if parsed_obj.key?(f) }
         end
       %>
       <pre class="json-block json-block--large" data-json-highlight-target="code"><%= parsed_obj.is_a?(Hash) ? JSON.pretty_generate(parsed_obj) : parsed_obj %></pre>
@@ -224,6 +238,12 @@
   font-style: italic;
 }
 
+.audit-log-detail__redacted {
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.8125rem;
+}
+
 .audit-log-detail__muted {
   color: #6b7280;
   font-size: 0.875rem;
@@ -239,6 +259,7 @@
   letter-spacing: 0.025em;
 }
 
+/* Standard CRUD */
 .badge-create {
   background-color: #d1fae5;
   color: #065f46;
@@ -252,6 +273,132 @@
 .badge-destroy {
   background-color: #fee2e2;
   color: #991b1b;
+}
+
+/* Deletion */
+.badge-force_delete {
+  background-color: #fecaca;
+  color: #7f1d1d;
+  border: 1px solid #f87171;
+}
+
+/* Banning */
+.badge-banned,
+.badge-shadow_banned {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-unbanned,
+.badge-shadow_unbanned,
+.badge-unshadow_banned {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* Role changes */
+.badge-role_promoted {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-role_demoted {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Impersonation */
+.badge-impersonation_started,
+.badge-impersonation_stopped {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+/* Fire events */
+.badge-mark_fire {
+  background: linear-gradient(135deg, #fef3c7, #fed7aa);
+  color: #9a3412;
+}
+
+.badge-unmark_fire {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Feature flags */
+.badge-flipper_enable {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-flipper_disable {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Approvals */
+.badge-approved {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.badge-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* Shop / fulfillment */
+.badge-address_revealed,
+.badge-phone_revealed,
+.badge-address_access {
+  background-color: #fae8ff;
+  color: #86198f;
+}
+
+.badge-blocked_countries_changed {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-assignment_updated {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+/* Webhooks & certs */
+.badge-resend_webhook,
+.badge-SHIP_CERT_WEBHOOK_ACTION {
+  background-color: #cffafe;
+  color: #155e75;
+}
+
+.badge-request_recertification {
+  background-color: #fce7f3;
+  color: #9d174d;
+}
+
+.badge-ship\.submitted {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* User overrides */
+.badge-manual_ysws_override_set {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-voting_lock_toggled {
+  background-color: #ede9fe;
+  color: #5b21b6;
+}
+
+/* Ledger */
+.badge-balance_adjustment {
+  background-color: #ccfbf1;
+  color: #134e4a;
 }
 
 /* JSON Code Blocks */

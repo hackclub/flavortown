@@ -34,6 +34,9 @@ export default class extends Controller {
 
   trackRepoClick(event) {
     if (event.type === "auxclick" && event.button === 2) {
+      event.preventDefault();
+      this.repoFieldTarget.value = "true";
+      window.open(event.currentTarget.href, "_blank", "noopener,noreferrer");
       return;
     }
     this.repoFieldTarget.value = "true";
@@ -41,12 +44,29 @@ export default class extends Controller {
 
   trackDemoClick(event) {
     if (event.type === "auxclick" && event.button === 2) {
+      event.preventDefault();
+      this.demoFieldTarget.value = "true";
+      window.open(event.currentTarget.href, "_blank", "noopener,noreferrer");
       return;
     }
     this.demoFieldTarget.value = "true";
   }
 
   submit(event) {
+    this.rmErr();
+
+    const reasonField = this.formTarget.querySelector('[name="vote[reason]"]');
+    if (reasonField) {
+      const text = (reasonField.value ?? "").trim();
+      const wordCount = text ? text.split(/\s+/).length : 0;
+      if (wordCount < 10) {
+        event.preventDefault();
+        this.showErr();
+        reasonField.focus();
+        return;
+      }
+    }
+
     const endTime = Date.now();
     const durationInSeconds = Math.max(
       1,
@@ -64,6 +84,16 @@ export default class extends Controller {
     }
 
     this.extremeConfirmed = false;
+  }
+
+  showErr() {
+    const container = this.formTarget.querySelector(".vote-form__feedback");
+    if (container) container.classList.add("vote-form__feedback--invalid");
+  }
+
+  rmErr() {
+    const container = this.formTarget.querySelector(".vote-form__feedback");
+    if (container) container.classList.remove("vote-form__feedback--invalid");
   }
 
   confirmExtreme() {

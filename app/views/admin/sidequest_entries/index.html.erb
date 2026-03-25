@@ -1,3 +1,4 @@
+<% content_for :title, "Sidequest Entries" %>
 <h1>Sidequest Entries</h1>
 
 <div style="display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap;">
@@ -87,6 +88,18 @@
           <%= f.submit "Reject Entry", class: "btn-danger" %>
         </div>
       <% end %>
+    </dialog>
+  <% end %>
+
+  <% @entries.select { |e| e.approved? || e.rejected? }.each do |entry| %>
+    <dialog id="undo-modal-<%= entry.id %>" class="reject-dialog">
+      <h2>Undo decision for Entry #<%= entry.id %></h2>
+      <p class="text-muted"><%= entry.sidequest.title %> — <%= entry.project.title %></p>
+      <p>Are you sure? This will set the entry back to pending. If a rejection fee was charged, cookies will be refunded.</p>
+      <div class="reject-dialog__actions">
+        <button type="button" onclick="this.closest('dialog').close()" class="btn-secondary">Cancel</button>
+        <%= button_to "Confirm Undo", undo_admin_sidequest_entry_path(entry), method: :post, class: "btn-primary" %>
+      </div>
     </dialog>
   <% end %>
 <% end %>

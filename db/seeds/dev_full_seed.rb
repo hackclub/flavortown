@@ -130,13 +130,13 @@ else
     attrs[:max_qty] = parse_int.call(raw['max_qty'])
     attrs[:stock] = parse_int.call(raw['stock'])
 
-    attrs[:price_offset_us] = parse_decimal.call(raw['price_offset_us'])
-    attrs[:price_offset_eu] = parse_decimal.call(raw['price_offset_eu'])
-    attrs[:price_offset_uk] = parse_decimal.call(raw['price_offset_uk'])
-    attrs[:price_offset_in] = parse_decimal.call(raw['price_offset_in'])
-    attrs[:price_offset_ca] = parse_decimal.call(raw['price_offset_ca'])
-    attrs[:price_offset_au] = parse_decimal.call(raw['price_offset_au'])
-    attrs[:price_offset_xx] = parse_decimal.call(raw['price_offset_xx'])
+    attrs[:usd_offset_us] = parse_decimal.call(raw['usd_offset_us'])
+    attrs[:usd_offset_eu] = parse_decimal.call(raw['usd_offset_eu'])
+    attrs[:usd_offset_uk] = parse_decimal.call(raw['usd_offset_uk'])
+    attrs[:usd_offset_in] = parse_decimal.call(raw['usd_offset_in'])
+    attrs[:usd_offset_ca] = parse_decimal.call(raw['usd_offset_ca'])
+    attrs[:usd_offset_au] = parse_decimal.call(raw['usd_offset_au'])
+    attrs[:usd_offset_xx] = parse_decimal.call(raw['usd_offset_xx'])
 
     attrs[:sale_percentage] = parse_decimal.call(raw['sale_percentage'])
 

@@ -42,6 +42,8 @@ class Project < ApplicationRecord
   include AASM
   include SoftDeletable
 
+  has_ferret_search :title, :description
+
   SPACE_THEMED_PREFIX = "Space Themed:".freeze
 
   has_paper_trail
@@ -168,10 +170,10 @@ class Project < ApplicationRecord
   def validate_repo_url_format
     return true if repo_url.blank?
 
-    # Check if repo_url ends with .git or contains /main/tree
+    # Check if repo_url ends with .git or contains /tree/main
     repo_url.strip!
-    if repo_url.end_with?(".git") || repo_url.include?("/main/tree")
-      errors.add(:repo_url, "should not end with .git or contain /main/tree. Please use the root GitHub repository URL.")
+    if repo_url.end_with?(".git") || repo_url.include?("/tree/main")
+      errors.add(:repo_url, "should not end with .git or contain /tree/main. Please use the root GitHub repository URL.")
       return false
     end
     true
@@ -225,31 +227,13 @@ class Project < ApplicationRecord
   def total_hackatime_hours
     return 0 if hackatime_projects.empty?
 
-    owner = memberships.owner.first&.user
-    return 0 unless owner
+    hackatime_uid = memberships.owner.first&.user&.hackatime_identity&.uid
+    return 0 unless hackatime_uid
 
-    result = owner.try_sync_hackatime_data!
-    return 0 unless result
+    total_seconds = HackatimeService.fetch_total_seconds_for_projects(hackatime_uid, hackatime_keys)
+    return 0 unless total_seconds
 
-    project_times = result[:projects]
-    total_seconds = hackatime_projects.sum { |hp| project_times[hp.name].to_i }
     (total_seconds / 3600.0).round(1)
-  end
-
-  def hackatime_projects_with_time
-    owner = memberships.owner.first&.user
-    return [] unless owner
-
-    result = owner.try_sync_hackatime_data!
-    return [] unless result
-
-    project_times = result[:projects]
-    hackatime_projects.map do |hp|
-      {
-        name: hp.name,
-        hours: (project_times[hp.name].to_i / 3600.0).round(1)
-      }
-    end
   end
 
   aasm column: :ship_status do
@@ -281,23 +265,32 @@ class Project < ApplicationRecord
 
   def shipping_requirements
     [
-      { key: :not_shadow_banned, label: "This project has been flagged by moderation and cannot ship", passed: !shadow_banned? },
+      { key: :not_shadow_banned, label: nil, fail_label: "Your project has been flagged by moderation and cannot be shipped!", passed: !shadow_banned? },
       { key: :demo_url, label: "Add a demo link so anyone can try your project", passed: demo_url.present? },
       { key: :repo_url, label: "Add a public GitHub URL with your source code", passed: repo_url.present? },
-      { key: :repo_url_format, label: "Use the root GitHub repository URL (no .git or /main/tree)", passed: validate_repo_url_format },
+      { key: :repo_url_format, label: "Use the root GitHub repository URL (no .git or /tree/main)", passed: validate_repo_url_format },
       { key: :repo_cloneable, label: "Make your GitHub repo publicly cloneable", passed: validate_repo_cloneable },
       { key: :readme_url, label: "Add a README URL to your project", passed: readme_url.present? },
       { key: :description, label: "Add a description for your project", passed: description.present? },
       { key: :banner, label: "Upload a banner image for your project", passed: banner.attached? },
       { key: :devlog, label: "Post at least one devlog since your last ship", passed: has_devlog_since_last_ship? },
-      { key: :payout, label: "Wait for your previous ship's to get a payout", passed: previous_ship_event_has_payout? },
-      { key: :vote_balance, label: "Your vote balance is negative", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
-      { key: :project_isnt_rejected, label: "Your project is not rejected!", passed: last_ship_event&.certification_status != "rejected" },
-      { key: :project_has_more_then_10s, label: "Your ship event has actual time attached to it! (all devlogs have more then 10s)", passed: duration_seconds > 10 }
+      { key: :payout, label: nil, fail_label: "Wait for your previous ship to get a payout before shipping again", passed: previous_ship_event_has_payout? },
+      { key: :vote_balance, label: nil, fail_label: "Your vote balance is negative! Vote on other projects before shipping this one.", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
+      { key: :project_isnt_rejected, label: nil, fail_label: "Your project is rejected!", passed: last_ship_event&.certification_status != "rejected" },
+      { key: :project_has_more_then_10s, label: nil, fail_label: "This project doesn't have any time attached to it! (devlog some time, then try again)", passed: duration_seconds > 10 }
     ]
+      .map.with_index
+      .sort_by { |pair| [ pair[0][:passed] ? 1 : 0, pair[1] ] }
+      .map { |it| it[0] }
+  end
+
+  def visual_shipping_requirements
+    # only those that have a label we could use right now
+    shipping_requirements.select { |elem| !elem[:passed] || elem[:label] }
   end
 
   def shippable? = shipping_requirements.all? { |r| r[:passed] }
+
   def ship_blocking_errors = shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:label] }
 
   def last_ship_event

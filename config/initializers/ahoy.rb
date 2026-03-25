@@ -4,7 +4,7 @@ if ENV["AHOY_DB_URL"].present?
   class Ahoy::Store < Ahoy::DatabaseStore
     def track_visit(data)
       super
-      AhoyGeocodeJob.perform_later(visit.id) if ENV["GEOCODER_HC_API_KEY"].present?
+      # Geocoding disabled for now (was: AhoyGeocodeJob.perform_later(visit.id))
     end
   end
 

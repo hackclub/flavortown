@@ -22,12 +22,12 @@ module HCBService
   class << self
     def base_url
       hcb_credentials = HCBCredential.first
-      hcb_credentials.base_url if hcb_credentials && hcb_credentials.base_url.present? or "https://hcb.hackclub.com"
+      hcb_credentials&.base_url.presence || "https://hcb.hackclub.com"
     end
 
     def slug
       hcb_credentials = HCBCredential.first
-      hcb_credentials.slug if hcb_credentials && hcb_credentials.slug.present? or "flavortown"
+      hcb_credentials&.slug.presence || "flavortown"
     end
 
     # Generic wrapper that will attempt a token refresh on 401 once, then retry.

@@ -29,6 +29,7 @@
 #  hcb_category_lock                 :string
 #  hcb_keyword_lock                  :string
 #  hcb_merchant_lock                 :string
+#  hcb_one_time_use                  :boolean          default(FALSE)
 #  hcb_preauthorization_instructions :text
 #  internal_description              :string
 #  limited                           :boolean
@@ -39,43 +40,49 @@
 #  one_per_person_ever               :boolean
 #  past_purchases                    :integer          default(0)
 #  payout_percentage                 :integer          default(0)
-#  price_offset_au                   :decimal(, )
-#  price_offset_ca                   :decimal(, )
-#  price_offset_eu                   :decimal(, )
-#  price_offset_in                   :decimal(, )
-#  price_offset_uk                   :decimal(10, 2)
-#  price_offset_us                   :decimal(, )
-#  price_offset_xx                   :decimal(, )
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
 #  requires_achievement              :string
 #  requires_ship                     :boolean          default(FALSE)
+#  requires_sidequest_entry          :boolean          default(FALSE), not null
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
+#  show_image_in_shop                :boolean          default(FALSE)
 #  show_in_carousel                  :boolean
+#  sidequest_approval_required       :boolean          default(TRUE), not null
 #  site_action                       :integer
 #  source_region                     :string
 #  special                           :boolean
 #  stock                             :integer
-#  ticket_cost                       :decimal(, )
+#  ticket_cost                       :integer
 #  type                              :string
 #  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
+#  usd_offset_au                     :decimal(10, 2)
+#  usd_offset_ca                     :decimal(10, 2)
+#  usd_offset_eu                     :decimal(10, 2)
+#  usd_offset_in                     :decimal(10, 2)
+#  usd_offset_uk                     :decimal(10, 2)
+#  usd_offset_us                     :decimal(10, 2)
+#  usd_offset_xx                     :decimal(10, 2)
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
 #  default_assigned_user_id          :bigint
+#  sidequest_id                      :bigint
 #  user_id                           :bigint
 #
 # Indexes
 #
 #  index_shop_items_on_default_assigned_user_id  (default_assigned_user_id)
+#  index_shop_items_on_sidequest_id              (sidequest_id)
 #  index_shop_items_on_user_id                   (user_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
+#  fk_rails_...  (sidequest_id => sidequests.id)
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::Accessory < ShopItem

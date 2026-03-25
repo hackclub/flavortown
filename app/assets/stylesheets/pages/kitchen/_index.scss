@@ -555,6 +555,60 @@
   }
 }
 
+.show-and-tell-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-m);
+  background: var(--color-tan-400);
+  border: 2px solid var(--color-brown-500);
+  border-radius: var(--border-radius);
+  padding: var(--space-m) var(--space-l);
+  margin-bottom: var(--space-xl);
+
+  &__live-dot {
+    width: 10px;
+    height: 10px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: show-and-tell-pulse 1.5s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  &__text {
+    font-weight: 600;
+    font-size: var(--font-size-l);
+  }
+
+  &__link,
+  &__link:hover,
+  &__link:visited,
+  &__link:active {
+    background: var(--color-brown-700);
+    color: #fff;
+    padding: var(--space-xs) var(--space-m);
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  &__link:hover {
+    background: var(--color-brown-900);
+    filter: brightness(1.1);
+  }
+}
+
+@keyframes show-and-tell-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
 .banned-banner {
   background: var(--color-red-100, #fee2e2);
   border: 2px solid var(--color-red-500, #ef4444);
@@ -737,6 +791,223 @@
   @media (max-width: 640px) {
     &__items {
       grid-template-columns: 1fr;
+    }
+  }
+}
+
+.kitchen-open-sauce {
+  width: 100%;
+  padding: 1em;
+  background: var(--color-brown-500);
+  border: 0.5em solid var(--color-brown-400);
+  border-radius: 1em;
+  margin-bottom: 2em;
+  text-align: center;
+  color: var(--color-bg);
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: scale(1.02);
+    cursor: pointer;
+    transition: transform 150ms ease;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    border-radius: inherit;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("landing/pattern.avif") repeat center center / 1200px;
+    opacity: 0.15;
+    z-index: 0;
+  }
+
+  h2 {
+    font-size: 2.6rem;
+    font-weight: 400;
+    text-shadow: -4px 4px 0 var(--color-brown-700);
+    margin-top: 0.2em;
+    position: relative;
+    z-index: 5;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        cursor: pointer;
+        text-decoration-line: underline;
+        text-decoration-style: wavy;
+      }
+    }
+  }
+
+  h3 {
+    font-size: 2rem;
+    font-weight: 400;
+    text-shadow: -4px 4px 0 var(--color-brown-700);
+    margin-top: 0.5em;
+    position: relative;
+    display: inline-block;
+    z-index: 1;
+
+    span {
+      position: relative;
+      display: inline-block;
+    }
+
+    span::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -3px;
+      width: 100%;
+      height: 5px;
+      border-radius: 3px;
+      background-color: var(--color-brown-300);
+      z-index: 1;
+      display: block;
+    }
+  }
+
+  h3::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    bottom: -1.1em;
+    height: 200%;
+    width: calc(100% + 4rem);
+    background-color: var(--color-brown-700);
+    z-index: -1;
+  }
+
+  &__left-image {
+    position: absolute;
+    left: -0.6em;
+    top: -0.1em;
+    height: 150%;
+
+    @media (max-width: 1200px) {
+      display: none;
+    }
+  }
+
+  &__right-image {
+    position: absolute;
+    right: -3em;
+    bottom: -2em;
+    height: 120%;
+
+    @media (max-width: 1200px) {
+      display: none;
+    }
+  }
+}
+
+#kitchen-opensauce-modal {
+  background: var(--color-brown-600);
+  border: 0.5em solid var(--color-brown-400);
+  color: var(--color-bg);
+  border-radius: 1em;
+  padding: var(--space-l);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  max-width: 90vw;
+  width: 600px;
+  position: relative;
+  overflow: hidden;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    border-radius: inherit;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("landing/pattern.avif") repeat center center / 800px;
+    opacity: 0.08;
+    z-index: 0;
+  }
+
+  .modal__title {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 0.2em;
+  }
+
+  h4 {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin: 0;
+    position: relative;
+    z-index: 5;
+    text-align: center;
+    margin-bottom: 5em;
+
+    p {
+      margin-bottom: 1em;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline wavy;
+      }
+    }
+  }
+
+  .modal__button {
+    background: var(--color-brown-700);
+    font-size: 1.2rem;
+    padding: 0.5em 1em;
+    border: none;
+    border-radius: 0.5em;
+    color: var(--color-bg);
+    margin-top: 0.75em;
+    z-index: 5;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  .modal__image {
+    width: 130%;
+    position: absolute;
+    z-index: -1;
+    bottom: -10em;
+    left: -4em;
+  }
+
+  @media (max-width: 1000px) {
+    .modal__image {
+      display: none;
+    }
+
+    .modal__button {
+      margin-bottom: 0;
+    }
+
+    h4 {
+      margin-bottom: 0;
     }
   }
 }

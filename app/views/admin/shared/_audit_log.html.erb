@@ -1,0 +1,162 @@
+<%# Renders an inline audit log table matching the /admin/audit_logs design.
+    Usage: render "admin/shared/audit_log", record: @project
+    Optional: limit (default 10), item_type (for "View all" link, default record class name) %>
+<% limit = local_assigns.fetch(:limit, 10) %>
+<% item_type = local_assigns.fetch(:item_type, record.class.name) %>
+<% versions = record.versions.order(created_at: :desc) %>
+<% displayed_versions = dedupe_versions(versions.limit(limit * 2).to_a).first(limit) %>
+<% users_by_id = User.where(id: displayed_versions.map(&:whodunnit).compact.uniq).index_by { |u| u.id.to_s } %>
+
+<style>
+.audit-logs__timestamp { white-space: nowrap; }
+.audit-logs__date { display: block; font-weight: 500; }
+.audit-logs__time { display: block; font-size: 0.75rem; color: #6b7280; }
+.audit-logs__user { display: flex; align-items: center; gap: 0.5rem; }
+.audit-logs__user-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+.audit-logs__system-badge {
+  background: var(--color-tan-400);
+  border: 1px solid var(--color-brown-500);
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.audit-logs__changes code {
+  background: var(--color-tan-400);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+.audit-logs__muted { color: #6b7280; font-size: 0.875rem; }
+.badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em; }
+.badge-create { background-color: #d1fae5; color: #065f46; }
+.badge-update { background-color: #dbeafe; color: #1e40af; }
+.badge-destroy { background-color: #fee2e2; color: #991b1b; }
+.badge-force_delete { background-color: #fecaca; color: #7f1d1d; border: 1px solid #f87171; }
+.badge-banned, .badge-shadow_banned { background-color: #fee2e2; color: #991b1b; }
+.badge-unbanned, .badge-shadow_unbanned, .badge-unshadow_banned { background-color: #d1fae5; color: #065f46; }
+.badge-role_promoted { background-color: #fef3c7; color: #92400e; }
+.badge-role_demoted { background-color: #fef3c7; color: #92400e; }
+.badge-impersonation_started, .badge-impersonation_stopped { background-color: #e0e7ff; color: #3730a3; }
+.badge-mark_fire { background: linear-gradient(135deg, #fef3c7, #fed7aa); color: #9a3412; }
+.badge-unmark_fire { background-color: #f3f4f6; color: #6b7280; }
+.badge-flipper_enable { background-color: #dbeafe; color: #1e40af; }
+.badge-flipper_disable { background-color: #fef3c7; color: #92400e; }
+.badge-approved { background-color: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.badge-rejected { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.badge-address_revealed, .badge-phone_revealed, .badge-address_access { background-color: #fae8ff; color: #86198f; }
+.badge-blocked_countries_changed { background-color: #fef3c7; color: #92400e; }
+.badge-assignment_updated { background-color: #e0e7ff; color: #3730a3; }
+.badge-resend_webhook, .badge-SHIP_CERT_WEBHOOK_ACTION { background-color: #cffafe; color: #155e75; }
+.badge-request_recertification { background-color: #fce7f3; color: #9d174d; }
+.badge-ship\.submitted { background-color: #d1fae5; color: #065f46; }
+.badge-manual_ysws_override_set { background-color: #fef3c7; color: #92400e; }
+.badge-voting_lock_toggled { background-color: #ede9fe; color: #5b21b6; }
+.badge-balance_adjustment { background-color: #ccfbf1; color: #134e4a; }
+.badge-pending { background-color: #fef3c7; color: #92400e; }
+.badge-awaiting_periodical_fulfillment, .badge-awaiting_fulfillment { background-color: #e0e7ff; color: #3730a3; }
+.badge-fulfilled, .badge-shipped { background-color: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.badge-on_hold { background-color: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+.badge-submitted { background-color: #dbeafe; color: #1e40af; }
+.badge-under_review { background-color: #fae8ff; color: #86198f; }
+.badge-draft { background-color: #f3f4f6; color: #6b7280; }
+.badge-cancelled, .badge-canceled { background-color: #fee2e2; color: #991b1b; }
+.badge-queued_for_verification { background-color: #fef3c7; color: #92400e; }
+</style>
+
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h3 style="margin: 0;">📜 Audit Log</h3>
+    <span class="audit-logs__muted"><%= versions.count %> changes</span>
+  </div>
+
+  <% if versions.any? %>
+    <table class="table-data">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>Changes</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% displayed_versions.each do |version| %>
+          <tr>
+            <td class="audit-logs__timestamp">
+              <span class="audit-logs__date"><%= version.created_at.strftime("%b %d, %Y") %></span>
+              <span class="audit-logs__time"><%= version.created_at.strftime("%H:%M:%S") %></span>
+            </td>
+            <td>
+              <% if version.whodunnit.present? %>
+                <% user = users_by_id[version.whodunnit.to_s] %>
+                <% if user %>
+                  <div class="audit-logs__user">
+                    <img src="<%= user.avatar %>" alt="" class="audit-logs__user-avatar">
+                    <span><%= user.display_name %></span>
+                  </div>
+                <% else %>
+                  <span class="audit-logs__muted">User #<%= version.whodunnit %></span>
+                <% end %>
+              <% else %>
+                <span class="audit-logs__system-badge">System</span>
+              <% end %>
+            </td>
+            <td>
+              <% display = audit_event_display(version) %>
+              <span class="badge badge-<%= display[:css_class] %>"><%= display[:label] %></span>
+            </td>
+            <td>
+              <% if version.object_changes.present? %>
+                <%
+                  raw_changes = version.object_changes
+                  changes = if raw_changes.is_a?(Hash)
+                    raw_changes
+                  elsif raw_changes.is_a?(String)
+                    YAML.safe_load(raw_changes, permitted_classes: [Time, Date, DateTime, BigDecimal, Symbol]) rescue {}
+                  else
+                    {}
+                  end
+                %>
+                <% sensitive_fields = %w[magic_link_token magic_link_token_digest encrypted_password password_digest frozen_address frozen_address_ciphertext frozen_phone_ciphertext email address ip_address phone phone_number hcb_email] %>
+                <div class="audit-logs__changes">
+                  <% changes.keys.take(3).each do |k| %>
+                    <% v = changes[k] %>
+                    <div>
+                      <code><%= k %></code>
+                      <% if sensitive_fields.include?(k.to_s) %>
+                        <span class="audit-log-detail__redacted">🔒 [REDACTED]</span>
+                      <% elsif v.is_a?(Array) && v.length == 2 %>
+                        <span class="audit-logs__muted"><%= truncate(v[0].to_s, length: 30) %></span>
+                        → <span><%= truncate(v[1].to_s, length: 30) %></span>
+                      <% else %>
+                        <span><%= truncate(v.to_s, length: 50) %></span>
+                      <% end %>
+                    </div>
+                  <% end %>
+                  <% if changes.keys.count > 3 %>
+                    <span class="audit-logs__muted">(+<%= changes.keys.count - 3 %> more)</span>
+                  <% end %>
+                </div>
+              <% else %>
+                <span class="audit-logs__muted">—</span>
+              <% end %>
+            </td>
+            <td>
+              <%= link_to "Details", admin_audit_log_path(version), class: "btn-primary slim" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if versions.count > limit %>
+      <p style="text-align: center; margin: 1rem 0 0;">
+        <%= link_to "View all #{versions.count} changes →", admin_audit_logs_path(item_type: item_type, item_id: record.id) %>
+      </p>
+    <% end %>
+  <% else %>
+    <p class="audit-logs__muted" style="text-align: center; padding: 1rem; margin: 0;">No audit history yet.</p>
+  <% end %>
+</div>

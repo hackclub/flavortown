@@ -1,7 +1,6 @@
 .votes-new {
   margin-top: 4rem;
   margin-bottom: 4rem;
-
   &__no-projects {
     font-size: 1.5rem;
     font-family: var(--font-family-text);
@@ -25,6 +24,40 @@
         width: 100%;
       }
     }
+  }
+
+  &__payout-meter {
+    width: 100%;
+    max-width: 56rem;
+    margin-inline: auto;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  &__payout-meter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-s);
+  }
+
+  &__payout-meter-label {
+    font-family: var(--font-family-text);
+    font-size: var(--font-size-m);
+    color: var(--color-text-body);
+  }
+
+  &__payout-meter-count {
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-s);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .projects-show__payout-votes-progress {
+    height: 18px;
   }
 
   &__main {
@@ -52,6 +85,7 @@
     border-radius: var(--border-radius);
     color: var(--color-bg);
     padding: 1em;
+    box-shadow: var(--shadow);
   }
 
   &__project-details {
@@ -188,11 +222,13 @@
     margin-top: 0.5em;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.5em;
 
     .post {
       padding: 1em;
       border-width: 0.5em;
+      width: 100%;
 
       &::before,
       &::after {
@@ -344,6 +380,7 @@
     }
 
     .vote-form {
+      margin-top: 5px;
       display: flex;
       flex-direction: column;
       gap: calc(1.2 * var(--space-xxxxl));
@@ -352,7 +389,12 @@
 
       &__feedback {
         display: flex;
+        flex-direction: column;
         margin-top: var(--space-m);
+
+        &--invalid .input__subtitle {
+          color: var(--color-red-600, #dc2626);
+        }
       }
 
       .input {
@@ -463,7 +505,9 @@
     transform: translateY(-70%);
     color: var(--color-bg);
     font-size: var(--font-size-xl);
-    padding: var(--space-xs) var(--space-l);
+    line-height: 1.2;
+    padding: calc(var(--space-xs) + 3px) var(--space-l)
+      calc(var(--space-xs) + 6px);
     border-top-left-radius: calc(var(--border-radius) * 0.8);
     border-top-right-radius: calc(var(--border-radius) * 0.8);
     pointer-events: none;
@@ -479,6 +523,10 @@
     align-items: center;
     gap: 0.25rem;
     background-color: var(--input-bg);
+    background-image: url("mask/title.webp");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
     border-radius: calc(var(--border-radius) * 0.8);
     overflow: hidden;
     position: relative;
@@ -552,8 +600,10 @@
     left: 0;
     right: 0;
     transform: translateY(calc(100% - var(--space-m)));
-    padding: calc(1.2 * var(--space-m)) var(--space-s) var(--space-xs);
+    padding: calc(1.3 * var(--space-m)) var(--space-s) var(--space-xs);
     border-radius: var(--border-radius);
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
     font-size: var(--font-size-s);
     z-index: 0;
     background-color: var(--input-subtitle-bg);

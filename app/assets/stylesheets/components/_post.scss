@@ -239,7 +239,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    color: var(--color-tan-400);
+    color: var(--color-bg);
   }
 
   &__author {
@@ -772,7 +772,7 @@
       display: flex;
       justify-content: space-between;
       font-size: 1.25rem;
-      color: var(--color-brown-400);
+      color: var(--color-bg);
 
       @media (max-width: 900px) {
         font-size: 1rem;
@@ -941,6 +941,36 @@
     .comment-form {
       --comment-box-col: var(--color-teal-400);
     }
+  }
+
+  &__votes-breakdown {
+    margin-top: var(--space-m);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: var(--border-radius);
+
+    summary {
+      cursor: pointer;
+      padding: var(--space-s) var(--space-m);
+      font-weight: 600;
+    }
+  }
+
+  &__vote-entry {
+    padding: var(--space-s) var(--space-m);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+    p {
+      margin: 0 0 var(--space-xs);
+    }
+  }
+
+  &__vote-reason {
+    margin: 0;
+    padding-left: var(--space-m);
+    border-left: 3px solid rgba(0, 0, 0, 0.2);
+    font-style: italic;
+    font-size: var(--font-size-s);
+    opacity: 0.85;
   }
 
   &--theme-ship {

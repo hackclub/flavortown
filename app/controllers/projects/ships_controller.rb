@@ -1,5 +1,6 @@
 class Projects::ShipsController < ApplicationController
   before_action :set_project
+  before_action :require_shipping_enabled
 
   def new
     authorize @project, :ship?
@@ -23,12 +24,8 @@ class Projects::ShipsController < ApplicationController
     end
 
     if initial_ship?
-      begin
-        ShipCertService.ship_to_dash(@project, type: "initial")
-        redirect_to @project, notice: "Congratulations! Your project has been submitted for review!"
-      rescue => e
-        redirect_to @project, alert: "Your project was saved but certification failed: #{e.message}"
-      end
+      ShipCertWebhookJob.perform_later(ship_event_id: @post.postable.id, type: "initial")
+      redirect_to @project, notice: "Congratulations! Your project has been submitted for review!"
     else
       @post.postable.update!(certification_status: "approved")
       redirect_to @project, notice: "Ship submitted! Your project is now out for voting."
@@ -40,6 +37,12 @@ class Projects::ShipsController < ApplicationController
   private
 
   def set_project = @project = Project.find(params[:project_id])
+
+  def require_shipping_enabled
+    unless Flipper.enabled?(:shipping)
+      redirect_to @project, alert: "Shipping is currently disabled."
+    end
+  end
   def initial_ship? = @project.posts.where(postable_type: "Post::ShipEvent").one?
 
   def load_ship_data
@@ -47,8 +50,6 @@ class Projects::ShipsController < ApplicationController
       @space_themed_checked = @project.space_themed?
       @project.description = @project.description_without_space_theme_prefix if @project.space_themed?
     end
-    @hackatime_projects = @project.hackatime_projects_with_time
-    @total_hours = @project.total_hackatime_hours
     @last_ship = @project.last_ship_event
     @devlogs_for_ship = devlogs_since_last_ship
     @active_sidequests = Sidequest.active

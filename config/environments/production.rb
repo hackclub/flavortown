@@ -1,15 +1,6 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
-  config.after_initialize do
-    Bullet.enable        = true
-    Bullet.sentry        = false
-    Bullet.rails_logger  = true
-    Bullet.add_footer    = true
-    Bullet.skip_html_injection = ->(request) do
-      !request.env["warden"]&.user&.admin?
-    end
-  end
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
@@ -78,8 +69,9 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  # Set host to be used by links generated in mailer templates and URL helpers (e.g. sitemap job).
+  config.action_controller.default_url_options = { host: "flavortown.hackclub.com", protocol: "https" }
+  config.action_mailer.default_url_options = { host: "flavortown.hackclub.com", protocol: "https" }
 
   # Configure Loops SMTP for transactional emails
   config.action_mailer.delivery_method = :smtp

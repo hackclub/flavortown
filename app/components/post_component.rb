@@ -78,6 +78,14 @@ class PostComponent < ViewComponent::Base
     postable.payout.present?
   end
 
+  def show_votes_breakdown?
+    ship_event? && postable.current_voting_scale? && @current_user.present? && helpers.policy(post.project).see_votes?
+  end
+
+  def ship_event_legitimate_votes
+    @ship_event_legitimate_votes ||= postable.votes.legitimate.order(created_at: :desc)
+  end
+
   def estimated_payout_data
     return nil unless ship_event?
 

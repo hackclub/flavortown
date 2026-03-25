@@ -1,3 +1,4 @@
+<% content_for :title, "Audit Logs" %>
 <div class="audit-logs">
   <div class="audit-logs__header">
     <h1>Audit Logs</h1>
@@ -38,7 +39,7 @@
 
         <div class="audit-logs__filter-group">
           <%= f.label :event, "Action", class: "audit-logs__label" %>
-          <%= f.select :event, options_for_select(['create', 'update', 'destroy'], params[:event]), { include_blank: "All" }, class: "form-control" %>
+          <%= f.select :event, options_for_select(@events, params[:event]), { include_blank: "All" }, class: "form-control" %>
         </div>
 
         <div class="audit-logs__filter-group" data-controller="searchable-select">
@@ -115,7 +116,9 @@
           </tr>
         </thead>
         <tbody>
-          <% @versions.each do |version| %>
+          <% deduped_versions = dedupe_versions(@versions.to_a) %>
+          <% users_by_id = User.where(id: deduped_versions.map(&:whodunnit).compact.uniq).index_by { |u| u.id.to_s } %>
+          <% deduped_versions.each do |version| %>
             <tr>
               <td class="audit-logs__timestamp">
                 <span class="audit-logs__date"><%= version.created_at.strftime("%b %d, %Y") %></span>
@@ -123,7 +126,7 @@
               </td>
               <td>
                 <% if version.whodunnit.present? %>
-                  <% user = User.find_by(id: version.whodunnit) %>
+                  <% user = users_by_id[version.whodunnit.to_s] %>
                   <% if user %>
                     <div class="audit-logs__user">
                       <img src="<%= user.avatar %>" alt="" class="audit-logs__user-avatar">
@@ -137,12 +140,26 @@
                 <% end %>
               </td>
               <td>
-                <span class="badge badge-<%= version.event %>">
-                  <%= version.event %>
+                <% display = audit_event_display(version) %>
+                <span class="badge badge-<%= display[:css_class] %>">
+                  <%= display[:label] %>
                 </span>
               </td>
               <td><code class="audit-logs__model"><%= version.item_type %></code></td>
-              <td><code class="audit-logs__id">#<%= version.item_id %></code></td>
+              <td>
+                <% case version.item_type
+                   when "User" %>
+                  <%= link_to "##{version.item_id}", admin_user_path(version.item_id), class: "audit-logs__record-link" %>
+                <% when "Project" %>
+                  <%= link_to "##{version.item_id}", admin_project_path(version.item_id), class: "audit-logs__record-link" %>
+                <% when "ShopOrder" %>
+                  <%= link_to "##{version.item_id}", admin_shop_order_path(version.item_id), class: "audit-logs__record-link" %>
+                <% when "ShopItem" %>
+                  <%= link_to "##{version.item_id}", admin_shop_item_path(version.item_id), class: "audit-logs__record-link" %>
+                <% else %>
+                  <code class="audit-logs__id">#<%= version.item_id %></code>
+                <% end %>
+              </td>
               <td>
                 <% if version.object_changes.present? %>
                   <%
@@ -155,9 +172,21 @@
                       {}
                     end
                   %>
+                  <% sensitive_fields = %w[magic_link_token magic_link_token_digest encrypted_password password_digest frozen_address frozen_address_ciphertext frozen_phone_ciphertext email address ip_address phone phone_number hcb_email] %>
                   <div class="audit-logs__changes">
-                    <% changes.keys.take(3).each_with_index do |k, i| %>
-                      <code><%= k %></code><%= ", " unless i == [changes.keys.take(3).count - 1, 2].min %>
+                    <% changes.keys.take(3).each do |k| %>
+                      <% v = changes[k] %>
+                      <div>
+                        <code><%= k %></code>
+                        <% if sensitive_fields.include?(k.to_s) %>
+                          <span class="audit-log-detail__redacted">🔒 [REDACTED]</span>
+                        <% elsif v.is_a?(Array) && v.length == 2 %>
+                          <span class="audit-logs__muted"><%= truncate(v[0].to_s, length: 30) %></span>
+                          → <span><%= truncate(v[1].to_s, length: 30) %></span>
+                        <% else %>
+                          <span><%= truncate(v.to_s, length: 50) %></span>
+                        <% end %>
+                      </div>
                     <% end %>
                     <% if changes.keys.count > 3 %>
                       <span class="audit-logs__muted">(+<%= changes.keys.count - 3 %> more)</span>
@@ -312,6 +341,20 @@
   font-size: 0.8125rem;
 }
 
+.audit-logs__record-link {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+  background: var(--color-tan-400);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.audit-logs__record-link:hover {
+  text-decoration: underline;
+}
+
 .audit-logs__changes code {
   background: var(--color-tan-400);
   padding: 0.125rem 0.375rem;
@@ -341,6 +384,7 @@
   letter-spacing: 0.025em;
 }
 
+/* Standard CRUD */
 .badge-create {
   background-color: #d1fae5;
   color: #065f46;
@@ -356,6 +400,14 @@
   color: #991b1b;
 }
 
+/* Deletion */
+.badge-force_delete {
+  background-color: #fecaca;
+  color: #7f1d1d;
+  border: 1px solid #f87171;
+}
+
+/* Banning */
 .badge-banned,
 .badge-shadow_banned {
   background-color: #fee2e2;
@@ -363,21 +415,166 @@
 }
 
 .badge-unbanned,
-.badge-shadow_unbanned {
+.badge-shadow_unbanned,
+.badge-unshadow_banned {
   background-color: #d1fae5;
   color: #065f46;
 }
 
-.badge-role_promoted,
+/* Role changes */
+.badge-role_promoted {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
 .badge-role_demoted {
   background-color: #fef3c7;
   color: #92400e;
 }
 
+/* Impersonation */
 .badge-impersonation_started,
 .badge-impersonation_stopped {
   background-color: #e0e7ff;
   color: #3730a3;
+}
+
+/* Fire events */
+.badge-mark_fire {
+  background: linear-gradient(135deg, #fef3c7, #fed7aa);
+  color: #9a3412;
+}
+
+.badge-unmark_fire {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Feature flags */
+.badge-flipper_enable {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-flipper_disable {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Approvals */
+.badge-approved {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.badge-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* Shop / fulfillment */
+.badge-address_revealed,
+.badge-phone_revealed,
+.badge-address_access {
+  background-color: #fae8ff;
+  color: #86198f;
+}
+
+.badge-blocked_countries_changed {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-assignment_updated {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+/* Webhooks & certs */
+.badge-resend_webhook,
+.badge-SHIP_CERT_WEBHOOK_ACTION {
+  background-color: #cffafe;
+  color: #155e75;
+}
+
+.badge-request_recertification {
+  background-color: #fce7f3;
+  color: #9d174d;
+}
+
+.badge-ship\.submitted {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* User overrides */
+.badge-manual_ysws_override_set {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-voting_lock_toggled {
+  background-color: #ede9fe;
+  color: #5b21b6;
+}
+
+/* Ledger */
+.badge-balance_adjustment {
+  background-color: #ccfbf1;
+  color: #134e4a;
+}
+
+/* AASM state transitions */
+.badge-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-awaiting_periodical_fulfillment,
+.badge-awaiting_fulfillment {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.badge-fulfilled,
+.badge-shipped {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.badge-on_hold {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.badge-submitted {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-under_review {
+  background-color: #fae8ff;
+  color: #86198f;
+}
+
+.badge-draft {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.badge-cancelled,
+.badge-canceled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-queued_for_verification {
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
 /* Searchable Select */

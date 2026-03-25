@@ -138,7 +138,14 @@
     </header>
 
     <% if project.display_description.present? %>
-      <div class="project-show-card__description"><%= helpers.md project.display_description %></div>
+      <% if project.display_description.length > 250 %>
+        <div class="project-show-card__description project-show-card__description--truncatable">
+          <div class="project-show-card__description-truncated"><%= helpers.md helpers.truncate(project.display_description, length: 250) %></div>
+          <div class="project-show-card__description-full"><%= helpers.md project.display_description %></div>
+        </div>
+      <% else %>
+        <div class="project-show-card__description"><%= helpers.md project.display_description %></div>
+      <% end %>
     <% end %>
 
     <% if project.ai_declaration.present? %>

@@ -1,3 +1,4 @@
+<% content_for :title, "Super Mega Dashboard" %>
 <div class="super-mega-dashboard" data-controller="lazy-load">
   <%= render HeadingComponent.new(title: "Super Mega Dashboard", tone: :red, size: :full) %>
 
@@ -9,6 +10,7 @@
       <div class="super-mega-dashboard__header super-mega-dashboard__header--fraud">
         <h2>Fraud Overview</h2>
         <%= link_to "View Full Dashboard →", admin_fraud_dashboard_path, class: "super-mega-link" %>
+        <%= link_to "View Joe Dashboard →", "https://joe.fraud.hackclub.com/cases/dashboard?ysws=Flavortown", class: "super-mega-link" %>
       </div>
 
       <!-- SHOP ORDERS SECTION -->
@@ -328,6 +330,36 @@
             </div>
           </div>
         </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Cookie $ per hour <span id="cookie-dollars-per-hour-formula">ⓘ</span></h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @dollars_per_hour.round(2) %></span>
+              <span class="super-mega-dashboard__stat--label">$/hr</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Expenses $ per hour <span id="expenses-dollars-per-hour-formula">ⓘ</span></h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @expenses_dollars_per_hour.round(2) %></span>
+              <span class="super-mega-dashboard__stat--label">$/hr</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-mega-dashboard__card">
+          <h3>Cookie Utilization Ratio</h3>
+          <div class="super-mega-dashboard__stats">
+            <div class="super-mega-dashboard__stat">
+              <span class="super-mega-dashboard__stat--value"><%= @cookie_utilization_percentage %>%</span>
+              <span class="super-mega-dashboard__stat--label">Utilization</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -336,6 +368,10 @@
         <h2>Fulfillment Overview</h2>
         <%= link_to "View Full Dashboard →", admin_fulfillment_dashboard_index_path, class: "super-mega-link" %>
       </div>
+
+      <% if @fulfillment_temporarily_disabled %>
+        <p class="fraud-stats-error">Fulfillment is temporarily disabled so the rest of the dashboard can load.</p>
+      <% end %>
 
       <div class="super-mega-dashboard__cards">
         <% [
@@ -363,6 +399,157 @@
             </div>
           </div>
         <% end %>
+
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph">
+          <h3>Fulfilment Trend (30d)</h3>
+          <% if @fulfillment_trend_data.present? %>
+            <div class="fraud-timeline-graph fraud-timeline-graph--compact">
+              <canvas id="fulfillmentTrendChart" height="100"></canvas>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                const ctx = document.getElementById('fulfillmentTrendChart');
+                if (!ctx) return;
+
+                const data = <%= raw @fulfillment_trend_data.to_json %>;
+                const sortedDates = Object.keys(data).sort();
+                const labels = sortedDates.map(d => {
+                  const date = new Date(d);
+                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+
+                const fulfilledData = sortedDates.map(d => data[d].fulfilled);
+                const createdData = sortedDates.map(d => data[d].created);
+
+                new Chart(ctx, {
+                  type: 'line',
+                  data: {
+                    labels: labels,
+                    datasets: [
+                      {
+                        label: 'Fulfilled',
+                        data: fulfilledData,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 1,
+                        borderWidth: 1.5
+                      },
+                      {
+                        label: 'New Orders',
+                        data: createdData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 1,
+                        borderWidth: 1.5
+                      }
+                    ]
+                  },
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: { font: { size: 8 }, padding: 4 }
+                      }
+                    },
+                    scales: {
+                      x: {
+                        ticks: { font: { size: 7 }, maxRotation: 45, minRotation: 0 }
+                      },
+                      y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0, font: { size: 7 } }
+                      }
+                    }
+                  }
+                });
+              });
+            </script>
+          <% else %>
+            <p class="fraud-stats-error">No trend data available</p>
+          <% end %>
+        </div>
+
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph">
+          <h3>Order States (30d)</h3>
+          <% if @order_states_trend_data.present? %>
+            <div class="fraud-timeline-graph fraud-timeline-graph--compact">
+              <canvas id="orderStatesTrendChart" height="100"></canvas>
+            </div>
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                const ctx = document.getElementById('orderStatesTrendChart');
+                if (!ctx) return;
+
+                const data = <%= raw @order_states_trend_data.to_json %>;
+                const sortedDates = Object.keys(data).sort();
+                const labels = sortedDates.map(d => {
+                  const date = new Date(d);
+                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+
+                const stateConfig = {
+                  'pending':                          { label: 'Pending',            border: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+                  'awaiting_periodical_fulfillment':  { label: 'Awaiting Fulfilment', border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+                  'on_hold':                          { label: 'On Hold',            border: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' },
+                  'closed':                           { label: 'Closed (Fulfilled / Rejected / Refunded)', border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' }
+                };
+
+                const stateKeys = Object.keys(data[sortedDates[0]] || {});
+                const datasets = stateKeys.map(state => {
+                  const cfg = stateConfig[state] || { label: state, border: '#999', bg: 'rgba(153, 153, 153, 0.1)' };
+                  return {
+                    label: cfg.label,
+                    data: sortedDates.map(d => data[d][state] || 0),
+                    borderColor: cfg.border,
+                    backgroundColor: cfg.bg,
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 1,
+                    borderWidth: 1.5
+                  };
+                });
+
+                new Chart(ctx, {
+                  type: 'line',
+                  data: {
+                    labels: labels,
+                    datasets: datasets
+                  },
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: { font: { size: 8 }, padding: 4 }
+                      }
+                    },
+                    scales: {
+                      x: {
+                        ticks: { font: { size: 7 }, maxRotation: 45, minRotation: 0 }
+                      },
+                      y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0, font: { size: 7 } }
+                      }
+                    }
+                  }
+                });
+              });
+            </script>
+          <% else %>
+            <p class="fraud-stats-error">No trend data available</p>
+          <% end %>
+        </div>
       </div>
     </div>
 
@@ -393,6 +580,20 @@
         <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
           <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
           <div class="smd-skeleton__chart"></div>
+        </div>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__chart"></div>
+        </div>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-nps super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+          <div class="smd-skeleton__chart"></div>
+        </div>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-performance super-mega-dashboard__placeholder-card">
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__line"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
         </div>
       </div>
     </div>
@@ -477,6 +678,20 @@
                         <%= concern["title"] %>
                       </button>
                       <%= render layout: "shared/modal", locals: { id: "concern-#{idx}", title: concern["title"], description: concern["description"] } do %>
+                        <% if concern["messages"].present? %>
+                          <span class="concern-count">(<%= concern["count"] %> total messages)</span>
+                          <ul class="concern-messages-list">
+                            <% concern["messages"].each do |msg| %>
+                              <li class="concern-message-item">
+                                <% if msg["message_ts"].present? %>
+                                  <a href="https://hackclub.slack.com/archives/C09MATKQM8C/p<%= msg["message_ts"].gsub('.', '') %>" target="_blank" rel="noopener" class="modal__link">
+                                    <%= msg["content"] %>
+                                  </a>
+                                <% end %>
+                              </li>
+                            <% end %>
+                          </ul>
+                        <% end %>
                         <div class="modal__actions">
                           <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= "concern-#{idx}".to_json %>).close()">X</button>
                         </div>
@@ -526,7 +741,7 @@
                           pointRadius: 4
                         },
                         {
-                          label: 'Hang Time (min)',
+                          label: 'Hang Time (hours)',
                           data: hangTime,
                           borderColor: '#6366f1',
                           backgroundColor: 'rgba(99,102,241,0.1)',
@@ -544,7 +759,7 @@
                       scales: {
                         y: {
                           beginAtZero: true,
-                          title: { display: true, text: 'Count / Minutes' }
+                          title: { display: true, text: 'Count / Hours' }
                         }
                       }
                     }
@@ -561,7 +776,7 @@
 
     <div class="super-mega-dashboard__dashboard">
       <div class="super-mega-dashboard__header super-mega-dashboard__header--ysws-review">
-        <h2>YSWS Review Overview</h2>
+        <h2>Guardians of Integrity Overview</h2>
         <%= link_to "View Full Dashboard →", "https://review.hackclub.com/admin/ysws_reviews", class: "super-mega-link", target: "_blank" %>
       </div>
 
@@ -902,7 +1117,7 @@
         <% else %>
           <div class="super-mega-dashboard__card">
             <h3>Error</h3>
-            <p>Couldn't load YSWS review data: <%= @ysws_review_stats&.dig(:error) || "Unknown error" %></p>
+            <p>Couldn't load Guardians of Integrity data: <%= @ysws_review_stats&.dig(:error) || "Unknown error" %></p>
           </div>
         <% end %>
       </div>
@@ -1037,9 +1252,24 @@
         <% end %>
       </div>
     </div>
+
+    <%= render "admin/super_mega_dashboard/sections/pyramid_scheme" %>
+    <%= render "admin/super_mega_dashboard/sections/flavortime" %>
   </div>
 
   <div class="super-mega-dashboard__actions">
     <%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
+    <%= button_to "Clear Dashboard Cache", admin_super_mega_dashboard_clear_cache_path,
+          method: :delete,
+          class: "btn-danger",
+          form: { data: { turbo_confirm: "You're about to delete all Super Mega Dashboard cache! Are you sure?" } } %>
   </div>
 </div>
+
+<%= render TooltipComponent.new(target_id: "cookie-dollars-per-hour-formula", position: :top) do %>
+  <span>[(total_cookies/5)/weighted_hours]</span>
+<% end %>
+
+<%= render TooltipComponent.new(target_id: "expenses-dollars-per-hour-formula", position: :top) do %>
+  <span>(total_expenses/weighted_hours)</span>
+<% end %>

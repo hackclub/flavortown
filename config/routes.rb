@@ -140,6 +140,7 @@ Rails.application.routes.draw do
   post "my/roll_api_key", to: "my#roll_api_key", as: :roll_api_key
   post "my/cookie_click", to: "my#cookie_click", as: :my_cookie_click
   post "my/dismiss_thing", to: "my#dismiss_thing", as: :dismiss_thing
+  delete "my/club", to: "my#unlink_club", as: :my_club
   get "my/achievements", to: "achievements#index", as: :my_achievements
 
   # Magic Links
@@ -157,8 +158,12 @@ Rails.application.routes.draw do
 
     namespace :v1 do
       resources :projects, only: [ :index, :show, :create, :update ] do
+        member do
+          get :ban_status
+        end
         collection do
           get :random
+          get :search
         end
         resource :report, only: [ :create ], controller: "external_reports"
         resources :devlogs, only: [ :index ], controller: "project_devlogs"
@@ -166,13 +171,28 @@ Rails.application.routes.draw do
 
       get "docs", to: "docs#index", as: :docs
       resources :devlogs, only: [ :index, :show ]
-      resources :store, only: [ :index, :show ]
+      resources :store, only: [ :index, :show ] do
+        collection do
+          get :search
+        end
+      end
       resources :users, only: [ :index, :show ]
 
       post "flavortime/session", to: "flavortime#create_session"
       post "flavortime/heartbeat", to: "flavortime#heartbeat"
       post "flavortime/close", to: "flavortime#close"
       get "flavortime/active_users", to: "flavortime#active_users"
+
+      namespace :admin do
+        resources :shop_orders, only: [] do
+          collection do
+            get :stats
+            get :leaderboard
+            get :order
+            post :fulfill
+          end
+        end
+      end
     end
   end
 
@@ -190,7 +210,11 @@ Rails.application.routes.draw do
 
   namespace :helper, constraints: HelperConstraint do
     root to: "application#index"
-    resources :users, only: [ :index, :show ]
+    resources :users, only: [ :index, :show ] do
+      member do
+        get :balance
+      end
+    end
     resources :projects, only: [ :index, :show ] do
       member do
         post :restore
@@ -246,6 +270,8 @@ Rails.application.routes.draw do
         post :delete
         post :shadow_ban
         post :unshadow_ban
+        post :update_ship_status
+        post :force_state
         get  :votes
       end
     end
@@ -260,7 +286,9 @@ Rails.application.routes.draw do
     resources :shop_orders, only: [ :index, :show ] do
       member do
         post :reveal_address
+        post :reveal_phone
         post :approve
+        post :review_order
         post :reject
         post :place_on_hold
         post :release_from_hold
@@ -269,6 +297,9 @@ Rails.application.routes.draw do
         post :assign_user
         post :cancel_hcb_grant
         post :refresh_verification
+        post :send_to_theseus
+        post :approve_verification_call
+        post :force_state
       end
     end
     resources :shop_suggestions, only: [ :index ] do
@@ -281,6 +312,7 @@ Rails.application.routes.draw do
       member do
         post :approve
         post :reject
+        post :undo
       end
     end
     resources :special_activities, only: [ :index, :create ] do
@@ -291,8 +323,10 @@ Rails.application.routes.draw do
       collection do
         post :give_payout
         post :mark_payout_given
+        post :toggle_live
       end
     end
+    resources :messages, only: [ :index, :create ]
     resources :support_vibes, only: [ :index, :create ]
     resources :sw_vibes, only: [ :index ]
     resources :suspicious_votes, only: [ :index ]
@@ -314,6 +348,7 @@ Rails.application.routes.draw do
     get "vote_spam_dashboard/users/:user_id", to: "vote_spam_dashboard#show", as: :vote_spam_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    delete "super_mega_dashboard/clear_cache", to: "super_mega_dashboard#clear_cache", as: :super_mega_dashboard_clear_cache
     get "flavortime_dashboard", to: "flavortime_dashboard#index"
     get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"
     resources :fulfillment_dashboard, only: [ :index ] do
@@ -370,6 +405,9 @@ Rails.application.routes.draw do
 
   # Public user profiles
   resources :users, only: [ :show ] do
+    constraints ->(_req) { Flipper.enabled?(:user_profiles) } do
+      resource :profile, only: [ :edit, :update ], controller: "user_profiles"
+    end
     resource :og_image, only: [ :show ], module: :users, defaults: { format: :png }
     member do
       get :stats

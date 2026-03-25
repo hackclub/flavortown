@@ -2,6 +2,19 @@
 <% content_for :og_title, "#{@user.display_name} on Flavortown" %>
 <% content_for :og_description, "#{@stats[:projects_count]} projects · #{@stats[:ships_count]} ships · #{@stats[:posts_count]} posts" %>
 <% content_for :og_image, user_og_image_url(@user, format: :png) %>
+<% user_profiles_enabled = Flipper.enabled?(:user_profiles) %>
+
+<% if (custom_css = @user.user_profile&.custom_css).present? && user_profiles_enabled %>
+    <% content_for :head do %>
+        <%= tag.style sanitize_css(custom_css) %>
+    <% end %>
+<% end %>
+
+<% if @user.search_engine_indexing_off? %>
+  <% content_for :head do %>
+    <meta name="robots" content="noindex, nofollow">
+  <% end %>
+<% end %>
 
 <div class="user-profile">
   <div class="user-profile__left">
@@ -12,6 +25,21 @@
             <h2>Joined <%= @user.created_at.to_date.to_s %></h2>
             <%= render "shared/admin_copy_debug", record: @user, record_type: "User", url: user_url(@user, host: "flavortown.hackclub.com", protocol: "https") %>
         </div>
+        <% if (current_user == @user || current_user&.admin?) && user_profiles_enabled %>
+            <%= link_to edit_user_profile_path(@user), class: "user-profile__edit-profile-btn" do %>
+                <%= inline_svg "icons/pencil.svg" %>
+                Edit Profile
+            <% end %>
+        <% end %>
+        <% if @user.user_profile&.bio.present? %>
+            <div class="user-profile__heading">
+                <%= inline_svg "icons/rocket.svg" %>
+                Bio
+            </div>
+            <div class="user-profile__bio">
+                <%= simple_format(@user.user_profile.bio) %>
+            </div>
+        <% end %>
         <div class="user-profile__heading">
             <%= inline_svg "icons/question.svg" %>
             Stats
@@ -89,7 +117,7 @@
                             </div>
                             <div style="text-align: left;">
                                 <%= time_ago_in_words(project.created_at.to_date) %> ago •
-                                <%= project.devlogs_count %> devlogs
+                                <%= project.devlogs_count %> <%= "devlog".pluralize(project.devlogs_count) %>
                             </div>
                         </div>
                     </div>
