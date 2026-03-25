@@ -842,7 +842,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_25_221946) do
     t.boolean "voting_locked", default: false, null: false
     t.boolean "ysws_eligible", default: false, null: false
     t.index ["airtable_record_id"], name: "index_users_on_airtable_record_id", unique: true
-    t.index ["api_key"], name: "index_users_on_api_key", unique: true
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["session_token"], name: "index_users_on_session_token", unique: true
@@ -920,6 +919,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_25_221946) do
   add_foreign_key "shop_order_reviews", "shop_orders"
   add_foreign_key "shop_order_reviews", "users"
   add_foreign_key "shop_orders", "fulfillment_payout_lines"
+  add_foreign_key "shop_orders", "projects", column: "fraud_related_project_id", on_delete: :nullify, validate: false
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
   add_foreign_key "shop_orders", "shop_warehouse_packages", column: "warehouse_package_id"
