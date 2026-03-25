@@ -22,11 +22,16 @@ class Api::V1::UsersController < Api::BaseController
     total_count: Integer, next_page: "Integer || Null"
   }.freeze
 
+  ACHIEVEMENT_SCHEMA = {
+    slug: String, name: String, description: String, icon: String
+  }.freeze
+
   class_attribute :response_body_model, default: {
     index: { users: [ USER_BASE ], pagination: PAGINATION_SCHEMA },
     show: USER_BASE.merge(
       vote_count: Integer, like_count: Integer,
-      devlog_seconds_total: Integer, devlog_seconds_today: Integer
+      devlog_seconds_total: Integer, devlog_seconds_today: Integer,
+      achievements: [ ACHIEVEMENT_SCHEMA ]
     )
   }
 

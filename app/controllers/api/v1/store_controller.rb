@@ -26,6 +26,7 @@ class Api::V1::StoreController < Api::BaseController
       max_qty: Integer,
       one_per_person_ever: "Boolean",
       sale_percentage: Integer,
+      requires_achievement: "String || Null",
       image_url: String,
 
       enabled: {
