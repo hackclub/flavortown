@@ -29,3 +29,12 @@ else
     json.cookies nil
     json.balance_history nil
 end
+
+json.achievements @user.achievements do |earned_record|
+  achievement = Achievement.slugged[earned_record.achievement_slug.to_sym]
+  next unless achievement
+
+  json.slug achievement.slug
+  json.name achievement.display_name(earned: true)
+  json.description achievement.display_description(earned: true)
+end
