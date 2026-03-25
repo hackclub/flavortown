@@ -19,6 +19,7 @@
 #  has_pending_achievements                :boolean          default(FALSE), not null
 #  hcb_email                               :string
 #  internal_notes                          :text
+#  last_clean_vote_at                      :datetime
 #  last_name                               :string
 #  leaderboard_optin                       :boolean          default(FALSE), not null
 #  magic_link_token                        :string
@@ -46,6 +47,9 @@
 #  vote_anonymously                        :boolean          default(FALSE), not null
 #  vote_balance                            :integer          default(0), not null
 #  votes_count                             :integer
+#  voting_cooldown_stage                   :integer          default(0), not null
+#  voting_cooldown_until                   :datetime
+#  voting_lock_count                       :integer          default(0), not null
 #  voting_locked                           :boolean          default(FALSE), not null
 #  ysws_eligible                           :boolean          default(FALSE), not null
 #  created_at                              :datetime         not null
@@ -56,7 +60,6 @@
 # Indexes
 #
 #  index_users_on_airtable_record_id  (airtable_record_id) UNIQUE
-#  index_users_on_api_key             (api_key) UNIQUE
 #  index_users_on_email               (email)
 #  index_users_on_magic_link_token    (magic_link_token) UNIQUE
 #  index_users_on_session_token       (session_token) UNIQUE
