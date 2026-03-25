@@ -6,7 +6,7 @@ class UpdateUserProjectCountsJob < ApplicationJob
   # Update project counts for all users or a specific user
   # @param user [User, nil] Optional user to update. If nil, updates all users
   def perform(user = nil)
-    users_to_update = user ? [user] : User.all
+    users_to_update = user ? [ user ] : User.all
 
     users_to_update.find_each do |u|
       update_user_project_counts(u)
