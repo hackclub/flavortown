@@ -136,7 +136,7 @@ class Project < ApplicationRecord
 
   validates :title, presence: true, length: { maximum: 120 }
   validates :description, length: { maximum: 1_000 }, allow_blank: true
-  validates :ai_declaration, presence: true, length: { maximum: 1_000 }
+  validates :ai_declaration, length: { maximum: 1_000 }, allow_blank: true
   validates :demo_url, :repo_url, :readme_url,
             length: { maximum: 2_048 },
             format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]) },
