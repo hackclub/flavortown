@@ -698,9 +698,9 @@
 
   .d3-funnel-container {
     position: relative;
-    margin-top: 1rem;
     overflow-x: auto;
     padding: 1em;
+    padding-top: 0;
   }
 
   .d3-funnel-container svg {
