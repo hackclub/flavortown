@@ -6,6 +6,11 @@ class SlackMessageCounterService
     flavortown_support: "C09MATKQM8C" # flavortown-help channel (support)
   }.freeze
 
+  # Maximum messages to count before stopping search
+  MAX_MESSAGE_COUNT = 5
+  # Maximum thread replies to check per thread
+  MAX_THREAD_REPLIES = 3
+
   class << self
     # Count messages from a user in a specific channel within a time period
     # @param slack_id [String] The Slack user ID
@@ -38,6 +43,9 @@ class SlackMessageCounterService
       cursor = nil
 
       loop do
+        # Stop if we've already reached the hard cap
+        break if message_count >= MAX_MESSAGE_COUNT
+
         response = client.conversations_history(
           channel: channel_id,
           oldest: oldest_timestamp,
@@ -47,12 +55,21 @@ class SlackMessageCounterService
 
         break unless response.ok && response.messages.present?
 
-        # Count top-level messages from this user
-        message_count += response.messages.count { |msg| msg.user == slack_id && msg.subtype.nil? }
+        # Count top-level messages from this user with early exit
+        response.messages.each do |msg|
+          break if message_count >= MAX_MESSAGE_COUNT
+          message_count += 1 if msg.user == slack_id && msg.subtype.nil?
+        end
+
+        # Stop if we've reached the hard cap after counting top-level messages
+        break if message_count >= MAX_MESSAGE_COUNT
 
         # Count thread replies from this user
         threaded_messages = response.messages.select { |msg| msg.reply_count.to_i > 0 }
         threaded_messages.each do |msg|
+          # Stop if we've already reached the hard cap
+          break if message_count >= MAX_MESSAGE_COUNT
+
           thread_count = count_thread_replies(client, channel_id, msg.ts, slack_id)
           message_count += thread_count
 
@@ -76,13 +93,18 @@ class SlackMessageCounterService
         channel: channel_id,
         ts: thread_ts,
         oldest: thread_ts, # Start from thread parent
-        limit: 200
+        limit: MAX_THREAD_REPLIES + 1 # +1 to account for parent message
       )
 
       return 0 unless replies.ok && replies.messages.present?
 
-      # Skip first message (parent) and count replies from user
-      replies.messages.drop(1).count { |reply| reply.user == slack_id && reply.subtype.nil? }
+      # Skip first message (parent) and count replies from user with early exit
+      count = 0
+      replies.messages.drop(1).take(MAX_THREAD_REPLIES).each do |reply|
+        break if count >= MAX_THREAD_REPLIES
+        count += 1 if reply.user == slack_id && reply.subtype.nil?
+      end
+      count
     end
   end
 end
