@@ -25,6 +25,8 @@ class SlackChannelService
 
     private
 
+    MAX_THREADS_TO_CHECK = 20
+
     def fetch_user_posted_in_channel?(slack_id, channel_id)
       client = Slack::Web::Client.new(token: Rails.application.credentials.dig(:slack, :bot_token))
 
@@ -35,7 +37,24 @@ class SlackChannelService
 
       return false unless response.ok && response.messages.present?
 
-      response.messages.any? { |msg| msg.user == slack_id }
+      # Check top-level messages first (cheap)
+      return true if response.messages.any? { |msg| msg.user == slack_id }
+
+      # Check thread replies for messages that have threads
+      threaded = response.messages.select { |msg| msg.reply_count.to_i > 0 }
+      threaded.first(MAX_THREADS_TO_CHECK).each do |msg|
+        replies = client.conversations_replies(
+          channel: channel_id,
+          ts: msg.ts,
+          limit: 200
+        )
+        next unless replies.ok && replies.messages.present?
+
+        # Skip first message (parent, already checked above)
+        return true if replies.messages.drop(1).any? { |reply| reply.user == slack_id }
+      end
+
+      false
     rescue Slack::Web::Api::Errors::SlackError => e
       Rails.logger.error("SlackChannelService: Failed to fetch channel history: #{e.message}")
       false

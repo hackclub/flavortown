@@ -299,10 +299,13 @@ module Admin
         cookie_utilization_percentage = ((used_cookies.to_f / total_distributed_cookies) * 100).round(2)
 
         total_approved_ysws_db_hours = fetch_approved_ysws_db_hours
+        hcb_expenses = get_hcb_expenses
         if total_approved_ysws_db_hours > 0
           dollars_per_hour = (total_distributed_cookies / 5) / total_approved_ysws_db_hours
+          expenses_dollars_per_hour = hcb_expenses / total_approved_ysws_db_hours
         else
           dollars_per_hour = 0
+          expenses_dollars_per_hour = 0
         end
 
         {
@@ -314,13 +317,15 @@ module Admin
             volume: recent_stats[3]
           },
           cookie_utilization_percentage: cookie_utilization_percentage,
-          dollars_per_hour: dollars_per_hour
+          dollars_per_hour: dollars_per_hour,
+          expenses_dollars_per_hour: expenses_dollars_per_hour
         }
       end
       @payouts_cap = cached_data&.dig(:payouts_cap) || 0
       @payouts = cached_data&.dig(:payouts) || { created: 0, destroyed: 0, txns: 0, volume: 0 }
 
       @dollars_per_hour = cached_data&.dig(:dollars_per_hour) || 0
+      @expenses_dollars_per_hour = cached_data&.dig(:expenses_dollars_per_hour) || 0
       @cookie_utilization_percentage = cached_data&.dig(:cookie_utilization_percentage) || 0
     end
 
@@ -1058,10 +1063,23 @@ module Admin
 
       weighted_total = record&.fields&.dig("Weighted–Total")
 
-      weighted_total.to_f
+      weighted_total.to_f * 10
     rescue StandardError => e
       Rails.logger.error("[SuperMegaDashboard] Error fetching approved YSWS hours: #{e.class} - #{e.message}")
       0
+    end
+
+    def get_hcb_expenses
+      response = Faraday.get("https://hcb.hackclub.com/api/v3/organizations/flavortown")
+      if response.success?
+        data = JSON.parse(response.body)
+        total_raised = data.dig("balances", "total_raised") || 0
+        balance = data.dig("balances", "balance_cents") || 0
+        total_expenses = (total_raised - balance).to_f / 100
+        total_expenses
+      else
+        0
+      end
     end
   end
 end

@@ -104,7 +104,8 @@ module Admin
         "ShopItem::SpecialFulfillmentItem",
         "ShopItem::HackClubberItem",
         "ShopItem::FreeStickers",
-        "ShopItem::PileOfStickersItem"
+        "ShopItem::PileOfStickersItem",
+        "ShopItem::SillyItemType"
       ]
     end
 
@@ -160,6 +161,9 @@ module Admin
         :required_ships_count,
         :required_ships_start_date,
         :required_ships_end_date,
+        :requires_sidequest_entry,
+        :sidequest_id,
+        :sidequest_approval_required,
         :default_assigned_user_id,
         :default_assigned_user_id_us,
         :default_assigned_user_id_eu,

@@ -158,6 +158,9 @@ Rails.application.routes.draw do
 
     namespace :v1 do
       resources :projects, only: [ :index, :show, :create, :update ] do
+        member do
+          get :ban_status
+        end
         collection do
           get :random
           get :search
@@ -179,6 +182,17 @@ Rails.application.routes.draw do
       post "flavortime/heartbeat", to: "flavortime#heartbeat"
       post "flavortime/close", to: "flavortime#close"
       get "flavortime/active_users", to: "flavortime#active_users"
+
+      namespace :admin do
+        resources :shop_orders, only: [] do
+          collection do
+            get :stats
+            get :leaderboard
+            get :order
+            post :fulfill
+          end
+        end
+      end
     end
   end
 
@@ -256,6 +270,8 @@ Rails.application.routes.draw do
         post :delete
         post :shadow_ban
         post :unshadow_ban
+        post :update_ship_status
+        post :force_state
         get  :votes
       end
     end
@@ -272,6 +288,7 @@ Rails.application.routes.draw do
         post :reveal_address
         post :reveal_phone
         post :approve
+        post :review_order
         post :reject
         post :place_on_hold
         post :release_from_hold
@@ -282,6 +299,7 @@ Rails.application.routes.draw do
         post :refresh_verification
         post :send_to_theseus
         post :approve_verification_call
+        post :force_state
       end
     end
     resources :shop_suggestions, only: [ :index ] do
@@ -305,8 +323,10 @@ Rails.application.routes.draw do
       collection do
         post :give_payout
         post :mark_payout_given
+        post :toggle_live
       end
     end
+    resources :messages, only: [ :index, :create ]
     resources :support_vibes, only: [ :index, :create ]
     resources :sw_vibes, only: [ :index ]
     resources :suspicious_votes, only: [ :index ]
@@ -385,7 +405,9 @@ Rails.application.routes.draw do
 
   # Public user profiles
   resources :users, only: [ :show ] do
-    resource :profile, only: [ :edit, :update ], controller: "user_profiles"
+    constraints ->(_req) { Flipper.enabled?(:user_profiles) } do
+      resource :profile, only: [ :edit, :update ], controller: "user_profiles"
+    end
     resource :og_image, only: [ :show ], module: :users, defaults: { format: :png }
     member do
       get :stats
