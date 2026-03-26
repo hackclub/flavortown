@@ -13,53 +13,32 @@
 
 require_relative "../config/environment"
 
-cutoff_date = Date.new(2025, 12, 15)
-whodunnit = "script/find_banned_19_year_olds.rb"
-verified_users = User.where(verification_status: "verified").includes(:identities)
-
 execute = ARGV.include?("--execute")
+cutoff_date = Date.new(2025, 12, 15)
 candidate_rows = []
+updated_count = 0
 
-runner = lambda do
-  verified_users.find_each do |user|
-    next if user.ysws_eligible?
+User.where(verification_status: "verified").find_each do |user|
+  next if user.ysws_eligible?
+  next if user.birthday.nil?
 
-    birthday = user.birthday
-    next if birthday.nil?
+  turned_19_on = user.birthday.advance(years: 19)
+  next unless turned_19_on > cutoff_date
 
-    turned_19_on = birthday.advance(years: 19)
-    next unless turned_19_on > cutoff_date
+  candidate_rows << [user.id, user.email, turned_19_on.iso8601, user.created_at&.iso8601]
 
-    candidate_rows << [
-      user.id,
-      user.email,
-      turned_19_on.iso8601,
-      user.created_at&.iso8601
-    ]
-
-    next unless execute
-    next if user.banned?
-    next if user.manual_ysws_override == true
-
-    user.update!(manual_ysws_override: true)
-
-    puts "Overrided User #{user.id} with email: #{user.email}"
+  if execute && !user.banned? && user.manual_ysws_override != true
+    puts "user #{user.id} with email #{user.email} is to be unbanned"
+    PaperTrail.request(whodunnit: "script/find_banned_19_year_olds.rb") do
+      user.update!(manual_ysws_override: true)
+      puts "user #{user.id} with email #{user.email} overriden"
+      updated_count += 1
+    end
   end
 end
 
-if execute
-  PaperTrail.request(whodunnit: whodunnit) { runner.call }
-else
-  runner.call
-end
+puts "#{candidate_rows.size} users found"
+puts "#{updated_count} users changed" if execute
 
-if execute
-  puts
-  puts "Found #{candidate_rows.size} user(s) that are identity-verified, not YSWS-eligible, and turned 19 after #{cutoff_date}"
-else
-  puts "Found #{candidate_rows.size} user(s) that are identity-verified, not YSWS-eligible, and turned 19 after #{cutoff_date}"
-  puts
-
-  puts CSV.generate_line([ "id", "email", "turned_19_on", "created_at" ])
-  candidate_rows.each { |row| puts CSV.generate_line(row) }
-end
+puts CSV.generate_line(["id", "email", "turned_19_on", "created_at"])
+candidate_rows.each { |row| puts CSV.generate_line(row) }
