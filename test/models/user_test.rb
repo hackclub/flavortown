@@ -14,6 +14,8 @@
 #  email                                   :string
 #  enriched_ref                            :string
 #  first_name                              :string
+#  flavortown_message_count_14d            :integer
+#  flavortown_support_message_count_14d    :integer
 #  granted_roles                           :string           default([]), not null, is an Array
 #  has_gotten_free_stickers                :boolean          default(FALSE)
 #  has_pending_achievements                :boolean          default(FALSE), not null
@@ -24,7 +26,9 @@
 #  magic_link_token                        :string
 #  magic_link_token_expires_at             :datetime
 #  manual_ysws_override                    :boolean
+#  metrics_synced_at                       :datetime
 #  projects_count                          :integer
+#  projects_shipped_count                  :integer
 #  ref                                     :string
 #  regions                                 :string           default([]), is an Array
 #  search_engine_indexing_off              :boolean          default(FALSE), not null
@@ -38,6 +42,7 @@
 #  shadow_banned_reason                    :text
 #  shop_region                             :enum
 #  slack_balance_notifications             :boolean          default(FALSE), not null
+#  slack_messages_updated_at               :datetime
 #  special_effects_enabled                 :boolean          default(TRUE), not null
 #  synced_at                               :datetime
 #  things_dismissed                        :string           default([]), not null, is an Array
