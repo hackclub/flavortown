@@ -35,8 +35,20 @@ User.where(verification_status: "verified").find_each do |user|
 
   if execute && !user.banned? && user.manual_ysws_override != true
     puts "user #{user.id}: setting manual_ysws_override = true"
+    old_override = user.manual_ysws_override
     PaperTrail.request(whodunnit: "script/find_banned_19_year_olds.rb") do
       user.update!(manual_ysws_override: true)
+
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: user.id,
+        event: "manual_ysws_override_set",
+        whodunnit: "script/find_banned_19_year_olds.rb",
+        object_changes: { manual_ysws_override: [ old_override, true ] }.to_json
+      )
+
+      Shop::ProcessVerifiedOrdersJob.perform_later(user.id) if user.eligible_for_shop?
+
       puts "user #{user.id}: manual_ysws_override set"
       updated_count += 1
     end
