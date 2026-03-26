@@ -31,7 +31,7 @@ User.where(verification_status: "verified").find_each do |user|
   turned_19_on = user.birthday.advance(years: 19)
   next unless turned_19_on >= cutoff_date
 
-  candidate_rows << [ user.id, user.email, turned_19_on.iso8601, user.created_at&.iso8601 ]
+  candidate_rows << [ user.id, turned_19_on.iso8601, user.created_at&.iso8601 ]
 
   if execute && !user.banned? && user.manual_ysws_override != true
     puts "user #{user.id}: setting manual_ysws_override = true"
@@ -58,5 +58,5 @@ end
 puts "#{candidate_rows.size} users found"
 puts "#{updated_count} users changed" if execute
 
-puts CSV.generate_line([ "id", "email", "turned_19_on", "created_at" ])
+puts CSV.generate_line([ "id", "turned_19_on", "created_at" ])
 candidate_rows.each { |row| puts CSV.generate_line(row) }
