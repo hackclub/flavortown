@@ -9,18 +9,29 @@ class UpdateSlackMessageCountsJob < ApplicationJob
   def perform
     Rails.logger.info("Starting Slack message count updates")
 
-    # Reset all counts to 0
+    # Fetch message counts for all users in each channel
+    # Do this BEFORE resetting to detect API failures
+    flavortown_counts = SlackMessageCounterService.fetch_all_message_counts(:flavortown, days_back: 14)
+    support_counts = SlackMessageCounterService.fetch_all_message_counts(:flavortown_support, days_back: 14)
+
+    # Abort if either fetch failed (returned nil)
+    if flavortown_counts.nil? || support_counts.nil?
+      Rails.logger.error(
+        "UpdateSlackMessageCountsJob: Aborting due to API failure. " \
+        "Flavortown: #{flavortown_counts.nil? ? 'FAILED' : 'OK'}, " \
+        "Support: #{support_counts.nil? ? 'FAILED' : 'OK'}"
+      )
+      raise "Slack API failure prevented message count update to avoid data loss"
+    end
+
+    Rails.logger.info("UpdateSlackMessageCountsJob: Flavortown counts: #{flavortown_counts.inspect}")
+    Rails.logger.info("UpdateSlackMessageCountsJob: Support counts: #{support_counts.inspect}")
+
+    # Reset all counts to 0 (only after successful fetch)
     User.where.not(slack_id: nil).update_all(
       flavortown_message_count_14d: 0,
       flavortown_support_message_count_14d: 0
     )
-
-    # Fetch message counts for all users in each channel
-    flavortown_counts = SlackMessageCounterService.fetch_all_message_counts(:flavortown, days_back: 14)
-    Rails.logger.info("UpdateSlackMessageCountsJob: Flavortown counts: #{flavortown_counts.inspect}")
-
-    support_counts = SlackMessageCounterService.fetch_all_message_counts(:flavortown_support, days_back: 14)
-    Rails.logger.info("UpdateSlackMessageCountsJob: Support counts: #{support_counts.inspect}")
 
     # Update users with their message counts
     update_users_from_counts(flavortown_counts, :flavortown_message_count_14d)
