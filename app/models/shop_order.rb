@@ -536,7 +536,7 @@ class ShopOrder < ApplicationRecord
 
   def send_fulfillment_alert!(message)
     channel = "C0A9MR0CSNB"
-    
+
     admin_url = Rails.application.routes.url_helpers.admin_shop_order_url(self, host: "flavortown.hackclub.com", protocol: "https")
     SendSlackDmJob.perform_later(channel, "⚠️ Order ##{id} needs attention!\n\n#{message}\n\nPlease review: #{admin_url}")
   rescue Slack::Web::Api::Errors::SlackError => e
