@@ -11,23 +11,90 @@ class SlackMessageCounterService
     # Returns a hash of {slack_id => count}, or nil if the fetch failed
     # @param channel_key [Symbol] The channel key from CHANNEL_IDS
     # @param days_back [Integer] Number of days to look back (default: 14)
+    # @param max_retries [Integer] Maximum number of retry attempts (default: 3)
     # @return [Hash, nil] Hash mapping slack_id to message count, or nil on API failure
-    def fetch_all_message_counts(channel_key, days_back: 14)
+    def fetch_all_message_counts(channel_key, days_back: 14, max_retries: 3)
       channel_id = CHANNEL_IDS[channel_key.to_sym]
       return {} unless channel_id
 
       oldest_timestamp = days_back.days.ago.to_i.to_s
 
-      fetch_channel_message_counts(channel_id, oldest_timestamp)
+      retry_with_backoff(max_retries) do
+        fetch_channel_message_counts(channel_id, oldest_timestamp)
+      end
     rescue Slack::Web::Api::Errors::SlackError => e
-      Rails.logger.error("SlackMessageCounterService: Failed to fetch messages: #{e.message}")
+      Rails.logger.error("SlackMessageCounterService: Failed to fetch messages after retries: #{e.message}")
       nil
     rescue StandardError => e
-      Rails.logger.error("SlackMessageCounterService: Unexpected error: #{e.message}")
+      Rails.logger.error("SlackMessageCounterService: Unexpected error after retries: #{e.message}")
       nil
     end
 
     private
+
+    # Retry a block with exponential backoff on rate limit errors
+    # @param max_retries [Integer] Maximum number of retry attempts
+    # @yield The block to execute with retry logic
+    # @return The result of the block
+    def retry_with_backoff(max_retries)
+      attempt = 0
+
+      loop do
+        begin
+          return yield
+        rescue Slack::Web::Api::Errors::TooManyRequestsError => e
+          attempt += 1
+
+          if attempt > max_retries
+            Rails.logger.error("SlackMessageCounterService: Max retries (#{max_retries}) exceeded for rate limiting")
+            raise
+          end
+
+          # Extract retry_after from the error or use exponential backoff
+          wait_time = extract_retry_after(e) || (2 ** attempt)
+
+          Rails.logger.warn(
+            "SlackMessageCounterService: Rate limited (attempt #{attempt}/#{max_retries}), " \
+            "waiting #{wait_time} seconds before retry"
+          )
+
+          sleep(wait_time)
+        rescue StandardError => e
+          # Check if the error message indicates rate limiting
+          if e.message =~ /retry after (\d+)/i
+            attempt += 1
+
+            if attempt > max_retries
+              Rails.logger.error("SlackMessageCounterService: Max retries (#{max_retries}) exceeded")
+              raise
+            end
+
+            wait_time = $1.to_i
+
+            Rails.logger.warn(
+              "SlackMessageCounterService: Rate limited (attempt #{attempt}/#{max_retries}), " \
+              "waiting #{wait_time} seconds before retry"
+            )
+
+            sleep(wait_time)
+          else
+            # Not a rate limit error, re-raise immediately
+            raise
+          end
+        end
+      end
+    end
+
+    # Extract retry_after value from Slack API error response
+    # @param error [Slack::Web::Api::Errors::TooManyRequestsError] The error object
+    # @return [Integer, nil] The number of seconds to wait, or nil if not found
+    def extract_retry_after(error)
+      # Slack API typically returns retry_after in the error response
+      return nil unless error.respond_to?(:response)
+
+      retry_after = error.response&.dig("retry_after")
+      retry_after&.to_i
+    end
 
     def fetch_channel_message_counts(channel_id, oldest_timestamp)
       client = Slack::Web::Client.new(token: Rails.application.credentials.dig(:slack, :bot_token))
