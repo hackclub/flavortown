@@ -1,40 +1,6 @@
 class Api::V1::UsersController < Api::BaseController
   include ApiAuthenticatable
 
-  class_attribute :description, default: {
-    index: "Fetch a list of users. Ratelimit: 5 reqs/min",
-    show: "Fetch a specific user by ID. Ratelimit: 30 reqs/min"
-  }
-
-  class_attribute :url_params_model, default: {
-    index: {
-      page: { type: Integer, desc: "Page number for pagination", required: false },
-      query: { type: String, desc: "Search users by display name or slack ID", required: false }
-    }
-  }
-
-  USER_BASE = {
-    id: Integer, slack_id: String, display_name: String,
-    avatar: String, project_ids: [ Integer ], cookies: "Integer || Null"
-  }.freeze
-  PAGINATION_SCHEMA = {
-    current_page: Integer, total_pages: Integer,
-    total_count: Integer, next_page: "Integer || Null"
-  }.freeze
-
-  ACHIEVEMENT_SCHEMA = {
-    slug: String, name: String, description: String, icon: String
-  }.freeze
-
-  class_attribute :response_body_model, default: {
-    index: { users: [ USER_BASE ], pagination: PAGINATION_SCHEMA },
-    show: USER_BASE.merge(
-      vote_count: Integer, like_count: Integer,
-      devlog_seconds_total: Integer, devlog_seconds_today: Integer,
-      achievements: [ ACHIEVEMENT_SCHEMA ]
-    )
-  }
-
   def index
     users = User.includes(:projects).all
 
@@ -44,7 +10,10 @@ class Api::V1::UsersController < Api::BaseController
       users = users.where("display_name ILIKE :q OR slack_id ILIKE :q", q: q)
     end
 
-    @pagy, @users = pagy(users, page: params[:page], limit: 100)
+    limit = params.fetch(:limit, 100).to_i
+    return render json: { error: "Limit must be between 1 and 100" }, status: :bad_request if limit < 1 || limit > 100
+
+    @pagy, @users = pagy(users, page: params[:page], limit: limit)
   end
 
   def show
