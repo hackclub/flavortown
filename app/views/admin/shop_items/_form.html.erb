@@ -183,35 +183,6 @@
                 <span class="shop-item-form__toggle-desc">User must have shipped projects in a date range to purchase</span>
               </span>
             </label>
-
-            <label class="shop-item-form__toggle">
-              <%= f.check_box :requires_sidequest_entry, id: "shop_item_requires_sidequest_entry" %>
-              <span class="shop-item-form__toggle-content">
-                <strong>Sidequest Gated</strong>
-                <span class="shop-item-form__toggle-desc">Only users who have submitted to a sidequest can purchase this item</span>
-              </span>
-            </label>
-          </div>
-
-          <div id="sidequest_gating_fields" style="display: none; margin-top: 1rem;">
-            <div class="shop-item-form__field">
-              <%= f.label :sidequest_id, "Sidequest", class: "shop-item-form__label" %>
-              <%= f.select :sidequest_id,
-                  Sidequest.active.order(:title).map { |sq| [sq.title, sq.id] },
-                  { include_blank: "Any Sidequest" },
-                  { class: "form-control" } %>
-              <span class="shop-item-form__hint">Restrict to a specific sidequest, or leave blank to allow any sidequest submission.</span>
-            </div>
-
-            <div class="shop-item-form__toggles" style="margin-top: 0.75rem;">
-              <label class="shop-item-form__toggle">
-                <%= f.check_box :sidequest_approval_required %>
-                <span class="shop-item-form__toggle-content">
-                  <strong>Require Approved Submission</strong>
-                  <span class="shop-item-form__toggle-desc">When checked, submission must be approved. Uncheck for sidequests like Shipwright's where pending is sufficient.</span>
-                </span>
-              </label>
-            </div>
           </div>
 
           <div class="shop-item-form__field" style="margin-top: 1rem;">
@@ -897,20 +868,6 @@
         if (requiresShipCheckbox) {
             requiresShipCheckbox.addEventListener('change', toggleShipRequirementFields);
             toggleShipRequirementFields();
-        }
-
-        const requiresSidequestCheckbox = document.getElementById('shop_item_requires_sidequest_entry');
-        const sidequestGatingFields = document.getElementById('sidequest_gating_fields');
-
-        function toggleSidequestGatingFields() {
-            if (requiresSidequestCheckbox && sidequestGatingFields) {
-                sidequestGatingFields.style.display = requiresSidequestCheckbox.checked ? 'block' : 'none';
-            }
-        }
-
-        if (requiresSidequestCheckbox) {
-            requiresSidequestCheckbox.addEventListener('change', toggleSidequestGatingFields);
-            toggleSidequestGatingFields();
         }
 
         function getHackerMultiplier() {
