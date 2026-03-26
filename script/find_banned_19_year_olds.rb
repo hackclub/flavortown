@@ -29,7 +29,7 @@ User.where(verification_status: "verified").find_each do |user|
   next if user.birthday.nil?
 
   turned_19_on = user.birthday.advance(years: 19)
-  next unless turned_19_on > cutoff_date
+  next unless turned_19_on >= cutoff_date
 
   candidate_rows << [ user.id, user.email, turned_19_on.iso8601, user.created_at&.iso8601 ]
 
