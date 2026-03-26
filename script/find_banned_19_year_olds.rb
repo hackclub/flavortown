@@ -21,6 +21,7 @@ updated_count = 0
 
 User.where(verification_status: "verified").find_each do |user|
   next if user.ysws_eligible?
+  next if user.manual_ysws_override == false
   next if user.birthday.nil?
 
   turned_19_on = user.birthday.advance(years: 19)
