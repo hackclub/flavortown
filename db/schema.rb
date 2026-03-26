@@ -557,7 +557,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_26_155750) do
     t.string "hcb_merchant_lock"
     t.boolean "hcb_one_time_use", default: false
     t.text "hcb_preauthorization_instructions"
-    t.jsonb "inkthreadable_config"
     t.string "internal_description"
     t.boolean "limited"
     t.text "long_description"
@@ -589,13 +588,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_26_155750) do
     t.date "unlock_on"
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.decimal "usd_cost"
-    t.decimal "usd_offset_au", precision: 10, scale: 2
-    t.decimal "usd_offset_ca", precision: 10, scale: 2
-    t.decimal "usd_offset_eu", precision: 10, scale: 2
-    t.decimal "usd_offset_in", precision: 10, scale: 2
-    t.decimal "usd_offset_uk", precision: 10, scale: 2
-    t.decimal "usd_offset_us", precision: 10, scale: 2
-    t.decimal "usd_offset_xx", precision: 10, scale: 2
+    t.decimal "usd_offset_au"
+    t.decimal "usd_offset_ca"
+    t.decimal "usd_offset_eu"
+    t.decimal "usd_offset_in"
+    t.decimal "usd_offset_uk"
+    t.decimal "usd_offset_us"
+    t.decimal "usd_offset_xx"
     t.bigint "user_id"
     t.index ["default_assigned_user_id"], name: "index_shop_items_on_default_assigned_user_id"
     t.index ["sidequest_id"], name: "index_shop_items_on_sidequest_id"
