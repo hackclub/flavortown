@@ -309,7 +309,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def reject
-    authorize :admin, :access_shop_orders?
+    authorize :admin, :reject_shop_order?
     @order = ShopOrder.find(params[:id])
 
     if @order.requires_additional_review?
@@ -484,9 +484,9 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         }
       )
 
-      redirect_to admin_shop_orders_path(view: "fulfillment"), notice: "Order assigned to #{assigned_user&.display_name || 'nobody'}"
+      redirect_back fallback_location: admin_shop_order_path(@order), notice: "Order assigned to #{assigned_user&.display_name || 'nobody'}"
     else
-      redirect_to admin_shop_orders_path(view: "fulfillment"), alert: "Failed to assign order"
+      redirect_back fallback_location: admin_shop_order_path(@order), alert: "Failed to assign order"
     end
   end
 

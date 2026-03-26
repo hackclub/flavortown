@@ -51,7 +51,6 @@
 # Foreign Keys
 #
 #  fk_rails_...  (assigned_to_user_id => users.id) ON DELETE => nullify
-#  fk_rails_...  (fraud_related_project_id => projects.id) ON DELETE => nullify
 #  fk_rails_...  (fulfillment_payout_line_id => fulfillment_payout_lines.id)
 #  fk_rails_...  (parent_order_id => shop_orders.id)
 #  fk_rails_...  (shop_item_id => shop_items.id)
@@ -91,6 +90,7 @@ class ShopOrder < ApplicationRecord
   validate :check_stock, on: :create
   validate :check_ship_requirement, on: :create
   validate :check_achievement_requirement, on: :create
+  validate :check_sidequest_requirement, on: :create
 
   validates :internal_rejection_reason, presence: true, if: :rejected?
   validates :fraud_related_project_id, presence: true, if: :rejected?
@@ -361,6 +361,7 @@ class ShopOrder < ApplicationRecord
     ShopItem::HCBPreauthGrant
     ShopItem::ThirdPartyDigital
     ShopItem::SillyItemType
+    ShopItem::SpecialFulfillmentItem
   ].freeze
 
   def check_regional_availability
@@ -434,6 +435,20 @@ class ShopOrder < ApplicationRecord
 
     achievement = Achievement.find(shop_item.requires_achievement.to_sym)
     errors.add(:base, "You must earn the \"#{achievement.name}\" achievement to purchase this item.")
+  end
+
+  def check_sidequest_requirement
+    return unless shop_item&.requires_sidequest_entry?
+    return if shop_item.meet_sidequest_require?(user)
+
+    if shop_item.sidequest_id.present?
+      sidequest_name = shop_item.sidequest&.title || "this sidequest"
+      qualifier = shop_item.sidequest_approval_required? ? "an approved submission for" : "a submission for"
+      errors.add(:base, "You must have #{qualifier} the \"#{sidequest_name}\" sidequest to purchase this item.")
+    else
+      qualifier = shop_item.sidequest_approval_required? ? "an approved sidequest submission" : "a sidequest submission"
+      errors.add(:base, "You must have #{qualifier} to purchase this item.")
+    end
   end
 
   def create_negative_payout

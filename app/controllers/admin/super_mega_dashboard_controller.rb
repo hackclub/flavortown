@@ -19,6 +19,7 @@ module Admin
       super_mega_ysws_review_v2
       super_mega_ship_certs_raw
       sw_vibes_data
+      super_mega_funnel_stats
     ].freeze
 
     def index
@@ -36,6 +37,7 @@ module Admin
       load_pyramid_scheme_stats
       load_community_engagement_stats
       load_fraud_happiness_data
+      load_funnel_stats
     end
 
     def load_section
@@ -337,12 +339,20 @@ module Admin
 
         type_counts = base_scope.group("shop_items.type", :aasm_state).count
 
+        known_types = %w[
+          ShopItem::HQMailItem ShopItem::LetterMail
+          ShopItem::ThirdPartyPhysical ShopItem::Accessory ShopItem::ThirdPartyDigital
+          ShopItem::WarehouseItem ShopItem::PileOfStickersItem
+          ShopItem::FreeStickers
+        ]
+        other_types = type_counts.keys.map(&:first).uniq - known_types
+
         {
           all: calculate_type_totals(type_counts),
           hq_mail: calculate_type_totals(type_counts, %w[ShopItem::HQMailItem ShopItem::LetterMail]),
-          third_party: calculate_type_totals(type_counts, %w[ShopItem::ThirdPartyPhysical]),
+          third_party: calculate_type_totals(type_counts, %w[ShopItem::ThirdPartyPhysical ShopItem::Accessory ShopItem::ThirdPartyDigital]),
           warehouse: calculate_type_totals(type_counts, %w[ShopItem::WarehouseItem ShopItem::PileOfStickersItem]),
-          other: calculate_type_totals(type_counts, %w[ShopItem::HCBGrant ShopItem::SiteActionItem ShopItem::BadgeItem ShopItem::AdventSticker ShopItem::HCBPreauthGrant ShopItem::SpecialFulfillmentItem])
+          other: calculate_type_totals(type_counts, other_types)
         }
       end
       @fulfillment = cached_data || { all: {}, hq_mail: {}, third_party: {}, warehouse: {}, other: {} }
@@ -1051,6 +1061,47 @@ module Admin
         reviewers: reviewer_data,
         totals: total_by_date
       }
+    end
+
+    def load_funnel_stats
+      cached_data = Rails.cache.fetch("super_mega_funnel_stats", expires_in: 5.minutes) do
+        begin
+          funnel_steps = [
+            "start_flow_started",
+            "start_flow_name",
+            "start_flow_project",
+            "start_flow_devlog",
+            "start_flow_signin",
+            "identity_verified",
+            "hackatime_linked",
+            "project_created",
+            "devlog_created"
+          ]
+
+          grouped_counts = FunnelEvent.where(event_name: funnel_steps)
+                                       .group(:event_name)
+                                       .distinct
+                                       .count(:email)
+
+          funnel_data = funnel_steps.index_with { |step| grouped_counts[step] || 0 }
+
+          funnel_with_counts = funnel_steps.map do |step|
+            count = funnel_data[step]
+
+            {
+              name: step,
+              count: count
+            }
+          end
+
+          { funnel_steps: funnel_with_counts }
+        rescue StandardError => e
+          Rails.logger.error("[SuperMegaDashboard] Error in load_funnel_stats: #{e.message}")
+          { funnel_steps: [] }
+        end
+      end
+
+      @funnel_steps = cached_data&.dig(:funnel_steps) || []
     end
 
     private
