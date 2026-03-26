@@ -3,7 +3,7 @@ class Api::V1::ProjectsController < Api::BaseController
 
   def index
     limit = params.fetch(:limit, 100).to_i
-    return render json: { error: "Limit cannot exceed 100" }, status: :bad_request if limit > 100
+    return render json: { error: "Limit must be between 1 and 100" }, status: :bad_request if limit < 1 || limit > 100
 
     projects = Project.where(deleted_at: nil).excluding_shadow_banned.includes(:devlogs)
 
@@ -35,7 +35,7 @@ class Api::V1::ProjectsController < Api::BaseController
     return render json: { error: "q parameter is required" }, status: :bad_request if params[:q].blank?
 
     limit = (params[:limit] || 20).to_i
-    return render json: { error: "Limit cannot exceed 50" }, status: :bad_request if limit > 50
+    return render json: { error: "Limit must be between 1 and 50" }, status: :bad_request if limit < 1 || limit > 50
 
     @results = Project.ferret_search(params[:q], limit: limit)
     @results = @results.select { |p| p.deleted_at.nil? && !p.shadow_banned? }
