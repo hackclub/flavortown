@@ -135,6 +135,15 @@ components:
         cookies:
           type: integer
           nullable: true
+    Achievement:
+      type: object
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
     UserDetail:
       allOf:
       - "$ref": "#/components/schemas/User"
@@ -148,6 +157,10 @@ components:
             type: integer
           devlog_seconds_today:
             type: integer
+          achievements:
+            type: array
+            items:
+              "$ref": "#/components/schemas/Achievement"
     RegionEnabled:
       type: object
       properties:
@@ -276,6 +289,25 @@ components:
         application/json:
           schema:
             "$ref": "#/components/schemas/ValidationErrors"
+    TooManyRequests:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          description: Number of seconds to wait before retrying
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+          example:
+            error: rate_limited
+            message: Too many requests. Please slow down.
 paths:
   "/projects":
     get:
@@ -323,6 +355,8 @@ paths:
           "$ref": "#/components/responses/BadRequest"
         '401':
           "$ref": "#/components/responses/Unauthorized"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
     post:
       summary: Create a project
       tags:
@@ -341,6 +375,8 @@ paths:
           "$ref": "#/components/responses/Unauthorized"
         '422':
           "$ref": "#/components/responses/UnprocessableEntity"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -393,6 +429,8 @@ paths:
           "$ref": "#/components/responses/Unauthorized"
         '404':
           "$ref": "#/components/responses/NotFound"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
     patch:
       summary: Update a project
       tags:
@@ -415,6 +453,8 @@ paths:
           "$ref": "#/components/responses/NotFound"
         '422':
           "$ref": "#/components/responses/UnprocessableEntity"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -486,6 +526,8 @@ paths:
           "$ref": "#/components/responses/Unauthorized"
         '404':
           "$ref": "#/components/responses/NotFound"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/devlogs":
     get:
       summary: List devlogs
@@ -525,6 +567,8 @@ paths:
           "$ref": "#/components/responses/BadRequest"
         '401':
           "$ref": "#/components/responses/Unauthorized"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/devlogs/{id}":
     get:
       summary: Get a devlog
@@ -549,6 +593,8 @@ paths:
           "$ref": "#/components/responses/Unauthorized"
         '404':
           "$ref": "#/components/responses/NotFound"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/store":
     get:
       summary: List store items
@@ -567,6 +613,8 @@ paths:
                   "$ref": "#/components/schemas/StoreItem"
         '401':
           "$ref": "#/components/responses/Unauthorized"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/store/{id}":
     get:
       summary: Get a store item
@@ -591,6 +639,8 @@ paths:
           "$ref": "#/components/responses/Unauthorized"
         '404':
           "$ref": "#/components/responses/NotFound"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/users":
     get:
       summary: List users
@@ -636,6 +686,8 @@ paths:
           "$ref": "#/components/responses/BadRequest"
         '401':
           "$ref": "#/components/responses/Unauthorized"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/users/{id}":
     get:
       summary: Get a user
@@ -662,3 +714,5 @@ paths:
           "$ref": "#/components/responses/Unauthorized"
         '404':
           "$ref": "#/components/responses/NotFound"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
