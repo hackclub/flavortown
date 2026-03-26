@@ -8,10 +8,10 @@ class SlackMessageCounterService
 
   class << self
     # Fetch message counts for all users in a channel within a time period
-    # Returns a hash of {slack_id => count}
+    # Returns a hash of {slack_id => count}, or nil if the fetch failed
     # @param channel_key [Symbol] The channel key from CHANNEL_IDS
     # @param days_back [Integer] Number of days to look back (default: 14)
-    # @return [Hash] Hash mapping slack_id to message count
+    # @return [Hash, nil] Hash mapping slack_id to message count, or nil on API failure
     def fetch_all_message_counts(channel_key, days_back: 14)
       channel_id = CHANNEL_IDS[channel_key.to_sym]
       return {} unless channel_id
@@ -21,10 +21,10 @@ class SlackMessageCounterService
       fetch_channel_message_counts(channel_id, oldest_timestamp)
     rescue Slack::Web::Api::Errors::SlackError => e
       Rails.logger.error("SlackMessageCounterService: Failed to fetch messages: #{e.message}")
-      {}
+      nil
     rescue StandardError => e
       Rails.logger.error("SlackMessageCounterService: Unexpected error: #{e.message}")
-      {}
+      nil
     end
 
     private
