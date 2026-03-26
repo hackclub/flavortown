@@ -1102,6 +1102,16 @@
   .d3-stream-container {
     min-height: 180px;
   }
+
+  .d3-fulfillment-trend-container {
+    position: relative;
+    min-height: 200px;
+
+    svg {
+      display: block;
+      width: 100%;
+    }
+  }
 }
 
 .fulfillment-stats-row {

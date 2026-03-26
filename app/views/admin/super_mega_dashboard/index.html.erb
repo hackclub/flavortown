@@ -398,72 +398,186 @@
         <div class="super-mega-dashboard__card super-mega-dashboard__card--fulfillment-graph">
           <h3>Fulfilment Trend (30d)</h3>
           <% if @fulfillment_trend_data.present? %>
-            <div class="fraud-timeline-graph fraud-timeline-graph--compact">
-              <canvas id="fulfillmentTrendChart" height="100"></canvas>
+            <div class="d3-fulfillment-trend-container" id="fulfillmentTrendContainer">
+              <div class="d3-stream-tooltip" id="fulfillmentTrendTooltip"></div>
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <div class="d3-stream-legend" id="fulfillmentTrendLegend"></div>
             <script>
               document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('fulfillmentTrendChart');
-                if (!ctx) return;
+                ensureD3(function() {
+                  var raw = <%= raw @fulfillment_trend_data.to_json %>;
+                  var sortedDates = Object.keys(raw).sort();
+                  var tableData = sortedDates.map(function(d) {
+                    return {
+                      date: new Date(d),
+                      dateStr: d,
+                      fulfilled: raw[d].fulfilled || 0,
+                      created: raw[d].created || 0
+                    };
+                  });
 
-                const data = <%= raw @fulfillment_trend_data.to_json %>;
-                const sortedDates = Object.keys(data).sort();
-                const labels = sortedDates.map(d => {
-                  const date = new Date(d);
-                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                });
+                  var seriesConfig = [
+                    { key: 'fulfilled', label: 'Fulfilled', color: '#10b981', fillColor: 'rgba(16, 185, 129, 0.15)' },
+                    { key: 'created',   label: 'New Orders', color: '#3b82f6', fillColor: 'rgba(59, 130, 246, 0.08)' }
+                  ];
 
-                const fulfilledData = sortedDates.map(d => data[d].fulfilled);
-                const createdData = sortedDates.map(d => data[d].created);
+                  var container = document.getElementById('fulfillmentTrendContainer');
+                  var tooltip  = document.getElementById('fulfillmentTrendTooltip');
+                  var legendEl = document.getElementById('fulfillmentTrendLegend');
+                  var margin = { top: 12, right: 12, bottom: 24, left: 36 };
+                  var height = 220;
 
-                new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                    labels: labels,
-                    datasets: [
-                      {
-                        label: 'Fulfilled',
-                        data: fulfilledData,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 1,
-                        borderWidth: 1.5
-                      },
-                      {
-                        label: 'New Orders',
-                        data: createdData,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 1,
-                        borderWidth: 1.5
-                      }
-                    ]
-                  },
-                  options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        display: true,
-                        position: 'bottom',
-                        labels: { font: { size: 8 }, padding: 4 }
-                      }
-                    },
-                    scales: {
-                      x: {
-                        ticks: { font: { size: 7 }, maxRotation: 45, minRotation: 0 }
-                      },
-                      y: {
-                        beginAtZero: true,
-                        ticks: { precision: 0, font: { size: 7 } }
-                      }
+                  var completedData = tableData.slice(0, -1);
+                  var lastTwo = tableData.length >= 2 ? tableData.slice(-2) : tableData;
+
+                  function render() {
+                    container.querySelectorAll('svg').forEach(function(el) { el.remove(); });
+                    var width = container.clientWidth;
+                    var innerW = width - margin.left - margin.right;
+                    var innerH = height - margin.top - margin.bottom;
+
+                    var svg = d3.select(container).append('svg')
+                      .attr('width', width).attr('height', height);
+                    var g = svg.append('g')
+                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+                    var x = d3.scaleTime()
+                      .domain(d3.extent(tableData, function(d) { return d.date; }))
+                      .range([0, innerW]);
+
+                    var yMax = d3.max(tableData, function(d) {
+                      return Math.max(d.fulfilled, d.created);
+                    }) || 1;
+
+                    var y = d3.scaleLinear()
+                      .domain([0, yMax * 1.1])
+                      .range([innerH, 0]);
+
+                    g.append('g')
+                      .attr('class', 'd3-stream-grid')
+                      .call(d3.axisLeft(y).ticks(4).tickSize(-innerW).tickFormat(d3.format('d')))
+                      .selectAll('text').style('font-size', '7px');
+
+                    g.append('g')
+                      .attr('transform', 'translate(0,' + innerH + ')')
+                      .call(d3.axisBottom(x).ticks(Math.min(sortedDates.length, 8)).tickFormat(d3.timeFormat('%b %d')))
+                      .selectAll('text').style('font-size', '7px');
+
+                    var areaGen = d3.area()
+                      .x(function(d) { return x(d.date); })
+                      .y0(innerH);
+
+                    var lineGen = d3.line()
+                      .x(function(d) { return x(d.date); });
+
+                    if (completedData.length > 0) {
+                      g.append('path')
+                        .datum(completedData)
+                        .attr('fill', seriesConfig[0].fillColor)
+                        .attr('d', areaGen.y1(function(d) { return y(d.fulfilled); }));
                     }
+
+                    seriesConfig.forEach(function(cfg) {
+                      if (completedData.length > 0) {
+                        g.append('path')
+                          .datum(completedData)
+                          .attr('fill', 'none')
+                          .attr('stroke', cfg.color)
+                          .attr('stroke-width', 1.5)
+                          .attr('d', lineGen.y(function(d) { return y(d[cfg.key]); }));
+                      }
+                    });
+
+                    if (lastTwo.length === 2) {
+                      seriesConfig.forEach(function(cfg) {
+                        g.append('path')
+                          .datum(lastTwo)
+                          .attr('fill', 'none')
+                          .attr('stroke', cfg.color)
+                          .attr('stroke-width', 1.5)
+                          .attr('stroke-dasharray', '4,3')
+                          .attr('d', lineGen.y(function(d) { return y(d[cfg.key]); }));
+                      });
+                    }
+
+                    seriesConfig.forEach(function(cfg) {
+                      g.selectAll('.dot-' + cfg.key)
+                        .data(completedData)
+                        .join('circle')
+                        .attr('cx', function(d) { return x(d.date); })
+                        .attr('cy', function(d) { return y(d[cfg.key]); })
+                        .attr('r', 2.5)
+                        .attr('fill', cfg.color)
+                        .attr('stroke', '#fff')
+                        .attr('stroke-width', 1);
+                    });
+
+                    var lastPoint = tableData[tableData.length - 1];
+                    seriesConfig.forEach(function(cfg) {
+                      g.append('circle')
+                        .attr('cx', x(lastPoint.date))
+                        .attr('cy', y(lastPoint[cfg.key]))
+                        .attr('r', 3)
+                        .attr('fill', '#fff')
+                        .attr('stroke', cfg.color)
+                        .attr('stroke-width', 1.5)
+                        .attr('stroke-dasharray', '2,2');
+                    });
+
+                    var crosshair = g.append('line')
+                      .attr('y1', 0).attr('y2', innerH)
+                      .attr('stroke', '#94a3b8')
+                      .attr('stroke-width', 1)
+                      .attr('stroke-dasharray', '3,3')
+                      .style('opacity', 0)
+                      .style('pointer-events', 'none');
+
+                    g.append('rect')
+                      .attr('width', innerW).attr('height', innerH)
+                      .attr('fill', 'transparent')
+                      .on('mousemove', function(event) {
+                        var pointer = d3.pointer(event, g.node());
+                        var xPos = pointer[0];
+                        var hoveredDate = x.invert(xPos);
+                        var idx = d3.bisectCenter(tableData.map(function(r) { return r.date; }), hoveredDate);
+                        var d = tableData[idx];
+                        var isToday = idx === tableData.length - 1;
+                        var dateStr = d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                        crosshair
+                          .attr('x1', x(d.date)).attr('x2', x(d.date))
+                          .style('opacity', 1);
+
+                        tooltip.innerHTML = '<strong>' + dateStr + (isToday ? ' (in progress)' : '') + '</strong><br>'
+                          + '<span style="color:#10b981">●</span> Fulfilled: ' + d.fulfilled + '<br>'
+                          + '<span style="color:#3b82f6">●</span> New Orders: ' + d.created;
+
+                        var containerPointer = d3.pointer(event, container);
+                        var tooltipLeft = containerPointer[0] + 14;
+                        var tooltipTop = containerPointer[1] - 10;
+
+                        if (tooltipLeft + 140 > width) {
+                          tooltipLeft = containerPointer[0] - 150;
+                        }
+
+                        tooltip.style.left = tooltipLeft + 'px';
+                        tooltip.style.top  = tooltipTop + 'px';
+                        tooltip.classList.add('is-visible');
+                      })
+                      .on('mouseleave', function() {
+                        crosshair.style('opacity', 0);
+                        tooltip.classList.remove('is-visible');
+                      });
                   }
+
+                  seriesConfig.forEach(function(cfg) {
+                    var span = document.createElement('span');
+                    span.innerHTML = '<span class="d3-stream-legend__swatch" style="background:' + cfg.color + '"></span>' + cfg.label;
+                    legendEl.appendChild(span);
+                  });
+
+                  render();
+                  window.addEventListener('resize', render);
                 });
               });
             </script>
@@ -475,8 +589,9 @@
         <div class="super-mega-dashboard__card super-mega-dashboard__card--fulfillment-graph">
           <h3>Order States (30d)</h3>
           <% if @order_states_trend_data.present? %>
-            <div id="orderStatesStream" class="d3-stream-container"></div>
-            <div class="d3-stream-tooltip" id="orderStatesTooltip"></div>
+            <div id="orderStatesStream" class="d3-stream-container">
+              <div class="d3-stream-tooltip" id="orderStatesTooltip"></div>
+            </div>
             <div class="d3-stream-legend" id="orderStatesLegend"></div>
             <script>
               function ensureD3(cb) {
@@ -512,7 +627,7 @@
                   var height = 220;
 
                   function render() {
-                    container.innerHTML = '';
+                    container.querySelectorAll('svg').forEach(function(el) { el.remove(); });
                     var width = container.clientWidth;
                     var innerW = width - margin.left - margin.right;
                     var innerH = height - margin.top - margin.bottom;
@@ -542,30 +657,68 @@
                       .x(function(d) { return x(d.data.date); })
                       .y0(function(d) { return y(d[0]); })
                       .y1(function(d) { return y(d[1]); })
-                      .curve(d3.curveBasis);
+                      .curve(d3.curveLinear);
 
-                    g.selectAll('path')
+                    g.selectAll('.stream-area')
                       .data(series)
                       .join('path')
+                      .attr('class', 'stream-area')
                       .attr('d', area)
                       .attr('fill', function(d) {
                         var cfg = stateConfig[d.key];
                         return cfg ? cfg.color : '#999';
                       })
-                      .attr('opacity', 0.85)
-                      .on('mousemove', function(event, d) {
-                        var cfg = stateConfig[d.key] || { label: d.key };
-                        var pointer = d3.pointer(event, container);
-                        var dateIdx = d3.bisectCenter(tableData.map(function(r) { return r.date; }), x.invert(d3.pointer(event, g.node())[0]));
+                      .attr('opacity', 0.85);
+
+                    var crosshair = g.append('line')
+                      .attr('y1', 0)
+                      .attr('y2', innerH)
+                      .attr('stroke', '#94a3b8')
+                      .attr('stroke-width', 1)
+                      .attr('stroke-dasharray', '4,3')
+                      .attr('pointer-events', 'none')
+                      .style('display', 'none');
+
+                    g.append('rect')
+                      .attr('width', innerW)
+                      .attr('height', innerH)
+                      .attr('fill', 'none')
+                      .attr('pointer-events', 'all')
+                      .on('mousemove', function(event) {
+                        var gPointer = d3.pointer(event, g.node());
+                        var dateIdx = d3.bisectCenter(tableData.map(function(r) { return r.date; }), x.invert(gPointer[0]));
                         var row = tableData[dateIdx];
+                        var snappedX = x(row.date);
+
+                        crosshair
+                          .attr('x1', snappedX)
+                          .attr('x2', snappedX)
+                          .style('display', null);
+
                         var dateStr = row.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                        tooltip.innerHTML = '<strong>' + dateStr + '</strong><br>' + cfg.label + ': ' + row[d.key];
-                        tooltip.style.left = pointer[0] + 12 + 'px';
-                        tooltip.style.top  = pointer[1] - 10 + 'px';
+                        var html = '<strong>' + dateStr + '</strong>';
+                        keys.forEach(function(k) {
+                          var cfg = stateConfig[k] || { label: k, color: '#999' };
+                          html += '<br><span style="color:' + cfg.color + '">&#9632;</span> ' + cfg.label + ': ' + row[k];
+                        });
+                        tooltip.innerHTML = html;
+
+                        var tooltipRect = tooltip.getBoundingClientRect();
+                        var containerRect = container.getBoundingClientRect();
+                        var cursorXInContainer = snappedX + margin.left;
+                        var spaceRight = containerRect.width - cursorXInContainer;
+
+                        if (spaceRight < tooltipRect.width + 20) {
+                          tooltip.style.left = (cursorXInContainer - tooltipRect.width - 12) + 'px';
+                        } else {
+                          tooltip.style.left = (cursorXInContainer + 12) + 'px';
+                        }
+                        tooltip.style.top = margin.top + 'px';
                         tooltip.classList.add('is-visible');
                       })
                       .on('mouseleave', function() {
                         tooltip.classList.remove('is-visible');
+                        crosshair.style('display', 'none');
                       });
 
                     g.append('g')
