@@ -19,9 +19,14 @@ module Admin
 
     def create
       authorize :admin, :manage_shop?
-      @shop_item = ShopItem.new(shop_item_params)
+      item_params = shop_item_params
+      @shop_item = ShopItem.new(item_params)
 
-      if @shop_item.save
+      if @inkthreadable_config_invalid
+        @shop_item.errors.add(:inkthreadable_config, "must be valid JSON")
+        @shop_item_types = available_shop_item_types
+        render :new, status: :unprocessable_entity
+      elsif @shop_item.save
         redirect_to admin_manage_shop_path, notice: "Shop item created successfully."
       else
         @shop_item_types = available_shop_item_types
@@ -36,7 +41,14 @@ module Admin
     def update
       authorize :admin, :manage_shop?
 
-      if @shop_item.update(shop_item_params)
+      item_params = shop_item_params
+
+      if @inkthreadable_config_invalid
+        @shop_item.assign_attributes(item_params)
+        @shop_item.errors.add(:inkthreadable_config, "must be valid JSON")
+        @shop_item_types = available_shop_item_types
+        render :edit, status: :unprocessable_entity
+      elsif @shop_item.update(item_params)
         if @shop_item.saved_change_to_ticket_cost?
           @shop_item.old_prices << @shop_item.ticket_cost_before_last_save
           @shop_item.save
@@ -186,7 +198,7 @@ module Admin
         begin
           permitted[:inkthreadable_config] = JSON.parse(permitted[:inkthreadable_config])
         rescue JSON::ParserError
-          flash.now[:alert] = "Inkthreadable config must be valid JSON."
+          @inkthreadable_config_invalid = true
           permitted[:inkthreadable_config] = nil
         end
       end

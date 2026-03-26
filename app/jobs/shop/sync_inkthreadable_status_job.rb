@@ -1,8 +1,7 @@
 class Shop::SyncInkthreadableStatusJob < ApplicationJob
   queue_as :default
 
-  SHIPPED_STATUSES = [ "quality control" ].freeze
-  ALERT_SLACK_ID = "U054VC2KM9P" # @transcental
+  IN_PROGRESS_STATUSES = %w[pending received preparing printing production quality\ control].freeze
 
   def perform
     pending_inkthreadable_orders.find_each do |order|
@@ -39,6 +38,8 @@ class Shop::SyncInkthreadableStatusJob < ApplicationJob
       mark_as_fulfilled(order, tracking_number)
     elsif status == "refunded" || ink_order["deleted"] == "true"
       handle_cancelled(order)
+    elsif IN_PROGRESS_STATUSES.include?(status)
+      Rails.logger.info "[InkthreadableSync] Order #{order.id} is in progress: #{status}"
     else
       handle_unexpected_status(order, status)
     end

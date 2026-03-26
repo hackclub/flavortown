@@ -807,7 +807,7 @@
 
 <script>
     document.addEventListener('turbo:load', initializeShopItemForm);
-    document.addEventListener('DOMContentLoaded', initializeShopItemForm);
+    document.addEventListener('DOMContentLoaded', initializeShopItemForm, { once: true });
 
     function initializeShopItemForm() {
         const gameConstants = {
