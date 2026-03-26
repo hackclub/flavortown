@@ -89,11 +89,31 @@ class SlackMessageCounterService
     # @param error [Slack::Web::Api::Errors::TooManyRequestsError] The error object
     # @return [Integer, nil] The number of seconds to wait, or nil if not found
     def extract_retry_after(error)
-      # Slack API typically returns retry_after in the error response
-      return nil unless error.respond_to?(:response)
+      # Prefer the retry_after attribute if provided by the Slack client
+      if error.respond_to?(:retry_after) && error.retry_after
+        return error.retry_after.to_i
+      end
 
-      retry_after = error.response&.dig("retry_after")
-      retry_after&.to_i
+      # Fall back to reading retry-after from the response headers (e.g., Faraday response)
+      return nil unless error.respond_to?(:response) && error.response
+
+      response = error.response
+      headers = if response.respond_to?(:headers)
+                  response.headers
+                else
+                  response
+                end
+
+      return nil unless headers.respond_to?(:[])
+
+      retry_after_value = headers["retry-after"] || headers["Retry-After"]
+      return nil unless retry_after_value
+
+      # Ensure we only convert purely numeric values
+      retry_after_str = retry_after_value.to_s.strip
+      return nil unless retry_after_str.match?(/\A\d+\z/)
+
+      retry_after_str.to_i
     end
 
     def fetch_channel_message_counts(channel_id, oldest_timestamp)
