@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_23_150835) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_26_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -395,6 +395,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_23_150835) do
     t.decimal "payout_basis_overall_score", precision: 5, scale: 2
     t.decimal "payout_basis_percentile", precision: 5, scale: 2
     t.string "payout_curve_version"
+    t.text "review_instructions"
     t.decimal "storytelling_median", precision: 5, scale: 2
     t.decimal "storytelling_percentile", precision: 5, scale: 2
     t.datetime "synced_at"
