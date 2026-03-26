@@ -12,6 +12,7 @@
 #   bin/rails runner script/find_banned_19_year_olds.rb --execute (unbans users)
 
 require_relative "../config/environment"
+require "csv"
 
 execute = ARGV.include?("--execute")
 cutoff_date = Date.new(2025, 12, 15)
