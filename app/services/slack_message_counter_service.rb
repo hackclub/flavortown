@@ -99,10 +99,10 @@ class SlackMessageCounterService
 
       response = error.response
       headers = if response.respond_to?(:headers)
-                  response.headers
-                else
-                  response
-                end
+        response.headers
+      else
+        response
+      end
 
       return nil unless headers.respond_to?(:[])
 
