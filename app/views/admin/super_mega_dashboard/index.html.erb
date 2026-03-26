@@ -375,34 +375,27 @@
         <p class="fraud-stats-error">Fulfillment is temporarily disabled so the rest of the dashboard can load.</p>
       <% end %>
 
-      <div class="super-mega-dashboard__cards">
-        <% [
-          [:all, "All"],
-          [:hq_mail, "HQ Stuff"],
-          [:third_party, "Amber & Co"],
-          [:warehouse, "Warehouse"],
-          [:other, "Other"]
-        ].each do |key, label| %>
-          <div class="super-mega-dashboard__card">
-            <h3><%= label %></h3>
-            <div class="super-mega-dashboard__stats">
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value"><%= @fulfillment[key][:pending] %></span>
-                <span class="super-mega-dashboard__stat--label red">Pending</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value"><%= @fulfillment[key][:awaiting] %></span>
-                <span class="super-mega-dashboard__stat--label yellow">Awaiting</span>
-              </div>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value"><%= @fulfillment[key][:total] %></span>
-                <span class="super-mega-dashboard__stat--label green">Total</span>
+      <div class="super-mega-dashboard__cards super-mega-dashboard__cards--fulfillment">
+        <div class="fulfillment-stats-row">
+          <% [
+            [:all, "All"],
+            [:hq_mail, "HQ Stuff"],
+            [:third_party, "Amber & Co"],
+            [:warehouse, "Warehouse"],
+            [:other, "Other"]
+          ].each do |key, label| %>
+            <div class="fulfillment-stats-row__card">
+              <h4 class="fulfillment-stats-row__title"><%= label %></h4>
+              <div class="fulfillment-stats-row__numbers">
+                <span class="fulfillment-stats-row__num red"><%= @fulfillment[key][:pending] %> <small>Pending</small></span>
+                <span class="fulfillment-stats-row__num yellow"><%= @fulfillment[key][:awaiting] %> <small>Awaiting</small></span>
+                <span class="fulfillment-stats-row__num green"><%= @fulfillment[key][:total] %> <small>Total</small></span>
               </div>
             </div>
-          </div>
-        <% end %>
+          <% end %>
+        </div>
 
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph">
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--fulfillment-graph">
           <h3>Fulfilment Trend (30d)</h3>
           <% if @fulfillment_trend_data.present? %>
             <div class="fraud-timeline-graph fraud-timeline-graph--compact">
@@ -479,72 +472,123 @@
           <% end %>
         </div>
 
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph">
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--fulfillment-graph">
           <h3>Order States (30d)</h3>
           <% if @order_states_trend_data.present? %>
-            <div class="fraud-timeline-graph fraud-timeline-graph--compact">
-              <canvas id="orderStatesTrendChart" height="100"></canvas>
-            </div>
+            <div id="orderStatesStream" class="d3-stream-container"></div>
+            <div class="d3-stream-tooltip" id="orderStatesTooltip"></div>
+            <div class="d3-stream-legend" id="orderStatesLegend"></div>
             <script>
+              function ensureD3(cb) {
+                if (typeof d3 !== 'undefined') { cb(); return; }
+                var s = document.createElement('script');
+                s.src = 'https://cdn.jsdelivr.net/npm/d3@7';
+                s.onload = cb;
+                document.head.appendChild(s);
+              }
+
               document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('orderStatesTrendChart');
-                if (!ctx) return;
-
-                const data = <%= raw @order_states_trend_data.to_json %>;
-                const sortedDates = Object.keys(data).sort();
-                const labels = sortedDates.map(d => {
-                  const date = new Date(d);
-                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                });
-
-                const stateConfig = {
-                  'pending':                          { label: 'Pending',            border: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
-                  'awaiting_periodical_fulfillment':  { label: 'Awaiting Fulfilment', border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
-                  'on_hold':                          { label: 'On Hold',            border: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' },
-                  'closed':                           { label: 'Closed (Fulfilled / Rejected / Refunded)', border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' }
-                };
-
-                const stateKeys = Object.keys(data[sortedDates[0]] || {});
-                const datasets = stateKeys.map(state => {
-                  const cfg = stateConfig[state] || { label: state, border: '#999', bg: 'rgba(153, 153, 153, 0.1)' };
-                  return {
-                    label: cfg.label,
-                    data: sortedDates.map(d => data[d][state] || 0),
-                    borderColor: cfg.border,
-                    backgroundColor: cfg.bg,
-                    fill: false,
-                    tension: 0.3,
-                    pointRadius: 1,
-                    borderWidth: 1.5
+                ensureD3(function() {
+                  var raw = <%= raw @order_states_trend_data.to_json %>;
+                  var stateConfig = {
+                    'pending':                         { label: 'Pending',            color: '#ef4444' },
+                    'awaiting_periodical_fulfillment': { label: 'Awaiting Fulfilment', color: '#f59e0b' },
+                    'on_hold':                         { label: 'On Hold',            color: '#6366f1' },
+                    'closed':                          { label: 'Closed (Fulfilled / Rejected / Refunded)', color: '#10b981' }
                   };
-                });
 
-                new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                    labels: labels,
-                    datasets: datasets
-                  },
-                  options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        display: true,
-                        position: 'bottom',
-                        labels: { font: { size: 8 }, padding: 4 }
-                      }
-                    },
-                    scales: {
-                      x: {
-                        ticks: { font: { size: 7 }, maxRotation: 45, minRotation: 0 }
-                      },
-                      y: {
-                        beginAtZero: true,
-                        ticks: { precision: 0, font: { size: 7 } }
-                      }
-                    }
+                  var sortedDates = Object.keys(raw).sort();
+                  var keys = Object.keys(raw[sortedDates[0]] || {});
+                  var tableData = sortedDates.map(function(d) {
+                    var row = { date: new Date(d) };
+                    keys.forEach(function(k) { row[k] = raw[d][k] || 0; });
+                    return row;
+                  });
+
+                  var container = document.getElementById('orderStatesStream');
+                  var tooltip  = document.getElementById('orderStatesTooltip');
+                  var legendEl = document.getElementById('orderStatesLegend');
+                  var margin = { top: 10, right: 10, bottom: 20, left: 36 };
+                  var height = 220;
+
+                  function render() {
+                    container.innerHTML = '';
+                    var width = container.clientWidth;
+                    var innerW = width - margin.left - margin.right;
+                    var innerH = height - margin.top - margin.bottom;
+
+                    var svg = d3.select(container).append('svg')
+                      .attr('width', width).attr('height', height);
+                    var g = svg.append('g')
+                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+                    var stack = d3.stack()
+                      .keys(keys)
+                      .offset(d3.stackOffsetWiggle)
+                      .order(d3.stackOrderInsideOut);
+                    var series = stack(tableData);
+
+                    var x = d3.scaleTime()
+                      .domain(d3.extent(tableData, function(d) { return d.date; }))
+                      .range([0, innerW]);
+                    var y = d3.scaleLinear()
+                      .domain([
+                        d3.min(series, function(s) { return d3.min(s, function(d) { return d[0]; }); }),
+                        d3.max(series, function(s) { return d3.max(s, function(d) { return d[1]; }); })
+                      ])
+                      .range([innerH, 0]);
+
+                    var area = d3.area()
+                      .x(function(d) { return x(d.data.date); })
+                      .y0(function(d) { return y(d[0]); })
+                      .y1(function(d) { return y(d[1]); })
+                      .curve(d3.curveBasis);
+
+                    g.selectAll('path')
+                      .data(series)
+                      .join('path')
+                      .attr('d', area)
+                      .attr('fill', function(d) {
+                        var cfg = stateConfig[d.key];
+                        return cfg ? cfg.color : '#999';
+                      })
+                      .attr('opacity', 0.85)
+                      .on('mousemove', function(event, d) {
+                        var cfg = stateConfig[d.key] || { label: d.key };
+                        var pointer = d3.pointer(event, container);
+                        var dateIdx = d3.bisectCenter(tableData.map(function(r) { return r.date; }), x.invert(d3.pointer(event, g.node())[0]));
+                        var row = tableData[dateIdx];
+                        var dateStr = row.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        tooltip.innerHTML = '<strong>' + dateStr + '</strong><br>' + cfg.label + ': ' + row[d.key];
+                        tooltip.style.left = pointer[0] + 12 + 'px';
+                        tooltip.style.top  = pointer[1] - 10 + 'px';
+                        tooltip.classList.add('is-visible');
+                      })
+                      .on('mouseleave', function() {
+                        tooltip.classList.remove('is-visible');
+                      });
+
+                    g.append('g')
+                      .attr('transform', 'translate(0,' + innerH + ')')
+                      .call(d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat('%b %d')))
+                      .selectAll('text').style('font-size', '7px');
+
+                    g.append('g')
+                      .attr('class', 'd3-stream-grid')
+                      .call(d3.axisLeft(y).ticks(4).tickSize(-innerW).tickFormat(d3.format('d')))
+                      .selectAll('text').style('font-size', '7px');
                   }
+
+                  // Legend
+                  keys.forEach(function(k) {
+                    var cfg = stateConfig[k] || { label: k, color: '#999' };
+                    var span = document.createElement('span');
+                    span.innerHTML = '<span class="d3-stream-legend__swatch" style="background:' + cfg.color + '"></span>' + cfg.label;
+                    legendEl.appendChild(span);
+                  });
+
+                  render();
+                  window.addEventListener('resize', render);
                 });
               });
             </script>
