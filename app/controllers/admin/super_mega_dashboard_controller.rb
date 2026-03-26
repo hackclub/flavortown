@@ -339,12 +339,20 @@ module Admin
 
         type_counts = base_scope.group("shop_items.type", :aasm_state).count
 
+        known_types = %w[
+          ShopItem::HQMailItem ShopItem::LetterMail
+          ShopItem::ThirdPartyPhysical ShopItem::Accessory ShopItem::ThirdPartyDigital
+          ShopItem::WarehouseItem ShopItem::PileOfStickersItem
+          ShopItem::FreeStickers
+        ]
+        other_types = type_counts.keys.map(&:first).uniq - known_types
+
         {
           all: calculate_type_totals(type_counts),
           hq_mail: calculate_type_totals(type_counts, %w[ShopItem::HQMailItem ShopItem::LetterMail]),
-          third_party: calculate_type_totals(type_counts, %w[ShopItem::ThirdPartyPhysical]),
+          third_party: calculate_type_totals(type_counts, %w[ShopItem::ThirdPartyPhysical ShopItem::Accessory ShopItem::ThirdPartyDigital]),
           warehouse: calculate_type_totals(type_counts, %w[ShopItem::WarehouseItem ShopItem::PileOfStickersItem]),
-          other: calculate_type_totals(type_counts, %w[ShopItem::HCBGrant ShopItem::SiteActionItem ShopItem::BadgeItem ShopItem::AdventSticker ShopItem::HCBPreauthGrant ShopItem::SpecialFulfillmentItem])
+          other: calculate_type_totals(type_counts, other_types)
         }
       end
       @fulfillment = cached_data || { all: {}, hq_mail: {}, third_party: {}, warehouse: {}, other: {} }
