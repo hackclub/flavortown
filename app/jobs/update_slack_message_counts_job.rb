@@ -27,18 +27,22 @@ class UpdateSlackMessageCountsJob < ApplicationJob
     Rails.logger.info("UpdateSlackMessageCountsJob: Flavortown counts: #{flavortown_counts.inspect}")
     Rails.logger.info("UpdateSlackMessageCountsJob: Support counts: #{support_counts.inspect}")
 
-    # Reset all counts to 0 (only after successful fetch)
-    User.where.not(slack_id: nil).update_all(
-      flavortown_message_count_14d: 0,
-      flavortown_support_message_count_14d: 0
-    )
+    # Wrap all database updates in a transaction for atomicity
+    # If any update fails, all changes are rolled back to prevent partial updates
+    User.transaction do
+      # Reset all counts to 0 (only after successful fetch)
+      User.where.not(slack_id: nil).update_all(
+        flavortown_message_count_14d: 0,
+        flavortown_support_message_count_14d: 0
+      )
 
-    # Update users with their message counts
-    update_users_from_counts(flavortown_counts, :flavortown_message_count_14d)
-    update_users_from_counts(support_counts, :flavortown_support_message_count_14d)
+      # Update users with their message counts
+      update_users_from_counts(flavortown_counts, :flavortown_message_count_14d)
+      update_users_from_counts(support_counts, :flavortown_support_message_count_14d)
 
-    # Update the timestamp for all users that were processed
-    User.where.not(slack_id: nil).update_all(slack_messages_updated_at: Time.current)
+      # Update the timestamp for all users that were processed
+      User.where.not(slack_id: nil).update_all(slack_messages_updated_at: Time.current)
+    end
 
     Rails.logger.info(
       "Completed Slack message count updates: " \

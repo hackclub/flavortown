@@ -79,21 +79,39 @@ class SlackMessageCounterService
     end
 
     def count_thread_replies_by_user(client, channel_id, thread_ts)
-      replies = client.conversations_replies(
-        channel: channel_id,
-        ts: thread_ts,
-        oldest: thread_ts # Start from thread parent
-      )
-
-      return {} unless replies.ok && replies.messages.present?
-
-      # Skip first message (parent) and count all replies by user
       user_counts = Hash.new(0)
-      replies.messages.drop(1).each do |reply|
-        if reply.user.present? && reply.subtype.nil?
-          user_counts[reply.user] += 1
+      cursor = nil
+      first_page = true
+
+      loop do
+        replies = client.conversations_replies(
+          channel: channel_id,
+          ts: thread_ts,
+          oldest: thread_ts, # Start from thread parent
+          limit: 200,
+          cursor: cursor
+        )
+
+        break unless replies.ok && replies.messages.present?
+
+        # Skip first message (parent) only on first page, count all replies by user
+        messages_to_count = first_page ? replies.messages.drop(1) : replies.messages
+        messages_to_count.each do |reply|
+          if reply.user.present? && reply.subtype.nil?
+            user_counts[reply.user] += 1
+          end
         end
+
+        first_page = false
+
+        # Check if there are more pages
+        cursor = replies.response_metadata&.next_cursor
+        break if cursor.blank?
+
+        # Rate limiting: sleep between pages
+        sleep(0.1)
       end
+
       user_counts
     end
   end
