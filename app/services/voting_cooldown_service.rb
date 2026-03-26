@@ -54,7 +54,8 @@ class VotingCooldownService
       "Hello, thank you for voting, but we noticed that you might not be submitting quality votes. " \
       "As a nudge to keep you on track, you are currently on cooldown for #{duration.inspect}. " \
       "You can vote again after the cooldown expires. Please do note that more low-quality votes will lead to longer cooldowns. " \
-      "Flavortown Support will not be able to lift cooldowns, spending time to submit good votes helps everyone :)"
+      "Flavortown Support will not be able to lift cooldowns. If a cooldown was issued in error, it will be automatically removed. " \
+      "Spending time to submit good votes helps everyone get fair payouts, so we encourage you to take the time to review your votes and make sure they are thoughtful and accurate. " \
     )
   end
 
