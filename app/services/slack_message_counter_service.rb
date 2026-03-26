@@ -6,46 +6,37 @@ class SlackMessageCounterService
     flavortown_support: "C09MATKQM8C" # flavortown-help channel (support)
   }.freeze
 
-  # Maximum messages to count before stopping search
-  MAX_MESSAGE_COUNT = 5
-  # Maximum thread replies to check per thread
-  MAX_THREAD_REPLIES = 3
-
   class << self
-    # Count messages from a user in a specific channel within a time period
-    # @param slack_id [String] The Slack user ID
+    # Fetch message counts for all users in a channel within a time period
+    # Returns a hash of {slack_id => count}
     # @param channel_key [Symbol] The channel key from CHANNEL_IDS
     # @param days_back [Integer] Number of days to look back (default: 14)
-    # @return [Integer] Count of messages sent by the user
-    def count_messages(slack_id, channel_key, days_back: 14)
-      return 0 unless slack_id.present?
-
+    # @return [Hash] Hash mapping slack_id to message count
+    def fetch_all_message_counts(channel_key, days_back: 14)
       channel_id = CHANNEL_IDS[channel_key.to_sym]
-      return 0 unless channel_id
+      return {} unless channel_id
 
       oldest_timestamp = days_back.days.ago.to_i.to_s
 
-      fetch_message_count(slack_id, channel_id, oldest_timestamp)
+      fetch_channel_message_counts(channel_id, oldest_timestamp)
     rescue Slack::Web::Api::Errors::SlackError => e
       Rails.logger.error("SlackMessageCounterService: Failed to fetch messages: #{e.message}")
-      0
+      {}
     rescue StandardError => e
       Rails.logger.error("SlackMessageCounterService: Unexpected error: #{e.message}")
-      0
+      {}
     end
 
     private
 
-    def fetch_message_count(slack_id, channel_id, oldest_timestamp)
+    def fetch_channel_message_counts(channel_id, oldest_timestamp)
       client = Slack::Web::Client.new(token: Rails.application.credentials.dig(:slack, :bot_token))
-
-      message_count = 0
+      user_counts = Hash.new(0)
       cursor = nil
 
-      loop do
-        # Stop if we've already reached the hard cap
-        break if message_count >= MAX_MESSAGE_COUNT
+      Rails.logger.info("SlackMessageCounterService: Fetching message counts for channel #{channel_id}")
 
+      loop do
         response = client.conversations_history(
           channel: channel_id,
           oldest: oldest_timestamp,
@@ -55,23 +46,20 @@ class SlackMessageCounterService
 
         break unless response.ok && response.messages.present?
 
-        # Count top-level messages from this user with early exit
+        # Count top-level messages by user
         response.messages.each do |msg|
-          break if message_count >= MAX_MESSAGE_COUNT
-          message_count += 1 if msg.user == slack_id && msg.subtype.nil?
+          if msg.user.present? && msg.subtype.nil?
+            user_counts[msg.user] += 1
+          end
         end
 
-        # Stop if we've reached the hard cap after counting top-level messages
-        break if message_count >= MAX_MESSAGE_COUNT
-
-        # Count thread replies from this user
+        # Count thread replies by user
         threaded_messages = response.messages.select { |msg| msg.reply_count.to_i > 0 }
         threaded_messages.each do |msg|
-          # Stop if we've already reached the hard cap
-          break if message_count >= MAX_MESSAGE_COUNT
-
-          thread_count = count_thread_replies(client, channel_id, msg.ts, slack_id)
-          message_count += thread_count
+          thread_counts = count_thread_replies_by_user(client, channel_id, msg.ts)
+          thread_counts.each do |slack_id, count|
+            user_counts[slack_id] += count
+          end
 
           # Rate limiting: sleep briefly between thread fetches
           sleep(0.1) if threaded_messages.size > 10
@@ -85,26 +73,28 @@ class SlackMessageCounterService
         sleep(0.5)
       end
 
-      message_count
+      Rails.logger.info("SlackMessageCounterService: Counted messages for #{user_counts.size} users")
+      Rails.logger.info("SlackMessageCounterService: Final user counts hash: #{user_counts.inspect}")
+      user_counts
     end
 
-    def count_thread_replies(client, channel_id, thread_ts, slack_id)
+    def count_thread_replies_by_user(client, channel_id, thread_ts)
       replies = client.conversations_replies(
         channel: channel_id,
         ts: thread_ts,
-        oldest: thread_ts, # Start from thread parent
-        limit: MAX_THREAD_REPLIES + 1 # +1 to account for parent message
+        oldest: thread_ts # Start from thread parent
       )
 
-      return 0 unless replies.ok && replies.messages.present?
+      return {} unless replies.ok && replies.messages.present?
 
-      # Skip first message (parent) and count replies from user with early exit
-      count = 0
-      replies.messages.drop(1).take(MAX_THREAD_REPLIES).each do |reply|
-        break if count >= MAX_THREAD_REPLIES
-        count += 1 if reply.user == slack_id && reply.subtype.nil?
+      # Skip first message (parent) and count all replies by user
+      user_counts = Hash.new(0)
+      replies.messages.drop(1).each do |reply|
+        if reply.user.present? && reply.subtype.nil?
+          user_counts[reply.user] += 1
+        end
       end
-      count
+      user_counts
     end
   end
 end
