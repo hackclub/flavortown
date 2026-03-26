@@ -109,7 +109,7 @@ module Admin
         "ShopItem::HCBGrant",
         "ShopItem::HCBPreauthGrant",
         "ShopItem::HQMailItem",
-        "ShopItem::InkthreadableItem",
+        "ShopItem::Inkthreadable",
         "ShopItem::LetterMail",
         "ShopItem::ThirdPartyPhysical",
         "ShopItem::ThirdPartyDigital",
@@ -197,9 +197,8 @@ module Admin
       if permitted[:inkthreadable_config].present?
         begin
           permitted[:inkthreadable_config] = JSON.parse(permitted[:inkthreadable_config])
-        rescue JSON::ParserError
-          @inkthreadable_config_invalid = true
-          permitted[:inkthreadable_config] = nil
+        rescue JSON::ParserError => e
+          raise ActionController::BadRequest, "Inkthreadable config must be valid JSON: #{e.message}"
         end
       end
 

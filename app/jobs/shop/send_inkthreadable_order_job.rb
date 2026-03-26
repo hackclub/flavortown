@@ -39,11 +39,16 @@ class Shop::SendInkthreadableOrderJob < ApplicationJob
   private
 
   def build_order_payload(order, shop_item, address)
+    user_display_name = order.user&.display_name.to_s
+    name_parts = user_display_name.strip.split(/\s+/)
+    fallback_first_name = name_parts.first
+    fallback_last_name = name_parts.length > 1 ? name_parts.last : nil
+
     payload = {
       external_id: "FT-#{order.id}",
       shipping_address: {
-        firstName: address["first_name"] || address["firstName"] || order.user.display_name.split.first,
-        lastName: address["last_name"] || address["lastName"] || order.user.display_name.split.last,
+        firstName: address["first_name"] || address["firstName"] || fallback_first_name,
+        lastName: address["last_name"] || address["lastName"] || fallback_last_name,
         company: address["company"],
         address1: address["address1"] || address["line1"],
         address2: address["address2"] || address["line2"],
