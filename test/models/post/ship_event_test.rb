@@ -52,6 +52,30 @@ class Post::ShipEventTest < ActiveSupport::TestCase
     refute ship_event.reload.payout_eligible?
   end
 
+  test "review_instructions allows nil" do
+    ship_event = Post::ShipEvent.new(body: "test", review_instructions: nil)
+    ship_event.valid?
+    assert_empty ship_event.errors[:review_instructions]
+  end
+
+  test "review_instructions allows blank" do
+    ship_event = Post::ShipEvent.new(body: "test", review_instructions: "")
+    ship_event.valid?
+    assert_empty ship_event.errors[:review_instructions]
+  end
+
+  test "review_instructions allows up to 2000 characters" do
+    ship_event = Post::ShipEvent.new(body: "test", review_instructions: "x" * 2000)
+    ship_event.valid?
+    assert_empty ship_event.errors[:review_instructions]
+  end
+
+  test "review_instructions rejects over 2000 characters" do
+    ship_event = Post::ShipEvent.new(body: "test", review_instructions: "x" * 2001)
+    ship_event.valid?
+    assert_not_empty ship_event.errors[:review_instructions]
+  end
+
   private
 
   def add_legitimate_votes(ship_event:, project:, count:)

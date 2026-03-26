@@ -22,9 +22,9 @@
           form: form,
           attribute: :review_instructions,
           color: :blue,
-          subtitle: "Help reviewers test your project. Include setup steps, test accounts, environment requirements, or anything they should know.",
+          subtitle: "Help reviewers test your project. Include setup steps, test accounts, environment requirements, or anything they should know. Do not include secrets or API keys (max 2,000 characters).",
           as: :text_area,
-          input_html: { rows: 4 }
+          input_html: { rows: 4, maxlength: 2000 }
         ) %>
 
     <% @active_sidequests.each do |sidequest| %>
