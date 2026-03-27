@@ -4,31 +4,6 @@
         <%= link_to "View Joe Dashboard →", "https://joe.fraud.hackclub.com/cases/dashboard?ysws=Flavortown", class: "super-mega-link" %>
       </div>
 
-      <!-- SHOP ORDERS SECTION -->
-      <div class="fraud-subsection">
-        <h3 class="fraud-subsection__title">Shop Orders</h3>
-        <div class="super-mega-dashboard__cards">
-        <div class="super-mega-dashboard__card">
-          <h3>Order Queue</h3>
-          <div class="fraud-stats-grid">
-            <div class="fraud-stats-grid__row">
-              <span class="fraud-stats-grid__label">Pending</span>
-              <span class="fraud-stats-grid__value fraud-stats-grid__value--yellow"><%= @fraud_orders[:pending] %><span class="fraud-stats-grid__pct">(<%= @fraud_orders[:pending_pct] %>%)</span></span>
-            </div>
-            <div class="fraud-stats-grid__row">
-              <span class="fraud-stats-grid__label">Awaiting</span>
-              <span class="fraud-stats-grid__value fraud-stats-grid__value--blue"><%= @fraud_orders[:awaiting] %><span class="fraud-stats-grid__pct">(<%= @fraud_orders[:awaiting_pct] %>%)</span></span>
-            </div>
-            <div class="fraud-stats-grid__row">
-              <span class="fraud-stats-grid__label">Total Backlog</span>
-              <span class="fraud-stats-grid__value fraud-stats-grid__value--red"><%= @fraud_orders[:backlog] %><span class="fraud-stats-grid__pct">(<%= @fraud_orders[:backlog_pct] %>%)</span></span>
-            </div>
-          </div>
-        </div>
-
-        </div>
-      </div>
-
       <!-- JOE SECTION -->
       <div class="fraud-subsection">
         <h3 class="fraud-subsection__title">Joe Cases</h3>
