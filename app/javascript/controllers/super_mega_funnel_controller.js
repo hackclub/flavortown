@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus";
 import * as d3 from "d3";
 
 const DEFAULT_WIDTH = 960;
-const FUNNEL_HEIGHT = 420;
+const FUNNEL_HEIGHT = 210;
 const MARGIN = { top: 32, right: 16, bottom: 24, left: 16 };
 const MIN_CHART_INNER_WIDTH = 540;
 const MIN_STEP_WIDTH = 50;
