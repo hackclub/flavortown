@@ -11,7 +11,7 @@ class UpdateSlackMessageCountsJob < ApplicationJob
 
     # Fetch message counts for all users in each channel
     # Do this BEFORE resetting to detect API failures
-    flavortown_counts = SlackMessageCounterService.fetch_all_message_counts(:flavortown, days_back: 3)
+    flavortown_counts = SlackMessageCounterService.fetch_all_message_counts(:flavortown, days_back: 1)
     support_counts = SlackMessageCounterService.fetch_all_message_counts(:flavortown_support, days_back: 1)
 
     # Abort if either fetch failed (returned nil)
