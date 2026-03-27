@@ -65,17 +65,21 @@ class Projects::ShipsController < ApplicationController
   end
 
   def create_sidequest_entries!
-    sidequest_ids = Array(params[:sidequest_ids]).map(&:to_i).reject(&:zero?)
-    if @project.space_themed?
-      challenger_id = Sidequest.active.find_by(slug: "challenger")&.id
-      sidequest_ids << challenger_id if challenger_id
-    end
-    sidequest_ids.uniq!
-    return if sidequest_ids.empty?
+    selected_sidequest_id = params[:sidequest_id].to_i
 
-    active_sidequest_ids = Sidequest.active.where(id: sidequest_ids).pluck(:id)
-    active_sidequest_ids.each do |sidequest_id|
-      @project.sidequest_entries.find_or_create_by!(sidequest_id: sidequest_id)
+    # Backward compatibility for older clients still posting sidequest_ids[]
+    if selected_sidequest_id.zero?
+      selected_sidequest_id = Array(params[:sidequest_ids]).map(&:to_i).reject(&:zero?).first.to_i
     end
+
+    if selected_sidequest_id.zero? && @project.space_themed?
+      selected_sidequest_id = Sidequest.active.find_by(slug: "challenger")&.id.to_i
+    end
+    return if selected_sidequest_id.zero?
+
+    active_sidequest_id = Sidequest.active.where(id: selected_sidequest_id).pick(:id)
+    return unless active_sidequest_id
+
+    @project.sidequest_entries.find_or_create_by!(sidequest_id: active_sidequest_id)
   end
 end
