@@ -17,7 +17,7 @@
         <p class="file-upload__headline">Drag & drop your file here</p>
         <p class="file-upload__hint">
           or
-          <button type="button" class="file-upload__browse" data-action="file-upload#open">
+          <button type="button" class="file-upload__browse" data-action="click->file-upload#open:stop">
             browse from your computer
           </button>
         </p>
@@ -38,7 +38,7 @@
         type="button"
         class="file-upload__browse file-upload__add-more"
         data-file-upload-target="addMore"
-        data-action="file-upload#open"
+        data-action="click->file-upload#open:stop"
         hidden>
         Add more files
       </button>
