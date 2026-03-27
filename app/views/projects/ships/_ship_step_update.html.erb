@@ -16,6 +16,17 @@
           input_html: { rows: 6 }
         ) %>
 
+    <%= render InputComponent.new(
+          label: "Review Instructions (Optional)",
+          placeholder: "Example: Run 'npm install && npm start' to launch locally. Test the multiplayer mode by opening two browser tabs. The AI features require an API key — use the demo key in the README.",
+          form: form,
+          attribute: :review_instructions,
+          color: :blue,
+          subtitle: "Help reviewers test your project. Include setup steps, test accounts, environment requirements, or anything they should know (max 2,000 characters).",
+          as: :text_area,
+          input_html: { rows: 4, maxlength: 2000 }
+        ) %>
+
     <% if @active_sidequests.any? %>
       <% preselected_sidequest = if @project.space_themed?
                                    @active_sidequests.find { |sq| sq.slug == "challenger" }
