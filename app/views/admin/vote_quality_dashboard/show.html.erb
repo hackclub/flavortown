@@ -77,7 +77,7 @@
   <div class="card voting-card voting-card--wide">
     <h2><%= @show_copy.dig(:cards, :deviation_trend) %></h2>
     <% if @deviation_series.present? %>
-      <%= line_chart @deviation_series, xtitle: @show_copy.dig(:chart_axes, :vote_number), ytitle: @show_copy.dig(:chart_axes, :deviation), height: "320px", min: 0 %>
+      <%= line_chart @deviation_series, xtitle: @show_copy.dig(:chart_axes, :vote_number), ytitle: @show_copy.dig(:chart_axes, :deviation), height: "320px", min: @chart_bounds[:deviation_min], max: @chart_bounds[:deviation_max] %>
     <% else %>
       <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :deviation_trend) %></p>
     <% end %>
@@ -86,7 +86,7 @@
   <div class="card voting-card voting-card--wide">
     <h2><%= @show_copy.dig(:cards, :deviation_by_category) %></h2>
     <% if @deviation_by_category.present? %>
-      <%= column_chart @deviation_by_category, ytitle: @show_copy.dig(:chart_axes, :avg_deviation), height: "320px", min: 0 %>
+      <%= column_chart @deviation_by_category, ytitle: @show_copy.dig(:chart_axes, :avg_deviation), height: "320px", min: @chart_bounds[:deviation_min], max: @chart_bounds[:deviation_max] %>
     <% else %>
       <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :deviation_by_category) %></p>
     <% end %>
@@ -97,7 +97,7 @@
   <div class="card voting-card voting-card--full">
     <h2><%= @show_copy.dig(:cards, :bias_trend) %></h2>
     <% if @bias_series.present? %>
-      <%= line_chart @bias_series, xtitle: @show_copy.dig(:chart_axes, :vote_number), ytitle: @show_copy.dig(:chart_axes, :bias), height: "320px" %>
+      <%= line_chart @bias_series, xtitle: @show_copy.dig(:chart_axes, :vote_number), ytitle: @show_copy.dig(:chart_axes, :bias), height: "320px", min: @chart_bounds[:bias_min], max: @chart_bounds[:bias_max] %>
     <% else %>
       <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :bias_trend) %></p>
     <% end %>
