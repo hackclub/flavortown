@@ -15,13 +15,16 @@ class SidequestsController < ApplicationController
       .approved
       .joins(:project)
       .includes(project: :memberships)
-
     if @sidequest.slug == "webos"
       @prizes = ShopItem.where(requires_achievement: "sidequest_webos", enabled: true)
     end
 
     if @sidequest.slug == "optimization"
       @prizes = ShopItem.where(requires_achievement: "sidequest_optimization", enabled: true)
+    end
+
+    if @sidequest.slug == "lockin"
+      @prizes = ShopItem.where(requires_achievement: "sidequest_lockin", enabled: true)
     end
 
     custom_template = "sidequests/show_#{@sidequest.slug}"
