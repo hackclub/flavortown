@@ -665,6 +665,31 @@
   }
 }
 
+.sidebar__user-achievements {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-top: 0.4em;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  text-decoration: none;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+}
+
+.sidebar__user-achievements-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: var(--color-bg);
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+}
+
 .sidebar__user-logout {
   background: transparent;
   border: none;

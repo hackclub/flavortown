@@ -85,6 +85,10 @@
             🍪 <%= current_user.cached_balance %>
           </button>
 
+          <%= link_to my_achievements_path, class: "sidebar__user-achievements", aria: { label: "Achievements" } do %>
+            <%= inline_svg_tag "icons/trophy.svg", class: "sidebar__user-achievements-icon" %>
+          <% end %>
+
           <button type="button" class="sidebar__user-settings" onclick="document.getElementById('settings-modal').showModal()" aria-label="Settings">
             <%= inline_svg_tag "icons/gear.svg", class: "sidebar__user-settings-icon" %>
           </button>
