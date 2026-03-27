@@ -37,72 +37,132 @@
         <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph">
           <h3>Bans Over Time</h3>
           <% if @fraud_ban_trend_data.present? %>
-            <div class="fraud-timeline-graph fraud-timeline-graph--compact">
-              <canvas id="banTrendChart" height="100"></canvas>
+            <div class="d3-stream-container" id="banTrendContainer">
+              <div class="d3-stream-tooltip" id="banTrendTooltip"></div>
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <div class="d3-stream-legend" id="banTrendLegend"></div>
             <script>
+              function ensureD3Fraud(cb) {
+                if (typeof d3 !== 'undefined') { cb(); return; }
+                var s = document.createElement('script');
+                s.src = 'https://cdn.jsdelivr.net/npm/d3@7';
+                s.onload = cb;
+                document.head.appendChild(s);
+              }
+
               document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('banTrendChart');
-                if (!ctx) return;
+                ensureD3Fraud(function() {
+                  var raw = <%= raw @fraud_ban_trend_data.to_json %>;
+                  var sortedDates = Object.keys(raw).sort();
+                  var tableData = sortedDates.map(function(d) {
+                    return { date: new Date(d), bans: raw[d].bans, unbans: raw[d].unbans };
+                  });
 
-                const data = <%= raw @fraud_ban_trend_data.to_json %>;
-                const sortedDates = Object.keys(data).sort();
-                const labels = sortedDates.map(d => {
-                  const date = new Date(d);
-                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                });
+                  var seriesConfig = [
+                    { key: 'bans', label: 'Bans', color: '#ef4444' },
+                    { key: 'unbans', label: 'Unbans', color: '#10b981' }
+                  ];
 
-                const bansData = sortedDates.map(d => data[d].bans);
-                const unbansData = sortedDates.map(d => data[d].unbans);
+                  var container = document.getElementById('banTrendContainer');
+                  var tooltip = document.getElementById('banTrendTooltip');
+                  var legendEl = document.getElementById('banTrendLegend');
+                  var margin = { top: 10, right: 10, bottom: 20, left: 30 };
+                  var height = 140;
 
-                new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                    labels: labels,
-                    datasets: [
-                      {
-                        label: 'Bans',
-                        data: bansData,
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 1,
-                        borderWidth: 1.5
-                      },
-                      {
-                        label: 'Unbans',
-                        data: unbansData,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 1,
-                        borderWidth: 1.5
-                      }
-                    ]
-                  },
-                  options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        display: true,
-                        position: 'bottom',
-                        labels: { font: { size: 8 }, padding: 4 }
-                      }
-                    },
-                    scales: {
-                      x: {
-                        ticks: { font: { size: 7 }, maxRotation: 45, minRotation: 0 }
-                      },
-                      y: {
-                        beginAtZero: true,
-                        ticks: { precision: 0, font: { size: 7 } }
-                      }
-                    }
+                  legendEl.innerHTML = seriesConfig.map(function(cfg) {
+                    return '<span><span class="d3-stream-legend__swatch" style="background:' + cfg.color + '"></span>' + cfg.label + '</span>';
+                  }).join('');
+
+                  function render() {
+                    container.querySelectorAll('svg').forEach(function(el) { el.remove(); });
+                    var width = container.clientWidth;
+                    var innerW = width - margin.left - margin.right;
+                    var innerH = height - margin.top - margin.bottom;
+
+                    var svg = d3.select(container).append('svg')
+                      .attr('width', width).attr('height', height);
+                    var g = svg.append('g')
+                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+                    var x = d3.scaleTime()
+                      .domain(d3.extent(tableData, function(d) { return d.date; }))
+                      .range([0, innerW]);
+
+                    var yMax = d3.max(tableData, function(d) {
+                      return Math.max(d.bans, d.unbans);
+                    }) || 1;
+
+                    var y = d3.scaleLinear()
+                      .domain([0, yMax * 1.1])
+                      .range([innerH, 0]);
+
+                    g.append('g')
+                      .attr('class', 'd3-stream-grid')
+                      .call(d3.axisLeft(y).ticks(4).tickSize(-innerW).tickFormat(d3.format('d')))
+                      .selectAll('text').style('font-size', '7px');
+
+                    g.append('g')
+                      .attr('transform', 'translate(0,' + innerH + ')')
+                      .call(d3.axisBottom(x).ticks(Math.min(sortedDates.length, 8)).tickFormat(d3.timeFormat('%b %d')))
+                      .selectAll('text').style('font-size', '7px');
+
+                    var lineGen = d3.line()
+                      .x(function(d) { return x(d.date); })
+                      .curve(d3.curveMonotoneX);
+
+                    seriesConfig.forEach(function(cfg) {
+                      g.append('path')
+                        .datum(tableData)
+                        .attr('fill', 'none')
+                        .attr('stroke', cfg.color)
+                        .attr('stroke-width', 1.5)
+                        .attr('d', lineGen.y(function(d) { return y(d[cfg.key]); }));
+
+                      g.selectAll('.dot-' + cfg.key)
+                        .data(tableData)
+                        .join('circle')
+                        .attr('cx', function(d) { return x(d.date); })
+                        .attr('cy', function(d) { return y(d[cfg.key]); })
+                        .attr('r', 2)
+                        .attr('fill', cfg.color)
+                        .attr('stroke', '#fff')
+                        .attr('stroke-width', 1);
+                    });
+
+                    var crosshair = g.append('line')
+                      .attr('y1', 0).attr('y2', innerH)
+                      .attr('stroke', '#94a3b8').attr('stroke-width', 1)
+                      .attr('stroke-dasharray', '4,3').attr('pointer-events', 'none')
+                      .style('display', 'none');
+
+                    svg.append('rect')
+                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+                      .attr('width', innerW).attr('height', innerH)
+                      .attr('fill', 'none').attr('pointer-events', 'all')
+                      .on('mousemove', function(event) {
+                        var mx = d3.pointer(event, this)[0];
+                        var bisect = d3.bisector(function(d) { return d.date; }).left;
+                        var x0 = x.invert(mx);
+                        var idx = bisect(tableData, x0, 1);
+                        var d0 = tableData[idx - 1], d1 = tableData[idx];
+                        var pt = (!d1 || (x0 - d0.date < d1.date - x0)) ? d0 : d1;
+                        crosshair.attr('x1', x(pt.date)).attr('x2', x(pt.date)).style('display', null);
+                        tooltip.className = 'd3-stream-tooltip is-visible';
+                        tooltip.innerHTML = '<strong>' + d3.timeFormat('%b %d')(pt.date) + '</strong><br>' +
+                          seriesConfig.map(function(cfg) {
+                            return '<span style="color:' + cfg.color + '">' + cfg.label + ': ' + pt[cfg.key] + '</span>';
+                          }).join('<br>');
+                        tooltip.style.left = (x(pt.date) + margin.left + 10) + 'px';
+                        tooltip.style.top = margin.top + 'px';
+                      })
+                      .on('mouseleave', function() {
+                        crosshair.style('display', 'none');
+                        tooltip.className = 'd3-stream-tooltip';
+                      });
                   }
+
+                  render();
+                  window.addEventListener('resize', render);
                 });
               });
             </script>
@@ -172,80 +232,148 @@
           <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph">
           <h3>Reports Over Time (by reason)</h3>
           <% if @fraud_report_trend_data.present? %>
-            <div class="fraud-timeline-graph fraud-timeline-graph--compact">
-              <canvas id="reportTrendChart" height="100"></canvas>
+            <div class="d3-stream-container" id="reportTrendContainer">
+              <div class="d3-stream-tooltip" id="reportTrendTooltip"></div>
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <div class="d3-stream-legend" id="reportTrendLegend"></div>
             <script>
               document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('reportTrendChart');
-                if (!ctx) return;
+                ensureD3Fraud(function() {
+                  var raw = <%= raw @fraud_report_trend_data.to_json %>;
+                  var sortedDates = Object.keys(raw).sort();
 
-                const data = <%= raw @fraud_report_trend_data.to_json %>;
-                const sortedDates = Object.keys(data).sort();
-                const labels = sortedDates.map(d => {
-                  const date = new Date(d);
-                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                });
-
-                // Group by reason
-                const reasonMap = {};
-                sortedDates.forEach(date => {
-                  Object.entries(data[date] || {}).forEach(([reason, count]) => {
-                    if (!reasonMap[reason]) reasonMap[reason] = {};
-                    reasonMap[reason][date] = count;
-                  });
-                });
-
-                // Define colors for different reasons
-                const reasonColors = {
-                  'low_effort': { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
-                  'undeclared_ai': { border: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
-                  'demo_broken': { border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
-                  'stolen_code': { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
-                  'inappropriate': { border: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)' },
-                  'other': { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' }
-                };
-
-                // Build datasets
-                const datasets = Object.entries(reasonMap).map(([reason, dates]) => {
-                  const dataArray = sortedDates.map(d => dates[d] || 0);
-                  const colors = reasonColors[reason] || { border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' };
-                  return {
-                    label: reason.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                    data: dataArray,
-                    borderColor: colors.border,
-                    backgroundColor: colors.bg,
-                    fill: false,
-                    tension: 0.3,
-                    pointRadius: 1,
-                    borderWidth: 1.5
+                  var reasonColors = {
+                    'low_effort':     '#f59e0b',
+                    'undeclared_ai':  '#ef4444',
+                    'demo_broken':    '#3b82f6',
+                    'stolen_code':    '#8b5cf6',
+                    'inappropriate':  '#ec4899',
+                    'other':          '#6366f1'
                   };
-                });
+                  var defaultColor = '#10b981';
 
-                new Chart(ctx, {
-                  type: 'line',
-                  data: { labels: labels, datasets: datasets },
-                  options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        display: true,
-                        position: 'bottom',
-                        labels: { font: { size: 8 }, padding: 4 }
-                      }
-                    },
-                    scales: {
-                      x: {
-                        ticks: { font: { size: 7 }, maxRotation: 45, minRotation: 0 }
-                      },
-                      y: {
-                        beginAtZero: true,
-                        ticks: { precision: 0, font: { size: 7 } }
-                      }
-                    }
+                  var reasonSet = {};
+                  sortedDates.forEach(function(date) {
+                    Object.keys(raw[date] || {}).forEach(function(reason) {
+                      reasonSet[reason] = true;
+                    });
+                  });
+                  var reasons = Object.keys(reasonSet);
+
+                  var tableData = sortedDates.map(function(d) {
+                    var row = { date: new Date(d) };
+                    reasons.forEach(function(r) { row[r] = (raw[d] || {})[r] || 0; });
+                    return row;
+                  });
+
+                  var seriesConfig = reasons.map(function(r) {
+                    return {
+                      key: r,
+                      label: r.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); }),
+                      color: reasonColors[r] || defaultColor
+                    };
+                  });
+
+                  var container = document.getElementById('reportTrendContainer');
+                  var tooltip = document.getElementById('reportTrendTooltip');
+                  var legendEl = document.getElementById('reportTrendLegend');
+                  var margin = { top: 10, right: 10, bottom: 20, left: 30 };
+                  var height = 140;
+
+                  legendEl.innerHTML = seriesConfig.map(function(cfg) {
+                    return '<span><span class="d3-stream-legend__swatch" style="background:' + cfg.color + '"></span>' + cfg.label + '</span>';
+                  }).join('');
+
+                  function render() {
+                    container.querySelectorAll('svg').forEach(function(el) { el.remove(); });
+                    var width = container.clientWidth;
+                    var innerW = width - margin.left - margin.right;
+                    var innerH = height - margin.top - margin.bottom;
+
+                    var svg = d3.select(container).append('svg')
+                      .attr('width', width).attr('height', height);
+                    var g = svg.append('g')
+                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+                    var x = d3.scaleTime()
+                      .domain(d3.extent(tableData, function(d) { return d.date; }))
+                      .range([0, innerW]);
+
+                    var yMax = d3.max(tableData, function(d) {
+                      return d3.max(reasons, function(r) { return d[r]; });
+                    }) || 1;
+
+                    var y = d3.scaleLinear()
+                      .domain([0, yMax * 1.1])
+                      .range([innerH, 0]);
+
+                    g.append('g')
+                      .attr('class', 'd3-stream-grid')
+                      .call(d3.axisLeft(y).ticks(4).tickSize(-innerW).tickFormat(d3.format('d')))
+                      .selectAll('text').style('font-size', '7px');
+
+                    g.append('g')
+                      .attr('transform', 'translate(0,' + innerH + ')')
+                      .call(d3.axisBottom(x).ticks(Math.min(sortedDates.length, 8)).tickFormat(d3.timeFormat('%b %d')))
+                      .selectAll('text').style('font-size', '7px');
+
+                    var lineGen = d3.line()
+                      .x(function(d) { return x(d.date); })
+                      .curve(d3.curveMonotoneX);
+
+                    seriesConfig.forEach(function(cfg) {
+                      g.append('path')
+                        .datum(tableData)
+                        .attr('fill', 'none')
+                        .attr('stroke', cfg.color)
+                        .attr('stroke-width', 1.5)
+                        .attr('d', lineGen.y(function(d) { return y(d[cfg.key]); }));
+
+                      g.selectAll('.dot-' + cfg.key)
+                        .data(tableData)
+                        .join('circle')
+                        .attr('cx', function(d) { return x(d.date); })
+                        .attr('cy', function(d) { return y(d[cfg.key]); })
+                        .attr('r', 2)
+                        .attr('fill', cfg.color)
+                        .attr('stroke', '#fff')
+                        .attr('stroke-width', 1);
+                    });
+
+                    var crosshair = g.append('line')
+                      .attr('y1', 0).attr('y2', innerH)
+                      .attr('stroke', '#94a3b8').attr('stroke-width', 1)
+                      .attr('stroke-dasharray', '4,3').attr('pointer-events', 'none')
+                      .style('display', 'none');
+
+                    svg.append('rect')
+                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+                      .attr('width', innerW).attr('height', innerH)
+                      .attr('fill', 'none').attr('pointer-events', 'all')
+                      .on('mousemove', function(event) {
+                        var mx = d3.pointer(event, this)[0];
+                        var bisect = d3.bisector(function(d) { return d.date; }).left;
+                        var x0 = x.invert(mx);
+                        var idx = bisect(tableData, x0, 1);
+                        var d0 = tableData[idx - 1], d1 = tableData[idx];
+                        var pt = (!d1 || (x0 - d0.date < d1.date - x0)) ? d0 : d1;
+                        crosshair.attr('x1', x(pt.date)).attr('x2', x(pt.date)).style('display', null);
+                        tooltip.className = 'd3-stream-tooltip is-visible';
+                        tooltip.innerHTML = '<strong>' + d3.timeFormat('%b %d')(pt.date) + '</strong><br>' +
+                          seriesConfig.map(function(cfg) {
+                            return '<span style="color:' + cfg.color + '">' + cfg.label + ': ' + pt[cfg.key] + '</span>';
+                          }).join('<br>');
+                        tooltip.style.left = (x(pt.date) + margin.left + 10) + 'px';
+                        tooltip.style.top = margin.top + 'px';
+                      })
+                      .on('mouseleave', function() {
+                        crosshair.style('display', 'none');
+                        tooltip.className = 'd3-stream-tooltip';
+                      });
                   }
+
+                  render();
+                  window.addEventListener('resize', render);
                 });
               });
             </script>
