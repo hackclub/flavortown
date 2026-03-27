@@ -32,6 +32,7 @@ module Admin
 
       @show_copy = Secrets::VoteQualityCopy.show_page
       @tooltip_copy = Secrets::VoteQualityCopy.index_page
+      @chart_bounds = Secrets::VoteQualityCopy.chart_bounds
       @selected_user_id = params[:user_id].to_i
       @selected_user = User.find_by(id: @selected_user_id)
 
