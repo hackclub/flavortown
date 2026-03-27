@@ -11,6 +11,7 @@ class Projects::ShipsController < ApplicationController
 
   def create
     authorize @project, :submit_ship?
+    selected_sidequest = selected_sidequest_for_submission
 
     # Warn if readme URL is not a raw GitHub URL
     unless @project.readme_is_raw_github_url?
@@ -18,9 +19,10 @@ class Projects::ShipsController < ApplicationController
     end
 
     @project.with_lock do
+      apply_space_theme_for_sidequest!(selected_sidequest)
       @project.submit_for_review!
       @post = @project.posts.create!(user: current_user, postable: Post::ShipEvent.new(body: params[:ship_update].to_s.strip))
-      create_sidequest_entries!
+      create_sidequest_entries!(selected_sidequest)
     end
 
     if initial_ship?
@@ -50,10 +52,6 @@ class Projects::ShipsController < ApplicationController
   def initial_ship? = @project.posts.where(postable_type: "Post::ShipEvent").one?
 
   def load_ship_data
-    if @step == 2
-      @space_themed_checked = @project.space_themed?
-      @project.description = @project.description_without_space_theme_prefix if @project.space_themed?
-    end
     @last_ship = @project.last_ship_event
     @devlogs_for_ship = devlogs_since_last_ship
     @active_sidequests = Sidequest.active
@@ -64,22 +62,30 @@ class Projects::ShipsController < ApplicationController
     @last_ship ? devlogs.where("posts.created_at > ?", @last_ship.created_at) : devlogs
   end
 
-  def create_sidequest_entries!
+  def selected_sidequest_for_submission
     selected_sidequest_id = params[:sidequest_id].to_i
 
     # Backward compatibility for older clients still posting sidequest_ids[]
     if selected_sidequest_id.zero?
       selected_sidequest_id = Array(params[:sidequest_ids]).map(&:to_i).reject(&:zero?).first.to_i
     end
+    return nil if selected_sidequest_id.zero?
 
-    if selected_sidequest_id.zero? && @project.space_themed?
-      selected_sidequest_id = Sidequest.active.find_by(slug: "challenger")&.id.to_i
+    Sidequest.active.find_by(id: selected_sidequest_id)
+  end
+
+  def create_sidequest_entries!(selected_sidequest)
+    return unless selected_sidequest
+
+    @project.sidequest_entries.find_or_create_by!(sidequest_id: selected_sidequest.id)
+  end
+
+  def apply_space_theme_for_sidequest!(selected_sidequest)
+    base_description = @project.description_without_space_theme_prefix
+    @project.description = if selected_sidequest&.slug == "challenger"
+      [ Project::SPACE_THEMED_PREFIX, base_description.presence ].compact.join(" ")
+    else
+      base_description
     end
-    return if selected_sidequest_id.zero?
-
-    active_sidequest_id = Sidequest.active.where(id: selected_sidequest_id).pick(:id)
-    return unless active_sidequest_id
-
-    @project.sidequest_entries.find_or_create_by!(sidequest_id: active_sidequest_id)
   end
 end
