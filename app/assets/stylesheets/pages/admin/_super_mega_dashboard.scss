@@ -1513,6 +1513,69 @@
   }
 }
 
+.super-mega-dashboard__dashboard--pyramid-flavortime {
+  .pyramid-flavortime-dashboard__summary-row {
+    margin-bottom: 1.4rem;
+  }
+
+  .super-mega-dashboard__section-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .super-mega-dashboard__section-subtitle {
+    margin: 0;
+    color: var(--color-brown-500);
+    font-size: 0.95rem;
+  }
+
+  .super-mega-dashboard__section-note {
+    margin: 0 0 0.85rem;
+    color: var(--color-brown-500);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .super-mega-dashboard__total-numbers-grid--compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    @media (max-width: 560px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .super-mega-dashboard__total-numbers-value {
+    &.yellow {
+      color: #f59e0b;
+    }
+
+    &.red {
+      color: #ef4444;
+    }
+  }
+
+  .super-mega-dashboard__card--full,
+  .super-mega-dashboard__card--half {
+    max-height: none;
+  }
+
+  .super-mega-dashboard__chart-shell {
+    height: 320px;
+    min-height: 320px;
+
+    &--pie {
+      height: 300px;
+      min-height: 300px;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  }
+}
+
 .sw-vibes-popup {
   position: fixed;
   top: 0;
