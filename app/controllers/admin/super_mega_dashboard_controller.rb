@@ -800,8 +800,6 @@ module Admin
       with_dashboard_timing("flavortime") do
         cached_data = Rails.cache.fetch("super_mega_flavortime_summary", expires_in: dashboard_cache_ttl(30.seconds, 2.minutes)) do
           scoped_sessions = FlavortimeSession.all
-          platform_counts = grouped_flavortime_counts(scoped_sessions, :platform)
-          version_counts = grouped_flavortime_counts(scoped_sessions, :app_version)
 
           {
             summary: {
@@ -809,25 +807,16 @@ module Admin
               total_users: FlavortimeSession.select(:user_id).distinct.count,
               total_sessions: FlavortimeSession.count,
               status_hours: (FlavortimeSession.sum(:discord_status_seconds).to_f / 3600).round(1),
-              sessions_by_platform: compact_flavortime_breakdown(platform_counts),
-              sessions_by_version: compact_flavortime_breakdown(version_counts),
               activity_chart: build_flavortime_activity_chart(scoped_sessions)
-            },
-            slack_ids: FlavortimeSession
-              .joins(:user)
-              .where.not(users: { slack_id: [ nil, "" ] })
-              .distinct
-              .pluck("users.slack_id")
+            }
           }
         end
 
         @flavortime_summary = empty_flavortime_summary.merge(cached_data.fetch(:summary, {}))
-        @flavortime_slack_ids = Array(cached_data.fetch(:slack_ids, []))
       end
     rescue StandardError => e
       Rails.logger.warn("[SuperMegaDashboard] Flavortime section unavailable (#{e.class}): #{e.message}")
       @flavortime_summary = empty_flavortime_summary.merge(error: "Flavortime data is temporarily unavailable")
-      @flavortime_slack_ids = []
     end
 
     def load_pyramid_scheme_stats
@@ -842,27 +831,29 @@ module Admin
         return
       end
 
-      overlap_count = ((payload.dig("activity", "user_slack_ids") || []) & Array(@flavortime_slack_ids)).count
+      pending_referrals = payload.dig("referrals", "pending").to_i
+      id_verified_referrals = payload.dig("referrals", "id_verified").to_i
+      completed_referrals = payload.dig("referrals", "completed").to_i
+      total_referrals = payload.dig("referrals", "total")
+      total_referrals = pending_referrals + id_verified_referrals + completed_referrals if total_referrals.blank?
 
       @pyramid_scheme_stats = {
         total_hours_logged: payload.dig("activity", "total_hours_logged") || 0,
-        total_users: payload.dig("activity", "all_users") || 0,
-        total_referrals_verified: (payload.dig("referrals", "id_verified") || 0) + (payload.dig("referrals", "completed") || 0),
-        flavortime_users: overlap_count,
+        total_referrals: total_referrals.to_i,
+        completed_referrals: completed_referrals,
         verified_hours_last_week: payload.dig("activity", "verified_hours_last_week") || 0,
         verified_hours_previous_week: payload.dig("activity", "verified_hours_previous_week") || 0,
         referrals_gained_last_week: payload.dig("activity", "referrals_gained_last_week") || 0,
         referrals_gained_previous_week: payload.dig("activity", "referrals_gained_previous_week") || 0,
-        shipped_projects: payload.dig("activity", "shipped_projects") || 0,
         partial_data: payload["partial_data"] == true,
         data_source: payload["data_source"],
         activity_timeline: payload.dig("activity", "timeline") || [],
         referral_chart: {
           labels: [ "Pending", "ID Verified", "Completed" ],
           values: [
-            payload.dig("referrals", "pending") || 0,
-            payload.dig("referrals", "id_verified") || 0,
-            payload.dig("referrals", "completed") || 0
+            pending_referrals,
+            id_verified_referrals,
+            completed_referrals
           ]
         },
         poster_chart: {
@@ -924,13 +915,6 @@ module Admin
       end
     end
 
-    def grouped_flavortime_counts(scope, column)
-      scope
-        .group(Arel.sql("COALESCE(NULLIF(#{column}, ''), 'unknown')"))
-        .order(Arel.sql("COUNT(*) DESC"))
-        .count
-    end
-
     def build_flavortime_activity_chart(scope)
       date_range = 13.days.ago.to_date..Time.current.to_date
       sessions_by_day = scope
@@ -955,8 +939,6 @@ module Admin
         total_users: 0,
         total_sessions: 0,
         status_hours: 0,
-        sessions_by_platform: {},
-        sessions_by_version: {},
         activity_chart: {
           labels: [],
           sessions: [],
