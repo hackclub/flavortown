@@ -65,7 +65,10 @@ class Projects::ShipsController < ApplicationController
   end
 
   def create_sidequest_entries!
-    sidequest_ids = Array(params[:sidequest_ids]).map(&:to_i).reject(&:zero?)
+    sidequest_id = params[:sidequest_id].to_i
+    sidequest_ids = []
+    sidequest_ids << sidequest_id if sidequest_id > 0
+    
     if @project.space_themed?
       challenger_id = Sidequest.active.find_by(slug: "challenger")&.id
       sidequest_ids << challenger_id if challenger_id
@@ -74,8 +77,8 @@ class Projects::ShipsController < ApplicationController
     return if sidequest_ids.empty?
 
     active_sidequest_ids = Sidequest.active.where(id: sidequest_ids).pluck(:id)
-    active_sidequest_ids.each do |sidequest_id|
-      @project.sidequest_entries.find_or_create_by!(sidequest_id: sidequest_id)
+    active_sidequest_ids.each do |id|
+      @project.sidequest_entries.find_or_create_by!(sidequest_id: id)
     end
   end
 end
