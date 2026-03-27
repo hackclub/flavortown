@@ -1,0 +1,66 @@
+<% content_for :title, "My Reports" %>
+
+<div class="my-reports">
+  <div class="my-reports__header">
+    <h1 class="my-reports__title">My Reports</h1>
+    <%= render ButtonComponent.new(text: "Back to Kitchen", href: "/kitchen", color: :brown, variant: :borderless) %>
+  </div>
+
+  <div class="my-reports__stats">
+    <div class="my-reports__stat-card my-reports__stat-card--pending">
+      <span class="my-reports__stat-icon">⏳</span>
+      <div>
+        <span class="my-reports__stat-value"><%= @counts[:pending] %></span>
+        <span class="my-reports__stat-label">Pending</span>
+      </div>
+    </div>
+    <div class="my-reports__stat-card my-reports__stat-card--reviewed">
+      <span class="my-reports__stat-icon">✅</span>
+      <div>
+        <span class="my-reports__stat-value"><%= @counts[:reviewed] %></span>
+        <span class="my-reports__stat-label">Reviewed</span>
+      </div>
+    </div>
+    <div class="my-reports__stat-card my-reports__stat-card--dismissed">
+      <span class="my-reports__stat-icon">🗑️</span>
+      <div>
+        <span class="my-reports__stat-value"><%= @counts[:dismissed] %></span>
+        <span class="my-reports__stat-label">Dismissed</span>
+      </div>
+    </div>
+  </div>
+
+  <% if @reports.empty? %>
+    <div class="my-reports__empty">
+      <p>You haven't submitted any reports yet.</p>
+    </div>
+  <% else %>
+    <div class="my-reports__list">
+      <% @reports.each do |report| %>
+        <div class="my-reports__item">
+          <div class="my-reports__item-header">
+            <span class="my-reports__item-id">#<%= report.id %></span>
+            <span class="my-reports__reason my-reports__reason--<%= report.reason %>"><%= report.reason.titleize %></span>
+            <span class="my-reports__status my-reports__status--<%= report.status %>"><%= report.status.titleize %></span>
+          </div>
+
+          <div class="my-reports__item-body">
+            <div class="my-reports__item-project">
+              <% if report.project %>
+                <%= link_to report.project.title, project_path(report.project), class: "my-reports__project-link" %>
+              <% else %>
+                <span class="my-reports__project-deleted">Deleted Project</span>
+              <% end %>
+            </div>
+
+            <% if report.details.present? %>
+              <p class="my-reports__item-details"><%= truncate(report.details, length: 100) %></p>
+            <% end %>
+
+            <span class="my-reports__item-date">Submitted <%= time_ago_in_words(report.created_at) %> ago</span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
