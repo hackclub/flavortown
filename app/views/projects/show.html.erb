@@ -42,6 +42,14 @@
               ) %>
         <% end %>
 
+        <% if policy(:helper).access? %>
+          <% helper_user = owner || @project.users.first %>
+          <% if helper_user.present? %>
+            <%= link_to "View user on helper dash", helper_user_path(helper_user), class: "btn btn--brown" %>
+          <% end %>
+          <%= link_to "View project on helper dash", helper_project_path(@project), class: "btn btn--brown" %>
+        <% end %>
+
         <% if policy(@project).resend_webhook? %>
           <button type="button" class="btn btn--brown" id="resend-webhook-btn" data-project-id="<%= @project.id %>">
             Resend Webhook (for ship)
