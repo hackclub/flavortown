@@ -86,7 +86,6 @@ class HackatimeService
     if response.success?
       data = JSON.parse(response.body)
       duration_seconds = data["total_seconds"].to_i
-      duration_seconds = nil if duration_seconds < 15.minutes
 
       devlog.update(
         duration_seconds: duration_seconds,
