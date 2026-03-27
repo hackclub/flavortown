@@ -1,5 +1,15 @@
 class MarkdownRenderer
+  CACHE = {}
+  CACHE_MUTEX = Mutex.new
+  MAX_CACHE_SIZE = 500
+
   def self.render(text)
+    return "".freeze if text.blank?
+
+    cache_key = text.hash
+    cached = CACHE_MUTEX.synchronize { CACHE[cache_key] }
+    return cached if cached
+
     html = get_markdown(text)
 
     sanitised = ActionController::Base.helpers.sanitize(
@@ -25,7 +35,14 @@ class MarkdownRenderer
       img["referrerpolicy"] = "no-referrer"
     end
 
-    doc.to_html
+    result = doc.to_html.freeze
+
+    CACHE_MUTEX.synchronize do
+      CACHE.shift if CACHE.size >= MAX_CACHE_SIZE
+      CACHE[cache_key] = result
+    end
+
+    result
   end
 
   private

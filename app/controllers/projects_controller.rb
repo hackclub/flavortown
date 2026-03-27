@@ -226,6 +226,16 @@ class ProjectsController < ApplicationController
 
     return render(json: { message: "Project not found" }, status: :not_found) unless @project
 
+    if @project.users.include?(current_user)
+      return render(json: { message: "You cannot mark your own project as well cooked." }, status: :forbidden)
+    end
+
+    if current_user.fraud_dept? && !current_user.admin?
+      if @project.users.any? { |u| u.fraud_dept? }
+        return render(json: { message: "You cannot mark a fellow fraud department member's project as well cooked." }, status: :forbidden)
+      end
+    end
+
     PaperTrail.request(whodunnit: current_user.id) do
       fire_event = Post::FireEvent.new(
         body: "🔥 #{current_user.display_name} marked your project as well cooked! As a prize for your nicely cooked project, look out for a bonus prize in the mail :)"
@@ -387,15 +397,15 @@ class ProjectsController < ApplicationController
       redirect_to @project, alert: "Shipping is currently disabled." and return
     end
 
-    ship_event = ShipCertService.latest_ship_event(@project)
+    @project.with_lock do
+      ship_event = ShipCertService.latest_ship_event(@project)
 
-    unless ship_event&.certification_status == "rejected"
-      flash[:alert] = "Re-certification can only be requested for rejected ships."
-      redirect_to @project and return
-    end
+      unless ship_event&.certification_status == "rejected"
+        flash[:alert] = "Re-certification can only be requested for rejected ships."
+        redirect_to @project and return
+      end
 
-    PaperTrail.request(whodunnit: current_user.id) do
-      begin
+      PaperTrail.request(whodunnit: current_user.id) do
         ShipCertService.ship_to_dash(@project, type: "recertification")
         ship_event.update!(certification_status: "pending")
 
@@ -411,13 +421,13 @@ class ProjectsController < ApplicationController
         )
 
         flash[:notice] = "Re-certification requested! Your project has been resubmitted for review."
-      rescue => e
-        Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
-        flash[:alert] = "Failed to request re-certification: #{e.message}"
       end
     end
 
     redirect_to @project
+  rescue => e
+    Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
+    redirect_to @project, alert: "Failed to request re-certification: #{e.message}"
   end
 
   def lapse_timelapses

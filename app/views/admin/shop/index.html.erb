@@ -4,7 +4,7 @@
     <h1>Manage Shop</h1>
     <div class="manage-shop__actions">
       <%= link_to "New Product", new_admin_shop_item_path, class: "btn-primary" %>
-      <%= button_to "Clear Carousel Cache", admin_clear_carousel_cache_path, method: :post, class: "btn-secondary" %>
+      <%= button_to "Clear Carousel Cache", admin_clear_carousel_cache_path, method: :post, class: "btn-secondary", form: { onsubmit: "return confirm('Are you sure you want to clear the carousel cache?')" } %>
     </div>
   </div>
 

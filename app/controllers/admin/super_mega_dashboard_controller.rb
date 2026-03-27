@@ -19,6 +19,7 @@ module Admin
       super_mega_ysws_review_v2
       super_mega_ship_certs_raw
       sw_vibes_data
+      super_mega_funnel_stats
     ].freeze
 
     def index
@@ -36,6 +37,7 @@ module Admin
       load_pyramid_scheme_stats
       load_community_engagement_stats
       load_fraud_happiness_data
+      load_funnel_stats
     end
 
     def load_section
@@ -299,10 +301,13 @@ module Admin
         cookie_utilization_percentage = ((used_cookies.to_f / total_distributed_cookies) * 100).round(2)
 
         total_approved_ysws_db_hours = fetch_approved_ysws_db_hours
+        hcb_expenses = get_hcb_expenses
         if total_approved_ysws_db_hours > 0
           dollars_per_hour = (total_distributed_cookies / 5) / total_approved_ysws_db_hours
+          expenses_dollars_per_hour = hcb_expenses / total_approved_ysws_db_hours
         else
           dollars_per_hour = 0
+          expenses_dollars_per_hour = 0
         end
 
         {
@@ -314,13 +319,15 @@ module Admin
             volume: recent_stats[3]
           },
           cookie_utilization_percentage: cookie_utilization_percentage,
-          dollars_per_hour: dollars_per_hour
+          dollars_per_hour: dollars_per_hour,
+          expenses_dollars_per_hour: expenses_dollars_per_hour
         }
       end
       @payouts_cap = cached_data&.dig(:payouts_cap) || 0
       @payouts = cached_data&.dig(:payouts) || { created: 0, destroyed: 0, txns: 0, volume: 0 }
 
       @dollars_per_hour = cached_data&.dig(:dollars_per_hour) || 0
+      @expenses_dollars_per_hour = cached_data&.dig(:expenses_dollars_per_hour) || 0
       @cookie_utilization_percentage = cached_data&.dig(:cookie_utilization_percentage) || 0
     end
 
@@ -332,12 +339,20 @@ module Admin
 
         type_counts = base_scope.group("shop_items.type", :aasm_state).count
 
+        known_types = %w[
+          ShopItem::HQMailItem ShopItem::LetterMail
+          ShopItem::ThirdPartyPhysical ShopItem::Accessory ShopItem::ThirdPartyDigital
+          ShopItem::WarehouseItem ShopItem::PileOfStickersItem
+          ShopItem::FreeStickers
+        ]
+        other_types = type_counts.keys.map(&:first).uniq - known_types
+
         {
           all: calculate_type_totals(type_counts),
           hq_mail: calculate_type_totals(type_counts, %w[ShopItem::HQMailItem ShopItem::LetterMail]),
-          third_party: calculate_type_totals(type_counts, %w[ShopItem::ThirdPartyPhysical]),
+          third_party: calculate_type_totals(type_counts, %w[ShopItem::ThirdPartyPhysical ShopItem::Accessory ShopItem::ThirdPartyDigital]),
           warehouse: calculate_type_totals(type_counts, %w[ShopItem::WarehouseItem ShopItem::PileOfStickersItem]),
-          other: calculate_type_totals(type_counts, %w[ShopItem::HCBGrant ShopItem::SiteActionItem ShopItem::BadgeItem ShopItem::AdventSticker ShopItem::HCBPreauthGrant ShopItem::SpecialFulfillmentItem])
+          other: calculate_type_totals(type_counts, other_types)
         }
       end
       @fulfillment = cached_data || { all: {}, hq_mail: {}, third_party: {}, warehouse: {}, other: {} }
@@ -1048,6 +1063,47 @@ module Admin
       }
     end
 
+    def load_funnel_stats
+      cached_data = Rails.cache.fetch("super_mega_funnel_stats", expires_in: 5.minutes) do
+        begin
+          funnel_steps = [
+            "start_flow_started",
+            "start_flow_name",
+            "start_flow_project",
+            "start_flow_devlog",
+            "start_flow_signin",
+            "identity_verified",
+            "hackatime_linked",
+            "project_created",
+            "devlog_created"
+          ]
+
+          grouped_counts = FunnelEvent.where(event_name: funnel_steps)
+                                       .group(:event_name)
+                                       .distinct
+                                       .count(:email)
+
+          funnel_data = funnel_steps.index_with { |step| grouped_counts[step] || 0 }
+
+          funnel_with_counts = funnel_steps.map do |step|
+            count = funnel_data[step]
+
+            {
+              name: step,
+              count: count
+            }
+          end
+
+          { funnel_steps: funnel_with_counts }
+        rescue StandardError => e
+          Rails.logger.error("[SuperMegaDashboard] Error in load_funnel_stats: #{e.message}")
+          { funnel_steps: [] }
+        end
+      end
+
+      @funnel_steps = cached_data&.dig(:funnel_steps) || []
+    end
+
     private
 
     def fetch_approved_ysws_db_hours
@@ -1058,10 +1114,23 @@ module Admin
 
       weighted_total = record&.fields&.dig("Weighted–Total")
 
-      weighted_total.to_f
+      weighted_total.to_f * 10
     rescue StandardError => e
       Rails.logger.error("[SuperMegaDashboard] Error fetching approved YSWS hours: #{e.class} - #{e.message}")
       0
+    end
+
+    def get_hcb_expenses
+      response = Faraday.get("https://hcb.hackclub.com/api/v3/organizations/flavortown")
+      if response.success?
+        data = JSON.parse(response.body)
+        total_raised = data.dig("balances", "total_raised") || 0
+        balance = data.dig("balances", "balance_cents") || 0
+        total_expenses = (total_raised - balance).to_f / 100
+        total_expenses
+      else
+        0
+      end
     end
   end
 end
