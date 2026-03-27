@@ -1,7 +1,7 @@
-<% 
+<%
   now = Time.current
   start_date = Time.zone.parse("2026-04-02 00:00:00 EST")
-  
+
   active_week = if now < start_date
                   0
                 elsif now < start_date + 1.week
@@ -28,13 +28,13 @@
     start_date + 3.weeks + 24.hours - 1.minute,
     start_date + 4.weeks
   ]
-  
+
   next_deadline = if active_week == 0
                     start_date
                   else
                     deadlines.find { |d| now < d }
                   end
-  
+
   countdown_label = active_week == 0 ? "STARTS IN:" : "NEXT DEADLINE:"
 %>
 <% content_for :title, @sidequest.title %>
@@ -48,7 +48,7 @@
 
 <div class="sidequest-show sidequest-show--lockin">
   <div class="sidequest-show__content">
-    
+
     <div class="lockin-dashboard">
       <div class="lockin-header">
         <h1 class="lockin-header__title"><i class="fa-solid fa-lock"></i> <%= @sidequest.title %></h1>
@@ -72,34 +72,34 @@
             </div>
           <% end %>
         </div>
-        
+
         <% if next_deadline %>
           <script>
             document.addEventListener("turbo:load", function() {
               const countdownEl = document.getElementById("lockin-countdown");
               if (!countdownEl) return;
-              
+
               const deadlineStr = countdownEl.getAttribute("data-deadline");
               if (!deadlineStr) return;
-              
+
               const deadline = new Date(deadlineStr).getTime();
               const textSpan = countdownEl.querySelector(".timer-text");
-              
+
               const timer = setInterval(function() {
                 const now = new Date().getTime();
                 const distance = deadline - now;
-                
+
                 if (distance < 0) {
                   clearInterval(timer);
                   textSpan.innerHTML = "0d 0h 0m 0s";
                   return;
                 }
-                
+
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                
+
                 textSpan.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s";
               }, 1000);
             });

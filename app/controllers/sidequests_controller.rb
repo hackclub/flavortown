@@ -15,7 +15,6 @@ class SidequestsController < ApplicationController
       .approved
       .joins(:project)
       .includes(project: :memberships)
-    
     if @sidequest.slug == "webos"
       @prizes = ShopItem.where(requires_achievement: "sidequest_webos", enabled: true)
     end
