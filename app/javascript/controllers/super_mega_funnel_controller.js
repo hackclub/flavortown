@@ -5,7 +5,7 @@ const DEFAULT_WIDTH = 960;
 const FUNNEL_HEIGHT = 420;
 const MARGIN = { top: 32, right: 16, bottom: 24, left: 16 };
 const MIN_CHART_INNER_WIDTH = 540;
-const MIN_STEP_WIDTH = 150;
+const MIN_STEP_WIDTH = 50;
 const MAX_BAND_HEIGHT_RATIO = 0.9;
 const TOOLTIP_PADDING = 16;
 
