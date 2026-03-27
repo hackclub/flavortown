@@ -127,7 +127,7 @@ class SlackMessageCounterService
         response = client.conversations_history(
           channel: channel_id,
           oldest: oldest_timestamp,
-          limit: 200,
+          limit: 999,
           cursor: cursor
         )
 
@@ -156,8 +156,8 @@ class SlackMessageCounterService
         cursor = response.response_metadata&.next_cursor
         break if cursor.blank?
 
-        # Rate limiting: sleep between pages
-        sleep(0.5)
+        # Rate limiting: sleep 1 minute 10 seconds between pages
+        sleep(70)
       end
 
       Rails.logger.info("SlackMessageCounterService: Counted messages for #{user_counts.size} users")
@@ -175,7 +175,7 @@ class SlackMessageCounterService
           channel: channel_id,
           ts: thread_ts,
           oldest: thread_ts, # Start from thread parent
-          limit: 200,
+          limit: 999,
           cursor: cursor
         )
 
