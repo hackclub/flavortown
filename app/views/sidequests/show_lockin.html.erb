@@ -108,19 +108,27 @@
 
         <div class="lockin-weeks__grid">
           <div class="lockin-weeks__box <%= 'active' if active_week == 1 %> <%= 'completed' if active_week > 1 %>">
-            <span class="wk"><%= active_week > 1 ? '<i class="fa-solid fa-check"></i>'.html_safe : 'Week 1' %></span>
+            <span class="wk">
+              <% if active_week > 1 %><i class="fa-solid fa-check"></i><% else %>Week 1<% end %>
+            </span>
             <span class="hrs"><%= active_week == 1 ? 'Current' : '10 Hrs' %></span>
           </div>
           <div class="lockin-weeks__box <%= 'active' if active_week == 2 %> <%= 'completed' if active_week > 2 %>">
-            <span class="wk"><%= active_week > 2 ? '<i class="fa-solid fa-check"></i>'.html_safe : 'Week 2' %></span>
+            <span class="wk">
+              <% if active_week > 2 %><i class="fa-solid fa-check"></i><% else %>Week 2<% end %>
+            </span>
             <span class="hrs"><%= active_week == 2 ? 'Current' : '10 Hrs' %></span>
           </div>
           <div class="lockin-weeks__box <%= 'active' if active_week == 3 %> <%= 'completed' if active_week > 3 %>">
-            <span class="wk"><%= active_week > 3 ? '<i class="fa-solid fa-check"></i>'.html_safe : 'Week 3' %></span>
+            <span class="wk">
+              <% if active_week > 3 %><i class="fa-solid fa-check"></i><% else %>Week 3<% end %>
+            </span>
             <span class="hrs"><%= active_week == 3 ? 'Current' : '10 Hrs' %></span>
           </div>
           <div class="lockin-weeks__box <%= 'active' if active_week == 4 %> <%= 'completed' if active_week > 4 %>">
-            <span class="wk"><%= active_week > 4 ? '<i class="fa-solid fa-check"></i>'.html_safe : 'Week 4' %></span>
+            <span class="wk">
+              <% if active_week > 4 %><i class="fa-solid fa-check"></i><% else %>Week 4<% end %>
+            </span>
             <span class="hrs"><%= active_week == 4 ? 'Current' : '10 Hrs' %></span>
           </div>
         </div>
