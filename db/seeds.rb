@@ -76,6 +76,11 @@ Sidequest.find_or_create_by!(slug: "borked_ui_jam") do |sq|
   sq.expires_at = Date.new(2025, 1, 25)
 end
 
+Sidequest.find_or_create_by!(slug: "converge") do |sq|
+  sq.title = "Converge"
+  sq.description = "Build a Slack or Discord bot that does something useful or creative. Ship it on Flavortown and submit it to unlock Converge prizes in the shop!"
+end
+
 # webOS shop items - require webOS sidequest achievement
 webos_stickers = ShopItem.find_or_create_by!(id: 95) do |item|
   item.name = "webOS Stickers"

@@ -1,0 +1,156 @@
+<% content_for :title, @show_copy[:heading] %>
+<%= render HeadingComponent.new(title: @show_copy[:heading], tone: :blue, size: :full) %>
+
+<div class="card vote-spam-card">
+  <%= form_with url: admin_vote_quality_dashboard_user_path(@selected_user.id), method: :get, local: true, class: "vote-spam-filters" do %>
+    <label>
+      <%= @show_copy[:lookback_label] %>
+      <%= number_field_tag :window_days, @window_days, min: 1, max: 365, autocomplete: "off", class: "input-primary" %>
+    </label>
+    <%= submit_tag @show_copy[:apply_button], class: "btn-primary" %>
+  <% end %>
+  <p class="vote-spam-note">
+    <%= @show_copy[:inspecting_prefix] %> <strong><%= @selected_user.display_name.presence || "User ##{@selected_user.id}" %></strong> (ID: <%= @selected_user.id %>).
+  </p>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--full">
+    <h2><%= @show_copy[:user_metrics_title] %> (<%= @window_days %>-day lookback)</h2>
+    <% if @selected_user_metric %>
+      <div class="voting-stats">
+        <div class="voting-stat">
+          <span class="voting-stat__value">
+            <% case @selected_user_metric[:verdict] %>
+            <% when :blessed %>
+              <span id="drilldown-verdict" class="badge badge--success" style="cursor: help;">Blessed</span>
+            <% when :cursed %>
+              <span id="drilldown-verdict" class="badge badge--danger" style="cursor: help;">Cursed</span>
+            <% else %>
+              <span id="drilldown-verdict" class="badge" style="cursor: help;">Neutral</span>
+            <% end %>
+          </span>
+          <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, :verdict) %></span>
+          <% if @selected_user_metric[:percentile_breakdown] %>
+            <% b = @selected_user_metric[:percentile_breakdown] %>
+            <% tl = @tooltip_copy[:tooltip_labels] %>
+            <%= render TooltipComponent.new(target_id: "drilldown-verdict", position: :top) do %>
+              <strong><%= @tooltip_copy[:tooltip_heading] %>: <%= @selected_user_metric[:quality_score] %>/100</strong><br>
+              <% tl.each do |key, label| %>
+                <%= label %>: <%= b[key] %>%<br>
+              <% end %>
+            <% end %>
+          <% end %>
+        </div>
+        <% @show_copy[:drilldown_stats].each do |stat| %>
+          <div class="voting-stat">
+            <% value = @selected_user_metric[stat[:key]] %>
+            <span class="voting-stat__value">
+              <% case stat[:format] %>
+              <% when :bold %>
+                <strong><%= value %></strong>
+              <% when :delimiter %>
+                <%= number_with_delimiter(value) %>
+              <% when :precision_3 %>
+                <%= number_with_precision(value, precision: 3) %>
+              <% when :signed_precision_3 %>
+                <%= value > 0 ? "+#{number_with_precision(value, precision: 3)}" : number_with_precision(value, precision: 3) %>
+              <% when :nullable_precision_3 %>
+                <%= value.nil? ? "—" : number_with_precision(value, precision: 3) %>
+              <% when :percentage %>
+                <%= number_to_percentage(value * 100, precision: 1) %>
+              <% else %>
+                <%= value %>
+              <% end %>
+            </span>
+            <span class="voting-stat__label"><%= @show_copy.dig(:metric_labels, stat[:key]) %></span>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="vote-spam-note"><%= @show_copy[:no_scored_votes] %></p>
+    <% end %>
+  </div>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--wide">
+    <h2><%= @show_copy.dig(:cards, :deviation_trend) %></h2>
+    <% if @deviation_series.present? %>
+      <%= line_chart @deviation_series, xtitle: @show_copy.dig(:chart_axes, :vote_number), ytitle: @show_copy.dig(:chart_axes, :deviation), height: "320px", min: 0 %>
+    <% else %>
+      <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :deviation_trend) %></p>
+    <% end %>
+  </div>
+
+  <div class="card voting-card voting-card--wide">
+    <h2><%= @show_copy.dig(:cards, :deviation_by_category) %></h2>
+    <% if @deviation_by_category.present? %>
+      <%= column_chart @deviation_by_category, ytitle: @show_copy.dig(:chart_axes, :avg_deviation), height: "320px", min: 0 %>
+    <% else %>
+      <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :deviation_by_category) %></p>
+    <% end %>
+  </div>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--full">
+    <h2><%= @show_copy.dig(:cards, :bias_trend) %></h2>
+    <% if @bias_series.present? %>
+      <%= line_chart @bias_series, xtitle: @show_copy.dig(:chart_axes, :vote_number), ytitle: @show_copy.dig(:chart_axes, :bias), height: "320px" %>
+    <% else %>
+      <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :bias_trend) %></p>
+    <% end %>
+  </div>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--full">
+    <h2><%= @show_copy.dig(:cards, :raw_vote_data) %> (latest <%= @selected_user_votes.size %>)</h2>
+    <table class="voting-table voting-table--wide">
+      <thead>
+        <tr>
+          <% @show_copy[:raw_table_headers].each do |header| %>
+            <th><%= header %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @selected_user_votes.each do |vote| %>
+          <% medians = @medians_by_ship_event[vote.ship_event_id] %>
+          <tr>
+            <td><%= l(vote.created_at, format: :short) %></td>
+            <td>
+              <% if vote.project %>
+                <%= link_to truncate(vote.project.title, length: 28), admin_project_path(vote.project) %>
+              <% else %>
+                <span class="text-muted"><%= @show_copy[:deleted_fallback] %></span>
+              <% end %>
+            </td>
+            <td><%= vote.ship_event_id %></td>
+            <td><%= [vote.originality_score, vote.technical_score, vote.usability_score, vote.storytelling_score].join("-") %></td>
+            <td>
+              <% if medians&.all? %>
+                <%= medians.map { |m| m.is_a?(Float) ? m.round(1) : m }.join("-") %>
+              <% else %>
+                <%= @show_copy[:empty_cell] %>
+              <% end %>
+            </td>
+            <td>
+              <% if medians&.all? %>
+                <% scores = [vote.originality_score, vote.technical_score, vote.usability_score, vote.storytelling_score] %>
+                <% avg_dev = scores.zip(medians).sum { |s, m| (s.to_f - m).abs } / 4.0 %>
+                <%= number_with_precision(avg_dev, precision: 1) %>
+              <% else %>
+                <%= @show_copy[:empty_cell] %>
+              <% end %>
+            </td>
+            <td><%= truncate(vote.reason.to_s, length: 80) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%= link_to @show_copy[:back_link], admin_vote_quality_dashboard_path(window_days: @window_days), class: "btn-secondary" %>

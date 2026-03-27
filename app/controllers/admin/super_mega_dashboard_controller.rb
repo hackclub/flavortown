@@ -19,6 +19,7 @@ module Admin
       super_mega_ysws_review_v2
       super_mega_ship_certs_raw
       sw_vibes_data
+      super_mega_funnel_stats
     ].freeze
 
     def index
@@ -36,6 +37,7 @@ module Admin
       load_pyramid_scheme_stats
       load_community_engagement_stats
       load_fraud_happiness_data
+      load_funnel_stats
     end
 
     def load_section
@@ -299,10 +301,13 @@ module Admin
         cookie_utilization_percentage = ((used_cookies.to_f / total_distributed_cookies) * 100).round(2)
 
         total_approved_ysws_db_hours = fetch_approved_ysws_db_hours
+        hcb_expenses = get_hcb_expenses
         if total_approved_ysws_db_hours > 0
           dollars_per_hour = (total_distributed_cookies / 5) / total_approved_ysws_db_hours
+          expenses_dollars_per_hour = hcb_expenses / total_approved_ysws_db_hours
         else
           dollars_per_hour = 0
+          expenses_dollars_per_hour = 0
         end
 
         {
@@ -314,13 +319,15 @@ module Admin
             volume: recent_stats[3]
           },
           cookie_utilization_percentage: cookie_utilization_percentage,
-          dollars_per_hour: dollars_per_hour
+          dollars_per_hour: dollars_per_hour,
+          expenses_dollars_per_hour: expenses_dollars_per_hour
         }
       end
       @payouts_cap = cached_data&.dig(:payouts_cap) || 0
       @payouts = cached_data&.dig(:payouts) || { created: 0, destroyed: 0, txns: 0, volume: 0 }
 
       @dollars_per_hour = cached_data&.dig(:dollars_per_hour) || 0
+      @expenses_dollars_per_hour = cached_data&.dig(:expenses_dollars_per_hour) || 0
       @cookie_utilization_percentage = cached_data&.dig(:cookie_utilization_percentage) || 0
     end
 
@@ -332,12 +339,20 @@ module Admin
 
         type_counts = base_scope.group("shop_items.type", :aasm_state).count
 
+        known_types = %w[
+          ShopItem::HQMailItem ShopItem::LetterMail
+          ShopItem::ThirdPartyPhysical ShopItem::Accessory ShopItem::ThirdPartyDigital
+          ShopItem::WarehouseItem ShopItem::PileOfStickersItem
+          ShopItem::FreeStickers
+        ]
+        other_types = type_counts.keys.map(&:first).uniq - known_types
+
         {
           all: calculate_type_totals(type_counts),
           hq_mail: calculate_type_totals(type_counts, %w[ShopItem::HQMailItem ShopItem::LetterMail]),
-          third_party: calculate_type_totals(type_counts, %w[ShopItem::ThirdPartyPhysical]),
+          third_party: calculate_type_totals(type_counts, %w[ShopItem::ThirdPartyPhysical ShopItem::Accessory ShopItem::ThirdPartyDigital]),
           warehouse: calculate_type_totals(type_counts, %w[ShopItem::WarehouseItem ShopItem::PileOfStickersItem]),
-          other: calculate_type_totals(type_counts, %w[ShopItem::HCBGrant ShopItem::SiteActionItem ShopItem::BadgeItem ShopItem::AdventSticker ShopItem::HCBPreauthGrant ShopItem::SpecialFulfillmentItem])
+          other: calculate_type_totals(type_counts, other_types)
         }
       end
       @fulfillment = cached_data || { all: {}, hq_mail: {}, third_party: {}, warehouse: {}, other: {} }
@@ -785,8 +800,6 @@ module Admin
       with_dashboard_timing("flavortime") do
         cached_data = Rails.cache.fetch("super_mega_flavortime_summary", expires_in: dashboard_cache_ttl(30.seconds, 2.minutes)) do
           scoped_sessions = FlavortimeSession.all
-          platform_counts = grouped_flavortime_counts(scoped_sessions, :platform)
-          version_counts = grouped_flavortime_counts(scoped_sessions, :app_version)
 
           {
             summary: {
@@ -794,25 +807,16 @@ module Admin
               total_users: FlavortimeSession.select(:user_id).distinct.count,
               total_sessions: FlavortimeSession.count,
               status_hours: (FlavortimeSession.sum(:discord_status_seconds).to_f / 3600).round(1),
-              sessions_by_platform: compact_flavortime_breakdown(platform_counts),
-              sessions_by_version: compact_flavortime_breakdown(version_counts),
               activity_chart: build_flavortime_activity_chart(scoped_sessions)
-            },
-            slack_ids: FlavortimeSession
-              .joins(:user)
-              .where.not(users: { slack_id: [ nil, "" ] })
-              .distinct
-              .pluck("users.slack_id")
+            }
           }
         end
 
         @flavortime_summary = empty_flavortime_summary.merge(cached_data.fetch(:summary, {}))
-        @flavortime_slack_ids = Array(cached_data.fetch(:slack_ids, []))
       end
     rescue StandardError => e
       Rails.logger.warn("[SuperMegaDashboard] Flavortime section unavailable (#{e.class}): #{e.message}")
       @flavortime_summary = empty_flavortime_summary.merge(error: "Flavortime data is temporarily unavailable")
-      @flavortime_slack_ids = []
     end
 
     def load_pyramid_scheme_stats
@@ -827,27 +831,29 @@ module Admin
         return
       end
 
-      overlap_count = ((payload.dig("activity", "user_slack_ids") || []) & Array(@flavortime_slack_ids)).count
+      pending_referrals = payload.dig("referrals", "pending").to_i
+      id_verified_referrals = payload.dig("referrals", "id_verified").to_i
+      completed_referrals = payload.dig("referrals", "completed").to_i
+      total_referrals = payload.dig("referrals", "total")
+      total_referrals = pending_referrals + id_verified_referrals + completed_referrals if total_referrals.blank?
 
       @pyramid_scheme_stats = {
         total_hours_logged: payload.dig("activity", "total_hours_logged") || 0,
-        total_users: payload.dig("activity", "all_users") || 0,
-        total_referrals_verified: (payload.dig("referrals", "id_verified") || 0) + (payload.dig("referrals", "completed") || 0),
-        flavortime_users: overlap_count,
+        total_referrals: total_referrals.to_i,
+        completed_referrals: completed_referrals,
         verified_hours_last_week: payload.dig("activity", "verified_hours_last_week") || 0,
         verified_hours_previous_week: payload.dig("activity", "verified_hours_previous_week") || 0,
         referrals_gained_last_week: payload.dig("activity", "referrals_gained_last_week") || 0,
         referrals_gained_previous_week: payload.dig("activity", "referrals_gained_previous_week") || 0,
-        shipped_projects: payload.dig("activity", "shipped_projects") || 0,
         partial_data: payload["partial_data"] == true,
         data_source: payload["data_source"],
         activity_timeline: payload.dig("activity", "timeline") || [],
         referral_chart: {
           labels: [ "Pending", "ID Verified", "Completed" ],
           values: [
-            payload.dig("referrals", "pending") || 0,
-            payload.dig("referrals", "id_verified") || 0,
-            payload.dig("referrals", "completed") || 0
+            pending_referrals,
+            id_verified_referrals,
+            completed_referrals
           ]
         },
         poster_chart: {
@@ -909,13 +915,6 @@ module Admin
       end
     end
 
-    def grouped_flavortime_counts(scope, column)
-      scope
-        .group(Arel.sql("COALESCE(NULLIF(#{column}, ''), 'unknown')"))
-        .order(Arel.sql("COUNT(*) DESC"))
-        .count
-    end
-
     def build_flavortime_activity_chart(scope)
       date_range = 13.days.ago.to_date..Time.current.to_date
       sessions_by_day = scope
@@ -940,8 +939,6 @@ module Admin
         total_users: 0,
         total_sessions: 0,
         status_hours: 0,
-        sessions_by_platform: {},
-        sessions_by_version: {},
         activity_chart: {
           labels: [],
           sessions: [],
@@ -1048,6 +1045,47 @@ module Admin
       }
     end
 
+    def load_funnel_stats
+      cached_data = Rails.cache.fetch("super_mega_funnel_stats", expires_in: 5.minutes) do
+        begin
+          funnel_steps = [
+            "start_flow_started",
+            "start_flow_name",
+            "start_flow_project",
+            "start_flow_devlog",
+            "start_flow_signin",
+            "identity_verified",
+            "hackatime_linked",
+            "project_created",
+            "devlog_created"
+          ]
+
+          grouped_counts = FunnelEvent.where(event_name: funnel_steps)
+                                       .group(:event_name)
+                                       .distinct
+                                       .count(:email)
+
+          funnel_data = funnel_steps.index_with { |step| grouped_counts[step] || 0 }
+
+          funnel_with_counts = funnel_steps.map do |step|
+            count = funnel_data[step]
+
+            {
+              name: step,
+              count: count
+            }
+          end
+
+          { funnel_steps: funnel_with_counts }
+        rescue StandardError => e
+          Rails.logger.error("[SuperMegaDashboard] Error in load_funnel_stats: #{e.message}")
+          { funnel_steps: [] }
+        end
+      end
+
+      @funnel_steps = cached_data&.dig(:funnel_steps) || []
+    end
+
     private
 
     def fetch_approved_ysws_db_hours
@@ -1058,10 +1096,23 @@ module Admin
 
       weighted_total = record&.fields&.dig("Weighted–Total")
 
-      weighted_total.to_f
+      weighted_total.to_f * 10
     rescue StandardError => e
       Rails.logger.error("[SuperMegaDashboard] Error fetching approved YSWS hours: #{e.class} - #{e.message}")
       0
+    end
+
+    def get_hcb_expenses
+      response = Faraday.get("https://hcb.hackclub.com/api/v3/organizations/flavortown")
+      if response.success?
+        data = JSON.parse(response.body)
+        total_raised = data.dig("balances", "total_raised") || 0
+        balance = data.dig("balances", "balance_cents") || 0
+        total_expenses = (total_raised - balance).to_f / 100
+        total_expenses
+      else
+        0
+      end
     end
   end
 end

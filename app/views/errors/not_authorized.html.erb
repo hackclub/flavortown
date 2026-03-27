@@ -1,0 +1,11 @@
+<div class="not-authorized-page">
+  <img src="/chef-orpheus-head.webp" alt="Chef Orpheus" class="not-authorized-page__img">
+  <h1 class="not-authorized-page__code">🚫</h1>
+  <h2 class="not-authorized-page__title"><%= @error_title %></h2>
+  <p class="not-authorized-page__message"><%= @error_message %></p>
+  <% if @back_path.present? %>
+    <%= link_to "Take me back", @back_path, class: "not-authorized-page__btn" %>
+  <% else %>
+    <%= link_to "Back to Kitchen", kitchen_path, class: "not-authorized-page__btn" %>
+  <% end %>
+</div>

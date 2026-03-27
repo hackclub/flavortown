@@ -107,7 +107,7 @@ class ProjectsController < ApplicationController
 
   def create
     @project = Project.new(project_params)
-    apply_space_theme_marker!(@project, space_themed: space_themed_param?)
+    apply_space_theme_marker!(@project, space_themed: space_themed_param?(default: false))
     authorize @project
 
     validate_urls
@@ -175,7 +175,7 @@ class ProjectsController < ApplicationController
     authorize @project
 
     @project.assign_attributes(project_params)
-    apply_space_theme_marker!(@project, space_themed: space_themed_param?)
+    apply_space_theme_marker!(@project, space_themed: space_themed_param?(default: @project.space_themed?))
     validate_urls
     success = @project.errors.empty? && @project.save
 
@@ -225,6 +225,16 @@ class ProjectsController < ApplicationController
     authorize :admin, :manage_projects?
 
     return render(json: { message: "Project not found" }, status: :not_found) unless @project
+
+    if @project.users.include?(current_user)
+      return render(json: { message: "You cannot mark your own project as well cooked." }, status: :forbidden)
+    end
+
+    if current_user.fraud_dept? && !current_user.admin?
+      if @project.users.any? { |u| u.fraud_dept? }
+        return render(json: { message: "You cannot mark a fellow fraud department member's project as well cooked." }, status: :forbidden)
+      end
+    end
 
     PaperTrail.request(whodunnit: current_user.id) do
       fire_event = Post::FireEvent.new(
@@ -387,15 +397,15 @@ class ProjectsController < ApplicationController
       redirect_to @project, alert: "Shipping is currently disabled." and return
     end
 
-    ship_event = ShipCertService.latest_ship_event(@project)
+    @project.with_lock do
+      ship_event = ShipCertService.latest_ship_event(@project)
 
-    unless ship_event&.certification_status == "rejected"
-      flash[:alert] = "Re-certification can only be requested for rejected ships."
-      redirect_to @project and return
-    end
+      unless ship_event&.certification_status == "rejected"
+        flash[:alert] = "Re-certification can only be requested for rejected ships."
+        redirect_to @project and return
+      end
 
-    PaperTrail.request(whodunnit: current_user.id) do
-      begin
+      PaperTrail.request(whodunnit: current_user.id) do
         ShipCertService.ship_to_dash(@project, type: "recertification")
         ship_event.update!(certification_status: "pending")
 
@@ -411,13 +421,13 @@ class ProjectsController < ApplicationController
         )
 
         flash[:notice] = "Re-certification requested! Your project has been resubmitted for review."
-      rescue => e
-        Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
-        flash[:alert] = "Failed to request re-certification: #{e.message}"
       end
     end
 
     redirect_to @project
+  rescue => e
+    Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
+    redirect_to @project, alert: "Failed to request re-certification: #{e.message}"
   end
 
   def lapse_timelapses
@@ -673,8 +683,11 @@ class ProjectsController < ApplicationController
     end
   end
 
-  def space_themed_param?
-    ActiveModel::Type::Boolean.new.cast(params.dig(:project, :space_themed))
+  def space_themed_param?(default: false)
+    raw_value = params.dig(:project, :space_themed)
+    return default if raw_value.nil?
+
+    ActiveModel::Type::Boolean.new.cast(raw_value)
   end
 
   def apply_space_theme_marker!(project, space_themed:)

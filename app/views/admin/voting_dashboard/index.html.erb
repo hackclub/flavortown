@@ -1,3 +1,4 @@
+<% content_for :title, "Voting Dashboard" %>
 <%= render HeadingComponent.new(title: "Voting Dashboard", tone: :blue, size: :full) %>
 
 <div class="voting-grid">
@@ -31,6 +32,10 @@
         <div class="voting-stat voting-stat--info">
             <span class="voting-stat__value"><%= number_with_delimiter(@overview[:unpaid_ships_without_bugs]) %></span>
             <span class="voting-stat__label">Unpaid (no bugs)</span>
+        </div>
+        <div class="voting-stat voting-stat--error">
+            <span class="voting-stat__value"><%= number_with_delimiter(@overview[:unpaid_ships_negative_balance]) %></span>
+            <span class="voting-stat__label">Unpaid (neg. balance)</span>
         </div>
         </div>
     </div>

@@ -10,6 +10,12 @@
     <% end %>
 <% end %>
 
+<% if @user.search_engine_indexing_off? %>
+  <% content_for :head do %>
+    <meta name="robots" content="noindex, nofollow">
+  <% end %>
+<% end %>
+
 <div class="user-profile">
   <div class="user-profile__left">
     <div class="user-profile__card">

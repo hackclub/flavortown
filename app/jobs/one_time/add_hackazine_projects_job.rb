@@ -2,8 +2,9 @@ class OneTime::AddHackazineProjectsJob < ApplicationJob
     queue_as :literally_whenever
 
     def perform
-        sidequest = Sidequest.find_or_create_by(slug: "hackazine")
-        return unless sidequest
+        sidequest = Sidequest.find_or_create_by!(slug: "the_hackazine") do |record|
+            record.title = "Hackazine"
+        end
 
         project_ids = [ 2935, 140, 7256, 6494, 2381, 1865, 3984, 781 ]
 

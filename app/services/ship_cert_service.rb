@@ -114,7 +114,7 @@ class ShipCertService
   end
 
   def self.latest_ship_event(project)
-    project.ship_events.first
+    project.ship_event_posts.order(created_at: :desc).first&.postable
   end
 
   def self.notify_slack_of_failure(project, type:, ship_event:, error:)

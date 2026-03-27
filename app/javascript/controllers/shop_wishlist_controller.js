@@ -13,6 +13,7 @@ export default class extends Controller {
   static STORAGE_KEY = "shop_wishlist";
 
   connect() {
+    this.refreshStoredPrice();
     this.updateStarState();
   }
 
@@ -58,6 +59,18 @@ export default class extends Controller {
 
     this.saveWishlist(wishlist);
     this.updateStarState();
+  }
+
+  refreshStoredPrice() {
+    const wishlist = this.getWishlist();
+    const entry = wishlist[this.itemIdValue];
+    if (!entry) return;
+
+    const currentPrice = this.itemPriceValue;
+    if (entry.price !== currentPrice) {
+      entry.price = currentPrice;
+      this.saveWishlist(wishlist);
+    }
   }
 
   updateStarState() {

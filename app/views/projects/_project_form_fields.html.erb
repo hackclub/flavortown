@@ -50,19 +50,6 @@
     </label>
     <div class="input__subtitle">Tick if your project was started before December 15th 2025, or if it was previously submitted to another Hack Club program.</div>
   </div>
-
-  <div class="input input--blue">
-    <span class="input__label">Space Theme</span>
-    <label class="projects-new__checkbox-control projects-new__checkbox-control--compact">
-      <%= hidden_field_tag "project[space_themed]", "0" %>
-      <input type="checkbox"
-             name="project[space_themed]"
-             value="1"
-             <%= "checked" if @space_themed_checked %>>
-      <span class="projects-new__checkbox-label">Space themed</span>
-    </label>
-    <div class="input__subtitle">May be eligible for cosmic prizes!</div>
-  </div>
 </div>
 
   <div data-project-form-target="updateDescriptionContainer" hidden>
@@ -193,7 +180,7 @@
           color: :blue,
           as: :textarea,
           input_html: { rows: 3 },
-          subtitle: "Optional: If you used AI tools, please declare what you used them for."
+          subtitle: "Required: Describe how you used AI in this project, or write 'None' if you didn't use any."
         )
       ) %>
 </div>
