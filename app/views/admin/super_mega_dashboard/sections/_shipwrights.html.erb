@@ -149,7 +149,7 @@
     <h3>Reviews &amp; Ships Per Day</h3>
     <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:reviews_per_day].present? %>
       <div class="sw-queue-graph">
-        <canvas id="swReviewsShipsChart" height="200"></canvas>
+        <div id="swReviewsShipsStream" class="d3-stream-container"></div>
       </div>
     <% else %>
       <p class="sw-vibes-mini__error">No review data</p>
@@ -534,57 +534,6 @@
       }
     }
 
-    var rsData = <%= raw (reviews_ships_data || {}).to_json %>;
-    if (rsData.reviews && rsData.ships) {
-      var rsEl = document.getElementById('swReviewsShipsChart');
-      if (rsEl) {
-        var revData = rsData.reviews;
-        var shipData = rsData.ships;
-        var rsDates = Object.keys(revData).sort();
-        var rsLabels = rsDates.map(function(d) {
-          return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        });
-
-        new Chart(rsEl, {
-          type: 'line',
-          data: {
-            labels: rsLabels,
-            datasets: [
-              {
-                label: 'Reviews',
-                data: rsDates.map(function(d) { return revData[d] || 0; }),
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59,130,246,0.1)',
-                fill: false,
-                tension: 0.3,
-                pointRadius: 2,
-                borderWidth: 1.5
-              },
-              {
-                label: 'New Ships',
-                data: rsDates.map(function(d) { return shipData[d] || 0; }),
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16,185,129,0.1)',
-                fill: false,
-                tension: 0.3,
-                pointRadius: 2,
-                borderWidth: 1.5
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 9 } } } },
-            scales: {
-              x: { ticks: { font: { size: 8 }, maxRotation: 45 } },
-              y: { beginAtZero: true, ticks: { precision: 0, font: { size: 8 } } }
-            }
-          }
-        });
-      }
-    }
-
     var weeklyNpsData = <%= raw weekly_nps_hash.to_json %>;
     var wnKeysRaw = Object.keys(weeklyNpsData);
     function swSortWeekKeys(keys) {
@@ -750,6 +699,125 @@
           }
         });
       }
+    }
+  });
+
+  function ensureD3(cb) {
+    if (typeof d3 !== 'undefined') { cb(); return; }
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/d3@7';
+    s.onload = cb;
+    document.head.appendChild(s);
+  }
+
+  ensureD3(function() {
+    var rsData = <%= raw (reviews_ships_data || {}).to_json %>;
+    if (rsData.reviews && rsData.ships) {
+      var container = document.getElementById('swReviewsShipsStream');
+      if (!container) return;
+
+      var revData = rsData.reviews;
+      var shipData = rsData.ships;
+      var dates = Object.keys(revData).sort();
+      var keys = ['Reviews', 'New Ships'];
+      var colors = { 'Reviews': '#3b82f6', 'New Ships': '#10b981' };
+
+      var tableData = dates.map(function(d) {
+        return { date: new Date(d + 'T12:00:00'), Reviews: revData[d] || 0, 'New Ships': shipData[d] || 0 };
+      });
+
+      var margin = { top: 10, right: 16, bottom: 30, left: 32 };
+      var rect = container.getBoundingClientRect();
+      var width = rect.width - margin.left - margin.right;
+      var height = 200 - margin.top - margin.bottom;
+
+      var svg = d3.select(container)
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+      var stack = d3.stack()
+        .keys(keys)
+        .offset(d3.stackOffsetWiggle)
+        .order(d3.stackOrderInsideOut);
+
+      var series = stack(tableData);
+
+      var x = d3.scaleTime()
+        .domain(d3.extent(tableData, function(d) { return d.date; }))
+        .range([0, width]);
+
+      var y = d3.scaleLinear()
+        .domain([
+          d3.min(series, function(s) { return d3.min(s, function(d) { return d[0]; }); }),
+          d3.max(series, function(s) { return d3.max(s, function(d) { return d[1]; }); })
+        ])
+        .range([height, 0]);
+
+      var area = d3.area()
+        .x(function(d) { return x(d.data.date); })
+        .y0(function(d) { return y(d[0]); })
+        .y1(function(d) { return y(d[1]); })
+        .curve(d3.curveBasis);
+
+      var tooltip = d3.select(container)
+        .append('div')
+        .attr('class', 'd3-stream-tooltip');
+
+      svg.selectAll('path')
+        .data(series)
+        .join('path')
+        .attr('d', area)
+        .attr('fill', function(d) { return colors[d.key]; })
+        .attr('fill-opacity', 0.7)
+        .attr('stroke', function(d) { return colors[d.key]; })
+        .attr('stroke-width', 0.5)
+        .on('mousemove', function(event, d) {
+          var pointer = d3.pointer(event, container);
+          var xDate = x.invert(d3.pointer(event, svg.node())[0]);
+          var bisect = d3.bisector(function(p) { return p.data.date; }).left;
+          var idx = bisect(d, xDate, 1);
+          idx = Math.min(idx, d.length - 1);
+          var prev = d[Math.max(0, idx - 1)];
+          var cur = d[idx];
+          var point = (xDate - prev.data.date > cur.data.date - xDate) ? cur : prev;
+          var val = point.data[d.key];
+          var dateStr = point.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+          tooltip
+            .classed('is-visible', true)
+            .html('<strong>' + dateStr + '</strong><br>' + d.key + ': ' + val)
+            .style('left', (pointer[0] + 12) + 'px')
+            .style('top', (pointer[1] - 28) + 'px');
+        })
+        .on('mouseleave', function() {
+          tooltip.classed('is-visible', false);
+        });
+
+      svg.append('g')
+        .attr('transform', 'translate(0,' + height + ')')
+        .call(d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat('%b %d')))
+        .selectAll('text')
+        .style('font-size', '8px');
+
+      svg.append('g')
+        .call(d3.axisLeft(y).ticks(5).tickFormat(d3.format('d')))
+        .selectAll('text')
+        .style('font-size', '8px');
+
+      var legend = d3.select(container)
+        .append('div')
+        .attr('class', 'd3-stream-legend');
+
+      keys.forEach(function(key) {
+        var item = legend.append('span');
+        item.append('span')
+          .attr('class', 'd3-stream-legend__swatch')
+          .style('background', colors[key]);
+        item.append('span').text(key);
+      });
     }
   });
 })();
