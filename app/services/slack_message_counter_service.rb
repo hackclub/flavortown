@@ -120,10 +120,14 @@ class SlackMessageCounterService
       client = Slack::Web::Client.new(token: Rails.application.credentials.dig(:slack, :bot_token))
       user_counts = Hash.new(0)
       cursor = nil
+      page_number = 0
 
       Rails.logger.info("SlackMessageCounterService: Fetching message counts for channel #{channel_id}")
 
       loop do
+        page_number += 1
+        Rails.logger.info("SlackMessageCounterService: Fetching page #{page_number} for channel #{channel_id}")
+
         response = client.conversations_history(
           channel: channel_id,
           oldest: oldest_timestamp,
@@ -132,6 +136,8 @@ class SlackMessageCounterService
         )
 
         break unless response.ok && response.messages.present?
+
+        Rails.logger.info("SlackMessageCounterService: Page #{page_number} returned #{response.messages.size} messages")
 
         # Count top-level messages by user
         response.messages.each do |msg|
@@ -142,6 +148,8 @@ class SlackMessageCounterService
 
         # Count thread replies by user
         threaded_messages = response.messages.select { |msg| msg.reply_count.to_i > 0 }
+        Rails.logger.info("SlackMessageCounterService: Page #{page_number} has #{threaded_messages.size} threaded messages to process")
+
         threaded_messages.each do |msg|
           thread_counts = count_thread_replies_by_user(client, channel_id, msg.ts)
           thread_counts.each do |slack_id, count|
@@ -154,9 +162,12 @@ class SlackMessageCounterService
 
         # Check if there are more pages
         cursor = response.response_metadata&.next_cursor
+        has_more = cursor.present?
+        Rails.logger.info("SlackMessageCounterService: Page #{page_number} complete. Has more pages: #{has_more}")
         break if cursor.blank?
 
         # Rate limiting: sleep 1 minute 10 seconds between pages
+        Rails.logger.info("SlackMessageCounterService: Sleeping 70 seconds before fetching next page...")
         sleep(70)
       end
 
@@ -169,8 +180,11 @@ class SlackMessageCounterService
       user_counts = Hash.new(0)
       cursor = nil
       first_page = true
+      thread_page_number = 0
 
       loop do
+        thread_page_number += 1
+
         replies = client.conversations_replies(
           channel: channel_id,
           ts: thread_ts,
@@ -180,6 +194,8 @@ class SlackMessageCounterService
         )
 
         break unless replies.ok && replies.messages.present?
+
+        Rails.logger.info("SlackMessageCounterService: Thread #{thread_ts} page #{thread_page_number} returned #{replies.messages.size} replies")
 
         # Skip first message (parent) only on first page, count all replies by user
         messages_to_count = first_page ? replies.messages.drop(1) : replies.messages
@@ -193,6 +209,8 @@ class SlackMessageCounterService
 
         # Check if there are more pages
         cursor = replies.response_metadata&.next_cursor
+        has_more = cursor.present?
+        Rails.logger.info("SlackMessageCounterService: Thread #{thread_ts} page #{thread_page_number} complete. Has more pages: #{has_more}")
         break if cursor.blank?
 
         # Rate limiting: sleep between pages
