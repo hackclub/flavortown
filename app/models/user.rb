@@ -91,6 +91,7 @@ class User < ApplicationRecord
   has_many :project_follows, dependent: :destroy
   has_many :followed_projects, through: :project_follows, source: :project
   has_many :shop_suggestions, dependent: :destroy
+  has_many :sold_items, class_name: "ShopItem::HackClubberItem", foreign_key: :user_id
 
   enum :verification_status, {
     needs_submission: "needs_submission",
@@ -139,6 +140,8 @@ class User < ApplicationRecord
   def valid_club_link? = club_link_uri.present?
 
   def admin? = has_role?(:admin) || has_role?(:super_admin)
+
+  def seller? = ShopItem::HackClubberItem.exists?(user_id: id)
 
   def can_see_deleted_devlogs? = admin? || has_role?(:fraud_dept)
 

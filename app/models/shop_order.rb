@@ -147,6 +147,9 @@ class ShopOrder < ApplicationRecord
     # Fraud dept + fulfillment person can see addresses
     return true if viewer.fraud_dept? && viewer.fulfillment_person?
 
+    # this makes it so sellers for items can see addresses for their items
+    return true if shop_item.user_id == viewer.id && shop_item.type == "ShopItem::HackClubberItem"
+
     false
   end
 
