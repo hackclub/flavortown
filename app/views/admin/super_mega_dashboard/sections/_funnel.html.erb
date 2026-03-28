@@ -12,7 +12,7 @@
     <div
       class="d3-funnel-container"
       data-controller="super-mega-funnel"
-      data-super-mega-funnel-steps="<%= json_escape(@funnel_steps.to_json) %>">
+      data-super-mega-funnel-steps-value="<%= @funnel_steps.to_json %>">
       <div id="d3FunnelChart" data-super-mega-funnel-target="chart"></div>
       <div
         id="funnelTooltip"

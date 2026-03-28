@@ -2,26 +2,17 @@ import { Controller } from "@hotwired/stimulus";
 import * as d3 from "d3";
 
 const DEFAULT_WIDTH = 960;
-const FUNNEL_HEIGHT = 210;
+const FUNNEL_HEIGHT = 420;
 const MARGIN = { top: 32, right: 16, bottom: 24, left: 16 };
 const MIN_CHART_INNER_WIDTH = 540;
-const MIN_STEP_WIDTH = 50;
+const MIN_STEP_WIDTH = 150;
 const MAX_BAND_HEIGHT_RATIO = 0.9;
 const TOOLTIP_PADDING = 16;
 
-const GRADIENT_ID = "funnelGradient";
 const GRADIENT_STOPS = [
   { offset: "0%", color: "#4c6fff" },
   { offset: "100%", color: "#93c5fd" },
 ];
-
-function parseStepsJson(json) {
-  try {
-    return { steps: JSON.parse(json), error: null };
-  } catch (error) {
-    return { steps: null, error };
-  }
-}
 
 function normalizeSteps(steps) {
   return (Array.isArray(steps) ? steps : []).map((step) => {
@@ -133,11 +124,11 @@ function createSvg({ width, height }) {
     .attr("preserveAspectRatio", "xMidYMid meet");
 }
 
-function appendGradient(svg) {
+function appendGradient(svg, gradientId) {
   const defs = svg.append("defs");
   const gradient = defs
     .append("linearGradient")
-    .attr("id", GRADIENT_ID)
+    .attr("id", gradientId)
     .attr("x1", "0%")
     .attr("y1", "0%")
     .attr("x2", "100%")
@@ -233,22 +224,24 @@ function positionTooltip({ tooltip, event }) {
 
 export default class extends Controller {
   static targets = ["chart", "tooltip"];
+  static values = { steps: Array };
 
   connect() {
+    this.gradientId = `funnelGradient-${crypto.randomUUID()}`;
     this.render();
   }
 
+  disconnect() {
+    if (this.tooltipElement) {
+      this.tooltipElement.remove();
+      this.tooltipElement = null;
+    }
+  }
+
   render() {
-    const stepsJson = this.element.dataset.superMegaFunnelSteps || "[]";
-    const { steps: rawSteps, error: parseError } = parseStepsJson(stepsJson);
+    const rawSteps = this.stepsValue;
 
     if (!Array.isArray(rawSteps) || rawSteps.length === 0) {
-      if (parseError) {
-        console.error(
-          "[Funnel] Failed to parse funnel steps JSON:",
-          parseError,
-        );
-      }
       console.warn("[Funnel] No data available");
       return;
     }
@@ -274,6 +267,7 @@ export default class extends Controller {
     if (tooltip && tooltip.parentElement !== document.body) {
       document.body.appendChild(tooltip);
     }
+    this.tooltipElement = tooltip;
 
     try {
       const stepCount = data.length;
@@ -298,7 +292,7 @@ export default class extends Controller {
 
       const pathData = buildLinearPath(outlinePoints);
       const svg = createSvg({ width: layout.width, height: layout.height });
-      appendGradient(svg);
+      appendGradient(svg, this.gradientId);
 
       const g = svg
         .append("g")
@@ -309,7 +303,7 @@ export default class extends Controller {
 
       g.append("path")
         .attr("d", pathData)
-        .attr("fill", `url(#${GRADIENT_ID})`)
+        .attr("fill", `url(#${this.gradientId})`)
         .attr("fill-opacity", 0.9);
 
       g.append("path")
