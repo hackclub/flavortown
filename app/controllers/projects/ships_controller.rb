@@ -44,6 +44,16 @@ class Projects::ShipsController < ApplicationController
 
       raise ActiveRecord::RecordInvalid.new(ship_event) unless ship_event.valid?
 
+      last_ship_post = @project.posts.of_ship_events.order("posts.created_at DESC").first
+      start_time = last_ship_post ? last_ship_post.created_at : @project.created_at
+      ship_period_seconds = @project.posts.of_devlogs(join: true)
+                                    .where(post_devlogs: { deleted_at: nil })
+                                    .where("posts.created_at >= ? AND posts.created_at <= ?", start_time, Time.current)
+                                    .sum("post_devlogs.duration_seconds")
+      ship_period_hours = ship_period_seconds.to_f / 3600
+      Rails.logger.info "[SHIP DEBUG] Ship period hours: #{ship_period_hours} (#{ship_period_seconds}s)"
+      raise StandardError, "Cannot ship with 0 hours — log some devlog time first." if ship_period_hours <= 0
+
       @post = @project.posts.create!(user: current_user, postable: ship_event)
       Rails.logger.info "[SHIP DEBUG] Post created: id=#{@post.id} postable_id=#{@post.postable_id} postable_type=#{@post.postable_type}"
 
