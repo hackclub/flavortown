@@ -42,6 +42,8 @@ class Projects::ShipsController < ApplicationController
       )
       Rails.logger.info "[SHIP DEBUG] ShipEvent built: valid?=#{ship_event.valid?} errors=#{ship_event.errors.full_messages}"
 
+      raise ActiveRecord::RecordInvalid.new(ship_event) unless ship_event.valid?
+
       @post = @project.posts.create!(user: current_user, postable: ship_event)
       Rails.logger.info "[SHIP DEBUG] Post created: id=#{@post.id} postable_id=#{@post.postable_id} postable_type=#{@post.postable_type}"
 
@@ -60,6 +62,8 @@ class Projects::ShipsController < ApplicationController
       @post.postable.update!(certification_status: "approved")
       redirect_to @project, notice: "Ship submitted! Your project is now out for voting."
     end
+  rescue Pundit::NotAuthorizedError
+    redirect_to @project, alert: "You're not eligible to ship yet. Make sure your identity is verified and your account is YSWS eligible."
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.error "[SHIP DEBUG] RecordInvalid: #{e.record.class}##{e.record.id rescue 'new'} — #{e.record.errors.full_messages}"
     redirect_back fallback_location: new_project_ships_path(@project), alert: e.record.errors.full_messages.to_sentence
