@@ -882,6 +882,7 @@ module Admin
       @fraud_happiness_records = data[:records] || []
       @fraud_happiness_avg_scores = data[:avg_scores] || { total_responses: 0 }
       @fraud_happiness_error = data[:error]
+      @fraud_vibes_history = FraudAirtableService.fetch_vibes_history || {}
     end
 
     def extract_reviews(response_data)

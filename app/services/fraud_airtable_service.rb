@@ -15,6 +15,51 @@ class FraudAirtableService
     end
   end
 
+  def self.fetch_vibes_history
+    if Rails.env.production?
+      Rails.cache.fetch("fraud_airtable_vibes_history", expires_in: CACHE_DURATION) do
+        new.fetch_and_process_history
+      end
+    else
+      new.fetch_and_process_history
+    end
+  end
+
+  def fetch_and_process_history
+    happiness_table = Norairrecord.table(airtable_api_key, airtable_base_id, "Fraud happy")
+    all_records = happiness_table.all
+    return {} if all_records.nil? || all_records.empty?
+
+    # Group records by week, calculate avg scores per week
+    by_week = all_records.group_by { |r| r&.fields&.dig("week") }.compact
+    by_week.transform_values do |records|
+      feelings = records.map { |r| feeling_to_score(r.fields["feeling"]) }.compact
+      shop = records.map { |r| feeling_to_score(r.fields["shop order feeling"]) }.compact
+      reports = records.map { |r| feeling_to_score(r.fields["reports order feeling"]) }.compact
+
+      {
+        avg_feeling: feelings.any? ? (feelings.sum.to_f / feelings.count).round(2) : nil,
+        avg_shop: shop.any? ? (shop.sum.to_f / shop.count).round(2) : nil,
+        avg_reports: reports.any? ? (reports.sum.to_f / reports.count).round(2) : nil,
+        responses: records.count,
+        records: records.map { |r|
+          f = r.fields
+          {
+            email: f["email"],
+            feeling: f["feeling"],
+            shop_order_feeling: f["shop order feeling"],
+            reports_order_feeling: f["reports order feeling"],
+            extra_comments: f["extra comments"],
+            feedback_impl: f["feedback_impl"] == true
+          }
+        }
+      }
+    end
+  rescue StandardError => e
+    Rails.logger.error("[FraudAirtableService] Error fetching vibes history: #{e.message}")
+    {}
+  end
+
   def fetch_and_process
     Rails.logger.info("[FraudAirtableService] Starting fetch_and_process")
 
@@ -132,7 +177,8 @@ class FraudAirtableService
         feeling: fields["feeling"],
         shop_order_feeling: fields["shop order feeling"],
         reports_order_feeling: fields["reports order feeling"],
-        extra_comments: fields["extra comments"]
+        extra_comments: fields["extra comments"],
+        feedback_impl: fields["feedback_impl"] == true
       }
     end.compact
 

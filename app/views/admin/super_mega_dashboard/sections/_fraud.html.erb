@@ -179,8 +179,46 @@
           <!-- TEAM VIBES SECTION -->
           <div class="fraud-subsection">
             <h3 class="fraud-subsection__title">Team Vibes</h3>
+
+            <%# Modal: current week feedback %>
+            <div id="vibesWeekModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" onclick="if(event.target===this)this.style.display='none'">
+              <div class="super-mega-dashboard__card" style="min-width:320px;max-width:560px;max-height:80vh;overflow-y:auto;position:relative;margin:auto;">
+                <button onclick="document.getElementById('vibesWeekModal').style.display='none'" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
+                <h3>Week <%= @fraud_happiness_week %> Feedback</h3>
+                <% @fraud_happiness_records.select { |r| r[:extra_comments].present? }.each do |r| %>
+                  <div style="border-top:1px solid #1e293b;padding:8px 0;display:flex;align-items:flex-start;gap:6px;">
+                    <% if r[:feedback_impl] %>
+                      <span title="Feedback implemented" style="color:#10b981;flex-shrink:0;">✓</span>
+                    <% end %>
+                    <span style="font-size:11px;color:#000;"><%= r[:extra_comments] %></span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+
+            <%# Modal: all weeks feedback %>
+            <div id="vibesAllWeeksModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" onclick="if(event.target===this)this.style.display='none'">
+              <div class="super-mega-dashboard__card" style="min-width:320px;max-width:600px;max-height:85vh;overflow-y:auto;position:relative;margin:auto;">
+                <button onclick="document.getElementById('vibesAllWeeksModal').style.display='none'" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
+                <h3>All Weeks Feedback</h3>
+                <% @fraud_vibes_history&.sort_by { |w, _| w }.each do |week, data| %>
+                  <details style="border-top:1px solid #1e293b;padding:6px 0;">
+                    <summary style="cursor:pointer;font-weight:600;font-size:12px;"><%= week %> <span style="color:#94a3b8;font-weight:400;">(<%= data[:responses] %> responses)</span></summary>
+                    <% (data[:records] || []).select { |r| r[:extra_comments].present? }.each do |r| %>
+                      <div style="padding:6px 0 6px 12px;border-top:1px solid #0f172a;display:flex;align-items:flex-start;gap:6px;">
+                        <% if r[:feedback_impl] %>
+                          <span title="Feedback implemented" style="color:#10b981;flex-shrink:0;">✓</span>
+                        <% end %>
+                        <span style="font-size:11px;color:#000;"><%= r[:extra_comments] %></span>
+                      </div>
+                    <% end %>
+                  </details>
+                <% end %>
+              </div>
+            </div>
+
             <div class="super-mega-dashboard__cards">
-              <div class="super-mega-dashboard__card">
+              <div class="super-mega-dashboard__card" style="cursor:pointer;" onclick="document.getElementById('vibesWeekModal').style.display='flex'">
                 <%= render FraudHappinessComponent.new(
                   week: @fraud_happiness_week,
                   records: @fraud_happiness_records,
@@ -188,6 +226,138 @@
                   error: @fraud_happiness_error
                 ) %>
               </div>
+              <% if @fraud_vibes_history.present? %>
+              <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" style="cursor:pointer;" onclick="document.getElementById('vibesAllWeeksModal').style.display='flex'">
+                <h3>Vibes Over Time <svg style="height: 16px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                  </svg></h3>
+                <div class="d3-stream-container" id="vibesTrendContainer">
+                  <div class="d3-stream-tooltip" id="vibesTrendTooltip"></div>
+                </div>
+                <div class="d3-stream-legend" id="vibesTrendLegend"></div>
+                <script>
+                  document.addEventListener('DOMContentLoaded', function() {
+                    ensureD3Fraud(function() {
+                      var raw = <%= raw @fraud_vibes_history.to_json %>;
+                      var sortedWeeks = Object.keys(raw).sort();
+                      var tableData = sortedWeeks.map(function(w) {
+                        return {
+                          week: w,
+                          avg_feeling: raw[w].avg_feeling || 0,
+                          avg_shop: raw[w].avg_shop || 0,
+                          avg_reports: raw[w].avg_reports || 0
+                        };
+                      });
+
+                      var seriesConfig = [
+                        { key: 'avg_feeling', label: 'Overall', color: '#10b981' },
+                        { key: 'avg_shop', label: 'Shop Orders', color: '#3b82f6' },
+                        { key: 'avg_reports', label: 'Reports', color: '#f59e0b' }
+                      ];
+
+                      var container = document.getElementById('vibesTrendContainer');
+                      var tooltip = document.getElementById('vibesTrendTooltip');
+                      var legendEl = document.getElementById('vibesTrendLegend');
+                      var margin = { top: 10, right: 10, bottom: 20, left: 30 };
+                      var height = 140;
+
+                      legendEl.innerHTML = seriesConfig.map(function(cfg) {
+                        return '<span><span class="d3-stream-legend__swatch" style="background:' + cfg.color + '"></span>' + cfg.label + '</span>';
+                      }).join('');
+
+                      function render() {
+                        container.querySelectorAll('svg').forEach(function(el) { el.remove(); });
+                        var width = container.clientWidth;
+                        var innerW = width - margin.left - margin.right;
+                        var innerH = height - margin.top - margin.bottom;
+
+                        var svg = d3.select(container).append('svg')
+                          .attr('width', width).attr('height', height);
+                        var g = svg.append('g')
+                          .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+                        var x = d3.scalePoint()
+                          .domain(sortedWeeks)
+                          .range([0, innerW])
+                          .padding(0.2);
+
+                        var y = d3.scaleLinear()
+                          .domain([0, 10])
+                          .range([innerH, 0]);
+
+                        g.append('g')
+                          .attr('class', 'd3-stream-grid')
+                          .call(d3.axisLeft(y).ticks(5).tickSize(-innerW).tickFormat(d3.format('d')))
+                          .selectAll('text').style('font-size', '7px');
+
+                        g.append('g')
+                          .attr('transform', 'translate(0,' + innerH + ')')
+                          .call(d3.axisBottom(x).tickValues(sortedWeeks.filter(function(_, i) { return i % Math.ceil(sortedWeeks.length / 6) === 0; })))
+                          .selectAll('text').style('font-size', '7px').attr('transform', 'rotate(-30)').attr('text-anchor', 'end');
+
+                        var lineGen = d3.line()
+                          .x(function(d) { return x(d.week); })
+                          .curve(d3.curveMonotoneX);
+
+                        seriesConfig.forEach(function(cfg) {
+                          g.append('path')
+                            .datum(tableData)
+                            .attr('fill', 'none')
+                            .attr('stroke', cfg.color)
+                            .attr('stroke-width', 1.5)
+                            .attr('d', lineGen.y(function(d) { return y(d[cfg.key]); }));
+
+                          g.selectAll('.dot-' + cfg.key)
+                            .data(tableData.filter(function(d) { return d[cfg.key] > 0; }))
+                            .join('circle')
+                            .attr('cx', function(d) { return x(d.week); })
+                            .attr('cy', function(d) { return y(d[cfg.key]); })
+                            .attr('r', 2)
+                            .attr('fill', cfg.color)
+                            .attr('stroke', '#fff')
+                            .attr('stroke-width', 1);
+                        });
+
+                        var crosshair = g.append('line')
+                          .attr('y1', 0).attr('y2', innerH)
+                          .attr('stroke', '#94a3b8').attr('stroke-width', 1)
+                          .attr('stroke-dasharray', '4,3').attr('pointer-events', 'none')
+                          .style('display', 'none');
+
+                        svg.append('rect')
+                          .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+                          .attr('width', innerW).attr('height', innerH)
+                          .attr('fill', 'none').attr('pointer-events', 'all')
+                          .on('mousemove', function(event) {
+                            var mx = d3.pointer(event, this)[0];
+                            var closest = sortedWeeks.reduce(function(a, b) {
+                              return Math.abs(x(a) - mx) < Math.abs(x(b) - mx) ? a : b;
+                            });
+                            var pt = tableData.find(function(d) { return d.week === closest; });
+                            if (!pt) return;
+                            crosshair.attr('x1', x(closest)).attr('x2', x(closest)).style('display', null);
+                            tooltip.className = 'd3-stream-tooltip is-visible';
+                            tooltip.innerHTML = '<strong>' + closest + '</strong><br>' +
+                              seriesConfig.map(function(cfg) {
+                                return '<span style="color:' + cfg.color + '">' + cfg.label + ': ' + (pt[cfg.key] || 'N/A') + '</span>';
+                              }).join('<br>');
+                            tooltip.style.left = (x(closest) + margin.left + 10) + 'px';
+                            tooltip.style.top = margin.top + 'px';
+                          })
+                          .on('mouseleave', function() {
+                            crosshair.style('display', 'none');
+                            tooltip.className = 'd3-stream-tooltip';
+                          });
+                      }
+
+                      render();
+                      window.addEventListener('resize', render);
+                    });
+                  });
+                </script>
+              </div>
+              <% end %>
             </div>
           </div>
 
