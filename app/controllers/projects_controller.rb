@@ -1,7 +1,7 @@
 class ProjectsController < ApplicationController
   before_action :set_project_minimal, only: [ :edit, :update, :destroy, :mark_fire, :unmark_fire ]
   before_action :set_project, only: [ :show, :readme ]
-  before_action :boost_fire_ships, only: [ :mark_fire, :unmark_fire, :index ]
+  after_action :boost_fire_ships, only: [ :mark_fire, :index ]
 
   def boost_fire_ships
     return unless current_user.projects.where(id: params[:id], marked_fire: true).exists?
