@@ -4,13 +4,15 @@ class ProjectsController < ApplicationController
   before_action :boost_fire_ships, only: [ :mark_fire, :unmark_fire, :index ]
 
   def boost_fire_ships
-    return unless @project && @project.fire?
+    return unless current_user.projects.where(id: params[:id], marked_fire: true).exists?
 
-    @project.posts.where(postable_type: "Post::ShipEvent").includes(:postable).find_each do |post|
-      ship_event = post.postable
-      next unless ship_event.is_a?(ShipCertService::ShipEvent)
+    current_user.projects.where(marked_fire: true).find_each do |project|
+      @project.posts.where(postable_type: "Post::ShipEvent").includes(:postable).find_each do |post|
+        ship_event = post.postable
+        next unless ship_event.is_a?(ShipCertService::ShipEvent)
 
-      ShipEventPayoutCalculator.new(ship_event).apply!
+        ShipEventPayoutCalculator.new(ship_event).apply!
+      end
     end
   end
 
