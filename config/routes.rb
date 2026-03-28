@@ -196,6 +196,15 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :seller do
+    resources :orders, only: %i[index show] do
+      member do
+        post :reveal_address
+        post :mark_fulfilled
+      end
+    end
+  end
+
   namespace :internal do
     post "revoke", to: "revoke#create"
   end
