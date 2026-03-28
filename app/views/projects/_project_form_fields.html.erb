@@ -50,9 +50,8 @@
     </label>
     <div class="input__subtitle">Tick if your project was started before December 15th 2025, or if it was previously submitted to another Hack Club program.</div>
   </div>
-</div>
 
-  <div data-project-form-target="updateDescriptionContainer" hidden>
+  <div data-project-form-target="updateDescriptionContainer" hidden style="display:none">
     <style>
       [data-project-form-target="updateDescriptionContainer"] .input {
         width: 100%;
@@ -78,6 +77,7 @@
           )
         ) %>
   </div>
+</div>
 
 <div class="projects-new__field projects-new__field--banner">
   <%= render(
@@ -94,7 +94,7 @@
       ) %>
 </div>
 
-<div class="projects-new__field projects-new__field--links">
+<div class="projects-new__field projects-new__field--links" style="margin-top: var(--space-xl)">
   <%= render InputGroupComponent.new(
         label: "Project Links",
         color: :blue,
@@ -155,20 +155,21 @@
     </div>
   <% end %>
 </div>
-
-<div class="projects-new__field projects-new__field--hackatime-projects">
-  <%= render(
-        HackatimeProjectSelectorComponent.new(
-          label: "Hackatime Projects",
-          form: form,
-          attribute: :hackatime_project_ids,
-          color: :yellow,
-          projects: current_user.hackatime_projects,
-          project_times: @project_times,
-          subtitle: "Link this project to your Hackatime projects."
-        )
-      ) %>
-</div>
+<% if @project_times.present? %>
+  <div class="projects-new__field projects-new__field--hackatime-projects">
+    <%= render(
+          HackatimeProjectSelectorComponent.new(
+            label: "Hackatime Projects",
+            form: form,
+            attribute: :hackatime_project_ids,
+            color: :yellow,
+            projects: current_user.hackatime_projects,
+            project_times: @project_times,
+            subtitle: "Link this project to your Hackatime projects."
+          )
+        ) %>
+  </div>
+<% end %>
 
 <div class="projects-new__field projects-new__field--ai-declaration">
   <%= render(
