@@ -85,12 +85,15 @@ module Admin
           total_users = User.count
           banned = ban_counts.sum { |(b, _), c| b ? c : 0 }
           shadow_banned = ban_counts.sum { |(_, sb), c| sb ? c : 0 }
+          unbanned = User.where(banned: false, shadow_banned: false).count
 
           fraud_bans = {
             banned: banned,
             banned_pct: total_users > 0 ? ((banned.to_f / total_users) * 100).round(2) : 0,
             shadow_banned_users: shadow_banned,
-            shadow_banned_pct: total_users > 0 ? ((shadow_banned.to_f / total_users) * 100).round(2) : 0
+            shadow_banned_pct: total_users > 0 ? ((shadow_banned.to_f / total_users) * 100).round(2) : 0,
+            unbanned: unbanned,
+            ban_unban_ratio: total_users > 0 ? ((banned.to_f / total_users) * 100).round(1) : 0
           }
 
           # Second chances vs bans (ban changes today)
