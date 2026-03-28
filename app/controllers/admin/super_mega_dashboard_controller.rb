@@ -179,8 +179,11 @@ module Admin
           unbans = PaperTrail::Version.where(item_type: "User", created_at: day_range)
                                       .where("object_changes ->> 'banned' IS NOT NULL")
                                       .where("object_changes -> 'banned' ->> 1 = ?", "false").count
+          shadow_bans = PaperTrail::Version.where(item_type: "User", created_at: day_range)
+                                           .where("object_changes ->> 'shadow_banned' IS NOT NULL")
+                                           .where("object_changes -> 'shadow_banned' ->> 1 = ?", "true").count
 
-          trend_data[date.to_s] = { bans: bans, unbans: unbans }
+          trend_data[date.to_s] = { bans: bans, unbans: unbans, shadow_bans: shadow_bans }
         end
         trend_data
       end
