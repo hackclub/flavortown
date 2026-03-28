@@ -46,7 +46,7 @@ class ShipEventPayoutCalculator
       # mult is like if mult is 30 then you have $6/hr. or you get 30 cookies so its how many cookies you get
       # if project is well cooked you get a min of 10 cookies per hour (prevents really low multipliers for good projects), if project is on fire you get 10 cookies per hour guaranteed
       if project.fire?
-        mult = (hourly_rate * [ tickets_per_dollar, 10 ].max).round(6)
+        mult = [ (hourly_rate * tickets_per_dollar).round(6), 10 ].max
       else
         mult = (hourly_rate * tickets_per_dollar).round(6)
       end
