@@ -23,6 +23,7 @@
 #  payout_basis_overall_score :decimal(5, 2)
 #  payout_basis_percentile    :decimal(5, 2)
 #  payout_curve_version       :string
+#  review_instructions        :text
 #  storytelling_median        :decimal(5, 2)
 #  storytelling_percentile    :decimal(5, 2)
 #  synced_at                  :datetime

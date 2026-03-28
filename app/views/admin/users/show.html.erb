@@ -80,7 +80,7 @@
         <b>slack_id:</b>
         <% if @user.slack_id.present? %>
           <%= @user.slack_id %>
-          <%= link_to "go to slack", "https://hackclub.slack.com/team/#{@user.slack_id}", class: "btn-primary slim", target: "_blank" %>
+          <%= link_to "go to slack", "https://hackclub.slack.com/team/#{ERB::Util.url_encode(@user.slack_id)}", class: "btn-primary slim", target: "_blank" %>
         <% else %>
           <span style="color: #9ca3af;">N/A</span>
         <% end %>

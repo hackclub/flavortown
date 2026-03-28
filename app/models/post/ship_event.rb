@@ -21,6 +21,7 @@
 #  payout_basis_overall_score :decimal(5, 2)
 #  payout_basis_percentile    :decimal(5, 2)
 #  payout_curve_version       :string
+#  review_instructions        :text
 #  storytelling_median        :decimal(5, 2)
 #  storytelling_percentile    :decimal(5, 2)
 #  synced_at                  :datetime
@@ -55,6 +56,7 @@ class Post::ShipEvent < ApplicationRecord
   after_commit :decrement_user_vote_balance, on: :create
 
   validates :body, presence: { message: "Update message can't be blank" }
+  validates :review_instructions, length: { maximum: 2000 }, allow_blank: true
   validate :project_can_be_shipped, on: :create
   validate :must_have_hours, on: :create
   has_paper_trail ignore: [ :votes_count, :synced_at ]

@@ -196,6 +196,15 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :seller do
+    resources :orders, only: %i[index show] do
+      member do
+        post :reveal_address
+        post :mark_fulfilled
+      end
+    end
+  end
+
   namespace :internal do
     post "revoke", to: "revoke#create"
   end
@@ -346,6 +355,8 @@ Rails.application.routes.draw do
     get "voting_dashboard", to: "voting_dashboard#index"
     get "vote_spam_dashboard", to: "vote_spam_dashboard#index"
     get "vote_spam_dashboard/users/:user_id", to: "vote_spam_dashboard#show", as: :vote_spam_dashboard_user
+    get "vote_quality_dashboard", to: "vote_quality_dashboard#index"
+    get "vote_quality_dashboard/users/:user_id", to: "vote_quality_dashboard#show", as: :vote_quality_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
     delete "super_mega_dashboard/clear_cache", to: "super_mega_dashboard#clear_cache", as: :super_mega_dashboard_clear_cache
