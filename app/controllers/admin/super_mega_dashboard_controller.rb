@@ -779,7 +779,7 @@ module Admin
         trend_data[date.to_s] = {
           submitted: daily_submissions.count,
           shipped_projects: shipped_projects_count,
-          approved: shipped_entries.approved.where(reviewed_at: day_range).count,
+          approved: shipped_entries.approved.where(reviewed_at: day_range).count
         }
       end
     end
