@@ -13,7 +13,7 @@ class ProjectsController < ApplicationController
              .includes(:postable)
              .find_each do |post|
         ship_event = post.postable
-        next unless ship_event.is_a?(ShipCertService::ShipEvent)
+        next unless ship_event.is_a?(Post::ShipEvent)
 
         ShipEventPayoutCalculator.new(ship_event).apply!
       end
