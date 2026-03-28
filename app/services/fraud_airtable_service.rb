@@ -31,7 +31,7 @@ class FraudAirtableService
     return {} if all_records.nil? || all_records.empty?
 
     # Group records by week, calculate avg scores per week
-    by_week = all_records.group_by { |r| r&.fields&.dig("week") }.compact
+    by_week = all_records.group_by { |r| r&.fields&.dig("week")&.to_s }.compact.reject { |k, _| k.blank? }
     by_week.transform_values do |records|
       feelings = records.map { |r| feeling_to_score(r.fields["feeling"]) }.compact
       shop = records.map { |r| feeling_to_score(r.fields["shop order feeling"]) }.compact

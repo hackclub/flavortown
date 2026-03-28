@@ -883,6 +883,14 @@ module Admin
       @fraud_happiness_avg_scores = data[:avg_scores] || { total_responses: 0 }
       @fraud_happiness_error = data[:error]
       @fraud_vibes_history = FraudAirtableService.fetch_vibes_history || {}
+
+      # Derive last week's scores from history for percent diff
+      if @fraud_happiness_week.present? && @fraud_vibes_history.present?
+        sorted_weeks = @fraud_vibes_history.keys.map(&:to_s).sort_by { |w| w.scan(/\d+/).first.to_i }
+        current_idx = sorted_weeks.index(@fraud_happiness_week.to_s)
+        prev_week = (current_idx && current_idx > 0) ? sorted_weeks[current_idx - 1] : nil
+        @fraud_happiness_prev_scores = prev_week ? @fraud_vibes_history[prev_week] : nil
+      end
     end
 
     def extract_reviews(response_data)

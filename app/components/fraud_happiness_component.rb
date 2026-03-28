@@ -4,11 +4,12 @@ class FraudHappinessComponent < ApplicationComponent
   include Phlex::Rails::Helpers::NumberWithPrecision
   include Phlex::Rails::Helpers::Truncate
 
-  def initialize(week:, records:, avg_scores:, error: nil)
+  def initialize(week:, records:, avg_scores:, error: nil, prev_scores: nil)
     @week = week
     @records = records
     @avg_scores = avg_scores
     @error = error
+    @prev_scores = prev_scores
   end
 
   def render?
@@ -24,13 +25,13 @@ class FraudHappinessComponent < ApplicationComponent
       end
     elsif @week.present?
       div(class: "fraud-happiness") do
-        h3(class: "fraud-happiness__week") { "Week: #{@week}" }
+        h3(class: "fraud-happiness__week") { @week }
 
         if has_scores?
           div(class: "fraud-happiness__scores") do
-            score_card("Overall", @avg_scores[:avg_feeling])
-            score_card("Shop Orders", @avg_scores[:avg_shop_order_feeling])
-            score_card("Reports", @avg_scores[:avg_reports_order_feeling])
+            score_card("Overall", @avg_scores[:avg_feeling], @prev_scores&.dig(:avg_feeling))
+            score_card("Shop Orders", @avg_scores[:avg_shop_order_feeling], @prev_scores&.dig(:avg_shop))
+            score_card("Reports", @avg_scores[:avg_reports_order_feeling], @prev_scores&.dig(:avg_reports))
             response_card(@avg_scores[:responses_text])
           end
         else
@@ -50,7 +51,14 @@ class FraudHappinessComponent < ApplicationComponent
     total.present? && total.to_i.positive?
   end
 
-  def score_card(label, value)
+  def pct_diff(current, prev)
+    return nil unless current.is_a?(Numeric) && prev.is_a?(Numeric) && prev != 0
+
+    diff = (((current - prev) / prev.to_f) * 100).round(1)
+    [diff, diff >= 0 ? "+" : ""]
+  end
+
+  def score_card(label, value, prev_value = nil)
     div(class: "fraud-happiness__score-card") do
       h4(class: "fraud-happiness__score-card-label") { label }
       div(class: "fraud-happiness__score-card-value") do
@@ -60,14 +68,22 @@ class FraudHappinessComponent < ApplicationComponent
           plain value
         end
       end
+      if (diff_data = pct_diff(value, prev_value))
+        diff, sign = diff_data
+        color = diff >= 0 ? "#10b981" : "#ef4444"
+        span(style: "font-size:10px;color:#{color};") { "#{sign}#{diff}%" }
+      end
     end
   end
 
   def response_card(responses_text)
+    received, total = responses_text.to_s.split("/").map(&:to_i)
+    missing = total > 0 ? total - received : 0
+
     div(class: "fraud-happiness__score-card") do
-      h4(class: "fraud-happiness__score-card-label") { "Responses" }
+      h4(class: "fraud-happiness__score-card-label") { "Missing" }
       div(class: "fraud-happiness__score-card-value") do
-        plain responses_text
+        plain missing.to_s
       end
     end
   end

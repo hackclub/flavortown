@@ -223,7 +223,8 @@
                   week: @fraud_happiness_week,
                   records: @fraud_happiness_records,
                   avg_scores: @fraud_happiness_avg_scores,
-                  error: @fraud_happiness_error
+                  error: @fraud_happiness_error,
+                  prev_scores: @fraud_happiness_prev_scores
                 ) %>
               </div>
               <% if @fraud_vibes_history.present? %>
@@ -282,8 +283,14 @@
                           .range([0, innerW])
                           .padding(0.2);
 
+                        var allValues = tableData.flatMap(function(d) {
+                          return seriesConfig.map(function(cfg) { return d[cfg.key]; }).filter(function(v) { return v > 0; });
+                        });
+                        var yMin = Math.max(0, d3.min(allValues) - 1);
+                        var yMax = Math.min(10, d3.max(allValues) + 1);
+
                         var y = d3.scaleLinear()
-                          .domain([0, 10])
+                          .domain([yMin, yMax])
                           .range([innerH, 0]);
 
                         g.append('g')
