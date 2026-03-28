@@ -1,6 +1,18 @@
 class ProjectsController < ApplicationController
   before_action :set_project_minimal, only: [ :edit, :update, :destroy, :mark_fire, :unmark_fire ]
   before_action :set_project, only: [ :show, :readme ]
+  before_action :boost_fire_ships, only: [ :mark_fire, :unmark_fire, :index ]
+
+  def boost_fire_ships
+    return unless @project && @project.fire?
+
+    @project.posts.where(postable_type: "Post::ShipEvent").includes(:postable).find_each do |post|
+      ship_event = post.postable
+      next unless ship_event.is_a?(ShipCertService::ShipEvent)
+
+      ShipEventPayoutCalculator.new(ship_event).apply!
+    end
+  end
 
   def stats
     @project = Project.find(params[:id])
