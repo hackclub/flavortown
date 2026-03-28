@@ -706,7 +706,7 @@
 
   .d3-funnel-container {
     position: relative;
-    overflow-x: auto;
+    overflow: hidden;
     padding: 1em;
     padding-top: 0;
   }
@@ -743,7 +743,7 @@
   }
 
   .d3-funnel-label {
-    font-size: 13px;
+    font-size: 10px;
     fill: var(--color-brown-700);
     white-space: nowrap;
   }
