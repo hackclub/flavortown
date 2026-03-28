@@ -7,7 +7,11 @@ class ProjectsController < ApplicationController
     return unless current_user.projects.where(id: params[:id], marked_fire: true).exists?
 
     current_user.projects.where(marked_fire: true).find_each do |project|
-      @project.posts.where(postable_type: "Post::ShipEvent").includes(:postable).find_each do |post|
+      project.posts
+             .of_ship_events(join: true)
+             .where("post_ship_events.multiplier < ?", 10)
+             .includes(:postable)
+             .find_each do |post|
         ship_event = post.postable
         next unless ship_event.is_a?(ShipCertService::ShipEvent)
 
