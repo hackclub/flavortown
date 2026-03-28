@@ -263,7 +263,7 @@ module Admin
           f.options.open_timeout = 5
         end
 
-        response = conn.get("https://joe.fraud.hackclub.com/api/v1/cases/stats?ysws=flavortown") do |req|
+        response = conn.get("https://joe.fraud.hackclub.com/api/v1/cases/dashboard?range=30d&ysws=Flavortown") do |req|
           req.headers["Cookie"] = api_key
         end
 
@@ -273,12 +273,18 @@ module Admin
 
         data = JSON.parse(response.body, symbolize_names: true)
 
+        kpis = data[:kpis] || {}
+        charts = data[:charts] || {}
+
         {
-          total: data[:total] || 0,
-          open: data[:open] || 0,
-          closed: data[:closed] || 0,
-          second_chances_given: data.dig(:byStatus, :second_chance_given) || 0,
-          fraudpheus_open: data.dig(:byStatus, :fraudpheus_open) || 0,
+          total: data[:total] || kpis[:totalCases] || 0,
+          open: data[:open] || kpis[:openCount] || 0,
+          waiting: kpis[:waitingCount] || 0,
+          closed: data[:closed] || kpis[:closedCount] || 0,
+          avg_hang_time_days: kpis[:avgHangTimeDays]&.to_f || 0,
+          second_chances_given: data.dig(:byStatus, :second_chance_given) || charts[:byStatus]&.find { |s| s[:status] == "second_chance_given" }&.dig(:count) || 0,
+          fraudpheus_open: data.dig(:byStatus, :fraudpheus_open) || charts[:byStatus]&.find { |s| s[:status] == "fraudpheus_open" }&.dig(:count) || 0,
+          created_over_time: charts[:createdOverTime] || [],
           timeline: data[:timeline] || [],
           cases_opened: data[:casesOpened] || []
         }

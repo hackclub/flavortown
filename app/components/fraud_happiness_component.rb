@@ -25,7 +25,10 @@ class FraudHappinessComponent < ApplicationComponent
       end
     elsif @week.present?
       div(class: "fraud-happiness") do
-        h3(class: "fraud-happiness__week") { @week }
+        h3(class: "fraud-happiness__week") do
+          plain @week
+          raw '<svg style="height:16px;vertical-align:middle;margin-left:4px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5"/><path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>'.html_safe
+        end
 
         if has_scores?
           div(class: "fraud-happiness__scores") do

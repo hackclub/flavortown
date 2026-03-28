@@ -8,26 +8,137 @@
       <div class="fraud-subsection">
         <h3 class="fraud-subsection__title">Joe Cases</h3>
         <div class="super-mega-dashboard__cards">
-        <div class="super-mega-dashboard__card">
-          <h3>Case Stats</h3>
-          <% if @joe_fraud_stats && !@joe_fraud_stats[:error] %>
-            <% total_joe_cases = @joe_fraud_stats[:total] %>
-            <% open_pct = (((@joe_fraud_stats[:open].to_f / total_joe_cases) * 100).round(1)) %>
-            <% closed_pct = (((@joe_fraud_stats[:closed].to_f / total_joe_cases) * 100).round(1)) %>
-            <div class="fraud-stats-grid">
-              <div class="fraud-stats-grid__row">
-                <span class="fraud-stats-grid__label">Second Chances Given</span>
-                <span class="fraud-stats-grid__value fraud-stats-grid__value--green"><%= @joe_fraud_stats[:second_chances_given] %></span>
-              </div>
-              <div class="fraud-stats-grid__row">
-                <span class="fraud-stats-grid__label">Open</span>
-                <span class="fraud-stats-grid__value fraud-stats-grid__value--yellow"><%= @joe_fraud_stats[:open] %><span class="fraud-stats-grid__pct">(<%= open_pct %>%)</span></span>
-              </div>
-              <div class="fraud-stats-grid__row">
-                <span class="fraud-stats-grid__label">Closed</span>
-                <span class="fraud-stats-grid__value fraud-stats-grid__value--green"><%= @joe_fraud_stats[:closed] %><span class="fraud-stats-grid__pct">(<%= closed_pct %>%)</span></span>
-              </div>
+        <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph">
+          <h3>Unresolved Cases vs Hang Time</h3>
+          <% if @joe_fraud_stats && !@joe_fraud_stats[:error] && @joe_fraud_stats[:created_over_time].any? %>
+            <div class="d3-stream-container" id="joeUnresolvedContainer">
+              <div class="d3-stream-tooltip" id="joeUnresolvedTooltip"></div>
             </div>
+            <div class="d3-stream-legend" id="joeUnresolvedLegend"></div>
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                ensureD3Fraud(function() {
+                  var createdOverTime = <%= raw @joe_fraud_stats[:created_over_time].to_json %>;
+                  var avgHangTime = <%= @joe_fraud_stats[:avg_hang_time_days] %>;
+                  var openCount = <%= @joe_fraud_stats[:open] %>;
+                  var waitingCount = <%= @joe_fraud_stats[:waiting] %>;
+
+                  var tableData = createdOverTime.map(function(d) {
+                    return { date: new Date(d.bucket), created: d.count };
+                  });
+
+                  var container = document.getElementById('joeUnresolvedContainer');
+                  var tooltip = document.getElementById('joeUnresolvedTooltip');
+                  var legendEl = document.getElementById('joeUnresolvedLegend');
+                  var margin = { top: 10, right: 50, bottom: 20, left: 30 };
+                  var height = 140;
+
+                  legendEl.innerHTML = [
+                    '<span><span class="d3-stream-legend__swatch" style="background:#f59e0b"></span>Cases Created/Week</span>',
+                    '<span><span class="d3-stream-legend__swatch" style="background:#ef4444"></span>Avg Hang Time (days)</span>'
+                  ].join('');
+
+                  function render() {
+                    container.querySelectorAll('svg').forEach(function(el) { el.remove(); });
+                    var width = container.clientWidth;
+                    var innerW = width - margin.left - margin.right;
+                    var innerH = height - margin.top - margin.bottom;
+
+                    var svg = d3.select(container).append('svg')
+                      .attr('width', width).attr('height', height);
+                    var g = svg.append('g')
+                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+                    var x = d3.scaleTime()
+                      .domain(d3.extent(tableData, function(d) { return d.date; }))
+                      .range([0, innerW]);
+
+                    var yLeft = d3.scaleLinear()
+                      .domain([0, d3.max(tableData, function(d) { return d.created; }) * 1.2])
+                      .range([innerH, 0]);
+
+                    var yRight = d3.scaleLinear()
+                      .domain([0, avgHangTime * 1.5])
+                      .range([innerH, 0]);
+
+                    g.append('g')
+                      .attr('class', 'd3-stream-grid')
+                      .call(d3.axisLeft(yLeft).ticks(4).tickSize(-innerW).tickFormat(d3.format('d')))
+                      .selectAll('text').style('font-size', '7px');
+
+                    g.append('g')
+                      .attr('transform', 'translate(' + innerW + ',0)')
+                      .call(d3.axisRight(yRight).ticks(4).tickFormat(function(d) { return d + 'd'; }))
+                      .selectAll('text').style('font-size', '7px');
+
+                    g.append('g')
+                      .attr('transform', 'translate(0,' + innerH + ')')
+                      .call(d3.axisBottom(x).ticks(tableData.length).tickFormat(d3.timeFormat('%b %d')))
+                      .selectAll('text').style('font-size', '7px');
+
+                    // Bars for cases created
+                    var barWidth = Math.max(2, (innerW / tableData.length) * 0.4);
+                    g.selectAll('.bar')
+                      .data(tableData)
+                      .join('rect')
+                      .attr('class', 'bar')
+                      .attr('x', function(d) { return x(d.date) - barWidth / 2; })
+                      .attr('y', function(d) { return yLeft(d.created); })
+                      .attr('width', barWidth)
+                      .attr('height', function(d) { return innerH - yLeft(d.created); })
+                      .attr('fill', '#f59e0b')
+                      .attr('opacity', 0.7);
+
+                    // Flat reference line for avg hang time
+                    g.append('line')
+                      .attr('x1', 0).attr('x2', innerW)
+                      .attr('y1', yRight(avgHangTime)).attr('y2', yRight(avgHangTime))
+                      .attr('stroke', '#ef4444').attr('stroke-width', 1.5)
+                      .attr('stroke-dasharray', '4,3');
+
+                    g.append('text')
+                      .attr('x', innerW - 2).attr('y', yRight(avgHangTime) - 3)
+                      .attr('text-anchor', 'end').attr('fill', '#ef4444')
+                      .style('font-size', '7px')
+                      .text(avgHangTime + 'd avg');
+
+                    // Overlay open+waiting as a dot on the last bar
+                    var lastPoint = tableData[tableData.length - 1];
+                    g.append('circle')
+                      .attr('cx', x(lastPoint.date))
+                      .attr('cy', yLeft(openCount + waitingCount))
+                      .attr('r', 4)
+                      .attr('fill', '#ef4444')
+                      .attr('stroke', '#fff')
+                      .attr('stroke-width', 1);
+
+                    svg.append('rect')
+                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+                      .attr('width', innerW).attr('height', innerH)
+                      .attr('fill', 'none').attr('pointer-events', 'all')
+                      .on('mousemove', function(event) {
+                        var mx = d3.pointer(event, this)[0];
+                        var bisect = d3.bisector(function(d) { return d.date; }).left;
+                        var x0 = x.invert(mx);
+                        var idx = Math.min(bisect(tableData, x0), tableData.length - 1);
+                        var pt = tableData[idx];
+                        tooltip.className = 'd3-stream-tooltip is-visible';
+                        tooltip.innerHTML = '<strong>' + d3.timeFormat('%b %d')(pt.date) + '</strong><br>' +
+                          '<span style="color:#f59e0b">Created: ' + pt.created + '</span><br>' +
+                          '<span style="color:#ef4444">Avg hang: ' + avgHangTime + 'd</span>';
+                        tooltip.style.left = (x(pt.date) + margin.left + 10) + 'px';
+                        tooltip.style.top = margin.top + 'px';
+                      })
+                      .on('mouseleave', function() {
+                        tooltip.className = 'd3-stream-tooltip';
+                      });
+                  }
+
+                  render();
+                  window.addEventListener('resize', render);
+                });
+              });
+            </script>
           <% else %>
             <p class="fraud-stats-error"><%= @joe_fraud_stats&.dig(:error) || "No Joe data" %></p>
           <% end %>
