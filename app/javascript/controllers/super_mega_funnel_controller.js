@@ -119,9 +119,9 @@ function createSvg({ width, height }) {
   return d3
     .create("svg")
     .attr("viewBox", `0 0 ${width} ${height}`)
-    .attr("width", width)
-    .attr("height", height)
-    .attr("preserveAspectRatio", "xMidYMid meet");
+    .attr("width", "100%")
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .style("display", "block");
 }
 
 function appendGradient(svg, gradientId) {

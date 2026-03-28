@@ -706,7 +706,7 @@
 
   .d3-funnel-container {
     position: relative;
-    overflow-x: auto;
+    overflow: hidden;
     padding: 1em;
     padding-top: 0;
   }
