@@ -4,12 +4,13 @@ class FraudHappinessComponent < ApplicationComponent
   include Phlex::Rails::Helpers::NumberWithPrecision
   include Phlex::Rails::Helpers::Truncate
 
-  def initialize(week:, records:, avg_scores:, error: nil, prev_scores: nil)
+  def initialize(week:, records:, avg_scores:, error: nil, prev_scores: nil, description: nil)
     @week = week
     @records = records
     @avg_scores = avg_scores
     @error = error
     @prev_scores = prev_scores
+    @description = description
   end
 
   def render?
@@ -29,6 +30,8 @@ class FraudHappinessComponent < ApplicationComponent
           plain @week
           raw '<svg style="height:16px;vertical-align:middle;margin-left:4px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5"/><path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>'.html_safe
         end
+
+        p(class: "fraud-happiness__description", style: "font-size:10px;") { @description } if @description.present?
 
         if has_scores?
           div(class: "fraud-happiness__scores") do

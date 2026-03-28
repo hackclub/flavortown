@@ -285,6 +285,8 @@ module Admin
           second_chances_given: data.dig(:byStatus, :second_chance_given) || charts[:byStatus]&.find { |s| s[:status] == "second_chance_given" }&.dig(:count) || 0,
           fraudpheus_open: data.dig(:byStatus, :fraudpheus_open) || charts[:byStatus]&.find { |s| s[:status] == "fraudpheus_open" }&.dig(:count) || 0,
           created_over_time: charts[:createdOverTime] || [],
+          longest_hang_times: data[:longestHangTimes] || [],
+          stalest_case: data[:stalestCase],
           timeline: data[:timeline] || [],
           cases_opened: data[:casesOpened] || []
         }
