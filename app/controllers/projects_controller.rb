@@ -4,7 +4,7 @@ class ProjectsController < ApplicationController
   after_action :boost_fire_ships, only: [ :mark_fire, :index ]
 
   def boost_fire_ships
-    return unless current_user.projects.where(id: params[:id], marked_fire: true).exists?
+    return unless current_user.projects.where(marked_fire: true).exists?
 
     current_user.projects.where(marked_fire: true).find_each do |project|
       project.posts
