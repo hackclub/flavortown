@@ -27,9 +27,9 @@
               document.addEventListener('DOMContentLoaded', function() {
                 ensureD3Fraud(function() {
                   var createdOverTime = <%= raw @joe_fraud_stats[:created_over_time].to_json %>;
-                  var avgHangTime = <%= @joe_fraud_stats[:avg_hang_time_days] %>;
-                  var openCount = <%= @joe_fraud_stats[:open] %>;
-                  var waitingCount = <%= @joe_fraud_stats[:waiting] %>;
+                  var avgHangTime = <%= @joe_fraud_stats[:avg_hang_time_days].to_json %>;
+                  var openCount = <%= @joe_fraud_stats[:open].to_json %>;
+                  var waitingCount = <%= @joe_fraud_stats[:waiting].to_json %>;
 
                   var tableData = createdOverTime.map(function(d) {
                     return { date: new Date(d.bucket), created: d.count };
