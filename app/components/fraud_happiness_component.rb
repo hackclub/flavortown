@@ -61,7 +61,7 @@ class FraudHappinessComponent < ApplicationComponent
     return nil unless current.is_a?(Numeric) && prev.is_a?(Numeric) && prev != 0
 
     diff = (((current - prev) / prev.to_f) * 100).round(1)
-    [diff, diff >= 0 ? "+" : ""]
+    [ diff, diff >= 0 ? "+" : "" ]
   end
 
   def score_card(label, value, prev_value = nil)
