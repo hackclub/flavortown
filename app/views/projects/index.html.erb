@@ -1,10 +1,23 @@
 <% content_for :title, "My Projects" %>
 <div class="projects-board">
   <%= render HeadingComponent.new(title: "My Projects", tone: :blue, size: :full) %>
-  <header class="projects-board__header">
-    <div class="projects-board__heading">
-      <p class="projects-board__subtitle">What'ya cookin'?</p>
+  <header class="projects-board__header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+    <div class="projects-board__heading" style="margin-bottom: 0;">
+      <p class="projects-board__subtitle" style="margin-bottom: 0;">What'ya cookin'?</p>
     </div>
+
+    <div class="platform-notice" style="margin: 0 auto; padding: 6px 16px; border-width: 3px; border-radius: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; font-size: 0.9rem;" data-controller="countdown" data-countdown-target-value="2026-04-30T23:59:59-04:00">
+      <strong style="white-space: nowrap; font-size:1.1rem;">
+        Ship within
+      </strong>
+      <div style="display: flex; gap: 8px; font-family: monospace; font-size: 1.1rem; font-weight: 800; color: var(--color-brown-700);">
+        <span style="white-space: nowrap;"><span data-countdown-target="days">00</span>d</span>
+        <span style="white-space: nowrap;"><span data-countdown-target="hours">00</span>h</span>
+        <span style="white-space: nowrap;"><span data-countdown-target="minutes">00</span>m</span>
+        <span style="white-space: nowrap;"><span data-countdown-target="seconds">00</span>s</span>
+      </div>
+    </div>
+
     <button class="btn btn--red" data-action="click->project-ideas#toggle" data-controller="project-ideas">
       Need Ideas?
     </button>

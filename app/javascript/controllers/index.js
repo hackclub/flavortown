@@ -19,8 +19,23 @@ application.register("challenger-stars", ChallengerStarsController);
 import CookieClickerController from "./cookie_clicker_controller";
 application.register("cookie-clicker", CookieClickerController);
 
+import CopyDebugController from "./copy_debug_controller";
+application.register("copy-debug", CopyDebugController);
+
+import CountdownController from "./countdown_controller";
+application.register("countdown", CountdownController);
+
 import CustomsWarningController from "./customs_warning_controller";
 application.register("customs-warning", CustomsWarningController);
+
+import DebugOverlayController from "./debug_overlay_controller";
+application.register("debug-overlay", DebugOverlayController);
+
+import DevlogAttachmentSelectorController from "./devlog_attachment_selector_controller";
+application.register(
+  "devlog-attachment-selector",
+  DevlogAttachmentSelectorController,
+);
 
 import DialogueIterationController from "./dialogue_iteration_controller";
 application.register("dialogue-iteration", DialogueIterationController);
@@ -49,6 +64,12 @@ application.register("json-highlight", JsonHighlightController);
 import KitchenDialogueController from "./kitchen_dialogue_controller";
 application.register("kitchen-dialogue", KitchenDialogueController);
 
+import LapseModalController from "./lapse_modal_controller";
+application.register("lapse-modal", LapseModalController);
+
+import LazyLoadController from "./lazy_load_controller";
+application.register("lazy-load", LazyLoadController);
+
 import LightboxController from "./lightbox_controller";
 application.register("lightbox", LightboxController);
 
@@ -60,9 +81,6 @@ application.register("markdown-preview", MarkdownPreviewController);
 
 import ModalController from "./modal_controller";
 application.register("modal", ModalController);
-
-import LapseModalController from "./lapse_modal_controller";
-application.register("lapse-modal", LapseModalController);
 
 import MusicPlayerController from "./music_player_controller";
 application.register("music-player", MusicPlayerController);
@@ -82,8 +100,20 @@ application.register("project-form", ProjectFormController);
 import ProjectIdeasController from "./project_ideas_controller";
 application.register("project-ideas", ProjectIdeasController);
 
+import RadioOptionController from "./radio_option_controller";
+application.register("radio-option", RadioOptionController);
+
+import ReadmeImageController from "./readme_image_controller";
+application.register("readme-image", ReadmeImageController);
+
+import ResponsiveImageMapController from "./responsive_image_map_controller";
+application.register("responsive-image-map", ResponsiveImageMapController);
+
 import SearchableSelectController from "./searchable_select_controller";
 application.register("searchable-select", SearchableSelectController);
+
+import ShootingStarController from "./shooting_star_controller";
+application.register("shooting-star", ShootingStarController);
 
 import ShopController from "./shop_controller";
 application.register("shop", ShopController);
@@ -97,26 +127,38 @@ application.register("shop-wishlist", ShopWishlistController);
 import SidebarPinController from "./sidebar_pin_controller";
 application.register("sidebar-pin", SidebarPinController);
 
+import SidequestExpandController from "./sidequest_expand_controller";
+application.register("sidequest-expand", SidequestExpandController);
+
 import SnowController from "./snow_controller";
 application.register("snow", SnowController);
-
-import StartDevlogController from "./start_devlog_controller";
-application.register("start-devlog", StartDevlogController);
-
-import TimezoneController from "./timezone_controller";
-application.register("timezone", TimezoneController);
-
-import UploadFormController from "./upload_form_controller";
-application.register("upload-form", UploadFormController);
 
 import StarsController from "./stars_controller";
 application.register("stars", StarsController);
 
-import SidequestExpandController from "./sidequest_expand_controller";
-application.register("sidequest-expand", SidequestExpandController);
+import StartDevlogController from "./start_devlog_controller";
+application.register("start-devlog", StartDevlogController);
 
-import ShootingStarController from "./shooting_star_controller";
-application.register("shooting-star", ShootingStarController);
+import StatsHoverController from "./stats_hover_controller";
+application.register("stats-hover", StatsHoverController);
+
+import SuperMegaFunnelController from "./super_mega_funnel_controller";
+application.register("super-mega-funnel", SuperMegaFunnelController);
+
+import TimezoneController from "./timezone_controller";
+application.register("timezone", TimezoneController);
+
+import TooltipController from "./tooltip_controller";
+application.register("tooltip", TooltipController);
+
+import TutorialStepsExpandController from "./tutorial_steps_expand_controller";
+application.register("tutorial-steps-expand", TutorialStepsExpandController);
+
+import TutorialVideoModalController from "./tutorial_video_modal_controller";
+application.register("tutorial-video-modal", TutorialVideoModalController);
+
+import UploadFormController from "./upload_form_controller";
+application.register("upload-form", UploadFormController);
 
 import VoteCategoryController from "./vote_category_controller";
 application.register("vote-category", VoteCategoryController);
@@ -130,38 +172,5 @@ application.register("welcome-overlay", WelcomeOverlayController);
 import WordCountController from "./word_count_controller";
 application.register("word-count", WordCountController);
 
-import ResponsiveImageMapController from "./responsive_image_map_controller";
-application.register("responsive-image-map", ResponsiveImageMapController);
-
-import TutorialVideoModalController from "./tutorial_video_modal_controller";
-application.register("tutorial-video-modal", TutorialVideoModalController);
-
-import TutorialStepsExpandController from "./tutorial_steps_expand_controller";
-application.register("tutorial-steps-expand", TutorialStepsExpandController);
-
-import StatsHoverController from "./stats_hover_controller";
-application.register("stats-hover", StatsHoverController);
-
-import TooltipController from "./tooltip_controller";
-application.register("tooltip", TooltipController);
-
-import ReadmeImageController from "./readme_image_controller";
-application.register("readme-image", ReadmeImageController);
-
-import RadioOptionController from "./radio_option_controller";
-application.register("radio-option", RadioOptionController);
-
-import DevlogAttachmentSelectorController from "./devlog_attachment_selector_controller";
-application.register(
-  "devlog-attachment-selector",
-  DevlogAttachmentSelectorController,
-);
-
 import XpWindowController from "./xp_window_controller";
 application.register("xp-window", XpWindowController);
-
-import LazyLoadController from "./lazy_load_controller";
-application.register("lazy-load", LazyLoadController);
-
-import SuperMegaFunnelController from "./super_mega_funnel_controller";
-application.register("super-mega-funnel", SuperMegaFunnelController);
