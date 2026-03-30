@@ -1,0 +1,64 @@
+<div class="super-mega-dashboard__dashboard">
+  <div class="super-mega-dashboard__header super-mega-dashboard__header--primary">
+    <h2>NPS Dashboard</h2>
+    <p class="super-mega-dashboard__subtitle">(Fetched from Unified DB)</p>
+  </div>
+
+  <% if @nps_error.present? %>
+    <p class="fraud-stats-error"><%= @nps_error %></p>
+  <% else %>
+    <div class="super-mega-dashboard__cards super-mega-dashboard__cards--nps">
+      <div class="super-mega-dashboard__card">
+        <h3>Total NPS</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value blue">
+              <%= @nps_total.nil? ? "—" : (@nps_total >= 0 ? "+#{@nps_total}" : @nps_total) %>
+            </span>
+            <span class="super-mega-dashboard__stat--label">NPS</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>NPS Responses</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value"><%= @nps_response_count.nil? ? "—" : number_with_delimiter(@nps_response_count) %></span>
+            <span class="super-mega-dashboard__stat--label">Responses</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>Promoters</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value green"><%= @nps_promoters %></span>
+            <span class="super-mega-dashboard__stat--label">9–10</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>Neutral</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value yellow"><%= @nps_neutrals %></span>
+            <span class="super-mega-dashboard__stat--label">7–8</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>Detractors</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value red"><%= @nps_detractors %></span>
+            <span class="super-mega-dashboard__stat--label">0–6</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
