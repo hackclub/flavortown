@@ -107,7 +107,7 @@ class ProjectsController < ApplicationController
 
   def create
     @project = Project.new(project_params)
-    apply_space_theme_marker!(@project, space_themed: space_themed_param?)
+    apply_space_theme_marker!(@project, space_themed: space_themed_param?(default: false))
     authorize @project
 
     validate_urls
@@ -175,7 +175,7 @@ class ProjectsController < ApplicationController
     authorize @project
 
     @project.assign_attributes(project_params)
-    apply_space_theme_marker!(@project, space_themed: space_themed_param?)
+    apply_space_theme_marker!(@project, space_themed: space_themed_param?(default: @project.space_themed?))
     validate_urls
     success = @project.errors.empty? && @project.save
 
@@ -683,8 +683,11 @@ class ProjectsController < ApplicationController
     end
   end
 
-  def space_themed_param?
-    ActiveModel::Type::Boolean.new.cast(params.dig(:project, :space_themed))
+  def space_themed_param?(default: false)
+    raw_value = params.dig(:project, :space_themed)
+    return default if raw_value.nil?
+
+    ActiveModel::Type::Boolean.new.cast(raw_value)
   end
 
   def apply_space_theme_marker!(project, space_themed:)

@@ -78,7 +78,7 @@ class ShipEventPayoutCalculator
         end
       end
 
-      notify_payout_issued(payout_user)
+      notify_payout_issued(payout_user, cookies: cookies, hours: payout_hours, multiplier: mult)
       broadcast_payout(payout_user, cookies, payout_hours, mult, is_shadow_banned)
     end
   end
@@ -164,7 +164,7 @@ class ShipEventPayoutCalculator
     !project.has_paid_current_scale_ship_events?(excluding_ship_event_id: @ship_event.id)
   end
 
-  def notify_payout_issued(user)
+  def notify_payout_issued(user, cookies:, hours:, multiplier:)
     return unless user.slack_id.present?
 
     project = @ship_event.post&.project
@@ -177,11 +177,20 @@ class ShipEventPayoutCalculator
       parts << "If you have questions, reach out in #flavortown-help. Keep building — you can ship again anytime!"
       SendSlackDmJob.perform_later(user.slack_id, parts.join("\n\n"))
     else
+      ship_date = @ship_event.post&.created_at&.strftime("%b %-d, %Y")
+      project_title = project&.title || "Ship ##{@ship_event.id}"
+
       SendSlackDmJob.perform_later(
         user.slack_id,
         nil,
         blocks_path: "notifications/payouts/ship_event_issued",
-        locals: { ship_event: @ship_event }
+        locals: {
+          project_title: project_title,
+          ship_date: ship_date,
+          hours: hours&.round(2),
+          cookies: cookies&.to_i,
+          multiplier: multiplier&.round(2)
+        }
       )
     end
   end

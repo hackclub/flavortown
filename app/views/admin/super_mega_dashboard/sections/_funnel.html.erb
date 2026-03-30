@@ -1,0 +1,24 @@
+<div class="super-mega-dashboard__dashboard">
+  <div class="super-mega-dashboard__header super-mega-dashboard__header--primary">
+    <h2>Super Mega Funnel</h2>
+    <p class="super-mega-dashboard__subtitle">User journey from start_flow to devlog_created</p>
+  </div>
+
+  <% if @funnel_steps.blank? %>
+    <div class="super-mega-dashboard__empty-state">
+      <p class="super-mega-dashboard__empty-title">No funnel data available</p>
+    </div>
+  <% else %>
+    <div
+      class="d3-funnel-container"
+      data-controller="super-mega-funnel"
+      data-super-mega-funnel-steps-value="<%= @funnel_steps.to_json %>">
+      <div id="d3FunnelChart" data-super-mega-funnel-target="chart"></div>
+      <div
+        id="funnelTooltip"
+        class="d3-funnel-tooltip"
+        data-super-mega-funnel-target="tooltip"
+        aria-hidden="true"></div>
+    </div>
+  <% end %>
+</div>

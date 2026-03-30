@@ -15,6 +15,9 @@
     font-size: 1.8rem;
     width: 1.5em;
     height: 1.5em;
+    min-width: 1.5em;
+    min-height: 1.5em;
+    flex-shrink: 0;
     border-radius: 50%;
     background: var(--color-brown-700);
     border: none;
@@ -23,6 +26,7 @@
     align-items: center;
     justify-content: center;
     line-height: 1;
+    overflow: hidden;
   }
 
   &__controls {
