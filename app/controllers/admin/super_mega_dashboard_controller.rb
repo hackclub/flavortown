@@ -16,6 +16,7 @@ module Admin
       super_mega_support_vibes
       super_mega_support_graph
       super_mega_voting
+      super_mega_sidequests
       super_mega_ysws_review_v2
       super_mega_ship_certs_raw
       sw_vibes_data
@@ -32,6 +33,7 @@ module Admin
       load_support_vibes_stats
       load_support_graph_data
       load_voting_stats
+      load_sidequest_stats
       load_ysws_review_stats
       load_flavortime_summary
       load_pyramid_scheme_stats
@@ -85,12 +87,15 @@ module Admin
           total_users = User.count
           banned = ban_counts.sum { |(b, _), c| b ? c : 0 }
           shadow_banned = ban_counts.sum { |(_, sb), c| sb ? c : 0 }
+          unbanned = User.where(banned: false, shadow_banned: false).count
 
           fraud_bans = {
             banned: banned,
             banned_pct: total_users > 0 ? ((banned.to_f / total_users) * 100).round(2) : 0,
             shadow_banned_users: shadow_banned,
-            shadow_banned_pct: total_users > 0 ? ((shadow_banned.to_f / total_users) * 100).round(2) : 0
+            shadow_banned_pct: total_users > 0 ? ((shadow_banned.to_f / total_users) * 100).round(2) : 0,
+            unbanned: unbanned,
+            ban_unban_ratio: total_users > 0 ? ((banned.to_f / total_users) * 100).round(1) : 0
           }
 
           # Second chances vs bans (ban changes today)
@@ -179,8 +184,11 @@ module Admin
           unbans = PaperTrail::Version.where(item_type: "User", created_at: day_range)
                                       .where("object_changes ->> 'banned' IS NOT NULL")
                                       .where("object_changes -> 'banned' ->> 1 = ?", "false").count
+          shadow_bans = PaperTrail::Version.where(item_type: "User", created_at: day_range)
+                                           .where("object_changes ->> 'shadow_banned' IS NOT NULL")
+                                           .where("object_changes -> 'shadow_banned' ->> 1 = ?", "true").count
 
-          trend_data[date.to_s] = { bans: bans, unbans: unbans }
+          trend_data[date.to_s] = { bans: bans, unbans: unbans, shadow_bans: shadow_bans }
         end
         trend_data
       end
@@ -257,7 +265,7 @@ module Admin
           f.options.open_timeout = 5
         end
 
-        response = conn.get("https://joe.fraud.hackclub.com/api/v1/cases/stats?ysws=flavortown") do |req|
+        response = conn.get("https://joe.fraud.hackclub.com/api/v1/cases/dashboard?range=30d&ysws=Flavortown") do |req|
           req.headers["Cookie"] = api_key
         end
 
@@ -267,12 +275,20 @@ module Admin
 
         data = JSON.parse(response.body, symbolize_names: true)
 
+        kpis = data[:kpis] || {}
+        charts = data[:charts] || {}
+
         {
-          total: data[:total] || 0,
-          open: data[:open] || 0,
-          closed: data[:closed] || 0,
-          second_chances_given: data.dig(:byStatus, :second_chance_given) || 0,
-          fraudpheus_open: data.dig(:byStatus, :fraudpheus_open) || 0,
+          total: data[:total] || kpis[:totalCases] || 0,
+          open: data[:open] || kpis[:openCount] || 0,
+          waiting: kpis[:waitingCount] || 0,
+          closed: data[:closed] || kpis[:closedCount] || 0,
+          avg_hang_time_days: kpis[:avgHangTimeDays]&.to_f || 0,
+          second_chances_given: data.dig(:byStatus, :second_chance_given) || charts[:byStatus]&.find { |s| s[:status] == "second_chance_given" }&.dig(:count) || 0,
+          fraudpheus_open: data.dig(:byStatus, :fraudpheus_open) || charts[:byStatus]&.find { |s| s[:status] == "fraudpheus_open" }&.dig(:count) || 0,
+          created_over_time: charts[:createdOverTime] || [],
+          longest_hang_times: data[:longestHangTimes] || [],
+          stalest_case: data[:stalestCase],
           timeline: data[:timeline] || [],
           cases_opened: data[:casesOpened] || []
         }
@@ -715,6 +731,73 @@ module Admin
       @voting_category_avgs = cached_data&.dig(:category_avgs) || {}
     end
 
+    def load_sidequest_stats
+      cached_data = Rails.cache.fetch("super_mega_sidequests", expires_in: 1.hour) do
+        shipped_entries = SidequestEntry.joins(project: :ship_events).distinct
+        shipped_projects_count = Project.joins(:ship_events).distinct.count
+        submitted_projects_count = shipped_entries.select(:project_id).distinct.count
+        state_counts = shipped_entries.group(:aasm_state).count
+
+        pending = state_counts["pending"] || 0
+        approved = state_counts["approved"] || 0
+        rejected = state_counts["rejected"] || 0
+        reviewed = approved + rejected
+
+        submissions_breakdown = shipped_entries
+          .joins(:sidequest)
+          .group("sidequests.title")
+          .order(Arel.sql("COUNT(*) DESC"))
+          .limit(8)
+          .count
+
+        {
+          totals: {
+            total: shipped_entries.count,
+            pending: pending,
+            approved: approved,
+            rejected: rejected,
+            reviewed: reviewed,
+            approval_rate: reviewed.positive? ? ((approved.to_f / reviewed) * 100).round(1) : 0,
+            submitted_today: shipped_entries.where(created_at: Time.current.beginning_of_day..).count,
+            submitted_7d: shipped_entries.where(created_at: 7.days.ago..).count,
+            oldest_pending_at: shipped_entries.pending.minimum(:created_at),
+            shipped_projects_count: shipped_projects_count,
+            shipped_projects_with_sidequest_submission_count: submitted_projects_count,
+            shipped_projects_with_sidequest_submission_pct: shipped_projects_count.positive? ? ((submitted_projects_count.to_f / shipped_projects_count) * 100).round(1) : 0
+          },
+          submissions_breakdown: submissions_breakdown,
+          trend_data: build_sidequest_trend_data(shipped_entries)
+        }
+      end
+
+      @sidequest_totals = cached_data&.dig(:totals) || {}
+      @sidequest_submissions_breakdown = cached_data&.dig(:submissions_breakdown) || {}
+      @sidequest_trend_data = cached_data&.dig(:trend_data) || {}
+    rescue StandardError => e
+      Rails.logger.error("[SuperMegaDashboard] Error in load_sidequest_stats: #{e.message}")
+      @sidequest_totals = {}
+      @sidequest_submissions_breakdown = {}
+      @sidequest_trend_data = {}
+    end
+
+    def build_sidequest_trend_data(shipped_entries)
+      (0..29).reverse_each.each_with_object({}) do |days_ago, trend_data|
+        date = days_ago.days.ago.to_date
+        day_range = date.beginning_of_day..date.end_of_day
+        daily_submissions = shipped_entries.where(created_at: day_range)
+        shipped_projects_count = Project.joins(:ship_events)
+                                        .where(posts: { created_at: day_range })
+                                        .distinct
+                                        .count
+
+        trend_data[date.to_s] = {
+          submitted: daily_submissions.count,
+          shipped_projects: shipped_projects_count,
+          approved: shipped_entries.approved.where(reviewed_at: day_range).count
+        }
+      end
+    end
+
     def load_ysws_review_stats
       cached_data = Rails.cache.fetch("super_mega_ysws_review_v2", expires_in: 1.hour) do
         begin
@@ -876,6 +959,15 @@ module Admin
       @fraud_happiness_records = data[:records] || []
       @fraud_happiness_avg_scores = data[:avg_scores] || { total_responses: 0 }
       @fraud_happiness_error = data[:error]
+      @fraud_vibes_history = FraudAirtableService.fetch_vibes_history || {}
+
+      # Derive last week's scores from history for percent diff
+      if @fraud_happiness_week.present? && @fraud_vibes_history.present?
+        sorted_weeks = @fraud_vibes_history.keys.map(&:to_s).sort_by { |w| w.scan(/\d+/).first.to_i }
+        current_idx = sorted_weeks.index(@fraud_happiness_week.to_s)
+        prev_week = (current_idx && current_idx > 0) ? sorted_weeks[current_idx - 1] : nil
+        @fraud_happiness_prev_scores = prev_week ? @fraud_vibes_history[prev_week] : nil
+      end
     end
 
     def extract_reviews(response_data)
