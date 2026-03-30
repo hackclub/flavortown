@@ -16,6 +16,7 @@ module Admin
       super_mega_support_vibes
       super_mega_support_graph
       super_mega_voting
+      super_mega_sidequests
       super_mega_ysws_review_v2
       super_mega_ship_certs_raw
       sw_vibes_data
@@ -32,6 +33,7 @@ module Admin
       load_support_vibes_stats
       load_support_graph_data
       load_voting_stats
+      load_sidequest_stats
       load_ysws_review_stats
       load_flavortime_summary
       load_pyramid_scheme_stats
@@ -727,6 +729,73 @@ module Admin
 
       @voting_overview = cached_data&.dig(:overview) || {}
       @voting_category_avgs = cached_data&.dig(:category_avgs) || {}
+    end
+
+    def load_sidequest_stats
+      cached_data = Rails.cache.fetch("super_mega_sidequests", expires_in: 1.hour) do
+        shipped_entries = SidequestEntry.joins(project: :ship_events).distinct
+        shipped_projects_count = Project.joins(:ship_events).distinct.count
+        submitted_projects_count = shipped_entries.select(:project_id).distinct.count
+        state_counts = shipped_entries.group(:aasm_state).count
+
+        pending = state_counts["pending"] || 0
+        approved = state_counts["approved"] || 0
+        rejected = state_counts["rejected"] || 0
+        reviewed = approved + rejected
+
+        submissions_breakdown = shipped_entries
+          .joins(:sidequest)
+          .group("sidequests.title")
+          .order(Arel.sql("COUNT(*) DESC"))
+          .limit(8)
+          .count
+
+        {
+          totals: {
+            total: shipped_entries.count,
+            pending: pending,
+            approved: approved,
+            rejected: rejected,
+            reviewed: reviewed,
+            approval_rate: reviewed.positive? ? ((approved.to_f / reviewed) * 100).round(1) : 0,
+            submitted_today: shipped_entries.where(created_at: Time.current.beginning_of_day..).count,
+            submitted_7d: shipped_entries.where(created_at: 7.days.ago..).count,
+            oldest_pending_at: shipped_entries.pending.minimum(:created_at),
+            shipped_projects_count: shipped_projects_count,
+            shipped_projects_with_sidequest_submission_count: submitted_projects_count,
+            shipped_projects_with_sidequest_submission_pct: shipped_projects_count.positive? ? ((submitted_projects_count.to_f / shipped_projects_count) * 100).round(1) : 0
+          },
+          submissions_breakdown: submissions_breakdown,
+          trend_data: build_sidequest_trend_data(shipped_entries)
+        }
+      end
+
+      @sidequest_totals = cached_data&.dig(:totals) || {}
+      @sidequest_submissions_breakdown = cached_data&.dig(:submissions_breakdown) || {}
+      @sidequest_trend_data = cached_data&.dig(:trend_data) || {}
+    rescue StandardError => e
+      Rails.logger.error("[SuperMegaDashboard] Error in load_sidequest_stats: #{e.message}")
+      @sidequest_totals = {}
+      @sidequest_submissions_breakdown = {}
+      @sidequest_trend_data = {}
+    end
+
+    def build_sidequest_trend_data(shipped_entries)
+      (0..29).reverse_each.each_with_object({}) do |days_ago, trend_data|
+        date = days_ago.days.ago.to_date
+        day_range = date.beginning_of_day..date.end_of_day
+        daily_submissions = shipped_entries.where(created_at: day_range)
+        shipped_projects_count = Project.joins(:ship_events)
+                                        .where(posts: { created_at: day_range })
+                                        .distinct
+                                        .count
+
+        trend_data[date.to_s] = {
+          submitted: daily_submissions.count,
+          shipped_projects: shipped_projects_count,
+          approved: shipped_entries.approved.where(reviewed_at: day_range).count
+        }
+      end
     end
 
     def load_ysws_review_stats
