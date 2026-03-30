@@ -1,6 +1,6 @@
 class ShopController < ApplicationController
   skip_before_action :refresh_identity_on_portal_return, only: [ :index ]
-  before_action :require_login, except: [ :index ]
+  before_action :require_login, except: [ :index, :update_region ]
 
   def index
     @shop_open = Flipper.enabled?(:shop_open, current_user)
@@ -72,7 +72,12 @@ class ShopController < ApplicationController
       return head :unprocessable_entity
     end
 
-    current_user.update!(shop_region: region)
+    if current_user
+      current_user.update!(shop_region: region)
+    else
+      session[:shop_region] = region
+    end
+
     @user_region = region
     load_shop_items
 
@@ -258,6 +263,8 @@ class ShopController < ApplicationController
       country = primary_address&.dig("country")
       region_from_address = Shop::Regionalizable.country_to_region(country)
       return region_from_address if region_from_address != "XX" || country.present?
+    else
+      return session[:shop_region] if session[:shop_region].present? && Shop::Regionalizable::REGION_CODES.include?(session[:shop_region])
     end
 
     cached = cookies[:geoip_region]

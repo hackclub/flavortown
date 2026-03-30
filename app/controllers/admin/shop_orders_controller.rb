@@ -309,7 +309,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def reject
-    authorize :admin, :access_shop_orders?
+    authorize :admin, :reject_shop_order?
     @order = ShopOrder.find(params[:id])
 
     if @order.requires_additional_review?

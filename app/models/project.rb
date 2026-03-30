@@ -136,7 +136,7 @@ class Project < ApplicationRecord
 
   validates :title, presence: true, length: { maximum: 120 }
   validates :description, length: { maximum: 1_000 }, allow_blank: true
-  validates :ai_declaration, presence: true, length: { maximum: 1_000 }
+  validates :ai_declaration, length: { maximum: 1_000 }, allow_blank: true
   validates :demo_url, :repo_url, :readme_url,
             length: { maximum: 2_048 },
             format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]) },
@@ -272,8 +272,8 @@ class Project < ApplicationRecord
       { key: :payout, label: nil, fail_label: "Wait for your previous ship to get a payout before shipping again", passed: previous_ship_event_has_payout? },
       { key: :vote_balance, label: nil, fail_label: "Your vote balance is negative! Vote on other projects before shipping this one.", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
       { key: :project_isnt_rejected, label: nil, fail_label: "Your project is rejected!", passed: last_ship_event&.certification_status != "rejected" },
-      { key: :project_has_more_then_10s, label: nil, fail_label: "This project doesn't have any time attached to it! (devlog some time, then try again)", passed: duration_seconds > 10 },
-      { key: :ai_declaration, label: "Declare your AI usage for this project (write 'None' if you didn't use any)", passed: ai_declaration.present? }
+      { key: :project_has_more_then_10s, label: nil, fail_label: "This project doesn't have any time attached to it! (devlog some time, then try again)", passed: duration_seconds > 10 }
+      # { key: :ai_declaration, label: "Declare your AI usage for this project (write 'None' if you didn't use any)", passed: ai_declaration.present? }
     ]
       .map.with_index
       .sort_by { |pair| [ pair[0][:passed] ? 1 : 0, pair[1] ] }
