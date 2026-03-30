@@ -176,7 +176,9 @@ Rails.application.routes.draw do
           get :search
         end
       end
-      resources :users, only: [ :index, :show ]
+      resources :users, only: [ :index, :show ] do
+        resources :projects, only: [ :index ], controller: "user_projects"
+      end
 
       post "flavortime/session", to: "flavortime#create_session"
       post "flavortime/heartbeat", to: "flavortime#heartbeat"
