@@ -353,12 +353,6 @@ class Project < ApplicationRecord
 
   private
 
-  def duration_seconds_since_last_ship
-    scope = posts.of_devlogs(join: true).where(post_devlogs: { deleted_at: nil })
-    scope = scope.where("posts.created_at > ?", last_ship_event.created_at) if last_ship_event
-    scope.sum("post_devlogs.duration_seconds").to_i
-  end
-
   def has_devlog_since_last_ship?
     return true if last_ship_event.nil?
     devlog_posts.where("posts.created_at > ?", last_ship_event.created_at).exists?
