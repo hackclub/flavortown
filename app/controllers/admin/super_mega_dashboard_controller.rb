@@ -85,12 +85,15 @@ module Admin
           total_users = User.count
           banned = ban_counts.sum { |(b, _), c| b ? c : 0 }
           shadow_banned = ban_counts.sum { |(_, sb), c| sb ? c : 0 }
+          unbanned = User.where(banned: false, shadow_banned: false).count
 
           fraud_bans = {
             banned: banned,
             banned_pct: total_users > 0 ? ((banned.to_f / total_users) * 100).round(2) : 0,
             shadow_banned_users: shadow_banned,
-            shadow_banned_pct: total_users > 0 ? ((shadow_banned.to_f / total_users) * 100).round(2) : 0
+            shadow_banned_pct: total_users > 0 ? ((shadow_banned.to_f / total_users) * 100).round(2) : 0,
+            unbanned: unbanned,
+            ban_unban_ratio: total_users > 0 ? ((banned.to_f / total_users) * 100).round(1) : 0
           }
 
           # Second chances vs bans (ban changes today)
@@ -179,8 +182,11 @@ module Admin
           unbans = PaperTrail::Version.where(item_type: "User", created_at: day_range)
                                       .where("object_changes ->> 'banned' IS NOT NULL")
                                       .where("object_changes -> 'banned' ->> 1 = ?", "false").count
+          shadow_bans = PaperTrail::Version.where(item_type: "User", created_at: day_range)
+                                           .where("object_changes ->> 'shadow_banned' IS NOT NULL")
+                                           .where("object_changes -> 'shadow_banned' ->> 1 = ?", "true").count
 
-          trend_data[date.to_s] = { bans: bans, unbans: unbans }
+          trend_data[date.to_s] = { bans: bans, unbans: unbans, shadow_bans: shadow_bans }
         end
         trend_data
       end
@@ -257,7 +263,7 @@ module Admin
           f.options.open_timeout = 5
         end
 
-        response = conn.get("https://joe.fraud.hackclub.com/api/v1/cases/stats?ysws=flavortown") do |req|
+        response = conn.get("https://joe.fraud.hackclub.com/api/v1/cases/dashboard?range=30d&ysws=Flavortown") do |req|
           req.headers["Cookie"] = api_key
         end
 
@@ -267,12 +273,20 @@ module Admin
 
         data = JSON.parse(response.body, symbolize_names: true)
 
+        kpis = data[:kpis] || {}
+        charts = data[:charts] || {}
+
         {
-          total: data[:total] || 0,
-          open: data[:open] || 0,
-          closed: data[:closed] || 0,
-          second_chances_given: data.dig(:byStatus, :second_chance_given) || 0,
-          fraudpheus_open: data.dig(:byStatus, :fraudpheus_open) || 0,
+          total: data[:total] || kpis[:totalCases] || 0,
+          open: data[:open] || kpis[:openCount] || 0,
+          waiting: kpis[:waitingCount] || 0,
+          closed: data[:closed] || kpis[:closedCount] || 0,
+          avg_hang_time_days: kpis[:avgHangTimeDays]&.to_f || 0,
+          second_chances_given: data.dig(:byStatus, :second_chance_given) || charts[:byStatus]&.find { |s| s[:status] == "second_chance_given" }&.dig(:count) || 0,
+          fraudpheus_open: data.dig(:byStatus, :fraudpheus_open) || charts[:byStatus]&.find { |s| s[:status] == "fraudpheus_open" }&.dig(:count) || 0,
+          created_over_time: charts[:createdOverTime] || [],
+          longest_hang_times: data[:longestHangTimes] || [],
+          stalest_case: data[:stalestCase],
           timeline: data[:timeline] || [],
           cases_opened: data[:casesOpened] || []
         }
@@ -876,6 +890,15 @@ module Admin
       @fraud_happiness_records = data[:records] || []
       @fraud_happiness_avg_scores = data[:avg_scores] || { total_responses: 0 }
       @fraud_happiness_error = data[:error]
+      @fraud_vibes_history = FraudAirtableService.fetch_vibes_history || {}
+
+      # Derive last week's scores from history for percent diff
+      if @fraud_happiness_week.present? && @fraud_vibes_history.present?
+        sorted_weeks = @fraud_vibes_history.keys.map(&:to_s).sort_by { |w| w.scan(/\d+/).first.to_i }
+        current_idx = sorted_weeks.index(@fraud_happiness_week.to_s)
+        prev_week = (current_idx && current_idx > 0) ? sorted_weeks[current_idx - 1] : nil
+        @fraud_happiness_prev_scores = prev_week ? @fraud_vibes_history[prev_week] : nil
+      end
     end
 
     def extract_reviews(response_data)
