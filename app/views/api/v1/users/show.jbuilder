@@ -12,17 +12,7 @@ if @user.leaderboard_optin?
 
     json.balance_history @user.ledger_entries.order(created_at: :desc) do |entry|
         json.amount entry.amount
-        json.source_type case entry.ledgerable_type
-        when "ShopOrder" then "shop_purchase"
-        when "Post::ShipEvent" then "ship_event_payout"
-        when "User" then "user_grant"
-        when "User::Achievement" then "achievement"
-        when "FulfillmentPayoutLine" then "fulfillment_payout"
-        when "SidequestEntry" then "sidequest_rejection_fee"
-        when "ShowAndTellAttendance" then "show_and_tell_payout"
-        else entry.ledgerable_type.underscore.humanize.downcase
-        end
-
+        json.source_type entry.source_type
         json.created_at entry.created_at
     end
 else
