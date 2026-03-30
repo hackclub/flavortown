@@ -21,6 +21,7 @@ module Admin
       super_mega_ship_certs_raw
       sw_vibes_data
       super_mega_funnel_stats
+      super_mega_nps_stats
     ].freeze
 
     def index
@@ -40,6 +41,7 @@ module Admin
       load_community_engagement_stats
       load_fraud_happiness_data
       load_funnel_stats
+      load_nps_stats
     end
 
     def load_section
@@ -1178,7 +1180,69 @@ module Admin
       @funnel_steps = cached_data&.dig(:funnel_steps) || []
     end
 
-    private
+    def load_nps_stats
+      data = Rails.cache.fetch("super_mega_nps_stats", expires_in: 5.minutes) do
+        with_dashboard_timing("nps") do
+          build_nps_stats_from_airtable
+        end
+      rescue StandardError => e
+        Rails.logger.warn("[SuperMegaDashboard] NPS section unavailable (#{e.class}): #{e.message}")
+
+        {
+          total_nps: nil,
+          response_count: nil,
+          promoters: 0,
+          neutrals: 0,
+          detractors: 0,
+          error: e.message.presence || "NPS stats are temporarily unavailable"
+        }
+      end
+
+      @nps_total = data&.dig(:total_nps)
+      @nps_response_count = data&.dig(:response_count)
+      @nps_promoters = data&.dig(:promoters) || 0
+      @nps_neutrals = data&.dig(:neutrals) || 0
+      @nps_detractors = data&.dig(:detractors) || 0
+      @nps_error = data&.dig(:error)
+    end
+
+    def build_nps_stats_from_airtable
+      api_key = ENV["UNIFIED_DB_INTEGRATION_AIRTABLE_KEY"]
+
+      promoters = 0
+      neutrals = 0
+      detractors = 0
+
+      table = Norairrecord.table(api_key, "app3A5kJwYqxMLOgh", "YSWS Programs")
+      record = table.all(filter: "{Name} = 'Flavortown'").first
+      nps_score = record&.fields&.dig("NPS Score")
+      response_count = record&.fields&.dig("NPS–Response Count")
+
+      table = Norairrecord.table(api_key, "app3A5kJwYqxMLOgh", "NPS")
+      records = table.all(filter: "{YSWS} = 'Flavortown'")
+
+
+      records.each do |rec|
+        category = rec.fields["NPS Category"]
+
+        case category
+        when "Promoter"
+          promoters += 1
+        when "Neutral"
+          neutrals += 1
+        when "Detractor"
+          detractors += 1
+        end
+      end
+
+      {
+        total_nps: nps_score&.round,
+        response_count: response_count,
+        promoters: promoters,
+        neutrals: neutrals,
+        detractors: detractors
+      }
+    end
 
     def fetch_approved_ysws_db_hours
       api_key = ENV["UNIFIED_DB_INTEGRATION_AIRTABLE_KEY"]

@@ -61,6 +61,11 @@
     gap: 1rem;
     overflow: hidden;
 
+    &--nps {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      align-items: stretch;
+    }
+
     &--analytics {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       align-items: stretch;
