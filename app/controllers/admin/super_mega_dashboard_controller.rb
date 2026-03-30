@@ -1137,8 +1137,6 @@ module Admin
       @nps_error = data&.dig(:error)
     end
 
-    private
-
     def build_nps_stats_from_airtable
       api_key = ENV["UNIFIED_DB_INTEGRATION_AIRTABLE_KEY"]
 
