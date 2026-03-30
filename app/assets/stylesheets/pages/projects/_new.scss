@@ -218,10 +218,10 @@
   }
 
   &__field--declarations {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-l);
+    display: flex;
+    gap: var(--space-m);
     align-items: start;
+    margin-bottom: 1.2em;
 
     .input {
       width: 100%;
@@ -235,6 +235,10 @@
     .input--blue .projects-new__checkbox-control input[type="checkbox"] {
       accent-color: var(--color-blue-500);
     }
+  }
+
+  &__field--banner {
+    margin-bottom: 1.2em;
   }
 
   &__checkbox-control {
@@ -318,14 +322,6 @@
 
     &__card {
       padding: var(--space-xxl);
-    }
-
-    &__field--declarations {
-      grid-template-columns: 1fr;
-
-      .input:last-child {
-        margin-top: var(--space-xxl);
-      }
     }
 
     &__actions {
