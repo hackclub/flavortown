@@ -1,11 +1,8 @@
 .music-player {
-  position: absolute;
+  position: fixed;
   top: 1em;
   right: 1em;
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: center;
-  gap: 1em;
+  z-index: 50;
 
   &:hover .music-player__controls {
     opacity: 1;
@@ -29,6 +26,10 @@
   }
 
   &__controls {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 1em);
+    transform: translateY(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
