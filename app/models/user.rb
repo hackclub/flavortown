@@ -491,9 +491,6 @@ class User < ApplicationRecord
     end
   end
 
-  def project_certifier?
-    memberships.where(role: "certifier").exists?
-  end
 
   def owns_lockin_ticket?
     shop_orders.where(shop_item_id: 207, aasm_state: "fulfilled").exists?
