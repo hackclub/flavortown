@@ -43,14 +43,12 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
-#  requires_achievement              :string
+#  requires_achievement              :string           default([]), is an Array
 #  requires_ship                     :boolean          default(FALSE)
-#  requires_sidequest_entry          :boolean          default(FALSE), not null
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
 #  show_image_in_shop                :boolean          default(FALSE)
 #  show_in_carousel                  :boolean
-#  sidequest_approval_required       :boolean          default(TRUE), not null
 #  site_action                       :integer
 #  source_region                     :string
 #  special                           :boolean
@@ -70,23 +68,21 @@
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
 #  default_assigned_user_id          :bigint
-#  sidequest_id                      :bigint
 #  user_id                           :bigint
 #
 # Indexes
 #
 #  index_shop_items_on_default_assigned_user_id  (default_assigned_user_id)
-#  index_shop_items_on_sidequest_id              (sidequest_id)
 #  index_shop_items_on_user_id                   (user_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
-#  fk_rails_...  (sidequest_id => sidequests.id)
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem < ApplicationRecord
   has_paper_trail
+  self.ignored_columns += %w[requires_sidequest_entry sidequest_id sidequest_approval_required]
 
   include Shop::Regionalizable
 
@@ -94,6 +90,7 @@ class ShopItem < ApplicationRecord
 
   before_validation :fix_blacklist
   before_validation :floor_ticket_cost
+  before_validation :clean_requires_achievement
 
   after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
   after_commit :invalidate_shop_page_cache
@@ -144,7 +141,6 @@ class ShopItem < ApplicationRecord
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
   scope :recently_added, -> { where(created_at: RECENTLY_ADDED_WINDOW.ago..).order(created_at: :desc) }
 
-  belongs_to :sidequest, optional: true
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
   belongs_to :default_assigned_user, class_name: "User", optional: true
   belongs_to :default_assigned_user_us, class_name: "User", optional: true
@@ -190,6 +186,7 @@ class ShopItem < ApplicationRecord
   validates :required_ships_count, numericality: { only_integer: true, greater_than: 0 }, if: :requires_ship?
   validates :required_ships_start_date, :required_ships_end_date, presence: true, if: :requires_ship?
   validate :is_range_valid, if: :requires_ship?
+  validate :validate_achievement_slugs
 
   has_many :shop_orders, dependent: :restrict_with_error
 
@@ -285,26 +282,13 @@ class ShopItem < ApplicationRecord
     return true unless requires_achievement?
     return false unless user.present?
 
-    user.earned_achievement?(requires_achievement.to_sym)
+    requires_achievement.any? do |ach_slug|
+      user.earned_achievement?(ach_slug.to_sym)
+    end
   end
 
   def requires_achievement?
     requires_achievement.present?
-  end
-
-  def meet_sidequest_require?(user)
-    return true unless requires_sidequest_entry?
-    return false unless user.present?
-
-    allowed_states = sidequest_approval_required? ? [ "approved" ] : [ "pending", "approved" ]
-
-    entries = SidequestEntry.joins(project: :memberships)
-      .where(memberships: { user_id: user.id, role: "owner" })
-      .where(aasm_state: allowed_states)
-
-    entries = entries.where(sidequest_id: sidequest_id) if sidequest_id.present?
-
-    entries.exists?
   end
 
   private
@@ -336,5 +320,17 @@ class ShopItem < ApplicationRecord
 
   def floor_ticket_cost
     self.ticket_cost = ticket_cost.floor if ticket_cost.present?
+  end
+
+  def clean_requires_achievement
+    if requires_achievement.is_a?(Array)
+      self.requires_achievement = requires_achievement.reject(&:blank?)
+    end
+  end
+
+  def validate_achievement_slugs
+    return unless requires_achievement.present?
+    invalid = requires_achievement.reject { |s| Achievement.all_slugs.include?(s.to_sym) }
+    errors.add(:requires_achievement, "contains invalid slugs: #{invalid.join(', ')}") if invalid.any?
   end
 end

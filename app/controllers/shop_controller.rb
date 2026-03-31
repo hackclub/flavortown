@@ -60,8 +60,8 @@ class ShopController < ApplicationController
     @accessories = @shop_item.available_accessories.includes(:image_attachment)
 
     if @shop_item.requires_achievement?
-      @required_achievement = Achievement.find(@shop_item.requires_achievement.to_sym)
-      @locked_by_achievement = !current_user.earned_achievement?(@shop_item.requires_achievement.to_sym)
+      @required_achievements = @shop_item.requires_achievement.map { |slug| Achievement.find(slug) }
+      @locked_by_achievement = !@shop_item.meet_achievement_require?(current_user)
     end
     ahoy.track "Viewed shop item", shop_item_id: @shop_item.id
   end

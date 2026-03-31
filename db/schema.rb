@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_26_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -570,15 +570,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_26_200000) do
     t.integer "required_ships_count", default: 1
     t.date "required_ships_end_date"
     t.date "required_ships_start_date"
-    t.string "requires_achievement"
+    t.string "requires_achievement", default: [], array: true
     t.boolean "requires_ship", default: false
-    t.boolean "requires_sidequest_entry", default: false, null: false
     t.boolean "requires_verification_call", default: false, null: false
     t.integer "sale_percentage"
     t.boolean "show_image_in_shop", default: false
     t.boolean "show_in_carousel"
-    t.boolean "sidequest_approval_required", default: true, null: false
-    t.bigint "sidequest_id"
     t.integer "site_action"
     t.string "source_region"
     t.boolean "special"
@@ -598,7 +595,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_26_200000) do
     t.decimal "usd_offset_xx", precision: 10, scale: 2
     t.bigint "user_id"
     t.index ["default_assigned_user_id"], name: "index_shop_items_on_default_assigned_user_id"
-    t.index ["sidequest_id"], name: "index_shop_items_on_sidequest_id"
     t.index ["user_id"], name: "index_shop_items_on_user_id"
   end
 
@@ -925,7 +921,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_26_200000) do
   add_foreign_key "report_review_tokens", "project_reports", column: "report_id"
   add_foreign_key "shop_card_grants", "shop_items"
   add_foreign_key "shop_card_grants", "users"
-  add_foreign_key "shop_items", "sidequests", validate: false
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_items", "users", column: "default_assigned_user_id", on_delete: :nullify
   add_foreign_key "shop_order_reviews", "shop_orders"

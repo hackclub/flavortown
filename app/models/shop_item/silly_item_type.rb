@@ -43,14 +43,12 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
-#  requires_achievement              :string
+#  requires_achievement              :string           default([]), is an Array
 #  requires_ship                     :boolean          default(FALSE)
-#  requires_sidequest_entry          :boolean          default(FALSE), not null
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
 #  show_image_in_shop                :boolean          default(FALSE)
 #  show_in_carousel                  :boolean
-#  sidequest_approval_required       :boolean          default(TRUE), not null
 #  site_action                       :integer
 #  source_region                     :string
 #  special                           :boolean
@@ -70,19 +68,16 @@
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
 #  default_assigned_user_id          :bigint
-#  sidequest_id                      :bigint
 #  user_id                           :bigint
 #
 # Indexes
 #
 #  index_shop_items_on_default_assigned_user_id  (default_assigned_user_id)
-#  index_shop_items_on_sidequest_id              (sidequest_id)
 #  index_shop_items_on_user_id                   (user_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
-#  fk_rails_...  (sidequest_id => sidequests.id)
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem::SillyItemType < ShopItem

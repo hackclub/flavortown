@@ -115,6 +115,9 @@ application.register("stars", StarsController);
 import SidequestExpandController from "./sidequest_expand_controller";
 application.register("sidequest-expand", SidequestExpandController);
 
+import SidequestSelectorController from "./sidequest_selector_controller";
+application.register("sidequest-selector", SidequestSelectorController);
+
 import ShootingStarController from "./shooting_star_controller";
 application.register("shooting-star", ShootingStarController);
 
