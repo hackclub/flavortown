@@ -162,3 +162,6 @@ application.register("xp-window", XpWindowController);
 
 import LazyLoadController from "./lazy_load_controller";
 application.register("lazy-load", LazyLoadController);
+
+import SuperMegaFunnelController from "./super_mega_funnel_controller";
+application.register("super-mega-funnel", SuperMegaFunnelController);

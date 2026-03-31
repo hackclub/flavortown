@@ -90,7 +90,6 @@ class ShopOrder < ApplicationRecord
   validate :check_stock, on: :create
   validate :check_ship_requirement, on: :create
   validate :check_achievement_requirement, on: :create
-  validate :check_sidequest_requirement, on: :create
 
   validates :internal_rejection_reason, presence: true, if: :rejected?
   validates :fraud_related_project_id, presence: true, if: :rejected?
@@ -146,6 +145,9 @@ class ShopOrder < ApplicationRecord
 
     # Fraud dept + fulfillment person can see addresses
     return true if viewer.fraud_dept? && viewer.fulfillment_person?
+
+    # this makes it so sellers for items can see addresses for their items
+    return true if shop_item.user_id == viewer.id && shop_item.type == "ShopItem::HackClubberItem"
 
     false
   end
@@ -435,20 +437,6 @@ class ShopOrder < ApplicationRecord
 
     achievement = Achievement.find(shop_item.requires_achievement.to_sym)
     errors.add(:base, "You must earn the \"#{achievement.name}\" achievement to purchase this item.")
-  end
-
-  def check_sidequest_requirement
-    return unless shop_item&.requires_sidequest_entry?
-    return if shop_item.meet_sidequest_require?(user)
-
-    if shop_item.sidequest_id.present?
-      sidequest_name = shop_item.sidequest&.title || "this sidequest"
-      qualifier = shop_item.sidequest_approval_required? ? "an approved submission for" : "a submission for"
-      errors.add(:base, "You must have #{qualifier} the \"#{sidequest_name}\" sidequest to purchase this item.")
-    else
-      qualifier = shop_item.sidequest_approval_required? ? "an approved sidequest submission" : "a sidequest submission"
-      errors.add(:base, "You must have #{qualifier} to purchase this item.")
-    end
   end
 
   def create_negative_payout

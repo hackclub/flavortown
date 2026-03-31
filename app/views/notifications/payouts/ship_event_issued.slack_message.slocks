@@ -1,11 +1,6 @@
 header ":ft-cookie: Payout issued!"
 
-ship_date = ship_event.post&.created_at&.strftime("%b %-d, %Y")
-ship_event_label = if ship_event.post&.project.present?
-  "*#{ship_event.post.project.title}*"
-else
-  "Ship ##{ship_event.id}"
-end
+ship_event_label = "*#{project_title}*"
 
 section "Payout for your ship event has been calculated and issued.", markdown: true
 
@@ -13,9 +8,9 @@ section "Ship event: #{ship_event_label}#{ship_date.present? ? " (shipped #{ship
 
 section "Payout details:",
   fields: [
-    mrkdwn_text("*Hours:* #{ship_event.hours&.round(2) || '—'}"),
-    mrkdwn_text("*Cookies:* :ft-cookie: #{ship_event.payout&.to_i || '—'}"),
-    mrkdwn_text("*Multiplier:* #{ship_event.multiplier&.round(2) || '—'} cookies/hr"),
+    mrkdwn_text("*Hours:* #{hours || '—'}"),
+    mrkdwn_text("*Cookies:* :ft-cookie: #{cookies || '—'}"),
+    mrkdwn_text("*Multiplier:* #{multiplier || '—'} cookies/hr"),
   ]
 
 divider

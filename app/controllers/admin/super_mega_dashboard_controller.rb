@@ -16,9 +16,12 @@ module Admin
       super_mega_support_vibes
       super_mega_support_graph
       super_mega_voting
+      super_mega_sidequests
       super_mega_ysws_review_v2
       super_mega_ship_certs_raw
       sw_vibes_data
+      super_mega_funnel_stats
+      super_mega_nps_stats
     ].freeze
 
     def index
@@ -31,11 +34,14 @@ module Admin
       load_support_vibes_stats
       load_support_graph_data
       load_voting_stats
+      load_sidequest_stats
       load_ysws_review_stats
       load_flavortime_summary
       load_pyramid_scheme_stats
       load_community_engagement_stats
       load_fraud_happiness_data
+      load_funnel_stats
+      load_nps_stats
     end
 
     def load_section
@@ -83,12 +89,15 @@ module Admin
           total_users = User.count
           banned = ban_counts.sum { |(b, _), c| b ? c : 0 }
           shadow_banned = ban_counts.sum { |(_, sb), c| sb ? c : 0 }
+          unbanned = User.where(banned: false, shadow_banned: false).count
 
           fraud_bans = {
             banned: banned,
             banned_pct: total_users > 0 ? ((banned.to_f / total_users) * 100).round(2) : 0,
             shadow_banned_users: shadow_banned,
-            shadow_banned_pct: total_users > 0 ? ((shadow_banned.to_f / total_users) * 100).round(2) : 0
+            shadow_banned_pct: total_users > 0 ? ((shadow_banned.to_f / total_users) * 100).round(2) : 0,
+            unbanned: unbanned,
+            ban_unban_ratio: total_users > 0 ? ((banned.to_f / total_users) * 100).round(1) : 0
           }
 
           # Second chances vs bans (ban changes today)
@@ -177,8 +186,11 @@ module Admin
           unbans = PaperTrail::Version.where(item_type: "User", created_at: day_range)
                                       .where("object_changes ->> 'banned' IS NOT NULL")
                                       .where("object_changes -> 'banned' ->> 1 = ?", "false").count
+          shadow_bans = PaperTrail::Version.where(item_type: "User", created_at: day_range)
+                                           .where("object_changes ->> 'shadow_banned' IS NOT NULL")
+                                           .where("object_changes -> 'shadow_banned' ->> 1 = ?", "true").count
 
-          trend_data[date.to_s] = { bans: bans, unbans: unbans }
+          trend_data[date.to_s] = { bans: bans, unbans: unbans, shadow_bans: shadow_bans }
         end
         trend_data
       end
@@ -255,7 +267,7 @@ module Admin
           f.options.open_timeout = 5
         end
 
-        response = conn.get("https://joe.fraud.hackclub.com/api/v1/cases/stats?ysws=flavortown") do |req|
+        response = conn.get("https://joe.fraud.hackclub.com/api/v1/cases/dashboard?range=30d&ysws=Flavortown") do |req|
           req.headers["Cookie"] = api_key
         end
 
@@ -265,12 +277,20 @@ module Admin
 
         data = JSON.parse(response.body, symbolize_names: true)
 
+        kpis = data[:kpis] || {}
+        charts = data[:charts] || {}
+
         {
-          total: data[:total] || 0,
-          open: data[:open] || 0,
-          closed: data[:closed] || 0,
-          second_chances_given: data.dig(:byStatus, :second_chance_given) || 0,
-          fraudpheus_open: data.dig(:byStatus, :fraudpheus_open) || 0,
+          total: data[:total] || kpis[:totalCases] || 0,
+          open: data[:open] || kpis[:openCount] || 0,
+          waiting: kpis[:waitingCount] || 0,
+          closed: data[:closed] || kpis[:closedCount] || 0,
+          avg_hang_time_days: kpis[:avgHangTimeDays]&.to_f || 0,
+          second_chances_given: data.dig(:byStatus, :second_chance_given) || charts[:byStatus]&.find { |s| s[:status] == "second_chance_given" }&.dig(:count) || 0,
+          fraudpheus_open: data.dig(:byStatus, :fraudpheus_open) || charts[:byStatus]&.find { |s| s[:status] == "fraudpheus_open" }&.dig(:count) || 0,
+          created_over_time: charts[:createdOverTime] || [],
+          longest_hang_times: data[:longestHangTimes] || [],
+          stalest_case: data[:stalestCase],
           timeline: data[:timeline] || [],
           cases_opened: data[:casesOpened] || []
         }
@@ -337,12 +357,20 @@ module Admin
 
         type_counts = base_scope.group("shop_items.type", :aasm_state).count
 
+        known_types = %w[
+          ShopItem::HQMailItem ShopItem::LetterMail
+          ShopItem::ThirdPartyPhysical ShopItem::Accessory ShopItem::ThirdPartyDigital
+          ShopItem::WarehouseItem ShopItem::PileOfStickersItem
+          ShopItem::FreeStickers
+        ]
+        other_types = type_counts.keys.map(&:first).uniq - known_types
+
         {
           all: calculate_type_totals(type_counts),
           hq_mail: calculate_type_totals(type_counts, %w[ShopItem::HQMailItem ShopItem::LetterMail]),
-          third_party: calculate_type_totals(type_counts, %w[ShopItem::ThirdPartyPhysical]),
+          third_party: calculate_type_totals(type_counts, %w[ShopItem::ThirdPartyPhysical ShopItem::Accessory ShopItem::ThirdPartyDigital]),
           warehouse: calculate_type_totals(type_counts, %w[ShopItem::WarehouseItem ShopItem::PileOfStickersItem]),
-          other: calculate_type_totals(type_counts, %w[ShopItem::HCBGrant ShopItem::SiteActionItem ShopItem::BadgeItem ShopItem::AdventSticker ShopItem::HCBPreauthGrant ShopItem::SpecialFulfillmentItem])
+          other: calculate_type_totals(type_counts, other_types)
         }
       end
       @fulfillment = cached_data || { all: {}, hq_mail: {}, third_party: {}, warehouse: {}, other: {} }
@@ -705,6 +733,73 @@ module Admin
       @voting_category_avgs = cached_data&.dig(:category_avgs) || {}
     end
 
+    def load_sidequest_stats
+      cached_data = Rails.cache.fetch("super_mega_sidequests", expires_in: 1.hour) do
+        shipped_entries = SidequestEntry.joins(project: :ship_events).distinct
+        shipped_projects_count = Project.joins(:ship_events).distinct.count
+        submitted_projects_count = shipped_entries.select(:project_id).distinct.count
+        state_counts = shipped_entries.group(:aasm_state).count
+
+        pending = state_counts["pending"] || 0
+        approved = state_counts["approved"] || 0
+        rejected = state_counts["rejected"] || 0
+        reviewed = approved + rejected
+
+        submissions_breakdown = shipped_entries
+          .joins(:sidequest)
+          .group("sidequests.title")
+          .order(Arel.sql("COUNT(*) DESC"))
+          .limit(8)
+          .count
+
+        {
+          totals: {
+            total: shipped_entries.count,
+            pending: pending,
+            approved: approved,
+            rejected: rejected,
+            reviewed: reviewed,
+            approval_rate: reviewed.positive? ? ((approved.to_f / reviewed) * 100).round(1) : 0,
+            submitted_today: shipped_entries.where(created_at: Time.current.beginning_of_day..).count,
+            submitted_7d: shipped_entries.where(created_at: 7.days.ago..).count,
+            oldest_pending_at: shipped_entries.pending.minimum(:created_at),
+            shipped_projects_count: shipped_projects_count,
+            shipped_projects_with_sidequest_submission_count: submitted_projects_count,
+            shipped_projects_with_sidequest_submission_pct: shipped_projects_count.positive? ? ((submitted_projects_count.to_f / shipped_projects_count) * 100).round(1) : 0
+          },
+          submissions_breakdown: submissions_breakdown,
+          trend_data: build_sidequest_trend_data(shipped_entries)
+        }
+      end
+
+      @sidequest_totals = cached_data&.dig(:totals) || {}
+      @sidequest_submissions_breakdown = cached_data&.dig(:submissions_breakdown) || {}
+      @sidequest_trend_data = cached_data&.dig(:trend_data) || {}
+    rescue StandardError => e
+      Rails.logger.error("[SuperMegaDashboard] Error in load_sidequest_stats: #{e.message}")
+      @sidequest_totals = {}
+      @sidequest_submissions_breakdown = {}
+      @sidequest_trend_data = {}
+    end
+
+    def build_sidequest_trend_data(shipped_entries)
+      (0..29).reverse_each.each_with_object({}) do |days_ago, trend_data|
+        date = days_ago.days.ago.to_date
+        day_range = date.beginning_of_day..date.end_of_day
+        daily_submissions = shipped_entries.where(created_at: day_range)
+        shipped_projects_count = Project.joins(:ship_events)
+                                        .where(posts: { created_at: day_range })
+                                        .distinct
+                                        .count
+
+        trend_data[date.to_s] = {
+          submitted: daily_submissions.count,
+          shipped_projects: shipped_projects_count,
+          approved: shipped_entries.approved.where(reviewed_at: day_range).count
+        }
+      end
+    end
+
     def load_ysws_review_stats
       cached_data = Rails.cache.fetch("super_mega_ysws_review_v2", expires_in: 1.hour) do
         begin
@@ -790,8 +885,6 @@ module Admin
       with_dashboard_timing("flavortime") do
         cached_data = Rails.cache.fetch("super_mega_flavortime_summary", expires_in: dashboard_cache_ttl(30.seconds, 2.minutes)) do
           scoped_sessions = FlavortimeSession.all
-          platform_counts = grouped_flavortime_counts(scoped_sessions, :platform)
-          version_counts = grouped_flavortime_counts(scoped_sessions, :app_version)
 
           {
             summary: {
@@ -799,25 +892,16 @@ module Admin
               total_users: FlavortimeSession.select(:user_id).distinct.count,
               total_sessions: FlavortimeSession.count,
               status_hours: (FlavortimeSession.sum(:discord_status_seconds).to_f / 3600).round(1),
-              sessions_by_platform: compact_flavortime_breakdown(platform_counts),
-              sessions_by_version: compact_flavortime_breakdown(version_counts),
               activity_chart: build_flavortime_activity_chart(scoped_sessions)
-            },
-            slack_ids: FlavortimeSession
-              .joins(:user)
-              .where.not(users: { slack_id: [ nil, "" ] })
-              .distinct
-              .pluck("users.slack_id")
+            }
           }
         end
 
         @flavortime_summary = empty_flavortime_summary.merge(cached_data.fetch(:summary, {}))
-        @flavortime_slack_ids = Array(cached_data.fetch(:slack_ids, []))
       end
     rescue StandardError => e
       Rails.logger.warn("[SuperMegaDashboard] Flavortime section unavailable (#{e.class}): #{e.message}")
       @flavortime_summary = empty_flavortime_summary.merge(error: "Flavortime data is temporarily unavailable")
-      @flavortime_slack_ids = []
     end
 
     def load_pyramid_scheme_stats
@@ -832,27 +916,29 @@ module Admin
         return
       end
 
-      overlap_count = ((payload.dig("activity", "user_slack_ids") || []) & Array(@flavortime_slack_ids)).count
+      pending_referrals = payload.dig("referrals", "pending").to_i
+      id_verified_referrals = payload.dig("referrals", "id_verified").to_i
+      completed_referrals = payload.dig("referrals", "completed").to_i
+      total_referrals = payload.dig("referrals", "total")
+      total_referrals = pending_referrals + id_verified_referrals + completed_referrals if total_referrals.blank?
 
       @pyramid_scheme_stats = {
         total_hours_logged: payload.dig("activity", "total_hours_logged") || 0,
-        total_users: payload.dig("activity", "all_users") || 0,
-        total_referrals_verified: (payload.dig("referrals", "id_verified") || 0) + (payload.dig("referrals", "completed") || 0),
-        flavortime_users: overlap_count,
+        total_referrals: total_referrals.to_i,
+        completed_referrals: completed_referrals,
         verified_hours_last_week: payload.dig("activity", "verified_hours_last_week") || 0,
         verified_hours_previous_week: payload.dig("activity", "verified_hours_previous_week") || 0,
         referrals_gained_last_week: payload.dig("activity", "referrals_gained_last_week") || 0,
         referrals_gained_previous_week: payload.dig("activity", "referrals_gained_previous_week") || 0,
-        shipped_projects: payload.dig("activity", "shipped_projects") || 0,
         partial_data: payload["partial_data"] == true,
         data_source: payload["data_source"],
         activity_timeline: payload.dig("activity", "timeline") || [],
         referral_chart: {
           labels: [ "Pending", "ID Verified", "Completed" ],
           values: [
-            payload.dig("referrals", "pending") || 0,
-            payload.dig("referrals", "id_verified") || 0,
-            payload.dig("referrals", "completed") || 0
+            pending_referrals,
+            id_verified_referrals,
+            completed_referrals
           ]
         },
         poster_chart: {
@@ -875,6 +961,15 @@ module Admin
       @fraud_happiness_records = data[:records] || []
       @fraud_happiness_avg_scores = data[:avg_scores] || { total_responses: 0 }
       @fraud_happiness_error = data[:error]
+      @fraud_vibes_history = FraudAirtableService.fetch_vibes_history || {}
+
+      # Derive last week's scores from history for percent diff
+      if @fraud_happiness_week.present? && @fraud_vibes_history.present?
+        sorted_weeks = @fraud_vibes_history.keys.map(&:to_s).sort_by { |w| w.scan(/\d+/).first.to_i }
+        current_idx = sorted_weeks.index(@fraud_happiness_week.to_s)
+        prev_week = (current_idx && current_idx > 0) ? sorted_weeks[current_idx - 1] : nil
+        @fraud_happiness_prev_scores = prev_week ? @fraud_vibes_history[prev_week] : nil
+      end
     end
 
     def extract_reviews(response_data)
@@ -914,13 +1009,6 @@ module Admin
       end
     end
 
-    def grouped_flavortime_counts(scope, column)
-      scope
-        .group(Arel.sql("COALESCE(NULLIF(#{column}, ''), 'unknown')"))
-        .order(Arel.sql("COUNT(*) DESC"))
-        .count
-    end
-
     def build_flavortime_activity_chart(scope)
       date_range = 13.days.ago.to_date..Time.current.to_date
       sessions_by_day = scope
@@ -945,8 +1033,6 @@ module Admin
         total_users: 0,
         total_sessions: 0,
         status_hours: 0,
-        sessions_by_platform: {},
-        sessions_by_version: {},
         activity_chart: {
           labels: [],
           sessions: [],
@@ -1053,7 +1139,110 @@ module Admin
       }
     end
 
-    private
+    def load_funnel_stats
+      cached_data = Rails.cache.fetch("super_mega_funnel_stats", expires_in: 5.minutes) do
+        begin
+          funnel_steps = [
+            "start_flow_started",
+            "start_flow_name",
+            "start_flow_project",
+            "start_flow_devlog",
+            "start_flow_signin",
+            "identity_verified",
+            "hackatime_linked",
+            "project_created",
+            "devlog_created"
+          ]
+
+          grouped_counts = FunnelEvent.where(event_name: funnel_steps)
+                                       .group(:event_name)
+                                       .distinct
+                                       .count(:email)
+
+          funnel_data = funnel_steps.index_with { |step| grouped_counts[step] || 0 }
+
+          funnel_with_counts = funnel_steps.map do |step|
+            count = funnel_data[step]
+
+            {
+              name: step,
+              count: count
+            }
+          end
+
+          { funnel_steps: funnel_with_counts }
+        rescue StandardError => e
+          Rails.logger.error("[SuperMegaDashboard] Error in load_funnel_stats: #{e.message}")
+          { funnel_steps: [] }
+        end
+      end
+
+      @funnel_steps = cached_data&.dig(:funnel_steps) || []
+    end
+
+    def load_nps_stats
+      data = Rails.cache.fetch("super_mega_nps_stats", expires_in: 5.minutes) do
+        with_dashboard_timing("nps") do
+          build_nps_stats_from_airtable
+        end
+      rescue StandardError => e
+        Rails.logger.warn("[SuperMegaDashboard] NPS section unavailable (#{e.class}): #{e.message}")
+
+        {
+          total_nps: nil,
+          response_count: nil,
+          promoters: 0,
+          neutrals: 0,
+          detractors: 0,
+          error: e.message.presence || "NPS stats are temporarily unavailable"
+        }
+      end
+
+      @nps_total = data&.dig(:total_nps)
+      @nps_response_count = data&.dig(:response_count)
+      @nps_promoters = data&.dig(:promoters) || 0
+      @nps_neutrals = data&.dig(:neutrals) || 0
+      @nps_detractors = data&.dig(:detractors) || 0
+      @nps_error = data&.dig(:error)
+    end
+
+    def build_nps_stats_from_airtable
+      api_key = ENV["UNIFIED_DB_INTEGRATION_AIRTABLE_KEY"]
+
+      promoters = 0
+      neutrals = 0
+      detractors = 0
+
+      table = Norairrecord.table(api_key, "app3A5kJwYqxMLOgh", "YSWS Programs")
+      record = table.all(filter: "{Name} = 'Flavortown'").first
+      nps_score = record&.fields&.dig("NPS Score")
+      response_count = record&.fields&.dig("NPS–Response Count")
+
+      table = Norairrecord.table(api_key, "app3A5kJwYqxMLOgh", "NPS")
+      records = table.all(filter: "{YSWS} = 'Flavortown'")
+
+
+      records.each do |rec|
+        category = rec.fields["NPS Category"]
+
+        case category
+        when "Promoter"
+          promoters += 1
+        when "Neutral"
+          neutrals += 1
+        when "Detractor"
+          detractors += 1
+        end
+      end
+
+      {
+        total_nps: nps_score&.round,
+        response_count: response_count,
+        promoters: promoters,
+        neutrals: neutrals,
+        detractors: detractors
+      }
+    end
 
     def fetch_approved_ysws_db_hours
       api_key = ENV["UNIFIED_DB_INTEGRATION_AIRTABLE_KEY"]
