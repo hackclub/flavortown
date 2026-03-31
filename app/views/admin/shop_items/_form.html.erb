@@ -186,7 +186,7 @@
 
           </div>
 
-          <div class="shop-item-form" style="margin-top: 1rem;">
+          <div class="shop-item-form__field" style="margin-top: 1rem;">
             <%= f.label :requires_achievement, "Requires Achievements", class: "shop-item-form__label" %>
             <div class="shop-item-form__checkbox-list">
               <%= f.collection_check_boxes :requires_achievement, Achievement.all.select { |a| !a.hidden? }, :slug, ->(a) { "#{a.name} (#{a.slug})" } do |b| %>
