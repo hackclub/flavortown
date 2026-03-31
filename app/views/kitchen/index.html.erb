@@ -197,7 +197,7 @@
         icon: "info"
       ) %>
     </div>
-  <% elsif current_user.verification_verified? && current_user.ysws_eligible == false %>
+  <% elsif current_user.verification_verified? && current_user.ysws_eligible? == false %>
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <%= render StateCardComponent.new(
         title: "Outside age range",
