@@ -186,6 +186,7 @@ class ShopItem < ApplicationRecord
   validates :required_ships_count, numericality: { only_integer: true, greater_than: 0 }, if: :requires_ship?
   validates :required_ships_start_date, :required_ships_end_date, presence: true, if: :requires_ship?
   validate :is_range_valid, if: :requires_ship?
+  validate :validate_achievement_slugs
 
   has_many :shop_orders, dependent: :restrict_with_error
 
@@ -287,7 +288,7 @@ class ShopItem < ApplicationRecord
   end
 
   def requires_achievement?
-    requires_achievement.present? && requires_achievement.any?
+    requires_achievement.present?
   end
 
   private
@@ -325,5 +326,11 @@ class ShopItem < ApplicationRecord
     if requires_achievement.is_a?(Array)
       self.requires_achievement = requires_achievement.reject(&:blank?)
     end
+  end
+
+  def validate_achievement_slugs
+    return unless requires_achievement.present?
+    invalid = requires_achievement.reject { |s| Achievement.all_slugs.include?(s.to_sym) }
+    errors.add(:requires_achievement, "contains invalid slugs: #{invalid.join(', ')}") if invalid.any?
   end
 end
