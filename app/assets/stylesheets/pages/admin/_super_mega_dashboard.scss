@@ -1263,6 +1263,27 @@
       border-right: 1px solid rgba(0, 0, 0, 0.06);
     }
 
+    &--green {
+      background: rgba(16, 185, 129, 0.08);
+      outline: 2px solid #10b981;
+      outline-offset: -2px;
+      border-radius: 0.6rem;
+    }
+
+    &--amber {
+      background: rgba(245, 158, 11, 0.08);
+      outline: 2px solid #f59e0b;
+      outline-offset: -2px;
+      border-radius: 0.6rem;
+    }
+
+    &--red {
+      background: rgba(239, 68, 68, 0.08);
+      outline: 2px solid #ef4444;
+      outline-offset: -2px;
+      border-radius: 0.6rem;
+    }
+
     @media (max-width: 900px) {
       flex: 0 0 calc(50% - 0.5rem);
 
@@ -2024,6 +2045,105 @@
     position: relative;
     height: 200px;
     padding: 1em;
+  }
+}
+
+.smd-new-items {
+  margin-top: 1rem;
+
+  &__title {
+    font-size: 1.1rem;
+    margin: 0 0 0.75rem 0;
+    color: var(--color-brown-500);
+    text-align: left;
+  }
+
+  &__carousel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__arrow {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--color-brown-300);
+    background: white;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-brown-500);
+
+    &:hover {
+      background: var(--color-tan-100);
+    }
+  }
+
+  &__track-wrapper {
+    flex: 1;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &__track {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  &__card {
+    flex: 0 0 200px;
+    scroll-snap-align: start;
+    background: white;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-brown-300);
+    padding: 0.6rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    transition: box-shadow 0.15s;
+
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  &__image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+  }
+
+  &__name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-align: center;
+    line-height: 1.2;
+    color: var(--color-brown-700);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__meta {
+    font-size: 0.72rem;
+    color: var(--color-brown-400);
+    text-align: center;
   }
 }
 
