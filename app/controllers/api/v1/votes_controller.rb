@@ -35,7 +35,10 @@ class Api::V1::VotesController < Api::BaseController
       }
     end
 
-    render json: { total_votes: total, recent_votes: recent_votes }
+    @total_votes = total
+    @recent_votes = recent_votes
+
+    render :stats
   end
 
   # Final aggregated results for a project.
