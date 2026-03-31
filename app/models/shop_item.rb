@@ -43,7 +43,7 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
-#  requires_achievement              :string
+#  requires_achievement              :string           default([]), is an Array
 #  requires_ship                     :boolean          default(FALSE)
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
@@ -90,6 +90,7 @@ class ShopItem < ApplicationRecord
 
   before_validation :fix_blacklist
   before_validation :floor_ticket_cost
+  before_validation :clean_requires_achievement
 
   after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
   after_commit :invalidate_shop_page_cache
@@ -280,12 +281,15 @@ class ShopItem < ApplicationRecord
     return true unless requires_achievement?
     return false unless user.present?
 
-    user.earned_achievement?(requires_achievement.to_sym)
+    requires_achievement.any? do |ach_slug|
+      user.earned_achievement?(ach_slug.to_sym)
+    end
   end
 
   def requires_achievement?
-    requires_achievement.present?
+    requires_achievement.present? && requires_achievement.any?
   end
+
 
   private
 
@@ -316,5 +320,11 @@ class ShopItem < ApplicationRecord
 
   def floor_ticket_cost
     self.ticket_cost = ticket_cost.floor if ticket_cost.present?
+  end
+
+  def clean_requires_achievement
+    if requires_achievement.is_a?(Array)
+      self.requires_achievement = requires_achievement.reject(&:blank?)
+    end
   end
 end

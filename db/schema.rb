@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_30_185147) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -570,7 +570,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_185147) do
     t.integer "required_ships_count", default: 1
     t.date "required_ships_end_date"
     t.date "required_ships_start_date"
-    t.string "requires_achievement"
+    t.string "requires_achievement", default: [], array: true
     t.boolean "requires_ship", default: false
     t.boolean "requires_verification_call", default: false, null: false
     t.integer "sale_percentage"
