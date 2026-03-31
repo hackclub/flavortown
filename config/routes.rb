@@ -90,6 +90,7 @@ Rails.application.routes.draw do
   # Sidequests (formerly Nibbles)
   get "nibbles", to: redirect("/sidequests")
   resources :sidequests, only: [ :index, :show ]
+  get "sidequests/:id/dash", to: "sidequests/lockin#dash", constraints: { id: "lockin" }, as: :dash_sidequest
 
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

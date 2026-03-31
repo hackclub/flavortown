@@ -17,6 +17,8 @@
         { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" }
       ] %>
 
+      <% sidebar_nav_items << { label: "Lockin", path: dash_sidequest_path("lockin"), icon: "lock_fill" } if current_user.owns_lockin_ticket? %>
+
       <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_dashboard? %>
 
       <% sidebar_nav_items << { label: "Fulfil", path: admin_shop_orders_path(view: "fulfillment"), icon: "shopping_cart_1_fill" } if current_user.fulfillment_person? && !current_user.admin? %>
@@ -31,6 +33,8 @@
         <% sidebar_nav_items.each do |item| %>
           <% candidate_path = item[:path] %>
           <% active = if candidate_path == "#"
+                        false
+                      elsif candidate_path == sidequests_path && request.path.start_with?(dash_sidequest_path("lockin"))
                         false
                       else
                         current_page?(candidate_path) ||

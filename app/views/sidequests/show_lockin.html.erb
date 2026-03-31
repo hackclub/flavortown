@@ -1,38 +1,13 @@
 <%
-  now = Time.current
-  start_date = Time.zone.parse("2026-04-02 00:00:00 EST")
+  active_week = lockin_active_week
+  status_text = lockin_status_text
 
-  active_week = if now < start_date
-                  0
-                elsif now < start_date + 1.week
-                  1
-                elsif now < start_date + 2.weeks
-                  2
-                elsif now < start_date + 3.weeks
-                  3
-                elsif now < start_date + 4.weeks
-                  4
-                else
-                  5
-                end
-
-  status_text = case active_week
-                when 0 then "Enlisting"
-                when 1..4 then "In Progress (Week #{active_week})"
-                else "Ended"
-                end
-
-  deadlines = [
-    start_date + 1.week + 24.hours - 1.minute,
-    start_date + 2.weeks + 24.hours - 1.minute,
-    start_date + 3.weeks + 24.hours - 1.minute,
-    start_date + 4.weeks
-  ]
+  deadlines = lockin_weeks.map { |w| w[:end] }
 
   next_deadline = if active_week == 0
-                    start_date
+                    lockin_weeks.first[:start]
                   else
-                    deadlines.find { |d| now < d }
+                    deadlines.find { |d| Time.current < d }
                   end
 
   countdown_label = active_week == 0 ? "STARTS IN:" : "NEXT DEADLINE:"
@@ -56,6 +31,15 @@
         <p class="lockin-header__desc" style="margin-top: 1rem; font-weight: 700;">
           Join <a href="https://hackclub.enterprise.slack.com/archives/C0APA6DDC6N" style="color: #d4a373; text-decoration: underline;">#lockin-sidequest</a> on Slack and connect with other survivors!
         </p>
+
+          <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
+            <%= render ButtonComponent.new(
+                  text: "LockIn Dash",
+                  href: dash_sidequest_path("lockin"),
+                  color: :red,
+                  variant: :borderless,
+                ) %>
+          </div>
       </div>
 
       <div class="lockin-weeks">
@@ -78,28 +62,22 @@
             document.addEventListener("turbo:load", function() {
               const countdownEl = document.getElementById("lockin-countdown");
               if (!countdownEl) return;
-
               const deadlineStr = countdownEl.getAttribute("data-deadline");
               if (!deadlineStr) return;
-
               const deadline = new Date(deadlineStr).getTime();
               const textSpan = countdownEl.querySelector(".timer-text");
-
               const timer = setInterval(function() {
                 const now = new Date().getTime();
                 const distance = deadline - now;
-
                 if (distance < 0) {
                   clearInterval(timer);
                   textSpan.innerHTML = "0d 0h 0m 0s";
                   return;
                 }
-
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
                 textSpan.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s";
               }, 1000);
             });
@@ -138,11 +116,11 @@
         <div class="lockin-card">
           <h3 class="lockin-card__title"><i class="fa-solid fa-list-check"></i> Requirements</h3>
           <ul>
-            <li>Work <strong>10 hours a week</strong> for 4 consecutive weeks.</li>
-            <li>Each week runs from <strong>Thursday to Thursday</strong>.</li>
-            <li>Do not miss a single hour.</li>
-            <li>Purchase the "Lockin Ticket" in the shop to join.</li>
-            <li>Mark each project as submitted for "Lock in" in its settings.</li>
+            <li>Work on a ship that has <strong>more than 10 hours</strong>.</li>
+            <li>Count 10 hours within the weekly timeframe; older hours will cause rejection.</li>
+            <li>Cannot ship more than one project or combine the hours.</li>
+            <li>Purchase the <strong>Lockin Ticket</strong> in the shop to join.</li>
+            <li>Mark each project as submitted for <strong>Lock in</strong> in its settings.</li>
           </ul>
         </div>
 
@@ -150,10 +128,10 @@
           <h3 class="lockin-card__title"><i class="fa-solid fa-calendar-days"></i> Mission Timeline</h3>
           <ul>
             <li><strong>Current Status:</strong> <%= status_text %></li>
-            <li><strong>Starts:</strong> Thursday, April 2, 12 AM EST</li>
-            <li><strong>Ends:</strong> Thursday, April 30, 11:59 PM EST</li>
-            <li><strong>Shipping Deadline:</strong> April 30, 2026</li>
-            <li>Only <strong>1 chance</strong>. Fail a week, fail the mission.</li>
+            <li><strong>Starts:</strong> March 29th</li>
+            <li><strong>Ends:</strong> April 30th</li>
+            <li><strong>Week Cycle:</strong> Thursday 12 AM EST to Wednesday 11:59 PM EST (Except Week 1)</li>
+            <li><strong>Week 1 Dates:</strong> March 29th to April 9th (Grace for Week 1)</li>
           </ul>
         </div>
       </div>
@@ -182,33 +160,72 @@
         <div class="lockin-faq__grid">
           <div class="faq-item">
             <h4>What is this?</h4>
-            <p>Simply a Flavortown sidequest where you work 10 hrs a week for 4 weeks without missing an hour. You get 120 cookies & unlock some shop items.</p>
+            <p>LockIn is a 4-week program where you need to ship every week. Only hours shipped at the end of each week count. If you missed a week, you'll be out. If you make it to the end, you get 120 🍪 and unlock amazing prizes in the Flavortown shop.</p>
           </div>
+
+          <div class="faq-item">
+            <h4>When Is LockIn?</h4>
+            <p>Lockin starts March 29th and ends on April 30th. Every week starts from Thursday 12 AM EST to Wednesday 11:59 PM EST, except for Week 1, which starts from March 29th to April 9th. If you don't ship a project in Week 1, you cannot join.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4>Every week dates:</h4>
+            <ul style="list-style: none; padding: 0;">
+              <li><strong>Week One:</strong> March 29th to April 8th 11:59 PM EST</li>
+              <li><strong>Week Two:</strong> April 9th to April 15th 11:59 PM EST</li>
+              <li><strong>Week Three:</strong> April 16th to April 22nd 11:59 PM EST</li>
+              <li><strong>Week Four:</strong> April 23rd to April 29th 11:59 PM EST</li>
+            </ul>
+          </div>
+
           <div class="faq-item">
             <h4>How can I sign up?</h4>
-            <p>Purchase the item in the shop and, in the project settings, mark it as submitted for Lock in.</p>
+            <p>Purchase the item in the shop and, in the last stage of shipping, mark it as submitted for LockIn.</p>
           </div>
+
           <div class="faq-item">
             <h4>What if I did the 10 hours but shipped after the deadline?</h4>
-            <p>If you completed the 10 hours within the weekly timeframe, you will have 24 hours to ship your project or keep working on it.</p>
+            <p>If you completed the 10 hours within the weekly timeframe, you will have 24 hours to ship your project.</p>
           </div>
+
           <div class="faq-item">
-            <h4>When does my week start and end?</h4>
-            <p>It starts <strong>Thursday at 12 AM</strong> and ends <strong>Wednesday at 11:59 PM EST</strong> for time tracking, but you have a 24h allowance to ship your project!</p>
+            <h4>What if my ships got rejected from Shipwrights?</h4>
+            <p>Just fix them and reship. It won’t be a problem as long as you completed the 10 hours without any fraud during the week.</p>
           </div>
+
           <div class="faq-item">
             <h4>Can I work on one project and ship multiple times?</h4>
-            <p>Yes, you can do that but its better to work on 4 projects to experiment with new stuff!</p>
+            <p>Yes, but every ship needs to be 10 hours. It's recommended to work on 4 projects in order to try new things!</p>
           </div>
+
           <div class="faq-item">
-            <h4>Can I try again after failing or skip a week for partial credit?</h4>
-            <p>No unfortunately, you cannot. If you miss a week or fail to ship, you're out. You only get one chance!</p>
+            <h4>Can I join more than once at the same time?</h4>
+            <p>Yes, but you’ll be required to do 20 hrs a week and you’ll get 240 cookies.</p>
           </div>
+
           <div class="faq-item">
-            <h4>What are prizes that I'll unlock?</h4>
-            <ul>
-              <li>TBD</li>
-            </ul>
+            <h4>What counts as a valid project?</h4>
+            <p>Must be 10 hours or more & follow Flavortown guidelines.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4>Can I try again after failing?</h4>
+            <p>No unfortunately, you cannot. Failure to ship 10 hours means you're out.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4>I discovered this late, can I join now?</h4>
+            <p>You can’t, since this is a 4-week program. Flavortown ends on April 30th, and LockIn ends at the same time.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4>Can I double dip with other sidequests?</h4>
+            <p>You can only choose one sidequest per ship, but you can work a little more on another ship in the same project and select a different sidequest. The limitation applies to each ship, not the entire project.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4>What if I missed an hour?</h4>
+            <p>You can make up the hours you lost over the past weeks, but for every hour you missed, you’ll need to make up an hour and 15 minutes. Also, the absolute minimum time for any project is 6 hours; anything less means you're out immediately.</p>
           </div>
         </div>
       </div>
