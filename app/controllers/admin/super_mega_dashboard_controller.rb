@@ -60,6 +60,17 @@ module Admin
       end
     end
 
+    def clear_cache
+      authorize :admin, :access_super_mega_dashboard?
+
+      CACHE_KEYS.each do |key|
+        Rails.cache.delete(key)
+      end
+
+      flash[:notice] = "Cache cleared successfully."
+      redirect_to admin_super_mega_dashboard_path
+    end
+
     private
 
     def load_fraud_stats
