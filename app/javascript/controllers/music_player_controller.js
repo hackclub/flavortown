@@ -1,7 +1,10 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static values = { audioUrls: Array, defaultIndex: { type: Number, default: 0 } };
+  static values = {
+    audioUrls: Array,
+    defaultIndex: { type: Number, default: 0 },
+  };
 
   connect() {
     this.currentIndex = this.defaultIndexValue;
@@ -28,7 +31,9 @@ export default class extends Controller {
   }
 
   async prevTrack() {
-    this.currentIndex = (this.currentIndex - 1 + this.audioUrlsValue.length) % this.audioUrlsValue.length;
+    this.currentIndex =
+      (this.currentIndex - 1 + this.audioUrlsValue.length) %
+      this.audioUrlsValue.length;
     await this.#switchTrack();
   }
 
@@ -90,7 +95,11 @@ export default class extends Controller {
   }
 
   #toggleIcons() {
-    this.element.querySelectorAll(".music-player__icon--play").forEach(el => el.hidden = this.isPlaying);
-    this.element.querySelectorAll(".music-player__icon--pause").forEach(el => el.hidden = !this.isPlaying);
+    this.element
+      .querySelectorAll(".music-player__icon--play")
+      .forEach((el) => (el.hidden = this.isPlaying));
+    this.element
+      .querySelectorAll(".music-player__icon--pause")
+      .forEach((el) => (el.hidden = !this.isPlaying));
   }
 }
