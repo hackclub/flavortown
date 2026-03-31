@@ -8,6 +8,7 @@
   <div class="super-mega-dashboard__dashboards">
     <%= render "admin/super_mega_dashboard/sections/funnel" %>
     <%= render "admin/super_mega_dashboard/sections/nps" %>
+    <%= render "admin/super_mega_dashboard/sections/hcb" %>
 
     <div class="super-mega-dashboard__dashboard">
         <%= render "admin/super_mega_dashboard/sections/fraud" %>
@@ -97,6 +98,25 @@
 
       <div class="super-mega-dashboard__cards super-mega-dashboard__cards--fulfillment">
         <div class="fulfillment-stats-row">
+          <%
+            card_color = ->(key, awaiting_count) {
+              return nil unless awaiting_count.is_a?(Integer)
+              case key
+              when :hq_mail, :other
+                if awaiting_count >= 10 then "red"
+                elsif awaiting_count >= 5 then "amber"
+                else "green"
+                end
+              when :third_party
+                if awaiting_count > 40 then "red"
+                elsif awaiting_count >= 20 then "amber"
+                else "green"
+                end
+              when :warehouse
+                @fulfillment[:warehouse_has_stale] ? "red" : "green"
+              end
+            }
+          %>
           <% [
             [:all, "All"],
             [:hq_mail, "HQ Stuff"],
@@ -104,12 +124,12 @@
             [:warehouse, "Warehouse"],
             [:other, "Other"]
           ].each do |key, label| %>
-            <div class="fulfillment-stats-row__card">
+            <% color = card_color.call(key, @fulfillment[key][:awaiting]) %>
+            <div class="fulfillment-stats-row__card <%= "fulfillment-stats-row__card--#{color}" if color %>">
               <h4 class="fulfillment-stats-row__title"><%= label %></h4>
               <div class="fulfillment-stats-row__numbers">
-                <span class="fulfillment-stats-row__num red"><%= @fulfillment[key][:pending] %> <small>Pending</small></span>
                 <span class="fulfillment-stats-row__num yellow"><%= @fulfillment[key][:awaiting] %> <small>Awaiting</small></span>
-                <span class="fulfillment-stats-row__num green"><%= @fulfillment[key][:total] %> <small>Total</small></span>
+                <span class="fulfillment-stats-row__num green"><%= @fulfillment[key][:fulfilled] %> <small>Fulfilled</small></span>
               </div>
             </div>
           <% end %>
@@ -469,6 +489,39 @@
           <% end %>
         </div>
       </div>
+
+      <% if @recent_new_items.present? %>
+        <div class="smd-new-items">
+          <h3 class="smd-new-items__title">Recently Added Items</h3>
+          <div class="smd-new-items__carousel">
+            <button class="smd-new-items__arrow smd-new-items__arrow--prev" aria-label="Previous items">‹</button>
+            <div class="smd-new-items__track-wrapper">
+              <div class="smd-new-items__track">
+                <% @recent_new_items.each do |item| %>
+                  <% next unless item.image.attached? %>
+                  <%= link_to admin_shop_item_path(item), class: "smd-new-items__card" do %>
+                    <%= image_tag item.image.variant(:carousel_sm), class: "smd-new-items__image", loading: "lazy" %>
+                    <span class="smd-new-items__name"><%= item.name %></span>
+                    <span class="smd-new-items__meta"><%= item.type.demodulize.underscore.humanize %> · <%= time_ago_in_words(item.created_at) %> ago</span>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+            <button class="smd-new-items__arrow smd-new-items__arrow--next" aria-label="Next items">›</button>
+          </div>
+        </div>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            var wrapper = document.querySelector('.smd-new-items__track-wrapper');
+            var prev = document.querySelector('.smd-new-items__arrow--prev');
+            var next = document.querySelector('.smd-new-items__arrow--next');
+            if (!wrapper || !prev || !next) return;
+            var scrollAmount = 260;
+            prev.addEventListener('click', function() { wrapper.scrollBy({ left: -scrollAmount, behavior: 'smooth' }); });
+            next.addEventListener('click', function() { wrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' }); });
+          });
+        </script>
+      <% end %>
     </div>
 
     <div data-lazy-section="shipwrights" class="super-mega-dashboard__dashboard">

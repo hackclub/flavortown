@@ -159,6 +159,42 @@ body {
   }
 }
 
+a.super-mega-dashboard-btn {
+  &.btn-primary,
+  &.btn-primary-dark {
+    background-image: url("mask/title.webp");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+
+  &.btn-primary {
+    background-color: var(--color-blue-400);
+    &:hover {
+      background-color: var(--color-blue-300);
+    }
+  }
+
+  &.btn-primary-dark {
+    background-color: var(--color-blue-500);
+    &:hover {
+      background-color: var(--color-blue-400);
+    }
+  }
+}
+
+.btn-topup {
+  @extend %btn-base;
+  background: var(--color-blue-500);
+  color: white !important;
+  text-decoration: none;
+
+  &:hover {
+    background: var(--color-blue-400);
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+  }
+}
+
 /* Layout Utilities */
 .button-grid {
   display: grid;

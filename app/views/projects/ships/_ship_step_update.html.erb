@@ -13,7 +13,7 @@
           color: :yellow,
           subtitle: "What did you make? What was challenging? What are you proud of?",
           as: :text_area,
-          input_html: { rows: 6 }
+          input_html: { rows: 6, required: true }
         ) %>
 
     <%= render InputComponent.new(
@@ -34,18 +34,35 @@
                                    @project.sidequests.find { |sq| @active_sidequests.include?(sq) }
                                  end %>
       <% preselected_sidequest_id = preselected_sidequest&.id %>
+      <% sidequest_map = @active_sidequests.each_with_object({}) { |sq, acc| acc[sq.id.to_s] = sidequest_path(sq) } %>
 
-      <%= render InputComponent.new(
-            label: "Sidequest",
-            placeholder: "No sidequest",
-            form: form,
-            attribute: :sidequest_id,
-            color: :blue,
-            subtitle: "Choose one sidequest to submit this ship for.",
-            as: :select,
-            collection: @active_sidequests.map { |sidequest| [sidequest.title, sidequest.id] },
-            select_options: { include_blank: "No sidequest", selected: preselected_sidequest_id }
-          ) %>
+      <div data-controller="sidequest-selector">
+        <%= render InputComponent.new(
+              label: "Sidequest",
+              placeholder: "No sidequest",
+              form: form,
+              attribute: :sidequest_id,
+              color: :blue,
+              subtitle: "Choose one sidequest to submit this ship for.",
+              as: :select,
+              collection: @active_sidequests.map { |sidequest| [sidequest.title, sidequest.id] },
+              input_html: {
+                data: {
+                  sidequest_selector_target: "select",
+                  action: "change->sidequest-selector#selectChange"
+                }
+              },
+              select_options: { include_blank: "No sidequest", selected: preselected_sidequest_id }
+            ) %>
+
+        <div class="projects-ship__sidequest-info" data-sidequest-selector-target="info" style="display: <%= preselected_sidequest_id.present? ? 'block' : 'none' %>;">
+          <p class="projects-ship__sidequest-message">
+            <strong>Before submitting:</strong> Check the <a href="#" data-sidequest-selector-target="link" class="projects-ship__sidequest-link" target="_blank" rel="noopener">sidequest details</a> to review the requirements and avoid rejection.
+          </p>
+        </div>
+
+        <div data-sidequest-selector-target="sidequestMap" style="display: none;"><%= sidequest_map.to_json %></div>
+      </div>
     <% end %>
   <% end %>
 </div>
