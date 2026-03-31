@@ -3,7 +3,7 @@ class BackfillRequiresAchievementArray < ActiveRecord::Migration[8.1]
 
   def up
     ShopItem.unscoped.in_batches(of: 1000) do |batch|
-      batch.where.not(requires_achievement: [nil, ""]).update_all(
+      batch.where.not(requires_achievement: [ nil, "" ]).update_all(
         "requires_achievement_array = string_to_array(requires_achievement, ',')"
       )
     end
