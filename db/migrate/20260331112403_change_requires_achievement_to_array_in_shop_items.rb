@@ -1,6 +1,8 @@
 class ChangeRequiresAchievementToArrayInShopItems < ActiveRecord::Migration[8.1]
   def up
-    add_column :shop_items, :requires_achievement_new, :string, array: true, default: []
+    unless column_exists?(:shop_items, :requires_achievement_new)
+      add_column :shop_items, :requires_achievement_new, :string, array: true, default: []
+    end
 
     safety_assured do
       execute <<~SQL
