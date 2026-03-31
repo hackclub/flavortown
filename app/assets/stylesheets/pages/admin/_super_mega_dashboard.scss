@@ -17,6 +17,24 @@
     margin-bottom: 1.5em;
   }
 
+  .balance {
+    font-size: 2rem;
+    text-align: center;
+    font-weight: bold;
+
+    &--red {
+      color: #d32f2f;
+    }
+
+    &--yellow {
+      color: #f57c00;
+    }
+
+    &--green {
+      color: #388e3c;
+    }
+  }
+
   &__dashboards {
     display: flex;
     flex-direction: column;
@@ -103,6 +121,7 @@
     padding: 1rem 1.1rem;
     border-radius: 1em;
     min-width: 0;
+    flex: 1;
     box-sizing: border-box;
     overflow: hidden;
 
