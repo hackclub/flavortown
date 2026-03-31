@@ -1333,6 +1333,6 @@ module Admin
       @balance_cents = data[:balance_cents] || 0
       @total_expenses_cents = data[:total_expenses_cents] || 0
       @total_raised_cents = data[:total_raised_cents] || 0
-    end 
+    end
   end
 end
