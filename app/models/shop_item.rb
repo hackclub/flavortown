@@ -290,7 +290,6 @@ class ShopItem < ApplicationRecord
     requires_achievement.present? && requires_achievement.any?
   end
 
-
   private
 
   def is_range_valid
