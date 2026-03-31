@@ -22,6 +22,7 @@ module Admin
       sw_vibes_data
       super_mega_funnel_stats
       super_mega_nps_stats
+      super_mega_hcb_stats
     ].freeze
 
     def index
@@ -42,6 +43,7 @@ module Admin
       load_fraud_happiness_data
       load_funnel_stats
       load_nps_stats
+      load_hcb_expenses
     end
 
     def load_section
@@ -1292,6 +1294,45 @@ module Admin
       else
         0
       end
+    end
+
+    def balance_color_class(balance_cents)
+      balance_dollars = balance_cents.to_i / 100
+      case balance_dollars
+      when 0..1999
+        "balance--red"
+      when 2000..9999
+        "balance--yellow"
+      else
+        "balance--green"
+      end
+    end
+
+    helper_method :balance_color_class
+
+    def load_hcb_expenses
+      data = Rails.cache.fetch("super_mega_hcb_stats", expires_in: 5.minutes) do
+        response = Faraday.get("https://hcb.hackclub.com/api/v3/organizations/flavortown")
+
+        if response.success?
+          body = JSON.parse(response.body)
+          balance = body.dig("balances", "balance_cents") || 0
+          total_raised = body.dig("balances", "total_raised") || 0
+
+          {
+            balance_cents: balance,
+            total_raised_cents: total_raised,
+            total_expenses_cents: total_raised - balance
+          }
+        end
+      rescue StandardError => e
+        { error: "Error fetching HCB stats: #{e.message}" }
+      end
+
+      @hcb_error = data[:error]
+      @balance_cents = data[:balance_cents] || 0
+      @total_expenses_cents = data[:total_expenses_cents] || 0
+      @total_raised_cents = data[:total_raised_cents] || 0
     end
   end
 end
