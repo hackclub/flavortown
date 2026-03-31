@@ -7,7 +7,7 @@ class KitchenController < ApplicationController
 
     identities = current_user.identities
 
-    unless current_user.verification_verified? && current_user.ysws_eligible? == true
+    unless current_user.eligible_for_shop?
       @verification_rejection_reason = refresh_verification_status_from_hca!(identities)
       current_user.reload
       identities = current_user.identities.reload
