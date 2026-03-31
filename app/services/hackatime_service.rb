@@ -25,6 +25,8 @@ class HackatimeService
 
     response = connection.get("users/#{hackatime_uid}/stats", params)
 
+    Rails.logger.info("Request URL: #{response.env.url}")
+
     if response.success?
       data = JSON.parse(response.body)
       projects = data.dig("data", "projects") || []
@@ -56,6 +58,8 @@ class HackatimeService
     params[:end_date] = end_date if end_date
 
     response = connection.get("users/#{hackatime_uid}/stats", params)
+
+    Rails.logger.info("Request URL: #{response.env.url}")
 
     if response.success?
       data = JSON.parse(response.body)
