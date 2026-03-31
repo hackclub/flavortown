@@ -349,6 +349,7 @@ class User < ApplicationRecord
 
   def cancel_shop_order(order_id)
     order = shop_orders.find(order_id)
+    return { success: false, error: "This item is not refundable" } unless order.shop_item.refundable?
     return { success: false, error: "Your order can not be canceled" } unless order.may_refund?
 
     order.with_lock do

@@ -134,6 +134,10 @@ class ShopItem < ApplicationRecord
     "ShopItem::SpecialFulfillmentItem"
   ].freeze
 
+  NOT_REFUNDABLE = [
+    "ShopItem::FreeStickers",
+    "ShopItem::SillyItemType"
+].freeze
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
   scope :enabled, -> { where(enabled: true).where("shop_items.enabled_until IS NULL OR shop_items.enabled_until > ?", Time.current) }
@@ -201,6 +205,10 @@ class ShopItem < ApplicationRecord
     else
       super(value)
     end
+  end
+
+  def refundable?
+    !NOT_REFUNDABLE.include?(type)
   end
 
   def is_free?
