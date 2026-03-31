@@ -44,12 +44,13 @@
                     <% end %>
                 </div>
             <% end %>
-            <% if @required_achievement %>
+            <% if @required_achievements.present? %>
                 <div class="shop-order__achievement-requirement <%= 'shop-order__achievement-requirement--locked' if @locked_by_achievement %>">
+                    <% achievement_names = @required_achievements.map(&:name).to_sentence(two_words_connector: ' or ', last_word_connector: ', or ') %>
                     <% if @locked_by_achievement %>
-                        <span>Requires "<%= @required_achievement.name %>" achievement to purchase</span>
+                        <span>Requires "<%= achievement_names %>" achievement to purchase</span>
                     <% else %>
-                        <span>Unlocked via "<%= @required_achievement.name %>" achievement</span>
+                        <span>Unlocked via "<%= achievement_names %>" achievement</span>
                     <% end %>
                 </div>
             <% end %>

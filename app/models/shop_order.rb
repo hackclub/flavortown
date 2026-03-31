@@ -435,8 +435,9 @@ class ShopOrder < ApplicationRecord
     return unless shop_item&.requires_achievement?
     return if shop_item.meet_achievement_require?(user)
 
-    achievement = Achievement.find(shop_item.requires_achievement.to_sym)
-    errors.add(:base, "You must earn the \"#{achievement.name}\" achievement to purchase this item.")
+    n = shop_item.requires_achievement.map { |s| Achievement.find(s).name }
+    msg = n.size == 1 ? "the \"#{n.first}\" achievement" : "one of the \"#{n.to_sentence(two_words_connector: ' or ', last_word_connector: ', or ')}\" achievements"
+    errors.add(:base, "You must earn #{msg} to purchase this item.")
   end
 
   def create_negative_payout
