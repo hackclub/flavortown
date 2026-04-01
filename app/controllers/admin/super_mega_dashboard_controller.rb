@@ -52,7 +52,7 @@ module Admin
         load_payouts_stats
         render partial: "admin/super_mega_dashboard/sections/payouts", layout: false
       when "fulfillment"
-        load_fulfillment_stats_safely
+        load_fulfillment_stats
         render partial: "admin/super_mega_dashboard/sections/fulfillment", layout: false
       when "shipwrights"
         load_ship_certs_stats
@@ -433,30 +433,6 @@ module Admin
       @fulfillment_trend_data = build_fulfillment_trend_data
       @order_states_trend_data = build_order_states_trend_data
       @recent_new_items = ShopItem.recently_added.enabled.includes(image_attachment: :blob).limit(12)
-    end
-
-    def load_fulfillment_stats_safely
-      load_fulfillment_stats
-    rescue StandardError => e
-      Rails.logger.warn("[SuperMegaDashboard] Temporarily disabling fulfillment stats (#{e.class}): #{e.message}")
-
-      blank_stats = {
-        awaiting: "—",
-        fulfilled: "—"
-      }
-
-      @fulfillment_temporarily_disabled = true
-      @fulfillment = {
-        all: blank_stats.dup,
-        hq_mail: blank_stats.dup,
-        third_party: blank_stats.dup,
-        warehouse: blank_stats.dup,
-        other: blank_stats.dup,
-        warehouse_has_stale: false
-      }
-      @fulfillment_trend_data = nil
-      @order_states_trend_data = nil
-      @recent_new_items = ShopItem.none
     end
 
     def build_fulfillment_trend_data
