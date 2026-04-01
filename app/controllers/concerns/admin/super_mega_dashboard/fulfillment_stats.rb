@@ -47,6 +47,21 @@ module Admin
         @fulfillment_trend_data = build_fulfillment_trend_data
         @order_states_trend_data = build_order_states_trend_data
         @recent_new_items = ShopItem.recently_added.enabled.includes(image_attachment: :blob).limit(12)
+      rescue StandardError => e
+        Rails.logger.warn("[SuperMegaDashboard] Fulfillment stats failed (#{e.class}): #{e.message}")
+
+        blank_stats = { awaiting: "—", fulfilled: "—" }
+        @fulfillment = {
+          all: blank_stats.dup,
+          hq_mail: blank_stats.dup,
+          third_party: blank_stats.dup,
+          warehouse: blank_stats.dup,
+          other: blank_stats.dup,
+          warehouse_has_stale: false
+        }
+        @fulfillment_trend_data = nil
+        @order_states_trend_data = nil
+        @recent_new_items = []
       end
 
       def build_fulfillment_trend_data
