@@ -47,6 +47,21 @@ module Admin
         @fulfillment_trend_data = build_fulfillment_trend_data
         @order_states_trend_data = build_order_states_trend_data
         @recent_new_items = ShopItem.recently_added.enabled.includes(image_attachment: :blob).limit(12)
+      rescue StandardError => e
+        Rails.logger.warn("[SuperMegaDashboard] Fulfillment stats failed (#{e.class}): #{e.message}")
+
+        blank_stats = { awaiting: "—", fulfilled: "—" }
+        @fulfillment = {
+          all: blank_stats.dup,
+          hq_mail: blank_stats.dup,
+          third_party: blank_stats.dup,
+          warehouse: blank_stats.dup,
+          other: blank_stats.dup,
+          warehouse_has_stale: false
+        }
+        @fulfillment_trend_data = nil
+        @order_states_trend_data = nil
+        @recent_new_items = []
       end
 
       def build_fulfillment_trend_data
@@ -57,7 +72,7 @@ module Admin
           fulfilled_by_date = ShopOrder.where(fulfilled_at: window_start..window_end)
                                        .group(Arel.sql("DATE(fulfilled_at)")).count
           created_by_date = ShopOrder.real.where(created_at: window_start..window_end)
-                                         .group(Arel.sql("DATE(created_at)")).count
+                                         .group(Arel.sql("DATE(shop_orders.created_at)")).count
 
           (0..29).reverse_each.each_with_object({}) do |days_ago, trend_data|
             date = days_ago.days.ago.to_date
@@ -75,7 +90,7 @@ module Admin
           window_end = Time.current.end_of_day
 
           pending_by_date = ShopOrder.real.where(created_at: window_start..window_end)
-                                         .group(Arel.sql("DATE(created_at)")).count
+                                         .group(Arel.sql("DATE(shop_orders.created_at)")).count
           awaiting_by_date = ShopOrder.where(awaiting_periodical_fulfillment_at: window_start..window_end)
                                       .group(Arel.sql("DATE(awaiting_periodical_fulfillment_at)")).count
           fulfilled_by_date = ShopOrder.where(fulfilled_at: window_start..window_end)
