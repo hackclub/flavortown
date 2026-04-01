@@ -256,7 +256,7 @@
     padding: 1rem;
     transform: translateX(100%);
     transition: transform 220ms ease;
-    z-index: 30;
+    z-index: 1000;
     display: flex;
     flex-direction: column;
 
@@ -280,11 +280,9 @@
 
     @media (max-width: 550px) {
       width: 90vw;
-      position: fixed;
       top: 1em;
       bottom: 1em;
       max-height: 100vh;
-      z-index: 1000;
       padding: 0.8rem;
     }
   }
