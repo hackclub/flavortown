@@ -8,6 +8,7 @@ module Admin
     include SuperMegaDashboard::ShipwrightsStats
     include SuperMegaDashboard::YswsReviewStats
     include SuperMegaDashboard::MiscStats
+    include SuperMegaDashboard::NpsStats
 
     CACHE_KEYS = %w[
       super_mega_fraud_stats
@@ -29,12 +30,13 @@ module Admin
       sw_vibes_data
       super_mega_funnel_stats
       super_mega_nps_stats
+      super_mega_nps_vibes
       super_mega_hcb_stats
     ].freeze
 
     SECTIONS = {
       "funnel"             => { loaders: %i[load_funnel_stats],           partial: "admin/super_mega_dashboard/sections/funnel" },
-      "nps"                => { loaders: %i[load_nps_stats],              partial: "admin/super_mega_dashboard/sections/nps" },
+      "nps"                => { loaders: %i[load_nps_stats load_nps_vibes_stats], partial: "admin/super_mega_dashboard/sections/nps" },
       "hcb"                => { loaders: %i[load_hcb_expenses],           partial: "admin/super_mega_dashboard/sections/hcb" },
       "fraud"              => { loaders: %i[load_fraud_stats load_fraud_happiness_data], partial: "admin/super_mega_dashboard/sections/fraud" },
       "payouts"            => { loaders: %i[load_payouts_stats],          partial: "admin/super_mega_dashboard/sections/payouts" },

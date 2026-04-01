@@ -2321,3 +2321,32 @@
 .d3-funnel-tooltip__row--muted {
   color: #9ca3af;
 }
+
+.modal--wide {
+  width: min(900px, 92vw);
+  max-height: 85vh;
+  overflow: auto;
+}
+
+.modal--wide::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modal--wide::-webkit-scrollbar-track {
+  background: var(--color-tan-300);
+  border-top-right-radius: 0.8rem;
+  border-bottom-right-radius: 0.8rem;
+}
+
+.modal--wide::-webkit-scrollbar-thumb {
+  background: var(--color-brown-700);
+  border-radius: 0.8rem;
+}
+
+.modal__section {
+  margin-top: var(--space-m);
+}
+
+.modal__section-title {
+  margin: 0 0 var(--space-xs) 0;
+}
