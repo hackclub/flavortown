@@ -702,14 +702,6 @@
     }
   });
 
-  function ensureD3(cb) {
-    if (typeof d3 !== 'undefined') { cb(); return; }
-    var s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/d3@7';
-    s.onload = cb;
-    document.head.appendChild(s);
-  }
-
   ensureD3(function() {
     var rsData = <%= raw (reviews_ships_data || {}).to_json %>;
     if (rsData.reviews && rsData.ships) {
