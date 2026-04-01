@@ -72,7 +72,7 @@ module Admin
           fulfilled_by_date = ShopOrder.where(fulfilled_at: window_start..window_end)
                                        .group(Arel.sql("DATE(fulfilled_at)")).count
           created_by_date = ShopOrder.real.where(created_at: window_start..window_end)
-                                         .group(Arel.sql("DATE(created_at)")).count
+                                         .group(Arel.sql("DATE(shop_orders.created_at)")).count
 
           (0..29).reverse_each.each_with_object({}) do |days_ago, trend_data|
             date = days_ago.days.ago.to_date
@@ -90,7 +90,7 @@ module Admin
           window_end = Time.current.end_of_day
 
           pending_by_date = ShopOrder.real.where(created_at: window_start..window_end)
-                                         .group(Arel.sql("DATE(created_at)")).count
+                                         .group(Arel.sql("DATE(shop_orders.created_at)")).count
           awaiting_by_date = ShopOrder.where(awaiting_periodical_fulfillment_at: window_start..window_end)
                                       .group(Arel.sql("DATE(awaiting_periodical_fulfillment_at)")).count
           fulfilled_by_date = ShopOrder.where(fulfilled_at: window_start..window_end)
