@@ -476,6 +476,11 @@
         margin: var(--space-xs) 0 0;
       }
     }
+
+    @media (max-width: 550px) {
+      padding-left: 0;
+      padding-right: 0;
+    }
   }
 
   .modal {
@@ -703,4 +708,8 @@
     --input-subtitle-bg: var(--color-green-300);
     --input-subtitle-color: var(--color-green-500);
   }
+}
+
+* {
+  outline: 1px solid red;
 }
