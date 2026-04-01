@@ -33,19 +33,19 @@ module Admin
     ].freeze
 
     SECTIONS = {
-      "funnel"             => { loaders: %i[load_funnel_stats] },
-      "nps"                => { loaders: %i[load_nps_stats] },
-      "hcb"                => { loaders: %i[load_hcb_expenses] },
-      "fraud"              => { loaders: %i[load_fraud_stats load_fraud_happiness_data] },
-      "payouts"            => { loaders: %i[load_payouts_stats] },
-      "fulfillment"        => { loaders: %i[load_fulfillment_stats] },
-      "shipwrights"        => { loaders: %i[load_ship_certs_stats load_sw_vibes_stats load_sw_vibes_history] },
-      "support"            => { loaders: %i[load_support_stats load_support_vibes_stats load_support_graph_data] },
-      "ysws_review"        => { loaders: %i[load_ysws_review_stats] },
-      "voting"             => { loaders: %i[load_voting_stats] },
-      "community"          => { loaders: %i[load_community_engagement_stats] },
-      "pyramid_flavortime" => { loaders: %i[load_flavortime_summary load_pyramid_scheme_stats] },
-      "sidequests"         => { loaders: %i[load_sidequest_stats] }
+      "funnel"             => { loaders: %i[load_funnel_stats],           partial: "admin/super_mega_dashboard/sections/funnel" },
+      "nps"                => { loaders: %i[load_nps_stats],              partial: "admin/super_mega_dashboard/sections/nps" },
+      "hcb"                => { loaders: %i[load_hcb_expenses],           partial: "admin/super_mega_dashboard/sections/hcb" },
+      "fraud"              => { loaders: %i[load_fraud_stats load_fraud_happiness_data], partial: "admin/super_mega_dashboard/sections/fraud" },
+      "payouts"            => { loaders: %i[load_payouts_stats],          partial: "admin/super_mega_dashboard/sections/payouts" },
+      "fulfillment"        => { loaders: %i[load_fulfillment_stats],      partial: "admin/super_mega_dashboard/sections/fulfillment" },
+      "shipwrights"        => { loaders: %i[load_ship_certs_stats load_sw_vibes_stats load_sw_vibes_history], partial: "admin/super_mega_dashboard/sections/shipwrights" },
+      "support"            => { loaders: %i[load_support_stats load_support_vibes_stats load_support_graph_data], partial: "admin/super_mega_dashboard/sections/support" },
+      "ysws_review"        => { loaders: %i[load_ysws_review_stats],      partial: "admin/super_mega_dashboard/sections/ysws_review" },
+      "voting"             => { loaders: %i[load_voting_stats],           partial: "admin/super_mega_dashboard/sections/voting" },
+      "community"          => { loaders: %i[load_community_engagement_stats], partial: "admin/super_mega_dashboard/sections/community" },
+      "pyramid_flavortime" => { loaders: %i[load_flavortime_summary load_pyramid_scheme_stats], partial: "admin/super_mega_dashboard/sections/pyramid_flavortime" },
+      "sidequests"         => { loaders: %i[load_sidequest_stats],        partial: "admin/super_mega_dashboard/sections/sidequests" }
     }.freeze
 
     def index
@@ -64,7 +64,7 @@ module Admin
       end
 
       config[:loaders].each { |loader| send(loader) }
-      render partial: "admin/super_mega_dashboard/sections/#{section}", layout: false
+      render partial: config[:partial], layout: false
     end
 
     def clear_cache
