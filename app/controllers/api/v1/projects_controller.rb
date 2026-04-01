@@ -82,11 +82,6 @@ class Api::V1::ProjectsController < Api::BaseController
 
   private
 
-  def admin_api_user?
-    current_api_user&.admin?
-  end
-  helper_method :admin_api_user?
-
   def project_params
     params.permit(:title, :description, :repo_url, :demo_url, :readme_url, :ai_declaration)
   end
