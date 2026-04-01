@@ -27,7 +27,7 @@
               </div>
               <div class="fraud-stats-grid__row">
                 <span class="fraud-stats-grid__label">Shop Orders Pending</span>
-                <% sop = @fraud_orders[:backlog] || 0 %>
+                <% sop = @fraud_orders[:pending] || 0 %>
                 <span class="fraud-stats-grid__value fraud-stats-grid__value--<%= pending_color.call(sop) %>"><%= sop %></span>
               </div>
             </div>
