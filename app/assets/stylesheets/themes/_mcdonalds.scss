@@ -1,0 +1,100 @@
+// McDonald's Theme Styles
+// I'm lovin' it 🍟
+
+.mcdonalds-theme {
+  // Background - warm golden yellow tones
+  --color-bg: hsl(45, 100%, 93%);
+  --color-bg-2: hsl(42, 80%, 82%);
+
+  // Text - dark reds instead of browns
+  --color-text-header: hsl(3, 72%, 18%);
+  --color-text-body: hsl(3, 60%, 22%);
+  --color-text-muted: hsl(3, 40%, 38%);
+
+  // Red → McDonald's red tones
+  --color-red-500: hsl(3, 72%, 35%);
+  --color-red-450: hsl(3, 72%, 48%);
+  --color-red-400: hsl(3, 72%, 55%);
+  --color-red-300: hsl(3, 65%, 72%);
+
+  // Yellow → Golden Arches
+  --color-yellow-600: hsl(42, 85%, 30%);
+  --color-yellow-500: hsl(42, 95%, 42%);
+  --color-yellow-450: hsl(42, 100%, 53%);
+  --color-yellow-400: hsl(42, 100%, 59%);
+  --color-yellow-300: hsl(42, 100%, 73%);
+
+  // Blue → McDonald's dark red (sidebar uses these for blob/nav)
+  --color-blue-600: hsl(3, 72%, 18%);
+  --color-blue-500: hsl(3, 72%, 28%);
+  --color-blue-400: hsl(3, 72%, 40%);
+  --color-blue-300: hsl(3, 65%, 58%);
+
+  // Brown → deep red/burgundy
+  --color-brown-700: hsl(3, 60%, 15%);
+  --color-brown-600: hsl(3, 55%, 22%);
+  --color-brown-500: hsl(3, 50%, 28%);
+  --color-brown-400: hsl(3, 45%, 42%);
+  --color-brown-300: hsl(42, 55%, 62%);
+
+  // Tan → golden tones
+  --color-tan-400: hsl(42, 55%, 65%);
+  --color-tan-300: hsl(42, 65%, 78%);
+
+  // Utility colors
+  --color-brown-hover: hsla(3, 50%, 28%, 0.3);
+  --color-brown-hover-focus: hsla(3, 50%, 28%, 0.4);
+}
+
+// Falling fries container
+.falling-fries-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.falling-fry {
+  position: absolute;
+  top: -40px;
+  font-size: 1.5rem;
+  line-height: 1;
+  animation: fry-fall linear infinite;
+  user-select: none;
+}
+
+@keyframes fry-fall {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+
+  25% {
+    transform: translateY(25vh) translateX(calc(var(--drift) * 0.5)) rotate(90deg);
+  }
+
+  50% {
+    transform: translateY(50vh) translateX(var(--drift)) rotate(180deg);
+  }
+
+  75% {
+    transform: translateY(75vh) translateX(calc(var(--drift) * 0.5)) rotate(270deg);
+  }
+
+  100% {
+    transform: translateY(110vh) translateX(0) rotate(360deg);
+    opacity: 0.6;
+  }
+}
+
+// Respect reduced motion preferences
+@media (prefers-reduced-motion: reduce) {
+  .falling-fry {
+    animation: none;
+    display: none;
+  }
+}

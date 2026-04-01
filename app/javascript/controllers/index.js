@@ -100,6 +100,9 @@ application.register("sidebar-pin", SidebarPinController);
 import SnowController from "./snow_controller";
 application.register("snow", SnowController);
 
+import FriesController from "./fries_controller";
+application.register("fries", FriesController);
+
 import StartDevlogController from "./start_devlog_controller";
 application.register("start-devlog", StartDevlogController);
 
