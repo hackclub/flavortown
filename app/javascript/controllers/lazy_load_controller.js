@@ -77,9 +77,7 @@ export default class extends Controller {
           "document.addEventListener=function(e,fn,o){" +
           'if(e==="DOMContentLoaded"){fn();}else{_origAEL(e,fn,o);}' +
           "};";
-        const shimPost =
-          "document.addEventListener=_origAEL;" +
-          "})();";
+        const shimPost = "document.addEventListener=_origAEL;" + "})();";
         fresh.textContent = shimPre + script.textContent + shimPost;
         parent.replaceChild(fresh, script);
       }
