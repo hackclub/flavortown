@@ -4,10 +4,6 @@
         <%= link_to "View Full Dashboard →", admin_fulfillment_dashboard_index_path, class: "super-mega-link" %>
       </div>
 
-      <% if @fulfillment_temporarily_disabled %>
-        <p class="fraud-stats-error">Fulfillment is temporarily disabled so the rest of the dashboard can load.</p>
-      <% end %>
-
       <div class="super-mega-dashboard__cards super-mega-dashboard__cards--fulfillment">
         <div class="fulfillment-stats-row">
           <%
