@@ -104,7 +104,8 @@ module Admin
         "ShopItem::SpecialFulfillmentItem",
         "ShopItem::HackClubberItem",
         "ShopItem::FreeStickers",
-        "ShopItem::PileOfStickersItem"
+        "ShopItem::PileOfStickersItem",
+        "ShopItem::SillyItemType"
       ]
     end
 
@@ -155,7 +156,6 @@ module Admin
         :buyable_by_self,
         :accessory_tag,
         :show_image_in_shop,
-        :requires_achievement,
         :requires_ship,
         :required_ships_count,
         :required_ships_start_date,
@@ -172,6 +172,7 @@ module Admin
         :enabled_until,
         :source_region,
         :requires_verification_call,
+        requires_achievement: [],
         attached_shop_item_ids: [],
         blocked_countries: []
       )

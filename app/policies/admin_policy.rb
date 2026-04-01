@@ -103,6 +103,10 @@ class AdminPolicy < ApplicationPolicy
     user.admin? || user.fraud_dept?
   end
 
+  def access_vote_quality_dashboard?
+    user.admin? || user.fraud_dept?
+  end
+
   def access_fulfillment_payouts?
     user.admin?
   end

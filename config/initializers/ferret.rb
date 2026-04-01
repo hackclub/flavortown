@@ -6,7 +6,7 @@
 
 Ferret.configure do |config|
   # Path to the sidecar SQLite database (no changes to your primary DB)
-  # config.database_path = Rails.root.join("db/ferret.sqlite3")
+  config.database_path = Rails.root.join("db/ferret/ferret.sqlite3")
 
   # Embedding model (runs locally via ONNX, no API keys needed)
   # config.embedding_model = "sentence-transformers/all-mpnet-base-v2"

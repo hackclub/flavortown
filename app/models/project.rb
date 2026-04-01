@@ -68,6 +68,11 @@ class Project < ApplicationRecord
     user ? where.not(id: user.projects) : all
   }
   scope :fire, -> { where.not(marked_fire_at: nil) }
+  scope :with_banner_priority, -> {
+    left_joins(:banner_attachment)
+      .includes(banner_attachment: :blob)
+      .order(ActiveStorage::Attachment.arel_table[:id].eq(nil).asc)
+  }
   scope :excluding_shadow_banned, -> {
     where(shadow_banned: false)
       .joins(:memberships)
@@ -263,6 +268,7 @@ class Project < ApplicationRecord
       {
         key: :not_shadow_banned,
         label: "Your project must not be flagged by moderation",
+        fail_label: "Your project has been flagged by moderation and cannot be shipped!",
         tooltip: "Your project has been reviewed by moderation and is ineligible to ship. Contact support if you think this is a mistake.",
         passed: !shadow_banned?
       },
@@ -317,31 +323,45 @@ class Project < ApplicationRecord
       {
         key: :payout,
         label: "Your previous ship must have received a payout before you can ship again",
+        fail_label: "Wait for your previous ship to get a payout before shipping again",
         tooltip: "Your last ship is still awaiting a payout. You can ship again once that payout has been processed.",
         passed: previous_ship_event_has_payout?
       },
       {
         key: :vote_balance,
         label: "Maintain a non-negative vote balance",
+        fail_label: "Your vote balance is negative! Vote on other projects before shipping this one.",
         tooltip: "Your vote balance has gone negative from downvotes. Earn it back by getting upvotes on your projects.",
         passed: memberships.owner.first&.user&.vote_balance.to_i >= 0
       },
       {
         key: :project_isnt_rejected,
         label: "Your project must not have been rejected",
+        fail_label: "Your project is rejected!",
         tooltip: "Your last ship was rejected during review. Address the feedback before shipping again.",
         passed: last_ship_event&.certification_status != "rejected"
       },
       {
         key: :project_has_more_then_10s,
         label: "Log more than 10 seconds of tracked time across your devlogs",
+        fail_label: "This project doesn't have any time attached to it! (devlog some time, then try again)",
         tooltip: "Your devlogs must have actual tracked time attached. Make sure you're logging time via Hackatime.",
         passed: duration_seconds > 10
       }
+      # { key: :ai_declaration, label: "Declare your AI usage for this project (write 'None' if you didn't use any)", passed: ai_declaration.present? }
     ]
+      .map.with_index
+      .sort_by { |pair| [ pair[0][:passed] ? 1 : 0, pair[1] ] }
+      .map { |it| it[0] }
+  end
+
+  def visual_shipping_requirements
+    # only those that have a label we could use right now
+    shipping_requirements.select { |elem| !elem[:passed] || elem[:label] }
   end
 
   def shippable? = shipping_requirements.all? { |r| r[:passed] }
+
   def ship_blocking_errors = shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:label] }
 
   def last_ship_event

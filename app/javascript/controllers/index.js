@@ -115,6 +115,9 @@ application.register("stars", StarsController);
 import SidequestExpandController from "./sidequest_expand_controller";
 application.register("sidequest-expand", SidequestExpandController);
 
+import SidequestSelectorController from "./sidequest_selector_controller";
+application.register("sidequest-selector", SidequestSelectorController);
+
 import ShootingStarController from "./shooting_star_controller";
 application.register("shooting-star", ShootingStarController);
 
@@ -162,3 +165,6 @@ application.register("xp-window", XpWindowController);
 
 import LazyLoadController from "./lazy_load_controller";
 application.register("lazy-load", LazyLoadController);
+
+import SuperMegaFunnelController from "./super_mega_funnel_controller";
+application.register("super-mega-funnel", SuperMegaFunnelController);

@@ -43,7 +43,7 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
-#  requires_achievement              :string
+#  requires_achievement              :string           default([]), is an Array
 #  requires_ship                     :boolean          default(FALSE)
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
@@ -83,4 +83,8 @@
 class ShopItem::HackClubberItem < ShopItem
   validates :seller, presence: true
   validates :payout_percentage, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
+
+  def default_assignee_for_region(region)
+    super.presence || user_id
+  end
 end

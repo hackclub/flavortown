@@ -182,6 +182,26 @@ Rails.application.routes.draw do
       post "flavortime/heartbeat", to: "flavortime#heartbeat"
       post "flavortime/close", to: "flavortime#close"
       get "flavortime/active_users", to: "flavortime#active_users"
+
+      namespace :admin do
+        resources :shop_orders, only: [] do
+          collection do
+            get :stats
+            get :leaderboard
+            get :order
+            post :fulfill
+          end
+        end
+      end
+    end
+  end
+
+  namespace :seller do
+    resources :orders, only: %i[index show] do
+      member do
+        post :reveal_address
+        post :mark_fulfilled
+      end
     end
   end
 
@@ -277,6 +297,7 @@ Rails.application.routes.draw do
         post :reveal_address
         post :reveal_phone
         post :approve
+        post :review_order
         post :reject
         post :place_on_hold
         post :release_from_hold
@@ -311,6 +332,7 @@ Rails.application.routes.draw do
       collection do
         post :give_payout
         post :mark_payout_given
+        post :toggle_live
       end
     end
     resources :messages, only: [ :index, :create ]
@@ -333,6 +355,8 @@ Rails.application.routes.draw do
     get "voting_dashboard", to: "voting_dashboard#index"
     get "vote_spam_dashboard", to: "vote_spam_dashboard#index"
     get "vote_spam_dashboard/users/:user_id", to: "vote_spam_dashboard#show", as: :vote_spam_dashboard_user
+    get "vote_quality_dashboard", to: "vote_quality_dashboard#index"
+    get "vote_quality_dashboard/users/:user_id", to: "vote_quality_dashboard#show", as: :vote_quality_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
     delete "super_mega_dashboard/clear_cache", to: "super_mega_dashboard#clear_cache", as: :super_mega_dashboard_clear_cache

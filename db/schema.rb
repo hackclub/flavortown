@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -150,36 +150,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
     t.string "status"
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_blazer_queries_on_creator_id"
-  end
-
-  create_table "club_memberships", force: :cascade do |t|
-    t.boolean "active", default: true, null: false
-    t.bigint "club_id", null: false
-    t.datetime "created_at", null: false
-    t.string "external_source", default: "clubapi", null: false
-    t.datetime "last_synced_at"
-    t.string "role", default: "member", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["active"], name: "index_club_memberships_on_active"
-    t.index ["club_id"], name: "index_club_memberships_on_club_id"
-    t.index ["user_id", "club_id"], name: "index_club_memberships_on_user_id_and_club_id", unique: true
-    t.index ["user_id"], name: "index_club_memberships_on_user_id"
-  end
-
-  create_table "clubs", force: :cascade do |t|
-    t.string "club_website"
-    t.datetime "created_at", null: false
-    t.string "external_id"
-    t.string "join_code"
-    t.datetime "last_synced_at"
-    t.integer "level"
-    t.jsonb "metadata", default: {}, null: false
-    t.string "name", null: false
-    t.string "status"
-    t.datetime "updated_at", null: false
-    t.index ["external_id"], name: "index_clubs_on_external_id", unique: true
-    t.index ["name"], name: "index_clubs_on_name", unique: true
   end
 
   create_table "comments", force: :cascade do |t|
@@ -425,6 +395,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
     t.decimal "payout_basis_overall_score", precision: 5, scale: 2
     t.decimal "payout_basis_percentile", precision: 5, scale: 2
     t.string "payout_curve_version"
+    t.text "review_instructions"
     t.decimal "storytelling_median", precision: 5, scale: 2
     t.decimal "storytelling_percentile", precision: 5, scale: 2
     t.datetime "synced_at"
@@ -599,7 +570,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
     t.integer "required_ships_count", default: 1
     t.date "required_ships_end_date"
     t.date "required_ships_start_date"
-    t.string "requires_achievement"
+    t.string "requires_achievement", default: [], array: true
     t.boolean "requires_ship", default: false
     t.boolean "requires_verification_call", default: false, null: false
     t.integer "sale_percentage"
@@ -627,6 +598,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
     t.index ["user_id"], name: "index_shop_items_on_user_id"
   end
 
+  create_table "shop_order_reviews", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "reason", null: false
+    t.bigint "shop_order_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "verdict", null: false
+    t.index ["shop_order_id", "user_id"], name: "index_shop_order_reviews_on_shop_order_id_and_user_id", unique: true
+    t.index ["shop_order_id"], name: "index_shop_order_reviews_on_shop_order_id"
+    t.index ["user_id"], name: "index_shop_order_reviews_on_user_id"
+  end
+
   create_table "shop_orders", force: :cascade do |t|
     t.string "aasm_state"
     t.bigint "accessory_ids", default: [], array: true
@@ -634,6 +617,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
     t.datetime "awaiting_periodical_fulfillment_at"
     t.datetime "created_at", null: false
     t.string "external_ref"
+    t.bigint "fraud_related_project_id"
     t.text "frozen_address_ciphertext"
     t.decimal "frozen_item_price", precision: 6, scale: 2
     t.datetime "fulfilled_at"
@@ -641,6 +625,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
     t.decimal "fulfillment_cost", precision: 6, scale: 2
     t.bigint "fulfillment_payout_line_id"
     t.text "internal_notes"
+    t.text "internal_rejection_reason"
+    t.string "joe_case_url"
     t.datetime "on_hold_at"
     t.bigint "parent_order_id"
     t.integer "quantity"
@@ -820,6 +806,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
     t.string "email"
     t.string "enriched_ref"
     t.string "first_name"
+    t.integer "flavortown_message_count_14d"
+    t.integer "flavortown_support_message_count_14d"
     t.string "granted_roles", default: [], null: false, array: true
     t.boolean "has_gotten_free_stickers", default: false
     t.boolean "has_pending_achievements", default: false, null: false
@@ -830,7 +818,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.boolean "manual_ysws_override"
+    t.datetime "metrics_synced_at"
     t.integer "projects_count"
+    t.integer "projects_shipped_count"
     t.string "ref"
     t.string "regions", default: [], array: true
     t.boolean "search_engine_indexing_off", default: false, null: false
@@ -845,6 +835,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
     t.enum "shop_region", enum_type: "shop_region_type"
     t.boolean "slack_balance_notifications", default: false, null: false
     t.string "slack_id"
+    t.datetime "slack_messages_updated_at"
     t.boolean "special_effects_enabled", default: true, null: false
     t.datetime "synced_at"
     t.string "things_dismissed", default: [], null: false, array: true
@@ -857,6 +848,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
     t.boolean "voting_locked", default: false, null: false
     t.boolean "ysws_eligible", default: false, null: false
     t.index ["airtable_record_id"], name: "index_users_on_airtable_record_id", unique: true
+    t.index ["api_key"], name: "index_users_on_api_key", unique: true
     t.index ["email"], name: "index_users_on_email"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
     t.index ["session_token"], name: "index_users_on_session_token", unique: true
@@ -902,8 +894,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "club_memberships", "clubs"
-  add_foreign_key "club_memberships", "users"
   add_foreign_key "comments", "users"
   add_foreign_key "devlog_versions", "post_devlogs", column: "devlog_id"
   add_foreign_key "devlog_versions", "users"
@@ -933,6 +923,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_023744) do
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
   add_foreign_key "shop_items", "users", column: "default_assigned_user_id", on_delete: :nullify
+  add_foreign_key "shop_order_reviews", "shop_orders"
+  add_foreign_key "shop_order_reviews", "users"
   add_foreign_key "shop_orders", "fulfillment_payout_lines"
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "shop_orders", column: "parent_order_id"
