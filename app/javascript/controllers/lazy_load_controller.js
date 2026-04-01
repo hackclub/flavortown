@@ -71,9 +71,16 @@ export default class extends Controller {
           parent.replaceChild(fresh, script);
         });
       } else {
-        // Inline script: avoid eval/new Function; let the browser execute it
-        // by inserting a fresh <script> node with the same contents.
-        fresh.textContent = script.textContent;
+        const shimPre =
+          "(function(){" +
+          "var _origAEL=document.addEventListener.bind(document);" +
+          "document.addEventListener=function(e,fn,o){" +
+          'if(e==="DOMContentLoaded"){fn();}else{_origAEL(e,fn,o);}' +
+          "};";
+        const shimPost =
+          "document.addEventListener=_origAEL;" +
+          "})();";
+        fresh.textContent = shimPre + script.textContent + shimPost;
         parent.replaceChild(fresh, script);
       }
     }
