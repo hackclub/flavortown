@@ -85,7 +85,7 @@ module Admin
         prompt = build_nps_vibes_prompt(formatted_did_well: formatted_did_well, formatted_improve: formatted_improve)
         llm_response = openrouter_chat_completion(
           api_key: openrouter_api_key,
-          messages: [{ role: "user", content: prompt }],
+          messages: [ { role: "user", content: prompt } ],
           temperature: 0.2,
           max_tokens: 1_200,
           open_timeout: 5,
@@ -145,7 +145,7 @@ module Admin
 
         resp = openrouter_chat_completion(
           api_key: openrouter_api_key,
-          messages: [{ role: "user", content: repair_prompt }],
+          messages: [ { role: "user", content: repair_prompt } ],
           temperature: 0,
           max_tokens: 1_200,
           open_timeout: 5,
@@ -288,7 +288,7 @@ module Admin
       end
 
       def sample_nps_responses(responses)
-        target_total_responses = [responses.length, 200].min
+        target_total_responses = [ responses.length, 200 ].min
 
         detractors, promoters_and_passives = responses.partition do |r|
           score = r[:score]
