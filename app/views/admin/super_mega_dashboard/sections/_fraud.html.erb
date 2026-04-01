@@ -12,6 +12,29 @@
         </div>
       </div>
 
+      <!-- PENDING QUEUE -->
+      <div class="fraud-subsection">
+        <h3 class="fraud-subsection__title">Pending Queue</h3>
+        <div class="super-mega-dashboard__cards">
+          <div class="super-mega-dashboard__card">
+            <h3>Awaiting Review</h3>
+            <% pending_color = ->(n) { n >= 100 ? "red" : n >= 50 ? "yellow" : "green" } %>
+            <div class="fraud-stats-grid">
+              <div class="fraud-stats-grid__row">
+                <span class="fraud-stats-grid__label">Reports Pending</span>
+                <% rp = @fraud_reports[:pending] || 0 %>
+                <span class="fraud-stats-grid__value fraud-stats-grid__value--<%= pending_color.call(rp) %>"><%= rp %></span>
+              </div>
+              <div class="fraud-stats-grid__row">
+                <span class="fraud-stats-grid__label">Shop Orders Pending</span>
+                <% sop = @fraud_orders[:backlog] || 0 %>
+                <span class="fraud-stats-grid__value fraud-stats-grid__value--<%= pending_color.call(sop) %>"><%= sop %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- JOE SECTION -->
       <div class="fraud-subsection">
         <h3 class="fraud-subsection__title">Cases & Bans</h3>
