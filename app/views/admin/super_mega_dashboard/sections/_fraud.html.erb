@@ -25,7 +25,7 @@
             <div class="d3-stream-legend" id="joeUnresolvedLegend"></div>
             <script>
               document.addEventListener('DOMContentLoaded', function() {
-                ensureD3Fraud(function() {
+                ensureD3(function() {
                   var createdOverTime = <%= raw @joe_fraud_stats[:created_over_time].to_json %>;
                   var avgHangTime = <%= @joe_fraud_stats[:avg_hang_time_days].to_json %>;
                   var openCount = <%= @joe_fraud_stats[:open].to_json %>;
@@ -179,7 +179,7 @@
             </div>
             <div class="d3-stream-legend" id="banTrendLegend"></div>
             <script>
-              function ensureD3Fraud(cb) {
+              function ensureD3(cb) {
                 if (typeof d3 !== 'undefined') { cb(); return; }
                 var s = document.createElement('script');
                 s.src = 'https://cdn.jsdelivr.net/npm/d3@7';
@@ -188,7 +188,7 @@
               }
 
               document.addEventListener('DOMContentLoaded', function() {
-                ensureD3Fraud(function() {
+                ensureD3(function() {
                   var raw = <%= raw @fraud_ban_trend_data.to_json %>;
                   var sortedDates = Object.keys(raw).sort();
                   var tableData = sortedDates.map(function(d) {
@@ -373,7 +373,7 @@
                 <div class="d3-stream-legend" id="vibesTrendLegend"></div>
                 <script>
                   document.addEventListener('DOMContentLoaded', function() {
-                    ensureD3Fraud(function() {
+                    ensureD3(function() {
                       var raw = <%= raw @fraud_vibes_history.to_json %>;
                       var sortedWeeks = Object.keys(raw).sort();
                       var tableData = sortedWeeks.map(function(w) {
@@ -568,7 +568,7 @@
             <div class="d3-stream-legend" id="reportTrendLegend"></div>
             <script>
               document.addEventListener('DOMContentLoaded', function() {
-                ensureD3Fraud(function() {
+                ensureD3(function() {
                   var raw = <%= raw @fraud_report_trend_data.to_json %>;
                   var sortedDates = Object.keys(raw).sort();
 
