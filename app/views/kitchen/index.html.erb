@@ -165,9 +165,9 @@
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <%= render StateCardComponent.new(
         title: "Challenger Center Space Challenge",
-        description: "Ship a space-related project by March 31! Submit it to this sidequest to qualify for space-themed prizes in the shop.",
+        description: "Ship a space-related project by April 30th! Submit it to this sidequest to qualify for space-themed prizes in the shop.",
         variant: :space,
-        badge_text: "Mission Deadline: March 31",
+        badge_text: "Mission Deadline: April 30th",
         icon: "rocket",
         cta_text: challenger_mission_cta_text,
         cta_href: challenger_mission_cta_href(fallback: sidequests_path(anchor: "challenger-center"))
@@ -197,7 +197,7 @@
         icon: "info"
       ) %>
     </div>
-  <% elsif current_user.verification_verified? && current_user.ysws_eligible == false %>
+  <% elsif current_user.verification_verified? && !current_user.ysws_eligible? %>
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <%= render StateCardComponent.new(
         title: "Outside age range",

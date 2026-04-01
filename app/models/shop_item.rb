@@ -43,7 +43,7 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
-#  requires_achievement              :string
+#  requires_achievement              :string           default([]), is an Array
 #  requires_ship                     :boolean          default(FALSE)
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
@@ -90,6 +90,7 @@ class ShopItem < ApplicationRecord
 
   before_validation :fix_blacklist
   before_validation :floor_ticket_cost
+  before_validation :clean_requires_achievement
 
   after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
   after_commit :invalidate_shop_page_cache
@@ -185,6 +186,7 @@ class ShopItem < ApplicationRecord
   validates :required_ships_count, numericality: { only_integer: true, greater_than: 0 }, if: :requires_ship?
   validates :required_ships_start_date, :required_ships_end_date, presence: true, if: :requires_ship?
   validate :is_range_valid, if: :requires_ship?
+  validate :validate_achievement_slugs
 
   has_many :shop_orders, dependent: :restrict_with_error
 
@@ -280,7 +282,9 @@ class ShopItem < ApplicationRecord
     return true unless requires_achievement?
     return false unless user.present?
 
-    user.earned_achievement?(requires_achievement.to_sym)
+    requires_achievement.any? do |ach_slug|
+      user.earned_achievement?(ach_slug.to_sym)
+    end
   end
 
   def requires_achievement?
@@ -316,5 +320,17 @@ class ShopItem < ApplicationRecord
 
   def floor_ticket_cost
     self.ticket_cost = ticket_cost.floor if ticket_cost.present?
+  end
+
+  def clean_requires_achievement
+    if requires_achievement.is_a?(Array)
+      self.requires_achievement = requires_achievement.reject(&:blank?)
+    end
+  end
+
+  def validate_achievement_slugs
+    return unless requires_achievement.present?
+    invalid = requires_achievement.reject { |s| Achievement.all_slugs.include?(s.to_sym) }
+    errors.add(:requires_achievement, "contains invalid slugs: #{invalid.join(', ')}") if invalid.any?
   end
 end

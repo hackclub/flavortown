@@ -8,6 +8,7 @@ section "Order Details:",
     mrkdwn_text("*Item:* #{order.shop_item.name}"),
     mrkdwn_text("*Quantity:* #{order.quantity}"),
     mrkdwn_text("*Total:* 🍪 #{order.total_cost}"),
+    mrkdwn_text("*Fulfilled by:* #{order.fulfilled_by}"),
   ]
 
 if order.tracking_number.present?

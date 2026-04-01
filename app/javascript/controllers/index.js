@@ -157,8 +157,11 @@ application.register("tutorial-steps-expand", TutorialStepsExpandController);
 import TutorialVideoModalController from "./tutorial_video_modal_controller";
 application.register("tutorial-video-modal", TutorialVideoModalController);
 
-import UploadFormController from "./upload_form_controller";
-application.register("upload-form", UploadFormController);
+import SidequestSelectorController from "./sidequest_selector_controller";
+application.register("sidequest-selector", SidequestSelectorController);
+
+import ShootingStarController from "./shooting_star_controller";
+application.register("shooting-star", ShootingStarController);
 
 import VoteCategoryController from "./vote_category_controller";
 application.register("vote-category", VoteCategoryController);
