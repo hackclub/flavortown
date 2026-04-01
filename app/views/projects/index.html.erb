@@ -1,10 +1,15 @@
 <% content_for :title, "My Projects" %>
 <div class="projects-board">
   <%= render HeadingComponent.new(title: "My Projects", tone: :blue, size: :full) %>
-  <header class="projects-board__header">
-    <div class="projects-board__heading">
-      <p class="projects-board__subtitle">What'ya cookin'?</p>
+  <header class="projects-board__header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+    <div class="projects-board__heading" style="margin-bottom: 0;">
+      <p class="projects-board__subtitle" style="margin-bottom: 0;">What'ya cookin'?</p>
     </div>
+
+    <div class="ship-countdown" data-controller="tooltip" data-tooltip-content-value="Flavortown closes on April 30, 2026 — make sure your project is shipped before then!">
+      <span class="ship-countdown__label">Get your project out of the oven by April 30!</span>
+    </div>
+
     <button class="btn btn--red" data-action="click->project-ideas#toggle" data-controller="project-ideas">
       Need Ideas?
     </button>
