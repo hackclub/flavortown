@@ -12,6 +12,29 @@
         </div>
       </div>
 
+      <!-- PENDING QUEUE -->
+      <div class="fraud-subsection">
+        <h3 class="fraud-subsection__title">Pending Queue</h3>
+        <div class="super-mega-dashboard__cards">
+          <div class="super-mega-dashboard__card">
+            <h3>Awaiting Review</h3>
+            <% pending_color = ->(n) { n >= 100 ? "red" : n >= 50 ? "yellow" : "green" } %>
+            <div class="fraud-stats-grid">
+              <div class="fraud-stats-grid__row">
+                <span class="fraud-stats-grid__label">Reports Pending</span>
+                <% rp = @fraud_reports[:pending] || 0 %>
+                <span class="fraud-stats-grid__value fraud-stats-grid__value--<%= pending_color.call(rp) %>"><%= rp %></span>
+              </div>
+              <div class="fraud-stats-grid__row">
+                <span class="fraud-stats-grid__label">Shop Orders Pending</span>
+                <% sop = @fraud_orders[:pending] || 0 %>
+                <span class="fraud-stats-grid__value fraud-stats-grid__value--<%= pending_color.call(sop) %>"><%= sop %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- JOE SECTION -->
       <div class="fraud-subsection">
         <h3 class="fraud-subsection__title">Cases & Bans</h3>
@@ -152,11 +175,13 @@
           <% end %>
         </div>
 
-        <% if @joe_fraud_stats && !@joe_fraud_stats[:error] && @joe_fraud_stats[:longest_hang_times].any? %>
+        <% if @joe_fraud_stats && !@joe_fraud_stats[:error] %>
         <div class="super-mega-dashboard__card">
           <h3>Stalest Cases</h3>
+          <% stale_cases = @joe_fraud_stats[:longest_hang_times]&.select { |c| c[:status] == "open" } || [] %>
+          <% if stale_cases.any? %>
           <div class="fraud-stats-grid">
-            <% @joe_fraud_stats[:longest_hang_times].select { |c| c[:status] == "open" }.each do |c| %>
+            <% stale_cases.each do |c| %>
               <div class="fraud-stats-grid__row">
                 <a href="https://joe.fraud.hackclub.com/cases/<%= c[:id] %>" target="_blank" style="color:inherit;text-decoration:none;flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;">
                   <span class="fraud-stats-grid__label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;" title="<%= c[:snippet] %>">#<%= c[:id] %> — <%= c[:snippet]&.split("\n")&.first %></span>
@@ -165,6 +190,9 @@
               </div>
             <% end %>
           </div>
+          <% else %>
+          <p class="fraud-stats-grid__label">we aint stale! 🎉</p>
+          <% end %>
         </div>
         <% end %>
 
@@ -310,13 +338,18 @@
               <div class="super-mega-dashboard__card" style="min-width:320px;max-width:560px;max-height:80vh;overflow-y:auto;position:relative;margin:auto;">
                 <button onclick="document.getElementById('vibesWeekModal').style.display='none'" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
                 <h3><%= @fraud_happiness_week %> Feedback</h3>
-                <% @fraud_happiness_records.select { |r| r[:extra_comments].present? }.each do |r| %>
-                  <div style="border-top:1px solid #1e293b;padding:8px 0;display:flex;align-items:flex-start;gap:6px;">
-                    <% if r[:feedback_impl] %>
-                      <span title="Feedback implemented" style="color:#10b981;flex-shrink:0;">✓</span>
-                    <% end %>
-                    <span style="font-size:11px;color:#000;"><%= r[:extra_comments] %></span>
-                  </div>
+                <% feedback_records = @fraud_happiness_records.select { |r| r[:extra_comments].present? } %>
+                <% if feedback_records.any? %>
+                  <% feedback_records.each do |r| %>
+                    <div style="border-top:1px solid #1e293b;padding:8px 0;display:flex;align-items:flex-start;gap:6px;">
+                      <% if r[:feedback_impl] %>
+                        <span title="Feedback implemented" style="color:#10b981;flex-shrink:0;">✓</span>
+                      <% end %>
+                      <span style="font-size:11px;color:#000;"><%= r[:extra_comments] %></span>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <p class="fraud-stats-grid__label">nobody shared their thoughts with me :<< p>
                 <% end %>
               </div>
             </div>
@@ -533,7 +566,7 @@
                   <span class="fraud-stats-grid__value fraud-stats-grid__value--red"><%= @fraud_bans[:banned] %><span class="fraud-stats-grid__pct">(<%= @fraud_bans[:banned_pct] %>%)</span></span>
                 </div>
                 <div class="fraud-stats-grid__row">
-                  <span class="fraud-stats-grid__label">Shadow Banned</span>
+                  <span class="fraud-stats-grid__label">Shadow Banned (Projects)</span>
                   <span class="fraud-stats-grid__value fraud-stats-grid__value--purple"><%= @fraud_bans[:shadow_banned_users] %><span class="fraud-stats-grid__pct">(<%= @fraud_bans[:shadow_banned_pct] %>%)</span></span>
                 </div>
                 <div class="fraud-stats-grid__row">
