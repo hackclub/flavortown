@@ -38,7 +38,7 @@
 
   <p class="votes-new__project-description"><%= truncate(project.display_description.to_s, length: 220) %></p>
 
-  <% if project.ai_declaration.present? %>
+  <% if project.ai_declaration.present? && project.ai_declaration.strip.downcase != "none" %>
     <div class="project-show-card__ai-declaration">
       <div class="project-show-card__ai-declaration-header">
         <span aria-hidden="true">🤖</span> <span>This project uses AI</span>
