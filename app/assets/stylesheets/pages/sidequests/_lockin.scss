@@ -208,6 +208,54 @@
           margin-bottom: var(--space-xxs);
         }
       }
+
+      .lockin-prize-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: var(--space-s);
+        margin-top: var(--space-m);
+
+        @media (max-width: 600px) {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .lockin-prize-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-m);
+        background: #fff8eb;
+        border: 1.5px solid #faedcd;
+        border-radius: 12px;
+        text-decoration: none;
+        transition:
+          opacity 0.15s ease,
+          transform 0.15s ease;
+        text-align: center;
+
+        i {
+          font-size: 1.75rem;
+          color: #8c5a35;
+          margin-bottom: var(--space-xs);
+        }
+
+        span {
+          font-size: var(--font-size-s);
+          font-weight: 600;
+          color: #5a4b41;
+        }
+
+        &:hover {
+          opacity: 0.75;
+          transform: scale(0.98);
+        }
+
+        &:active {
+          opacity: 0.55;
+        }
+      }
     }
   }
 
