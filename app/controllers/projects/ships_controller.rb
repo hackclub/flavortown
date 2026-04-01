@@ -11,6 +11,7 @@ class Projects::ShipsController < ApplicationController
 
   def create
     authorize @project, :submit_ship?
+    selected_sidequest = selected_sidequest_for_submission
 
     # Warn if readme URL is not a raw GitHub URL
     unless @project.readme_is_raw_github_url?
@@ -18,18 +19,18 @@ class Projects::ShipsController < ApplicationController
     end
 
     @project.with_lock do
+      apply_space_theme_for_sidequest!(selected_sidequest)
       @project.submit_for_review!
-      @post = @project.posts.create!(user: current_user, postable: Post::ShipEvent.new(body: params[:ship_update].to_s.strip))
-      create_sidequest_entries!
+      @post = @project.posts.create!(user: current_user, postable: Post::ShipEvent.new(
+        body: params[:ship_update].to_s.strip,
+        review_instructions: params[:review_instructions].to_s.strip.presence
+      ))
+      create_sidequest_entries!(selected_sidequest)
     end
 
     if initial_ship?
-      begin
-        ShipCertService.ship_to_dash(@project, type: "initial")
-        redirect_to @project, notice: "Congratulations! Your project has been submitted for review!"
-      rescue => e
-        redirect_to @project, alert: "Your project was saved but certification failed: #{e.message}"
-      end
+      ShipCertWebhookJob.perform_later(ship_event_id: @post.postable.id, type: "initial")
+      redirect_to @project, notice: "Congratulations! Your project has been submitted for review!"
     else
       @post.postable.update!(certification_status: "approved")
       redirect_to @project, notice: "Ship submitted! Your project is now out for voting."
@@ -50,10 +51,6 @@ class Projects::ShipsController < ApplicationController
   def initial_ship? = @project.posts.where(postable_type: "Post::ShipEvent").one?
 
   def load_ship_data
-    if @step == 2
-      @space_themed_checked = @project.space_themed?
-      @project.description = @project.description_without_space_theme_prefix if @project.space_themed?
-    end
     @last_ship = @project.last_ship_event
     @devlogs_for_ship = devlogs_since_last_ship
     @active_sidequests = Sidequest.active
@@ -64,18 +61,30 @@ class Projects::ShipsController < ApplicationController
     @last_ship ? devlogs.where("posts.created_at > ?", @last_ship.created_at) : devlogs
   end
 
-  def create_sidequest_entries!
-    sidequest_ids = Array(params[:sidequest_ids]).map(&:to_i).reject(&:zero?)
-    if @project.space_themed?
-      challenger_id = Sidequest.active.find_by(slug: "challenger")&.id
-      sidequest_ids << challenger_id if challenger_id
-    end
-    sidequest_ids.uniq!
-    return if sidequest_ids.empty?
+  def selected_sidequest_for_submission
+    selected_sidequest_id = params[:sidequest_id].to_i
 
-    active_sidequest_ids = Sidequest.active.where(id: sidequest_ids).pluck(:id)
-    active_sidequest_ids.each do |sidequest_id|
-      @project.sidequest_entries.find_or_create_by!(sidequest_id: sidequest_id)
+    # Backward compatibility for older clients still posting sidequest_ids[]
+    if selected_sidequest_id.zero?
+      selected_sidequest_id = Array(params[:sidequest_ids]).map(&:to_i).reject(&:zero?).first.to_i
+    end
+    return nil if selected_sidequest_id.zero?
+
+    Sidequest.active.find_by(id: selected_sidequest_id)
+  end
+
+  def create_sidequest_entries!(selected_sidequest)
+    return unless selected_sidequest
+
+    @project.sidequest_entries.find_or_create_by!(sidequest_id: selected_sidequest.id)
+  end
+
+  def apply_space_theme_for_sidequest!(selected_sidequest)
+    base_description = @project.description_without_space_theme_prefix
+    @project.description = if selected_sidequest&.slug == "challenger"
+      [ Project::SPACE_THEMED_PREFIX, base_description.presence ].compact.join(" ")
+    else
+      base_description
     end
   end
 end

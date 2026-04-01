@@ -40,13 +40,13 @@ class ExploreController < ApplicationController
   end
 
   def gallery
-    scope = Project.includes(banner_attachment: :blob)
+    scope = Project.with_banner_priority
                    .where(tutorial: false)
                    .excluding_member(current_user)
                    .excluding_shadow_banned
 
     if params[:sort] == "following" && current_user
-      scope = scope.where(id: current_user.project_follows.select(:project_id))
+      scope = scope.where(id: current_user.project_follows.select(:project_id)).order(created_at: :desc)
     elsif params[:sort] == "top"
       scope = scope.order(devlogs_count: :desc)
     else

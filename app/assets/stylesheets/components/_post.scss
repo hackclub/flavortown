@@ -239,7 +239,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    color: var(--color-tan-400);
+    color: var(--color-bg);
   }
 
   &__author {
@@ -440,6 +440,11 @@
     gap: var(--space-s);
     color: var(--color-bg);
     padding: 0;
+
+    &--image {
+      display: block;
+      object-fit: contain;
+    }
 
     &--file {
       svg {
@@ -772,7 +777,7 @@
       display: flex;
       justify-content: space-between;
       font-size: 1.25rem;
-      color: var(--color-brown-400);
+      color: var(--color-bg);
 
       @media (max-width: 900px) {
         font-size: 1rem;

@@ -1,0 +1,76 @@
+<% content_for :title, "Order ##{@order.id}" %>
+<% o = @order %>
+
+<div class="seller-portal">
+  <h1 class="seller-portal__title">Order #<%= o.id %></h1>
+
+  <div class="admin-section">
+    <div class="seller-portal__order-meta">
+      <div>
+        <span class="seller-portal__label">Status</span>
+        <span class="badge badge-<%= o.aasm_state %>"><%= o.aasm_state.humanize %></span>
+      </div>
+      <div>
+        <span class="seller-portal__label">Created</span>
+        <span><%= o.created_at.strftime("%b %d, %Y %l:%M %p") %></span>
+      </div>
+      <div>
+        <span class="seller-portal__label">Buyer</span>
+        <span><%= o.user.display_name %></span>
+      </div>
+      <div>
+        <span class="seller-portal__label">Item</span>
+        <span><%= o.shop_item.name %></span>
+      </div>
+      <div>
+        <span class="seller-portal__label">Quantity</span>
+        <span class="seller-portal__qty <%= 'seller-portal__qty--warn' if o.quantity > 1 %>">×<%= o.quantity %></span>
+      </div>
+      <div>
+        <span class="seller-portal__label">Cost</span>
+        <span><%= o.quantity %> × <%= o.frozen_item_price %> = <strong><%= o.total_cost %> tickets</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <% if o.can_view_address?(current_user) %>
+    <div class="admin-section">
+      <h2 class="admin-section__header">Shipping Address</h2>
+      <turbo-frame id="address-content">
+        <div class="seller-portal__address-reveal">
+          <p>🔒 Address is encrypted. Click below to decrypt and view.</p>
+          <%= button_to "Reveal Address", reveal_address_seller_order_path(o), method: :post, class: "btn-primary", data: { turbo_frame: "address-content", turbo_method: "post" } %>
+        </div>
+      </turbo-frame>
+    </div>
+  <% end %>
+
+  <% if o.external_ref.present? %>
+    <div class="admin-section">
+      <h2 class="admin-section__header">Fulfillment Info</h2>
+      <div class="info-rows">
+        <div><b>Tracking/Reference:</b> <%= o.external_ref %></div>
+        <% if o.fulfilled_by.present? %>
+          <div><b>Fulfilled By:</b> <%= o.fulfilled_by %></div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if o.awaiting_periodical_fulfillment? %>
+    <div class="admin-section">
+      <h2 class="admin-section__header">Mark as Fulfilled</h2>
+      <%= form_with url: mark_fulfilled_seller_order_path(o), method: :post, local: true, class: "seller-portal__fulfill-form" do %>
+        <label>Tracking / Order #<input type="text" name="external_ref" placeholder="e.g. 1Z999AA10123456784" autocomplete="off" class="input-primary"></label>
+        <label>Fulfillment Cost (USD)<input type="number" name="fulfillment_cost" step="0.01" min="0" placeholder="0.00" autocomplete="off" class="input-primary"></label>
+        <button type="submit" class="btn-primary" onclick="return confirm('Mark this order as fulfilled?')">✓ Mark Fulfilled</button>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="seller-portal__actions">
+    <%= link_to "← Back to Orders", seller_orders_path, class: "btn-secondary" %>
+  </div>
+</div>
+
+<%= render "seller/orders/styles" %>

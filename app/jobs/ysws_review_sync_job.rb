@@ -225,7 +225,7 @@ class YswsReviewSyncJob < ApplicationJob
       <<~UPDATE_JUSTIFICATION
         ===== Project Updated =====
         #{old_hours} -> #{new_hours} hours
-        A new YSWS review and Ship Cert has been submitted for this project.
+        A new Guardians of Integrity review and Ship Cert has been submitted for this project.
         The new review can be found at https://review.hackclub.com/admin/ysws_reviews/#{current_review["id"]}
       UPDATE_JUSTIFICATION
   end
@@ -340,13 +340,13 @@ class YswsReviewSyncJob < ApplicationJob
 
       This project was initially ship certified by #{ship_certifier}.
 
-      Following this it was YSWS reviewed by #{reviewer_username}.
+      Following this it was reviewed by the Guardian of Integrity, #{reviewer_username}.
 
       #{reviewer_username} approved:
 
       #{devlog_list}
       ====================================================
-      The Full YSWS Review + devlogs are at https://review.hackclub.com/admin/ysws_reviews/#{review_id}
+      The Full Integrity report + devlogs are at https://review.hackclub.com/admin/ysws_reviews/#{review_id}
 
       The Ship Cert is at https://review.hackclub.com/admin/ship_certifications/#{ship_cert_id}/edit
       ====================================================

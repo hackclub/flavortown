@@ -159,6 +159,42 @@ body {
   }
 }
 
+a.super-mega-dashboard-btn {
+  &.btn-primary,
+  &.btn-primary-dark {
+    background-image: url("mask/title.webp");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+
+  &.btn-primary {
+    background-color: var(--color-blue-400);
+    &:hover {
+      background-color: var(--color-blue-300);
+    }
+  }
+
+  &.btn-primary-dark {
+    background-color: var(--color-blue-500);
+    &:hover {
+      background-color: var(--color-blue-400);
+    }
+  }
+}
+
+.btn-topup {
+  @extend %btn-base;
+  background: var(--color-blue-500);
+  color: white !important;
+  text-decoration: none;
+
+  &:hover {
+    background: var(--color-blue-400);
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+  }
+}
+
 /* Layout Utilities */
 .button-grid {
   display: grid;
@@ -168,6 +204,25 @@ body {
 
 .info-rows > * {
   margin: 0.25em 0 0 0.5em;
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.address-copy-btn {
+  background: none;
+  border: 1px solid var(--color-brown-500);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.3rem;
+  margin-left: 0.25rem;
+  vertical-align: middle;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .flex {
@@ -318,6 +373,12 @@ body {
   &.badge-refunded {
     background-color: #a855f7;
     color: white;
+  }
+
+  &.badge-mass_dm_sent {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    font-weight: 700;
   }
 }
 
@@ -503,10 +564,6 @@ dialog {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   background: var(--color-tan-300);
   margin: auto;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 
   &::backdrop {
     background: rgba(0, 0, 0, 0.5);
@@ -537,6 +594,75 @@ dialog {
     border: 1px solid var(--color-brown-500);
     border-radius: 4px;
   }
+}
+
+.review-list {
+  margin-bottom: 1rem;
+
+  &__item {
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+
+    p {
+      margin: 0.25rem 0;
+    }
+
+    small {
+      color: #6b7280;
+    }
+
+    &--approve {
+      background: #ecfdf5;
+      border: 1px solid #10b981;
+    }
+
+    &--reject {
+      background: #fef2f2;
+      border: 1px solid #ef4444;
+    }
+  }
+}
+
+.review-form {
+  margin-bottom: 1rem;
+
+  &__verdicts {
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__verdict {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    font-weight: normal;
+  }
+}
+
+.reject-modal__field {
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  textarea,
+  input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--color-brown-500);
+    border-radius: 4px;
+  }
+}
+
+.reject-modal__actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
 }
 
 .fulfill-actions {
@@ -729,4 +855,53 @@ dialog {
 
 .admin-section__content {
   padding-top: var(--space-xs);
+}
+
+.role-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.role-dropdown__menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  min-width: 200px;
+  background: white;
+  border: 1px solid var(--color-tan-500, #d1d5db);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 0.25rem 0;
+  margin-top: 0.25rem;
+
+  &--open {
+    display: block;
+  }
+}
+
+.role-dropdown__menu form {
+  margin: 0;
+}
+
+.role-dropdown__item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.875rem;
+  border-radius: 0;
+
+  &:hover {
+    background: var(--color-tan-300, #f3f4f6);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 }

@@ -5,6 +5,13 @@
 <% content_for :twitter_card, "summary_large_image" %>
 <% content_for :og_author, @project.memberships.find_by(role: :owner)&.user&.display_name %>
 
+<% owner = @project.memberships.find_by(role: :owner)&.user %>
+<% if owner&.search_engine_indexing_off? %>
+  <% content_for :head do %>
+    <meta name="robots" content="noindex, nofollow">
+  <% end %>
+<% end %>
+
 <div class="projects-show">
   <div class="projects-show__container" style="position: relative;">
     <%= render "shared/debug_info", record: @project %>
@@ -33,6 +40,14 @@
                 color: :brown,
                 href: new_project_devlog_path(@project)
               ) %>
+        <% end %>
+
+        <% if policy(:helper).access? %>
+          <% helper_user = owner || @project.users.first %>
+          <% if helper_user.present? %>
+            <%= link_to "View user on helper dash", helper_user_path(helper_user), class: "btn btn--brown" %>
+          <% end %>
+          <%= link_to "View project on helper dash", helper_project_path(@project), class: "btn btn--brown" %>
         <% end %>
 
         <% if policy(@project).resend_webhook? %>

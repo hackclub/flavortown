@@ -5,10 +5,10 @@
                   alt: "",
                   aria: { hidden: true },
                   class: "sidequest-card__corner-moon" %>
-    <h2>Ship a space-related project by March 31! Submit it to this sidequest to qualify for space-themed prizes in the shop.</h2>
+    <h2>Ship a space-related project by April 30th! Submit it to this sidequest to qualify for space-themed prizes in the shop.</h2>
     <% if sidequest.approved_count > 0 %>
       <p class="sidequest-card__expires"><%= pluralize(sidequest.approved_count, "submission") %></p>
     <% end %>
-    <p class="sidequest-card__expires">Ends March 31, 2026</p>
+    <p class="sidequest-card__expires">Ends April 30th, 2026</p>
   </div>
 <% end %>

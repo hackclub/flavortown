@@ -41,7 +41,8 @@
   <% end %>
   <% if policy(:admin).access_shop_orders? %>
     <% pending_count = ShopOrder.where(aasm_state: 'pending').size %>
-    <% total_shop_count = pending_count %>
+    <% on_hold_count = ShopOrder.where(aasm_state: 'on_hold').size %>
+    <% total_shop_count = pending_count + on_hold_count %>
     <%= link_to "/admin/shop_orders?status=pending&view=shop_orders", class: "btn-primary" do %>
       Shop Orders
       <% if total_shop_count > 0 %>
@@ -56,7 +57,7 @@
           text_color = total_shop_count >= 50 && total_shop_count <= 100 ? "#78350f" : "white"
         %>
         <span style="background-color: <%= bg_color %>; color: <%= text_color %>; border-radius: 9999px; padding: 0px 6px; font-size: 0.9em; min-width: 20px; text-align: center;">
-          <%= total_shop_count %>
+          <%= total_shop_count %> (<%= on_hold_count %> held)
         </span>
       <% end %>
     <% end %>
@@ -101,7 +102,7 @@
   <%= link_to "Job queue", "/admin/jobs", class: button_class %>
   <% end %>
     <% if policy(:admin).access_super_mega_dashboard? %>
-    <%= link_to "Super Mega Dashboard", "/admin/super_mega_dashboard", class: button_class %>
+    <%= link_to "Super Mega Dashboard", "/admin/super_mega_dashboard", class: "#{button_class} super-mega-dashboard-btn" %>
   <% end %>
     <% if policy(:admin).access_payouts_dashboard? %>
     <%= link_to "Payouts Dashboard", "/admin/payouts_dashboard", class: button_class %>
@@ -122,7 +123,7 @@
     <%= link_to "Vote Spam Dashboard", admin_vote_spam_dashboard_path, class: button_class %>
   <% end %>
   <%= link_to "Help bot", "slack://app?team=T0266FRGM&id=A09NP19R7FX&tab=home", class: "btn-primary" %>
-  <%= link_to "Ship Cert & YSWS Dashboards", "https://review.hackclub.com/", class: "btn-primary", target: "_blank" %>
+  <%= link_to "Ship Cert & Guardians of Integrity Dashboards", "https://review.hackclub.com/", class: "btn-primary", target: "_blank" %>
 </div>
 
 <h2>other stuff</h2>
@@ -133,6 +134,9 @@
   <% end %>
   <% if policy(:admin).access_suspicious_votes? %>
     <%= link_to "Suspicious Votes", "/admin/suspicious_votes", class: button_class %>
+  <% end %>
+  <% if policy(:admin).manage_messages? %>
+    <%= link_to "Messages", admin_messages_path, class: button_class %>
   <% end %>
   <% if policy(:admin).access_support_vibes? %>
     <%= link_to "Support Vibes", "/admin/support_vibes", class: button_class %>

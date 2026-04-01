@@ -43,7 +43,7 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
-#  requires_achievement              :string
+#  requires_achievement              :string           default([]), is an Array
 #  requires_ship                     :boolean          default(FALSE)
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
@@ -58,13 +58,13 @@
 #  unlisted                          :boolean          default(FALSE)
 #  unlock_on                         :date
 #  usd_cost                          :decimal(, )
-#  usd_offset_au                     :decimal(, )
-#  usd_offset_ca                     :decimal(, )
-#  usd_offset_eu                     :decimal(, )
-#  usd_offset_in                     :decimal(, )
-#  usd_offset_uk                     :decimal(, )
-#  usd_offset_us                     :decimal(, )
-#  usd_offset_xx                     :decimal(, )
+#  usd_offset_au                     :decimal(10, 2)
+#  usd_offset_ca                     :decimal(10, 2)
+#  usd_offset_eu                     :decimal(10, 2)
+#  usd_offset_in                     :decimal(10, 2)
+#  usd_offset_uk                     :decimal(10, 2)
+#  usd_offset_us                     :decimal(10, 2)
+#  usd_offset_xx                     :decimal(10, 2)
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
 #  default_assigned_user_id          :bigint

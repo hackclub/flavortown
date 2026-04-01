@@ -1,0 +1,242 @@
+<%
+  now = Time.current
+  start_date = Time.zone.parse("2026-04-02 00:00:00 EST")
+
+  active_week = if now < start_date
+                  0
+                elsif now < start_date + 1.week
+                  1
+                elsif now < start_date + 2.weeks
+                  2
+                elsif now < start_date + 3.weeks
+                  3
+                elsif now < start_date + 4.weeks
+                  4
+                else
+                  5
+                end
+
+  status_text = case active_week
+                when 0 then "Enlisting"
+                when 1..4 then "In Progress (Week #{active_week})"
+                else "Ended"
+                end
+
+  deadlines = [
+    start_date + 1.week + 24.hours - 1.minute,
+    start_date + 2.weeks + 24.hours - 1.minute,
+    start_date + 3.weeks + 24.hours - 1.minute,
+    start_date + 4.weeks
+  ]
+
+  next_deadline = if active_week == 0
+                    start_date
+                  else
+                    deadlines.find { |d| now < d }
+                  end
+
+  countdown_label = active_week == 0 ? "STARTS IN:" : "NEXT DEADLINE:"
+%>
+<% content_for :title, @sidequest.title %>
+<% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
+<% content_for :og_image, og_image_url('sidequests', format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+
+<%= content_for :stylesheets do %>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap">
+<% end %>
+
+<div class="sidequest-show sidequest-show--lockin">
+  <div class="sidequest-show__content">
+
+    <div class="lockin-dashboard">
+      <div class="lockin-header">
+        <h1 class="lockin-header__title"><i class="fa-solid fa-lock"></i> <%= @sidequest.title %></h1>
+        <p class="lockin-header__desc"><%= @sidequest.description %></p>
+        <p class="lockin-header__desc" style="margin-top: 1rem; font-weight: 700;">
+          Join <a href="https://hackclub.enterprise.slack.com/archives/C0APA6DDC6N" style="color: #d4a373; text-decoration: underline;">#lockin-sidequest</a> on Slack and connect with other survivors!
+        </p>
+      </div>
+
+      <div class="lockin-weeks">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1rem;">
+          <h3 class="lockin-weeks__title" style="margin-bottom: 0;">4-Week Mission (10 hrs / wk)</h3>
+          <% if next_deadline %>
+            <div id="lockin-countdown" data-deadline="<%= next_deadline.iso8601 %>" style="font-family: monospace; font-size: 1.1rem; font-weight: bold; color: #8c5a35; background: #fff8eb; padding: 0.25rem 0.75rem; border-radius: 6px; border: 1px solid #d4a373;">
+              <span style="font-size: 0.8rem; color: #d4a373; margin-right: 0.5rem;"><%= countdown_label %></span>
+              <span class="timer-text">--:--:--:--</span>
+            </div>
+          <% else %>
+            <div style="font-family: monospace; font-size: 1.1rem; font-weight: bold; color: #8c5a35; background: #fff8eb; padding: 0.25rem 0.75rem; border-radius: 6px; border: 1px solid #d4a373;">
+              MISSION OVER
+            </div>
+          <% end %>
+        </div>
+
+        <% if next_deadline %>
+          <script>
+            document.addEventListener("turbo:load", function() {
+              const countdownEl = document.getElementById("lockin-countdown");
+              if (!countdownEl) return;
+
+              const deadlineStr = countdownEl.getAttribute("data-deadline");
+              if (!deadlineStr) return;
+
+              const deadline = new Date(deadlineStr).getTime();
+              const textSpan = countdownEl.querySelector(".timer-text");
+
+              const timer = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = deadline - now;
+
+                if (distance < 0) {
+                  clearInterval(timer);
+                  textSpan.innerHTML = "0d 0h 0m 0s";
+                  return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                textSpan.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s";
+              }, 1000);
+            });
+          </script>
+        <% end %>
+
+        <div class="lockin-weeks__grid">
+          <div class="lockin-weeks__box <%= 'active' if active_week == 1 %> <%= 'completed' if active_week > 1 %>">
+            <span class="wk">
+              <% if active_week > 1 %><i class="fa-solid fa-check"></i><% else %>Week 1<% end %>
+            </span>
+            <span class="hrs"><%= active_week == 1 ? 'Current' : '10 Hrs' %></span>
+          </div>
+          <div class="lockin-weeks__box <%= 'active' if active_week == 2 %> <%= 'completed' if active_week > 2 %>">
+            <span class="wk">
+              <% if active_week > 2 %><i class="fa-solid fa-check"></i><% else %>Week 2<% end %>
+            </span>
+            <span class="hrs"><%= active_week == 2 ? 'Current' : '10 Hrs' %></span>
+          </div>
+          <div class="lockin-weeks__box <%= 'active' if active_week == 3 %> <%= 'completed' if active_week > 3 %>">
+            <span class="wk">
+              <% if active_week > 3 %><i class="fa-solid fa-check"></i><% else %>Week 3<% end %>
+            </span>
+            <span class="hrs"><%= active_week == 3 ? 'Current' : '10 Hrs' %></span>
+          </div>
+          <div class="lockin-weeks__box <%= 'active' if active_week == 4 %> <%= 'completed' if active_week > 4 %>">
+            <span class="wk">
+              <% if active_week > 4 %><i class="fa-solid fa-check"></i><% else %>Week 4<% end %>
+            </span>
+            <span class="hrs"><%= active_week == 4 ? 'Current' : '10 Hrs' %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lockin-grid">
+        <div class="lockin-card">
+          <h3 class="lockin-card__title"><i class="fa-solid fa-list-check"></i> Requirements</h3>
+          <ul>
+            <li>Work <strong>10 hours a week</strong> for 4 consecutive weeks.</li>
+            <li>Each week runs from <strong>Thursday to Thursday</strong>.</li>
+            <li>Do not miss a single hour.</li>
+            <li>Purchase the "Lockin Ticket" in the shop to join.</li>
+            <li>Mark each project as submitted for "Lock in" in its settings.</li>
+          </ul>
+        </div>
+
+        <div class="lockin-card">
+          <h3 class="lockin-card__title"><i class="fa-solid fa-calendar-days"></i> Mission Timeline</h3>
+          <ul>
+            <li><strong>Current Status:</strong> <%= status_text %></li>
+            <li><strong>Starts:</strong> Thursday, April 2, 12 AM EST</li>
+            <li><strong>Ends:</strong> Thursday, April 30, 11:59 PM EST</li>
+            <li><strong>Shipping Deadline:</strong> April 30, 2026</li>
+            <li>Only <strong>1 chance</strong>. Fail a week, fail the mission.</li>
+          </ul>
+        </div>
+      </div>
+
+      <% if @prizes.present? && @prizes.any? %>
+        <div class="lockin-card" style="margin-bottom: 2rem;">
+          <h3 class="lockin-card__title"><i class="fa-solid fa-gift"></i> Unlockable Shop Prizes</h3>
+          <div class="sidequest-show__prizes-list">
+            <% @prizes.each do |prize| %>
+              <%= link_to "/shop/order?shop_item_id=#{prize.id}", class: "sidequest-show__prize-row" do %>
+                <% if prize.image.attached? %>
+                  <div class="sidequest-show__prize-image">
+                    <%= image_tag prize.image.variant(:carousel_sm), alt: prize.name, loading: "lazy" %>
+                  </div>
+                <% end %>
+                <span class="sidequest-show__prize-name" style="color:#8c5a35;"><%= prize.name %></span>
+                <span class="sidequest-show__prize-cost"><%= number_to_currency(prize.ticket_cost, precision: 0).gsub('$', '') %> 🍪</span>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="lockin-faq">
+        <h3 class="lockin-faq__title">Mission Briefing (FAQ)</h3>
+        <div class="lockin-faq__grid">
+          <div class="faq-item">
+            <h4>What is this?</h4>
+            <p>Simply a Flavortown sidequest where you work 10 hrs a week for 4 weeks without missing an hour. You get 120 cookies & unlock some shop items.</p>
+          </div>
+          <div class="faq-item">
+            <h4>How can I sign up?</h4>
+            <p>Purchase the item in the shop and, in the project settings, mark it as submitted for Lock in.</p>
+          </div>
+          <div class="faq-item">
+            <h4>What if I did the 10 hours but shipped after the deadline?</h4>
+            <p>If you completed the 10 hours within the weekly timeframe, you will have 24 hours to ship your project or keep working on it.</p>
+          </div>
+          <div class="faq-item">
+            <h4>When does my week start and end?</h4>
+            <p>It starts <strong>Thursday at 12 AM</strong> and ends <strong>Wednesday at 11:59 PM EST</strong> for time tracking, but you have a 24h allowance to ship your project!</p>
+          </div>
+          <div class="faq-item">
+            <h4>Can I work on one project and ship multiple times?</h4>
+            <p>Yes, you can do that but its better to work on 4 projects to experiment with new stuff!</p>
+          </div>
+          <div class="faq-item">
+            <h4>Can I try again after failing or skip a week for partial credit?</h4>
+            <p>No unfortunately, you cannot. If you miss a week or fail to ship, you're out. You only get one chance!</p>
+          </div>
+          <div class="faq-item">
+            <h4>What are prizes that I'll unlock?</h4>
+            <ul>
+              <li>TBD</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <% if @approved_entries.any? %>
+      <div class="sidequest-show__gallery">
+        <h3 class="sidequest-show__gallery-title"><%= @approved_entries.size %> <%= "submission".pluralize(@approved_entries.size) %> (Survivors)</h3>
+        <div class="sidequest-show__gallery-grid">
+          <% @approved_entries.each do |entry| %>
+            <% project = entry.project %>
+            <% next unless project.present? %>
+            <div class="sidequest-show__gallery-item">
+              <%= render partial: "projects/card", locals: { project: project } %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="sidequest-show__actions" style="margin-top: 2rem;">
+      <%= render ButtonComponent.new(
+            text: "\u2190 Retreat to Sidequests",
+            href: sidequests_path,
+            color: :red,
+            variant: :borderless
+          ) %>
+    </div>
+  </div>
+</div>

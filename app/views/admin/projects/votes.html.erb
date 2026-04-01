@@ -1,7 +1,12 @@
+<% content_for :title, "Votes on #{@project.title}" %>
 <h1 align="center">Votes on <%= @project.title %> (#<%= @project.id %>)</h1>
 
-<div style="margin: 1.5em 0;">
+<div style="display: flex; justify-content: space-between; margin: 1.5em 0;">
   <%= link_to "← Back to Project", admin_project_path(@project), class: "btn-secondary" %>
+  <label style="display: flex; align-items: center; gap: 0.5em;">
+    <input type="checkbox" id="toggle-reasons" checked>
+    Show vote reasons
+  </label>
 </div>
 
 <div class="card voting-card voting-card--full">
@@ -19,7 +24,7 @@
           <th>Demo</th>
           <th>Repo</th>
           <th>Discarded</th>
-          <th>Reason</th>
+          <th class="vote-reasons">Reason</th>
         </tr>
       </thead>
       <tbody>
@@ -47,7 +52,7 @@
                 <span class="text-muted">No</span>
               <% end %>
             </td>
-            <td>
+            <td class="vote-reasons">
               <% if vote.reason.present? %>
                 <details>
                   <summary>View</summary>
@@ -70,3 +75,21 @@
     <p>No votes received yet.</p>
   <% end %>
 </div>
+
+<script>
+  (function() {
+    const toggle = document.getElementById("toggle-reasons");
+    if (!toggle) return;
+
+    const setReasonsExpanded = (expanded) => {
+      document.querySelectorAll("td.vote-reasons details").forEach((details) => {
+        details.open = expanded;
+      });
+    };
+
+    setReasonsExpanded(toggle.checked);
+    toggle.addEventListener("change", function() {
+      setReasonsExpanded(this.checked);
+    });
+  })();
+</script>
