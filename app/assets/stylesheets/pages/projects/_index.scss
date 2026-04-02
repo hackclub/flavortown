@@ -119,23 +119,3 @@
     letter-spacing: 0.02em;
   }
 }
-
-.ship-countdown {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: var(--space-xs) var(--space-m);
-  background: var(--color-tan-300);
-  border: 2px solid var(--color-brown-300);
-  border-radius: var(--border-radius);
-  cursor: default;
-
-  &__label {
-    font-family: var(--font-family-jua);
-    font-size: var(--font-size-m);
-    color: var(--color-brown-600);
-    white-space: nowrap;
-  }
-}
