@@ -80,9 +80,7 @@ og_image_url('sidequests', format: :png) %> <% content_for :twitter_card,
         <div class="sidequest-show__prize-row" role="listitem">
           <% if prize.image.attached? %>
             <div class="sidequest-show__prize-image">
-              <%= image_tag prize.image.variant(:carousel_sm), alt: prize.name,
-                loading: "lazy"
-              %>
+              <%= image_tag prize.image.variant(:carousel_sm), alt: prize.name, loading: "lazy" %>
             </div>
           <% end %>
           <span class="sidequest-show__prize-name"><%= prize.name %></span>
