@@ -17,7 +17,7 @@ module Admin
         else
           flash[:notice] = "NPS vibes revibed."
         end
-        
+
         redirect_to admin_super_mega_dashboard_path
       end
     end
