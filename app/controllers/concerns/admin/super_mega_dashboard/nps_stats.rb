@@ -392,14 +392,6 @@ module Admin
           }
         PROMPT
       end
-
-      def with_dashboard_timing(section_name)
-        started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-        result = yield
-        elapsed_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at) * 1000).round(1)
-        Rails.logger.info("[SuperMegaDashboard] #{section_name} loaded in #{elapsed_ms}ms")
-        result
-      end
     end
   end
 end
