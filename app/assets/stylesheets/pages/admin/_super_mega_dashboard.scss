@@ -115,6 +115,29 @@
     }
   }
 
+  .table-data th.nps-vibes__th-theme {
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  .nps-vibes__theme {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 900;
+    line-height: 1.15;
+  }
+
+  .nps-vibes__examples {
+    margin: 0;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+
+  .nps-vibes__example {
+    margin: 0 0 0.35rem 0;
+  }
+
   &__card {
     background-color: white;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);

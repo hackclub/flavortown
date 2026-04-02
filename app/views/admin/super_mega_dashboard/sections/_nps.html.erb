@@ -54,8 +54,13 @@
                     </td>
                     <td><%= row[:count].to_i %></td>
                     <td>
-                      <% Array(row[:examples]).first(3).each do |ex| %>
-                        <div class="nps-vibes__example">“<%= ex %>”</div>
+                      <% examples = Array(row[:examples]).first(3) %>
+                      <% if examples.present? %>
+                        <ul class="nps-vibes__examples">
+                          <% examples.each do |ex| %>
+                            <li class="nps-vibes__example">“<%= ex %>”</li>
+                          <% end %>
+                        </ul>
                       <% end %>
                     </td>
                   </tr>
@@ -73,7 +78,7 @@
             <table class="table-data">
               <thead>
                 <tr>
-                  <th>Theme</th>
+                  <th class="nps-vibes__th-theme">Theme</th>
                   <th>Count</th>
                   <th>Examples</th>
                 </tr>
@@ -89,8 +94,13 @@
                     </td>
                     <td><%= row[:count].to_i %></td>
                     <td>
-                      <% Array(row[:examples]).first(3).each do |ex| %>
-                        <div class="nps-vibes__example">“<%= ex %>”</div>
+                      <% examples = Array(row[:examples]).first(3) %>
+                      <% if examples.present? %>
+                        <ul class="nps-vibes__examples">
+                          <% examples.each do |ex| %>
+                            <li class="nps-vibes__example">“<%= ex %>”</li>
+                          <% end %>
+                        </ul>
                       <% end %>
                     </td>
                   </tr>
