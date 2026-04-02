@@ -64,6 +64,11 @@ Sidequest.find_or_create_by!(slug: "optimization") do |sq|
   sq.description = "Build and ship a project for the Optimization sidequest to unlock Optimization prizes in the shop."
 end
 
+Sidequest.find_or_create_by!(slug: "kernel") do |sq|
+  sq.title = "Kernel"
+  sq.description = "Ship something that runs through commands like a tool, system or interactive terminal experience. Include a working demo and a README that explains the commands."
+end
+
 Sidequest.find_or_create_by!(slug: "the_hackazine") do |sq|
   sq.title = "The Hackazine"
   sq.description = "This January: make a page for your project and get it in the Hack Club 2025 magazine! Join #magazine and submit before January 22nd. Projects selected for the magazine receive 50 cookies + stickers! Please note, magazine submissions have 0% AI tolerance."
@@ -118,6 +123,29 @@ chromebook = ShopItem.find_or_create_by!(id: 97) do |item|
   item.image.attach(io: downloaded_image, filename: "chromebook.png")
 end
 chromebook.update!(requires_achievement: [ "sidequest_webos" ])
+
+# Kernel shop items
+trmnl = ShopItem.find_or_create_by!(id: 200) do |item|
+  item.name = "TRMNL DIY Kit"
+  item.description = "TRMNL DIY Kit"
+  item.type = "ShopItem::ThirdPartyPhysical"
+  item.usd_cost = 47.99
+  item.ticket_cost = 0
+  item.enabled = true
+  downloaded_image = URI.parse("https://placecats.com/300/200").open
+  item.image.attach(io: downloaded_image, filename: "trmnl-diy.png")
+end
+trmnl.update!(requires_achievement: "sidequest_kernel", enabled: true)
+
+keyboard_grant = ShopItem::HCBGrant.find_or_create_by!(id: 203) do |item|
+  item.name = "Keyboard Grant $50"
+  item.description = "$50 grant for you to buy a keyboard, and hack!!"
+  item.ticket_cost = 0
+  item.usd_cost = 50
+  item.enabled = true
+end
+keyboard_grant.update!(requires_achievement: "sidequest_kernel", enabled: true)
+
 
 user = User.find_or_create_by!(email: "max@hackclub.com", slack_id: "U09UQ385LSG")
 user.make_super_admin!

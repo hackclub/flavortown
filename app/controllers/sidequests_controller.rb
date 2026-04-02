@@ -6,6 +6,7 @@ class SidequestsController < ApplicationController
 
   def show
     @sidequest = Sidequest.find_by!(slug: params[:id])
+    @body_class = "kernel-page" if @sidequest.slug == "kernel"
 
     if @sidequest.external_page_link.present?
       redirect_to @sidequest.external_page_link, allow_other_host: true and return
@@ -21,6 +22,10 @@ class SidequestsController < ApplicationController
 
     if @sidequest.slug == "optimization"
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_optimization").where(enabled: true)
+    end
+
+    if @sidequest.slug == "kernel"
+      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_kernel").where(enabled: true)
     end
 
     if @sidequest.slug == "lockin"

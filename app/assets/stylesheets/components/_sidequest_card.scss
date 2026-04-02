@@ -2,20 +2,31 @@
   --color-card-bg: rgb(244, 161, 169);
   --color-content-bg: #b54447;
   --color-content-darker: #9a3a3d;
+  --card-padding: 0.75em;
+  --card-radius: 1em;
+  --card-shadow: 0 12px 30px rgba(12, 14, 20, 0.08);
 
   background-color: var(--color-card-bg);
-  padding: 0.75em;
-  border-radius: 1em;
-  width: 500px;
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
+  width: 100%;
+  max-width: 520px;
   position: relative;
+  box-shadow: var(--card-shadow);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+  overflow: visible;
 
   &__content {
     background-color: var(--color-content-bg);
-    padding: 0.75em;
-    border-radius: 1em;
+    padding: calc(var(--card-padding) * 1);
+    border-radius: var(--card-radius);
     display: flex;
     flex-direction: column;
     gap: 0.75em;
+    align-items: stretch;
+    overflow: hidden;
 
     h1 {
       font-family: var(--font-family-subtitle);
@@ -33,19 +44,28 @@
 
     .sidequest-card__image-container {
       position: relative;
+      display: flex;
+      justify-content: flex-end;
 
       .sidequest-card__sticker-image {
         position: absolute;
-        top: -2.25em;
+        top: -1.75em;
         right: 0.5em;
-        height: 50px;
+        height: 48px;
+        width: auto;
       }
     }
+
   }
 
   &__image {
     width: 100%;
-    border-radius: 1em;
+    border-radius: var(--card-radius);
+    display: block;
+    height: auto;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    overflow: hidden;
   }
 
   &__buttons {
@@ -53,15 +73,25 @@
     flex-direction: row;
     gap: 0.5em;
     margin-top: 1em;
-    border-radius: 1em;
+    border-radius: var(--card-radius);
+    width: 100%;
 
     .btn {
       border-radius: 0.8em;
-      flex-grow: 1;
+      flex: 1 1 auto;
+      min-width: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: var(--font-family-subtitle);
+      padding: 0.55em 0.75em;
+      transition:
+        transform 120ms ease,
+        box-shadow 120ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
     }
 
     .btn-learn-more {
@@ -74,6 +104,13 @@
       background-color: var(--color-content-darker);
       color: var(--color-bg);
       border-color: var(--color-content-darker);
+    }
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+      .btn {
+        width: 100%;
+      }
     }
   }
 
@@ -99,6 +136,19 @@
     --color-content-darker: rgb(61, 120, 46);
   }
 
+  &--kernel {
+    --color-card-bg: #071a2a;
+    --color-content-bg: #0f3b66;
+    --color-content-darker: #0a2a4a;
+
+    .sidequest-card__image {
+      background: rgba(255, 255, 255, 0.98);
+      padding: 0.5rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+  }
+
   &--link {
     display: block;
     text-decoration: none;
@@ -107,6 +157,8 @@
     &:hover {
       text-decoration: none;
       color: inherit;
+      transform: translateY(-6px);
+      box-shadow: 0 18px 36px rgba(15, 20, 25, 0.12);
     }
   }
   &--purple {

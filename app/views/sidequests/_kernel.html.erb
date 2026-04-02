@@ -1,0 +1,18 @@
+<%= link_to sidequest_path(sidequest), id: "kernel", class: "sidequest-card sidequest-card--kernel sidequest-card--link sidequest-card--dynamic-stars" do %>
+  <div class="sidequest-card__content">
+    <div class="sidequest-card__image-container">
+      <%= image_tag "launch/kernel.png", alt: sidequest.title, aria: { hidden: true }, class: "sidequest-card__image" %>
+    </div>
+
+    <h1 class="sidequest-card__title"><%= sidequest.title %></h1>
+    <h2><%= sidequest.description %></h2>
+
+    <% if sidequest.approved_count > 0 %>
+      <p class="sidequest-card__expires"><%= pluralize(sidequest.approved_count, "submission") %></p>
+    <% end %>
+
+    <% if sidequest.expires_at.present? %>
+      <p class="sidequest-card__expires"><%= sidequest.expired? ? "Ended" : "Ends" %> <%= sidequest.expires_at.strftime("%B %d, %Y") %></p>
+    <% end %>
+  </div>
+<% end %>

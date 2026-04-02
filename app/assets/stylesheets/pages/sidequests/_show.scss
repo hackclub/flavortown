@@ -69,6 +69,115 @@
     }
   }
 
+  &--kernel {
+    position: relative;
+    background: #071a2a;
+    color: #bfe7a9;
+    padding: 2.5rem 0;
+
+    .sidequest-show__content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: rgba(3, 9, 13, 0.65);
+      border-radius: 1rem;
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",
+        "Courier New", monospace;
+      color: #bfffb6;
+      position: relative;
+      z-index: 2;
+    }
+
+    .sidequest-show__info-grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      margin: 2rem 0;
+    }
+
+    .sidequest-show__info-card {
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(32, 255, 86, 0.06);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      color: #cfeec1;
+    }
+
+    .sidequest-show__info-title {
+      margin: 0 0 0.75rem;
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",
+        "Courier New", monospace;
+      color: #9fffa3;
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+    }
+
+    .sidequest-show__steps {
+      margin: 0;
+      padding-left: 1.2rem;
+      line-height: 1.7;
+      color: #c7f7b1;
+    }
+
+    .sidequest-show__help-note {
+      margin-top: 1rem;
+      margin-bottom: 0;
+      color: #9ee28b;
+      font-size: 0.95rem;
+      font-style: italic;
+    }
+
+    .sidequest-show__prize-row:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    code {
+      background: transparent;
+      color: #9fffa3;
+      padding: 0.05rem 0.2rem;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.95em;
+    }
+
+    /* subtle scanlines */
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(
+        rgba(255, 255, 255, 0.008) 1px,
+        transparent 1px
+      );
+      background-size: 100% 3px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* pattern overlay (uses asset path provided in the view) */
+    .kernel-pattern-overlay {
+      position: absolute;
+      inset: 0;
+      background-repeat: repeat;
+      background-size: auto;
+      opacity: 0.06;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .kernel-contact-link {
+      color: #9fffa3;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .kernel-contact-link:hover {
+      text-decoration: underline;
+    }
+  }
+
   &__gallery-title {
     text-align: center;
     margin: 1em 0;
@@ -186,4 +295,11 @@
     font-size: 0.875rem;
     white-space: nowrap;
   }
+}
+
+/* Full-page dark background when viewing the kernel sidequest */
+body.kernel-page {
+  background: #071a2a;
+  color: #bfe7a9;
+  min-height: 100vh;
 }
