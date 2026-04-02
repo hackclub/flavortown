@@ -2168,6 +2168,33 @@
   }
 }
 
+.smd-common-shop-suggestions {
+  margin-top: 1.5rem;
+
+  &__title {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.5rem !important;
+    color: var(--color-brown-500);
+    text-align: left;
+  }
+
+  &__list {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    overflow-y: scroll;
+  }
+
+  &__suggestion {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 1.25rem;
+    color: var(--color-brown-700);
+    background-color: white;
+    text-align: center;
+  }
+}
+
 .show-and-tell-winner-link {
   font-size: 1.75rem;
   padding: 0.5rem;

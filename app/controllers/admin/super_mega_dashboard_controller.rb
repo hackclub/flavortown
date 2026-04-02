@@ -19,6 +19,7 @@ module Admin
       super_mega_fulfillment
       super_mega_fulfillment_trend
       super_mega_order_states_trend
+      shop_suggestion_llm_results
       super_mega_support
       super_mega_support_vibes
       super_mega_support_graph
