@@ -142,7 +142,6 @@
       font-size: 0.95em;
     }
 
-    /* subtle scanlines */
     &::before {
       content: "";
       position: absolute;
@@ -156,7 +155,6 @@
       z-index: 0;
     }
 
-    /* pattern overlay (uses asset path provided in the view) */
     .kernel-pattern-overlay {
       position: absolute;
       inset: 0;
@@ -297,7 +295,6 @@
   }
 }
 
-/* Full-page dark background when viewing the kernel sidequest */
 body.kernel-page {
   background: #071a2a;
   color: #bfe7a9;
