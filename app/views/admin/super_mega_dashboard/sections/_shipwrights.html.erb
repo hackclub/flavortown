@@ -518,7 +518,7 @@
     document.head.appendChild(s);
   }
 
-  var historyData = <%= raw json_escape(history_details_for_js.to_json) %>;
+  var historyData = <%= raw history_details_for_js.to_json %>;
 
   window.swShowHistoryDetail = function(idx) {
     var entry = historyData[idx];
@@ -592,7 +592,7 @@
       swSentimentInited = true;
       var sentimentEl = document.getElementById('swSentimentChart');
       if (!sentimentEl) return;
-      var sData = <%= raw json_escape(sentiment_data.to_json) %>;
+      var sData = <%= raw sentiment_data.to_json %>;
       var sLabels = sData.map(function(d) {
         return new Date(d.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       });
@@ -640,7 +640,7 @@
   };
 
   ensureChartJs(function() {
-    var qtData = <%= raw json_escape((queue_time_data || {}).to_json) %>;
+    var qtData = <%= raw (queue_time_data || {}).to_json %>;
     if (Object.keys(qtData).length > 0) {
       var qtEl = document.getElementById('swQueueTimeChart');
       if (qtEl) {
@@ -678,7 +678,7 @@
       }
     }
 
-    var weeklyNpsData = <%= raw json_escape(weekly_nps_hash.to_json) %>;
+    var weeklyNpsData = <%= raw weekly_nps_hash.to_json %>;
     var wnKeysRaw = Object.keys(weeklyNpsData);
     function swSortWeekKeys(keys) {
       return keys.slice().sort(function(a, b) {
@@ -746,7 +746,7 @@
       }
     }
 
-    var arData = <%= raw json_escape(sw_avg_review_chart.to_json) %>;
+    var arData = <%= raw sw_avg_review_chart.to_json %>;
     if (arData.length > 1) {
       var arEl = document.getElementById('swAvgReviewSecsChart');
       if (arEl) {
@@ -782,7 +782,7 @@
   });
 
   ensureD3(function() {
-    var rsData = <%= raw json_escape((reviews_ships_data || {}).to_json) %>;
+    var rsData = <%= raw (reviews_ships_data || {}).to_json %>;
     if (rsData.reviews && rsData.ships) {
       var container = document.getElementById('swReviewsShipsStream');
       if (!container) return;
@@ -893,7 +893,7 @@
   });
 
   ensureD3(function() {
-    var arData = <%= raw json_escape((approved_rejected_data || {}).to_json) %>;
+    var arData = <%= raw (approved_rejected_data || {}).to_json %>;
     if (!arData.approved || !arData.rejected) return;
     var container = document.getElementById('swApprovedRejectedChart');
     if (!container) return;
@@ -1148,7 +1148,7 @@
   });
 
   ensureD3(function() {
-    var rrByDay = <%= raw json_escape((rejection_reasons_by_day || {}).to_json) %>;
+    var rrByDay = <%= raw (rejection_reasons_by_day || {}).to_json %>;
     var container = document.getElementById('swRejectionReasonsChart');
     var legendEl = document.getElementById('swRejectionReasonsLegend');
     var tooltipEl = document.getElementById('swRejectionReasonsTip');
