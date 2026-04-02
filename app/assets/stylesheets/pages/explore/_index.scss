@@ -66,6 +66,10 @@
     }
 
     &--sort {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+
       .dropdown {
         &__label {
           display: none;
@@ -93,6 +97,49 @@
         display: block;
       }
     }
+  }
+
+  &__cooked-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    font-size: 1rem;
+    color: var(--color-brown-500);
+    text-decoration: none;
+    padding: 0.25em 0.6em;
+    border: 0.15em solid var(--color-brown-400);
+    border-radius: 8px;
+    white-space: nowrap;
+
+    &:hover {
+      border-color: var(--color-brown-600);
+      color: var(--color-brown-700);
+    }
+
+    &.active {
+      background-color: var(--color-brown-500);
+      color: var(--color-bg);
+      border-color: var(--color-brown-500);
+
+      &:hover {
+        background-color: var(--color-brown-700);
+        border-color: var(--color-brown-700);
+        color: var(--color-bg);
+      }
+    }
+  }
+
+  &__cooked-filter-checkbox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
+    border: 0.12em solid currentColor;
+    border-radius: 3px;
+    font-size: 0.8em;
+    line-height: 1;
+    flex-shrink: 0;
   }
 
   &__nav-component {
