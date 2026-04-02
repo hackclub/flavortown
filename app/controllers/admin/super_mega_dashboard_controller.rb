@@ -39,7 +39,7 @@ module Admin
       "fraud"              => { loaders: %i[load_fraud_stats load_fraud_happiness_data], partial: "admin/super_mega_dashboard/sections/fraud" },
       "payouts"            => { loaders: %i[load_payouts_stats],          partial: "admin/super_mega_dashboard/sections/payouts" },
       "fulfillment"        => { loaders: %i[load_fulfillment_stats],      partial: "admin/super_mega_dashboard/sections/fulfillment" },
-      "shipwrights"        => { loaders: %i[load_ship_certs_stats load_sw_vibes_stats load_sw_vibes_history], partial: "admin/super_mega_dashboard/sections/shipwrights" },
+      "shipwrights"        => { loaders: %i[load_ship_certs_stats load_sw_vibes_stats load_sw_vibes_history load_make_their_day_data], partial: "admin/super_mega_dashboard/sections/shipwrights" },
       "support"            => { loaders: %i[load_support_stats load_support_vibes_stats load_support_graph_data], partial: "admin/super_mega_dashboard/sections/support" },
       "ysws_review"        => { loaders: %i[load_ysws_review_stats],      partial: "admin/super_mega_dashboard/sections/ysws_review" },
       "voting"             => { loaders: %i[load_voting_stats],           partial: "admin/super_mega_dashboard/sections/voting" },
