@@ -237,12 +237,18 @@ class ProjectsController < ApplicationController
     end
 
     PaperTrail.request(whodunnit: current_user.id) do
-      fire_event = Post::FireEvent.new(
+      fire_event = Post::FireEvent.create(
         body: "🔥 #{current_user.display_name} marked your project as well cooked! As a prize for your nicely cooked project, look out for a bonus prize in the mail :)"
       )
-      post = @project.posts.build(user: current_user, postable: fire_event)
 
-      if post.save
+      unless fire_event.persisted?
+        render json: { message: fire_event.errors.full_messages.to_sentence.presence || "Failed to mark project as 🔥" }, status: :unprocessable_entity
+        next
+      end
+
+      post = @project.posts.create(user: current_user, postable: fire_event)
+
+      if post.persisted?
         @project.mark_fire!(current_user)
 
         PaperTrail::Version.create!(
