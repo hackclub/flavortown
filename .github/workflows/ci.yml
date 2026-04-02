@@ -41,6 +41,11 @@ jobs:
             needs_node: true
             command: yarn -s prettier --check "app/assets/stylesheets/**/*.{scss,css}"
 
+          - name: Check Stimulus Manifest
+            system_packages: "libblas-dev liblapack-dev"
+            needs_node: true
+            command: node bin/lint-stimulus-manifest
+
           - name: Zeitwerk
             system_packages: "libvips-dev libblas-dev liblapack-dev"
             rails_env: test
