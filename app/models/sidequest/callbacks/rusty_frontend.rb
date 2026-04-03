@@ -31,4 +31,3 @@ module Sidequest::Callbacks
     end
   end
 end
-
