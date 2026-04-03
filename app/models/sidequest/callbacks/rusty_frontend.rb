@@ -23,7 +23,7 @@ module Sidequest::Callbacks
 
         SendSlackDmJob.perform_later(
           user.id,
-          nil
+          nil,
           blocks_path: "notifications/sidequests/rusty_frontend_rejected",
           locals: { entry: entry, user: user }
         )
