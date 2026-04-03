@@ -4,7 +4,10 @@
     <div class="ui-heading__surface">
       <h1 class="ui-heading__title"><%= title %></h1>
     </div>
+    <% if content? %>
+      <div class="ui-heading__extra">
+        <%= content %>
+      </div>
+    <% end %>
   </div>
-
-  <%= content if content? %>
 </div>
