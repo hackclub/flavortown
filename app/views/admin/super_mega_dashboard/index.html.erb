@@ -119,10 +119,11 @@
   </div>
 
   <div class="super-mega-dashboard__actions">
-    <%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
     <%= button_to "Clear Dashboard Cache", admin_super_mega_dashboard_clear_cache_path,
           method: :delete,
           class: "btn-danger",
-          form: { data: { turbo_confirm: "You're about to delete all Super Mega Dashboard cache! Are you sure?" } } %>
+          form: { data: { turbo_confirm: "You're about to delete all Super Mega Dashboard cache! Are you sure?" } } 
+    %>
+    <%= link_to "← Back to Admin", admin_root_path, class: "btn-secondary" %>
   </div>
 </div>
