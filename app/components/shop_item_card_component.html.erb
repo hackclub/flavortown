@@ -1,4 +1,4 @@
-<div class="shop-item-card<%= ' shop-item-card--out-of-stock' if out_of_stock? %><%= ' shop-item-card--on-sale' if on_sale %><%= ' shop-item-card--with-bow' if show_bow %>"
+<div class="shop-item-card<%= ' shop-item-card--out-of-stock' if out_of_stock? %><%= ' shop-item-card--on-sale' if on_sale %><%= ' shop-item-card--with-bow' if show_bow %><%= ' shop-item-card--achievement-locked' if show_achievement_lock_badge? %>"
      data-categories="<%= categories.join(',') %>"
      data-regions="<%= enabled_regions.join(',') %>"
      data-shop-id="<%= item_id %>"
@@ -53,6 +53,16 @@
       <div class="shop-item-card__content">
         <h4 class="shop-item-card__title"><%= name %></h4>
         <div class="shop-item-card__description"><%= md(description) %></div>
+        <div class="shop-item-card__achievement-lock-slot" aria-hidden="<%= !show_achievement_lock_badge? %>">
+          <% if show_achievement_lock_badge? %>
+            <div class="shop-item-card__achievement-lock-badge" title="<%= achievement_lock_badge_title %>">
+              <span class="shop-item-card__achievement-lock-badge-icon" aria-hidden="true">
+                <%= helpers.inline_svg_tag "icons/trophy.svg", focusable: "false" %>
+              </span>
+              <span class="shop-item-card__achievement-lock-badge-text"><%= achievement_lock_badge_text %></span>
+            </div>
+          <% end %>
+        </div>
         <% if enabled_until.present? %>
           <div class="shop-item-card__enabled-until">Enabled until <%= enabled_until.strftime("%b %d, %Y") %></div>
         <% end %>
@@ -82,6 +92,16 @@
       <div class="shop-item-card__content">
         <h4 class="shop-item-card__title"><%= name %></h4>
         <div class="shop-item-card__description"><%= md(description) %></div>
+        <div class="shop-item-card__achievement-lock-slot" aria-hidden="<%= !show_achievement_lock_badge? %>">
+          <% if show_achievement_lock_badge? %>
+            <div class="shop-item-card__achievement-lock-badge" title="<%= achievement_lock_badge_title %>">
+              <span class="shop-item-card__achievement-lock-badge-icon" aria-hidden="true">
+                <%= helpers.inline_svg_tag "icons/trophy.svg", focusable: "false" %>
+              </span>
+              <span class="shop-item-card__achievement-lock-badge-text"><%= achievement_lock_badge_text %></span>
+            </div>
+          <% end %>
+        </div>
         <% if enabled_until.present? %>
           <div class="shop-item-card__enabled-until">Enabled until <%= enabled_until.strftime("%b %d, %Y") %></div>
         <% end %>
