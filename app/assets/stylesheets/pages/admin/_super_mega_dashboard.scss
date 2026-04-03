@@ -39,12 +39,12 @@
     display: flex;
     flex-direction: column;
     gap: 2em;
+    margin-top: 2rem;
   }
 
   &__dashboard {
-    background: var(--color-tan-300);
+    background: transparent;
     border-radius: 12px;
-    padding: 1rem;
     overflow: hidden;
   }
 
@@ -443,8 +443,10 @@
   }
 
   &__actions {
-    margin-top: 1em;
+    display: flex;
+    margin-top: 2em;
     text-align: right;
+    justify-content: space-between;
   }
 
   &__placeholder-text {
@@ -452,7 +454,7 @@
     background: linear-gradient(
       90deg,
       var(--color-tan-300) 25%,
-      #e8dcc8 37%,
+      #e8dcc8a5 37%,
       var(--color-tan-300) 63%
     );
     background-size: 200% 100%;
@@ -465,18 +467,13 @@
   }
 
   &__placeholder-card {
-    background: linear-gradient(
-      90deg,
-      var(--color-tan-300) 25%,
-      #e8dcc8 37%,
-      var(--color-tan-300) 63%
-    ) !important;
+    background: var(--color-tan-300) !important;
     background-size: 200% 100% !important;
     animation: smd-shimmer 1.4s ease-in-out infinite;
     min-height: 180px;
     position: relative;
     border-radius: 12px;
-    padding: 1rem;
+    padding: 1.5rem;
     border: 1px solid var(--color-brown-700);
 
     &.super-mega-dashboard__card--sw-graph {
@@ -865,8 +862,6 @@
   .d3-funnel-container {
     position: relative;
     overflow: hidden;
-    padding: 1em;
-    padding-top: 0;
   }
 
   .d3-funnel-container svg {
