@@ -802,7 +802,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_150651) do
     t.string "verdict", default: "neutral", null: false
     t.index ["user_id"], name: "index_user_vote_verdicts_on_user_id", unique: true
   end
-  
+
   create_table "users", force: :cascade do |t|
     t.string "airtable_record_id"
     t.string "api_key"
