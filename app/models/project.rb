@@ -73,13 +73,7 @@ class Project < ApplicationRecord
       .includes(banner_attachment: :blob)
       .order(ActiveStorage::Attachment.arel_table[:id].eq(nil).asc)
   }
-  scope :excluding_shadow_banned, -> {
-    where(shadow_banned: false)
-      .joins(:memberships)
-      .joins("INNER JOIN users ON users.id = project_memberships.user_id")
-      .where(users: { shadow_banned: false })
-      .distinct
-  }
+  scope :excluding_shadow_banned, -> { where(shadow_banned: false) }
   scope :visible_to, ->(viewer) {
     if viewer&.shadow_banned?
       # Shadow-banned users see all projects (so they don't know they're banned)
