@@ -114,6 +114,29 @@
     }
   }
 
+  .table-data th.nps-vibes__th-theme {
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  .nps-vibes__theme {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 900;
+    line-height: 1.15;
+  }
+
+  .nps-vibes__examples {
+    margin: 0;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+
+  .nps-vibes__example {
+    margin: 0 0 0.35rem 0;
+  }
+
   &__card {
     background-color: white;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -2168,6 +2191,33 @@
   }
 }
 
+.smd-common-shop-suggestions {
+  margin-top: 1.5rem;
+
+  &__title {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.5rem !important;
+    color: var(--color-brown-500);
+    text-align: left;
+  }
+
+  &__list {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    overflow-y: scroll;
+  }
+
+  &__suggestion {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 1.25rem;
+    color: var(--color-brown-700);
+    background-color: white;
+    text-align: center;
+  }
+}
+
 .show-and-tell-winner-link {
   font-size: 1.75rem;
   padding: 0.5rem;
@@ -2322,4 +2372,33 @@
 
 .d3-funnel-tooltip__row--muted {
   color: #9ca3af;
+}
+
+.modal--wide {
+  width: min(900px, 92vw);
+  max-height: 85vh;
+  overflow: auto;
+}
+
+.modal--wide::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modal--wide::-webkit-scrollbar-track {
+  background: var(--color-tan-300);
+  border-top-right-radius: 0.8rem;
+  border-bottom-right-radius: 0.8rem;
+}
+
+.modal--wide::-webkit-scrollbar-thumb {
+  background: var(--color-brown-700);
+  border-radius: 0.8rem;
+}
+
+.modal__section {
+  margin-top: var(--space-m);
+}
+
+.modal__section-title {
+  margin: 0 0 var(--space-xs) 0;
 }

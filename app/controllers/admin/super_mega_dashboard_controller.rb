@@ -8,6 +8,7 @@ module Admin
     include SuperMegaDashboard::ShipwrightsStats
     include SuperMegaDashboard::YswsReviewStats
     include SuperMegaDashboard::MiscStats
+    include SuperMegaDashboard::NpsStats
 
     CACHE_KEYS = %w[
       super_mega_fraud_stats
@@ -19,6 +20,7 @@ module Admin
       super_mega_fulfillment
       super_mega_fulfillment_trend
       super_mega_order_states_trend
+      shop_suggestion_llm_results
       super_mega_support
       super_mega_support_vibes
       super_mega_support_graph
@@ -29,12 +31,13 @@ module Admin
       sw_vibes_data
       super_mega_funnel_stats
       super_mega_nps_stats
+      super_mega_nps_vibes
       super_mega_hcb_stats
     ].freeze
 
     SECTIONS = {
       "funnel"             => { loaders: %i[load_funnel_stats],           partial: "admin/super_mega_dashboard/sections/funnel" },
-      "nps"                => { loaders: %i[load_nps_stats],              partial: "admin/super_mega_dashboard/sections/nps" },
+      "nps"                => { loaders: %i[load_nps_stats load_nps_vibes_stats], partial: "admin/super_mega_dashboard/sections/nps" },
       "hcb"                => { loaders: %i[load_hcb_expenses],           partial: "admin/super_mega_dashboard/sections/hcb" },
       "fraud"              => { loaders: %i[load_fraud_stats load_fraud_happiness_data], partial: "admin/super_mega_dashboard/sections/fraud" },
       "payouts"            => { loaders: %i[load_payouts_stats],          partial: "admin/super_mega_dashboard/sections/payouts" },
@@ -73,6 +76,22 @@ module Admin
       CACHE_KEYS.each { |key| Rails.cache.delete(key) }
 
       flash[:notice] = "Cache cleared successfully."
+      redirect_to admin_super_mega_dashboard_path
+    end
+
+    def refresh_nps_vibes
+      authorize :admin, :access_super_mega_dashboard?
+
+      Rails.cache.delete("super_mega_nps_vibes")
+      payload = build_nps_vibes_from_airtable(limit: 500)
+
+      Rails.cache.write("super_mega_nps_vibes", payload)
+      if payload.is_a?(Hash) && payload[:error].present?
+        flash[:alert] = payload[:error]
+      else
+        flash[:notice] = "NPS vibes revibed."
+      end
+
       redirect_to admin_super_mega_dashboard_path
     end
   end
