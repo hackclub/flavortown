@@ -237,7 +237,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
     new(
       slug: :sidequest_caffeinated,
       name: "Sidequest: Caffeinated",
-      description: "Shipped a website for the caffeinated sidequest!",
+      description: "Shipped a project for the caffeinated sidequest!",
       icon: "trophy",
       earned_check: ->(user) {
         SidequestEntry.approved
