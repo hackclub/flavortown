@@ -1,0 +1,9 @@
+header ":blessed-cookie: You have been bleesed!"
+
+section "Your voting quality is great: your ship payouts now include a *20% bonus*. Thank you for doing this! - With Love, @cskartikey", markdown: true
+
+section "Keep writing detailed, specific responses: go through demos and readmes and don't rush through voting.", markdown: true
+
+context [
+  mrkdwn_text("This is reassessed automatically every 12 hours based on your recent voting activity.")
+]

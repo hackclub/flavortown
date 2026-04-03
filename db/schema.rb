@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_02_150651) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -394,6 +394,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
     t.datetime "payout_basis_locked_at"
     t.decimal "payout_basis_overall_score", precision: 5, scale: 2
     t.decimal "payout_basis_percentile", precision: 5, scale: 2
+    t.string "payout_blessing"
     t.string "payout_curve_version"
     t.text "review_instructions"
     t.decimal "storytelling_median", precision: 5, scale: 2
@@ -792,6 +793,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
     t.index ["user_id"], name: "index_user_profiles_on_user_id", unique: true
   end
 
+  create_table "user_vote_verdicts", force: :cascade do |t|
+    t.datetime "assessed_at"
+    t.datetime "created_at", null: false
+    t.float "quality_score"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "verdict", default: "neutral", null: false
+    t.index ["user_id"], name: "index_user_vote_verdicts_on_user_id", unique: true
+  end
+  
   create_table "users", force: :cascade do |t|
     t.string "airtable_record_id"
     t.string "api_key"
@@ -885,11 +896,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
     t.datetime "updated_at", null: false
     t.integer "usability_score"
     t.bigint "user_id", null: false
+    t.string "verdict"
     t.index ["project_id"], name: "index_votes_on_project_id"
     t.index ["ship_event_id"], name: "index_votes_on_ship_event_id"
     t.index ["suspicious", "created_at"], name: "index_votes_on_suspicious_and_created_at"
     t.index ["user_id", "ship_event_id"], name: "index_votes_on_user_id_and_ship_event_id", unique: true
     t.index ["user_id"], name: "index_votes_on_user_id"
+    t.index ["verdict"], name: "index_votes_on_verdict"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -945,6 +958,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"
   add_foreign_key "user_profiles", "users"
+  add_foreign_key "user_vote_verdicts", "users"
   add_foreign_key "votes", "post_ship_events", column: "ship_event_id"
   add_foreign_key "votes", "projects"
   add_foreign_key "votes", "users"
