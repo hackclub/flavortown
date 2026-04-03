@@ -234,6 +234,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
           .exists?
       }
     ),
+    new(
+      slug: :sidequest_caffeinated,
+      name: "Sidequest: Caffeinated",
+      description: "Shipped a website for the caffeinated sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "caffeinated" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
      new(
       slug: :sidequest_lockin,
       name: "Sidequest: LockIn",
