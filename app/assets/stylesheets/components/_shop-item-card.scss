@@ -282,6 +282,7 @@
       text-decoration: none;
     }
   }
+
   &::before {
     content: "";
     position: absolute;
@@ -388,7 +389,7 @@
   &__achievement-lock-slot {
     width: 100%;
     min-height: 1.9rem;
-    margin-top: 0rem;
+    margin-top: 0;
   }
 
   &__achievement-lock-badge {
@@ -396,7 +397,11 @@
     align-items: center;
     gap: 0.45rem;
     width: 100%;
-    background: linear-gradient(135deg, rgba(255, 247, 237, 0.98), rgba(254, 243, 199, 0.92));
+    background: linear-gradient(
+      135deg,
+      rgba(255, 247, 237, 0.98),
+      rgba(254, 243, 199, 0.92)
+    );
     color: #7c2d12;
     border: 1px solid rgba(180, 83, 9, 0.18);
     border-radius: 999px;
