@@ -528,6 +528,13 @@
     }
   }
 
+  &__skip-form {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 900;
+  }
+  
   @media (max-width: 1200px) {
     &__main {
       flex-direction: column;

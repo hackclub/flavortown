@@ -79,7 +79,11 @@ Rails.application.routes.draw do
   get "report-reviews/dismiss/:token", to: "report_reviews#dismiss", as: :dismiss_report_token
 
   # Voting
-  resources :votes, only: [ :new, :create, :index ]
+  resources :votes, only: [ :new, :create, :index ] do
+    collection do
+      post :skip
+    end
+  end
 
   # Explore
   get "explore", to: "explore#index", as: :explore_index

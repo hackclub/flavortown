@@ -15,5 +15,6 @@ class VoteableShipEventsQuery
       .where(project_members: { shadow_banned: false })
       .where.not(id: @user.votes.select(:ship_event_id))
       .where.not(projects: { id: @user.projects.select(:id) })
+      .where.not(projects: { id: @user.project_skips.select(:project_id) })
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_02_150651) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_03_065811) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -462,6 +462,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_150651) do
     t.index ["reporter_id", "project_id"], name: "index_project_reports_on_reporter_id_and_project_id", unique: true
     t.index ["reporter_id"], name: "index_project_reports_on_reporter_id"
     t.index ["status", "created_at"], name: "idx_project_reports_status_created_at_desc", order: { created_at: :desc }
+  end
+
+  create_table "project_skips", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "project_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["project_id"], name: "index_project_skips_on_project_id"
+    t.index ["user_id", "project_id"], name: "index_project_skips_on_user_id_and_project_id", unique: true
+    t.index ["user_id"], name: "index_project_skips_on_user_id"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -930,6 +940,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_150651) do
   add_foreign_key "project_memberships", "users"
   add_foreign_key "project_reports", "projects"
   add_foreign_key "project_reports", "users", column: "reporter_id"
+  add_foreign_key "project_skips", "projects"
+  add_foreign_key "project_skips", "users"
   add_foreign_key "projects", "users", column: "marked_fire_by_id"
   add_foreign_key "report_review_tokens", "project_reports", column: "report_id"
   add_foreign_key "shop_card_grants", "shop_items"
