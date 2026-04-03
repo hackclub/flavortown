@@ -21,6 +21,8 @@
 class User::VoteVerdict < ApplicationRecord
   include AASM
 
+  has_paper_trail on: [ :create, :update ]
+
   belongs_to :user
 
   VERDICTS = %w[neutral blessed cursed].freeze
