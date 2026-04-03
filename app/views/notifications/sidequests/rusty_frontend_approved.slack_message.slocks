@@ -1,0 +1,11 @@
+header ":rustpilled: Rusty Frontend Sidequest Complete!"
+
+section "Your project *#{entry.project.title}* has been approved for the Rusty Frontend sidequest!", markdown: true
+
+section "You have now unlocked [todo] in the shop :yay: Time to spend your :cookie: wisely"
+
+divider
+
+context [
+  mrkdwn_text("happy cooking! :crab: it's about to get rusty :p")
+]
