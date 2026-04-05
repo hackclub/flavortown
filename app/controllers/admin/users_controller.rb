@@ -323,20 +323,6 @@ class Admin::UsersController < Admin::ApplicationController
     redirect_to admin_user_path(@user)
   end
 
-  # DEPRECATED: Use project shadow banning instead
-  def shadow_ban
-    Rails.logger.warn("DEPRECATED: Admin user shadow_ban action is deprecated. Use project shadow banning instead.")
-    flash[:warning] = "User shadow banning is deprecated. Please use project shadow banning instead."
-    redirect_to admin_user_path(@user)
-  end
-
-  # DEPRECATED: Use project shadow banning instead
-  def unshadow_ban
-    Rails.logger.warn("DEPRECATED: Admin user unshadow_ban action is deprecated. Use project shadow banning instead.")
-    flash[:warning] = "User shadow banning is deprecated. Please use project shadow banning instead."
-    redirect_to admin_user_path(@user)
-  end
-
   def toggle_voting_lock
     authorize :admin, :ban_users?
     @user = User.find(params[:id])
