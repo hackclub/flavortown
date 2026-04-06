@@ -248,6 +248,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       }
     ),
     new(
+      slug: :sidequest_physics_lab,
+      name: "Sidequest: Physics Lab",
+      description: "Shipped a physics project for the Physics Lab sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "physics_lab" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
+    new(
       slug: :sidequest_rusty_frontend,
       name: "Sidequest: Rusty Frontend",
       description: "Shipped a project for the Rusty Frontend sidequest!",

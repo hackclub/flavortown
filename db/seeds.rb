@@ -71,9 +71,13 @@ end
 
 Sidequest.find_or_create_by!(slug: "rusty_frontend") do |sq|
   sq.title = "Rusty Frontend"
-  sq.description = "Build and ship a website to unlock a caffeine grant in the shop."
+  sq.description = "Build and ship a frontend in rust to unlock new prizes in the shop"
 end
 
+Sidequest.find_or_create_by!(slug: "physics_lab") do |sq|
+  sq.title = "Physics Lab"
+  sq.description = "Build an interactive physics project and ship it on Flavortown to unlock physics prizes in the shop."
+end
 Sidequest.find_or_create_by!(slug: "the_hackazine") do |sq|
   sq.title = "The Hackazine"
   sq.description = "This January: make a page for your project and get it in the Hack Club 2025 magazine! Join #magazine and submit before January 22nd. Projects selected for the magazine receive 50 cookies + stickers! Please note, magazine submissions have 0% AI tolerance."
