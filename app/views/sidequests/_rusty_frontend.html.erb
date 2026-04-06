@@ -1,0 +1,16 @@
+<%= link_to sidequest_path(sidequest), id: "rusty_frontend", class: "sidequest-card sidequest-card--link" do %>
+  <div class="sidequest-card__content">
+    <%= image_tag "TODO",
+                  alt: "",
+                  aria: { hidden: true },
+                  class: "sidequest-card__image" %>
+    <h1 class="sidequest-card__title">Rusty Frontend</h1>
+    <h2>Use rust to build a frontend (eg. GUI app, website). Submit it to this sidequest to unlock cool stuff like custom stickers, "Zero to Production in Rust" book and a crab plushie</h2>
+    <% if sidequest.approved_count > 0 %>
+      <p class="sidequest-card__expires"><%= pluralize(sidequest.approved_count, "submission") %></p>
+    <% end %>
+    <% if sidequest.expires_at.present? %>
+      <p class="sidequest-card__expires"><%= sidequest.expired? ? "Ended" : "Ends" %> <%= sidequest.expires_at.strftime("%B %d, %Y") %></p>
+    <% end %>
+  </div>
+<% end %>
