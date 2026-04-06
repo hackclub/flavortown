@@ -33,6 +33,7 @@ module Admin
       super_mega_nps_stats
       super_mega_nps_vibes
       super_mega_hcb_stats
+      super_mega_hcb_stats_v2
     ].freeze
 
     SECTIONS = {
