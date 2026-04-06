@@ -3,7 +3,7 @@
 <% content_for :og_image, og_image_url('sidequests', format: :png) %>
 <% content_for :twitter_card, "summary_large_image" %>
 
-<%= render HeadingComponent.new(title: @sidequest.title, tone: :orange, size: :full) %>
+<%= render HeadingComponent.new(title: @sidequest.title, tone: :red, size: :full) %>
 
 <div class="sidequest-show sidequest-show--rusty-frontend">
   <div class="sidequest-show__content">
@@ -15,7 +15,7 @@
       <section class="sidequest-show__info-card">
         <h3 class="sidequest-show__info-title">🦀 Requirements</h3>
         <ul class="sidequest-show__steps">
-          <li>Your project must be built using <strong>Rust</strong> for the frontend</li>
+          <li>Your project must be built using <strong>Rust</strong> (including the frontend)</li>
           <li>Create a GUI application, web frontend, or interactive interface using Rust</li>
           <li>Add a "Rust Frontend" section to your README explaining your technology choices and implementation</li>
           <li>Include screenshots or demo GIFs showcasing your Rust-powered frontend</li>
@@ -25,7 +25,7 @@
         </ul>
         <p class="sidequest-show__help-note">
           Need help getting started? Check out the Rust frontend frameworks below or DM
-          <%= link_to "@staff", "https://hackclub.slack.com/messages/general", target: "_blank", rel: "noopener" %>
+          <%= link_to "@Arjav", "https://hackclub.enterprise.slack.com/team/U081ZC7ES30", target: "_blank", rel: "noopener" %>
           on Slack.
         </p>
       </section>
@@ -90,7 +90,7 @@
       <%= render ButtonComponent.new(
             text: "\u2190 Back to Sidequests",
             href: sidequests_path,
-            color: :orange,
+            color: :red,
             variant: :borderless
           ) %>
     </div>
