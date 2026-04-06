@@ -53,6 +53,10 @@ module Admin
           avg_queue_time_history: raw_data["avgQueueTime"] || {},
           reviews_per_day: raw_data["reviewsPerDay"] || {},
           ships_per_day: raw_data["shipsPerDay"] || {},
+          approved_per_day: raw_data["approvedPerDay"] || {},
+          rejected_per_day: raw_data["rejectedPerDay"] || {},
+          rejection_reasons_by_day: raw_data["rejectionReasonsByDay"] || {},
+          make_their_day_raw: raw_data["makeTheirDayProjects"] || [],
           decisions_today: raw_data["decisionsToday"],
           new_ships_today: raw_data["newShipsToday"],
           overall_nps_mean: raw_data["overallNpsMean"],
@@ -147,6 +151,26 @@ module Admin
         rescue ArgumentError, Date::Error
           nil
         end.sort_by { |e| e.recorded_at || Time.zone.at(0) }.reverse
+      end
+
+      def load_make_their_day_data
+        raw = @ship_certs&.dig(:make_their_day_raw) || []
+        return @sw_make_their_day = [] unless raw.any?
+
+        project_ids = raw.map { |p| p["ftProjectId"] }.compact
+        user_ids    = raw.map { |p| p["requesterFtuid"] }.compact
+
+        projects = Project.where(id: project_ids).index_by { |p| p.id.to_s }
+        users    = User.where(id: user_ids).index_by { |u| u.id.to_s }
+
+        @sw_make_their_day = raw.map do |item|
+          {
+            ft_project_id: item["ftProjectId"],
+            ft_user_id:    item["requesterFtuid"],
+            project:       projects[item["ftProjectId"].to_s],
+            user:          users[item["requesterFtuid"].to_s]
+          }
+        end
       end
 
       def parse_all_ticket_feedback(rows)
