@@ -109,7 +109,7 @@ GEM
     annotaterb (4.22.0)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
-    argon2-kdf (0.3.1)
+    argon2-kdf (1.0.0)
       fiddle
     ast (2.4.3)
     attr_required (1.0.2)
@@ -142,7 +142,7 @@ GEM
       erubi (~> 1.4)
       parser (>= 2.4)
       smart_properties
-    bigdecimal (4.1.0)
+    bigdecimal (4.1.1)
     bindata (2.5.1)
     bindex (0.8.1)
     blazer (3.3.0)
@@ -151,9 +151,9 @@ GEM
       csv
       railties (>= 7.1)
       safely_block (>= 0.4)
-    blind_index (2.7.0)
-      activesupport (>= 7.1)
-      argon2-kdf (>= 0.2)
+    blind_index (2.8.0)
+      activesupport (>= 7.2)
+      argon2-kdf (>= 1)
     bootsnap (1.23.0)
       msgpack (~> 1.2)
     brakeman (8.0.4)
