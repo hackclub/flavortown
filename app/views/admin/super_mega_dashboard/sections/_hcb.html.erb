@@ -28,63 +28,17 @@
         </div>
       </div>
       <% if @hcb_spending_by_tag.present? %>
-        <div class="super-mega-dashboard__card" style="height: 100%; display: flex; flex-direction: column;">
+        <div
+          class="super-mega-dashboard__card"
+          data-controller="hcb-chart"
+          data-hcb-chart-spending-data-value="<%= @hcb_spending_by_tag.to_json %>"
+        >
           <h3 style="text-align: center;">Spending by Tags</h3>
-          <div style="height: 300px; position: relative; flex: 1;">
-            <canvas id="hcbSpendingChart" height="300"></canvas>
+          <div>
+            <canvas
+              data-hcb-chart-target="canvas"
+            ></canvas>
           </div>
-          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              const ctx = document.getElementById('hcbSpendingChart');
-              if (!ctx) return;
-              const data = <%= raw @hcb_spending_by_tag.to_json %>;
-              const labels = Object.keys(data);
-              const values = Object.values(data);
-              const colors = [
-                '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#0ea5e9',
-                '#3b82f6', '#8b5cf6', '#ec4899', '#f43f5e', '#6366f1', '#a855f7',
-                '#d946ef', '#db2777', '#be185d', '#7c2d12', '#292524', '#64748b'
-              ];
-              
-              new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                  labels: labels,
-                  datasets: [{
-                    data: values,
-                    backgroundColor: colors.slice(0, labels.length),
-                    borderColor: '#ffffff',
-                    borderWidth: 2
-                  }]
-                },
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      position: 'bottom',
-                      labels: {
-                        padding: 15,
-                        font: { size: 12 }
-                      }
-                    },
-                    tooltip: {
-                      callbacks: {
-                        label: function(context) {
-                          const label = context.label || '';
-                          const value = context.parsed || 0;
-                          const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                          const percentage = ((value / total) * 100).toFixed(1);
-                          return label + ': $' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (' + percentage + '%)';
-                        }
-                      }
-                    }
-                  }
-                }
-              });
-            });
-          </script>
         </div>
       <% end %>
     </div>
