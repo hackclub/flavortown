@@ -12,6 +12,7 @@ free_stickers = ShopItem::FreeStickers.find_or_create_by!(name: "Free Stickers!"
   item.one_per_person_ever = true
   item.description = "we'll actually send you these!"
   item.ticket_cost = 10
+  item.refundable = false
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "sticker.png")
 end

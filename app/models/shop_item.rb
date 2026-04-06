@@ -40,6 +40,7 @@
 #  one_per_person_ever               :boolean
 #  past_purchases                    :integer          default(0)
 #  payout_percentage                 :integer          default(0)
+#  refundable                        :boolean
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
@@ -134,10 +135,7 @@ class ShopItem < ApplicationRecord
     "ShopItem::SpecialFulfillmentItem"
   ].freeze
 
-  NOT_REFUNDABLE = [
-    "ShopItem::FreeStickers",
-    "ShopItem::SillyItemType"
-].freeze
+
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
   scope :enabled, -> { where(enabled: true).where("shop_items.enabled_until IS NULL OR shop_items.enabled_until > ?", Time.current) }
@@ -205,10 +203,6 @@ class ShopItem < ApplicationRecord
     else
       super(value)
     end
-  end
-
-  def refundable?
-    !NOT_REFUNDABLE.include?(type)
   end
 
   def is_free?

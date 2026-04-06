@@ -174,7 +174,8 @@ module Admin
         :requires_verification_call,
         requires_achievement: [],
         attached_shop_item_ids: [],
-        blocked_countries: []
+        blocked_countries: [],
+        :refundable
       )
     end
   end
