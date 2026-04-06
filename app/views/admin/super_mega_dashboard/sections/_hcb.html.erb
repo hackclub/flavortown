@@ -31,13 +31,11 @@
         <div
           class="super-mega-dashboard__card"
           data-controller="hcb-chart"
-          data-hcb-chart-spending-data-value="<%= @hcb_spending_by_tag.to_json %>"
-        >
+          data-hcb-chart-spending-data-value="<%= @hcb_spending_by_tag.to_json %>">
           <h3 style="text-align: center;">Spending by Tags</h3>
           <div>
             <canvas
-              data-hcb-chart-target="canvas"
-            ></canvas>
+              data-hcb-chart-target="canvas"></canvas>
           </div>
         </div>
       <% end %>
