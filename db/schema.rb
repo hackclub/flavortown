@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_06_153953) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -567,6 +567,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
     t.boolean "one_per_person_ever"
     t.integer "past_purchases", default: 0
     t.integer "payout_percentage", default: 0
+    t.boolean "refundable"
     t.integer "required_ships_count", default: 1
     t.date "required_ships_end_date"
     t.date "required_ships_start_date"
