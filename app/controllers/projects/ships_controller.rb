@@ -21,10 +21,11 @@ class Projects::ShipsController < ApplicationController
     @project.with_lock do
       apply_space_theme_for_sidequest!(selected_sidequest)
       @project.submit_for_review!
-      @post = @project.posts.create!(user: current_user, postable: Post::ShipEvent.new(
+      ship_event = Post::ShipEvent.create!(
         body: params[:ship_update].to_s.strip,
         review_instructions: params[:review_instructions].to_s.strip.presence
-      ))
+      )
+      @post = @project.posts.create!(user: current_user, postable: ship_event)
       create_sidequest_entries!(selected_sidequest)
     end
 

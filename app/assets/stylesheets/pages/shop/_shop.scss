@@ -711,6 +711,10 @@
       bottom: -3em;
       cursor: pointer;
     }
+
+    @media (max-width: 960px) {
+      height: 150px;
+    }
   }
 }
 

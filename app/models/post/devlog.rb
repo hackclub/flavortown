@@ -26,6 +26,8 @@ class Post::Devlog < ApplicationRecord
   include SoftDeletable
   has_paper_trail ignore: [ :likes_count, :comments_count, :lapse_video_processing, :hackatime_pulled_at, :synced_at ]
 
+  BODY_MAX_LENGTH = 4_000
+
   # flag for tracking if attachments are being uploaded during an update
   attr_accessor :uploading_attachments
 
@@ -81,7 +83,7 @@ class Post::Devlog < ApplicationRecord
             },
             allow_nil: true,
             on: :create
-  validates :body, presence: true, length: { maximum: 2_000 }, unless: -> { scrapbook_url.present? }
+  validates :body, presence: true, length: { maximum: BODY_MAX_LENGTH }, unless: -> { scrapbook_url.present? }
   validates :scrapbook_url,
             uniqueness: { message: "has already been used for another devlog" },
             allow_blank: true,

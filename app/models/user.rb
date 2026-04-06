@@ -77,6 +77,7 @@ class User < ApplicationRecord
 
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy
+  has_one :vote_verdict, class_name: "User::VoteVerdict", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
   has_many :projects, through: :memberships
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
@@ -84,6 +85,7 @@ class User < ApplicationRecord
   has_many :shop_card_grants, dependent: :destroy
   has_many :votes, dependent: :destroy
   has_many :reports, class_name: "Project::Report", foreign_key: :reporter_id, dependent: :destroy
+  has_many :project_skips, class_name: "Project::Skip", dependent: :destroy
   has_many :likes, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :ledger_entries, dependent: :destroy
