@@ -17,6 +17,11 @@
         <strong>Reason:</strong> <%= @project.shadow_banned_reason %>
       </div>
     <% end %>
+    <% if @project.internal_shadow_ban_reason.present? %>
+      <div style="margin-top: 0.5rem; font-size: 0.875rem;">
+        <strong>Internal Reason:</strong> <%= @project.internal_shadow_ban_reason %>
+      </div>
+    <% end %>
   </div>
 <% end %>
 
@@ -129,8 +134,12 @@
           </div>
 
           <div class="modal__field">
-            <%= label_tag :reason, "Shadow Ban Reason (optional)" %>
-            <%= text_area_tag :reason, "", placeholder: "Enter reason for shadow ban...", id: "shadow-ban-reason-input" %>
+            <%= label_tag :reason, "Shadow Ban Reason (shown to user in DM)" %>
+            <%= text_area_tag :reason, "", placeholder: "Enter reason for shadow ban...", id: "shadow-ban-reason-input", required: true %>
+          </div>
+          <div class="modal__field">
+            <%= label_tag :internal_reason, "Internal Reason (admin-only, not shown to user)" %>
+            <%= text_area_tag :internal_reason, "", placeholder: "Enter internal notes for this shadow ban...", required: true %>
           </div>
           <div class="modal__actions">
             <button type="submit" class="btn-secondary">Confirm Shadow Ban</button>

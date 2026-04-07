@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_205924) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_212052) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -484,6 +484,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_205924) do
     t.integer "devlogs_count", default: 0, null: false
     t.integer "duration_seconds", default: 0, null: false
     t.string "fire_letter_id"
+    t.text "internal_shadow_ban_reason"
     t.datetime "marked_fire_at"
     t.bigint "marked_fire_by_id"
     t.integer "memberships_count", default: 0, null: false

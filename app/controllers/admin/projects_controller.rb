@@ -64,6 +64,7 @@ class Admin::ProjectsController < Admin::ApplicationController
     @project = Project.unscoped.find(params[:id])
 
     reason = params[:reason].presence
+    internal_reason = params[:internal_reason].presence
     issued_min_payout = false
 
     ActiveRecord::Base.transaction do
@@ -95,11 +96,12 @@ class Admin::ProjectsController < Admin::ApplicationController
         end
       end
 
-      @project.shadow_ban!(reason: reason)
+      @project.shadow_ban!(reason: reason, internal_reason: internal_reason)
     end
     # Resolve all pending reports on the project
     @project.reports.pending.update_all(
       status: Project::Report.statuses[:reviewed],
+      resolution_reason: "Auto-resolved: project shadow banned",
       updated_at: Time.current
     )
 

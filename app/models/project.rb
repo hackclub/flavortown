@@ -145,6 +145,10 @@ class Project < ApplicationRecord
             content_type: { in: ACCEPTED_CONTENT_TYPES, spoofing_protection: true },
             size: { less_than: MAX_BANNER_SIZE, message: "is too large (max 10 MB)" },
             processable_file: true
+  validates :shadow_banned_reason, presence: { message: "is required when shadow banning a project" },
+                                  if: :shadow_banned?
+  validates :internal_shadow_ban_reason, presence: { message: "is required when shadow banning a project" },
+                                        if: :shadow_banned?
   validate :validate_project_categories
 
   def validate_project_categories
@@ -399,12 +403,12 @@ class Project < ApplicationRecord
     update!(marked_fire_at: nil, marked_fire_by: nil)
   end
 
-  def shadow_ban!(reason: nil)
-    update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
+  def shadow_ban!(reason: nil, internal_reason: nil)
+    update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason, internal_shadow_ban_reason: internal_reason)
   end
 
   def unshadow_ban!
-    update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
+    update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil, internal_shadow_ban_reason: nil)
   end
 
   def readme_is_raw_github_url?
