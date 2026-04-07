@@ -186,6 +186,16 @@
 
           </div>
 
+          <div class="shop-item-form__toggles" style="margin-top: 1rem;">
+            <label class="shop-item-form__toggle">
+              <%= f.check_box :refundable, id: "shop_item_refundable", checked: true %>
+              <span class="shop-item-form__toggle-content">
+                <strong>Refundable</strong>
+                <span class="shop-item-form__toggle-desc">User will be able to refund the item after they buy it.</span>
+              </span>
+            </label>
+
+          </div>
           <div class="shop-item-form__field" style="margin-top: 1rem;">
             <%= f.label :requires_achievement, "Requires Achievements", class: "shop-item-form__label" %>
             <div class="shop-item-form__checkbox-list">

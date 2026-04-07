@@ -1,0 +1,44 @@
+<div class="super-mega-dashboard__dashboard">
+  <div class="super-mega-dashboard__header super-mega-dashboard__header--primary">
+    <h2>HCB Dashboard</h2>
+    <%= link_to "Top Up with $10,000", "https://hcb.hackclub.com/disbursements/new?source_event_id=hq&event_id=flavortown&amount=1000000", class: "btn-topup", target: "_blank", rel: "noopener noreferrer" %>
+  </div>
+  <% if @hcb_error.present? %>
+    <p class="fraud-stats-error"><%= @hcb_error %></p>
+  <% else %>
+    <div class="super-mega-dashboard__hcb-layout">
+      <div class="super-mega-dashboard__stats super-mega-dashboard__stats--hcb">
+        <div class="super-mega-dashboard__card">
+          <h3>Balance</h3>
+          <p class="balance <%= balance_color_class(@balance_cents) %>">
+            $<%= number_with_delimiter(@balance_cents / 100) %>
+          </p>
+        </div>
+        <div class="super-mega-dashboard__card">
+          <h3>Total Spent</h3>
+          <p class="balance balance--red">
+            $<%= number_with_delimiter(@total_expenses_cents / 100) %>
+          </p>
+        </div>
+        <div class="super-mega-dashboard__card">
+          <h3>Total Revenue</h3>
+          <p class="balance balance--brown">
+            $<%= number_with_delimiter(@total_raised_cents / 100) %>
+          </p>
+        </div>
+      </div>
+      <% if @hcb_spending_by_tag.present? %>
+        <div
+          class="super-mega-dashboard__card super-mega-dashboard__card-title--centered"
+          data-controller="hcb-chart"
+          data-hcb-chart-spending-data-value="<%= @hcb_spending_by_tag.to_json %>">
+          <h3>Spending by Tags</h3>
+          <div>
+            <canvas
+              data-hcb-chart-target="canvas"></canvas>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

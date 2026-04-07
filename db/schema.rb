@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_06_153953) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -394,6 +394,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
     t.datetime "payout_basis_locked_at"
     t.decimal "payout_basis_overall_score", precision: 5, scale: 2
     t.decimal "payout_basis_percentile", precision: 5, scale: 2
+    t.string "payout_blessing"
     t.string "payout_curve_version"
     t.text "review_instructions"
     t.decimal "storytelling_median", precision: 5, scale: 2
@@ -461,6 +462,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
     t.index ["reporter_id", "project_id"], name: "index_project_reports_on_reporter_id_and_project_id", unique: true
     t.index ["reporter_id"], name: "index_project_reports_on_reporter_id"
     t.index ["status", "created_at"], name: "idx_project_reports_status_created_at_desc", order: { created_at: :desc }
+  end
+
+  create_table "project_skips", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "project_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["project_id"], name: "index_project_skips_on_project_id"
+    t.index ["user_id", "project_id"], name: "index_project_skips_on_user_id_and_project_id", unique: true
+    t.index ["user_id"], name: "index_project_skips_on_user_id"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -567,6 +578,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
     t.boolean "one_per_person_ever"
     t.integer "past_purchases", default: 0
     t.integer "payout_percentage", default: 0
+    t.boolean "refundable"
     t.integer "required_ships_count", default: 1
     t.date "required_ships_end_date"
     t.date "required_ships_start_date"
@@ -792,6 +804,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
     t.index ["user_id"], name: "index_user_profiles_on_user_id", unique: true
   end
 
+  create_table "user_vote_verdicts", force: :cascade do |t|
+    t.datetime "assessed_at"
+    t.datetime "created_at", null: false
+    t.float "quality_score"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "verdict", default: "neutral", null: false
+    t.index ["user_id"], name: "index_user_vote_verdicts_on_user_id", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "airtable_record_id"
     t.string "api_key"
@@ -885,11 +907,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
     t.datetime "updated_at", null: false
     t.integer "usability_score"
     t.bigint "user_id", null: false
+    t.string "verdict"
     t.index ["project_id"], name: "index_votes_on_project_id"
     t.index ["ship_event_id"], name: "index_votes_on_ship_event_id"
     t.index ["suspicious", "created_at"], name: "index_votes_on_suspicious_and_created_at"
     t.index ["user_id", "ship_event_id"], name: "index_votes_on_user_id_and_ship_event_id", unique: true
     t.index ["user_id"], name: "index_votes_on_user_id"
+    t.index ["verdict"], name: "index_votes_on_verdict"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -917,6 +941,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
   add_foreign_key "project_memberships", "users"
   add_foreign_key "project_reports", "projects"
   add_foreign_key "project_reports", "users", column: "reporter_id"
+  add_foreign_key "project_skips", "projects"
+  add_foreign_key "project_skips", "users"
   add_foreign_key "projects", "users", column: "marked_fire_by_id"
   add_foreign_key "report_review_tokens", "project_reports", column: "report_id"
   add_foreign_key "shop_card_grants", "shop_items"
@@ -945,6 +971,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_112403) do
   add_foreign_key "user_hackatime_projects", "users"
   add_foreign_key "user_identities", "users"
   add_foreign_key "user_profiles", "users"
+  add_foreign_key "user_vote_verdicts", "users"
   add_foreign_key "votes", "post_ship_events", column: "ship_event_id"
   add_foreign_key "votes", "projects"
   add_foreign_key "votes", "users"

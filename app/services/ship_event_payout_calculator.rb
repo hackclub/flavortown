@@ -56,6 +56,9 @@ class ShipEventPayoutCalculator
       )
       return if cookies.nil?
 
+      blessing = payout_user.vote_verdict&.verdict || "neutral"
+      cookies  = Secrets::VoteVerdictMultiplier.apply(cookies, blessing)
+
       ActiveRecord::Base.transaction do
         attrs = {
           payout: cookies,
@@ -63,7 +66,8 @@ class ShipEventPayoutCalculator
           hours: payout_hours,
           bridge: is_bridge,
           base_hours: hours_used,
-          legacy_payout_deduction: is_bridge ? legacy_deduction : nil
+          legacy_payout_deduction: is_bridge ? legacy_deduction : nil,
+          payout_blessing: blessing
         }
 
         @ship_event.update!(attrs)
@@ -78,7 +82,7 @@ class ShipEventPayoutCalculator
         end
       end
 
-      notify_payout_issued(payout_user, cookies: cookies, hours: payout_hours, multiplier: mult)
+      notify_payout_issued(payout_user, cookies: cookies, hours: payout_hours, multiplier: mult, blessing: blessing)
       broadcast_payout(payout_user, cookies, payout_hours, mult, is_shadow_banned)
     end
   end
@@ -164,7 +168,7 @@ class ShipEventPayoutCalculator
     !project.has_paid_current_scale_ship_events?(excluding_ship_event_id: @ship_event.id)
   end
 
-  def notify_payout_issued(user, cookies:, hours:, multiplier:)
+  def notify_payout_issued(user, cookies:, hours:, multiplier:, blessing: "neutral")
     return unless user.slack_id.present?
 
     project = @ship_event.post&.project
@@ -189,7 +193,8 @@ class ShipEventPayoutCalculator
           ship_date: ship_date,
           hours: hours&.round(2),
           cookies: cookies&.to_i,
-          multiplier: multiplier&.round(2)
+          multiplier: multiplier&.round(2),
+          blessing: blessing
         }
       )
     end

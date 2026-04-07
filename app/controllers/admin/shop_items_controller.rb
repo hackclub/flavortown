@@ -171,6 +171,7 @@ module Admin
         :unlisted,
         :enabled_until,
         :source_region,
+        :refundable,
         :requires_verification_call,
         requires_achievement: [],
         attached_shop_item_ids: [],

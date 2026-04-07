@@ -12,6 +12,7 @@ free_stickers = ShopItem::FreeStickers.find_or_create_by!(name: "Free Stickers!"
   item.one_per_person_ever = true
   item.description = "we'll actually send you these!"
   item.ticket_cost = 10
+  item.refundable = false
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "sticker.png")
 end
@@ -64,6 +65,15 @@ Sidequest.find_or_create_by!(slug: "optimization") do |sq|
   sq.description = "Build and ship a project for the Optimization sidequest to unlock Optimization prizes in the shop."
 end
 
+Sidequest.find_or_create_by!(slug: "caffeinated") do |sq|
+  sq.title = "Caffeinated"
+  sq.description = "Build and ship a website to unlock a caffeine grant in the shop."
+end
+
+Sidequest.find_or_create_by!(slug: "physics_lab") do |sq|
+  sq.title = "Physics Lab"
+  sq.description = "Build an interactive physics project and ship it on Flavortown to unlock physics prizes in the shop."
+end
 Sidequest.find_or_create_by!(slug: "the_hackazine") do |sq|
   sq.title = "The Hackazine"
   sq.description = "This January: make a page for your project and get it in the Hack Club 2025 magazine! Join #magazine and submit before January 22nd. Projects selected for the magazine receive 50 cookies + stickers! Please note, magazine submissions have 0% AI tolerance."
