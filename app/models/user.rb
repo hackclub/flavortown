@@ -493,11 +493,6 @@ class User < ApplicationRecord
     end
   end
 
-
-  def owns_lockin_ticket?
-    shop_orders.where(shop_item_id: 207, aasm_state: "fulfilled").exists?
-  end
-
   def has_shipped?
     projects.joins(:ship_events).exists?
   end
