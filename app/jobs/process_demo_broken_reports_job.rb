@@ -55,6 +55,7 @@ class ProcessDemoBrokenReportsJob < ApplicationJob
 
     relation.update_all(
       status: Project::Report.statuses[:reviewed],
+      resolution_reason: "Auto-resolved: reporter is missing or banned",
       updated_at: Time.current
     )
   end
@@ -67,6 +68,7 @@ class ProcessDemoBrokenReportsJob < ApplicationJob
         .where(id: ids)
         .update_all(
           status: Project::Report.statuses[:reviewed],
+          resolution_reason: "Auto-resolved: #{ids.size} pending demo_broken reports exceeded threshold",
           updated_at: Time.current
         )
     end

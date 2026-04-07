@@ -49,6 +49,9 @@ class Project::Report < ApplicationRecord
     validates :details, presence: true, length: { minimum: 20 }
     validates :reporter_id, uniqueness: { scope: :project_id, message: "has already reported this project" }
 
+    validates :resolution_reason, presence: { message: "is required when reviewing or dismissing a report" },
+                                  if: -> { reviewed? || dismissed? }
+
     validates :reporter, exclusion: {
         in: ->(report) { report.project&.users || [] },
         message: "cannot report own project"

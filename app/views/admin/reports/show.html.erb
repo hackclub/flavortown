@@ -35,18 +35,70 @@
     </div>
 
     <% if @report.pending? %>
-      <div class="report-action-buttons">
-        <%= button_to "✅ Mark as Reviewed", review_admin_report_path(@report), method: :post, class: "btn-primary" %>
-        <%= button_to "🗑️ Dismiss Report", dismiss_admin_report_path(@report), method: :post, class: "btn-secondary" %>
+      <div class="report-resolution-form">
+        <label for="resolution_reason" class="report-resolution-label">Resolution Reason</label>
+        <textarea id="resolution_reason" name="resolution_reason_input" rows="3" required
+                  placeholder="Explain why this report is being reviewed or dismissed…"
+                  class="form-control report-resolution-textarea"></textarea>
+
+        <div class="report-action-buttons">
+          <%= button_to review_admin_report_path(@report), method: :post, class: "btn-primary",
+              form: { id: "review-form" } do %>
+            ✅ Mark as Reviewed
+          <% end %>
+          <%= button_to dismiss_admin_report_path(@report), method: :post, class: "btn-secondary",
+              form: { id: "dismiss-form" } do %>
+            🗑️ Dismiss Report
+          <% end %>
+        </div>
       </div>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          const textarea = document.getElementById("resolution_reason");
+          const forms = document.querySelectorAll("#review-form, #dismiss-form");
+
+          forms.forEach(function(form) {
+            // Inject hidden field into each button_to form
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = "resolution_reason";
+            hidden.value = "";
+            form.appendChild(hidden);
+
+            form.addEventListener("submit", function(e) {
+              const reason = textarea.value.trim();
+              if (!reason) {
+                e.preventDefault();
+                textarea.focus();
+                textarea.classList.add("report-resolution-textarea--error");
+                return false;
+              }
+              hidden.value = reason;
+            });
+          });
+        });
+      </script>
     <% elsif @report.reviewed? %>
       <div class="report-resolved-banner report-resolved-banner--reviewed">
         ✅ This report has been reviewed
       </div>
+      <% if @report.resolution_reason.present? %>
+        <div class="report-details-box">
+          <strong>Resolution Reason:</strong>
+          <p><%= @report.resolution_reason %></p>
+        </div>
+      <% end %>
     <% elsif @report.dismissed? %>
       <div class="report-resolved-banner report-resolved-banner--dismissed">
         🗑️ This report has been dismissed
       </div>
+      <% if @report.resolution_reason.present? %>
+        <div class="report-details-box">
+          <strong>Resolution Reason:</strong>
+          <p><%= @report.resolution_reason %></p>
+        </div>
+      <% end %>
     <% end %>
   </div>
 
@@ -191,6 +243,35 @@
   display: flex;
   gap: 0.75rem;
   margin-top: 1.25rem;
+}
+
+.report-resolution-form {
+  margin-top: 1.25rem;
+}
+
+.report-resolution-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.report-resolution-textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-brown-500);
+  background: var(--color-tan-400);
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.report-resolution-textarea--error {
+  border-color: #ef4444;
+  outline-color: #ef4444;
 }
 
 .report-resolved-banner {

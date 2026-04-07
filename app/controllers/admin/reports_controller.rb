@@ -71,7 +71,7 @@ module Admin
     def update_status(new_status, notice_message)
       old_status = @report.status
 
-      if @report.update(status: new_status)
+      if @report.update(status: new_status, resolution_reason: params[:resolution_reason])
         PaperTrail::Version.create!(
           item_type: "Project::Report",
           item_id: @report.id,
@@ -83,7 +83,7 @@ module Admin
         )
         redirect_to admin_reports_path, notice: notice_message
       else
-        redirect_to admin_report_path(@report), alert: "Failed to update report"
+        redirect_to admin_report_path(@report), alert: @report.errors.full_messages.to_sentence
       end
     end
   end

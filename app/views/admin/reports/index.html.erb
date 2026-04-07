@@ -118,10 +118,6 @@
             <td>
               <div class="reports-actions">
                 <%= link_to "View", admin_report_path(report), class: "btn-primary slim" %>
-                <% if report.pending? %>
-                  <%= button_to "✓", review_admin_report_path(report), method: :post, class: "btn-secondary slim", title: "Mark reviewed" %>
-                  <%= button_to "✗", dismiss_admin_report_path(report), method: :post, class: "btn-secondary slim", title: "Dismiss" %>
-                <% end %>
               </div>
             </td>
           </tr>

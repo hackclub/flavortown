@@ -75,8 +75,10 @@ Rails.application.routes.draw do
   resources :shop_suggestions, only: [ :create ]
 
   # Report Reviews
-  get "report-reviews/review/:token", to: "report_reviews#review", as: :review_report_token
-  get "report-reviews/dismiss/:token", to: "report_reviews#dismiss", as: :dismiss_report_token
+  get "report-reviews/review/:token", to: "report_reviews#show", as: :review_report_token, defaults: { action_type: "review" }
+  get "report-reviews/dismiss/:token", to: "report_reviews#show", as: :dismiss_report_token, defaults: { action_type: "dismiss" }
+  post "report-reviews/review/:token", to: "report_reviews#review"
+  post "report-reviews/dismiss/:token", to: "report_reviews#dismiss"
 
   # Voting
   resources :votes, only: [ :new, :create, :index ] do

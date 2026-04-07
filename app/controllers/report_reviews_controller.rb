@@ -1,6 +1,11 @@
 class ReportReviewsController < ApplicationController
   before_action :ensure_logged_in
-  before_action :find_token, only: [ :review, :dismiss ]
+  before_action :find_token, only: [ :show, :review, :dismiss ]
+
+  def show
+    @action_type = params[:action_type]
+    @report = @token.report
+  end
 
   def review
     process_token(:reviewed)
@@ -42,7 +47,7 @@ class ReportReviewsController < ApplicationController
       report = @token.report
       old_status = report.status
 
-      if report.update(status: new_status) && @token.update(used_at: Time.current)
+      if report.update(status: new_status, resolution_reason: params[:resolution_reason]) && @token.update(used_at: Time.current)
         PaperTrail::Version.create!(
           item_type: "Project::Report",
           item_id: report.id,

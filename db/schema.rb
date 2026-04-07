@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_03_065811) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_205924) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -456,6 +456,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_03_065811) do
     t.bigint "project_id", null: false
     t.string "reason", null: false
     t.bigint "reporter_id", null: false
+    t.text "resolution_reason"
     t.integer "status", default: 0, null: false
     t.datetime "updated_at", null: false
     t.index ["project_id"], name: "index_project_reports_on_project_id"

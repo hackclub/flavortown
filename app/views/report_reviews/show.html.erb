@@ -1,0 +1,68 @@
+<% content_for :title, "#{@action_type.titleize} Report ##{@report.id}" %>
+<div class="report-review-container">
+  <div class="card">
+    <h1><%= @action_type == "review" ? "✅" : "🗑️" %> <%= @action_type.titleize %> Report #<%= @report.id %></h1>
+
+    <div class="report-review-summary">
+      <p><strong>Project:</strong> <%= @report.project&.title || "(Deleted)" %></p>
+      <p><strong>Reason:</strong> <%= @report.reason.titleize %></p>
+      <p><strong>Details:</strong> <%= @report.details %></p>
+    </div>
+
+    <%= form_with url: url_for(action: @action_type, token: @token.token), method: :post, local: true do |f| %>
+      <div class="report-review-field">
+        <%= f.label :resolution_reason, "Resolution Reason", class: "report-review-label" %>
+        <%= f.text_area :resolution_reason, rows: 4, required: true, placeholder: "Explain why this report is being #{@action_type == 'review' ? 'reviewed' : 'dismissed'}…", class: "form-control" %>
+      </div>
+
+      <div class="report-review-actions">
+        <%= f.submit "#{@action_type == 'review' ? '✅ Mark as Reviewed' : '🗑️ Dismiss Report'}", class: "btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+.report-review-container {
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.report-review-summary {
+  background: var(--color-tan-400);
+  border: 1px solid var(--color-brown-500);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.report-review-summary p {
+  margin: 0.25rem 0;
+}
+
+.report-review-field {
+  margin-bottom: 1rem;
+}
+
+.report-review-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.report-review-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-brown-500);
+  background: var(--color-tan-400);
+  font-size: 0.875rem;
+  color: inherit;
+}
+</style>
