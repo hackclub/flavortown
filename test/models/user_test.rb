@@ -26,6 +26,7 @@
 #  magic_link_token                        :string
 #  magic_link_token_expires_at             :datetime
 #  manual_ysws_override                    :boolean
+#  marked_sus_by                           :string           default([]), not null, is an Array
 #  metrics_synced_at                       :datetime
 #  projects_count                          :integer
 #  projects_shipped_count                  :integer
