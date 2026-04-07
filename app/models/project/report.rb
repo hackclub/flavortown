@@ -2,14 +2,15 @@
 #
 # Table name: project_reports
 #
-#  id          :bigint           not null, primary key
-#  details     :text             not null
-#  reason      :string           not null
-#  status      :integer          default("pending"), not null
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
-#  project_id  :bigint           not null
-#  reporter_id :bigint           not null
+#  id                :bigint           not null, primary key
+#  details           :text             not null
+#  reason            :string           not null
+#  resolution_reason :text
+#  status            :integer          default("pending"), not null
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  project_id        :bigint           not null
+#  reporter_id       :bigint           not null
 #
 # Indexes
 #
