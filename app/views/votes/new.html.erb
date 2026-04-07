@@ -23,7 +23,9 @@
   <% if @project.nil? %>
     <p class="votes-new__no-projects">No more projects to vote on!</p>
   <% else %>
-    <%= render HeadingComponent.new(title: "Vote", tone: :blue, size: :full) %>
+    <%= render HeadingComponent.new(title: "Vote", tone: :blue, size: :full) do %>
+      <%= render "users/vote_verdict_banner" %>
+    <% end %>
 
     <% if current_user.vote_balance < 0 %>
       <%
@@ -49,6 +51,18 @@
           aria-label="<%= votes_cast %> of <%= total %> votes cast to unlock payout">
         </progress>
       </div>
+    <% end %>
+
+    <%= form_with url: skip_votes_path, method: :post, data: { turbo: false }, class: "votes-new__skip-form" do %>
+      <%= hidden_field_tag :suggestion_token, @suggestion_token %>
+      <%= render ButtonComponent.new(
+        icon: "icons/skip_forward_fill.svg",
+        color: :blue,
+        variant: :borderless,
+        type: :submit,
+        text: "Skip",
+        disable_with: "Skipping..."
+      ) %>
     <% end %>
 
     <div class="votes-new__main" data-controller="vote-tracker" data-action="keydown.esc->vote-tracker#closePanel">

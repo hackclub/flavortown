@@ -73,13 +73,7 @@ class Project < ApplicationRecord
       .includes(banner_attachment: :blob)
       .order(ActiveStorage::Attachment.arel_table[:id].eq(nil).asc)
   }
-  scope :excluding_shadow_banned, -> {
-    where(shadow_banned: false)
-      .joins(:memberships)
-      .joins("INNER JOIN users ON users.id = project_memberships.user_id")
-      .where(users: { shadow_banned: false })
-      .distinct
-  }
+  scope :excluding_shadow_banned, -> { where(shadow_banned: false) }
   scope :visible_to, ->(viewer) {
     if viewer&.shadow_banned?
       # Shadow-banned users see all projects (so they don't know they're banned)
@@ -109,6 +103,7 @@ class Project < ApplicationRecord
   has_many :git_commit_posts, -> { where(postable_type: "Post::GitCommit").order(created_at: :desc) }, class_name: "Post"
   has_many :votes, dependent: :destroy
   has_many :reports, class_name: "Project::Report", dependent: :destroy
+  has_many :skips, class_name: "Project::Skip", dependent: :destroy
   has_many :project_follows, dependent: :destroy
   has_many :followers, through: :project_follows, source: :user
   # needs to be implemented

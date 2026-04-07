@@ -48,23 +48,29 @@
         sort_options << { label: "Following", value: "#{base_path}?sort=following" }
       end
 
+      if current_page?(explore_gallery_path)
+        sort_options << { label: "Well Cooked", value: "#{base_path}?sort=well-cooked" }
+      end
+
       selected_label = case params[:sort]
-                       when "top" then "Top"
-                       when "following" then "Following"
-                       else "Newest"
+                         when "top" then "Top"
+                         when "following" then "Following"
+                         when "well-cooked" then "Well Cooked"
+                         else "Newest"
                        end
 
       sort_color = case selected_label
-                   when "Top" then :red
-                   when "Following" then :blue
-                   else :green
+                     when "Top" then :red
+                     when "Following" then :blue
+                     when "Well Cooked" then :brown
+                     else :green
                    end
     %>
     <%= render DropdownComponent.new(
       label: "Sort",
       options: sort_options,
       selected_option: selected_label,
-      longest_option_string: "Following",
+      longest_option_string: "Well Cooked",
       color: sort_color
     ) %>
   </div>

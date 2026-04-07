@@ -12,6 +12,7 @@
 #  technical_score    :integer
 #  time_taken_to_vote :integer
 #  usability_score    :integer
+#  verdict            :string
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  project_id         :bigint           not null
@@ -25,6 +26,7 @@
 #  index_votes_on_suspicious_and_created_at  (suspicious,created_at)
 #  index_votes_on_user_id                    (user_id)
 #  index_votes_on_user_id_and_ship_event_id  (user_id,ship_event_id) UNIQUE
+#  index_votes_on_verdict                    (verdict)
 #
 # Foreign Keys
 #

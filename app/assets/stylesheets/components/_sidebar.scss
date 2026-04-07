@@ -616,6 +616,12 @@
   }
 }
 
+.sidebar__user-name-row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
 .sidebar__user-name {
   font-family: var(--font-family-jua);
   font-size: 1.3rem;

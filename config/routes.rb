@@ -79,7 +79,11 @@ Rails.application.routes.draw do
   get "report-reviews/dismiss/:token", to: "report_reviews#dismiss", as: :dismiss_report_token
 
   # Voting
-  resources :votes, only: [ :new, :create, :index ]
+  resources :votes, only: [ :new, :create, :index ] do
+    collection do
+      post :skip
+    end
+  end
 
   # Explore
   get "explore", to: "explore#index", as: :explore_index
@@ -365,6 +369,7 @@ Rails.application.routes.draw do
     delete "super_mega_dashboard/clear_cache", to: "super_mega_dashboard#clear_cache", as: :super_mega_dashboard_clear_cache
     get "flavortime_dashboard", to: "flavortime_dashboard#index"
     get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"
+    post "super_mega_dashboard/refresh_nps_vibes", to: "super_mega_dashboard#refresh_nps_vibes", as: :super_mega_dashboard_refresh_nps_vibes
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail

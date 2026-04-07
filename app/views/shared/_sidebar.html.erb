@@ -80,8 +80,9 @@
         <% end %>
       </div>
       <div class="sidebar__user-details">
-        <%= link_to user_path(current_user) do %>
+        <%= link_to user_path(current_user), class: "sidebar__user-name-row" do %>
           <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
+          <%= render "users/vote_verdict_banner", cookie_id: "sidebar-verdict-cookie", small: true %>
         <% end %>
         <% if current_user.fulfillment_person? && current_user.has_regions? %>
           <span class="sidebar__user-region" style="font-size: 0.75rem; opacity: 0.7;">📍 <%= current_user.regions_display %></span>

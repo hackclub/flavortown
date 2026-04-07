@@ -1,0 +1,24 @@
+<% verdict = current_user&.vote_verdict %>
+<% return unless verdict&.cursed? || verdict&.blessed? %>
+
+<% cookie_id = local_assigns.fetch(:cookie_id, "vote-verdict-cookie") %>
+<% small = local_assigns.fetch(:small, false) %>
+<% cookie_classes = class_names("vote-verdict-cookie", "vote-verdict-cookie--sm": small) %>
+
+<% if verdict.cursed? %>
+  <div id="<%= cookie_id %>" class="<%= cookie_classes %>" tabindex="0" aria-label="Vote quality flagged">
+    <%= image_tag "icons/cursed-cookie.png", alt: "", class: "vote-verdict-cookie__img" %>
+  </div>
+  <%= render TooltipComponent.new(target_id: cookie_id, position: small ? :top : :bottom) do %>
+    <strong>You have been cursed!</strong>
+    Ship payouts reduced 50% & your votes don't count toward others' payouts. Please write detailed responses, specific to the project, go through demos and readmes and don't rush through voting.
+  <% end %>
+<% elsif verdict.blessed? %>
+  <div id="<%= cookie_id %>" class="<%= cookie_classes %>" tabindex="0" aria-label="Vote quality blessed">
+    <%= image_tag "icons/blessed-cookie.png", alt: "", class: "vote-verdict-cookie__img" %>
+  </div>
+  <%= render TooltipComponent.new(target_id: cookie_id, position: small ? :top : :bottom) do %>
+    <strong>You have been blessed!</strong>
+    Your ship payouts include a 20% bonus. Thank you for doing this! - With Love, @cskartikey
+  <% end %>
+<% end %>

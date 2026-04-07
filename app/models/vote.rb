@@ -12,6 +12,7 @@
 #  technical_score    :integer
 #  time_taken_to_vote :integer
 #  usability_score    :integer
+#  verdict            :string
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  project_id         :bigint           not null
@@ -25,6 +26,7 @@
 #  index_votes_on_suspicious_and_created_at  (suspicious,created_at)
 #  index_votes_on_user_id                    (user_id)
 #  index_votes_on_user_id_and_ship_event_id  (user_id,ship_event_id) UNIQUE
+#  index_votes_on_verdict                    (verdict)
 #
 # Foreign Keys
 #
@@ -56,11 +58,13 @@ class Vote < ApplicationRecord
 
   scope :legitimate, -> { where(suspicious: false) }
   scope :suspicious, -> { where(suspicious: true) }
+  scope :payout_countable, -> { legitimate.where(verdict: [ nil, "neutral", "blessed" ]) }
   scope :current_voting_scale, -> {
     joins(:ship_event).where(post_ship_events: { voting_scale_version: Post::ShipEvent::CURRENT_VOTING_SCALE_VERSION })
   }
 
   before_save :mark_suspicious
+  before_create :stamp_verdict
 
   belongs_to :user, counter_cache: true
   belongs_to :project
@@ -127,6 +131,10 @@ class Vote < ApplicationRecord
 
   def mark_suspicious
     self.suspicious = Secrets::VoteSuspicion.suspicious_vote?(vote: self)
+  end
+
+  def stamp_verdict
+    self.verdict = user&.vote_verdict&.verdict || "neutral"
   end
 
   def detect_vote_spam

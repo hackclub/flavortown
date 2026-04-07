@@ -99,6 +99,12 @@
     --color-content-darker: rgb(61, 120, 46);
   }
 
+  &--orange {
+    --color-card-bg: #f2bf8b;
+    --color-content-bg: #b54447;
+    --color-content-darker: #9a3a3d;
+  }
+
   &--link {
     display: block;
     text-decoration: none;

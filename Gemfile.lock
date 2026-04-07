@@ -109,7 +109,7 @@ GEM
     annotaterb (4.22.0)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
-    argon2-kdf (0.3.1)
+    argon2-kdf (1.0.0)
       fiddle
     ast (2.4.3)
     attr_required (1.0.2)
@@ -142,7 +142,7 @@ GEM
       erubi (~> 1.4)
       parser (>= 2.4)
       smart_properties
-    bigdecimal (4.1.0)
+    bigdecimal (4.1.1)
     bindata (2.5.1)
     bindex (0.8.1)
     blazer (3.3.0)
@@ -151,9 +151,9 @@ GEM
       csv
       railties (>= 7.1)
       safely_block (>= 0.4)
-    blind_index (2.7.0)
-      activesupport (>= 7.1)
-      argon2-kdf (>= 0.2)
+    blind_index (2.8.0)
+      activesupport (>= 7.2)
+      argon2-kdf (>= 1)
     bootsnap (1.23.0)
       msgpack (~> 1.2)
     brakeman (8.0.4)
@@ -348,7 +348,7 @@ GEM
     libmf (0.4.0)
       ffi
     lint_roller (1.1.0)
-    lockbox (2.1.0)
+    lockbox (2.2.0)
     logger (1.7.0)
     loofah (2.25.1)
       crass (~> 1.0.2)
@@ -503,7 +503,7 @@ GEM
       railties (>= 4.2)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.2.5)
+    rack (3.2.6)
     rack-attack (6.8.0)
       rack (>= 1.0, < 4)
     rack-mini-profiler (4.0.1)

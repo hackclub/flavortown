@@ -29,7 +29,11 @@ module Admin
           cookie_utilization_percentage = ((used_cookies.to_f / total_distributed_cookies) * 100).round(2)
 
           total_approved_ysws_db_hours = fetch_approved_ysws_db_hours
-          hcb_expenses = get_hcb_expenses
+
+          transaction_data = build_transaction_data
+          hcb_expenses = transaction_data[:total_expenses]
+          contractor_expenses = transaction_data[:contractor_expenses]
+
           if total_approved_ysws_db_hours > 0
             dollars_per_hour = (total_distributed_cookies / 5) / total_approved_ysws_db_hours
             expenses_dollars_per_hour = hcb_expenses / total_approved_ysws_db_hours
@@ -48,7 +52,8 @@ module Admin
             },
             cookie_utilization_percentage: cookie_utilization_percentage,
             dollars_per_hour: dollars_per_hour,
-            expenses_dollars_per_hour: expenses_dollars_per_hour
+            expenses_dollars_per_hour: expenses_dollars_per_hour,
+            contractor_expenses: contractor_expenses
           }
         end
         @payouts_cap = cached_data&.dig(:payouts_cap) || 0
@@ -57,6 +62,15 @@ module Admin
         @dollars_per_hour = cached_data&.dig(:dollars_per_hour) || 0
         @expenses_dollars_per_hour = cached_data&.dig(:expenses_dollars_per_hour) || 0
         @cookie_utilization_percentage = cached_data&.dig(:cookie_utilization_percentage) || 0
+        @contractor_expenses = cached_data&.dig(:contractor_expenses) || 0
+      rescue StandardError => e
+        Rails.logger.error("[SuperMegaDashboard] Error in load_payouts_stats: #{e.class} - #{e.message}")
+        @payouts_cap = 0
+        @payouts = { created: 0, destroyed: 0, txns: 0, volume: 0 }
+        @dollars_per_hour = 0
+        @expenses_dollars_per_hour = 0
+        @cookie_utilization_percentage = 0
+        @contractor_expenses = 0
       end
 
       def load_voting_stats
@@ -238,72 +252,8 @@ module Admin
         @funnel_steps = cached_data&.dig(:funnel_steps) || []
       end
 
-      def load_nps_stats
-        data = Rails.cache.fetch("super_mega_nps_stats", expires_in: 5.minutes) do
-          with_dashboard_timing("nps") do
-            build_nps_stats_from_airtable
-          end
-        rescue StandardError => e
-          Rails.logger.warn("[SuperMegaDashboard] NPS section unavailable (#{e.class}): #{e.message}")
-
-          {
-            total_nps: nil,
-            response_count: nil,
-            promoters: 0,
-            neutrals: 0,
-            detractors: 0,
-            error: e.message.presence || "NPS stats are temporarily unavailable"
-          }
-        end
-
-        @nps_total = data&.dig(:total_nps)
-        @nps_response_count = data&.dig(:response_count)
-        @nps_promoters = data&.dig(:promoters) || 0
-        @nps_neutrals = data&.dig(:neutrals) || 0
-        @nps_detractors = data&.dig(:detractors) || 0
-        @nps_error = data&.dig(:error)
-      end
-
-      def build_nps_stats_from_airtable
-        api_key = ENV["UNIFIED_DB_INTEGRATION_AIRTABLE_KEY"]
-
-        promoters = 0
-        neutrals = 0
-        detractors = 0
-
-        table = Norairrecord.table(api_key, "app3A5kJwYqxMLOgh", "YSWS Programs")
-        record = table.all(filter: "{Name} = 'Flavortown'").first
-        nps_score = record&.fields&.dig("NPS Score")
-        response_count = record&.fields&.dig("NPS–Response Count")
-
-        table = Norairrecord.table(api_key, "app3A5kJwYqxMLOgh", "NPS")
-        records = table.all(filter: "{YSWS} = 'Flavortown'")
-
-
-        records.each do |rec|
-          category = rec.fields["NPS Category"]
-
-          case category
-          when "Promoter"
-            promoters += 1
-          when "Neutral"
-            neutrals += 1
-          when "Detractor"
-            detractors += 1
-          end
-        end
-
-        {
-          total_nps: nps_score&.round,
-          response_count: response_count,
-          promoters: promoters,
-          neutrals: neutrals,
-          detractors: detractors
-        }
-      end
-
       def load_hcb_expenses
-        data = Rails.cache.fetch("super_mega_hcb_stats", expires_in: 5.minutes) do
+        data = Rails.cache.fetch("super_mega_hcb_stats", expires_in: 1.hour) do
           response = Faraday.get("https://hcb.hackclub.com/api/v3/organizations/flavortown")
 
           if response.success?
@@ -325,6 +275,47 @@ module Admin
         @balance_cents = data[:balance_cents] || 0
         @total_expenses_cents = data[:total_expenses_cents] || 0
         @total_raised_cents = data[:total_raised_cents] || 0
+        @hcb_spending_by_tag = fetch_hcb_spending_by_tag
+      end
+
+      def fetch_hcb_spending_by_tag
+        Rails.cache.fetch("super_mega_hcb_stats_v2", expires_in: 1.hour) do
+          spending_by_tag = {}
+          current_page = 1
+
+          loop do
+            response = Faraday.get("https://hcb.hackclub.com/api/v3/organizations/flavortown/transactions", { page: current_page, per_page: 50 })
+            break unless response.success?
+
+            data = JSON.parse(response.body)
+            break if data.empty?
+
+            data.each do |txn|
+              amount = txn["amount_cents"].to_i
+              next unless amount < 0
+
+              tags = txn["tags"] || []
+              tag_names = tags.map { |tag| tag["label"] }
+
+              if tag_names.any?
+                tag_names.each do |tag_name|
+                  spending_by_tag[tag_name] ||= 0
+                  spending_by_tag[tag_name] += amount.abs
+                end
+              else
+                spending_by_tag["Untagged"] ||= 0
+                spending_by_tag["Untagged"] += amount.abs
+              end
+            end
+
+            current_page += 1
+          end
+
+          spending_by_tag.transform_values { |amount| amount / 100.0 }
+        rescue StandardError => e
+          Rails.logger.error("[SuperMegaDashboard] Error fetching HCB spending by tag: #{e.class} - #{e.message}")
+          {}
+        end
       end
 
       def load_flavortime_summary
@@ -415,17 +406,40 @@ module Admin
         0
       end
 
-      def get_hcb_expenses
-        response = Faraday.get("https://hcb.hackclub.com/api/v3/organizations/flavortown")
-        if response.success?
+      def build_transaction_data
+        total_expenses = 0
+        contractor_expenses = 0
+        current_page = 1
+
+        loop do
+          response = Faraday.get("https://hcb.hackclub.com/api/v3/organizations/flavortown/transactions", { page: current_page })
+          break unless response.success?
+
           data = JSON.parse(response.body)
-          total_raised = data.dig("balances", "total_raised") || 0
-          balance = data.dig("balances", "balance_cents") || 0
-          total_expenses = (total_raised - balance).to_f / 100
-          total_expenses
-        else
-          0
+          break if data.empty?
+
+          data.each do |txn|
+            amount = txn["amount_cents"].to_i
+            next unless amount < 0
+
+            has_contributor_tag = txn["tags"]&.any? do |tag|
+              tag["label"] == "Contributor"
+            end
+
+            if has_contributor_tag
+              contractor_expenses += amount.abs
+            else
+              total_expenses += amount.abs
+            end
+          end
+
+          current_page += 1
         end
+
+        {
+          total_expenses: total_expenses / 100,
+          contractor_expenses: contractor_expenses / 100
+        }
       end
 
       def balance_color_class(balance_cents)

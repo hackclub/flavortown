@@ -47,6 +47,7 @@ module Admin
         @fulfillment_trend_data = build_fulfillment_trend_data
         @order_states_trend_data = build_order_states_trend_data
         @recent_new_items = ShopItem.recently_added.enabled.includes(image_attachment: :blob).limit(12)
+        @common_shop_suggestions = get_shop_suggestions
       rescue StandardError => e
         Rails.logger.warn("[SuperMegaDashboard] Fulfillment stats failed (#{e.class}): #{e.message}")
 
@@ -62,6 +63,7 @@ module Admin
         @fulfillment_trend_data = nil
         @order_states_trend_data = nil
         @recent_new_items = []
+        @common_shop_suggestions = []
       end
 
       def build_fulfillment_trend_data
@@ -128,6 +130,63 @@ module Admin
         end
 
         { awaiting: awaiting, fulfilled: fulfilled }
+      end
+
+      def get_shop_suggestions
+        cache_key = "shop_suggestion_llm_results"
+        cached = Rails.cache.read(cache_key)
+        last_called = cached&.dig(:last_called)
+
+        return cached[:result] if last_called.present? && last_called >= 24.hours.ago
+
+        items = ShopSuggestion.order(created_at: :desc).limit(500).pluck(:item)
+        llm_result = get_common_suggestions(items)
+
+        if llm_result.present?
+          Rails.cache.write(cache_key, { result: llm_result, last_called: Time.current })
+          llm_result
+        else
+          cached&.dig(:result) || []
+        end
+      end
+
+      def get_common_suggestions(items)
+        return [] if items.blank?
+
+        prompt = <<~PROMPT
+          Analyze the following suggestions for a hacker shop and identify 8-10 of the most commonly requested items or themes.
+
+          INPUT DATA:
+          #{JSON.generate(items)}
+
+          OUTPUT INSTRUCTIONS:
+          Return only valid JSON with no markdown formatting or code blocks, following this exact schema:
+          [suggestion1, suggestion2, ...]
+        PROMPT
+
+        llm_response = Faraday.post("https://openrouter.ai/api/v1/chat/completions") do |req|
+          req.headers["Authorization"] = "Bearer #{ENV['OPENROUTER_API_KEY']}"
+          req.headers["Content-Type"] = "application/json"
+          req.body = {
+            model: "x-ai/grok-4.1-fast",
+            messages: [
+              { role: "user", content: prompt }
+            ]
+          }.to_json
+        end
+
+        unless llm_response.success?
+          return []
+        end
+
+        llm_body = JSON.parse(llm_response.body)
+        content = llm_body.dig("choices", 0, "message", "content")
+        cleaned_content = content.gsub(/^```json\s*|```\s*$/, "")
+        data = JSON.parse(cleaned_content)
+
+        data
+      rescue JSON::ParserError => e
+        []
       end
     end
   end

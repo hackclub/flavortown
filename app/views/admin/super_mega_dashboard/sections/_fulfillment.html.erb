@@ -422,4 +422,15 @@
           });
         </script>
       <% end %>
+
+      <% if @common_shop_suggestions.present? %>
+        <div class="smd-common-shop-suggestions">
+          <h3 class="smd-common-shop-suggestions__title">Common Shop Suggestions</h3>
+          <div class="smd-common-shop-suggestions__list">
+            <% @common_shop_suggestions.each do |item| %>
+              <div class="smd-common-shop-suggestions__suggestion"><%= item %></div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
     </div>
