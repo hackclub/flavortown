@@ -141,13 +141,6 @@ application.register("stars", StarsController);
 
 import StartDevlogController from "./start_devlog_controller";
 application.register("start-devlog", StartDevlogController);
-
-import StatsHoverController from "./stats_hover_controller";
-application.register("stats-hover", StatsHoverController);
-
-import SuperMegaFunnelController from "./super_mega_funnel_controller";
-application.register("super-mega-funnel", SuperMegaFunnelController);
-
 import TimezoneController from "./timezone_controller";
 application.register("timezone", TimezoneController);
 
