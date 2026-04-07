@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_03_065811) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_150206) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -563,6 +563,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_03_065811) do
     t.datetime "enabled_until"
     t.boolean "enabled_us"
     t.boolean "enabled_xx"
+    t.boolean "exclusive_fulfiller", default: false, null: false
     t.integer "hacker_score"
     t.string "hcb_category_lock"
     t.string "hcb_keyword_lock"

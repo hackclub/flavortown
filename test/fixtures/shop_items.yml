@@ -31,6 +31,7 @@
 #  enabled_until                     :datetime
 #  enabled_us                        :boolean
 #  enabled_xx                        :boolean
+#  exclusive_fulfiller               :boolean          default(FALSE), not null
 #  hacker_score                      :integer
 #  hcb_category_lock                 :string
 #  hcb_keyword_lock                  :string
