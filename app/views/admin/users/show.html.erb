@@ -25,6 +25,13 @@
   </div>
 <% end %>
 
+<% if @user.is_sus? && policy(:admin).ban_users? %>
+  <div style="margin-bottom: 1rem; background: #fef9c3; border: 1px solid #ca8a04; border-radius: 0.5rem; padding: 0.75rem 1rem; color: #713f12;">
+    <strong>⚠️ User is sussy</strong>
+    <div style="margin-top: 0.25rem; font-size: 0.875rem;">Marked sus by (<%= @user.marked_sus_by.size %> reviewer<%= @user.marked_sus_by.size == 1 ? "" : "s" %>): <%= @user.marked_sus_by.join(", ") %></div>
+  </div>
+<% end %>
+
 <div class="flex">
   <div class="card">
     <h2>Basic info</h2>
@@ -260,6 +267,26 @@
       <% end %>
 
       <% if policy(:admin).ban_users? %>
+        <% if @user.is_sus? %>
+          <%= button_to "✅ Unmark Sus", unmark_sus_admin_user_path(@user), method: :post, class: "btn-primary slim", form: { onsubmit: "return confirm(#{("Remove the sus flag from #{@user.display_name}?").to_json})" } %>
+        <% else %>
+          <button type="button" onclick="document.getElementById('mark-sus-modal').showModal()" class="btn-danger slim">
+            ⚠️ Mark Sus
+          </button>
+          <%= render layout: "shared/modal", locals: { id: "mark-sus-modal", title: "Mark User as Suspicious", description: "Flag #{@user.display_name} as suspicious for the review team." } do %>
+            <form action="<%= mark_sus_admin_user_path(@user) %>" method="post">
+              <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+              <div class="modal__field" style="background: #fef9c3; border: 1px solid #ca8a04; border-radius: 0.375rem; padding: 0.75rem; color: #713f12;">
+                <strong>📝 Heads up:</strong> Please make sure to update this user's <a href="#internal-notes" onclick="document.getElementById('mark-sus-modal').close()" style="color: #92400e; text-decoration: underline;">internal notes</a> with why you're flagging them as sus.
+              </div>
+              <div class="modal__actions">
+                <button type="submit" class="btn-danger slim">Confirm Mark Sus</button>
+                <button type="button" onclick="document.getElementById('mark-sus-modal').close()" class="btn-secondary slim">Cancel</button>
+              </div>
+            </form>
+          <% end %>
+        <% end %>
+
         <% if @user.shadow_banned? %>
           <%= button_to "👁️ Remove Shadow Ban", unshadow_ban_admin_user_path(@user), method: :post, class: "btn-primary slim", form: { onsubmit: "return confirm(#{("Are you sure you want to remove the shadow ban from #{@user.display_name}?").to_json})" } %>
         <% else %>
@@ -353,7 +380,7 @@
   </div>
 </div>
 
-<div class="admin-section<%= ' admin-section--highlighted' if @user.internal_notes.present? %>">
+<div id="internal-notes" class="admin-section<%= ' admin-section--highlighted' if @user.internal_notes.present? %>">
   <h2 class="admin-section__header">📝 Internal Notes</h2>
   <p class="admin-section__note">⚠️ Shared between fraud, fulfillment, and admins. Changes are audit logged.</p>
   <% if @user.internal_notes.present? %>

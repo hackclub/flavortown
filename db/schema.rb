@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_03_065811) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_220819) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -839,6 +839,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_03_065811) do
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.boolean "manual_ysws_override"
+    t.string "marked_sus_by", default: [], null: false, array: true
     t.datetime "metrics_synced_at"
     t.integer "projects_count"
     t.integer "projects_shipped_count"

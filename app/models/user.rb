@@ -143,6 +143,10 @@ class User < ApplicationRecord
 
   def admin? = has_role?(:admin) || has_role?(:super_admin)
 
+  # True if any shipwright/reviewer has flagged this user as suspicious.
+  # Derived from marked_sus_by rather than a boolean field so we retain attribution.
+  def is_sus? = marked_sus_by.present?
+
   def seller? = ShopItem::HackClubberItem.exists?(user_id: id)
 
   def can_see_deleted_devlogs? = admin? || has_role?(:fraud_dept)
