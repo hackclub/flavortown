@@ -17,7 +17,6 @@
         { label: "Shop", path: "/shop", icon: "shopping_cart_1_fill" }
       ] %>
 
-
       <% sidebar_nav_items << { label: "Admin", path: admin_root_path, icon: "code" } if policy(:admin).access_admin_dashboard? %>
 
       <% sidebar_nav_items << { label: "Fulfil", path: admin_shop_orders_path(view: "fulfillment"), icon: "shopping_cart_1_fill" } if current_user.fulfillment_person? && !current_user.admin? %>
