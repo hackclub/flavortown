@@ -849,6 +849,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_03_065811) do
     t.boolean "send_notifications_for_new_comments", default: true, null: false
     t.boolean "send_notifications_for_new_followers", default: true, null: false
     t.boolean "send_votes_to_slack", default: false, null: false
+    t.boolean "notify_vote_deficit", default: true, null: false
     t.string "session_token"
     t.boolean "shadow_banned", default: false, null: false
     t.datetime "shadow_banned_at"

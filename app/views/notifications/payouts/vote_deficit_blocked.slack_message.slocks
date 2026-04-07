@@ -15,4 +15,5 @@ divider
 
 context [
   mrkdwn_text("Start voting: <https://flavortown.hackclub.com/votes/new|Vote on projects>")
+  mrkdwn_text("You can disable this in your user settings")
 ]

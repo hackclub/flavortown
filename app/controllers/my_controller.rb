@@ -20,7 +20,8 @@ class MyController < ApplicationController
       send_notifications_for_new_followers: params[:send_notifications_for_new_followers] == "1",
       send_notifications_for_new_comments: params[:send_notifications_for_new_comments] == "1",
       special_effects_enabled: params[:special_effects_enabled] == "1",
-      search_engine_indexing_off: params[:search_engine_indexing_off] == "1"
+      search_engine_indexing_off: params[:search_engine_indexing_off] == "1",
+      notify_vote_deficit: params[:notify_vote_deficit] == "1"
     )
     redirect_back fallback_location: root_path, notice: "Settings saved"
   end
