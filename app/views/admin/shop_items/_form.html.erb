@@ -149,6 +149,19 @@
                 <span class="shop-item-form__toggle-desc">Orders require a verification call before fulfillment</span>
               </span>
             </label>
+
+            <label class="shop-item-form__toggle">
+              <% exclusive_locked = shop_item.exclusive_fulfiller? && current_user.id != 27 %>
+              <%= f.check_box :exclusive_fulfiller, disabled: exclusive_locked %>
+              <%= f.hidden_field :exclusive_fulfiller, value: "1" if exclusive_locked %>
+              <span class="shop-item-form__toggle-content">
+                <strong>Exclusive Fulfiller</strong>
+                <span class="shop-item-form__toggle-desc">Only Amber can fulfill orders for this item — no one else, not even other admins</span>
+                <% if exclusive_locked %>
+                  <span class="shop-item-form__toggle-desc"><em>🔒 Only Amber can disable this</em></span>
+                <% end %>
+              </span>
+            </label>
           </div>
 
           <div class="shop-item-form__field" id="stock_field_container">

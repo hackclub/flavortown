@@ -422,6 +422,10 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to admin_shop_order_path(@order), alert: "Only admins can fulfill verification-call items" and return
     end
 
+    if @order.shop_item.exclusive_fulfiller? && current_user.id != 27
+      redirect_to admin_shop_order_path(@order), alert: "This item can only be fulfilled by Amber." and return
+    end
+
     old_state = @order.aasm_state
 
     if @order.mark_fulfilled(params[:external_ref].presence, params[:fulfillment_cost].presence, current_user.display_name) && @order.save

@@ -22,6 +22,10 @@ class Api::V1::Admin::ShopOrdersController < Api::V1::Admin::BaseController
       render json: { error: "order is in #{o.aasm_state} and can not be marked as fulfilled" }, status: :unprocessable_entity and return
     end
 
+    if o.shop_item.exclusive_fulfiller? && current_api_user.id != 27
+      render json: { error: "This item can only be fulfilled by Amber." }, status: :forbidden and return
+    end
+
     s = o.aasm_state
     if o.mark_fulfilled(params[:external_ref].presence, params[:fulfillment_cost].presence, current_api_user.display_name) && o.save
       PaperTrail::Version.create!(

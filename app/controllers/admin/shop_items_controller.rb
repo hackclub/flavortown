@@ -36,6 +36,10 @@ module Admin
     def update
       authorize :admin, :manage_shop?
 
+      if @shop_item.exclusive_fulfiller? && shop_item_params[:exclusive_fulfiller] == "0" && current_user.id != 27
+        redirect_to edit_admin_shop_item_path(@shop_item), alert: "Only user #27 can disable the exclusive fulfiller setting." and return
+      end
+
       if @shop_item.update(shop_item_params)
         if @shop_item.saved_change_to_ticket_cost?
           @shop_item.old_prices << @shop_item.ticket_cost_before_last_save
@@ -172,6 +176,7 @@ module Admin
         :enabled_until,
         :source_region,
         :requires_verification_call,
+        :exclusive_fulfiller,
         requires_achievement: [],
         attached_shop_item_ids: [],
         blocked_countries: []
