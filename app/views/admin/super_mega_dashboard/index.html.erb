@@ -1,10 +1,53 @@
 <% content_for :title, "Super Mega Dashboard" %>
 <%= render "admin/super_mega_dashboard/d3_utils" %>
-<div class="super-mega-dashboard" data-controller="lazy-load super-mega-dashboard-toc">
+<div class="super-mega-dashboard" data-controller="lazy-load super-mega-index">
   <%= render HeadingComponent.new(title: "Super Mega Dashboard", tone: :red, size: :full) %>
 
   <div class="super-mega-dashboard__layout">
-    <aside class="super-mega-dashboard__toc" data-super-mega-dashboard-toc-target="toc"></aside>
+    <aside class="super-mega-dashboard__index" data-super-mega-index-target="index">
+      <% toc_sections = [
+        { id: "funnel", label: "Funnel" },
+        { id: "nps", label: "NPS" },
+        { id: "hcb", label: "HCB" },
+        { id: "fraud", label: "Fraud" },
+        { id: "payouts", label: "Payouts" },
+        { id: "fulfillment", label: "Fulfillment" },
+        { id: "shipwrights", label: "Shipwrights" },
+        { id: "support", label: "Support" },
+        { id: "ysws_review", label: "YSWS Review" },
+        { id: "voting", label: "Voting" },
+        { id: "community", label: "Community" },
+        { id: "pyramid_flavortime", label: "Pyramid / Flavortime" },
+        { id: "sidequests", label: "Sidequests" },
+      ] %>
+
+      <button
+        type="button"
+        class="super-mega-dashboard__index-handle"
+        aria-controls="super-mega-dashboard__index-nav"
+        aria-expanded="false"
+        data-action="super-mega-index#toggle">
+        <span class="super-mega-dashboard__index-handle-label">Super Mega Index</span>
+      </button>
+
+      <div class="super-mega-dashboard__index-content">
+        <nav
+          id="super-mega-dashboard__index-nav"
+          class="super-mega-dashboard__index-nav"
+          aria-label="On this page">
+          <div class="super-mega-dashboard__index-title">On this page</div>
+          <ol class="super-mega-dashboard__index-list">
+            <% toc_sections.each do |section| %>
+              <li class="super-mega-dashboard__index-item">
+                <%= link_to section[:label], "##{section[:id]}",
+                      class: "super-mega-dashboard__index-link",
+                      data: { action: "super-mega-index#scroll", section_id: section[:id] } %>
+              </li>
+            <% end %>
+          </ol>
+        </nav>
+      </div>
+    </aside>
 
     <div class="super-mega-dashboard__dashboards">
       <div id="funnel" data-lazy-section="funnel" class="super-mega-dashboard__placeholder-card">
