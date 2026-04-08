@@ -218,9 +218,9 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
-    faiss (0.5.3)
-      numo-narray
-      rice (>= 4.8)
+    faiss (0.6.0)
+      numo-narray-alt (>= 0.10)
+      rice (>= 4.11.5)
     faker (3.6.1)
       i18n (>= 1.8.11, < 2)
     faraday (2.14.1)
@@ -415,6 +415,7 @@ GEM
       faraday-net_http_persistent
       net-http-persistent
     numo-narray (0.9.2.1)
+    numo-narray-alt (0.10.3)
     oauth2 (2.0.18)
       faraday (>= 0.17.3, < 4.0)
       jwt (>= 1.0, < 4.0)
@@ -586,7 +587,7 @@ GEM
     request_store (1.7.0)
       rack (>= 1.4)
     rexml (3.4.4)
-    rice (4.11.2)
+    rice (4.11.5)
     rspec-core (3.13.6)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.5)
