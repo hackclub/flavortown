@@ -2,7 +2,7 @@ header ":rustpilled: Rusty Frontend Sidequest Complete!"
 
 section "Your project *#{entry.project.title}* has been approved for the Rusty Frontend sidequest!", markdown: true
 
-section "You have now unlocked [todo] in the shop :yay: Time to spend your :cookie: wisely"
+section "You have now unlocked new prizes in the shop :yay: Time to spend your :cookie: wisely"
 
 divider
 
