@@ -40,7 +40,7 @@
     <% if @ship_events.any? %>
       <ul style="margin: 0; padding-left: 1.25rem;">
         <% @ship_events.each do |ship_event| %>
-          <% legitimate_votes = ship_event.votes.legitimate.order(created_at: :desc) %>
+          <% legitimate_votes = ship_event.votes.payout_countable.order(created_at: :desc) %>
           <li>
             <%= ship_event.created_at.strftime("%Y-%m-%d %H:%M") %>
             — <%= ship_event.payout.present? ? "Paid" : "Not paid" %>

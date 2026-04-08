@@ -168,3 +168,6 @@ application.register("lazy-load", LazyLoadController);
 
 import SuperMegaFunnelController from "./super_mega_funnel_controller";
 application.register("super-mega-funnel", SuperMegaFunnelController);
+
+import HcbChartController from "./hcb_chart_controller";
+application.register("hcb-chart", HcbChartController);
