@@ -208,6 +208,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
           .exists?
       }
     ),
+
     new(
       slug: :sidequest_optimization,
       name: "Sidequest: Optimization",
