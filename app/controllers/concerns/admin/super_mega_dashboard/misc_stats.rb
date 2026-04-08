@@ -253,7 +253,7 @@ module Admin
       end
 
       def load_hcb_expenses
-        data = Rails.cache.fetch("super_mega_hcb_stats", expires_in: 5.minutes) do
+        data = Rails.cache.fetch("super_mega_hcb_stats", expires_in: 1.hour) do
           response = Faraday.get("https://hcb.hackclub.com/api/v3/organizations/flavortown")
 
           if response.success?
@@ -275,6 +275,47 @@ module Admin
         @balance_cents = data[:balance_cents] || 0
         @total_expenses_cents = data[:total_expenses_cents] || 0
         @total_raised_cents = data[:total_raised_cents] || 0
+        @hcb_spending_by_tag = fetch_hcb_spending_by_tag
+      end
+
+      def fetch_hcb_spending_by_tag
+        Rails.cache.fetch("super_mega_hcb_stats_v2", expires_in: 1.hour) do
+          spending_by_tag = {}
+          current_page = 1
+
+          loop do
+            response = Faraday.get("https://hcb.hackclub.com/api/v3/organizations/flavortown/transactions", { page: current_page, per_page: 50 })
+            break unless response.success?
+
+            data = JSON.parse(response.body)
+            break if data.empty?
+
+            data.each do |txn|
+              amount = txn["amount_cents"].to_i
+              next unless amount < 0
+
+              tags = txn["tags"] || []
+              tag_names = tags.map { |tag| tag["label"] }
+
+              if tag_names.any?
+                tag_names.each do |tag_name|
+                  spending_by_tag[tag_name] ||= 0
+                  spending_by_tag[tag_name] += amount.abs
+                end
+              else
+                spending_by_tag["Untagged"] ||= 0
+                spending_by_tag["Untagged"] += amount.abs
+              end
+            end
+
+            current_page += 1
+          end
+
+          spending_by_tag.transform_values { |amount| amount / 100.0 }
+        rescue StandardError => e
+          Rails.logger.error("[SuperMegaDashboard] Error fetching HCB spending by tag: #{e.class} - #{e.message}")
+          {}
+        end
       end
 
       def load_flavortime_summary
