@@ -2444,7 +2444,7 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    overflow-y: scroll;
+    overflow: auto;
   }
 
   &__suggestion {
