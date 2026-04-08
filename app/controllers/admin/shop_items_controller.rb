@@ -43,7 +43,7 @@ module Admin
     end
 
     def update
-      authorize_shop_item_access!(must_be_draft: true)
+      return unless authorize_shop_item_access!(must_be_draft: true)
       p = shop_manager? ? draft_shop_item_params : shop_item_params
 
       if @shop_item.update(p)
@@ -120,11 +120,13 @@ module Admin
       if shop_manager?
         authorize :admin, :manage_draft_shop_items?
         if must_be_draft && (!@shop_item.draft? || @shop_item.created_by_user_id != current_user.id)
-          redirect_to admin_manage_shop_path, alert: "You can only edit your own draft items." and return
+          redirect_to admin_manage_shop_path, alert: "You can only edit your own draft items."
+          return false  # signal to caller
         end
       else
         authorize :admin, :manage_shop?
       end
+      true
     end
 
     def set_shop_item
