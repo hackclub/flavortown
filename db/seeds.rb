@@ -81,12 +81,26 @@ Sidequest.find_or_create_by!(slug: "converge") do |sq|
   sq.description = "Build a Slack or Discord bot that does something useful or creative. Ship it on Flavortown and submit it to unlock Converge prizes in the shop!"
 end
 
+Sidequest.find_or_create_by!(slug: "roastedapples") do |sq|
+  sq.title = "Roasted Apples"
+  sq.description = "Get access to the HQ Apple Developer Account to build an app for Apple devices! Then get your own license and other Apple prizes!"
+end
+
 Sidequest.find_or_create_by!(
   title: "Lock in",
   slug: "lockin",
   description: "Work 10 hrs a week for 4 weeks without missing an hour. You get 120 cookies & unlock some shop items.",
   expires_at: Date.new(2026, 4, 30)
 )
+
+#Roasted Apple shop item(s) - require Roasted Apples sidequest achievemnt  (not added yet but this is needed for seeding i think)
+apple_developer_license = ShopItem.find_or_create_by!(name: "Apple Developer License") do |item|
+  item.description = "Make your own Apple applications! Lasts for one year."
+  item.ticket_cost = 0
+  downloaded_image = URI.parse("https://placecats.com/300/200").open
+  item.image.attach(io: downloaded_image, filename: "roastedapplesshop.png")
+
+
 
 # webOS shop items - require webOS sidequest achievement
 webos_stickers = ShopItem.find_or_create_by!(id: 95) do |item|
