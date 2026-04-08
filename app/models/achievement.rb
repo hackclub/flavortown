@@ -260,7 +260,6 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
           .exists?
       }
      ),
-    ),
       new(
       slug: :show_and_tell,
       name: "Show and tell",
