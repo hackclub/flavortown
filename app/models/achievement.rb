@@ -230,7 +230,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       earned_check: ->(user) {
         SidequestEntry.approved
           .joins(:sidequest, project: :memberships)
-          .where(sidequests: { slug: "roastedapples" })
+          .where(sidequests: { slug: "converge" })
           .where(project_memberships: { user_id: user.id, role: "owner" })
           .exists?
       }
