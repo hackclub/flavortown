@@ -117,7 +117,7 @@
         <% end %>
 
         <% if show_votes_breakdown? %>
-          <% votes = ship_event_legitimate_votes %>
+          <% votes = ship_event_payout_countable_votes %>
           <details class="post__votes-breakdown">
             <summary><%= votes.size %> vote<%= votes.size == 1 ? "" : "s" %> received</summary>
             <% votes.each_with_index do |vote, index| %>
