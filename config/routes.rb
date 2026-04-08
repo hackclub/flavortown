@@ -273,6 +273,7 @@ Rails.application.routes.draw do
          post :refresh_verification
          post :toggle_voting_lock
          get  :votes
+         post :set_vote_balance
          patch :set_ysws_eligible_override
        end
        collection do
