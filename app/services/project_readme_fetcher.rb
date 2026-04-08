@@ -13,12 +13,15 @@ class ProjectReadmeFetcher
   ].freeze
 
   TIMEOUT_SECONDS = 10
-  GITHUB_BLOB = %r{\Ahttps?://github\.com/([^/]+)/([^/]+)/blob/(.+)\z}
+  GITHUB_BLOB = %r{\Ahttps?://github\.com/([^/]+)/([^/]+)/blob/}
 
   def self.fetch(url)
     return Result.new(markdown: nil, error: "No README URL provided.") if url.blank?
 
-    url = normalize_url(url)
+    if url.match?(GITHUB_BLOB)
+      return Result.new(markdown: nil, error: "Use a raw Github URL (looks like raw.githubusercontent.com)")
+    end
+
     uri = URI.parse(url)
     return Result.new(markdown: nil, error: "Invalid README URL.") unless allowed_uri?(uri)
 
@@ -50,7 +53,9 @@ class ProjectReadmeFetcher
   def self.allowed_url?(url)
     return false if url.blank?
 
-    uri = URI.parse(normalize_url(url.to_s))
+    return false if url.to_s.match?(GITHUB_BLOB)
+
+    uri = URI.parse(url.to_s)
     allowed_uri?(uri)
   rescue URI::InvalidURIError
     false
@@ -61,12 +66,6 @@ class ProjectReadmeFetcher
     host = uri.host.to_s.downcase
     return false if host.blank?
     ALLOWED_HOSTS.include?(host)
-  end
-
-  def self.normalize_url(url)
-    return url unless (m = url.match(GITHUB_BLOB))
-
-    "https://raw.githubusercontent.com/#{m[1]}/#{m[2]}/#{m[3]}"
   end
 
   def self.html_response?(res, body)
