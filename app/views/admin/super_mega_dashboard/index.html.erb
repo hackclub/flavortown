@@ -3,9 +3,9 @@
 <div class="super-mega-dashboard" data-controller="lazy-load super-mega-index">
   <%= render HeadingComponent.new(title: "Super Mega Dashboard", tone: :red, size: :full) %>
 
-  <div class="super-mega-dashboard__layout">
+  <div class="super-mega-dashboard">
     <aside class="super-mega-dashboard__index" data-super-mega-index-target="index">
-      <% toc_sections = [
+      <% index_sections = [
         { id: "funnel", label: "Funnel" },
         { id: "nps", label: "NPS" },
         { id: "hcb", label: "HCB" },
@@ -31,17 +31,12 @@
       </button>
 
       <div class="super-mega-dashboard__index-content">
-        <nav
-          id="super-mega-dashboard__index-nav"
-          class="super-mega-dashboard__index-nav"
-          aria-label="On this page">
+        <nav id="super-mega-dashboard__index-nav" class="super-mega-dashboard__index-nav">
           <div class="super-mega-dashboard__index-title">On this page</div>
           <ol class="super-mega-dashboard__index-list">
-            <% toc_sections.each do |section| %>
+            <% index_sections.each do |section| %>
               <li class="super-mega-dashboard__index-item">
-                <%= link_to section[:label], "##{section[:id]}",
-                      class: "super-mega-dashboard__index-link",
-                      data: { action: "super-mega-index#scroll", section_id: section[:id] } %>
+                <%= link_to section[:label], "##{section[:id]}", class: "super-mega-dashboard__index-link", data: { action: "super-mega-index#scroll", section_id: section[:id] } %>
               </li>
             <% end %>
           </ol>
