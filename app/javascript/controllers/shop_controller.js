@@ -71,7 +71,11 @@ export default class extends Controller {
       const passesAccess = this.checkAccess(item);
 
       item.style.display =
-        passesCategory && passesPrice && passesSearch && passesRegion && passesAccess
+        passesCategory &&
+        passesPrice &&
+        passesSearch &&
+        passesRegion &&
+        passesAccess
           ? "flex"
           : "none";
     });
