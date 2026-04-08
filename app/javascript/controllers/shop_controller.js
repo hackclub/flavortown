@@ -11,6 +11,7 @@ export default class extends Controller {
     this.priceRange = "none";
     this.regionFilter = this.userRegionValue;
     this.searchQuery = "";
+    this.accessFilter = "All";
 
     this.setupSortButton();
     this.setupFilterListeners();
@@ -37,6 +38,8 @@ export default class extends Controller {
       } else if (filterType === "Region") {
         this.regionFilter = value;
         this.saveRegion(value);
+      } else if (filterType === "Access") {
+        this.accessFilter = value;
       }
 
       this.applyFiltersAndSort();
@@ -65,9 +68,10 @@ export default class extends Controller {
       const passesPrice = this.checkPrice(item);
       const passesSearch = this.checkSearch(item);
       const passesRegion = this.checkRegion(item);
+      const passesAccess = this.checkAccess(item);
 
       item.style.display =
-        passesCategory && passesPrice && passesSearch && passesRegion
+        passesCategory && passesPrice && passesSearch && passesRegion && passesAccess
           ? "flex"
           : "none";
     });
@@ -99,6 +103,14 @@ export default class extends Controller {
   checkRegion(item) {
     const itemRegions = (item.dataset.regions || "").split(",");
     return itemRegions.includes(this.regionFilter);
+  }
+
+  checkAccess(item) {
+    if (this.accessFilter === "All") return true;
+    const isLocked = item.dataset.achievementLocked === "true";
+    if (this.accessFilter === "Available") return !isLocked;
+    if (this.accessFilter === "Locked") return isLocked;
+    return true;
   }
 
   getPriceRange(range) {
