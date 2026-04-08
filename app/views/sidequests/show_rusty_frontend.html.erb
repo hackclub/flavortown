@@ -5,7 +5,7 @@
 
 <%= render HeadingComponent.new(title: @sidequest.title, tone: :red, size: :full) %>
 
-<div class="sidequest-show sidequest-show--rusty-frontend">
+<div class="sidequest-show sidequest-show--optimization">
   <div class="sidequest-show__content">
     <% if @sidequest.description.present? %>
       <p class="sidequest-show__description"><%= @sidequest.description %></p>
@@ -17,14 +17,14 @@
         <ul class="sidequest-show__steps">
           <li>Your project must be built using <strong>Rust</strong> (including the frontend)</li>
           <li>Create a GUI application, web frontend, or interactive interface using Rust</li>
-          <li>Add a "Rust Frontend" section to your README explaining your technology choices and implementation</li>
+          <%# <li>Add a "Rust Frontend" section to your README explaining your technology choices and implementation</li> %>
           <li>Include screenshots or demo GIFs showcasing your Rust-powered frontend</li>
           <li>Ship your project on Flavortown</li>
           <li>Submit it to this sidequest from your project page</li>
           <li>Once approved, you'll unlock exclusive Rust prizes in the shop! 🦀</li>
         </ul>
         <p class="sidequest-show__help-note">
-          Need help getting started? Check out the Rust frontend frameworks below or DM
+          Need help getting started? 
           <%= link_to "@Arjav", "https://hackclub.enterprise.slack.com/team/U081ZC7ES30", target: "_blank", rel: "noopener" %>
           on Slack.
         </p>
@@ -37,7 +37,7 @@
           <li><strong>Desktop GUI</strong> -  egui, Iced</li>
           <li><strong>Game Engines</strong> - Bevy</li>
           <li><strong>Terminal UI</strong> - Ratatui (formerly tui-rs), Cursive</li>
-          <li><strong>WebAssembly</strong> - wasm-bindgen, wasm-pack for browser deployment</li>
+          <li><strong>WebAssembly</strong> - wasm-bindgen, wasm-pack </li>
         </ul>
       </section>
     </div>
