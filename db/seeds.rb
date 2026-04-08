@@ -102,14 +102,6 @@ Sidequest.find_or_create_by!(
   expires_at: Date.new(2026, 4, 30)
 )
 
-#Roasted Apple shop item(s) - require Roasted Apples sidequest achievemnt  (not added yet but this is needed for seeding i think)
-apple_developer_license = ShopItem.find_or_create_by!(name: "Apple Developer License") do |item|
-  item.description = "Make your own Apple applications! Lasts for one year."
-  item.ticket_cost = 0
-  downloaded_image = URI.parse("https://placecats.com/300/200").open
-  item.image.attach(io: downloaded_image, filename: "roastedapplesshop.png")
-
-
 
 # webOS shop items - require webOS sidequest achievement
 webos_stickers = ShopItem.find_or_create_by!(id: 95) do |item|
