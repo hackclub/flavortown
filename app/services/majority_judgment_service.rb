@@ -23,7 +23,7 @@ class MajorityJudgmentService
 
       ship_event.update_columns(attrs.merge(updated_at: Time.current))
 
-      next unless ship_event.votes.legitimate.count >= Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
+      next unless ship_event.votes.payout_countable.count >= Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
 
       ShipEventPayoutCalculator.apply!(ship_event)
     end
@@ -36,7 +36,7 @@ class MajorityJudgmentService
   def call
     return empty_result unless @ship_event.current_voting_scale?
 
-    scores = @ship_event.votes.legitimate.pluck(*Vote.score_columns)
+    scores = @ship_event.votes.payout_countable.pluck(*Vote.score_columns)
     return empty_result if scores.empty?
 
     medians = build_medians(scores)
@@ -210,6 +210,6 @@ class MajorityJudgmentService
   end
 
   def self.scoped_votes
-    Vote.legitimate.where(ship_event_id: Post::ShipEvent.current_voting_scale.select(:id))
+    Vote.payout_countable.where(ship_event_id: Post::ShipEvent.current_voting_scale.select(:id))
   end
 end

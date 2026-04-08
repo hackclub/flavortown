@@ -45,6 +45,8 @@ class ExploreController < ApplicationController
                    .excluding_member(current_user)
                    .excluding_shadow_banned
 
+    scope = scope.fire if params[:sort] == "well-cooked"
+
     if params[:sort] == "following" && current_user
       scope = scope.where(id: current_user.project_follows.select(:project_id)).order(created_at: :desc)
     elsif params[:sort] == "top"

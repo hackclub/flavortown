@@ -1,0 +1,11 @@
+header ":cursed-cookie: You have been cursed!"
+
+section "Your ship payouts are reduced by *50%*", markdown: true
+
+section "*What you can do:*\n• Write detailed responses, specific to the project\n• Go through demos and readmes\n• Don't rush through voting", markdown: true
+
+section "This is reassessed automatically every 12 hours. Once your voting quality improves, you'll be restored automatically.", markdown: true
+
+context [
+  mrkdwn_text("Questions? Reach out in #flavortown-help.")
+]

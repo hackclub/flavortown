@@ -17,10 +17,14 @@ class OpenaiProjectIdeasService
 
     idea_content = OpenaiApiService.call(prompt)
 
+    return fallback_idea if idea_content.blank?
+
     # Run formatting prompt before saving
     formatting_prompt = flavor("prompts.formatting", text: idea_content)
 
     formatted_idea_content = GrokApiService.call(formatting_prompt)
+
+    return fallback_idea if formatted_idea_content.blank?
 
     project_idea = ProjectIdea.create!(
       content: formatted_idea_content,

@@ -28,6 +28,31 @@ class VotesController < ApplicationController
     ActiveRecord::Associations::Preloader.new(records: devlogs, associations: :attachments_attachments).call if devlogs.any?
   end
 
+  def skip
+    authorize :vote, :create?
+
+    ship_event_id = VoteSuggestionToken.verify(
+      params[:suggestion_token],
+      user: current_user,
+      user_agent: request.user_agent
+    )
+
+    unless ship_event_id
+      return redirect_to(new_vote_path, alert: "Invalid or expired session. Please try again.")
+    end
+
+    ship_event = Post::ShipEvent.includes(post: :project).find_by(id: ship_event_id)
+    project = ship_event&.post&.project
+
+    unless project
+      return redirect_to(new_vote_path, alert: "That project is no longer available.")
+    end
+
+    current_user.project_skips.find_or_create_by!(project: project)
+
+    redirect_to new_vote_path, notice: "Project skipped!"
+  end
+
   def create
     authorize :vote
 

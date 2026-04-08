@@ -52,6 +52,9 @@ application.register(
   HackatimeProjectSelectorController,
 );
 
+import HcbChartController from "./hcb_chart_controller";
+application.register("hcb-chart", HcbChartController);
+
 import HelloController from "./hello_controller";
 application.register("hello", HelloController);
 
