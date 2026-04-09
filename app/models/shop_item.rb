@@ -291,6 +291,14 @@ class ShopItem < ApplicationRecord
     requires_achievement.present?
   end
 
+  def achievement_locked_for?(user)
+    requires_achievement? && !meet_achievement_require?(user)
+  end
+
+  def required_achievement_objects
+    requires_achievement.map { |slug| Achievement.find(slug) }
+  end
+
   private
 
   def is_range_valid
