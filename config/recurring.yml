@@ -159,3 +159,9 @@ production:
     schedule: every 12 hours
     concurrency: 1
     description: "Recompute vote quality scores and update blessed/cursed/neutral verdicts for all voters"
+
+  project_ship_events_sync:
+    class: Project::ShipEventsSyncJob
+    schedule: every day at 7am America/New_York
+    concurrency: 1
+    description: "Sync projects with multiple ship events and log each event"
