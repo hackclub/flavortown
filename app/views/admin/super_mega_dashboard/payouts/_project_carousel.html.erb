@@ -1,10 +1,10 @@
 <div class="payout-project-carousel">
+  <% variant = (local_assigns[:variant] || :most_cookies).to_sym %>
   <h3 class="payout-project-carousel__title"><%= title %></h3>
   <div class="payout-project-carousel__track">
     <% projects.to_a.each do |project_data| %>
       <div class="payout-project-carousel__item">
-        <%= render partial: "admin/super_mega_dashboard/payouts/project_card",
-            locals: { project_data: project_data, show_latest_ship_payout: show_latest_ship_payout } %>
+        <%= render partial: "admin/super_mega_dashboard/payouts/project_card", locals: { project_data: project_data, variant: variant } %>
       </div>
     <% end %>
   </div>

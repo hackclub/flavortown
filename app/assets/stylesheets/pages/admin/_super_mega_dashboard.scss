@@ -2707,49 +2707,42 @@
   &__content {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     flex: 1;
     padding: 1rem;
+    gap: 0.5rem;
+    text-align: center;
   }
 
   &__title {
-    margin: 0 0 0.5rem 0 !important;
-    font-weight: 700;
-    line-height: 1.4;
-  }
-
-  &__link {
-    color: var(--color-brown-700);
-    text-decoration: none;
-  }
-
-  &__stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem 0.75rem;
-    padding: 0.5rem 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  }
-
-  &__stat-item {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-
-  &__stat-label {
-    font-size: 0.7rem;
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--color-brown-600);
-    text-transform: uppercase;
-    letter-spacing: 0.25px;
+    line-height: 1.2;
   }
 
-  &__stat-value {
-    font-size: 0.9rem;
-    font-weight: 700;
+  &__title-link {
     color: var(--color-brown-900);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__metric {
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-brown-900);
+
+    &--multiplier {
+      font-size: 1.15rem;
+    }
+
+    &--cookies {
+      font-size: 1.75rem;
+      font-weight: 800;
+    }
   }
 
   &__creator-avatar {
@@ -2759,16 +2752,6 @@
     object-fit: cover;
     background: var(--color-brown-300);
     flex-shrink: 0;
-
-    &--default {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.9rem;
-      color: var(--color-brown-700);
-      background: var(--color-brown-200);
-    }
   }
 }
 

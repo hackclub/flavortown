@@ -103,11 +103,9 @@
 
       <% if @highest_multiplier_projects.present? || @largest_payout_projects.present? %>
         <div class="payout-project-carousels">
-          <%= render partial: "admin/super_mega_dashboard/payouts/project_carousel",
-              locals: { title: "Highest multiplier", projects: @highest_multiplier_projects, show_latest_ship_payout: false } %>
+          <%= render partial: "admin/super_mega_dashboard/payouts/project_carousel", locals: { title: "Highest multiplier", projects: @highest_multiplier_projects, variant: :highest_multiplier } %>
 
-          <%= render partial: "admin/super_mega_dashboard/payouts/project_carousel",
-              locals: { title: "Most cookies", projects: @largest_payout_projects, show_latest_ship_payout: true } %>
+          <%= render partial: "admin/super_mega_dashboard/payouts/project_carousel", locals: { title: "Most cookies", projects: @largest_payout_projects, variant: :most_cookies } %>
         </div>
       <% else %>
         <p class="super-mega-dashboard__no-data" style="margin-top: 0.5rem">No projects found</p>
