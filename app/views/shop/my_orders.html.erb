@@ -83,7 +83,7 @@
                       <div class="my-orders__grant-actions">
                         <%= render ButtonComponent.new(text: "Open Grant", href: order.shop_card_grant.hcb_url, color: :brown, target: "_blank") %>
                       </div>
-                    <% elsif order.external_ref.present? %>
+                    <% else %>
                       <span class="my-orders__status-hint">We have ordered the item for you! <% if order.external_ref.present? %><%= order.external_ref %><% else %>You should check your emails :)<% end %></span>
                     <% end %>
                   <% end %>
