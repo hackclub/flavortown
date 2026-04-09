@@ -1,0 +1,62 @@
+<div class="payout-project-card">
+  <div class="payout-project-card__banner">
+    <%= link_to project_path(project_data[:project_id]), class: "payout-project-card__banner-link", target: "_blank", rel: "noopener" do %>
+      <% if project_data[:project]&.banner&.attached? %>
+        <%= image_tag project_data[:project].banner.variant(:card),
+            alt: "#{project_data[:title]} banner",
+            class: "payout-project-card__banner-image" %>
+      <% else %>
+        <%= image_tag "default-banner.png",
+            alt: "#{project_data[:title]} banner",
+            class: "payout-project-card__banner-image" %>
+      <% end %>
+    <% end %>
+
+    <% if project_data[:creator]&.id.present? %>
+      <%= link_to user_path(project_data[:creator].id),
+          class: "payout-project-card__creator-badge",
+          title: project_data[:creator].display_name,
+          target: "_blank",
+          rel: "noopener" do %>
+        <%= image_tag project_data[:creator].avatar,
+            alt: project_data[:creator].display_name,
+            class: "payout-project-card__creator-avatar" %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="payout-project-card__content">
+    <h3 class="payout-project-card__title">
+      <%= link_to project_data[:title], project_path(project_data[:project_id]), class: "payout-project-card__link", target: "_blank", rel: "noopener" %>
+    </h3>
+
+    <div class="payout-project-card__stats">
+      <div class="payout-project-card__stat-item">
+        <span class="payout-project-card__stat-label">Time</span>
+        <span class="payout-project-card__stat-value"><%= format_seconds(project_data[:duration_seconds]) %></span>
+      </div>
+
+      <% if show_latest_ship_payout %>
+        <div class="payout-project-card__stat-item">
+          <span class="payout-project-card__stat-label">Latest 🍪</span>
+          <span class="payout-project-card__stat-value"><%= number_with_delimiter(project_data[:latest_ship_payout]) %></span>
+        </div>
+      <% end %>
+
+      <div class="payout-project-card__stat-item">
+        <span class="payout-project-card__stat-label">Total 🍪</span>
+        <span class="payout-project-card__stat-value"><%= number_with_delimiter(project_data[:total_payout]) %></span>
+      </div>
+
+      <div class="payout-project-card__stat-item">
+        <span class="payout-project-card__stat-label">Ships</span>
+        <span class="payout-project-card__stat-value"><%= project_data[:ship_count] %></span>
+      </div>
+
+      <div class="payout-project-card__stat-item">
+        <span class="payout-project-card__stat-label">Mult</span>
+        <span class="payout-project-card__stat-value"><%= project_data[:max_multiplier] %> 🍪/hr</span>
+      </div>
+    </div>
+  </div>
+</div>

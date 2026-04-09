@@ -1,0 +1,11 @@
+<div class="payout-project-carousel">
+  <h3 class="payout-project-carousel__title"><%= title %></h3>
+  <div class="payout-project-carousel__track">
+    <% projects.to_a.each do |project_data| %>
+      <div class="payout-project-carousel__item">
+        <%= render partial: "admin/super_mega_dashboard/payouts/project_card",
+            locals: { project_data: project_data, show_latest_ship_payout: show_latest_ship_payout } %>
+      </div>
+    <% end %>
+  </div>
+</div>
