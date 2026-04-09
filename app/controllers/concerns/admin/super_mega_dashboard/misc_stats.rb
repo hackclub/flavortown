@@ -540,31 +540,26 @@ module Admin
 
             project = events.first.post.project
             project_title = project.title
-            total_payout = events.sum(&:payout).to_f
-            latest_ship_payout = events.max_by { |event| event.payout_at || event.created_at }&.payout.to_f
+            ship_event_payout = events.map(&:payout).compact.max.to_f
             max_multiplier = events.map(&:multiplier).compact.max || 0
-            duration_seconds = project.duration_seconds || 0
             creator = project.users.first
 
             {
               project_id: project_id,
               project: project,
               title: project_title,
-              total_payout: total_payout.round,
-              latest_ship_payout: latest_ship_payout.round,
+              ship_event_payout: ship_event_payout.round,
               max_multiplier: max_multiplier.round(2),
-              ship_count: events.count,
-              duration_seconds: duration_seconds,
               creator: creator
             }
           end.compact
 
           highest_multiplier_projects = projects_data
-            .sort_by { |p| [ -p[:max_multiplier].to_f, -p[:total_payout].to_f ] }
+            .sort_by { |p| [ -p[:max_multiplier].to_f, -p[:ship_event_payout].to_f ] }
             .first(10)
 
           largest_payout_projects = projects_data
-            .sort_by { |p| [ -p[:total_payout].to_f, -p[:max_multiplier].to_f ] }
+            .sort_by { |p| [ -p[:ship_event_payout].to_f, -p[:max_multiplier].to_f ] }
             .first(10)
 
           {
