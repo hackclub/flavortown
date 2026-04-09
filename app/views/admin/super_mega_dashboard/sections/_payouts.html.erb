@@ -91,7 +91,7 @@
   <div class="super-mega-dashboard__dashboard super-mega-dashboard__dashboard--projects" style="border-radius: 0">
     <turbo-frame id="payouts-projects" data-controller="payout-dash">
       <div class="super-mega-dashboard__header" style="margin-bottom: 0 !important">
-        <h2>Top Projects</h2>
+        <h2>Recent Payouts</h2>
         <%= form_with url: admin_super_mega_dashboard_load_section_path, method: :get, local: true do |f| %>
           <%= f.hidden_field :section, value: "payouts" %>
           <div class="super-mega-dashboard__filters">
