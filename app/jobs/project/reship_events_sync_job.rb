@@ -1,4 +1,4 @@
-class Project::ShipEventsSyncJob < ApplicationJob
+class Project::ReshipEventsSyncJob < ApplicationJob
   queue_as :default
 
   def perform
