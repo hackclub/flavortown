@@ -337,6 +337,20 @@ class Admin::UsersController < Admin::ApplicationController
     redirect_to admin_user_path(@user)
   end
 
+  def set_vote_balance
+    authorize :admin, :manage_users?
+    u = User.find(params[:id])
+    old = u.vote_balance
+    val = params[:vote_balance].to_i
+    u.update!(vote_balance: val)
+    PaperTrail::Version.create!(
+      item_type: "User", item_id: u.id, event: "vote_balance_set",
+      whodunnit: current_user.id.to_s,
+      object_changes: { vote_balance: [ old, val ] }.to_json
+    )
+    redirect_back(fallback_location: admin_user_path(u), notice: "Vote balance set to #{val} for #{u.display_name}.")
+  end
+
   def toggle_voting_lock
     authorize :admin, :ban_users?
     @user = User.find(params[:id])
