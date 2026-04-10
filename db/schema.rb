@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_08_182318) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_10_042100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -900,6 +900,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_182318) do
     t.integer "originality_score"
     t.bigint "project_id", null: false
     t.text "reason"
+    t.string "reason_quality_label"
+    t.float "reason_quality_score"
     t.boolean "repo_url_clicked", default: false
     t.bigint "ship_event_id", null: false
     t.integer "storytelling_score"
@@ -911,6 +913,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_182318) do
     t.bigint "user_id", null: false
     t.string "verdict"
     t.index ["project_id"], name: "index_votes_on_project_id"
+    t.index ["reason_quality_label"], name: "index_votes_on_reason_quality_label"
     t.index ["ship_event_id"], name: "index_votes_on_ship_event_id"
     t.index ["suspicious", "created_at"], name: "index_votes_on_suspicious_and_created_at"
     t.index ["user_id", "ship_event_id"], name: "index_votes_on_user_id_and_ship_event_id", unique: true

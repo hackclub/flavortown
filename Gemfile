@@ -147,3 +147,5 @@ gem "skylight"
 gem "rbtrace", require: String(ENV.fetch("FEATURE_ENABLE_MEMORY_DUMPS", false)) == "true"
 
 gem "ferret", github: "hackclub/ferret-gem"
+
+gem "neighbor"
