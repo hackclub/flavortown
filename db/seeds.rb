@@ -135,7 +135,7 @@ chromebook = ShopItem.find_or_create_by!(id: 97) do |item|
 end
 chromebook.update!(requires_achievement: [ "sidequest_webos" ])
 
-#Roasted Apples shop items - reqiures roastedapples sidequest achievement
+# Roasted Apples shop items - reqiures roastedapples sidequest achievement
 apple_developer_license = ShopItem.find_or_create_by!(id: 98) do |item|
   item.name = "Apple Developer License"
   item.description = "License for putting apps in the App Store, using Testflight and some other cool stuff!"
