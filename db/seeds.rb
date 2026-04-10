@@ -103,6 +103,7 @@ Sidequest.find_or_create_by!(
 )
 
 
+
 # webOS shop items - require webOS sidequest achievement
 webos_stickers = ShopItem.find_or_create_by!(id: 95) do |item|
   item.name = "webOS Stickers"
@@ -133,6 +134,17 @@ chromebook = ShopItem.find_or_create_by!(id: 97) do |item|
   item.image.attach(io: downloaded_image, filename: "chromebook.png")
 end
 chromebook.update!(requires_achievement: [ "sidequest_webos" ])
+
+#Roasted Apples shop items - reqiures roastedapples sidequest achievement
+apple_developer_license = ShopItem.find_or_create_by!(id: 98) do |item|
+  item.name = "Apple Developer License"
+  item.description = "License for putting apps in the App Store, using Testflight and some other cool stuff!"
+  item.type = "ShopItem::HCBGrant"
+  item.ticket_cost = 0
+  downloaded_image = URI.parse("https://developer.apple.com/news/?id=cit41bl3").open
+  item.image.attach(io: downloaded_image, filename: "apple-developer.png")
+end
+apple_developer_license.update!(requires_achievement: [ "sidequest_roastedapples" ])
 
 user = User.find_or_create_by!(email: "max@hackclub.com", slack_id: "U09UQ385LSG")
 user.make_super_admin!
