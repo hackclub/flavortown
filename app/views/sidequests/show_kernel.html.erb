@@ -1,38 +1,37 @@
-<% content_for :title, @sidequest.title %> <% content_for :og_description,
-truncate(@sidequest.description.to_s, length: 200) %> <% content_for :og_image,
-og_image_url('sidequests', format: :png) %> <% content_for :twitter_card,
-"summary_large_image" %> <%= render HeadingComponent.new(title:
-@sidequest.title, tone: :blue, size: :full) %>
+<% content_for :title, @sidequest.title %>
+<% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
+<% content_for :og_image, og_image_url('sidequests', format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+
+<%= render HeadingComponent.new(
+      title: @sidequest.title,
+      tone: :blue,
+      size: :full
+    ) %>
 
 <div class="sidequest-show sidequest-show--kernel">
-  <%= tag.div class: "kernel-pattern-overlay", style: "background-image:
-  url('#{asset_path('mask/pattern.png')}');" %>
+  <%= tag.div class: "kernel-pattern-overlay", style: "background-image: url('#{asset_path('mask/pattern.png')}');" %>
   <div class="sidequest-show__content">
-    <p>
-      Ship something that runs through commands like a tool, system or
-      interactive terminal experience.
-    </p>
+    <p>Build a project that runs entirely in the terminal. Submit it to this sidequest to qualify for kernel prizes in the shop.</p>
 
     <div class="sidequest-show__info-grid">
       <section class="sidequest-show__info-card">
         <h3 class="sidequest-show__info-title">Requirements</h3>
         <ul class="sidequest-show__steps">
           <li>
-            <strong>Working demo</strong> — website demo or runnable CLI
-            (release, script, or binary).
+            <strong>Must run in the terminal (CLI / TUI / GUI)</strong>.
           </li>
           <li>
-            <strong>3+ commands</strong> — at least three functional commands or
-            interactions (e.g., <code>help</code>, <code>run</code>,
-            <code>ls</code>).
+            <strong>web UI are allowed (basic ASCII / TUI libraries are nice)</strong>.
           </li>
           <li>
-            <strong>Terminal-style interface</strong> — interactive via
-            terminal/CLI (web terminal, desktop app, or script).
+            <strong>Include clear setup and run instructions in README</strong>.
           </li>
           <li>
-            <strong>README</strong> — setup instructions and brief command docs
-            (not only devlogs).
+            <strong>should be interactive and provide meaningful utility</strong>.
+          </li>
+          <li>
+            <strong>great UX (keyboard shortcuts, clean output, helpful commands)</strong>.
           </li>
         </ul>
         <p class="sidequest-show__help-note">
@@ -54,7 +53,7 @@ og_image_url('sidequests', format: :png) %> <% content_for :twitter_card,
           <li>Ship on Flavortown and submit to this sidequest.</li>
         </ul>
         <p class="sidequest-show__help-note">
-          Make it actually interesting — would you use it?
+          Make it interesting, do you want to use it?
         </p>
       </section>
     </div>
