@@ -382,6 +382,8 @@ GEM
     multi_xml (0.8.1)
       bigdecimal (>= 3.1, < 5)
     multipart-post (2.4.1)
+    neighbor (1.0.0)
+      activerecord (>= 7.2)
     net-http (0.9.1)
       uri (>= 0.11.1)
     net-http-persistent (4.0.8)
@@ -830,6 +832,7 @@ DEPENDENCIES
   letter_opener_web
   lockbox
   mission_control-jobs
+  neighbor
   norairrecord
   omniauth
   omniauth-oauth2

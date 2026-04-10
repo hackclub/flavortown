@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: sidequests
+# Database name: primary
 #
 #  id                 :bigint           not null, primary key
 #  description        :string

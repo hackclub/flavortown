@@ -299,6 +299,9 @@ Rails.application.routes.draw do
       collection do
         post :preview_markdown
       end
+      member do
+        post :request_approval
+      end
     end
     resources :shop_orders, only: [ :index, :show ] do
       member do
