@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: hackatime_time_loss_audits
+# Database name: primary
 #
 #  id                      :bigint           not null, primary key
 #  audited_at              :datetime         not null
