@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: post_fire_events
+# Database name: primary
 #
 #  id         :bigint           not null, primary key
 #  body       :string

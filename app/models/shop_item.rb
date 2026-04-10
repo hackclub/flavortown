@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: shop_items
+# Database name: primary
 #
 #  id                                :bigint           not null, primary key
 #  accessory_tag                     :string
@@ -16,6 +17,7 @@
 #  default_assigned_user_id_us       :bigint
 #  default_assigned_user_id_xx       :bigint
 #  description                       :string
+#  draft                             :boolean          default(FALSE), not null
 #  enabled                           :boolean
 #  enabled_au                        :boolean
 #  enabled_ca                        :boolean
@@ -67,16 +69,19 @@
 #  usd_offset_xx                     :decimal(10, 2)
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
+#  created_by_user_id                :bigint
 #  default_assigned_user_id          :bigint
 #  user_id                           :bigint
 #
 # Indexes
 #
+#  index_shop_items_on_created_by_user_id        (created_by_user_id)
 #  index_shop_items_on_default_assigned_user_id  (default_assigned_user_id)
 #  index_shop_items_on_user_id                   (user_id)
 #
 # Foreign Keys
 #
+#  fk_rails_...  (created_by_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #
@@ -136,12 +141,15 @@ class ShopItem < ApplicationRecord
 
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
-  scope :enabled, -> { where(enabled: true).where("shop_items.enabled_until IS NULL OR shop_items.enabled_until > ?", Time.current) }
+  scope :enabled, -> { where(enabled: true, draft: [ nil, false ]).where("shop_items.enabled_until IS NULL OR shop_items.enabled_until > ?", Time.current) }
   scope :listed, -> { where(unlisted: [ nil, false ]) }
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
   scope :recently_added, -> { where(created_at: RECENTLY_ADDED_WINDOW.ago..).order(created_at: :desc) }
+  scope :drafts, -> { where(draft: true) }
+  scope :published, -> { where(draft: [ nil, false ]) }
 
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
+  belongs_to :created_by, class_name: "User", foreign_key: :created_by_user_id, optional: true
   belongs_to :default_assigned_user, class_name: "User", optional: true
   belongs_to :default_assigned_user_us, class_name: "User", optional: true
   belongs_to :default_assigned_user_eu, class_name: "User", optional: true
