@@ -6,7 +6,6 @@ local:
   service: Disk
   root: <%= Rails.root.join("storage") %>
 
-
 cloudflare:
   service: S3
   endpoint: https://<%= Rails.application.credentials.dig(:cloudflare, :account_id) %>.r2.cloudflarestorage.com

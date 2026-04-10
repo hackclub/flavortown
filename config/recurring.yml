@@ -141,7 +141,7 @@ production:
     schedule: every day
     concurrency: 1
     description: "Check YSWS submissions for duplicates in unified database"
-  
+
   support_vibecheck_est:
     class: SupportVibecheckJob
     schedule: every day at 12pm America/New_York

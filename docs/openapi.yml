@@ -3,19 +3,21 @@ openapi: 3.0.3
 info:
   title: Flavortown API
   version: v1
-  description: You need an API key to use this! Go to your [account settings](https://flavortown.hackclub.com/kitchen?settings=1)
+  description:
+    You need an API key to use this! Go to your [account settings](https://flavortown.hackclub.com/kitchen?settings=1)
     to get one.
 servers:
-- url: https://flavortown.hackclub.com/api/v1
+  - url: https://flavortown.hackclub.com/api/v1
 security:
-- bearerAuth: []
+  - bearerAuth: []
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-      description: 'Include your API key via `Authorization: Bearer YOUR_API_KEY`.
-        You can find or regenerate your API key in your [account settings](https://flavortown.hackclub.com/kitchen?settings=1).'
+      description:
+        "Include your API key via `Authorization: Bearer YOUR_API_KEY`.
+        You can find or regenerate your API key in your [account settings](https://flavortown.hackclub.com/kitchen?settings=1)."
   schemas:
     Pagination:
       type: object
@@ -146,21 +148,21 @@ components:
           type: string
     UserDetail:
       allOf:
-      - "$ref": "#/components/schemas/User"
-      - type: object
-        properties:
-          vote_count:
-            type: integer
-          like_count:
-            type: integer
-          devlog_seconds_total:
-            type: integer
-          devlog_seconds_today:
-            type: integer
-          achievements:
-            type: array
-            items:
-              "$ref": "#/components/schemas/Achievement"
+        - "$ref": "#/components/schemas/User"
+        - type: object
+          properties:
+            vote_count:
+              type: integer
+            like_count:
+              type: integer
+            devlog_seconds_total:
+              type: integer
+            devlog_seconds_today:
+              type: integer
+            achievements:
+              type: array
+              items:
+                "$ref": "#/components/schemas/Achievement"
     RegionEnabled:
       type: object
       properties:
@@ -313,32 +315,33 @@ paths:
     get:
       summary: List projects
       tags:
-      - Projects
-      description: 'Fetch a list of projects. Ratelimit: 5 reqs/min, 20 reqs/min if
-        searching.'
+        - Projects
+      description:
+        "Fetch a list of projects. Ratelimit: 5 reqs/min, 20 reqs/min if
+        searching."
       operationId: listProjects
       parameters:
-      - name: page
-        in: query
-        required: false
-        schema:
-          type: integer
-        description: Page number for pagination
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-        description: Number of results per page (max 100)
-      - name: query
-        in: query
-        required: false
-        schema:
-          type: string
-        description: Search projects by title or description
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Page number for pagination
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 100
+          description: Number of results per page (max 100)
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search projects by title or description
       responses:
-        '200':
+        "200":
           description: A paginated list of projects
           content:
             application/json:
@@ -351,31 +354,31 @@ paths:
                       "$ref": "#/components/schemas/Project"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
-        '400':
+        "400":
           "$ref": "#/components/responses/BadRequest"
-        '401':
+        "401":
           "$ref": "#/components/responses/Unauthorized"
-        '429':
+        "429":
           "$ref": "#/components/responses/TooManyRequests"
     post:
       summary: Create a project
       tags:
-      - Projects
+        - Projects
       description: Create a new project.
       operationId: createProject
       parameters: []
       responses:
-        '201':
+        "201":
           description: Project created
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Project"
-        '401':
+        "401":
           "$ref": "#/components/responses/Unauthorized"
-        '422':
+        "422":
           "$ref": "#/components/responses/UnprocessableEntity"
-        '429':
+        "429":
           "$ref": "#/components/responses/TooManyRequests"
       requestBody:
         content:
@@ -383,8 +386,8 @@ paths:
             schema:
               type: object
               required:
-              - title
-              - description
+                - title
+                - description
               properties:
                 title:
                   type: string
@@ -407,53 +410,53 @@ paths:
         required: true
   "/projects/{id}":
     parameters:
-    - name: id
-      in: path
-      required: true
-      schema:
-        type: integer
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
     get:
       summary: Get a project
       tags:
-      - Projects
-      description: 'Fetch a specific project by ID. Ratelimit: 30 reqs/min.'
+        - Projects
+      description: "Fetch a specific project by ID. Ratelimit: 30 reqs/min."
       operationId: getProject
       responses:
-        '200':
+        "200":
           description: A single project
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Project"
-        '401':
+        "401":
           "$ref": "#/components/responses/Unauthorized"
-        '404':
+        "404":
           "$ref": "#/components/responses/NotFound"
-        '429':
+        "429":
           "$ref": "#/components/responses/TooManyRequests"
     patch:
       summary: Update a project
       tags:
-      - Projects
+        - Projects
       description: Update an existing project.
       operationId: updateProject
       parameters: []
       responses:
-        '200':
+        "200":
           description: Project updated
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Project"
-        '401':
+        "401":
           "$ref": "#/components/responses/Unauthorized"
-        '403':
+        "403":
           "$ref": "#/components/responses/Forbidden"
-        '404':
+        "404":
           "$ref": "#/components/responses/NotFound"
-        '422':
+        "422":
           "$ref": "#/components/responses/UnprocessableEntity"
-        '429':
+        "429":
           "$ref": "#/components/responses/TooManyRequests"
       requestBody:
         content:
@@ -484,30 +487,30 @@ paths:
     get:
       summary: List project devlogs
       tags:
-      - Projects
+        - Projects
       description: Fetch all devlogs for a specific project.
       operationId: listProjectDevlogs
       parameters:
-      - name: project_id
-        in: path
-        required: true
-        schema:
-          type: integer
-      - name: page
-        in: query
-        required: false
-        schema:
-          type: integer
-        description: Page number for pagination
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-        description: Number of results per page (max 100)
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Page number for pagination
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 100
+          description: Number of results per page (max 100)
       responses:
-        '200':
+        "200":
           description: A paginated list of devlogs for the project
           content:
             application/json:
@@ -520,37 +523,37 @@ paths:
                       "$ref": "#/components/schemas/Devlog"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
-        '400':
+        "400":
           "$ref": "#/components/responses/BadRequest"
-        '401':
+        "401":
           "$ref": "#/components/responses/Unauthorized"
-        '404':
+        "404":
           "$ref": "#/components/responses/NotFound"
-        '429':
+        "429":
           "$ref": "#/components/responses/TooManyRequests"
   "/devlogs":
     get:
       summary: List devlogs
       tags:
-      - Devlogs
+        - Devlogs
       description: Fetch all devlogs across all projects.
       operationId: listDevlogs
       parameters:
-      - name: page
-        in: query
-        required: false
-        schema:
-          type: integer
-        description: Page number for pagination
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-        description: Number of results per page (max 100)
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Page number for pagination
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 100
+          description: Number of results per page (max 100)
       responses:
-        '200':
+        "200":
           description: A paginated list of devlogs
           content:
             application/json:
@@ -563,47 +566,47 @@ paths:
                       "$ref": "#/components/schemas/Devlog"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
-        '400':
+        "400":
           "$ref": "#/components/responses/BadRequest"
-        '401':
+        "401":
           "$ref": "#/components/responses/Unauthorized"
-        '429':
+        "429":
           "$ref": "#/components/responses/TooManyRequests"
   "/devlogs/{id}":
     get:
       summary: Get a devlog
       tags:
-      - Devlogs
+        - Devlogs
       description: Fetch a devlog by ID.
       operationId: getDevlog
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
       responses:
-        '200':
+        "200":
           description: A single devlog
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Devlog"
-        '401':
+        "401":
           "$ref": "#/components/responses/Unauthorized"
-        '404':
+        "404":
           "$ref": "#/components/responses/NotFound"
-        '429':
+        "429":
           "$ref": "#/components/responses/TooManyRequests"
   "/store":
     get:
       summary: List store items
       tags:
-      - Store
-      description: 'Fetch a list of store items. Ratelimit: 5 reqs/min.'
+        - Store
+      description: "Fetch a list of store items. Ratelimit: 5 reqs/min."
       operationId: listStoreItems
       responses:
-        '200':
+        "200":
           description: A list of store items
           content:
             application/json:
@@ -611,65 +614,65 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/StoreItem"
-        '401':
+        "401":
           "$ref": "#/components/responses/Unauthorized"
-        '429':
+        "429":
           "$ref": "#/components/responses/TooManyRequests"
   "/store/{id}":
     get:
       summary: Get a store item
       tags:
-      - Store
-      description: 'Fetch a specific store item by ID. Ratelimit: 30 reqs/min.'
+        - Store
+      description: "Fetch a specific store item by ID. Ratelimit: 30 reqs/min."
       operationId: getStoreItem
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
       responses:
-        '200':
+        "200":
           description: A single store item
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/StoreItem"
-        '401':
+        "401":
           "$ref": "#/components/responses/Unauthorized"
-        '404':
+        "404":
           "$ref": "#/components/responses/NotFound"
-        '429':
+        "429":
           "$ref": "#/components/responses/TooManyRequests"
   "/users":
     get:
       summary: List users
       tags:
-      - Users
-      description: 'Fetch a list of users. Ratelimit: 5 reqs/min.'
+        - Users
+      description: "Fetch a list of users. Ratelimit: 5 reqs/min."
       operationId: listUsers
       parameters:
-      - name: page
-        in: query
-        required: false
-        schema:
-          type: integer
-        description: Page number for pagination
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-        description: Number of results per page (max 100)
-      - name: query
-        in: query
-        required: false
-        schema:
-          type: string
-        description: Search users by display name or slack ID
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Page number for pagination
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 100
+          description: Number of results per page (max 100)
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search users by display name or slack ID
       responses:
-        '200':
+        "200":
           description: A paginated list of users
           content:
             application/json:
@@ -682,42 +685,43 @@ paths:
                       "$ref": "#/components/schemas/User"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
-        '400':
+        "400":
           "$ref": "#/components/responses/BadRequest"
-        '401':
+        "401":
           "$ref": "#/components/responses/Unauthorized"
-        '429':
+        "429":
           "$ref": "#/components/responses/TooManyRequests"
   "/users/{user_id}/projects":
     get:
       summary: List projects for a user
       tags:
-      - Users
-      description: Fetch a paginated list of projects belonging to a specific user.
+        - Users
+      description:
+        Fetch a paginated list of projects belonging to a specific user.
         Use "me" as the user ID to fetch projects for the authenticated user.
       operationId: listUserProjects
       parameters:
-      - name: user_id
-        in: path
-        required: true
-        schema:
-          type: string
-        description: User ID or "me" for the authenticated user
-      - name: page
-        in: query
-        required: false
-        schema:
-          type: integer
-        description: Page number for pagination
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-        description: Number of results per page (max 100)
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID or "me" for the authenticated user
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Page number for pagination
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 100
+          description: Number of results per page (max 100)
       responses:
-        '200':
+        "200":
           description: A paginated list of the user's projects
           content:
             application/json:
@@ -730,39 +734,40 @@ paths:
                       "$ref": "#/components/schemas/Project"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
-        '400':
+        "400":
           "$ref": "#/components/responses/BadRequest"
-        '401':
+        "401":
           "$ref": "#/components/responses/Unauthorized"
-        '404':
+        "404":
           "$ref": "#/components/responses/NotFound"
-        '429':
+        "429":
           "$ref": "#/components/responses/TooManyRequests"
   "/users/{id}":
     get:
       summary: Get a user
       tags:
-      - Users
-      description: Fetch a specific user by ID. Use "me" as the ID to fetch the authenticated
+        - Users
+      description:
+        Fetch a specific user by ID. Use "me" as the ID to fetch the authenticated
         user.
       operationId: getUser
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-        description: User ID or "me" for the authenticated user
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID or "me" for the authenticated user
       responses:
-        '200':
+        "200":
           description: A single user with additional stats
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/UserDetail"
-        '401':
+        "401":
           "$ref": "#/components/responses/Unauthorized"
-        '404':
+        "404":
           "$ref": "#/components/responses/NotFound"
-        '429':
+        "429":
           "$ref": "#/components/responses/TooManyRequests"

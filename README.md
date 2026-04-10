@@ -47,11 +47,9 @@ This will reset all your code!
 
 ```
 git config --local core.autocrlf false
-git rm --cached -r .   
+git rm --cached -r .
 git reset --hard
 ```
-
-
 
 ## i hate docker
 
@@ -79,6 +77,7 @@ We deploy to Coolify using Docker. Both the web and worker services use the same
 ### web service
 
 Just run it-- the entrypoint should trigger
+
 ```
 ./bin/thrust ./bin/rails server
 ```
@@ -86,6 +85,7 @@ Just run it-- the entrypoint should trigger
 ### worker service
 
 In the worker resource's **General** tab, add this to **Custom Docker Options**:
+
 ```
 --entrypoint "./bin/rails solid_queue:start"
 ```
