@@ -39,6 +39,8 @@ module Admin
         true
       elsif time_loss_dashboard_request? && policy(:admin).access_time_loss_dashboard?
         true
+      elsif shop_manager_request? && current_user.shop_manager?
+        true
       else
         authorize :admin, :access_admin_endpoints?  # calls AdminPolicy#access_admin_endpoints?
       end
@@ -76,6 +78,10 @@ module Admin
 
     def time_loss_dashboard_request?
       controller_name == "time_loss"
+    end
+
+    def shop_manager_request?
+      controller_name.in?(%w[shop_items shop_orders shop]) || admin_dashboard_request?
     end
 
     # Handles unauthorized access
