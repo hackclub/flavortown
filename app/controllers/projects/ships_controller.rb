@@ -18,7 +18,7 @@ class Projects::ShipsController < ApplicationController
         @ai_review_result = ai_result
         @step = 4
         load_ship_data
-        return render :new
+        return render :new, status: :unprocessable_entity
       end
     end
 
