@@ -1,8 +1,34 @@
+<% if @ai_review_result.present? %>
+  <dialog id="ai-review-modal" class="modal" data-controller="modal ship-ai-review">
+    <h3 class="modal__title" style="border-radius: calc(var(--border-radius)*.5);">Heads up, we noticed something wrong with your ship!</h3>
+    <ol class="modal__flags">
+      <% @ai_review_result["flags"]&.each do |flag| %>
+        <li class="modal__flag"><%= flag["message"] %></li>
+      <% end %>
+    </ol>
+    <p class="modal__description">This is the result of an automated check. If you think this is inaccurate feel free to proceed with shipping!</p>
+    <div class="modal__actions">
+      <%= render ButtonComponent.new(text: "Go back and fix", color: :brown, data: { action: "modal#close" }) %>
+      <%= render ButtonComponent.new(text: "Ship anyway", color: :green, data: { action: "ship-ai-review#bypass" }) %>
+    </div>
+  </dialog>
+<% end %>
+
 <div class="projects-ship__step">
   <h2 class="projects-ship__section-title">Write Your Ship Message</h2>
   <p class="projects-ship__section-desc">
     This is your moment! Tell the community what you built and what you learned.
   </p>
+
+  <% if @ai_review_status&.fetch("valid", true) %>
+    <div class="projects-ship__sidequest-info" style="margin-bottom: 15px;">
+      <p class="projects-ship__sidequest-message">Everything looks good!</p>
+    </div>
+  <% else %>
+    <div class="projects-ship__requirements-warning">
+      <p>We noticed something wrong with your ship. You'll be asked to confirm before you ship!</p>
+    </div>
+  <% end %>
 
   <%= form_with(url: project_ships_path(@project), method: :post, id: "ship-form", local: true) do |form| %>
     <%= render InputComponent.new(
