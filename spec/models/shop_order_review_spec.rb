@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: shop_order_reviews
+# Database name: primary
 #
 #  id            :bigint           not null, primary key
 #  reason        :text             not null

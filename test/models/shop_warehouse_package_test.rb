@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: shop_warehouse_packages
+# Database name: primary
 #
 #  id                        :bigint           not null, primary key
 #  frozen_address_ciphertext :text
