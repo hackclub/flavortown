@@ -4,10 +4,13 @@
   <%= render HeadingComponent.new(title: "Super Mega Dashboard", tone: :red, size: :full) %>
 
   <div class="super-mega-dashboard__dashboards">
-    <div data-lazy-section="funnel" class="super-mega-dashboard__placeholder-card">
+    <%= turbo_frame_tag "super_mega_section_funnel",
+          src: admin_super_mega_dashboard_load_section_path(section: "funnel", range: params[:range]),
+          loading: "lazy",
+          class: "super-mega-dashboard__placeholder-card" do %>
       <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
       <div class="smd-skeleton__chart"></div>
-    </div>
+    <% end %>
 
     <div data-lazy-section="nps" class="super-mega-dashboard__placeholder-card">
       <div class="smd-skeleton__line smd-skeleton__line--heading"></div>

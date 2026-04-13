@@ -1,0 +1,34 @@
+<% content_for :title, "Funnel Events" %>
+<%= render "admin/super_mega_dashboard/d3_utils" %>
+
+<div class="super-mega-dashboard">
+  <%= render HeadingComponent.new(title: "The Funnel Tunnel", tone: :red, size: :full) %>
+
+  <%= turbo_frame_tag "funnel_events" do %>
+    <%= form_with url: admin_funnel_events_path, method: :get, data: { turbo_frame: "funnel_events" } do %>
+      <label class="super-mega-dashboard__range-control" for="funnelEventsRange">
+        <span>Range</span>
+        <select
+          id="funnelEventsRange"
+          name="range"
+          onchange="this.form.requestSubmit()">
+          <% FunnelEvents::TimeRange.options_for_select.each do |label, key| %>
+            <option value="<%= key %>" <%= "selected" if key == @range_key %>><%= label %></option>
+          <% end %>
+        </select>
+      </label>
+
+      <div class="super-mega-dashboard__dashboards">
+        <% @funnels.each do |funnel| %>
+          <div class="super-mega-dashboard__placeholder-card">
+            <%= render "admin/funnel_events/funnel_card", title: funnel[:title], subtitle: funnel[:subtitle], steps: funnel[:steps] %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <div class="super-mega-dashboard__actions">
+    <%= link_to "← Back", request.referer || admin_root_path, class: "btn-secondary" %>  
+  </div>
+</div>
