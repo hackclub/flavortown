@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: sidequest_entries
+# Database name: primary
 #
 #  id                       :bigint           not null, primary key
 #  aasm_state               :string           default("pending"), not null
