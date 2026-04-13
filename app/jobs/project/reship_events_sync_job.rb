@@ -28,7 +28,7 @@ class Project::ReshipEventsSyncJob < ApplicationJob
         next
       end
       begin
-        ShipCertService.ship_to_dash(project, type: "resend")
+        ShipCertService.ship_to_dash(project, type: "reship")
         Rails.logger.info "Successfully resent project #{project.id} to ship cert platform"
         cached_timestamps[project_id.to_s] = latest_ship_event_at
       rescue => e
