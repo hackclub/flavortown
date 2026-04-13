@@ -20,11 +20,7 @@
     This is your moment! Tell the community what you built and what you learned.
   </p>
 
-  <% if @ai_review_status&.fetch("valid", true) %>
-    <div class="projects-ship__sidequest-info" style="margin-bottom: 15px;">
-      <p class="projects-ship__sidequest-message">Everything looks good!</p>
-    </div>
-  <% else %>
+  <% if @ai_review_status&.fetch("valid", true) == false %>
     <div class="projects-ship__requirements-warning">
       <p>We noticed something wrong with your ship. You'll be asked to confirm before you ship!</p>
     </div>
