@@ -88,6 +88,9 @@ application.register("music-player", MusicPlayerController);
 import OrderFormController from "./order_form_controller";
 application.register("order-form", OrderFormController);
 
+import PayoutDashController from "./payout_dash_controller";
+application.register("payout-dash", PayoutDashController);
+
 import PostAttachmentsController from "./post_attachments_controller";
 application.register("post-attachments", PostAttachmentsController);
 
