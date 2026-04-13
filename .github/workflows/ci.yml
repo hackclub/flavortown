@@ -41,6 +41,11 @@ jobs:
             needs_node: true
             command: yarn -s prettier --check "app/assets/stylesheets/**/*.{scss,css}"
 
+          - name: Check Stimulus Manifest
+            system_packages: "libblas-dev liblapack-dev"
+            needs_node: true
+            command: node bin/lint-stimulus-manifest
+
           - name: Zeitwerk
             system_packages: "libvips-dev libblas-dev liblapack-dev"
             rails_env: test
@@ -83,7 +88,7 @@ jobs:
       pull-requests: write
     services:
       postgres:
-        image: postgres:15
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password
@@ -91,9 +96,19 @@ jobs:
         ports:
           - 5432:5432
         options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+      postgres_embed:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: flavortown_test_embed
+        ports:
+          - 5433:5432
+        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
     env:
       RAILS_ENV: test
       DATABASE_URL: postgresql://postgres:password@localhost:5432/flavortown_test
+      EMBEDDINGS_DATABASE_URL: postgresql://postgres:password@localhost:5433/flavortown_test_embed
     steps:
       - uses: actions/checkout@v6
 

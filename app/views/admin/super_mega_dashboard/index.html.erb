@@ -1,123 +1,165 @@
 <% content_for :title, "Super Mega Dashboard" %>
 <%= render "admin/super_mega_dashboard/d3_utils" %>
-<div class="super-mega-dashboard" data-controller="lazy-load">
+<div class="super-mega-dashboard" data-controller="lazy-load super-mega-index">
   <%= render HeadingComponent.new(title: "Super Mega Dashboard", tone: :red, size: :full) %>
+  
+  <div class="super-mega-dashboard">
+    <aside class="super-mega-dashboard__index" data-super-mega-index-target="index">
+      <% index_sections = [
+        { id: "funnel", label: "Funnel" },
+        { id: "nps", label: "NPS" },
+        { id: "hcb", label: "HCB" },
+        { id: "fraud", label: "Fraud" },
+        { id: "payouts", label: "Payouts" },
+        { id: "fulfillment", label: "Fulfillment" },
+        { id: "shipwrights", label: "Shipwrights" },
+        { id: "support", label: "Support" },
+        { id: "ysws_review", label: "YSWS Review" },
+        { id: "voting", label: "Voting" },
+        { id: "community", label: "Community" },
+        { id: "pyramid_flavortime", label: "Pyramid / Flavortime" },
+        { id: "sidequests", label: "Sidequests" },
+      ] %>
 
-  <div class="super-mega-dashboard__dashboards">
-    <%= turbo_frame_tag "super_mega_section_funnel",
-          src: admin_super_mega_dashboard_load_section_path(section: "funnel", range: params[:range]),
-          loading: "lazy",
-          class: "super-mega-dashboard__placeholder-card" do %>
-      <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-      <div class="smd-skeleton__chart"></div>
-    <% end %>
+      <button
+        type="button"
+        class="super-mega-dashboard__index-handle"
+        aria-controls="super-mega-dashboard__index-nav"
+        aria-expanded="false"
+        data-action="super-mega-index#toggle">
+        <span class="super-mega-dashboard__index-handle-label">Super Mega Index</span>
+      </button>
 
-    <div data-lazy-section="nps" class="super-mega-dashboard__placeholder-card">
-      <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-      <div class="smd-skeleton__line smd-skeleton__line--short"></div>
-    </div>
-
-    <div data-lazy-section="hcb" class="super-mega-dashboard__placeholder-card">
-      <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-      <div class="smd-skeleton__line smd-skeleton__line--short"></div>
-    </div>
-
-    <div data-lazy-section="fraud" class="super-mega-dashboard__placeholder-card">
-      <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-      <div class="smd-skeleton__chart"></div>
-      <div class="smd-skeleton__line"></div>
-      <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
-    </div>
-
-    <div data-lazy-section="payouts" class="super-mega-dashboard__placeholder-card">
-      <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-      <div class="smd-skeleton__line smd-skeleton__line--short"></div>
-      <div class="smd-skeleton__line"></div>
-    </div>
-
-    <div data-lazy-section="fulfillment" class="super-mega-dashboard__placeholder-card">
-      <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-      <div class="smd-skeleton__chart"></div>
-      <div class="smd-skeleton__line"></div>
-    </div>
-
-    <div data-lazy-section="shipwrights" class="super-mega-dashboard__placeholder-card">
-      <div class="super-mega-dashboard__header super-mega-dashboard__header--ship-certs">
-        <div class="super-mega-dashboard__placeholder-text super-mega-dashboard__placeholder-text--title"></div>
+      <div class="super-mega-dashboard__index-content">
+        <nav id="super-mega-dashboard__index-nav" class="super-mega-dashboard__index-nav">
+          <div class="super-mega-dashboard__index-title">On this page</div>
+          <ol class="super-mega-dashboard__index-list">
+            <% index_sections.each do |section| %>
+              <li class="super-mega-dashboard__index-item">
+                <%= link_to section[:label], "##{section[:id]}", class: "super-mega-dashboard__index-link", data: { action: "super-mega-index#scroll", section_id: section[:id] } %>
+              </li>
+            <% end %>
+          </ol>
+        </nav>
       </div>
-      <div class="super-mega-dashboard__cards super-mega-dashboard__cards--shipwrights">
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-vibes super-mega-dashboard__placeholder-card">
-          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-          <div class="smd-skeleton__badge"></div>
-          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
-          <div class="smd-skeleton__line"></div>
-          <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
+    </aside>
+
+    <div class="super-mega-dashboard__dashboards">
+      <%= turbo_frame_tag "super_mega_section_funnel",
+            src: admin_super_mega_dashboard_load_section_path(section: "funnel", range: params[:range]),
+            loading: "lazy",
+            class: "super-mega-dashboard__placeholder-card" do %>
+        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+        <div class="smd-skeleton__chart"></div>
+      <% end %>
+
+      <div id="nps" data-lazy-section="nps" class="super-mega-dashboard__placeholder-card">
+        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+        <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+      </div>
+
+      <div id="hcb" data-lazy-section="hcb" class="super-mega-dashboard__placeholder-card">
+        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+        <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+      </div>
+
+      <div id="fraud" data-lazy-section="fraud" class="super-mega-dashboard__placeholder-card">
+        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+        <div class="smd-skeleton__chart"></div>
+        <div class="smd-skeleton__line"></div>
+        <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
+      </div>
+
+      <div id="payouts" data-lazy-section="payouts" class="super-mega-dashboard__placeholder-card">
+        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+        <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+        <div class="smd-skeleton__line"></div>
+      </div>
+
+      <div id="fulfillment" data-lazy-section="fulfillment" class="super-mega-dashboard__placeholder-card">
+        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+        <div class="smd-skeleton__chart"></div>
+        <div class="smd-skeleton__line"></div>
+      </div>
+
+      <div id="shipwrights" data-lazy-section="shipwrights" class="super-mega-dashboard__placeholder-card">
+        <div class="super-mega-dashboard__header super-mega-dashboard__header--ship-certs">
+          <div class="super-mega-dashboard__placeholder-text super-mega-dashboard__placeholder-text--title"></div>
         </div>
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-stats super-mega-dashboard__placeholder-card">
-          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-          <div class="smd-skeleton__line"></div>
-          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
-          <div class="smd-skeleton__line"></div>
-          <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
-          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
-        </div>
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
-          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-          <div class="smd-skeleton__chart"></div>
-        </div>
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
-          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-          <div class="smd-skeleton__chart"></div>
-        </div>
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
-          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-          <div class="smd-skeleton__chart"></div>
-        </div>
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-nps super-mega-dashboard__placeholder-card">
-          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
-          <div class="smd-skeleton__chart"></div>
-        </div>
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-performance super-mega-dashboard__placeholder-card">
-          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-          <div class="smd-skeleton__line"></div>
-          <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
+        <div class="super-mega-dashboard__cards super-mega-dashboard__cards--shipwrights">
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-vibes super-mega-dashboard__placeholder-card">
+            <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+            <div class="smd-skeleton__badge"></div>
+            <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+            <div class="smd-skeleton__line"></div>
+            <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
+          </div>
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-stats super-mega-dashboard__placeholder-card">
+            <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+            <div class="smd-skeleton__line"></div>
+            <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+            <div class="smd-skeleton__line"></div>
+            <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
+            <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+          </div>
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
+            <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+            <div class="smd-skeleton__chart"></div>
+          </div>
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
+            <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+            <div class="smd-skeleton__chart"></div>
+          </div>
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph super-mega-dashboard__placeholder-card">
+            <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+            <div class="smd-skeleton__chart"></div>
+          </div>
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-nps super-mega-dashboard__placeholder-card">
+            <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+            <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+            <div class="smd-skeleton__chart"></div>
+          </div>
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-performance super-mega-dashboard__placeholder-card">
+            <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+            <div class="smd-skeleton__line"></div>
+            <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div data-lazy-section="support" class="super-mega-dashboard__placeholder-card">
-      <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-      <div class="smd-skeleton__line smd-skeleton__line--short"></div>
-      <div class="smd-skeleton__chart"></div>
-    </div>
+      <div id="support" data-lazy-section="support" class="super-mega-dashboard__placeholder-card">
+        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+        <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+        <div class="smd-skeleton__chart"></div>
+      </div>
 
-    <div data-lazy-section="ysws_review" class="super-mega-dashboard__placeholder-card">
-      <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-      <div class="smd-skeleton__chart"></div>
-      <div class="smd-skeleton__line"></div>
-    </div>
+      <div id="ysws_review" data-lazy-section="ysws_review" class="super-mega-dashboard__placeholder-card">
+        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+        <div class="smd-skeleton__chart"></div>
+        <div class="smd-skeleton__line"></div>
+      </div>
 
-    <div data-lazy-section="voting" class="super-mega-dashboard__placeholder-card">
-      <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-      <div class="smd-skeleton__line smd-skeleton__line--short"></div>
-    </div>
+      <div id="voting" data-lazy-section="voting" class="super-mega-dashboard__placeholder-card">
+        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+        <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+      </div>
 
-    <div data-lazy-section="community" class="super-mega-dashboard__placeholder-card">
-      <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-      <div class="smd-skeleton__chart"></div>
-    </div>
+      <div id="community" data-lazy-section="community" class="super-mega-dashboard__placeholder-card">
+        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+        <div class="smd-skeleton__chart"></div>
+      </div>
 
-    <div data-lazy-section="pyramid_flavortime" class="super-mega-dashboard__placeholder-card">
-      <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-      <div class="smd-skeleton__chart"></div>
-      <div class="smd-skeleton__line"></div>
-    </div>
+      <div id="pyramid_flavortime" data-lazy-section="pyramid_flavortime" class="super-mega-dashboard__placeholder-card">
+        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+        <div class="smd-skeleton__chart"></div>
+        <div class="smd-skeleton__line"></div>
+      </div>
 
-    <div data-lazy-section="sidequests" class="super-mega-dashboard__placeholder-card">
-      <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-      <div class="smd-skeleton__line smd-skeleton__line--short"></div>
-      <div class="smd-skeleton__chart"></div>
+      <div id="sidequests" data-lazy-section="sidequests" class="super-mega-dashboard__placeholder-card">
+        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+        <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+        <div class="smd-skeleton__chart"></div>
+      </div>
     </div>
   </div>
 
