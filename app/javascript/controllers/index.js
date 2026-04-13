@@ -115,6 +115,9 @@ application.register("responsive-image-map", ResponsiveImageMapController);
 import SearchableSelectController from "./searchable_select_controller";
 application.register("searchable-select", SearchableSelectController);
 
+import ShipAiReviewController from "./ship_ai_review_controller";
+application.register("ship-ai-review", ShipAiReviewController);
+
 import ShootingStarController from "./shooting_star_controller";
 application.register("shooting-star", ShootingStarController);
 
