@@ -158,7 +158,6 @@ module Admin
         return @sw_make_their_day = [] unless raw.any?
 
         raw = raw.reverse
-
         project_ids = raw.map { |p| p["ftProjectId"] }.compact
         user_ids    = raw.map { |p| p["requesterFtuid"] }.compact
 
