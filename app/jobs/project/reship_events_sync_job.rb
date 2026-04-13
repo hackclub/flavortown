@@ -22,10 +22,6 @@ class Project::ReshipEventsSyncJob < ApplicationJob
 
     projects_to_process.each do |project_id, latest_ship_event_at|
       project = Project.find(project_id)
-      project.ship_events.each do |ship_event|
-        console.log "Ship Event ID: #{ship_event.id}, Project: #{project.title}, Created: #{ship_event.created_at}, Body: #{ship_event.body&.truncate(100)}"
-      end
-
       begin
         ShipCertService.ship_to_dash(project, type: "resend")
         Rails.logger.info "Successfully resent project #{project.id} to ship cert platform"
