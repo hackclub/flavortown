@@ -32,7 +32,7 @@ module Admin
       {
         key: "project",
         title: "P2P",
-        subtitle: "project to prize",
+        subtitle: "(start) project to prize",
         steps: starter_steps(window: window) + p2p_funnel_steps(window: window)
       }
     end
@@ -50,7 +50,7 @@ module Admin
       {
         key: "voting_curse",
         title: "Voting (Curse)",
-        subtitle: "Casting votes, reaching a non-neutral verdict, and removing a curse",
+        subtitle: "Casting votes, casting more events, getting cursed and removing a curse",
         steps: starter_steps(window: window) + voting_funnel_steps(
           window: window,
           extra_steps: [
@@ -65,7 +65,7 @@ module Admin
       {
         key: "voting_blessing",
         title: "Voting (Blessing)",
-        subtitle: "Casting votes, reaching a non-neutral verdict, and removing a blessing",
+        subtitle: "Casting votes, casting more votes, getting blessed, and removing a blessing",
         steps: starter_steps(window: window) + voting_funnel_steps(
           window: window,
           extra_steps: [
@@ -80,7 +80,7 @@ module Admin
       {
         key: "ship_review",
         title: "Ship Certification → Payout",
-        subtitle: "Shipping, certification, and payout (unique users)",
+        subtitle: "Shipping, certification, and payout",
         steps: starter_steps(window: window) + ship_certification_to_payout_steps(window: window)
       }
     end
@@ -88,8 +88,8 @@ module Admin
     def devlog_ship_show_and_tell_funnel(window: nil)
       {
         key: "ship_to_show_and_tell",
-        title: "Devlog → Ship → Show & Tell",
-        subtitle: "First devlog, first ship, first show & tell attendance",
+        title: "projects → ship → show & tell",
+        subtitle: "First project, first ship, first show & tell attendance",
         steps: starter_steps(window: window) + devlog_ship_show_and_tell_steps(window: window)
       }
     end
