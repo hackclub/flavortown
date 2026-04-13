@@ -151,6 +151,9 @@ application.register("stats-hover", StatsHoverController);
 import SuperMegaFunnelController from "./super_mega_funnel_controller";
 application.register("super-mega-funnel", SuperMegaFunnelController);
 
+import SuperMegaIndexController from "./super_mega_index_controller";
+application.register("super-mega-index", SuperMegaIndexController);
+
 import TimezoneController from "./timezone_controller";
 application.register("timezone", TimezoneController);
 
