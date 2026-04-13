@@ -13,9 +13,14 @@ class ProjectReadmeFetcher
   ].freeze
 
   TIMEOUT_SECONDS = 10
+  GITHUB_BLOB = %r{\Ahttps?://github\.com/([^/]+)/([^/]+)/blob/}
 
   def self.fetch(url)
     return Result.new(markdown: nil, error: "No README URL provided.") if url.blank?
+
+    if url.match?(GITHUB_BLOB)
+      return Result.new(markdown: nil, error: "Use a raw Github URL (looks like raw.githubusercontent.com)")
+    end
 
     uri = URI.parse(url)
     return Result.new(markdown: nil, error: "Invalid README URL.") unless allowed_uri?(uri)
@@ -34,6 +39,10 @@ class ProjectReadmeFetcher
 
     body = response.body.to_s
 
+    if html_response?(response, body)
+      return Result.new(markdown: nil, error: "README URL returned HTML instead of plain text. Use a raw content URL.")
+    end
+
     Result.new(markdown: body, error: nil)
   rescue URI::InvalidURIError
     Result.new(markdown: nil, error: "Invalid README URL.")
@@ -43,6 +52,8 @@ class ProjectReadmeFetcher
 
   def self.allowed_url?(url)
     return false if url.blank?
+
+    return false if url.to_s.match?(GITHUB_BLOB)
 
     uri = URI.parse(url.to_s)
     allowed_uri?(uri)
@@ -55,6 +66,11 @@ class ProjectReadmeFetcher
     host = uri.host.to_s.downcase
     return false if host.blank?
     ALLOWED_HOSTS.include?(host)
+  end
+
+  def self.html_response?(res, body)
+    res.headers["content-type"].to_s.downcase.include?("text/html") ||
+      body.lstrip.start_with?("<!DOCTYPE", "<html")
   end
 
   def self.default_headers
