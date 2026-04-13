@@ -231,7 +231,7 @@ module Admin
       [
         { name: "quest_entry_submitted", count: submitted_count },
         { name: "quest_entry_reviewed", count: reviewed_count },
-        { name: "quest_entry_approved", count: approved_count },
+        { name: "quest_entry_approved", count: approved_count }
       ]
     end
 
@@ -244,7 +244,7 @@ module Admin
 
       steps = [
         { name: "vote_casted", count: voted_users },
-        { name: "15_votes_casted", count: fifteen_vote_users },
+        { name: "15_votes_casted", count: fifteen_vote_users }
       ]
 
       if extra_steps.present?
