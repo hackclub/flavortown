@@ -21,7 +21,12 @@ class Project::ReshipEventsSyncJob < ApplicationJob
     Rails.logger.info "Processing #{projects_to_process.count} projects with new/updated ship events"
 
     projects_to_process.each do |project_id, latest_ship_event_at|
-      project = Project.find(project_id)
+      project = Project.find_by(id: project_id)
+
+      unless project
+        Rails.logger.warn "Skipping missing project #{project_id} during ship cert resend"
+        next
+      end
       begin
         ShipCertService.ship_to_dash(project, type: "resend")
         Rails.logger.info "Successfully resent project #{project.id} to ship cert platform"
