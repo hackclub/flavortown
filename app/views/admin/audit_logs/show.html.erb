@@ -123,12 +123,14 @@
                   after_ids  = Array(values[1])
                   added_ids   = after_ids - before_ids
                   removed_ids = before_ids - after_ids
+                  all_diff_ids = (added_ids + removed_ids).uniq
+                  users_by_id = User.where(id: all_diff_ids).index_by { |u| u.id.to_s }
                 %>
                 <td colspan="2">
                   <div class="sus-diff">
                     <% if added_ids.any? %>
                       <% added_ids.each do |uid| %>
-                        <% u = User.find_by(id: uid) %>
+                        <% u = users_by_id[uid.to_s] %>
                         <span class="sus-diff__tag sus-diff__tag--added">
                           + flagged by <%= u ? link_to(u.display_name, admin_user_path(u)) : "user ##{uid}" %>
                         </span>
@@ -136,7 +138,7 @@
                     <% end %>
                     <% if removed_ids.any? %>
                       <% removed_ids.each do |uid| %>
-                        <% u = User.find_by(id: uid) %>
+                        <% u = users_by_id[uid.to_s] %>
                         <span class="sus-diff__tag sus-diff__tag--removed">
                           − unflagged by <%= u ? link_to(u.display_name, admin_user_path(u)) : "user ##{uid}" %>
                         </span>
