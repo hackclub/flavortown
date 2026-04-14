@@ -21,12 +21,12 @@ module Admin
 
     VOTING = {
       curse: [
-        [ "got_cursed", %w[neutral blessed], "cursed" ],
-        [ "curse_removed", [ "cursed" ], "neutral" ]
+        [ "got_cursed", :ever_had_verdict, "cursed" ],
+        [ "curse_removed", :ever_left_verdict, "cursed" ]
       ],
       blessing: [
-        [ "got_blessed", %w[neutral cursed], "blessed" ],
-        [ "blessing_removed", [ "blessed" ], "neutral" ]
+        [ "got_blessed", :ever_had_verdict, "blessed" ],
+        [ "blessing_removed", :ever_left_verdict, "blessed" ]
       ]
     }.freeze
 
@@ -188,14 +188,51 @@ module Admin
         { name: "15_votes_casted", count: votes.group(:user_id).having("COUNT(*) >= 15").count.size }
       ]
 
-      extra = VOTING.fetch(defn[:variant]).map do |name, from, to|
+      extra = VOTING.fetch(defn[:variant]).map do |name, strategy, verdict_value|
         {
           name: name,
-          count: count_verdict_transitions(from_values: from, to_value: to, window: window)
+          count: send(strategy, verdict_value)
         }
       end
 
       base_steps + extra
+    end
+
+    def ever_had_verdict(verdict_value)
+      verdict_value = verdict_value.to_s
+
+      current_user_ids = User::VoteVerdict
+        .where(verdict: verdict_value)
+        .select("user_vote_verdicts.user_id AS user_id")
+        .distinct
+
+      version_user_ids = PaperTrail::Version
+        .joins("INNER JOIN user_vote_verdicts ON user_vote_verdicts.id::text = versions.item_id")
+        .where(item_type: "User::VoteVerdict")
+        .where("object_changes ? 'verdict'")
+        .where("jsonb_typeof(object_changes->'verdict') = 'array'")
+        .where(
+          "(object_changes->'verdict'->>0 = :v OR object_changes->'verdict'->>1 = :v)",
+          v: verdict_value
+        )
+        .select("DISTINCT user_vote_verdicts.user_id AS user_id")
+
+      union_sql = "(#{current_user_ids.to_sql} UNION #{version_user_ids.to_sql}) AS verdict_user_ids"
+      User::VoteVerdict.unscoped.from(Arel.sql(union_sql)).select(Arel.sql("verdict_user_ids.user_id")).count
+    end
+
+    def ever_left_verdict(verdict_value)
+      verdict_value = verdict_value.to_s
+
+      PaperTrail::Version
+        .joins("INNER JOIN user_vote_verdicts ON user_vote_verdicts.id::text = versions.item_id")
+        .where(item_type: "User::VoteVerdict")
+        .where("object_changes ? 'verdict'")
+        .where("jsonb_typeof(object_changes->'verdict') = 'array'")
+        .where("object_changes->'verdict'->>0 = ?", verdict_value)
+        .where("object_changes->'verdict'->>1 IS DISTINCT FROM ?", verdict_value)
+        .distinct
+        .count("user_vote_verdicts.user_id")
     end
 
     def count_verdict_transitions(from_values:, to_value:, window:)
