@@ -126,7 +126,7 @@ module Admin
         project_created,
         devlog_created,
         { name: "project_shipped", count: count_first_time_project_shipped(window: window) },
-        { name: "show_and_tell_attended", count: count_first_time_show_and_tell_attended(window: window) }
+        { name: "showed_and_told", count: count_first_time_show_and_tell_attended(window: window) }
       ]
     end
 
@@ -138,7 +138,9 @@ module Admin
                                  .group("show_and_tell_attendances.user_id")
 
       subquery_sql = first_attendance_by_user.to_sql
-      scoped = ShowAndTellAttendance.unscoped.from("(#{subquery_sql}) AS first_show_and_tells")
+      scoped = ShowAndTellAttendance.unscoped
+        .from("(#{subquery_sql}) AS first_show_and_tells")
+        .select("first_show_and_tells.*")
       if window.present?
         scoped = scoped.where("first_show_and_tells.first_on BETWEEN ? AND ?", window.begin.to_date, window.end.to_date)
       end
@@ -159,7 +161,9 @@ module Admin
                            .group("posts.user_id")
 
       subquery_sql = first_ship_by_user.to_sql
-      scoped = Post.unscoped.from("(#{subquery_sql}) AS first_ships")
+      scoped = Post.unscoped
+        .from("(#{subquery_sql}) AS first_ships")
+        .select("first_ships.*")
       if window.present?
         scoped = scoped.where("first_ships.first_at BETWEEN ? AND ?", window.begin, window.end)
       end
@@ -176,7 +180,9 @@ module Admin
                              .group("ledger_entries.user_id")
 
       subquery_sql = first_payout_by_user.to_sql
-      scoped = LedgerEntry.unscoped.from("(#{subquery_sql}) AS first_payouts")
+      scoped = LedgerEntry.unscoped
+        .from("(#{subquery_sql}) AS first_payouts")
+        .select("first_payouts.*")
       if window.present?
         scoped = scoped.where("first_payouts.first_at BETWEEN ? AND ?", window.begin, window.end)
       end
@@ -191,7 +197,9 @@ module Admin
                             .group("shop_orders.user_id")
 
       subquery_sql = first_order_by_user.to_sql
-      scoped = ShopOrder.unscoped.from("(#{subquery_sql}) AS first_orders")
+      scoped = ShopOrder.unscoped
+        .from("(#{subquery_sql}) AS first_orders")
+        .select("first_orders.*")
       if window.present?
         scoped = scoped.where("first_orders.first_at BETWEEN ? AND ?", window.begin, window.end)
       end
@@ -206,7 +214,9 @@ module Admin
                                 .group("shop_orders.user_id")
 
       subquery_sql = first_fulfilled_by_user.to_sql
-      scoped = ShopOrder.unscoped.from("(#{subquery_sql}) AS first_fulfilled_orders")
+      scoped = ShopOrder.unscoped
+        .from("(#{subquery_sql}) AS first_fulfilled_orders")
+        .select("first_fulfilled_orders.*")
       if window.present?
         scoped = scoped.where("first_fulfilled_orders.first_at BETWEEN ? AND ?", window.begin, window.end)
       end
@@ -240,7 +250,7 @@ module Admin
       votes = votes.where(created_at: window) if window.present?
 
       voted_users = votes.distinct.count(:user_id)
-      fifteen_vote_users = votes.group(:user_id).having("COUNT(*) >= 15").count.size
+      fifteen_vote_users = votes.reselect(:user_id).group(:user_id).having("COUNT(*) >= 15").count.size
 
       steps = [
         { name: "vote_casted", count: voted_users },
