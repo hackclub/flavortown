@@ -102,8 +102,6 @@ Sidequest.find_or_create_by!(
   expires_at: Date.new(2026, 4, 30)
 )
 
-
-
 # webOS shop items - require webOS sidequest achievement
 webos_stickers = ShopItem.find_or_create_by!(id: 95) do |item|
   item.name = "webOS Stickers"
