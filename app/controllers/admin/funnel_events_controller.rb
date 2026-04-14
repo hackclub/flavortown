@@ -71,8 +71,8 @@ module Admin
     def first_time_count(relation:, group:, time:, model:, alias_name:, window:)
       count_first_time_by_user(
         base_relation: relation,
-        group_select: group,
-        min_select: time,
+        group_attr: group,
+        min_attr: time,
         window: window,
         from_model: model,
         subquery_alias: alias_name,
@@ -82,15 +82,21 @@ module Admin
       )
     end
 
-    def count_first_time_by_user(base_relation:, group_select:, min_select:, window:, from_model:, subquery_alias:, time_alias:, window_begin:, window_end:)
+    def count_first_time_by_user(base_relation:, group_attr:, min_attr:, window:, from_model:, subquery_alias:, time_alias:, window_begin:, window_end:)
+      subquery_alias = subquery_alias.to_s
+      time_alias = time_alias.to_s
+
       sub = base_relation
-        .select("#{group_select}, MIN(#{min_select}) AS #{time_alias}")
-        .group(group_select)
+        .select(group_attr, Arel::Nodes::NamedFunction.new("MIN", [ min_attr ]).as(time_alias))
+        .group(group_attr)
 
-      scoped = from_model.unscoped
-        .from("(#{sub.to_sql}) AS #{subquery_alias}")
+      scoped = from_model.unscoped.from(sub, subquery_alias)
 
-      scoped = scoped.where("#{subquery_alias}.#{time_alias} BETWEEN ? AND ?", window_begin, window_end) if window
+      if window
+        sub_table = Arel::Table.new(subquery_alias)
+        scoped = scoped.where(sub_table[time_alias].gteq(window_begin)).where(sub_table[time_alias].lteq(window_end))
+      end
+
       scoped.count
     end
 
@@ -101,32 +107,32 @@ module Admin
         { name: "project_shipped", count: first_time_count(
           relation: Post.where(postable_type: "Post::ShipEvent").where.not(user_id: nil)
             .where("posts.created_at = (SELECT MIN(p2.created_at) FROM posts p2 WHERE p2.project_id = posts.project_id AND p2.postable_type = ?)", "Post::ShipEvent"),
-          group: "posts.user_id",
-          time: "posts.created_at",
+          group: Post.arel_table[:user_id],
+          time: Post.arel_table[:created_at],
           model: Post,
           alias_name: "first_ships",
           window: window
         ) },
         { name: "project_paid_out", count: first_time_count(
           relation: LedgerEntry.where(ledgerable_type: "Post::ShipEvent", created_by: "ship_event_payout").where("amount > 0"),
-          group: "ledger_entries.user_id",
-          time: "ledger_entries.created_at",
+          group: LedgerEntry.arel_table[:user_id],
+          time: LedgerEntry.arel_table[:created_at],
           model: LedgerEntry,
           alias_name: "first_payouts",
           window: window
         ) },
         { name: "order_placed", count: first_time_count(
           relation: ShopOrder.real,
-          group: "shop_orders.user_id",
-          time: "shop_orders.created_at",
+          group: ShopOrder.arel_table[:user_id],
+          time: ShopOrder.arel_table[:created_at],
           model: ShopOrder,
           alias_name: "first_orders",
           window: window
         ) },
         { name: "order_fulfilled", count: first_time_count(
           relation: ShopOrder.real.where.not(fulfilled_at: nil),
-          group: "shop_orders.user_id",
-          time: "shop_orders.fulfilled_at",
+          group: ShopOrder.arel_table[:user_id],
+          time: ShopOrder.arel_table[:fulfilled_at],
           model: ShopOrder,
           alias_name: "first_fulfilled_orders",
           window: window
@@ -141,8 +147,8 @@ module Admin
         { name: "project_shipped", count: p2p_steps(nil, window)[2][:count] },
         { name: "showed_and_told", count: first_time_count(
           relation: ShowAndTellAttendance.where.not(user_id: nil, date: nil),
-          group: "show_and_tell_attendances.user_id",
-          time: "show_and_tell_attendances.date",
+          group: ShowAndTellAttendance.arel_table[:user_id],
+          time: ShowAndTellAttendance.arel_table[:date],
           model: ShowAndTellAttendance,
           alias_name: "first_st",
           window: window
