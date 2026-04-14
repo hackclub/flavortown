@@ -215,7 +215,10 @@ module Admin
       end
 
       def load_funnel_stats
-        cached_data = Rails.cache.fetch("super_mega_funnel_stats", expires_in: 5.minutes) do
+        range_key = FunnelEvents::TimeRange.key(params[:range])
+        window = FunnelEvents::TimeRange.window(range_key)
+
+        cached_data = Rails.cache.fetch("super_mega_funnel_stats/#{range_key}", expires_in: 5.minutes) do
           begin
             funnel_steps = [
               "start_flow_started",
@@ -229,30 +232,23 @@ module Admin
               "devlog_created"
             ]
 
-            grouped_counts = FunnelEvent.where(event_name: funnel_steps)
-                                         .group(:event_name)
-                                         .distinct
-                                         .count(:email)
+            funnel_with_counts = FunnelEvents::StepCounter.count_distinct_by_group(
+              relation: FunnelEvent,
+              group_column: :event_name,
+              distinct_column: :email,
+              step_keys: funnel_steps,
+              window: window
+            )
 
-            funnel_data = funnel_steps.index_with { |step| grouped_counts[step] || 0 }
-
-            funnel_with_counts = funnel_steps.map do |step|
-              count = funnel_data[step]
-
-              {
-                name: step,
-                count: count
-              }
-            end
-
-            { funnel_steps: funnel_with_counts }
+            { funnel_steps: funnel_with_counts, range_key: range_key }
           rescue StandardError => e
             Rails.logger.error("[SuperMegaDashboard] Error in load_funnel_stats: #{e.message}")
-            { funnel_steps: [] }
+            { funnel_steps: [], range_key: range_key }
           end
         end
 
         @funnel_steps = cached_data&.dig(:funnel_steps) || []
+        @funnel_range_key = cached_data&.dig(:range_key) || "all"
       end
 
       def load_hcb_expenses
