@@ -21,12 +21,12 @@ module Admin
 
     VOTING = {
       curse: [
-        ["got_cursed", %w[neutral blessed], "cursed"],
-        ["curse_removed", ["cursed"], "neutral"]
+        [ "got_cursed", %w[neutral blessed], "cursed" ],
+        [ "curse_removed", [ "cursed" ], "neutral" ]
       ],
       blessing: [
-        ["got_blessed", %w[neutral cursed], "blessed"],
-        ["blessing_removed", ["blessed"], "neutral"]
+        [ "got_blessed", %w[neutral cursed], "blessed" ],
+        [ "blessing_removed", [ "blessed" ], "neutral" ]
       ]
     }.freeze
 
@@ -55,7 +55,7 @@ module Admin
     end
 
     def event_step(name, window)
-      count_steps([name], window).first
+      count_steps([ name ], window).first
     end
 
     def count_steps(keys, window)
@@ -106,7 +106,7 @@ module Admin
           model: Post,
           alias_name: "first_ships",
           window: window
-        )},
+        ) },
         { name: "project_paid_out", count: first_time_count(
           relation: LedgerEntry.where(ledgerable_type: "Post::ShipEvent", created_by: "ship_event_payout").where("amount > 0"),
           group: "ledger_entries.user_id",
@@ -114,7 +114,7 @@ module Admin
           model: LedgerEntry,
           alias_name: "first_payouts",
           window: window
-        )},
+        ) },
         { name: "order_placed", count: first_time_count(
           relation: ShopOrder.real,
           group: "shop_orders.user_id",
@@ -122,7 +122,7 @@ module Admin
           model: ShopOrder,
           alias_name: "first_orders",
           window: window
-        )},
+        ) },
         { name: "order_fulfilled", count: first_time_count(
           relation: ShopOrder.real.where.not(fulfilled_at: nil),
           group: "shop_orders.user_id",
@@ -130,7 +130,7 @@ module Admin
           model: ShopOrder,
           alias_name: "first_fulfilled_orders",
           window: window
-        )}
+        ) }
       ]
     end
 
@@ -146,7 +146,7 @@ module Admin
           model: ShowAndTellAttendance,
           alias_name: "first_st",
           window: window
-        )}
+        ) }
       ]
     end
 
