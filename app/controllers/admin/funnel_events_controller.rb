@@ -234,19 +234,5 @@ module Admin
         .distinct
         .count("user_vote_verdicts.user_id")
     end
-
-    def count_verdict_transitions(from_values:, to_value:, window:)
-      versions = PaperTrail::Version
-        .joins("INNER JOIN user_vote_verdicts ON user_vote_verdicts.id::text = versions.item_id")
-        .where(item_type: "User::VoteVerdict", event: "update")
-        .where("object_changes ? 'verdict'")
-        .where("jsonb_typeof(object_changes->'verdict') = 'array'")
-        .where("object_changes->'verdict'->>1 = ?", to_value.to_s)
-
-      versions = versions.where("object_changes->'verdict'->>0 IN (?)", Array(from_values)) if from_values.present?
-      versions = versions.where(created_at: window) if window
-
-      versions.distinct.count("user_vote_verdicts.user_id")
-    end
   end
 end
