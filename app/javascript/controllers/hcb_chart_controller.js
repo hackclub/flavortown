@@ -20,26 +20,17 @@ export default class extends Controller {
       return;
     }
 
-    const colors = [
-      "#ef4444",
-      "#f97316",
-      "#eab308",
-      "#22c55e",
-      "#06b6d4",
-      "#0ea5e9",
-      "#3b82f6",
-      "#8b5cf6",
-      "#ec4899",
-      "#f43f5e",
-      "#6366f1",
-      "#a855f7",
-      "#d946ef",
-      "#db2777",
-      "#be185d",
-      "#7c2d12",
-      "#292524",
-      "#64748b",
-    ];
+    const LABEL_COLORS = {
+      Contributor: "#22c55e",
+      Expenses: "#ef4444",
+      Funding: "#0ea5e9",
+      Mail: "#f97316",
+      Merch: "#8b5cf6",
+      Prize: "#eab308",
+      "Pyramid scheme": "#db2777",
+      Stickers: "#6366f1",
+      Untagged: "#64748b",
+    };
 
     new Chart(this.canvasTarget, {
       type: "doughnut",
@@ -48,7 +39,7 @@ export default class extends Controller {
         datasets: [
           {
             data: values,
-            backgroundColor: colors.slice(0, labels.length),
+            backgroundColor: labels.map((label) => LABEL_COLORS[label]),
             borderColor: "#ffffff",
             borderWidth: 2,
           },
