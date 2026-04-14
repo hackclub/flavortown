@@ -2,6 +2,7 @@ class Webhooks::MarkSusController < ApplicationController
   skip_before_action :verify_authenticity_token
   skip_before_action :enforce_ban
   skip_before_action :refresh_identity_on_portal_return
+  before_action :verify_api_key
   before_action :load_users
 
   # POST /webhooks/mark_sus
@@ -37,6 +38,15 @@ class Webhooks::MarkSusController < ApplicationController
   end
 
   private
+
+  def verify_api_key
+    api_key = request.headers["x-api-key"]
+    expected_key = ENV["SW_DASHBOARD_API_KEY"]
+
+    unless api_key.present? && expected_key.present? && ActiveSupport::SecurityUtils.secure_compare(api_key, expected_key)
+      render json: { error: "Unauthorized" }, status: :unauthorized
+    end
+  end
 
   def load_users
     body = JSON.parse(request.raw_post)
