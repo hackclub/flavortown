@@ -1,8 +1,25 @@
 <div class="super-mega-dashboard__dashboard">
   <div class="super-mega-dashboard__header super-mega-dashboard__header--primary">
     <h2>Super Mega Funnel</h2>
-    <p class="super-mega-dashboard__subtitle">User journey from start_flow to devlog_created</p>
+    <% range_key = (@funnel_range_key.presence || FunnelEvents::TimeRange.key(params[:range])) %>
+    <%= form_with url: admin_super_mega_dashboard_load_section_path, method: :get, data: { turbo_frame: "super_mega_section_funnel" } do %>
+      <%= hidden_field_tag :section, "funnel" %>
+      <label class="super-mega-dashboard__range-control" for="superMegaFunnelRange">
+        <span>Range</span>
+        <select
+          id="superMegaFunnelRange"
+          name="range"
+          onchange="this.form.requestSubmit()">
+          <% FunnelEvents::TimeRange.options_for_select.each do |label, key| %>
+            <option value="<%= key %>" <%= "selected" if key == range_key %>><%= label %></option>
+          <% end %>
+        </select>
+      </label>
+    <% end %>
+    <%= link_to "View Funnels →", admin_funnel_events_path, class: "super-mega-link", data: { turbo_frame: "_top" } %>
   </div>
+
+  <p class="super-mega-dashboard__subtitle">User journey from start_flow to devlog_created</p>
 
   <% if @funnel_steps.blank? %>
     <div class="super-mega-dashboard__empty-state">
@@ -13,9 +30,8 @@
       class="d3-funnel-container"
       data-controller="super-mega-funnel"
       data-super-mega-funnel-steps-value="<%= @funnel_steps.to_json %>">
-      <div id="d3FunnelChart" data-super-mega-funnel-target="chart"></div>
+      <div data-super-mega-funnel-target="chart"></div>
       <div
-        id="funnelTooltip"
         class="d3-funnel-tooltip"
         data-super-mega-funnel-target="tooltip"
         aria-hidden="true"></div>
