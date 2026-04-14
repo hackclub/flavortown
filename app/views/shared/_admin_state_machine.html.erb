@@ -32,5 +32,30 @@
         <span class="state-machine__no-transitions">No transitions available from this state</span>
       </div>
     <% end %>
+
+    <% if current_user&.admin? %>
+      <%
+        all_states = record.aasm.states.map { |s| s.name.to_s }
+        force_state_url = begin
+          url_for([:force_state, :admin, record])
+        rescue ActionController::UrlGenerationError, NoMethodError
+          nil
+        end
+      %>
+      <% if force_state_url %>
+        <div class="state-machine__row">
+          <details>
+            <summary class="state-machine__label" style="cursor: pointer;">⚠️ Force Override State</summary>
+            <form method="post" action="<%= force_state_url %>" style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem;">
+              <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+              <%= select_tag :target_state,
+                    options_for_select(all_states.map { |s| [s.humanize, s] }, current_state.to_s),
+                    class: "form-control", style: "max-width: 200px;" %>
+              <button type="submit" class="btn-danger slim" onclick="return confirm('Are you sure? This bypasses all AASM guards and callbacks.')">Force</button>
+            </form>
+          </details>
+        </div>
+      <% end %>
+    <% end %>
   </div>
 <% end %>

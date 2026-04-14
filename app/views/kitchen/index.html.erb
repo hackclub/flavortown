@@ -7,6 +7,14 @@
     <%= render HeadingComponent.new(title: "Kitchen", tone: :blue, size: :full) %>
   </div>
 
+  <% if @show_and_tell_live %>
+    <div class="show-and-tell-banner">
+      <span class="show-and-tell-banner__live-dot"></span>
+      <span class="show-and-tell-banner__text">🎤 Show & Tell is happening right now!</span>
+      <%= link_to "Join the Huddle", "https://app.slack.com/huddle/T0266FRGM/C09MPB8NE8H", target: "_blank", class: "show-and-tell-banner__link" %>
+    </div>
+  <% end %>
+
   <% flavortime_release_download_base = "https://github.com/hackclub/flavortime/releases/latest/download" %>
   <% flavortime_download_links = {
     macos: "#{flavortime_release_download_base}/flavortime-macos-universal.dmg",
@@ -157,9 +165,9 @@
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <%= render StateCardComponent.new(
         title: "Challenger Center Space Challenge",
-        description: "Ship a space-related project by March 31! Submit it to this sidequest to qualify for space-themed prizes in the shop.",
+        description: "Ship a space-related project by April 30th! Submit it to this sidequest to qualify for space-themed prizes in the shop.",
         variant: :space,
-        badge_text: "Mission Deadline: March 31",
+        badge_text: "Mission Deadline: April 30th",
         icon: "rocket",
         cta_text: challenger_mission_cta_text,
         cta_href: challenger_mission_cta_href(fallback: sidequests_path(anchor: "challenger-center"))
@@ -189,7 +197,7 @@
         icon: "info"
       ) %>
     </div>
-  <% elsif current_user.verification_verified? && current_user.ysws_eligible == false %>
+  <% elsif current_user.verification_verified? && !current_user.ysws_eligible? %>
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <%= render StateCardComponent.new(
         title: "Outside age range",
@@ -244,6 +252,14 @@
       <%= image_tag "landing-page-opensauce.avif", alt: "Modal Image", class: "modal__image" %>
     </h4>
   </dialog>
+
+  <div class="kitchen-announcement">
+    <%= render AnnouncementComponent.new(
+      image: "flavortown_apr11_sticker.avif",
+      title: "Get a free sticker!",
+      description: "Ship a project (or reship an existing one) before Sunday, April 12th (7:00 PM EST) and we'll send you an awesome sticker!"
+    ) %>
+  </div>
 
   <div class="kitchen-setup">
     <%= render KitchenTutorialStepsComponent.new(
@@ -335,7 +351,7 @@
           caption: "Vote on projects!",
           modal_title: "Vote on projects!",
           step_num: 4,
-          modal_text: "<p>You're almost ready to get cookies for the hours you spent on your project — you just have to vote to unlock the payout! Voting is done by rating each project on a bunch of simple metrics:</p> <ul><li><b>Originality:</b> Is the project innovative and original, or just a clone of an overused concept?</li><li><b>Technical:</b> How complex is the project? Did the author use new frameworks or learn something cool?</li><li><b>Usability:</b> Is the project easy and fun to use, or is it buggy and frustrating?</li><li><b>Storytelling:</b> Does the author devlog regularly? Is the development timeline fun to scroll through?</li></ul> <p>Voting is done so people (including you) making good projects get more cookies per hour. For every project shipped, you must vote on 14 projects to get cookies!</p>"
+          modal_text: "<p>You're almost ready to get cookies for the hours you spent on your project — you just have to vote to unlock the payout! Voting is done by rating each project on a bunch of simple metrics:</p> <ul><li><b>Originality:</b> Is the project innovative and original, or just a clone of an overused concept?</li><li><b>Technical:</b> How complex is the project? Did the author use new frameworks or learn something cool?</li><li><b>Usability:</b> Is the project easy and fun to use, or is it buggy and frustrating?</li><li><b>Storytelling:</b> Does the author devlog regularly? Is the development timeline fun to scroll through?</li></ul> <p>Voting is done so people (including you) making good projects get more cookies per hour. For every project shipped, you must vote on #{Post::ShipEvent::VOTE_COST_PER_SHIP} projects to get cookies!</p>"
         ) %>
         <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
         <%= render ComicCardComponent.new(
@@ -381,14 +397,14 @@
             image_url: item.image.variant(:carousel_lg),
             item_type: item.type,
             balance: @user_balance,
-            enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
+            enabled_regions: item.enabled_region_codes,
             regional_price: sale_price,
             logged_in: current_user.present?,
             remaining_stock: item.remaining_stock,
             limited: item.limited?,
             on_sale: item.on_sale?,
             sale_percentage: item.sale_percentage,
-            original_price: item.ticket_cost,
+            original_price: item.base_price_for_region(@user_region),
             created_at: item.created_at,
             show_bow: true,
             show_time_ago: true,

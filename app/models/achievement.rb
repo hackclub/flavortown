@@ -220,6 +220,144 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
           .where(project_memberships: { user_id: user.id, role: "owner" })
           .exists?
       }
+    ),
+    new(
+      slug: :sidequest_converge,
+      name: "Sidequest: Converge",
+      description: "Shipped a bot for the Converge sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "converge" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
+    new(
+      slug: :sidequest_caffeinated,
+      name: "Sidequest: Caffeinated",
+      description: "Shipped a project for the caffeinated sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "caffeinated" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
+    new(
+      slug: :sidequest_physics_lab,
+      name: "Sidequest: Physics Lab",
+      description: "Shipped a physics project for the Physics Lab sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "physics_lab" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
+     new(
+      slug: :sidequest_lockin,
+      name: "Sidequest: LockIn",
+      description: "Shipped 4 projects for 4 weeks for Lockin sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "lockin" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
+      new(
+      slug: :show_and_tell,
+      name: "Show and tell",
+      description: "Showed up and presented at a show an tell",
+      icon: "trophy",
+      earned_check: ->(user) { ShowAndTellAttendance.where(user_id: user.id).exists? },
+    ),
+     new(
+      slug: :show_and_tell,
+      name: "Show and tell local",
+      description: "Showed up 10 times!",
+      icon: "trophy",
+       earned_check: ->(user) { ShowAndTellAttendance.where(user_id: user.id).size >= 10 },
+      progress: ->(user) { { current: ShowAndTellAttendance.where(user_id: user.id).size, target: 10 } },
+      cookie_reward: 5
+    ),
+    new(
+      slug: :show_and_tell_winner,
+      name: "Crowd Pleaser",
+      description: "won your first show and tell - the audience loved it!",
+      icon: "trophy",
+      earned_check: ->(user) { ShowAndTellAttendance.where(user_id: user.id, winner: true).exists? },
+    ),
+    new(
+      slug: :show_and_tell_ten_wins,
+      name: "Show Stopper",
+      description: "10 show and tell wins?! you own the stage!",
+      icon: "trophy",
+      earned_check: ->(user) { ShowAndTellAttendance.where(user_id: user.id, winner: true).size >= 10 },
+      progress: ->(user) { { current: ShowAndTellAttendance.where(user_id: user.id, winner: true).size, target: 10 } },
+      cookie_reward: 30
+    ),
+    new(
+      slug: :five_ships,
+      name: "Fleet Captain",
+      description: "5 projects shipped - you're running a whole fleet!",
+      icon: "ship",
+      earned_check: ->(user) { user.projects.joins(:ship_events).distinct.size >= 5 },
+      progress: ->(user) { { current: user.projects.joins(:ship_events).distinct.size, target: 5 } },
+      cookie_reward: 5
+    ),
+    new(
+      slug: :five_certified_ships,
+      name: "Five Star Chef",
+      description: "5 certified ships - the critics can't stop raving!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        Post::ShipEvent.joins(:post)
+          .where(posts: { user_id: user.id }, certification_status: "approved")
+          .select("post_ship_events.id").distinct.size >= 5
+      },
+      progress: ->(user) {
+        count = Post::ShipEvent.joins(:post)
+          .where(posts: { user_id: user.id }, certification_status: "approved")
+          .select("post_ship_events.id").distinct.size
+        { current: count, target: 5 }
+      },
+      cookie_reward: 15
+    ),
+    new(
+      slug: :ten_hours,
+      name: "Warming Up",
+      description: "10 hours logged - Nice work, you're getting somewhere now!",
+      icon: "fire",
+      earned_check: ->(user) { user.devlog_seconds_total >= 10 * 3600 },
+      progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 10 } },
+    ),
+    new(
+      slug: :fifty_hours,
+      name: "Sous Chef",
+      description: "50 hours in the kitchen - You're locked in i see...",
+      icon: "fire",
+      earned_check: ->(user) { user.devlog_seconds_total >= 50 * 3600 },
+      progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 50 } },
+      cookie_reward: 15
+    ),
+    new(
+      slug: :hundred_hours,
+      name: "Chef who cooked",
+      description: "100 hours of pure dedication - please, touch grass!",
+      icon: "fire",
+      earned_check: ->(user) { user.devlog_seconds_total >= 100 * 3600 },
+      progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 100 } },
+      cookie_reward: 30,
+      visibility: :secret
     )
   ].freeze
 

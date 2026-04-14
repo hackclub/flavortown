@@ -1,7 +1,7 @@
 module Admin
   class ShopController < Admin::ApplicationController
     def index
-      authorize :admin, :manage_shop?
+      authorize :admin, current_user.shop_manager? && !current_user.admin? ? :manage_draft_shop_items? : :manage_shop?
       @shop_items = ShopItem.order(created_at: :desc)
 
       if params[:search].present?

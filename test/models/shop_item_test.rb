@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: shop_items
+# Database name: primary
 #
 #  id                                :bigint           not null, primary key
 #  accessory_tag                     :string
@@ -16,6 +17,7 @@
 #  default_assigned_user_id_us       :bigint
 #  default_assigned_user_id_xx       :bigint
 #  description                       :string
+#  draft                             :boolean          default(FALSE), not null
 #  enabled                           :boolean
 #  enabled_au                        :boolean
 #  enabled_ca                        :boolean
@@ -43,7 +45,7 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
-#  requires_achievement              :string
+#  requires_achievement              :string           default([]), is an Array
 #  requires_ship                     :boolean          default(FALSE)
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
@@ -67,16 +69,19 @@
 #  usd_offset_xx                     :decimal(10, 2)
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
+#  created_by_user_id                :bigint
 #  default_assigned_user_id          :bigint
 #  user_id                           :bigint
 #
 # Indexes
 #
+#  index_shop_items_on_created_by_user_id        (created_by_user_id)
 #  index_shop_items_on_default_assigned_user_id  (default_assigned_user_id)
 #  index_shop_items_on_user_id                   (user_id)
 #
 # Foreign Keys
 #
+#  fk_rails_...  (created_by_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #

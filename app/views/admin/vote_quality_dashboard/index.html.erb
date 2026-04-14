@@ -1,0 +1,127 @@
+<% content_for :title, "Vote Quality Dashboard (Blessings & Curses)" %>
+<%= render HeadingComponent.new(title: "Vote Quality Dashboard", tone: :blue, size: :full) %>
+
+<div class="card vote-spam-card">
+  <%= form_with url: admin_vote_quality_dashboard_path, method: :get, local: true, class: "vote-spam-filters" do %>
+    <%= hidden_field_tag :sort, @sort_key %>
+    <%= hidden_field_tag :direction, @sort_direction %>
+    <label>
+      Minimum votes
+      <%= number_field_tag :min_votes, @min_votes, min: 1, max: 1000, autocomplete: "off", class: "input-primary" %>
+    </label>
+    <label>
+      Lookback period (days)
+      <%= number_field_tag :window_days, @window_days, min: 1, max: 365, autocomplete: "off", class: "input-primary" %>
+    </label>
+    <label>
+      Verdict
+      <%= select_tag :verdict, options_for_select([["All", ""], ["Blessed", "blessed"], ["Neutral", "neutral"], ["Cursed", "cursed"]], @verdict_filter), class: "input-primary" %>
+    </label>
+    <%= submit_tag "Apply", class: "btn-primary" %>
+  <% end %>
+  <p class="vote-spam-note">
+    Showing <strong><%= @verdict_filter ? @verdict_filter.capitalize : "all" %></strong> users
+    with at least <strong><%= @min_votes %></strong> scoreable votes (with consensus data)
+    in the last <strong><%= @window_days %></strong> days.
+    <%= @index_copy[:summary_note] %>
+  </p>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--full">
+    <div class="voting-stats">
+      <div class="voting-stat">
+        <span class="voting-stat__value"><%= @verdict_counts[:total] %></span>
+        <span class="voting-stat__label"><%= @index_copy.dig(:verdict_stat_labels, :total) %></span>
+      </div>
+      <div class="voting-stat voting-stat--success">
+        <span class="voting-stat__value"><%= @verdict_counts[:blessed] %></span>
+        <span class="voting-stat__label"><%= @index_copy.dig(:verdict_stat_labels, :blessed) %></span>
+      </div>
+      <div class="voting-stat">
+        <span class="voting-stat__value"><%= @verdict_counts[:neutral] %></span>
+        <span class="voting-stat__label"><%= @index_copy.dig(:verdict_stat_labels, :neutral) %></span>
+      </div>
+      <div class="voting-stat voting-stat--error">
+        <span class="voting-stat__value"><%= @verdict_counts[:cursed] %></span>
+        <span class="voting-stat__label"><%= @index_copy.dig(:verdict_stat_labels, :cursed) %></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="voting-grid">
+  <div class="card voting-card voting-card--full">
+    <h2><%= @index_copy[:table_heading] %></h2>
+    <table class="voting-table voting-table--wide">
+      <thead>
+        <tr>
+          <% @global_table_columns.each do |column| %>
+            <th>
+              <% if column[:sortable] %>
+                <%= link_to "#{column[:label]}#{sort_indicator(column[:sort_key])}", admin_vote_quality_dashboard_path(sort_link_params(column[:sort_key])) %>
+              <% else %>
+                <%= column[:label] %>
+              <% end %>
+            </th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @rows.each do |row| %>
+          <tr>
+            <% @global_table_columns.each do |column| %>
+              <td>
+                <% value = row[column[:key]] %>
+                <% case column[:format] %>
+                <% when :user_link %>
+                  <%= link_to row[:label], admin_user_path(row[:user_id]) %>
+                <% when :analyze_link %>
+                  <%= link_to "View", admin_vote_quality_dashboard_user_path(row[:user_id], window_days: @window_days), class: "btn-secondary slim" %>
+                <% when :verdict_badge %>
+                  <% verdict_id = "verdict-#{row[:user_id]}" %>
+                  <% case value %>
+                  <% when :blessed %>
+                    <span id="<%= verdict_id %>" class="badge badge--success" style="cursor: help;">Blessed</span>
+                  <% when :cursed %>
+                    <span id="<%= verdict_id %>" class="badge badge--danger" style="cursor: help;">Cursed</span>
+                  <% else %>
+                    <span id="<%= verdict_id %>" class="badge" style="cursor: help;">Neutral</span>
+                  <% end %>
+                  <% if row[:percentile_breakdown] %>
+                    <% b = row[:percentile_breakdown] %>
+                    <% tl = @index_copy[:tooltip_labels] %>
+                    <%= render TooltipComponent.new(target_id: verdict_id, position: :top) do %>
+                      <strong><%= @index_copy[:tooltip_heading] %>: <%= row[:quality_score] %>/100</strong><br>
+                      <% tl.each do |key, label| %>
+                        <%= label %>: <%= b[key] %>%<br>
+                      <% end %>
+                    <% end %>
+                  <% end %>
+                <% when :bold %>
+                  <strong><%= value %></strong>
+                <% when :delimiter %>
+                  <%= number_with_delimiter(value) %>
+                <% when :precision_3 %>
+                  <%= number_with_precision(value, precision: 3) %>
+                <% when :signed_colored_precision_3 %>
+                  <span class="<%= value > 0.5 ? 'text-warning' : value < -0.5 ? 'text-danger' : '' %>">
+                    <%= value > 0 ? "+#{number_with_precision(value, precision: 3)}" : number_with_precision(value, precision: 3) %>
+                  </span>
+                <% when :nullable_precision_3 %>
+                  <%= value.nil? ? "—" : number_with_precision(value, precision: 3) %>
+                <% when :percentage %>
+                  <%= number_to_percentage(value * 100, precision: 1) %>
+                <% else %>
+                  <%= value %>
+                <% end %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%= link_to "← Back", admin_root_path, class: "btn-secondary" %>

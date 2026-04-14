@@ -44,12 +44,21 @@
                     <% end %>
                 </div>
             <% end %>
-            <% if @required_achievement %>
+            <% if @required_achievements.present? %>
                 <div class="shop-order__achievement-requirement <%= 'shop-order__achievement-requirement--locked' if @locked_by_achievement %>">
                     <% if @locked_by_achievement %>
-                        <span>Requires "<%= @required_achievement.name %>" achievement to purchase</span>
+                        <div class="shop-order__achievement-requirement-header">You need one of these achievements:</div>
+                        <ul class="shop-order__achievement-list">
+                            <% @required_achievements.each do |ach| %>
+                                <li>
+                                    <span class="shop-order__achievement-name"><%= ach.name %></span>
+                                    <span class="shop-order__achievement-hint"><%= ach.description %></span>
+                                </li>
+                            <% end %>
+                        </ul>
                     <% else %>
-                        <span>Unlocked via "<%= @required_achievement.name %>" achievement</span>
+                        <% achievement_names = @required_achievements.map(&:name).to_sentence(two_words_connector: ' or ', last_word_connector: ', or ') %>
+                        <span>Unlocked via "<%= achievement_names %>"</span>
                     <% end %>
                 </div>
             <% end %>
@@ -103,20 +112,20 @@
                                                     name="accessory_tag_<%= tag %>"
                                                     value="<%= accessory.id %>"
                                                     class="shop-order__accessory-option-input"
-                                                    data-price="<%= accessory.ticket_cost %>"
+                                                    data-price="<%= accessory.price_for_region(@user_region) %>"
                                                     data-tag="<%= tag %>"
                                                     form="order-form"
                                                     style="display: none;">
-                                             <div class="shop-order__accessory-option-block<%= ' shop-order__accessory-option-block--with-image' if accessory.show_image_in_shop && accessory.image.attached? %>">
-                                                 <% if accessory.show_image_in_shop && accessory.image.attached? %>
+                                                    <div class="shop-order__accessory-option-block<%= ' shop-order__accessory-option-block--with-image' if accessory.show_image_in_shop && accessory.image.attached? %>">
+                                                    <% if accessory.show_image_in_shop && accessory.image.attached? %>
                                                      <%= image_tag accessory.image.variant(:carousel_sm), class: "shop-order__accessory-option-image", loading: "lazy" %>
                                                      <div class="shop-order__accessory-option-details">
                                                          <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
-                                                         <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                                         <div class="shop-order__accessory-option-price">🍪 <%= accessory.price_for_region(@user_region).round %></div>
                                                      </div>
-                                                 <% else %>
+                                                    <% else %>
                                                      <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
-                                                     <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                                     <div class="shop-order__accessory-option-price">🍪 <%= accessory.price_for_region(@user_region).round %></div>
                                                  <% end %>
                                              </div>
                                          </label>
@@ -135,7 +144,7 @@
                                                    name="accessory_ids[]"
                                                    value="<%= accessory.id %>"
                                                    class="shop-order__accessory-option-input"
-                                                   data-price="<%= accessory.ticket_cost %>"
+                                                   data-price="<%= accessory.price_for_region(@user_region) %>"
                                                    style="display: none;">
                                             <div class="shop-order__accessory-option-block shop-order__accessory-option-block--with-image">
                                                 <% if accessory.image.attached? %>
@@ -143,7 +152,7 @@
                                                 <% end %>
                                                 <div class="shop-order__accessory-option-details">
                                                     <div class="shop-order__accessory-option-name"><%= accessory.name %></div>
-                                                    <div class="shop-order__accessory-option-price">🍪 <%= accessory.ticket_cost.round %></div>
+                                                    <div class="shop-order__accessory-option-price">🍪 <%= accessory.price_for_region(@user_region).round %></div>
                                                 </div>
                                             </div>
                                         </label>
@@ -228,7 +237,7 @@
             <% unless has_phone %>
               <div class="shop-order__no-phone-warning" style="padding: 0.75em; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; text-align: center; margin-top: 4rem;">
                 <p style="margin: 0 0 0.5em 0; color: #92400e; font-weight: 600;">📱 Phone number required</p>
-                <p style="margin: 0; color: #92400e; font-size: 0.875rem;">You need a phone number on file to place an order. Please update your profile on the address portal.</p>
+                <p style="margin: 0; color: #92400e; font-size: 0.875rem;">You need a phone number on file to place an order. Please update your profile on the <a href="https://auth.hackclub.com/identity/edit">address portal</a>.</p>
               </div>
             <% end %>
             <button type="submit" form="order-form" class="btn btn-order" style="width: 100%;" data-order-form-target="submitButton" <%= 'disabled' if @locked_by_achievement || !has_phone %>>

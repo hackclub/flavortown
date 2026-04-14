@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.1.1"
+gem "rails", "~> 8.1.3"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use postgresql as the database for Active Record
@@ -117,7 +117,7 @@ gem "sentry-ruby", "~> 6.4"
 gem "sentry-rails", "~> 6.5"
 
 # for pagination
-gem "pagy", "~> 43.4"
+gem "pagy", "~> 43.5"
 gem "norairrecord"
 
 gem "awesome_print"
@@ -132,7 +132,6 @@ gem "query_count"
 
 # for recommendations
 gem "disco"
-gem "faiss"
 
 # Rack Mini Profiler gem for performance monitoring
 gem "rack-mini-profiler"
@@ -147,3 +146,5 @@ gem "skylight"
 gem "rbtrace", require: String(ENV.fetch("FEATURE_ENABLE_MEMORY_DUMPS", false)) == "true"
 
 gem "ferret", github: "hackclub/ferret-gem"
+
+gem "neighbor"

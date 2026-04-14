@@ -10,6 +10,14 @@ section "Order Details:",
     mrkdwn_text("*Total:* 🍪 #{order.total_cost}"),
   ]
 
+if order.tracking_number.present?
+  if order.tracking_number.start_with?("pkg!", "ltr!")
+    section "*Tracking:* <https://mail.hackclub.com/#{order.tracking_number}|#{order.tracking_number}>", markdown: true
+  else
+    section "*Tracking:* #{order.tracking_number}", markdown: true
+  end
+end
+
 divider
 
 context [

@@ -5,15 +5,17 @@
   visibility: hidden;
   background-color: var(--color-brown-700);
   color: var(--color-bg);
-  padding: 0.4em;
+  padding: 0.4em 0.5em;
   border-radius: 0.2em;
   font-size: 1.2rem;
   line-height: 1.2;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   pointer-events: none;
-  max-width: 300px;
-  width: max-content;
+  max-width: 200px;
+  width: auto;
   border: 0.3em solid var(--color-brown-500);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 
   transition:
     opacity 0.15s ease,
