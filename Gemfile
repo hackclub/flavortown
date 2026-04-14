@@ -132,7 +132,6 @@ gem "query_count"
 
 # for recommendations
 gem "disco"
-gem "faiss"
 
 # Rack Mini Profiler gem for performance monitoring
 gem "rack-mini-profiler"
