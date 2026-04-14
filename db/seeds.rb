@@ -133,9 +133,6 @@ chromebook = ShopItem.find_or_create_by!(id: 97) do |item|
 end
 chromebook.update!(requires_achievement: [ "sidequest_webos" ])
 
-
-apple_developer_license.update!(requires_achievement: [ "sidequest_roastedapples" ])
-
 user = User.find_or_create_by!(email: "max@hackclub.com", slack_id: "U09UQ385LSG")
 user.make_super_admin!
 user.make_admin!
