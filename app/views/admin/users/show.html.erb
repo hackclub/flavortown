@@ -147,13 +147,14 @@
                     data: { confirm: "Refresh verification status for #{@user.display_name}?" } %>
       <%
         all_roles = [
-          { icon: '🕵️‍♀️', name: 'fraud_dept', disabled: !current_user&.admin? },
-          { icon: '📦', name: 'fulfillment_person', disabled: !current_user&.admin? },
-          { icon: '🚢', name: 'project_certifier', disabled: !current_user&.admin? },
-          { icon: '✋', name: 'helper', disabled: !current_user&.admin? },
-          { icon: '⏱️', name: 'flavortime', disabled: !current_user&.admin? },
-          { icon: '🏆', name: 'sidequest_reviewer', disabled: !current_user&.admin? },
-          { icon: '⚡', name: 'admin', disabled: !current_user&.super_admin? },
+          { name: 'fraud_dept', disabled: !current_user&.admin? },
+          { name: 'fulfillment_person', disabled: !current_user&.admin? },
+          { name: 'project_certifier', disabled: !current_user&.admin? },
+          { name: 'helper', disabled: !current_user&.admin? },
+          { name: 'flavortime', disabled: !current_user&.admin? },
+          { name: 'sidequest_reviewer', disabled: !current_user&.admin? },
+          { name: 'shop_manager', disabled: !current_user&.admin? },
+          { name: 'admin', disabled: !current_user&.super_admin? },
         ]
         promotable_roles = all_roles.reject { |r| @user.has_role?(r[:name]) }
         demotable_roles = all_roles.select { |r| @user.has_role?(r[:name]) }
@@ -163,7 +164,7 @@
           <button type="button" class="btn-primary slim" data-role-dropdown-toggle>⬆ Promote to…</button>
           <div class="role-dropdown__menu">
             <% promotable_roles.each do |role| %>
-              <%= button_to "#{role[:icon]} #{role[:name].titleize}",
+              <%= button_to role[:name].titleize,
                             promote_role_admin_user_path(@user),
                             method: :post,
                             params: { role_name: role[:name] },
@@ -178,7 +179,7 @@
           <button type="button" class="btn-danger slim" data-role-dropdown-toggle>⬇ Demote from…</button>
           <div class="role-dropdown__menu">
             <% demotable_roles.each do |role| %>
-              <%= button_to "#{role[:icon]} #{role[:name].titleize}",
+              <%= button_to role[:name].titleize,
                             demote_role_admin_user_path(@user),
                             method: :post,
                             params: { role_name: role[:name] },
@@ -245,6 +246,24 @@
           </form>
         <% end %>
         <%= link_to "View Votes", votes_admin_user_path(@user), class: "btn-secondary slim" %>
+        <button type="button" class="btn-primary slim" id="set-vote-bal">
+          Set Vote Balance (<%= @user.vote_balance %>)
+        </button>
+        <script>
+          document.getElementById("set-vote-bal").addEventListener("click", function() {
+            var v = prompt(<%== @user.display_name.to_json %> + ": Set vote balance:", "0");
+            if (v === null) return;
+            var n = parseInt(v, 10);
+            if (isNaN(n)) { alert("not valid number"); return; }
+            var f = document.createElement("form");
+            f.method = "post";
+            f.action = <%== set_vote_balance_admin_user_path(@user).to_json %>;
+            f.innerHTML = '<input type="hidden" name="authenticity_token" value="' + <%== form_authenticity_token.to_json %> + '">' +
+              '<input type="hidden" name="vote_balance" value="' + n + '">';
+            document.body.appendChild(f);
+            f.submit();
+          });
+        </script>
       <% end %>
 
       <% if current_user.admin? %>
