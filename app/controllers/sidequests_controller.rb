@@ -27,16 +27,14 @@ class SidequestsController < ApplicationController
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_lockin").where(enabled: true)
     end
 
-<<<<<<< main
     if @sidequest.slug == "roastedapples"
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_roastedapples").where(enabled: true)
     end
-=======
+    
     if @sidequest.slug == "rusty-frontend"
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_rusty_frontend").where(enabled: true)
     end
 
->>>>>>> main
     if @sidequest.slug == "caffeinated"
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_caffeinated").where(enabled: true)
     end
