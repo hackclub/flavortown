@@ -33,10 +33,18 @@ class ProjectsController < ApplicationController
     @shadow_banned = user_shadow_banned || project_shadow_banned
     @can_view_shadow_banned = is_member || is_admin
 
-    @posts = @project.posts
-                     .includes(:user, postable: [ :attachments_attachments ])
-                     .order(created_at: :desc)
-                     .select { |post| post.postable.present? }
+    load_posts = -> {
+      @project.posts
+               .includes(:user, postable: [ :attachments_attachments ])
+               .order(created_at: :desc)
+               .select { |post| post.postable.present? }
+    }
+
+    @posts = if current_user&.can_see_deleted_devlogs?
+      Post::Devlog.unscoped { load_posts.call }
+    else
+      load_posts.call
+    end
 
     unless current_user && Flipper.enabled?(:"git_commit_2025-12-25", current_user)
       @posts = @posts.reject { |post| post.postable_type == "Post::GitCommit" }
@@ -70,13 +78,15 @@ class ProjectsController < ApplicationController
     if current_user.present?
       is_owner = @project.memberships.where(role: :owner, user_id: current_user.id).exists?
 
+      @show_ai_coding_time_ignored_card = is_owner && !current_user.has_dismissed?("ai_coding_time_ignored_card")
+
       if is_owner &&
           latest_ship_event.present? &&
           latest_ship_event.certification_status == "approved" &&
           latest_ship_event.payout.blank?
 
         required = Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
-        current = latest_ship_event.votes.where(suspicious: false).count
+        current = latest_ship_event.votes.payout_countable.count
         remaining = [ required - current, 0 ].max
 
         @votes_for_payout = {
@@ -97,7 +107,7 @@ class ProjectsController < ApplicationController
 
   def create
     @project = Project.new(project_params)
-    apply_space_theme_marker!(@project, space_themed: space_themed_param?)
+    apply_space_theme_marker!(@project, space_themed: space_themed_param?(default: false))
     authorize @project
 
     validate_urls
@@ -165,7 +175,7 @@ class ProjectsController < ApplicationController
     authorize @project
 
     @project.assign_attributes(project_params)
-    apply_space_theme_marker!(@project, space_themed: space_themed_param?)
+    apply_space_theme_marker!(@project, space_themed: space_themed_param?(default: @project.space_themed?))
     validate_urls
     success = @project.errors.empty? && @project.save
 
@@ -216,13 +226,29 @@ class ProjectsController < ApplicationController
 
     return render(json: { message: "Project not found" }, status: :not_found) unless @project
 
+    if @project.users.include?(current_user)
+      return render(json: { message: "You cannot mark your own project as well cooked." }, status: :forbidden)
+    end
+
+    if current_user.fraud_dept? && !current_user.admin?
+      if @project.users.any? { |u| u.fraud_dept? }
+        return render(json: { message: "You cannot mark a fellow fraud department member's project as well cooked." }, status: :forbidden)
+      end
+    end
+
     PaperTrail.request(whodunnit: current_user.id) do
-      fire_event = Post::FireEvent.new(
+      fire_event = Post::FireEvent.create(
         body: "🔥 #{current_user.display_name} marked your project as well cooked! As a prize for your nicely cooked project, look out for a bonus prize in the mail :)"
       )
-      post = @project.posts.build(user: current_user, postable: fire_event)
 
-      if post.save
+      unless fire_event.persisted?
+        render json: { message: fire_event.errors.full_messages.to_sentence.presence || "Failed to mark project as 🔥" }, status: :unprocessable_entity
+        next
+      end
+
+      post = @project.posts.create(user: current_user, postable: fire_event)
+
+      if post.persisted?
         @project.mark_fire!(current_user)
 
         PaperTrail::Version.create!(
@@ -325,24 +351,28 @@ class ProjectsController < ApplicationController
     authorize @project
 
     PaperTrail.request(whodunnit: current_user.id) do
-      success = ShipCertService.ship_to_dash(@project, type: "resend", force: true)
+      begin
+        success = ShipCertService.ship_to_dash(@project, type: "resend")
 
-      PaperTrail::Version.create!(
-        item_type: "Project",
-        item_id: @project.id,
-        event: "resend_webhook",
-        whodunnit: current_user.id,
-        object_changes: {
-          admin_action: [ nil, "resend_webhook" ],
-          triggered_by_id: [ nil, current_user.id ],
-          success: [ nil, success ]
-        }
-      )
+        PaperTrail::Version.create!(
+          item_type: "Project",
+          item_id: @project.id,
+          event: "resend_webhook",
+          whodunnit: current_user.id,
+          object_changes: {
+            admin_action: [ nil, "resend_webhook" ],
+            triggered_by_id: [ nil, current_user.id ],
+            success: [ nil, success ]
+          }
+        )
 
-      if success
-        render json: { message: "Webhook resent successfully" }, status: :ok
-      else
-        render json: { message: "Failed to resend webhook" }, status: :unprocessable_entity
+        if success
+          render json: { message: "Webhook resent successfully" }, status: :ok
+        else
+          render json: { message: "Failed to resend webhook" }, status: :unprocessable_entity
+        end
+      rescue => e
+        render json: { message: "Webhook failed: #{e.message}" }, status: :unprocessable_entity
       end
     end
   end
@@ -350,6 +380,10 @@ class ProjectsController < ApplicationController
   def confirm_recertification
     @project = Project.find(params[:id])
     authorize @project
+
+    unless Flipper.enabled?(:shipping)
+      redirect_to @project, alert: "Shipping is currently disabled." and return
+    end
 
     ship_event = ShipCertService.latest_ship_event(@project)
 
@@ -365,16 +399,20 @@ class ProjectsController < ApplicationController
     @project = Project.find(params[:id])
     authorize @project
 
-    ship_event = ShipCertService.latest_ship_event(@project)
-
-    unless ship_event&.certification_status == "rejected"
-      flash[:alert] = "Re-certification can only be requested for rejected ships."
-      redirect_to @project and return
+    unless Flipper.enabled?(:shipping)
+      redirect_to @project, alert: "Shipping is currently disabled." and return
     end
 
-    PaperTrail.request(whodunnit: current_user.id) do
-      begin
-        ShipCertService.ship_to_dash(@project, type: "recertification", force: true)
+    @project.with_lock do
+      ship_event = ShipCertService.latest_ship_event(@project)
+
+      unless ship_event&.certification_status == "rejected"
+        flash[:alert] = "Re-certification can only be requested for rejected ships."
+        redirect_to @project and return
+      end
+
+      PaperTrail.request(whodunnit: current_user.id) do
+        ShipCertService.ship_to_dash(@project, type: "recertification")
         ship_event.update!(certification_status: "pending")
 
         PaperTrail::Version.create!(
@@ -389,13 +427,13 @@ class ProjectsController < ApplicationController
         )
 
         flash[:notice] = "Re-certification requested! Your project has been resubmitted for review."
-      rescue => e
-        Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
-        flash[:alert] = "Failed to request re-certification. Please try again later."
       end
     end
 
     redirect_to @project
+  rescue => e
+    Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
+    redirect_to @project, alert: "Failed to request re-certification: #{e.message}"
   end
 
   def lapse_timelapses
@@ -641,8 +679,6 @@ class ProjectsController < ApplicationController
 
   def render_update_error
     if url_from(params[:return_to])&.include?("ships")
-      @hackatime_projects = @project.hackatime_projects_with_time
-      @total_hours = @project.total_hackatime_hours
       @last_ship = @project.last_ship_event
       @devlogs_for_ship = @project.devlog_posts.includes(:user, postable: [ { attachments_attachments: :blob } ])
       @devlogs_for_ship = @devlogs_for_ship.where("posts.created_at > ?", @last_ship.created_at) if @last_ship
@@ -653,8 +689,11 @@ class ProjectsController < ApplicationController
     end
   end
 
-  def space_themed_param?
-    ActiveModel::Type::Boolean.new.cast(params.dig(:project, :space_themed))
+  def space_themed_param?(default: false)
+    raw_value = params.dig(:project, :space_themed)
+    return default if raw_value.nil?
+
+    ActiveModel::Type::Boolean.new.cast(raw_value)
   end
 
   def apply_space_theme_marker!(project, space_themed:)

@@ -59,3 +59,9 @@ app/views/component_previews/buttons.html.erb
 app/views/component_previews/index.html.erb
 prod_backupgg.dump
 prod.dump
+
+# Ferret vector search sidecar database
+/db/ferret.sqlite3*
+vendor
+
+.venv

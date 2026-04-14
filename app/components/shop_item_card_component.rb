@@ -1,9 +1,9 @@
 class ShopItemCardComponent < ViewComponent::Base
   include MarkdownHelper
 
-  attr_reader :item_id, :name, :description, :hours, :price, :image_url, :item_type, :balance, :enabled_regions, :regional_price, :logged_in, :remaining_stock, :limited, :on_sale, :sale_percentage, :original_price, :created_at, :show_bow, :show_time_ago, :purchase_count, :is_new
+  attr_reader :item_id, :name, :description, :hours, :price, :image_url, :item_type, :balance, :enabled_regions, :regional_price, :logged_in, :remaining_stock, :limited, :on_sale, :sale_percentage, :original_price, :created_at, :show_bow, :show_time_ago, :purchase_count, :is_new, :enabled_until, :locked_by_achievement, :required_achievement_names, :required_achievement_hints
 
-  def initialize(item_id:, name:, description:, hours:, price:, image_url:, item_type: nil, balance: nil, enabled_regions: [], regional_price: nil, logged_in: true, remaining_stock: nil, limited: false, on_sale: false, sale_percentage: nil, original_price: nil, created_at: nil, show_bow: false, show_time_ago: false, purchase_count: nil, is_new: false)
+  def initialize(item_id:, name:, description:, hours:, price:, image_url:, item_type: nil, balance: nil, enabled_regions: [], regional_price: nil, logged_in: true, remaining_stock: nil, limited: false, on_sale: false, sale_percentage: nil, original_price: nil, created_at: nil, show_bow: false, show_time_ago: false, purchase_count: nil, is_new: false, enabled_until: nil, locked_by_achievement: false, required_achievement_names: [], required_achievement_hints: [])
     @item_id = item_id
     @name = name
     @description = description
@@ -25,6 +25,27 @@ class ShopItemCardComponent < ViewComponent::Base
     @show_time_ago = show_time_ago
     @purchase_count = purchase_count
     @is_new = is_new
+    @enabled_until = enabled_until
+    @locked_by_achievement = locked_by_achievement
+    @required_achievement_names = required_achievement_names
+    @required_achievement_hints = required_achievement_hints
+  end
+
+  def lock_overlay_html
+    return "".html_safe unless locked_by_achievement
+
+    helpers.content_tag(:div, "🔒", class: "shop-item-card__lock-overlay")
+  end
+
+  def achievement_requirement_html
+    return "".html_safe unless locked_by_achievement && required_achievement_names.any?
+
+    sentence = required_achievement_names.to_sentence(two_words_connector: " or ", last_word_connector: ", or ")
+    children = [ helpers.content_tag(:div, "Requires: #{sentence}", class: "shop-item-card__achievement-names") ]
+    if required_achievement_hints.any?
+      children << helpers.content_tag(:div, required_achievement_hints.first, class: "shop-item-card__achievement-hints")
+    end
+    helpers.content_tag(:div, helpers.safe_join(children), class: "shop-item-card__achievement-requirement")
   end
 
   def time_ago_text
@@ -67,6 +88,6 @@ class ShopItemCardComponent < ViewComponent::Base
   end
 
   def show_stock_indicator?
-    limited && remaining_stock.present?
+    limited && remaining_stock.present? && remaining_stock <= 10
   end
 end

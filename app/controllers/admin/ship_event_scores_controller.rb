@@ -12,6 +12,9 @@ module Admin
       "usability_percentile" => "usability_percentile",
       "storytelling_percentile" => "storytelling_percentile",
       "votes_count" => "votes_count",
+      "payout" => "payout",
+      "hours" => "hours",
+      "multiplier" => "multiplier",
       "created_at" => "created_at"
     }.freeze
 
@@ -24,6 +27,7 @@ module Admin
       @direction = params[:direction] == "asc" ? "asc" : "desc"
 
       @ship_events = Post::ShipEvent
+        .current_voting_scale
         .includes(post: :project)
         .where("votes_count > 10")
         .order(Arel.sql("#{@sort_column} #{@direction} NULLS LAST"))
@@ -60,9 +64,9 @@ module Admin
     end
 
     def bucket_scores(values)
-      buckets = Array.new(6, 0)
+      buckets = Array.new(Vote::MAX_SCORE, 0)
       values.each do |value|
-        index = value.to_f.ceil.clamp(1, 6) - 1
+        index = value.to_f.ceil.clamp(Vote::MIN_SCORE, Vote::MAX_SCORE) - 1
         buckets[index] += 1
       end
       buckets
@@ -73,6 +77,7 @@ module Admin
       return {} if ship_event_ids.empty?
 
       vote_rows = Vote
+        .legitimate
         .where(ship_event_id: ship_event_ids)
         .order(:created_at)
         .pluck(:ship_event_id, *Vote.score_columns, :created_at)

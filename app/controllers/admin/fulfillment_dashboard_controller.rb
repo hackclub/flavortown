@@ -12,28 +12,25 @@ module Admin
     end
 
     def send_letter_mail
-      # TODO replace with the real job
-      # Shop::ProcessLetterMailOrdersJob.perform_later
-      redirect_to "https://mail.hackclub.com/back_office/letter/queues/flavortown-fulfillment#letters", allow_other_host: true
+      Shop::ProcessLetterMailOrdersJob.perform_later
+      redirect_to admin_fulfillment_dashboard_index_path, notice: "Letter mail processing job enqueued"
     end
 
     private
 
     def fulfillment_type_filters
-      {
+      filters = {
         "hq_mail" => [ "ShopItem::HQMailItem", "ShopItem::LetterMail" ],
-        "third_party" => "ShopItem::ThirdPartyPhysical",
+        "third_party" => [ "ShopItem::ThirdPartyPhysical", "ShopItem::Accessory", "ShopItem::ThirdPartyDigital" ],
         "warehouse" => [ "ShopItem::WarehouseItem", "ShopItem::PileOfStickersItem" ],
-        "free_stickers" => "ShopItem::FreeStickers",
-        "other" => [
-          "ShopItem::HCBGrant",
-          "ShopItem::SiteActionItem",
-          "ShopItem::BadgeItem",
-          "ShopItem::AdventSticker",
-          "ShopItem::HCBPreauthGrant",
-          "ShopItem::SpecialFulfillmentItem"
-        ]
+        "free_stickers" => [ "ShopItem::FreeStickers" ]
       }
+
+      known_types = filters.values.flatten
+      other_types = ShopItem.distinct.pluck(:type).compact - known_types
+      filters["other"] = other_types
+
+      filters
     end
 
     def base_fulfillment_scope(include_associations: false, include_free_stickers: false)
@@ -85,7 +82,7 @@ module Admin
 
     def generate_regional_stats_for_third_party
       third_party_orders = base_fulfillment_scope(include_associations: true)
-                            .where(shop_items: { type: "ShopItem::ThirdPartyPhysical" })
+                            .where(shop_items: { type: fulfillment_type_filters["third_party"] })
 
       regional_data = {}
       Shop::Regionalizable::REGION_CODES.each do |region_code|

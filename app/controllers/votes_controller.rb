@@ -19,8 +19,38 @@ class VotesController < ApplicationController
     @vote = Vote.new(ship_event: @ship_event, project: @ship_event.post.project)
     @project = @ship_event.post.project
     @posts = @project.posts.where("created_at <= ?", @ship_event.post.created_at)
-                     .where.not(postable_type: "Post::GitCommit")
+                     .where(postable_type: %w[Post::Devlog Post::ShipEvent])
+                     .includes(:user, :project, :postable)
                      .order(created_at: :desc)
+                     .to_a
+
+    devlogs = @posts.filter_map { |post| post.postable if post.postable_type == "Post::Devlog" }
+    ActiveRecord::Associations::Preloader.new(records: devlogs, associations: :attachments_attachments).call if devlogs.any?
+  end
+
+  def skip
+    authorize :vote, :create?
+
+    ship_event_id = VoteSuggestionToken.verify(
+      params[:suggestion_token],
+      user: current_user,
+      user_agent: request.user_agent
+    )
+
+    unless ship_event_id
+      return redirect_to(new_vote_path, alert: "Invalid or expired session. Please try again.")
+    end
+
+    ship_event = Post::ShipEvent.includes(post: :project).find_by(id: ship_event_id)
+    project = ship_event&.post&.project
+
+    unless project
+      return redirect_to(new_vote_path, alert: "That project is no longer available.")
+    end
+
+    current_user.project_skips.find_or_create_by!(project: project)
+
+    redirect_to new_vote_path, notice: "Project skipped!"
   end
 
   def create
@@ -50,7 +80,7 @@ class VotesController < ApplicationController
 
     if @vote.save
       share_vote_to_slack(@vote) if current_user.send_votes_to_slack
-      redirect_to new_vote_path, notice: "Vote recorded! Thanks for your feedback."
+      redirect_to new_vote_path, notice: "Vote recorded! Most projects should be scored in the middle (4-6); reserve 1 or 9 for truly exceptional cases."
     else
       redirect_to new_vote_path, alert: @vote.errors.full_messages.to_sentence
     end
@@ -76,7 +106,6 @@ class VotesController < ApplicationController
       locals: {
         project: vote.project,
         reason: vote.reason,
-        anonymous: current_user.vote_anonymously,
         voter_slack_id: current_user.slack_id
       }
     )

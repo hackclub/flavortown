@@ -5,11 +5,26 @@
 <% content_for :twitter_card, "summary_large_image" %>
 <% content_for :og_author, @project.memberships.find_by(role: :owner)&.user&.display_name %>
 
+<% owner = @project.memberships.find_by(role: :owner)&.user %>
+<% if owner&.search_engine_indexing_off? %>
+  <% content_for :head do %>
+    <meta name="robots" content="noindex, nofollow">
+  <% end %>
+<% end %>
+
 <div class="projects-show">
   <div class="projects-show__container" style="position: relative;">
     <%= render "shared/debug_info", record: @project %>
     <%= render "shared/admin_state_machine", record: @project %>
     <%= render ProjectShowCardComponent.new(project: @project, current_user: current_user) %>
+
+    <% if @show_ai_coding_time_ignored_card %>
+      <div id="ai-coding-time-ignored-card" class="projects-show__info-card">
+        <h2>Note: AI coding time is being ignored</h2>
+        <h3>Time spent coding entirely using AI agents like GitHub Copilot is being automatically filtered out of total project time. If you were using AI agents excessively and see discrepancies in your coding time, this is likely why. Please ask the support team in <a href="https://hackclub.slack.com/app_redirect?channel=C09MATKQM8C" rel="noopener" target="_blank">#flavortown-help</a> if you have any questions!</h3>
+        <button id="dismiss-ai-coding-time-ignored" class="projects-show__info-card-dismiss-button" aria-label="Dismiss" data-dismiss-url="<%= dismiss_thing_path %>" onclick="fetch(this.dataset.dismissUrl, {method: 'POST', headers: {'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content, 'Content-Type': 'application/x-www-form-urlencoded'}, body: 'thing_name=ai_coding_time_ignored_card'}); this.closest('.projects-show__info-card').remove();">X</button>
+      </div>
+    <% end %>
 
     <% if current_user.present? %>
       <div class="mt-4" style="display: flex; gap: var(--space-m); align-items: center;">
@@ -25,23 +40,14 @@
                 color: :brown,
                 href: new_project_devlog_path(@project)
               ) %>
-        <% else %>
-          <% if current_user.project_follows.exists?(project: @project) %>
-            <%= button_to unfollow_project_path(@project), method: :delete, class: "btn btn--brown" do %>
-              Unfollow
-            <% end %>
-          <% else %>
-            <%= button_to follow_project_path(@project), method: :post, class: "btn btn--brown" do %>
-              Follow
-            <% end %>
-          <% end %>
         <% end %>
 
-        <% if !@project.users.include?(current_user) || Rails.env.development? %>
-          <button type="button" class="btn btn--yellow btn--borderless report-btn" aria-label="Report" onclick="document.getElementById('project-report-modal').showModal()">
-            <%= inline_svg_tag "icons/flag.svg" %>
-            REPORT
-          </button>
+        <% if policy(:helper).access? %>
+          <% helper_user = owner || @project.users.first %>
+          <% if helper_user.present? %>
+            <%= link_to "View user on helper dash", helper_user_path(helper_user), class: "btn btn--brown" %>
+          <% end %>
+          <%= link_to "View project on helper dash", helper_project_path(@project), class: "btn btn--brown" %>
         <% end %>
 
         <% if policy(@project).resend_webhook? %>
@@ -71,7 +77,7 @@
           </script>
         <% end %>
 
-        <% if policy(@project).confirm_recertification? && @project.last_ship_event&.certification_status == "rejected" %>
+        <% if Flipper.enabled?(:shipping) && policy(@project).confirm_recertification? && @project.last_ship_event&.certification_status == "rejected" %>
           <%= link_to "Request Re-certification", confirm_recertification_project_path(@project), class: "btn btn--green" %>
         <% end %>
       </div>

@@ -10,6 +10,7 @@
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
+  box-shadow: var(--shadow);
 
   &__content {
     display: flex;
@@ -141,6 +142,27 @@
     p {
       margin: 0;
     }
+
+    &--truncatable {
+      .project-show-card__description-truncated {
+        display: block;
+      }
+
+      .project-show-card__description-full {
+        display: none;
+      }
+
+      &:hover {
+        .project-show-card__description-truncated {
+          display: none;
+        }
+
+        .project-show-card__description-full {
+          display: block;
+          animation: description-fade-in 0.25s ease;
+        }
+      }
+    }
   }
 
   &__actions {
@@ -190,7 +212,7 @@
     }
 
     &:active {
-      background-color: darken(#4e2c33, 5%);
+      background-color: #44252b;
       transform: scale(0.98);
     }
   }
@@ -387,6 +409,16 @@
 
   &--closing &__container {
     animation: lapse-modal-pop-out 0.12s cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
+}
+
+@keyframes description-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 

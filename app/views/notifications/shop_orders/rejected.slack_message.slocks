@@ -2,6 +2,10 @@ header "❌ Order ##{order.id} Rejected"
 
 section "Your order has been rejected.", markdown: true
 
+if order.rejection_reason.present?
+  section "*Reason:* #{order.rejection_reason}", markdown: true
+end
+
 section "Order Details:",
   fields: [
     mrkdwn_text("*Order ID:* #{order.id}"),
@@ -10,7 +14,7 @@ section "Order Details:",
     mrkdwn_text("*Tickets Refunded:* 🍪 #{order.total_cost}"),
   ]
 
-section "*Reason:* #{order.rejection_reason}", markdown: true unless order.rejection_reason.blank?
+
 
 divider
 

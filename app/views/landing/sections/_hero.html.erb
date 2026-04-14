@@ -29,6 +29,25 @@
 =end
 %>
 
+  <% if @show_opensauce_banner %>
+    <button class="open-sauce" data-controller="modal" data-modal-target-value="opensauce-modal" data-action="click->modal#open">
+      <%= image_tag "opensauce_left.avif", alt: "William Osman's Coke", class: "open-sauce__left-image" %>
+      <h2 class="normal">Hack Club x Open Sauce</h2>
+      <h3>new items <span>available!</span></h3>
+      <%= image_tag "opensauce_right.avif", alt: "William Osman's Coke", class: "open-sauce__right-image" %>
+      <h2 class="only-mobile">&#9432;</h2>
+    </button>
+
+    <dialog id="opensauce-modal" class="modal" data-controller="modal">
+      <h3 class="modal__title" style="border-radius: calc(var(--border-radius)*.6);">Hack Club x Open Sauce</h3>
+      <h4>
+        <p>Hack Club has partnered with Open Sauce to bring you free tickets and travel scholarships to Open Sauce 2026! Join Flavortown today to get them from the shop. Bonus: You can now also buy William Osman's <a href="https://www.youtube.com/watch?v=1qzcum2P1Ko" target="_blank" rel="noopener noreferrer">pirated coke</a>!</p>
+        <%= button_to "Sign up for free stickers", "/auth/hack_club", method: :post, class: "modal__button" %>
+        <%= image_tag "landing-page-opensauce.avif", alt: "Modal Image", class: "modal__image" %>
+      </h4>
+    </dialog>
+  <% end %>
+
   <% unless @landing_variant == "challenger" %>
     <div class="top-collab">
       <%= image_tag image_url("landing/hero/hc-gh-collab.avif"), loading: "lazy", decoding: "async", alt: "Hack Club + Github" %>
@@ -47,7 +66,7 @@
     <% end %>
     <h3>
       <% if @landing_variant == "challenger" %>
-        Ship a space-related project by March 31! Submit it to this sidequest to qualify for space-themed prizes in the shop.
+        Ship a space-related project by April 30th! Submit it to this sidequest to qualify for space-themed prizes in the shop.
       <% else %>
         Code personal projects. Win free prizes.
       <% end %>
@@ -77,9 +96,9 @@
     </div>
 
     <% if @landing_variant == "challenger" %>
-      <h4>Ages 13-18. Deadline: <u>March 31</u>.</h4>
+      <h4>Ages 13-18. Deadline: <u>April 30th</u>.</h4>
     <% else %>
-      <h4>Ages 13-18. <u>Dec 22</u> to <u>March 31</u>.</h4>
+      <h4>Ages 13-18. <u>Dec 22</u> to <u>April 30</u>.</h4>
     <% end %>
     <h5>19 or older? Get the same prizes by <a href="https://docs.google.com/document/d/e/2PACX-1vRxWWFVm0pr4042oYljyPAdwb5pH7sdRiwfPw4i01PVs436MfiAFJnKtGoyWwRkXIlB6PlIaVyTQbvO/pub" target="_blank">referring teens</a>.</h5>
 

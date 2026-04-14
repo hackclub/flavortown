@@ -13,7 +13,6 @@ export default class extends Controller {
 
     const videoUrl = event.params.videoUrl;
     if (videoUrl) {
-      this.iframeTarget.onload = () => this.subscribeToVimeoEvents();
       this.iframeTarget.src = videoUrl;
     }
 
@@ -60,7 +59,9 @@ export default class extends Controller {
     try {
       const data =
         typeof event.data === "string" ? JSON.parse(event.data) : event.data;
-      if (data.event === "play") {
+      if (data.event === "ready") {
+        this.subscribeToVimeoEvents();
+      } else if (data.event === "play") {
         this.markComplete();
       }
     } catch (e) {

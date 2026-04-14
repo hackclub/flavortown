@@ -46,6 +46,12 @@ class IdentitiesController < ApplicationController
     redirect_to kitchen_path, notice: "Hackatime linked!"
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.warn("Hackatime identity save failed: #{e.record.errors.full_messages.join(", ")}")
-    redirect_to kitchen_path, alert: "Failed to link Hackatime: #{e.record.errors.full_messages.first}"
+    alert = if e.record.errors.of_kind?(:uid, :taken)
+      "It seems like your Hackatime is already linked to a different Flavortown account. Please contact support!"
+    else
+      "Failed to link Hackatime: #{e.record.errors.full_messages.first}"
+    end
+
+    redirect_to kitchen_path, alert:
   end
 end

@@ -40,6 +40,7 @@ class ShipCertService
         projectType: project.project_type,
         type: type,
         description: project.description,
+        reviewInstructions: ship_event&.review_instructions,
         links: {
           demo: project.demo_url,
           repo: project.repo_url,
@@ -57,12 +58,17 @@ class ShipCertService
     }
   end
 
-  def self.ship_to_dash(project, type: nil, force: false)
+  ALERT_CHANNEL = "C0AJS1H6R42"
+
+  def self.ship_to_dash(project, type: nil)
     ship_event = latest_ship_event(project)
     return false unless ship_event
 
-    ShipCertWebhookJob.perform_later(ship_event_id: ship_event.id, type: type, force: force)
+    send_webhook(project, type: type, ship_event: ship_event)
     true
+  rescue => e
+    notify_slack_of_failure(project, type: type, ship_event: ship_event, error: e)
+    raise e
   end
 
   def self.send_webhook(project, type: nil, ship_event: nil)
@@ -109,6 +115,22 @@ class ShipCertService
   end
 
   def self.latest_ship_event(project)
-    project.ship_events.first
+    project.ship_event_posts.order(created_at: :desc).first&.postable
+  end
+
+  def self.notify_slack_of_failure(project, type:, ship_event:, error:)
+    payload = ship_data(project, type: type, ship_event: ship_event)
+    message = [
+      ":rotating_light: Ship cert webhook failed for project #{project.id} (#{project.title})",
+      "Type: #{type || 'nil'}",
+      "Ship Event ID: #{ship_event&.id || 'nil'}",
+      "Error: #{error.class} - #{error.message}",
+      "Webhook URL: #{WEBHOOK_URL}",
+      "Payload: #{payload.to_json}"
+    ].join("\n")
+
+    SendSlackDmJob.perform_later(ALERT_CHANNEL, message)
+  rescue => slack_error
+    Rails.logger.error "Failed to send ship cert failure Slack alert: #{slack_error.message}"
   end
 end

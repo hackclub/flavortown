@@ -1,3 +1,4 @@
+<% content_for :title, "Project ##{@project.id}" %>
 <h1>Project #<%= @project.id %></h1>
 
 <% if @project.deleted? %>
@@ -25,7 +26,10 @@
     <div class="info-rows">
       <div><b>Title:</b> <%= @project.title %></div>
       <div><b>Description:</b> <%= @project.description.presence || "None" %></div>
-      <div><b>Ship Status:</b> <%= @project.ship_status.titleize %></div>
+      <div class="flex" style="align-items: center; gap: 0.5rem;">
+        <b>Ship Status:</b> <%= @project.ship_status.titleize %>
+        <button type="button" onclick="document.getElementById('change-ship-status-modal').showModal()" class="btn-secondary slim" style="font-size: 0.75rem; padding: 2px 8px;">Change</button>
+      </div>
       <div><b>Type:</b> <%= @project.project_type.presence || "Not set" %></div>
       <div><b>Categories:</b> <%= @project.project_categories.any? ? @project.project_categories.join(", ") : "None" %></div>
       <div><b>Created:</b> <%= @project.created_at.strftime("%Y-%m-%d %H:%M") %></div>
@@ -109,19 +113,72 @@
       <button type="button" onclick="document.getElementById('shadow-ban-project-modal').showModal()" class="btn-secondary">
         👻 Shadow Ban
       </button>
-      <%= render layout: "shared/modal", locals: { id: "shadow-ban-project-modal", title: "Shadow Ban Project", description: "This project will be hidden from other users but visible to its members." } do %>
+      <%= render layout: "shared/modal", locals: { id: "shadow-ban-project-modal", title: "Shadow Ban Project", description: "This project will be hidden from other users but visible to its members. A notification will be sent via Slack DM to all project members." } do %>
         <form action="<%= shadow_ban_admin_project_path(@project) %>" method="post">
           <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+
+          <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 12px; margin-bottom: 16px;">
+            <p style="margin: 0 0 8px 0; font-weight: bold; color: #856404;">⚠️ DM will be sent to all project members:</p>
+            <div style="background: white; border-radius: 4px; padding: 10px; font-size: 12px; line-height: 1.6; color: #333; font-family: monospace;">
+              <p style="margin: 0 0 8px 0;">Hey! After review, your project "<%= @project.title %>" has been flagged by moderation.</p>
+              <p style="margin: 0 0 8px 0;">Reason: <span id="shadow-ban-reason-preview"></span></p>
+              <p style="margin: 0 0 8px 0;">Your project will not be able to ship again until this flag is removed.</p>
+              <p style="margin: 0 0 8px 0;">We've issued a minimum payout for your work on this ship.</p>
+              <p style="margin: 0;">If you'd like to appeal this decision, please DM @Fraud Squad with any additional context.</p>
+            </div>
+          </div>
+
           <div class="modal__field">
             <%= label_tag :reason, "Shadow Ban Reason (optional)" %>
-            <%= text_area_tag :reason, "", placeholder: "Enter reason for shadow ban..." %>
+            <%= text_area_tag :reason, "", placeholder: "Enter reason for shadow ban...", id: "shadow-ban-reason-input" %>
           </div>
           <div class="modal__actions">
             <button type="submit" class="btn-secondary">Confirm Shadow Ban</button>
             <button type="button" onclick="document.getElementById('shadow-ban-project-modal').close()" class="btn-secondary">Cancel</button>
           </div>
         </form>
+
+        <script>
+          const reasonInput = document.getElementById('shadow-ban-reason-input');
+          const reasonPreview = document.getElementById('shadow-ban-reason-preview');
+
+          reasonInput.addEventListener('input', function() {
+            reasonPreview.textContent = this.value || '[reason you provide]';
+          });
+
+          reasonInput.addEventListener('focus', function() {
+            if (!this.value) {
+              reasonPreview.textContent = '[reason you provide]';
+            }
+          });
+        </script>
       <% end %>
     <% end %>
   <% end %>
+</div>
+
+<%= render layout: "shared/modal", locals: { id: "change-ship-status-modal", title: "Change Ship Status", description: "Override the ship status for this project. This bypasses AASM transitions and is logged to PaperTrail." } do %>
+  <form action="<%= update_ship_status_admin_project_path(@project) %>" method="post">
+    <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+
+    <div class="modal__field">
+      <%= label_tag :ship_status, "New Status" %>
+      <%= select_tag :ship_status,
+            options_for_select(
+              Project.aasm.states.map { |s| [s.name.to_s.titleize, s.name.to_s] },
+              @project.ship_status
+            ) %>
+    </div>
+    <div class="modal__actions">
+      <button type="submit" class="btn-primary">Update Status</button>
+      <button type="button" onclick="document.getElementById('change-ship-status-modal').close()" class="btn-secondary">Cancel</button>
+    </div>
+  </form>
+<% end %>
+<%= render "admin/shared/ledger_log",
+    entries: LedgerEntry.where(ledgerable_type: "Post::ShipEvent", ledgerable_id: @project.ship_events.select(:id)),
+    title: "Project Ledger" %>
+
+<div style="margin-top: 1.5rem;">
+  <%= render "admin/shared/audit_log", record: @project %>
 </div>

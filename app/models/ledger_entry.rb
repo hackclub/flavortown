@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: ledger_entries
+# Database name: primary
 #
 #  id              :bigint           not null, primary key
 #  amount          :integer
@@ -63,7 +64,7 @@ class LedgerEntry < ApplicationRecord
       item_type: "User",
       item_id: ledgerable.id,
       event: "balance_adjustment",
-      whodunnit: nil,
+      whodunnit: PaperTrail.request.whodunnit || created_by&.match(/\((\d+)\)$/)&.captures&.first,
       object_changes: { balance: [ new_balance - amount, new_balance ], reason: reason, created_by: created_by }.to_json
     )
   end
@@ -73,10 +74,12 @@ class LedgerEntry < ApplicationRecord
 
     source = case ledgerable_type
     when "ShopOrder" then "shop purchase"
-    when "Post::ShipEvent" then "tutorial"
+    when "Post::ShipEvent" then "ship event payout"
     when "User" then "user grant"
     when "User::Achievement" then "achievement: #{ledgerable.achievement.name}"
+    when "FulfillmentPayoutLine" then "fulfillment payout"
     when "SidequestEntry" then "sidequest rejection fee"
+    when "ShowAndTellAttendance" then "show and tell payout"
     else ledgerable_type.underscore.humanize.downcase
     end
     change_emoji = amount.positive? ? "📈" : "📉"

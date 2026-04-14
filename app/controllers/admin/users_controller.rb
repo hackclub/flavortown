@@ -63,28 +63,6 @@ class Admin::UsersController < Admin::ApplicationController
     def show
       @user = User.includes(:identities).find(params[:id])
 
-      # Get all actions performed on this user (filter out empty updates)
-      user_versions = PaperTrail::Version
-        .where(item_type: "User", item_id: @user.id)
-        .order(created_at: :desc)
-        .select do |v|
-          next true unless v.event == "update"
-          changes = v.object_changes || {}
-          if changes.is_a?(String)
-            changes = begin
-              JSON.parse(changes)
-            rescue JSON::ParserError
-              YAML.safe_load(changes, permitted_classes: [ Symbol ])
-            end
-          end
-          changes.keys.any? { |k| !%w[updated_at synced_at].include?(k.to_s) }
-        end
-
-      # Get ledger entries for this user
-      ledger_entries = @user.ledger_entries.includes(:ledgerable).order(created_at: :desc)
-
-      # Combine and sort by created_at (role changes are now in user_versions as role_promoted/role_demoted events)
-      @user_actions = (user_versions + ledger_entries).sort_by(&:created_at).reverse
       @all_projects = @user.projects.with_deleted.order(deleted_at: :desc)
     end
 
@@ -268,6 +246,35 @@ class Admin::UsersController < Admin::ApplicationController
     redirect_to admin_user_path(@user)
   end
 
+  def set_ysws_eligible_override
+    authorize :admin, :manage_users?
+    @user = User.find(params[:id])
+
+    raw_override = params[:manual_ysws_override]
+    new_override = raw_override=="true" ? true : nil
+    old_override = @user.manual_ysws_override
+    @user.manual_ysws_override = new_override
+
+    if @user.save
+      PaperTrail::Version.create!(
+        item_type: "User",
+        item_id: @user.id,
+        event: "manual_ysws_override_set",
+        whodunnit: current_user.id.to_s,
+        object_changes: { manual_ysws_override: [ old_override, new_override ] }.to_json
+      )
+
+      if @user.eligible_for_shop?
+        Shop::ProcessVerifiedOrdersJob.perform_later(@user.id)
+      end
+
+      flash[:notice] = "YSWS eligibility overridden, now #{@user.ysws_eligible? ? 'eligible' : 'ineligible'}."
+    else
+      flash[:alert] = "Failed to update override"
+    end
+    redirect_to admin_user_path(@user)
+  end
+
   def ban
     authorize :admin, :ban_users?
     @user = User.find(params[:id])
@@ -316,52 +323,32 @@ class Admin::UsersController < Admin::ApplicationController
     redirect_to admin_user_path(@user)
   end
 
+  # DEPRECATED: Use project shadow banning instead
   def shadow_ban
-    authorize :admin, :ban_users?
-    @user = User.find(params[:id])
-    reason = params[:reason].presence
-
-    PaperTrail.request(whodunnit: current_user.id) do
-      @user.shadow_ban!(reason: reason)
-    end
-
-    PaperTrail::Version.create!(
-      item_type: "User",
-      item_id: @user.id,
-      event: "shadow_banned",
-      whodunnit: current_user.id.to_s,
-      object_changes: {
-        shadow_banned: [ false, true ],
-        shadow_banned_reason: [ nil, reason ]
-      }.to_json
-    )
-
-    flash[:notice] = "#{@user.display_name} has been shadow banned."
+    Rails.logger.warn("DEPRECATED: Admin user shadow_ban action is deprecated. Use project shadow banning instead.")
+    flash[:warning] = "User shadow banning is deprecated. Please use project shadow banning instead."
     redirect_to admin_user_path(@user)
   end
 
+  # DEPRECATED: Use project shadow banning instead
   def unshadow_ban
-    authorize :admin, :ban_users?
-    @user = User.find(params[:id])
-    old_reason = @user.shadow_banned_reason
-
-    PaperTrail.request(whodunnit: current_user.id) do
-      @user.unshadow_ban!
-    end
-
-    PaperTrail::Version.create!(
-      item_type: "User",
-      item_id: @user.id,
-      event: "shadow_unbanned",
-      whodunnit: current_user.id.to_s,
-      object_changes: {
-        shadow_banned: [ true, false ],
-        shadow_banned_reason: [ old_reason, nil ]
-      }.to_json
-    )
-
-    flash[:notice] = "#{@user.display_name} has been unshadow banned."
+    Rails.logger.warn("DEPRECATED: Admin user unshadow_ban action is deprecated. Use project shadow banning instead.")
+    flash[:warning] = "User shadow banning is deprecated. Please use project shadow banning instead."
     redirect_to admin_user_path(@user)
+  end
+
+  def set_vote_balance
+    authorize :admin, :manage_users?
+    u = User.find(params[:id])
+    old = u.vote_balance
+    val = params[:vote_balance].to_i
+    u.update!(vote_balance: val)
+    PaperTrail::Version.create!(
+      item_type: "User", item_id: u.id, event: "vote_balance_set",
+      whodunnit: current_user.id.to_s,
+      object_changes: { vote_balance: [ old, val ] }.to_json
+    )
+    redirect_back(fallback_location: admin_user_path(u), notice: "Vote balance set to #{val} for #{u.display_name}.")
   end
 
   def toggle_voting_lock

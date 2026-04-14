@@ -1,3 +1,4 @@
+<% content_for :title, "Voting Dashboard" %>
 <%= render HeadingComponent.new(title: "Voting Dashboard", tone: :blue, size: :full) %>
 
 <div class="voting-grid">
@@ -19,6 +20,22 @@
         <div class="voting-stat">
             <span class="voting-stat__value"><%= @overview[:avg_time_seconds] ? "#{@overview[:avg_time_seconds]}s" : "—" %></span>
             <span class="voting-stat__label">Avg Time</span>
+        </div>
+        <div class="voting-stat voting-stat--success">
+            <span class="voting-stat__value"><%= number_with_delimiter(@overview[:paid_ships]) %></span>
+            <span class="voting-stat__label">Paid Ships</span>
+        </div>
+        <div class="voting-stat voting-stat--warning">
+            <span class="voting-stat__value"><%= number_with_delimiter(@overview[:unpaid_ships]) %></span>
+            <span class="voting-stat__label">Unpaid Ships</span>
+        </div>
+        <div class="voting-stat voting-stat--info">
+            <span class="voting-stat__value"><%= number_with_delimiter(@overview[:unpaid_ships_without_bugs]) %></span>
+            <span class="voting-stat__label">Unpaid (no bugs)</span>
+        </div>
+        <div class="voting-stat voting-stat--error">
+            <span class="voting-stat__value"><%= number_with_delimiter(@overview[:unpaid_ships_negative_balance]) %></span>
+            <span class="voting-stat__label">Unpaid (neg. balance)</span>
         </div>
         </div>
     </div>
@@ -69,18 +86,7 @@
 <div class="voting-grid">
     <div class="card voting-card voting-card--wide">
         <h2>⏱️ Time to Vote Distribution</h2>
-        <div class="time-distribution">
-        <% max_count = @time_distribution.values.max.to_f.nonzero? || 1 %>
-        <% @time_distribution.each do |range, count| %>
-            <div class="time-bar-container">
-            <span class="time-bar-label"><%= range %></span>
-            <div class="time-bar-wrapper">
-                <div class="time-bar" style="width: <%= (count / max_count * 100).round %>%;"></div>
-            </div>
-            <span class="time-bar-count"><%= count %></span>
-            </div>
-        <% end %>
-        </div>
+        <%= bar_chart @time_distribution, suffix: " votes", colors: ["#6366f1"] %>
     </div>
 </div>
 
@@ -93,16 +99,7 @@
             <span class="category-avg__value"><%= @category_stats[category][:avg] || "—" %></span>
             <span class="category-avg__label">Average</span>
             </div>
-            <div class="score-distribution">
-            <% (1..6).each do |score| %>
-                <% count = @category_stats[category][:distribution][score] || 0 %>
-                <% max = @category_stats[category][:distribution].values.max.to_f.nonzero? || 1 %>
-                <div class="score-bar-container">
-                <div class="score-bar" style="height: <%= (count / max * 100).round %>%;" title="<%= count %> votes"></div>
-                <span class="score-label"><%= score %></span>
-                </div>
-            <% end %>
-            </div>
+            <%= column_chart @category_stats[category][:distribution], suffix: " votes", min: 0, colors: ["#6366f1"] %>
         </div>
         </div>
     <% end %>
@@ -111,61 +108,19 @@
 <div class="voting-grid">
     <div class="card voting-card voting-card--wide">
         <h2>📈 Daily Votes (30 days)</h2>
-        <div class="chart-bars">
-        <% max_votes = @daily_votes.values.max.to_f.nonzero? || 1 %>
-        <% @daily_votes.each do |date, count| %>
-            <div class="chart-bar-container" title="<%= date.strftime('%b %d') %>: <%= count %> votes">
-            <div class="chart-bar chart-bar--blue" style="height: <%= (count / max_votes * 100).round %>%;"></div>
-            <span class="chart-label"><%= date.day %></span>
-            </div>
-        <% end %>
-        </div>
-    </div>
-</div>
-
-<div class="voting-grid">
-    <div class="card voting-card voting-card--wide">
-        <h2>⚠️ Daily Suspicious Votes (30 days)</h2>
-        <div class="chart-bars">
-        <% max_votes = @daily_suspicious_votes.values.max.to_f.nonzero? || 1 %>
-        <% @daily_suspicious_votes.each do |date, count| %>
-            <div class="chart-bar-container" title="<%= date.strftime('%b %d') %>: <%= count %> votes">
-            <div class="chart-bar chart-bar--danger" style="height: <%= (count / max_votes * 100).round %>%;"></div>
-            <span class="chart-label"><%= date.day %></span>
-            </div>
-        <% end %>
-        </div>
+        <%= line_chart [{ name: "Legitimate", data: @daily_votes }, { name: "Suspicious", data: @daily_suspicious_votes }], min: 0 %>
     </div>
 </div>
 
 <div class="voting-grid">
     <div class="card voting-card">
         <h2>Votes by Hour (UTC)</h2>
-        <div class="hourly-chart">
-        <% max_hourly = @hourly_distribution.values.max.to_f.nonzero? || 1 %>
-        <% (0..23).each do |hour| %>
-            <% count = @hourly_distribution[hour] || 0 %>
-            <div class="hourly-bar-container" title="<%= hour %>:00 - <%= count %> votes">
-            <div class="hourly-bar" style="height: <%= (count / max_hourly * 100).round %>%;"></div>
-            <span class="hourly-label"><%= hour %></span>
-            </div>
-        <% end %>
-        </div>
+        <%= bar_chart @hourly_distribution, suffix: " votes", min: 0, colors: ["#6366f1"] %>
     </div>
 
     <div class="card voting-card">
         <h2>Votes by Day</h2>
-        <div class="weekly-chart">
-        <% days = %w[Sun Mon Tue Wed Thu Fri Sat] %>
-        <% max_weekly = @weekly_distribution.values.max.to_f.nonzero? || 1 %>
-        <% (0..6).each do |day| %>
-            <% count = @weekly_distribution[day] || 0 %>
-            <div class="weekly-bar-container" title="<%= days[day] %>: <%= count %> votes">
-            <div class="weekly-bar" style="height: <%= (count / max_weekly * 100).round %>%;"></div>
-            <span class="weekly-label"><%= days[day] %></span>
-            </div>
-        <% end %>
-        </div>
+        <%= bar_chart @weekly_distribution, suffix: " votes", min: 0, colors: ["#6366f1"] %>
     </div>
 </div>
 
@@ -235,11 +190,12 @@
             <th>Time</th>
             <th>Demo</th>
             <th>Repo</th>
+            <th>Sus.</th>
             </tr>
         </thead>
         <tbody>
             <% @recent_votes.each do |vote| %>
-            <tr>
+            <tr class="<%= 'voting-row--suspicious' if vote.suspicious? %>">
                 <td><%= time_ago_in_words(vote.created_at) %> ago</td>
                 <td>
                 <% if vote.user %>
@@ -262,56 +218,7 @@
                 <td><%= vote.time_taken_to_vote ? "#{vote.time_taken_to_vote}s" : "—" %></td>
                 <td><%= vote.demo_url_clicked ? "✓" : "—" %></td>
                 <td><%= vote.repo_url_clicked ? "✓" : "—" %></td>
-            </tr>
-            <% end %>
-        </tbody>
-        </table>
-    </div>
-</div>
-
-<div class="voting-grid">
-    <div class="card voting-card voting-card--full">
-        <h2>Recent Suspicious Votes</h2>
-        <table class="voting-table voting-table--wide">
-        <thead>
-            <tr>
-            <th>Time</th>
-            <th>Voter</th>
-            <th>Project</th>
-            <th>Orig.</th>
-            <th>Tech.</th>
-            <th>Usab.</th>
-            <th>Story.</th>
-            <th>Time</th>
-            <th>Demo</th>
-            <th>Repo</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% @recent_suspicious_votes.each do |vote| %>
-            <tr>
-                <td><%= time_ago_in_words(vote.created_at) %> ago</td>
-                <td>
-                <% if vote.user %>
-                    <%= link_to vote.user.display_name || "User ##{vote.user.id}", admin_user_path(vote.user) %>
-                <% else %>
-                    <span class="text-muted">Unknown</span>
-                <% end %>
-                </td>
-                <td>
-                <% if vote.project %>
-                    <%= link_to truncate(vote.project.title, length: 20), admin_project_path(vote.project) %>
-                <% else %>
-                    <span class="text-muted">Deleted</span>
-                <% end %>
-                </td>
-                <td class="score"><%= vote.originality_score || "—" %></td>
-                <td class="score"><%= vote.technical_score || "—" %></td>
-                <td class="score"><%= vote.usability_score || "—" %></td>
-                <td class="score"><%= vote.storytelling_score || "—" %></td>
-                <td><%= vote.time_taken_to_vote ? "#{vote.time_taken_to_vote}s" : "—" %></td>
-                <td><%= vote.demo_url_clicked ? "✓" : "—" %></td>
-                <td><%= vote.repo_url_clicked ? "✓" : "—" %></td>
+                <td><%= vote.suspicious? ? "⚠️" : "—" %></td>
             </tr>
             <% end %>
         </tbody>

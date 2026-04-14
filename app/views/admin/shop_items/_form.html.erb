@@ -102,29 +102,31 @@
           <h3>Availability</h3>
 
           <div class="shop-item-form__toggles">
-            <label class="shop-item-form__toggle">
-              <%= f.check_box :enabled, id: "shop_item_enabled" %>
-              <span class="shop-item-form__toggle-content">
-                <strong>Enabled</strong>
-                <span class="shop-item-form__toggle-desc">Item is visible and purchasable in the shop</span>
-              </span>
-            </label>
+            <% unless current_user.shop_manager? && !current_user.admin? %>
+              <label class="shop-item-form__toggle">
+                <%= f.check_box :enabled, id: "shop_item_enabled" %>
+                <span class="shop-item-form__toggle-content">
+                  <strong>Enabled</strong>
+                  <span class="shop-item-form__toggle-desc">Item is visible and purchasable in the shop</span>
+                </span>
+              </label>
 
-            <label class="shop-item-form__toggle">
-              <%= f.check_box :unlisted %>
-              <span class="shop-item-form__toggle-content">
-                <strong>Unlisted</strong>
-                <span class="shop-item-form__toggle-desc">Hidden from shop and API, but accessible via direct link</span>
-              </span>
-            </label>
+              <label class="shop-item-form__toggle">
+                <%= f.check_box :unlisted %>
+                <span class="shop-item-form__toggle-content">
+                  <strong>Unlisted</strong>
+                  <span class="shop-item-form__toggle-desc">Hidden from shop and API, but accessible via direct link</span>
+                </span>
+              </label>
 
-            <label class="shop-item-form__toggle">
-              <%= f.check_box :show_in_carousel %>
-              <span class="shop-item-form__toggle-content">
-                <strong>Show in Carousel</strong>
-                <span class="shop-item-form__toggle-desc">Feature this item in the homepage carousel</span>
-              </span>
-            </label>
+              <label class="shop-item-form__toggle">
+                <%= f.check_box :show_in_carousel %>
+                <span class="shop-item-form__toggle-content">
+                  <strong>Show in Carousel</strong>
+                  <span class="shop-item-form__toggle-desc">Feature this item in the homepage carousel</span>
+                </span>
+              </label>
+            <% end %>
 
             <label class="shop-item-form__toggle">
               <%= f.check_box :one_per_person_ever %>
@@ -141,6 +143,14 @@
                 <span class="shop-item-form__toggle-desc">Enable inventory tracking for this item</span>
               </span>
             </label>
+
+            <label class="shop-item-form__toggle">
+              <%= f.check_box :requires_verification_call %>
+              <span class="shop-item-form__toggle-content">
+                <strong>Requires Call</strong>
+                <span class="shop-item-form__toggle-desc">Orders require a verification call before fulfillment</span>
+              </span>
+            </label>
           </div>
 
           <div class="shop-item-form__field" id="stock_field_container">
@@ -148,6 +158,14 @@
             <%= f.number_field :stock, min: 0, class: "form-control", id: "shop_item_stock" %>
             <span class="shop-item-form__hint">Number of items available for purchase</span>
           </div>
+
+          <% unless current_user.shop_manager? && !current_user.admin? %>
+            <div class="shop-item-form__field shop-item-form__enabled-until">
+              <%= f.label :enabled_until, "Enabled Until", class: "shop-item-form__label" %>
+              <%= f.datetime_local_field :enabled_until, class: "form-control" %>
+              <span class="shop-item-form__hint">If set, the item will auto-disable after this date. Leave blank to keep enabled indefinitely.</span>
+            </div>
+          <% end %>
 
           <div class="shop-item-form__field">
             <%= f.label :max_qty, "Max Per Order", class: "shop-item-form__label" %>
@@ -169,6 +187,20 @@
                 <span class="shop-item-form__toggle-desc">User must have shipped projects in a date range to purchase</span>
               </span>
             </label>
+
+          </div>
+
+          <div class="shop-item-form__field" style="margin-top: 1rem;">
+            <%= f.label :requires_achievement, "Requires Achievements", class: "shop-item-form__label" %>
+            <div class="shop-item-form__checkbox-list">
+              <%= f.collection_check_boxes :requires_achievement, Achievement.all.select { |a| !a.hidden? }, ->(a) { a.slug.to_s }, ->(a) { "#{a.name} (#{a.slug})" } do |b| %>
+                <label class="shop-item-form__checkbox">
+                  <%= b.check_box %>
+                  <span><%= b.text %></span>
+                </label>
+              <% end %>
+            </div>
+            <span class="shop-item-form__hint">User must have earned AT LEAST ONE of the selected achievements to purchase. You can select multiple by checking the boxes. Sidequest achievements are awarded automatically when a sidequest entry is approved.</span>
           </div>
 
           <div id="ship_requirement_fields" style="display: none; margin-top: 1rem;">
@@ -221,6 +253,16 @@
           <div class="shop-item-form__field">
             <%= f.label :hcb_keyword_lock, "HCB Keyword Lock", class: "shop-item-form__label" %>
             <%= f.text_field :hcb_keyword_lock, class: "form-control" %>
+          </div>
+
+          <div class="shop-item-form__toggles" style="margin-top: 1rem;">
+            <label class="shop-item-form__toggle">
+              <%= f.check_box :hcb_one_time_use %>
+              <span class="shop-item-form__toggle-content">
+                <strong>One-Time Use</strong>
+                <span class="shop-item-form__toggle-desc">freeze card after one txn</span>
+              </span>
+            </label>
           </div>
         </div>
 
@@ -284,6 +326,12 @@
             <span class="shop-item-form__hint">Accessories with the same tag are mutually exclusive (only one can be selected)</span>
           </div>
 
+          <label class="shop-item-form__checkbox" style="margin-top: 1rem;">
+            <%= f.check_box :show_image_in_shop, id: "shop_item_show_image_in_shop" %>
+            <span>Show Image in Shop</span>
+          </label>
+          <span class="shop-item-form__hint">Display this accessory's image on the order page</span>
+
           <div class="shop-item-form__field">
             <%= f.label :attached_shop_item_ids, "Attached To (Shop Items)", class: "shop-item-form__label" %>
             <div class="shop-item-form__checkbox-list">
@@ -328,9 +376,9 @@
             <th>Region</th>
             <th>Enabled</th>
             <th>Default Assignee</th>
-            <th>Δ Tickets</th>
-            <th>Δ Hours</th>
             <th>Δ USD</th>
+            <th>Δ Hours</th>
+            <th>Δ Tickets</th>
             <th>Final Price</th>
             <th>Est. Hours</th>
           </tr>
@@ -364,17 +412,17 @@
                     { class: "form-control form-control--sm", style: "width: 120px;" } %>
               </td>
               <td>
-                <%= f.number_field "price_offset_#{code.downcase}", step: 1, class: "form-control form-control--sm price-offset", data: { region: code.downcase }, placeholder: "0" %>
+                <%= f.number_field "usd_offset_#{code.downcase}", step: 0.01, class: "form-control form-control--sm usd-offset", data: { region: code.downcase }, placeholder: "0.00", value: shop_item.send("usd_offset_#{code.downcase}") %>
               </td>
               <td>
                 <input type="number" step="0.1" class="form-control form-control--sm delta-hours-input" data-region="<%= code.downcase %>" placeholder="0.0" autocomplete="off">
               </td>
               <td>
-                <input type="number" step="0.01" class="form-control form-control--sm delta-dollars-input" data-region="<%= code.downcase %>" placeholder="0.00" autocomplete="off">
+                <code class="delta-tickets-display shop-item-form__muted" data-region="<%= code.downcase %>">0</code>
               </td>
               <td>
                 <code class="shop-item-form__final-price" data-region="<%= code.downcase %>">
-                  <%= ((shop_item.ticket_cost || 0) + (shop_item.send("price_offset_#{code.downcase}") || 0)).to_i %>
+                  <%= shop_item.base_price_for_region(code).to_i %>
                 </code>
               </td>
               <td>
@@ -707,6 +755,10 @@
         color: inherit;
     }
 
+    .shop-item-form__enabled-until .form-control {
+        color: #1a1a1a;
+    }
+
     .form-control:focus {
         outline: none;
         border-color: var(--color-brown-700);
@@ -795,6 +847,7 @@
             hackerScoreField.addEventListener('input', function () {
                 updateCalculations();
                 autoFillTicketCost();
+                updateAllRegionalPricing();
             });
         }
 
@@ -826,11 +879,23 @@
             toggleShipRequirementFields();
         }
 
-        function updateFromPriceOffset(region, skipHours = false, skipDollars = false) {
+        function getHackerMultiplier() {
+            const hackerScore = parseFloat(hackerScoreField.value) || 50;
+            return 0.5 + (1 - hackerScore / 100);
+        }
+
+        // usd_offset is the canonical stored value. All other regional fields derive from it.
+        function updateFromUsdOffset(region, skipHours = false) {
             const basePrice = parseFloat(ticketCostField.value) || 0;
-            const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
-            const offset = parseFloat(offsetField.value) || 0;
-            const finalPrice = basePrice + offset;
+            const usdOffsetField = document.querySelector(`[data-region="${region}"].usd-offset`);
+            const usdOffset = parseFloat(usdOffsetField.value) || 0;
+            const hackerMultiplier = getHackerMultiplier();
+
+            const deltaTickets = usdOffset * gameConstants.doubloons_per_dollar * hackerMultiplier;
+            const finalPrice = basePrice + deltaTickets;
+
+            const deltaTicketsDisplay = document.querySelector(`[data-region="${region}"].delta-tickets-display`);
+            if (deltaTicketsDisplay) deltaTicketsDisplay.textContent = Math.round(deltaTickets);
 
             const finalPriceSpan = document.querySelector(`[data-region="${region}"].shop-item-form__final-price`);
             if (finalPriceSpan) finalPriceSpan.textContent = Math.round(finalPrice);
@@ -840,57 +905,41 @@
             if (estimatedHoursSpan) estimatedHoursSpan.textContent = estimatedHours.toFixed(1);
 
             if (!skipHours) {
-                const deltaHours = offset / (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour);
+                // delta_hours = usd_offset * hacker_multiplier / dollars_per_mean_hour
+                const deltaHours = usdOffset * hackerMultiplier / gameConstants.dollars_per_mean_hour;
                 const deltaHoursInput = document.querySelector(`[data-region="${region}"].delta-hours-input`);
                 if (deltaHoursInput) deltaHoursInput.value = deltaHours.toFixed(1);
-            }
-
-            if (!skipDollars) {
-                const deltaDollars = offset / gameConstants.doubloons_per_dollar;
-                const deltaDollarsInput = document.querySelector(`[data-region="${region}"].delta-dollars-input`);
-                if (deltaDollarsInput) deltaDollarsInput.value = deltaDollars.toFixed(2);
             }
         }
 
         function updateFromDeltaHours(region) {
             const deltaHoursInput = document.querySelector(`[data-region="${region}"].delta-hours-input`);
             const deltaHours = parseFloat(deltaHoursInput.value) || 0;
-            const offset = deltaHours * (gameConstants.doubloons_per_dollar * gameConstants.dollars_per_mean_hour);
-            const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
-            if (offsetField) offsetField.value = Math.round(offset);
-            updateFromPriceOffset(region, true, false);
-        }
-
-        function updateFromDeltaDollars(region) {
-            const deltaDollarsInput = document.querySelector(`[data-region="${region}"].delta-dollars-input`);
-            const deltaDollars = parseFloat(deltaDollarsInput.value) || 0;
-            const offset = deltaDollars * gameConstants.doubloons_per_dollar;
-            const offsetField = document.querySelector(`[data-region="${region}"].price-offset`);
-            if (offsetField) offsetField.value = Math.round(offset);
-            updateFromPriceOffset(region, false, true);
+            const hackerMultiplier = getHackerMultiplier();
+            // usd_offset = delta_hours * dollars_per_mean_hour / hacker_multiplier
+            const usdOffset = hackerMultiplier > 0
+                ? (deltaHours * gameConstants.dollars_per_mean_hour / hackerMultiplier)
+                : 0;
+            const usdOffsetField = document.querySelector(`[data-region="${region}"].usd-offset`);
+            if (usdOffsetField) usdOffsetField.value = usdOffset.toFixed(2);
+            updateFromUsdOffset(region, true);
         }
 
         function updateAllRegionalPricing() {
-            document.querySelectorAll('.price-offset').forEach(offsetField => {
-                updateFromPriceOffset(offsetField.dataset.region);
+            document.querySelectorAll('.usd-offset').forEach(field => {
+                updateFromUsdOffset(field.dataset.region);
             });
         }
 
-        document.querySelectorAll('.price-offset').forEach(field => {
+        document.querySelectorAll('.usd-offset').forEach(field => {
             field.addEventListener('input', function () {
-                updateFromPriceOffset(this.dataset.region);
+                updateFromUsdOffset(this.dataset.region);
             });
         });
 
         document.querySelectorAll('.delta-hours-input').forEach(field => {
             field.addEventListener('input', function () {
                 updateFromDeltaHours(this.dataset.region);
-            });
-        });
-
-        document.querySelectorAll('.delta-dollars-input').forEach(field => {
-            field.addEventListener('input', function () {
-                updateFromDeltaDollars(this.dataset.region);
             });
         });
 

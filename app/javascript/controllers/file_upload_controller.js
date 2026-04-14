@@ -461,7 +461,6 @@ export default class extends Controller {
   }
 
   #validateFileSize(file) {
-    console.log(this.hasMaxSizeValue);
     return (
       !this.hasMaxSizeValue ||
       !this.maxSizeValue ||

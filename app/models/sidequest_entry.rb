@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: sidequest_entries
+# Database name: primary
 #
 #  id                       :bigint           not null, primary key
 #  aasm_state               :string           default("pending"), not null
@@ -67,6 +68,20 @@ class SidequestEntry < ApplicationRecord
         run_sidequest_callback(:on_reject)
       end
     end
+
+    event :undo do
+      transitions from: [ :approved, :rejected ], to: :pending
+      before do
+        refund_rejection_fee! if rejected? && is_rejection_fee_charged?
+      end
+      after do
+        self.reviewed_by = nil
+        self.reviewed_at = nil
+        self.rejection_message = nil
+        self.is_rejection_fee_charged = false
+        save!
+      end
+    end
   end
 
   def project_owner
@@ -83,6 +98,18 @@ class SidequestEntry < ApplicationRecord
       amount: -REJECTION_FEE,
       reason: "Sidequest rejection fee: #{sidequest.title}",
       created_by: "#{reviewed_by.display_name} (#{reviewed_by.id})",
+      ledgerable: self
+    )
+  end
+
+  def refund_rejection_fee!
+    user = project_owner
+    return unless user
+
+    user.ledger_entries.create!(
+      amount: REJECTION_FEE,
+      reason: "Sidequest rejection fee reversed (undo): #{sidequest.title}",
+      created_by: "Undo decision",
       ledgerable: self
     )
   end

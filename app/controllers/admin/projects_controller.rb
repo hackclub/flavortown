@@ -108,15 +108,75 @@ class Admin::ProjectsController < Admin::ApplicationController
       next unless member.user&.slack_id.present?
 
       parts = []
-      parts << "Hey! After review, your project won't be going into voting this time."
+      parts << "Hey! After review, your project \"#{@project.title}\" has been flagged by moderation."
       parts << "Reason: #{reason}" if reason.present?
+      parts << "Your project will not be able to ship again until this flag is removed."
       parts << "We've issued a minimum payout for your work on this ship." if issued_min_payout
-      parts << "If you have questions, reach out in #flavortown-help. Keep building — you can ship again anytime!"
+      parts << "If you'd like to appeal this decision, please DM @Fraud Squad with any additional context."
       SendSlackDmJob.perform_later(member.user.slack_id, parts.join("\n\n"))
     end
     log_to_user_audit(@project, "shadow_banned", reason)
 
     redirect_to admin_project_path(@project), notice: "Project has been shadow banned#{issued_min_payout ? ' and minimum payout issued' : ''}."
+  end
+
+  def update_ship_status
+    authorize :admin, :manage_projects?
+    @project = Project.unscoped.find(params[:id])
+
+    old_status = @project.ship_status
+    new_status = params[:ship_status]
+
+    unless Project.aasm.states.map { |s| s.name.to_s }.include?(new_status)
+      redirect_to admin_project_path(@project), alert: "Invalid ship status."
+      return
+    end
+
+    if old_status == new_status
+      redirect_to admin_project_path(@project), alert: "Project is already #{new_status}."
+      return
+    end
+
+    @project.update_column(:ship_status, new_status)
+
+    PaperTrail::Version.create!(
+      item: @project,
+      event: "update",
+      whodunnit: current_user.id.to_s,
+      object_changes: { ship_status: [ old_status, new_status ] }
+    )
+
+    redirect_to admin_project_path(@project), notice: "Ship status changed from #{old_status} to #{new_status}."
+  end
+
+  def force_state
+    authorize :admin, :manage_projects?
+    @project = Project.unscoped.find(params[:id])
+
+    state_column = Project.aasm.attribute_name
+    old_state = @project.send(state_column)
+    new_state = params[:target_state]
+
+    unless Project.aasm.states.map { |s| s.name.to_s }.include?(new_state)
+      redirect_to admin_project_path(@project), alert: "Invalid state."
+      return
+    end
+
+    if old_state == new_state
+      redirect_to admin_project_path(@project), alert: "Project is already #{new_state}."
+      return
+    end
+
+    @project.update_column(state_column, new_state)
+
+    PaperTrail::Version.create!(
+      item: @project,
+      event: "update",
+      whodunnit: current_user.id.to_s,
+      object_changes: { state_column => [ old_state, new_state ] }
+    )
+
+    redirect_to admin_project_path(@project), notice: "State forced from #{old_state} to #{new_state}."
   end
 
   def unshadow_ban
@@ -133,6 +193,17 @@ class Admin::ProjectsController < Admin::ApplicationController
   private
 
   def log_to_user_audit(project, action, reason)
+    PaperTrail::Version.create!(
+      item_type: "Project",
+      item_id: project.id,
+      event: action,
+      whodunnit: current_user.id.to_s,
+      object_changes: {
+        action: [ nil, action ],
+        reason: [ nil, reason ]
+      }
+    )
+
     project.users.each do |user|
       PaperTrail::Version.create!(
         item_type: "User",

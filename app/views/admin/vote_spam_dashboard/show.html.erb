@@ -1,3 +1,4 @@
+<% content_for :title, @show_copy[:heading] %>
 <%= render HeadingComponent.new(title: @show_copy[:heading], tone: :blue, size: :full) %>
 
 <div class="card vote-spam-card">
@@ -65,7 +66,7 @@
   <div class="card voting-card voting-card--wide">
     <h2><%= @show_copy.dig(:cards, :score_trend) %></h2>
     <% if @selected_user_score_series.present? %>
-      <%= line_chart @selected_user_score_series, min: 1, max: 6, xtitle: @show_copy.dig(:chart_axes, :vote_number), ytitle: @show_copy.dig(:chart_axes, :score), height: "320px" %>
+      <%= line_chart @selected_user_score_series, min: Vote::MIN_SCORE, max: Vote::MAX_SCORE, xtitle: @show_copy.dig(:chart_axes, :vote_number), ytitle: @show_copy.dig(:chart_axes, :score), height: "320px" %>
     <% else %>
       <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :score_trend) %></p>
     <% end %>
@@ -74,7 +75,7 @@
   <div class="card voting-card voting-card--wide">
     <h2><%= @show_copy.dig(:cards, :average_score_by_dimension) %></h2>
     <% if @selected_user_average_scores.present? %>
-      <%= column_chart @selected_user_average_scores, min: 1, max: 6, ytitle: @show_copy.dig(:chart_axes, :average_score), height: "320px" %>
+      <%= column_chart @selected_user_average_scores, min: Vote::MIN_SCORE, max: Vote::MAX_SCORE, ytitle: @show_copy.dig(:chart_axes, :average_score), height: "320px" %>
     <% else %>
       <p class="vote-spam-note"><%= @show_copy.dig(:no_data, :average_scores) %></p>
     <% end %>

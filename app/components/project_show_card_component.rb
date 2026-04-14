@@ -14,17 +14,39 @@ class ProjectShowCardComponent < ViewComponent::Base
     project.users.include?(current_user)
   end
 
+  def following?
+    return false unless current_user
+
+    current_user.project_follows.exists?(project: project)
+  end
+
+  def show_report_button?
+    current_user.present? && (!owner? || Rails.env.development?)
+  end
+
   def banner_variant
     return nil unless project.banner.attached?
     project.banner.variant(:card)
   end
 
-  #   def followers_count
-  #     project.memberships_count
-  #   end
-
   def has_any_links?
     project.demo_url.present? || project.repo_url.present? || project.readme_url.present?
+  end
+
+  def shipping_enabled?
+    Flipper.enabled?(:shipping)
+  end
+
+  def can_ship?
+    shipping_enabled? && (project.draft? || project.shippable?)
+  end
+
+  def can_request_re_cert?
+    shipping_enabled? && project.last_ship_event&.certification_status == "rejected"
+  end
+
+  def ship_btn_wrapper_id
+    "ship-btn-wrapper-#{project.id}"
   end
 
   def followers_count
@@ -33,11 +55,6 @@ class ProjectShowCardComponent < ViewComponent::Base
     else
       project.followers.size
     end
-  end
-
-  def owner_display_name
-    owner = project.memberships.includes(:user).owner.first&.user
-    owner&.display_name || project.users.first&.display_name || "Unknown"
   end
 
   def byline_text
@@ -57,7 +74,9 @@ class ProjectShowCardComponent < ViewComponent::Base
   end
 
   def ship_disabled_reasons
-    project.shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:label] }
+    reasons = []
+    reasons << "Shipping is currently disabled." unless shipping_enabled?
+    reasons + project.shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:fail_label] || r[:label] }
   end
 
   def ship_status

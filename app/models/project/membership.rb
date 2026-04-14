@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: project_memberships
+# Database name: primary
 #
 #  id         :bigint           not null, primary key
 #  role       :integer
@@ -21,6 +22,8 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Project::Membership < ApplicationRecord
+  has_paper_trail
+
   belongs_to :user
   belongs_to :project, counter_cache: :memberships_count
 

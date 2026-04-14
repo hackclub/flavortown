@@ -1,6 +1,7 @@
-<div class="shop-item-card<%= ' shop-item-card--out-of-stock' if out_of_stock? %><%= ' shop-item-card--on-sale' if on_sale %><%= ' shop-item-card--with-bow' if show_bow %>"
+<div class="shop-item-card<%= ' shop-item-card--achievement-locked' if locked_by_achievement %><%= ' shop-item-card--out-of-stock' if out_of_stock? %><%= ' shop-item-card--on-sale' if on_sale %><%= ' shop-item-card--with-bow' if show_bow %>"
      data-categories="<%= categories.join(',') %>"
      data-regions="<%= enabled_regions.join(',') %>"
+     data-achievement-locked="<%= locked_by_achievement %>"
      data-shop-id="<%= item_id %>"
      data-controller="shop-wishlist"
      data-shop-wishlist-item-id-value="<%= item_id %>"
@@ -49,15 +50,20 @@
     <%= link_to order_url, class: "shop-item-card__link", data: { turbo_frame: "_top" } do %>
       <div class="shop-item-card__image">
         <%= image_tag image_url, alt: "#{name} image", class: "rounded-lg w-full h-auto object-scale-down aspect-square max-h-48" %>
+        <%= lock_overlay_html %>
       </div>
       <div class="shop-item-card__content">
         <h4 class="shop-item-card__title"><%= name %></h4>
         <div class="shop-item-card__description"><%= md(description) %></div>
+        <%= achievement_requirement_html %>
+        <% if enabled_until.present? %>
+          <div class="shop-item-card__enabled-until">Enabled until <%= enabled_until.strftime("%b %d, %Y") %></div>
+        <% end %>
         <div class="shop-item-card__details">
           <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
           <div class="shop-item-card__prices">
             <% if on_sale && original_price %>
-              <span class="shop-item-card__original-price"><%= number_to_currency(original_price, precision: 0).gsub('$', '🍪') %></span>
+              <span class="shop-item-card__original-price">🍪<span class="shop-item-card__strikethrough"><%= number_to_currency(original_price, precision: 0).delete('$') %></span></span>
             <% end %>
             <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
           </div>
@@ -75,15 +81,20 @@
     <div class="shop-item-card__link">
       <div class="shop-item-card__image">
         <%= image_tag image_url, alt: "#{name} image", class: "rounded-lg w-full h-auto object-scale-down aspect-square max-h-48" %>
+        <%= lock_overlay_html %>
       </div>
       <div class="shop-item-card__content">
         <h4 class="shop-item-card__title"><%= name %></h4>
         <div class="shop-item-card__description"><%= md(description) %></div>
+        <%= achievement_requirement_html %>
+        <% if enabled_until.present? %>
+          <div class="shop-item-card__enabled-until">Enabled until <%= enabled_until.strftime("%b %d, %Y") %></div>
+        <% end %>
         <div class="shop-item-card__details">
           <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
           <div class="shop-item-card__prices">
             <% if on_sale && original_price %>
-              <span class="shop-item-card__original-price"><%= number_to_currency(original_price, precision: 0).gsub('$', '🍪') %></span>
+              <span class="shop-item-card__original-price">🍪<span class="shop-item-card__strikethrough"><%= number_to_currency(original_price, precision: 0).delete('$') %></span></span>
             <% end %>
             <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
           </div>

@@ -82,11 +82,11 @@ production:
     concurrency: 1
     description: "Refresh sitemap XML cache"
 
-  sync_git_commits:
-    class: GitCommitSyncJob
-    schedule: every hour
-    concurrency: 1
-    description: "Sync git commits from project repos to timeline"
+  # sync_git_commits:
+  #   class: GitCommitSyncJob
+  #   schedule: every hour
+  #   concurrency: 1
+  #   description: "Sync git commits from project repos to timeline"
 
   flush_extension_usage:
     class: FlushExtensionUsageJob
@@ -118,9 +118,15 @@ production:
     concurrency: 1
     description: "Send daily fraud summary to Slack with stats on shop orders and reports"
 
+  shop_order_daily_summary:
+    class: ShopOrderDailySummaryJob
+    schedule: every day at 7pm Europe/London
+    concurrency: 1
+    description: "Send daily shop order summary to Slack with backlog, assignments, and hang times"
+
   ysws_review_sync:
     class: YswsReviewSyncJob
-    schedule: every 4 hours
+    schedule: every day at 9am America/New_York
     concurrency: 1
     description: "Sync completed YSWS reviews to Airtable with user PII"
 
@@ -129,8 +135,38 @@ production:
     schedule: every 6 hours
     concurrency: 1
     description: "Generate collaborative and content-based project recommendations for users and projects"
+  shop_calculate_fulfillment_payouts:
+    class: Shop::CalculateFulfillmentPayoutsJob
+    schedule: every Friday at 12pm Europe/London
+    concurrency: 1
+    description: "Calculate weekly fulfillment payouts (3 tickets per fulfilled order)"
+
   ysws_check_duplicates:
     class: YswsReview::CheckDuplicatesJob
     schedule: every day
     concurrency: 1
     description: "Check YSWS submissions for duplicates in unified database"
+  
+  support_vibecheck_est:
+    class: SupportVibecheckJob
+    schedule: every day at 12pm America/New_York
+    concurrency: 1
+    description: "Run support vibecheck at 12pm EST"
+
+  pull_user_club_data:
+    class: Airtable::UserClubPullJob
+    schedule: every day at 3am America/New_York
+    concurrency: 1
+    description: "Pull Airtable record IDs and club names from Airtable to local DB (daily off-peak sync)"
+
+  refresh_user_verdicts:
+    class: User::RefreshVerdictsJob
+    schedule: every 12 hours
+    concurrency: 1
+    description: "Recompute vote quality scores and update blessed/cursed/neutral verdicts for all voters"
+
+  project_reship_events_sync:
+    class: Project::ReshipEventsSyncJob
+    schedule: every day at 7am America/New_York
+    concurrency: 1
+    description: "Sync projects with multiple ship events and log each event"

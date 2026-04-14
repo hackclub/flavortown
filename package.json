@@ -1,6 +1,9 @@
 {
   "name": "app",
   "private": true,
+  "engines": {
+    "node": ">=18 <=25"
+  },
   "scripts": {
     "build": "esbuild app/javascript/*.* --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets"
   },
@@ -11,6 +14,7 @@
     "@rails/activestorage": "^8.1.100",
     "chart.js": "^4.5.1",
     "chartkick": "^5.0.1",
+    "d3": "^7.9.0",
     "gsap": "^3.14.2",
     "xp.css": "^0.2.6"
   },

@@ -20,47 +20,27 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
-  <<: *default
-  database: battlemage_development
-  
-  url: <%= ENV['DATABASE_URL'] %>
-
-  # Uncomment this line to use the production database for development! Must have PROD_DATABASE_URL set in the environment.
-  # url: <%= ENV['PROD_DATABASE_URL'] %>
-
-  # The specified database role being used to connect to PostgreSQL.
-  # To create additional roles in PostgreSQL see `$ createuser --help`.
-  # When left blank, PostgreSQL will use the default role. This is
-  # the same name as the operating system user running Rails.
-  #username: battlemage
-
-  # The password associated with the PostgreSQL role (username).
-  #password:
-
-  # Connect on a TCP socket. Omitted by default since the client uses a
-  # domain socket that doesn't need configuration. Windows does not have
-  # domain sockets, so uncomment these lines.
-  #host: localhost
-
-  # The TCP port the server listens on. Defaults to 5432.
-  # If your server runs on a different port number, change accordingly.
-  #port: 5432
-
-  # Schema search path. The server defaults to $user,public
-  #schema_search_path: myapp,sharedapp,public
-
-  # Minimum log levels, in increasing order:
-  #   debug5, debug4, debug3, debug2, debug1,
-  #   log, notice, warning, error, fatal, and panic
-  # Defaults to warning.
-  #min_messages: notice
+  primary:
+    <<: *default
+    database: battlemage_development
+    url: <%= ENV['DATABASE_URL'] %>
+  embeddings:
+    <<: *default
+    database: battlemage_embeddings
+    url: <%= ENV['EMBEDDINGS_DATABASE_URL'] %>
+    migrations_paths: db/embeddings_migrate
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
-  <<: *default
-  database: battlemage_test
+  primary:
+    <<: *default
+    database: battlemage_test
+  embeddings:
+    <<: *default
+    database: flavortown_embeddings_test
+    migrations_paths: db/embeddings_migrate
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -111,3 +91,9 @@ production:
     url: <%= ENV['AHOY_DB_URL'] %>
     migrations_paths: db/ahoy_migrate
     database: flavortown_ahoy
+
+  embeddings:
+    <<: *default
+    url: <%= ENV['EMBEDDINGS_DATABASE_URL'] %>
+    migrations_paths: db/embeddings_migrate
+    database: flavortown_embeddings

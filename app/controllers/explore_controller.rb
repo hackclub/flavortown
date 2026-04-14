@@ -40,13 +40,15 @@ class ExploreController < ApplicationController
   end
 
   def gallery
-    scope = Project.includes(banner_attachment: :blob)
+    scope = Project.with_banner_priority
                    .where(tutorial: false)
                    .excluding_member(current_user)
                    .excluding_shadow_banned
 
+    scope = scope.fire if params[:sort] == "well-cooked"
+
     if params[:sort] == "following" && current_user
-      scope = scope.where(id: current_user.project_follows.select(:project_id))
+      scope = scope.where(id: current_user.project_follows.select(:project_id)).order(created_at: :desc)
     elsif params[:sort] == "top"
       scope = scope.order(devlogs_count: :desc)
     else
@@ -118,17 +120,27 @@ class ExploreController < ApplicationController
       .order(Arel.sql("COUNT(DISTINCT user_id) DESC"))
       .pluck(:project_id)
 
-    @projects_with_counts = Project
-      .where(id: project_ids_with_usage)
-      .with_attached_banner
-      .index_by(&:id)
-      .values_at(*project_ids_with_usage)
-      .compact
-
     @weekly_user_counts = ExtensionUsage
       .where(project_id: project_ids_with_usage)
       .where("recorded_at >= ?", one_week_ago)
       .group(:project_id)
       .count("DISTINCT user_id")
+
+    projects = Project
+      .where(id: project_ids_with_usage)
+      .with_attached_banner
+
+    if params[:sort] == "following" && current_user
+      followed_ids = current_user.project_follows.select(:project_id)
+      projects = projects.where(id: followed_ids)
+      @projects_with_counts = projects.order(created_at: :desc)
+    elsif params[:sort] == "top"
+      @projects_with_counts = projects
+        .index_by(&:id)
+        .values_at(*project_ids_with_usage)
+        .compact
+    else
+      @projects_with_counts = projects.order(created_at: :desc)
+    end
   end
 end

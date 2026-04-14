@@ -10,5 +10,5 @@ if reason.present?
 end
 
 context [
-  mrkdwn_text("Voted by: #{anonymous ? 'Anonymous' : "<@#{voter_slack_id}>"}")
+  mrkdwn_text("Voted by: <@#{voter_slack_id}>")
 ]

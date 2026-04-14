@@ -30,6 +30,7 @@
         <th>Item</th>
         <th>Qty</th>
         <th>Status</th>
+        <th>Fulfilled By</th>
         <th>Date</th>
         <th></th>
       </tr>
@@ -42,6 +43,7 @@
           <td><%= o.shop_item&.name || "Unknown" %></td>
           <td><%= o.quantity %></td>
           <td><span class="badge badge-<%= o.aasm_state %>"><%= o.aasm_state.titleize %></span></td>
+          <td><%= o.fulfilled_by.presence || "—" %></td>
           <td><%= o.created_at.strftime("%Y-%m-%d") %></td>
           <td><%= link_to "View", helper_shop_order_path(o), class: "btn-primary slim" %></td>
         </tr>

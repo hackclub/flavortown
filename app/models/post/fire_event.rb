@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: post_fire_events
+# Database name: primary
 #
 #  id         :bigint           not null, primary key
 #  body       :string
@@ -9,6 +10,7 @@
 #
 class Post::FireEvent < ApplicationRecord
   include Postable
+  has_paper_trail
 
   validates :body, presence: { message: "Message can't be blank" }
 end

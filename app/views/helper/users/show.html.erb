@@ -15,6 +15,12 @@
       <div><b>Slack ID:</b> <%= @user.slack_id || "N/A" %></div>
       <div><b>Verification:</b> <%= @user.verification_status.titleize %></div>
       <div><b>YSWS Eligible:</b> <%= @user.ysws_eligible? ? "Yes" : "No" %></div>
+      <div>
+        <b>Cookie Balance:</b>
+        <button type="button" class="btn-primary slim" onclick="document.getElementById('helper-balance-modal').showModal()">
+          🍪 <%= @user.cached_balance %>
+        </button>
+      </div>
       <div><b>Vote Balance:</b> <%= @user.vote_balance %></div>
       <div><b>Has Hackatime:</b> <%= @user.has_hackatime? ? "Yes" : "No" %></div>
       <div><b>Joined:</b> <%= @user.created_at.strftime("%Y-%m-%d") %></div>
@@ -96,6 +102,15 @@
     <% end %>
   </div>
 </div>
+
+<%= render layout: "shared/modal", locals: { id: "helper-balance-modal", title: "Transaction History" } do %>
+  <%= turbo_frame_tag "helper_balance_history", src: balance_helper_user_path(@user), loading: "lazy" do %>
+    <div class="modal__loading">Loading history...</div>
+  <% end %>
+  <div class="modal__actions">
+    <button type="button" class="btn-primary" onclick="document.getElementById('helper-balance-modal').close()">Close</button>
+  </div>
+<% end %>
 
 <div style="display: flex; gap: 0.5rem;">
   <%= link_to "← Back", helper_users_path, class: "btn-secondary" %>

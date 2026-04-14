@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: funnel_events
+# Database name: primary
 #
 #  id         :bigint           not null, primary key
 #  email      :string
@@ -19,6 +20,8 @@
 #  index_funnel_events_on_user_id                    (user_id)
 #
 class FunnelEvent < ApplicationRecord
+  has_paper_trail
+
   belongs_to :user, optional: true
 
   validates :event_name, presence: true

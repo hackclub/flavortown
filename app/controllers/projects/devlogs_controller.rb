@@ -210,11 +210,11 @@ class Projects::DevlogsController < ApplicationController
 
     return @preview_time = nil unless hackatime_keys.present?
 
-    result = current_user.try_sync_hackatime_data!
-    return @preview_time = nil unless result
+    hackatime_uid = current_user.hackatime_identity&.uid
+    return @preview_time = nil unless hackatime_uid.present?
 
-    project_times = result[:projects]
-    total_seconds = hackatime_keys.sum { |key| project_times[key].to_i }
+    total_seconds = HackatimeService.fetch_total_seconds_for_projects(hackatime_uid, hackatime_keys)
+    return @preview_time = nil unless total_seconds
 
     already_logged = Post::Devlog.where(
       id: @project.posts.where(postable_type: "Post::Devlog").select("postable_id::bigint")

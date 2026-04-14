@@ -6,7 +6,7 @@ class MajorityJudgmentService
   def self.refresh_all!
     medians_by_ship_event, all_medians_by_category, all_overall_scores = build_all_medians
 
-    Post::ShipEvent.find_each do |ship_event|
+    Post::ShipEvent.current_voting_scale.find_each do |ship_event|
       metrics = medians_by_ship_event[ship_event.id]
       if metrics
         percentiles = build_percentiles(metrics[:medians], all_medians_by_category)
@@ -23,7 +23,7 @@ class MajorityJudgmentService
 
       ship_event.update_columns(attrs.merge(updated_at: Time.current))
 
-      next unless ship_event.votes.legitimate.count >= Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
+      next unless ship_event.votes.payout_countable.count >= Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
 
       ShipEventPayoutCalculator.apply!(ship_event)
     end
@@ -34,7 +34,9 @@ class MajorityJudgmentService
   end
 
   def call
-    scores = @ship_event.votes.legitimate.pluck(*Vote.score_columns)
+    return empty_result unless @ship_event.current_voting_scale?
+
+    scores = @ship_event.votes.payout_countable.pluck(*Vote.score_columns)
     return empty_result if scores.empty?
 
     medians = build_medians(scores)
@@ -79,7 +81,7 @@ class MajorityJudgmentService
   end
 
   def self.all_median_values
-    all_scores = Vote.legitimate.pluck(:ship_event_id, *Vote.score_columns)
+    all_scores = scoped_votes.pluck(:ship_event_id, *Vote.score_columns)
     scores_by_ship_event = all_scores.group_by(&:first).transform_values do |rows|
       rows.map { |row| row.drop(1) }
     end
@@ -108,7 +110,7 @@ class MajorityJudgmentService
   end
 
   def self.build_all_medians
-    all_scores = Vote.legitimate.pluck(:ship_event_id, *Vote.score_columns)
+    all_scores = scoped_votes.pluck(:ship_event_id, *Vote.score_columns)
     scores_by_ship_event = all_scores.group_by(&:first).transform_values do |rows|
       rows.map { |row| row.drop(1) }
     end
@@ -146,12 +148,12 @@ class MajorityJudgmentService
   def self.persisted_attributes(medians:, overall_score:, percentiles:, overall_percentile:)
     {
       originality_median: medians[:originality],
-      technical_median: medians[:technical],
+      technical_median: medians[:technicality],
       usability_median: medians[:usability],
       storytelling_median: medians[:storytelling],
       overall_score: overall_score,
       originality_percentile: percentiles[:originality],
-      technical_percentile: percentiles[:technical],
+      technical_percentile: percentiles[:technicality],
       usability_percentile: percentiles[:usability],
       storytelling_percentile: percentiles[:storytelling],
       overall_percentile: overall_percentile
@@ -205,5 +207,9 @@ class MajorityJudgmentService
     return nil if values.empty?
 
     values.sum.to_f / values.length
+  end
+
+  def self.scoped_votes
+    Vote.payout_countable.where(ship_event_id: Post::ShipEvent.current_voting_scale.select(:id))
   end
 end

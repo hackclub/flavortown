@@ -3,108 +3,91 @@ name: CI
 on:
   pull_request:
   merge_group:
-  push:
-    branches:
-      - main
+
+permissions:
+  contents: read
+
+env:
+  BUNDLE_WITHOUT: development
 
 jobs:
-  scan_ruby:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
-
-  scan_js:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-
-  lint:
+  js_lint:
+    name: JS/CSS Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version-file: package.json
           cache: yarn
 
-      - name: Install JS dependencies
-        run: yarn install --frozen-lockfile
+      - run: yarn install --frozen-lockfile
 
-      - name: Lint code for consistent style
-        run: bin/rubocop -f github
-        # need to fix this? bin/rubocop -f github --autocorrect
+      - name: Prettier
+        run: yarn -s prettier --check "app/javascript/**/*.{js,jsx,ts,tsx}" "app/assets/stylesheets/**/*.{scss,css}"
 
-      - name: Lint ERB templates
-        run: bundle exec erb_lint --lint-all
-        # need to fix this? bundle exec erb_lint --lint-all --autocorrect
+      - name: Check Stimulus Manifest
+        run: node bin/lint-stimulus-manifest
 
-      - name: Check JavaScript/TypeScript formatting
-        run: yarn -s prettier --check "app/javascript/**/*.{js,jsx,ts,tsx}"
-
-      - name: Check SCSS/CSS formatting
-        run: yarn -s prettier --check "app/assets/stylesheets/**/*.{scss,css}"
-
-  zeitwerk_check:
+  checks:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Brakeman
+            system_packages: "libblas-dev liblapack-dev"
+            command: bin/brakeman --no-pager
+
+          - name: RuboCop
+            system_packages: "libblas-dev liblapack-dev"
+            needs_node: true
+            command: bin/rubocop -f github
+
+          - name: ERB Lint
+            system_packages: "libblas-dev liblapack-dev"
+            needs_node: true
+            command: bundle exec erb_lint --lint-all
+
+          - name: Zeitwerk
+            system_packages: "libvips-dev libblas-dev liblapack-dev"
+            rails_env: test
+            command: bin/rails zeitwerk:check
+
+    name: ${{ matrix.name }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
       - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev libvips-dev
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends ${{ matrix.system_packages }}
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Check zeitwerk loader
-        run: bin/rails zeitwerk:check
+      - uses: actions/setup-node@v6
+        if: matrix.needs_node
+        with:
+          node-version-file: package.json
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+        if: matrix.needs_node
+
+      - name: Run check
+        env:
+          RAILS_ENV: ${{ matrix.rails_env || '' }}
+        run: ${{ matrix.command }}
 
   db_checks:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     services:
       postgres:
-        image: postgres:15
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password
@@ -112,13 +95,25 @@ jobs:
         ports:
           - 5432:5432
         options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+      postgres_embed:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: flavortown_test_embed
+        ports:
+          - 5433:5432
+        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
     env:
       RAILS_ENV: test
       DATABASE_URL: postgresql://postgres:password@localhost:5432/flavortown_test
+      EMBEDDINGS_DATABASE_URL: postgresql://postgres:password@localhost:5433/flavortown_test_embed
     steps:
       - uses: actions/checkout@v6
+
       - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends libblas-dev liblapack-dev
+
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
@@ -131,7 +126,7 @@ jobs:
           git diff --exit-code db/schema.rb
       - name: Comment on schema failure
         if: failure() && steps.migration_check.outcome == 'failure' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             github.rest.issues.createComment({
@@ -147,7 +142,7 @@ jobs:
         run: bundle exec annotaterb models --frozen
       - name: Comment on annotation failure
         if: failure() && steps.annotate_check.outcome == 'failure' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             github.rest.issues.createComment({
@@ -156,43 +151,3 @@ jobs:
               repo: context.repo.repo,
               body: `### :rage1: you SILLY GOOSE!\nModel annotations have fallen out of date.\n\nPlease run \`bundle exec annotaterb models\` locally and commit the changes.`
             });
-
-  # test:
-  #   runs-on: ubuntu-latest
-  #   services:
-  #     postgres:
-  #       image: postgres:15
-  #       env:
-  #         POSTGRES_USER: postgres
-  #         POSTGRES_PASSWORD: postgres
-  #         POSTGRES_DB: flavortown_test
-  #       ports:
-  #         - 5432:5432
-  #       options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
-  #   steps:
-  #     - name: Install packages
-  #       run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config google-chrome-stable
-
-  #     - name: Checkout code
-  #       uses: actions/checkout@v6
-
-  #     - name: Set up Ruby
-  #       uses: ruby/setup-ruby@v1
-  #       with:
-  #         ruby-version: .ruby-version
-  #         bundler-cache: true
-
-  #     - name: Run tests
-  #       env:
-  #         RAILS_ENV: test
-  #         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/flavortown_test
-  #         # REDIS_URL: redis://localhost:6379/0
-  #       run: bin/rails db:test:prepare test test:system
-
-  #     - name: Keep screenshots from failed system tests
-  #       uses: actions/upload-artifact@v5
-  #       if: failure()
-  #       with:
-  #         name: screenshots
-  #         path: ${{ github.workspace }}/tmp/screenshots
-  #         if-no-files-found: ignore

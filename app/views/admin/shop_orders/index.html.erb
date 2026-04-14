@@ -1,3 +1,4 @@
+<% content_for :title, @view == 'fulfillment' ? 'Pending Fulfillment' : 'Shop Orders' %>
 <div style="margin-bottom: 2em; display: flex; gap: 1em; align-items: center;">
   <h1 style="margin: 0;">
     <%= @view == 'fulfillment' ? 'Pending Fulfillment' : 'Shop Orders' %>
@@ -91,6 +92,11 @@
 
 .badge-on_hold {
   background-color: #6b7280;
+  color: white;
+}
+
+.badge-awaiting_verification_call {
+  background-color: #f97316;
   color: white;
 }
 

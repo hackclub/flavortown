@@ -43,6 +43,7 @@
 @use "components/markdown_content";
 @use "components/announcement_component";
 @use "components/comic_card";
+@use "components/platform_notice";
 @use "components/radio_option";
 
 @use "components/sidequest_card";
@@ -72,5 +73,9 @@
 @use "pages/user/show" as users_show;
 @use "pages/sidequests/index" as sidequests_index;
 @use "pages/sidequests/show" as sidequests_show;
+@use "pages/sidequests/caffeinated" as sidequests_caffeinated;
+@use "pages/sidequests/converge" as sidequests_converge;
+@use "pages/sidequests/lockin" as sidequests_lockin;
+@use "pages/errors/not_authorized";
 @use "pages/admin/_super_mega_dashboard";
 @use "pages/admin/_voting_dashboard";

@@ -3,7 +3,7 @@
 <% content_for :og_description, "Spend your cookies on stickers, hardware, and other prizes. Earn cookies by building projects and voting!" %>
 <% content_for :og_image, og_image_url('shop', format: :png) %>
 
-<%= render MusicPlayerComponent.new(audio_url: audio_path("fireentity - shop.mp3")) %>
+<%= render MusicPlayerComponent.new(audio_urls: [audio_path("fireentity - shop.mp3"), audio_path("fireentity - voting.mp3"),audio_path("fireentity - explore.mp3")], default_index: 0) %>
 
 <% if @show_shop_tutorial && session[:tutorial_redirect_url].present? %>
   <%= render DialogueBoxComponent.new(
@@ -126,6 +126,13 @@
           longest_option_string: "Alphabetical",
           color: :green
         ) %>
+        <%= render DropdownComponent.new(
+          label: "Access",
+          options: ["All", "Available", "Locked"],
+          selected_option: "All",
+          longest_option_string: "Available",
+          color: :red
+        ) %>
         <button id="sort-btn">
           <span>
             <%= inline_svg_tag "icons/sort.svg", title: "Sort Icon" %>
@@ -139,6 +146,8 @@
         <% @shop_items.each do |item| %>
           <% if item.image.present? && item.enabled_in_region?(@user_region) %>
             <% sale_price = item.price_for_region(@user_region) %>
+            <% item_achievement_infos = item.required_achievement_objects %>
+            <% item_achievement_locked = item.achievement_locked_for?(current_user) %>
             <%= render ShopItemCardComponent.new(
               item_id: item.id,
               name: item.name,
@@ -148,16 +157,20 @@
               image_url: item.image.variant(:carousel_lg),
               item_type: item.type,
               balance: @user_balance,
-              enabled_regions: Shop::Regionalizable::REGION_CODES.select { |code| item.enabled_in_region?(code) },
+              enabled_regions: item.enabled_region_codes,
               regional_price: sale_price,
               logged_in: current_user.present?,
               remaining_stock: item.remaining_stock,
               limited: item.limited?,
               on_sale: item.on_sale?,
               sale_percentage: item.sale_percentage,
-              original_price: item.ticket_cost,
+              original_price: item.base_price_for_region(@user_region),
               purchase_count: item.display_purchase_count,
-              is_new: item.new_item?
+              is_new: item.new_item?,
+              enabled_until: item.enabled_until,
+              locked_by_achievement: item_achievement_locked,
+              required_achievement_names: item_achievement_infos.map(&:name),
+              required_achievement_hints: item_achievement_infos.map(&:description)
             ) %>
           <% end %>
         <% end %>

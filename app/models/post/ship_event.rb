@@ -1,35 +1,50 @@
 # == Schema Information
 #
 # Table name: post_ship_events
+# Database name: primary
 #
-#  id                      :bigint           not null, primary key
-#  body                    :string
-#  certification_status    :string           default("pending")
-#  feedback_reason         :text
-#  feedback_video_url      :string
-#  hours                   :float
-#  multiplier              :float
-#  originality_median      :decimal(5, 2)
-#  originality_percentile  :decimal(5, 2)
-#  overall_percentile      :decimal(5, 2)
-#  overall_score           :decimal(5, 2)
-#  payout                  :float
-#  storytelling_median     :decimal(5, 2)
-#  storytelling_percentile :decimal(5, 2)
-#  synced_at               :datetime
-#  technical_median        :decimal(5, 2)
-#  technical_percentile    :decimal(5, 2)
-#  usability_median        :decimal(5, 2)
-#  usability_percentile    :decimal(5, 2)
-#  votes_count             :integer          default(0), not null
-#  created_at              :datetime         not null
-#  updated_at              :datetime         not null
+#  id                         :bigint           not null, primary key
+#  base_hours                 :float
+#  body                       :string
+#  bridge                     :boolean          default(FALSE), not null
+#  certification_status       :string           default("pending")
+#  feedback_reason            :text
+#  feedback_video_url         :string
+#  hours                      :float
+#  legacy_payout_deduction    :float
+#  multiplier                 :float
+#  originality_median         :decimal(5, 2)
+#  originality_percentile     :decimal(5, 2)
+#  overall_percentile         :decimal(5, 2)
+#  overall_score              :decimal(5, 2)
+#  payout                     :float
+#  payout_basis_locked_at     :datetime
+#  payout_basis_overall_score :decimal(5, 2)
+#  payout_basis_percentile    :decimal(5, 2)
+#  payout_blessing            :string
+#  payout_curve_version       :string
+#  review_instructions        :text
+#  storytelling_median        :decimal(5, 2)
+#  storytelling_percentile    :decimal(5, 2)
+#  synced_at                  :datetime
+#  technical_median           :decimal(5, 2)
+#  technical_percentile       :decimal(5, 2)
+#  usability_median           :decimal(5, 2)
+#  usability_percentile       :decimal(5, 2)
+#  votes_count                :integer          default(0), not null
+#  voting_scale_version       :integer          default(2), not null
+#  created_at                 :datetime         not null
+#  updated_at                 :datetime         not null
 #
 class Post::ShipEvent < ApplicationRecord
   include Postable
   include Ledgerable
 
+  LEGACY_VOTING_SCALE_VERSION = 1
+  CURRENT_VOTING_SCALE_VERSION = 2
   VOTES_REQUIRED_FOR_PAYOUT = 12
+  VOTES_TO_LEAVE_POOL = VOTES_REQUIRED_FOR_PAYOUT
+  VOTE_COST_PER_SHIP = 15
 
   has_one :project, through: :post
   has_many :project_memberships, through: :project, source: :memberships
@@ -37,11 +52,15 @@ class Post::ShipEvent < ApplicationRecord
 
   has_many :votes, foreign_key: :ship_event_id, dependent: :nullify, inverse_of: :ship_event
 
+  scope :current_voting_scale, -> { where(voting_scale_version: CURRENT_VOTING_SCALE_VERSION) }
+  scope :legacy_voting_scale, -> { where(voting_scale_version: LEGACY_VOTING_SCALE_VERSION) }
+
   after_commit :decrement_user_vote_balance, on: :create
 
   validates :body, presence: { message: "Update message can't be blank" }
+  validates :review_instructions, length: { maximum: 2000 }, allow_blank: true
   validate :project_can_be_shipped, on: :create
-
+  has_paper_trail ignore: [ :votes_count, :synced_at ]
   def status
     project = post&.project
     return nil unless project
@@ -75,8 +94,9 @@ class Post::ShipEvent < ApplicationRecord
 
   def payout_eligible?
     return false unless certification_status == "approved"
+    return false unless current_voting_scale?
     return false unless payout.blank?
-    return false unless votes.legitimate.count >= VOTES_REQUIRED_FOR_PAYOUT
+    return false unless votes.payout_countable.count >= VOTES_REQUIRED_FOR_PAYOUT
 
     payout_user = payout_recipient
     return false unless payout_user
@@ -89,6 +109,14 @@ class Post::ShipEvent < ApplicationRecord
     post&.user
   end
 
+  def current_voting_scale?
+    voting_scale_version == CURRENT_VOTING_SCALE_VERSION
+  end
+
+  def legacy_voting_scale?
+    voting_scale_version == LEGACY_VOTING_SCALE_VERSION
+  end
+
   private
 
   def project_can_be_shipped
@@ -99,6 +127,6 @@ class Post::ShipEvent < ApplicationRecord
   def decrement_user_vote_balance
     return unless post&.user
 
-    post.user.increment!(:vote_balance, -15)
+    post.user.increment!(:vote_balance, -VOTE_COST_PER_SHIP)
   end
 end

@@ -1,27 +1,49 @@
-<%= form_with(model: @vote, url: votes_path, data: { turbo: false, action: "submit->vote-tracker#submit" }) do |form| %>
+<%= form_with(model: @vote, url: votes_path, id: "vote-score-form", data: { turbo: false, action: "submit->vote-tracker#submit", vote_tracker_target: "form scrollArea" }) do |form| %>
   <%= hidden_field_tag :suggestion_token, @suggestion_token %>
   <%= form.hidden_field :time_taken_to_vote, value: 0, data: { vote_tracker_target: "timeField" } %>
   <%= form.hidden_field :repo_url_clicked, value: false, data: { vote_tracker_target: "repoField" } %>
   <%= form.hidden_field :demo_url_clicked, value: false, data: { vote_tracker_target: "demoField" } %>
 
-  <% Vote.enabled_categories.each do |category| %>
-    <%= render "category", form: form, category: category %>
-  <% end %>
+  <div class="vote-form">
+    <% Vote.enabled_categories.each do |category| %>
+      <%= render "category", form: form, category: category %>
+    <% end %>
 
-  <div class="votes-new__feedback">
-    <%= render InputComponent.new(
-      form: form,
-      attribute: :reason,
-      label: "Feedback for the creator",
-      placeholder: "Share your thoughts about this project...",
-      subtitle: current_user.send_votes_to_slack ? "This will be shared to Slack with your vote" : "The author can anonymously see your feedback",
-      color: :green,
-      as: :text_area
-    ) %>
+    <div class="vote-form__feedback" data-controller="word-count" data-word-count-min-words-value="10">
+      <%= render InputComponent.new(
+        form: form,
+        attribute: :reason,
+        label: "Feedback",
+        placeholder: "Any thoughts for the maker? (at least 10 words)",
+        color: :brown,
+        subtitle: "Required. Write at least 10 words of feedback for the creator.",
+        input_html: { data: { word_count_target: "input", action: "input->word-count#update" } }
+      ) %>
+      <%# <span class="word-count" data-word-count-target="output">0 / 10 words</span> %>
+    </div>
   </div>
-
-  <%= button_tag(type: "submit", class: "btn-submit") do %>
-    <%= inline_svg_tag "icons/tick.svg", class: "btn-submit__icon", aria: { hidden: true } %>
-    Submit
-  <% end %>
 <% end %>
+
+<%= render ButtonComponent.new(
+  text: "Submit Vote",
+  color: :brown,
+  type: :submit,
+  variant: :borderless,
+  form: "vote-score-form",
+  disable_with: "Submitting vote..."
+) %>
+
+<dialog id="vote-extreme-score-modal" class="modal" data-controller="modal" data-vote-tracker-target="extremeModal">
+  <h3 class="modal__title">Extreme score check</h3>
+  <p class="modal__description">
+    You selected an extreme score (1 or 9). These should be rare and used only for truly exceptional cases.
+  </p>
+  <div class="modal__actions">
+    <button type="button" class="modal__actions-close" data-action="click->modal#close">
+      Review scores
+    </button>
+    <button type="button" class="btn btn--brown slim" data-action="click->vote-tracker#confirmExtreme">
+      Submit anyway
+    </button>
+  </div>
+</dialog>
