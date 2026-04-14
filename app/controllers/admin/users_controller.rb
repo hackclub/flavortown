@@ -296,6 +296,11 @@ class Admin::UsersController < Admin::ApplicationController
     authorize :admin, :ban_users?
     @user = User.find(params[:id])
 
+    unless @user.marked_sus_by.include?(current_user.id.to_s)
+      flash[:alert] = "You haven't marked #{@user.display_name} as sus."
+      return redirect_to admin_user_path(@user)
+    end
+
     PaperTrail.request(whodunnit: current_user.id.to_s) do
       @user.update!(marked_sus_by: @user.marked_sus_by - [ current_user.id.to_s ])
     end
