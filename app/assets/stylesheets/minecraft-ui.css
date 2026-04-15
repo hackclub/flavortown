@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+.minecraft-ui-container {
+  font-family: 'Press Start 2P', cursive;
+  background-color: #373737;
+  color: #FFFFFF;
+  padding: 2rem;
+  border: 4px solid #1E1E1E;
+  box-shadow: inset 0 0 0 4px #5A5A5A;
+  image-rendering: pixelated;
+}
+
+.minecraft-ui-container h1 {
+  font-size: 2rem;
+  color: #FFAA00; /* Minecraft Gold */
+  text-shadow: 2px 2px #3E3E3E;
+}
+
+.minecraft-ui-container p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.minecraft-button {
+  font-family: 'Press Start 2P', cursive;
+  background-color: #787878;
+  color: #FFFFFF;
+  border: 2px solid #1E1E1E;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
+  padding: 1rem 1.5rem;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 1rem;
+}
+
+.minecraft-button:hover {
+  background-color: #8A8A8A;
+}
+
+.minecraft-button:active {
+  box-shadow: inset 2px 2px #0006, inset -2px -4px #FFF7;
+}

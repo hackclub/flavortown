@@ -1,0 +1,8 @@
+<%= stylesheet_link_tag "minecraft-ui", "data-turbo-track": "reload" %>
+
+<div class="minecraft-ui-container">
+  <h1><%= sidequest.title %></h1>
+  <p><%= sidequest.description %></p>
+
+  <%= link_to "View Sidequest", sidequest_path(sidequest), class: "minecraft-button" %>
+</div>
