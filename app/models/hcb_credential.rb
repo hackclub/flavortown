@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: hcb_credentials
+# Database name: primary
 #
 #  id                       :bigint           not null, primary key
 #  access_token_ciphertext  :text

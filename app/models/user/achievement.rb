@@ -3,6 +3,7 @@
 # == Schema Information
 #
 # Table name: user_achievements
+# Database name: primary
 #
 #  id               :bigint           not null, primary key
 #  achievement_slug :string           not null

@@ -61,6 +61,12 @@ module Shop
       apply_sale_discount(base_price_for_region(region_code))
     end
 
+    def price_for_region_and_user(region_code, user = nil)
+      price = price_for_region(region_code)
+      return price unless user && achievement_sale? && achievement_sale_for?(user)
+      apply_achievement_discount(price)
+    end
+
     def base_price_for_region(region_code)
       region_code = region_code.upcase
       region_code = "XX" unless REGION_CODES.include?(region_code)
@@ -83,6 +89,11 @@ module Shop
       discount_multiplier = (100 - sale_percentage) / 100.0
       discounted_price = price * discount_multiplier
       discounted_price.ceil
+    end
+
+    def apply_achievement_discount(price)
+      return price unless achievement_sale_percentage.present? && achievement_sale_percentage > 0 && achievement_sale_percentage <= 100
+      (price * (100 - achievement_sale_percentage) / 100.0).ceil
     end
 
     def regions_enabled

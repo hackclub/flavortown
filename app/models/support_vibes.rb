@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: support_vibes
+# Database name: primary
 #
 #  id                    :bigint           not null, primary key
 #  concern_message_links :jsonb

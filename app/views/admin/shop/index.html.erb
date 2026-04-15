@@ -3,8 +3,10 @@
   <div class="manage-shop__header">
     <h1>Manage Shop</h1>
     <div class="manage-shop__actions">
-      <%= link_to "New Product", new_admin_shop_item_path, class: "btn-primary" %>
-      <%= button_to "Clear Carousel Cache", admin_clear_carousel_cache_path, method: :post, class: "btn-secondary", form: { onsubmit: "return confirm('Are you sure you want to clear the carousel cache?')" } %>
+      <%= link_to current_user.shop_manager? && !current_user.admin? ? "New Draft" : "New Product", new_admin_shop_item_path, class: "btn-primary" %>
+      <% unless current_user.shop_manager? && !current_user.admin? %>
+        <%= button_to "Clear Carousel Cache", admin_clear_carousel_cache_path, method: :post, class: "btn-secondary", form: { onsubmit: "return confirm('Are you sure you want to clear the carousel cache?')" } %>
+      <% end %>
     </div>
   </div>
 
@@ -100,7 +102,9 @@
                <% end %>
              </td>
              <td>
-               <% if item.enabled %>
+               <% if item.draft? %>
+                 <span class="badge badge-draft">Draft</span>
+               <% elsif item.enabled %>
                  <span class="badge badge-enabled">Enabled</span>
                <% else %>
                  <span class="badge badge-disabled">Disabled</span>
@@ -294,6 +298,11 @@
     .badge-disabled {
         background-color: #f3f4f6;
         color: #6b7280;
+    }
+
+    .badge-draft {
+        background-color: #fef3c7;
+        color: #b45309;
     }
 
     /* Form controls */

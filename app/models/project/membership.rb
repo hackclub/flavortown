@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: project_memberships
+# Database name: primary
 #
 #  id         :bigint           not null, primary key
 #  role       :integer

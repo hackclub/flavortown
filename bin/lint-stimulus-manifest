@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+
+const fs = require("fs");
+const p = require("path");
+
+const dir = p.resolve(__dirname, "../app/javascript/controllers");
+const idx = fs.readFileSync(p.join(dir, "index.js"), "utf8");
+const errs = [];
+
+const regs = [];
+let m;
+const re = /import\s+\w+\s+from\s+["']\.\/(\w+_controller)["']/g;
+while ((m = re.exec(idx)) !== null) regs.push(m[1]);
+
+const seen = new Set();
+for (const n of regs) {
+  if (seen.has(n)) errs.push(`duplicate: ${n}`);
+  seen.add(n);
+}
+
+const uniq = [...new Set(regs)];
+const sorted = [...uniq].sort();
+uniq.forEach((n, i) => {
+  if (n !== sorted[i])
+    errs.push(`out of order: "${n}" should be at ${sorted.indexOf(n) + 1}, not ${i + 1}`);
+});
+
+const files = fs.readdirSync(dir)
+  .filter((f) => f.endsWith("_controller.js"))
+  .map((f) => f.replace(/\.js$/, ""));
+
+const regSet = new Set(regs);
+for (const f of files) {
+  if (!regSet.has(f)) errs.push(`controller file "${f}.js" is not found`);
+}
+
+const fileSet = new Set(files);
+for (const n of uniq) {
+  if (!fileSet.has(n)) errs.push(`registered controller "${n}" has no matching file "${n}.js"`);
+}
+
+if (errs.length) {
+  console.error("failed:\n");
+  errs.forEach((e) => console.error(`  • ${e}`));
+  console.error('\run "bin/rails stimulus:manifest:update"');
+  process.exit(1);
+} else {
+  console.log("all good!");
+}

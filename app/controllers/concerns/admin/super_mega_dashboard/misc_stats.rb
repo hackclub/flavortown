@@ -63,6 +63,9 @@ module Admin
         @expenses_dollars_per_hour = cached_data&.dig(:expenses_dollars_per_hour) || 0
         @cookie_utilization_percentage = cached_data&.dig(:cookie_utilization_percentage) || 0
         @contractor_expenses = cached_data&.dig(:contractor_expenses) || 0
+
+        time_period = params[:filter_period].presence || "all"
+        load_top_projects(time_period: time_period)
       rescue StandardError => e
         Rails.logger.error("[SuperMegaDashboard] Error in load_payouts_stats: #{e.class} - #{e.message}")
         @payouts_cap = 0
@@ -212,7 +215,10 @@ module Admin
       end
 
       def load_funnel_stats
-        cached_data = Rails.cache.fetch("super_mega_funnel_stats", expires_in: 5.minutes) do
+        range_key = FunnelEvents::TimeRange.key(params[:range])
+        window = FunnelEvents::TimeRange.window(range_key)
+
+        cached_data = Rails.cache.fetch("super_mega_funnel_stats/#{range_key}", expires_in: 5.minutes) do
           begin
             funnel_steps = [
               "start_flow_started",
@@ -226,30 +232,23 @@ module Admin
               "devlog_created"
             ]
 
-            grouped_counts = FunnelEvent.where(event_name: funnel_steps)
-                                         .group(:event_name)
-                                         .distinct
-                                         .count(:email)
+            funnel_with_counts = FunnelEvents::StepCounter.count_distinct_by_group(
+              relation: FunnelEvent,
+              group_column: :event_name,
+              distinct_column: :email,
+              step_keys: funnel_steps,
+              window: window
+            )
 
-            funnel_data = funnel_steps.index_with { |step| grouped_counts[step] || 0 }
-
-            funnel_with_counts = funnel_steps.map do |step|
-              count = funnel_data[step]
-
-              {
-                name: step,
-                count: count
-              }
-            end
-
-            { funnel_steps: funnel_with_counts }
+            { funnel_steps: funnel_with_counts, range_key: range_key }
           rescue StandardError => e
             Rails.logger.error("[SuperMegaDashboard] Error in load_funnel_stats: #{e.message}")
-            { funnel_steps: [] }
+            { funnel_steps: [], range_key: range_key }
           end
         end
 
         @funnel_steps = cached_data&.dig(:funnel_steps) || []
+        @funnel_range_key = cached_data&.dig(:range_key) || "all"
       end
 
       def load_hcb_expenses
@@ -513,6 +512,89 @@ module Admin
         elapsed_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at) * 1000).round(1)
         Rails.logger.info("[SuperMegaDashboard] #{section_name} loaded in #{elapsed_ms}ms")
         result
+      end
+
+      def load_top_projects(time_period: "24h")
+        cached_data = Rails.cache.fetch("super_mega_top_projects_#{time_period}", expires_in: 5.minutes) do
+          time_range = calculate_time_range(time_period)
+
+          payout_entries = LedgerEntry
+            .where(ledgerable_type: "Post::ShipEvent", created_by: "ship_event_payout")
+            .select("ledgerable_id, MAX(created_at) AS payout_at")
+            .group("ledgerable_id")
+
+          ship_events = Post::ShipEvent
+            .joins(post: :project)
+            .where.not(payout: nil)
+            .joins("INNER JOIN (#{payout_entries.to_sql}) payout_entries ON payout_entries.ledgerable_id = post_ship_events.id")
+            .where("payout_entries.payout_at >= ? AND payout_entries.payout_at <= ?", time_range.begin, time_range.end)
+            .includes(post: { project: { banner_attachment: :blob, memberships: :user } })
+            .select("post_ship_events.*, projects.title, projects.id as project_id, payout_entries.payout_at AS payout_at")
+
+          projects_data = ship_events.group_by { |event| event.post.project_id }.map do |project_id, events|
+            next nil if events.blank?
+
+            project = events.first.post.project
+            project_title = project.title
+            ship_event_payout = events.map(&:payout).compact.max.to_f
+            max_multiplier = events.map(&:multiplier).compact.max || 0
+            creator = project.users.first
+
+            {
+              project_id: project_id,
+              project: project,
+              title: project_title,
+              ship_event_payout: ship_event_payout.round,
+              max_multiplier: max_multiplier.round(2),
+              creator: creator
+            }
+          end.compact
+
+          highest_multiplier_projects = projects_data
+            .sort_by { |p| [ -p[:max_multiplier].to_f, -p[:ship_event_payout].to_f ] }
+            .first(10)
+
+          largest_payout_projects = projects_data
+            .sort_by { |p| [ -p[:ship_event_payout].to_f, -p[:max_multiplier].to_f ] }
+            .first(10)
+
+          {
+            highest_multiplier: highest_multiplier_projects.first,
+            largest_payout: largest_payout_projects.first,
+            highest_multiplier_projects: highest_multiplier_projects,
+            largest_payout_projects: largest_payout_projects,
+            all_projects: projects_data
+          }
+        end
+
+        @top_projects_data = cached_data || {}
+        @highest_multiplier_project = @top_projects_data[:highest_multiplier] || {}
+        @largest_payout_project = @top_projects_data[:largest_payout] || {}
+        @highest_multiplier_projects = @top_projects_data[:highest_multiplier_projects] || []
+        @largest_payout_projects = @top_projects_data[:largest_payout_projects] || []
+      rescue StandardError => e
+        Rails.logger.error("[SuperMegaDashboard] Error in load_top_projects: #{e.class} - #{e.message}")
+        @top_projects_data = {}
+        @highest_multiplier_project = {}
+        @largest_payout_project = {}
+        @highest_multiplier_projects = []
+        @largest_payout_projects = []
+      end
+
+      def calculate_time_range(time_period)
+        now = Time.current
+        case time_period
+        when "24h"
+          24.hours.ago..now
+        when "week"
+          7.days.ago..now
+        when "month"
+          30.days.ago..now
+        when "all"
+          Time.zone.at(0)..now
+        else
+          24.hours.ago..now
+        end
       end
     end
   end
