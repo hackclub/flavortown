@@ -97,8 +97,7 @@ class ShopItem < ApplicationRecord
 
   before_validation :fix_blacklist
   before_validation :floor_ticket_cost
-  before_validation :clean_requires_achievement
-  before_validation :clean_achievement_sale_slugs
+  before_validation :clean_achievement_slug_attrs
 
   after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
   after_commit :invalidate_shop_page_cache
@@ -197,8 +196,7 @@ class ShopItem < ApplicationRecord
   validates :required_ships_count, numericality: { only_integer: true, greater_than: 0 }, if: :requires_ship?
   validates :required_ships_start_date, :required_ships_end_date, presence: true, if: :requires_ship?
   validate :is_range_valid, if: :requires_ship?
-  validate :validate_achievement_slugs
-  validate :validate_achievement_sale_slugs
+  validate :validate_achievement_slug_attrs
 
   has_many :shop_orders, dependent: :restrict_with_error
 
@@ -321,8 +319,8 @@ class ShopItem < ApplicationRecord
   end
 
   def effective_sale_percentage_for(user)
-    return sale_percentage if !achievement_sale? || !achievement_sale_for?(user)
-    [ sale_percentage.to_i, achievement_sale_percentage ].max
+    return sale_percentage.to_i if !achievement_sale? || !achievement_sale_for?(user)
+    (100 - ((100 - sale_percentage.to_i) * (100 - achievement_sale_percentage) / 100.0)).round
   end
 
   def achievement_sale_objects
@@ -360,27 +358,21 @@ class ShopItem < ApplicationRecord
     self.ticket_cost = ticket_cost.floor if ticket_cost.present?
   end
 
-  def clean_requires_achievement
-    if requires_achievement.is_a?(Array)
-      self.requires_achievement = requires_achievement.reject(&:blank?)
+  ACHIEVEMENT_SLUG_ATTRS = %i[requires_achievement achievement_sale_slugs].freeze
+
+  def clean_achievement_slug_attrs
+    ACHIEVEMENT_SLUG_ATTRS.each do |attr|
+      v = send(attr)
+      send("#{attr}=", v.reject(&:blank?)) if v.is_a?(Array)
     end
   end
 
-  def clean_achievement_sale_slugs
-    if achievement_sale_slugs.is_a?(Array)
-      self.achievement_sale_slugs = achievement_sale_slugs.reject(&:blank?)
+  def validate_achievement_slug_attrs
+    ACHIEVEMENT_SLUG_ATTRS.each do |attr|
+      v = send(attr)
+      next unless v.present?
+      bad = v.reject { |s| Achievement.all_slugs.include?(s.to_sym) }
+      errors.add(attr, "contains invalid slugs: #{bad.join(', ')}") if bad.any?
     end
-  end
-
-  def validate_achievement_slugs
-    return unless requires_achievement.present?
-    invalid = requires_achievement.reject { |s| Achievement.all_slugs.include?(s.to_sym) }
-    errors.add(:requires_achievement, "contains invalid slugs: #{invalid.join(', ')}") if invalid.any?
-  end
-
-  def validate_achievement_sale_slugs
-    return unless achievement_sale_slugs.present?
-    invalid = achievement_sale_slugs.reject { |s| Achievement.all_slugs.include?(s.to_sym) }
-    errors.add(:achievement_sale_slugs, "contains invalid slugs: #{invalid.join(', ')}") if invalid.any?
   end
 end
