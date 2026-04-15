@@ -95,7 +95,7 @@
         <%= f.hidden_field :section, value: "payouts" %>
         <div class="super-mega-dashboard__filters">
           <label for="time-period-select" style="margin-right: 0.5rem;">Time Period:</label>
-          <%= f.select :filter_period, { "Last 24 Hours" => "24h", "Last Week" => "week", "Last Month" => "month", "All Time" => "all" }, { selected: params[:filter_period].presence || "all" }, { id: "time-period-select", data: { "payout-dash-target": "periodSelect", action: "change->payout-dash#updatePeriod" } } %>
+          <%= f.select :filter_period, payout_options, { selected: selected_payout_options }, { id: "time-period-select", data: payout_period_select } %>
         </div>
       <% end %>
     </div>
