@@ -182,7 +182,7 @@
 
         <p class="banned-banner__message">Your account has been banned and you cannot access other parts of the site.</p>
         <p>
-          Please contact @Fraud Squad for further communications! if you are not on the hackclub slack please email <a href="mailto:fraudsquad@hackclub.com">fraudsquad@hackclub.com</a>
+          Please contact @Fraud Squad for further communications! If you are unable to access the Hack Club Slack please email <a href="mailto:fraudsquad@hackclub.com">fraudsquad@hackclub.com</a>.
         </p>
       </div>
     </div>
@@ -211,12 +211,12 @@
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <% rejection_message = [@verification_rejection_reason&.dig("reason")&.humanize, @verification_rejection_reason&.dig("details")].compact_blank.join(": ").presence %>
       <%= render StateCardComponent.new(
-        title: "one more try!",
-        description: "we need you to resubmit your ID verification..." + (rejection_message ? " #{rejection_message}" : ""),
+        title: "One more try!",
+        description: "We need you to resubmit your ID verification..." + (rejection_message ? " #{rejection_message}" : ""),
         variant: :danger,
-        badge_text: "action needed",
+        badge_text: "Action needed",
         icon: "info",
-        cta_text: "verify again",
+        cta_text: "Verify again",
         cta_href: HCAService.verify_portal_url(return_to: kitchen_url)
       ) %>
     </div>
