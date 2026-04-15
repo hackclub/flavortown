@@ -98,6 +98,7 @@ class ShopItem < ApplicationRecord
   before_validation :fix_blacklist
   before_validation :floor_ticket_cost
   before_validation :clean_requires_achievement
+  before_validation :clean_achievement_sale_slugs
 
   after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
   after_commit :invalidate_shop_page_cache
@@ -197,6 +198,7 @@ class ShopItem < ApplicationRecord
   validates :required_ships_start_date, :required_ships_end_date, presence: true, if: :requires_ship?
   validate :is_range_valid, if: :requires_ship?
   validate :validate_achievement_slugs
+  validate :validate_achievement_sale_slugs
 
   has_many :shop_orders, dependent: :restrict_with_error
 
@@ -309,6 +311,24 @@ class ShopItem < ApplicationRecord
     requires_achievement.map { |slug| Achievement.find(slug) }
   end
 
+  def achievement_sale?
+    achievement_sale_percentage.present? && achievement_sale_percentage > 0 && achievement_sale_slugs.present?
+  end
+
+  def achievement_sale_for?(user)
+    return false unless achievement_sale? && user.present?
+    achievement_sale_slugs.any? { |s| user.earned_achievement?(s.to_sym) }
+  end
+
+  def effective_sale_percentage_for(user)
+    return sale_percentage if !achievement_sale? || !achievement_sale_for?(user)
+    [sale_percentage.to_i, achievement_sale_percentage].max
+  end
+
+  def achievement_sale_objects
+    achievement_sale_slugs.map { |s| Achievement.find(s) }
+  end
+
   private
 
   def is_range_valid
@@ -346,9 +366,21 @@ class ShopItem < ApplicationRecord
     end
   end
 
+  def clean_achievement_sale_slugs
+    if achievement_sale_slugs.is_a?(Array)
+      self.achievement_sale_slugs = achievement_sale_slugs.reject(&:blank?)
+    end
+  end
+
   def validate_achievement_slugs
     return unless requires_achievement.present?
     invalid = requires_achievement.reject { |s| Achievement.all_slugs.include?(s.to_sym) }
     errors.add(:requires_achievement, "contains invalid slugs: #{invalid.join(', ')}") if invalid.any?
+  end
+
+  def validate_achievement_sale_slugs
+    return unless achievement_sale_slugs.present?
+    invalid = achievement_sale_slugs.reject { |s| Achievement.all_slugs.include?(s.to_sym) }
+    errors.add(:achievement_sale_slugs, "contains invalid slugs: #{invalid.join(', ')}") if invalid.any?
   end
 end

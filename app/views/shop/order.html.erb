@@ -35,6 +35,11 @@
                     <%= @shop_item.sale_percentage %>% OFF SALE
                 </div>
             <% end %>
+            <% if @achievement_sale_active %>
+                <div class="shop-order__sale-badge">
+                    🏆 <%= @achievement_sale_percentage %>% OFF — Unlocked by achievement!
+                </div>
+            <% end %>
             <% if @shop_item.limited? && @shop_item.remaining_stock.present? %>
                 <div class="shop-order__stock-indicator<%= ' shop-order__stock-indicator--low' if @shop_item.remaining_stock <= 5 %><%= ' shop-order__stock-indicator--out' if @shop_item.remaining_stock <= 0 %>">
                     <% if @shop_item.remaining_stock <= 0 %>
