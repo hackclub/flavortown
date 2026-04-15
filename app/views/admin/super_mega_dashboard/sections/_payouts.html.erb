@@ -89,27 +89,25 @@
   <% end %>
 
   <div class="super-mega-dashboard__dashboard super-mega-dashboard__dashboard--projects" style="border-radius: 0">
-    <turbo-frame id="payouts-projects" data-controller="payout-dash">
-      <div class="super-mega-dashboard__header" style="margin-bottom: 0 !important">
-        <h2>Recent Payouts</h2>
-        <%= form_with url: admin_super_mega_dashboard_load_section_path, method: :get, local: true do |f| %>
-          <%= f.hidden_field :section, value: "payouts" %>
-          <div class="super-mega-dashboard__filters">
-            <label for="time-period-select" style="margin-right: 0.5rem;">Time Period:</label>
-            <%= f.select :filter_period, { "Last 24 Hours" => "24h", "Last Week" => "week", "Last Month" => "month", "All Time" => "all" }, { selected: params[:filter_period].presence || "all" }, { id: "time-period-select", data: { "payout-dash-target": "periodSelect", action: "change->payout-dash#updatePeriod" } } %>
-          </div>
-        <% end %>
-      </div>
-
-      <% if @highest_multiplier_projects.present? || @largest_payout_projects.present? %>
-        <div class="payout-project-carousels">
-          <%= render partial: "admin/super_mega_dashboard/payouts/project_carousel", locals: { title: "Highest multiplier", projects: @highest_multiplier_projects, variant: :highest_multiplier } %>
-
-          <%= render partial: "admin/super_mega_dashboard/payouts/project_carousel", locals: { title: "Most cookies", projects: @largest_payout_projects, variant: :most_cookies } %>
+    <div class="super-mega-dashboard__header" style="margin-bottom: 0 !important" data-controller="payout-dash">
+      <h2>Recent Payouts</h2>
+      <%= form_with url: admin_super_mega_dashboard_load_section_path, method: :get, data: { turbo_frame: "super_mega_section_payouts" } do |f| %>
+        <%= f.hidden_field :section, value: "payouts" %>
+        <div class="super-mega-dashboard__filters">
+          <label for="time-period-select" style="margin-right: 0.5rem;">Time Period:</label>
+          <%= f.select :filter_period, payout_options, { selected: selected_payout_options }, { id: "time-period-select", data: payout_period_select } %>
         </div>
-      <% else %>
-        <p class="super-mega-dashboard__no-data" style="margin-top: 0.5rem">No projects found</p>
       <% end %>
-    </turbo-frame>
+    </div>
+
+    <% if @highest_multiplier_projects.present? || @largest_payout_projects.present? %>
+      <div class="payout-project-carousels">
+        <%= render partial: "admin/super_mega_dashboard/payouts/project_carousel", locals: { title: "Highest multiplier", projects: @highest_multiplier_projects, variant: :highest_multiplier } %>
+
+        <%= render partial: "admin/super_mega_dashboard/payouts/project_carousel", locals: { title: "Most cookies", projects: @largest_payout_projects, variant: :most_cookies } %>
+      </div>
+    <% else %>
+      <p class="super-mega-dashboard__no-data" style="margin-top: 0.5rem">No projects found</p>
+    <% end %>
   </div>
 </div>

@@ -45,13 +45,14 @@
     </aside>
 
     <div class="super-mega-dashboard__dashboards">
-      <%= turbo_frame_tag "super_mega_section_funnel",
-            src: admin_super_mega_dashboard_load_section_path(section: "funnel", range: params[:range]),
-            loading: "lazy",
-            class: "super-mega-dashboard__placeholder-card" do %>
-        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-        <div class="smd-skeleton__chart"></div>
-      <% end %>
+      <div id="funnel" class="super-mega-dashboard__placeholder-card">
+        <%= turbo_frame_tag "super_mega_section_funnel",
+              src: admin_super_mega_dashboard_load_section_path(section: "funnel", range: params[:range]),
+              loading: "lazy" do %>
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__chart"></div>
+        <% end %>
+      </div>
 
       <div id="nps" data-lazy-section="nps" class="super-mega-dashboard__placeholder-card">
         <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
@@ -70,10 +71,14 @@
         <div class="smd-skeleton__line smd-skeleton__line--medium"></div>
       </div>
 
-      <div id="payouts" data-lazy-section="payouts" class="super-mega-dashboard__placeholder-card">
-        <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
-        <div class="smd-skeleton__line smd-skeleton__line--short"></div>
-        <div class="smd-skeleton__line"></div>
+      <div id="payouts" class="super-mega-dashboard__placeholder-card">
+        <%= turbo_frame_tag "super_mega_section_payouts",
+              src: admin_super_mega_dashboard_load_section_path(section: "payouts"),
+              loading: "lazy" do %>
+          <div class="smd-skeleton__line smd-skeleton__line--heading"></div>
+          <div class="smd-skeleton__line smd-skeleton__line--short"></div>
+          <div class="smd-skeleton__line"></div>
+        <% end %>
       </div>
 
       <div id="fulfillment" data-lazy-section="fulfillment" class="super-mega-dashboard__placeholder-card">
