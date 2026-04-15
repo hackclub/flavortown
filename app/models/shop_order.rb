@@ -316,9 +316,9 @@ class ShopOrder < ApplicationRecord
     return unless shop_item
     return if frozen_item_price.present?
 
-    # Use price_for_region which applies sale discounts and regional pricing
+    # Use price_for_region_and_user which applies sale, achievement, and regional pricing
     order_region = region.presence || Shop::Regionalizable.country_to_region(frozen_address&.dig("country"))
-    self.frozen_item_price = shop_item.price_for_region(order_region || "XX")
+    self.frozen_item_price = shop_item.price_for_region_and_user(order_region || "XX", user)
   end
 
   def check_one_per_person_ever_limit
