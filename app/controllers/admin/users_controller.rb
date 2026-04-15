@@ -275,6 +275,40 @@ class Admin::UsersController < Admin::ApplicationController
     redirect_to admin_user_path(@user)
   end
 
+  def mark_sus
+    authorize :admin, :ban_users?
+    @user = User.find(params[:id])
+
+    if @user.marked_sus_by.include?(current_user.id.to_s)
+      flash[:notice] = "You've already marked #{@user.display_name} as sus."
+      return redirect_to admin_user_path(@user)
+    end
+
+    PaperTrail.request(whodunnit: current_user.id.to_s) do
+      @user.update!(marked_sus_by: @user.marked_sus_by + [ current_user.id.to_s ])
+    end
+
+    flash[:notice] = "#{@user.display_name} has been marked as sus."
+    redirect_to admin_user_path(@user)
+  end
+
+  def unmark_sus
+    authorize :admin, :ban_users?
+    @user = User.find(params[:id])
+
+    unless @user.marked_sus_by.include?(current_user.id.to_s)
+      flash[:alert] = "You haven't marked #{@user.display_name} as sus."
+      return redirect_to admin_user_path(@user)
+    end
+
+    PaperTrail.request(whodunnit: current_user.id.to_s) do
+      @user.update!(marked_sus_by: @user.marked_sus_by - [ current_user.id.to_s ])
+    end
+
+    flash[:notice] = "Sus flag removed from #{@user.display_name}."
+    redirect_to admin_user_path(@user)
+  end
+
   def ban
     authorize :admin, :ban_users?
     @user = User.find(params[:id])
