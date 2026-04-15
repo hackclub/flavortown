@@ -134,6 +134,23 @@ class ShopItemCardComponentTest < Minitest::Test
     assert component.show_stock_status?
   end
 
+  def test_stock_status_critical_when_below_three
+    component = ShopItemCardComponent.new(
+      item_id: 1,
+      name: "Test Item",
+      description: "Test",
+      hours: 5,
+      price: 100,
+      image_url: "image.png",
+      limited: true,
+      remaining_stock: 2
+    )
+
+    assert_equal "2 left", component.stock_status_text
+    assert component.critical_stock?
+    assert_equal "shop-item-card__stock-meta--critical", component.stock_status_class
+  end
+
   def test_stock_status_normal_stock
     component = ShopItemCardComponent.new(
       item_id: 1,

@@ -91,6 +91,10 @@ class ShopItemCardComponent < ViewComponent::Base
     limited && remaining_stock.present? && remaining_stock <= 10
   end
 
+  def critical_stock?
+    limited && remaining_stock.present? && remaining_stock > 0 && remaining_stock < 3
+  end
+
   def show_limited_stock_timer?
     enabled_until.present?
   end
@@ -153,5 +157,11 @@ class ShopItemCardComponent < ViewComponent::Base
 
   def show_sale_badge?
     on_sale && sale_percentage.present?
+  end
+
+  def stock_status_class
+    return "shop-item-card__stock-meta--critical" if critical_stock?
+
+    nil
   end
 end

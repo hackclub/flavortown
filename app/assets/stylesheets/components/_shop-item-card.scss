@@ -289,11 +289,16 @@
 
   /* Stock status meta text (below title, in-flow) */
   &__stock-meta {
-    font-size: 0.8rem;
+    font-size: 1rem;
     color: #7c4620;
-    font-weight: 600;
+    font-weight: 700;
     margin-top: 0.2rem;
     margin-bottom: 0.35rem;
+    line-height: 1.1;
+
+    &--critical {
+      color: #dc2626;
+    }
   }
 
   /* Sale chip adjacent to price in price row */

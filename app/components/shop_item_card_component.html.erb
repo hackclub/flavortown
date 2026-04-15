@@ -25,15 +25,6 @@
   <% elsif is_new %>
     <div class="shop-item-card__new-badge">New</div>
   <% end %>
-  <% if show_stock_indicator? %>
-    <div class="shop-item-card__stock-badge<%= ' shop-item-card__stock-badge--low' if low_stock? %><%= ' shop-item-card__stock-badge--out' if out_of_stock? %>">
-      <% if out_of_stock? %>
-        Out of stock
-      <% else %>
-        <%= remaining_stock %> left
-      <% end %>
-    </div>
-  <% end %>
 
   <% if logged_in %>
     <button type="button"

@@ -16,7 +16,7 @@
   <% end %>
 
   <% if component.show_stock_status? %>
-    <div class="shop-item-card__stock-meta">
+    <div class="shop-item-card__stock-meta<%= " #{component.stock_status_class}" if component.stock_status_class.present? %>">
       <%= component.stock_status_text %>
     </div>
   <% end %>
