@@ -358,6 +358,9 @@
         <h3>Actions</h3>
         <div class="shop-item-detail__actions">
           <%= link_to "New Item", new_admin_shop_item_path, class: "btn-secondary" %>
+          <% if current_user.admin? && @shop_item.draft? %>
+            <%= button_to "Publish Draft", promote_admin_shop_item_path(@shop_item), method: :post, class: "btn-primary", data: { turbo_confirm: "Publish this draft now? This will make it live for the public" } %>
+          <% end %>
           <% if @shop_item.draft? && current_user.shop_manager? && @shop_item.created_by_user_id == current_user.id %>
             <%= button_to "Request Approval", request_approval_admin_shop_item_path(@shop_item), method: :post, class: "btn-primary", data: { turbo_confirm: "Request admin approval for this draft?" } %>
           <% end %>

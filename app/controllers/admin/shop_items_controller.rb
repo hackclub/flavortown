@@ -1,6 +1,6 @@
 module Admin
   class ShopItemsController < Admin::ApplicationController
-    before_action :set_shop_item, only: [ :show, :edit, :update, :destroy, :request_approval ]
+    before_action :set_shop_item, only: [ :show, :edit, :update, :destroy, :request_approval, :promote ]
     before_action :set_shop_item_types, only: [ :new, :edit ]
     before_action :set_fulfillment_users, only: [ :new, :edit, :create, :update ]
 
@@ -108,6 +108,37 @@ module Admin
       end
 
       redirect_to admin_shop_item_path(@shop_item), notice: "Approval requested! An admin will review your draft."
+    end
+
+    def promote
+      authorize :admin, :manage_shop?
+
+      unless @shop_item.draft?
+        redirect_to admin_shop_item_path(@shop_item), alert: "thats not a draft" and return
+      end
+
+      old_draft = @shop_item.draft
+      old_enabled = @shop_item.enabled
+      old_unlisted = @shop_item.unlisted
+
+      if @shop_item.update(draft: false, enabled: true, unlisted: false)
+        PaperTrail::Version.create!(
+          item_type: "ShopItem",
+          item_id: @shop_item.id,
+          event: "published_from_draft",
+          whodunnit: current_user.id,
+          object_changes: {
+            draft: [ old_draft, @shop_item.draft ],
+            enabled: [ old_enabled, @shop_item.enabled ],
+            unlisted: [ old_unlisted, @shop_item.unlisted ],
+            published_at: Time.current
+          }.to_yaml
+        )
+
+        redirect_to admin_shop_item_path(@shop_item), notice: "done! its live now!"
+      else
+        redirect_to admin_shop_item_path(@shop_item), alert: "error: #{@shop_item.errors.full_messages.to_sentence}"
+      end
     end
 
     private
