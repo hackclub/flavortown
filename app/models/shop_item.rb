@@ -322,7 +322,7 @@ class ShopItem < ApplicationRecord
 
   def effective_sale_percentage_for(user)
     return sale_percentage if !achievement_sale? || !achievement_sale_for?(user)
-    [sale_percentage.to_i, achievement_sale_percentage].max
+    [ sale_percentage.to_i, achievement_sale_percentage ].max
   end
 
   def achievement_sale_objects
