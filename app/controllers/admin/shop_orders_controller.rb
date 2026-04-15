@@ -7,7 +7,9 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     # Fulfillment team can only access fulfillment view - auto-redirect if needed
     # But fraud_dept members with fulfillment_person role should have full access
-    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
+    if current_user.shop_manager? && !current_user.admin?
+      authorize :admin, :view_shop_orders_no_pii?
+    elsif current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       if @view != "fulfillment"
         redirect_to admin_shop_orders_path(view: "fulfillment") and return
       end
@@ -90,7 +92,9 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def show
-    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
+    if current_user.shop_manager? && !current_user.admin?
+      authorize :admin, :view_shop_orders_no_pii?
+    elsif current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -109,6 +113,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     @can_view_address = @order.can_view_address?(current_user)
+    @can_view_address = false if current_user.shop_manager? && !current_user.admin?
     @is_digital_fulfillment_type = ShopOrder::DIGITAL_FULFILLMENT_TYPES.include?(@order.shop_item.type)
 
     # Track who is viewing this order (cache-based presence)

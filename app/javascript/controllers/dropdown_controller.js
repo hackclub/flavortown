@@ -30,7 +30,8 @@ export default class extends Controller {
       label === "Category" ||
       label === "Price Range" ||
       label === "Sort by" ||
-      label === "Region"
+      label === "Region" ||
+      label === "Access"
     ) {
       document.dispatchEvent(
         new CustomEvent("shop:filter", {

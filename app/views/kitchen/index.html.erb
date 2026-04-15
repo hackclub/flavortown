@@ -182,7 +182,7 @@
 
         <p class="banned-banner__message">Your account has been banned and you cannot access other parts of the site.</p>
         <p>
-          Please contact @Fraud Squad for further communications! if you are not on the hackclub slack please email <a href="mailto:fraudsquad@hackclub.com">fraudsquad@hackclub.com</a>
+          Please contact @Fraud Squad for further communications! If you are unable to access the Hack Club Slack please email <a href="mailto:fraudsquad@hackclub.com">fraudsquad@hackclub.com</a>.
         </p>
       </div>
     </div>
@@ -211,29 +211,14 @@
     <div class="kitchen-verification-notice kitchen-verification-notice--compact kitchen-verification-notice--wide">
       <% rejection_message = [@verification_rejection_reason&.dig("reason")&.humanize, @verification_rejection_reason&.dig("details")].compact_blank.join(": ").presence %>
       <%= render StateCardComponent.new(
-        title: "one more try!",
-        description: "we need you to resubmit your ID verification..." + (rejection_message ? " #{rejection_message}" : ""),
+        title: "One more try!",
+        description: "We need you to resubmit your ID verification..." + (rejection_message ? " #{rejection_message}" : ""),
         variant: :danger,
-        badge_text: "action needed",
+        badge_text: "Action needed",
         icon: "info",
-        cta_text: "verify again",
+        cta_text: "Verify again",
         cta_href: HCAService.verify_portal_url(return_to: kitchen_url)
       ) %>
-    </div>
-  <% end %>
-  <% if Date.current < Date.new(2026, 3, 9) && current_user&.ref == "willsbuilds" && !current_user&.has_dismissed?("willsbuilds_banner") %>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap">
-    <div class="willsbuilds-banner">
-      <%= link_to "/shop/order?shop_item_id=101", class: "willsbuilds-banner__link" do %>
-        <%= image_tag "willsbuilds.jpg", alt: "Willsbuilds", class: "willsbuilds-banner__image" %>
-        <span class="willsbuilds-banner__text">
-          <span class="willsbuilds-banner__title">WillsBuilds' Items</span>
-          <span class="willsbuilds-banner__subtitle">now in the shop!</span>
-        </span>
-      <% end %>
-      <button class="willsbuilds-banner__close" aria-label="Dismiss" data-dismiss-url="<%= dismiss_thing_path %>" onclick="fetch(this.dataset.dismissUrl, {method: 'POST', headers: {'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content, 'Content-Type': 'application/x-www-form-urlencoded'}, body: 'thing_name=willsbuilds_banner'}); this.closest('.willsbuilds-banner').remove();">
-        <%= inline_svg_tag "icons/close.svg" %>
-      </button>
     </div>
   <% end %>
 
@@ -252,6 +237,14 @@
       <%= image_tag "landing-page-opensauce.avif", alt: "Modal Image", class: "modal__image" %>
     </h4>
   </dialog>
+
+  <div class="kitchen-announcement">
+    <%= render AnnouncementComponent.new(
+      image: "flavortown_apr19_sticker.avif",
+      title: "Get a free sticker!",
+      description: "Ship a project (or reship an existing one) before Sunday, April 19th (7:00 PM EST) and we'll send you an awesome sticker!"
+    ) %>
+  </div>
 
   <div class="kitchen-setup">
     <%= render KitchenTutorialStepsComponent.new(
@@ -343,7 +336,7 @@
           caption: "Vote on projects!",
           modal_title: "Vote on projects!",
           step_num: 4,
-          modal_text: "<p>You're almost ready to get cookies for the hours you spent on your project — you just have to vote to unlock the payout! Voting is done by rating each project on a bunch of simple metrics:</p> <ul><li><b>Originality:</b> Is the project innovative and original, or just a clone of an overused concept?</li><li><b>Technical:</b> How complex is the project? Did the author use new frameworks or learn something cool?</li><li><b>Usability:</b> Is the project easy and fun to use, or is it buggy and frustrating?</li><li><b>Storytelling:</b> Does the author devlog regularly? Is the development timeline fun to scroll through?</li></ul> <p>Voting is done so people (including you) making good projects get more cookies per hour. For every project shipped, you must vote on 14 projects to get cookies!</p>"
+          modal_text: "<p>You're almost ready to get cookies for the hours you spent on your project — you just have to vote to unlock the payout! Voting is done by rating each project on a bunch of simple metrics:</p> <ul><li><b>Originality:</b> Is the project innovative and original, or just a clone of an overused concept?</li><li><b>Technical:</b> How complex is the project? Did the author use new frameworks or learn something cool?</li><li><b>Usability:</b> Is the project easy and fun to use, or is it buggy and frustrating?</li><li><b>Storytelling:</b> Does the author devlog regularly? Is the development timeline fun to scroll through?</li></ul> <p>Voting is done so people (including you) making good projects get more cookies per hour. For every project shipped, you must vote on #{Post::ShipEvent::VOTE_COST_PER_SHIP} projects to get cookies!</p>"
         ) %>
         <%= image_tag "kitchen_comic/arrow.avif", alt: "Arrow", class: "kitchen-comic__arrow" %>
         <%= render ComicCardComponent.new(

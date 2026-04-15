@@ -110,14 +110,14 @@ gem "aws-sdk-s3"
 gem "faraday"
 gem "faraday-retry"
 
-gem "faker", "~> 3.6"
+gem "faker", "~> 3.7"
 gem "jsbundling-rails", "~> 1.3"
 gem "stackprof"
 gem "sentry-ruby", "~> 6.4"
 gem "sentry-rails", "~> 6.5"
 
 # for pagination
-gem "pagy", "~> 43.4"
+gem "pagy", "~> 43.5"
 gem "norairrecord"
 
 gem "awesome_print"
@@ -132,7 +132,6 @@ gem "query_count"
 
 # for recommendations
 gem "disco"
-gem "faiss"
 
 # Rack Mini Profiler gem for performance monitoring
 gem "rack-mini-profiler"
@@ -147,3 +146,5 @@ gem "skylight"
 gem "rbtrace", require: String(ENV.fetch("FEATURE_ENABLE_MEMORY_DUMPS", false)) == "true"
 
 gem "ferret", github: "hackclub/ferret-gem"
+
+gem "neighbor"

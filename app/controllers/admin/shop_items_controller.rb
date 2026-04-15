@@ -1,28 +1,37 @@
 module Admin
   class ShopItemsController < Admin::ApplicationController
-    before_action :set_shop_item, only: [ :show, :edit, :update, :destroy ]
+    before_action :set_shop_item, only: [ :show, :edit, :update, :destroy, :request_approval ]
     before_action :set_shop_item_types, only: [ :new, :edit ]
     before_action :set_fulfillment_users, only: [ :new, :edit, :create, :update ]
 
     def show
-      authorize :admin, :manage_shop?
+      authorize_shop_item_access!
       @pagy, @shop_orders = pagy(:offset, @shop_item.shop_orders.order(created_at: :desc), limit: 25)
     end
 
     def new
-      authorize :admin, :manage_shop?
+      authorize :admin, shop_manager? ? :manage_draft_shop_items? : :manage_shop?
       @shop_item = ShopItem.new
-      Shop::Regionalizable::REGION_CODES.each do |code|
-        @shop_item.public_send("enabled_#{code.downcase}=", true)
+      if shop_manager?
+        @shop_item.draft = true
+        @shop_item.enabled = false
+      else
+        Shop::Regionalizable::REGION_CODES.each { |c| @shop_item.public_send("enabled_#{c.downcase}=", true) }
       end
     end
 
     def create
-      authorize :admin, :manage_shop?
-      @shop_item = ShopItem.new(shop_item_params)
+      authorize :admin, shop_manager? ? :manage_draft_shop_items? : :manage_shop?
+      @shop_item = ShopItem.new(shop_manager? ? draft_shop_item_params : shop_item_params)
+
+      if shop_manager?
+        @shop_item.draft = true
+        @shop_item.enabled = false
+        @shop_item.created_by_user_id = current_user.id
+      end
 
       if @shop_item.save
-        redirect_to admin_manage_shop_path, notice: "Shop item created successfully."
+        redirect_to admin_shop_item_path(@shop_item), notice: shop_manager? ? "Draft item created." : "Shop item created successfully."
       else
         @shop_item_types = available_shop_item_types
         render :new, status: :unprocessable_entity
@@ -30,11 +39,12 @@ module Admin
     end
 
     def edit
-      authorize :admin, :manage_shop?
+      authorize_shop_item_access!(must_be_draft: true)
     end
 
     def update
-      authorize :admin, :manage_shop?
+      return unless authorize_shop_item_access!(must_be_draft: true)
+      p = shop_manager? ? draft_shop_item_params : shop_item_params
 
       if @shop_item.exclusive_fulfiller? && shop_item_params[:exclusive_fulfiller] == "0" && current_user.id != 27
         redirect_to edit_admin_shop_item_path(@shop_item), alert: "Only user #27 can disable the exclusive fulfiller setting." and return
@@ -75,13 +85,53 @@ module Admin
     end
 
     def preview_markdown
-      authorize :admin, :manage_shop?
+      authorize :admin, shop_manager? ? :manage_draft_shop_items? : :manage_shop?
       markdown = params[:markdown].to_s
       html = markdown.present? ? MarkdownRenderer.render(markdown) : ""
       render plain: html
     end
 
+    def request_approval
+      authorize :admin, :manage_draft_shop_items?
+      unless @shop_item.draft? && @shop_item.created_by_user_id == current_user.id
+        redirect_to admin_shop_item_path(@shop_item), alert: "You can only request approval for your own drafts." and return
+      end
+
+      PaperTrail::Version.create!(
+        item_type: "ShopItem",
+        item_id: @shop_item.id,
+        event: "approval_requested",
+        whodunnit: current_user.id,
+        object_changes: { requested_by: current_user.display_name, requested_at: Time.current }.to_yaml
+      )
+
+      reviewer = User.find_by(id: 27)
+      if reviewer&.slack_id.present?
+        msg = "📋 *#{current_user.display_name}* requested approval for draft shop item \"#{@shop_item.name}\" — <#{Rails.application.routes.url_helpers.admin_shop_item_url(@shop_item, host: Rails.application.config.action_mailer.default_url_options&.dig(:host) || "flavortown.hackclub.com")}|Review it>"
+        SendSlackDmJob.perform_later(reviewer.slack_id, msg)
+      end
+
+      redirect_to admin_shop_item_path(@shop_item), notice: "Approval requested! An admin will review your draft."
+    end
+
     private
+
+    def shop_manager?
+      current_user.shop_manager? && !current_user.admin?
+    end
+
+    def authorize_shop_item_access!(must_be_draft: false)
+      if shop_manager?
+        authorize :admin, :manage_draft_shop_items?
+        if must_be_draft && (!@shop_item.draft? || @shop_item.created_by_user_id != current_user.id)
+          redirect_to admin_manage_shop_path, alert: "You can only edit your own draft items."
+          return false  # signal to caller
+        end
+      else
+        authorize :admin, :manage_shop?
+      end
+      true
+    end
 
     def set_shop_item
       @shop_item = ShopItem.find(params[:id])
@@ -145,6 +195,7 @@ module Admin
         :show_in_carousel,
         :special,
         :sale_percentage,
+        :achievement_sale_percentage,
         :payout_percentage,
         :user_id,
         :hacker_score,
@@ -178,8 +229,20 @@ module Admin
         :requires_verification_call,
         :exclusive_fulfiller,
         requires_achievement: [],
+        achievement_sale_slugs: [],
         attached_shop_item_ids: [],
         blocked_countries: []
+      )
+    end
+
+    def draft_shop_item_params
+      params.require(:shop_item).permit(
+        :name, :type, :description, :long_description, :internal_description,
+        :ticket_cost, :usd_cost, :hacker_score, :sale_percentage, :image,
+        :limited, :stock, :max_qty, :one_per_person_ever,
+        :requires_ship, :required_ships_count, :required_ships_start_date, :required_ships_end_date,
+        :source_region, :buyable_by_self, :accessory_tag, :show_image_in_shop,
+        requires_achievement: [], blocked_countries: []
       )
     end
   end

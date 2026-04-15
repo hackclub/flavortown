@@ -35,6 +35,11 @@
                     <%= @shop_item.sale_percentage %>% OFF SALE
                 </div>
             <% end %>
+            <% if @achievement_sale_active %>
+                <div class="shop-order__sale-badge">
+                    🏆 <%= @achievement_sale_percentage %>% OFF — Unlocked by achievement!
+                </div>
+            <% end %>
             <% if @shop_item.limited? && @shop_item.remaining_stock.present? %>
                 <div class="shop-order__stock-indicator<%= ' shop-order__stock-indicator--low' if @shop_item.remaining_stock <= 5 %><%= ' shop-order__stock-indicator--out' if @shop_item.remaining_stock <= 0 %>">
                     <% if @shop_item.remaining_stock <= 0 %>
@@ -46,11 +51,19 @@
             <% end %>
             <% if @required_achievements.present? %>
                 <div class="shop-order__achievement-requirement <%= 'shop-order__achievement-requirement--locked' if @locked_by_achievement %>">
-                    <% achievement_names = @required_achievements.map(&:name).to_sentence(two_words_connector: ' or ', last_word_connector: ', or ') %>
                     <% if @locked_by_achievement %>
-                        <span>Requires "<%= achievement_names %>" achievement to purchase</span>
+                        <div class="shop-order__achievement-requirement-header">You need one of these achievements:</div>
+                        <ul class="shop-order__achievement-list">
+                            <% @required_achievements.each do |ach| %>
+                                <li>
+                                    <span class="shop-order__achievement-name"><%= ach.name %></span>
+                                    <span class="shop-order__achievement-hint"><%= ach.description %></span>
+                                </li>
+                            <% end %>
+                        </ul>
                     <% else %>
-                        <span>Unlocked via "<%= achievement_names %>" achievement</span>
+                        <% achievement_names = @required_achievements.map(&:name).to_sentence(two_words_connector: ' or ', last_word_connector: ', or ') %>
+                        <span>Unlocked via "<%= achievement_names %>"</span>
                     <% end %>
                 </div>
             <% end %>
@@ -200,7 +213,7 @@
                     <div class="shop-order__summary-content">
                         <div class="shop-order__summary-price">
                             <h4>Base Price:</h4>
-                            <% if @shop_item.on_sale? %>
+                            <% if @shop_item.on_sale? || @achievement_sale_active %>
                                 <h4>
                                     <span class="shop-order__original-price">🍪 <span class="shop-order__strikethrough"><%= @regional_base_price %></span></span>
                                     🍪 <%= @sale_price.round %>

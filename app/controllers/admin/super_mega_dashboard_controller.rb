@@ -29,11 +29,18 @@ module Admin
       super_mega_ysws_review_v2
       super_mega_ship_certs_raw
       sw_vibes_data
-      super_mega_funnel_stats
+      super_mega_funnel_stats/24h
+      super_mega_funnel_stats/1w
+      super_mega_funnel_stats/1m
+      super_mega_funnel_stats/all
       super_mega_nps_stats
       super_mega_nps_vibes
       super_mega_hcb_stats
       super_mega_hcb_stats_v2
+      super_mega_top_projects_24h
+      super_mega_top_projects_week
+      super_mega_top_projects_month
+      super_mega_top_projects_all
     ].freeze
 
     SECTIONS = {
@@ -68,7 +75,15 @@ module Admin
       end
 
       config[:loaders].each { |loader| send(loader) }
-      render partial: config[:partial], layout: false
+
+      if turbo_frame_request?
+        frame_id = request.headers["Turbo-Frame"]
+        render html: view_context.turbo_frame_tag(frame_id) {
+          view_context.render(partial: config[:partial])
+        }, layout: false
+      else
+        render partial: config[:partial], layout: false
+      end
     end
 
     def clear_cache

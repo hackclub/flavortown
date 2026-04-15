@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_150206) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_15_130341) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -540,11 +540,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_150206) do
 
   create_table "shop_items", force: :cascade do |t|
     t.string "accessory_tag"
+    t.integer "achievement_sale_percentage"
+    t.string "achievement_sale_slugs", default: [], array: true
     t.jsonb "agh_contents"
     t.bigint "attached_shop_item_ids", default: [], array: true
     t.string "blocked_countries", default: [], array: true
     t.boolean "buyable_by_self", default: true
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.bigint "created_by_user_id"
     t.bigint "default_assigned_user_id"
     t.bigint "default_assigned_user_id_au"
     t.bigint "default_assigned_user_id_ca"
@@ -554,6 +557,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_150206) do
     t.bigint "default_assigned_user_id_us"
     t.bigint "default_assigned_user_id_xx"
     t.string "description"
+    t.boolean "draft", default: false, null: false
     t.boolean "enabled"
     t.boolean "enabled_au"
     t.boolean "enabled_ca"
@@ -606,6 +610,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_150206) do
     t.decimal "usd_offset_us", precision: 10, scale: 2
     t.decimal "usd_offset_xx", precision: 10, scale: 2
     t.bigint "user_id"
+    t.index ["created_by_user_id"], name: "index_shop_items_on_created_by_user_id"
     t.index ["default_assigned_user_id"], name: "index_shop_items_on_default_assigned_user_id"
     t.index ["user_id"], name: "index_shop_items_on_user_id"
   end
@@ -840,6 +845,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_150206) do
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.boolean "manual_ysws_override"
+    t.string "marked_sus_by", default: [], null: false, array: true
     t.datetime "metrics_synced_at"
     t.integer "projects_count"
     t.integer "projects_shipped_count"
@@ -898,6 +904,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_150206) do
     t.integer "originality_score"
     t.bigint "project_id", null: false
     t.text "reason"
+    t.string "reason_quality_label"
+    t.float "reason_quality_score"
     t.boolean "repo_url_clicked", default: false
     t.bigint "ship_event_id", null: false
     t.integer "storytelling_score"
@@ -909,6 +917,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_150206) do
     t.bigint "user_id", null: false
     t.string "verdict"
     t.index ["project_id"], name: "index_votes_on_project_id"
+    t.index ["reason_quality_label"], name: "index_votes_on_reason_quality_label"
     t.index ["ship_event_id"], name: "index_votes_on_ship_event_id"
     t.index ["suspicious", "created_at"], name: "index_votes_on_suspicious_and_created_at"
     t.index ["user_id", "ship_event_id"], name: "index_votes_on_user_id_and_ship_event_id", unique: true
@@ -948,6 +957,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_150206) do
   add_foreign_key "shop_card_grants", "shop_items"
   add_foreign_key "shop_card_grants", "users"
   add_foreign_key "shop_items", "users"
+  add_foreign_key "shop_items", "users", column: "created_by_user_id", on_delete: :nullify, validate: false
   add_foreign_key "shop_items", "users", column: "default_assigned_user_id", on_delete: :nullify
   add_foreign_key "shop_order_reviews", "shop_orders"
   add_foreign_key "shop_order_reviews", "users"
