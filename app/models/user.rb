@@ -27,6 +27,7 @@
 #  magic_link_token                        :string
 #  magic_link_token_expires_at             :datetime
 #  manual_ysws_override                    :boolean
+#  marked_sus_by                           :string           default([]), not null, is an Array
 #  metrics_synced_at                       :datetime
 #  projects_count                          :integer
 #  projects_shipped_count                  :integer
@@ -143,6 +144,10 @@ class User < ApplicationRecord
   def valid_club_link? = club_link_uri.present?
 
   def admin? = has_role?(:admin) || has_role?(:super_admin)
+
+  # True if any shipwright/reviewer has flagged this user as suspicious.
+  # Derived from marked_sus_by rather than a boolean field so we retain attribution.
+  def is_sus? = marked_sus_by.present?
 
   def seller? = ShopItem::HackClubberItem.exists?(user_id: id)
 
