@@ -14,6 +14,7 @@
     <div class="shop-item-card__bow shop-item-card__bow--bottom-left"></div>
     <div class="shop-item-card__bow shop-item-card__bow--bottom-right"></div>
   <% end %>
+
   <% if time_ago_text %>
     <div class="shop-item-card__time-ago">
       Added <%= time_ago_text %>
@@ -24,11 +25,6 @@
   <% elsif is_new %>
     <div class="shop-item-card__new-badge">New</div>
   <% end %>
-  <% if on_sale %>
-    <div class="shop-item-card__sale-badge">
-      <%= sale_percentage %>% OFF
-    </div>
-  <% end %>
   <% if show_stock_indicator? %>
     <div class="shop-item-card__stock-badge<%= ' shop-item-card__stock-badge--low' if low_stock? %><%= ' shop-item-card__stock-badge--out' if out_of_stock? %>">
       <% if out_of_stock? %>
@@ -38,6 +34,7 @@
       <% end %>
     </div>
   <% end %>
+
   <% if logged_in %>
     <button type="button"
             class="shop-item-card__star"
@@ -47,59 +44,25 @@
             aria-pressed="false">
       <%= helpers.inline_svg_tag "icons/star_fill.svg" %>
     </button>
+  <% end %>
+
+  <% if logged_in %>
     <%= link_to order_url, class: "shop-item-card__link", data: { turbo_frame: "_top" } do %>
-      <div class="shop-item-card__image">
-        <%= image_tag image_url, alt: "#{name} image", class: "rounded-lg w-full h-auto object-scale-down aspect-square max-h-48" %>
-        <%= lock_overlay_html %>
-      </div>
-      <div class="shop-item-card__content">
-        <h4 class="shop-item-card__title"><%= name %></h4>
-        <div class="shop-item-card__description"><%= md(description) %></div>
-        <%= achievement_requirement_html %>
-        <% if enabled_until.present? %>
-          <div class="shop-item-card__enabled-until">Enabled until <%= enabled_until.strftime("%b %d, %Y") %></div>
-        <% end %>
-        <div class="shop-item-card__details">
-          <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
-          <div class="shop-item-card__prices">
-            <% if on_sale && original_price %>
-              <span class="shop-item-card__original-price">🍪<span class="shop-item-card__strikethrough"><%= number_to_currency(original_price, precision: 0).delete('$') %></span></span>
-            <% end %>
-            <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
-          </div>
-        </div>
-      </div>
+      <%= render "shop/shop_item_card_content", component: self %>
     <% end %>
+  <% else %>
+    <div class="shop-item-card__link">
+      <%= render "shop/shop_item_card_content", component: self %>
+    </div>
+  <% end %>
+
+  <% if logged_in %>
     <div class="shop-item-card__order-button">
       <% if balance >= display_price %>
         <%= link_to "Order Now", order_url, class: "btn btn-primary w-full", data: {turbo_frame: "_top"} %>
       <% else %>
         <p class="btn btn-primary w-full"><%= number_to_currency(display_price - balance, precision: 0).gsub('$', '🍪') %> more needed!</p>
       <% end %>
-    </div>
-  <% else %>
-    <div class="shop-item-card__link">
-      <div class="shop-item-card__image">
-        <%= image_tag image_url, alt: "#{name} image", class: "rounded-lg w-full h-auto object-scale-down aspect-square max-h-48" %>
-        <%= lock_overlay_html %>
-      </div>
-      <div class="shop-item-card__content">
-        <h4 class="shop-item-card__title"><%= name %></h4>
-        <div class="shop-item-card__description"><%= md(description) %></div>
-        <%= achievement_requirement_html %>
-        <% if enabled_until.present? %>
-          <div class="shop-item-card__enabled-until">Enabled until <%= enabled_until.strftime("%b %d, %Y") %></div>
-        <% end %>
-        <div class="shop-item-card__details">
-          <span class="shop-item-card__hours">⟩ <%= hours %> hours</span>
-          <div class="shop-item-card__prices">
-            <% if on_sale && original_price %>
-              <span class="shop-item-card__original-price">🍪<span class="shop-item-card__strikethrough"><%= number_to_currency(original_price, precision: 0).delete('$') %></span></span>
-            <% end %>
-            <span class="shop-item-card__price"><%= number_to_currency(display_price, precision: 0).gsub('$', '🍪') %></span>
-          </div>
-        </div>
-      </div>
     </div>
   <% end %>
 </div>
