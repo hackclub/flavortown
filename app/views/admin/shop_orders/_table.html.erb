@@ -21,7 +21,6 @@
       </thead>
       <tbody>
         <% orders.each do |order| %>
-          <% can_see = order.can_view_address?(current_user) %>
           <tr>
             <td>#<%= order.id %></td>
             <td>

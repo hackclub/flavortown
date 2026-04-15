@@ -26,9 +26,6 @@ class IdentitiesController < ApplicationController
       user: current_user
     )
 
-    result = current_user.try_sync_hackatime_data!(force: true)
-    total_seconds = result&.dig(:projects)&.values&.sum || 0
-
     # if total_seconds > 0
     #   duration = helpers.distance_of_time_in_words(total_seconds)
     #   tutorial_message [

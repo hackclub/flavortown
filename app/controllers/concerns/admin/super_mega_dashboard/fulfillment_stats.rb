@@ -186,7 +186,7 @@ module Admin
 
         data
       rescue JSON::ParserError => e
-        []
+        Sentry.capture_exception(e, extra: { response_body: llm_response.body })
       end
     end
   end
