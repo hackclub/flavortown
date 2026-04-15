@@ -47,7 +47,7 @@ module Admin
       p = shop_manager? ? draft_shop_item_params : shop_item_params
 
       if @shop_item.exclusive_fulfiller? && shop_item_params[:exclusive_fulfiller] == "0" && current_user.id != 27
-        redirect_to edit_admin_shop_item_path(@shop_item), alert: "Only user #27 can disable the exclusive fulfiller setting." and return
+        redirect_to edit_admin_shop_item_path(@shop_item), alert: "Only Amber can disable the exclusive fulfiller setting." and return
       end
 
       if @shop_item.update(shop_item_params)
