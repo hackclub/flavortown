@@ -60,6 +60,9 @@ class MyController < ApplicationController
 
     current_user.dismiss_thing!(thing_name)
     head :ok
+  rescue ArgumentError => e
+    Rails.logger.info("Invalid dismissible thing requested: #{thing_name} (#{e.message})")
+    head :bad_request
   rescue StandardError => e
     Rails.logger.error("Error dismissing thing: #{e.message}")
     head :internal_server_error

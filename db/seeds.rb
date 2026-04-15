@@ -69,6 +69,11 @@ Sidequest.find_or_create_by!(slug: "caffeinated") do |sq|
   sq.description = "Build and ship a website to unlock a caffeine grant in the shop."
 end
 
+Sidequest.find_or_create_by!(slug: "rusty_frontend") do |sq|
+  sq.title = "Rusty Frontend"
+  sq.description = "Build and ship a frontend in rust to unlock new prizes in the shop"
+end
+
 Sidequest.find_or_create_by!(slug: "physics_lab") do |sq|
   sq.title = "Physics Lab"
   sq.description = "Build an interactive physics project and ship it on Flavortown to unlock physics prizes in the shop."

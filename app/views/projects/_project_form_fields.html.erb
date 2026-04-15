@@ -157,19 +157,21 @@
   <% end %>
 </div>
 
-<div class="projects-new__field projects-new__field--hackatime-projects">
-  <%= render(
-        HackatimeProjectSelectorComponent.new(
-          label: "Hackatime Projects",
-          form: form,
-          attribute: :hackatime_project_ids,
-          color: :yellow,
-          projects: current_user.hackatime_projects,
-          project_times: @project_times,
-          subtitle: "Link this project to your Hackatime projects."
-        )
-      ) %>
-</div>
+<% unless local_assigns[:hide_hackatime] %>
+  <div class="projects-new__field projects-new__field--hackatime-projects">
+    <%= render(
+          HackatimeProjectSelectorComponent.new(
+            label: "Hackatime Projects",
+            form: form,
+            attribute: :hackatime_project_ids,
+            color: :yellow,
+            projects: current_user.hackatime_projects,
+            project_times: @project_times,
+            subtitle: "Link this project to your Hackatime projects."
+          )
+        ) %>
+  </div>
+<% end %>
 
 <div class="projects-new__field projects-new__field--ai-declaration">
   <%= render(

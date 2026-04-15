@@ -156,6 +156,8 @@ Rails.application.routes.draw do
   # API
   namespace :webhooks do
     post "ship_cert", to: "ship_cert#update_status"
+    post "mark_sus", to: "mark_sus#mark"
+    post "unmark_sus", to: "mark_sus#unmark"
   end
 
   namespace :api do
@@ -266,6 +268,8 @@ Rails.application.routes.draw do
          post :adjust_balance
          post :ban
          post :unban
+         post :mark_sus
+         post :unmark_sus
          post :cancel_all_hcb_grants
          post :shadow_ban
          post :unshadow_ban
@@ -370,6 +374,7 @@ Rails.application.routes.draw do
     get "vote_quality_dashboard/users/:user_id", to: "vote_quality_dashboard#show", as: :vote_quality_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    get "funnel_events", to: "funnel_events#index", as: :funnel_events
     delete "super_mega_dashboard/clear_cache", to: "super_mega_dashboard#clear_cache", as: :super_mega_dashboard_clear_cache
     get "flavortime_dashboard", to: "flavortime_dashboard#index"
     get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"

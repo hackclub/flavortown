@@ -88,6 +88,9 @@ application.register("music-player", MusicPlayerController);
 import OrderFormController from "./order_form_controller";
 application.register("order-form", OrderFormController);
 
+import PayoutDashController from "./payout_dash_controller";
+application.register("payout-dash", PayoutDashController);
+
 import PostAttachmentsController from "./post_attachments_controller";
 application.register("post-attachments", PostAttachmentsController);
 
@@ -111,6 +114,9 @@ application.register("responsive-image-map", ResponsiveImageMapController);
 
 import SearchableSelectController from "./searchable_select_controller";
 application.register("searchable-select", SearchableSelectController);
+
+import ShipAiReviewController from "./ship_ai_review_controller";
+application.register("ship-ai-review", ShipAiReviewController);
 
 import ShootingStarController from "./shooting_star_controller";
 application.register("shooting-star", ShootingStarController);
@@ -147,6 +153,9 @@ application.register("stats-hover", StatsHoverController);
 
 import SuperMegaFunnelController from "./super_mega_funnel_controller";
 application.register("super-mega-funnel", SuperMegaFunnelController);
+
+import SuperMegaIndexController from "./super_mega_index_controller";
+application.register("super-mega-index", SuperMegaIndexController);
 
 import TimezoneController from "./timezone_controller";
 application.register("timezone", TimezoneController);

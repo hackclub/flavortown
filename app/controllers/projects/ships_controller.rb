@@ -11,6 +11,17 @@ class Projects::ShipsController < ApplicationController
 
   def create
     authorize @project, :submit_ship?
+
+    if params[:bypass_ai_review].blank?
+      ai_result = AiShipReviewService.fetch(@project)
+      if ai_result["valid"] == false
+        @ai_review_result = ai_result
+        @step = 4
+        load_ship_data
+        return render :new, status: :unprocessable_entity
+      end
+    end
+
     selected_sidequest = selected_sidequest_for_submission
 
     # Warn if readme URL is not a raw GitHub URL
@@ -49,12 +60,14 @@ class Projects::ShipsController < ApplicationController
       redirect_to @project, alert: "Shipping is currently disabled."
     end
   end
+
   def initial_ship? = @project.posts.where(postable_type: "Post::ShipEvent").one?
 
   def load_ship_data
     @last_ship = @project.last_ship_event
     @devlogs_for_ship = devlogs_since_last_ship
     @active_sidequests = Sidequest.active
+    @ai_review_status = AiShipReviewService.fetch(@project) if @step == 4
   end
 
   def devlogs_since_last_ship

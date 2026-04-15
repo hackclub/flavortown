@@ -90,4 +90,78 @@ class ShopItemCardComponent < ViewComponent::Base
   def show_stock_indicator?
     limited && remaining_stock.present? && remaining_stock <= 10
   end
+
+  def critical_stock?
+    limited && remaining_stock.present? && remaining_stock > 0 && remaining_stock < 3
+  end
+
+  def show_limited_stock_timer?
+    enabled_until.present?
+  end
+
+  def limited_stock_timer_text
+    return nil unless enabled_until.present?
+
+    seconds_left = (enabled_until.to_time - Time.current).to_i
+    return "Ending soon" if seconds_left <= 0
+
+    days = seconds_left / 1.day
+    hours = (seconds_left % 1.day) / 1.hour
+    minutes = (seconds_left % 1.hour) / 1.minute
+
+    if days.positive?
+      "#{days}d #{hours}h left"
+    elsif hours.positive?
+      "#{hours}h #{minutes}m left"
+    else
+      "#{[ minutes, 1 ].max}m left"
+    end
+  end
+
+  # X bought > New > Limited
+
+  def primary_highlight
+    return { type: :bought, text: "#{purchase_count} bought" } if purchase_count.present?
+    return { type: :new, text: "New" } if is_new
+    nil
+  end
+
+  def show_primary_highlight?
+    primary_highlight.present?
+  end
+
+  def secondary_highlight
+    return nil if primary_highlight.present?
+    return { type: :limited, text: limited_stock_timer_text, label: "Limited Stock" } if enabled_until.present?
+    nil
+  end
+
+  def show_secondary_highlight?
+    secondary_highlight.present?
+  end
+
+  def stock_status_text
+    return "Out of stock" if out_of_stock?
+    return "#{remaining_stock} left" if show_stock_indicator?
+    nil
+  end
+
+  def show_stock_status?
+    stock_status_text.present?
+  end
+
+  def sale_percentage_text
+    return "#{sale_percentage}% OFF" if on_sale && sale_percentage.present?
+    nil
+  end
+
+  def show_sale_badge?
+    on_sale && sale_percentage.present?
+  end
+
+  def stock_status_class
+    return "shop-item-card__stock-meta--critical" if critical_stock?
+
+    nil
+  end
 end

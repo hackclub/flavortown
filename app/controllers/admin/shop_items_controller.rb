@@ -191,6 +191,7 @@ module Admin
         :show_in_carousel,
         :special,
         :sale_percentage,
+        :achievement_sale_percentage,
         :payout_percentage,
         :user_id,
         :hacker_score,
@@ -223,6 +224,7 @@ module Admin
         :source_region,
         :requires_verification_call,
         requires_achievement: [],
+        achievement_sale_slugs: [],
         attached_shop_item_ids: [],
         blocked_countries: []
       )
