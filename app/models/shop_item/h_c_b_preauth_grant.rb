@@ -5,6 +5,8 @@
 #
 #  id                                :bigint           not null, primary key
 #  accessory_tag                     :string
+#  achievement_sale_percentage       :integer
+#  achievement_sale_slugs            :string           default([]), is an Array
 #  agh_contents                      :jsonb
 #  attached_shop_item_ids            :bigint           default([]), is an Array
 #  blocked_countries                 :string           default([]), is an Array
