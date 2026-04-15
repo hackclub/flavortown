@@ -46,12 +46,8 @@ module Admin
         key: defn[:key],
         title: defn[:title],
         subtitle: defn[:subtitle],
-        steps: starter_steps(window) + send(BUILDERS.fetch(defn[:kind]), defn, window)
+        steps: send(BUILDERS.fetch(defn[:kind]), defn, window)
       }
-    end
-
-    def starter_steps(window)
-      count_steps(%w[start_flow_started identity_verified], window)
     end
 
     def event_step(name, window)
@@ -101,7 +97,7 @@ module Admin
     end
 
     def p2p_steps(_, window)
-      [
+      count_steps(%w[identity_verified], window) + [
         event_step("project_created", window),
         event_step("devlog_created", window),
         { name: "project_shipped", count: first_time_count(
@@ -141,10 +137,12 @@ module Admin
     end
 
     def ship_show_tell_steps(_, window)
+      shipped_count = p2p_steps(nil, window).find { _1[:name] == "project_shipped" }[:count]
+
       [
         event_step("project_created", window),
         event_step("devlog_created", window),
-        { name: "project_shipped", count: p2p_steps(nil, window)[2][:count] },
+        { name: "project_shipped", count: shipped_count },
         { name: "showed_and_told", count: first_time_count(
           relation: ShowAndTellAttendance.where.not(user_id: nil, date: nil),
           group: ShowAndTellAttendance.arel_table[:user_id],
@@ -160,7 +158,8 @@ module Admin
       ships = Post::ShipEvent.joins(:post)
       ships = ships.where(posts: { created_at: window }) if window
 
-      [
+      count_steps(%w[identity_verified], window) + [
+        event_step("project_created", window),
         { name: "ship_event_created", count: ships.distinct.count("posts.user_id") },
         { name: "ship_event_certified", count: ships.where(certification_status: "approved").distinct.count("posts.user_id") },
         { name: "ship_event_paid", count: ships.where.not(payout: nil).distinct.count("posts.user_id") }
@@ -172,11 +171,13 @@ module Admin
 
       submitted = window ? base.where(created_at: window) : base
       reviewed  = window ? base.where.not(reviewed_at: nil).where(reviewed_at: window) : base.where.not(reviewed_at: nil)
+      shipped_count = p2p_steps(nil, window).find { _1[:name] == "project_shipped" }[:count]
 
-      [
-        { name: "quest_entry_submitted", count: submitted.distinct.count("project_memberships.user_id") },
-        { name: "quest_entry_reviewed", count: reviewed.distinct.count("project_memberships.user_id") },
-        { name: "quest_entry_approved", count: reviewed.where(aasm_state: "approved").distinct.count("project_memberships.user_id") }
+    [
+        { name: "project_shipped", count: shipped_count },
+        { name: "quest_proj_submitted", count: submitted.distinct.count("project_memberships.user_id") },
+        { name: "quest_proj_reviewed", count: reviewed.distinct.count("project_memberships.user_id") },
+        { name: "quest_proj_approved", count: reviewed.where(aasm_state: "approved").distinct.count("project_memberships.user_id") }
       ]
     end
 
@@ -185,7 +186,7 @@ module Admin
 
       base_steps = [
         { name: "vote_casted", count: votes.distinct.count(:user_id) },
-        { name: "15_votes_casted", count: votes.group(:user_id).having("COUNT(*) >= 15").count.size }
+        { name: "25_votes_casted", count: votes.group(:user_id).having("COUNT(*) >= 25").count.size }
       ]
 
       extra = VOTING.fetch(defn[:variant]).map do |name, strategy, verdict_value|
