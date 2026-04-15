@@ -174,7 +174,7 @@ module Admin
       shipped_count = p2p_steps(nil, window).find { _1[:name] == "project_shipped" }[:count]
 
     [
-        {name: "project_shipped", count: shipped_count},
+        { name: "project_shipped", count: shipped_count },
         { name: "quest_proj_submitted", count: submitted.distinct.count("project_memberships.user_id") },
         { name: "quest_proj_reviewed", count: reviewed.distinct.count("project_memberships.user_id") },
         { name: "quest_proj_approved", count: reviewed.where(aasm_state: "approved").distinct.count("project_memberships.user_id") }
