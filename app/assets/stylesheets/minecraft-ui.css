@@ -5,13 +5,19 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
   background-color: #2E2E2E;
   font-family: 'Press Start 2P', cursive;
   color: white;
   text-align: center;
   padding: 2rem;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .minecraft-title {
@@ -19,6 +25,16 @@
   color: #FFFFFF;
   text-shadow: 4px 4px 0px #3E3E3E;
   margin-bottom: 2rem;
+}
+
+.minecraft-title-image {
+  max-width: 500px;
+  width: 100%;
+  height: auto;
+  margin-top: -4rem;
+  margin-bottom: 2rem;
+  display: block;
+  image-rendering: auto;
 }
 
 .minecraft-menu {
