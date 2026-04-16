@@ -41,3 +41,13 @@
 .minecraft-button:active {
   box-shadow: inset 2px 2px #0006, inset -2px -4px #FFF7;
 }
+
+.minecraft-image {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  margin-bottom: 2.5rem;
+  margin-top: -1rem;
+  transform: scale(1.3);
+}
