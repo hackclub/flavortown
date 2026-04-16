@@ -13,6 +13,8 @@ services:
     environment:
       - RAILS_ENV=development
       - FERRET=${FERRET:-}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:pass@db:5432/flavortown_development}
+      - EMBEDDINGS_DATABASE_URL=${EMBEDDINGS_DATABASE_URL:-postgresql://postgres:pass@dbe:5432/flavortown_development_embed}
     depends_on:
       - db
       - dbe

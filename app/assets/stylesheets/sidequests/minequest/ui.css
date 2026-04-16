@@ -15,7 +15,7 @@
   font-family: 'Press Start 2P', cursive;
   color: white;
   text-align: center;
-  padding: 2rem;
+  padding: 1.5rem;
   box-sizing: border-box;
   overflow-y: auto;
 }
@@ -28,14 +28,14 @@
 }
 
 .minecraft-title-container {
-  width: min(1100px, 90%);
-  height: 260px;
+  width: min(1280px, 96%);
+  height: 340px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  margin-top: -2rem;
-  margin-bottom: 2rem;
+  margin-top: -1rem;
+  margin-bottom: 1.25rem;
 }
 
 .minecraft-title-image {
@@ -74,15 +74,76 @@
   color: #FFFFFFA0;
 }
 
+.minecraft-submissions-button {
+  text-align: center;
+}
+
+.minecraft-submissions-total {
+  margin: 0.15rem 0 0;
+  font-size: 0.6rem;
+  line-height: 1.2;
+  color: #f8d97f;
+  text-shadow: 1px 1px 0 #000000a0;
+  transform: rotate(-7deg);
+  transform-origin: center;
+  text-align: right;
+  align-self: flex-end;
+  white-space: nowrap;
+}
+
 .minecraft-footer-buttons {
   display: flex;
   justify-content: center;
   width: 100%;
-  max-width: 400px;
+  max-width: 540px;
+  gap: 0.75rem;
 }
 
 .minecraft-menu-button.small {
   flex-grow: 1;
+}
+
+.minecraft-prizes-book {
+  width: min(520px, 92vw);
+  height: auto;
+  min-height: 360px;
+  padding-bottom: 4.5rem;
+}
+
+.minecraft-prizes-content {
+  text-align: left;
+}
+
+.minecraft-prizes-summary {
+  font-size: 0.7rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.minecraft-prizes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.minecraft-prizes-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.minecraft-prize-name {
+  color: #3b2411;
+}
+
+.minecraft-prize-cost {
+  color: #6b4b22;
+  white-space: nowrap;
 }
 
 

@@ -4,5 +4,6 @@
   <%= image_tag "sidequests/art.png", class: "minecraft-image" %>
   <p><%= sidequest.description %></p>
 
-  <%= link_to "View Sidequest", sidequest_path(sidequest), class: "minecraft-button" %>
+  <%= link_to "View Sidequest", minequest_sidequest_path, class: "minecraft-button" %>
+  <p class="minecraft-submissions-total">Total projects submitted: <%= sidequest.approved_count %></p>
 </div>

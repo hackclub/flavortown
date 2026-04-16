@@ -1,8 +1,8 @@
 <%= stylesheet_link_tag "sidequests/minequest/ui", "data-turbo-track": "reload" %>
 
-<div class="minecraft-home-screen" data-controller="sidequests--minequest--accessibility" data-sidequests--minequest--accessibility-gif-value="<%= asset_path('sidequests/minequest/animated-title.gif') %>" data-sidequests--minequest--accessibility-png-value="<%= asset_path('sidequests/minequest/static-title.png') %>" style="background-image: url('<%= asset_path('sidequests/minequest/bg.png') %>'); background-size: cover; background-position: center;">
+<div class="minecraft-home-screen" style="background-image: url('<%= asset_path('sidequests/minequest/bg.png') %>'); background-size: cover; background-position: center;">
   <div class="minecraft-title-container">
-    <%= image_tag "sidequests/minequest/animated-title.gif", class: "minecraft-title-image", data: { sidequests__minequest__accessibility_target: "image" } %>
+    <%= image_tag "sidequests/minequest/animated-title.gif", class: "minecraft-title-image", alt: "Minequest" %>
   </div>
 
   <div class="minecraft-menu">
@@ -46,11 +46,36 @@
         </div>
       </div>
     </div>
-    <%= link_to "Server", "https://hackclub.com/minecraft/", class: "minecraft-menu-button", target: "_blank" %>
+    <%= link_to "View Project Submissions", minequest_sidequest_path(view: "submissions"), class: "minecraft-menu-button minecraft-submissions-button" %>
+    <p class="minecraft-submissions-total"><%= pluralize(@approved_entries.size, "project") %> submitted so far</p>
   </div>
 
   <div class="minecraft-footer-buttons">
-    <button type="button" class="minecraft-menu-button small" data-action="click->sidequests--minequest--accessibility#toggle" data-sidequests--minequest--accessibility-target="button" aria-pressed="false">A11y</button>
+    <div data-controller="sidequests--minequest--modal">
+      <button type="button" class="minecraft-menu-button small" data-action="click->sidequests--minequest--modal#open">Prizes</button>
+
+      <div class="minecraft-modal hidden" data-sidequests--minequest--modal-target="dialog">
+        <div class="minecraft-book minecraft-prizes-book">
+          <h3 class="minecraft-book-title">Prizes</h3>
+          <div class="minecraft-book-content minecraft-prizes-content">
+            <% if @prizes.present? && @prizes.any? %>
+              <p class="minecraft-prizes-summary"><%= pluralize(@prizes.count, "prize") %> unlockable for Minequest.</p>
+              <ul class="minecraft-prizes-list">
+                <% @prizes.each do |prize| %>
+                  <li>
+                    <span class="minecraft-prize-name"><%= prize.name %></span>
+                    <span class="minecraft-prize-cost"><%= number_to_currency(prize.ticket_cost, precision: 0).gsub('$', '') %> cookies</span>
+                  </li>
+                <% end %>
+              </ul>
+            <% else %>
+              <p class="minecraft-prizes-summary">Prizes will show up here once they’re configured.</p>
+            <% end %>
+          </div>
+          <button type="button" data-action="click->sidequests--minequest--modal#close" class="minecraft-book-btn">Close</button>
+        </div>
+      </div>
+    </div>
     <%= link_to "← Back", sidequests_path, class: "minecraft-menu-button small" %>
   </div>
   <div class="minecraft-footer">

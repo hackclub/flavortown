@@ -1,9 +1,10 @@
-<% content_for :title, @sidequest.title %>
+<% page_title = @display_title || @sidequest.title %>
+<% content_for :title, page_title %>
 <% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
 <% content_for :og_image, og_image_url('sidequests', format: :png) %>
 <% content_for :twitter_card, "summary_large_image" %>
 
-<%= render HeadingComponent.new(title: @sidequest.title, tone: :blue, size: :full) %>
+<%= render HeadingComponent.new(title: page_title, tone: :blue, size: :full) %>
 
 <div class="sidequest-show">
   <div class="sidequest-show__content">
@@ -49,9 +50,11 @@
     <% end %>
 
     <div class="sidequest-show__actions">
+      <% back_text = @display_title.present? ? "← Back to #{@display_title}" : "← Back to Sidequests" %>
+      <% back_href = @display_title.present? ? minequest_sidequest_path : sidequests_path %>
       <%= render ButtonComponent.new(
-            text: "← Back to Sidequests",
-            href: sidequests_path,
+        text: back_text,
+        href: back_href,
             color: :brown,
             variant: :borderless
           ) %>

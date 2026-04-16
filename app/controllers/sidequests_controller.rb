@@ -1,11 +1,17 @@
 class SidequestsController < ApplicationController
   def index
-    @active_sidequests = Sidequest.active.with_approved_count
-    @expired_sidequests = Sidequest.expired.with_approved_count
+    @active_sidequests = ordered_sidequests(Sidequest.active.with_approved_count)
+    @expired_sidequests = ordered_sidequests(Sidequest.expired.with_approved_count)
   end
 
   def show
-    @sidequest = Sidequest.find_by!(slug: params[:id])
+    requested_slug = params[:id]
+    slug = requested_slug == "minequest" ? "minecraft-art" : requested_slug
+    @sidequest = Sidequest.find_by!(slug: slug)
+
+    if @sidequest.slug == "minecraft-art" && requested_slug == "minecraft-art"
+      redirect_to minequest_sidequest_path(view: params[:view]), status: :moved_permanently and return
+    end
 
     if @sidequest.external_page_link.present?
       redirect_to @sidequest.external_page_link, allow_other_host: true and return
@@ -37,7 +43,10 @@ class SidequestsController < ApplicationController
 
     if @sidequest.slug == "minecraft-art"
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_minecraft-art").where(enabled: true)
-      render "sidequests/minequest/show" and return
+      if params[:view] != "submissions"
+        render "sidequests/minequest/show" and return
+      end
+      @display_title = "Minequest"
     end
 
     custom_template = "sidequests/show_#{@sidequest.slug}"
@@ -81,5 +90,11 @@ class SidequestsController < ApplicationController
     rescue
       render json: { idea: "Failed to parse API response." }
     end
+  end
+
+  private
+
+  def ordered_sidequests(scope)
+    scope.order(Arel.sql("CASE WHEN sidequests.slug = 'minecraft-art' THEN 0 ELSE 1 END"), :title)
   end
 end
