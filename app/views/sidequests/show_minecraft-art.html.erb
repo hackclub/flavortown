@@ -1,7 +1,9 @@
 <%= stylesheet_link_tag "minecraft-ui", "data-turbo-track": "reload" %>
 
-<div class="minecraft-home-screen">
-  <%= image_tag "sidequests/i love flavortown.png", class: "minecraft-title-image" %>
+<div class="minecraft-home-screen" data-controller="accessibility" data-accessibility-gif-value="<%= asset_path('sidequests/i love flavortown (1).gif') %>" data-accessibility-png-value="<%= asset_path('sidequests/i love flavortown.png') %>" style="background-image: url('<%= asset_path('sidequests/minecraft_bg.png') %>'); background-size: cover; background-position: center;">
+  <div class="minecraft-title-container">
+    <%= image_tag "sidequests/i love flavortown (1).gif", class: "minecraft-title-image", data: { accessibility_target: "image" } %>
+  </div>
 
   <div class="minecraft-menu">
     <%= link_to "Requirements", "https://hackclub.com/minecraft/", class: "minecraft-menu-button", target: "_blank" %>
@@ -10,8 +12,14 @@
   </div>
 
   <div class="minecraft-footer-buttons">
+    <button type="button" class="minecraft-menu-button small" data-action="click->accessibility#toggle" data-accessibility-target="button" aria-pressed="false">A11y</button>
     <%= link_to "← Back", sidequests_path, class: "minecraft-menu-button small" %>
   </div>
+  <div class="minecraft-footer">
+    <span class="minecraft-footer-left">Minequest 1.0.1/flavourtown</span>
+    <span class="minecraft-footer-right">Copyright Hackclub. Do distribute !</span>
+  </div>
+
 </div>
 
 

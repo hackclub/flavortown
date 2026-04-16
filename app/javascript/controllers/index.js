@@ -186,3 +186,6 @@ application.register("word-count", WordCountController);
 
 import XpWindowController from "./xp_window_controller";
 application.register("xp-window", XpWindowController);
+
+import AccessibilityController from "./accessibility_controller";
+application.register("accessibility", AccessibilityController);
