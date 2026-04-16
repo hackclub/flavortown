@@ -441,6 +441,4 @@ Rails.application.routes.draw do
       get :stats
     end
   end
-
-  post "generate_ideas", to: "sidequests#generate_ideas"
 end

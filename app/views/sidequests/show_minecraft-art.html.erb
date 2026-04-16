@@ -6,8 +6,46 @@
   </div>
 
   <div class="minecraft-menu">
-    <%= link_to "Requirements", "https://hackclub.com/minecraft/", class: "minecraft-menu-button", target: "_blank" %>
-    <%= link_to "Ideas", "https://hackclub.com/minecraft/", class: "minecraft-menu-button", target: "_blank" %>
+    <div data-controller="minecraft-modal">
+      <a href="#" class="minecraft-menu-button" style="width: 100%; display: block;" data-action="click->minecraft-modal#open">Requirements</a>
+      
+      <div class="minecraft-modal hidden" data-minecraft-modal-target="dialog">
+        <div class="minecraft-book">
+          <h3 class="minecraft-book-title">Requirements</h3>
+          <div class="minecraft-book-content">
+            <p>
+              Greetings Adventurer!<br><br>
+              This sidequest requires you to:<br><br>
+              1. Join the Minecraft Server<br>
+              2. Build something amazing<br>
+              3. Submit a devlog!<br><br>
+              Have fun and be creative!
+            </p>
+          </div>
+          <button type="button" data-action="click->minecraft-modal#close" class="minecraft-book-btn">Close</button>
+        </div>
+      </div>
+    </div>
+    <div data-controller="minecraft-ideas" data-minecraft-ideas-url-value="/generate_ideas">
+      <a href="#" class="minecraft-menu-button" style="width: 100%; display: block;" data-action="click->minecraft-ideas#open">Ideas</a>
+      
+      <div class="minecraft-modal hidden" data-minecraft-ideas-target="dialog">
+        <div class="minecraft-book" style="height: auto; min-height: 400px; padding-bottom: 80px;">
+          <h3 class="minecraft-book-title">Idea Generator</h3>
+          <div class="minecraft-book-content" data-minecraft-ideas-target="content">
+            <p>
+              Need inspiration?
+            </p>
+          </div>
+          
+          <div style="position: absolute; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px;">
+            <button type="button" data-action="click->minecraft-ideas#generate" data-minecraft-ideas-target="button" class="minecraft-book-btn" style="position: static; transform: none;">Generate Idea</button>
+            <button type="button" data-action="click->minecraft-ideas#close" class="minecraft-book-btn" style="position: static; transform: none;">Close</button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
     <%= link_to "Server", "https://hackclub.com/minecraft/", class: "minecraft-menu-button", target: "_blank" %>
   </div>
 

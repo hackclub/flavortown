@@ -1,0 +1,8 @@
+--- config/routes.rb
++++ config/routes.rb
+@@ -32,3 +32,5 @@
+   get "nibbles", to: redirect("/sidequests")
+   resources :sidequests, only: [ :index, :show ]
+   get "sidequests/:id/dash", to: "sidequests/lockin#dash", constraints: { id: "lockin" }, as: :dash_sidequest
++  
++  post "generate_ideas", to: "sidequests#generate_ideas"

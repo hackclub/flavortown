@@ -1,0 +1,30 @@
+--- app/views/sidequests/show_minecraft-art.html.erb
++++ app/views/sidequests/show_minecraft-art.html.erb
+@@ -10,7 +10,10 @@
+   </div>
+ 
+   <div class="minecraft-menu">
+-    <%= link_to "Requirements", "https://hackclub.com/minecraft/", class: "minecraft-menu-button", target: "_blank" %>
++    <div data-controller="minecraft-modal">
++      <button type="button" class="minecraft-menu-button" style="width: 100%; text-align: center; display: block;" data-action="click->minecraft-modal#open">Requirements</button>
++      
++      <div class="minecraft-modal hidden" data-minecraft-modal-target="dialog">
++        <div class="minecraft-book">
++          <h3 class="minecraft-book-title">Requirements</h3>
++          <div class="minecraft-book-content">
++            <p>
++              Greetings Adventurer!<br><br>
++              This sidequest requires you to:<br><br>
++              1. Join the Hack Club Minecraft Server<br>
++              2. Build something amazing<br>
++              3. Submit a devlog!<br><br>
++              Have fun and be creative!
++            </p>
++          </div>
++          <button type="button" data-action="click->minecraft-modal#close" class="minecraft-book-btn">Close</button>
++        </div>
++      </div>
++    </div>
+     <%= link_to "Ideas", "https://hackclub.com/minecraft/", class: "minecraft-menu-button", target: "_blank" %>
+     <%= link_to "Server", "https://hackclub.com/minecraft/", class: "minecraft-menu-button", target: "_blank" %>
+   </div>

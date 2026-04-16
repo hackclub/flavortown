@@ -195,3 +195,6 @@ application.register("minecraft-modal", MinecraftModalController);
 
 import MinecraftIdeasController from "./minecraft_ideas_controller";
 application.register("minecraft-ideas", MinecraftIdeasController);
+
+import MinecraftIdeasController from "./minecraft_ideas_controller";
+application.register("minecraft-ideas", MinecraftIdeasController);

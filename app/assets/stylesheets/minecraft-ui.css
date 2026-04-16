@@ -47,18 +47,6 @@
   image-rendering: auto;
 }
 
-/* When animation is turned off (static PNG), slightly reduce its size */
-.minecraft-title-image[data-animated="false"] {
-  /* reduce to ~33% (two-thirds of the current 50% size) */
-  max-width: 33%;
-  opacity: 0.98;
-  /* nudge the static image slightly: left and up */
-  transform: translate(-6%, -8%);
-  /* ensure transform doesn't affect layout flow */
-  display: block;
-  margin-left: 0;
-}
-
 .minecraft-menu {
   display: flex;
   flex-direction: column;
@@ -161,3 +149,132 @@
 
 .minecraft-footer-left { left: 10px; }
 .minecraft-footer-right { right: 10px; }
+
+/* Book Modal */
+.minecraft-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.minecraft-modal.hidden {
+  display: none !important;
+}
+
+.minecraft-book {
+  background-color: #d1b88b;
+  border: 4px solid #4a3a2d;
+  width: 320px;
+  height: 400px;
+  position: relative;
+  box-shadow: inset 2px 2px 0px #ead7b0, inset -2px -2px 0px #ac8f5b;
+  padding: 20px;
+  color: #000;
+  font-family: monospace; /* Books often use simpler fonts or minecraftia */
+}
+
+h3.minecraft-book-title {
+  text-align: center;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.minecraft-book-content p {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.6rem;
+  line-height: 1.5;
+}
+
+.minecraft-book-btn {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #707070;
+  color: #E0E0E0;
+  border: 2px solid;
+  border-color: #C6C6C6 #5A5A5A #5A5A5A #C6C6C6;
+  box-shadow: inset -2px -2px 0px #00000080;
+  padding: 0.5rem 1rem;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.minecraft-book-btn:hover {
+  background-color: #7F7F7F;
+  color: #FFFFFFA0;
+}
+
+/* Book Modal */
+.minecraft-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.minecraft-modal.hidden {
+  display: none !important;
+}
+
+.minecraft-book {
+  background-color: #d1b88b;
+  border: 4px solid #4a3a2d;
+  width: 320px;
+  height: 400px;
+  position: relative;
+  box-shadow: inset 2px 2px 0px #ead7b0, inset -2px -2px 0px #ac8f5b;
+  padding: 20px;
+  color: #000;
+}
+
+.minecraft-book-title {
+  text-align: center;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.minecraft-book-content p {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.6rem;
+  line-height: 1.5;
+}
+
+.minecraft-book-btn {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #707070;
+  color: #E0E0E0;
+  border: 2px solid;
+  border-color: #C6C6C6 #5A5A5A #5A5A5A #C6C6C6;
+  box-shadow: inset -2px -2px 0px #00000080;
+  padding: 0.5rem 1rem;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.minecraft-book-btn:hover {
+  background-color: #7F7F7F;
+  color: #FFFFFFA0;
+}

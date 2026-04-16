@@ -44,4 +44,41 @@ class SidequestsController < ApplicationController
       render custom_template
     end
   end
+
+  def generate_ideas
+    api_key = ENV['GEMINI_API_KEY']
+    
+    if api_key.blank?
+      render json: { idea: "Missing GEMINI_API_KEY in .env file." }
+      return
+    end
+
+    require 'net/http'
+    require 'uri'
+    require 'json'
+    
+    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemma-2-27b-it:generateContent?key=#{api_key}")
+    
+    request = Net::HTTP::Post.new(uri)
+    request.content_type = "application/json"
+    request.body = JSON.dump({
+      "contents" => [{"role" => "user", "parts" => [{"text" => "Provide 1 cool Minecraft sidequest idea that involves coding (like a minecraft shader with retro vibe, or a custom plugin). Give me a mix of creative ideas, but output just ONE specific prompt/idea right now. Keep it short, maximum 2 sentences."}]}]
+    })
+    
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request)
+    end
+    
+    begin
+      result = JSON.parse(response.body)
+      if response.code == "200"
+        text = result.dig("candidates", 0, "content", "parts", 0, "text") || "Could not generate ideas right now."
+        render json: { idea: text.strip }
+      else
+        render json: { idea: "API Error: #{result.dig('error', 'message')}" }
+      end
+    rescue
+      render json: { idea: "Failed to parse API response." }
+    end
+  end
 end
