@@ -163,7 +163,39 @@ module ApplicationHelper
     end
   end
 
+  def challenger_current_cycle(date = Date.current)
+    challenger_cycles.find { |cycle| cycle[:start_date] <= date && date <= cycle[:end_date] } || challenger_cycles.last
+  end
+
+  def challenger_current_cycle_label(date = Date.current)
+    cycle = challenger_current_cycle(date)
+    "Cycle #{cycle[:number]}: #{cycle[:theme]}"
+  end
+
   private
+
+  def challenger_cycles
+    [
+      {
+        number: 1,
+        start_date: Date.new(2026, 4, 16),
+        end_date: Date.new(2026, 4, 20),
+        theme: "something an astronaut would use while on a mission"
+      },
+      {
+        number: 2,
+        start_date: Date.new(2026, 4, 21),
+        end_date: Date.new(2026, 4, 25),
+        theme: "something that would help civilization survive on the moon"
+      },
+      {
+        number: 3,
+        start_date: Date.new(2026, 4, 26),
+        end_date: Date.new(2026, 4, 30),
+        theme: "something that would help scientists study space better"
+      }
+    ]
+  end
 
   def find_achievement_asset(icon_name)
     @achievement_asset_cache ||= {}

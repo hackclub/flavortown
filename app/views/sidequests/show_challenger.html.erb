@@ -7,6 +7,11 @@
 
 <div class="sidequest-show sidequest-show--challenger">
   <div class="sidequest-show__content">
+    <div class="sidequest-show__cycle-banner">
+      <p class="sidequest-show__cycle-label">Current Cycle</p>
+      <p class="sidequest-show__cycle-text"><%= challenger_current_cycle_label %></p>
+    </div>
+
     <% if @sidequest.description.present? %>
       <p class="sidequest-show__description"><%= @sidequest.description %></p>
     <% end %>
@@ -48,7 +53,7 @@
       <h3 class="sidequest-show__info-title">Tips & Resources</h3>
       <ul class="sidequest-show__steps">
         <li>Join <%= link_to "#challenger-space-centre", "https://hackclub.enterprise.slack.com/archives/C0CHALLENGER", target: "_blank", rel: "noopener" %> to talk to other challengers!</li>
-        <li>Need ideas? We have an idea generator thanks to @freddie! Try doing <code>/nebula idea</code> in #challenger-space-centre!</li>
+        <li>Need ideas? We have an idea generator thanks to @freddie! Try doing <code>/nebula idea</code> in <%= link_to "#challenger-space-centre", "https://hackclub.enterprise.slack.com/archives/C0CHALLENGER", target: "_blank", rel: "noopener" %>!</li>
         <li><strong>Special Prize:</strong> Submitting to all 3 cycles may or may not unlock a special prize…</li>
       </ul>
     </section>

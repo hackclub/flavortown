@@ -1,4 +1,31 @@
 .sidequest-show {
+  &__cycle-banner {
+    margin: 0 0 2rem;
+    padding: 1.5rem 1.25rem;
+    border-radius: 1rem;
+    border: 2px solid rgba(48, 19, 97, 0.18);
+    background: linear-gradient(135deg, rgba(48, 19, 97, 0.12), rgba(255, 255, 255, 0.95));
+    text-align: center;
+    box-shadow: 0 12px 28px rgba(48, 19, 97, 0.12);
+  }
+
+  &__cycle-label {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-brown-400);
+  }
+
+  &__cycle-text {
+    margin: 0.35rem 0 0;
+    font-size: clamp(1.4rem, 3vw, 2.4rem);
+    line-height: 1.1;
+    font-weight: 900;
+    color: var(--color-brown-500);
+  }
+
   &--optimization {
     .sidequest-show__content {
       max-width: 1100px;
