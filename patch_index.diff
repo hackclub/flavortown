@@ -1,9 +1,0 @@
---- app/javascript/controllers/index.js
-+++ app/javascript/controllers/index.js
-@@ -107,6 +107,3 @@
- 
- import MinecraftIdeasController from "./minecraft_ideas_controller";
- application.register("minecraft-ideas", MinecraftIdeasController);
--
--import MinecraftIdeasController from "./minecraft_ideas_controller";
--application.register("minecraft-ideas", MinecraftIdeasController);

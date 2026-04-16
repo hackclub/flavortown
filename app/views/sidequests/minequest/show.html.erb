@@ -1,0 +1,61 @@
+<%= stylesheet_link_tag "sidequests/minequest/ui", "data-turbo-track": "reload" %>
+
+<div class="minecraft-home-screen" data-controller="sidequests--minequest--accessibility" data-sidequests--minequest--accessibility-gif-value="<%= asset_path('sidequests/minequest/animated-title.gif') %>" data-sidequests--minequest--accessibility-png-value="<%= asset_path('sidequests/minequest/static-title.png') %>" style="background-image: url('<%= asset_path('sidequests/minequest/bg.png') %>'); background-size: cover; background-position: center;">
+  <div class="minecraft-title-container">
+    <%= image_tag "sidequests/minequest/animated-title.gif", class: "minecraft-title-image", data: { sidequests__minequest__accessibility_target: "image" } %>
+  </div>
+
+  <div class="minecraft-menu">
+    <div data-controller="sidequests--minequest--modal">
+      <a href="#" class="minecraft-menu-button" style="width: 100%; display: block;" data-action="click->sidequests--minequest--modal#open">Requirements</a>
+      
+      <div class="minecraft-modal hidden" data-sidequests--minequest--modal-target="dialog">
+        <div class="minecraft-book">
+          <h3 class="minecraft-book-title">Requirements</h3>
+          <div class="minecraft-book-content">
+            <p>
+              Greetings Adventurer!<br><br>
+              This sidequest requires you to:<br><br>
+              1. Join the Minecraft Server<br>
+              2. Build something amazing<br>
+              3. Submit a devlog!<br><br>
+              Have fun and be creative!
+            </p>
+          </div>
+          <button type="button" data-action="click->sidequests--minequest--modal#close" class="minecraft-book-btn">Close</button>
+        </div>
+      </div>
+    </div>
+    <div data-controller="sidequests--minequest--ideas" data-sidequests--minequest--ideas-url-value="/generate_ideas">
+      <a href="#" class="minecraft-menu-button" style="width: 100%; display: block;" data-action="click->sidequests--minequest--ideas#open">Ideas</a>
+      
+      <div class="minecraft-modal hidden" data-sidequests--minequest--ideas-target="dialog">
+        <div class="minecraft-book" style="height: auto; min-height: 400px; padding-bottom: 80px;">
+          <h3 class="minecraft-book-title">Idea Generator</h3>
+          <div class="minecraft-book-content" data-sidequests--minequest--ideas-target="content">
+            <p>
+              Need inspiration?
+            </p>
+          </div>
+          
+          <div style="position: absolute; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px;">
+            <button type="button" data-action="click->sidequests--minequest--ideas#generate" data-sidequests--minequest--ideas-target="button" class="minecraft-book-btn" style="position: static; transform: none;">Generate Idea</button>
+            <button type="button" data-action="click->sidequests--minequest--ideas#close" class="minecraft-book-btn" style="position: static; transform: none;">Close</button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    <%= link_to "Server", "https://hackclub.com/minecraft/", class: "minecraft-menu-button", target: "_blank" %>
+  </div>
+
+  <div class="minecraft-footer-buttons">
+    <button type="button" class="minecraft-menu-button small" data-action="click->sidequests--minequest--accessibility#toggle" data-sidequests--minequest--accessibility-target="button" aria-pressed="false">A11y</button>
+    <%= link_to "← Back", sidequests_path, class: "minecraft-menu-button small" %>
+  </div>
+  <div class="minecraft-footer">
+    <span class="minecraft-footer-left">Minequest 1.0.1/flavourtown</span>
+    <span class="minecraft-footer-right">Copyright Hackclub. Do distribute !</span>
+  </div>
+
+</div>

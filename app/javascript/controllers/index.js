@@ -2,196 +2,193 @@
 // Run that command whenever you add a new controller or create them with
 // ./bin/rails generate stimulus controllerName
 
-import { application } from "./application";
+import { application } from "./application"
 
-import AchievementHighlightController from "./achievement_highlight_controller";
-application.register("achievement-highlight", AchievementHighlightController);
+import AchievementHighlightController from "./achievement_highlight_controller"
+application.register("achievement-highlight", AchievementHighlightController)
 
-import AddressSelectController from "./address_select_controller";
-application.register("address-select", AddressSelectController);
+import AddressSelectController from "./address_select_controller"
+application.register("address-select", AddressSelectController)
 
-import CardSoundController from "./card_sound_controller";
-application.register("card-sound", CardSoundController);
+import CardSoundController from "./card_sound_controller"
+application.register("card-sound", CardSoundController)
 
-import ChallengerStarsController from "./challenger_stars_controller";
-application.register("challenger-stars", ChallengerStarsController);
+import ChallengerStarsController from "./challenger_stars_controller"
+application.register("challenger-stars", ChallengerStarsController)
 
-import CookieClickerController from "./cookie_clicker_controller";
-application.register("cookie-clicker", CookieClickerController);
+import CookieClickerController from "./cookie_clicker_controller"
+application.register("cookie-clicker", CookieClickerController)
 
-import CopyDebugController from "./copy_debug_controller";
-application.register("copy-debug", CopyDebugController);
+import CopyDebugController from "./copy_debug_controller"
+application.register("copy-debug", CopyDebugController)
 
-import CustomsWarningController from "./customs_warning_controller";
-application.register("customs-warning", CustomsWarningController);
+import CustomsWarningController from "./customs_warning_controller"
+application.register("customs-warning", CustomsWarningController)
 
-import DebugOverlayController from "./debug_overlay_controller";
-application.register("debug-overlay", DebugOverlayController);
+import DebugOverlayController from "./debug_overlay_controller"
+application.register("debug-overlay", DebugOverlayController)
 
-import DevlogAttachmentSelectorController from "./devlog_attachment_selector_controller";
-application.register(
-  "devlog-attachment-selector",
-  DevlogAttachmentSelectorController,
-);
+import DevlogAttachmentSelectorController from "./devlog_attachment_selector_controller"
+application.register("devlog-attachment-selector", DevlogAttachmentSelectorController)
 
-import DialogueIterationController from "./dialogue_iteration_controller";
-application.register("dialogue-iteration", DialogueIterationController);
+import DialogueIterationController from "./dialogue_iteration_controller"
+application.register("dialogue-iteration", DialogueIterationController)
 
-import DropdownController from "./dropdown_controller";
-application.register("dropdown", DropdownController);
+import DropdownController from "./dropdown_controller"
+application.register("dropdown", DropdownController)
 
-import FileUploadController from "./file_upload_controller";
-application.register("file-upload", FileUploadController);
+import FileUploadController from "./file_upload_controller"
+application.register("file-upload", FileUploadController)
 
-import FlashController from "./flash_controller";
-application.register("flash", FlashController);
+import FlashController from "./flash_controller"
+application.register("flash", FlashController)
 
-import HackatimeProjectSelectorController from "./hackatime_project_selector_controller";
-application.register(
-  "hackatime-project-selector",
-  HackatimeProjectSelectorController,
-);
+import HackatimeProjectSelectorController from "./hackatime_project_selector_controller"
+application.register("hackatime-project-selector", HackatimeProjectSelectorController)
 
-import HcbChartController from "./hcb_chart_controller";
-application.register("hcb-chart", HcbChartController);
+import HcbChartController from "./hcb_chart_controller"
+application.register("hcb-chart", HcbChartController)
 
-import HelloController from "./hello_controller";
-application.register("hello", HelloController);
+import HelloController from "./hello_controller"
+application.register("hello", HelloController)
 
-import JsonHighlightController from "./json_highlight_controller";
-application.register("json-highlight", JsonHighlightController);
+import JsonHighlightController from "./json_highlight_controller"
+application.register("json-highlight", JsonHighlightController)
 
-import KitchenDialogueController from "./kitchen_dialogue_controller";
-application.register("kitchen-dialogue", KitchenDialogueController);
+import KitchenDialogueController from "./kitchen_dialogue_controller"
+application.register("kitchen-dialogue", KitchenDialogueController)
 
-import LapseModalController from "./lapse_modal_controller";
-application.register("lapse-modal", LapseModalController);
+import LapseModalController from "./lapse_modal_controller"
+application.register("lapse-modal", LapseModalController)
 
-import LazyLoadController from "./lazy_load_controller";
-application.register("lazy-load", LazyLoadController);
+import LazyLoadController from "./lazy_load_controller"
+application.register("lazy-load", LazyLoadController)
 
-import LightboxController from "./lightbox_controller";
-application.register("lightbox", LightboxController);
+import LightboxController from "./lightbox_controller"
+application.register("lightbox", LightboxController)
 
-import LoadMoreController from "./load_more_controller";
-application.register("load-more", LoadMoreController);
+import LoadMoreController from "./load_more_controller"
+application.register("load-more", LoadMoreController)
 
-import MarkdownPreviewController from "./markdown_preview_controller";
-application.register("markdown-preview", MarkdownPreviewController);
+import MarkdownPreviewController from "./markdown_preview_controller"
+application.register("markdown-preview", MarkdownPreviewController)
 
-import ModalController from "./modal_controller";
-application.register("modal", ModalController);
+import MinecraftTabsController from "./minecraft_tabs_controller"
+application.register("minecraft-tabs", MinecraftTabsController)
 
-import MusicPlayerController from "./music_player_controller";
-application.register("music-player", MusicPlayerController);
+import ModalController from "./modal_controller"
+application.register("modal", ModalController)
 
-import OrderFormController from "./order_form_controller";
-application.register("order-form", OrderFormController);
+import MusicPlayerController from "./music_player_controller"
+application.register("music-player", MusicPlayerController)
 
-import PayoutDashController from "./payout_dash_controller";
-application.register("payout-dash", PayoutDashController);
+import OrderFormController from "./order_form_controller"
+application.register("order-form", OrderFormController)
 
-import PostAttachmentsController from "./post_attachments_controller";
-application.register("post-attachments", PostAttachmentsController);
+import PayoutDashController from "./payout_dash_controller"
+application.register("payout-dash", PayoutDashController)
 
-import ProjectFireController from "./project_fire_controller";
-application.register("project-fire", ProjectFireController);
+import PostAttachmentsController from "./post_attachments_controller"
+application.register("post-attachments", PostAttachmentsController)
 
-import ProjectFormController from "./project_form_controller";
-application.register("project-form", ProjectFormController);
+import ProjectFireController from "./project_fire_controller"
+application.register("project-fire", ProjectFireController)
 
-import ProjectIdeasController from "./project_ideas_controller";
-application.register("project-ideas", ProjectIdeasController);
+import ProjectFormController from "./project_form_controller"
+application.register("project-form", ProjectFormController)
 
-import RadioOptionController from "./radio_option_controller";
-application.register("radio-option", RadioOptionController);
+import ProjectIdeasController from "./project_ideas_controller"
+application.register("project-ideas", ProjectIdeasController)
 
-import ReadmeImageController from "./readme_image_controller";
-application.register("readme-image", ReadmeImageController);
+import RadioOptionController from "./radio_option_controller"
+application.register("radio-option", RadioOptionController)
 
-import ResponsiveImageMapController from "./responsive_image_map_controller";
-application.register("responsive-image-map", ResponsiveImageMapController);
+import ReadmeImageController from "./readme_image_controller"
+application.register("readme-image", ReadmeImageController)
 
-import SearchableSelectController from "./searchable_select_controller";
-application.register("searchable-select", SearchableSelectController);
+import ResponsiveImageMapController from "./responsive_image_map_controller"
+application.register("responsive-image-map", ResponsiveImageMapController)
 
-import ShipAiReviewController from "./ship_ai_review_controller";
-application.register("ship-ai-review", ShipAiReviewController);
+import SearchableSelectController from "./searchable_select_controller"
+application.register("searchable-select", SearchableSelectController)
 
-import ShootingStarController from "./shooting_star_controller";
-application.register("shooting-star", ShootingStarController);
+import ShipAiReviewController from "./ship_ai_review_controller"
+application.register("ship-ai-review", ShipAiReviewController)
 
-import ShopController from "./shop_controller";
-application.register("shop", ShopController);
+import ShootingStarController from "./shooting_star_controller"
+application.register("shooting-star", ShootingStarController)
 
-import ShopGoalsController from "./shop_goals_controller";
-application.register("shop-goals", ShopGoalsController);
+import ShopController from "./shop_controller"
+application.register("shop", ShopController)
 
-import ShopWishlistController from "./shop_wishlist_controller";
-application.register("shop-wishlist", ShopWishlistController);
+import ShopGoalsController from "./shop_goals_controller"
+application.register("shop-goals", ShopGoalsController)
 
-import SidebarPinController from "./sidebar_pin_controller";
-application.register("sidebar-pin", SidebarPinController);
+import ShopWishlistController from "./shop_wishlist_controller"
+application.register("shop-wishlist", ShopWishlistController)
 
-import SidequestExpandController from "./sidequest_expand_controller";
-application.register("sidequest-expand", SidequestExpandController);
+import SidebarPinController from "./sidebar_pin_controller"
+application.register("sidebar-pin", SidebarPinController)
 
-import SidequestSelectorController from "./sidequest_selector_controller";
-application.register("sidequest-selector", SidequestSelectorController);
+import SidequestExpandController from "./sidequest_expand_controller"
+application.register("sidequest-expand", SidequestExpandController)
 
-import SnowController from "./snow_controller";
-application.register("snow", SnowController);
+import SidequestSelectorController from "./sidequest_selector_controller"
+application.register("sidequest-selector", SidequestSelectorController)
 
-import StarsController from "./stars_controller";
-application.register("stars", StarsController);
+import Sidequests__Minequest__AccessibilityController from "./sidequests/minequest/accessibility_controller"
+application.register("sidequests--minequest--accessibility", Sidequests__Minequest__AccessibilityController)
 
-import StartDevlogController from "./start_devlog_controller";
-application.register("start-devlog", StartDevlogController);
+import Sidequests__Minequest__IdeasController from "./sidequests/minequest/ideas_controller"
+application.register("sidequests--minequest--ideas", Sidequests__Minequest__IdeasController)
 
-import StatsHoverController from "./stats_hover_controller";
-application.register("stats-hover", StatsHoverController);
+import Sidequests__Minequest__ModalController from "./sidequests/minequest/modal_controller"
+application.register("sidequests--minequest--modal", Sidequests__Minequest__ModalController)
 
-import SuperMegaFunnelController from "./super_mega_funnel_controller";
-application.register("super-mega-funnel", SuperMegaFunnelController);
+import SnowController from "./snow_controller"
+application.register("snow", SnowController)
 
-import SuperMegaIndexController from "./super_mega_index_controller";
-application.register("super-mega-index", SuperMegaIndexController);
+import StarsController from "./stars_controller"
+application.register("stars", StarsController)
 
-import TimezoneController from "./timezone_controller";
-application.register("timezone", TimezoneController);
+import StartDevlogController from "./start_devlog_controller"
+application.register("start-devlog", StartDevlogController)
 
-import TooltipController from "./tooltip_controller";
-application.register("tooltip", TooltipController);
+import StatsHoverController from "./stats_hover_controller"
+application.register("stats-hover", StatsHoverController)
 
-import TutorialStepsExpandController from "./tutorial_steps_expand_controller";
-application.register("tutorial-steps-expand", TutorialStepsExpandController);
+import SuperMegaFunnelController from "./super_mega_funnel_controller"
+application.register("super-mega-funnel", SuperMegaFunnelController)
 
-import TutorialVideoModalController from "./tutorial_video_modal_controller";
-application.register("tutorial-video-modal", TutorialVideoModalController);
+import SuperMegaIndexController from "./super_mega_index_controller"
+application.register("super-mega-index", SuperMegaIndexController)
 
-import UploadFormController from "./upload_form_controller";
-application.register("upload-form", UploadFormController);
+import TimezoneController from "./timezone_controller"
+application.register("timezone", TimezoneController)
 
-import VoteCategoryController from "./vote_category_controller";
-application.register("vote-category", VoteCategoryController);
+import TooltipController from "./tooltip_controller"
+application.register("tooltip", TooltipController)
 
-import VoteTrackerController from "./vote_tracker_controller";
-application.register("vote-tracker", VoteTrackerController);
+import TutorialStepsExpandController from "./tutorial_steps_expand_controller"
+application.register("tutorial-steps-expand", TutorialStepsExpandController)
 
-import WelcomeOverlayController from "./welcome_overlay_controller";
-application.register("welcome-overlay", WelcomeOverlayController);
+import TutorialVideoModalController from "./tutorial_video_modal_controller"
+application.register("tutorial-video-modal", TutorialVideoModalController)
 
-import WordCountController from "./word_count_controller";
-application.register("word-count", WordCountController);
+import UploadFormController from "./upload_form_controller"
+application.register("upload-form", UploadFormController)
 
-import XpWindowController from "./xp_window_controller";
-application.register("xp-window", XpWindowController);
+import VoteCategoryController from "./vote_category_controller"
+application.register("vote-category", VoteCategoryController)
 
-import AccessibilityController from "./accessibility_controller";
-application.register("accessibility", AccessibilityController);
+import VoteTrackerController from "./vote_tracker_controller"
+application.register("vote-tracker", VoteTrackerController)
 
-import MinecraftModalController from "./minecraft_modal_controller";
-application.register("minecraft-modal", MinecraftModalController);
+import WelcomeOverlayController from "./welcome_overlay_controller"
+application.register("welcome-overlay", WelcomeOverlayController)
 
-import MinecraftIdeasController from "./minecraft_ideas_controller";
-application.register("minecraft-ideas", MinecraftIdeasController);
+import WordCountController from "./word_count_controller"
+application.register("word-count", WordCountController)
+
+import XpWindowController from "./xp_window_controller"
+application.register("xp-window", XpWindowController)
