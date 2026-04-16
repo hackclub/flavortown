@@ -35,6 +35,10 @@ class SidequestsController < ApplicationController
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_caffeinated").where(enabled: true)
     end
 
+    if @sidequest.slug == "minecraft-art"
+      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_minecraft-art").where(enabled: true)
+    end
+
     custom_template = "sidequests/show_#{@sidequest.slug}"
     if lookup_context.exists?(custom_template)
       render custom_template

@@ -1,53 +1,61 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-.minecraft-ui-container {
+.minecraft-home-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #2E2E2E;
   font-family: 'Press Start 2P', cursive;
-  background-color: #373737;
-  color: #FFFFFF;
+  color: white;
+  text-align: center;
   padding: 2rem;
-  border: 4px solid #1E1E1E;
-  box-shadow: inset 0 0 0 4px #5A5A5A;
-  image-rendering: pixelated;
+  box-sizing: border-box;
 }
 
-.minecraft-ui-container h1 {
-  font-size: 2rem;
-  color: #FFAA00; /* Minecraft Gold */
-  text-shadow: 2px 2px #3E3E3E;
-}
-
-.minecraft-ui-container p {
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-.minecraft-button {
-  font-family: 'Press Start 2P', cursive;
-  background-color: #787878;
+.minecraft-title {
+  font-size: 4rem;
   color: #FFFFFF;
-  border: 2px solid #1E1E1E;
-  box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
-  padding: 1rem 1.5rem;
-  text-decoration: none;
-  display: inline-block;
-  margin-top: 1rem;
-  font-size: 1rem;
+  text-shadow: 4px 4px 0px #3E3E3E;
+  margin-bottom: 2rem;
 }
 
-.minecraft-button:hover {
-  background-color: #8A8A8A;
-}
-
-.minecraft-button:active {
-  box-shadow: inset 2px 2px #0006, inset -2px -4px #FFF7;
-}
-
-.minecraft-image {
+.minecraft-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   width: 100%;
-  height: 200px;
-  object-fit: contain;
-  image-rendering: pixelated;
-  margin-bottom: 2.5rem;
-  margin-top: -1rem;
-  transform: scale(1.3);
+  max-width: 400px;
+  margin-bottom: 2rem;
 }
+
+.minecraft-menu-button {
+  display: block;
+  background-color: #707070;
+  color: #E0E0E0;
+  text-decoration: none;
+  padding: 0.75rem;
+  border: 2px solid;
+  border-color: #C6C6C6 #5A5A5A #5A5A5A #C6C6C6;
+  box-shadow: inset -2px -2px 0px #00000080;
+  image-rendering: pixelated;
+  cursor: pointer;
+}
+
+.minecraft-menu-button:hover {
+  background-color: #7F7F7F;
+  color: #FFFFFFA0;
+}
+
+.minecraft-footer-buttons {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.minecraft-menu-button.small {
+  flex-grow: 1;
+}
+
