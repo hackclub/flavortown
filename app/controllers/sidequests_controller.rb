@@ -57,7 +57,7 @@ class SidequestsController < ApplicationController
     require 'uri'
     require 'json'
     
-    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemma-2-27b-it:generateContent?key=#{api_key}")
+    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent?key=#{api_key}")
     
     request = Net::HTTP::Post.new(uri)
     request.content_type = "application/json"
