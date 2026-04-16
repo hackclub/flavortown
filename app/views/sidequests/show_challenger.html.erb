@@ -89,5 +89,14 @@
         <p><strong>Be the first to launch into space!</strong></p>
       </div>
     <% end %>
+
+    <div class="sidequest-show__actions">
+      <%= render ButtonComponent.new(
+            text: "← Back to Sidequests",
+            href: sidequests_path,
+            color: :brown,
+            variant: :borderless
+          ) %>
+    </div>
   </div>
 </div>
