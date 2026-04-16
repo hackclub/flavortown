@@ -164,7 +164,9 @@ module ApplicationHelper
   end
 
   def challenger_current_cycle(date = Date.current)
-    challenger_cycles.find { |cycle| cycle[:start_date] <= date && date <= cycle[:end_date] } || challenger_cycles.last
+    cycles = challenger_cycles
+    cycles.find { |cycle| cycle[:start_date] <= date && date <= cycle[:end_date] } ||
+      (date < cycles.first[:start_date] ? cycles.first : cycles.last)
   end
 
   def challenger_current_cycle_label(date = Date.current)
