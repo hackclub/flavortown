@@ -9,11 +9,11 @@ local:
 
 cloudflare:
   service: S3
-  endpoint: https://<%= Rails.application.credentials.dig(:cloudflare, :account_id) %>.r2.cloudflarestorage.com
-  access_key_id: <%= Rails.application.credentials.dig(:cloudflare, :access_key_id) %>
-  secret_access_key: <%= Rails.application.credentials.dig(:cloudflare, :secret_access_key) %>
+  endpoint: https://<%= ENV.fetch("CLOUDFLARE_ACCOUNT_ID", Rails.application.credentials.dig(:cloudflare, :account_id)) %>.r2.cloudflarestorage.com
+  access_key_id: <%= ENV.fetch("CLOUDFLARE_R2_ACCESS_KEY_ID", Rails.application.credentials.dig(:cloudflare, :access_key_id)) %>
+  secret_access_key: <%= ENV.fetch("CLOUDFLARE_R2_SECRET_ACCESS_KEY", Rails.application.credentials.dig(:cloudflare, :secret_access_key)) %>
   region: auto
-  bucket: <%= Rails.application.credentials.dig(:cloudflare, :bucket) %>
+  bucket: <%= ENV.fetch("CLOUDFLARE_R2_BUCKET", Rails.application.credentials.dig(:cloudflare, :bucket)) %>
   force_path_style: true
   request_checksum_calculation: "when_required"
   response_checksum_validation: "when_required"
