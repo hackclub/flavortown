@@ -36,8 +36,8 @@ RUN bundle install
 
 # Add a script to be executed every time the container starts
 COPY entrypoint.dev.sh /usr/bin/
-RUN chmod +x /usr/bin/entrypoint.dev.sh
-ENTRYPOINT ["entrypoint.dev.sh"]
+RUN sed -i 's/\r$//' /usr/bin/entrypoint.dev.sh && chmod +x /usr/bin/entrypoint.dev.sh
+ENTRYPOINT ["/usr/bin/entrypoint.dev.sh"]
 
 EXPOSE 3000
 
