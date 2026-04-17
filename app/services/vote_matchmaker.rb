@@ -64,7 +64,6 @@ class VoteMatchmaker
       .where.not(projects: { id: @user.projects })
       .where.not(projects: { id: @user.reports.select(:project_id) })
       .where.not(projects: { id: @user.project_skips.select(:project_id) })
-      .where(project_members: { shadow_banned: false })
       .where(projects: { shadow_banned: false })
   end
 
