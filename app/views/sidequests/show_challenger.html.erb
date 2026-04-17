@@ -1,0 +1,102 @@
+<% content_for :title, @sidequest.title %>
+<% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
+<% content_for :og_image, og_image_url('sidequests', format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+
+<%= render HeadingComponent.new(title: @sidequest.title, tone: :blue, size: :full) %>
+
+<div class="sidequest-show sidequest-show--challenger">
+  <div class="sidequest-show__content">
+    <% if @sidequest.description.present? %>
+      <p class="sidequest-show__description"><%= @sidequest.description %></p>
+    <% end %>
+
+    <div class="sidequest-show__info-grid">
+      <section class="sidequest-show__info-card">
+        <h3 class="sidequest-show__info-title">Requirements</h3>
+        <ul class="sidequest-show__steps">
+          <li>Ship a project related to the specific cycle's sub-theme.</li>
+          <li>Ship a project in at least 1 cycle to qualify for themed prizes in the shop.</li>
+          <li>Mark each project as submitted for Challenger Space Centre in ship settings.</li>
+        </ul>
+      </section>
+
+      <section class="sidequest-show__info-card">
+        <h3 class="sidequest-show__info-title">Cycle Timeline</h3>
+        <p class="sidequest-show__help-note"><strong>Total Cycles:</strong> 3 cycles, starting April 15th</p>
+        <ul class="sidequest-show__steps">
+          <li><strong>Cycle 1:</strong> April 16th – 20th</li>
+          <li><strong>Cycle 2:</strong> April 21st – 25th</li>
+          <li><strong>Cycle 3:</strong> April 26th – 30th</li>
+        </ul>
+        <p class="sidequest-show__help-note"><em>Each cycle lasts 5 days</em></p>
+      </section>
+    </div>
+
+    <section class="sidequest-show__info-card sidequest-show__prizes-card">
+      <h3 class="sidequest-show__info-title">Prizes</h3>
+      <ul class="sidequest-show__steps">
+        <li>Saturn Crystal Lamp</li>
+        <li>Nasa Patch</li>
+        <li>ISS Tracker Prototype</li>
+        <li>Curiosity Box: Space Bundle</li>
+        <li>Other useful stuff!</li>
+      </ul>
+    </section>
+
+    <section class="sidequest-show__info-card">
+      <h3 class="sidequest-show__info-title">Tips & Resources</h3>
+      <ul class="sidequest-show__steps">
+        <li>Join <%= link_to "#challenger-space-centre", "https://hackclub.enterprise.slack.com/archives/C0CHALLENGER", target: "_blank", rel: "noopener" %> to talk to other challengers!</li>
+        <li>Need ideas? We have an idea generator thanks to @freddie! Try doing <code>/nebula idea</code> in #challenger-space-centre!</li>
+        <li><strong>Special Prize:</strong> Submitting to all 3 cycles may or may not unlock a special prize…</li>
+      </ul>
+    </section>
+
+    <% if @approved_entries.any? %>
+      <% recent_entries = @approved_entries.first(6) %>
+      <% older_entries = @approved_entries.drop(6) %>
+
+      <div class="sidequest-show__gallery">
+        <h3 class="sidequest-show__gallery-title">New Projects</h3>
+        <div class="sidequest-show__gallery-grid">
+          <% recent_entries.each do |entry| %>
+            <% project = entry.project %>
+            <% next unless project.present? %>
+            <div class="sidequest-show__gallery-item">
+              <%= render partial: "projects/card", locals: { project: project } %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <% if older_entries.any? %>
+        <div class="sidequest-show__gallery">
+          <h3 class="sidequest-show__gallery-title">Previous Projects</h3>
+          <div class="sidequest-show__gallery-grid">
+            <% older_entries.each do |entry| %>
+              <% project = entry.project %>
+              <% next unless project.present? %>
+              <div class="sidequest-show__gallery-item">
+                <%= render partial: "projects/card", locals: { project: project } %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="sidequest-show__stats">
+        <p><strong>Be the first to launch into space!</strong></p>
+      </div>
+    <% end %>
+
+    <div class="sidequest-show__actions">
+      <%= render ButtonComponent.new(
+            text: "← Back to Sidequests",
+            href: sidequests_path,
+            color: :brown,
+            variant: :borderless
+          ) %>
+    </div>
+  </div>
+</div>

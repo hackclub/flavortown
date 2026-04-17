@@ -14,7 +14,7 @@ module OgImage
           devlogs_count: devlogs_count,
           banner: MockAttachment.new(attached: banner),
           memberships: MockMemberships.new(owner_name: owner),
-          total_hackatime_hours: hours
+          duration_seconds: hours * 3600
         )
       end
     end
@@ -142,11 +142,7 @@ module OgImage
     end
 
     def hours_logged
-      if @project.respond_to?(:total_hackatime_hours)
-        @project.total_hackatime_hours.to_i
-      else
-        0
-      end
+      (@project.duration_seconds.to_i / 3600.0).round.to_i
     end
   end
 end
