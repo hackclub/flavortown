@@ -47,12 +47,8 @@
       </div>
     </div>
     <%= link_to "View Project Submissions", minequest_sidequest_path(view: "submissions"), class: "minecraft-menu-button minecraft-submissions-button" %>
-    <p class="minecraft-submissions-total"><%= pluralize(@approved_entries.size, "project") %> submitted so far</p>
-  </div>
-
-  <div class="minecraft-footer-buttons">
     <div data-controller="sidequests--minequest--modal">
-      <button type="button" class="minecraft-menu-button small" data-action="click->sidequests--minequest--modal#open">Prizes</button>
+      <button type="button" class="minecraft-menu-button" style="width: 100%; display: block;" data-action="click->sidequests--minequest--modal#open">Prizes</button>
 
       <div class="minecraft-modal hidden" data-sidequests--minequest--modal-target="dialog">
         <div class="minecraft-book minecraft-prizes-book">
@@ -76,7 +72,7 @@
         </div>
       </div>
     </div>
-    <%= link_to "← Back", sidequests_path, class: "minecraft-menu-button small" %>
+    <%= link_to "← Back", sidequests_path, class: "minecraft-menu-button back-button" %>
   </div>
   <div class="minecraft-footer">
     <span class="minecraft-footer-left">Minequest 1.0.1/flavourtown</span>

@@ -3,7 +3,7 @@ class AddMinecraftArtSidequest < ActiveRecord::Migration[8.1]
     Sidequest.create!(
       title: "Minecraft Art Challenge",
       slug: "minecraft-art",
-      description: "Make something code and art related to Minecraft! (Expect mods)",
+      description: "Make something code and art related to Minecraft! (Except mods)",
       external_page_link: nil,
       expires_at: nil
     )

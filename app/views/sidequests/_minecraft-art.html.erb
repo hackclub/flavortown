@@ -5,5 +5,11 @@
   <p><%= sidequest.description %></p>
 
   <%= link_to "View Sidequest", minequest_sidequest_path, class: "minecraft-button" %>
-  <p class="minecraft-submissions-total">Total projects submitted: <%= sidequest.approved_count %></p>
+  <p class="minecraft-submissions-total">
+    <% if sidequest.approved_count.zero? %>
+      Be the first one to submit
+    <% else %>
+      Total projects submitted: <%= sidequest.approved_count %>
+    <% end %>
+  </p>
 </div>

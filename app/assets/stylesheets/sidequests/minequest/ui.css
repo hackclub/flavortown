@@ -28,18 +28,18 @@
 }
 
 .minecraft-title-container {
-  width: min(1280px, 96%);
-  height: 340px;
+  width: min(1440px, 98%);
+  height: 420px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  margin-top: -1rem;
-  margin-bottom: 1.25rem;
+  margin-top: -2.5rem;
+  margin-bottom: 0;
 }
 
 .minecraft-title-image {
-  max-width: 100%;
+  max-width: 110%;
   max-height: 100%;
   width: auto;
   height: auto;
@@ -52,8 +52,9 @@
   flex-direction: column;
   gap: 0.5rem;
   width: 100%;
-  max-width: 400px;
-  margin-bottom: 2rem;
+  max-width: 480px;
+  margin-top: -2.5rem;
+  margin-bottom: 1.2rem;
 }
 
 .minecraft-menu-button {
@@ -61,12 +62,33 @@
   background-color: #707070;
   color: #E0E0E0;
   text-decoration: none;
-  padding: 0.75rem;
+  padding: 1.25rem 1.75rem;
+  font-size: 1.3rem;
   border: 2px solid;
   border-color: #C6C6C6 #5A5A5A #5A5A5A #C6C6C6;
   box-shadow: inset -2px -2px 0px #00000080;
   image-rendering: pixelated;
   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .minecraft-title-container {
+    height: 280px;
+    width: 100%;
+  }
+
+  .minecraft-title-image {
+    max-width: 100%;
+  }
+
+  .minecraft-menu {
+    max-width: 100%;
+  }
+
+  .minecraft-menu-button {
+    padding: 0.8rem 1rem;
+    font-size: 0.75rem;
+  }
 }
 
 .minecraft-menu-button:hover {
@@ -93,14 +115,29 @@
 
 .minecraft-footer-buttons {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
   max-width: 540px;
   gap: 0.75rem;
+  align-items: center;
+}
+
+.minecraft-footer-buttons > div {
+  display: flex;
 }
 
 .minecraft-menu-button.small {
-  flex-grow: 1;
+  padding: 1.25rem 1.75rem;
+  font-size: 1.3rem;
+}
+
+.minecraft-menu-button.back-button {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  padding: 1.25rem 1.75rem;
+  font-size: 1.3rem;
+  width: auto;
 }
 
 .minecraft-prizes-book {
