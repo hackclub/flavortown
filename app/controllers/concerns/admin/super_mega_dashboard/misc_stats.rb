@@ -13,17 +13,6 @@ module Admin
 
       def load_payouts_stats
         cached_data = Rails.cache.fetch("super_mega_payouts", expires_in: 10.minutes) do
-          payouts_cap = LedgerEntry.sum(:amount)
-          yesterday = 24.hours.ago
-          recent = LedgerEntry.where(created_at: yesterday..)
-
-          recent_stats = recent.pluck(
-            Arel.sql("COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0)"),
-            Arel.sql("COALESCE(SUM(CASE WHEN amount < 0 THEN ABS(amount) ELSE 0 END), 0)"),
-            Arel.sql("COUNT(*)"),
-            Arel.sql("COALESCE(SUM(ABS(amount)), 0)")
-          ).first
-
           total_distributed_cookies = LedgerEntry.where("amount > 0").sum(:amount)
           used_cookies = LedgerEntry.where("amount < 0").sum(:amount).abs
           cookie_utilization_percentage = ((used_cookies.to_f / total_distributed_cookies) * 100).round(2)
@@ -32,7 +21,6 @@ module Admin
 
           transaction_data = build_transaction_data
           hcb_expenses = transaction_data[:total_expenses]
-          contractor_expenses = transaction_data[:contractor_expenses]
 
           if total_approved_ysws_db_hours > 0
             dollars_per_hour = (total_distributed_cookies / 5) / total_approved_ysws_db_hours
@@ -43,37 +31,23 @@ module Admin
           end
 
           {
-            payouts_cap: payouts_cap,
-            payouts: {
-              created: recent_stats[0],
-              destroyed: recent_stats[1],
-              txns: recent_stats[2],
-              volume: recent_stats[3]
-            },
             cookie_utilization_percentage: cookie_utilization_percentage,
             dollars_per_hour: dollars_per_hour,
-            expenses_dollars_per_hour: expenses_dollars_per_hour,
-            contractor_expenses: contractor_expenses
+            expenses_dollars_per_hour: expenses_dollars_per_hour
           }
         end
-        @payouts_cap = cached_data&.dig(:payouts_cap) || 0
-        @payouts = cached_data&.dig(:payouts) || { created: 0, destroyed: 0, txns: 0, volume: 0 }
 
         @dollars_per_hour = cached_data&.dig(:dollars_per_hour) || 0
         @expenses_dollars_per_hour = cached_data&.dig(:expenses_dollars_per_hour) || 0
         @cookie_utilization_percentage = cached_data&.dig(:cookie_utilization_percentage) || 0
-        @contractor_expenses = cached_data&.dig(:contractor_expenses) || 0
 
         time_period = params[:filter_period].presence || "all"
         load_top_projects(time_period: time_period)
       rescue StandardError => e
         Rails.logger.error("[SuperMegaDashboard] Error in load_payouts_stats: #{e.class} - #{e.message}")
-        @payouts_cap = 0
-        @payouts = { created: 0, destroyed: 0, txns: 0, volume: 0 }
         @dollars_per_hour = 0
         @expenses_dollars_per_hour = 0
         @cookie_utilization_percentage = 0
-        @contractor_expenses = 0
       end
 
       def load_voting_stats
@@ -407,7 +381,6 @@ module Admin
 
       def build_transaction_data
         total_expenses = 0
-        contractor_expenses = 0
         current_page = 1
 
         loop do
@@ -425,9 +398,7 @@ module Admin
               tag["label"] == "Contributor"
             end
 
-            if has_contributor_tag
-              contractor_expenses += amount.abs
-            else
+            unless has_contributor_tag
               total_expenses += amount.abs
             end
           end
