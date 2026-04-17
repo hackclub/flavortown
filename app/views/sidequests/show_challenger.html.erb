@@ -17,7 +17,7 @@
       <h2 class="sidequest-show__cycle-title"><%= challenger_current_cycle_label %></h2>
       <% if current_cycle %>
         <p class="sidequest-show__cycle-dates">
-          <%= current_cycle[:starts_on].strftime("%B %-d") %>-<%= current_cycle[:ends_on].strftime("%-d, %Y") %>
+          <%= current_cycle[:starts_on].strftime("%B %-d") %>–<%= current_cycle[:starts_on].month == current_cycle[:ends_on].month ? current_cycle[:ends_on].strftime("%-d, %Y") : current_cycle[:ends_on].strftime("%B %-d, %Y") %>
         </p>
       <% else %>
         <p class="sidequest-show__cycle-dates">April 16-30, 2026</p>
