@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: users
+# Database name: primary
 #
 #  id                                      :bigint           not null, primary key
 #  api_key                                 :string
@@ -26,6 +27,7 @@
 #  magic_link_token                        :string
 #  magic_link_token_expires_at             :datetime
 #  manual_ysws_override                    :boolean
+#  marked_sus_by                           :string           default([]), not null, is an Array
 #  metrics_synced_at                       :datetime
 #  projects_count                          :integer
 #  projects_shipped_count                  :integer
@@ -70,7 +72,7 @@ class User < ApplicationRecord
 
   has_recommended :projects # you might like these projects...
 
-  DISMISSIBLE_THINGS = %w[flagship_ad shop_suggestion_box willsbuilds_banner ai_coding_time_ignored_card].freeze
+  DISMISSIBLE_THINGS = %w[shop_suggestion_box ai_coding_time_ignored_card].freeze
 
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy
@@ -139,6 +141,10 @@ class User < ApplicationRecord
   def valid_club_link? = club_link_uri.present?
 
   def admin? = has_role?(:admin) || has_role?(:super_admin)
+
+  # True if any shipwright/reviewer has flagged this user as suspicious.
+  # Derived from marked_sus_by rather than a boolean field so we retain attribution.
+  def is_sus? = marked_sus_by.present?
 
   def seller? = ShopItem::HackClubberItem.exists?(user_id: id)
 

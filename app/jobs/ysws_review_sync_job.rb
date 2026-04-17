@@ -145,7 +145,6 @@ class YswsReviewSyncJob < ApplicationJob
     end
 
     code_url = ship_cert["repoUrl"]
-    ft_project_id = ship_cert["ftProjectId"]
 
     # Check if project already exists in unified database             111 not implemented 110 implemented 101 implemented 100 implemented
     if code_url.present?
@@ -192,7 +191,6 @@ class YswsReviewSyncJob < ApplicationJob
       .where("fulfilled_by IS NULL OR fulfilled_by NOT LIKE ?", "System%")
       .includes(:shop_item)
 
-    hours_spent = adjusted_hours || (total_approved_minutes / 60.0)
     user_pii = extract_user_pii(user)
     if user.banned?
       @rejected_project = true
@@ -233,8 +231,8 @@ class YswsReviewSyncJob < ApplicationJob
   end
 
   def create_airtable_record(review, report_status, user_pii, approved_orders, adjusted_hours: nil)
-    ship_cert = review["shipCert"] || {}
-    ship_cert_id = ship_cert["id"].to_s
+    # ship_cert = review["shipCert"] || {}
+    # ship_cert_id = ship_cert["id"].to_s
     fields = build_record_fields(review, report_status, user_pii, approved_orders, adjusted_hours: adjusted_hours)
 
     # Rails.logger.info "[YswsReviewSyncJob] Upserting Airtable record for ship_cert_id #{ship_cert_id}"
@@ -501,6 +499,7 @@ class YswsReviewSyncJob < ApplicationJob
     # Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: success url=#{url}")
     url
   rescue StandardError => e
+    Sentry.capture_exception(e, extra: { proof_video_url: proof_video_url, ship_cert_id: ship_cert_id })
     # Rails.logger.error("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: #{e.class}: #{e.message}")
     nil
   ensure
@@ -559,6 +558,7 @@ class YswsReviewSyncJob < ApplicationJob
 
     table.all(filter: "{ship_cert_id} = '#{ship_cert_id}'").first
   rescue StandardError => e
+    Sentry.capture_exception(e, extra: { ship_cert_id: ship_cert_id })
     # Rails.logger.error("[YswsReviewSyncJob] fetch_existing_airtable_record: #{e.class}: #{e.message}")
     nil
   end

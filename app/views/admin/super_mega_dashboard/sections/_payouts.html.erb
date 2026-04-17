@@ -1,88 +1,113 @@
-<div class="super-mega-dashboard__dashboard">
-  <div class="super-mega-dashboard__header super-mega-dashboard__header--payouts">
-    <h2>Payouts Overview</h2>
-    <%= link_to "View Full Dashboard →", admin_payouts_dashboard_path, class: "super-mega-link" %>
+<div>
+  <div class="super-mega-dashboard__dashboard">
+    <div class="super-mega-dashboard__header super-mega-dashboard__header--payouts">
+      <h2>Payouts Overview</h2>
+      <%= link_to "View Full Dashboard →", admin_payouts_dashboard_path, class: "super-mega-link" %>
+    </div>
+
+    <div class="super-mega-dashboard__cards super-mega-dashboard__cards--sidequests">
+      <div class="super-mega-dashboard__card">
+        <h3>Total Circulation</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@payouts_cap) %></span>
+            <span class="super-mega-dashboard__stat--label yellow">Cookies</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>Last 24 Hours</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value">+<%= number_with_delimiter(@payouts[:created]) %></span>
+            <span class="super-mega-dashboard__stat--label green">Created</span>
+          </div>
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value">-<%= number_with_delimiter(@payouts[:destroyed]) %></span>
+            <span class="super-mega-dashboard__stat--label red">Destroyed</span>
+          </div>
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@payouts[:txns]) %></span>
+            <span class="super-mega-dashboard__stat--label blue">Transactions</span>
+          </div>
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@payouts[:volume]) %></span>
+            <span class="super-mega-dashboard__stat--label purple">Volume</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>Cookie $ per hour <span id="cookie-dollars-per-hour-formula">ⓘ</span></h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value"><%= @dollars_per_hour.round(2) %></span>
+            <span class="super-mega-dashboard__stat--label">$/hr</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>Expenses $ per hour <span id="expenses-dollars-per-hour-formula">ⓘ</span></h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value"><%= @expenses_dollars_per_hour.round(2) %></span>
+            <span class="super-mega-dashboard__stat--label">$/hr</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>Cookie Utilization Ratio</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value"><%= @cookie_utilization_percentage %>%</span>
+            <span class="super-mega-dashboard__stat--label">Utilization</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>Contractor Payments</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value"><%= @contractor_expenses.round(2) %></span>
+            <span class="super-mega-dashboard__stat--label">$</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="super-mega-dashboard__cards super-mega-dashboard__cards--sidequests">
-    <div class="super-mega-dashboard__card">
-      <h3>Total Circulation</h3>
-      <div class="super-mega-dashboard__stats">
-        <div class="super-mega-dashboard__stat">
-          <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@payouts_cap) %></span>
-          <span class="super-mega-dashboard__stat--label yellow">Cookies</span>
+  <%= render TooltipComponent.new(target_id: "cookie-dollars-per-hour-formula", position: :top) do %>
+    <span>[(total_cookies/5)/weighted_hours]</span>
+  <% end %>
+
+  <%= render TooltipComponent.new(target_id: "expenses-dollars-per-hour-formula", position: :top) do %>
+    <span>(total_expenses/weighted_hours)</span>
+  <% end %>
+
+  <div class="super-mega-dashboard__dashboard super-mega-dashboard__dashboard--projects" style="border-radius: 0">
+    <div class="super-mega-dashboard__header" style="margin-bottom: 0 !important" data-controller="payout-dash">
+      <h2>Recent Payouts</h2>
+      <%= form_with url: admin_super_mega_dashboard_load_section_path, method: :get, data: { turbo_frame: "super_mega_section_payouts" } do |f| %>
+        <%= f.hidden_field :section, value: "payouts" %>
+        <div class="super-mega-dashboard__filters">
+          <label for="time-period-select" style="margin-right: 0.5rem;">Time Period:</label>
+          <%= f.select :filter_period, payout_options, { selected: selected_payout_options }, { id: "time-period-select", data: payout_period_select } %>
         </div>
-      </div>
+      <% end %>
     </div>
 
-    <div class="super-mega-dashboard__card">
-      <h3>Last 24 Hours</h3>
-      <div class="super-mega-dashboard__stats">
-        <div class="super-mega-dashboard__stat">
-          <span class="super-mega-dashboard__stat--value">+<%= number_with_delimiter(@payouts[:created]) %></span>
-          <span class="super-mega-dashboard__stat--label green">Created</span>
-        </div>
-        <div class="super-mega-dashboard__stat">
-          <span class="super-mega-dashboard__stat--value">-<%= number_with_delimiter(@payouts[:destroyed]) %></span>
-          <span class="super-mega-dashboard__stat--label red">Destroyed</span>
-        </div>
-        <div class="super-mega-dashboard__stat">
-          <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@payouts[:txns]) %></span>
-          <span class="super-mega-dashboard__stat--label blue">Transactions</span>
-        </div>
-        <div class="super-mega-dashboard__stat">
-          <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@payouts[:volume]) %></span>
-          <span class="super-mega-dashboard__stat--label purple">Volume</span>
-        </div>
-      </div>
-    </div>
+    <% if @highest_multiplier_projects.present? || @largest_payout_projects.present? %>
+      <div class="payout-project-carousels">
+        <%= render partial: "admin/super_mega_dashboard/payouts/project_carousel", locals: { title: "Highest multiplier", projects: @highest_multiplier_projects, variant: :highest_multiplier } %>
 
-    <div class="super-mega-dashboard__card">
-      <h3>Cookie $ per hour <span id="cookie-dollars-per-hour-formula">ⓘ</span></h3>
-      <div class="super-mega-dashboard__stats">
-        <div class="super-mega-dashboard__stat">
-          <span class="super-mega-dashboard__stat--value"><%= @dollars_per_hour.round(2) %></span>
-          <span class="super-mega-dashboard__stat--label">$/hr</span>
-        </div>
+        <%= render partial: "admin/super_mega_dashboard/payouts/project_carousel", locals: { title: "Most cookies", projects: @largest_payout_projects, variant: :most_cookies } %>
       </div>
-    </div>
-
-    <div class="super-mega-dashboard__card">
-      <h3>Expenses $ per hour <span id="expenses-dollars-per-hour-formula">ⓘ</span></h3>
-      <div class="super-mega-dashboard__stats">
-        <div class="super-mega-dashboard__stat">
-          <span class="super-mega-dashboard__stat--value"><%= @expenses_dollars_per_hour.round(2) %></span>
-          <span class="super-mega-dashboard__stat--label">$/hr</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="super-mega-dashboard__card">
-      <h3>Cookie Utilization Ratio</h3>
-      <div class="super-mega-dashboard__stats">
-        <div class="super-mega-dashboard__stat">
-          <span class="super-mega-dashboard__stat--value"><%= @cookie_utilization_percentage %>%</span>
-          <span class="super-mega-dashboard__stat--label">Utilization</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="super-mega-dashboard__card">
-      <h3>Contractor Payments</h3>
-      <div class="super-mega-dashboard__stats">
-        <div class="super-mega-dashboard__stat">
-          <span class="super-mega-dashboard__stat--value"><%= @contractor_expenses.round(2) %></span>
-          <span class="super-mega-dashboard__stat--label">$</span>
-        </div>
-      </div>
-    </div>
+    <% else %>
+      <p class="super-mega-dashboard__no-data" style="margin-top: 0.5rem">No projects found</p>
+    <% end %>
   </div>
 </div>
-
-<%= render TooltipComponent.new(target_id: "cookie-dollars-per-hour-formula", position: :top) do %>
-  <span>[(total_cookies/5)/weighted_hours]</span>
-<% end %>
-
-<%= render TooltipComponent.new(target_id: "expenses-dollars-per-hour-formula", position: :top) do %>
-  <span>(total_expenses/weighted_hours)</span>
-<% end %>
