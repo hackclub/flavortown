@@ -189,6 +189,8 @@ class Admin::UsersController < Admin::ApplicationController
 
     orders.each do |order|
       old_state = order.aasm_state
+      order.internal_rejection_reason = reason
+      order.fraud_related_project_id = 1
       if order.mark_rejected(reason) && order.save
         PaperTrail::Version.create!(
           item_type: "ShopOrder",

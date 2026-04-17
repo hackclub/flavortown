@@ -330,6 +330,8 @@ class User < ApplicationRecord
 
   def reject_pending_orders!(reason: "User banned")
     shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).find_each do |order|
+      order.internal_rejection_reason = reason
+      order.fraud_related_project_id = 1
       order.mark_rejected(reason)
       order.save!
     end
@@ -519,6 +521,8 @@ class User < ApplicationRecord
       else
                  "Not eligible for YSWS"
       end
+      order.internal_rejection_reason = reason
+      order.fraud_related_project_id = 1
       order.mark_rejected!(reason)
     end
   end
