@@ -11,6 +11,19 @@
       <p class="sidequest-show__description"><%= @sidequest.description %></p>
     <% end %>
 
+    <% current_cycle = challenger_current_cycle %>
+    <section class="sidequest-show__cycle-banner">
+      <p class="sidequest-show__cycle-kicker">Current Cycle</p>
+      <h2 class="sidequest-show__cycle-title"><%= challenger_current_cycle_label %></h2>
+      <% if current_cycle %>
+        <p class="sidequest-show__cycle-dates">
+          <%= current_cycle[:starts_on].strftime("%B %-d") %>-<%= current_cycle[:ends_on].strftime("%-d, %Y") %>
+        </p>
+      <% else %>
+        <p class="sidequest-show__cycle-dates">April 16-30, 2026</p>
+      <% end %>
+    </section>
+
     <div class="sidequest-show__info-grid">
       <section class="sidequest-show__info-card">
         <h3 class="sidequest-show__info-title">Requirements</h3>
@@ -23,11 +36,11 @@
 
       <section class="sidequest-show__info-card">
         <h3 class="sidequest-show__info-title">Cycle Timeline</h3>
-        <p class="sidequest-show__help-note"><strong>Total Cycles:</strong> 3 cycles, starting April 15th</p>
+        <p class="sidequest-show__help-note"><strong>Total Cycles:</strong> 3 cycles, starting April 16th</p>
         <ul class="sidequest-show__steps">
-          <li><strong>Cycle 1:</strong> April 16th – 20th</li>
-          <li><strong>Cycle 2:</strong> April 21st – 25th</li>
-          <li><strong>Cycle 3:</strong> April 26th – 30th</li>
+          <li><strong>Cycle 1:</strong> April 16th-20th - something an astronaut would use while on a mission.</li>
+          <li><strong>Cycle 2:</strong> April 21st-25th - something that would help civilization survive on the moon.</li>
+          <li><strong>Cycle 3:</strong> April 26th-30th - something that would help scientists study space better.</li>
         </ul>
         <p class="sidequest-show__help-note"><em>Each cycle lasts 5 days</em></p>
       </section>
@@ -48,8 +61,8 @@
       <h3 class="sidequest-show__info-title">Tips & Resources</h3>
       <ul class="sidequest-show__steps">
         <li>Join <%= link_to "#challenger-space-centre", "https://hackclub.enterprise.slack.com/archives/C0CHALLENGER", target: "_blank", rel: "noopener" %> to talk to other challengers!</li>
-        <li>Need ideas? We have an idea generator thanks to @freddie! Try doing <code>/nebula idea</code> in #challenger-space-centre!</li>
-        <li><strong>Special Prize:</strong> Submitting to all 3 cycles may or may not unlock a special prize…</li>
+        <li>Need ideas? We have an idea generator thanks to @freddie! Try doing <code>/nebula idea</code> in <%= link_to "#challenger-space-centre", "https://hackclub.enterprise.slack.com/archives/C0CHALLENGER", target: "_blank", rel: "noopener" %>!</li>
+        <li><strong>Special Prize:</strong> Submitting to all 3 cycles may or may not unlock a special prize...</li>
       </ul>
     </section>
 
@@ -92,7 +105,7 @@
 
     <div class="sidequest-show__actions">
       <%= render ButtonComponent.new(
-            text: "← Back to Sidequests",
+            text: "<- Back to Sidequests",
             href: sidequests_path,
             color: :brown,
             variant: :borderless
