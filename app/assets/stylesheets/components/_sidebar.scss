@@ -22,18 +22,9 @@
   &:focus-within {
     width: var(--sidebar-expanded-width);
 
-    .sidebar__user-card {
-      padding: 0.4em 0 0.4em 5.5em;
-    }
-
     .sidebar__user-details {
       opacity: 1;
       max-width: 200px;
-    }
-
-    .sidebar__user-avatar {
-      left: 0.7em;
-      transform: none;
     }
 
     .sidebar__pin-button {
@@ -431,9 +422,8 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 50%;
-  width: 225%;
-  transform: translateX(-50%);
+  left: calc(-1 * var(--space-l));
+  right: calc(-1 * var(--space-l));
   z-index: -1;
 
   background-color: var(--color-blue-500);
@@ -443,21 +433,6 @@
   background-position: center;
 
   border-radius: calc(var(--border-radius) / 1.5);
-
-  transition: width 180ms ease;
-
-  @media (max-width: 1500px) {
-    width: 250%;
-  }
-}
-
-.sidebar:is(:hover, :focus-within) .sidebar__nav-link--active::before,
-.sidebar--pinned .sidebar__nav-link--active::before {
-  width: 130%;
-
-  @media (max-width: 1500px) {
-    width: 140%;
-  }
 }
 
 .sidebar__nav-icon {
@@ -530,17 +505,17 @@
   align-items: center;
   gap: var(--space-m);
   box-shadow: var(--shadow);
-  transition: all 0.2s ease;
+  transition: padding 0.2s ease;
   white-space: nowrap;
   text-decoration: none;
   cursor: default;
   position: relative;
+  padding: 0.4em 0 0.4em 5.5em;
 }
 
 .sidebar__user-avatar {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0.7em;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -548,7 +523,7 @@
   background-color: var(--color-red-400);
   border-radius: 50%;
   padding: 0.4em;
-  transition: all 0.2s ease;
+  transition: left 0.2s ease;
   z-index: 10;
 
   .sidebar__user-avatar-hat {
@@ -763,20 +738,10 @@
       opacity: 1;
       max-width: 100%;
     }
+  }
 
-    .sidebar__user-avatar {
-      left: 0.7em;
-      transform: none;
-    }
-
-    .sidebar:is(:hover, :focus-within) .sidebar__user-avatar {
-      left: 0.3em;
-      transform: none;
-    }
-
-    .sidebar:is(:hover, :focus-within) .sidebar__user-card {
-      padding: 0.4em 0 0.4em 5em;
-    }
+  .sidebar:is(:hover, :focus-within) .sidebar__user-avatar {
+    left: 0.3em;
   }
 
   .sidebar__blob {
@@ -818,7 +783,6 @@
 
   .sidebar__user-avatar {
     left: 0.3em;
-    transform: none;
   }
 
   body.signed-in main {
