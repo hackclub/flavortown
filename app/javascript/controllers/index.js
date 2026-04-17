@@ -46,6 +46,9 @@ application.register("file-upload", FileUploadController);
 import FlashController from "./flash_controller";
 application.register("flash", FlashController);
 
+import FraudDashController from "./fraud_dash_controller";
+application.register("fraud-dash", FraudDashController);
+
 import HackatimeProjectSelectorController from "./hackatime_project_selector_controller";
 application.register(
   "hackatime-project-selector",

@@ -1,740 +1,242 @@
-<div class="super-mega-dashboard__header super-mega-dashboard__header--fraud">
-        <h2>Fraud Overview</h2>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <%= link_to admin_fraud_dashboard_path, class: "super-mega-link", style: "display:flex;align-items:center;gap:4px;" do %>
-            <svg style="height:13px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5" /><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5" /><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5" /><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5" /></svg>
-            Full Dashboard
-          <% end %>
-          <%= link_to "https://joe.fraud.hackclub.com/cases/dashboard?ysws=Flavortown", class: "super-mega-link", target: "_blank", style: "display:flex;align-items:center;gap:4px;" do %>
-            <svg style="height:13px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
-            Joe Dashboard
-          <% end %>
-        </div>
-      </div>
+<div data-controller="fraud">
+  <div class="super-mega-dashboard__header super-mega-dashboard__header--fraud">
+    <h2>Fraud Overview</h2>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <%= link_to admin_fraud_dashboard_path, class: "super-mega-link", style: "display:flex;align-items:center;gap:4px;" do %>
+        <svg style="height:13px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5" /><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5" /><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5" /><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5" /></svg>
+        Full Dashboard
+      <% end %>
+      <%= link_to "https://joe.fraud.hackclub.com/cases/dashboard?ysws=Flavortown", class: "super-mega-link", target: "_blank", style: "display:flex;align-items:center;gap:4px;" do %>
+        <svg style="height:13px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        Joe Dashboard
+      <% end %>
+      <button type="button" class="super-mega-link" style="display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;" data-action="fraud#openModal" data-fraud-modal-id="vibesModal">
+        Vibez
+      </button>
+    </div>
+  </div>
 
-      <!-- PENDING QUEUE -->
-      <div class="fraud-subsection">
-        <h3 class="fraud-subsection__title">Pending Queue</h3>
-        <div class="super-mega-dashboard__cards">
-          <div class="super-mega-dashboard__card">
-            <h3>Awaiting Review</h3>
-            <% pending_color = ->(n) { n >= 100 ? "red" : n >= 50 ? "yellow" : "green" } %>
-            <div class="fraud-stats-grid">
-              <div class="fraud-stats-grid__row">
-                <span class="fraud-stats-grid__label">Reports Pending</span>
-                <% rp = @fraud_reports[:pending] || 0 %>
-                <span class="fraud-stats-grid__value fraud-stats-grid__value--<%= pending_color.call(rp) %>"><%= rp %></span>
-              </div>
-              <div class="fraud-stats-grid__row">
-                <span class="fraud-stats-grid__label">Shop Orders Pending</span>
-                <% sop = @fraud_orders[:pending] || 0 %>
-                <span class="fraud-stats-grid__value fraud-stats-grid__value--<%= pending_color.call(sop) %>"><%= sop %></span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+  <%# vibes overview %>
+  <div id="vibesModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" data-action="click->fraud#backdropClose">
+    <div class="super-mega-dashboard__card" style="min-width:320px;max-width:860px;max-height:85vh;overflow-y:auto;position:relative;margin:auto;">
+      <button data-action="fraud#closeModal" data-fraud-modal-id="vibesModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
+      <h3>Vibez</h3>
 
-      <!-- JOE SECTION -->
-      <div class="fraud-subsection">
-        <h3 class="fraud-subsection__title">Cases & Bans</h3>
-        <div class="super-mega-dashboard__cards">
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph">
-          <h3>Unresolved Cases vs Hang Time</h3>
-          <% if @joe_fraud_stats && !@joe_fraud_stats[:error] && @joe_fraud_stats[:created_over_time].any? %>
-            <div class="d3-stream-container" id="joeUnresolvedContainer">
-              <div class="d3-stream-tooltip" id="joeUnresolvedTooltip"></div>
-            </div>
-            <div class="d3-stream-legend" id="joeUnresolvedLegend"></div>
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                ensureD3(function() {
-                  var createdOverTime = <%= raw @joe_fraud_stats[:created_over_time].to_json %>;
-                  var avgHangTime = <%= @joe_fraud_stats[:avg_hang_time_days].to_json %>;
-                  var openCount = <%= @joe_fraud_stats[:open].to_json %>;
-                  var waitingCount = <%= @joe_fraud_stats[:waiting].to_json %>;
-
-                  var tableData = createdOverTime.map(function(d) {
-                    return { date: new Date(d.bucket), created: d.count };
-                  });
-
-                  var container = document.getElementById('joeUnresolvedContainer');
-                  var tooltip = document.getElementById('joeUnresolvedTooltip');
-                  var legendEl = document.getElementById('joeUnresolvedLegend');
-                  var margin = { top: 10, right: 50, bottom: 20, left: 30 };
-                  var height = 140;
-
-                  legendEl.innerHTML = [
-                    '<span><span class="d3-stream-legend__swatch" style="background:#f59e0b"></span>Cases Created/Week</span>',
-                    '<span><span class="d3-stream-legend__swatch" style="background:#ef4444"></span>Avg Hang Time (days)</span>'
-                  ].join('');
-
-                  function render() {
-                    container.querySelectorAll('svg').forEach(function(el) { el.remove(); });
-                    var width = container.clientWidth;
-                    var innerW = width - margin.left - margin.right;
-                    var innerH = height - margin.top - margin.bottom;
-
-                    var svg = d3.select(container).append('svg')
-                      .attr('width', width).attr('height', height);
-                    var g = svg.append('g')
-                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-                    var x = d3.scaleTime()
-                      .domain(d3.extent(tableData, function(d) { return d.date; }))
-                      .range([0, innerW]);
-
-                    var yLeft = d3.scaleLinear()
-                      .domain([0, d3.max(tableData, function(d) { return d.created; }) * 1.2])
-                      .range([innerH, 0]);
-
-                    var yRight = d3.scaleLinear()
-                      .domain([0, avgHangTime * 1.5])
-                      .range([innerH, 0]);
-
-                    g.append('g')
-                      .attr('class', 'd3-stream-grid')
-                      .call(d3.axisLeft(yLeft).ticks(4).tickSize(-innerW).tickFormat(d3.format('d')))
-                      .selectAll('text').style('font-size', '7px');
-
-                    g.append('g')
-                      .attr('transform', 'translate(' + innerW + ',0)')
-                      .call(d3.axisRight(yRight).ticks(4).tickFormat(function(d) { return d + 'd'; }))
-                      .selectAll('text').style('font-size', '7px');
-
-                    g.append('g')
-                      .attr('transform', 'translate(0,' + innerH + ')')
-                      .call(d3.axisBottom(x).ticks(tableData.length).tickFormat(d3.timeFormat('%b %d')))
-                      .selectAll('text').style('font-size', '7px');
-
-                    // Bars for cases created
-                    var barWidth = Math.max(2, (innerW / tableData.length) * 0.4);
-                    g.selectAll('.bar')
-                      .data(tableData)
-                      .join('rect')
-                      .attr('class', 'bar')
-                      .attr('x', function(d) { return x(d.date) - barWidth / 2; })
-                      .attr('y', function(d) { return yLeft(d.created); })
-                      .attr('width', barWidth)
-                      .attr('height', function(d) { return innerH - yLeft(d.created); })
-                      .attr('fill', '#f59e0b')
-                      .attr('opacity', 0.7);
-
-                    // Flat reference line for avg hang time
-                    g.append('line')
-                      .attr('x1', 0).attr('x2', innerW)
-                      .attr('y1', yRight(avgHangTime)).attr('y2', yRight(avgHangTime))
-                      .attr('stroke', '#ef4444').attr('stroke-width', 1.5)
-                      .attr('stroke-dasharray', '4,3');
-
-                    g.append('text')
-                      .attr('x', innerW - 2).attr('y', yRight(avgHangTime) - 3)
-                      .attr('text-anchor', 'end').attr('fill', '#ef4444')
-                      .style('font-size', '7px')
-                      .text(avgHangTime + 'd avg');
-
-                    // Overlay open+waiting as a dot on the last bar
-                    var lastPoint = tableData[tableData.length - 1];
-                    g.append('circle')
-                      .attr('cx', x(lastPoint.date))
-                      .attr('cy', yLeft(openCount + waitingCount))
-                      .attr('r', 4)
-                      .attr('fill', '#ef4444')
-                      .attr('stroke', '#fff')
-                      .attr('stroke-width', 1);
-
-                    svg.append('rect')
-                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-                      .attr('width', innerW).attr('height', innerH)
-                      .attr('fill', 'none').attr('pointer-events', 'all')
-                      .on('mousemove', function(event) {
-                        var mx = d3.pointer(event, this)[0];
-                        var bisect = d3.bisector(function(d) { return d.date; }).left;
-                        var x0 = x.invert(mx);
-                        var idx = Math.min(bisect(tableData, x0), tableData.length - 1);
-                        var pt = tableData[idx];
-                        tooltip.className = 'd3-stream-tooltip is-visible';
-                        tooltip.innerHTML = '<strong>' + d3.timeFormat('%b %d')(pt.date) + '</strong><br>' +
-                          '<span style="color:#f59e0b">Created: ' + pt.created + '</span><br>' +
-                          '<span style="color:#ef4444">Avg hang: ' + avgHangTime + 'd</span>';
-                        tooltip.style.left = (x(pt.date) + margin.left + 10) + 'px';
-                        tooltip.style.top = margin.top + 'px';
-                      })
-                      .on('mouseleave', function() {
-                        tooltip.className = 'd3-stream-tooltip';
-                      });
-                  }
-
-                  render();
-                  window.addEventListener('resize', render);
-                });
-              });
-            </script>
-          <% else %>
-            <p class="fraud-stats-error"><%= @joe_fraud_stats&.dig(:error) || "No Joe data" %></p>
-          <% end %>
-        </div>
-
-        <% if @joe_fraud_stats && !@joe_fraud_stats[:error] %>
-        <div class="super-mega-dashboard__card">
-          <h3>Stalest Cases</h3>
-          <% stale_cases = @joe_fraud_stats[:longest_hang_times]&.select { |c| c[:status] == "open" } || [] %>
-          <% if stale_cases.any? %>
-          <div class="fraud-stats-grid">
-            <% stale_cases.each do |c| %>
-              <div class="fraud-stats-grid__row">
-                <a href="https://joe.fraud.hackclub.com/cases/<%= c[:id] %>" target="_blank" style="color:inherit;text-decoration:none;flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                  <span class="fraud-stats-grid__label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;" title="<%= c[:snippet] %>">#<%= c[:id] %> — <%= c[:snippet]&.split("\n")&.first %></span>
-                  <span class="fraud-stats-grid__value fraud-stats-grid__value--red" style="flex-shrink:0;"><%= c[:hangDays] %>d</span>
-                </a>
+      <%# current week feedback %>
+      <div id="vibesWeekModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" data-action="click->fraud#backdropClose">
+        <div class="super-mega-dashboard__card" style="min-width:320px;max-width:560px;max-height:80vh;overflow-y:auto;position:relative;margin:auto;">
+          <button data-action="fraud#closeModal" data-fraud-modal-id="vibesWeekModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
+          <h3><%= @fraud_happiness_week %> Feedback</h3>
+          <% feedback_records = @fraud_happiness_records.select { |r| r[:extra_comments].present? } %>
+          <% if feedback_records.any? %>
+            <% feedback_records.each do |r| %>
+              <div style="border-top:1px solid #1e293b;padding:8px 0;display:flex;align-items:flex-start;gap:6px;">
+                <% if r[:feedback_impl] %>
+                  <span title="Feedback implemented" style="color:#10b981;flex-shrink:0;">✓</span>
+                <% end %>
+                <span style="font-size:11px;color:#000;"><%= r[:extra_comments] %></span>
               </div>
             <% end %>
-          </div>
           <% else %>
-          <p class="fraud-stats-grid__label">we aint stale! 🎉</p>
+            <p class="fraud-stats-grid__label">nobody shared their thoughts with me :<<<< p>
           <% end %>
         </div>
-        <% end %>
+      </div>
 
-        <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" id="banTrendCard" style="cursor:pointer;" onclick="document.getElementById('banStatsModal').style.display='flex'">
-          <h3>Bans Over Time <svg style="height: 16px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
-              <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-            </svg></h3>
-          <% if @fraud_ban_trend_data.present? %>
-            <div class="d3-stream-container" id="banTrendContainer">
-              <div class="d3-stream-tooltip" id="banTrendTooltip"></div>
-            </div>
-            <div class="d3-stream-legend" id="banTrendLegend"></div>
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                ensureD3(function() {
-                  var raw = <%= raw @fraud_ban_trend_data.to_json %>;
-                  var sortedDates = Object.keys(raw).sort();
-                  var tableData = sortedDates.map(function(d) {
-                    return { date: new Date(d), bans: raw[d].bans, unbans: raw[d].unbans };
-                  });
-
-                  var seriesConfig = [
-                    { key: 'bans', label: 'Bans', color: '#ef4444' },
-                    { key: 'unbans', label: 'Unbans', color: '#10b981' }
-                  ];
-
-                  var container = document.getElementById('banTrendContainer');
-                  var tooltip = document.getElementById('banTrendTooltip');
-                  var legendEl = document.getElementById('banTrendLegend');
-                  var margin = { top: 10, right: 10, bottom: 20, left: 30 };
-                  var height = 140;
-
-                  legendEl.innerHTML = seriesConfig.map(function(cfg) {
-                    return '<span><span class="d3-stream-legend__swatch" style="background:' + cfg.color + '"></span>' + cfg.label + '</span>';
-                  }).join('');
-
-                  var keys = seriesConfig.map(function(c) { return c.key; });
-                  var colorMap = {};
-                  seriesConfig.forEach(function(c) { colorMap[c.key] = c.color; });
-
-                  var stack = d3.stack()
-                    .keys(keys)
-                    .order(d3.stackOrderInsideOut)
-                    .offset(d3.stackOffsetWiggle);
-
-                  var stackedData = stack(tableData);
-
-                  function render() {
-                    container.querySelectorAll('svg').forEach(function(el) { el.remove(); });
-                    var width = container.clientWidth;
-                    var innerW = width - margin.left - margin.right;
-                    var innerH = height - margin.top - margin.bottom;
-
-                    var svg = d3.select(container).append('svg')
-                      .attr('width', width).attr('height', height);
-                    var g = svg.append('g')
-                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-                    var x = d3.scaleTime()
-                      .domain(d3.extent(tableData, function(d) { return d.date; }))
-                      .range([0, innerW]);
-
-                    var yExtent = [
-                      d3.min(stackedData, function(layer) { return d3.min(layer, function(d) { return d[0]; }); }),
-                      d3.max(stackedData, function(layer) { return d3.max(layer, function(d) { return d[1]; }); })
-                    ];
-
-                    var y = d3.scaleLinear()
-                      .domain(yExtent)
-                      .range([innerH, 0]);
-
-                    var area = d3.area()
-                      .x(function(d) { return x(d.data.date); })
-                      .y0(function(d) { return y(d[0]); })
-                      .y1(function(d) { return y(d[1]); })
-                      .curve(d3.curveCatmullRom);
-
-                    g.append('g')
-                      .attr('transform', 'translate(0,' + innerH + ')')
-                      .call(d3.axisBottom(x).ticks(Math.min(sortedDates.length, 8)).tickFormat(d3.timeFormat('%b %d')))
-                      .selectAll('text').style('font-size', '7px');
-
-                    g.selectAll('.stream-layer')
-                      .data(stackedData)
-                      .join('path')
-                      .attr('class', 'stream-layer')
-                      .attr('d', area)
-                      .attr('fill', function(d) { return colorMap[d.key]; })
-                      .attr('opacity', 0.8);
-
-                    var crosshair = g.append('line')
-                      .attr('y1', 0).attr('y2', innerH)
-                      .attr('stroke', '#94a3b8').attr('stroke-width', 1)
-                      .attr('stroke-dasharray', '4,3').attr('pointer-events', 'none')
-                      .style('display', 'none');
-
-                    svg.append('rect')
-                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-                      .attr('width', innerW).attr('height', innerH)
-                      .attr('fill', 'none').attr('pointer-events', 'all')
-                      .on('mousemove', function(event) {
-                        var mx = d3.pointer(event, this)[0];
-                        var bisect = d3.bisector(function(d) { return d.date; }).left;
-                        var x0 = x.invert(mx);
-                        var idx = bisect(tableData, x0, 1);
-                        var d0 = tableData[idx - 1], d1 = tableData[idx];
-                        var pt = (!d1 || (x0 - d0.date < d1.date - x0)) ? d0 : d1;
-                        crosshair.attr('x1', x(pt.date)).attr('x2', x(pt.date)).style('display', null);
-                        tooltip.className = 'd3-stream-tooltip is-visible';
-                        tooltip.innerHTML = '<strong>' + d3.timeFormat('%b %d')(pt.date) + '</strong><br>' +
-                          seriesConfig.map(function(cfg) {
-                            return '<span style="color:' + cfg.color + '">' + cfg.label + ': ' + pt[cfg.key] + '</span>';
-                          }).join('<br>');
-                        tooltip.style.left = (x(pt.date) + margin.left + 10) + 'px';
-                        tooltip.style.top = margin.top + 'px';
-                      })
-                      .on('mouseleave', function() {
-                        crosshair.style('display', 'none');
-                        tooltip.className = 'd3-stream-tooltip';
-                      });
-                  }
-
-                  render();
-                  window.addEventListener('resize', render);
-                });
-              });
-            </script>
-          <% else %>
-            <p class="fraud-stats-error">No trend data available</p>
-          <% end %>
-          </div>
-          </div>
-          </div>
-
-          <!-- TEAM VIBES SECTION -->
-          <div class="fraud-subsection">
-            <h3 class="fraud-subsection__title">Vibez</h3>
-
-            <%# Modal: current week feedback %>
-            <div id="vibesWeekModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" onclick="if(event.target===this)this.style.display='none'">
-              <div class="super-mega-dashboard__card" style="min-width:320px;max-width:560px;max-height:80vh;overflow-y:auto;position:relative;margin:auto;">
-                <button onclick="document.getElementById('vibesWeekModal').style.display='none'" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
-                <h3><%= @fraud_happiness_week %> Feedback</h3>
-                <% feedback_records = @fraud_happiness_records.select { |r| r[:extra_comments].present? } %>
-                <% if feedback_records.any? %>
-                  <% feedback_records.each do |r| %>
-                    <div style="border-top:1px solid #1e293b;padding:8px 0;display:flex;align-items:flex-start;gap:6px;">
-                      <% if r[:feedback_impl] %>
-                        <span title="Feedback implemented" style="color:#10b981;flex-shrink:0;">✓</span>
-                      <% end %>
-                      <span style="font-size:11px;color:#000;"><%= r[:extra_comments] %></span>
-                    </div>
+      <%# Modal: all weeks feedback %>
+      <div id="vibesAllWeeksModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" data-action="click->fraud#backdropClose">
+        <div class="super-mega-dashboard__card" style="min-width:320px;max-width:600px;max-height:85vh;overflow-y:auto;position:relative;margin:auto;">
+          <button data-action="fraud#closeModal" data-fraud-modal-id="vibesAllWeeksModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
+          <h3>All Weeks Feedback</h3>
+          <% @fraud_vibes_history&.sort_by { |w, _| w }.each do |week, data| %>
+            <details style="border-top:1px solid #1e293b;padding:6px 0;">
+              <summary style="cursor:pointer;font-weight:600;font-size:12px;"><%= week %> <span style="color:#94a3b8;font-weight:400;">(<%= data[:responses] %> responses)</span></summary>
+              <% (data[:records] || []).select { |r| r[:extra_comments].present? }.each do |r| %>
+                <div style="padding:6px 0 6px 12px;border-top:1px solid #0f172a;display:flex;align-items:flex-start;gap:6px;">
+                  <% if r[:feedback_impl] %>
+                    <span title="Feedback implemented" style="color:#10b981;flex-shrink:0;">✓</span>
                   <% end %>
-                <% else %>
-                  <p class="fraud-stats-grid__label">nobody shared their thoughts with me :<< p>
-                <% end %>
-              </div>
-            </div>
-
-            <%# Modal: all weeks feedback %>
-            <div id="vibesAllWeeksModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" onclick="if(event.target===this)this.style.display='none'">
-              <div class="super-mega-dashboard__card" style="min-width:320px;max-width:600px;max-height:85vh;overflow-y:auto;position:relative;margin:auto;">
-                <button onclick="document.getElementById('vibesAllWeeksModal').style.display='none'" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
-                <h3>All Weeks Feedback</h3>
-                <% @fraud_vibes_history&.sort_by { |w, _| w }.each do |week, data| %>
-                  <details style="border-top:1px solid #1e293b;padding:6px 0;">
-                    <summary style="cursor:pointer;font-weight:600;font-size:12px;"><%= week %> <span style="color:#94a3b8;font-weight:400;">(<%= data[:responses] %> responses)</span></summary>
-                    <% (data[:records] || []).select { |r| r[:extra_comments].present? }.each do |r| %>
-                      <div style="padding:6px 0 6px 12px;border-top:1px solid #0f172a;display:flex;align-items:flex-start;gap:6px;">
-                        <% if r[:feedback_impl] %>
-                          <span title="Feedback implemented" style="color:#10b981;flex-shrink:0;">✓</span>
-                        <% end %>
-                        <span style="font-size:11px;color:#000;"><%= r[:extra_comments] %></span>
-                      </div>
-                    <% end %>
-                  </details>
-                <% end %>
-              </div>
-            </div>
-
-            <div class="super-mega-dashboard__cards">
-              <div class="super-mega-dashboard__card" style="cursor:pointer;" onclick="document.getElementById('vibesWeekModal').style.display='flex'">
-                <%= render FraudHappinessComponent.new(
-                  week: @fraud_happiness_week,
-                  records: @fraud_happiness_records,
-                  avg_scores: @fraud_happiness_avg_scores,
-                  error: @fraud_happiness_error,
-                  prev_scores: @fraud_happiness_prev_scores,
-                  description: "The team's overall vibe for the current week, based off there feedback. Click to read comments and see trends over time.",
-                ) %>
-              </div>
-              <% if @fraud_vibes_history.present? %>
-              <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" style="cursor:pointer;" onclick="document.getElementById('vibesAllWeeksModal').style.display='flex'">
-                <h3>Vibes Over Time <svg style="height: 16px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
-                    <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                  </svg></h3>
-                <div class="d3-stream-container" id="vibesTrendContainer">
-                  <div class="d3-stream-tooltip" id="vibesTrendTooltip"></div>
+                  <span style="font-size:11px;color:#000;"><%= r[:extra_comments] %></span>
                 </div>
-                <div class="d3-stream-legend" id="vibesTrendLegend"></div>
-                <script>
-                  document.addEventListener('DOMContentLoaded', function() {
-                    ensureD3(function() {
-                      var raw = <%= raw @fraud_vibes_history.to_json %>;
-                      var sortedWeeks = Object.keys(raw).sort();
-                      var tableData = sortedWeeks.map(function(w) {
-                        return {
-                          week: w,
-                          avg_feeling: raw[w].avg_feeling || 0,
-                          avg_shop: raw[w].avg_shop || 0,
-                          avg_reports: raw[w].avg_reports || 0
-                        };
-                      });
+              <% end %>
+            </details>
+          <% end %>
+        </div>
+      </div>
 
-                      var seriesConfig = [
-                        { key: 'avg_feeling', label: 'Overall', color: '#10b981' },
-                        { key: 'avg_shop', label: 'Shop Orders', color: '#3b82f6' },
-                        { key: 'avg_reports', label: 'Reports', color: '#f59e0b' }
-                      ];
+      <div class="super-mega-dashboard__cards">
+        <div class="super-mega-dashboard__card" style="cursor:pointer;" data-action="fraud#openModal" data-fraud-modal-id="vibesWeekModal">
+          <%= render FraudHappinessComponent.new(
+            week: @fraud_happiness_week,
+            records: @fraud_happiness_records,
+            avg_scores: @fraud_happiness_avg_scores,
+            error: @fraud_happiness_error,
+            prev_scores: @fraud_happiness_prev_scores,
+            description: "The team's overall vibe for the current week, based off there feedback. Click to read comments and see trends over time.",
+          ) %>
+        </div>
+        <% if @fraud_vibes_history.present? %>
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" style="cursor:pointer;" data-action="fraud#openModal" data-fraud-modal-id="vibesAllWeeksModal">
+            <h3>Vibes Over Time <svg style="height: 16px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
+                <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+              </svg></h3>
+            <div class="d3-stream-container" id="vibesTrendContainer" data-fraud-dash-vibes-history="<%= json_escape(@fraud_vibes_history.to_json) %>">
+              <div class="d3-stream-tooltip" id="vibesTrendTooltip"></div>
+            </div>
+            <div class="d3-stream-legend" id="vibesTrendLegend"></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
 
-                      var container = document.getElementById('vibesTrendContainer');
-                      var tooltip = document.getElementById('vibesTrendTooltip');
-                      var legendEl = document.getElementById('vibesTrendLegend');
-                      var margin = { top: 10, right: 10, bottom: 20, left: 30 };
-                      var height = 140;
-
-                      legendEl.innerHTML = seriesConfig.map(function(cfg) {
-                        return '<span><span class="d3-stream-legend__swatch" style="background:' + cfg.color + '"></span>' + cfg.label + '</span>';
-                      }).join('');
-
-                      function render() {
-                        container.querySelectorAll('svg').forEach(function(el) { el.remove(); });
-                        var width = container.clientWidth;
-                        var innerW = width - margin.left - margin.right;
-                        var innerH = height - margin.top - margin.bottom;
-
-                        var svg = d3.select(container).append('svg')
-                          .attr('width', width).attr('height', height);
-                        var g = svg.append('g')
-                          .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-                        var x = d3.scalePoint()
-                          .domain(sortedWeeks)
-                          .range([0, innerW])
-                          .padding(0.2);
-
-                        var allValues = tableData.flatMap(function(d) {
-                          return seriesConfig.map(function(cfg) { return d[cfg.key]; }).filter(function(v) { return v > 0; });
-                        });
-                        var yMin = Math.max(0, d3.min(allValues) - 1);
-                        var yMax = Math.min(10, d3.max(allValues) + 1);
-
-                        var y = d3.scaleLinear()
-                          .domain([yMin, yMax])
-                          .range([innerH, 0]);
-
-                        g.append('g')
-                          .attr('class', 'd3-stream-grid')
-                          .call(d3.axisLeft(y).ticks(5).tickSize(-innerW).tickFormat(d3.format('d')))
-                          .selectAll('text').style('font-size', '7px');
-
-                        g.append('g')
-                          .attr('transform', 'translate(0,' + innerH + ')')
-                          .call(d3.axisBottom(x).tickValues(sortedWeeks.filter(function(_, i) { return i % Math.ceil(sortedWeeks.length / 6) === 0; })))
-                          .selectAll('text').style('font-size', '7px').attr('transform', 'rotate(-30)').attr('text-anchor', 'end');
-
-                        var lineGen = d3.line()
-                          .x(function(d) { return x(d.week); })
-                          .curve(d3.curveMonotoneX);
-
-                        seriesConfig.forEach(function(cfg) {
-                          g.append('path')
-                            .datum(tableData)
-                            .attr('fill', 'none')
-                            .attr('stroke', cfg.color)
-                            .attr('stroke-width', 1.5)
-                            .attr('d', lineGen.y(function(d) { return y(d[cfg.key]); }));
-
-                          g.selectAll('.dot-' + cfg.key)
-                            .data(tableData.filter(function(d) { return d[cfg.key] > 0; }))
-                            .join('circle')
-                            .attr('cx', function(d) { return x(d.week); })
-                            .attr('cy', function(d) { return y(d[cfg.key]); })
-                            .attr('r', 2)
-                            .attr('fill', cfg.color)
-                            .attr('stroke', '#fff')
-                            .attr('stroke-width', 1);
-                        });
-
-                        var crosshair = g.append('line')
-                          .attr('y1', 0).attr('y2', innerH)
-                          .attr('stroke', '#94a3b8').attr('stroke-width', 1)
-                          .attr('stroke-dasharray', '4,3').attr('pointer-events', 'none')
-                          .style('display', 'none');
-
-                        svg.append('rect')
-                          .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-                          .attr('width', innerW).attr('height', innerH)
-                          .attr('fill', 'none').attr('pointer-events', 'all')
-                          .on('mousemove', function(event) {
-                            var mx = d3.pointer(event, this)[0];
-                            var closest = sortedWeeks.reduce(function(a, b) {
-                              return Math.abs(x(a) - mx) < Math.abs(x(b) - mx) ? a : b;
-                            });
-                            var pt = tableData.find(function(d) { return d.week === closest; });
-                            if (!pt) return;
-                            crosshair.attr('x1', x(closest)).attr('x2', x(closest)).style('display', null);
-                            tooltip.className = 'd3-stream-tooltip is-visible';
-                            tooltip.innerHTML = '<strong>' + closest + '</strong><br>' +
-                              seriesConfig.map(function(cfg) {
-                                return '<span style="color:' + cfg.color + '">' + cfg.label + ': ' + (pt[cfg.key] || 'N/A') + '</span>';
-                              }).join('<br>');
-                            tooltip.style.left = (x(closest) + margin.left + 10) + 'px';
-                            tooltip.style.top = margin.top + 'px';
-                          })
-                          .on('mouseleave', function() {
-                            crosshair.style('display', 'none');
-                            tooltip.className = 'd3-stream-tooltip';
-                          });
-                      }
-
-                      render();
-                      window.addEventListener('resize', render);
-                    });
-                  });
-                </script>
-              </div>
+  <!-- PENDING QUEUE -->
+  <div class="fraud-subsection">
+    <h3 class="fraud-subsection__title">Pending Queue</h3>
+    <div class="super-mega-dashboard__cards">
+      <div class="super-mega-dashboard__card">
+        <h3>Awaiting Review</h3>
+        <% pending_color = ->(n) { n >= 100 ? "red" : n >= 50 ? "yellow" : "green" } %>
+        <div class="fraud-stats-grid">
+          <div class="fraud-stats-grid__row">
+            <span class="fraud-stats-grid__label">Reports Pending</span>
+            <% rp = @fraud_reports[:pending] || 0 %>
+            <span class="fraud-stats-grid__value fraud-stats-grid__value--<%= pending_color.call(rp) %>"><%= rp %></span>
+          </div>
+          <div class="fraud-stats-grid__row">
+            <span class="fraud-stats-grid__label">Shop Orders Pending</span>
+            <% sop = @fraud_orders[:pending] || 0 %>
+            <span class="fraud-stats-grid__value fraud-stats-grid__value--<%= pending_color.call(sop) %>"><%= sop %></span>
+          </div>
+        </div>
+      </div>
+      <%# Move Stalest Cases card here to share row %>
+      <div class="super-mega-dashboard__card">
+        <h3>Stalest Cases</h3>
+        <% if @joe_fraud_stats.nil? %>
+          <p class="fraud-stats-error">No Joe stats available</p>
+        <% elsif @joe_fraud_stats[:error] %>
+          <p class="fraud-stats-error"><%= @joe_fraud_stats[:error] %></p>
+        <% else %>
+          <% stale_cases = @joe_fraud_stats[:longest_hang_times]&.select { |c| c[:status] == "open" } || [] %>
+          <% if stale_cases.any? %>
+            <div class="fraud-stats-grid">
+              <% stale_cases.each do |c| %>
+                <div class="fraud-stats-grid__row">
+                  <a href="https://joe.fraud.hackclub.com/cases/<%= c[:id] %>" target="_blank" style="color:inherit;text-decoration:none;flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                    <span class="fraud-stats-grid__label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;" title="<%= c[:snippet] %>">#<%= c[:id] %> — <%= c[:snippet]&.split("\n")&.first %></span>
+                    <span class="fraud-stats-grid__value fraud-stats-grid__value--red" style="flex-shrink:0;"><%= c[:hangDays] %>d</span>
+                  </a>
+                </div>
               <% end %>
             </div>
-          </div>
-
-          <!-- REPORTS SECTION -->
-              <div class="fraud-subsection">
-              <h3 class="fraud-subsection__title">Reports</h3>
-              <div class="super-mega-dashboard__cards">
-              <div id="reportStatsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none'">
-            <div class="super-mega-dashboard__card" style="min-width:260px;position:relative;">
-              <button onclick="document.getElementById('reportStatsModal').style.display='none'" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
-              <h3>Report Stats</h3>
-              <div class="fraud-stats-grid">
-                <div class="fraud-stats-grid__row">
-                  <span class="fraud-stats-grid__label">New Today</span>
-                  <span class="fraud-stats-grid__value fraud-stats-grid__value--blue"><%= @fraud_reports[:new_today] %></span>
-                </div>
-                <div class="fraud-stats-grid__row">
-                  <span class="fraud-stats-grid__label">Pending</span>
-                  <span class="fraud-stats-grid__value fraud-stats-grid__value--yellow"><%= @fraud_reports[:pending] %><span class="fraud-stats-grid__pct">(<%= @fraud_reports[:pending_pct] %>%)</span></span>
-                </div>
-                <div class="fraud-stats-grid__row">
-                  <span class="fraud-stats-grid__label">Reviewed</span>
-                  <span class="fraud-stats-grid__value fraud-stats-grid__value--red"><%= @fraud_reports[:reviewed] %><span class="fraud-stats-grid__pct">(<%= @fraud_reports[:reviewed_pct] %>%)</span></span>
-                </div>
-                <div class="fraud-stats-grid__row">
-                  <span class="fraud-stats-grid__label">Dismissed</span>
-                  <span class="fraud-stats-grid__value fraud-stats-grid__value--green"><%= @fraud_reports[:dismissed] %><span class="fraud-stats-grid__pct">(<%= @fraud_reports[:dismissed_pct] %>%)</span></span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="banStatsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none'">
-            <div class="super-mega-dashboard__card" style="min-width:260px;position:relative;">
-              <button onclick="document.getElementById('banStatsModal').style.display='none'" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
-              <h3>Ban Stats (all time)</h3>
-              <div class="fraud-stats-grid">
-                <div class="fraud-stats-grid__row">
-                  <span class="fraud-stats-grid__label">Banned</span>
-                  <span class="fraud-stats-grid__value fraud-stats-grid__value--red"><%= @fraud_bans[:banned] %><span class="fraud-stats-grid__pct">(<%= @fraud_bans[:banned_pct] %>%)</span></span>
-                </div>
-                <div class="fraud-stats-grid__row">
-                  <span class="fraud-stats-grid__label">Shadow Banned (Projects)</span>
-                  <span class="fraud-stats-grid__value fraud-stats-grid__value--purple"><%= @fraud_bans[:shadow_banned_projects] %></span>
-                </div>
-                <div class="fraud-stats-grid__row">
-                  <span class="fraud-stats-grid__label">Unbanned</span>
-                  <span class="fraud-stats-grid__value fraud-stats-grid__value--green"><%= @fraud_bans[:unbanned] %></span>
-                </div>
-                <div class="fraud-stats-grid__row">
-                  <span class="fraud-stats-grid__label">% of Users Banned</span>
-                  <span class="fraud-stats-grid__value fraud-stats-grid__value--red"><%= @fraud_bans[:ban_unban_ratio] %>%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" style="cursor:pointer;" onclick="document.getElementById('reportStatsModal').style.display='flex'">
-          <h3>Reports Over Time (by reason) <svg style="height: 16px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
-              <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-            </svg></h3>
-          <% if @fraud_report_trend_data.present? %>
-            <div class="d3-stream-container" id="reportTrendContainer">
-              <div class="d3-stream-tooltip" id="reportTrendTooltip"></div>
-            </div>
-            <div class="d3-stream-legend" id="reportTrendLegend"></div>
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                ensureD3(function() {
-                  var raw = <%= raw @fraud_report_trend_data.to_json %>;
-                  var sortedDates = Object.keys(raw).sort();
-
-                  var reasonColors = {
-                    'low_effort':     '#f59e0b',
-                    'undeclared_ai':  '#ef4444',
-                    'demo_broken':    '#3b82f6',
-                    'stolen_code':    '#8b5cf6',
-                    'inappropriate':  '#ec4899',
-                    'other':          '#6366f1'
-                  };
-                  var defaultColor = '#10b981';
-
-                  var reasonSet = {};
-                  sortedDates.forEach(function(date) {
-                    Object.keys(raw[date] || {}).forEach(function(reason) {
-                      reasonSet[reason] = true;
-                    });
-                  });
-                  var reasons = Object.keys(reasonSet);
-
-                  var tableData = sortedDates.map(function(d) {
-                    var row = { date: new Date(d) };
-                    reasons.forEach(function(r) { row[r] = (raw[d] || {})[r] || 0; });
-                    return row;
-                  });
-
-                  var seriesConfig = reasons.map(function(r) {
-                    return {
-                      key: r,
-                      label: r.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); }),
-                      color: reasonColors[r] || defaultColor
-                    };
-                  });
-
-                  var container = document.getElementById('reportTrendContainer');
-                  var tooltip = document.getElementById('reportTrendTooltip');
-                  var legendEl = document.getElementById('reportTrendLegend');
-                  var margin = { top: 10, right: 10, bottom: 20, left: 30 };
-                  var height = 140;
-
-                  legendEl.innerHTML = seriesConfig.map(function(cfg) {
-                    return '<span><span class="d3-stream-legend__swatch" style="background:' + cfg.color + '"></span>' + cfg.label + '</span>';
-                  }).join('');
-
-                  function render() {
-                    container.querySelectorAll('svg').forEach(function(el) { el.remove(); });
-                    var width = container.clientWidth;
-                    var innerW = width - margin.left - margin.right;
-                    var innerH = height - margin.top - margin.bottom;
-
-                    var svg = d3.select(container).append('svg')
-                      .attr('width', width).attr('height', height);
-                    var g = svg.append('g')
-                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-                    var x = d3.scaleTime()
-                      .domain(d3.extent(tableData, function(d) { return d.date; }))
-                      .range([0, innerW]);
-
-                    var yMax = d3.max(tableData, function(d) {
-                      return d3.max(reasons, function(r) { return d[r]; });
-                    }) || 1;
-
-                    var y = d3.scaleLinear()
-                      .domain([0, yMax * 1.1])
-                      .range([innerH, 0]);
-
-                    g.append('g')
-                      .attr('class', 'd3-stream-grid')
-                      .call(d3.axisLeft(y).ticks(4).tickSize(-innerW).tickFormat(d3.format('d')))
-                      .selectAll('text').style('font-size', '7px');
-
-                    g.append('g')
-                      .attr('transform', 'translate(0,' + innerH + ')')
-                      .call(d3.axisBottom(x).ticks(Math.min(sortedDates.length, 8)).tickFormat(d3.timeFormat('%b %d')))
-                      .selectAll('text').style('font-size', '7px');
-
-                    var lineGen = d3.line()
-                      .x(function(d) { return x(d.date); })
-                      .curve(d3.curveMonotoneX);
-
-                    seriesConfig.forEach(function(cfg) {
-                      g.append('path')
-                        .datum(tableData)
-                        .attr('fill', 'none')
-                        .attr('stroke', cfg.color)
-                        .attr('stroke-width', 1.5)
-                        .attr('d', lineGen.y(function(d) { return y(d[cfg.key]); }));
-
-                      g.selectAll('.dot-' + cfg.key)
-                        .data(tableData)
-                        .join('circle')
-                        .attr('cx', function(d) { return x(d.date); })
-                        .attr('cy', function(d) { return y(d[cfg.key]); })
-                        .attr('r', 2)
-                        .attr('fill', cfg.color)
-                        .attr('stroke', '#fff')
-                        .attr('stroke-width', 1);
-                    });
-
-                    var crosshair = g.append('line')
-                      .attr('y1', 0).attr('y2', innerH)
-                      .attr('stroke', '#94a3b8').attr('stroke-width', 1)
-                      .attr('stroke-dasharray', '4,3').attr('pointer-events', 'none')
-                      .style('display', 'none');
-
-                    svg.append('rect')
-                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-                      .attr('width', innerW).attr('height', innerH)
-                      .attr('fill', 'none').attr('pointer-events', 'all')
-                      .on('mousemove', function(event) {
-                        var mx = d3.pointer(event, this)[0];
-                        var bisect = d3.bisector(function(d) { return d.date; }).left;
-                        var x0 = x.invert(mx);
-                        var idx = bisect(tableData, x0, 1);
-                        var d0 = tableData[idx - 1], d1 = tableData[idx];
-                        var pt = (!d1 || (x0 - d0.date < d1.date - x0)) ? d0 : d1;
-                        crosshair.attr('x1', x(pt.date)).attr('x2', x(pt.date)).style('display', null);
-                        tooltip.className = 'd3-stream-tooltip is-visible';
-                        tooltip.innerHTML = '<strong>' + d3.timeFormat('%b %d')(pt.date) + '</strong><br>' +
-                          seriesConfig.map(function(cfg) {
-                            return '<span style="color:' + cfg.color + '">' + cfg.label + ': ' + pt[cfg.key] + '</span>';
-                          }).join('<br>');
-                        tooltip.style.left = (x(pt.date) + margin.left + 10) + 'px';
-                        tooltip.style.top = margin.top + 'px';
-                      })
-                      .on('mouseleave', function() {
-                        crosshair.style('display', 'none');
-                        tooltip.className = 'd3-stream-tooltip';
-                      });
-                  }
-
-                  render();
-                  window.addEventListener('resize', render);
-                });
-              });
-            </script>
           <% else %>
-            <p class="fraud-stats-error">No data available</p>
+            <p class="fraud-stats-grid__label">we aint stale! 🎉</p>
           <% end %>
-          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
 
+  <!-- JOE SECTION -->
+  <div class="fraud-subsection">
+    <h3 class="fraud-subsection__title">Cases & Bans</h3>
+    <div class="super-mega-dashboard__cards" style="display:flex;gap:16px;">
+      <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" style="flex:1 1 0;min-width:0;max-width:50%;">
+        <h3>Unresolved Cases vs Hang Time</h3>
+        <% if @joe_fraud_stats && !@joe_fraud_stats[:error] && @joe_fraud_stats[:created_over_time].any? %>
+          <div class="d3-stream-container" id="joeUnresolvedContainer" data-fraud-dash-joe-created-over-time="<%= json_escape(@joe_fraud_stats[:created_over_time].to_json) %>" data-fraud-dash-joe-avg-hang-time-days="<%= json_escape(@joe_fraud_stats[:avg_hang_time_days].to_json) %>" data-fraud-dash-joe-open-count="<%= json_escape(@joe_fraud_stats[:open].to_json) %>" data-fraud-dash-joe-waiting-count="<%= json_escape(@joe_fraud_stats[:waiting].to_json) %>">
+            <div class="d3-stream-tooltip" id="joeUnresolvedTooltip"></div>
           </div>
+          <div class="d3-stream-legend" id="joeUnresolvedLegend"></div>
+        <% else %>
+          <p class="fraud-stats-error"><%= @joe_fraud_stats&.dig(:error) || "No Joe data" %></p>
+        <% end %>
+      </div>
+      <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" id="banTrendCard" style="flex:1 1 0;min-width:0;max-width:50%;cursor:pointer;" data-action="fraud#openModal" data-fraud-modal-id="banStatsModal">
+        <h3>Bans Over Time <svg style="height: 16px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
+            <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg></h3>
+        <% if @fraud_ban_trend_data.present? %>
+          <div class="d3-stream-container" id="banTrendContainer" data-fraud-dash-ban-trend="<%= json_escape(@fraud_ban_trend_data.to_json) %>">
+            <div class="d3-stream-tooltip" id="banTrendTooltip"></div>
           </div>
+          <div class="d3-stream-legend" id="banTrendLegend"></div>
+        <% else %>
+          <p class="fraud-stats-error">No trend data available</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- REPORTS SECTION -->
+  <div class="fraud-subsection">
+    <h3 class="fraud-subsection__title">Reports</h3>
+    <div class="super-mega-dashboard__cards">
+      <div id="reportStatsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;" data-action="click->fraud#backdropClose">
+        <div class="super-mega-dashboard__card" style="min-width:260px;position:relative;">
+          <button data-action="fraud#closeModal" data-fraud-modal-id="reportStatsModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
+          <h3>Report Stats</h3>
+          <div class="fraud-stats-grid">
+            <div class="fraud-stats-grid__row">
+              <span class="fraud-stats-grid__label">New Today</span>
+              <span class="fraud-stats-grid__value fraud-stats-grid__value--blue"><%= @fraud_reports[:new_today] %></span>
+            </div>
+            <div class="fraud-stats-grid__row">
+              <span class="fraud-stats-grid__label">Pending</span>
+              <span class="fraud-stats-grid__value fraud-stats-grid__value--yellow"><%= @fraud_reports[:pending] %><span class="fraud-stats-grid__pct">(<%= @fraud_reports[:pending_pct] %>%)</span></span>
+            </div>
+            <div class="fraud-stats-grid__row">
+              <span class="fraud-stats-grid__label">Reviewed</span>
+              <span class="fraud-stats-grid__value fraud-stats-grid__value--red"><%= @fraud_reports[:reviewed] %><span class="fraud-stats-grid__pct">(<%= @fraud_reports[:reviewed_pct] %>%)</span></span>
+            </div>
+            <div class="fraud-stats-grid__row">
+              <span class="fraud-stats-grid__label">Dismissed</span>
+              <span class="fraud-stats-grid__value fraud-stats-grid__value--green"><%= @fraud_reports[:dismissed] %><span class="fraud-stats-grid__pct">(<%= @fraud_reports[:dismissed_pct] %>%)</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="banStatsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;" data-action="click->fraud#backdropClose">
+        <div class="super-mega-dashboard__card" style="min-width:260px;position:relative;">
+          <button data-action="fraud#closeModal" data-fraud-modal-id="banStatsModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
+          <h3>Ban Stats (all time)</h3>
+          <div class="fraud-stats-grid">
+            <div class="fraud-stats-grid__row">
+              <span class="fraud-stats-grid__label">Banned</span>
+              <span class="fraud-stats-grid__value fraud-stats-grid__value--red"><%= @fraud_bans[:banned] %><span class="fraud-stats-grid__pct">(<%= @fraud_bans[:banned_pct] %>%)</span></span>
+            </div>
+            <div class="fraud-stats-grid__row">
+              <span class="fraud-stats-grid__label">Shadow Banned (Projects)</span>
+              <span class="fraud-stats-grid__value fraud-stats-grid__value--purple"><%= @fraud_bans[:shadow_banned_users] %><span class="fraud-stats-grid__pct">(<%= @fraud_bans[:shadow_banned_pct] %>%)</span></span>
+            </div>
+            <div class="fraud-stats-grid__row">
+              <span class="fraud-stats-grid__label">Unbanned</span>
+              <span class="fraud-stats-grid__value fraud-stats-grid__value--green"><%= @fraud_bans[:unbanned] %></span>
+            </div>
+            <div class="fraud-stats-grid__row">
+              <span class="fraud-stats-grid__label">% of Users Banned</span>
+              <span class="fraud-stats-grid__value fraud-stats-grid__value--red"><%= @fraud_bans[:ban_unban_ratio] %>%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" style="cursor:pointer;" data-action="fraud#openModal" data-fraud-modal-id="reportStatsModal">
+        <h3>Reports Over Time (by reason) <svg style="height: 16px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
+            <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg></h3>
+        <% if @fraud_report_trend_data.present? %>
+          <div class="d3-stream-container" id="reportTrendContainer" data-fraud-dash-report-trend="<%= json_escape(@fraud_report_trend_data.to_json) %>">
+            <div class="d3-stream-tooltip" id="reportTrendTooltip"></div>
+          </div>
+          <div class="d3-stream-legend" id="reportTrendLegend"></div>
+        <% else %>
+          <p class="fraud-stats-error">No data available</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
