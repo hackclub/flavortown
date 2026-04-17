@@ -30,10 +30,9 @@ module Admin
       # Single query for ban stats
       ban_stats_sql = <<~SQL
         SELECT
-          COUNT(*) FILTER (WHERE banned = true) AS banned_count,
-          COUNT(*) FILTER (WHERE shadow_banned = true) AS shadow_banned_count
+          COUNT(*) FILTER (WHERE banned = true) AS banned_count
         FROM users
-        WHERE banned = true OR shadow_banned = true
+        WHERE banned = true
       SQL
       bs = ActiveRecord::Base.connection.select_one(ban_stats_sql)
 
@@ -44,12 +43,9 @@ module Admin
 
       @bans = {
         banned: bs["banned_count"].to_i,
-        shadow_banned_users: bs["shadow_banned_count"].to_i,
         shadow_banned_projects: shadow_project_count,
         bans_today: ban_changes.dig("User", "banned", "true") || 0,
         unbans_today: ban_changes.dig("User", "banned", "false") || 0,
-        shadow_bans_today: ban_changes.dig("User", "shadow_banned", "true") || 0,
-        unshadow_bans_today: ban_changes.dig("User", "shadow_banned", "false") || 0,
         project_shadow_today: ban_changes.dig("Project", "shadow_banned", "true") || 0,
         project_unshadow_today: ban_changes.dig("Project", "shadow_banned", "false") || 0
       }
