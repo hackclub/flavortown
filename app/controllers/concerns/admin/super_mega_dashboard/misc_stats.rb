@@ -391,7 +391,7 @@ module Admin
           end
         end
         {
-          total_expenses: total_expenses / 100,
+          total_expenses: total_expenses / 100
         }
       end
 
