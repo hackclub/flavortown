@@ -32,7 +32,7 @@ export default class extends Controller {
   }
 
   openModal(event) {
-    const modalId = event.params.modalId;
+    const modalId = event.currentTarget.dataset.modalId || event.params.modalId;
     if (!modalId) return;
     const modal = document.getElementById(modalId);
     if (!modal) return;
@@ -41,7 +41,7 @@ export default class extends Controller {
   }
 
   closeModal(event) {
-    const modalId = event.params.modalId;
+    const modalId = event.currentTarget.dataset.modalId || event.params.modalId;
     if (!modalId) return;
     const modal = document.getElementById(modalId);
     if (!modal) return;

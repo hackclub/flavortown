@@ -1,4 +1,4 @@
-<div data-controller="fraud">
+<div data-controller="fraud-dash">
   <div class="super-mega-dashboard__header super-mega-dashboard__header--fraud">
     <h2>Fraud Overview</h2>
     <div style="display:flex;gap:8px;align-items:center;">
@@ -8,22 +8,22 @@
       <%= link_to "https://joe.fraud.hackclub.com/cases/dashboard?ysws=Flavortown", class: "super-mega-link", target: "_blank", style: "display:flex;align-items:center;gap:4px;" do %>
         Joe Dashboard
       <% end %>
-      <button type="button" class="super-mega-link" style="display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;" data-action="fraud#openModal" data-fraud-modal-id="vibesModal">
+      <button type="button" class="super-mega-link" style="display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;" data-action="fraud-dash#openModal" data-modal-id="vibesModal">
         Vibez
       </button>
     </div>
   </div>
 
   <%# vibes overview %>
-  <div id="vibesModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" data-action="click->fraud#backdropClose">
+  <div id="vibesModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" data-action="click->fraud-dash#backdropClose">
     <div class="super-mega-dashboard__card" style="min-width:320px;max-width:860px;max-height:85vh;overflow-y:auto;position:relative;margin:auto;">
-      <button data-action="fraud#closeModal" data-fraud-modal-id="vibesModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
+      <button data-action="fraud-dash#closeModal" data-modal-id="vibesModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
       <h3>Vibez</h3>
 
       <%# current week feedback %>
-      <div id="vibesWeekModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" data-action="click->fraud#backdropClose">
+      <div id="vibesWeekModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" data-action="click->fraud-dash#backdropClose">
         <div class="super-mega-dashboard__card" style="min-width:320px;max-width:560px;max-height:80vh;overflow-y:auto;position:relative;margin:auto;">
-          <button data-action="fraud#closeModal" data-fraud-modal-id="vibesWeekModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
+          <button data-action="fraud-dash#closeModal" data-modal-id="vibesWeekModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
           <h3><%= @fraud_happiness_week %> Feedback</h3>
           <% feedback_records = @fraud_happiness_records.select { |r| r[:extra_comments].present? } %>
           <% if feedback_records.any? %>
@@ -42,9 +42,9 @@
       </div>
 
       <%# Modal: all weeks feedback %>
-      <div id="vibesAllWeeksModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" data-action="click->fraud#backdropClose">
+      <div id="vibesAllWeeksModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;" data-action="click->fraud-dash#backdropClose">
         <div class="super-mega-dashboard__card" style="min-width:320px;max-width:600px;max-height:85vh;overflow-y:auto;position:relative;margin:auto;">
-          <button data-action="fraud#closeModal" data-fraud-modal-id="vibesAllWeeksModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
+          <button data-action="fraud-dash#closeModal" data-modal-id="vibesAllWeeksModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
           <h3>All Weeks Feedback</h3>
           <% @fraud_vibes_history&.sort_by { |w, _| w }.each do |week, data| %>
             <details style="border-top:1px solid #1e293b;padding:6px 0;">
@@ -63,7 +63,7 @@
       </div>
 
       <div class="super-mega-dashboard__cards">
-        <div class="super-mega-dashboard__card" style="cursor:pointer;" data-action="fraud#openModal" data-fraud-modal-id="vibesWeekModal">
+        <div class="super-mega-dashboard__card" style="cursor:pointer;" data-action="click->fraud-dash#openModal" data-modal-id="vibesWeekModal">
           <%= render FraudHappinessComponent.new(
             week: @fraud_happiness_week,
             records: @fraud_happiness_records,
@@ -74,7 +74,7 @@
           ) %>
         </div>
         <% if @fraud_vibes_history.present? %>
-          <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" style="cursor:pointer;" data-action="fraud#openModal" data-fraud-modal-id="vibesAllWeeksModal">
+          <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" style="cursor:pointer;" data-action="click->fraud-dash#openModal" data-modal-id="vibesAllWeeksModal">
             <h3>Vibes Over Time <svg style="height: 16px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
                 <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
@@ -152,7 +152,7 @@
           <p class="fraud-stats-error"><%= @joe_fraud_stats&.dig(:error) || "No Joe data" %></p>
         <% end %>
       </div>
-      <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" id="banTrendCard" style="flex:1 1 0;min-width:0;max-width:50%;cursor:pointer;" data-action="fraud#openModal" data-fraud-modal-id="banStatsModal">
+      <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" id="banTrendCard" style="flex:1 1 0;min-width:0;max-width:50%;cursor:pointer;" data-action="click->fraud-dash#openModal" data-modal-id="banStatsModal">
         <h3>Bans Over Time <svg style="height: 16px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
             <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
@@ -173,9 +173,9 @@
   <div class="fraud-subsection">
     <h3 class="fraud-subsection__title">Reports</h3>
     <div class="super-mega-dashboard__cards">
-      <div id="reportStatsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;" data-action="click->fraud#backdropClose">
+      <div id="reportStatsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;" data-action="click->fraud-dash#backdropClose">
         <div class="super-mega-dashboard__card" style="min-width:260px;position:relative;">
-          <button data-action="fraud#closeModal" data-fraud-modal-id="reportStatsModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
+          <button data-action="fraud-dash#closeModal" data-modal-id="reportStatsModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
           <h3>Report Stats</h3>
           <div class="fraud-stats-grid">
             <div class="fraud-stats-grid__row">
@@ -197,9 +197,9 @@
           </div>
         </div>
       </div>
-      <div id="banStatsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;" data-action="click->fraud#backdropClose">
+      <div id="banStatsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;" data-action="click->fraud-dash#backdropClose">
         <div class="super-mega-dashboard__card" style="min-width:260px;position:relative;">
-          <button data-action="fraud#closeModal" data-fraud-modal-id="banStatsModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
+          <button data-action="fraud-dash#closeModal" data-modal-id="banStatsModal" style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">✕</button>
           <h3>Ban Stats (all time)</h3>
           <div class="fraud-stats-grid">
             <div class="fraud-stats-grid__row">
@@ -221,7 +221,7 @@
           </div>
         </div>
       </div>
-      <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" style="cursor:pointer;" data-action="fraud#openModal" data-fraud-modal-id="reportStatsModal">
+      <div class="super-mega-dashboard__card super-mega-dashboard__card--mini-graph" style="cursor:pointer;" data-action="click->fraud-dash#openModal" data-modal-id="reportStatsModal">
         <h3>Reports Over Time (by reason) <svg style="height: 16px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
             <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
