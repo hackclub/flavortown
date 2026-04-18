@@ -1,0 +1,67 @@
+<% content_for :title, @sidequest.title %>
+<% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
+<% content_for :og_image, og_image_url('sidequests', format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+
+<%= render HeadingComponent.new(title: @sidequest.title, tone: :blue, size: :full) %>
+
+<div class="sidequest-show sidequest-show--optimization">
+  <div class="sidequest-show__content">
+    <% if @sidequest.description.present? %>
+      <p class="sidequest-show__description"><%= @sidequest.description %></p>
+    <% end %>
+
+    <div class="sidequest-show__info-grid">
+      <section class="sidequest-show__info-card">
+        <h3 class="sidequest-show__info-title">What counts?</h3>
+        <p>Your project should be mainly about interacting with any form of media — video, art, music, or anything creative!</p>
+      </section>
+
+      <section class="sidequest-show__info-card">
+        <h3 class="sidequest-show__info-title">Requirements</h3>
+        <ul class="sidequest-show__steps">
+          <li>Build a project that has a focus on working with media (video, art, music, etc.).</li>
+          <li>It can be a web app, desktop app, CLI, or anything that can have a demo!</li>
+          <li>Ship it on Flavortown and submit it to this sidequest when shipping.</li>
+        </ul>
+      </section>
+
+      <section class="sidequest-show__info-card">
+        <h3 class="sidequest-show__info-title">Ideas to get you started</h3>
+        <ul class="sidequest-show__steps">
+          <li>Make a cool music player that visualizes the music of a song into sine waves!</li>
+          <li>Make your own version of obamify!</li>
+          <li>Make a project that takes a video and encodes it into ASCII art and displays it on your terminal.</li>
+        </ul>
+      </section>
+    </div>
+
+    <% if @approved_entries.any? %>
+      <div class="sidequest-show__gallery">
+        <h3 class="sidequest-show__gallery-title"><%= @approved_entries.size %> <%= "submission".pluralize(@approved_entries.size) %></h3>
+        <div class="sidequest-show__gallery-grid">
+          <% @approved_entries.each do |entry| %>
+            <% project = entry.project %>
+            <% next unless project.present? %>
+            <div class="sidequest-show__gallery-item">
+              <%= render partial: "projects/card", locals: { project: project } %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="sidequest-show__stats">
+        <p><strong>Be the first to submit</strong></p>
+      </div>
+    <% end %>
+
+    <div class="sidequest-show__actions">
+      <%= render ButtonComponent.new(
+            text: "← Back to Sidequests",
+            href: sidequests_path,
+            color: :brown,
+            variant: :borderless
+          ) %>
+    </div>
+  </div>
+</div>

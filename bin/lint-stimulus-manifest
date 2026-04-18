@@ -41,7 +41,7 @@ for (const n of uniq) {
 
 if (errs.length) {
   console.error("failed:\n");
-  errs.forEach((e) => console.error(`  • ${e}`));
+  errs.forEach((e) => console.error(`  â€¢ ${e}`));
   console.error('\run "bin/rails stimulus:manifest:update"');
   process.exit(1);
 } else {
