@@ -1,0 +1,78 @@
+<% content_for :title, @sidequest.title %>
+<% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
+<% content_for :og_image, og_image_url('sidequests', format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+
+<%= render HeadingComponent.new(
+      title: @sidequest.title,
+      tone: :blue,
+      size: :full
+    ) %>
+
+<div class="sidequest-show sidequest-show--kernel">
+  <%= tag.div class: "kernel-pattern-overlay", style: "background-image: url('#{asset_path('mask/pattern.png')}');" %>
+  <div class="sidequest-show__content">
+    <% if @sidequest.description.present? %>
+      <p class="sidequest-show__description"><%= @sidequest.description %></p>
+    <% else %>
+      <p class="sidequest-show__description">Build a project that runs entirely in the terminal.</p>
+    <% end %>
+
+    <div class="kernel-terminal" data-controller="kernel-terminal">
+      <div class="kernel-terminal__header">
+        <div class="kernel-terminal__dots">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="kernel-terminal__title">bash - guest@flavortown</div>
+      </div>
+      <div class="kernel-terminal__body">
+        <div data-kernel-terminal-target="output"></div>
+        <div class="kernel-terminal__input-line">
+          <span class="kernel-terminal__prompt"><span class="path">guest@flavortown</span>:~$</span>
+          <div class="kernel-terminal__input-wrapper">
+            <input type="text" class="kernel-terminal__input" data-kernel-terminal-target="input" data-action="keydown->kernel-terminal#handleKeydown" spellcheck="false" autocomplete="off">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <% if @prizes.present? && @prizes.any? %>
+    <section class="sidequest-show__info-card sidequest-show__prizes-card">
+      <h3 class="sidequest-show__info-title">Prizes to unlock</h3>
+      <div class="sidequest-show__prizes-list">
+        <% @prizes.each do |prize| %>
+        <div class="sidequest-show__prize-row" role="listitem">
+          <% if prize.image.attached? %>
+            <div class="sidequest-show__prize-image">
+              <%= image_tag prize.image.variant(:carousel_sm), alt: prize.name, loading: "lazy" %>
+            </div>
+          <% end %>
+          <span class="sidequest-show__prize-name"><%= prize.name %></span>
+        </div>
+        <% end %>
+      </div>
+    </section>
+    <% end %>
+    <% if @approved_entries.any? %>
+    <div class="sidequest-show__gallery">
+      <h3 class="sidequest-show__gallery-title">
+        <%= @approved_entries.size %>
+        <%= "submission".pluralize(@approved_entries.size) %>
+      </h3>
+      <div class="sidequest-show__gallery-grid">
+        <% @approved_entries.each do |entry| %>
+          <% project = entry.project %>
+          <% next unless project.present? %>
+        <div class="sidequest-show__gallery-item">
+          <%= render partial: "projects/card", locals: { project: project } %>
+        </div>
+        <% end %>
+      </div>
+    </div>
+    <% else %>
+    <div class="sidequest-show__stats">
+      <p><strong>Be the first to submit</strong></p>
+    </div>
+    <% end %>
+  </div>
+</div>
