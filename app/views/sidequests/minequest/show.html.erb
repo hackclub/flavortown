@@ -86,7 +86,20 @@
         <div class="minecraft-book minecraft-book-large">
           <h3 class="minecraft-book-title">Submissions</h3>
           <div class="minecraft-book-content minecraft-book-content-large">
-            <p class="minecraft-book-summary">View all Minequest project submissions and share your own devlog progress.</p>
+            <% if @approved_entries.any? %>
+              <p class="minecraft-book-summary"><%= pluralize(@approved_entries.size, "submission") %> from Minequest adventurers.</p>
+              <div class="minecraft-submissions-grid">
+                <% @approved_entries.each do |entry| %>
+                  <% project = entry.project %>
+                  <% next unless project.present? %>
+                  <div class="minecraft-submissions-item">
+                    <%= render partial: "projects/card", locals: { project: project } %>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="minecraft-book-summary">No Minequest submissions yet. Be the first to ship one.</p>
+            <% end %>
           </div>
           <button type="button" data-action="click->sidequests--minequest--modal#close" class="minecraft-book-btn">Close</button>
         </div>
