@@ -40,13 +40,10 @@ class Projects::ShipsController < ApplicationController
       create_sidequest_entries!(selected_sidequest)
     end
 
-    if initial_ship?
-      ShipCertWebhookJob.perform_later(ship_event_id: @post.postable.id, type: "initial")
-      redirect_to @project, notice: "Congratulations! Your project has been submitted for review!"
-    else
-      ShipCertWebhookJob.perform_later(ship_event_id: @post.postable.id, type: "reship")
-      redirect_to @project, notice: "Ship submitted! Your project has been submitted for certification review and will be available for voting after approval."
-    end
+    type = determine_ship_type
+    ShipCertWebhookJob.perform_later(ship_event_id: @post.postable.id, type: type)
+    notice = type == "initial" ? "Congratulations! Your project has been submitted for review!" : "Ship submitted! Your project has been submitted for certification review and will be available for voting after approval."
+    redirect_to @project, notice: notice
   rescue ActiveRecord::RecordInvalid => e
     redirect_back fallback_location: new_project_ships_path(@project), alert: e.record.errors.full_messages.to_sentence
   end
@@ -62,6 +59,14 @@ class Projects::ShipsController < ApplicationController
   end
 
   def initial_ship? = @project.posts.where(postable_type: "Post::ShipEvent").one?
+
+  def determine_ship_type
+    return "initial" if initial_ship?
+
+    # Check the previous ship event (offset by 1 since we just created the current one)
+    previous_ship_event = @project.ship_event_posts.offset(1).first&.postable
+    previous_ship_event&.certification_status == "rejected" ? "recertification" : "reship"
+  end
 
   def load_ship_data
     @last_ship = @project.last_ship_event
