@@ -45,7 +45,16 @@ export default class extends Controller {
   updateButton() {
     if (!this.hasButtonTarget) return
     const isOff = localStorage.getItem(this.storageKey) === "off"
-    this.buttonTarget.textContent = isOff ? "A11y: Off" : "A11y: On"
+    const label = isOff ? "Turn Animation On" : "Turn Animation Off"
+
+    // Keep icon-based buttons intact and expose state via accessibility attributes.
+    this.buttonTarget.setAttribute("aria-label", label)
+    this.buttonTarget.setAttribute("title", label)
+
+    // Preserve legacy behavior for text buttons that don't contain an icon.
+    if (!this.buttonTarget.querySelector("img")) {
+      this.buttonTarget.textContent = isOff ? "A11y: Off" : "A11y: On"
+    }
     this.buttonTarget.setAttribute("aria-pressed", isOff ? "true" : "false")
   }
 }

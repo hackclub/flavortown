@@ -57,7 +57,9 @@
     <% end %>
     <%= link_to "Submissions", minequest_sidequest_path(view: "submissions"), class: "minecraft-menu-button small" %>
     <%= link_to "← Back", sidequests_path, class: "minecraft-menu-button small" %>
-    <button type="button" class="minecraft-menu-button small animation-toggle-button" data-action="click->sidequests--minequest--accessibility#toggle" data-sidequests--minequest--accessibility-target="button" aria-pressed="false">Turn On/Off Animation</button>
+    <button type="button" class="minecraft-menu-button icon animation-toggle-button" data-action="click->sidequests--minequest--accessibility#toggle" data-sidequests--minequest--accessibility-target="button" aria-pressed="false" title="Turn On/Off Animation" aria-label="Turn On/Off Animation">
+      <img src="https://media.forgecdn.net/avatars/thumbnails/1053/312/256/256/638583850233176730.png" alt="Animation" class="minecraft-icon-image">
+    </button>
   </div>
   <div class="minecraft-footer">
     <span class="minecraft-footer-left">Minequest 1.0.1/flavourtown</span>

@@ -116,11 +116,10 @@
 
 .minecraft-menu-button.animation-toggle-button {
   position: absolute;
-  right: -12.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 12rem;
-  flex-grow: 0;
+  left: auto;
+  right: -3.3rem;
+  width: 44px;
+  min-width: 44px;
 }
 
 .minecraft-icon-image {
