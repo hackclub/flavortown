@@ -65,6 +65,4 @@ prod.dump
 vendor
 
 .venv
-# Ignore key files for decrypting credentials and more.
-/config/credentials/*.key
 
