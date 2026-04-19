@@ -6,12 +6,12 @@ class SidequestsController < ApplicationController
 
   def show
     requested_slug = params[:id]
-    slug = requested_slug == "minequest" ? "minecraft-art" : requested_slug
-    @sidequest = Sidequest.find_by!(slug: slug)
-
-    if @sidequest.slug == "minecraft-art" && requested_slug == "minecraft-art"
-      redirect_to minequest_sidequest_path(view: params[:view]), status: :moved_permanently and return
+    @sidequest = Sidequest.find_by(slug: requested_slug)
+    if @sidequest.nil? && requested_slug == "minequest"
+      @sidequest = Sidequest.find_by("LOWER(title) LIKE ?", "%minequest%")
+      @sidequest ||= Sidequest.find_by("LOWER(title) LIKE ?", "%minecraft%")
     end
+    raise ActiveRecord::RecordNotFound if @sidequest.nil?
 
     if @sidequest.external_page_link.present?
       redirect_to @sidequest.external_page_link, allow_other_host: true and return
@@ -41,8 +41,14 @@ class SidequestsController < ApplicationController
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_caffeinated").where(enabled: true)
     end
 
-    if @sidequest.slug == "minecraft-art"
-      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_minecraft-art").where(enabled: true)
+    is_minequest = requested_slug == "minequest" ||
+      @sidequest.slug == "minequest" ||
+      @sidequest.title == "Minequest" ||
+      @sidequest.title.to_s.downcase.include?("minecraft")
+
+    if is_minequest
+      achievement_keys = ["sidequest_minequest", "sidequest_minecraft_art", "sidequest_minecraft-art"]
+      @prizes = ShopItem.where("requires_achievement && ARRAY[?]::varchar[]", achievement_keys).where(enabled: true)
       if params[:view] != "submissions"
         render "sidequests/minequest/show" and return
       end
@@ -158,6 +164,6 @@ class SidequestsController < ApplicationController
   end
 
   def ordered_sidequests(scope)
-    scope.order(Arel.sql("CASE WHEN sidequests.slug = 'minecraft-art' THEN 0 ELSE 1 END"), :title)
+    scope.order(Arel.sql("CASE WHEN sidequests.slug IN ('minequest', 'minecraft-art') OR sidequests.title IN ('Minequest', 'Minecraft Art Challenge') THEN 0 ELSE 1 END"), :title)
   end
 end
