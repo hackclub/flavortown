@@ -23,7 +23,7 @@ export default class extends Controller {
 
     this.buttonTarget.disabled = true
     this.buttonTarget.textContent = "Loading..."
-    this.contentTarget.innerHTML = "<p>Generating idea with Gemma 3 27B...</p>"
+        this.contentTarget.innerHTML = "<p>Generating a Cool Idea...</p>"
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
 
