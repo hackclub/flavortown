@@ -36,6 +36,25 @@
       </section>
     </div>
 
+    <% if @prizes.present? && @prizes.any? %>
+      <section class="sidequest-show__info-card sidequest-show__prizes-card">
+        <h3 class="sidequest-show__info-title">Prizes</h3>
+        <div class="sidequest-show__prizes-list">
+          <% @prizes.each do |prize| %>
+            <%= link_to "/shop/order?shop_item_id=#{prize.id}", class: "sidequest-show__prize-row" do %>
+              <% if prize.image.attached? %>
+                <div class="sidequest-show__prize-image">
+                  <%= image_tag prize.image.variant(:carousel_sm), alt: prize.name, loading: "lazy" %>
+                </div>
+              <% end %>
+              <span class="sidequest-show__prize-name"><%= prize.name %></span>
+              <span class="sidequest-show__prize-cost"><%= number_to_currency(prize.ticket_cost, precision: 0).gsub('$', '') %></span>
+            <% end %>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+
     <% if @approved_entries.any? %>
       <div class="sidequest-show__gallery">
         <h3 class="sidequest-show__gallery-title"><%= @approved_entries.size %> <%= "submission".pluralize(@approved_entries.size) %></h3>
