@@ -2,8 +2,8 @@ class ProcessDemoBrokenReportsJob < ApplicationJob
   queue_as :default
 
   SLACK_RECIPIENT   = "U07L45W79E1"
-  PENDING_THRESHOLD = 3
-  TOTAL_THRESHOLD   = 15
+  PENDING_THRESHOLD = 1
+  TOTAL_THRESHOLD   = 5
   CACHE_TTL         = 7.days
 
   def perform
