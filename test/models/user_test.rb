@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: users
+# Database name: primary
 #
 #  id                                      :bigint           not null, primary key
 #  api_key                                 :string
@@ -26,6 +27,7 @@
 #  magic_link_token                        :string
 #  magic_link_token_expires_at             :datetime
 #  manual_ysws_override                    :boolean
+#  marked_sus_by                           :string           default([]), not null, is an Array
 #  metrics_synced_at                       :datetime
 #  projects_count                          :integer
 #  projects_shipped_count                  :integer
@@ -37,9 +39,6 @@
 #  send_notifications_for_new_followers    :boolean          default(TRUE), not null
 #  send_votes_to_slack                     :boolean          default(FALSE), not null
 #  session_token                           :string
-#  shadow_banned                           :boolean          default(FALSE), not null
-#  shadow_banned_at                        :datetime
-#  shadow_banned_reason                    :text
 #  shop_region                             :enum
 #  slack_balance_notifications             :boolean          default(FALSE), not null
 #  slack_messages_updated_at               :datetime

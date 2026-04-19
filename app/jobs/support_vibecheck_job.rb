@@ -100,12 +100,6 @@ class SupportVibecheckJob < ApplicationJob
 
       data = JSON.parse(cleaned_content)
 
-      concern_message_links = Array(data["concern_message_ts"]).map do |ts_arr|
-        Array(ts_arr).map do |ts|
-            ts.present? ? "https://hackclub.slack.com/archives/C09MATKQM8C/p#{ts.gsub('.', '')}" : nil
-        end.compact
-      end
-
       SupportVibes.create!(
         period_start: start_time,
         period_end: end_time,

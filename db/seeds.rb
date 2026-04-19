@@ -31,7 +31,7 @@ chrome_license = ShopItem::HCBGrant.find_or_create_by!(name: "Chrome Webstore Li
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "chrome-webstore.png")
 end
-chrome_license.update!(requires_achievement: "sidequest_extension")
+chrome_license.update!(requires_achievement: [ "sidequest_extension" ])
 
 ram_grant_50 = ShopItem::HCBGrant.find_or_create_by!(name: "$50 Ram/Storage Grant") do |item|
   item.description = "A $50 grant to help you upgrade your setup"
@@ -39,7 +39,7 @@ ram_grant_50 = ShopItem::HCBGrant.find_or_create_by!(name: "$50 Ram/Storage Gran
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "ram-grant-50.png")
 end
-ram_grant_50.update!(requires_achievement: "sidequest_optimization")
+ram_grant_50.update!(requires_achievement: [ "sidequest_optimization" ])
 
 ram_grant_100 = ShopItem::HCBGrant.find_or_create_by!(name: "$100 Ram/Storage Grant") do |item|
   item.description = "A $100 grant to help you upgrade your setup"
@@ -47,7 +47,7 @@ ram_grant_100 = ShopItem::HCBGrant.find_or_create_by!(name: "$100 Ram/Storage Gr
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "ram-grant-100.png")
 end
-ram_grant_100.update!(requires_achievement: "sidequest_optimization")
+ram_grant_100.update!(requires_achievement: [ "sidequest_optimization" ])
 
 Sidequest.find_or_create_by!(slug: "challenger") do |sq|
   sq.title = "Challenger Center"
@@ -64,6 +64,20 @@ Sidequest.find_or_create_by!(slug: "optimization") do |sq|
   sq.description = "Build and ship a project for the Optimization sidequest to unlock Optimization prizes in the shop."
 end
 
+Sidequest.find_or_create_by!(slug: "caffeinated") do |sq|
+  sq.title = "Caffeinated"
+  sq.description = "Build and ship a website to unlock a caffeine grant in the shop."
+end
+
+Sidequest.find_or_create_by!(slug: "rusty_frontend") do |sq|
+  sq.title = "Rusty Frontend"
+  sq.description = "Build and ship a frontend in rust to unlock new prizes in the shop"
+end
+
+Sidequest.find_or_create_by!(slug: "physics_lab") do |sq|
+  sq.title = "Physics Lab"
+  sq.description = "Build an interactive physics project and ship it on Flavortown to unlock physics prizes in the shop."
+end
 Sidequest.find_or_create_by!(slug: "the_hackazine") do |sq|
   sq.title = "The Hackazine"
   sq.description = "This January: make a page for your project and get it in the Hack Club 2025 magazine! Join #magazine and submit before January 22nd. Projects selected for the magazine receive 50 cookies + stickers! Please note, magazine submissions have 0% AI tolerance."
@@ -97,7 +111,7 @@ webos_stickers = ShopItem.find_or_create_by!(id: 95) do |item|
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "webos-stickers.png")
 end
-webos_stickers.update!(requires_achievement: "sidequest_webos")
+webos_stickers.update!(requires_achievement: [ "sidequest_webos" ])
 
 neocities_sub = ShopItem.find_or_create_by!(id: 96) do |item|
   item.name = "Neocities Subscription"
@@ -107,7 +121,7 @@ neocities_sub = ShopItem.find_or_create_by!(id: 96) do |item|
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "neocities.png")
 end
-neocities_sub.update!(requires_achievement: "sidequest_webos")
+neocities_sub.update!(requires_achievement: [ "sidequest_webos" ])
 
 chromebook = ShopItem.find_or_create_by!(id: 97) do |item|
   item.name = "Chromebook"
@@ -117,7 +131,7 @@ chromebook = ShopItem.find_or_create_by!(id: 97) do |item|
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "chromebook.png")
 end
-chromebook.update!(requires_achievement: "sidequest_webos")
+chromebook.update!(requires_achievement: [ "sidequest_webos" ])
 
 user = User.find_or_create_by!(email: "max@hackclub.com", slack_id: "U09UQ385LSG")
 user.make_super_admin!

@@ -688,6 +688,56 @@ paths:
           "$ref": "#/components/responses/Unauthorized"
         '429':
           "$ref": "#/components/responses/TooManyRequests"
+  "/users/{user_id}/projects":
+    get:
+      summary: List projects for a user
+      tags:
+      - Users
+      description: Fetch a paginated list of projects belonging to a specific user.
+        Use "me" as the user ID to fetch projects for the authenticated user.
+      operationId: listUserProjects
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: User ID or "me" for the authenticated user
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: Page number for pagination
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+        description: Number of results per page (max 100)
+      responses:
+        '200':
+          description: A paginated list of the user's projects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/Project"
+                  pagination:
+                    "$ref": "#/components/schemas/Pagination"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/users/{id}":
     get:
       summary: Get a user

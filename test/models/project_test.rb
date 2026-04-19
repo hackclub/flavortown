@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: projects
+# Database name: primary
 #
 #  id                   :bigint           not null, primary key
 #  ai_declaration       :text

@@ -16,15 +16,23 @@ class SidequestsController < ApplicationController
       .joins(:project)
       .includes(project: :memberships)
     if @sidequest.slug == "webos"
-      @prizes = ShopItem.where(requires_achievement: "sidequest_webos", enabled: true)
+      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_webos").where(enabled: true)
     end
 
     if @sidequest.slug == "optimization"
-      @prizes = ShopItem.where(requires_achievement: "sidequest_optimization", enabled: true)
+      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_optimization").where(enabled: true)
     end
 
     if @sidequest.slug == "lockin"
-      @prizes = ShopItem.where(requires_achievement: "sidequest_lockin", enabled: true)
+      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_lockin").where(enabled: true)
+    end
+
+    if @sidequest.slug == "rusty-frontend"
+      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_rusty_frontend").where(enabled: true)
+    end
+
+    if @sidequest.slug == "caffeinated"
+      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_caffeinated").where(enabled: true)
     end
 
     custom_template = "sidequests/show_#{@sidequest.slug}"

@@ -27,10 +27,7 @@ class ProjectsController < ApplicationController
 
     is_member = @project.users.include?(current_user)
     is_admin = current_user&.admin?
-    user_shadow_banned = @project.users.where(shadow_banned: true).exists?
-    project_shadow_banned = @project.shadow_banned?
-
-    @shadow_banned = user_shadow_banned || project_shadow_banned
+    @shadow_banned = @project.shadow_banned?
     @can_view_shadow_banned = is_member || is_admin
 
     load_posts = -> {
@@ -86,7 +83,7 @@ class ProjectsController < ApplicationController
           latest_ship_event.payout.blank?
 
         required = Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
-        current = latest_ship_event.votes.where(suspicious: false).count
+        current = latest_ship_event.votes.payout_countable.count
         remaining = [ required - current, 0 ].max
 
         @votes_for_payout = {
@@ -237,12 +234,18 @@ class ProjectsController < ApplicationController
     end
 
     PaperTrail.request(whodunnit: current_user.id) do
-      fire_event = Post::FireEvent.new(
+      fire_event = Post::FireEvent.create(
         body: "🔥 #{current_user.display_name} marked your project as well cooked! As a prize for your nicely cooked project, look out for a bonus prize in the mail :)"
       )
-      post = @project.posts.build(user: current_user, postable: fire_event)
 
-      if post.save
+      unless fire_event.persisted?
+        render json: { message: fire_event.errors.full_messages.to_sentence.presence || "Failed to mark project as 🔥" }, status: :unprocessable_entity
+        next
+      end
+
+      post = @project.posts.create(user: current_user, postable: fire_event)
+
+      if post.persisted?
         @project.mark_fire!(current_user)
 
         PaperTrail::Version.create!(

@@ -153,3 +153,9 @@ production:
     schedule: every day at 3am America/New_York
     concurrency: 1
     description: "Pull Airtable record IDs and club names from Airtable to local DB (daily off-peak sync)"
+
+  refresh_user_verdicts:
+    class: User::RefreshVerdictsJob
+    schedule: every 12 hours
+    concurrency: 1
+    description: "Recompute vote quality scores and update blessed/cursed/neutral verdicts for all voters"

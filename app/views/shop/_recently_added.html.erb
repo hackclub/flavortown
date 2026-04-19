@@ -8,7 +8,9 @@
       <div class="shop__recently-added-items">
       <% recently_added_items.each do |item| %>
         <% next unless item.image.present? && item.enabled_in_region?(user_region) %>
-        <% sale_price = item.price_for_region(user_region) %>
+        <% sale_price = item.price_for_region_and_user(user_region, current_user) %>
+        <% item_achievement_infos = item.required_achievement_objects %>
+        <% item_achievement_locked = item.achievement_locked_for?(current_user) %>
         <%= render ShopItemCardComponent.new(
           item_id: item.id,
           name: item.name,
@@ -23,10 +25,13 @@
           logged_in: logged_in,
           remaining_stock: item.remaining_stock,
           limited: item.limited?,
-          on_sale: item.on_sale?,
-          sale_percentage: item.sale_percentage,
+          on_sale: item.on_sale? || (current_user && item.achievement_sale_for?(current_user)),
+          sale_percentage: current_user ? item.effective_sale_percentage_for(current_user) : item.sale_percentage,
           original_price: item.base_price_for_region(user_region),
-          enabled_until: item.enabled_until
+          enabled_until: item.enabled_until,
+          locked_by_achievement: item_achievement_locked,
+          required_achievement_names: item_achievement_infos.map(&:name),
+          required_achievement_hints: item_achievement_infos.map(&:description)
         ) %>
       <% end %>
       </div>

@@ -99,4 +99,36 @@
     font-size: var(--font-size-xxl);
     font-weight: 400;
   }
+
+  &__extra {
+    position: absolute;
+    right: var(--space-m);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+  }
+}
+
+.vote-verdict-cookie {
+  cursor: help;
+  display: flex;
+  align-items: center;
+  outline: none;
+
+  &__img {
+    width: 40px;
+    height: 40px;
+    image-rendering: pixelated;
+    transition: transform 120ms ease;
+  }
+
+  &:hover &__img,
+  &:focus-visible &__img {
+    transform: scale(1.15) rotate(-8deg);
+  }
+
+  &--sm &__img {
+    width: 22px;
+    height: 22px;
+  }
 }

@@ -1,5 +1,5 @@
 .announcement {
-  margin-top: 3em;
+  margin-top: 1.5em;
   margin-bottom: 1em;
   background: #fff1d6 !important;
   border-radius: 16px;
@@ -41,17 +41,17 @@
   }
 
   img {
-    width: 450px;
+    width: 200px;
 
     @media (max-width: 700px) {
-      max-width: 300px;
+      max-width: 150px;
       width: 100%;
     }
   }
 
   &__text {
     h2 {
-      font-size: 2.5rem;
+      font-size: 2rem;
 
       @media (max-width: 600px) {
         font-size: 1.5rem;
@@ -59,7 +59,7 @@
     }
 
     p {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
 
       @media (max-width: 600px) {
         font-size: 1rem;
