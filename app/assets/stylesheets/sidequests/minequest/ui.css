@@ -87,7 +87,8 @@
 }
 
 .minecraft-menu-button.small {
-  flex-grow: 1;
+  flex: 1 1 0;
+  width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -257,6 +258,80 @@ h3.minecraft-book-title {
 .minecraft-book-btn:hover {
   background-color: #7F7F7F;
   color: #FFFFFFA0;
+}
+
+.minecraft-book-large {
+  width: min(1200px, calc(100vw - 4rem));
+  min-height: 520px;
+  height: auto;
+  padding: 28px 28px 92px;
+  box-shadow: inset 3px 3px 0 #ead7b0, inset -3px -3px 0 #ac8f5b;
+}
+
+.minecraft-book-content-large {
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.minecraft-book-summary {
+  font-size: 0.72rem;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.minecraft-book-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.minecraft-book-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+  font-size: 0.68rem;
+}
+
+.minecraft-book-item-name {
+  color: #3b2411;
+}
+
+.minecraft-book-item-cost {
+  color: #6b4b22;
+  white-space: nowrap;
+}
+
+.minecraft-book-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.minecraft-book-link-btn {
+  position: static;
+  transform: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.minecraft-footer-modal-trigger {
+  flex: 1 1 0;
+  width: 0;
+}
+
+.minecraft-footer-modal-trigger .minecraft-menu-button.small {
+  width: 100%;
+}
+
+.minecraft-footer-buttons .minecraft-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 /* Book Modal */

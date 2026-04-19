@@ -48,14 +48,50 @@
         </div>
       </div>
     </div>
-    <%= link_to "Prizes", "https://hackclub.com/minecraft/", class: "minecraft-menu-button", target: "_blank" %>
+    <div data-controller="sidequests--minequest--modal">
+      <button type="button" class="minecraft-menu-button" style="width: 100%; display: block;" data-action="click->sidequests--minequest--modal#open">Prizes</button>
+
+      <div class="minecraft-modal hidden" data-sidequests--minequest--modal-target="dialog">
+        <div class="minecraft-book minecraft-book-large">
+          <h3 class="minecraft-book-title">Prizes</h3>
+          <div class="minecraft-book-content minecraft-book-content-large">
+            <% if @prizes.present? && @prizes.any? %>
+              <p class="minecraft-book-summary"><%= pluralize(@prizes.count, "prize") %> available for Minequest adventurers.</p>
+              <ul class="minecraft-book-list">
+                <% @prizes.each do |prize| %>
+                  <li>
+                    <span class="minecraft-book-item-name"><%= prize.name %></span>
+                    <span class="minecraft-book-item-cost"><%= number_to_currency(prize.ticket_cost, precision: 0).delete('$') %> cookies</span>
+                  </li>
+                <% end %>
+              </ul>
+            <% else %>
+              <p class="minecraft-book-summary">No prizes are configured yet. Check back soon.</p>
+            <% end %>
+          </div>
+          <button type="button" data-action="click->sidequests--minequest--modal#close" class="minecraft-book-btn">Close</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="minecraft-footer-buttons">
     <%= link_to "https://hackclub.enterprise.slack.com/archives/C0ATTCPQ0R4", class: "minecraft-menu-button icon", target: "_blank", rel: "noopener", title: "Join #minequest on Slack" do %>
       <img src="https://cdn.freebiesupply.com/logos/large/2x/slack-icon-black.png" alt="Slack" class="minecraft-icon-image">
     <% end %>
-    <%= link_to "Submissions", minequest_sidequest_path(view: "submissions"), class: "minecraft-menu-button small" %>
+    <div data-controller="sidequests--minequest--modal" class="minecraft-footer-modal-trigger">
+      <button type="button" class="minecraft-menu-button small" data-action="click->sidequests--minequest--modal#open">Submissions</button>
+
+      <div class="minecraft-modal hidden" data-sidequests--minequest--modal-target="dialog">
+        <div class="minecraft-book minecraft-book-large">
+          <h3 class="minecraft-book-title">Submissions</h3>
+          <div class="minecraft-book-content minecraft-book-content-large">
+            <p class="minecraft-book-summary">View all Minequest project submissions and share your own devlog progress.</p>
+          </div>
+          <button type="button" data-action="click->sidequests--minequest--modal#close" class="minecraft-book-btn">Close</button>
+        </div>
+      </div>
+    </div>
     <%= link_to "← Back", sidequests_path, class: "minecraft-menu-button small" %>
     <button type="button" class="minecraft-menu-button icon animation-toggle-button" data-action="click->sidequests--minequest--accessibility#toggle" data-sidequests--minequest--accessibility-target="button" aria-pressed="false" title="Turn On/Off Animation" aria-label="Turn On/Off Animation">
       <img src="https://media.forgecdn.net/avatars/thumbnails/1053/312/256/256/638583850233176730.png" alt="Animation" class="minecraft-icon-image">
