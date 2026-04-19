@@ -353,14 +353,7 @@ h3.minecraft-book-title {
   font-family: inherit;
 }
 
-.minecraft-footer-modal-trigger {
-  flex: 1 1 0;
-  width: 0;
-}
 
-.minecraft-footer-modal-trigger .minecraft-menu-button.small {
-  width: 100%;
-}
 
 .minecraft-footer-buttons .minecraft-modal {
   position: fixed;
