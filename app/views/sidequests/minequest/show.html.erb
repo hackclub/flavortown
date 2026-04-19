@@ -19,6 +19,8 @@
               1. Join the Minecraft Server<br>
               2. Build something amazing<br>
               3. Submit a devlog!<br><br>
+              Questions? Join #minequest on Slack:<br>
+              <a href="https://hackclub.enterprise.slack.com/archives/C0ATTCPQ0R4" target="_blank" rel="noopener">https://hackclub.enterprise.slack.com/archives/C0ATTCPQ0R4</a><br><br>
               Have fun and be creative!
             </p>
           </div>
@@ -50,8 +52,12 @@
   </div>
 
   <div class="minecraft-footer-buttons">
-    <button type="button" class="minecraft-menu-button small" data-action="click->sidequests--minequest--accessibility#toggle" data-sidequests--minequest--accessibility-target="button" aria-pressed="false">A11y</button>
+    <%= link_to "https://hackclub.enterprise.slack.com/archives/C0ATTCPQ0R4", class: "minecraft-menu-button icon", target: "_blank", rel: "noopener", title: "Join #minequest on Slack" do %>
+      <img src="https://cdn.freebiesupply.com/logos/large/2x/slack-icon-black.png" alt="Slack" class="minecraft-icon-image">
+    <% end %>
+    <%= link_to "Submissions", minequest_sidequest_path(view: "submissions"), class: "minecraft-menu-button small" %>
     <%= link_to "← Back", sidequests_path, class: "minecraft-menu-button small" %>
+    <button type="button" class="minecraft-menu-button small animation-toggle-button" data-action="click->sidequests--minequest--accessibility#toggle" data-sidequests--minequest--accessibility-target="button" aria-pressed="false">Turn On/Off Animation</button>
   </div>
   <div class="minecraft-footer">
     <span class="minecraft-footer-left">Minequest 1.0.1/flavourtown</span>
