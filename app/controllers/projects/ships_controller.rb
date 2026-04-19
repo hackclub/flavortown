@@ -61,11 +61,7 @@ class Projects::ShipsController < ApplicationController
   def initial_ship? = @project.posts.where(postable_type: "Post::ShipEvent").one?
 
   def determine_ship_type
-    return "initial" if initial_ship?
-
-    # Check the previous ship event (offset by 1 since we just created the current one)
-    previous_ship_event = @project.ship_event_posts.offset(1).first&.postable
-    previous_ship_event&.certification_status == "rejected" ? "recertification" : "reship"
+    initial_ship? ? "initial" : "reship"
   end
 
   def load_ship_data
