@@ -1,0 +1,28 @@
+<% content_for :title, "Your Wrapped" %>
+
+<%= content_for :stylesheets do %>
+  <%= stylesheet_link_tag "wrapped", "data-turbo-track": "reload" %>
+<% end %>
+
+<div class="wrapped-container"
+     data-controller="wrapped"
+     data-action="click->wrapped#click"
+     data-wrapped-interval-value="8000">
+
+  <div class="wrapped-progress">
+    <% 8.times do |i| %>
+      <div class="wrapped-progress-segment empty" data-wrapped-target="segment"></div>
+    <% end %>
+  </div>
+
+  <%= render "wrapped/slides/intro", user: current_user %>
+  <%= render "wrapped/slides/cookies", wrapped: @wrapped %>
+  <%= render "wrapped/slides/ships", wrapped: @wrapped %>
+  <%= render "wrapped/slides/votes", wrapped: @wrapped %>
+  <%= render "wrapped/slides/devlogs", wrapped: @wrapped %>
+  <%= render "wrapped/slides/coding", wrapped: @wrapped %>
+  <%= render "wrapped/slides/rank", wrapped: @wrapped %>
+  <%= render "wrapped/slides/complete", user: current_user %>
+
+  <div class="wrapped-hint">tap to continue</div>
+</div>

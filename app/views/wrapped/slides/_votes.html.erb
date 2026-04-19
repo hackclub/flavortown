@@ -1,0 +1,15 @@
+<div class="wrapped-slide wrapped-slide--votes" data-wrapped-target="slide">
+  <div class="wrapped-slide__content">
+    <p class="wrapped-slide__eyebrow">the community</p>
+    <p class="wrapped-slide__emoji">🗳️</p>
+    <h2 class="wrapped-slide__stat"><%= number_with_delimiter(wrapped.votes_cast) %></h2>
+    <h1 class="wrapped-slide__headline"><%= "vote".pluralize(wrapped.votes_cast) %> cast</h1>
+    <% if wrapped.votes_cast > 50 %>
+      <p class="wrapped-slide__body">you practically ran the kitchen this season.</p>
+    <% elsif wrapped.votes_cast > 10 %>
+      <p class="wrapped-slide__body">every vote makes the food better.</p>
+    <% else %>
+      <p class="wrapped-slide__body">there's always next season.</p>
+    <% end %>
+  </div>
+</div>

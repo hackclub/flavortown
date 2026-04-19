@@ -1,0 +1,12 @@
+<div class="wrapped-slide wrapped-slide--intro" data-wrapped-target="slide">
+  <div class="wrapped-slide__content">
+    <p class="wrapped-slide__eyebrow">flavortown</p>
+    <h1 class="wrapped-slide__headline">your wrapped</h1>
+    <div class="wrapped-avatar">
+      <%= image_tag user.avatar, class: "wrapped-avatar__img", alt: user.display_name %>
+    </div>
+    <p class="wrapped-slide__body">
+      hey <strong><%= user.display_name %></strong>, let's look back at your season.
+    </p>
+  </div>
+</div>

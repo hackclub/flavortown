@@ -1,0 +1,13 @@
+<div class="wrapped-slide wrapped-slide--cookies" data-wrapped-target="slide">
+  <div class="wrapped-slide__content">
+    <p class="wrapped-slide__eyebrow">this season</p>
+    <p class="wrapped-slide__emoji">🍪</p>
+    <h2 class="wrapped-slide__stat"><%= number_with_delimiter(wrapped.total_cookies_earned) %></h2>
+    <h1 class="wrapped-slide__headline">cookies earned</h1>
+    <% if wrapped.total_cookies_earned > 0 %>
+      <p class="wrapped-slide__body">that's a lot of dough.</p>
+    <% else %>
+      <p class="wrapped-slide__body">time to start baking!</p>
+    <% end %>
+  </div>
+</div>

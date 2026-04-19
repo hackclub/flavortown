@@ -1,0 +1,18 @@
+<div class="wrapped-slide wrapped-slide--coding" data-wrapped-target="slide">
+  <div class="wrapped-slide__content">
+    <p class="wrapped-slide__eyebrow">in the zone</p>
+    <p class="wrapped-slide__emoji">⌨️</p>
+    <h2 class="wrapped-slide__stat"><%= wrapped.coding_hours %></h2>
+    <h1 class="wrapped-slide__headline"><%= "hour".pluralize(wrapped.coding_hours) %> tracked</h1>
+    <% hours = wrapped.coding_hours %>
+    <% if hours > 100 %>
+      <p class="wrapped-slide__body">you basically lived here.</p>
+    <% elsif hours > 20 %>
+      <p class="wrapped-slide__body">your keyboard deserves a medal.</p>
+    <% elsif hours > 0 %>
+      <p class="wrapped-slide__body">every hour counts.</p>
+    <% else %>
+      <p class="wrapped-slide__body">install flavortown to track your next session.</p>
+    <% end %>
+  </div>
+</div>
