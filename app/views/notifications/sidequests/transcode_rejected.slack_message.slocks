@@ -11,5 +11,5 @@ end
 divider
 
 context [
-  mrkdwn_text("Questions? Reach out in #flavortown-help or DM @Carlson on Slack")
+  mrkdwn_text("Questions? Reach out in #flavortown-help or DM @Iamalive on Slack")
 ]
