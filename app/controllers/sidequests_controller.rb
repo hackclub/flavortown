@@ -56,16 +56,10 @@ class SidequestsController < ApplicationController
   end
 
   def generate_ideas
-    api_key = ENV['GEMINI_API_KEY']
-    
-    if api_key.blank?
-      render json: { idea: "Missing GEMINI_API_KEY in .env file." }
+    unless ENV["OPENAI_API_KEY"].present?
+      render json: { idea: "Missing OPENAI_API_KEY in .env file." }
       return
     end
-
-    require 'net/http'
-    require 'uri'
-    require 'json'
 
     requested_exclusions = begin
       payload = request.request_parameters
@@ -80,51 +74,36 @@ class SidequestsController < ApplicationController
     else
       ""
     end
-    
-    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent?key=#{api_key}")
-    
-    request = Net::HTTP::Post.new(uri)
-    request.content_type = "application/json"
-    request.body = JSON.dump({
-      "contents" => [{"role" => "user", "parts" => [{"text" => <<~PROMPT
-        Generate exactly one Minecraft coding sidequest idea.
-        Return valid JSON only with keys: idea, difficulty, time_estimate.
-        difficulty must be one of: Easy, Medium, Hard.
-        time_estimate should be a concise range like "2-4 hours" or "1-2 days".
-        idea should be short (max 2 sentences) and specific.
-        #{exclusion_prompt}
-      PROMPT
-      }]}]
-    })
-    
-    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-      http.request(request)
-    end
-    
-    begin
-      result = JSON.parse(response.body)
-      if response.code == "200"
-        text = result.dig("candidates", 0, "content", "parts", 0, "text").to_s
-        parsed = parse_idea_payload(text)
 
-        if parsed.present?
-          render json: {
-            idea: parsed["idea"].presence || "Could not generate ideas right now.",
-            difficulty: parsed["difficulty"].presence || "Medium",
-            time_estimate: parsed["time_estimate"].presence || "2-4 hours"
-          }
-        else
-          render json: {
-            idea: text.strip.presence || "Could not generate ideas right now.",
-            difficulty: "Medium",
-            time_estimate: "2-4 hours"
-          }
-        end
+    prompt = <<~PROMPT
+      Generate exactly one Minecraft coding sidequest idea.
+      Return valid JSON only with keys: idea, difficulty, time_estimate.
+      difficulty must be one of: Easy, Medium, Hard.
+      time_estimate should be a concise range like "2-4 hours" or "1-2 days".
+      idea should be short (max 2 sentences) and specific.
+      #{exclusion_prompt}
+    PROMPT
+
+    api_response = OpenaiApiService.call(prompt)
+
+    if api_response.present?
+      parsed = parse_idea_payload(api_response)
+
+      if parsed.present?
+        render json: {
+          idea: parsed["idea"].presence || "Could not generate ideas right now.",
+          difficulty: parsed["difficulty"].presence || "Medium",
+          time_estimate: parsed["time_estimate"].presence || "2-4 hours"
+        }
       else
-        render json: { idea: "API Error: #{result.dig('error', 'message')}", difficulty: "Unknown", time_estimate: "Unknown" }
+        render json: {
+          idea: api_response.strip.presence || "Could not generate ideas right now.",
+          difficulty: "Medium",
+          time_estimate: "2-4 hours"
+        }
       end
-    rescue
-      render json: { idea: "Failed to parse API response.", difficulty: "Unknown", time_estimate: "Unknown" }
+    else
+      render json: { idea: "Failed to generate ideas.", difficulty: "Unknown", time_estimate: "Unknown" }
     end
   end
 
