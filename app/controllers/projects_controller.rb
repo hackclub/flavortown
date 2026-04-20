@@ -409,7 +409,8 @@ class ProjectsController < ApplicationController
       end
 
       PaperTrail.request(whodunnit: current_user.id) do
-        ShipCertService.ship_to_dash(@project, type: "recertification")
+        has_approved = @project.ship_events.where(certification_status: "approved").exists?
+        ShipCertService.ship_to_dash(@project, type: has_approved ? "reship" : "recertification")
         ship_event.update!(certification_status: "pending")
 
         PaperTrail::Version.create!(
