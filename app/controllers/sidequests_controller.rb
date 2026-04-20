@@ -47,7 +47,7 @@ class SidequestsController < ApplicationController
       @sidequest.title.to_s.downcase.include?("minecraft")
 
     if is_minequest
-      achievement_keys = ["sidequest_minequest", "sidequest_minecraft_art", "sidequest_minecraft-art"]
+      achievement_keys = [ "sidequest_minequest", "sidequest_minecraft_art", "sidequest_minecraft-art" ]
       @prizes = ShopItem.where("requires_achievement && ARRAY[?]::varchar[]", achievement_keys).where(enabled: true)
       if params[:view] != "submissions"
         render "sidequests/minequest/show" and return
