@@ -272,8 +272,6 @@ Rails.application.routes.draw do
          post :mark_sus
          post :unmark_sus
          post :cancel_all_hcb_grants
-         post :shadow_ban
-         post :unshadow_ban
          post :impersonate
          post :refresh_verification
          post :toggle_voting_lock

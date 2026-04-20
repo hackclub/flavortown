@@ -29,12 +29,10 @@ module Admin
               new_today: new_today_reports
             }
 
-            ban_counts = User.where("banned = ? OR shadow_banned = ?", true, true)
-                             .group(:banned, :shadow_banned).count
+            ban_counts = User.where(banned: true).group(:banned).count
             total_users = User.count
-            banned = ban_counts.sum { |(b, _), c| b ? c : 0 }
+            banned = ban_counts.sum { |_, c| c }
             shadow_banned_projects = Project.where(shadow_banned: true).count
-            shadow_banned_total = shadow_banned_projects
 
             unbanned = PaperTrail::Version
               .where(item_type: "User")
@@ -45,8 +43,7 @@ module Admin
             fraud_bans = {
               banned: banned,
               banned_pct: total_users > 0 ? ((banned.to_f / total_users) * 100).round(2) : 0,
-              shadow_banned_users: shadow_banned_total,
-              shadow_banned_pct: total_users > 0 ? ((shadow_banned_total.to_f / total_users) * 100).round(2) : 0,
+              shadow_banned_projects: shadow_banned_projects,
               unbanned: unbanned,
               ban_unban_ratio: total_users > 0 ? ((banned.to_f / total_users) * 100).round(1) : 0
             }
@@ -140,17 +137,11 @@ module Admin
             .where("object_changes -> 'banned' ->> 1 = ?", "false")
             .group(Arel.sql("DATE(created_at)")).count
 
-          shadow_bans_by_date = base_scope
-            .where("object_changes ->> 'shadow_banned' IS NOT NULL")
-            .where("object_changes -> 'shadow_banned' ->> 1 = ?", "true")
-            .group(Arel.sql("DATE(created_at)")).count
-
           (0..29).reverse_each.each_with_object({}) do |days_ago, trend_data|
             date = days_ago.days.ago.to_date
             trend_data[date.to_s] = {
               bans: bans_by_date[date] || 0,
-              unbans: unbans_by_date[date] || 0,
-              shadow_bans: shadow_bans_by_date[date] || 0
+              unbans: unbans_by_date[date] || 0
             }
           end
         end

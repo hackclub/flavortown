@@ -75,6 +75,60 @@
     }
   }
 
+  &--challenger {
+    .sidequest-show__cycle-banner {
+      max-width: 920px;
+      margin: 0 auto 2rem;
+      padding: 1.25rem 1.5rem;
+      border: 2px solid var(--color-blue-400);
+      border-radius: 0.5rem;
+      background-color: #ffffff64;
+      box-shadow: 0 4px 0 rgba(80, 53, 32, 0.14);
+      text-align: center;
+    }
+
+    .sidequest-show__cycle-kicker {
+      margin: 0 0 0.35rem;
+      color: var(--color-blue-500);
+      font-family: var(--font-family-subtitle);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .sidequest-show__cycle-title {
+      margin: 0;
+      color: var(--color-brown-500);
+      font-family: var(--font-family-subtitle);
+      font-size: clamp(1.3rem, 2.5vw, 2rem);
+      line-height: 1.25;
+    }
+
+    .sidequest-show__cycle-dates {
+      margin: 0.65rem 0 0;
+      color: var(--color-brown-400);
+      font-family: var(--font-family-text);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .sidequest-show__content {
+      p {
+        margin-bottom: 1rem;
+      }
+    }
+
+    .sidequest-show__steps {
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+
+      li {
+        margin-bottom: 0.4rem;
+      }
+    }
+  }
+
   &__gallery-title {
     text-align: center;
     margin: 1em 0;

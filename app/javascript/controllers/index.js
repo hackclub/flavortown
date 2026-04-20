@@ -99,6 +99,11 @@ application.register("project-form", ProjectFormController)
 
 import ProjectIdeasController from "./project_ideas_controller"
 application.register("project-ideas", ProjectIdeasController)
+import PyramidFlavortimeController from "./pyramid_flavortime_controller";
+application.register("pyramid-flavortime", PyramidFlavortimeController);
+
+import RadioOptionController from "./radio_option_controller";
+application.register("radio-option", RadioOptionController);
 
 import RadioOptionController from "./radio_option_controller"
 application.register("radio-option", RadioOptionController)
