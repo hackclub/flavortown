@@ -10,7 +10,6 @@ class SidequestsController < ApplicationController
     @sidequest = Sidequest.find_by(slug: requested_slug)
     if @sidequest.nil? && requested_slug == "minequest"
       @sidequest = Sidequest.find_by("LOWER(title) LIKE ?", "%minequest%")
-      @sidequest ||= Sidequest.find_by("LOWER(title) LIKE ?", "%minecraft%")
     end
     raise ActiveRecord::RecordNotFound if @sidequest.nil?
 
