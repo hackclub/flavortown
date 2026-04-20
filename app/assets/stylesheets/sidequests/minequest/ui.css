@@ -49,7 +49,12 @@
 
 /* Scale down only the animated GIF, not the static PNG */
 .minecraft-title-image[src*="ezgif"] {
-  max-width: 60%;
+  max-width: 43%;
+}
+
+
+.minecraft-title-image[src*="static-title"] {
+  max-width: 100%;
 }
 
 .minecraft-menu {
