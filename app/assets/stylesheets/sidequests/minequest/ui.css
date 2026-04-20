@@ -47,6 +47,11 @@
   image-rendering: auto;
 }
 
+/* Scale down only the animated GIF, not the static PNG */
+.minecraft-title-image[src*="ezgif"] {
+  max-width: 80%;
+}
+
 .minecraft-menu {
   display: flex;
   flex-direction: column;
