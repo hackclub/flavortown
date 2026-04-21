@@ -28,6 +28,12 @@
       <div><b>Name:</b> <%= @user.display_name %></div>
       <div><b>Email:</b> <%= @user.email.presence || content_tag(:span, "N/A", style: "color: #9ca3af;") %></div>
       <div><b>HCB Email:</b> <%= @user.hcb_email.presence || content_tag(:span, "N/A", style: "color: #9ca3af;") %></div>
+      <% if @user.vote_verdict&.blessed? || @user.vote_verdict&.cursed? %>
+        <div>
+          <b>Blessed/Cursed Status:</b>
+          <span class="badge <%= @user.vote_verdict.blessed? ? "badge--success" : "badge--danger" %>"><%= @user.vote_verdict.verdict.titleize %></span>
+        </div>
+      <% end %>
       <div><b>Balance:</b> <%= @user.balance %> tickets</div>
       <div><b>Roles:</b> <%= @user.roles.map { |r| r.to_s.titleize }.join(", ") %></div>
       <div>
