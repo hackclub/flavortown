@@ -15,6 +15,8 @@ export default class extends Controller {
     this._onCursedClick = (e) => this.handleVerdictListClick(e, "cursed");
     this.setupTrendChart();
     this.bindVerdictLists();
+    this.applyAfterFilter("blessed");
+    this.applyAfterFilter("cursed");
   }
 
   disconnect() {
@@ -34,6 +36,60 @@ export default class extends Controller {
     const selectEl = this.element.querySelector("#voteQualityRange");
     if (selectEl && this._onRangeChange) {
       selectEl.removeEventListener("change", this._onRangeChange);
+    }
+  }
+
+  onAfterFilterChange(event) {
+    const type = event?.params?.verdict === "cursed" ? "cursed" : "blessed";
+    this.applyAfterFilter(type);
+  }
+
+  applyAfterFilter(type) {
+    const list = this.element.querySelector(
+      type === "cursed" ? "#cursed-user-list" : "#blessed-user-list",
+    );
+    if (!list) return;
+    const checkbox = this.element.querySelector(
+      type === "cursed" ? "#cursed-after-filter" : "#blessed-after-filter",
+    );
+    const onlyHasAfter = checkbox ? !!checkbox.checked : false;
+
+    const items = Array.from(
+      list.querySelectorAll("li.verdict-user-list__item"),
+    );
+    items.forEach((li) => {
+      const btn = li.querySelector("button.verdict-user-list__btn");
+      if (!btn) return;
+      let show = true;
+      if (onlyHasAfter) {
+        try {
+          const after = JSON.parse(
+            btn.getAttribute("data-votes-after") || "[]",
+          );
+          show = Array.isArray(after) && after.length > 0;
+        } catch (e) {
+          show = false;
+        }
+      }
+      li.style.display = show ? "" : "none";
+    });
+
+    const active = list.querySelector(
+      "button.verdict-user-list__btn.is-active",
+    );
+    if (active) {
+      const li = active.closest("li");
+      if (li && li.style.display === "none") {
+        active.classList.remove("is-active");
+      }
+    }
+    if (!list.querySelector("button.verdict-user-list__btn.is-active")) {
+      const firstVisible = list.querySelector(
+        "li.verdict-user-list__item:not([style*='display: none']) button.verdict-user-list__btn",
+      );
+      if (firstVisible) {
+        firstVisible.click();
+      }
     }
   }
 
