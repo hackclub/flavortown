@@ -103,22 +103,38 @@ module Admin
 
       def load_sidequest_stats
         cached_data = Rails.cache.fetch("super_mega_sidequests", expires_in: 1.hour) do
-          shipped_entries = SidequestEntry.joins(project: :ship_events).distinct
-          shipped_projects_count = Project.joins(:ship_events).distinct.count
+          shipped_entries = SidequestEntry.joins(project: :ship_events).distinct.includes(project: :ship_events)
+          shipped_projects = Project.joins(:ship_events).distinct.includes(:ship_events)
+          shipped_projects_count = shipped_projects.count
+          submitted_project_ids = shipped_entries.select(:project_id).distinct.pluck(:project_id).each_with_object({}) do |project_id, hash|
+            hash[project_id] = true
+          end
+          accepted_project_ids = shipped_entries.approved.select(:project_id).distinct.pluck(:project_id).each_with_object({}) do |project_id, hash|
+            hash[project_id] = true
+          end
           submitted_projects_count = shipped_entries.select(:project_id).distinct.count
+          accepted_projects_count = shipped_entries.approved.select(:project_id).distinct.count
           state_counts = shipped_entries.group(:aasm_state).count
+          trend_window_start = 29.days.ago.beginning_of_day
+          trend_window_end = Time.current.end_of_day
+          shipped_ship_events = Post::ShipEvent
+            .joins(post: :project)
+            .where(post_ship_events: { created_at: trend_window_start..trend_window_end })
+            .includes(post: :project)
 
           pending = state_counts["pending"] || 0
           approved = state_counts["approved"] || 0
           rejected = state_counts["rejected"] || 0
           reviewed = approved + rejected
 
-          submissions_breakdown = shipped_entries
-            .joins(:sidequest)
-            .group("sidequests.title")
-            .order(Arel.sql("COUNT(*) DESC"))
-            .limit(8)
-            .count
+          # Build breakdown data for all time ranges and metrics
+          breakdown_24h_projects = build_breakdown_projects(23.hours.ago, Time.current, submitted_project_ids)
+          breakdown_7d_projects = build_breakdown_projects(6.days.ago, Time.current, submitted_project_ids)
+          breakdown_30d_projects = build_breakdown_projects(29.days.ago, Time.current, submitted_project_ids)
+
+          breakdown_24h_hours = build_breakdown_hours(23.hours.ago, Time.current, submitted_project_ids)
+          breakdown_7d_hours = build_breakdown_hours(6.days.ago, Time.current, submitted_project_ids)
+          breakdown_30d_hours = build_breakdown_hours(29.days.ago, Time.current, submitted_project_ids)
 
           {
             totals: {
@@ -133,45 +149,177 @@ module Admin
               oldest_pending_at: shipped_entries.pending.minimum(:created_at),
               shipped_projects_count: shipped_projects_count,
               shipped_projects_with_sidequest_submission_count: submitted_projects_count,
-              shipped_projects_with_sidequest_submission_pct: shipped_projects_count.positive? ? ((submitted_projects_count.to_f / shipped_projects_count) * 100).round(1) : 0
+              shipped_projects_with_sidequest_submission_pct: shipped_projects_count.positive? ? ((submitted_projects_count.to_f / shipped_projects_count) * 100).round(1) : 0,
+              accepted_projects_count: accepted_projects_count,
+              accepted_projects_pct: submitted_projects_count.positive? ? ((accepted_projects_count.to_f / submitted_projects_count) * 100).round(1) : 0
             },
-            submissions_breakdown: submissions_breakdown,
-            trend_data: build_sidequest_trend_data(shipped_entries)
+            breakdown_data: {
+              "24h" => {
+                projects: breakdown_24h_projects,
+                hours: breakdown_24h_hours
+              },
+              "7d" => {
+                projects: breakdown_7d_projects,
+                hours: breakdown_7d_hours
+              },
+              "30d" => {
+                projects: breakdown_30d_projects,
+                hours: breakdown_30d_hours
+              }
+            },
+            trend_data: build_sidequest_trend_data(shipped_ship_events.to_a, submitted_project_ids, accepted_project_ids)
           }
         end
 
         @sidequest_totals = cached_data&.dig(:totals) || {}
-        @sidequest_submissions_breakdown = cached_data&.dig(:submissions_breakdown) || {}
+        @sidequest_breakdown_data = cached_data&.dig(:breakdown_data) || {}
         @sidequest_trend_data = cached_data&.dig(:trend_data) || {}
       rescue StandardError => e
         Rails.logger.error("[SuperMegaDashboard] Error in load_sidequest_stats: #{e.message}")
         @sidequest_totals = {}
-        @sidequest_submissions_breakdown = {}
+        @sidequest_breakdown_data = {}
         @sidequest_trend_data = {}
       end
 
-      def build_sidequest_trend_data(shipped_entries)
-        window_start = 29.days.ago.beginning_of_day
-        window_end = Time.current.end_of_day
+      def build_sidequest_trend_data(ship_events, submitted_project_ids, accepted_project_ids)
+        {
+          "24h" => build_sidequest_trend_window(
+            ship_events: ship_events,
+            submitted_project_ids: submitted_project_ids,
+            accepted_project_ids: accepted_project_ids,
+            start_time: 23.hours.ago.beginning_of_hour,
+            step: 1.hour,
+            bucket_count: 24,
+            labeler: ->(time) { time.strftime("%-l %p") }
+          ),
+          "7d" => build_sidequest_trend_window(
+            ship_events: ship_events,
+            submitted_project_ids: submitted_project_ids,
+            accepted_project_ids: accepted_project_ids,
+            start_time: 6.days.ago.beginning_of_day,
+            step: 1.day,
+            bucket_count: 7,
+            labeler: ->(time) { time.strftime("%a") }
+          ),
+          "30d" => build_sidequest_trend_window(
+            ship_events: ship_events,
+            submitted_project_ids: submitted_project_ids,
+            accepted_project_ids: accepted_project_ids,
+            start_time: 29.days.ago.beginning_of_day,
+            step: 1.day,
+            bucket_count: 30,
+            labeler: ->(time) { time.strftime("%b %-d") }
+          )
+        }
+      end
 
-        submitted_by_date = shipped_entries.where(created_at: window_start..window_end)
-                                           .group(Arel.sql("DATE(sidequest_entries.created_at)")).count
-        approved_by_date = shipped_entries.approved.where(reviewed_at: window_start..window_end)
-                                                   .group(Arel.sql("DATE(reviewed_at)")).count
-        shipped_by_date = Project.joins(:ship_events)
-                                 .where(posts: { created_at: window_start..window_end })
-                                 .group(Arel.sql("DATE(posts.created_at)"))
-                                 .distinct
-                                 .count
+      def build_sidequest_trend_window(ship_events:, submitted_project_ids:, accepted_project_ids:, start_time:, step:, bucket_count:, labeler:)
+        labels = bucket_count.times.map { |index| labeler.call(start_time + (step * index)) }
 
-        (0..29).reverse_each.each_with_object({}) do |days_ago, trend_data|
-          date = days_ago.days.ago.to_date
-          trend_data[date.to_s] = {
-            submitted: submitted_by_date[date] || 0,
-            shipped_projects: shipped_by_date[date] || 0,
-            approved: approved_by_date[date] || 0
+        trend_series = {
+          projects: {
+            total: Array.new(bucket_count, 0),
+            submitted: Array.new(bucket_count, 0),
+            accepted: Array.new(bucket_count, 0)
+          },
+          hours: {
+            total: Array.new(bucket_count, 0.0),
+            submitted: Array.new(bucket_count, 0.0),
+            accepted: Array.new(bucket_count, 0.0)
           }
+        }
+
+        ship_events.each do |ship_event|
+          project_id = ship_event.post&.project_id
+          next unless project_id.present?
+
+          shipped_index = trend_bucket_index(ship_event.created_at, start_time: start_time, step: step, bucket_count: bucket_count)
+          next unless shipped_index
+
+          hours_value = ship_event.hours.to_f
+          trend_series[:projects][:total][shipped_index] += 1
+          trend_series[:hours][:total][shipped_index] += hours_value
+
+          if submitted_project_ids[project_id]
+            trend_series[:projects][:submitted][shipped_index] += 1
+            trend_series[:hours][:submitted][shipped_index] += hours_value
+          end
+
+          next unless accepted_project_ids[project_id]
+
+          trend_series[:projects][:accepted][shipped_index] += 1
+          trend_series[:hours][:accepted][shipped_index] += hours_value
         end
+
+        trend_series[:hours].each_value do |series|
+          series.map! { |value| value.round(1) }
+        end
+
+        {
+          labels: labels,
+          series: trend_series
+        }
+      end
+
+      def trend_bucket_index(timestamp, start_time:, step:, bucket_count:)
+        return nil unless timestamp.present?
+
+        normalized_timestamp = timestamp.in_time_zone
+        normalized_start_time = start_time.in_time_zone
+        index = ((normalized_timestamp.to_i - normalized_start_time.to_i) / step.to_i).floor
+        index if index.between?(0, bucket_count - 1)
+      end
+
+      def build_breakdown_hours(start_time, end_time, sidequest_project_ids)
+        return {} if sidequest_project_ids.empty?
+
+        # Build the deduplication subquery via AR so we still get safe value binding
+        # for dates and IDs, then wrap it in raw SQL to avoid Rails prefixing the
+        # outer GROUP BY with "post_ship_events"."title" (which doesn't exist on the
+        # subquery alias, causing a silent query failure).
+        inner_sql = Post::ShipEvent
+          .joins(post: :project)
+          .joins("INNER JOIN sidequest_entries ON sidequest_entries.project_id = projects.id")
+          .joins("INNER JOIN sidequests ON sidequests.id = sidequest_entries.sidequest_id")
+          .where(post_ship_events: { created_at: start_time..end_time })
+          .where(projects: { id: sidequest_project_ids.keys })
+          .select("DISTINCT post_ship_events.id, sidequests.title AS sq_title, COALESCE(post_ship_events.hours, 0) AS event_hours")
+          .to_sql
+
+        rows = ActiveRecord::Base.connection.select_all(<<~SQL)
+          SELECT sq_title AS title, SUM(event_hours) AS total_hours
+          FROM (#{inner_sql}) deduped_ship_hours
+          GROUP BY sq_title
+          ORDER BY total_hours DESC
+          LIMIT 20
+        SQL
+
+        rows.each_with_object({}) do |row, breakdown|
+          breakdown[row["title"]] = row["total_hours"].to_f.round(1)
+        end
+      rescue StandardError => e
+        Rails.logger.error("[SuperMegaDashboard] build_breakdown_hours error: #{e.message}")
+        {}
+      end
+
+      def build_breakdown_projects(start_time, end_time, sidequest_project_ids)
+        breakdown = {}
+
+        Post::ShipEvent
+          .joins(post: :project)
+          .joins("INNER JOIN sidequest_entries ON sidequest_entries.project_id = projects.id")
+          .joins("INNER JOIN sidequests ON sidequests.id = sidequest_entries.sidequest_id")
+          .where(post_ship_events: { created_at: start_time..end_time })
+          .where(projects: { id: sidequest_project_ids.keys })
+          .group("sidequests.title")
+          .select("sidequests.title, COUNT(DISTINCT projects.id) as total_projects")
+          .order("total_projects DESC")
+          .limit(20)
+          .each do |row|
+            breakdown[row.title] = row.total_projects.to_i
+          end
+
+        breakdown
       end
 
       def load_community_engagement_stats
