@@ -7,7 +7,14 @@
 <div class="wrapped-container"
      data-controller="wrapped"
      data-action="click->wrapped#click"
-     data-wrapped-interval-value="8000">
+     data-wrapped-interval-value="8000"
+     data-wrapped-cookies-value="<%= @wrapped.total_cookies_earned %>"
+     data-wrapped-ships-value="<%= @wrapped.ships_count %>"
+     data-wrapped-votes-value="<%= @wrapped.votes_cast %>"
+     data-wrapped-devlogs-value="<%= @wrapped.devlogs_count %>"
+     data-wrapped-coding-value="<%= @wrapped.coding_hours %>"
+     data-wrapped-rank-value="<%= @wrapped.leaderboard_percentile || -1 %>"
+     data-wrapped-username-value="<%= current_user.display_name %>">
 
   <div class="wrapped-progress">
     <% 8.times do |i| %>

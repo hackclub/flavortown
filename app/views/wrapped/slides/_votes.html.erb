@@ -1,7 +1,6 @@
 <div class="wrapped-slide wrapped-slide--votes" data-wrapped-target="slide">
   <div class="wrapped-slide__content">
     <p class="wrapped-slide__eyebrow">the community</p>
-    <p class="wrapped-slide__emoji">🗳️</p>
     <h2 class="wrapped-slide__stat"><%= number_with_delimiter(wrapped.votes_cast) %></h2>
     <h1 class="wrapped-slide__headline"><%= "vote".pluralize(wrapped.votes_cast) %> cast</h1>
     <% if wrapped.votes_cast > 50 %>

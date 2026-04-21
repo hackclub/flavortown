@@ -184,6 +184,9 @@ application.register("vote-tracker", VoteTrackerController);
 import WelcomeOverlayController from "./welcome_overlay_controller";
 application.register("welcome-overlay", WelcomeOverlayController);
 
+import WrappedController from "./wrapped_controller";
+application.register("wrapped", WrappedController);
+
 import WordCountController from "./word_count_controller";
 application.register("word-count", WordCountController);
 

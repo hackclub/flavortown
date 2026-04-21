@@ -3,7 +3,6 @@
     <% percentile = wrapped.leaderboard_percentile %>
     <% if percentile %>
       <p class="wrapped-slide__eyebrow">on the leaderboard</p>
-      <p class="wrapped-slide__emoji">🏆</p>
       <h2 class="wrapped-slide__stat">top <%= 100 - percentile %>%</h2>
       <h1 class="wrapped-slide__headline">of flavortown bakers</h1>
       <% if percentile >= 90 %>
@@ -15,7 +14,6 @@
       <% end %>
     <% else %>
       <p class="wrapped-slide__eyebrow">leaderboard</p>
-      <p class="wrapped-slide__emoji">📊</p>
       <h1 class="wrapped-slide__headline">opt in to see your rank</h1>
       <p class="wrapped-slide__body">enable the leaderboard in your settings to see how you stack up.</p>
     <% end %>
