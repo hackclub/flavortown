@@ -44,10 +44,7 @@
           <span class="super-mega-dashboard__stat--value purple"><%= @sidequest_totals[:submitted_7d] || 0 %></span>
           <span class="super-mega-dashboard__stat--label">Submitted 7d</span>
         </div>
-        <div class="super-mega-dashboard__stat">
-          <span class="super-mega-dashboard__stat--value"><%= @sidequest_totals[:accepted_projects_count] || 0 %></span>
-          <span class="super-mega-dashboard__stat--label">Accepted</span>
-        </div>
+       
       </div>
       <% if @sidequest_totals[:oldest_pending_at].present? %>
         <p class="super-mega-dashboard__sidequest-oldest">
@@ -79,8 +76,8 @@
           <span class="super-mega-dashboard__stat--label" data-sidequest-convergence-sidequest-label>Submitted to Sidequest</span>
         </div>
         <div class="super-mega-dashboard__stat">
-          <span class="super-mega-dashboard__stat--value green" data-sidequest-convergence-pct><%= @sidequest_totals[:accepted_projects_pct] || 0 %>%</span>
-          <span class="super-mega-dashboard__stat--label" data-sidequest-convergence-pct-label>Acceptance Rate</span>
+          <span class="super-mega-dashboard__stat--value green" data-sidequest-convergence-pct><%= @sidequest_totals[:shipped_projects_with_sidequest_submission_pct] || 0 %>%</span>
+          <span class="super-mega-dashboard__stat--label" data-sidequest-convergence-pct-label>Convergence Rate</span>
         </div>
       </div>
     </div>
@@ -131,7 +128,7 @@
         }
       },
       hours: {
-        title: 'Hours Convergence',
+        title: 'Hours Breakdown',
         yTitle: 'Hours',
         totalLabel: 'Total Hours',
         submittedLabel: 'Submitted Hours',
@@ -198,7 +195,7 @@
       var total     = (seriesData.total     || []).reduce(function(s, v) { return s + (Number(v) || 0); }, 0);
       var submitted = (seriesData.submitted || []).reduce(function(s, v) { return s + (Number(v) || 0); }, 0);
       var accepted  = (seriesData.accepted  || []).reduce(function(s, v) { return s + (Number(v) || 0); }, 0);
-      var rate = submitted > 0 ? ((accepted / submitted) * 100).toFixed(1) : '0.0';
+      var rate = total > 0 ? ((submitted / total) * 100).toFixed(1) : '0.0';
 
       if (convergenceTitle)          convergenceTitle.textContent          = metric.title;
       if (convergenceTotalValue)     convergenceTotalValue.textContent     = metric.valueFormatter(total);
@@ -206,23 +203,25 @@
       if (convergenceSidequestValue) convergenceSidequestValue.textContent = metric.valueFormatter(submitted);
       if (convergenceSidequestLabel) convergenceSidequestLabel.textContent = metric.submittedLabel;
       if (convergencePctValue)       convergencePctValue.textContent       = rate + '%';
-      if (convergencePctLabel)       convergencePctLabel.textContent       = 'Acceptance Rate';
+      if (convergencePctLabel)       convergencePctLabel.textContent       = 'Convergence Rate';
     }
 
     function renderBreakdownChart() {
       if (!window.sidequestBreakdownChartInstance) return;
 
       var rangeData  = breakdownData[chartState.range]  || {};
-      var metricData = rangeData[chartState.metric]     || {};
+      var metricData = rangeData[chartState.metric] || {};
+
       var labels = Object.keys(metricData);
       var values = Object.values(metricData).map(function(v) { return Number(v) || 0; });
       var hasData = labels.length > 0 && values.some(function(v) { return v > 0; });
+      var backgroundColor = labels.map(function(_, i) {
+        return breakdownPalette[i % breakdownPalette.length];
+      });
 
       window.sidequestBreakdownChartInstance.data.labels = labels;
       window.sidequestBreakdownChartInstance.data.datasets[0].data = values;
-      window.sidequestBreakdownChartInstance.data.datasets[0].backgroundColor = labels.map(function(_, i) {
-        return breakdownPalette[i % breakdownPalette.length];
-      });
+      window.sidequestBreakdownChartInstance.data.datasets[0].backgroundColor = backgroundColor;
       window.sidequestBreakdownChartInstance.options.plugins.legend.display = hasData;
       window.sidequestBreakdownChartInstance.update();
     }

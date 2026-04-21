@@ -273,30 +273,42 @@ module Admin
       def build_breakdown_hours(start_time, end_time, sidequest_project_ids)
         return {} if sidequest_project_ids.empty?
 
-        # Build the deduplication subquery via AR so we still get safe value binding
-        # for dates and IDs, then wrap it in raw SQL to avoid Rails prefixing the
-        # outer GROUP BY with "post_ship_events"."title" (which doesn't exist on the
-        # subquery alias, causing a silent query failure).
-        inner_sql = Post::ShipEvent
-          .joins(post: :project)
-          .joins("INNER JOIN sidequest_entries ON sidequest_entries.project_id = projects.id")
-          .joins("INNER JOIN sidequests ON sidequests.id = sidequest_entries.sidequest_id")
+        project_ids = sidequest_project_ids.keys
+
+        # Assign each project to one sidequest title (latest entry) to avoid
+        # multiplying the same ship event across multiple sidequests.
+        project_titles = {}
+        SidequestEntry
+          .joins(:sidequest)
+          .where(project_id: project_ids)
+          .order(created_at: :desc, id: :desc)
+          .pluck(:project_id, "sidequests.title")
+          .each do |project_id, title|
+            project_titles[project_id] ||= title
+          end
+
+        totals = Hash.new(0.0)
+        Post::ShipEvent
+          .joins(:post)
           .where(post_ship_events: { created_at: start_time..end_time })
-          .where(projects: { id: sidequest_project_ids.keys })
-          .select("DISTINCT post_ship_events.id, sidequests.title AS sq_title, COALESCE(post_ship_events.hours, 0) AS event_hours")
-          .to_sql
+          .where(posts: { project_id: project_ids })
+          .where.not(hours: nil)
+          .pluck("posts.project_id", :hours)
+          .each do |project_id, hours|
+            title = project_titles[project_id]
+            next if title.blank?
 
-        rows = ActiveRecord::Base.connection.select_all(<<~SQL)
-          SELECT sq_title AS title, SUM(event_hours) AS total_hours
-          FROM (#{inner_sql}) deduped_ship_hours
-          GROUP BY sq_title
-          ORDER BY total_hours DESC
-          LIMIT 20
-        SQL
+            value = hours.to_f
+            next if value <= 0
 
-        rows.each_with_object({}) do |row, breakdown|
-          breakdown[row["title"]] = row["total_hours"].to_f.round(1)
-        end
+            totals[title] += value
+          end
+
+        totals
+          .sort_by { |_title, total_hours| -total_hours }
+          .first(20)
+          .to_h
+          .transform_values { |value| value.round(1) }
       rescue StandardError => e
         Rails.logger.error("[SuperMegaDashboard] build_breakdown_hours error: #{e.message}")
         {}
