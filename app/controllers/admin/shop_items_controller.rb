@@ -17,8 +17,6 @@ module Admin
     DRAFT_SHOP_ITEM_PERM = DRAFT_SHOP_ITEM_ARR.index_with { [] }.freeze
     DRAFT_SHOP_ITEM_ALLOW = (DRAFT_SHOP_ITEM_ATTR + DRAFT_SHOP_ITEM_ARR).map(&:to_s).freeze
 
-    rescue_from ActionController::UnpermittedParameters, with: :handle_unpermitted_draft_parameters
-
     before_action :set_shop_item, only: [ :show, :edit, :update, :destroy, :request_approval, :promote ]
     before_action :set_shop_item_types, only: [ :new, :edit ]
     before_action :set_fulfillment_users, only: [ :new, :edit, :create, :update ]
@@ -285,31 +283,15 @@ module Admin
       unpermitted = p.keys - DRAFT_SHOP_ITEM_ALLOW
 
       if unpermitted.any?
-        Rails.logger.error("[Admin::ShopItemsController] Unpermitted draft shop item params: #{unpermitted.join(', ')} for user_id=#{current_user.id} shop_item_id=#{@shop_item&.id || 'new'}")
-        raise ActionController::UnpermittedParameters.new(unpermitted)
+        Rails.logger.warn("[Admin::ShopItemsController] Filtered unpermitted draft shop item params: #{unpermitted.join(', ')} for user_id=#{current_user.id} shop_item_id=#{@shop_item&.id || 'new'}")
+        Sentry.capture_message(
+          "not allowed draft shop item params submitted",
+          level: :warning,
+          extra: { unpermitted: unpermitted, user_id: current_user.id, shop_item_id: @shop_item&.id }
+        ) if defined?(Sentry)
       end
 
       p.permit(*DRAFT_SHOP_ITEM_ATTR, **DRAFT_SHOP_ITEM_PERM)
-    end
-
-    def handle_unpermitted_draft_parameters(e)
-      Sentry.capture_exception(
-        e,
-        extra: {
-          controller: self.class.name,
-          action: action_name,
-          user_id: current_user.id,
-          shop_item_id: @shop_item&.id,
-          unpermitted: e.params
-        }
-      ) if defined?(Sentry)
-
-      message = "unexpected fields were sent, changes were not saved: #{e.params.join(', ')}. give it another go?"
-
-      respond_to do |format|
-        format.html { redirect_back fallback_location: admin_manage_shop_path, alert: message }
-        format.json { render json: { error: message, unpermitted: e.params }, status: :unprocessable_entity }
-      end
     end
   end
 end
