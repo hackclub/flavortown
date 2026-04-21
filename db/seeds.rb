@@ -69,6 +69,11 @@ Sidequest.find_or_create_by!(slug: "caffeinated") do |sq|
   sq.description = "Build and ship a website to unlock a caffeine grant in the shop."
 end
 
+Sidequest.find_or_create_by!(slug: "roasted_apples") do |sq|
+  sq.title = "Roasted Apples"
+  sq.description = "Get access to the HQ Apple Developer Account to build an app for Apple devices! Then get your own license and other Apple prizes!"
+end
+
 Sidequest.find_or_create_by!(slug: "rusty_frontend") do |sq|
   sq.title = "Rusty Frontend"
   sq.description = "Build and ship a frontend in rust to unlock new prizes in the shop"
