@@ -78,6 +78,10 @@ Sidequest.find_or_create_by!(slug: "physics_lab") do |sq|
   sq.title = "Physics Lab"
   sq.description = "Build an interactive physics project and ship it on Flavortown to unlock physics prizes in the shop."
 end
+Sidequest.find_or_create_by!(slug: "codextensions") do |sq|
+  sq.title = "Codextensions"
+  sq.description = "Build a VS Code extension and ship it on Flavortown to unlock exclusive prizes in the shop."
+end
 Sidequest.find_or_create_by!(slug: "the_hackazine") do |sq|
   sq.title = "The Hackazine"
   sq.description = "This January: make a page for your project and get it in the Hack Club 2025 magazine! Join #magazine and submit before January 22nd. Projects selected for the magazine receive 50 cookies + stickers! Please note, magazine submissions have 0% AI tolerance."
