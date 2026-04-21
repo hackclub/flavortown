@@ -217,7 +217,11 @@ export default class extends Controller {
               `<span style="color:${cfg.color}">${cfg.label}: ${pt[cfg.key] || "N/A"}</span>`,
           )
           .join("<br>")}`;
-        tooltip.style.left = `${x(closest) + margin.left + 10}px`;
+        var ttW = tooltip.offsetWidth || 0;
+        var desiredLeft = x(closest) + margin.left + 10;
+        var maxLeft = margin.left + innerW - ttW - 2;
+        var clampedLeft = Math.max(margin.left, Math.min(desiredLeft, maxLeft));
+        tooltip.style.left = clampedLeft + "px";
         tooltip.style.top = `${margin.top}px`;
       })
       .on("mouseleave", () => {
@@ -385,7 +389,11 @@ export default class extends Controller {
           `<strong>${d3.timeFormat("%b %d")(pt.date)}</strong><br>` +
           `<span style="color:#f59e0b">Created: ${pt.created}</span><br>` +
           `<span style="color:#ef4444">Avg hang: ${avgHangTime}d</span>`;
-        tooltip.style.left = `${x(pt.date) + margin.left + 10}px`;
+        var ttW = tooltip.offsetWidth || 0;
+        var desiredLeft = x(pt.date) + margin.left + 10;
+        var maxLeft = margin.left + innerW - ttW - 2;
+        var clampedLeft = Math.max(margin.left, Math.min(desiredLeft, maxLeft));
+        tooltip.style.left = clampedLeft + "px";
         tooltip.style.top = `${margin.top}px`;
       })
       .on("mouseleave", () => {
@@ -535,7 +543,11 @@ export default class extends Controller {
               `<span style="color:${cfg.color}">${cfg.label}: ${pt[cfg.key]}</span>`,
           )
           .join("<br>")}`;
-        tooltip.style.left = `${x(pt.date) + margin.left + 10}px`;
+        var ttW = tooltip.offsetWidth || 0;
+        var desiredLeft = x(pt.date) + margin.left + 10;
+        var maxLeft = margin.left + innerW - ttW - 2;
+        var clampedLeft = Math.max(margin.left, Math.min(desiredLeft, maxLeft));
+        tooltip.style.left = clampedLeft + "px";
         tooltip.style.top = `${margin.top}px`;
       })
       .on("mouseleave", () => {
@@ -716,7 +728,11 @@ export default class extends Controller {
               `<span style="color:${cfg.color}">${cfg.label}: ${pt[cfg.key]}</span>`,
           )
           .join("<br>")}`;
-        tooltip.style.left = `${x(pt.date) + margin.left + 10}px`;
+        var ttW = tooltip.offsetWidth || 0;
+        var desiredLeft = x(pt.date) + margin.left + 10;
+        var maxLeft = margin.left + innerW - ttW - 2;
+        var clampedLeft = Math.max(margin.left, Math.min(desiredLeft, maxLeft));
+        tooltip.style.left = clampedLeft + "px";
         tooltip.style.top = `${margin.top}px`;
       })
       .on("mouseleave", () => {
