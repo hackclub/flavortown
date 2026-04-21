@@ -1,0 +1,11 @@
+header "🎉Roasted Apples Sidequest Complete!"
+
+section "Your project **{entry.project.title}** has been approved for the Roasted Apples sidequest!", markdown: true
+
+section "You've unlocked the *Sidequest: Roasted Apples* achievement and can now purchase Roasted Apples prizes and get Roasted Apples discounts in the shop.", markdown: true
+
+divider
+
+content [
+mrkdwn_text("Keep roasting those apples 🍎! Speak to Elliott-entity with any questions, concerns, or suggestions!" )
+]
