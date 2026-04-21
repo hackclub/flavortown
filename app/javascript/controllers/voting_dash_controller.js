@@ -173,16 +173,30 @@ export default class extends Controller {
   handleVerdictListClick(event, type) {
     const btn = event.target.closest("button.verdict-user-list__btn");
     if (!btn) return;
+    const listId = type === "cursed" ? "#cursed-user-list" : "#blessed-user-list";
+    const list = this.element.querySelector(listId);
+    if (list) {
+      list.querySelectorAll(".verdict-user-list__btn.is-active").forEach((el) =>
+        el.classList.remove("is-active"),
+      );
+    }
+    btn.classList.add("is-active");
+
     const eventIso = btn.getAttribute("data-event-ts") || "";
     const votesBefore = JSON.parse(
       btn.getAttribute("data-votes-before") || "[]",
     );
     const votesAfter = JSON.parse(btn.getAttribute("data-votes-after") || "[]");
+    const user = {
+      name: (btn.textContent || "").trim(),
+      url: btn.getAttribute("data-user-url") || "",
+      avatar: btn.getAttribute("data-user-avatar") || "",
+    };
     const containerId =
       type === "cursed"
         ? "cursed-drilldown-content"
         : "blessed-drilldown-content";
-    this.drawVerdictChart(containerId, type, votesBefore, votesAfter, eventIso);
+    this.drawVerdictChart(containerId, type, votesBefore, votesAfter, eventIso, user);
     this.renderVotes(containerId, votesBefore, votesAfter);
   }
 
@@ -192,16 +206,28 @@ export default class extends Controller {
     votesBefore,
     votesAfter,
     eventIso,
+    user,
   ) {
     const container = this.element.querySelector(`#${containerId}`);
     if (!container) return;
-    container.innerHTML = "";
-    const shell = document.createElement("div");
-    shell.className =
-      "super-mega-dashboard__chart-shell super-mega-dashboard__chart-shell--verdict";
-    const canvas = document.createElement("canvas");
-    shell.appendChild(canvas);
-    container.appendChild(shell);
+
+    const header = container.querySelector(".verdict-user-header");
+    if (header && user) {
+      const avatarLink = header.querySelector(".verdict-user-header__avatar-link");
+      const avatarImg = header.querySelector(".verdict-user-header__avatar");
+      const nameLink = header.querySelector(".verdict-user-header__name");
+      if (avatarLink) avatarLink.href = user.url || "#";
+      if (avatarImg) {
+        avatarImg.src = user.avatar || "";
+        avatarImg.alt = user.name || "";
+      }
+      if (nameLink) {
+        nameLink.href = user.url || "#";
+        nameLink.textContent = user.name || "User";
+      }
+    }
+    const canvas = container.querySelector("canvas");
+    if (!canvas) return;
 
     const toTs = (v) => {
       const raw = v.at_iso || v.at || "";
@@ -253,6 +279,8 @@ export default class extends Controller {
       },
     };
 
+    const existingChart = Chart.getChart(canvas);
+    if (existingChart) existingChart.destroy();
     if (this.verdictChart) this.verdictChart.destroy();
 
     this.verdictChart = new Chart(canvas, {
@@ -321,15 +349,11 @@ export default class extends Controller {
   }
 
   renderVotes(containerId, votesBefore, votesAfter) {
-    const container = this.element.querySelector(`#${containerId}`);
-    if (!container) return;
-    const wrap = document.createElement("div");
-    wrap.className = "verdict-votes";
-
-    const details = document.createElement("details");
-    const summary = document.createElement("summary");
-    summary.textContent = "See votes";
-    details.appendChild(summary);
+    const votesId = containerId.indexOf("blessed") !== -1 ? "#blessed-votes" : "#cursed-votes";
+    const root = this.element.querySelector(votesId);
+    if (!root) return;
+    const content = root.querySelector(".verdict-votes__content") || root;
+    content.innerHTML = "";
 
     const votesTable = (title, list) => {
       const section = document.createElement("div");
@@ -380,9 +404,7 @@ export default class extends Controller {
       return section;
     };
 
-    details.appendChild(votesTable("Before", votesBefore));
-    details.appendChild(votesTable("After", votesAfter));
-    wrap.appendChild(details);
-    container.appendChild(wrap);
+    content.appendChild(votesTable("Before", votesBefore));
+    content.appendChild(votesTable("After", votesAfter));
   }
 }

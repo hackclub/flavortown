@@ -99,6 +99,8 @@
                         data-user-id="<%= u.id %>"
                         data-verdict="blessed"
                         data-event-ts="<%= data[:event_ts_iso].to_s %>"
+                        data-user-url="<%= admin_user_path(u) %>"
+                        data-user-avatar="<%= u.avatar %>"
                         data-votes-before="<%= json_escape((data[:votes_before] || []).to_json) %>"
                         data-votes-after="<%= json_escape((data[:votes_after] || []).to_json) %>">
                   <%= u&.display_name || u&.handle || u&.email %>
@@ -110,7 +112,21 @@
       </div>
       <div class="verdict-modal__content">
         <div id="blessed-drilldown-content">
-          <div class="modal__loading">Select a user to view their before/after chart and votes.</div>
+          <div class="verdict-user-header">
+            <a class="verdict-user-header__avatar-link" href="#" target="_blank" rel="noopener">
+              <img class="verdict-user-header__avatar" alt="" />
+            </a>
+            <a class="verdict-user-header__name" href="#" target="_blank" rel="noopener"></a>
+          </div>
+          <div class="super-mega-dashboard__chart-shell super-mega-dashboard__chart-shell--verdict">
+            <canvas id="blessed-drilldown-canvas"></canvas>
+          </div>
+        </div>
+        <div class="verdict-votes" id="blessed-votes">
+          <details>
+            <summary>See votes</summary>
+            <div class="verdict-votes__content"></div>
+          </details>
         </div>
       </div>
     </div>
@@ -132,6 +148,8 @@
                         data-user-id="<%= u.id %>"
                         data-verdict="cursed"
                         data-event-ts="<%= data[:event_ts_iso].to_s %>"
+                        data-user-url="<%= admin_user_path(u) %>"
+                        data-user-avatar="<%= u.avatar %>"
                         data-votes-before="<%= json_escape((data[:votes_before] || []).to_json) %>"
                         data-votes-after="<%= json_escape((data[:votes_after] || []).to_json) %>">
                   <%= u&.display_name || u&.handle || u&.email %>
@@ -143,7 +161,21 @@
       </div>
       <div class="verdict-modal__content">
         <div id="cursed-drilldown-content">
-          <div class="modal__loading">Select a user to view their votes.</div>
+          <div class="verdict-user-header">
+            <a class="verdict-user-header__avatar-link" href="#" target="_blank" rel="noopener">
+              <img class="verdict-user-header__avatar" alt="" />
+            </a>
+            <a class="verdict-user-header__name" href="#" target="_blank" rel="noopener"></a>
+          </div>
+          <div class="super-mega-dashboard__chart-shell super-mega-dashboard__chart-shell--verdict">
+            <canvas id="cursed-drilldown-canvas"></canvas>
+          </div>
+        </div>
+        <div class="verdict-votes" id="cursed-votes">
+          <details>
+            <summary>See votes</summary>
+            <div class="verdict-votes__content"></div>
+          </details>
         </div>
       </div>
     </div>

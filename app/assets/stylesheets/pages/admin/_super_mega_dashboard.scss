@@ -1641,6 +1641,12 @@
     cursor: pointer;
     color: var(--color-brown-700);
     text-align: left;
+
+    &.is-active {
+      background: rgba(37, 99, 235, 0.08);
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) inset;
+    }
   }
 }
 
@@ -1683,6 +1689,31 @@
     max-width: 520px;
     white-space: normal;
     word-break: break-word;
+  }
+}
+
+.verdict-user-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  &__avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__name {
+    font-weight: 600;
+    color: #1e40af;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
