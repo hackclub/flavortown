@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Sidequest::Callbacks
   class Chesster
     class << self
@@ -13,6 +14,7 @@ module Sidequest::Callbacks
           locals: { entry: entry, user: user }
         )
       end
+
       def on_reject(entry)
         user = entry.project_owner
         return unless user
