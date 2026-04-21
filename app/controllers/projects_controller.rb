@@ -409,7 +409,8 @@ class ProjectsController < ApplicationController
       end
 
       PaperTrail.request(whodunnit: current_user.id) do
-        ShipCertService.ship_to_dash(@project, type: "recertification")
+        has_approved = @project.ship_events.where(certification_status: "approved").exists?
+        ShipCertService.ship_to_dash(@project, type: has_approved ? "reship" : "recertification")
         ship_event.update!(certification_status: "pending")
 
         PaperTrail::Version.create!(
@@ -601,6 +602,8 @@ class ProjectsController < ApplicationController
   end
 
   def link_hackatime_projects
+    return unless params[:project].key?(:hackatime_project_ids)
+
     # Unlink hackatime projects that were removed
     @project.hackatime_projects.where.not(id: hackatime_project_ids).find_each do |hp|
       hp.update(project: nil)
