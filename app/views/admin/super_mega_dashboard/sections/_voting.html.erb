@@ -1,66 +1,151 @@
-    <div class="super-mega-dashboard__dashboard">
-      <div class="super-mega-dashboard__header super-mega-dashboard__header--voting">
-        <h2>Voting Overview</h2>
-        <%= link_to "View Full Dashboard →", admin_voting_dashboard_path, class: "super-mega-link" %>
+<div class="super-mega-dashboard__dashboard" data-controller="voting-dash"
+  data-voting-dash-daily-labels-value="<%= json_escape((@vote_quality_trend[:labels] || []).to_json) %>"
+  data-voting-dash-daily-values-value="<%= json_escape((@vote_quality_trend[:values] || []).to_json) %>"
+  data-voting-dash-hourly-labels-value="<%= json_escape((@vote_quality_trend_hourly[:labels] || []).to_json) %>"
+  data-voting-dash-hourly-values-value="<%= json_escape((@vote_quality_trend_hourly[:values] || []).to_json) %>"
+  data-voting-dash-quality-by-window-value="<%= json_escape((@vote_quality_by_window || {}).to_json) %>">
+  
+  <div class="super-mega-dashboard__header super-mega-dashboard__header--voting">
+    <h2>Voting Overview</h2>
+    <%= link_to "View Full Dashboard →", admin_voting_dashboard_path, class: "super-mega-link" %>
+  </div>
+
+  <div class="super-mega-dashboard__cards" style="margin-bottom:15px">
+    <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+      <div class="super-mega-dashboard__card-toolbar">
+        <h3>Avg Vote Quality</h3>
+        <div class="super-mega-dashboard__range-control">
+          <label for="voteQualityRange">Range</label>
+          <select id="voteQualityRange" name="range">
+            <option value="24h">24 hours</option>
+            <option value="1w">1 week</option>
+            <option value="1m">1 month</option>
+            <option value="all" selected>All (6 months)</option>
+          </select>
+        </div>
       </div>
-
-      <div class="super-mega-dashboard__cards">
-        <div class="super-mega-dashboard__card">
-          <h3>Overview</h3>
-          <div class="super-mega-dashboard__stats">
-            <div class="super-mega-dashboard__stat">
-              <span class="super-mega-dashboard__stat--value"><%= number_with_delimiter(@voting_overview[:total]) %></span>
-              <span class="super-mega-dashboard__stat--label">Total Votes</span>
+      <turbo-frame id="voting_quality_chart">
+        <div class="voting-overview">
+          <div class="voting-overview__summary-row">
+            <div class="voting-overview__titles">
+              <div class="voting-overview__subtitle muted">Current period average</div>
             </div>
-            <div class="super-mega-dashboard__stat">
-              <span class="super-mega-dashboard__stat--value"><%= @voting_overview[:today] || 0 %></span>
-              <span class="super-mega-dashboard__stat--label">Today</span>
-            </div>
-            <div class="super-mega-dashboard__stat">
-              <span class="super-mega-dashboard__stat--value"><%= @voting_overview[:this_week] || 0 %></span>
-              <span class="super-mega-dashboard__stat--label">This Week</span>
-            </div>
-            <div class="super-mega-dashboard__stat">
-              <span class="super-mega-dashboard__stat--value"><%= @voting_overview[:avg_time_seconds] ? "#{@voting_overview[:avg_time_seconds]}s" : "—" %></span>
-              <span class="super-mega-dashboard__stat--label">Avg Time</span>
+            <div class="voting-overview__current">
+              <strong id="votingCurrentAvg"><%= @vote_quality_by_window["all"] ? number_with_precision(@vote_quality_by_window["all"], precision: 3) : "—" %></strong>
             </div>
           </div>
-        </div>
 
-        <div class="super-mega-dashboard__card">
-          <h3>Engagement</h3>
-          <div class="super-mega-dashboard__stats">
-            <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value blue"><%= @voting_overview[:demo_click_rate] || 0 %>%</span>
-                <span class="super-mega-dashboard__stat--label">Demo Clicks</span>
-            </div>
-            <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value purple"><%= @voting_overview[:repo_click_rate] || 0 %>%</span>
-                <span class="super-mega-dashboard__stat--label">Repo Clicks</span>
-            </div>
-            <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value green"><%= @voting_overview[:reason_rate] || 0 %>%</span>
-                <span class="super-mega-dashboard__stat--label">With Reason</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="super-mega-dashboard__card">
-          <h3>Category Averages</h3>
-          <div class="super-mega-dashboard__stats">
-            <% Vote.enabled_categories.each do |category| %>
-              <% color_class = {
-                originality: "red",
-                technical: "yellow",
-                usability: "blue",
-                storytelling: "green"
-              }.fetch(category.to_sym, "purple") %>
-              <div class="super-mega-dashboard__stat">
-                <span class="super-mega-dashboard__stat--value <%= color_class %>"><%= @voting_category_avgs[category] || "—" %></span>
-                <span class="super-mega-dashboard__stat--label"><%= category.to_s.humanize %></span>
+          <div style="margin-top:16px">
+            <% daily_values = @vote_quality_trend[:values] || [] %>
+            <% hourly_values = @vote_quality_trend_hourly[:values] || [] %>
+            <% if daily_values.blank? && hourly_values.blank? %>
+              <div class="chart-placeholder">No history available</div>
+            <% else %>
+              <div class="super-mega-dashboard__chart-shell">
+                <canvas id="voteQualityTrendChart" height="220"></canvas>
               </div>
             <% end %>
           </div>
         </div>
+      </turbo-frame>
+    </div>
+  </div>
+
+  <div class="super-mega-dashboard__cards">
+    <div class="super-mega-dashboard__card">
+      <div class="super-mega-dashboard__card-toolbar super-mega-dashboard__card-title--centered">
+        <h3>Blessed Now</h3>
+      </div>
+      <div class="super-mega-dashboard__stats">
+        <div class="super-mega-dashboard__stat">
+          <span class="super-mega-dashboard__stat--value green"><%= @vote_verdict_counts[:blessed] || 0 %></span>
+          <span class="super-mega-dashboard__stat--label">Users Blessed</span>
+        </div>
+      </div>
+      <div class="super-mega-dashboard__btn-row">
+        <button type="button" class="btn-secondary slim" onclick="document.getElementById('blessed-list-modal').showModal()">View</button>
       </div>
     </div>
+
+    <div class="super-mega-dashboard__card">
+      <div class="super-mega-dashboard__card-toolbar super-mega-dashboard__card-title--centered">
+        <h3>Cursed Now</h3>
+      </div>
+      <div class="super-mega-dashboard__stats">
+        <div class="super-mega-dashboard__stat">
+          <span class="super-mega-dashboard__stat--value red"><%= @vote_verdict_counts[:cursed] || 0 %></span>
+          <span class="super-mega-dashboard__stat--label">Users Cursed</span>
+        </div>
+      </div>
+      <div class="super-mega-dashboard__btn-row">
+        <button type="button" class="btn-secondary slim" onclick="document.getElementById('cursed-list-modal').showModal()">View</button>
+      </div>
+    </div>
+  </div>
+
+  <%= render layout: "shared/modal", locals: { id: "blessed-list-modal", title: "Blessed Users", class_name: "modal--wide" } do %>
+    <div class="verdict-modal" id="blessed-modal">
+      <div class="verdict-modal__list">
+        <% if @current_blessed_users.blank? %>
+          <p class="fraud-stats-error">No blessed users at the moment.</p>
+        <% else %>
+          <ul class="verdict-user-list" id="blessed-user-list">
+            <% @current_blessed_users.each do |vr| %>
+              <% u = vr.user %>
+              <% data = @verdict_user_drilldowns.dig("blessed", u.id) || {} %>
+              <li class="verdict-user-list__item">
+                <button type="button"
+                        class="verdict-user-list__btn"
+                        data-user-id="<%= u.id %>"
+                        data-verdict="blessed"
+                        data-event-ts="<%= data[:event_ts_iso].to_s %>"
+                        data-votes-before="<%= json_escape((data[:votes_before] || []).to_json) %>"
+                        data-votes-after="<%= json_escape((data[:votes_after] || []).to_json) %>">
+                  <%= u&.display_name || u&.handle || u&.email %>
+                </button>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      </div>
+      <div class="verdict-modal__content">
+        <div id="blessed-drilldown-content">
+          <div class="modal__loading">Select a user to view their before/after chart and votes.</div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%= render layout: "shared/modal", locals: { id: "cursed-list-modal", title: "Cursed Users", class_name: "modal--wide" } do %>
+    <div class="verdict-modal" id="cursed-modal">
+      <div class="verdict-modal__list">
+        <% if @current_cursed_users.blank? %>
+          <p class="fraud-stats-error">No cursed users at the moment.</p>
+        <% else %>
+          <ul class="verdict-user-list" id="cursed-user-list">
+            <% @current_cursed_users.each do |vr| %>
+              <% u = vr.user %>
+              <% data = @verdict_user_drilldowns.dig("cursed", u.id) || {} %>
+              <li class="verdict-user-list__item">
+                <button type="button"
+                        class="verdict-user-list__btn"
+                        data-user-id="<%= u.id %>"
+                        data-verdict="cursed"
+                        data-event-ts="<%= data[:event_ts_iso].to_s %>"
+                        data-votes-before="<%= json_escape((data[:votes_before] || []).to_json) %>"
+                        data-votes-after="<%= json_escape((data[:votes_after] || []).to_json) %>">
+                  <%= u&.display_name || u&.handle || u&.email %>
+                </button>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      </div>
+      <div class="verdict-modal__content">
+        <div id="cursed-drilldown-content">
+          <div class="modal__loading">Select a user to view their votes.</div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -181,6 +181,9 @@ application.register("vote-category", VoteCategoryController);
 import VoteTrackerController from "./vote_tracker_controller";
 application.register("vote-tracker", VoteTrackerController);
 
+import VotingDashController from "./voting_dash_controller";
+application.register("voting-dash", VotingDashController);
+
 import WelcomeOverlayController from "./welcome_overlay_controller";
 application.register("welcome-overlay", WelcomeOverlayController);
 
