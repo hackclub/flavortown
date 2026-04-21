@@ -27,6 +27,13 @@
     </div>
   </div>
 
+  <% if @pagy.pages > 1 %>
+    <div class="my-reports__pagination">
+      <%== @pagy.series_nav %>
+      <div class="my-reports__pagination-info"><%== @pagy.info_tag %></div>
+    </div>
+  <% end %>
+
   <% if @reports.empty? %>
     <div class="my-reports__empty">
       <p>You haven't submitted any reports yet.</p>

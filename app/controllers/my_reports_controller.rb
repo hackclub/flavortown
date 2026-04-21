@@ -1,6 +1,6 @@
 class MyReportsController < ApplicationController
   def index
-    @reports = current_user.reports.includes(:project).order(created_at: :desc)
+    @pagy, @reports = pagy(current_user.reports.includes(:project).order(created_at: :desc), limit: 25)
     @counts = {
       pending: current_user.reports.pending.count,
       reviewed: current_user.reports.reviewed.count,
