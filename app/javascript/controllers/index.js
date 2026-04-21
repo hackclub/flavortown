@@ -61,6 +61,9 @@ application.register("hello", HelloController);
 import JsonHighlightController from "./json_highlight_controller";
 application.register("json-highlight", JsonHighlightController);
 
+import KernelTerminalController from "./kernel_terminal_controller";
+application.register("kernel-terminal", KernelTerminalController);
+
 import KitchenDialogueController from "./kitchen_dialogue_controller";
 application.register("kitchen-dialogue", KitchenDialogueController);
 

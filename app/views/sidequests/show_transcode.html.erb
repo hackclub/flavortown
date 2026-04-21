@@ -5,7 +5,7 @@
 
 <%= render HeadingComponent.new(title: @sidequest.title, tone: :blue, size: :full) %>
 
-<div class="sidequest-show sidequest-show--optimization">
+<div class="sidequest-show sidequest-show--transcode">
   <div class="sidequest-show__content">
     <% if @sidequest.description.present? %>
       <p class="sidequest-show__description"><%= @sidequest.description %></p>
