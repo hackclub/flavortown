@@ -154,15 +154,10 @@
                         var idx = Math.min(bisect(tableData, x0), tableData.length - 1);
                         var pt = tableData[idx];
                         tooltip.className = 'd3-stream-tooltip is-visible';
-                        tooltip.style.zIndex = '1001';
                         tooltip.innerHTML = '<strong>' + d3.timeFormat('%b %d')(pt.date) + '</strong><br>' +
                           '<span style="color:#f59e0b">Created: ' + pt.created + '</span><br>' +
                           '<span style="color:#ef4444">Avg hang: ' + avgHangTime + 'd</span>';
-                        var ttW = tooltip.offsetWidth || 0;
-                        var desiredLeft = x(pt.date) + margin.left + 10;
-                        var maxLeft = margin.left + innerW - ttW - 2;
-                        var clampedLeft = Math.max(margin.left, Math.min(desiredLeft, maxLeft));
-                        tooltip.style.left = clampedLeft + 'px';
+                        tooltip.style.left = (x(pt.date) + margin.left + 10) + 'px';
                         tooltip.style.top = margin.top + 'px';
                       })
                       .on('mouseleave', function() {
@@ -308,16 +303,11 @@
                         var pt = (!d1 || (x0 - d0.date < d1.date - x0)) ? d0 : d1;
                         crosshair.attr('x1', x(pt.date)).attr('x2', x(pt.date)).style('display', null);
                         tooltip.className = 'd3-stream-tooltip is-visible';
-                        tooltip.style.zIndex = '1001';
                         tooltip.innerHTML = '<strong>' + d3.timeFormat('%b %d')(pt.date) + '</strong><br>' +
                           seriesConfig.map(function(cfg) {
                             return '<span style="color:' + cfg.color + '">' + cfg.label + ': ' + pt[cfg.key] + '</span>';
                           }).join('<br>');
-                        var ttW = tooltip.offsetWidth || 0;
-                        var desiredLeft = x(pt.date) + margin.left + 10;
-                        var maxLeft = margin.left + innerW - ttW - 2;
-                        var clampedLeft = Math.max(margin.left, Math.min(desiredLeft, maxLeft));
-                        tooltip.style.left = clampedLeft + 'px';
+                        tooltip.style.left = (x(pt.date) + margin.left + 10) + 'px';
                         tooltip.style.top = margin.top + 'px';
                       })
                       .on('mouseleave', function() {
@@ -513,16 +503,11 @@
                             if (!pt) return;
                             crosshair.attr('x1', x(closest)).attr('x2', x(closest)).style('display', null);
                             tooltip.className = 'd3-stream-tooltip is-visible';
-                            tooltip.style.zIndex = '1001';
                             tooltip.innerHTML = '<strong>' + closest + '</strong><br>' +
                               seriesConfig.map(function(cfg) {
                                 return '<span style="color:' + cfg.color + '">' + cfg.label + ': ' + (pt[cfg.key] || 'N/A') + '</span>';
                               }).join('<br>');
-                            var ttW = tooltip.offsetWidth || 0;
-                            var desiredLeft = x(closest) + margin.left + 10;
-                            var maxLeft = margin.left + innerW - ttW - 2;
-                            var clampedLeft = Math.max(margin.left, Math.min(desiredLeft, maxLeft));
-                            tooltip.style.left = clampedLeft + 'px';
+                            tooltip.style.left = (x(pt.date) + margin.left + 10) + 'px';
                             tooltip.style.top = margin.top + 'px';
                           })
                           .on('mouseleave', function() {
@@ -728,16 +713,11 @@
                         var pt = (!d1 || (x0 - d0.date < d1.date - x0)) ? d0 : d1;
                         crosshair.attr('x1', x(pt.date)).attr('x2', x(pt.date)).style('display', null);
                         tooltip.className = 'd3-stream-tooltip is-visible';
-                        tooltip.style.zIndex = '1001';
                         tooltip.innerHTML = '<strong>' + d3.timeFormat('%b %d')(pt.date) + '</strong><br>' +
                           seriesConfig.map(function(cfg) {
                             return '<span style="color:' + cfg.color + '">' + cfg.label + ': ' + pt[cfg.key] + '</span>';
                           }).join('<br>');
-                        var ttW = tooltip.offsetWidth || 0;
-                        var desiredLeft = x(pt.date) + margin.left + 10;
-                        var maxLeft = margin.left + innerW - ttW - 2;
-                        var clampedLeft = Math.max(margin.left, Math.min(desiredLeft, maxLeft));
-                        tooltip.style.left = clampedLeft + 'px';
+                        tooltip.style.left = (x(pt.date) + margin.left + 10) + 'px';
                         tooltip.style.top = margin.top + 'px';
                       })
                       .on('mouseleave', function() {
