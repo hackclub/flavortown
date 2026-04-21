@@ -303,6 +303,7 @@ Rails.application.routes.draw do
       end
       member do
         post :request_approval
+        post :promote
       end
     end
     resources :shop_orders, only: [ :index, :show ] do
