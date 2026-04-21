@@ -61,7 +61,7 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def show
-      @user = User.includes(:identities).find(params[:id])
+      @user = User.includes(:identities, :vote_verdict).find(params[:id])
 
       @all_projects = @user.projects.with_deleted.order(deleted_at: :desc)
     end
