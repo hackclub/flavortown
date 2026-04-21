@@ -2,8 +2,6 @@
 
 <% unless @pyramid_scheme_stats[:error].present? %>
   <% controller_data[:pyramid_flavortime_pyramid_activity_timeline_value] = @pyramid_scheme_stats[:activity_timeline].to_json %>
-  <% controller_data[:pyramid_flavortime_pyramid_referral_chart_value] = @pyramid_scheme_stats[:referral_chart].to_json %>
-  <% controller_data[:pyramid_flavortime_pyramid_poster_chart_value] = @pyramid_scheme_stats[:poster_chart].to_json %>
 <% end %>
 
 <% unless @flavortime_summary[:error].present? %>
