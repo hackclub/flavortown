@@ -8,21 +8,18 @@
 
   <div class="my-reports__stats">
     <div class="my-reports__stat-card my-reports__stat-card--pending">
-      <span class="my-reports__stat-icon">⏳</span>
       <div>
         <span class="my-reports__stat-value"><%= @counts[:pending] %></span>
         <span class="my-reports__stat-label">Pending</span>
       </div>
     </div>
     <div class="my-reports__stat-card my-reports__stat-card--reviewed">
-      <span class="my-reports__stat-icon">✅</span>
       <div>
         <span class="my-reports__stat-value"><%= @counts[:reviewed] %></span>
         <span class="my-reports__stat-label">Reviewed</span>
       </div>
     </div>
     <div class="my-reports__stat-card my-reports__stat-card--dismissed">
-      <span class="my-reports__stat-icon">🗑️</span>
       <div>
         <span class="my-reports__stat-value"><%= @counts[:dismissed] %></span>
         <span class="my-reports__stat-label">Dismissed</span>
