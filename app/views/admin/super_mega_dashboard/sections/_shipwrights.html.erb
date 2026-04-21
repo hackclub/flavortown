@@ -859,9 +859,15 @@
 
           tooltip
             .classed('is-visible', true)
+            .style('z-index', '1001')
             .html('<strong>' + dateStr + '</strong><br>' + d.key + ': ' + val)
-            .style('left', (pointer[0] + 12) + 'px')
-            .style('top', (pointer[1] - 28) + 'px');
+            .style('top', Math.max(0, (pointer[1] - 28)) + 'px');
+
+          var ttW = (tooltip.node() && tooltip.node().offsetWidth) || 0;
+          var desiredLeft = pointer[0] + 12;
+          var maxLeft = (container.clientWidth || 0) - ttW - 2;
+          var clampedLeft = Math.max(0, Math.min(desiredLeft, maxLeft));
+          tooltip.style('left', clampedLeft + 'px');
         })
         .on('mouseleave', function() {
           tooltip.classed('is-visible', false);
@@ -1014,9 +1020,15 @@
 
       tooltip
         .classed('is-visible', true)
+        .style('z-index', '1001')
         .html('<strong>' + dateStr + '</strong><br>Total: ' + pt.total + '<br>Approved: ' + pt.approved + '<br>Rejected: ' + pt.rejected)
-        .style('left', (pointer[0] + 12) + 'px')
-        .style('top', (pointer[1] - 52) + 'px');
+        .style('top', Math.max(0, (pointer[1] - 52)) + 'px');
+
+      var ttW = (tooltip.node() && tooltip.node().offsetWidth) || 0;
+      var desiredLeft = pointer[0] + 12;
+      var maxLeft = (container.clientWidth || 0) - ttW - 2;
+      var clampedLeft = Math.max(0, Math.min(desiredLeft, maxLeft));
+      tooltip.style('left', clampedLeft + 'px');
     }).on('mouseleave', function() {
       tooltip.classed('is-visible', false);
     });
@@ -1130,9 +1142,15 @@
             var dateStr = pt.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             rTooltip
               .classed('is-visible', true)
+              .style('z-index', '1001')
               .html('<strong>' + dateStr + '</strong><br>Approval Rate: ' + ratio + '%<br>' + pt.approved + ' approved / ' + pt.total + ' total')
-              .style('left', (pointer[0] + 12) + 'px')
-              .style('top', (pointer[1] - 52) + 'px');
+              .style('top', Math.max(0, (pointer[1] - 52)) + 'px');
+
+            var ttW = (rTooltip.node() && rTooltip.node().offsetWidth) || 0;
+            var desiredLeft = pointer[0] + 12;
+            var maxLeft = (ratioContainer.clientWidth || 0) - ttW - 2;
+            var clampedLeft = Math.max(0, Math.min(desiredLeft, maxLeft));
+            rTooltip.style('left', clampedLeft + 'px');
           })
           .on('mouseleave', function() { rTooltip.classed('is-visible', false); });
 
