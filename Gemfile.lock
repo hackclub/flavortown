@@ -145,12 +145,12 @@ GEM
     bigdecimal (4.1.2)
     bindata (2.5.1)
     bindex (0.8.1)
-    blazer (3.3.0)
-      activerecord (>= 7.1)
+    blazer (3.4.0)
+      activerecord (>= 7.2)
       chartkick (>= 5)
       csv
-      railties (>= 7.1)
-      safely_block (>= 0.4)
+      railties (>= 7.2)
+      safely_block (>= 1)
     blind_index (2.8.0)
       activesupport (>= 7.2)
       argon2-kdf (>= 1)
@@ -206,7 +206,7 @@ GEM
     ed25519 (1.4.0)
     email_validator (2.2.4)
       activemodel
-    erb (6.0.2)
+    erb (6.0.3)
     erb_lint (0.9.0)
       activesupport
       better_html (>= 2.0.1)
@@ -357,7 +357,7 @@ GEM
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (6.0.4)
+    minitest (6.0.5)
       drb (~> 2.0)
       prism (~> 1.5)
     mission_control-jobs (1.1.0)
@@ -550,7 +550,7 @@ GEM
       tsort (>= 0.2)
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
-    rake (13.3.1)
+    rake (13.4.2)
     rake-compiler-dock (1.11.0)
     rb_sys (0.9.126)
       json (>= 2)
