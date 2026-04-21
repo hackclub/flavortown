@@ -18,6 +18,6 @@ class Api::V1::UsersController < Api::BaseController
 
   def show
     @user = params[:id] == "me" ? current_api_user : User.find(params[:id])
-    @user = User.includes(:ledger_entries).find(@user.id) if @user.leaderboard_optin?
+    ActiveRecord::Associations::Preloader.new(records: [@user], associations: :ledger_entries).call if @user.leaderboard_optin?
   end
 end
