@@ -4,7 +4,7 @@
   data-voting-dash-hourly-labels-value="<%= json_escape((@vote_quality_trend_hourly[:labels] || []).to_json) %>"
   data-voting-dash-hourly-values-value="<%= json_escape((@vote_quality_trend_hourly[:values] || []).to_json) %>"
   data-voting-dash-quality-by-window-value="<%= json_escape((@vote_quality_by_window || {}).to_json) %>">
-  
+
   <div class="super-mega-dashboard__header super-mega-dashboard__header--voting">
     <h2>Voting Overview</h2>
     <%= link_to "View Full Dashboard →", admin_voting_dashboard_path, class: "super-mega-link" %>
@@ -114,7 +114,7 @@
         <div id="blessed-drilldown-content">
           <div class="verdict-user-header">
             <a class="verdict-user-header__avatar-link" href="#" target="_blank" rel="noopener">
-              <img class="verdict-user-header__avatar" alt="" />
+              <img class="verdict-user-header__avatar" alt="">
             </a>
             <a class="verdict-user-header__name" href="#" target="_blank" rel="noopener"></a>
           </div>
@@ -163,7 +163,7 @@
         <div id="cursed-drilldown-content">
           <div class="verdict-user-header">
             <a class="verdict-user-header__avatar-link" href="#" target="_blank" rel="noopener">
-              <img class="verdict-user-header__avatar" alt="" />
+              <img class="verdict-user-header__avatar" alt="">
             </a>
             <a class="verdict-user-header__name" href="#" target="_blank" rel="noopener"></a>
           </div>

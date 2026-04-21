@@ -173,12 +173,13 @@ export default class extends Controller {
   handleVerdictListClick(event, type) {
     const btn = event.target.closest("button.verdict-user-list__btn");
     if (!btn) return;
-    const listId = type === "cursed" ? "#cursed-user-list" : "#blessed-user-list";
+    const listId =
+      type === "cursed" ? "#cursed-user-list" : "#blessed-user-list";
     const list = this.element.querySelector(listId);
     if (list) {
-      list.querySelectorAll(".verdict-user-list__btn.is-active").forEach((el) =>
-        el.classList.remove("is-active"),
-      );
+      list
+        .querySelectorAll(".verdict-user-list__btn.is-active")
+        .forEach((el) => el.classList.remove("is-active"));
     }
     btn.classList.add("is-active");
 
@@ -196,7 +197,14 @@ export default class extends Controller {
       type === "cursed"
         ? "cursed-drilldown-content"
         : "blessed-drilldown-content";
-    this.drawVerdictChart(containerId, type, votesBefore, votesAfter, eventIso, user);
+    this.drawVerdictChart(
+      containerId,
+      type,
+      votesBefore,
+      votesAfter,
+      eventIso,
+      user,
+    );
     this.renderVotes(containerId, votesBefore, votesAfter);
   }
 
@@ -213,7 +221,9 @@ export default class extends Controller {
 
     const header = container.querySelector(".verdict-user-header");
     if (header && user) {
-      const avatarLink = header.querySelector(".verdict-user-header__avatar-link");
+      const avatarLink = header.querySelector(
+        ".verdict-user-header__avatar-link",
+      );
       const avatarImg = header.querySelector(".verdict-user-header__avatar");
       const nameLink = header.querySelector(".verdict-user-header__name");
       if (avatarLink) avatarLink.href = user.url || "#";
@@ -235,8 +245,16 @@ export default class extends Controller {
       return Number.isFinite(ts) ? ts : 0;
     };
     const all = [
-      ...(votesBefore || []).map((v) => ({ ...v, _side: "before", _ts: toTs(v) })),
-      ...(votesAfter || []).map((v) => ({ ...v, _side: "after", _ts: toTs(v) })),
+      ...(votesBefore || []).map((v) => ({
+        ...v,
+        _side: "before",
+        _ts: toTs(v),
+      })),
+      ...(votesAfter || []).map((v) => ({
+        ...v,
+        _side: "after",
+        _ts: toTs(v),
+      })),
     ].sort((a, b) => a._ts - b._ts);
 
     const beforePts = [];
@@ -257,7 +275,8 @@ export default class extends Controller {
         eventIndex = i;
       }
     }
-    if (eventIndex === -1) eventIndex = beforePts.length || Math.floor(all.length / 2);
+    if (eventIndex === -1)
+      eventIndex = beforePts.length || Math.floor(all.length / 2);
 
     const eventLinePlugin = {
       id: "eventLine",
@@ -349,7 +368,10 @@ export default class extends Controller {
   }
 
   renderVotes(containerId, votesBefore, votesAfter) {
-    const votesId = containerId.indexOf("blessed") !== -1 ? "#blessed-votes" : "#cursed-votes";
+    const votesId =
+      containerId.indexOf("blessed") !== -1
+        ? "#blessed-votes"
+        : "#cursed-votes";
     const root = this.element.querySelector(votesId);
     if (!root) return;
     const content = root.querySelector(".verdict-votes__content") || root;
@@ -378,7 +400,8 @@ export default class extends Controller {
       list.forEach((v) => {
         const tr = document.createElement("tr");
         const reasonFull = (v.reason || "").toString();
-        const reason = reasonFull.length > 160 ? reasonFull.slice(0, 160) + "…" : reasonFull;
+        const reason =
+          reasonFull.length > 160 ? reasonFull.slice(0, 160) + "…" : reasonFull;
         const cells = [
           v.at || "",
           reason,
