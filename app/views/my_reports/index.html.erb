@@ -41,11 +41,13 @@
   <% else %>
     <div class="my-reports__list">
       <% @reports.each do |report| %>
+        <% reason_class = report.reason.to_s.parameterize(separator: "_") %>
+        <% status_class = report.status.to_s.parameterize(separator: "_") %>
         <div class="my-reports__item">
           <div class="my-reports__item-header">
             <span class="my-reports__item-id">#<%= report.id %></span>
-            <span class="my-reports__reason my-reports__reason--<%= report.reason %>"><%= report.reason.titleize %></span>
-            <span class="my-reports__status my-reports__status--<%= report.status %>"><%= report.status.titleize %></span>
+            <span class="my-reports__reason my-reports__reason--<%= reason_class %>"><%= report.reason.titleize %></span>
+            <span class="my-reports__status my-reports__status--<%= status_class %>"><%= report.status.titleize %></span>
           </div>
 
           <div class="my-reports__item-body">
