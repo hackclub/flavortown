@@ -30,5 +30,4 @@ class UserProfilesController < ApplicationController
   def profile_params
     params.require(:user_profile).permit(:bio, :custom_css)
   end
-
 end

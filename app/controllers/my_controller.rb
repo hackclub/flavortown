@@ -67,5 +67,4 @@ class MyController < ApplicationController
     Rails.logger.error("Error dismissing thing: #{e.message}")
     head :internal_server_error
   end
-
 end

@@ -25,5 +25,4 @@ class AchievementsController < ApplicationController
       total: countable.count
     }
   end
-
 end

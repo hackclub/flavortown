@@ -22,5 +22,4 @@ class ShopSuggestionsController < ApplicationController
   def suggestion_params
     params.require(:shop_suggestion).permit(:item, :explanation, :link)
   end
-
 end

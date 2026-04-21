@@ -277,5 +277,4 @@ class ShopController < ApplicationController
 
     "US"
   end
-
 end
