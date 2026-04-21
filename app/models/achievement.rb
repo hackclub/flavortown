@@ -404,7 +404,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
     new(
       slug: :sidequest_haunted,
       name: "Sidequest: Haunted",
-      description: "Shipped a horror or mystery project for the Haunted sidequest!",
+      description: "Shipped a scary project for the Haunted sidequest!",
       icon: "ghost",
       earned_check: ->(user) {
         SidequestEntry.approved
