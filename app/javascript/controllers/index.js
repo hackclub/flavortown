@@ -61,6 +61,9 @@ application.register("hello", HelloController);
 import JsonHighlightController from "./json_highlight_controller";
 application.register("json-highlight", JsonHighlightController);
 
+import KernelTerminalController from "./kernel_terminal_controller";
+application.register("kernel-terminal", KernelTerminalController);
+
 import KitchenDialogueController from "./kitchen_dialogue_controller";
 application.register("kitchen-dialogue", KitchenDialogueController);
 
@@ -102,6 +105,9 @@ application.register("project-form", ProjectFormController);
 
 import ProjectIdeasController from "./project_ideas_controller";
 application.register("project-ideas", ProjectIdeasController);
+
+import PyramidFlavortimeController from "./pyramid_flavortime_controller";
+application.register("pyramid-flavortime", PyramidFlavortimeController);
 
 import RadioOptionController from "./radio_option_controller";
 application.register("radio-option", RadioOptionController);

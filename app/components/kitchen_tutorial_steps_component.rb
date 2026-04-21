@@ -75,6 +75,13 @@ class KitchenTutorialStepsComponent < ApplicationComponent
       div(class: "state-card__description") { step.description }
 
       render_cta(step, completed, deps_ok, verb)
+
+      if step.slug == :setup_hackatime && !completed
+        p(class: "state-card__fairplay") do
+          plain "By continuing you agree to the "
+          a(href: "https://fraud.hackclub.com/fairplay", target: "_blank") { "fair play policy" }
+        end
+      end
     end
   end
 
