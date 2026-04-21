@@ -6,6 +6,7 @@ module Sidequest::Callbacks
       def on_approve(entry)
         user = entry.project_owner
         return unless user
+
         user.award_achievement!(:sidequest_chesster)
         SendSlackDmJob.perform_later(
           user.id,
@@ -18,6 +19,7 @@ module Sidequest::Callbacks
       def on_reject(entry)
         user = entry.project_owner
         return unless user
+
         SendSlackDmJob.perform_later(
           user.id,
           nil,
