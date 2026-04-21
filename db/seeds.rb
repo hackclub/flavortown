@@ -87,6 +87,7 @@ end
 Sidequest.find_or_create_by!(slug: "kernel") do |sq|
   sq.title = "Kernel"
   sq.description = "Ship something that runs through commands like a tool, system or interactive terminal experience. Include a working demo and a README that explains the commands."
+  sq.expires_at = Date.new(2026, 4, 30)
 end
 
 Sidequest.find_or_create_by!(slug: "borked_ui_jam") do |sq|
