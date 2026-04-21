@@ -10,7 +10,7 @@ json.devlog_seconds_today @user.devlog_seconds_today
 if @user.leaderboard_optin?
     json.cookies @user.cached_balance
 
-    json.balance_history @user.ledger_entries.order(created_at: :desc) do |entry|
+    json.balance_history @user.ledger_entries.sort_by(&:created_at).reverse do |entry|
         json.amount entry.amount
         json.source_type entry.source_type
         json.created_at entry.created_at
