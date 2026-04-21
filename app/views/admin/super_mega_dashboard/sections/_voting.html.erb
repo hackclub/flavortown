@@ -86,6 +86,17 @@
   <%= render layout: "shared/modal", locals: { id: "blessed-list-modal", title: "Blessed Users", class_name: "modal--wide" } do %>
     <div class="verdict-modal" id="blessed-modal">
       <div class="verdict-modal__list">
+        <div class="form-check" style="margin-bottom: 8px;">
+          <label class="form-check__label">
+            <input type="checkbox"
+                   class="form-check__input"
+                   id="blessed-after-filter"
+                   checked
+                   data-action="change->voting-dash#onAfterFilterChange"
+                   data-voting-dash-verdict-param="blessed">
+            Has voted after
+          </label>
+        </div>
         <% if @current_blessed_users.blank? %>
           <p class="fraud-stats-error">No blessed users at the moment.</p>
         <% else %>
@@ -135,6 +146,17 @@
   <%= render layout: "shared/modal", locals: { id: "cursed-list-modal", title: "Cursed Users", class_name: "modal--wide" } do %>
     <div class="verdict-modal" id="cursed-modal">
       <div class="verdict-modal__list">
+        <div class="form-check" style="margin-bottom: 8px;">
+          <label class="form-check__label">
+            <input type="checkbox"
+                   class="form-check__input"
+                   id="cursed-after-filter"
+                   checked
+                   data-action="change->voting-dash#onAfterFilterChange"
+                   data-voting-dash-verdict-param="cursed">
+            Has voted after
+          </label>
+        </div>
         <% if @current_cursed_users.blank? %>
           <p class="fraud-stats-error">No cursed users at the moment.</p>
         <% else %>
