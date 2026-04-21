@@ -54,14 +54,18 @@ export default class extends Controller {
     );
     const onlyHasAfter = checkbox ? !!checkbox.checked : false;
 
-    const items = Array.from(list.querySelectorAll("li.verdict-user-list__item"));
+    const items = Array.from(
+      list.querySelectorAll("li.verdict-user-list__item"),
+    );
     items.forEach((li) => {
       const btn = li.querySelector("button.verdict-user-list__btn");
       if (!btn) return;
       let show = true;
       if (onlyHasAfter) {
         try {
-          const after = JSON.parse(btn.getAttribute("data-votes-after") || "[]");
+          const after = JSON.parse(
+            btn.getAttribute("data-votes-after") || "[]",
+          );
           show = Array.isArray(after) && after.length > 0;
         } catch (e) {
           show = false;
@@ -70,7 +74,9 @@ export default class extends Controller {
       li.style.display = show ? "" : "none";
     });
 
-    const active = list.querySelector("button.verdict-user-list__btn.is-active");
+    const active = list.querySelector(
+      "button.verdict-user-list__btn.is-active",
+    );
     if (active) {
       const li = active.closest("li");
       if (li && li.style.display === "none") {
