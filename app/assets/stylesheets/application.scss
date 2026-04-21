@@ -77,5 +77,6 @@
 @use "pages/sidequests/lockin" as sidequests_lockin;
 @use "pages/sidequests/kernel" as sidequests_kernel;
 @use "pages/errors/not_authorized";
+@use "pages/reports/my_reports";
 @use "pages/admin/_super_mega_dashboard";
 @use "pages/admin/_voting_dashboard";
