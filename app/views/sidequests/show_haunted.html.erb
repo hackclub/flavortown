@@ -1,0 +1,456 @@
+<%# app/views/sidequests/show_haunted.html.erb %>
+<% content_for :title, @sidequest.title %>
+<% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
+<% content_for :og_image, og_image_url('sidequests', format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+
+<style>
+  .haunted-page {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 18% 18%, rgba(182, 79, 255, 0.22), transparent 22%),
+      radial-gradient(circle at 78% 12%, rgba(72, 215, 255, 0.12), transparent 18%),
+      radial-gradient(circle at 50% 55%, rgba(255, 255, 255, 0.03), transparent 34%),
+      linear-gradient(180deg, #140e1e 0%, #07060b 100%);
+    color: white;
+  }
+
+  .haunted-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 2px,
+        transparent 4px
+      );
+    z-index: 5;
+    opacity: 0.22;
+    mix-blend-mode: screen;
+  }
+
+  .haunted-page::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 240px rgba(0, 0, 0, 0.9);
+    z-index: 6;
+  }
+
+  .haunted-wrap {
+    position: relative;
+    z-index: 10;
+  }
+
+  .haunted-hero {
+    min-height: 42vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem 1rem 1rem;
+  }
+
+  .haunted-title-wrap {
+    display: inline-block;
+    position: relative;
+    isolation: isolate;
+  }
+
+  .haunted-title-wrap {
+  display: inline-block;
+  position: relative;
+  isolation: isolate;
+}
+
+.haunted-title {
+  position: relative;
+  margin: 0;
+  color: #f4f1ff;
+  font-size: clamp(3.4rem, 8vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: 0.03em;
+  text-shadow: 0 0 22px rgba(176, 94, 255, 0.14);
+  animation: haunted-title-flicker 3.2s infinite;
+}
+
+.haunted-title::before,
+.haunted-title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.95;
+  mix-blend-mode: screen;
+}
+
+.haunted-title::before {
+  color: #ff2d6f;
+  transform: translate(-4px, 0);
+  animation: haunted-glitch-a 0.8s infinite linear alternate-reverse;
+}
+
+.haunted-title::after {
+  color: #38d7ff;
+  transform: translate(4px, 0);
+  animation: haunted-glitch-b 0.65s infinite linear alternate-reverse;
+}
+
+@keyframes haunted-title-flicker {
+  0%, 88%, 100% { filter: brightness(1) contrast(1); transform: translate(0, 0); }
+  89% { filter: brightness(1.25) contrast(1.1); }
+  90% { filter: brightness(0.72) contrast(1.25); }
+  91% { filter: brightness(1.15) contrast(1.05); }
+  92% { filter: brightness(0.85) contrast(1.2); }
+  93% { filter: brightness(1.22) contrast(1.08); }
+}
+
+@keyframes haunted-glitch-a {
+  0% { clip-path: inset(0 0 72% 0); transform: translate(-5px, -1px) skewX(-8deg); }
+  20% { clip-path: inset(10% 0 48% 0); transform: translate(-8px, 0) skewX(6deg); }
+  40% { clip-path: inset(4% 0 62% 0); transform: translate(-2px, -2px) skewX(-3deg); }
+  60% { clip-path: inset(18% 0 32% 0); transform: translate(-10px, 1px) skewX(10deg); }
+  80% { clip-path: inset(7% 0 56% 0); transform: translate(-3px, 0) skewX(-5deg); }
+  100% { clip-path: inset(14% 0 42% 0); transform: translate(-7px, -1px) skewX(8deg); }
+}
+
+@keyframes haunted-glitch-b {
+  0% { clip-path: inset(42% 0 0 0); transform: translate(5px, 1px) skewX(8deg); }
+  20% { clip-path: inset(56% 0 0 0); transform: translate(8px, 0) skewX(-6deg); }
+  40% { clip-path: inset(30% 0 0 0); transform: translate(2px, 2px) skewX(3deg); }
+  60% { clip-path: inset(58% 0 0 0); transform: translate(10px, -1px) skewX(-10deg); }
+  80% { clip-path: inset(46% 0 0 0); transform: translate(3px, 0) skewX(5deg); }
+  100% { clip-path: inset(34% 0 0 0); transform: translate(7px, 1px) skewX(-8deg); }
+}
+
+  .haunted-subtitle {
+    max-width: 52rem;
+    margin: 1rem auto 0;
+    color: rgba(240, 236, 255, 0.82);
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    line-height: 1.8;
+    text-shadow: 0 0 18px rgba(0, 0, 0, 0.35);
+  }
+
+  .haunted-section {
+    width: min(1120px, calc(100% - 2rem));
+    margin: 0 auto 1.75rem;
+    padding: 1.25rem;
+    border-radius: 1.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(18, 16, 30, 0.44);
+    backdrop-filter: blur(18px) saturate(130%);
+    -webkit-backdrop-filter: blur(18px) saturate(130%);
+    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.38);
+  }
+
+  .haunted-section--tab {
+    padding: 0.9rem;
+  }
+
+  .haunted-section-title {
+    margin: 0 0 0.95rem;
+    color: #f8f1d8;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-shadow: 0 0 14px rgba(126, 66, 255, 0.18);
+  }
+
+  .haunted-note {
+    margin-top: -0.35rem;
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 0.9rem;
+  }
+
+  .haunted-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .haunted-slot {
+    min-height: 9.5rem;
+    padding: 1rem;
+    border-radius: 1.15rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(14, 12, 22, 0.45);
+    backdrop-filter: blur(18px) saturate(135%);
+    -webkit-backdrop-filter: blur(18px) saturate(135%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .rgb-text {
+    color: #f8f8f8;
+    text-shadow:
+      1px 0 0 rgba(255, 0, 76, 0.6),
+      -1px 0 0 rgba(0, 255, 255, 0.45),
+      0 1px 0 rgba(0, 150, 255, 0.3);
+    animation: rgb-shift 1.7s linear infinite;
+  }
+
+  @keyframes rgb-shift {
+    0% {
+      text-shadow:
+        1px 0 0 rgba(255, 0, 76, 0.6),
+        -1px 0 0 rgba(0, 255, 255, 0.45),
+        0 1px 0 rgba(0, 150, 255, 0.3);
+    }
+    25% {
+      text-shadow:
+        0 1px 0 rgba(255, 0, 76, 0.6),
+        1px 0 0 rgba(0, 255, 255, 0.45),
+        -1px -1px 0 rgba(0, 150, 255, 0.3);
+    }
+    50% {
+      text-shadow:
+        -1px 0 0 rgba(255, 0, 76, 0.6),
+        1px 1px 0 rgba(0, 255, 255, 0.45),
+        0 -1px 0 rgba(0, 150, 255, 0.3);
+    }
+    75% {
+      text-shadow:
+        1px 1px 0 rgba(255, 0, 76, 0.6),
+        0 -1px 0 rgba(0, 255, 255, 0.45),
+        -1px 0 0 rgba(0, 150, 255, 0.3);
+    }
+    100% {
+      text-shadow:
+        1px 0 0 rgba(255, 0, 76, 0.6),
+        -1px 0 0 rgba(0, 255, 255, 0.45),
+        0 1px 0 rgba(0, 150, 255, 0.3);
+    }
+  }
+
+  .haunted-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.85rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .haunted-placeholder {
+    min-height: 4.7rem;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.98rem;
+    line-height: 1.65;
+  }
+
+  .haunted-faq-item {
+    padding: 1rem 1rem 1.1rem;
+    border-radius: 1.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(12, 10, 18, 0.56);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+  }
+
+  .haunted-faq-q {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.02rem;
+    font-weight: 800;
+  }
+
+  .haunted-faq-a {
+    margin-top: 0.55rem;
+    color: rgba(255, 255, 255, 0.78);
+    line-height: 1.75;
+  }
+
+  .haunted-reward {
+    display: grid;
+    gap: 1rem;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .haunted-box-link {
+    display: block;
+    width: min(520px, 100%);
+    transition: transform 180ms ease, filter 180ms ease;
+    filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.48));
+  }
+
+  .haunted-box-link:hover {
+    transform: translateY(-2px) scale(1.01);
+    filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.58));
+  }
+
+  .haunted-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.9rem 1.2rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(18, 16, 30, 0.72);
+    color: rgba(255, 255, 255, 0.88);
+    text-decoration: none;
+    transition: transform 160ms ease, background 160ms ease;
+  }
+
+  .haunted-back:hover {
+    transform: translateY(-1px);
+    background: rgba(32, 28, 45, 0.82);
+  }
+
+  @media (max-width: 768px) {
+    .haunted-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .haunted-hero {
+      min-height: 34vh;
+      padding-top: 1.4rem;
+    }
+
+    .haunted-section {
+      width: calc(100% - 1rem);
+      padding: 1rem;
+    }
+  }
+</style>
+
+
+
+<div class="haunted-page sidequest-show sidequest-show--haunted">
+  <div class="haunted-wrap">
+    <section class="haunted-hero">
+      <div>
+        <div class="haunted-title-wrap">
+          <h1 class="haunted-title glitch" data-text="Haunted">Haunted</h1>
+        </div>
+        <p class="haunted-subtitle">
+          Build horror or mysterious projects, win a mystery box.
+        </p>
+      </div>
+    </section>
+
+    <section class="haunted-section haunted-section--tab">
+      <h2 class="haunted-section-title">Requirements</h2>
+      <p class="haunted-note">You must follow these requirements to submit your project successfully!</p>
+      <div class="haunted-grid">
+  <div class="haunted-slot">
+    <span class="haunted-label">Requirement 1</span>
+    <div class="haunted-placeholder rgb-text">
+      The project MUST be horror/mystery themed. Make sure the theme of your project uses any genre under the "horror-umbrella"(for genre details, pls search it up)
+    </div>
+  </div>
+  <div class="haunted-slot">
+    <span class="haunted-label">Requirement 2</span>
+    <div class="haunted-placeholder rgb-text">
+      It should be a quality submission that shows effort and creativity! The project must be functional and interactive.
+    </div>
+  </div>
+  </div>
+   </div>
+    </section>
+
+    <section class="haunted-section">
+      <h2 class="haunted-section-title">FAQ</h2>
+      <div class="haunted-grid">
+        <div class="haunted-faq-item">
+          <h3 class="haunted-faq-q">What is this?</h3>
+          <p class="haunted-faq-a">
+            Haunted is a sidequest for anyone who likes building spooky, eerie, or horror-themed projects. Submit a horror themed project,
+            get access to buy a Mystery Box from the shop an gamble all your currency away for a chance to win something cool!
+          </p>
+        </div>
+        <div class="haunted-faq-item">
+          <h3 class="haunted-faq-q">What counts as a valid project?</h3>
+          <p class="haunted-faq-a">
+            A project that matches a dark theme; be it horror, mystery, or just plain weird. It should have a clear concept and show effort in execution. The more it gives off those spooky vibes, the better!
+            You can submit anything - a website, a game, a visual novel or anything that matches the theme.
+          </p>
+        </div>
+        <div class="haunted-faq-item">
+          <h3 class="haunted-faq-q">Can I work on one project and ship multiple times?</h3>
+          <p class="haunted-faq-a">
+            Yes. You can keep iterating and ship improved versions as long as each submission is meaningful.
+          </p>
+        </div>
+        <div class="haunted-faq-item">
+          <h3 class="haunted-faq-q">How do I sign up?</h3>
+          <p class="haunted-faq-a">
+            When submitting a project, just select "Haunted" as the sidequest you're submitting to. You can submit as many projects as you want, but only one will count for the reward.
+          </p>
+        </div>
+        <div class="haunted-faq-item" style="grid-column: 1 / -1;">
+          <h3 class="haunted-faq-q">What is the reward?</h3>
+          <p class="haunted-faq-a">
+            Custom sticker and most importantly, access to buy a Mystery Box from the Flavortown shop that lets you roll your chances on getting something at random from the shop.
+            Once eligible, you can gamble your luck by purchasing the Mystery Box over and over. Let's see how good your odds are at winning something cool!
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="haunted-section haunted-reward">
+      <h2 class="haunted-section-title">Your reward: A Mystery Box!</h2>
+      <p class="haunted-note">Submit a project to the sidequest to get access to buy one!</p>
+
+      <a
+        class="haunted-box-link"
+        href="https://flavortown.hackclub.com/shop"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Open the Flavortown shop"
+      >
+      </a>
+    </section>
+    <audio id="haunted-bgm" preload="auto" loop>
+    <source src="<%= asset_path('sidequests/faqmusic.mp3') %>" type="audio/mpeg">
+    </audio>
+    <div class="pb-12 text-center">
+      <%= link_to "Back to Sidequests", sidequests_path, class: "haunted-back" %>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const title = document.getElementById("haunted-title");
+  if (title) {
+    const cycle = () => {
+      const intensity = Math.random();
+      title.style.filter = intensity > 0.82 ? "brightness(0.92) contrast(1.14)" : "none";
+      title.style.transform = intensity > 0.84
+        ? `translate(${(Math.random() * 4 - 2).toFixed(1)}px, ${(Math.random() * 4 - 2).toFixed(1)}px)`
+        : "translate(0, 0)";
+    };
+
+    setInterval(cycle, 2300);
+    cycle();
+  }
+
+  const bgm = document.getElementById("haunted-bgm");
+  if (!bgm) return;
+  bgm.volume = 0.1;
+  const tryPlay = () => {
+    bgm.play().catch(() => {});
+  };
+
+  tryPlay();
+  const unlockAudio = () => {
+    tryPlay();
+    window.removeEventListener("click", unlockAudio);
+    window.removeEventListener("keydown", unlockAudio);
+    window.removeEventListener("touchstart", unlockAudio);
+  };
+  window.addEventListener("click", unlockAudio, { once: true });
+  window.addEventListener("keydown", unlockAudio, { once: true });
+  window.addEventListener("touchstart", unlockAudio, { once: true });
+})();
+</script>
