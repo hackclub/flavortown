@@ -4,7 +4,7 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def index?
-    user.admin? || user.fraud_dept? || user.sidequest_reviewer?
+    user.admin? || user.fraud_dept? || user.sidequest_reviewer? || user.shop_manager?
   end
 
   def access_blazer?
@@ -37,6 +37,14 @@ class AdminPolicy < ApplicationPolicy
 
   def manage_shop?
     user.admin?
+  end
+
+  def manage_draft_shop_items?
+    user.admin? || user.shop_manager?
+  end
+
+  def view_shop_orders_no_pii?
+    user.admin? || user.fraud_dept? || user.shop_manager?
   end
 
   def access_audit_logs?
@@ -100,6 +108,10 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def access_vote_spam_dashboard?
+    user.admin? || user.fraud_dept?
+  end
+
+  def access_vote_quality_dashboard?
     user.admin? || user.fraud_dept?
   end
 

@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: shop_orders
+# Database name: primary
 #
 #  id                                 :bigint           not null, primary key
 #  aasm_state                         :string
@@ -90,7 +91,6 @@ class ShopOrder < ApplicationRecord
   validate :check_stock, on: :create
   validate :check_ship_requirement, on: :create
   validate :check_achievement_requirement, on: :create
-  validate :check_sidequest_requirement, on: :create
 
   validates :internal_rejection_reason, presence: true, if: :rejected?
   validates :fraud_related_project_id, presence: true, if: :rejected?
@@ -146,6 +146,9 @@ class ShopOrder < ApplicationRecord
 
     # Fraud dept + fulfillment person can see addresses
     return true if viewer.fraud_dept? && viewer.fulfillment_person?
+
+    # this makes it so sellers for items can see addresses for their items
+    return true if shop_item.user_id == viewer.id && shop_item.type == "ShopItem::HackClubberItem"
 
     false
   end
@@ -313,9 +316,9 @@ class ShopOrder < ApplicationRecord
     return unless shop_item
     return if frozen_item_price.present?
 
-    # Use price_for_region which applies sale discounts and regional pricing
+    # Use price_for_region_and_user which applies sale, achievement, and regional pricing
     order_region = region.presence || Shop::Regionalizable.country_to_region(frozen_address&.dig("country"))
-    self.frozen_item_price = shop_item.price_for_region(order_region || "XX")
+    self.frozen_item_price = shop_item.price_for_region_and_user(order_region || "XX", user)
   end
 
   def check_one_per_person_ever_limit
@@ -433,22 +436,9 @@ class ShopOrder < ApplicationRecord
     return unless shop_item&.requires_achievement?
     return if shop_item.meet_achievement_require?(user)
 
-    achievement = Achievement.find(shop_item.requires_achievement.to_sym)
-    errors.add(:base, "You must earn the \"#{achievement.name}\" achievement to purchase this item.")
-  end
-
-  def check_sidequest_requirement
-    return unless shop_item&.requires_sidequest_entry?
-    return if shop_item.meet_sidequest_require?(user)
-
-    if shop_item.sidequest_id.present?
-      sidequest_name = shop_item.sidequest&.title || "this sidequest"
-      qualifier = shop_item.sidequest_approval_required? ? "an approved submission for" : "a submission for"
-      errors.add(:base, "You must have #{qualifier} the \"#{sidequest_name}\" sidequest to purchase this item.")
-    else
-      qualifier = shop_item.sidequest_approval_required? ? "an approved sidequest submission" : "a sidequest submission"
-      errors.add(:base, "You must have #{qualifier} to purchase this item.")
-    end
+    n = shop_item.requires_achievement.map { |s| Achievement.find(s).name }
+    msg = n.size == 1 ? "the \"#{n.first}\" achievement" : "one of the \"#{n.to_sentence(two_words_connector: ' or ', last_word_connector: ', or ')}\" achievements"
+    errors.add(:base, "You must earn #{msg} to purchase this item.")
   end
 
   def create_negative_payout

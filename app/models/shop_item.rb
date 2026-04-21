@@ -1,9 +1,12 @@
 # == Schema Information
 #
 # Table name: shop_items
+# Database name: primary
 #
 #  id                                :bigint           not null, primary key
 #  accessory_tag                     :string
+#  achievement_sale_percentage       :integer
+#  achievement_sale_slugs            :string           default([]), is an Array
 #  agh_contents                      :jsonb
 #  attached_shop_item_ids            :bigint           default([]), is an Array
 #  blocked_countries                 :string           default([]), is an Array
@@ -16,6 +19,7 @@
 #  default_assigned_user_id_us       :bigint
 #  default_assigned_user_id_xx       :bigint
 #  description                       :string
+#  draft                             :boolean          default(FALSE), not null
 #  enabled                           :boolean
 #  enabled_au                        :boolean
 #  enabled_ca                        :boolean
@@ -43,14 +47,12 @@
 #  required_ships_count              :integer          default(1)
 #  required_ships_end_date           :date
 #  required_ships_start_date         :date
-#  requires_achievement              :string
+#  requires_achievement              :string           default([]), is an Array
 #  requires_ship                     :boolean          default(FALSE)
-#  requires_sidequest_entry          :boolean          default(FALSE), not null
 #  requires_verification_call        :boolean          default(FALSE), not null
 #  sale_percentage                   :integer
 #  show_image_in_shop                :boolean          default(FALSE)
 #  show_in_carousel                  :boolean
-#  sidequest_approval_required       :boolean          default(TRUE), not null
 #  site_action                       :integer
 #  source_region                     :string
 #  special                           :boolean
@@ -69,24 +71,25 @@
 #  usd_offset_xx                     :decimal(10, 2)
 #  created_at                        :datetime         not null
 #  updated_at                        :datetime         not null
+#  created_by_user_id                :bigint
 #  default_assigned_user_id          :bigint
-#  sidequest_id                      :bigint
 #  user_id                           :bigint
 #
 # Indexes
 #
+#  index_shop_items_on_created_by_user_id        (created_by_user_id)
 #  index_shop_items_on_default_assigned_user_id  (default_assigned_user_id)
-#  index_shop_items_on_sidequest_id              (sidequest_id)
 #  index_shop_items_on_user_id                   (user_id)
 #
 # Foreign Keys
 #
+#  fk_rails_...  (created_by_user_id => users.id) ON DELETE => nullify
 #  fk_rails_...  (default_assigned_user_id => users.id) ON DELETE => nullify
-#  fk_rails_...  (sidequest_id => sidequests.id)
 #  fk_rails_...  (user_id => users.id)
 #
 class ShopItem < ApplicationRecord
   has_paper_trail
+  self.ignored_columns += %w[requires_sidequest_entry sidequest_id sidequest_approval_required]
 
   include Shop::Regionalizable
 
@@ -94,6 +97,7 @@ class ShopItem < ApplicationRecord
 
   before_validation :fix_blacklist
   before_validation :floor_ticket_cost
+  before_validation :clean_achievement_slug_attrs
 
   after_commit :refresh_carousel_cache, if: :carousel_relevant_change?
   after_commit :invalidate_shop_page_cache
@@ -139,13 +143,15 @@ class ShopItem < ApplicationRecord
 
   scope :shown_in_carousel, -> { where(show_in_carousel: true) }
   scope :manually_fulfilled, -> { where(type: MANUAL_FULFILLMENT_TYPES) }
-  scope :enabled, -> { where(enabled: true).where("shop_items.enabled_until IS NULL OR shop_items.enabled_until > ?", Time.current) }
+  scope :enabled, -> { where(enabled: true, draft: [ nil, false ]).where("shop_items.enabled_until IS NULL OR shop_items.enabled_until > ?", Time.current) }
   scope :listed, -> { where(unlisted: [ nil, false ]) }
   scope :buyable_standalone, -> { where.not(type: "ShopItem::Accessory").or(where(buyable_by_self: true)) }
   scope :recently_added, -> { where(created_at: RECENTLY_ADDED_WINDOW.ago..).order(created_at: :desc) }
+  scope :drafts, -> { where(draft: true) }
+  scope :published, -> { where(draft: [ nil, false ]) }
 
-  belongs_to :sidequest, optional: true
   belongs_to :seller, class_name: "User", foreign_key: :user_id, optional: true
+  belongs_to :created_by, class_name: "User", foreign_key: :created_by_user_id, optional: true
   belongs_to :default_assigned_user, class_name: "User", optional: true
   belongs_to :default_assigned_user_us, class_name: "User", optional: true
   belongs_to :default_assigned_user_eu, class_name: "User", optional: true
@@ -190,6 +196,7 @@ class ShopItem < ApplicationRecord
   validates :required_ships_count, numericality: { only_integer: true, greater_than: 0 }, if: :requires_ship?
   validates :required_ships_start_date, :required_ships_end_date, presence: true, if: :requires_ship?
   validate :is_range_valid, if: :requires_ship?
+  validate :validate_achievement_slug_attrs
 
   has_many :shop_orders, dependent: :restrict_with_error
 
@@ -285,26 +292,39 @@ class ShopItem < ApplicationRecord
     return true unless requires_achievement?
     return false unless user.present?
 
-    user.earned_achievement?(requires_achievement.to_sym)
+    requires_achievement.any? do |ach_slug|
+      user.earned_achievement?(ach_slug.to_sym)
+    end
   end
 
   def requires_achievement?
     requires_achievement.present?
   end
 
-  def meet_sidequest_require?(user)
-    return true unless requires_sidequest_entry?
-    return false unless user.present?
+  def achievement_locked_for?(user)
+    requires_achievement? && !meet_achievement_require?(user)
+  end
 
-    allowed_states = sidequest_approval_required? ? [ "approved" ] : [ "pending", "approved" ]
+  def required_achievement_objects
+    requires_achievement.map { |slug| Achievement.find(slug) }
+  end
 
-    entries = SidequestEntry.joins(project: :memberships)
-      .where(memberships: { user_id: user.id, role: "owner" })
-      .where(aasm_state: allowed_states)
+  def achievement_sale?
+    achievement_sale_percentage.present? && achievement_sale_percentage > 0 && achievement_sale_slugs.present?
+  end
 
-    entries = entries.where(sidequest_id: sidequest_id) if sidequest_id.present?
+  def achievement_sale_for?(user)
+    return false unless achievement_sale? && user.present?
+    achievement_sale_slugs.any? { |s| user.earned_achievement?(s.to_sym) }
+  end
 
-    entries.exists?
+  def effective_sale_percentage_for(user)
+    return sale_percentage.to_i if !achievement_sale? || !achievement_sale_for?(user)
+    (100 - ((100 - sale_percentage.to_i) * (100 - achievement_sale_percentage) / 100.0)).round
+  end
+
+  def achievement_sale_objects
+    achievement_sale_slugs.map { |s| Achievement.find(s) }
   end
 
   private
@@ -336,5 +356,23 @@ class ShopItem < ApplicationRecord
 
   def floor_ticket_cost
     self.ticket_cost = ticket_cost.floor if ticket_cost.present?
+  end
+
+  ACHIEVEMENT_SLUG_ATTRS = %i[requires_achievement achievement_sale_slugs].freeze
+
+  def clean_achievement_slug_attrs
+    ACHIEVEMENT_SLUG_ATTRS.each do |attr|
+      v = send(attr)
+      send("#{attr}=", v.reject(&:blank?)) if v.is_a?(Array)
+    end
+  end
+
+  def validate_achievement_slug_attrs
+    ACHIEVEMENT_SLUG_ATTRS.each do |attr|
+      v = send(attr)
+      next unless v.present?
+      bad = v.reject { |s| Achievement.all_slugs.include?(s.to_sym) }
+      errors.add(attr, "contains invalid slugs: #{bad.join(', ')}") if bad.any?
+    end
   end
 end

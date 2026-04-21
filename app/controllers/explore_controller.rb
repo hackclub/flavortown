@@ -3,8 +3,6 @@ class ExploreController < ApplicationController
     scope = Post.of_devlogs(join: true)
                 .where(post_devlogs: { tutorial: false })
                 .where.not(user_id: current_user&.id)
-                .joins(:user)
-                .where(users: { shadow_banned: false })
                 .includes(:user, :project)
                 .preload(:postable)
 
@@ -40,13 +38,15 @@ class ExploreController < ApplicationController
   end
 
   def gallery
-    scope = Project.includes(banner_attachment: :blob)
+    scope = Project.with_banner_priority
                    .where(tutorial: false)
                    .excluding_member(current_user)
                    .excluding_shadow_banned
 
+    scope = scope.fire if params[:sort] == "well-cooked"
+
     if params[:sort] == "following" && current_user
-      scope = scope.where(id: current_user.project_follows.select(:project_id))
+      scope = scope.where(id: current_user.project_follows.select(:project_id)).order(created_at: :desc)
     elsif params[:sort] == "top"
       scope = scope.order(devlogs_count: :desc)
     else

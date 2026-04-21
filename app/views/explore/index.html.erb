@@ -3,6 +3,8 @@
 <% content_for :og_description, "Discover projects and devlogs from teen coders on Flavortown." %>
 <% content_for :og_image, og_image_url('explore', format: :png) %>
 
+<%= render MusicPlayerComponent.new(audio_urls: [audio_path("fireentity - shop.mp3"), audio_path("fireentity - voting.mp3"),audio_path("fireentity - explore.mp3")], default_index: 2) %>
+
 <div class="explore" data-controller="load-more" data-load-more-url-value="<%= explore_index_path %>">
     <%= render HeadingComponent.new(title: "Explore", tone: :blue, size: :full) %>
     <%= render "explore/explore_nav" %>

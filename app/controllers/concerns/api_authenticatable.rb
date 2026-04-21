@@ -4,6 +4,7 @@ module ApiAuthenticatable
   included do
     skip_before_action :verify_authenticity_token
     before_action :authenticate_api_key
+    helper_method :admin_api_user?
   end
 
   private
@@ -26,5 +27,9 @@ module ApiAuthenticatable
 
   def current_api_user
     @current_api_user
+  end
+
+  def admin_api_user?
+    current_api_user&.admin?
   end
 end

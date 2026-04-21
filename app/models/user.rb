@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: users
+# Database name: primary
 #
 #  id                                      :bigint           not null, primary key
 #  api_key                                 :string
@@ -26,6 +27,7 @@
 #  magic_link_token                        :string
 #  magic_link_token_expires_at             :datetime
 #  manual_ysws_override                    :boolean
+#  marked_sus_by                           :string           default([]), not null, is an Array
 #  metrics_synced_at                       :datetime
 #  projects_count                          :integer
 #  projects_shipped_count                  :integer
@@ -37,9 +39,6 @@
 #  send_notifications_for_new_followers    :boolean          default(TRUE), not null
 #  send_votes_to_slack                     :boolean          default(FALSE), not null
 #  session_token                           :string
-#  shadow_banned                           :boolean          default(FALSE), not null
-#  shadow_banned_at                        :datetime
-#  shadow_banned_reason                    :text
 #  shop_region                             :enum
 #  slack_balance_notifications             :boolean          default(FALSE), not null
 #  slack_messages_updated_at               :datetime
@@ -73,10 +72,11 @@ class User < ApplicationRecord
 
   has_recommended :projects # you might like these projects...
 
-  DISMISSIBLE_THINGS = %w[flagship_ad shop_suggestion_box willsbuilds_banner ai_coding_time_ignored_card].freeze
+  DISMISSIBLE_THINGS = %w[shop_suggestion_box ai_coding_time_ignored_card].freeze
 
   has_many :identities, class_name: "User::Identity", dependent: :destroy
   has_many :achievements, class_name: "User::Achievement", dependent: :destroy
+  has_one :vote_verdict, class_name: "User::VoteVerdict", dependent: :destroy
   has_many :memberships, class_name:  "Project::Membership", dependent: :destroy
   has_many :projects, through: :memberships
   has_many :hackatime_projects, class_name: "User::HackatimeProject", dependent: :destroy
@@ -84,6 +84,7 @@ class User < ApplicationRecord
   has_many :shop_card_grants, dependent: :destroy
   has_many :votes, dependent: :destroy
   has_many :reports, class_name: "Project::Report", foreign_key: :reporter_id, dependent: :destroy
+  has_many :project_skips, class_name: "Project::Skip", dependent: :destroy
   has_many :likes, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :ledger_entries, dependent: :destroy
@@ -91,6 +92,7 @@ class User < ApplicationRecord
   has_many :project_follows, dependent: :destroy
   has_many :followed_projects, through: :project_follows, source: :project
   has_many :shop_suggestions, dependent: :destroy
+  has_many :sold_items, class_name: "ShopItem::HackClubberItem", foreign_key: :user_id
 
   enum :verification_status, {
     needs_submission: "needs_submission",
@@ -139,6 +141,12 @@ class User < ApplicationRecord
   def valid_club_link? = club_link_uri.present?
 
   def admin? = has_role?(:admin) || has_role?(:super_admin)
+
+  # True if any shipwright/reviewer has flagged this user as suspicious.
+  # Derived from marked_sus_by rather than a boolean field so we retain attribution.
+  def is_sus? = marked_sus_by.present?
+
+  def seller? = ShopItem::HackClubberItem.exists?(user_id: id)
 
   def can_see_deleted_devlogs? = admin? || has_role?(:fraud_dept)
 
@@ -294,7 +302,7 @@ class User < ApplicationRecord
 
   def balance = ledger_entries.sum(:amount)
 
-  def cached_balance = Rails.cache.fetch(balance_cache_key) { balance }
+  def cached_balance = Rails.cache.fetch(balance_cache_key, expires_in: 5.minutes) { balance }
   def balance_cache_key = "user/#{id}/sidebar_balance"
   def invalidate_balance_cache! = Rails.cache.delete(balance_cache_key)
 
@@ -332,16 +340,6 @@ class User < ApplicationRecord
 
   def unban!
     update!(banned: false, banned_at: nil, banned_reason: nil)
-  end
-
-  def shadow_ban!(reason: nil)
-    Rails.logger.warn("DEPRECATED: User#shadow_ban! is deprecated. Use project shadow banning instead.")
-    update!(shadow_banned: true, shadow_banned_at: Time.current, shadow_banned_reason: reason)
-  end
-
-  def unshadow_ban!
-    Rails.logger.warn("DEPRECATED: User#unshadow_ban! is deprecated. Use project shadow banning instead.")
-    update!(shadow_banned: false, shadow_banned_at: nil, shadow_banned_reason: nil)
   end
 
   def cancel_shop_order(order_id)

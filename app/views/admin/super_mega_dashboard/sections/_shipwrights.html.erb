@@ -78,7 +78,18 @@
   </div>
 
   <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-stats">
-    <h3>Review Stats</h3>
+    <div class="sw-card-title-row">
+      <h3>Review Stats</h3>
+      <span class="sw-vibes-mini__help">
+        <span class="sw-vibes-mini__help-link" tabindex="0">
+          <svg class="sw-vibes-mini__help-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
+            <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="sw-vibes-mini__help-tip" role="tooltip">Live snapshot of the Shipwrights team stats!</span>
+      </span>
+    </div>
     <% if @ship_certs && !@ship_certs[:error] %>
       <div class="sw-stats-grid">
         <div class="sw-stats-grid__section">
@@ -135,7 +146,18 @@
   </div>
 
   <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph">
-    <h3>Avg Queue Time</h3>
+    <div class="sw-card-title-row">
+      <h3>Avg Queue Time</h3>
+      <span class="sw-vibes-mini__help">
+        <span class="sw-vibes-mini__help-link" tabindex="0">
+          <svg class="sw-vibes-mini__help-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
+            <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="sw-vibes-mini__help-tip" role="tooltip">Average time (in hours) a submission waited in the review queue before a decision was made, plotted over the past 30 days.</span>
+      </span>
+    </div>
     <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:avg_queue_time_history].present? %>
       <div class="sw-queue-graph">
         <canvas id="swQueueTimeChart" height="200"></canvas>
@@ -146,7 +168,18 @@
   </div>
 
   <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph">
-    <h3>Reviews &amp; Ships Per Day</h3>
+    <div class="sw-card-title-row">
+      <h3>Reviews &amp; Ships Per Day</h3>
+      <span class="sw-vibes-mini__help">
+        <span class="sw-vibes-mini__help-link" tabindex="0">
+          <svg class="sw-vibes-mini__help-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
+            <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="sw-vibes-mini__help-tip" role="tooltip">Daily review decisions completed alongside new ship submissions received over the past 30 days.</span>
+      </span>
+    </div>
     <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:reviews_per_day].present? %>
       <div class="sw-queue-graph">
         <div id="swReviewsShipsStream" class="d3-stream-container"></div>
@@ -156,13 +189,24 @@
     <% end %>
   </div>
 
-  <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:reviews_per_day].present? && @ship_certs[:ships_per_day].present? %>
+  <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:approved_per_day].present? && @ship_certs[:rejected_per_day].present? %>
     <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-graph">
-      <h3>Delta reviews</h3>
-      <div class="sw-queue-graph">
-        <canvas id="swReviewsShipsDeltaChart" height="200"></canvas>
+      <div class="sw-card-title-row">
+        <h3>Approved vs Rejected / Day</h3>
+        <span class="sw-vibes-mini__help">
+          <span class="sw-vibes-mini__help-link" tabindex="0">
+            <svg class="sw-vibes-mini__help-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
+            <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="sw-vibes-mini__help-tip" role="tooltip">Daily approved and rejected decisions over 30 days. The dashed grey line is total decisions. The ratio chart below shows how the approval rate fluctuated day-to-day.</span>
+        </span>
       </div>
-      <p class="sw-graph__hint sw-graph__hint--below">(positive gud, negative bad.)</p>
+      <div class="sw-queue-graph">
+        <div id="swApprovedRejectedChart" class="d3-stream-container"></div>
+      </div>
+      <div id="swApprovalRatioChart" class="d3-stream-container sw-approval-ratio-chart"></div>
     </div>
   <% end %>
 
@@ -173,7 +217,18 @@
       <% if ticket_feedbacks.any? %>
         <a href="#" class="sw-ticket-feedback__all-link" role="button" onclick="event.preventDefault(); document.getElementById('sw-ticket-feedback-all-popup').classList.add('is-open')">All Tickets</a>
       <% end %>
-      <h3>Ticket Feedback NPS</h3>
+      <div class="sw-card-title-row">
+        <h3>Ticket Feedback NPS</h3>
+        <span class="sw-vibes-mini__help">
+          <span class="sw-vibes-mini__help-link" tabindex="0">
+            <svg class="sw-vibes-mini__help-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
+            <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="sw-vibes-mini__help-tip" role="tooltip">Post-review satisfaction ratings submitted by Shipwrights ticket users. Shows weekly trend and recent individual responses (out of 10).</span>
+        </span>
+      </div>
       <% if @ship_certs[:overall_nps_mean].present? %>
         <% nps = @ship_certs[:overall_nps_mean].to_f %>
         <p class="sw-nps__summary"><%= number_with_precision(nps, precision: 2) %> / 10 overall mean</p>
@@ -193,8 +248,8 @@
           <% ticket_feedbacks.first(4).each do |fb| %>
             <li class="sw-ticket-feedback__item">
               <div class="sw-ticket-feedback__meta">
-                    <%= link_to "Ticket ##{fb.ticket_id}", "https://review.hackclub.com/admin/tickets/sw-#{fb.ticket_id.to_s.gsub(/\D/, '')}", class: "sw-ticket-feedback__ticket", target: "_blank", rel: "noopener noreferrer" %>
-                    <span class="sw-ticket-feedback__rating"><%= fb.rating %>/10</span>
+                <%= link_to "Ticket ##{fb.ticket_id}", "https://review.hackclub.com/admin/tickets/sw-#{fb.ticket_id.to_s.gsub(/\D/, '')}", class: "sw-ticket-feedback__ticket", target: "_blank", rel: "noopener noreferrer" %>
+                <span class="sw-ticket-feedback__rating"><%= fb.rating %>/10</span>
                 <time class="sw-ticket-feedback__time" datetime="<%= fb.created_at&.iso8601 %>"><%= fb.created_at&.strftime("%b %d, %Y %H:%M") || "—" %></time>
               </div>
               <% if fb.comment.present? %>
@@ -217,8 +272,8 @@
             <% ticket_feedbacks.each do |fb| %>
               <li class="sw-ticket-feedback__item sw-ticket-feedback__item--full">
                 <div class="sw-ticket-feedback__meta">
-                    <%= link_to "Ticket ##{fb.ticket_id}", "https://review.hackclub.com/admin/tickets/sw-#{fb.ticket_id.to_s.gsub(/\D/, '')}", class: "sw-ticket-feedback__ticket", target: "_blank", rel: "noopener noreferrer" %>
-                    <span class="sw-ticket-feedback__rating"><%= fb.rating %>/10</span>
+                  <%= link_to "Ticket ##{fb.ticket_id}", "https://review.hackclub.com/admin/tickets/sw-#{fb.ticket_id.to_s.gsub(/\D/, '')}", class: "sw-ticket-feedback__ticket", target: "_blank", rel: "noopener noreferrer" %>
+                  <span class="sw-ticket-feedback__rating"><%= fb.rating %>/10</span>
                   <% if fb.created_at.present? %>
                     <time class="sw-ticket-feedback__time" datetime="<%= fb.created_at.iso8601 %>"><%= fb.created_at.strftime("%b %d, %Y %H:%M") %></time>
                   <% else %>
@@ -236,9 +291,96 @@
     <% end %>
   <% end %>
 
+  <% if @ship_certs && !@ship_certs[:error] && @ship_certs[:rejection_reasons_by_day].present? %>
+    <div class="super-mega-dashboard__card super-mega-dashboard__card--full sw-rejection-reasons-card">
+      <div class="sw-card-title-row">
+        <h3>Rejection Reasons / Day</h3>
+        <span class="sw-vibes-mini__help">
+          <span class="sw-vibes-mini__help-link" tabindex="0">
+            <svg class="sw-vibes-mini__help-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
+            <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="sw-vibes-mini__help-tip" role="tooltip">How rejection categories contributed each day over the past 30 days. Areas are stacked; hover to see the daily breakdown per reason.</span>
+        </span>
+      </div>
+      <div id="swRejectionReasonsChart" class="d3-stream-container">
+        <div class="d3-stream-tooltip" id="swRejectionReasonsTip"></div>
+      </div>
+      <div class="d3-stream-legend" id="swRejectionReasonsLegend"></div>
+    </div>
+  <% end %>
+
+  <% if (@sw_make_their_day || []).any? %>
+    <div class="super-mega-dashboard__card super-mega-dashboard__card--full sw-mtd-section">
+      <div class="sw-mtd-header">
+        <h3>Make Their Day</h3>
+        <span class="sw-vibes-mini__help">
+          <span class="sw-vibes-mini__help-link" tabindex="0">
+            <svg class="sw-vibes-mini__help-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
+            <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="sw-vibes-mini__help-tip" role="tooltip">Projects nominated by Shipwrights for being outstanding! <a href="https://review.hackclub.com/admin/make_their_day" target="_blank" rel="noopener noreferrer">review.hackclub.com/admin/make_their_day</a></span>
+        </span>
+        <span class="sw-mtd-count"><%= @sw_make_their_day.size %> project<%= @sw_make_their_day.size == 1 ? "" : "s" %></span>
+      </div>
+      <div class="sw-mtd-carousel-wrap">
+        <button type="button" class="sw-mtd-nav sw-mtd-nav--prev" id="swMtdPrev" aria-label="Previous">&#8249;</button>
+        <div class="sw-mtd-carousel" id="swMtdCarousel">
+          <% @sw_make_their_day.each do |item| %>
+            <div class="sw-mtd-card">
+              <%= link_to project_path(item[:ft_project_id]), class: "sw-mtd-card__thumb-link", target: "_blank", rel: "noopener noreferrer" do %>
+                <% if item[:project]&.banner&.attached? %>
+                  <%= image_tag item[:project].banner.variant(resize_to_fill: [240, 160]), class: "sw-mtd-card__thumb", alt: item[:project].title %>
+                <% else %>
+                  <div class="sw-mtd-card__thumb sw-mtd-card__thumb--placeholder"></div>
+                <% end %>
+              <% end %>
+              <div class="sw-mtd-card__body">
+                <%= link_to (item[:project]&.title.presence || "Project ##{item[:ft_project_id]}"), project_path(item[:ft_project_id]), class: "sw-mtd-card__title#{ item[:project] ? '' : ' sw-mtd-card__title--unknown' }", target: "_blank", rel: "noopener noreferrer" %>
+                <% if item[:user] %>
+                  <%= link_to admin_user_path(item[:user]), class: "sw-mtd-card__submitter" do %>
+                    <%= image_tag item[:user].avatar, class: "sw-mtd-card__avatar", alt: "" %>
+                    <span><%= item[:user].display_name.presence || item[:user].first_name.presence || "User ##{item[:user].id}" %></span>
+                  <% end %>
+                <% elsif item[:ft_user_id].present? %>
+                  <span class="sw-mtd-card__submitter sw-mtd-card__submitter--unlinked">
+                    <span class="sw-mtd-card__avatar sw-mtd-card__avatar--placeholder"></span>
+                    <span>ID: <%= item[:ft_user_id] %></span>
+                  </span>
+                <% else %>
+                  <span class="sw-mtd-card__submitter sw-mtd-card__submitter--unlinked">
+                    <span class="sw-mtd-card__avatar sw-mtd-card__avatar--placeholder"></span>
+                    <span>Anonymous</span>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <button type="button" class="sw-mtd-nav sw-mtd-nav--next" id="swMtdNext" aria-label="Next">&#8250;</button>
+      </div>
+      <div class="sw-mtd-dots" id="swMtdDots"></div>
+    </div>
+  <% end %>
+
   <% if (@sw_metrics_history || []).present? %>
     <div class="super-mega-dashboard__card super-mega-dashboard__card--sw-performance">
-      <h3>Review Performance</h3>
+      <div class="sw-card-title-row">
+        <h3>Review Performance</h3>
+        <span class="sw-vibes-mini__help">
+          <span class="sw-vibes-mini__help-link" tabindex="0">
+            <svg class="sw-vibes-mini__help-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5" />
+            <path d="M12 16.25v-5M12 7.75h.008" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="sw-vibes-mini__help-tip" role="tooltip">Historical snapshots of review performance metrics (avg time, p95, active reviewers) stored from the ship-certs metrics endpoint.</span>
+        </span>
+      </div>
       <p class="sw-graph__hint">Daily snapshots from ship-certs metrics</p>
       <ul class="sw-performance__list">
         <% (@sw_metrics_history || []).first(5).each do |snap| %>
@@ -363,6 +505,8 @@
 <% reviews_ships_data = (@ship_certs && !@ship_certs[:error] && @ship_certs[:reviews_per_day].present?) ? { reviews: @ship_certs[:reviews_per_day], ships: @ship_certs[:ships_per_day] } : nil %>
 <% weekly_nps_hash = (@ship_certs && !@ship_certs[:error] && @ship_certs[:weekly_nps].is_a?(Hash)) ? @ship_certs[:weekly_nps] : {} %>
 <% sw_avg_review_chart = (@sw_metrics_history || []).select { |s| s.recorded_at }.sort_by(&:recorded_at).map { |s| { t: s.recorded_at.iso8601, secs: s.avg_review_secs } } %>
+<% approved_rejected_data = (@ship_certs && !@ship_certs[:error]) ? { approved: @ship_certs[:approved_per_day], rejected: @ship_certs[:rejected_per_day] } : nil %>
+<% rejection_reasons_by_day = (@ship_certs && !@ship_certs[:error]) ? @ship_certs[:rejection_reasons_by_day] : {} %>
 
 <script>
 (function() {
@@ -602,71 +746,6 @@
       }
     }
 
-    var rsDelta = <%= raw (reviews_ships_data || {}).to_json %>;
-    if (rsDelta.reviews && rsDelta.ships) {
-      var dEl = document.getElementById('swReviewsShipsDeltaChart');
-      if (dEl) {
-        var dr = rsDelta.reviews;
-        var ds = rsDelta.ships;
-        var dDates = Object.keys(dr).sort();
-        var dLabels = dDates.map(function(d) {
-          return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        });
-        var dVals = dDates.map(function(d) {
-          return (dr[d] || 0) - (ds[d] || 0);
-        });
-        new Chart(dEl, {
-          type: 'line',
-          data: {
-            labels: dLabels,
-            datasets: [{
-              label: 'Delta reviews',
-              data: dVals,
-              borderWidth: 2,
-              tension: 0.35,
-              fill: {
-                target: 'origin',
-                above: 'rgba(37, 99, 235, 0.08)',
-                below: 'rgba(220, 38, 38, 0.08)'
-              },
-              segment: {
-                borderColor: function(ctx) {
-                  var y0 = ctx.p0.parsed.y;
-                  var y1 = ctx.p1.parsed.y;
-                  if (y0 >= 0 && y1 >= 0) { return 'rgb(37, 99, 235)'; }
-                  if (y0 < 0 && y1 < 0) { return 'rgb(220, 38, 38)'; }
-                  return 'rgb(100, 116, 139)';
-                }
-              },
-              pointRadius: 3,
-              pointBackgroundColor: dVals.map(function(v) {
-                return v >= 0 ? '#2563eb' : '#dc2626';
-              }),
-              pointBorderColor: dVals.map(function(v) {
-                return v >= 0 ? '#1d4ed8' : '#b91c1c';
-              }),
-              pointBorderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 9 } } } },
-            scales: {
-              x: { ticks: { font: { size: 8 }, maxRotation: 45 } },
-              y: {
-                ticks: { precision: 0, font: { size: 8 } },
-                grid: { color: function(ctx) {
-                  if (ctx.tick.value === 0) { return 'rgba(0,0,0,0.18)'; }
-                  return 'rgba(0,0,0,0.06)';
-                } }
-              }
-            }
-          }
-        });
-      }
-    }
-
     var arData = <%= raw sw_avg_review_chart.to_json %>;
     if (arData.length > 1) {
       var arEl = document.getElementById('swAvgReviewSecsChart');
@@ -701,14 +780,6 @@
       }
     }
   });
-
-  function ensureD3(cb) {
-    if (typeof d3 !== 'undefined') { cb(); return; }
-    var s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/d3@7';
-    s.onload = cb;
-    document.head.appendChild(s);
-  }
 
   ensureD3(function() {
     var rsData = <%= raw (reviews_ships_data || {}).to_json %>;
@@ -820,5 +891,458 @@
       });
     }
   });
+
+  ensureD3(function() {
+    var arData = <%= raw (approved_rejected_data || {}).to_json %>;
+    if (!arData.approved || !arData.rejected) return;
+    var container = document.getElementById('swApprovedRejectedChart');
+    if (!container) return;
+
+    var approvedData = arData.approved;
+    var rejectedData = arData.rejected;
+    var dates = Object.keys(approvedData).sort();
+
+    var tableData = dates.map(function(d) {
+      var a = approvedData[d] || 0;
+      var r = rejectedData[d] || 0;
+      return { date: new Date(d + 'T12:00:00'), approved: a, rejected: r, total: a + r };
+    });
+
+    var margin = { top: 10, right: 16, bottom: 30, left: 32 };
+    var rect = container.getBoundingClientRect();
+    var width = (rect.width || 300) - margin.left - margin.right;
+    var height = 200 - margin.top - margin.bottom;
+
+    var svg = d3.select(container)
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    var x = d3.scaleTime()
+      .domain(d3.extent(tableData, function(d) { return d.date; }))
+      .range([0, width]);
+
+    var yMax = d3.max(tableData, function(d) { return d.total; });
+    var y = d3.scaleLinear()
+      .domain([0, yMax || 1])
+      .range([height, 0]);
+
+    var areaApproved = d3.area()
+      .x(function(d) { return x(d.date); })
+      .y0(height)
+      .y1(function(d) { return y(d.approved); })
+      .curve(d3.curveBasis);
+
+    var areaRejected = d3.area()
+      .x(function(d) { return x(d.date); })
+      .y0(height)
+      .y1(function(d) { return y(d.rejected); })
+      .curve(d3.curveBasis);
+
+    var lineApproved = d3.line()
+      .x(function(d) { return x(d.date); })
+      .y(function(d) { return y(d.approved); })
+      .curve(d3.curveBasis);
+
+    var lineRejected = d3.line()
+      .x(function(d) { return x(d.date); })
+      .y(function(d) { return y(d.rejected); })
+      .curve(d3.curveBasis);
+
+    var lineTotal = d3.line()
+      .x(function(d) { return x(d.date); })
+      .y(function(d) { return y(d.total); })
+      .curve(d3.curveBasis);
+
+    svg.append('path')
+      .datum(tableData)
+      .attr('d', areaApproved)
+      .attr('fill', 'rgba(34,197,94,0.15)')
+      .attr('stroke', 'none');
+
+    svg.append('path')
+      .datum(tableData)
+      .attr('d', areaRejected)
+      .attr('fill', 'rgba(239,68,68,0.15)')
+      .attr('stroke', 'none');
+
+    svg.append('path')
+      .datum(tableData)
+      .attr('d', lineTotal)
+      .attr('fill', 'none')
+      .attr('stroke', '#94a3b8')
+      .attr('stroke-width', 1.5)
+      .attr('stroke-dasharray', '4,3');
+
+    svg.append('path')
+      .datum(tableData)
+      .attr('d', lineApproved)
+      .attr('fill', 'none')
+      .attr('stroke', '#22c55e')
+      .attr('stroke-width', 2);
+
+    svg.append('path')
+      .datum(tableData)
+      .attr('d', lineRejected)
+      .attr('fill', 'none')
+      .attr('stroke', '#ef4444')
+      .attr('stroke-width', 2);
+
+    var tooltip = d3.select(container)
+      .append('div')
+      .attr('class', 'd3-stream-tooltip');
+
+    var overlay = svg.append('rect')
+      .attr('width', width)
+      .attr('height', height)
+      .attr('fill', 'none')
+      .attr('pointer-events', 'all');
+
+    var bisect = d3.bisector(function(d) { return d.date; }).left;
+
+    overlay.on('mousemove', function(event) {
+      var pointer = d3.pointer(event, container);
+      var xDate = x.invert(d3.pointer(event, svg.node())[0]);
+      var idx = bisect(tableData, xDate, 1);
+      idx = Math.min(idx, tableData.length - 1);
+      var prev = tableData[Math.max(0, idx - 1)];
+      var cur = tableData[idx];
+      var pt = (xDate - prev.date > cur.date - xDate) ? cur : prev;
+      var dateStr = pt.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+      tooltip
+        .classed('is-visible', true)
+        .html('<strong>' + dateStr + '</strong><br>Total: ' + pt.total + '<br>Approved: ' + pt.approved + '<br>Rejected: ' + pt.rejected)
+        .style('left', (pointer[0] + 12) + 'px')
+        .style('top', (pointer[1] - 52) + 'px');
+    }).on('mouseleave', function() {
+      tooltip.classed('is-visible', false);
+    });
+
+    svg.append('g')
+      .attr('transform', 'translate(0,' + height + ')')
+      .call(d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat('%b %d')))
+      .selectAll('text')
+      .style('font-size', '8px');
+
+    svg.append('g')
+      .call(d3.axisLeft(y).ticks(5).tickFormat(d3.format('d')))
+      .selectAll('text')
+      .style('font-size', '8px');
+
+    var legend = d3.select(container)
+      .append('div')
+      .attr('class', 'd3-stream-legend');
+
+    [['Total', '#94a3b8', '4,3'], ['Approved', '#22c55e', null], ['Rejected', '#ef4444', null]].forEach(function(pair) {
+      var item = legend.append('span');
+      var swatch = item.append('span').attr('class', 'd3-stream-legend__swatch').style('background', pair[1]);
+      if (pair[2]) swatch.style('background', 'repeating-linear-gradient(90deg,' + pair[1] + ' 0,' + pair[1] + ' 4px,transparent 4px,transparent 7px)');
+      item.append('span').text(pair[0]);
+    });
+
+    var ratioContainer = document.getElementById('swApprovalRatioChart');
+    if (ratioContainer) {
+      var ratioData = tableData.filter(function(d) { return d.total > 0; });
+      if (ratioData.length > 1) {
+        var rMargin = { top: 8, right: 16, bottom: 22, left: 36 };
+        var rRect = ratioContainer.getBoundingClientRect();
+        var rWidth = (rRect.width || 300) - rMargin.left - rMargin.right;
+        var rHeight = 70 - rMargin.top - rMargin.bottom;
+
+        var meanRatio = ratioData.reduce(function(s, d) { return s + (d.approved / d.total); }, 0) / ratioData.length * 100;
+        var ratioVals = ratioData.map(function(d) { return (d.approved / d.total) * 100; });
+        var rMin = Math.max(0, d3.min(ratioVals) - 5);
+        var rMax = Math.min(100, d3.max(ratioVals) + 5);
+
+        var rx = d3.scaleTime()
+          .domain(d3.extent(ratioData, function(d) { return d.date; }))
+          .range([0, rWidth]);
+
+        var ry = d3.scaleLinear()
+          .domain([rMin, rMax])
+          .range([rHeight, 0]);
+
+        var rSvg = d3.select(ratioContainer)
+          .append('svg')
+          .attr('width', rWidth + rMargin.left + rMargin.right)
+          .attr('height', rHeight + rMargin.top + rMargin.bottom)
+          .append('g')
+          .attr('transform', 'translate(' + rMargin.left + ',' + rMargin.top + ')');
+
+        rSvg.append('path')
+          .datum(ratioData)
+          .attr('d', d3.area()
+            .x(function(d) { return rx(d.date); })
+            .y0(rHeight)
+            .y1(function(d) { return ry((d.approved / d.total) * 100); })
+            .curve(d3.curveBasis))
+          .attr('fill', 'rgba(99,102,241,0.12)')
+          .attr('stroke', 'none');
+
+        rSvg.append('line')
+          .attr('x1', 0).attr('x2', rWidth)
+          .attr('y1', ry(meanRatio)).attr('y2', ry(meanRatio))
+          .attr('stroke', '#94a3b8')
+          .attr('stroke-width', 1)
+          .attr('stroke-dasharray', '3,2');
+
+        rSvg.append('path')
+          .datum(ratioData)
+          .attr('d', d3.line()
+            .x(function(d) { return rx(d.date); })
+            .y(function(d) { return ry((d.approved / d.total) * 100); })
+            .curve(d3.curveBasis))
+          .attr('fill', 'none')
+          .attr('stroke', '#6366f1')
+          .attr('stroke-width', 2);
+
+        rSvg.append('g')
+          .attr('transform', 'translate(0,' + rHeight + ')')
+          .call(d3.axisBottom(rx).ticks(6).tickFormat(d3.timeFormat('%b %d')))
+          .selectAll('text')
+          .style('font-size', '8px');
+
+        rSvg.append('g')
+          .call(d3.axisLeft(ry).ticks(3).tickFormat(function(v) { return v.toFixed(0) + '%'; }))
+          .selectAll('text')
+          .style('font-size', '8px');
+
+        var rTooltip = d3.select(ratioContainer).append('div').attr('class', 'd3-stream-tooltip');
+
+        var rBisect = d3.bisector(function(d) { return d.date; }).left;
+
+        rSvg.append('rect')
+          .attr('width', rWidth)
+          .attr('height', rHeight)
+          .attr('fill', 'none')
+          .attr('pointer-events', 'all')
+          .on('mousemove', function(event) {
+            var pointer = d3.pointer(event, ratioContainer);
+            var xDate = rx.invert(d3.pointer(event, this.parentNode)[0]);
+            var idx = Math.min(rBisect(ratioData, xDate, 1), ratioData.length - 1);
+            var prev = ratioData[Math.max(0, idx - 1)];
+            var cur = ratioData[idx];
+            var pt = (xDate - prev.date > cur.date - xDate) ? cur : prev;
+            var ratio = ((pt.approved / pt.total) * 100).toFixed(1);
+            var dateStr = pt.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            rTooltip
+              .classed('is-visible', true)
+              .html('<strong>' + dateStr + '</strong><br>Approval Rate: ' + ratio + '%<br>' + pt.approved + ' approved / ' + pt.total + ' total')
+              .style('left', (pointer[0] + 12) + 'px')
+              .style('top', (pointer[1] - 52) + 'px');
+          })
+          .on('mouseleave', function() { rTooltip.classed('is-visible', false); });
+
+        var rLegend = d3.select(ratioContainer).append('div').attr('class', 'd3-stream-legend');
+        var rL1 = rLegend.append('span');
+        rL1.append('span').attr('class', 'd3-stream-legend__swatch').style('background', '#6366f1');
+        rL1.append('span').text('Approval ratio %');
+        var rL2 = rLegend.append('span');
+        rL2.append('span').attr('class', 'd3-stream-legend__swatch').style('background', 'repeating-linear-gradient(90deg,#94a3b8 0,#94a3b8 3px,transparent 3px,transparent 5px)');
+        rL2.append('span').text('30d mean (' + meanRatio.toFixed(1) + '%)');
+      }
+    }
+  });
+
+  ensureD3(function() {
+    var rrByDay = <%= raw (rejection_reasons_by_day || {}).to_json %>;
+    var container = document.getElementById('swRejectionReasonsChart');
+    var legendEl = document.getElementById('swRejectionReasonsLegend');
+    var tooltipEl = document.getElementById('swRejectionReasonsTip');
+    if (!container || !Object.keys(rrByDay).length) return;
+
+    var rrColors = ['#ef4444','#f59e0b','#8b5cf6','#06b6d4','#10b981','#f97316','#6366f1','#14b8a6','#ec4899','#84cc16'];
+
+    function fmtLabel(k) {
+      return k.replace(/[-_]/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+    }
+
+    var sortedDates = Object.keys(rrByDay).sort();
+    var allKeys = [];
+    sortedDates.forEach(function(d) {
+      Object.keys(rrByDay[d] || {}).forEach(function(k) {
+        if (allKeys.indexOf(k) === -1) allKeys.push(k);
+      });
+    });
+
+    var tableData = sortedDates.map(function(d) {
+      var row = { date: new Date(d + 'T12:00:00') };
+      allKeys.forEach(function(k) { row[k] = (rrByDay[d] || {})[k] || 0; });
+      return row;
+    });
+
+    var colorMap = {};
+    allKeys.forEach(function(k, i) { colorMap[k] = rrColors[i % rrColors.length]; });
+
+    var margin = { top: 10, right: 10, bottom: 20, left: 36 };
+    var height = 200;
+
+    function render() {
+      container.querySelectorAll('svg').forEach(function(el) { el.remove(); });
+      var w = container.clientWidth || 300;
+      var innerW = w - margin.left - margin.right;
+      var innerH = height - margin.top - margin.bottom;
+
+      var svg = d3.select(container).append('svg').attr('width', w).attr('height', height);
+      var g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+      var stack = d3.stack().keys(allKeys).offset(d3.stackOffsetWiggle).order(d3.stackOrderInsideOut);
+      var series = stack(tableData);
+
+      var x = d3.scaleTime()
+        .domain(d3.extent(tableData, function(d) { return d.date; }))
+        .range([0, innerW]);
+      var y = d3.scaleLinear()
+        .domain([
+          d3.min(series, function(s) { return d3.min(s, function(d) { return d[0]; }); }),
+          d3.max(series, function(s) { return d3.max(s, function(d) { return d[1]; }); })
+        ])
+        .range([innerH, 0]);
+
+      var area = d3.area()
+        .x(function(d) { return x(d.data.date); })
+        .y0(function(d) { return y(d[0]); })
+        .y1(function(d) { return y(d[1]); })
+        .curve(d3.curveBasis);
+
+      g.selectAll('.rr-stream-area')
+        .data(series)
+        .join('path')
+        .attr('class', 'rr-stream-area')
+        .attr('d', area)
+        .attr('fill', function(d) { return colorMap[d.key]; })
+        .attr('opacity', 0.85);
+
+      var crosshair = g.append('line')
+        .attr('y1', 0).attr('y2', innerH)
+        .attr('stroke', '#94a3b8').attr('stroke-width', 1)
+        .attr('stroke-dasharray', '4,3').attr('pointer-events', 'none')
+        .style('display', 'none');
+
+      g.append('rect')
+        .attr('width', innerW).attr('height', innerH)
+        .attr('fill', 'none').attr('pointer-events', 'all')
+        .on('mousemove', function(event) {
+          var gPointer = d3.pointer(event, g.node());
+          var idx = d3.bisectCenter(tableData.map(function(r) { return r.date; }), x.invert(gPointer[0]));
+          var row = tableData[idx];
+          if (!row) return;
+          var snappedX = x(row.date);
+          crosshair.attr('x1', snappedX).attr('x2', snappedX).style('display', null);
+
+          var dateStr = row.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          var html = '<strong>' + dateStr + '</strong>';
+          allKeys.forEach(function(k) {
+            if (row[k]) html += '<br><span style="color:' + colorMap[k] + '">&#9632;</span> ' + fmtLabel(k) + ': ' + row[k];
+          });
+          tooltipEl.innerHTML = html;
+
+          var tipRect = tooltipEl.getBoundingClientRect();
+          var cRect = container.getBoundingClientRect();
+          var cx = snappedX + margin.left;
+          tooltipEl.style.left = ((cRect.width - cx < tipRect.width + 20) ? cx - tipRect.width - 12 : cx + 12) + 'px';
+          tooltipEl.style.top = margin.top + 'px';
+          tooltipEl.classList.add('is-visible');
+        })
+        .on('mouseleave', function() {
+          tooltipEl.classList.remove('is-visible');
+          crosshair.style('display', 'none');
+        });
+
+      g.append('g')
+        .attr('transform', 'translate(0,' + innerH + ')')
+        .call(d3.axisBottom(x).ticks(5).tickFormat(d3.timeFormat('%b %d')))
+        .selectAll('text').style('font-size', '8px');
+    }
+
+    render();
+
+    if (legendEl) {
+      allKeys.forEach(function(k) {
+        var span = document.createElement('span');
+        var swatch = document.createElement('span');
+        swatch.className = 'd3-stream-legend__swatch';
+        swatch.style.background = colorMap[k];
+        span.appendChild(swatch);
+        span.appendChild(document.createTextNode(fmtLabel(k)));
+        legendEl.appendChild(span);
+      });
+    }
+  });
+
+  (function() {
+    var carousel = document.getElementById('swMtdCarousel');
+    var dotsEl = document.getElementById('swMtdDots');
+    var prevBtn = document.getElementById('swMtdPrev');
+    var nextBtn = document.getElementById('swMtdNext');
+    if (!carousel) return;
+
+    var cards = Array.from(carousel.querySelectorAll('.sw-mtd-card'));
+    if (!cards.length) return;
+
+    var current = 0;
+
+    function getVisible() {
+      var w = carousel.offsetWidth;
+      if (w < 360) return 1;
+      if (w < 600) return 2;
+      if (w < 900) return 3;
+      return 4;
+    }
+
+    function buildDots() {
+      if (!dotsEl) return;
+      dotsEl.innerHTML = '';
+      var pages = Math.ceil(cards.length / getVisible());
+      for (var i = 0; i < pages; i++) {
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'sw-mtd-dot' + (i === 0 ? ' sw-mtd-dot--active' : '');
+        dot.setAttribute('aria-label', 'Go to page ' + (i + 1));
+        (function(page) { dot.onclick = function() { goTo(page * getVisible()); }; })(i);
+        dotsEl.appendChild(dot);
+      }
+    }
+
+    function updateDots() {
+      if (!dotsEl) return;
+      var vis = getVisible();
+      var dots = dotsEl.querySelectorAll('.sw-mtd-dot');
+      var activePage = Math.floor(current / vis);
+      dots.forEach(function(d, i) {
+        d.classList.toggle('sw-mtd-dot--active', i === activePage);
+      });
+    }
+
+    function goTo(idx) {
+      var vis = getVisible();
+      var max = Math.max(0, cards.length - vis);
+      current = Math.max(0, Math.min(idx, max));
+      var cardW = cards[0].offsetWidth + parseInt(getComputedStyle(cards[0]).marginRight || 0, 10);
+      carousel.scrollTo({ left: current * cardW, behavior: 'smooth' });
+      updateDots();
+      if (prevBtn) prevBtn.disabled = current === 0;
+      if (nextBtn) nextBtn.disabled = current >= max;
+    }
+
+    if (prevBtn) prevBtn.onclick = function() { goTo(current - getVisible()); };
+    if (nextBtn) nextBtn.onclick = function() { goTo(current + getVisible()); };
+
+    buildDots();
+    goTo(0);
+
+    carousel.addEventListener('scroll', function() {
+      var cardW = cards[0] ? cards[0].offsetWidth + parseInt(getComputedStyle(cards[0]).marginRight || 0, 10) : 1;
+      current = Math.round(carousel.scrollLeft / cardW);
+      updateDots();
+      var vis = getVisible();
+      var max = Math.max(0, cards.length - vis);
+      if (prevBtn) prevBtn.disabled = current === 0;
+      if (nextBtn) nextBtn.disabled = current >= max;
+    });
+  })();
 })();
 </script>

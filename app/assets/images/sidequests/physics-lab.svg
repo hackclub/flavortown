@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Physics Lab illustration">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f9efe0" />
+      <stop offset="100%" stop-color="#f2d1a7" />
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" rx="36" fill="url(#bg)" />
+  <g opacity="0.2" stroke="#8c5a35" stroke-width="2">
+    <path d="M0 80H960" />
+    <path d="M0 160H960" />
+    <path d="M0 240H960" />
+    <path d="M0 320H960" />
+    <path d="M0 400H960" />
+    <path d="M120 0V540" />
+    <path d="M240 0V540" />
+    <path d="M360 0V540" />
+    <path d="M480 0V540" />
+    <path d="M600 0V540" />
+    <path d="M720 0V540" />
+    <path d="M840 0V540" />
+  </g>
+  <rect x="96" y="354" width="768" height="104" rx="26" fill="#d4a373" />
+  <rect x="126" y="318" width="708" height="52" rx="18" fill="#8c5a35" />
+  <rect x="184" y="226" width="108" height="128" rx="18" fill="#fff8eb" stroke="#d4a373" stroke-width="8" />
+  <rect x="204" y="260" width="68" height="72" rx="12" fill="#4a90e2" opacity="0.85" />
+  <rect x="360" y="164" width="240" height="162" rx="24" fill="#fff8eb" stroke="#d4a373" stroke-width="8" />
+  <circle cx="480" cy="245" r="54" fill="none" stroke="#4a90e2" stroke-width="8" />
+  <circle cx="480" cy="245" r="14" fill="#b54447" />
+  <ellipse cx="700" cy="270" rx="82" ry="40" fill="#fff8eb" stroke="#d4a373" stroke-width="8" />
+  <path d="M700 210c32 0 58 24 58 54s-26 54-58 54-58-24-58-54 26-54 58-54Z" fill="none" stroke="#4a90e2" stroke-width="8" />
+  <path d="M700 176c60 22 100 58 120 108" fill="none" stroke="#b54447" stroke-width="8" stroke-linecap="round" />
+  <path d="M700 176c-60 22-100 58-120 108" fill="none" stroke="#b54447" stroke-width="8" stroke-linecap="round" />
+  <circle cx="700" cy="270" r="22" fill="#fff8eb" stroke="#b54447" stroke-width="8" />
+  <path d="M252 150c18-22 42-34 70-34h82" fill="none" stroke="#4178c0" stroke-width="8" stroke-linecap="round" />
+  <circle cx="318" cy="112" r="18" fill="#fff8eb" stroke="#4178c0" stroke-width="8" />
+  <circle cx="350" cy="92" r="14" fill="#fff8eb" stroke="#4178c0" stroke-width="8" />
+  <circle cx="382" cy="126" r="12" fill="#fff8eb" stroke="#4178c0" stroke-width="8" />
+  <g fill="#fff8eb" stroke="#8c5a35" stroke-width="8">
+    <path d="M590 130l34 64h-68Z" />
+    <path d="M214 178l20 44h-40Z" />
+  </g>
+</svg>

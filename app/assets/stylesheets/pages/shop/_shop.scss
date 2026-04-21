@@ -460,7 +460,7 @@
     width: 100%;
     display: grid;
     gap: 2rem;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 
     .shop-item-card {
       width: 100%;
@@ -710,6 +710,10 @@
       right: -3em;
       bottom: -3em;
       cursor: pointer;
+    }
+
+    @media (max-width: 960px) {
+      height: 150px;
     }
   }
 }

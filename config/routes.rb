@@ -80,7 +80,11 @@ Rails.application.routes.draw do
   get "my-reports", to: "my_reports#index", as: :my_reports
 
   # Voting
-  resources :votes, only: [ :new, :create, :index ]
+  resources :votes, only: [ :new, :create, :index ] do
+    collection do
+      post :skip
+    end
+  end
 
   # Explore
   get "explore", to: "explore#index", as: :explore_index
@@ -91,6 +95,7 @@ Rails.application.routes.draw do
   # Sidequests (formerly Nibbles)
   get "nibbles", to: redirect("/sidequests")
   resources :sidequests, only: [ :index, :show ]
+  get "sidequests/:id/dash", to: "sidequests/lockin#dash", constraints: { id: "lockin" }, as: :dash_sidequest
 
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -152,6 +157,8 @@ Rails.application.routes.draw do
   # API
   namespace :webhooks do
     post "ship_cert", to: "ship_cert#update_status"
+    post "mark_sus", to: "mark_sus#mark"
+    post "unmark_sus", to: "mark_sus#unmark"
   end
 
   namespace :api do
@@ -177,7 +184,9 @@ Rails.application.routes.draw do
           get :search
         end
       end
-      resources :users, only: [ :index, :show ]
+      resources :users, only: [ :index, :show ] do
+        resources :projects, only: [ :index ], controller: "user_projects"
+      end
 
       post "flavortime/session", to: "flavortime#create_session"
       post "flavortime/heartbeat", to: "flavortime#heartbeat"
@@ -193,6 +202,15 @@ Rails.application.routes.draw do
             post :fulfill
           end
         end
+      end
+    end
+  end
+
+  namespace :seller do
+    resources :orders, only: %i[index show] do
+      member do
+        post :reveal_address
+        post :mark_fulfilled
       end
     end
   end
@@ -251,13 +269,14 @@ Rails.application.routes.draw do
          post :adjust_balance
          post :ban
          post :unban
+         post :mark_sus
+         post :unmark_sus
          post :cancel_all_hcb_grants
-         post :shadow_ban
-         post :unshadow_ban
          post :impersonate
          post :refresh_verification
          post :toggle_voting_lock
          get  :votes
+         post :set_vote_balance
          patch :set_ysws_eligible_override
        end
        collection do
@@ -282,6 +301,9 @@ Rails.application.routes.draw do
     resources :shop_items, only: [ :new, :create, :show, :edit, :update, :destroy ] do
       collection do
         post :preview_markdown
+      end
+      member do
+        post :request_approval
       end
     end
     resources :shop_orders, only: [ :index, :show ] do
@@ -347,11 +369,15 @@ Rails.application.routes.draw do
     get "voting_dashboard", to: "voting_dashboard#index"
     get "vote_spam_dashboard", to: "vote_spam_dashboard#index"
     get "vote_spam_dashboard/users/:user_id", to: "vote_spam_dashboard#show", as: :vote_spam_dashboard_user
+    get "vote_quality_dashboard", to: "vote_quality_dashboard#index"
+    get "vote_quality_dashboard/users/:user_id", to: "vote_quality_dashboard#show", as: :vote_quality_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    get "funnel_events", to: "funnel_events#index", as: :funnel_events
     delete "super_mega_dashboard/clear_cache", to: "super_mega_dashboard#clear_cache", as: :super_mega_dashboard_clear_cache
     get "flavortime_dashboard", to: "flavortime_dashboard#index"
     get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"
+    post "super_mega_dashboard/refresh_nps_vibes", to: "super_mega_dashboard#refresh_nps_vibes", as: :super_mega_dashboard_refresh_nps_vibes
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail

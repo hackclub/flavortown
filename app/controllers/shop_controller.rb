@@ -1,6 +1,6 @@
 class ShopController < ApplicationController
   skip_before_action :refresh_identity_on_portal_return, only: [ :index ]
-  before_action :require_login, except: [ :index ]
+  before_action :require_login, except: [ :index, :update_region ]
 
   def index
     @shop_open = Flipper.enabled?(:shop_open, current_user)
@@ -55,14 +55,16 @@ class ShopController < ApplicationController
     end
 
     @user_region = user_region
-    @sale_price = @shop_item.price_for_region(@user_region)
+    @sale_price = @shop_item.price_for_region_and_user(@user_region, current_user)
     @regional_base_price = @shop_item.base_price_for_region(@user_region)
     @accessories = @shop_item.available_accessories.includes(:image_attachment)
 
     if @shop_item.requires_achievement?
-      @required_achievement = Achievement.find(@shop_item.requires_achievement.to_sym)
-      @locked_by_achievement = !current_user.earned_achievement?(@shop_item.requires_achievement.to_sym)
+      @required_achievements = @shop_item.requires_achievement.map { |slug| Achievement.find(slug) }
+      @locked_by_achievement = !@shop_item.meet_achievement_require?(current_user)
     end
+    @achievement_sale_active = @shop_item.achievement_sale? && @shop_item.achievement_sale_for?(current_user)
+    @achievement_sale_percentage = @shop_item.achievement_sale_percentage if @achievement_sale_active
     ahoy.track "Viewed shop item", shop_item_id: @shop_item.id
   end
 
@@ -72,7 +74,12 @@ class ShopController < ApplicationController
       return head :unprocessable_entity
     end
 
-    current_user.update!(shop_region: region)
+    if current_user
+      current_user.update!(shop_region: region)
+    else
+      session[:shop_region] = region
+    end
+
     @user_region = region
     load_shop_items
 
@@ -124,7 +131,7 @@ class ShopController < ApplicationController
     # Calculate total cost (applying sale discount via price_for_region)
     # Accessories are multiplied by quantity (e.g., 10 RPis with 8GB RAM = 10 accessories)
     region = user_region
-    item_price = @shop_item.price_for_region(region)
+    item_price = @shop_item.price_for_region_and_user(region, current_user)
     item_total = item_price * quantity
     accessories_total = @accessories.sum { |a| a.price_for_region(region) } * quantity
     total_cost = item_total + accessories_total
@@ -258,6 +265,8 @@ class ShopController < ApplicationController
       country = primary_address&.dig("country")
       region_from_address = Shop::Regionalizable.country_to_region(country)
       return region_from_address if region_from_address != "XX" || country.present?
+    else
+      return session[:shop_region] if session[:shop_region].present? && Shop::Regionalizable::REGION_CODES.include?(session[:shop_region])
     end
 
     cached = cookies[:geoip_region]

@@ -20,9 +20,10 @@
               <%= inline_svg_tag("icons/check_thick.svg") %>
             <% end %>
           </span>
-          <span class="projects-ship__validation-label"><%=
-            (validation[:passed] ? validation[:label] : (validation[:fail_label] || validation[:label]))
-                                                        %></span>
+          <span class="projects-ship__validation-label"
+                title="<%= validation[:tooltip] %>">
+            <%= validation[:passed] ? validation[:label] : (validation[:fail_label] || validation[:label]) %>
+          </span>
         </div>
       <% end %>
     </div>

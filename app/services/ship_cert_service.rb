@@ -40,6 +40,7 @@ class ShipCertService
         projectType: project.project_type,
         type: type,
         description: project.description,
+        reviewInstructions: ship_event&.review_instructions,
         links: {
           demo: project.demo_url,
           repo: project.repo_url,

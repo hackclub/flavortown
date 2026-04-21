@@ -142,7 +142,7 @@
       .post__content {
         content-visibility: auto;
         contain-intrinsic-size: 1px 600px;
-        contain: layout paint style;
+        contain: layout style;
       }
 
       &::after {

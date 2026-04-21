@@ -16,7 +16,7 @@ class UpdateUserProjectCountsJob < ApplicationJob
       .select(
         "project_memberships.user_id",
         "COUNT(*) as total_count",
-        "SUM(CASE WHEN projects.ship_status = 'approved' THEN 1 ELSE 0 END) as shipped_count"
+        "SUM(CASE WHEN projects.ship_status = 'submitted' THEN 1 ELSE 0 END) as shipped_count"
       )
 
     Rails.logger.info("Fetched counts for #{counts.size} users with projects")

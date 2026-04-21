@@ -9,17 +9,18 @@ class Airtable::ShopSuggestionSyncJob < ApplicationJob
     suggestion = ShopSuggestion.find_by(id: shop_suggestion_id)
     return if suggestion.nil?
 
-    table.upsert(field_mapping(suggestion), "ID")
+    table.create(field_mapping(suggestion))
   end
 
   private
 
   def field_mapping(suggestion)
     {
-      "ID" => SecureRandom.uuid,
       "Item" => suggestion.item.to_s,
       "Link" => suggestion.link.presence,
-      "Notes" => suggestion.explanation.to_s
+      "Notes" => suggestion.explanation.to_s,
+      "User ID" => suggestion.user&.id&.to_s,
+      "Slack ID" => suggestion.user&.slack_id
     }
   end
 
