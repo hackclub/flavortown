@@ -68,9 +68,4 @@ class MyController < ApplicationController
     head :internal_server_error
   end
 
-  private
-
-  def require_login
-    redirect_to root_path, alert: "Please log in first" and return unless current_user
-  end
 end
