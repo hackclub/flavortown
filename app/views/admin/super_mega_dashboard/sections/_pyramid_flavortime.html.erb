@@ -19,62 +19,6 @@
     <%= link_to "View Full Flavortime Dashboard →", admin_flavortime_dashboard_path, class: "super-mega-link" %>
   </div>
 
-  <div class="super-mega-dashboard__cards super-mega-dashboard__cards--analytics pyramid-flavortime-dashboard__summary-row">
-    <div class="super-mega-dashboard__card super-mega-dashboard__card--half">
-      <h3>Pyramid Scheme</h3>
-
-      <% if @pyramid_scheme_stats[:error].present? %>
-        <p class="fraud-stats-error"><%= @pyramid_scheme_stats[:error] %></p>
-      <% else %>
-        <% if @pyramid_scheme_stats[:partial_data] %>
-          <p class="super-mega-dashboard__section-note">Partial Pyramid data: unavailable API fields are shown as 0.</p>
-        <% end %>
-
-        <div class="super-mega-dashboard__total-numbers-grid super-mega-dashboard__total-numbers-grid--compact">
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value blue"><%= number_with_delimiter(@pyramid_scheme_stats[:total_referrals]) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">Total Referrals</span>
-          </div>
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value orange"><%= number_with_precision(@pyramid_scheme_stats[:total_hours_logged], precision: 1, strip_insignificant_zeros: true) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">Verified Hours</span>
-          </div>
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value green"><%= number_with_delimiter(@pyramid_scheme_stats[:completed_referrals]) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">Completed Referrals</span>
-          </div>
-        </div>
-      <% end %>
-    </div>
-
-    <div class="super-mega-dashboard__card super-mega-dashboard__card--half">
-      <h3>Flavortime</h3>
-
-      <% if @flavortime_summary[:error].present? %>
-        <p class="fraud-stats-error"><%= @flavortime_summary[:error] %></p>
-      <% else %>
-        <div class="super-mega-dashboard__total-numbers-grid super-mega-dashboard__total-numbers-grid--compact">
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value green"><%= number_with_delimiter(@flavortime_summary[:active_users]) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">Active Now</span>
-          </div>
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value blue"><%= number_with_delimiter(@flavortime_summary[:total_users]) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">All-Time Users</span>
-          </div>
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value red"><%= number_with_delimiter(@flavortime_summary[:total_sessions]) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">Recorded Sessions</span>
-          </div>
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value yellow"><%= number_with_precision(@flavortime_summary[:status_hours], precision: 1, strip_insignificant_zeros: true) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">Status Hours</span>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  </div>
-
   <div class="super-mega-dashboard__cards super-mega-dashboard__cards--analytics">
     <% if @pyramid_scheme_stats[:error].present? %>
       <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
@@ -98,20 +42,6 @@
         </div>
         <div class="super-mega-dashboard__chart-shell">
           <canvas id="pyramidActivityChart" data-pyramid-flavortime-target="pyramidActivityChart"></canvas>
-        </div>
-      </div>
-
-      <div class="super-mega-dashboard__card super-mega-dashboard__card--half">
-        <h3>Referral Flow</h3>
-        <div class="super-mega-dashboard__chart-shell">
-          <canvas id="pyramidReferralChart" data-pyramid-flavortime-target="pyramidReferralChart"></canvas>
-        </div>
-      </div>
-
-      <div class="super-mega-dashboard__card super-mega-dashboard__card--half">
-        <h3>Poster Outcomes</h3>
-        <div class="super-mega-dashboard__chart-shell super-mega-dashboard__chart-shell--pie">
-          <canvas id="pyramidPosterChart" data-pyramid-flavortime-target="pyramidPosterChart"></canvas>
         </div>
       </div>
     <% end %>
