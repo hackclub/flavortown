@@ -507,7 +507,7 @@
                               seriesConfig.map(function(cfg) {
                                 return '<span style="color:' + cfg.color + '">' + cfg.label + ': ' + (pt[cfg.key] || 'N/A') + '</span>';
                               }).join('<br>');
-                            tooltip.style.left = (x(pt.date) + margin.left + 10) + 'px';
+                            tooltip.style.left = (x(closest) + margin.left + 10) + 'px';
                             tooltip.style.top = margin.top + 'px';
                           })
                           .on('mouseleave', function() {
