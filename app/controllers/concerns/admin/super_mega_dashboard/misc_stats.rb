@@ -532,39 +532,8 @@ module Admin
           return
         end
 
-        pending_referrals = payload.dig("referrals", "pending").to_i
-        id_verified_referrals = payload.dig("referrals", "id_verified").to_i
-        completed_referrals = payload.dig("referrals", "completed").to_i
-        total_referrals = payload.dig("referrals", "total")
-        total_referrals = pending_referrals + id_verified_referrals + completed_referrals if total_referrals.blank?
-
         @pyramid_scheme_stats = {
-          total_hours_logged: payload.dig("activity", "total_hours_logged") || 0,
-          total_referrals: total_referrals.to_i,
-          completed_referrals: completed_referrals,
-          verified_hours_last_week: payload.dig("activity", "verified_hours_last_week") || 0,
-          verified_hours_previous_week: payload.dig("activity", "verified_hours_previous_week") || 0,
-          referrals_gained_last_week: payload.dig("activity", "referrals_gained_last_week") || 0,
-          referrals_gained_previous_week: payload.dig("activity", "referrals_gained_previous_week") || 0,
-          partial_data: payload["partial_data"] == true,
-          data_source: payload["data_source"],
-          activity_timeline: payload.dig("activity", "timeline") || [],
-          referral_chart: {
-            labels: [ "Pending", "ID Verified", "Completed" ],
-            values: [
-              pending_referrals,
-              id_verified_referrals,
-              completed_referrals
-            ]
-          },
-          poster_chart: {
-            labels: [ "Completed Physical", "Digital", "Rejected" ],
-            values: [
-              payload.dig("posters", "completed_physical") || 0,
-              payload.dig("posters", "completed_digital") || 0,
-              payload.dig("posters", "rejected_physical") || 0
-            ]
-          }
+          activity_timeline: payload.dig("activity", "timeline") || []
         }
       rescue StandardError => e
         Rails.logger.warn("[SuperMegaDashboard] Pyramid section unavailable (#{e.class}): #{e.message}")
