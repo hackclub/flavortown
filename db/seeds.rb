@@ -89,6 +89,12 @@ Sidequest.find_or_create_by!(slug: "the_hackazine") do |sq|
   sq.expires_at = Date.new(2025, 1, 22)
 end
 
+Sidequest.find_or_create_by!(slug: "kernel") do |sq|
+  sq.title = "Kernel"
+  sq.description = "Ship something that runs through commands like a tool, system or interactive terminal experience. Include a working demo and a README that explains the commands."
+  sq.expires_at = Date.new(2026, 4, 30)
+end
+
 Sidequest.find_or_create_by!(slug: "borked_ui_jam") do |sq|
   sq.title = "Borked UI Jam"
   sq.description = "Running until January 25th — make a project with delightfully broken UI/UX and submit it for the Borked UI Jam! The top 5 best (worst) projects will receive cookies + other prizes. Check out #borked for more details."
