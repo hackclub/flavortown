@@ -25,10 +25,4 @@ class AchievementsController < ApplicationController
       total: countable.count
     }
   end
-
-  private
-
-  def require_login
-    redirect_to root_path, alert: "Please log in first" and return unless current_user
-  end
 end
