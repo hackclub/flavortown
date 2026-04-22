@@ -8,7 +8,7 @@
   <div class="minecraft-menu">
     <div data-controller="sidequests--minequest--modal">
       <a href="#" class="minecraft-menu-button" style="width: 100%; display: block;" data-action="click->sidequests--minequest--modal#open">Requirements</a>
-      
+
       <div class="minecraft-modal hidden" data-sidequests--minequest--modal-target="dialog">
         <div class="minecraft-book minecraft-book-large">
           <h3 class="minecraft-book-title">Requirements</h3>
@@ -22,13 +22,13 @@
 
               <p class="minecraft-requirements-point">Must use less than 30% AI.</p>
               <p class="minecraft-requirements-point">Shader Packs and Resource Packs</p>
-              
+
               <p class="minecraft-requirements-point">Your project must be published on CurseForge or Modrinth.</p>
               <p class="minecraft-requirements-point">AI Companion in-game player.</p>
 
               <p class="minecraft-requirements-point">Your must select MineQuest as a sidequest while shipping your project.</p>
                <p class="minecraft-requirements-point">Minecraft mini games like a built-in story pack.</p>
-            
+
               <p class="minecraft-requirements-point">You should spend at least 3 hours on your MineQuest project!</p>
               <p class="minecraft-requirements-point">Custom in-game commands which allow you to cheat easily.</p>
 
@@ -36,14 +36,14 @@
               <p class="minecraft-requirements-point">Note: You can get approval for more project types. Just specify it in #minequest and wait for approval.</p>
             </div>
           </div>
-          <p class="minecraft-requirements-help-text">Join <a href="https://hackclub.enterprise.slack.com/archives/C0ATTCPQ0R4" target="_blank">#minequest</a> to get help</p>
+          <p class="minecraft-requirements-help-text">Join <a href="https://hackclub.enterprise.slack.com/archives/C0ATTCPQ0R4" target="_blank" rel="noopener">#minequest</a> to get help</p>
           <button type="button" data-action="click->sidequests--minequest--modal#close" class="minecraft-book-btn">Close</button>
         </div>
       </div>
     </div>
     <div data-controller="sidequests--minequest--ideas" data-sidequests--minequest--ideas-url-value="/generate_ideas">
       <a href="#" class="minecraft-menu-button" style="width: 100%; display: block;" data-action="click->sidequests--minequest--ideas#open">Ideas</a>
-      
+
       <div class="minecraft-modal hidden" data-sidequests--minequest--ideas-target="dialog">
         <div class="minecraft-book" style="height: auto; min-height: 400px; padding-bottom: 80px;">
           <h3 class="minecraft-book-title">Idea Generator</h3>
@@ -52,12 +52,12 @@
               Need inspiration?
             </p>
           </div>
-          
+
           <div style="position: absolute; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px;">
             <button type="button" data-action="click->sidequests--minequest--ideas#generate" data-sidequests--minequest--ideas-target="button" class="minecraft-book-btn" style="position: static; transform: none;">Generate Idea</button>
             <button type="button" data-action="click->sidequests--minequest--ideas#close" class="minecraft-book-btn" style="position: static; transform: none;">Close</button>
           </div>
-          
+
         </div>
       </div>
     </div>

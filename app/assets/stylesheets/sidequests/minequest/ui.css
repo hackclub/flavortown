@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
 .minecraft-home-screen {
   display: flex;
@@ -11,8 +11,8 @@
   width: 100vw;
   height: 100vh;
   z-index: 9999;
-  background-color: #2E2E2E;
-  font-family: 'Press Start 2P', cursive;
+  background-color: #2e2e2e;
+  font-family: "Press Start 2P", cursive;
   color: white;
   text-align: center;
   padding: clamp(0.9rem, 2vw, 2rem);
@@ -22,8 +22,8 @@
 
 .minecraft-title {
   font-size: 4rem;
-  color: #FFFFFF;
-  text-shadow: 4px 4px 0px #3E3E3E;
+  color: #ffffff;
+  text-shadow: 4px 4px 0px #3e3e3e;
   margin-bottom: 2rem;
 }
 
@@ -52,7 +52,6 @@
   max-width: 43%;
 }
 
-
 .minecraft-title-image[src*="static-title"] {
   max-width: 100%;
 }
@@ -69,7 +68,7 @@
 .minecraft-menu-button {
   display: block;
   background-color: #707070;
-  color: #E0E0E0;
+  color: #e0e0e0;
   text-decoration: none;
   padding: clamp(0.72rem, 1.25vw, 1rem) clamp(0.8rem, 1.6vw, 1.2rem);
   min-height: clamp(44px, 5.8vh, 60px);
@@ -77,15 +76,15 @@
   line-height: 1.2;
   box-sizing: border-box;
   border: 2px solid;
-  border-color: #C6C6C6 #5A5A5A #5A5A5A #C6C6C6;
+  border-color: #c6c6c6 #5a5a5a #5a5a5a #c6c6c6;
   box-shadow: inset -2px -2px 0px #00000080;
   image-rendering: pixelated;
   cursor: pointer;
 }
 
 .minecraft-menu-button:hover {
-  background-color: #7F7F7F;
-  color: #FFFFFFA0;
+  background-color: #7f7f7f;
+  color: #ffffffa0;
 }
 
 .minecraft-footer-buttons {
@@ -180,15 +179,14 @@
   }
 }
 
-
 /* Styles for the index card component */
 .minecraft-ui-container {
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   background-color: #373737;
-  color: #FFFFFF;
+  color: #ffffff;
   padding: 2rem;
-  border: 4px solid #1E1E1E;
-  box-shadow: inset 0 0 0 4px #5A5A5A;
+  border: 4px solid #1e1e1e;
+  box-shadow: inset 0 0 0 4px #5a5a5a;
 }
 
 .minecraft-ui-container p {
@@ -197,11 +195,13 @@
 }
 
 .minecraft-button {
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   background-color: #787878;
-  color: #FFFFFF;
-  border: 2px solid #1E1E1E;
-  box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
+  color: #ffffff;
+  border: 2px solid #1e1e1e;
+  box-shadow:
+    inset -2px -4px #0006,
+    inset 2px 2px #fff7;
   padding: 1rem 1.5rem;
   text-decoration: none;
   display: inline-block;
@@ -210,7 +210,7 @@
 }
 
 .minecraft-button:hover {
-  background-color: #8A8A8A;
+  background-color: #8a8a8a;
 }
 
 .minecraft-image {
@@ -236,14 +236,18 @@
 .minecraft-footer-right {
   position: absolute;
   bottom: 6px;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 10px;
   line-height: 1;
   pointer-events: none;
 }
 
-.minecraft-footer-left { left: 10px; }
-.minecraft-footer-right { right: 10px; }
+.minecraft-footer-left {
+  left: 10px;
+}
+.minecraft-footer-right {
+  right: 10px;
+}
 
 /* Book Modal */
 .minecraft-modal {
@@ -269,7 +273,9 @@
   width: 320px;
   height: 400px;
   position: relative;
-  box-shadow: inset 2px 2px 0px #ead7b0, inset -2px -2px 0px #ac8f5b;
+  box-shadow:
+    inset 2px 2px 0px #ead7b0,
+    inset -2px -2px 0px #ac8f5b;
   padding: 20px;
   color: #000;
   font-family: monospace; /* Books often use simpler fonts or minecraftia */
@@ -277,14 +283,14 @@
 
 h3.minecraft-book-title {
   text-align: center;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   font-size: 1rem;
   margin-bottom: 2rem;
   margin-top: 1rem;
 }
 
 .minecraft-book-content p {
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   font-size: 0.6rem;
   line-height: 1.5;
 }
@@ -295,19 +301,19 @@ h3.minecraft-book-title {
   left: 50%;
   transform: translateX(-50%);
   background-color: #707070;
-  color: #E0E0E0;
+  color: #e0e0e0;
   border: 2px solid;
-  border-color: #C6C6C6 #5A5A5A #5A5A5A #C6C6C6;
+  border-color: #c6c6c6 #5a5a5a #5a5a5a #c6c6c6;
   box-shadow: inset -2px -2px 0px #00000080;
   padding: 0.5rem 1rem;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   font-size: 0.7rem;
   cursor: pointer;
 }
 
 .minecraft-book-btn:hover {
-  background-color: #7F7F7F;
-  color: #FFFFFFA0;
+  background-color: #7f7f7f;
+  color: #ffffffa0;
 }
 
 .minecraft-book-large {
@@ -315,7 +321,9 @@ h3.minecraft-book-title {
   min-height: 560px;
   height: auto;
   padding: 24px 28px 82px;
-  box-shadow: inset 3px 3px 0 #ead7b0, inset -3px -3px 0 #ac8f5b;
+  box-shadow:
+    inset 3px 3px 0 #ead7b0,
+    inset -3px -3px 0 #ac8f5b;
 }
 
 .minecraft-book-content-large {
@@ -334,7 +342,7 @@ h3.minecraft-book-title {
 .minecraft-requirements-subheading {
   margin: 0;
   color: #3f2b14;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   font-weight: 700;
   font-size: 0.9rem;
   letter-spacing: 0.03em;
@@ -345,7 +353,7 @@ h3.minecraft-book-title {
   margin: 0;
   padding-left: 1.25rem;
   position: relative;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   font-size: 1.15rem;
   line-height: 1.45;
   text-align: left;
@@ -368,7 +376,7 @@ h3.minecraft-book-title {
   bottom: 10px;
   margin: 0;
   color: #5e4321;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   font-size: 0.62rem;
   letter-spacing: 0.02em;
 }
@@ -432,7 +440,9 @@ h3.minecraft-book-title {
   background: #c8ad7e;
   border: 3px solid;
   border-color: #ead7b0 #7c5e34 #7c5e34 #ead7b0;
-  box-shadow: inset -2px -2px 0 #00000035, inset 1px 1px 0 #f5e6c8;
+  box-shadow:
+    inset -2px -2px 0 #00000035,
+    inset 1px 1px 0 #f5e6c8;
   padding: 0.55rem;
   display: grid;
   justify-items: stretch;
@@ -446,7 +456,9 @@ h3.minecraft-book-title {
 .minecraft-prize-card-placeholder {
   background: #b9965f;
   border-color: #e2c894 #6a4c27 #6a4c27 #e2c894;
-  box-shadow: inset -2px -2px 0 #00000045, inset 1px 1px 0 #f1dbb4;
+  box-shadow:
+    inset -2px -2px 0 #00000045,
+    inset 1px 1px 0 #f1dbb4;
 }
 
 .minecraft-prize-frame {
@@ -454,14 +466,18 @@ h3.minecraft-book-title {
   border: 3px solid;
   border-color: #7f7f7f #2f2f2f #2f2f2f #9a9a9a;
   background: #525252;
-  box-shadow: inset -2px -2px 0 #00000055, inset 1px 1px 0 #bdbdbd;
+  box-shadow:
+    inset -2px -2px 0 #00000055,
+    inset 1px 1px 0 #bdbdbd;
   padding: 0.5rem;
 }
 
 .minecraft-prize-frame-wood {
   border-color: #d3b173 #7a5728 #7a5728 #e9cf97;
   background: linear-gradient(135deg, #9a6f2f 0%, #7c5423 100%);
-  box-shadow: inset -2px -2px 0 #00000050, inset 1px 1px 0 #dcbf8d;
+  box-shadow:
+    inset -2px -2px 0 #00000050,
+    inset 1px 1px 0 #dcbf8d;
 }
 
 .minecraft-prize-image {
@@ -489,10 +505,14 @@ h3.minecraft-book-title {
 .minecraft-prize-image-placeholder {
   border-color: #5f3f1f;
   background:
-    linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%) -6px 0/12px 12px,
-    linear-gradient(-45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%) -6px 0/12px 12px,
-    linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.09) 75%) -6px 0/12px 12px,
-    linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.09) 75%) -6px 0/12px 12px,
+    linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%) -6px
+      0/12px 12px,
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%) -6px
+      0/12px 12px,
+    linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.09) 75%) -6px 0/12px
+      12px,
+    linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.09) 75%) -6px
+      0/12px 12px,
     #7a5a45;
   color: #f4e6cc;
   font-size: 0.48rem;
@@ -568,7 +588,7 @@ h3.minecraft-book-title {
   border: 2px solid #4a3a2d;
   box-shadow: inset 1px 1px 0 #ead7b0;
   color: #2d1b0b;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   font-size: 0.58rem;
   line-height: 1.4;
   padding: 0.3rem 0.5rem;
@@ -589,8 +609,6 @@ h3.minecraft-book-title {
   font-family: inherit;
 }
 
-
-
 .minecraft-footer-buttons .minecraft-modal {
   position: fixed;
 }
@@ -601,4 +619,3 @@ h3.minecraft-book-title {
     gap: 0.8rem;
   }
 }
-

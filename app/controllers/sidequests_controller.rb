@@ -54,6 +54,8 @@ class SidequestsController < ApplicationController
         render "sidequests/minequest/show" and return
       end
       @display_title = "Minequest"
+    end
+
     if @sidequest.slug == "transcode"
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_transcode").where(enabled: true)
     end

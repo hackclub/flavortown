@@ -1,15 +1,15 @@
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["dialog"]
+  static targets = ["dialog"];
 
   open(e) {
-    e.preventDefault()
-    this.dialogTarget.classList.remove("hidden")
+    e.preventDefault();
+    this.dialogTarget.classList.remove("hidden");
   }
 
   close(e) {
-    e.preventDefault()
-    this.dialogTarget.classList.add("hidden")
+    e.preventDefault();
+    this.dialogTarget.classList.add("hidden");
   }
 }
