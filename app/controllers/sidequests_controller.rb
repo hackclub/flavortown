@@ -1,6 +1,6 @@
 class SidequestsController < ApplicationController
   def index
-    @active_sidequests = ordered_sidequests(Sidequest.active.with_approved_count)
+    @active_sidequests = Sidequest.active.with_approved_count
     @expired_sidequests = ordered_sidequests(Sidequest.expired.with_approved_count)
   end
 
@@ -157,6 +157,6 @@ class SidequestsController < ApplicationController
   end
 
   def ordered_sidequests(scope)
-    scope.order(Arel.sql("CASE WHEN sidequests.slug IN ('minequest', 'minequests', 'minecraft-art') OR sidequests.title IN ('Minequest', 'Minecraft Art Challenge') THEN 0 ELSE 1 END"), :title)
+    scope.order(Arel.sql("CASE WHEN sidequests.slug IN ('minequest', 'minecraft-art') OR sidequests.title IN ('Minequest', 'Minecraft Art Challenge') THEN 0 ELSE 1 END"), :title)
   end
 end
