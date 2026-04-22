@@ -117,9 +117,6 @@ application.register("pyramid-flavortime", PyramidFlavortimeController);
 import RadioOptionController from "./radio_option_controller";
 application.register("radio-option", RadioOptionController);
 
-import RadioOptionController from "./radio_option_controller";
-application.register("radio-option", RadioOptionController);
-
 import ReadmeImageController from "./readme_image_controller";
 application.register("readme-image", ReadmeImageController);
 
@@ -198,11 +195,8 @@ application.register("tooltip", TooltipController);
 import TutorialStepsExpandController from "./tutorial_steps_expand_controller";
 application.register("tutorial-steps-expand", TutorialStepsExpandController);
 
-import VotingDashController from "./voting_dash_controller";
-application.register("voting-dash", VotingDashController);
-
-import WelcomeOverlayController from "./welcome_overlay_controller";
-application.register("welcome-overlay", WelcomeOverlayController);
+import TutorialVideoModalController from "./tutorial_video_modal_controller";
+application.register("tutorial-video-modal", TutorialVideoModalController);
 
 import UploadFormController from "./upload_form_controller";
 application.register("upload-form", UploadFormController);
@@ -212,6 +206,9 @@ application.register("vote-category", VoteCategoryController);
 
 import VoteTrackerController from "./vote_tracker_controller";
 application.register("vote-tracker", VoteTrackerController);
+
+import VotingDashController from "./voting_dash_controller";
+application.register("voting-dash", VotingDashController);
 
 import WelcomeOverlayController from "./welcome_overlay_controller";
 application.register("welcome-overlay", WelcomeOverlayController);
