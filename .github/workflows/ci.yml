@@ -85,7 +85,6 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-      issues: write
     services:
       postgres:
         image: postgres:16
