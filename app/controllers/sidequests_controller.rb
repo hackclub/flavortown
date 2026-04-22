@@ -1,21 +1,18 @@
 class SidequestsController < ApplicationController
   def index
     @active_sidequests = Sidequest.active.with_approved_count
-    @expired_sidequests = Sidequest.expired.with_approved_count
     @expired_sidequests = ordered_sidequests(Sidequest.expired.with_approved_count)
   end
 
   def show
-    requested_slug = params[:id].to_s
+    requested_slug = params[:id]
     @sidequest = Sidequest.find_by(slug: requested_slug)
-    minequest_alias_slugs = [ "minequest", "minequests", "minecraft-art" ]
-    if @sidequest.nil? && minequest_alias_slugs.include?(requested_slug)
-      @sidequest = Sidequest.where(slug: minequest_alias_slugs)
-        .or(Sidequest.where("LOWER(title) LIKE ?", "%minequest%"))
-        .or(Sidequest.where("LOWER(title) LIKE ?", "%minecraft%"))
-        .order(Arel.sql("CASE WHEN sidequests.slug = 'minequest' THEN 0 WHEN sidequests.slug = 'minequests' THEN 1 WHEN sidequests.slug = 'minecraft-art' THEN 2 ELSE 3 END"))
-        .first
+
+    if @sidequest.nil? && requested_slug == "minequest"
+      @sidequest = Sidequest.find_by("LOWER(title) LIKE ?", "%minequest%")
+      @sidequest ||= Sidequest.find_by("LOWER(title) LIKE ?", "%minecraft%")
     end
+
     raise ActiveRecord::RecordNotFound if @sidequest.nil?
 
     if @sidequest.external_page_link.present?
@@ -26,6 +23,7 @@ class SidequestsController < ApplicationController
       .approved
       .joins(:project)
       .includes(project: :memberships)
+
     if @sidequest.slug == "webos"
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_webos").where(enabled: true)
     end
@@ -46,18 +44,28 @@ class SidequestsController < ApplicationController
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_caffeinated").where(enabled: true)
     end
 
-    is_minequest = [ "minequest", "minequests" ].include?(requested_slug) ||
-      minequest_alias_slugs.include?(@sidequest.slug) ||
+    is_minequest = requested_slug == "minequest" ||
+      @sidequest.slug == "minequest" ||
       @sidequest.title == "Minequest" ||
       @sidequest.title.to_s.downcase.include?("minecraft")
 
     if is_minequest
-      achievement_keys = [ "sidequest_minequest", "sidequest_minecraft_art", "sidequest_minecraft-art" ]
+      achievement_keys = ["sidequest_minequest", "sidequest_minecraft_art", "sidequest_minecraft-art"]
       @prizes = ShopItem.where("requires_achievement && ARRAY[?]::varchar[]", achievement_keys).where(enabled: true)
+
       if params[:view] != "submissions"
         render "sidequests/minequest/show" and return
       end
+
       @display_title = "Minequest"
+    end
+
+    if @sidequest.slug == "transcode"
+      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_transcode").where(enabled: true)
+    end
+
+    if @sidequest.slug == "kernel"
+      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_kernel").where(enabled: true)
     end
 
     custom_template = "sidequests/show_#{@sidequest.slug}"
@@ -148,6 +156,9 @@ class SidequestsController < ApplicationController
   end
 
   def ordered_sidequests(scope)
-    scope.order(Arel.sql("CASE WHEN sidequests.slug IN ('minequest', 'minequests', 'minecraft-art') OR sidequests.title IN ('Minequest', 'Minecraft Art Challenge') THEN 0 ELSE 1 END"), :title)
+    scope.order(
+      Arel.sql("CASE WHEN sidequests.slug IN ('minequest', 'minecraft-art') OR sidequests.title IN ('Minequest', 'Minecraft Art Challenge') THEN 0 ELSE 1 END"),
+      :title
+    )
   end
 end
