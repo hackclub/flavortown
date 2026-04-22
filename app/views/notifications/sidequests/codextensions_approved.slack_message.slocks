@@ -2,7 +2,7 @@ header "Codextensions Sidequest Complete"
 
 section "Your project *#{entry.project.title}* has been approved for the Codextensions sidequest!", markdown: true
 
-section "You've unlocked the *Sidequest: Physics Lab* achievement and can now grab physics prizes in the shop.", markdown: true
+section "You've unlocked the *Sidequest: Codextensions* achievement and can now grab Codextensions prizes in the shop.", markdown: true
 
 divider
 
