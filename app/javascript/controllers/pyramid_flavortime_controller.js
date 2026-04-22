@@ -1,20 +1,15 @@
 import { Controller } from "@hotwired/stimulus";
 import Chart from "chart.js/auto";
-import ChartDataLabels from "chartjs-plugin-datalabels";
 
 export default class extends Controller {
   static targets = [
     "pyramidActivityChart",
     "pyramidActivityRange",
-    "pyramidReferralChart",
-    "pyramidPosterChart",
     "flavortimeActivityChart",
   ];
 
   static values = {
     pyramidActivityTimeline: Array,
-    pyramidReferralChart: Object,
-    pyramidPosterChart: Object,
     flavortimeActivityChart: Object,
   };
 
@@ -51,11 +46,7 @@ export default class extends Controller {
     return (
       this.hasPyramidActivityChartTarget &&
       this.hasPyramidActivityRangeTarget &&
-      this.hasPyramidReferralChartTarget &&
-      this.hasPyramidPosterChartTarget &&
-      this.hasPyramidActivityTimelineValue &&
-      this.hasPyramidReferralChartValue &&
-      this.hasPyramidPosterChartValue
+      this.hasPyramidActivityTimelineValue
     );
   }
 
@@ -68,8 +59,6 @@ export default class extends Controller {
 
   _renderPyramidCharts() {
     const activityTimeline = this.pyramidActivityTimelineValue;
-    const referralData = this.pyramidReferralChartValue;
-    const posterData = this.pyramidPosterChartValue;
 
     this._pyramidActivityChart = new Chart(this.pyramidActivityChartTarget, {
       data: this._buildPyramidActivityChartData(
@@ -132,63 +121,6 @@ export default class extends Controller {
       },
     });
     this._charts.push(this._pyramidActivityChart);
-
-    const referralChart = new Chart(this.pyramidReferralChartTarget, {
-      type: "doughnut",
-      data: {
-        labels: referralData.labels,
-        datasets: [
-          {
-            data: referralData.values,
-            backgroundColor: ["#f59e0b", "#3b82f6", "#10b981"],
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: "58%",
-        plugins: {
-          legend: {
-            position: "bottom",
-          },
-        },
-      },
-    });
-    this._charts.push(referralChart);
-
-    const posterChart = new Chart(this.pyramidPosterChartTarget, {
-      type: "pie",
-      data: {
-        labels: posterData.labels,
-        datasets: [
-          {
-            data: posterData.values,
-            backgroundColor: ["#10b981", "#3b82f6", "#ef4444"],
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: "bottom",
-          },
-          datalabels: {
-            color: "#111827",
-            font: {
-              weight: "600",
-            },
-            formatter(value) {
-              return value > 0 ? value : "";
-            },
-          },
-        },
-      },
-      plugins: [ChartDataLabels],
-    });
-    this._charts.push(posterChart);
   }
 
   _renderFlavortimeChart() {
