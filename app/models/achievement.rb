@@ -222,6 +222,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       }
     ),
     new(
+      slug: :sidequest_party,
+      name: "Sidequest: Party",
+      description: "Shipped a project for the Party sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "party" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
+    new(
       slug: :sidequest_converge,
       name: "Sidequest: Converge",
       description: "Shipped a bot for the Converge sidequest!",

@@ -1,0 +1,15 @@
+<%= link_to sidequest_path(sidequest), id: "party", class: "sidequest-card sidequest-card--party-purple sidequest-card--link" do %>
+  <div class="sidequest-card__content">
+    <h1 class="sidequest-card__title">Party</h1>
+    <div class="sidequest-card__image-container">
+      <%= image_tag "sidequests/party.png",
+                    alt: "",
+                    aria: {hidden: true},
+                    class: "sidequest-card__image" %>
+    </div>
+    <h2>Build a multiplayer game. Submit to this sidequest to unlock a new shop item (and discounts on some other ones too)!</h2>
+    <% if sidequest.approved_count > 0 %>
+      <p class="sidequest-card__expires"><%= pluralize(sidequest.approved_count, "submission") %></p>
+    <% end %>
+  </div>
+<% end %>

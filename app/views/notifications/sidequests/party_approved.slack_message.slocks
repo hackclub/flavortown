@@ -1,0 +1,11 @@
+header "🎉Party Sidequest Complete!"
+
+section "Your project *#{entry.project.title}* has been approved for the Party sidequest!", markdown: true
+
+section "You've unlocked the *Sidequest: Party* achievement!! You can also get some cool multiplayer goodies!", markdown: true
+
+divider
+
+content [
+mrkdwn_text("*Imagine theres a lot of confetti right here*" )
+]

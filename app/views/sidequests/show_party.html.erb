@@ -1,0 +1,61 @@
+<% content_for :title, @sidequest.title %>
+<% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
+<% content_for :og_image, og_image_url('sidequests', format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+
+<%= render HeadingComponent.new(title: @sidequest.title, tone: :blue, size: :full) %>
+
+<div class="sidequest-show sidequest-show--optimization">
+  <div class="sidequest-show__content">
+    <% if @sidequest.description.present? %>
+      <p class="sidequest-show__description"><%= @sidequest.description %></p>
+    <% end %>
+
+    <div class="sidequest-show__info-grid">
+      <section class="sidequest-show__info-card">
+        <h3 class="sidequest-show__info-title">Requirements</h3>
+        <ul class="sidequest-show__steps">
+          <li>Your game must have an element of online multiplayer.</li>
+          <li>Any particular multiplayer system will work as long as you can play the game with friends!</li>
+          <li>Add a short README section that explains any prerequisites needed to run multiplayer for your game (if any)</li>
+          <li>Ship it on Flavortown and submit it to this sidequest when shipping!.</li>
+        </ul>
+      </section>
+
+      <section class="sidequest-show__info-card">
+        <h3 class="sidequest-show__info-title">What if I don't want to make a server system?</h3>
+        <p> Well your in luck! I (kaplin86) am running my own party-based multiplayer system for the remaining time of flavortown.
+        You can read more <a href="https://github.com/Kaplin86/party-api">Here</a> and even
+         see an <a href="https://github.com/Kaplin86/party-example-project/tree/main">Example Project</a> too!</p>
+      </section>
+    </div>
+
+    <% if @approved_entries.any? %>
+      <div class="sidequest-show__gallery">
+        <h3 class="sidequest-show__gallery-title"><%= @approved_entries.size %> <%= "submission".pluralize(@approved_entries.size) %></h3>
+        <div class="sidequest-show__gallery-grid">
+          <% @approved_entries.each do |entry| %>
+            <% project = entry.project %>
+            <% next unless project.present? %>
+            <div class="sidequest-show__gallery-item">
+              <%= render partial: "projects/card", locals: { project: project } %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="sidequest-show__stats">
+        <p><strong>Be the first to submit</strong></p>
+      </div>
+    <% end %>
+
+    <div class="sidequest-show__actions">
+      <%= render ButtonComponent.new(
+            text: "Back to Sidequests",
+            href: sidequests_path,
+            color: :brown,
+            variant: :borderless
+          ) %>
+    </div>
+  </div>
+</div>
