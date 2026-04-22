@@ -126,6 +126,18 @@
     margin-top: var(--space-l);
   }
 
+  &__fairplay {
+    margin-top: var(--space-s);
+    font-family: var(--font-family-text);
+    font-size: var(--font-size-s);
+    opacity: 0.7;
+
+    a {
+      text-decoration: underline;
+      color: inherit;
+    }
+  }
+
   &--danger {
     --state-card-accent: var(
       --color-red-450

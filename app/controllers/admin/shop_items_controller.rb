@@ -1,6 +1,23 @@
 module Admin
   class ShopItemsController < Admin::ApplicationController
-    before_action :set_shop_item, only: [ :show, :edit, :update, :destroy, :request_approval ]
+    DRAFT_SHOP_ITEM_ATTR = %i[
+      name type description long_description internal_description
+      ticket_cost usd_cost hacker_score sale_percentage image
+      limited stock max_qty one_per_person_ever
+      requires_ship required_ships_count required_ships_start_date required_ships_end_date
+      source_region buyable_by_self accessory_tag show_image_in_shop
+      enabled_us enabled_ca enabled_eu enabled_uk enabled_in enabled_au enabled_xx
+      usd_offset_us usd_offset_ca usd_offset_eu usd_offset_uk usd_offset_in usd_offset_au usd_offset_xx
+      default_assigned_user_id_us default_assigned_user_id_ca default_assigned_user_id_eu
+      default_assigned_user_id_uk default_assigned_user_id_in default_assigned_user_id_au
+      default_assigned_user_id_xx
+      achievement_sale_percentage
+    ].freeze
+    DRAFT_SHOP_ITEM_ARR = %i[requires_achievement achievement_sale_slugs blocked_countries].freeze
+    DRAFT_SHOP_ITEM_PERM = DRAFT_SHOP_ITEM_ARR.index_with { [] }.freeze
+    DRAFT_SHOP_ITEM_ALLOW = (DRAFT_SHOP_ITEM_ATTR + DRAFT_SHOP_ITEM_ARR).map(&:to_s).freeze
+
+    before_action :set_shop_item, only: [ :show, :edit, :update, :destroy, :request_approval, :promote ]
     before_action :set_shop_item_types, only: [ :new, :edit ]
     before_action :set_fulfillment_users, only: [ :new, :edit, :create, :update ]
 
@@ -112,6 +129,37 @@ module Admin
       end
 
       redirect_to admin_shop_item_path(@shop_item), notice: "Approval requested! An admin will review your draft."
+    end
+
+    def promote
+      authorize :admin, :manage_shop?
+
+      unless @shop_item.draft?
+        redirect_to admin_shop_item_path(@shop_item), alert: "thats not a draft" and return
+      end
+
+      old_draft = @shop_item.draft
+      old_enabled = @shop_item.enabled
+      old_unlisted = @shop_item.unlisted
+
+      if @shop_item.update(draft: false, enabled: true, unlisted: false)
+        PaperTrail::Version.create!(
+          item_type: "ShopItem",
+          item_id: @shop_item.id,
+          event: "published_from_draft",
+          whodunnit: current_user.id,
+          object_changes: {
+            draft: [ old_draft, @shop_item.draft ],
+            enabled: [ old_enabled, @shop_item.enabled ],
+            unlisted: [ old_unlisted, @shop_item.unlisted ],
+            published_at: Time.current
+          }.to_yaml
+        )
+
+        redirect_to admin_shop_item_path(@shop_item), notice: "done! its live now!"
+      else
+        redirect_to admin_shop_item_path(@shop_item), alert: "error: #{@shop_item.errors.full_messages.to_sentence}"
+      end
     end
 
     private
@@ -236,14 +284,19 @@ module Admin
     end
 
     def draft_shop_item_params
-      params.require(:shop_item).permit(
-        :name, :type, :description, :long_description, :internal_description,
-        :ticket_cost, :usd_cost, :hacker_score, :sale_percentage, :image,
-        :limited, :stock, :max_qty, :one_per_person_ever,
-        :requires_ship, :required_ships_count, :required_ships_start_date, :required_ships_end_date,
-        :source_region, :buyable_by_self, :accessory_tag, :show_image_in_shop,
-        requires_achievement: [], blocked_countries: []
-      )
+      p = params.require(:shop_item)
+      unpermitted = p.keys - DRAFT_SHOP_ITEM_ALLOW
+
+      if unpermitted.any?
+        Rails.logger.warn("[Admin::ShopItemsController] Filtered unpermitted draft shop item params: #{unpermitted.join(', ')} for user_id=#{current_user.id} shop_item_id=#{@shop_item&.id || 'new'}")
+        Sentry.capture_message(
+          "not allowed draft shop item params submitted",
+          level: :warning,
+          extra: { unpermitted: unpermitted, user_id: current_user.id, shop_item_id: @shop_item&.id }
+        ) if defined?(Sentry)
+      end
+
+      p.permit(*DRAFT_SHOP_ITEM_ATTR, **DRAFT_SHOP_ITEM_PERM)
     end
   end
 end

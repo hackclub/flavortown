@@ -2,8 +2,8 @@ class ProcessDemoBrokenReportsJob < ApplicationJob
   queue_as :default
 
   SLACK_RECIPIENT   = "U07L45W79E1"
-  PENDING_THRESHOLD = 3
-  TOTAL_THRESHOLD   = 15
+  PENDING_THRESHOLD = 1
+  TOTAL_THRESHOLD   = 5
   CACHE_TTL         = 7.days
 
   def perform
@@ -17,7 +17,7 @@ class ProcessDemoBrokenReportsJob < ApplicationJob
       reports = project.reports
 
       # 1. Auto-resolve reports for missing / banned users
-      if user.nil? || user.banned? || user.shadow_banned?
+      if user.nil? || user.banned?
         resolve_reports!(reports.pending)
         next
       end

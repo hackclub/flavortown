@@ -61,7 +61,7 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def show
-      @user = User.includes(:identities).find(params[:id])
+      @user = User.includes(:identities, :vote_verdict).find(params[:id])
 
       @all_projects = @user.projects.with_deleted.order(deleted_at: :desc)
     end
@@ -354,20 +354,6 @@ class Admin::UsersController < Admin::ApplicationController
     )
 
     flash[:notice] = "#{@user.display_name} has been unbanned."
-    redirect_to admin_user_path(@user)
-  end
-
-  # DEPRECATED: Use project shadow banning instead
-  def shadow_ban
-    Rails.logger.warn("DEPRECATED: Admin user shadow_ban action is deprecated. Use project shadow banning instead.")
-    flash[:warning] = "User shadow banning is deprecated. Please use project shadow banning instead."
-    redirect_to admin_user_path(@user)
-  end
-
-  # DEPRECATED: Use project shadow banning instead
-  def unshadow_ban
-    Rails.logger.warn("DEPRECATED: Admin user unshadow_ban action is deprecated. Use project shadow banning instead.")
-    flash[:warning] = "User shadow banning is deprecated. Please use project shadow banning instead."
     redirect_to admin_user_path(@user)
   end
 

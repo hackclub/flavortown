@@ -30,8 +30,4 @@ class UserProfilesController < ApplicationController
   def profile_params
     params.require(:user_profile).permit(:bio, :custom_css)
   end
-
-  def require_login
-    redirect_to root_path, alert: "Please log in first" and return unless current_user
-  end
 end

@@ -857,9 +857,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_15_130341) do
     t.boolean "send_notifications_for_new_followers", default: true, null: false
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
-    t.boolean "shadow_banned", default: false, null: false
-    t.datetime "shadow_banned_at"
-    t.text "shadow_banned_reason"
     t.enum "shop_region", enum_type: "shop_region_type"
     t.boolean "slack_balance_notifications", default: false, null: false
     t.string "slack_id"

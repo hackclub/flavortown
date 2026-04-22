@@ -69,6 +69,11 @@ Sidequest.find_or_create_by!(slug: "caffeinated") do |sq|
   sq.description = "Build and ship a website to unlock a caffeine grant in the shop."
 end
 
+Sidequest.find_or_create_by!(slug: "roasted_apples") do |sq|
+  sq.title = "Roasted Apples"
+  sq.description = "Get access to the HQ Apple Developer Account to build an app for Apple devices! Then get your own license and other Apple prizes!"
+end
+
 Sidequest.find_or_create_by!(slug: "rusty_frontend") do |sq|
   sq.title = "Rusty Frontend"
   sq.description = "Build and ship a frontend in rust to unlock new prizes in the shop"
@@ -78,10 +83,20 @@ Sidequest.find_or_create_by!(slug: "physics_lab") do |sq|
   sq.title = "Physics Lab"
   sq.description = "Build an interactive physics project and ship it on Flavortown to unlock physics prizes in the shop."
 end
+Sidequest.find_or_create_by!(slug: "codextensions") do |sq|
+  sq.title = "Codextensions"
+  sq.description = "Build a VS Code extension and ship it on Flavortown to unlock exclusive prizes in the shop."
+end
 Sidequest.find_or_create_by!(slug: "the_hackazine") do |sq|
   sq.title = "The Hackazine"
   sq.description = "This January: make a page for your project and get it in the Hack Club 2025 magazine! Join #magazine and submit before January 22nd. Projects selected for the magazine receive 50 cookies + stickers! Please note, magazine submissions have 0% AI tolerance."
   sq.expires_at = Date.new(2025, 1, 22)
+end
+
+Sidequest.find_or_create_by!(slug: "kernel") do |sq|
+  sq.title = "Kernel"
+  sq.description = "Ship something that runs through commands like a tool, system or interactive terminal experience. Include a working demo and a README that explains the commands."
+  sq.expires_at = Date.new(2026, 4, 30)
 end
 
 Sidequest.find_or_create_by!(slug: "borked_ui_jam") do |sq|
@@ -101,6 +116,11 @@ Sidequest.find_or_create_by!(
   description: "Work 10 hrs a week for 4 weeks without missing an hour. You get 120 cookies & unlock some shop items.",
   expires_at: Date.new(2026, 4, 30)
 )
+
+Sidequest.find_or_create_by!(slug: "transcode") do |sq|
+  sq.title = "Transcode"
+  sq.description = "Submit a project that has a focus working with any form of media. This means that the project should be mainly about interacting with any form of media (video, art, music!)."
+end
 
 # webOS shop items - require webOS sidequest achievement
 webos_stickers = ShopItem.find_or_create_by!(id: 95) do |item|

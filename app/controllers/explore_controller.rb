@@ -3,8 +3,6 @@ class ExploreController < ApplicationController
     scope = Post.of_devlogs(join: true)
                 .where(post_devlogs: { tutorial: false })
                 .where.not(user_id: current_user&.id)
-                .joins(:user)
-                .where(users: { shadow_banned: false })
                 .includes(:user, :project)
                 .preload(:postable)
 
