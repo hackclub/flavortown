@@ -22,11 +22,14 @@ default: &default
 development:
   primary:
     <<: *default
-    database: battlemage_development
-    url: <%= ENV['DATABASE_URL'] %>
+    database: flavortown_development
+    host: db
+    port: 5432
+    username: postgres
+    password: pass
   embeddings:
     <<: *default
-    database: battlemage_embeddings
+    database: flavortown_development_embed
     url: <%= ENV['EMBEDDINGS_DATABASE_URL'] %>
     migrations_paths: db/embeddings_migrate
 
@@ -37,9 +40,17 @@ test:
   primary:
     <<: *default
     database: battlemage_test
+    host: db
+    port: 5432
+    username: postgres
+    password: pass
   embeddings:
     <<: *default
     database: flavortown_embeddings_test
+    host: dbe
+    port: 5432
+    username: postgres
+    password: pass
     migrations_paths: db/embeddings_migrate
 
 # As with config/credentials.yml, you never want to store sensitive information,

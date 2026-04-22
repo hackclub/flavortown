@@ -94,6 +94,7 @@ Rails.application.routes.draw do
   # Sidequests (formerly Nibbles)
   get "nibbles", to: redirect("/sidequests")
   get "sidequests/minequest", to: "sidequests#show", defaults: { id: "minequest" }, as: :minequest_sidequest
+  get "sidequests/minequests", to: "sidequests#show", defaults: { id: "minequest" }
   resources :sidequests, only: [ :index, :show ]
   get "sidequests/:id/dash", to: "sidequests/lockin#dash", constraints: { id: "lockin" }, as: :dash_sidequest
 

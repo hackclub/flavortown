@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Prevent git safety warnings for bind-mounted workspace path in dev containers.
+git config --global --add safe.directory /app 2>/dev/null || true
+
 # Ensure gems are installed (needed when bundle_cache volume is fresh)
 bundle check || bundle install
 

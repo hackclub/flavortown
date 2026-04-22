@@ -6,10 +6,15 @@ class SidequestsController < ApplicationController
   end
 
   def show
-    requested_slug = params[:id]
+    requested_slug = params[:id].to_s
     @sidequest = Sidequest.find_by(slug: requested_slug)
-    if @sidequest.nil? && requested_slug == "minequest"
-      @sidequest = Sidequest.find_by("LOWER(title) LIKE ?", "%minequest%")
+    minequest_alias_slugs = [ "minequest", "minequests", "minecraft-art" ]
+    if @sidequest.nil? && minequest_alias_slugs.include?(requested_slug)
+      @sidequest = Sidequest.where(slug: minequest_alias_slugs)
+        .or(Sidequest.where("LOWER(title) LIKE ?", "%minequest%"))
+        .or(Sidequest.where("LOWER(title) LIKE ?", "%minecraft%"))
+        .order(Arel.sql("CASE WHEN sidequests.slug = 'minequest' THEN 0 WHEN sidequests.slug = 'minequests' THEN 1 WHEN sidequests.slug = 'minecraft-art' THEN 2 ELSE 3 END"))
+        .first
     end
     raise ActiveRecord::RecordNotFound if @sidequest.nil?
 
@@ -41,8 +46,8 @@ class SidequestsController < ApplicationController
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_caffeinated").where(enabled: true)
     end
 
-    is_minequest = requested_slug == "minequest" ||
-      @sidequest.slug == "minequest" ||
+    is_minequest = [ "minequest", "minequests" ].include?(requested_slug) ||
+      minequest_alias_slugs.include?(@sidequest.slug) ||
       @sidequest.title == "Minequest" ||
       @sidequest.title.to_s.downcase.include?("minecraft")
 
@@ -143,6 +148,6 @@ class SidequestsController < ApplicationController
   end
 
   def ordered_sidequests(scope)
-    scope.order(Arel.sql("CASE WHEN sidequests.slug IN ('minequest', 'minecraft-art') OR sidequests.title IN ('Minequest', 'Minecraft Art Challenge') THEN 0 ELSE 1 END"), :title)
+    scope.order(Arel.sql("CASE WHEN sidequests.slug IN ('minequest', 'minequests', 'minecraft-art') OR sidequests.title IN ('Minequest', 'Minecraft Art Challenge') THEN 0 ELSE 1 END"), :title)
   end
 end
