@@ -5,6 +5,10 @@
     <%= image_tag "https://cdn.hackclub.com/019dac8b-f908-7ef1-ace6-01ff01204336/ezgif-25c447519ddbfd94.avif", class: "minecraft-title-image", data: { sidequests__minequest__accessibility_target: "image" } %>
   </div>
 
+  <div class="minecraft-map-box">
+    <p class="minecraft-map-box__text"><%= @sidequest.description %></p>
+  </div>
+
   <div class="minecraft-menu">
     <div data-controller="sidequests--minequest--modal">
       <a href="#" class="minecraft-menu-button" style="width: 100%; display: block;" data-action="click->sidequests--minequest--modal#open">Requirements</a>

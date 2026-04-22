@@ -613,6 +613,26 @@ h3.minecraft-book-title {
   position: fixed;
 }
 
+.minecraft-ui-container--card {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 360px !important;
+  max-width: 360px !important;
+  padding: 1rem;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.minecraft-ui-container--card .minecraft-image {
+  width: 100%;
+  height: 120px;
+  margin: 0 0 0.8rem 0;
+}
+
+.minecraft-ui-container--card p {
+  margin: 0 0 0.8rem 0;
+}
+
 @media (max-width: 860px) {
   .minecraft-requirements-columns {
     grid-template-columns: 1fr;
