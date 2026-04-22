@@ -7,10 +7,9 @@
                     aria: {hidden: true},
                     class: "sidequest-card__image" %>
     </div>
-    <h2>Build a VS Code extension of any kind. Submit to this sidequest and unlock exclusive prizes!!</h2>
+    <h2>Build a VS Code extension of any kind. Submit to this sidequest and unlock exclusive prizes!</h2>
     <% if sidequest.approved_count > 0 %>
       <p class="sidequest-card__expires"><%= pluralize(sidequest.approved_count, "submission") %></p>
     <% end %>
-    <p class="sidequest-card__expires">Build VS Code extensions, unlock amazing prizes</p>
   </div>
 <% end %>

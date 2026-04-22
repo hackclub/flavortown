@@ -5,7 +5,7 @@
 
 <%= render HeadingComponent.new(title: @sidequest.title, tone: :blue, size: :full) %>
 
-<div class="sidequest-show sidequest-show--optimization">
+<div class="sidequest-show sidequest-show--codextensions">
   <div class="sidequest-show__content">
     <% if @sidequest.description.present? %>
       <p class="sidequest-show__description"><%= @sidequest.description %></p>
@@ -19,8 +19,8 @@
           <li>Your README must explain what it does and how it helps YOU as a developer.</li>
           <li>Release:
             <ul>
-            <li>Publish your extension on VS Code marketplace. <%= link_to "How?", "https://code.visualstudio.com/api/working-with-extensions/publishing-extension", target: "_blank", rel: "noopener" %>
-            <li>Make a .VSIX release in github (or a website - i must be able to test it)</li>
+            <li>Publish your extension on VS Code marketplace. <%= link_to "How?", "https://code.visualstudio.com/api/working-with-extensions/publishing-extension", target: "_blank", rel: "noopener" %></li>
+            <li>Make a .VSIX release on GitHub (or a website — I must be able to test it)</li>
             </ul>
           </li>
           <li>Ship your project on Flavortown</li>
@@ -37,8 +37,8 @@
       <section class="sidequest-show__info-card">
         <h3 class="sidequest-show__info-title">Helpful Tips</h3>
         <ul class="sidequest-show__steps">
-          <li><strong>Useful</strong> - Make something, devs would actually use!</li>
-          <li><strong>Ease of use</strong> - Make something, that isnt complicated as heck!</li>
+          <li><strong>Useful</strong> - Make something devs would actually use!</li>
+          <li><strong>Ease of use</strong> - Make something that isn't complicated as heck!</li>
         </ul>
       </section>
     </div>
