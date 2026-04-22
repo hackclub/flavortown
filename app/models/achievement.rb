@@ -261,7 +261,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       }
     ),
     new(
-      slug: :codextensions,
+      slug: :sidequest_codextensions,
       name: "Sidequest: Codextensions",
       description: "Shipped a VS Code extension for the Codextensions sidequest!",
       icon: "trophy",
