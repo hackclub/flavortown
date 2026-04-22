@@ -7,7 +7,7 @@ class SlackChannelService
     flavortown_introduction: "C0A4R38SFJ9"
   }.freeze
 
-  CACHE_TTL_HIT = 30.days   # once posted, always posted
+  CACHE_TTL_HIT = 30.days   # cache positive results for 30 days
   CACHE_TTL_MISS = 5.minutes
 
   class << self
