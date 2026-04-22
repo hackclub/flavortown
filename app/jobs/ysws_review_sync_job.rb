@@ -235,8 +235,8 @@ class YswsReviewSyncJob < ApplicationJob
     # ship_cert_id = ship_cert["id"].to_s
     fields = build_record_fields(review, report_status, user_pii, approved_orders, adjusted_hours: adjusted_hours)
 
-    # Rails.logger.info "[YswsReviewSyncJob] Upserting Airtable record for ship_cert_id #{ship_cert_id}"
-    table.upsert(fields, "ship_cert_id")
+    # Rails.logger.info "[YswsReviewSyncJob] Upserting Airtable record for upsert_key #{fields['upsert_key']}"
+    table.upsert(fields, "upsert_key")
   end
 
   def build_record_fields(review, report_status, user_pii, approved_orders, adjusted_hours: nil)
@@ -254,6 +254,7 @@ class YswsReviewSyncJob < ApplicationJob
     end
 
     {
+      "upsert_key" => "#{ship_cert['repoUrl']}|#{user_pii[:email]}",
       "review_id" => review["id"].to_s,
       "slack_id" => user_pii[:slack_id],
       "Email" => user_pii[:email],
