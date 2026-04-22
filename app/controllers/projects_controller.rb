@@ -602,6 +602,8 @@ class ProjectsController < ApplicationController
   end
 
   def link_hackatime_projects
+    return unless params[:project].key?(:hackatime_project_ids)
+
     # Unlink hackatime projects that were removed
     @project.hackatime_projects.where.not(id: hackatime_project_ids).find_each do |hp|
       hp.update(project: nil)

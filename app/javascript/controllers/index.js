@@ -43,8 +43,14 @@ application.register("file-upload", FileUploadController)
 import FlashController from "./flash_controller"
 application.register("flash", FlashController)
 
-import HackatimeProjectSelectorController from "./hackatime_project_selector_controller"
-application.register("hackatime-project-selector", HackatimeProjectSelectorController)
+import FraudDashController from "./fraud_dash_controller";
+application.register("fraud-dash", FraudDashController);
+
+import HackatimeProjectSelectorController from "./hackatime_project_selector_controller";
+application.register(
+  "hackatime-project-selector",
+  HackatimeProjectSelectorController,
+);
 
 import HcbChartController from "./hcb_chart_controller"
 application.register("hcb-chart", HcbChartController)
@@ -55,8 +61,11 @@ application.register("hello", HelloController)
 import JsonHighlightController from "./json_highlight_controller"
 application.register("json-highlight", JsonHighlightController)
 
-import KitchenDialogueController from "./kitchen_dialogue_controller"
-application.register("kitchen-dialogue", KitchenDialogueController)
+import KernelTerminalController from "./kernel_terminal_controller";
+application.register("kernel-terminal", KernelTerminalController);
+
+import KitchenDialogueController from "./kitchen_dialogue_controller";
+application.register("kitchen-dialogue", KitchenDialogueController);
 
 import LapseModalController from "./lapse_modal_controller"
 application.register("lapse-modal", LapseModalController)
@@ -177,8 +186,11 @@ application.register("tooltip", TooltipController)
 import TutorialStepsExpandController from "./tutorial_steps_expand_controller"
 application.register("tutorial-steps-expand", TutorialStepsExpandController)
 
-import TutorialVideoModalController from "./tutorial_video_modal_controller"
-application.register("tutorial-video-modal", TutorialVideoModalController)
+import VotingDashController from "./voting_dash_controller";
+application.register("voting-dash", VotingDashController);
+
+import WelcomeOverlayController from "./welcome_overlay_controller";
+application.register("welcome-overlay", WelcomeOverlayController);
 
 import UploadFormController from "./upload_form_controller"
 application.register("upload-form", UploadFormController)

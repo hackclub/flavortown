@@ -22,8 +22,4 @@ class ShopSuggestionsController < ApplicationController
   def suggestion_params
     params.require(:shop_suggestion).permit(:item, :explanation, :link)
   end
-
-  def require_login
-    redirect_to root_path, alert: "Please log in first" and return unless current_user
-  end
 end

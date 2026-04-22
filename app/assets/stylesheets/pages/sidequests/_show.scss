@@ -129,6 +129,113 @@
     }
   }
 
+  &--roasted-apples {
+    .sidequest-show__content {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .sidequest-show__hero {
+      margin: 0 auto 1.5rem;
+      max-width: 900px;
+    }
+
+    .sidequest-show__hero-image {
+      display: block;
+      width: 100%;
+      border-radius: 0.9rem;
+      border: 1px solid var(--color-brown-200);
+      box-shadow: 0 8px 20px rgba(80, 53, 32, 0.1);
+    }
+
+    .sidequest-show__description {
+      margin: 0 auto 1.5rem;
+      max-width: 840px;
+      text-align: center;
+      font-size: 1.15rem;
+      line-height: 1.7;
+      color: var(--color-brown-500);
+    }
+
+    .sidequest-show__info-grid {
+      display: grid;
+      gap: 1.25rem;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      margin-top: 1.25rem;
+    }
+
+    .sidequest-show__info-card {
+      background: var(--color-cream-100);
+      border: 1px solid var(--color-brown-200);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+    }
+
+    .sidequest-show__join-box {
+      margin: 0 auto;
+      max-width: 900px;
+      padding: 1.25rem;
+      border: 2px solid var(--color-blue-400);
+      border-radius: 0.75rem;
+      background: #eef6ff;
+      box-shadow: 0 2px 0 rgba(74, 144, 226, 0.18);
+    }
+
+    .sidequest-show__info-card--spotlight {
+      margin: 0 auto;
+      max-width: 900px;
+      border-left: 4px solid var(--color-blue-400);
+    }
+
+    .sidequest-show__info-title {
+      margin: 0 0 0.65rem;
+      color: var(--color-brown-500);
+      font-family: var(--font-family-subtitle);
+      font-size: 1.1rem;
+    }
+
+    .sidequest-show__steps {
+      margin: 0;
+      padding-left: 1.2rem;
+      color: var(--color-brown-500);
+      line-height: 1.7;
+
+      li + li {
+        margin-top: 0.35rem;
+      }
+    }
+
+    .sidequest-show__help-note {
+      margin-top: 1rem;
+      margin-bottom: 0;
+      color: var(--color-brown-500);
+      font-size: 0.95rem;
+    }
+
+    .sidequest-show__gallery-title {
+      color: var(--color-brown-500);
+      font-family: var(--font-family-subtitle);
+    }
+
+    .sidequest-show__stats {
+      background: var(--color-cream-100);
+      border: 1px solid var(--color-brown-200);
+      border-radius: 0.75rem;
+      color: var(--color-brown-500);
+    }
+
+    @media (max-width: 720px) {
+      .sidequest-show__content {
+        padding: 0 0.75rem;
+      }
+
+      .sidequest-show__description {
+        text-align: left;
+      }
+    }
+  }
+
   &__gallery-title {
     text-align: center;
     margin: 1em 0;

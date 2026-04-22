@@ -54,6 +54,12 @@ class SidequestsController < ApplicationController
         render "sidequests/minequest/show" and return
       end
       @display_title = "Minequest"
+    if @sidequest.slug == "transcode"
+      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_transcode").where(enabled: true)
+    end
+
+    if @sidequest.slug == "kernel"
+      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_kernel").where(enabled: true)
     end
 
     custom_template = "sidequests/show_#{@sidequest.slug}"
