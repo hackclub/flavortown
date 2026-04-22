@@ -254,7 +254,7 @@ class YswsReviewSyncJob < ApplicationJob
     end
 
     {
-      "upsert_key" => "#{ship_cert['repoUrl']}|#{user_pii[:email]}",
+      "upsert_key" => "#{get_formatted_code_url(ship_cert['repoUrl'])}|#{user_pii[:email]}",
       "review_id" => review["id"].to_s,
       "slack_id" => user_pii[:slack_id],
       "Email" => user_pii[:email],
