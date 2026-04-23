@@ -1,0 +1,15 @@
+header "Respawn Sidequest Entry Not Approved"
+
+section "Your project *#{entry.project.title}* wasn't approved for the Respawn sidequest.", markdown: true
+
+if entry.rejection_message.present?
+  section "*Reason:* #{entry.rejection_message}", markdown: true
+else
+  section "Make sure your project is clearly arcade game related, then try again.", markdown: true
+end
+
+divider
+
+context [
+  mrkdwn_text("Questions? Reach out in #flavortown-help or DM @Mustafa on Slack")
+]
