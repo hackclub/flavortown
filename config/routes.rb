@@ -410,7 +410,11 @@ Rails.application.routes.draw do
     end
     resources :reports, only: [ :create ], module: :projects
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
-    resource :ships, only: [ :new, :create ], module: :projects
+    resource :ships, only: [ :new, :create ], module: :projects, shallow: false do
+      member do
+        get :pre_check
+      end
+    end
     member do
       get :readme
       get :lapse_timelapses
