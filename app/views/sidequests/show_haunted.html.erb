@@ -22,21 +22,18 @@
     position: relative;
   }
 
-  /* Apply theme and filter to sidebar navigation only (exclude user card) */
   nav,
   aside,
   [role="navigation"] {
     filter: none;
   }
 
-  /* Apply filter only to sidebar navigation items, not user container */
   nav :not(.sidebar__user),
   aside :not(.sidebar__user),
   [role="navigation"] :not(.sidebar__user) {
     filter: grayscale(1) contrast(1.15);
   }
 
-  /* Completely exclude the profile/user container from any theme */
   .sidebar__user,
   .sidebar__user-card,
   .sidebar__user-avatar,
@@ -52,7 +49,6 @@
     border-color: inherit !important;
   }
 
-  /* Exclude all children of sidebar user container */
   .sidebar__user * {
     filter: none !important;
     color: inherit !important;
@@ -60,7 +56,6 @@
     border-color: inherit !important;
   }
 
-  /* Apply theme and filter to main content */
   main,
   .container,
   .haunted-page {
