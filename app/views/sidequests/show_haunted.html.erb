@@ -1,20 +1,95 @@
-<%# app/views/sidequests/show_haunted.html.erb %>
 <% content_for :title, @sidequest.title %>
 <% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
 <% content_for :og_image, og_image_url('sidequests', format: :png) %>
 <% content_for :twitter_card, "summary_large_image" %>
 
 <style>
+  body {
+    background-color: #0a0a0a !important;
+    color: #f5f5f5 !important;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 10, 0.55);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body > * {
+    position: relative;
+  }
+
+  /* Apply theme and filter to sidebar navigation only (exclude user card) */
+  nav,
+  aside,
+  [role="navigation"] {
+    filter: none;
+  }
+
+  /* Apply filter only to sidebar navigation items, not user container */
+  nav :not(.sidebar__user),
+  aside :not(.sidebar__user),
+  [role="navigation"] :not(.sidebar__user) {
+    filter: grayscale(1) contrast(1.15);
+  }
+
+  /* Completely exclude the profile/user container from any theme */
+  .sidebar__user,
+  .sidebar__user-card,
+  .sidebar__user-avatar,
+  .sidebar__user-details,
+  .sidebar__user-actions,
+  .sidebar__user-name,
+  .sidebar__user-balance,
+  .sidebar__user-settings,
+  .sidebar__user-logout {
+    filter: none !important;
+    color: inherit !important;
+    background-color: inherit !important;
+    border-color: inherit !important;
+  }
+
+  /* Exclude all children of sidebar user container */
+  .sidebar__user * {
+    filter: none !important;
+    color: inherit !important;
+    background-color: inherit !important;
+    border-color: inherit !important;
+  }
+
+  /* Apply theme and filter to main content */
+  main,
+  .container,
+  .haunted-page {
+    filter: grayscale(1) contrast(1.15);
+  }
+
+  :is(header, nav, main, aside, section, article, footer) {
+    background-color: transparent !important;
+    color: #f5f5f5 !important;
+  }
+
+  :is(a, button, input, select, textarea, [role="button"], .btn, .button) {
+    color: #f5f5f5 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    background-color: rgba(30, 30, 30, 0.8) !important;
+  }
+
+  :is(.sidequest-card, .sidequest-card__content, .sidequest-card__title, .sidequest-card__expires, .sidequest-card__image-container) {
+    background-color: rgba(20, 20, 20, 0.7) !important;
+    color: #f5f5f5 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
   .haunted-page {
     position: relative;
     min-height: 100vh;
     overflow: hidden;
-    background:
-      radial-gradient(circle at 18% 18%, rgba(182, 79, 255, 0.22), transparent 22%),
-      radial-gradient(circle at 78% 12%, rgba(72, 215, 255, 0.12), transparent 18%),
-      radial-gradient(circle at 50% 55%, rgba(255, 255, 255, 0.03), transparent 34%),
-      linear-gradient(180deg, #140e1e 0%, #07060b 100%);
-    color: white;
+    background: transparent;
+    color: #f5f5f5;
   }
 
   .haunted-page::before {
@@ -22,17 +97,9 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
-    background:
-      repeating-linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0.05),
-        rgba(255, 255, 255, 0.05) 1px,
-        transparent 2px,
-        transparent 4px
-      );
+    background: transparent;
     z-index: 5;
-    opacity: 0.22;
-    mix-blend-mode: screen;
+    opacity: 0;
   }
 
   .haunted-page::after {
@@ -40,13 +107,42 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
-    box-shadow: inset 0 0 240px rgba(0, 0, 0, 0.9);
+    box-shadow: none;
     z-index: 6;
   }
 
   .haunted-wrap {
     position: relative;
     z-index: 10;
+    min-height: 100%;
+    padding: 2rem 0 3rem;
+  }
+
+  .haunted-flash-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 7;
+    overflow: hidden;
+  }
+
+  .haunted-flash {
+    position: absolute;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.85);
+    filter: blur(2px);
+    animation: haunted-flash-pop 240ms ease-out forwards;
+  }
+
+  @keyframes haunted-flash-pop {
+    0% {
+      transform: scale(0.25);
+      opacity: 0.95;
+    }
+    100% {
+      transform: scale(1.6);
+      opacity: 0;
+    }
   }
 
   .haunted-hero {
@@ -64,76 +160,45 @@
     isolation: isolate;
   }
 
-  .haunted-title-wrap {
-  display: inline-block;
-  position: relative;
-  isolation: isolate;
-}
+  .haunted-title {
+    position: relative;
+    margin: 0;
+    color: #fff;
+    font-size: clamp(3.4rem, 8vw, 7rem);
+    line-height: 0.9;
+    letter-spacing: 0.03em;
+    text-shadow: 0 0 22px rgba(255, 255, 255, 0.12);
+    animation:
+      haunted-title-blink 2.1s infinite,
+      haunted-title-shake 0.28s infinite steps(2, end);
+  }
 
-.haunted-title {
-  position: relative;
-  margin: 0;
-  color: #f4f1ff;
-  font-size: clamp(3.4rem, 8vw, 7rem);
-  line-height: 0.9;
-  letter-spacing: 0.03em;
-  text-shadow: 0 0 22px rgba(176, 94, 255, 0.14);
-  animation: haunted-title-flicker 3.2s infinite;
-}
+  @keyframes haunted-title-blink {
+    0%, 100% { opacity: 1; filter: brightness(1) contrast(1); }
+    8% { opacity: 0.85; }
+    10% { opacity: 0.22; }
+    12% { opacity: 1; }
+    27% { opacity: 0.95; }
+    29% { opacity: 0.35; }
+    31% { opacity: 1; }
+    63% { opacity: 0.9; }
+    65% { opacity: 0.15; }
+    67% { opacity: 1; }
+  }
 
-.haunted-title::before,
-.haunted-title::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.95;
-  mix-blend-mode: screen;
-}
-
-.haunted-title::before {
-  color: #ff2d6f;
-  transform: translate(-4px, 0);
-  animation: haunted-glitch-a 0.8s infinite linear alternate-reverse;
-}
-
-.haunted-title::after {
-  color: #38d7ff;
-  transform: translate(4px, 0);
-  animation: haunted-glitch-b 0.65s infinite linear alternate-reverse;
-}
-
-@keyframes haunted-title-flicker {
-  0%, 88%, 100% { filter: brightness(1) contrast(1); transform: translate(0, 0); }
-  89% { filter: brightness(1.25) contrast(1.1); }
-  90% { filter: brightness(0.72) contrast(1.25); }
-  91% { filter: brightness(1.15) contrast(1.05); }
-  92% { filter: brightness(0.85) contrast(1.2); }
-  93% { filter: brightness(1.22) contrast(1.08); }
-}
-
-@keyframes haunted-glitch-a {
-  0% { clip-path: inset(0 0 72% 0); transform: translate(-5px, -1px) skewX(-8deg); }
-  20% { clip-path: inset(10% 0 48% 0); transform: translate(-8px, 0) skewX(6deg); }
-  40% { clip-path: inset(4% 0 62% 0); transform: translate(-2px, -2px) skewX(-3deg); }
-  60% { clip-path: inset(18% 0 32% 0); transform: translate(-10px, 1px) skewX(10deg); }
-  80% { clip-path: inset(7% 0 56% 0); transform: translate(-3px, 0) skewX(-5deg); }
-  100% { clip-path: inset(14% 0 42% 0); transform: translate(-7px, -1px) skewX(8deg); }
-}
-
-@keyframes haunted-glitch-b {
-  0% { clip-path: inset(42% 0 0 0); transform: translate(5px, 1px) skewX(8deg); }
-  20% { clip-path: inset(56% 0 0 0); transform: translate(8px, 0) skewX(-6deg); }
-  40% { clip-path: inset(30% 0 0 0); transform: translate(2px, 2px) skewX(3deg); }
-  60% { clip-path: inset(58% 0 0 0); transform: translate(10px, -1px) skewX(-10deg); }
-  80% { clip-path: inset(46% 0 0 0); transform: translate(3px, 0) skewX(5deg); }
-  100% { clip-path: inset(34% 0 0 0); transform: translate(7px, 1px) skewX(-8deg); }
-}
+  @keyframes haunted-title-shake {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-1px, 1px); }
+    40% { transform: translate(2px, -1px); }
+    60% { transform: translate(-2px, 0); }
+    80% { transform: translate(1px, 2px); }
+    100% { transform: translate(0, 0); }
+  }
 
   .haunted-subtitle {
     max-width: 52rem;
     margin: 1rem auto 0;
-    color: rgba(240, 236, 255, 0.82);
+    color: rgba(255, 255, 255, 0.82);
     font-size: clamp(1rem, 2vw, 1.25rem);
     line-height: 1.8;
     text-shadow: 0 0 18px rgba(0, 0, 0, 0.35);
@@ -144,11 +209,11 @@
     margin: 0 auto 1.75rem;
     padding: 1.25rem;
     border-radius: 1.6rem;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(18, 16, 30, 0.44);
-    backdrop-filter: blur(18px) saturate(130%);
-    -webkit-backdrop-filter: blur(18px) saturate(130%);
-    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.38);
+    border: none;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
   }
 
   .haunted-section--tab {
@@ -157,12 +222,12 @@
 
   .haunted-section-title {
     margin: 0 0 0.95rem;
-    color: #f8f1d8;
+    color: #f5f5f5;
     font-size: 1.05rem;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    text-shadow: 0 0 14px rgba(126, 66, 255, 0.18);
+    text-shadow: 0 0 14px rgba(255, 255, 255, 0.08);
   }
 
   .haunted-note {
@@ -182,52 +247,52 @@
     min-height: 9.5rem;
     padding: 1rem;
     border-radius: 1.15rem;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(14, 12, 22, 0.45);
-    backdrop-filter: blur(18px) saturate(135%);
-    -webkit-backdrop-filter: blur(18px) saturate(135%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border: none;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
   }
 
   .rgb-text {
     color: #f8f8f8;
     text-shadow:
-      1px 0 0 rgba(255, 0, 76, 0.6),
-      -1px 0 0 rgba(0, 255, 255, 0.45),
-      0 1px 0 rgba(0, 150, 255, 0.3);
+      1px 0 0 rgba(255, 255, 255, 0.5),
+      -1px 0 0 rgba(255, 255, 255, 0.25),
+      0 1px 0 rgba(255, 255, 255, 0.15);
     animation: rgb-shift 1.7s linear infinite;
   }
 
   @keyframes rgb-shift {
     0% {
       text-shadow:
-        1px 0 0 rgba(255, 0, 76, 0.6),
-        -1px 0 0 rgba(0, 255, 255, 0.45),
-        0 1px 0 rgba(0, 150, 255, 0.3);
+        1px 0 0 rgba(255, 255, 255, 0.5),
+        -1px 0 0 rgba(255, 255, 255, 0.25),
+        0 1px 0 rgba(255, 255, 255, 0.15);
     }
     25% {
       text-shadow:
-        0 1px 0 rgba(255, 0, 76, 0.6),
-        1px 0 0 rgba(0, 255, 255, 0.45),
-        -1px -1px 0 rgba(0, 150, 255, 0.3);
+        0 1px 0 rgba(255, 255, 255, 0.5),
+        1px 0 0 rgba(255, 255, 255, 0.25),
+        -1px -1px 0 rgba(255, 255, 255, 0.15);
     }
     50% {
       text-shadow:
-        -1px 0 0 rgba(255, 0, 76, 0.6),
-        1px 1px 0 rgba(0, 255, 255, 0.45),
-        0 -1px 0 rgba(0, 150, 255, 0.3);
+        -1px 0 0 rgba(255, 255, 255, 0.5),
+        1px 1px 0 rgba(255, 255, 255, 0.25),
+        0 -1px 0 rgba(255, 255, 255, 0.15);
     }
     75% {
       text-shadow:
-        1px 1px 0 rgba(255, 0, 76, 0.6),
-        0 -1px 0 rgba(0, 255, 255, 0.45),
-        -1px 0 0 rgba(0, 150, 255, 0.3);
+        1px 1px 0 rgba(255, 255, 255, 0.5),
+        0 -1px 0 rgba(255, 255, 255, 0.25),
+        -1px 0 0 rgba(255, 255, 255, 0.15);
     }
     100% {
       text-shadow:
-        1px 0 0 rgba(255, 0, 76, 0.6),
-        -1px 0 0 rgba(0, 255, 255, 0.45),
-        0 1px 0 rgba(0, 150, 255, 0.3);
+        1px 0 0 rgba(255, 255, 255, 0.5),
+        -1px 0 0 rgba(255, 255, 255, 0.25),
+        0 1px 0 rgba(255, 255, 255, 0.15);
     }
   }
 
@@ -250,10 +315,10 @@
   .haunted-faq-item {
     padding: 1rem 1rem 1.1rem;
     border-radius: 1.2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(12, 10, 18, 0.56);
-    backdrop-filter: blur(18px) saturate(140%);
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: none;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .haunted-faq-q {
@@ -288,22 +353,41 @@
     filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.58));
   }
 
+  .haunted-box-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 1rem;
+  }
+
+  .haunted-mystery-subtitle {
+    margin-top: 1.5rem;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.6;
+    text-shadow: 
+      0 0 10px rgba(255, 255, 255, 0.6),
+      0 0 20px rgba(255, 255, 255, 0.4),
+      0 0 30px rgba(255, 255, 255, 0.2);
+  }
+
   .haunted-back {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0.9rem 1.2rem;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(18, 16, 30, 0.72);
-    color: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(15, 15, 15, 0.75);
+    color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
     transition: transform 160ms ease, background 160ms ease;
   }
 
   .haunted-back:hover {
     transform: translateY(-1px);
-    background: rgba(32, 28, 45, 0.82);
+    background: rgba(25, 25, 25, 0.85);
   }
 
   @media (max-width: 768px) {
@@ -324,12 +408,15 @@
 </style>
 
 <div class="haunted-page sidequest-show sidequest-show--haunted">
+  <div class="haunted-flash-layer" id="haunted-flash-layer"></div>
+
   <div class="haunted-wrap">
     <section class="haunted-hero">
       <div>
         <div class="haunted-title-wrap">
-          <h1 class="haunted-title glitch" data-text="Haunted">Haunted</h1>
+          <h1 class="haunted-title" data-text="Haunted" id="haunted-title">Haunted</h1>
         </div>
+
         <p class="haunted-subtitle">
           Build horror or mysterious projects, win a mystery box.
         </p>
@@ -339,25 +426,27 @@
     <section class="haunted-section haunted-section--tab">
       <h2 class="haunted-section-title">Requirements</h2>
       <p class="haunted-note">You must follow these requirements to submit your project successfully!</p>
+
       <div class="haunted-grid">
-  <div class="haunted-slot">
-    <span class="haunted-label">Requirement 1</span>
-    <div class="haunted-placeholder rgb-text">
-      The project MUST be horror/mystery themed. Make sure the theme of your project uses any genre under the "horror-umbrella"(for genre details, pls search it up)
-    </div>
-  </div>
-  <div class="haunted-slot">
-    <span class="haunted-label">Requirement 2</span>
-    <div class="haunted-placeholder rgb-text">
-      It should be a quality submission that shows effort and creativity! The project must be functional and interactive.
-    </div>
-  </div>
-  </div>
-   </div>
+        <div class="haunted-slot">
+          <span class="haunted-label">Requirement 1</span>
+          <div class="haunted-placeholder rgb-text">
+            The project MUST be horror/mystery themed. Make sure the theme of your project uses any genre under the "horror-umbrella"(for genre details, pls search it up)
+          </div>
+        </div>
+
+        <div class="haunted-slot">
+          <span class="haunted-label">Requirement 2</span>
+          <div class="haunted-placeholder rgb-text">
+            It should be a quality submission that shows effort and creativity! The project must be functional and interactive.
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="haunted-section">
       <h2 class="haunted-section-title">FAQ</h2>
+
       <div class="haunted-grid">
         <div class="haunted-faq-item">
           <h3 class="haunted-faq-q">What is this?</h3>
@@ -366,6 +455,7 @@
             get access to buy a Mystery Box from the shop an gamble all your currency away for a chance to win something cool!
           </p>
         </div>
+
         <div class="haunted-faq-item">
           <h3 class="haunted-faq-q">What counts as a valid project?</h3>
           <p class="haunted-faq-a">
@@ -373,18 +463,21 @@
             You can submit anything - a website, a game, a visual novel or anything that matches the theme.
           </p>
         </div>
+
         <div class="haunted-faq-item">
           <h3 class="haunted-faq-q">Can I work on one project and ship multiple times?</h3>
           <p class="haunted-faq-a">
             Yes. You can keep iterating and ship improved versions as long as each submission is meaningful.
           </p>
         </div>
+
         <div class="haunted-faq-item">
           <h3 class="haunted-faq-q">How do I sign up?</h3>
           <p class="haunted-faq-a">
             When submitting a project, just select "Haunted" as the sidequest you're submitting to. You can submit as many projects as you want, but only one will count for the reward.
           </p>
         </div>
+
         <div class="haunted-faq-item" style="grid-column: 1 / -1;">
           <h3 class="haunted-faq-q">What is the reward?</h3>
           <p class="haunted-faq-a">
@@ -405,11 +498,22 @@
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Open the Flavortown shop">
+        <img 
+          src="<%= asset_path('sidequests/haunted.png') %>" 
+          alt="Mystery Box"
+          class="haunted-box-image" />
       </a>
+
+      <p class="haunted-mystery-subtitle">
+        Any persons who purchase a mystery box have the chance to roll anything from a sticker to a *********<br>
+        Test your luck out in these last days of flavortown!
+      </p>
     </section>
+
     <audio id="haunted-bgm" preload="auto" loop>
     <source src="<%= asset_path('sidequests/faqmusic.mp3') %>" type="audio/mpeg">
     </audio>
+
     <div class="pb-12 text-center">
       <%= link_to "Back to Sidequests", sidequests_path, class: "haunted-back" %>
     </div>
@@ -432,20 +536,45 @@
     cycle();
   }
 
+  const flashLayer = document.getElementById("haunted-flash-layer");
+  const spawnFlash = () => {
+    if (!flashLayer) return;
+
+    const flash = document.createElement("span");
+    const size = 18 + Math.random() * 110;
+    flash.className = "haunted-flash";
+    flash.style.width = `${size}px`;
+    flash.style.height = `${size}px`;
+    flash.style.left = `${Math.random() * 100}%`;
+    flash.style.top = `${Math.random() * 100}%`;
+    flash.style.opacity = `${0.28 + Math.random() * 0.62}`;
+    flashLayer.appendChild(flash);
+
+    window.setTimeout(() => flash.remove(), 260);
+  };
+
+  window.setInterval(spawnFlash, 420);
+  for (let i = 0; i < 4; i += 1) {
+    window.setTimeout(spawnFlash, i * 120);
+  }
+
   const bgm = document.getElementById("haunted-bgm");
   if (!bgm) return;
   bgm.volume = 0.1;
+
   const tryPlay = () => {
     bgm.play().catch(() => {});
   };
 
   tryPlay();
+
   const unlockAudio = () => {
     tryPlay();
     window.removeEventListener("click", unlockAudio);
     window.removeEventListener("keydown", unlockAudio);
     window.removeEventListener("touchstart", unlockAudio);
   };
+
   window.addEventListener("click", unlockAudio, { once: true });
   window.addEventListener("keydown", unlockAudio, { once: true });
   window.addEventListener("touchstart", unlockAudio, { once: true });
