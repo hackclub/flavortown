@@ -148,18 +148,3 @@ Sidequest.find_or_create_by!(slug: "chesster") do |sq|
   sq.description = "Build and ship a chess related project to unlock the Chesster prizes in the shop."
 end
 
-chesster_premium = ShopItem::HCBGrant.find_or_create_by!(name: "Chess.com Premium Grant") do |item|
-  item.description = "A grant to cover chess.com Premium for a year"
-  item.ticket_cost = 0
-  downloaded_image = URI.parse("https://placecats.com/300/200").open
-  item.image.attach(io: downloaded_image, filename: "chesster-premium.png")
-end
-chesster_premium.update!(requires_achievement: [ "sidequest_chesster" ])
-
-chesster_set = ShopItem::HCBGrant.find_or_create_by!(name: "Chess Set Grant") do |item|
-  item.description = "A grant to buy yourself a chess set"
-  item.ticket_cost = 0
-  downloaded_image = URI.parse("https://placecats.com/300/200").open
-  item.image.attach(io: downloaded_image, filename: "chesster-set.png")
-end
-chesster_set.update!(requires_achievement: [ "sidequest_chesster" ])
