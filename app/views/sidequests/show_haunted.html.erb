@@ -336,6 +336,15 @@
     text-align: center;
   }
 
+  .haunted-reward-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 500%;
+  }
+
   .haunted-box-link {
     display: block;
     width: min(520px, 100%);
@@ -385,6 +394,78 @@
     background: rgba(25, 25, 25, 0.85);
   }
 
+  .sidequest-show__gallery {
+    width: min(1120px, calc(100% - 2rem));
+    margin: 1.75rem auto;
+    padding: 1.25rem;
+    border-radius: 1.6rem;
+    background: transparent;
+  }
+
+  .sidequest-show__gallery-title {
+    margin: 0 0 1rem;
+    color: #f5f5f5;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-shadow: 0 0 14px rgba(255, 255, 255, 0.08);
+  }
+
+  .sidequest-show__gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .sidequest-show__gallery-item {
+    border-radius: 1.15rem;
+    overflow: hidden;
+    filter: grayscale(1) contrast(1.15);
+    transition: transform 180ms ease, filter 180ms ease;
+  }
+
+  .sidequest-show__gallery-item:hover {
+    transform: translateY(-4px);
+    filter: grayscale(0.85) contrast(1.2) brightness(1.05);
+  }
+
+  .sidequest-show__stats {
+    width: min(1120px, calc(100% - 2rem));
+    margin: 1.75rem auto;
+    padding: 2rem 1.25rem;
+    border-radius: 1.6rem;
+    text-align: center;
+    background: transparent;
+  }
+
+  .sidequest-show__stats p {
+    margin: 0;
+    color: #f5f5f5;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 14px rgba(255, 255, 255, 0.08);
+  }
+
+  .sidequest-show__mystery-box-visual {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .mystery-box-img {
+    max-width: 50px;
+    height: auto;
+    border-radius: 0.4rem;
+    filter: grayscale(0) contrast(1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+    transition: transform 200ms ease;
+  }
+
+  .mystery-box-img:hover {
+    transform: scale(1.1);
+  }
+
   @media (max-width: 768px) {
     .haunted-grid {
       grid-template-columns: 1fr;
@@ -398,6 +479,21 @@
     .haunted-section {
       width: calc(100% - 1rem);
       padding: 1rem;
+    }
+
+    .sidequest-show__gallery {
+      width: calc(100% - 1rem);
+      margin: 1.5rem auto;
+    }
+
+    .sidequest-show__gallery-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .sidequest-show__stats {
+      width: calc(100% - 1rem);
+      padding: 1.5rem 1rem;
     }
   }
 </style>
@@ -447,63 +543,79 @@
           <h3 class="haunted-faq-q">What is this?</h3>
           <p class="haunted-faq-a">
             Haunted is a sidequest for anyone who likes building spooky, eerie, or horror-themed projects. Submit a horror themed project,
-            get access to buy a Mystery Box from the shop an gamble all your currency away for a chance to win something cool!
+            and unlock a Mystery Box from the shop to gamble all your currency away for a chance to win something cool!
           </p>
         </div>
 
         <div class="haunted-faq-item">
           <h3 class="haunted-faq-q">What counts as a valid project?</h3>
           <p class="haunted-faq-a">
-            A project that matches a dark theme; be it horror, mystery, or just plain weird. It should have a clear concept and show effort in execution. The more it gives off those spooky vibes, the better!
-            You can submit anything - a website, a game, a visual novel or anything that matches the theme.
-          </p>
-        </div>
-
-        <div class="haunted-faq-item">
-          <h3 class="haunted-faq-q">Can I work on one project and ship multiple times?</h3>
-          <p class="haunted-faq-a">
-            Yes. You can keep iterating and ship improved versions as long as each submission is meaningful.
-          </p>
-        </div>
-
-        <div class="haunted-faq-item">
-          <h3 class="haunted-faq-q">How do I sign up?</h3>
-          <p class="haunted-faq-a">
-            When submitting a project, just select "Haunted" as the sidequest you're submitting to. You can submit as many projects as you want, but only one will count for the reward.
+            Any type of project that represents a dark-theme (example: horror, mystery etc..)
+            Note: When submitting a project, just select "Haunted" as the sidequest you're submitting to.
           </p>
         </div>
 
         <div class="haunted-faq-item" style="grid-column: 1 / -1;">
           <h3 class="haunted-faq-q">What is the reward?</h3>
           <p class="haunted-faq-a">
-            Custom sticker and most importantly, access to buy a Mystery Box from the Flavortown shop that lets you roll your chances on getting something at random from the shop.
-            Once eligible, you can gamble your luck by purchasing the Mystery Box over and over. Let's see how good your odds are at winning something cool!
+            You get to unlock a Mystery Box from the shop!
           </p>
         </div>
       </div>
     </section>
 
     <section class="haunted-section haunted-reward">
-      <h2 class="haunted-section-title">Your reward: A Mystery Box!</h2>
+      <div class="haunted-reward-header">
+        <h2 class="haunted-section-title">Your reward: A Mystery Box!</h2>
+        <div class="sidequest-show__mystery-box-visual">
+          <%= image_tag 'sidequests/haunted-removebg-preview.png', alt: 'Mystery Box', class: 'mystery-box-img' %>
+        </div>
+      </div>
       <p class="haunted-note">Submit a project to the sidequest to get access to buy one!</p>
 
-      <a
-        class="haunted-box-link"
-        href="https://flavortown.hackclub.com/shop"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Open the Flavortown shop">
-        <img 
-          src="<%= asset_path('sidequests/haunted.png') %>" 
-          alt="Mystery Box"
-          class="haunted-box-image" />
-      </a>
+      <% if @prizes.present? && @prizes.any? %>
+        <section class="sidequest-show__info-card sidequest-show__prizes-card">
+          <h3 class="sidequest-show__info-title">Prizes</h3>
+          <div class="sidequest-show__prizes-list">
+            <% @prizes.each do |prize| %>
+              <%= link_to "/shop/order?shop_item_id=#{prize.id}", class: "sidequest-show__prize-row" do %>
+                <% if prize.image.attached? %>
+                  <div class="sidequest-show__prize-image">
+                    <%= image_tag prize.image.variant(:carousel_sm), alt: prize.name, loading: "lazy" %>
+                  </div>
+                <% end %>
+                <span class="sidequest-show__prize-name"><%= prize.name %></span>
+                <span class="sidequest-show__prize-cost"><%= number_to_currency(prize.ticket_cost, precision: 0).gsub('$', '') %></span>
+              <% end %>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
 
       <p class="haunted-mystery-subtitle">
         Any persons who purchase a mystery box have the chance to roll anything from a sticker to a *********<br>
         Test your luck out in these last days of flavortown!
       </p>
     </section>
+
+    <% if @approved_entries.any? %>
+      <div class="sidequest-show__gallery">
+        <h3 class="sidequest-show__gallery-title"><%= @approved_entries.size %> <%= "submission".pluralize(@approved_entries.size) %></h3>
+        <div class="sidequest-show__gallery-grid">
+          <% @approved_entries.each do |entry| %>
+            <% project = entry.project %>
+            <% next unless project.present? %>
+            <div class="sidequest-show__gallery-item">
+              <%= render partial: "projects/card", locals: { project: project } %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="sidequest-show__stats">
+        <p><strong>Be the first to submit</strong></p>
+      </div>
+    <% end %>
 
     <audio id="haunted-bgm" preload="auto" loop>
     <source src="<%= asset_path('sidequests/faqmusic.mp3') %>" type="audio/mpeg">
