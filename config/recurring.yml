@@ -106,6 +106,12 @@ production:
     concurrency: 1
     description: "Get valid referral codes from Pyramid Scheme and update records"
 
+  project_reship_events_sync:
+    class: Project::ReshipEventsSyncJob
+    schedule: every day at 7am America/New_York
+    concurrency: 1
+    description: "Sync reship events for projects to ship cert platform"
+
   process_demo_broken_reports:
     class: ProcessDemoBrokenReportsJob
     schedule: every 30 minutes
