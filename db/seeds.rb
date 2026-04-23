@@ -167,4 +167,3 @@ Sidequest.find_or_create_by!(slug: "chesster") do |sq|
   sq.title = "Chesster"
   sq.description = "Build and ship a chess related project to unlock the Chesster prizes in the shop."
 end
-
