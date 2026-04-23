@@ -32,7 +32,7 @@ class ProjectPolicy < ApplicationPolicy
     end
 
     def ship?
-        member?
+        member? || user&.admin?
     end
 
     def submit_ship?
