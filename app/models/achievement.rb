@@ -248,6 +248,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       }
     ),
     new(
+      slug: :sidequest_chesster,
+      name: "Sidequest: Chesster",
+      description: "Shipped a chess project for the Chesster sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "chesster" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
+    new(
       slug: :sidequest_physics_lab,
       name: "Sidequest: Physics Lab",
       description: "Shipped a physics project for the Physics Lab sidequest!",
@@ -413,6 +426,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       earned_check: ->(user) { user.devlog_seconds_total >= 50 * 3600 },
       progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 50 } },
       cookie_reward: 15
+    ),
+    new(
+      slug: :sidequest_haunted,
+      name: "Sidequest: Haunted",
+      description: "Shipped a scary project for the Haunted sidequest!",
+      icon: "ghost",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "haunted" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+     }
     ),
     new(
       slug: :hundred_hours,

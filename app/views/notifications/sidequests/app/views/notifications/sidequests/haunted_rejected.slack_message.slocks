@@ -1,0 +1,11 @@
+header "Haunted Sidequest Update"
+
+section "Your project *#{entry.project.title}* was not approved for the Haunted sidequest this time.", markdown: true
+
+section "Try refining the horror, mystery, or eerie atmosphere, then ship again when it's ready. Make sure your project matches the theme!", markdown: true
+
+divider
+
+context [
+  mrkdwn_text(" O_O i'm watching you..... ")
+]

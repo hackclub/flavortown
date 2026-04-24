@@ -1,0 +1,83 @@
+<div class="sidequest-show" style="background: repeating-conic-gradient(#769656 0% 25%, #eeeed2 0% 50%) 0 0 / 160px 160px;">
+  <%= image_tag "sidequests/chesster.png", alt: "Chesster", aria: {hidden: true}, style: "max-width: 400px; width: 100%; display: block; margin: 0 auto;" %>
+  <div style="text-align: center; padding: 2rem;">
+    <p style="font-size: 1.2rem; max-width: 600px; margin: 0 auto; background: rgba(249, 243, 232, 0.7); backdrop-filter: blur(4px); padding: 1rem; border-radius: 8px;">
+      Build something chess related and ship it. A chess engine, a chess clock, a bot, a visualizer,
+      a multiplayer game, whatever you want. If it has anything to do with chess, it counts.
+    </p>
+  </div>
+
+  <div style="max-width: 700px; margin: 2rem auto; padding: 1.5rem; background: rgba(249, 243, 232, 0.5); backdrop-filter: blur(4px); border-radius: 12px;">
+    <h2>Requirements</h2>
+    <ul>
+      <li>Your project must be chess related</li>
+      <li>It must actually work and be demonstrable</li>
+      <li>You need a README explaining what it does and how to run it</li>
+      <li>No copy pasting existing engines without meaningful changes</li>
+    </ul>
+  </div>
+
+  <div style="max-width: 700px; margin: 2rem auto; padding: 1.5rem; background: rgba(249, 243, 232, 0.5); backdrop-filter: blur(4px); border-radius: 12px;">
+    <h2>Rewards</h2>
+    <p>Get your project approved and unlock the Chesster achievement. You can then claim a chess set or chess.com Premium grant from the shop.</p>
+  </div>
+
+  <div style="max-width: 700px; margin: 2rem auto; padding: 1.5rem; background: rgba(249, 243, 232, 0.5); backdrop-filter: blur(4px); border-radius: 12px;">
+    <h2>Some ideas</h2>
+    <ul>
+      <li>A chess engine from scratch</li>
+      <li>A chess clock or tournament timer</li>
+      <li>A chess opening explorer</li>
+      <li>A multiplayer chess game</li>
+      <li>A chess bot for Discord or Slack</li>
+      <li>A board editor or move visualizer</li>
+    </ul>
+  </div>
+
+  <% if @prizes.present? && @prizes.any? %>
+    <section class="sidequest-show__info-card sidequest-show__prizes-card">
+      <h3 class="sidequest-show__info-title">Prizes</h3>
+      <div class="sidequest-show__prizes-list">
+        <% @prizes.each do |prize| %>
+          <%= link_to "/shop/order?shop_item_id=#{prize.id}", class: "sidequest-show__prize-row" do %>
+            <% if prize.image.attached? %>
+              <div class="sidequest-show__prize-image">
+                <%= image_tag prize.image.variant(:carousel_sm), alt: prize.name, loading: "lazy" %>
+              </div>
+            <% end %>
+            <span class="sidequest-show__prize-name"><%= prize.name %></span>
+            <span class="sidequest-show__prize-cost"><%= number_to_currency(prize.ticket_cost, precision: 0).gsub('$', '') %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <% if @approved_entries.any? %>
+    <div class="sidequest-show__gallery">
+      <h3 class="sidequest-show__gallery-title"><%= @approved_entries.size %> <%= "submission".pluralize(@approved_entries.size) %></h3>
+      <div class="sidequest-show__gallery-grid">
+        <% @approved_entries.each do |entry| %>
+          <% project = entry.project %>
+          <% next unless project.present? %>
+          <div class="sidequest-show__gallery-item">
+            <%= render partial: "projects/card", locals: { project: project } %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="sidequest-show__stats">
+      <p><strong>Be the first to submit</strong></p>
+    </div>
+  <% end %>
+
+  <div class="sidequest-show__actions">
+    <%= render ButtonComponent.new(
+          text: "\u2190 Back to Sidequests",
+          href: sidequests_path,
+          color: :brown,
+          variant: :borderless
+        ) %>
+  </div>
+</div>
