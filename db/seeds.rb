@@ -162,3 +162,8 @@ if Rails.env.development? && ENV.fetch("USE_BIG_SEED", false)
   puts "Loading comprehensive development seed..."
   load Rails.root.join('db', 'seeds', 'dev_full_seed.rb')
 end
+
+Sidequest.find_or_create_by!(slug: "chesster") do |sq|
+  sq.title = "Chesster"
+  sq.description = "Build and ship a chess related project to unlock the Chesster prizes in the shop."
+end

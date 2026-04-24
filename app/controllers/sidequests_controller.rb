@@ -35,6 +35,10 @@ class SidequestsController < ApplicationController
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_caffeinated").where(enabled: true)
     end
 
+    if @sidequest.slug == "chesster"
+      @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_chesster").where(enabled: true)
+    end
+
     if @sidequest.slug == "transcode"
       @prizes = ShopItem.where("? = ANY(requires_achievement)", "sidequest_transcode").where(enabled: true)
     end
