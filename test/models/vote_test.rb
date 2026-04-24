@@ -1,30 +1,36 @@
 # == Schema Information
 #
 # Table name: votes
+# Database name: primary
 #
-#  id                 :bigint           not null, primary key
-#  demo_url_clicked   :boolean          default(FALSE)
-#  originality_score  :integer
-#  reason             :text
-#  repo_url_clicked   :boolean          default(FALSE)
-#  storytelling_score :integer
-#  suspicious         :boolean          default(FALSE), not null
-#  technical_score    :integer
-#  time_taken_to_vote :integer
-#  usability_score    :integer
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  project_id         :bigint           not null
-#  ship_event_id      :bigint           not null
-#  user_id            :bigint           not null
+#  id                   :bigint           not null, primary key
+#  demo_url_clicked     :boolean          default(FALSE)
+#  originality_score    :integer
+#  reason               :text
+#  reason_quality_label :string
+#  reason_quality_score :float
+#  repo_url_clicked     :boolean          default(FALSE)
+#  storytelling_score   :integer
+#  suspicious           :boolean          default(FALSE), not null
+#  technical_score      :integer
+#  time_taken_to_vote   :integer
+#  usability_score      :integer
+#  verdict              :string
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#  project_id           :bigint           not null
+#  ship_event_id        :bigint           not null
+#  user_id              :bigint           not null
 #
 # Indexes
 #
 #  index_votes_on_project_id                 (project_id)
+#  index_votes_on_reason_quality_label       (reason_quality_label)
 #  index_votes_on_ship_event_id              (ship_event_id)
 #  index_votes_on_suspicious_and_created_at  (suspicious,created_at)
 #  index_votes_on_user_id                    (user_id)
 #  index_votes_on_user_id_and_ship_event_id  (user_id,ship_event_id) UNIQUE
+#  index_votes_on_verdict                    (verdict)
 #
 # Foreign Keys
 #

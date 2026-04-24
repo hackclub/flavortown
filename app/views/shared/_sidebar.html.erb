@@ -21,6 +21,8 @@
 
       <% sidebar_nav_items << { label: "Fulfil", path: admin_shop_orders_path(view: "fulfillment"), icon: "shopping_cart_1_fill" } if current_user.fulfillment_person? && !current_user.admin? %>
 
+      <% sidebar_nav_items << { label: "Seller", path: seller_orders_path, icon: "shopping_cart_1_fill" } if current_user.seller? %>
+
       <% sidebar_nav_items << { label: "Helper", path: helper_root_path, icon: "help" } if policy(:helper).access_helper_dashboard? %>
 
       <% sidebar_nav_items << { label: "Certify", path: "https://review.hackclub.com/", icon: "ship" } if current_user.project_certifier? %>
@@ -74,8 +76,9 @@
         <% end %>
       </div>
       <div class="sidebar__user-details">
-        <%= link_to user_path(current_user) do %>
+        <%= link_to user_path(current_user), class: "sidebar__user-name-row" do %>
           <span class="sidebar__user-name"><%= "⚡ " if current_user.admin? %><%= current_user.display_name %></span>
+          <%= render "users/vote_verdict_banner", cookie_id: "sidebar-verdict-cookie", small: true %>
         <% end %>
         <% if current_user.fulfillment_person? && current_user.has_regions? %>
           <span class="sidebar__user-region" style="font-size: 0.75rem; opacity: 0.7;">📍 <%= current_user.regions_display %></span>
@@ -175,6 +178,14 @@
         <small class="settings-form__hint">Enable/Disable visual effects during special events</small>
       </div>
 
+      <div class="settings-form__field">
+        <label class="settings-form__checkbox">
+          <%= check_box_tag :search_engine_indexing_off, "1", current_user.search_engine_indexing_off, id: "search_engine_indexing_off" %>
+          <span>Opt out of search engine indexing</span>
+        </label>
+        <small class="settings-form__hint">Your profile will not be indexed by search engines</small>
+      </div>
+
       <div class="modal__actions">
         <%= f.submit "Save", class: "modal__actions-close" %>
         <button type="button" class="modal__actions-close" onclick="document.getElementById('settings-form').reset(); document.getElementById('settings-modal').close()">Cancel</button>
@@ -187,7 +198,7 @@
         <p class="settings-form__club-status">
           🏫 Linked to <strong><%= current_user.club_name %></strong>
         </p>
-        <%= button_to "Unlink club", my_club_path, method: :delete, class: "settings-form__club-unlink" %>
+        <%= button_to "Unlink club", my_club_path, method: :delete, class: "settings-form__club-unlink", form: { onsubmit: "return confirm('Are you sure you want to unlink your club?')" } %>
       <% elsif current_user.airtable_record_id.present? %>
         <%= link_to "Link your club",
               current_user.fillout_club_url,

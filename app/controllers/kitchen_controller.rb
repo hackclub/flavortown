@@ -7,7 +7,7 @@ class KitchenController < ApplicationController
 
     identities = current_user.identities
 
-    unless current_user.verification_verified? && current_user.ysws_eligible == true
+    unless current_user.eligible_for_shop?
       @verification_rejection_reason = refresh_verification_status_from_hca!(identities)
       current_user.reload
       identities = current_user.identities.reload
@@ -31,6 +31,7 @@ class KitchenController < ApplicationController
     @user_balance = current_user.balance
 
     show_from_session = session.delete(:show_welcome_overlay)
+    @show_and_tell_live = Flipper.enabled?(:show_and_tell_live)
     @show_welcome_overlay = show_from_session
 
     if @show_welcome_overlay
@@ -43,10 +44,6 @@ class KitchenController < ApplicationController
   end
 
   private
-
-  def require_login
-    redirect_to root_path, alert: "Please log in first" and return unless current_user
-  end
 
   def load_current_user_with_identities
     current_user(:identities)

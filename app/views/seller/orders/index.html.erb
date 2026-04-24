@@ -1,0 +1,61 @@
+<% content_for :title, "My Seller Orders" %>
+<% fc = ->(active) { "seller-portal__filter-btn#{' seller-portal__filter-btn--active' if active}" } %>
+
+<div class="seller-portal">
+  <h1 class="seller-portal__title">📦 Seller Orders</h1>
+  <p class="seller-portal__subtitle">Orders for items you sell — fulfill them here.</p>
+
+  <div class="seller-portal__stats">
+    <% { "pending" => "Pending", "awaiting_periodical_fulfillment" => "Awaiting Fulfillment", "fulfilled" => "Fulfilled" }.each do |k, label| %>
+      <div class="seller-portal__stat">
+        <span class="seller-portal__stat-value"><%= @c[k] %></span>
+        <span class="seller-portal__stat-label"><%= label %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="seller-portal__filters">
+    <div class="seller-portal__filter-group">
+      <%= link_to "Active", seller_orders_path, class: fc.(params[:status].blank?) %>
+      <%= link_to "Awaiting", seller_orders_path(status: "awaiting", item_id: params[:item_id]), class: fc.(params[:status] == "awaiting") %>
+      <%= link_to "Fulfilled", seller_orders_path(status: "fulfilled", item_id: params[:item_id]), class: fc.(params[:status] == "fulfilled") %>
+    </div>
+
+    <% if @items.size > 1 %>
+      <div class="seller-portal__filter-group">
+        <%= link_to "All Items", seller_orders_path(status: params[:status]), class: fc.(params[:item_id].blank?) %>
+        <% @items.each do |item| %>
+          <%= link_to truncate(item.name, length: 20), seller_orders_path(status: params[:status], item_id: item.id), class: fc.(params[:item_id].to_s == item.id.to_s) %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @orders.any? %>
+    <div class="card">
+      <table class="table-data">
+        <thead>
+          <tr><th>ID</th><th>Buyer</th><th>Item</th><th>Qty</th><th>Status</th><th>Created</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% @orders.each do |o| %>
+            <tr>
+              <td>#<%= o.id %></td>
+              <td><%= o.user.display_name %></td>
+              <td><%= truncate(o.shop_item.name, length: 25) %></td>
+              <td><%= o.quantity %></td>
+              <td><span class="badge badge-<%= o.aasm_state %>"><%= o.aasm_state.humanize %></span></td>
+              <td><%= o.created_at.strftime("%b %d, %Y") %><br><small class="seller-portal__muted"><%= o.created_at.strftime("%l:%M %p") %></small></td>
+              <td><%= link_to "View", seller_order_path(o), class: "btn-primary slim" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%== @pagy.series_nav if @pagy %>
+  <% else %>
+    <div class="card"><p>nuthin yet!</p></div>
+  <% end %>
+</div>
+
+<%= render "seller/orders/styles" %>

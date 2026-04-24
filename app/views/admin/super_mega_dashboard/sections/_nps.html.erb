@@ -1,0 +1,175 @@
+<div class="super-mega-dashboard__dashboard">
+  <div class="super-mega-dashboard__header super-mega-dashboard__header--primary">
+    <h2>NPS Dashboard</h2>
+    <div data-controller="modal">
+      <%= link_to "View Vibes →", "#", class: "super-mega-link", onclick: "document.getElementById('nps-vibes-modal').showModal(); return false;" %>
+      <%= render layout: "shared/modal", locals: { id: "nps-vibes-modal", title: "NPS Vibes", description: "AI-grouped themes from NPS responses.", class_name: "modal--wide" } do %>
+        <% if @nps_vibes_error.present? %>
+          <p class="action-error"><%= @nps_vibes_error %></p>
+        <% end %>
+
+        <% if @nps_vibes_meta.present? && @nps_vibes_meta[:analyzed_count].present? %>
+          <p class="modal__description">
+            Analyzed <strong><%= number_with_delimiter(@nps_vibes_meta[:analyzed_count]) %></strong> responses
+            <% if @nps_vibes_meta[:avg_score].present? %>
+              (avg score: <strong><%= @nps_vibes_meta[:avg_score] %></strong>)
+            <% end %>
+            <% if @nps_vibes_meta[:generated_at].present? %>
+              • generated <%= time_ago_in_words(Time.zone.parse(@nps_vibes_meta[:generated_at])) %> ago
+            <% end %>
+          </p>
+        <% end %>
+
+        <p class="modal__description">
+          <% if @nps_vibes_meta[:sampled_detractors].present? || @nps_vibes_meta[:sampled_promoters_passives].present? %>
+            <strong><%= @nps_vibes_meta[:sampled_detractors].to_i %></strong> detractors,
+            <strong><%= @nps_vibes_meta[:sampled_promoters_passives].to_i %></strong> promoters & passives
+          <% end %>
+        </p>
+
+        <div class="modal__actions">
+          <%= button_to "Refresh NPS Vibes", admin_super_mega_dashboard_refresh_nps_vibes_path, method: :post, class: "btn-danger" %>
+          <button type="button" class="btn-secondary" onclick="document.getElementById('nps-vibes-modal').close()">Close</button>
+        </div>
+
+        <div class="modal__section">
+          <h4 class="modal__section-title nps-vibes__section-title">Things you should improve</h4>
+          <% if @nps_vibes_things_to_improve.present? %>
+            <table class="table-data">
+              <thead>
+                <tr>
+                  <th>Theme</th>
+                  <th>Count</th>
+                  <th>Examples</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @nps_vibes_things_to_improve.each do |row| %>
+                  <tr>
+                    <td>
+                      <strong class="nps-vibes__theme"><%= row[:theme] %></strong>
+                      <% if row[:summary].present? %>
+                        <div class="nps-vibes__summary"><%= row[:summary] %></div>
+                      <% end %>
+                    </td>
+                    <td><%= row[:count].to_i %></td>
+                    <td>
+                      <% examples = Array(row[:examples]).first(3) %>
+                      <% if examples.present? %>
+                        <ul class="nps-vibes__examples">
+                          <% examples.each do |ex| %>
+                            <li class="nps-vibes__example">“<%= ex %>”</li>
+                          <% end %>
+                        </ul>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <p class="action-info">No improvement themes yet — click Refresh to generate.</p>
+          <% end %>
+        </div>
+
+        <div class="modal__section">
+          <h4 class="modal__section-title nps-vibes__section-title">Things you did well</h4>
+          <% if @nps_vibes_things_did_well.present? %>
+            <table class="table-data">
+              <thead>
+                <tr>
+                  <th class="nps-vibes__th-theme">Theme</th>
+                  <th>Count</th>
+                  <th>Examples</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @nps_vibes_things_did_well.each do |row| %>
+                  <tr>
+                    <td>
+                      <strong class="nps-vibes__theme"><%= row[:theme] %></strong>
+                      <% if row[:summary].present? %>
+                        <div class="nps-vibes__summary"><%= row[:summary] %></div>
+                      <% end %>
+                    </td>
+                    <td><%= row[:count].to_i %></td>
+                    <td>
+                      <% examples = Array(row[:examples]).first(3) %>
+                      <% if examples.present? %>
+                        <ul class="nps-vibes__examples">
+                          <% examples.each do |ex| %>
+                            <li class="nps-vibes__example">“<%= ex %>”</li>
+                          <% end %>
+                        </ul>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <p class="action-info">No positive themes yet — click Refresh to generate.</p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @nps_error.present? %>
+    <p class="fraud-stats-error"><%= @nps_error %></p>
+  <% else %>
+    <div class="super-mega-dashboard__cards super-mega-dashboard__cards--nps">
+      <div class="super-mega-dashboard__card">
+        <h3>NPS Score</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value blue">
+              <%= @nps_total.nil? ? "—" : (@nps_total >= 0 ? "+#{@nps_total}" : @nps_total) %>
+            </span>
+            <span class="super-mega-dashboard__stat--label">NPS</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>NPS Responses</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value"><%= @nps_response_count.nil? ? "—" : number_with_delimiter(@nps_response_count) %></span>
+            <span class="super-mega-dashboard__stat--label">Responses</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>Promoters</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value green"><%= @nps_promoters %></span>
+            <span class="super-mega-dashboard__stat--label">9–10</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>Neutral</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value yellow"><%= @nps_neutrals %></span>
+            <span class="super-mega-dashboard__stat--label">7–8</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="super-mega-dashboard__card">
+        <h3>Detractors</h3>
+        <div class="super-mega-dashboard__stats">
+          <div class="super-mega-dashboard__stat">
+            <span class="super-mega-dashboard__stat--value red"><%= @nps_detractors %></span>
+            <span class="super-mega-dashboard__stat--label">0–6</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

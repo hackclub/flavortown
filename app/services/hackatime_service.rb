@@ -25,6 +25,8 @@ class HackatimeService
 
     response = connection.get("users/#{hackatime_uid}/stats", params)
 
+    Rails.logger.info("Request URL: #{response.env.url}")
+
     if response.success?
       data = JSON.parse(response.body)
       projects = data.dig("data", "projects") || []
@@ -57,6 +59,8 @@ class HackatimeService
 
     response = connection.get("users/#{hackatime_uid}/stats", params)
 
+    Rails.logger.info("Request URL: #{response.env.url}")
+
     if response.success?
       data = JSON.parse(response.body)
       data["total_seconds"].to_i
@@ -83,10 +87,12 @@ class HackatimeService
 
     response = connection.get("users/#{hackatime_uid}/stats", params)
 
+    Rails.logger.info("HackatimeService.sync_devlog_duration request URL: #{response.env.url}")
+    puts "HackatimeService.sync_devlog_duration request URL: #{response.env.url}"
+
     if response.success?
       data = JSON.parse(response.body)
       duration_seconds = data["total_seconds"].to_i
-      duration_seconds = nil if duration_seconds < 15.minutes
 
       devlog.update(
         duration_seconds: duration_seconds,

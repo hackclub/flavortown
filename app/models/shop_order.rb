@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: shop_orders
+# Database name: primary
 #
 #  id                                 :bigint           not null, primary key
 #  aasm_state                         :string
@@ -13,6 +14,8 @@
 #  fulfilled_by                       :string
 #  fulfillment_cost                   :decimal(6, 2)
 #  internal_notes                     :text
+#  internal_rejection_reason          :text
+#  joe_case_url                       :string
 #  on_hold_at                         :datetime
 #  quantity                           :integer
 #  region                             :string(2)
@@ -22,6 +25,7 @@
 #  created_at                         :datetime         not null
 #  updated_at                         :datetime         not null
 #  assigned_to_user_id                :bigint
+#  fraud_related_project_id           :bigint
 #  fulfillment_payout_line_id         :bigint
 #  parent_order_id                    :bigint
 #  shop_card_grant_id                 :bigint
@@ -65,9 +69,11 @@ class ShopOrder < ApplicationRecord
   belongs_to :shop_card_grant, optional: true
   belongs_to :parent_order, class_name: "ShopOrder", optional: true
   has_many :accessory_orders, class_name: "ShopOrder", foreign_key: :parent_order_id, dependent: :destroy
+  has_many :reviews, class_name: "ShopOrderReview", dependent: :destroy
   belongs_to :warehouse_package, class_name: "ShopWarehousePackage", optional: true
   belongs_to :assigned_to_user, class_name: "User", optional: true
   belongs_to :fulfillment_payout_line, optional: true
+  belongs_to :fraud_related_project, class_name: "Project", optional: true, foreign_key: :fraud_related_project_id, inverse_of: false
 
   # has_many :payouts, as: :payable, dependent: :destroy
 
@@ -85,6 +91,10 @@ class ShopOrder < ApplicationRecord
   validate :check_stock, on: :create
   validate :check_ship_requirement, on: :create
   validate :check_achievement_requirement, on: :create
+
+  validates :internal_rejection_reason, presence: true, if: :rejected?
+  validates :fraud_related_project_id, presence: true, if: :rejected?
+  validate :fraud_related_project_exists, if: -> { fraud_related_project_id.present? }
 
   after_create :create_negative_payout
   after_create :assign_default_user
@@ -108,6 +118,7 @@ class ShopOrder < ApplicationRecord
     ShopItem::WarehouseItem
     ShopItem::FreeStickers
     ShopItem::PileOfStickersItem
+    ShopItem::SillyItemType
   ].freeze
 
   DIGITAL_ITEM_TYPES = %w[
@@ -135,6 +146,9 @@ class ShopOrder < ApplicationRecord
 
     # Fraud dept + fulfillment person can see addresses
     return true if viewer.fraud_dept? && viewer.fulfillment_person?
+
+    # this makes it so sellers for items can see addresses for their items
+    return true if shop_item.user_id == viewer.id && shop_item.type == "ShopItem::HackClubberItem"
 
     false
   end
@@ -239,8 +253,28 @@ class ShopOrder < ApplicationRecord
     "https://ui3.hcb.hackclub.com/donations/start/flavortown?email=#{user.email}&message=#{}"
   end
 
+  HIGH_VALUE_THRESHOLD = 2000
+
   def total_cost
     frozen_item_price * quantity
+  end
+
+  def accessory_orders_total_cost
+    accessory_orders.sum(Arel.sql("frozen_item_price * quantity"))
+  end
+
+  def total_cost_with_accessories
+    total_cost + (accessory_orders_total_cost || 0)
+  end
+
+  def high_value?
+    frozen_item_price > HIGH_VALUE_THRESHOLD ||
+      total_cost > HIGH_VALUE_THRESHOLD ||
+      total_cost_with_accessories > HIGH_VALUE_THRESHOLD
+  end
+
+  def requires_additional_review?
+    high_value? && reviews.count < 2
   end
 
   def approve!
@@ -282,9 +316,9 @@ class ShopOrder < ApplicationRecord
     return unless shop_item
     return if frozen_item_price.present?
 
-    # Use price_for_region which applies sale discounts and regional pricing
+    # Use price_for_region_and_user which applies sale, achievement, and regional pricing
     order_region = region.presence || Shop::Regionalizable.country_to_region(frozen_address&.dig("country"))
-    self.frozen_item_price = shop_item.price_for_region(order_region || "XX")
+    self.frozen_item_price = shop_item.price_for_region_and_user(order_region || "XX", user)
   end
 
   def check_one_per_person_ever_limit
@@ -329,6 +363,8 @@ class ShopOrder < ApplicationRecord
     ShopItem::HCBGrant
     ShopItem::HCBPreauthGrant
     ShopItem::ThirdPartyDigital
+    ShopItem::SillyItemType
+    ShopItem::SpecialFulfillmentItem
   ].freeze
 
   def check_regional_availability
@@ -400,8 +436,9 @@ class ShopOrder < ApplicationRecord
     return unless shop_item&.requires_achievement?
     return if shop_item.meet_achievement_require?(user)
 
-    achievement = Achievement.find(shop_item.requires_achievement.to_sym)
-    errors.add(:base, "You must earn the \"#{achievement.name}\" achievement to purchase this item.")
+    n = shop_item.requires_achievement.map { |s| Achievement.find(s).name }
+    msg = n.size == 1 ? "the \"#{n.first}\" achievement" : "one of the \"#{n.to_sentence(two_words_connector: ' or ', last_word_connector: ', or ')}\" achievements"
+    errors.add(:base, "You must earn #{msg} to purchase this item.")
   end
 
   def create_negative_payout
@@ -425,6 +462,12 @@ class ShopOrder < ApplicationRecord
       created_by: "System",
       ledgerable: self
     )
+  end
+
+  def fraud_related_project_exists
+    unless Project.exists?(fraud_related_project_id)
+      errors.add(:fraud_related_project_id, "project ##{fraud_related_project_id} does not exist")
+    end
   end
 
   def set_region_from_address

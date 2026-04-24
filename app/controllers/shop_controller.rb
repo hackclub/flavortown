@@ -1,5 +1,6 @@
 class ShopController < ApplicationController
-  before_action :require_login, except: [ :index ]
+  skip_before_action :refresh_identity_on_portal_return, only: [ :index ]
+  before_action :require_login, except: [ :index, :update_region ]
 
   def index
     @shop_open = Flipper.enabled?(:shop_open, current_user)
@@ -54,14 +55,16 @@ class ShopController < ApplicationController
     end
 
     @user_region = user_region
-    @sale_price = @shop_item.price_for_region(@user_region)
+    @sale_price = @shop_item.price_for_region_and_user(@user_region, current_user)
     @regional_base_price = @shop_item.base_price_for_region(@user_region)
     @accessories = @shop_item.available_accessories.includes(:image_attachment)
 
     if @shop_item.requires_achievement?
-      @required_achievement = Achievement.find(@shop_item.requires_achievement.to_sym)
-      @locked_by_achievement = !current_user.earned_achievement?(@shop_item.requires_achievement.to_sym)
+      @required_achievements = @shop_item.requires_achievement.map { |slug| Achievement.find(slug) }
+      @locked_by_achievement = !@shop_item.meet_achievement_require?(current_user)
     end
+    @achievement_sale_active = @shop_item.achievement_sale? && @shop_item.achievement_sale_for?(current_user)
+    @achievement_sale_percentage = @shop_item.achievement_sale_percentage if @achievement_sale_active
     ahoy.track "Viewed shop item", shop_item_id: @shop_item.id
   end
 
@@ -71,7 +74,12 @@ class ShopController < ApplicationController
       return head :unprocessable_entity
     end
 
-    current_user.update!(shop_region: region)
+    if current_user
+      current_user.update!(shop_region: region)
+    else
+      session[:shop_region] = region
+    end
+
     @user_region = region
     load_shop_items
 
@@ -123,7 +131,7 @@ class ShopController < ApplicationController
     # Calculate total cost (applying sale discount via price_for_region)
     # Accessories are multiplied by quantity (e.g., 10 RPis with 8GB RAM = 10 accessories)
     region = user_region
-    item_price = @shop_item.price_for_region(region)
+    item_price = @shop_item.price_for_region_and_user(region, current_user)
     item_total = item_price * quantity
     accessories_total = @accessories.sum { |a| a.price_for_region(region) } * quantity
     total_cost = item_total + accessories_total
@@ -186,6 +194,13 @@ class ShopController < ApplicationController
       end
 
       return if @shop_item.is_a?(ShopItem::FreeStickers) && !fulfill_free_stickers!
+
+      if @shop_item.is_a?(ShopItem::SillyItemType)
+        @order.approve!
+        redirect_to shop_my_orders_path, notice: "Order placed and fulfilled!"
+        return
+      end
+
       redirect_to shop_my_orders_path, notice: "Order placed successfully!"
     rescue ActiveRecord::RecordInvalid => e
       redirect_to shop_order_path(shop_item_id: @shop_item.id), alert: "Failed to place order: #{e.record.errors.full_messages.join(', ')}"
@@ -201,7 +216,7 @@ class ShopController < ApplicationController
     @shop_items = @shop_items.reject { |item| item.type == "ShopItem::FreeStickers" } if excluded_free_stickers
     @featured_item = featured_free_stickers_item unless excluded_free_stickers
     @recently_added_items = shop_page_data[:recently_added]
-    @user_balance = current_user&.balance || 0
+    @user_balance = current_user&.cached_balance || 0
   end
 
   def has_ordered_free_stickers?
@@ -243,45 +258,23 @@ class ShopController < ApplicationController
 
   def user_region
     if current_user
-      # Use explicitly set shop region if available
       return current_user.shop_region if current_user.shop_region.present?
-
-      # For fulfillment persons with regions, return the first one for shop filtering
       return current_user.regions.first if current_user.has_regions?
 
       primary_address = current_user.addresses.find { |a| a["primary"] } || current_user.addresses.first
       country = primary_address&.dig("country")
       region_from_address = Shop::Regionalizable.country_to_region(country)
       return region_from_address if region_from_address != "XX" || country.present?
+    else
+      return session[:shop_region] if session[:shop_region].present? && Shop::Regionalizable::REGION_CODES.include?(session[:shop_region])
     end
 
-    geoip = geoip_region
-    return geoip if geoip.present? && geoip != "XX"
+    cached = cookies[:geoip_region]
+    return cached if cached.present? && cached != "XX" && Shop::Regionalizable::REGION_CODES.include?(cached)
 
-    Shop::Regionalizable.timezone_to_region(cookies[:timezone])
-  end
+    tz_region = Shop::Regionalizable.timezone_to_region(cookies[:timezone])
+    return tz_region if tz_region.present? && tz_region != "XX"
 
-  def geoip_region
-    cache = cookies[:geoip_region]
-    return cache if cache.present? && Shop::Regionalizable::REGION_CODES.include?(cache)
-
-    return nil unless ENV["GEOCODER_HC_API_KEY"].present?
-
-    # cloudflare go brrr
-    client_ip = request.headers["X-Forwarded-For"]&.split(",")&.first&.strip.presence || request.remote_ip
-
-    return nil if client_ip.blank? || client_ip.match?(/\A(127\.|::1|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/)
-
-    res = HackclubGeocoder.geocode_ip(client_ip)
-    return nil unless res&.dig(:country).present?
-
-    region = Shop::Regionalizable.country_to_region(res[:country])
-    cookies[:geoip_region] = { value: region, expires: 24.hours.from_now }
-
-    region
-  end
-
-  def require_login
-    redirect_to root_path, alert: "Please log in first" and return unless current_user
+    "US"
   end
 end

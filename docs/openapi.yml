@@ -135,6 +135,15 @@ components:
         cookies:
           type: integer
           nullable: true
+    Achievement:
+      type: object
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
     UserDetail:
       allOf:
       - "$ref": "#/components/schemas/User"
@@ -148,6 +157,10 @@ components:
             type: integer
           devlog_seconds_today:
             type: integer
+          achievements:
+            type: array
+            items:
+              "$ref": "#/components/schemas/Achievement"
     RegionEnabled:
       type: object
       properties:
@@ -240,6 +253,14 @@ components:
           items:
             type: string
   responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+          example:
+            error: Limit cannot exceed 100
     Unauthorized:
       description: Missing or invalid API key
       content:
@@ -268,6 +289,25 @@ components:
         application/json:
           schema:
             "$ref": "#/components/schemas/ValidationErrors"
+    TooManyRequests:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          description: Number of seconds to wait before retrying
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+          example:
+            error: rate_limited
+            message: Too many requests. Please slow down.
 paths:
   "/projects":
     get:
@@ -284,6 +324,13 @@ paths:
         schema:
           type: integer
         description: Page number for pagination
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+        description: Number of results per page (max 100)
       - name: query
         in: query
         required: false
@@ -304,8 +351,12 @@ paths:
                       "$ref": "#/components/schemas/Project"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
         '401':
           "$ref": "#/components/responses/Unauthorized"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
     post:
       summary: Create a project
       tags:
@@ -324,6 +375,8 @@ paths:
           "$ref": "#/components/responses/Unauthorized"
         '422':
           "$ref": "#/components/responses/UnprocessableEntity"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -376,6 +429,8 @@ paths:
           "$ref": "#/components/responses/Unauthorized"
         '404':
           "$ref": "#/components/responses/NotFound"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
     patch:
       summary: Update a project
       tags:
@@ -398,6 +453,8 @@ paths:
           "$ref": "#/components/responses/NotFound"
         '422':
           "$ref": "#/components/responses/UnprocessableEntity"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -436,6 +493,19 @@ paths:
         required: true
         schema:
           type: integer
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: Page number for pagination
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+        description: Number of results per page (max 100)
       responses:
         '200':
           description: A paginated list of devlogs for the project
@@ -450,10 +520,14 @@ paths:
                       "$ref": "#/components/schemas/Devlog"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
         '401':
           "$ref": "#/components/responses/Unauthorized"
         '404':
           "$ref": "#/components/responses/NotFound"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/devlogs":
     get:
       summary: List devlogs
@@ -468,6 +542,13 @@ paths:
         schema:
           type: integer
         description: Page number for pagination
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+        description: Number of results per page (max 100)
       responses:
         '200':
           description: A paginated list of devlogs
@@ -482,8 +563,12 @@ paths:
                       "$ref": "#/components/schemas/Devlog"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
         '401':
           "$ref": "#/components/responses/Unauthorized"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/devlogs/{id}":
     get:
       summary: Get a devlog
@@ -508,6 +593,8 @@ paths:
           "$ref": "#/components/responses/Unauthorized"
         '404':
           "$ref": "#/components/responses/NotFound"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/store":
     get:
       summary: List store items
@@ -526,6 +613,8 @@ paths:
                   "$ref": "#/components/schemas/StoreItem"
         '401':
           "$ref": "#/components/responses/Unauthorized"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/store/{id}":
     get:
       summary: Get a store item
@@ -550,6 +639,8 @@ paths:
           "$ref": "#/components/responses/Unauthorized"
         '404':
           "$ref": "#/components/responses/NotFound"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/users":
     get:
       summary: List users
@@ -564,6 +655,13 @@ paths:
         schema:
           type: integer
         description: Page number for pagination
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+        description: Number of results per page (max 100)
       - name: query
         in: query
         required: false
@@ -584,8 +682,62 @@ paths:
                       "$ref": "#/components/schemas/User"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
         '401':
           "$ref": "#/components/responses/Unauthorized"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
+  "/users/{user_id}/projects":
+    get:
+      summary: List projects for a user
+      tags:
+      - Users
+      description: Fetch a paginated list of projects belonging to a specific user.
+        Use "me" as the user ID to fetch projects for the authenticated user.
+      operationId: listUserProjects
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: User ID or "me" for the authenticated user
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: Page number for pagination
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+        description: Number of results per page (max 100)
+      responses:
+        '200':
+          description: A paginated list of the user's projects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/Project"
+                  pagination:
+                    "$ref": "#/components/schemas/Pagination"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"
   "/users/{id}":
     get:
       summary: Get a user
@@ -612,3 +764,5 @@ paths:
           "$ref": "#/components/responses/Unauthorized"
         '404':
           "$ref": "#/components/responses/NotFound"
+        '429':
+          "$ref": "#/components/responses/TooManyRequests"

@@ -27,10 +27,7 @@ class ProjectsController < ApplicationController
 
     is_member = @project.users.include?(current_user)
     is_admin = current_user&.admin?
-    user_shadow_banned = @project.users.where(shadow_banned: true).exists?
-    project_shadow_banned = @project.shadow_banned?
-
-    @shadow_banned = user_shadow_banned || project_shadow_banned
+    @shadow_banned = @project.shadow_banned?
     @can_view_shadow_banned = is_member || is_admin
 
     load_posts = -> {
@@ -86,7 +83,7 @@ class ProjectsController < ApplicationController
           latest_ship_event.payout.blank?
 
         required = Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT
-        current = latest_ship_event.votes.where(suspicious: false).count
+        current = latest_ship_event.votes.payout_countable.count
         remaining = [ required - current, 0 ].max
 
         @votes_for_payout = {
@@ -107,7 +104,7 @@ class ProjectsController < ApplicationController
 
   def create
     @project = Project.new(project_params)
-    apply_space_theme_marker!(@project, space_themed: space_themed_param?)
+    apply_space_theme_marker!(@project, space_themed: space_themed_param?(default: false))
     authorize @project
 
     validate_urls
@@ -175,7 +172,7 @@ class ProjectsController < ApplicationController
     authorize @project
 
     @project.assign_attributes(project_params)
-    apply_space_theme_marker!(@project, space_themed: space_themed_param?)
+    apply_space_theme_marker!(@project, space_themed: space_themed_param?(default: @project.space_themed?))
     validate_urls
     success = @project.errors.empty? && @project.save
 
@@ -226,13 +223,29 @@ class ProjectsController < ApplicationController
 
     return render(json: { message: "Project not found" }, status: :not_found) unless @project
 
+    if @project.users.include?(current_user)
+      return render(json: { message: "You cannot mark your own project as well cooked." }, status: :forbidden)
+    end
+
+    if current_user.fraud_dept? && !current_user.admin?
+      if @project.users.any? { |u| u.fraud_dept? }
+        return render(json: { message: "You cannot mark a fellow fraud department member's project as well cooked." }, status: :forbidden)
+      end
+    end
+
     PaperTrail.request(whodunnit: current_user.id) do
-      fire_event = Post::FireEvent.new(
+      fire_event = Post::FireEvent.create(
         body: "🔥 #{current_user.display_name} marked your project as well cooked! As a prize for your nicely cooked project, look out for a bonus prize in the mail :)"
       )
-      post = @project.posts.build(user: current_user, postable: fire_event)
 
-      if post.save
+      unless fire_event.persisted?
+        render json: { message: fire_event.errors.full_messages.to_sentence.presence || "Failed to mark project as 🔥" }, status: :unprocessable_entity
+        next
+      end
+
+      post = @project.posts.create(user: current_user, postable: fire_event)
+
+      if post.persisted?
         @project.mark_fire!(current_user)
 
         PaperTrail::Version.create!(
@@ -387,16 +400,17 @@ class ProjectsController < ApplicationController
       redirect_to @project, alert: "Shipping is currently disabled." and return
     end
 
-    ship_event = ShipCertService.latest_ship_event(@project)
+    @project.with_lock do
+      ship_event = ShipCertService.latest_ship_event(@project)
 
-    unless ship_event&.certification_status == "rejected"
-      flash[:alert] = "Re-certification can only be requested for rejected ships."
-      redirect_to @project and return
-    end
+      unless ship_event&.certification_status == "rejected"
+        flash[:alert] = "Re-certification can only be requested for rejected ships."
+        redirect_to @project and return
+      end
 
-    PaperTrail.request(whodunnit: current_user.id) do
-      begin
-        ShipCertService.ship_to_dash(@project, type: "recertification")
+      PaperTrail.request(whodunnit: current_user.id) do
+        has_approved = @project.ship_events.where(certification_status: "approved").exists?
+        ShipCertService.ship_to_dash(@project, type: has_approved ? "reship" : "recertification")
         ship_event.update!(certification_status: "pending")
 
         PaperTrail::Version.create!(
@@ -411,13 +425,13 @@ class ProjectsController < ApplicationController
         )
 
         flash[:notice] = "Re-certification requested! Your project has been resubmitted for review."
-      rescue => e
-        Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
-        flash[:alert] = "Failed to request re-certification: #{e.message}"
       end
     end
 
     redirect_to @project
+  rescue => e
+    Rails.logger.error "Failed to request recertification for project #{@project.id}: #{e.message}"
+    redirect_to @project, alert: "Failed to request re-certification: #{e.message}"
   end
 
   def lapse_timelapses
@@ -588,6 +602,8 @@ class ProjectsController < ApplicationController
   end
 
   def link_hackatime_projects
+    return unless params[:project].key?(:hackatime_project_ids)
+
     # Unlink hackatime projects that were removed
     @project.hackatime_projects.where.not(id: hackatime_project_ids).find_each do |hp|
       hp.update(project: nil)
@@ -673,8 +689,11 @@ class ProjectsController < ApplicationController
     end
   end
 
-  def space_themed_param?
-    ActiveModel::Type::Boolean.new.cast(params.dig(:project, :space_themed))
+  def space_themed_param?(default: false)
+    raw_value = params.dig(:project, :space_themed)
+    return default if raw_value.nil?
+
+    ActiveModel::Type::Boolean.new.cast(raw_value)
   end
 
   def apply_space_theme_marker!(project, space_themed:)

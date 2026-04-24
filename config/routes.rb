@@ -77,9 +77,14 @@ Rails.application.routes.draw do
   # Report Reviews
   get "report-reviews/review/:token", to: "report_reviews#review", as: :review_report_token
   get "report-reviews/dismiss/:token", to: "report_reviews#dismiss", as: :dismiss_report_token
+  get "my-reports", to: "my_reports#index", as: :my_reports
 
   # Voting
-  resources :votes, only: [ :new, :create, :index ]
+  resources :votes, only: [ :new, :create, :index ] do
+    collection do
+      post :skip
+    end
+  end
 
   # Explore
   get "explore", to: "explore#index", as: :explore_index
@@ -90,6 +95,7 @@ Rails.application.routes.draw do
   # Sidequests (formerly Nibbles)
   get "nibbles", to: redirect("/sidequests")
   resources :sidequests, only: [ :index, :show ]
+  get "sidequests/:id/dash", to: "sidequests/lockin#dash", constraints: { id: "lockin" }, as: :dash_sidequest
 
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -151,6 +157,8 @@ Rails.application.routes.draw do
   # API
   namespace :webhooks do
     post "ship_cert", to: "ship_cert#update_status"
+    post "mark_sus", to: "mark_sus#mark"
+    post "unmark_sus", to: "mark_sus#unmark"
   end
 
   namespace :api do
@@ -158,6 +166,9 @@ Rails.application.routes.draw do
 
     namespace :v1 do
       resources :projects, only: [ :index, :show, :create, :update ] do
+        member do
+          get :ban_status
+        end
         collection do
           get :random
           get :search
@@ -178,12 +189,34 @@ Rails.application.routes.draw do
           get :search
         end
       end
-      resources :users, only: [ :index, :show ]
+      resources :users, only: [ :index, :show ] do
+        resources :projects, only: [ :index ], controller: "user_projects"
+      end
 
       post "flavortime/session", to: "flavortime#create_session"
       post "flavortime/heartbeat", to: "flavortime#heartbeat"
       post "flavortime/close", to: "flavortime#close"
       get "flavortime/active_users", to: "flavortime#active_users"
+
+      namespace :admin do
+        resources :shop_orders, only: [] do
+          collection do
+            get :stats
+            get :leaderboard
+            get :order
+            post :fulfill
+          end
+        end
+      end
+    end
+  end
+
+  namespace :seller do
+    resources :orders, only: %i[index show] do
+      member do
+        post :reveal_address
+        post :mark_fulfilled
+      end
     end
   end
 
@@ -241,13 +274,14 @@ Rails.application.routes.draw do
          post :adjust_balance
          post :ban
          post :unban
+         post :mark_sus
+         post :unmark_sus
          post :cancel_all_hcb_grants
-         post :shadow_ban
-         post :unshadow_ban
          post :impersonate
          post :refresh_verification
          post :toggle_voting_lock
          get  :votes
+         post :set_vote_balance
          patch :set_ysws_eligible_override
        end
        collection do
@@ -261,6 +295,8 @@ Rails.application.routes.draw do
         post :delete
         post :shadow_ban
         post :unshadow_ban
+        post :update_ship_status
+        post :force_state
         get  :votes
       end
     end
@@ -271,12 +307,17 @@ Rails.application.routes.draw do
       collection do
         post :preview_markdown
       end
+      member do
+        post :request_approval
+        post :promote
+      end
     end
     resources :shop_orders, only: [ :index, :show ] do
       member do
         post :reveal_address
         post :reveal_phone
         post :approve
+        post :review_order
         post :reject
         post :place_on_hold
         post :release_from_hold
@@ -287,6 +328,7 @@ Rails.application.routes.draw do
         post :refresh_verification
         post :send_to_theseus
         post :approve_verification_call
+        post :force_state
       end
     end
     resources :shop_suggestions, only: [ :index ] do
@@ -310,8 +352,10 @@ Rails.application.routes.draw do
       collection do
         post :give_payout
         post :mark_payout_given
+        post :toggle_live
       end
     end
+    resources :messages, only: [ :index, :create ]
     resources :support_vibes, only: [ :index, :create ]
     resources :sw_vibes, only: [ :index ]
     resources :suspicious_votes, only: [ :index ]
@@ -331,11 +375,15 @@ Rails.application.routes.draw do
     get "voting_dashboard", to: "voting_dashboard#index"
     get "vote_spam_dashboard", to: "vote_spam_dashboard#index"
     get "vote_spam_dashboard/users/:user_id", to: "vote_spam_dashboard#show", as: :vote_spam_dashboard_user
+    get "vote_quality_dashboard", to: "vote_quality_dashboard#index"
+    get "vote_quality_dashboard/users/:user_id", to: "vote_quality_dashboard#show", as: :vote_quality_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
     get "super_mega_dashboard", to: "super_mega_dashboard#index"
+    get "funnel_events", to: "funnel_events#index", as: :funnel_events
     delete "super_mega_dashboard/clear_cache", to: "super_mega_dashboard#clear_cache", as: :super_mega_dashboard_clear_cache
     get "flavortime_dashboard", to: "flavortime_dashboard#index"
     get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"
+    post "super_mega_dashboard/refresh_nps_vibes", to: "super_mega_dashboard#refresh_nps_vibes", as: :super_mega_dashboard_refresh_nps_vibes
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail
@@ -367,7 +415,11 @@ Rails.application.routes.draw do
     end
     resources :reports, only: [ :create ], module: :projects
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
-    resource :ships, only: [ :new, :create ], module: :projects
+    resource :ships, only: [ :new, :create ], module: :projects, shallow: false do
+      member do
+        get :pre_check
+      end
+    end
     member do
       get :readme
       get :lapse_timelapses

@@ -10,38 +10,38 @@ class SupportVibecheckJob < ApplicationJob
       response = nephthys_conn.get("/api/tickets") do |req|
         req.params["after"] = start_time.iso8601
         req.params["before"] = end_time.iso8601
-    end
+      end
 
-    unless response.success?
-      Rails.logger.error "SupportVibecheckJob: Failed to fetch data from Nephthys."
-      return
-    end
+      unless response.success?
+        Rails.logger.error "SupportVibecheckJob: Failed to fetch data from Nephthys."
+        return
+      end
 
-    tickets = JSON.parse(response.body)
+      tickets = JSON.parse(response.body)
 
-    begin
+      begin
         open_tickets_response = nephthys_conn.get("/api/tickets?status=open")
         open_tickets = JSON.parse(open_tickets_response.body)
-    rescue Faraday::Error
+      rescue Faraday::Error
         open_tickets = []
-    end
+      end
 
-    if tickets.empty?
+      if tickets.empty?
         Rails.logger.info "SupportVibecheckJob: No new tickets found in the specified time frame."
         return
-    end
+      end
 
-    questions_with_ts = tickets.map.with_index(1) do |t, i|
-      ts = t["message_ts"]
-      "#{i}. #{t["description"]} (#{ts || 'none'})"
-    end.join("\n")
+      questions_with_ts = tickets.map.with_index(1) do |t, i|
+        ts = t["message_ts"]
+        "#{i}. #{t["description"]} (#{ts || 'none'})"
+      end.join("\n")
 
-    open_questions_with_ts = open_tickets.map.with_index(1) do |t, i|
-      ts = t["message_ts"]
-      "#{i}. #{t["description"]} (#{ts || 'none'})"
-    end.join("\n")
+      open_questions_with_ts = open_tickets.map.with_index(1) do |t, i|
+        ts = t["message_ts"]
+        "#{i}. #{t["description"]} (#{ts || 'none'})"
+      end.join("\n")
 
-    prompt = <<~PROMPT
+      prompt = <<~PROMPT
         Analyze the following support questions and summarize the current vibes.
 
         INPUT DATA (each question includes a message_ts in brackets):
@@ -54,12 +54,16 @@ class SupportVibecheckJob < ApplicationJob
         Return ONLY valid JSON (no markdown formatting, no code blocks) with this exact schema:
         {
         "concerns": [
-            { "title": "Short catchy title", "description": "Detailed explanation (2-3 sentences) of what users are worried about including context." },
+            {
+            "title": "Short catchy title",
+            "description": "Detailed explanation (2-3 sentences) of what users are worried about including context.",
+            "messages": [
+                { "message_ts": "1234567890.12345", "content": "Exact message content here" },
+                ...
+            ],
+            "count": 3
+            },
             ... (Top 5 concerns)
-        ],
-        "concern_message_ts": [
-            ["message_ts1", "message_ts2"], // 2 message_ts for concern 1 (or fewer if not enough)
-            ... (one array per concern, order matches concerns)
         ],
         "prominent_questions": [
             "Exact question asked by user?",
@@ -72,9 +76,9 @@ class SupportVibecheckJob < ApplicationJob
         "overall_sentiment": 0.5, // Float from -1.0 (very negative) to 1.0 (very positive)
         "rating": "medium" // One of: "low", "medium", "high"
         }
-    PROMPT
+      PROMPT
 
-    llm_response = Faraday.post("https://openrouter.ai/api/v1/chat/completions") do |req|
+      llm_response = Faraday.post("https://openrouter.ai/api/v1/chat/completions") do |req|
         req.headers["Authorization"] = "Bearer #{ENV['OPENROUTER_API_KEY']}"
         req.headers["Content-Type"] = "application/json"
         req.body = {
@@ -83,26 +87,20 @@ class SupportVibecheckJob < ApplicationJob
             { role: "user", content: prompt }
         ]
         }.to_json
-    end
+      end
 
-    unless llm_response.success?
+      unless llm_response.success?
         Rails.logger.error "SupportVibecheckJob: LLM Failure: #{llm_response.status} body: #{llm_response.body}"
         return
-    end
+      end
 
-    llm_body = JSON.parse(llm_response.body)
-    content = llm_body.dig("choices", 0, "message", "content")
-    cleaned_content = content.gsub(/^```json\s*|```\s*$/, "")
+      llm_body = JSON.parse(llm_response.body)
+      content = llm_body.dig("choices", 0, "message", "content")
+      cleaned_content = content.gsub(/^```json\s*|```\s*$/, "")
 
-    data = JSON.parse(cleaned_content)
+      data = JSON.parse(cleaned_content)
 
-    concern_message_links = Array(data["concern_message_ts"]).map do |ts_arr|
-        Array(ts_arr).map do |ts|
-            ts.present? ? "https://hackclub.slack.com/archives/C09MATKQM8C/p#{ts.gsub('.', '')}" : nil
-        end.compact
-    end
-
-    SupportVibes.create!(
+      SupportVibes.create!(
         period_start: start_time,
         period_end: end_time,
         concerns: data["concerns"],
@@ -110,9 +108,10 @@ class SupportVibecheckJob < ApplicationJob
         notable_quotes: data["prominent_questions"],
         unresolved_queries: data["unresolved_queries"],
         rating: data["rating"],
-        concern_message_links: concern_message_links
-    )
-    Rails.logger.info "SupportVibecheckJob: Support vibes updated successfully."
+        concern_messages: data["concerns"].map { |c| c["messages"] }
+      )
+
+      Rails.logger.info "SupportVibecheckJob: Support vibes updated successfully."
 
     rescue JSON::ParserError
         Rails.logger.error "SupportVibecheckJob: Received invalid JSON from Nephthys."
@@ -122,13 +121,14 @@ class SupportVibecheckJob < ApplicationJob
   end
 
   private
-    def nephthys_conn
-        @nephthys_conn ||= Faraday.new("https://flavortown.nephthys.hackclub.com") do |f|
-        f.request :retry, max: 2, interval: 0.2, interval_randomness: 0.1, backoff_factor: 2
-        f.options.open_timeout = 3
-        f.options.timeout = 7
-        f.response :raise_error
-        f.adapter Faraday.default_adapter
+
+  def nephthys_conn
+    @nephthys_conn ||= Faraday.new("https://flavortown.nephthys.hackclub.com") do |f|
+      f.request :retry, max: 2, interval: 0.2, interval_randomness: 0.1, backoff_factor: 2
+      f.options.open_timeout = 3
+      f.options.timeout = 7
+      f.response :raise_error
+      f.adapter Faraday.default_adapter
     end
   end
 end

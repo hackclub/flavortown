@@ -1,0 +1,353 @@
+<div class="super-mega-dashboard__dashboard">
+  <div class="super-mega-dashboard__header super-mega-dashboard__header--sidequests">
+    <h2>Sidequests Overview</h2>
+    <%= link_to "View Sidequest Entries →", admin_sidequest_entries_path, class: "super-mega-link" %>
+  </div>
+
+  <!-- Global Toggles -->
+  <div class="super-mega-dashboard__trend-toolbar" data-sidequest-global-toolbar style="margin-bottom: 1.5rem; background: rgba(255,255,255,0.5); padding: 0.75rem 1rem; border-radius: 0.5rem;">
+    <div class="super-mega-dashboard__trend-toggle-group" data-sidequest-range-toggle>
+      <button type="button" class="super-mega-dashboard__trend-toggle" data-sidequest-range="24h">24hr</button>
+      <button type="button" class="super-mega-dashboard__trend-toggle is-active" data-sidequest-range="7d">7d</button>
+      <button type="button" class="super-mega-dashboard__trend-toggle" data-sidequest-range="30d">30d</button>
+    </div>
+
+    <span style="flex: 1; text-align: center; font-size: 0.9rem; color: rgba(80, 53, 32, 0.6);">Time Range</span>
+
+    <div class="super-mega-dashboard__trend-toggle-group super-mega-dashboard__trend-toggle-group--right" data-sidequest-metric-toggle>
+      <button type="button" class="super-mega-dashboard__trend-toggle is-active" data-sidequest-metric="projects">Projects</button>
+      <button type="button" class="super-mega-dashboard__trend-toggle" data-sidequest-metric="hours">Hours</button>
+    </div>
+  </div>
+
+  <div class="super-mega-dashboard__cards super-mega-dashboard__cards--sidequests">
+    <div class="super-mega-dashboard__card">
+      <h3>Queue + Velocity</h3>
+      <div class="super-mega-dashboard__stats super-mega-dashboard__stats--sidequests">
+        <div class="super-mega-dashboard__stat">
+          <span class="super-mega-dashboard__stat--value yellow"><%= @sidequest_totals[:pending] || 0 %></span>
+          <span class="super-mega-dashboard__stat--label">Pending</span>
+        </div>
+        <div class="super-mega-dashboard__stat">
+          <span class="super-mega-dashboard__stat--value green"><%= @sidequest_totals[:approved] || 0 %></span>
+          <span class="super-mega-dashboard__stat--label">Approved</span>
+        </div>
+        <div class="super-mega-dashboard__stat">
+          <span class="super-mega-dashboard__stat--value red"><%= @sidequest_totals[:rejected] || 0 %></span>
+          <span class="super-mega-dashboard__stat--label">Rejected</span>
+        </div>
+        <div class="super-mega-dashboard__stat">
+          <span class="super-mega-dashboard__stat--value blue"><%= @sidequest_totals[:submitted_today] || 0 %></span>
+          <span class="super-mega-dashboard__stat--label">Submitted Today</span>
+        </div>
+        <div class="super-mega-dashboard__stat">
+          <span class="super-mega-dashboard__stat--value purple"><%= @sidequest_totals[:submitted_7d] || 0 %></span>
+          <span class="super-mega-dashboard__stat--label">Submitted 7d</span>
+        </div>
+
+      </div>
+      <% if @sidequest_totals[:oldest_pending_at].present? %>
+        <p class="super-mega-dashboard__sidequest-oldest">
+          Oldest pending: <%= time_ago_in_words(@sidequest_totals[:oldest_pending_at]) %> ago
+        </p>
+      <% end %>
+    </div>
+
+    <div class="super-mega-dashboard__card">
+      <h3>Sidequest Submission Breakdown</h3>
+      <% if @sidequest_breakdown_data.present? %>
+        <div class="super-mega-dashboard__sidequest-pie-wrap">
+          <canvas id="sidequestBreakdownChart" height="220"></canvas>
+        </div>
+      <% else %>
+        <p class="fraud-stats-error">No sidequest submissions yet.</p>
+      <% end %>
+    </div>
+
+    <div class="super-mega-dashboard__card super-mega-dashboard__card--sidequest-convergence" data-sidequest-convergence-card>
+      <h3 data-sidequest-convergence-title>Project Convergence</h3>
+      <div class="super-mega-dashboard__stats super-mega-dashboard__stats--sidequests">
+        <div class="super-mega-dashboard__stat">
+          <span class="super-mega-dashboard__stat--value blue" data-sidequest-convergence-total-value><%= @sidequest_totals[:shipped_projects_count] || 0 %></span>
+          <span class="super-mega-dashboard__stat--label" data-sidequest-convergence-total-label>Projects Shipped</span>
+        </div>
+        <div class="super-mega-dashboard__stat">
+          <span class="super-mega-dashboard__stat--value purple" data-sidequest-convergence-sidequest-value><%= @sidequest_totals[:shipped_projects_with_sidequest_submission_count] || 0 %></span>
+          <span class="super-mega-dashboard__stat--label" data-sidequest-convergence-sidequest-label>Submitted to Sidequest</span>
+        </div>
+        <div class="super-mega-dashboard__stat">
+          <span class="super-mega-dashboard__stat--value green" data-sidequest-convergence-pct><%= @sidequest_totals[:shipped_projects_with_sidequest_submission_pct] || 0 %>%</span>
+          <span class="super-mega-dashboard__stat--label" data-sidequest-convergence-pct-label>Convergence Rate</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="super-mega-dashboard__card super-mega-dashboard__card--full super-mega-dashboard__card--sidequest-trends">
+      <h3 style="margin-bottom: 1rem;">Sidequest Trends</h3>
+      <% if @sidequest_trend_data.present? %>
+        <div class="sidequest-trend-graph">
+          <canvas id="sidequestTrendChart" height="300"></canvas>
+        </div>
+        <script>
+  (function() {
+    const sidequestRoot = document.currentScript && document.currentScript.closest('.super-mega-dashboard__dashboard');
+    if (!sidequestRoot) return;
+
+    const trendData = <%= raw @sidequest_trend_data.to_json %>;
+    const breakdownData = <%= raw @sidequest_breakdown_data.to_json %>;
+
+    const globalToolbar = sidequestRoot.querySelector('[data-sidequest-global-toolbar]');
+    if (!globalToolbar) return;
+
+    const rangeButtons = globalToolbar.querySelectorAll('[data-sidequest-range]');
+    const metricButtons = globalToolbar.querySelectorAll('[data-sidequest-metric]');
+
+    if (!window.sidequestDashboardState) {
+      window.sidequestDashboardState = { range: '7d', metric: 'projects' };
+    }
+    const chartState = window.sidequestDashboardState;
+
+    const convergenceCard = sidequestRoot.querySelector('[data-sidequest-convergence-card]');
+    const convergenceTitle        = convergenceCard && convergenceCard.querySelector('[data-sidequest-convergence-title]');
+    const convergenceTotalValue   = convergenceCard && convergenceCard.querySelector('[data-sidequest-convergence-total-value]');
+    const convergenceTotalLabel   = convergenceCard && convergenceCard.querySelector('[data-sidequest-convergence-total-label]');
+    const convergenceSidequestValue = convergenceCard && convergenceCard.querySelector('[data-sidequest-convergence-sidequest-value]');
+    const convergenceSidequestLabel = convergenceCard && convergenceCard.querySelector('[data-sidequest-convergence-sidequest-label]');
+    const convergencePctValue     = convergenceCard && convergenceCard.querySelector('[data-sidequest-convergence-pct]');
+    const convergencePctLabel     = convergenceCard && convergenceCard.querySelector('[data-sidequest-convergence-pct-label]');
+
+    const metricConfig = {
+      projects: {
+        title: 'Project Convergence',
+        yTitle: 'Projects',
+        totalLabel: 'Total Shipped',
+        submittedLabel: 'Submitted to Sidequest',
+        acceptedLabel: 'Accepted',
+        valueFormatter: function(value) {
+          return Math.round(Number(value) || 0).toString();
+        }
+      },
+      hours: {
+        title: 'Hours Breakdown',
+        yTitle: 'Hours',
+        totalLabel: 'Total Hours',
+        submittedLabel: 'Submitted Hours',
+        acceptedLabel: 'Accepted Hours',
+        valueFormatter: function(value) {
+          return (Number(value) || 0).toFixed(1).replace(/\.0$/, '');
+        }
+      }
+    };
+
+    const breakdownPalette = [
+      '#3b82f6', '#10b981', '#f59e0b', '#ef4444',
+      '#8b5cf6', '#14b8a6', '#f97316', '#6366f1'
+    ];
+
+    const seriesDefinitions = {
+      projects: [
+        { key: 'submitted', label: 'Submitted to Sidequest', borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.16)', fill: true,  tension: 0.35, pointRadius: 3, pointHoverRadius: 4 },
+        { key: 'accepted',  label: 'Accepted',               borderColor: '#16a34a', backgroundColor: 'rgba(22, 163, 74, 0.14)',  fill: true,  tension: 0.35, pointRadius: 3, pointHoverRadius: 4 },
+        { key: 'total',     label: 'Total Shipped',           borderColor: '#6b7280', backgroundColor: 'transparent',              fill: false, tension: 0.3,  pointRadius: 3, pointHoverRadius: 4, borderDash: [6, 4] }
+      ],
+      hours: [
+        { key: 'submitted', label: 'Submitted Hours', borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.16)', fill: true,  tension: 0.35, pointRadius: 3, pointHoverRadius: 4 },
+        { key: 'accepted',  label: 'Accepted Hours',  borderColor: '#16a34a', backgroundColor: 'rgba(22, 163, 74, 0.14)',  fill: true,  tension: 0.35, pointRadius: 3, pointHoverRadius: 4 },
+        { key: 'total',     label: 'Total Hours',     borderColor: '#6b7280', backgroundColor: 'transparent',              fill: false, tension: 0.3,  pointRadius: 3, pointHoverRadius: 4, borderDash: [6, 4] }
+      ]
+    };
+
+    function formatValue(value) {
+      return metricConfig[chartState.metric].valueFormatter(value);
+    }
+
+    function buildDatasets(windowData) {
+      return seriesDefinitions[chartState.metric].map(function(series) {
+        return {
+          label: series.label,
+          data: ((windowData.series[chartState.metric] || {})[series.key] || []).map(function(v) {
+            return Number(v) || 0;
+          }),
+          borderColor: series.borderColor,
+          backgroundColor: series.backgroundColor,
+          fill: series.fill,
+          tension: series.tension,
+          pointRadius: series.pointRadius,
+          pointHoverRadius: series.pointHoverRadius,
+          borderDash: series.borderDash || []
+        };
+      });
+    }
+
+    function syncActiveButtons() {
+      rangeButtons.forEach(function(btn) {
+        btn.classList.toggle('is-active', btn.dataset.sidequestRange === chartState.range);
+      });
+      metricButtons.forEach(function(btn) {
+        btn.classList.toggle('is-active', btn.dataset.sidequestMetric === chartState.metric);
+      });
+    }
+
+    function updateConvergenceCard(windowData) {
+      if (!convergenceCard) return;
+      var metric = metricConfig[chartState.metric];
+      var seriesData = (windowData.series[chartState.metric] || {});
+      var total     = (seriesData.total     || []).reduce(function(s, v) { return s + (Number(v) || 0); }, 0);
+      var submitted = (seriesData.submitted || []).reduce(function(s, v) { return s + (Number(v) || 0); }, 0);
+      var accepted  = (seriesData.accepted  || []).reduce(function(s, v) { return s + (Number(v) || 0); }, 0);
+      var rate = total > 0 ? ((submitted / total) * 100).toFixed(1) : '0.0';
+
+      if (convergenceTitle)          convergenceTitle.textContent          = metric.title;
+      if (convergenceTotalValue)     convergenceTotalValue.textContent     = metric.valueFormatter(total);
+      if (convergenceTotalLabel)     convergenceTotalLabel.textContent     = metric.totalLabel;
+      if (convergenceSidequestValue) convergenceSidequestValue.textContent = metric.valueFormatter(submitted);
+      if (convergenceSidequestLabel) convergenceSidequestLabel.textContent = metric.submittedLabel;
+      if (convergencePctValue)       convergencePctValue.textContent       = rate + '%';
+      if (convergencePctLabel)       convergencePctLabel.textContent       = 'Convergence Rate';
+    }
+
+    function renderBreakdownChart() {
+      if (!window.sidequestBreakdownChartInstance) return;
+
+      var rangeData  = breakdownData[chartState.range]  || {};
+      var metricData = rangeData[chartState.metric] || {};
+
+      var labels = Object.keys(metricData);
+      var values = Object.values(metricData).map(function(v) { return Number(v) || 0; });
+      var hasData = labels.length > 0 && values.some(function(v) { return v > 0; });
+      var backgroundColor = labels.map(function(_, i) {
+        return breakdownPalette[i % breakdownPalette.length];
+      });
+
+      window.sidequestBreakdownChartInstance.data.labels = labels;
+      window.sidequestBreakdownChartInstance.data.datasets[0].data = values;
+      window.sidequestBreakdownChartInstance.data.datasets[0].backgroundColor = backgroundColor;
+      window.sidequestBreakdownChartInstance.options.plugins.legend.display = hasData;
+      window.sidequestBreakdownChartInstance.update();
+    }
+
+    function renderTrendChart() {
+      var windowData = trendData[chartState.range];
+      if (!windowData) return;
+
+      window.sidequestTrendChartInstance.data.labels   = windowData.labels || [];
+      window.sidequestTrendChartInstance.data.datasets = buildDatasets(windowData);
+      window.sidequestTrendChartInstance.options.scales.y.title.text = metricConfig[chartState.metric].yTitle;
+      syncActiveButtons();
+      updateConvergenceCard(windowData);
+      window.sidequestTrendChartInstance.update();
+      renderBreakdownChart();
+    }
+
+    function loadChart(callback) {
+      if (window.Chart) return callback();
+      var script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+      script.onload = callback;
+      document.head.appendChild(script);
+    }
+
+    loadChart(function() {
+      var trendCanvas     = sidequestRoot.querySelector('#sidequestTrendChart');
+      var breakdownCanvas = sidequestRoot.querySelector('#sidequestBreakdownChart');
+      if (!trendCanvas) return;
+
+      if (window.sidequestTrendChartInstance)     { window.sidequestTrendChartInstance.destroy(); }
+      if (window.sidequestBreakdownChartInstance) { window.sidequestBreakdownChartInstance.destroy(); }
+
+      // Embed callbacks in initial options so the very first render is correct
+      // and precision:0 (integers only) never accidentally overrides the hours formatter.
+      window.sidequestTrendChartInstance = new Chart(trendCanvas, {
+        type: 'line',
+        data: { labels: [], datasets: [] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: true, position: 'bottom' },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + formatValue(context.raw);
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) { return formatValue(value); }
+              },
+              title: { display: true, text: 'Projects' }
+            }
+          }
+        }
+      });
+
+      if (breakdownCanvas) {
+        window.sidequestBreakdownChartInstance = new Chart(breakdownCanvas, {
+          type: 'doughnut',
+          data: {
+            labels: [],
+            datasets: [{
+              data: [],
+              backgroundColor: [],
+              borderColor: '#ffffff',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false,
+                position: 'bottom',
+                labels: { boxWidth: 12, padding: 10, font: { size: 11 } }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    var value = Number(context.raw) || 0;
+                    var total = context.dataset.data.reduce(function(s, n) { return s + (Number(n) || 0); }, 0);
+                    var pct   = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                    if (chartState.metric === 'hours') {
+                      return context.label + ': ' + value.toFixed(1) + ' hrs (' + pct + '%)';
+                    }
+                    return context.label + ': ' + Math.round(value) + ' (' + pct + '%)';
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      if (globalToolbar.dataset.sidequestToolbarInitialized !== 'true') {
+        rangeButtons.forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            chartState.range = btn.dataset.sidequestRange;
+            renderTrendChart();
+          });
+        });
+        metricButtons.forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            chartState.metric = btn.dataset.sidequestMetric;
+            renderTrendChart();
+          });
+        });
+        globalToolbar.dataset.sidequestToolbarInitialized = 'true';
+      }
+
+      renderTrendChart();
+    });
+  })();
+</script>
+      <% else %>
+        <p class="fraud-stats-error">No sidequest trend data available.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

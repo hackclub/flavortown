@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: projects
+# Database name: primary
 #
 #  id                   :bigint           not null, primary key
 #  ai_declaration       :text
@@ -68,23 +69,17 @@ class Project < ApplicationRecord
     user ? where.not(id: user.projects) : all
   }
   scope :fire, -> { where.not(marked_fire_at: nil) }
-  scope :excluding_shadow_banned, -> {
-    where(shadow_banned: false)
-      .joins(:memberships)
-      .joins("INNER JOIN users ON users.id = project_memberships.user_id")
-      .where(users: { shadow_banned: false })
-      .distinct
+  scope :with_banner_priority, -> {
+    left_joins(:banner_attachment)
+      .includes(banner_attachment: :blob)
+      .order(ActiveStorage::Attachment.arel_table[:id].eq(nil).asc)
   }
+  scope :excluding_shadow_banned, -> { where(shadow_banned: false) }
   scope :visible_to, ->(viewer) {
-    if viewer&.shadow_banned?
-      # Shadow-banned users see all projects (so they don't know they're banned)
-      all
-    elsif viewer
+    if viewer
       # Regular users see non-shadow-banned projects + their own projects
-      left_joins(memberships: :user)
-        .where(shadow_banned: false)
-        .where(memberships: { users: { shadow_banned: false } })
-        .or(left_joins(memberships: :user).where(memberships: { user_id: viewer.id }))
+      where(shadow_banned: false)
+        .or(where(id: viewer.projects.select(:id)))
         .distinct
     else
       excluding_shadow_banned
@@ -104,6 +99,7 @@ class Project < ApplicationRecord
   has_many :git_commit_posts, -> { where(postable_type: "Post::GitCommit").order(created_at: :desc) }, class_name: "Post"
   has_many :votes, dependent: :destroy
   has_many :reports, class_name: "Project::Report", dependent: :destroy
+  has_many :skips, class_name: "Project::Skip", dependent: :destroy
   has_many :project_follows, dependent: :destroy
   has_many :followers, through: :project_follows, source: :user
   # needs to be implemented
@@ -260,23 +256,103 @@ class Project < ApplicationRecord
 
   def shipping_requirements
     [
-      { key: :not_shadow_banned, label: "This project has been flagged by moderation and cannot ship", passed: !shadow_banned? },
-      { key: :demo_url, label: "Add a demo link so anyone can try your project", passed: demo_url.present? },
-      { key: :repo_url, label: "Add a public GitHub URL with your source code", passed: repo_url.present? },
-      { key: :repo_url_format, label: "Use the root GitHub repository URL (no .git or /tree/main)", passed: validate_repo_url_format },
-      { key: :repo_cloneable, label: "Make your GitHub repo publicly cloneable", passed: validate_repo_cloneable },
-      { key: :readme_url, label: "Add a README URL to your project", passed: readme_url.present? },
-      { key: :description, label: "Add a description for your project", passed: description.present? },
-      { key: :banner, label: "Upload a banner image for your project", passed: banner.attached? },
-      { key: :devlog, label: "Post at least one devlog since your last ship", passed: has_devlog_since_last_ship? },
-      { key: :payout, label: "Wait for your previous ship's to get a payout", passed: previous_ship_event_has_payout? },
-      { key: :vote_balance, label: "Your vote balance is negative", passed: memberships.owner.first&.user&.vote_balance.to_i >= 0 },
-      { key: :project_isnt_rejected, label: "Your project is not rejected!", passed: last_ship_event&.certification_status != "rejected" },
-      { key: :project_has_more_then_10s, label: "Your ship event has actual time attached to it! (all devlogs have more then 10s)", passed: duration_seconds > 10 }
+      {
+        key: :not_shadow_banned,
+        label: "Your project must not be flagged by moderation",
+        fail_label: "Your project has been flagged by moderation and cannot be shipped!",
+        tooltip: "Your project has been reviewed by moderation and is ineligible to ship. Contact support if you think this is a mistake.",
+        passed: !shadow_banned?
+      },
+      {
+        key: :demo_url,
+        label: "Add a demo link so anyone can try your project",
+        tooltip: "A live URL where anyone can try your project, e.g. a deployed web app or a video demo.",
+        passed: demo_url.present?
+      },
+      {
+        key: :repo_url,
+        label: "Add a public GitHub URL with your source code",
+        tooltip: "A link to your public GitHub repository so others can view your code.",
+        passed: repo_url.present?
+      },
+      {
+        key: :repo_url_format,
+        label: "Use the root GitHub repository URL (no .git or /tree/main)",
+        tooltip: "Use the base repository URL, e.g. https://github.com/user/repo, not https://github.com/user/repo.git or https://github.com/user/repo/tree/main.",
+        passed: validate_repo_url_format
+      },
+      {
+        key: :repo_cloneable,
+        label: "Make your GitHub repo publicly cloneable",
+        tooltip: "Your repository must be public so anyone can clone and run your project.",
+        passed: validate_repo_cloneable
+      },
+      {
+        key: :readme_url,
+        label: "Add a README URL to your project",
+        tooltip: "A link to your README file, e.g. the raw GitHub URL of your README.md.",
+        passed: readme_url.present?
+      },
+      {
+        key: :description,
+        label: "Add a description for your project",
+        tooltip: "A short summary of what your project does and what makes it interesting.",
+        passed: description.present?
+      },
+      {
+        key: :banner,
+        label: "Upload a banner image for your project",
+        tooltip: "A banner image (JPEG, PNG, or WebP, max 10MB) that represents your project on the explore page.",
+        passed: banner.attached?
+      },
+      {
+        key: :devlog,
+        label: "Post at least one devlog since your last ship",
+        tooltip: "You must have posted at least one devlog after your previous ship to show progress on this version.",
+        passed: has_devlog_since_last_ship?
+      },
+      {
+        key: :payout,
+        label: "Your previous ship must have received a payout before you can ship again",
+        fail_label: "Wait for your previous ship to get a payout before shipping again",
+        tooltip: "Your last ship is still awaiting a payout. You can ship again once that payout has been processed.",
+        passed: previous_ship_event_has_payout?
+      },
+      {
+        key: :vote_balance,
+        label: "Maintain a non-negative vote balance",
+        fail_label: "Your vote balance is negative! Vote on other projects before shipping this one.",
+        tooltip: "Your vote balance has gone negative from downvotes. Earn it back by getting upvotes on your projects.",
+        passed: memberships.owner.first&.user&.vote_balance.to_i >= 0
+      },
+      {
+        key: :project_isnt_rejected,
+        label: "Your project must not have been rejected",
+        fail_label: "Your project is rejected!",
+        tooltip: "Your last ship was rejected during review. Address the feedback before shipping again.",
+        passed: last_ship_event&.certification_status != "rejected"
+      },
+      {
+        key: :project_has_more_then_10s,
+        label: "Log more than 10 seconds of tracked time across your devlogs",
+        fail_label: "This project doesn't have any time attached to it! (devlog some time, then try again)",
+        tooltip: "Your devlogs must have actual tracked time attached. Make sure you're logging time via Hackatime.",
+        passed: duration_seconds > 10
+      }
+      # { key: :ai_declaration, label: "Declare your AI usage for this project (write 'None' if you didn't use any)", passed: ai_declaration.present? }
     ]
+      .map.with_index
+      .sort_by { |pair| [ pair[0][:passed] ? 1 : 0, pair[1] ] }
+      .map { |it| it[0] }
+  end
+
+  def visual_shipping_requirements
+    # only those that have a label we could use right now
+    shipping_requirements.select { |elem| !elem[:passed] || elem[:label] }
   end
 
   def shippable? = shipping_requirements.all? { |r| r[:passed] }
+
   def ship_blocking_errors = shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:label] }
 
   def last_ship_event

@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: post_ship_events
+# Database name: primary
 #
 #  id                         :bigint           not null, primary key
 #  base_hours                 :float
@@ -20,7 +21,9 @@
 #  payout_basis_locked_at     :datetime
 #  payout_basis_overall_score :decimal(5, 2)
 #  payout_basis_percentile    :decimal(5, 2)
+#  payout_blessing            :string
 #  payout_curve_version       :string
+#  review_instructions        :text
 #  storytelling_median        :decimal(5, 2)
 #  storytelling_percentile    :decimal(5, 2)
 #  synced_at                  :datetime
@@ -55,6 +58,7 @@ class Post::ShipEvent < ApplicationRecord
   after_commit :decrement_user_vote_balance, on: :create
 
   validates :body, presence: { message: "Update message can't be blank" }
+  validates :review_instructions, length: { maximum: 2000 }, allow_blank: true
   validate :project_can_be_shipped, on: :create
   has_paper_trail ignore: [ :votes_count, :synced_at ]
   def status
@@ -92,7 +96,7 @@ class Post::ShipEvent < ApplicationRecord
     return false unless certification_status == "approved"
     return false unless current_voting_scale?
     return false unless payout.blank?
-    return false unless votes.legitimate.count >= VOTES_REQUIRED_FOR_PAYOUT
+    return false unless votes.payout_countable.count >= VOTES_REQUIRED_FOR_PAYOUT
 
     payout_user = payout_recipient
     return false unless payout_user

@@ -85,6 +85,7 @@
     border-radius: var(--border-radius);
     color: var(--color-bg);
     padding: 1em;
+    box-shadow: var(--shadow);
   }
 
   &__project-details {
@@ -255,7 +256,7 @@
     padding: 1rem;
     transform: translateX(100%);
     transition: transform 220ms ease;
-    z-index: 30;
+    z-index: 1000;
     display: flex;
     flex-direction: column;
 
@@ -275,6 +276,14 @@
     }
     &.is-open {
       transform: translateX(0);
+    }
+
+    @media (max-width: 550px) {
+      width: 90vw;
+      top: 1em;
+      bottom: 1em;
+      max-height: 100vh;
+      padding: 0.8rem;
     }
   }
 
@@ -300,6 +309,18 @@
     text-orientation: mixed;
     cursor: pointer;
     z-index: -1;
+
+    @media (max-width: 550px) {
+      font-size: var(--font-size-l);
+      height: auto;
+      padding: 1em 5em 1em 0.5em;
+      width: 3rem;
+      left: calc(
+        (var(--score-card-tab-width) * -1) + var(--score-card-toggle-overlap) +
+          1.5rem
+      );
+      border-radius: 1rem 0 0 1rem;
+    }
   }
 
   &__score-card-header {
@@ -313,6 +334,10 @@
       margin: 0;
       font-size: var(--font-size-xxl);
       line-height: var(--line-height-headers);
+
+      @media (max-width: 550px) {
+        font-size: var(--font-size-l);
+      }
     }
 
     p {
@@ -322,6 +347,10 @@
       font-size: var(--font-size-m);
       color: var(--color-text-body);
       line-height: 1.4;
+    }
+
+    @media (max-width: 550px) {
+      margin-bottom: 0.5rem;
     }
   }
 
@@ -376,6 +405,11 @@
     .vote-category__star svg {
       width: 1.65rem;
       height: 1.65rem;
+
+      @media (max-width: 550px) {
+        width: 1rem;
+        height: 1rem;
+      }
     }
 
     .vote-form {
@@ -393,6 +427,23 @@
 
         &--invalid .input__subtitle {
           color: var(--color-red-600, #dc2626);
+        }
+
+        @media (max-width: 550px) {
+          .input__label {
+            font-size: var(--font-size-m);
+            padding: var(--space-xs) var(--space-xs) var(--space-m)
+              var(--space-xs);
+          }
+
+          input {
+            font-size: var(--font-size-s);
+            padding: var(--space-xxs);
+          }
+
+          .input__subtitle {
+            font-size: var(--font-size-xs);
+          }
         }
       }
 
@@ -417,6 +468,16 @@
       flex-shrink: 0;
       margin: var(--space-s) 0 0;
       justify-content: center;
+
+      @media (max-width: 550px) {
+        font-size: 1rem;
+        margin: var(--space-xs) 0 0;
+      }
+    }
+
+    @media (max-width: 550px) {
+      padding-left: 0;
+      padding-right: 0;
     }
   }
 
@@ -467,6 +528,13 @@
     }
   }
 
+  &__skip-form {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 900;
+  }
+
   @media (max-width: 1200px) {
     &__main {
       flex-direction: column;
@@ -515,6 +583,11 @@
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
+
+    @media (max-width: 550px) {
+      font-size: var(--font-size-m);
+      padding: var(--space-xs) var(--space-xs) var(--space-m) var(--space-xs);
+    }
   }
 
   &__body {
@@ -522,11 +595,19 @@
     align-items: center;
     gap: 0.25rem;
     background-color: var(--input-bg);
+    background-image: url("mask/title.webp");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
     border-radius: calc(var(--border-radius) * 0.8);
     overflow: hidden;
     position: relative;
     z-index: 2;
     padding: var(--space-s);
+
+    @media (max-width: 550px) {
+      padding: var(--space-xxs);
+    }
   }
 
   &__stars {
@@ -595,12 +676,18 @@
     left: 0;
     right: 0;
     transform: translateY(calc(100% - var(--space-m)));
-    padding: calc(1.2 * var(--space-m)) var(--space-s) var(--space-xs);
+    padding: calc(1.3 * var(--space-m)) var(--space-s) var(--space-xs);
     border-radius: var(--border-radius);
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
     font-size: var(--font-size-s);
     z-index: 0;
     background-color: var(--input-subtitle-bg);
     color: var(--input-subtitle-color);
+
+    @media (max-width: 550px) {
+      font-size: var(--font-size-xs);
+    }
   }
 
   &--red {

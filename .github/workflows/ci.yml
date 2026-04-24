@@ -11,6 +11,24 @@ env:
   BUNDLE_WITHOUT: development
 
 jobs:
+  js_lint:
+    name: JS/CSS Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Prettier
+        run: yarn -s prettier --check "app/javascript/**/*.{js,jsx,ts,tsx}" "app/assets/stylesheets/**/*.{scss,css}"
+
+      - name: Check Stimulus Manifest
+        run: node bin/lint-stimulus-manifest
+
   checks:
     runs-on: ubuntu-latest
     strategy:
@@ -31,16 +49,6 @@ jobs:
             needs_node: true
             command: bundle exec erb_lint --lint-all
 
-          - name: Prettier JS/TS
-            system_packages: "libblas-dev liblapack-dev"
-            needs_node: true
-            command: yarn -s prettier --check "app/javascript/**/*.{js,jsx,ts,tsx}"
-
-          - name: Prettier SCSS/CSS
-            system_packages: "libblas-dev liblapack-dev"
-            needs_node: true
-            command: yarn -s prettier --check "app/assets/stylesheets/**/*.{scss,css}"
-
           - name: Zeitwerk
             system_packages: "libvips-dev libblas-dev liblapack-dev"
             rails_env: test
@@ -48,28 +56,24 @@ jobs:
 
     name: ${{ matrix.name }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
       - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y ${{ matrix.system_packages }}
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends ${{ matrix.system_packages }}
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Set up Node.js
+      - uses: actions/setup-node@v6
         if: matrix.needs_node
-        uses: actions/setup-node@v6
         with:
           node-version-file: package.json
           cache: yarn
 
-      - name: Install JS dependencies
+      - run: yarn install --frozen-lockfile
         if: matrix.needs_node
-        run: yarn install --frozen-lockfile
 
       - name: Run check
         env:
@@ -83,7 +87,7 @@ jobs:
       pull-requests: write
     services:
       postgres:
-        image: postgres:15
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password
@@ -91,14 +95,24 @@ jobs:
         ports:
           - 5432:5432
         options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+      postgres_embed:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: flavortown_test_embed
+        ports:
+          - 5433:5432
+        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
     env:
       RAILS_ENV: test
       DATABASE_URL: postgresql://postgres:password@localhost:5432/flavortown_test
+      EMBEDDINGS_DATABASE_URL: postgresql://postgres:password@localhost:5433/flavortown_test_embed
     steps:
       - uses: actions/checkout@v6
 
       - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends libblas-dev liblapack-dev
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -112,7 +126,7 @@ jobs:
           git diff --exit-code db/schema.rb
       - name: Comment on schema failure
         if: failure() && steps.migration_check.outcome == 'failure' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             github.rest.issues.createComment({
@@ -128,7 +142,7 @@ jobs:
         run: bundle exec annotaterb models --frozen
       - name: Comment on annotation failure
         if: failure() && steps.annotate_check.outcome == 'failure' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             github.rest.issues.createComment({

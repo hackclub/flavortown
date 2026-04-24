@@ -1,0 +1,61 @@
+<% controller_data = { controller: "pyramid-flavortime" } %>
+
+<% unless @pyramid_scheme_stats[:error].present? %>
+  <% controller_data[:pyramid_flavortime_pyramid_activity_timeline_value] = @pyramid_scheme_stats[:activity_timeline].to_json %>
+<% end %>
+
+<% unless @flavortime_summary[:error].present? %>
+  <% controller_data[:pyramid_flavortime_flavortime_activity_chart_value] = @flavortime_summary[:activity_chart].to_json %>
+<% end %>
+
+<%= tag.div class: "super-mega-dashboard__dashboard super-mega-dashboard__dashboard--pyramid-flavortime", data: controller_data do %>
+  <div class="super-mega-dashboard__header">
+    <div class="super-mega-dashboard__section-heading">
+      <h2>Pyramid + Flavortime</h2>
+      <p class="super-mega-dashboard__section-subtitle">Pyramid Scheme and Flavortime data</p>
+    </div>
+    <%= link_to "View Full Flavortime Dashboard →", admin_flavortime_dashboard_path, class: "super-mega-link" %>
+  </div>
+
+  <div class="super-mega-dashboard__cards super-mega-dashboard__cards--analytics">
+    <% if @pyramid_scheme_stats[:error].present? %>
+      <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+        <h3>Pyramid feed unavailable</h3>
+        <p class="fraud-stats-error"><%= @pyramid_scheme_stats[:error] %></p>
+      </div>
+    <% else %>
+      <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+        <div class="super-mega-dashboard__card-toolbar">
+          <h3>Pyramid Weekly Growth & Verified Hours</h3>
+          <label class="super-mega-dashboard__range-control" for="pyramidActivityRange">
+            <span>Range</span>
+            <select id="pyramidActivityRange" data-pyramid-flavortime-target="pyramidActivityRange" data-action="change->pyramid-flavortime#pyramidRangeChanged">
+              <option value="1w">Last week</option>
+              <option value="4w">Last 4 weeks</option>
+              <option value="8w" selected>Last 8 weeks</option>
+              <option value="12w">Last 12 weeks</option>
+              <option value="all">All time</option>
+            </select>
+          </label>
+        </div>
+        <div class="super-mega-dashboard__chart-shell">
+          <canvas id="pyramidActivityChart" data-pyramid-flavortime-target="pyramidActivityChart"></canvas>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @flavortime_summary[:error].present? %>
+      <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+        <h3>Flavortime feed unavailable</h3>
+        <p class="fraud-stats-error"><%= @flavortime_summary[:error] %></p>
+      </div>
+    <% else %>
+      <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
+        <h3>Flavortime Activity Trend</h3>
+        <div class="super-mega-dashboard__chart-shell">
+          <canvas id="flavortimeActivityChart" data-pyramid-flavortime-target="flavortimeActivityChart"></canvas>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

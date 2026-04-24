@@ -110,7 +110,7 @@ class StartController < ApplicationController
   end
 
   def update_devlog
-    body = params.fetch(:devlog_body, "").to_s.strip.first(2_000)
+    body = params.fetch(:devlog_body, "").to_s.strip.first(Post::Devlog::BODY_MAX_LENGTH)
     attachment_ids = Array(params[:devlog_attachment_ids]).compact_blank
 
     if attachment_ids.empty?

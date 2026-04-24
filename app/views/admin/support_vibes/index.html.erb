@@ -1,10 +1,13 @@
-<%= render HeadingComponent.new(title: "Support Vibes", tone: :blue, size: :full) %>
+<% content_for :title, "Support Scouts Vibes" %>
+<%= render HeadingComponent.new(title: "Support Scouts Vibes", tone: :blue, size: :full) %>
 <h2 class="warning">this data was generated using ai analysis so take it with a grain of salt or smth kthxbye</h2>
 
-<%= button_to "✨ DO DA VIBE CHECK ✨", admin_support_vibes_path, method: :post, class: "btn-primary" %>
+<% if Rails.env.development? %>
+  <%= button_to "✨ DO DA VIBE CHECK ✨", admin_support_vibes_path, method: :post, class: "btn-primary" %>
+<% end %>
 
 <div class="support-vibes-trend-graph">
-  <h3>Support Vibes Trend</h3>
+  <h3>Support Scouts Vibes Trend</h3>
   <div class="support-vibes-graph">
     <canvas id="supportVibesChart" height="200"></canvas>
   </div>

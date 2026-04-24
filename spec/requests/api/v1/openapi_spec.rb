@@ -21,6 +21,12 @@ RSpec.describe 'API V1 OpenAPI', openapi_spec: 'openapi.yml', type: :request do
                 schema: { type: :integer },
                 description: 'Page number for pagination'
 
+      parameter name: :limit,
+                in: :query,
+                required: false,
+                schema: { type: :integer, maximum: 100 },
+                description: 'Number of results per page (max 100)'
+
       parameter name: :query,
                 in: :query,
                 required: false,
@@ -38,6 +44,8 @@ RSpec.describe 'API V1 OpenAPI', openapi_spec: 'openapi.yml', type: :request do
                }
         run_test!
       end
+
+      documented_ref_response '400', 'Invalid request parameters', '#/components/responses/BadRequest'
 
       documented_ref_response '401', 'Missing or invalid API key', '#/components/responses/Unauthorized'
     end
@@ -144,6 +152,18 @@ RSpec.describe 'API V1 OpenAPI', openapi_spec: 'openapi.yml', type: :request do
                 required: true,
                 schema: { type: :integer }
 
+      parameter name: :page,
+                in: :query,
+                required: false,
+                schema: { type: :integer },
+                description: 'Page number for pagination'
+
+      parameter name: :limit,
+                in: :query,
+                required: false,
+                schema: { type: :integer, maximum: 100 },
+                description: 'Number of results per page (max 100)'
+
       response '200', 'A paginated list of devlogs for the project' do
         schema type: :object,
                properties: {
@@ -155,6 +175,8 @@ RSpec.describe 'API V1 OpenAPI', openapi_spec: 'openapi.yml', type: :request do
                }
         run_test!
       end
+
+      documented_ref_response '400', 'Invalid request parameters', '#/components/responses/BadRequest'
 
       documented_ref_response '401', 'Missing or invalid API key', '#/components/responses/Unauthorized'
 
@@ -344,6 +366,12 @@ RSpec.describe 'API V1 OpenAPI', openapi_spec: 'openapi.yml', type: :request do
                 schema: { type: :integer },
                 description: 'Page number for pagination'
 
+      parameter name: :limit,
+                in: :query,
+                required: false,
+                schema: { type: :integer, maximum: 100 },
+                description: 'Number of results per page (max 100)'
+
       response '200', 'A paginated list of devlogs' do
         schema type: :object,
                properties: {
@@ -355,6 +383,8 @@ RSpec.describe 'API V1 OpenAPI', openapi_spec: 'openapi.yml', type: :request do
                }
         run_test!
       end
+
+      documented_ref_response '400', 'Invalid request parameters', '#/components/responses/BadRequest'
 
       documented_ref_response '401', 'Missing or invalid API key', '#/components/responses/Unauthorized'
     end
@@ -436,6 +466,12 @@ RSpec.describe 'API V1 OpenAPI', openapi_spec: 'openapi.yml', type: :request do
                 schema: { type: :integer },
                 description: 'Page number for pagination'
 
+      parameter name: :limit,
+                in: :query,
+                required: false,
+                schema: { type: :integer, maximum: 100 },
+                description: 'Number of results per page (max 100)'
+
       parameter name: :query,
                 in: :query,
                 required: false,
@@ -453,6 +489,8 @@ RSpec.describe 'API V1 OpenAPI', openapi_spec: 'openapi.yml', type: :request do
                }
         run_test!
       end
+
+      documented_ref_response '400', 'Invalid request parameters', '#/components/responses/BadRequest'
 
       documented_ref_response '401', 'Missing or invalid API key', '#/components/responses/Unauthorized'
     end

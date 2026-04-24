@@ -19,7 +19,8 @@ class MyController < ApplicationController
       send_notifications_for_followed_devlogs: params[:send_notifications_for_followed_devlogs] == "1",
       send_notifications_for_new_followers: params[:send_notifications_for_new_followers] == "1",
       send_notifications_for_new_comments: params[:send_notifications_for_new_comments] == "1",
-      special_effects_enabled: params[:special_effects_enabled] == "1"
+      special_effects_enabled: params[:special_effects_enabled] == "1",
+      search_engine_indexing_off: params[:search_engine_indexing_off] == "1"
     )
     redirect_back fallback_location: root_path, notice: "Settings saved"
   end
@@ -59,14 +60,11 @@ class MyController < ApplicationController
 
     current_user.dismiss_thing!(thing_name)
     head :ok
+  rescue ArgumentError => e
+    Rails.logger.info("Invalid dismissible thing requested: #{thing_name} (#{e.message})")
+    head :bad_request
   rescue StandardError => e
     Rails.logger.error("Error dismissing thing: #{e.message}")
     head :internal_server_error
-  end
-
-  private
-
-  def require_login
-    redirect_to root_path, alert: "Please log in first" and return unless current_user
   end
 end

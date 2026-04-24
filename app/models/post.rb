@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: posts
+# Database name: primary
 #
 #  id            :bigint           not null, primary key
 #  postable_type :string
@@ -33,6 +34,8 @@ class Post < ApplicationRecord
     belongs_to :user, optional: true
 
     delegated_type :postable, types: Postable.types
+
+    validates :postable_id, presence: true, if: :postable_type?
 
     after_commit :invalidate_project_time_cache, on: [ :create, :destroy ]
     after_commit :increment_devlogs_count, on: :create

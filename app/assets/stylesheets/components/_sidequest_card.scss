@@ -99,6 +99,24 @@
     --color-content-darker: rgb(61, 120, 46);
   }
 
+  &--orange {
+    --color-card-bg: #f2bf8b;
+    --color-content-bg: #b54447;
+    --color-content-darker: #9a3a3d;
+  }
+
+  &--roasted-apples {
+    --color-card-bg: #f5d8ba;
+    --color-content-bg: #9e3f2d;
+    --color-content-darker: #7f2f20;
+
+    .sidequest-card__expires {
+      color: #fff4ea;
+      font-weight: 700;
+      text-shadow: 0 1px 0 rgba(46, 16, 10, 0.35);
+    }
+  }
+
   &--link {
     display: block;
     text-decoration: none;

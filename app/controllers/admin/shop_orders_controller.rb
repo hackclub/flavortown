@@ -7,7 +7,9 @@ class Admin::ShopOrdersController < Admin::ApplicationController
 
     # Fulfillment team can only access fulfillment view - auto-redirect if needed
     # But fraud_dept members with fulfillment_person role should have full access
-    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
+    if current_user.shop_manager? && !current_user.admin?
+      authorize :admin, :view_shop_orders_no_pii?
+    elsif current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       if @view != "fulfillment"
         redirect_to admin_shop_orders_path(view: "fulfillment") and return
       end
@@ -90,7 +92,9 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   end
 
   def show
-    if current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
+    if current_user.shop_manager? && !current_user.admin?
+      authorize :admin, :view_shop_orders_no_pii?
+    elsif current_user.fulfillment_person? && !current_user.admin? && !current_user.fraud_dept?
       authorize :admin, :access_fulfillment_view?
     else
       authorize :admin, :access_shop_orders?
@@ -109,8 +113,16 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
 
     @can_view_address = @order.can_view_address?(current_user)
+    @can_view_address = false if current_user.shop_manager? && !current_user.admin?
     @is_digital_fulfillment_type = ShopOrder::DIGITAL_FULFILLMENT_TYPES.include?(@order.shop_item.type)
 
+    # Track who is viewing this order (cache-based presence)
+    viewer_cache_key = "shop_order_viewers:#{@order.id}"
+    viewers = Rails.cache.read(viewer_cache_key) || {}
+    viewers.reject! { |_uid, ts| ts < 2.minutes.ago }
+    @other_viewers = User.where(id: viewers.keys.reject { |uid| uid == current_user.id }).pluck(:display_name)
+    viewers[current_user.id] = Time.current
+    Rails.cache.write(viewer_cache_key, viewers, expires_in: 5.minutes)
     # Load fulfillment users for assignment (admins and fulfillment peeps)
     if current_user.admin? || current_user.fulfillment_person?
       @fulfillment_users = User.where("'fulfillment_person' = ANY(granted_roles)").order(:display_name)
@@ -202,6 +214,19 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   def approve
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
+
+    if @order.user_id == current_user.id
+      redirect_to admin_shop_order_path(@order), alert: "You cannot approve your own order." and return
+    end
+
+    unless @order.pending? || @order.awaiting_verification_call?
+      redirect_to admin_shop_order_path(@order), alert: "This order has already been processed." and return
+    end
+
+    if @order.requires_additional_review?
+      redirect_to admin_shop_order_path(@order), alert: "This is a high-value order and requires 2 fraud dept reviews before approval (#{@order.reviews.count}/2 so far)." and return
+    end
+
     old_state = @order.aasm_state
 
     if @order.shop_item.respond_to?(:fulfill!)
@@ -209,10 +234,15 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       redirect_to shop_orders_return_path, notice: "Order approved and fulfilled" and return
     end
 
+    tracking_number = params[:tracking_number].presence
+
     if @order.shop_item.requires_verification_call?
       success = @order.queue_for_verification_call && @order.save
       notice = "Order queued for verification call"
     else
+      if tracking_number.present?
+        @order.tracking_number = tracking_number
+      end
       success = @order.queue_for_fulfillment && @order.save
       notice = "Order approved for fulfillment"
     end
@@ -233,11 +263,80 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
   end
 
-  def reject
+  def review_order
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
+
+    if !current_user.admin? && @order.user_id == current_user.id
+      redirect_to admin_shop_order_path(@order), alert: "You cannot review your own order." and return
+    end
+
+    success = false
+    notice_message = nil
+    alert_message = nil
+
+    @order.with_lock do
+      previous_review_count = @order.reviews.count
+
+      review = @order.reviews.build(
+        user: current_user,
+        verdict: params[:verdict],
+        reason: params[:review_reason]
+      )
+
+      if review.save
+        new_review_count = previous_review_count + 1
+
+        PaperTrail::Version.create!(
+          item_type: "ShopOrder",
+          item_id: @order.id,
+          event: "review",
+          whodunnit: current_user.id,
+          object_changes: {
+            review_count: [ previous_review_count, new_review_count ],
+            verdict: review.verdict,
+            reason: review.reason
+          }
+        )
+
+        success = true
+        notice_message = "Review submitted — #{review.verdict} (#{new_review_count}/2)."
+      else
+        alert_message = review.errors.full_messages.to_sentence
+      end
+    end
+
+    if success
+      redirect_to admin_shop_order_path(@order), notice: notice_message
+    else
+      redirect_to admin_shop_order_path(@order), alert: alert_message
+    end
+  end
+
+  def reject
+    authorize :admin, :reject_shop_order?
+    @order = ShopOrder.find(params[:id])
+
+    if @order.requires_additional_review?
+      redirect_to admin_shop_order_path(@order), alert: "This is a high-value order and requires 2 fraud dept reviews before rejection (#{@order.reviews.count}/2 so far)." and return
+    end
+
     reason = params[:reason].presence || "No reason provided"
+
+    if current_user.fraud_dept?
+      internal_reason = params[:internal_rejection_reason]
+      joe_case_url = params[:joe_case_url]
+      fraud_project_id = params[:fraud_related_project_id]
+    else
+      internal_reason = reason
+      joe_case_url = nil
+      fraud_project_id = 1
+    end
     old_state = @order.aasm_state
+
+    @order.internal_rejection_reason = internal_reason
+    @order.joe_case_url = joe_case_url.presence
+    @order.fraud_related_project_id = fraud_project_id.presence
 
     if @order.mark_rejected(reason) && @order.save
       PaperTrail::Version.create!(
@@ -247,12 +346,18 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         whodunnit: current_user.id,
         object_changes: {
           aasm_state: [ old_state, @order.aasm_state ],
-          rejection_reason: [ nil, reason ]
-        }
+          rejection_reason: [ nil, reason ],
+          internal_rejection_reason: [ nil, internal_reason ],
+          joe_case_url: [ nil, joe_case_url.presence ],
+          fraud_related_project_id: [ nil, fraud_project_id.presence ]
+        }.compact_blank
       )
 
       n = @order.accessory_orders.select(&:may_mark_rejected?).count { |a|
         old = a.aasm_state
+        a.internal_rejection_reason = internal_reason
+        a.joe_case_url = joe_case_url.presence
+        a.fraud_related_project_id = fraud_project_id.presence
         next unless a.mark_rejected(reason) && a.save
         PaperTrail::Version.create!(
           item_type: "ShopOrder", item_id: a.id, event: "update", whodunnit: current_user.id,
@@ -318,7 +423,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     end
     @order = ShopOrder.find(params[:id])
 
-    if @order.shop_item.requires_verification_call? && !current_user.admin?
+    if @order.shop_item.requires_verification_call? && !current_user.admin? && !@order.awaiting_periodical_fulfillment?
       redirect_to admin_shop_order_path(@order), alert: "Only admins can fulfill verification-call items" and return
     end
 
@@ -384,9 +489,9 @@ class Admin::ShopOrdersController < Admin::ApplicationController
         }
       )
 
-      redirect_to admin_shop_orders_path(view: "fulfillment"), notice: "Order assigned to #{assigned_user&.display_name || 'nobody'}"
+      redirect_back fallback_location: admin_shop_order_path(@order), notice: "Order assigned to #{assigned_user&.display_name || 'nobody'}"
     else
-      redirect_to admin_shop_orders_path(view: "fulfillment"), alert: "Failed to assign order"
+      redirect_back fallback_location: admin_shop_order_path(@order), alert: "Failed to assign order"
     end
   end
 
@@ -566,5 +671,34 @@ class Admin::ShopOrdersController < Admin::ApplicationController
   rescue StandardError => e
     Rails.logger.error "Failed to refresh verification status for order #{@order.id}: #{e.message}"
     redirect_to admin_shop_order_path(@order), alert: "Error refreshing verification: #{e.message}"
+  end
+
+  def force_state
+    authorize :admin, :manage_shop?
+    @order = ShopOrder.find(params[:id])
+
+    old_state = @order.aasm_state
+    new_state = params[:target_state]
+
+    unless ShopOrder.aasm.states.map { |s| s.name.to_s }.include?(new_state)
+      redirect_to admin_shop_order_path(@order), alert: "Invalid state."
+      return
+    end
+
+    if old_state == new_state
+      redirect_to admin_shop_order_path(@order), alert: "Order is already #{new_state}."
+      return
+    end
+
+    @order.update_column(:aasm_state, new_state)
+
+    PaperTrail::Version.create!(
+      item: @order,
+      event: "update",
+      whodunnit: current_user.id.to_s,
+      object_changes: { aasm_state: [ old_state, new_state ] }
+    )
+
+    redirect_to admin_shop_order_path(@order), notice: "State forced from #{old_state} to #{new_state}."
   end
 end

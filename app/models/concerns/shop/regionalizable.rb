@@ -35,7 +35,8 @@ module Shop
     end
 
     def any_region_enabled?
-      REGION_CODES.any? { |code| send("enabled_#{code.downcase}") }
+      return @_any_region_enabled if defined?(@_any_region_enabled)
+      @_any_region_enabled = REGION_CODES.any? { |code| send("enabled_#{code.downcase}") }
     end
 
     def enabled_in_region?(region_code)
@@ -52,8 +53,18 @@ module Shop
       enabled_xx
     end
 
+    def enabled_region_codes
+      @_enabled_region_codes ||= REGION_CODES.select { |code| enabled_in_region?(code) }
+    end
+
     def price_for_region(region_code)
       apply_sale_discount(base_price_for_region(region_code))
+    end
+
+    def price_for_region_and_user(region_code, user = nil)
+      price = price_for_region(region_code)
+      return price unless user && achievement_sale? && achievement_sale_for?(user)
+      apply_achievement_discount(price)
     end
 
     def base_price_for_region(region_code)
@@ -80,8 +91,13 @@ module Shop
       discounted_price.ceil
     end
 
+    def apply_achievement_discount(price)
+      return price unless achievement_sale_percentage.present? && achievement_sale_percentage > 0 && achievement_sale_percentage <= 100
+      (price * (100 - achievement_sale_percentage) / 100.0).ceil
+    end
+
     def regions_enabled
-      REGION_CODES.select { |code| enabled_in_region?(code) }
+      enabled_region_codes
     end
 
     def self.country_to_region(country_code)

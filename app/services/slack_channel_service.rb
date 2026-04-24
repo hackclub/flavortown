@@ -7,7 +7,8 @@ class SlackChannelService
     flavortown_introduction: "C0A4R38SFJ9"
   }.freeze
 
-  CACHE_TTL = 5.minutes
+  CACHE_TTL_HIT = 30.days   # cache positive results for 30 days
+  CACHE_TTL_MISS = 5.minutes
 
   class << self
     def user_has_posted_in?(user, channel_key)
@@ -18,12 +19,17 @@ class SlackChannelService
 
       cache_key = "slack_channel_participation:#{user.id}:#{channel_key}"
 
-      Rails.cache.fetch(cache_key, expires_in: CACHE_TTL) do
-        fetch_user_posted_in_channel?(user.slack_id, channel_id)
-      end
+      cached = Rails.cache.read(cache_key)
+      return cached unless cached.nil?
+
+      result = fetch_user_posted_in_channel?(user.slack_id, channel_id)
+      Rails.cache.write(cache_key, result, expires_in: result ? CACHE_TTL_HIT : CACHE_TTL_MISS)
+      result
     end
 
     private
+
+    MAX_THREADS_TO_CHECK = 20
 
     def fetch_user_posted_in_channel?(slack_id, channel_id)
       client = Slack::Web::Client.new(token: Rails.application.credentials.dig(:slack, :bot_token))
@@ -35,7 +41,24 @@ class SlackChannelService
 
       return false unless response.ok && response.messages.present?
 
-      response.messages.any? { |msg| msg.user == slack_id }
+      # Check top-level messages first (cheap)
+      return true if response.messages.any? { |msg| msg.user == slack_id }
+
+      # Check thread replies for messages that have threads
+      threaded = response.messages.select { |msg| msg.reply_count.to_i > 0 }
+      threaded.first(MAX_THREADS_TO_CHECK).each do |msg|
+        replies = client.conversations_replies(
+          channel: channel_id,
+          ts: msg.ts,
+          limit: 200
+        )
+        next unless replies.ok && replies.messages.present?
+
+        # Skip first message (parent, already checked above)
+        return true if replies.messages.drop(1).any? { |reply| reply.user == slack_id }
+      end
+
+      false
     rescue Slack::Web::Api::Errors::SlackError => e
       Rails.logger.error("SlackChannelService: Failed to fetch channel history: #{e.message}")
       false

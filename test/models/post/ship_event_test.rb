@@ -1,6 +1,7 @@
 # == Schema Information
 #
 # Table name: post_ship_events
+# Database name: primary
 #
 #  id                         :bigint           not null, primary key
 #  base_hours                 :float
@@ -20,7 +21,9 @@
 #  payout_basis_locked_at     :datetime
 #  payout_basis_overall_score :decimal(5, 2)
 #  payout_basis_percentile    :decimal(5, 2)
+#  payout_blessing            :string
 #  payout_curve_version       :string
+#  review_instructions        :text
 #  storytelling_median        :decimal(5, 2)
 #  storytelling_percentile    :decimal(5, 2)
 #  synced_at                  :datetime
@@ -49,6 +52,30 @@ class Post::ShipEventTest < ActiveSupport::TestCase
     add_legitimate_votes(ship_event: ship_event, project: project, count: Post::ShipEvent::VOTES_REQUIRED_FOR_PAYOUT)
 
     refute ship_event.reload.payout_eligible?
+  end
+
+  test "review_instructions allows nil" do
+    ship_event = Post::ShipEvent.new(body: "test", review_instructions: nil)
+    ship_event.valid?
+    assert_empty ship_event.errors[:review_instructions]
+  end
+
+  test "review_instructions allows blank" do
+    ship_event = Post::ShipEvent.new(body: "test", review_instructions: "")
+    ship_event.valid?
+    assert_empty ship_event.errors[:review_instructions]
+  end
+
+  test "review_instructions allows up to 2000 characters" do
+    ship_event = Post::ShipEvent.new(body: "test", review_instructions: "x" * 2000)
+    ship_event.valid?
+    assert_empty ship_event.errors[:review_instructions]
+  end
+
+  test "review_instructions rejects over 2000 characters" do
+    ship_event = Post::ShipEvent.new(body: "test", review_instructions: "x" * 2001)
+    ship_event.valid?
+    assert_not_empty ship_event.errors[:review_instructions]
   end
 
   private

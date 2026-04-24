@@ -1,3 +1,4 @@
+<% content_for :title, "Audit Log Details" %>
 <div class="audit-log-detail" data-controller="json-highlight">
   <div class="audit-log-detail__header">
     <h1>Audit Log Details</h1>
@@ -37,7 +38,24 @@
       <div class="audit-log-detail__row">
         <span class="audit-log-detail__label">Action</span>
         <span class="audit-log-detail__value">
-          <span class="badge badge-<%= @version.event %>"><%= @version.event %></span>
+          <%
+            raw_changes = @version.object_changes
+            parsed_changes = raw_changes.is_a?(Hash) ? raw_changes : (JSON.parse(raw_changes) rescue {})
+            sus_change = parsed_changes["marked_sus_by"]
+            display_event = if sus_change.is_a?(Array) && sus_change.length == 2
+              before, after = sus_change
+              if Array(after).length > Array(before).length
+                "marked_sus"
+              elsif Array(after).length < Array(before).length
+                "unmarked_sus"
+              else
+                @version.event
+              end
+            else
+              @version.event
+            end
+          %>
+          <span class="badge badge-<%= display_event %>"><%= display_event.tr("_", " ") %></span>
         </span>
       </div>
 
@@ -92,14 +110,44 @@
           </tr>
         </thead>
         <tbody>
-          <% sensitive_fields = %w[magic_link_token magic_link_token_digest encrypted_password password_digest frozen_address frozen_address_ciphertext frozen_phone_ciphertext] %>
+          <% sensitive_fields = %w[magic_link_token magic_link_token_digest encrypted_password password_digest frozen_address frozen_address_ciphertext frozen_phone_ciphertext email address ip_address phone phone_number hcb_email] %>
           <% changes.each do |field, values| %>
             <tr>
               <td><code class="audit-log-detail__field"><%= field %></code></td>
-              <td>
-                <% if sensitive_fields.include?(field.to_s) %>
-                  <span class="audit-log-detail__redacted">🔒 [REDACTED]</span>
-                <% elsif values.is_a?(Array) && values.length == 2 %>
+              <% if sensitive_fields.include?(field.to_s) %>
+                <td><span class="audit-log-detail__redacted">🔒 [REDACTED]</span></td>
+                <td><span class="audit-log-detail__redacted">🔒 [REDACTED]</span></td>
+              <% elsif field.to_s == "marked_sus_by" && values.is_a?(Array) && values.length == 2 %>
+                <%
+                  before_ids = Array(values[0])
+                  after_ids  = Array(values[1])
+                  added_ids   = after_ids - before_ids
+                  removed_ids = before_ids - after_ids
+                  all_diff_ids = (added_ids + removed_ids).uniq
+                  users_by_id = User.where(id: all_diff_ids).index_by { |u| u.id.to_s }
+                %>
+                <td colspan="2">
+                  <div class="sus-diff">
+                    <% if added_ids.any? %>
+                      <% added_ids.each do |uid| %>
+                        <% u = users_by_id[uid.to_s] %>
+                        <span class="sus-diff__tag sus-diff__tag--added">
+                          + flagged by <%= u ? link_to(u.display_name, admin_user_path(u)) : "user ##{uid}" %>
+                        </span>
+                      <% end %>
+                    <% end %>
+                    <% if removed_ids.any? %>
+                      <% removed_ids.each do |uid| %>
+                        <% u = users_by_id[uid.to_s] %>
+                        <span class="sus-diff__tag sus-diff__tag--removed">
+                          − unflagged by <%= u ? link_to(u.display_name, admin_user_path(u)) : "user ##{uid}" %>
+                        </span>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </td>
+              <% elsif values.is_a?(Array) && values.length == 2 %>
+                <td>
                   <% old_val = values[0] %>
                   <% if old_val.is_a?(Hash) || old_val.is_a?(Array) %>
                     <pre class="json-block" data-json-highlight-target="code"><%= JSON.pretty_generate(old_val) %></pre>
@@ -108,14 +156,8 @@
                   <% else %>
                     <code class="audit-log-detail__value-code"><%= old_val.inspect %></code>
                   <% end %>
-                <% else %>
-                  <span class="audit-log-detail__muted">—</span>
-                <% end %>
-              </td>
-              <td>
-                <% if sensitive_fields.include?(field.to_s) %>
-                  <span class="audit-log-detail__redacted">🔒 [REDACTED]</span>
-                <% elsif values.is_a?(Array) && values.length == 2 %>
+                </td>
+                <td>
                   <% new_val = values[1] %>
                   <% if new_val.is_a?(Hash) || new_val.is_a?(Array) %>
                     <pre class="json-block" data-json-highlight-target="code"><%= JSON.pretty_generate(new_val) %></pre>
@@ -124,10 +166,12 @@
                   <% else %>
                     <code class="audit-log-detail__value-code"><%= new_val.inspect %></code>
                   <% end %>
-                <% else %>
-                  <span class="audit-log-detail__muted">—</span>
-                <% end %>
-              </td>
+                </td>
+              <% else %>
+                <td colspan="2">
+                  <code class="audit-log-detail__value-code"><%= values %></code>
+                </td>
+              <% end %>
             </tr>
           <% end %>
         </tbody>
@@ -148,6 +192,10 @@
           YAML.safe_load(raw_obj, permitted_classes: [Symbol, Time, Date, DateTime, BigDecimal, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]) rescue raw_obj
         else
           raw_obj
+        end
+        if parsed_obj.is_a?(Hash)
+          sensitive_fields ||= []
+          sensitive_fields.each { |f| parsed_obj[f] = "[REDACTED]" if parsed_obj.key?(f) }
         end
       %>
       <pre class="json-block json-block--large" data-json-highlight-target="code"><%= parsed_obj.is_a?(Hash) ? JSON.pretty_generate(parsed_obj) : parsed_obj %></pre>
@@ -397,6 +445,47 @@
 .badge-balance_adjustment {
   background-color: #ccfbf1;
   color: #134e4a;
+}
+
+/* Sus flagging */
+.badge-marked_sus {
+  background-color: #fef9c3;
+  color: #713f12;
+  border: 1px solid #ca8a04;
+}
+
+.badge-unmarked_sus {
+  background-color: #f0fdf4;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.sus-diff {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.sus-diff__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.sus-diff__tag--added {
+  background: #fef9c3;
+  color: #713f12;
+  border: 1px solid #ca8a04;
+}
+
+.sus-diff__tag--removed {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #86efac;
 }
 
 /* JSON Code Blocks */

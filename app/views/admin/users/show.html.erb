@@ -13,15 +13,10 @@
   </div>
 <% end %>
 
-<% if @user.shadow_banned? %>
-  <div class="alert alert--danger" style="margin-bottom: 1rem;">
-    <strong>👻 This user is shadow banned</strong>
-    <% if @user.shadow_banned_reason.present? %>
-      <br>Reason: <%= @user.shadow_banned_reason %>
-    <% end %>
-    <% if @user.shadow_banned_at.present? %>
-      <br>Shadow banned at: <%= @user.shadow_banned_at.strftime("%Y-%m-%d %H:%M") %>
-    <% end %>
+<% if @user.is_sus? && policy(:admin).ban_users? %>
+  <div style="margin-bottom: 1rem; background: #fef9c3; border: 1px solid #ca8a04; border-radius: 0.5rem; padding: 0.75rem 1rem; color: #713f12;">
+    <strong>⚠️ User is sussy</strong>
+    <div style="margin-top: 0.25rem; font-size: 0.875rem;">Marked sus by (<%= @user.marked_sus_by.size %> reviewer<%= @user.marked_sus_by.size == 1 ? "" : "s" %>): <%= @user.marked_sus_by.join(", ") %></div>
   </div>
 <% end %>
 
@@ -33,6 +28,7 @@
       <div><b>Name:</b> <%= @user.display_name %></div>
       <div><b>Email:</b> <%= @user.email.presence || content_tag(:span, "N/A", style: "color: #9ca3af;") %></div>
       <div><b>HCB Email:</b> <%= @user.hcb_email.presence || content_tag(:span, "N/A", style: "color: #9ca3af;") %></div>
+      <%= render "shared/vote_verdict_badge", user: @user %>
       <div><b>Balance:</b> <%= @user.balance %> tickets</div>
       <div><b>Roles:</b> <%= @user.roles.map { |r| r.to_s.titleize }.join(", ") %></div>
       <div>
@@ -80,7 +76,7 @@
         <b>slack_id:</b>
         <% if @user.slack_id.present? %>
           <%= @user.slack_id %>
-          <%= link_to "go to slack", "https://hackclub.slack.com/team/#{@user.slack_id}", class: "btn-primary slim", target: "_blank" %>
+          <%= link_to "go to slack", "https://hackclub.slack.com/team/#{ERB::Util.url_encode(@user.slack_id)}", class: "btn-primary slim", target: "_blank" %>
         <% else %>
           <span style="color: #9ca3af;">N/A</span>
         <% end %>
@@ -112,6 +108,9 @@
   <div class="card">
     <h2>Actions</h2>
     <div class="admin-actions-wrap">
+      <% if policy(:admin).manage_messages? %>
+        <%= link_to "✉️ Send Message", admin_messages_path(slack_id: @user.slack_id), class: "btn-primary slim" %>
+      <% end %>
       <% if policy(:admin).generate_magic_links? %>
         <%= link_to "🔗 Generate Magic Link", admin_user_magic_link_path(@user), class: "btn-primary slim" %>
       <% end %>
@@ -135,13 +134,65 @@
                     title: "Refresh verification status from HCA",
                     class: "btn-primary slim",
                     data: { confirm: "Refresh verification status for #{@user.display_name}?" } %>
-      <%= render 'role_toggle', user: @user, role_icon: '🕵️‍♀️', role_name: 'fraud_dept', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_icon: '📦', role_name: 'fulfillment_person', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_icon: '🚢', role_name: 'project_certifier', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_icon: '✋', role_name: 'helper', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_icon: '⏱️', role_name: 'flavortime', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_icon: '🏆', role_name: 'sidequest_reviewer', disabled: !current_user&.admin? %>
-      <%= render 'role_toggle', user: @user, role_icon: '⚡', role_name: 'admin', disabled: !current_user&.super_admin? %>
+      <%
+        all_roles = [
+          { name: 'fraud_dept', disabled: !current_user&.admin? },
+          { name: 'fulfillment_person', disabled: !current_user&.admin? },
+          { name: 'project_certifier', disabled: !current_user&.admin? },
+          { name: 'helper', disabled: !current_user&.admin? },
+          { name: 'flavortime', disabled: !current_user&.admin? },
+          { name: 'sidequest_reviewer', disabled: !current_user&.admin? },
+          { name: 'shop_manager', disabled: !current_user&.admin? },
+          { name: 'admin', disabled: !current_user&.super_admin? },
+        ]
+        promotable_roles = all_roles.reject { |r| @user.has_role?(r[:name]) }
+        demotable_roles = all_roles.select { |r| @user.has_role?(r[:name]) }
+      %>
+      <% if promotable_roles.any? %>
+        <div class="role-dropdown">
+          <button type="button" class="btn-primary slim" data-role-dropdown-toggle>⬆ Promote to…</button>
+          <div class="role-dropdown__menu">
+            <% promotable_roles.each do |role| %>
+              <%= button_to role[:name].titleize,
+                            promote_role_admin_user_path(@user),
+                            method: :post,
+                            params: { role_name: role[:name] },
+                            class: "role-dropdown__item",
+                            disabled: role[:disabled] %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <% if demotable_roles.any? %>
+        <div class="role-dropdown">
+          <button type="button" class="btn-danger slim" data-role-dropdown-toggle>⬇ Demote from…</button>
+          <div class="role-dropdown__menu">
+            <% demotable_roles.each do |role| %>
+              <%= button_to role[:name].titleize,
+                            demote_role_admin_user_path(@user),
+                            method: :post,
+                            params: { role_name: role[:name] },
+                            class: "role-dropdown__item",
+                            disabled: role[:disabled] %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <script>
+        document.querySelectorAll("[data-role-dropdown-toggle]").forEach(function(btn) {
+          btn.addEventListener("click", function(e) {
+            var menu = btn.nextElementSibling;
+            var isOpen = menu.classList.contains("role-dropdown__menu--open");
+            document.querySelectorAll(".role-dropdown__menu--open").forEach(function(m) { m.classList.remove("role-dropdown__menu--open"); });
+            if (!isOpen) menu.classList.add("role-dropdown__menu--open");
+          });
+        });
+        document.addEventListener("click", function(e) {
+          if (!e.target.closest(".role-dropdown")) {
+            document.querySelectorAll(".role-dropdown__menu--open").forEach(function(m) { m.classList.remove("role-dropdown__menu--open"); });
+          }
+        });
+      </script>
 
       <% if @user.shop_orders.where(aasm_state: %w[pending awaiting_periodical_fulfillment]).any? %>
         <button type="button" onclick="document.getElementById('reject-modal-orders').showModal()" class="btn-danger slim">
@@ -184,6 +235,24 @@
           </form>
         <% end %>
         <%= link_to "View Votes", votes_admin_user_path(@user), class: "btn-secondary slim" %>
+        <button type="button" class="btn-primary slim" id="set-vote-bal">
+          Set Vote Balance (<%= @user.vote_balance %>)
+        </button>
+        <script>
+          document.getElementById("set-vote-bal").addEventListener("click", function() {
+            var v = prompt(<%== @user.display_name.to_json %> + ": Set vote balance:", "0");
+            if (v === null) return;
+            var n = parseInt(v, 10);
+            if (isNaN(n)) { alert("not valid number"); return; }
+            var f = document.createElement("form");
+            f.method = "post";
+            f.action = <%== set_vote_balance_admin_user_path(@user).to_json %>;
+            f.innerHTML = '<input type="hidden" name="authenticity_token" value="' + <%== form_authenticity_token.to_json %> + '">' +
+              '<input type="hidden" name="vote_balance" value="' + n + '">';
+            document.body.appendChild(f);
+            f.submit();
+          });
+        </script>
       <% end %>
 
       <% if current_user.admin? %>
@@ -206,29 +275,28 @@
       <% end %>
 
       <% if policy(:admin).ban_users? %>
-        <% if @user.shadow_banned? %>
-          <%= button_to "👁️ Remove Shadow Ban", unshadow_ban_admin_user_path(@user), method: :post, class: "btn-primary slim" %>
+        <% if @user.is_sus? %>
+          <%= button_to "✅ Unmark Sus", unmark_sus_admin_user_path(@user), method: :post, class: "btn-primary slim", form: { onsubmit: "return confirm(#{("Remove the sus flag from #{@user.display_name}?").to_json})" } %>
         <% else %>
-          <button type="button" onclick="document.getElementById('shadow-ban-modal').showModal()" class="btn-secondary slim">
-            👻 Shadow Ban
+          <button type="button" onclick="document.getElementById('mark-sus-modal').showModal()" class="btn-danger slim">
+            ⚠️ Mark Sus
           </button>
-          <%= render layout: "shared/modal", locals: { id: "shadow-ban-modal", title: "Shadow Ban User", description: "This will hide #{@user.display_name}'s projects from voting, explore, and API without notifying them." } do %>
-            <form action="<%= shadow_ban_admin_user_path(@user) %>" method="post">
+          <%= render layout: "shared/modal", locals: { id: "mark-sus-modal", title: "Mark User as Suspicious", description: "Flag #{@user.display_name} as suspicious for the review team." } do %>
+            <form action="<%= mark_sus_admin_user_path(@user) %>" method="post">
               <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-              <div class="modal__field">
-                <%= label_tag :reason, "Shadow Ban Reason (optional)" %>
-                <%= text_area_tag :reason, "", placeholder: "Enter reason for shadow ban..." %>
+              <div class="modal__field" style="background: #fef9c3; border: 1px solid #ca8a04; border-radius: 0.375rem; padding: 0.75rem; color: #713f12;">
+                <strong>📝 Heads up:</strong> Please make sure to update this user's <a href="#internal-notes" onclick="document.getElementById('mark-sus-modal').close()" style="color: #92400e; text-decoration: underline;">internal notes</a> with why you're flagging them as sus.
               </div>
               <div class="modal__actions">
-                <button type="submit" class="btn-secondary slim">Confirm Shadow Ban</button>
-                <button type="button" onclick="document.getElementById('shadow-ban-modal').close()" class="btn-secondary slim">Cancel</button>
+                <button type="submit" class="btn-danger slim">Confirm Mark Sus</button>
+                <button type="button" onclick="document.getElementById('mark-sus-modal').close()" class="btn-secondary slim">Cancel</button>
               </div>
             </form>
           <% end %>
         <% end %>
 
         <% if @user.banned? %>
-          <%= button_to "🔓 Unban User", unban_admin_user_path(@user), method: :post, class: "btn-primary slim" %>
+          <%= button_to "🔓 Unban User", unban_admin_user_path(@user), method: :post, class: "btn-primary slim", form: { onsubmit: "return confirm(#{("Are you sure you want to unban #{@user.display_name}?").to_json})" } %>
         <% else %>
           <button type="button" onclick="document.getElementById('ban-user-modal').showModal()" class="btn-danger slim">
             🚫 Ban User
@@ -249,10 +317,10 @@
         <% end %>
 
         <% if @user.manual_ysws_override? %>
-          <%= button_to "Remove ysws override", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "false" }, class: "btn-secondary slim" %>
+          <%= button_to "Remove ysws override", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "false" }, class: "btn-secondary slim", form: { onsubmit: "return confirm(#{("Are you sure you want to remove the YSWS eligibility override for #{@user.display_name}?").to_json})" } %>
         <% else %>
           <% unless @user.ysws_eligible? %>
-            <%= button_to "Make ysws eligible", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "true" }, class: "btn-danger slim" %>
+            <%= button_to "Make ysws eligible", set_ysws_eligible_override_admin_user_path(@user), method: :patch, params: { manual_ysws_override: "true" }, class: "btn-danger slim", form: { onsubmit: "return confirm(#{("Are you sure you want to manually override YSWS eligibility for #{@user.display_name}?").to_json})" } %>
           <% end %>
         <% end %>
       <% end %>
@@ -261,7 +329,8 @@
         <%= button_to toggle_voting_lock_admin_user_path(@user),
               method: :post,
               class: "btn-secondary slim",
-              title: @user.voting_locked? ? "Unlock Voting" : "Lock Voting" do %>
+              title: @user.voting_locked? ? "Unlock Voting" : "Lock Voting",
+              form: { onsubmit: "return confirm(#{("Are you sure you want to #{@user.voting_locked? ? "unlock" : "lock"} voting for #{@user.display_name}?").to_json})" } do %>
           <%= @user.voting_locked? ? "Unlock Voting" : "Lock Voting" %>
         <% end %>
       <% end %>
@@ -298,7 +367,7 @@
   </div>
 </div>
 
-<div class="admin-section<%= ' admin-section--highlighted' if @user.internal_notes.present? %>">
+<div id="internal-notes" class="admin-section<%= ' admin-section--highlighted' if @user.internal_notes.present? %>">
   <h2 class="admin-section__header">📝 Internal Notes</h2>
   <p class="admin-section__note">⚠️ Shared between fraud, fulfillment, and admins. Changes are audit logged.</p>
   <% if @user.internal_notes.present? %>
@@ -318,5 +387,7 @@
 </div>
 
 <%= render Admin::PastOrdersComponent.new(user: @user, title: "Shop Orders") %>
+
+<%= render "admin/shared/ledger_log", entries: @user.ledger_entries, title: "Ledger History" %>
 
 <%= render "admin/shared/audit_log", record: @user, limit: 15 %>

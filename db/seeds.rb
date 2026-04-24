@@ -31,7 +31,7 @@ chrome_license = ShopItem::HCBGrant.find_or_create_by!(name: "Chrome Webstore Li
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "chrome-webstore.png")
 end
-chrome_license.update!(requires_achievement: "sidequest_extension")
+chrome_license.update!(requires_achievement: [ "sidequest_extension" ])
 
 ram_grant_50 = ShopItem::HCBGrant.find_or_create_by!(name: "$50 Ram/Storage Grant") do |item|
   item.description = "A $50 grant to help you upgrade your setup"
@@ -39,7 +39,7 @@ ram_grant_50 = ShopItem::HCBGrant.find_or_create_by!(name: "$50 Ram/Storage Gran
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "ram-grant-50.png")
 end
-ram_grant_50.update!(requires_achievement: "sidequest_optimization")
+ram_grant_50.update!(requires_achievement: [ "sidequest_optimization" ])
 
 ram_grant_100 = ShopItem::HCBGrant.find_or_create_by!(name: "$100 Ram/Storage Grant") do |item|
   item.description = "A $100 grant to help you upgrade your setup"
@@ -47,7 +47,7 @@ ram_grant_100 = ShopItem::HCBGrant.find_or_create_by!(name: "$100 Ram/Storage Gr
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "ram-grant-100.png")
 end
-ram_grant_100.update!(requires_achievement: "sidequest_optimization")
+ram_grant_100.update!(requires_achievement: [ "sidequest_optimization" ])
 
 Sidequest.find_or_create_by!(slug: "challenger") do |sq|
   sq.title = "Challenger Center"
@@ -64,16 +64,62 @@ Sidequest.find_or_create_by!(slug: "optimization") do |sq|
   sq.description = "Build and ship a project for the Optimization sidequest to unlock Optimization prizes in the shop."
 end
 
+Sidequest.find_or_create_by!(slug: "caffeinated") do |sq|
+  sq.title = "Caffeinated"
+  sq.description = "Build and ship a website to unlock a caffeine grant in the shop."
+end
+
+Sidequest.find_or_create_by!(slug: "roasted_apples") do |sq|
+  sq.title = "Roasted Apples"
+  sq.description = "Get access to the HQ Apple Developer Account to build an app for Apple devices! Then get your own license and other Apple prizes!"
+end
+
+Sidequest.find_or_create_by!(slug: "rusty_frontend") do |sq|
+  sq.title = "Rusty Frontend"
+  sq.description = "Build and ship a frontend in rust to unlock new prizes in the shop"
+end
+
+Sidequest.find_or_create_by!(slug: "physics_lab") do |sq|
+  sq.title = "Physics Lab"
+  sq.description = "Build an interactive physics project and ship it on Flavortown to unlock physics prizes in the shop."
+end
+Sidequest.find_or_create_by!(slug: "codextensions") do |sq|
+  sq.title = "Codextensions"
+  sq.description = "Build a VS Code extension and ship it on Flavortown to unlock exclusive prizes in the shop."
+end
 Sidequest.find_or_create_by!(slug: "the_hackazine") do |sq|
   sq.title = "The Hackazine"
   sq.description = "This January: make a page for your project and get it in the Hack Club 2025 magazine! Join #magazine and submit before January 22nd. Projects selected for the magazine receive 50 cookies + stickers! Please note, magazine submissions have 0% AI tolerance."
   sq.expires_at = Date.new(2025, 1, 22)
 end
 
+Sidequest.find_or_create_by!(slug: "kernel") do |sq|
+  sq.title = "Kernel"
+  sq.description = "Ship something that runs through commands like a tool, system or interactive terminal experience. Include a working demo and a README that explains the commands."
+  sq.expires_at = Date.new(2026, 4, 30)
+end
+
 Sidequest.find_or_create_by!(slug: "borked_ui_jam") do |sq|
   sq.title = "Borked UI Jam"
   sq.description = "Running until January 25th — make a project with delightfully broken UI/UX and submit it for the Borked UI Jam! The top 5 best (worst) projects will receive cookies + other prizes. Check out #borked for more details."
   sq.expires_at = Date.new(2025, 1, 25)
+end
+
+Sidequest.find_or_create_by!(slug: "converge") do |sq|
+  sq.title = "Converge"
+  sq.description = "Build a Slack or Discord bot that does something useful or creative. Ship it on Flavortown and submit it to unlock Converge prizes in the shop!"
+end
+
+Sidequest.find_or_create_by!(
+  title: "Lock in",
+  slug: "lockin",
+  description: "Work 10 hrs a week for 4 weeks without missing an hour. You get 120 cookies & unlock some shop items.",
+  expires_at: Date.new(2026, 4, 30)
+)
+
+Sidequest.find_or_create_by!(slug: "transcode") do |sq|
+  sq.title = "Transcode"
+  sq.description = "Submit a project that has a focus working with any form of media. This means that the project should be mainly about interacting with any form of media (video, art, music!)."
 end
 
 # webOS shop items - require webOS sidequest achievement
@@ -85,7 +131,7 @@ webos_stickers = ShopItem.find_or_create_by!(id: 95) do |item|
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "webos-stickers.png")
 end
-webos_stickers.update!(requires_achievement: "sidequest_webos")
+webos_stickers.update!(requires_achievement: [ "sidequest_webos" ])
 
 neocities_sub = ShopItem.find_or_create_by!(id: 96) do |item|
   item.name = "Neocities Subscription"
@@ -95,7 +141,7 @@ neocities_sub = ShopItem.find_or_create_by!(id: 96) do |item|
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "neocities.png")
 end
-neocities_sub.update!(requires_achievement: "sidequest_webos")
+neocities_sub.update!(requires_achievement: [ "sidequest_webos" ])
 
 chromebook = ShopItem.find_or_create_by!(id: 97) do |item|
   item.name = "Chromebook"
@@ -105,7 +151,7 @@ chromebook = ShopItem.find_or_create_by!(id: 97) do |item|
   downloaded_image = URI.parse("https://placecats.com/300/200").open
   item.image.attach(io: downloaded_image, filename: "chromebook.png")
 end
-chromebook.update!(requires_achievement: "sidequest_webos")
+chromebook.update!(requires_achievement: [ "sidequest_webos" ])
 
 user = User.find_or_create_by!(email: "max@hackclub.com", slack_id: "U09UQ385LSG")
 user.make_super_admin!
