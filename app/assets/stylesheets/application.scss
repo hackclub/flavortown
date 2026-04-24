@@ -75,6 +75,7 @@
 @use "pages/sidequests/caffeinated" as sidequests_caffeinated;
 @use "pages/sidequests/converge" as sidequests_converge;
 @use "pages/sidequests/lockin" as sidequests_lockin;
+@use "pages/sidequests/render" as sidequests_render;
 @use "pages/sidequests/kernel" as sidequests_kernel;
 @use "pages/sidequests/transcode" as sidequests_transcode;
 @use "pages/errors/not_authorized";

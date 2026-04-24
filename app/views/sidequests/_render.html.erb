@@ -1,0 +1,15 @@
+<%= link_to sidequest_path(sidequest), id: "render", class: "sidequest-card sidequest-card--render sidequest-card--link" do %>
+  <div class="sidequest-card__content">
+    <%= image_tag "sidequests/render.png",
+                  alt: "",
+                  aria: { hidden: true },
+                  class: "sidequest-card__image" %>
+    <h1 class="sidequest-card__title">Render</h1>
+    <h2>
+      Ship a game with a unique 3D charecter, get a steam developer licence and other game developer tools!
+    </h2>
+    <% if sidequest.approved_count > 0 %>
+      <p class="sidequest-card__expires"><%= pluralize(sidequest.approved_count, "submission") %></p>
+    <% end %>
+  </div>
+<% end %>

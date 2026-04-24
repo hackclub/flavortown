@@ -1,0 +1,11 @@
+header "🎉 Render Complete! Render Sidequest Complete!"
+
+section "Your project *#{entry.project.title}* has been approved for the Render sidequest!", markdown: true
+
+section "You've unlocked the *Sidequest: Render* achievement", markdown: true
+
+divider
+
+context [
+  mrkdwn_text("Keep Rendering!")
+]

@@ -1,0 +1,162 @@
+.sidequest-show--render {
+  --render-surface: #ffffff;
+  --render-text: #171717;
+  --render-muted: #4a4a4a;
+  --render-border: #d7d7d7;
+  --render-shadow: 0 10px 30px rgba(0, 0, 0, 0.09);
+
+  color: var(--render-text);
+  font-family: var(--font-family-text);
+
+  .sidequest-show__content {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: var(--space-xl) var(--space-m);
+
+    * {
+      font-family: inherit;
+    }
+  }
+
+  .sidequest-show__description {
+    max-width: 780px;
+    margin: 0 auto 1rem;
+    text-align: center;
+    color: var(--render-muted);
+    line-height: 1.65;
+  }
+
+  .sidequest-show__info-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin: 2rem auto;
+  }
+
+  .sidequest-show__info-card {
+    background: linear-gradient(180deg, var(--render-surface) 0%, #f9f9f9 100%);
+    border: 1px solid var(--render-border);
+    border-radius: 14px;
+    padding: 1.1rem 1.15rem;
+    box-shadow: var(--render-shadow);
+  }
+
+  .sidequest-show__info-title {
+    margin: 0 0 0.6rem;
+    font-family: var(--font-family-subtitle);
+    color: var(--render-text);
+    letter-spacing: 0.01em;
+  }
+
+  .sidequest-show__steps {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: #2d2d2d;
+    line-height: 1.65;
+
+    li + li {
+      margin-top: 0.35rem;
+    }
+
+    strong {
+      color: #000;
+    }
+  }
+
+  .sidequest-show__help-note {
+    color: var(--render-muted);
+
+    a {
+      color: #000;
+      text-decoration-thickness: 1.5px;
+      text-underline-offset: 2px;
+    }
+  }
+
+  .sidequest-show__prizes-card {
+    margin-top: 0.3rem;
+  }
+
+  .sidequest-show__prizes-list {
+    gap: 0.4rem;
+  }
+
+  .sidequest-show__prize-row {
+    border-radius: 10px;
+    border: 1px solid #e5e5e5;
+    padding: 0.52rem;
+    transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+  }
+
+  .sidequest-show__prize-row:hover {
+    transform: translateY(-1px);
+    border-color: #555;
+    background: #f8f8f8;
+  }
+
+  .sidequest-show__prize-image {
+    width: 42px;
+    height: 42px;
+  }
+
+  .sidequest-show__gallery {
+    margin-top: 1rem;
+  }
+
+  .sidequest-show__gallery-title {
+    color: #111;
+    letter-spacing: 0.01em;
+  }
+
+  .sidequest-show__stats {
+    border: 1px dashed #b8b8b8;
+    background: #f5f5f5;
+    border-radius: 12px;
+  }
+
+  .sidequest-show__actions {
+    margin-top: 2.2rem;
+  }
+}
+
+.sidequest-card--render {
+  --color-card-bg: #f4f4f4;
+  --color-content-bg: #ffffff;
+  --color-content-darker: #e4e4e4;
+
+  .sidequest-card__content {
+    background: linear-gradient(165deg, #ffffff 0%, #f2f2f2 100%);
+    border: 1.5px solid #1a1a1a;
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.18);
+
+    h1 {
+      color: #111;
+      font-family: var(--font-family-subtitle);
+      letter-spacing: 0.02em;
+    }
+
+    h2 {
+      color: #343434;
+      line-height: 1.42;
+    }
+
+    .sidequest-card__expires {
+      color: #1d1d1d;
+      font-weight: 700;
+    }
+  }
+
+  .sidequest-card__image {
+    filter: grayscale(1) contrast(1.22) brightness(1.05);
+    mix-blend-mode: multiply;
+    border-radius: 8px;
+    border: 1px solid #d4d4d4;
+    background: #fff;
+    padding: 0.25rem;
+  }
+
+  &:hover .sidequest-card__content {
+    transform: translateY(-1px);
+    box-shadow: 9px 9px 0 rgba(0, 0, 0, 0.2);
+  }
+}

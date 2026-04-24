@@ -312,6 +312,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
           .exists?
       }
     ),
+     new(
+      slug: :sidequest_render,
+      name: "Sidequest: render",
+      description: "Completed the Render sidequest",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "render" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
     new(
       slug: :sidequest_transcode,
       name: "Sidequest: Transcode",

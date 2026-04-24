@@ -113,6 +113,12 @@ Sidequest.find_or_create_by!(
   expires_at: Date.new(2026, 4, 30)
 )
 
+Sidequest.find_or_create_by!(
+  title: "Render",
+  slug: "render",
+  description: "Create a unique 3D model and feature it in a game for prizes!",
+)
+
 Sidequest.find_or_create_by!(slug: "transcode") do |sq|
   sq.title = "Transcode"
   sq.description = "Submit a project that has a focus working with any form of media. This means that the project should be mainly about interacting with any form of media (video, art, music!)."

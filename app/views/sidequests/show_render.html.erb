@@ -1,0 +1,95 @@
+<% content_for :title, @sidequest.title %>
+<% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
+<% content_for :og_image, og_image_url('sidequests', format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+
+<%= render HeadingComponent.new(title: @sidequest.title, tone: :red, size: :full) %>
+
+<div class="sidequest-show sidequest-show--render">
+  <div class="sidequest-show__content">
+    <% if @sidequest.description.present? %>
+      <p class="sidequest-show__description"><%= @sidequest.description %></p>
+    <% end %>
+
+    <div class="sidequest-show__info-grid">
+      <section class="sidequest-show__info-card">
+        <h3 class="sidequest-show__info-title">💻 Requirements</h3>
+        <ul class="sidequest-show__steps">
+          <li>Your project must be contain a <strong>unique 3D model</strong></li>
+          <li>Your charecter must be featured in a short game</li>
+          <li>Include screenshots or demo GIFs showcasing your game and charecter</li>
+          <li>Ensure you select the Render sidequest while shipping your project to Flavortown!!</li>
+          <li>Note: We will accept demo projects that are playable and meet all requirments</li>
+        </ul>
+        <p class="sidequest-show__help-note">
+          Need help getting? DM
+          <%= link_to "@Samuel", "https://hackclub.enterprise.slack.com/team/U0A6PB2KE95", target: "_blank", rel: "noopener" %>
+          on Slack.
+        </p>
+      </section>
+
+      <section class="sidequest-show__info-card">
+        <h3 class="sidequest-show__info-title">🛠️ Project Examples</h3>
+        <ul class="sidequest-show__steps">
+          <li><strong>Platformer:</strong> Build a short level based game with your own modeled charecter.</li>
+          <li><strong>Arena Type Game:</strong> Design an original 3D character and place them in a timed survival challenge.</li>
+          <li><strong>Runner:</strong> Ship an runner with a fully original character model, rig, and movement set.</li>
+          <li><strong>Boss Fight Demo:</strong> Build a mini boss fight where your unique playable character is the focus.</li>
+        </ul>
+      </section>
+    </div>
+
+    <% if @prizes.present? && @prizes.any? %>
+      <section class="sidequest-show__info-card sidequest-show__prizes-card">
+        <h3 class="sidequest-show__info-title">🎁 Render Prizes</h3>
+        <div class="sidequest-show__prizes-list">
+          <% @prizes.each do |prize| %>
+            <%= link_to "/shop/order?shop_item_id=#{prize.id}", class: "sidequest-show__prize-row" do %>
+              <% if prize.image.attached? %>
+                <div class="sidequest-show__prize-image">
+                  <%= image_tag prize.image.variant(:carousel_sm), alt: prize.name, loading: "lazy" %>
+                </div>
+              <% end %>
+              <span class="sidequest-show__prize-name"><%= prize.name %></span>
+              <span class="sidequest-show__prize-cost"><%= number_to_currency(prize.ticket_cost, precision: 0).gsub('$', '') %></span>
+            <% end %>
+          <% end %>
+        </div>
+        <p class="sidequest-show__help-note" style="margin-top: 1rem;">
+          Unlock cool stuff like steam developer licenses, rendering credits, and more! 🎁
+        </p>
+      </section>
+    <% end %>
+
+    <% if @approved_entries.any? %>
+      <div class="sidequest-show__gallery">
+        <h3 class="sidequest-show__gallery-title"><%= @approved_entries.size %> Render <%= "submission".pluralize(@approved_entries.size) %></h3>
+        <div class="sidequest-show__gallery-grid">
+          <% @approved_entries.each do |entry| %>
+            <% project = entry.project %>
+            <% next unless project.present? %>
+            <div class="sidequest-show__gallery-item">
+              <%= render partial: "projects/card", locals: { project: project } %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="sidequest-show__stats">
+        <p><strong>Be the first to submit a project!</strong></p>
+        <p style="margin-top: 0.5rem; font-style: italic; color: #666;">
+          Check our requirments and get creating! 🚀
+        </p>
+      </div>
+    <% end %>
+
+    <div class="sidequest-show__actions">
+      <%= render ButtonComponent.new(
+            text: "\u2190 Back to Sidequests",
+            href: sidequests_path,
+            color: :red,
+            variant: :borderless
+          ) %>
+    </div>
+  </div>
+</div>
