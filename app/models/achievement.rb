@@ -428,6 +428,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       cookie_reward: 15
     ),
     new(
+      slug: :sidequest_haunted,
+      name: "Sidequest: Haunted",
+      description: "Shipped a scary project for the Haunted sidequest!",
+      icon: "ghost",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "haunted" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+     }
+    ),
+    new(
       slug: :hundred_hours,
       name: "Chef who cooked",
       description: "100 hours of pure dedication - please, touch grass!",
