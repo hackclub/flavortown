@@ -248,32 +248,6 @@
       z-index: 1;
     }
   }
-
-  &--chess {
-    --color-card-bg: repeating-conic-gradient(#769656 0% 25%, #eeeed2 0% 50%) 0
-      0 / 60px 60px;
-    --color-content-bg: rgba(255, 255, 255, 0.85);
-    --color-content-darker: rgba(200, 200, 200, 0.85);
-    border: 3px solid #769656;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-
-    .sidequest-card__content {
-      background: var(--color-content-bg);
-      backdrop-filter: blur(4px);
-    }
-
-    h1 {
-      color: #333;
-    }
-
-    h2 {
-      color: #555;
-    }
-
-    .sidequest-card__expires {
-      color: #666;
-    }
-  }
 }
 
 @keyframes twinkle {

@@ -1,7 +1,0 @@
-header ":chess_pawn: Chesster Sidequest Complete! You shipped a chess project!"
-section "Your project *#{entry.project.title}* has been approved for the Chesster sidequest! Show your project off in #chesster-sidequest.", markdown: true
-section "You've unlocked the *Chesster* achievement. Go claim your reward in the shop!", markdown: true
-divider
-context [
-  mrkdwn_text("Keep building!")
-]
