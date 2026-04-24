@@ -1,0 +1,12 @@
+<%= link_to sidequest_path(sidequest), id: "respawn", class: "sidequest-card sidequest-card--red sidequest-card--link" do %>
+  <div class="sidequest-card__content">
+    <h1 class="sidequest-card__title">Respawn</h1>
+<!--    <div class="sidequest-card__image-container">-->
+<!--    </div>-->
+    <h2>Build an arcade classic game with your own twist added to it. Submit to this sidequest to unlock game related exclusive prizes!</h2>
+    <% if sidequest.approved_count > 0 %>
+      <p class="sidequest-card__expires"><%= pluralize(sidequest.approved_count, "submission") %></p>
+    <% end %>
+    <p class="sidequest-card__expires">Ends April 30th, 2026</p>
+  </div>
+<% end %>

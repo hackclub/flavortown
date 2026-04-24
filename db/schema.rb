@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_15_130341) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_23_232323) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -515,6 +515,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_15_130341) do
     t.index ["report_id", "action"], name: "index_report_review_tokens_on_report_id_and_action", unique: true
     t.index ["report_id"], name: "index_report_review_tokens_on_report_id"
     t.index ["token"], name: "index_report_review_tokens_on_token", unique: true
+  end
+
+  create_table "respawns", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "rsvps", force: :cascade do |t|

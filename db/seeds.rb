@@ -48,7 +48,6 @@ ram_grant_100 = ShopItem::HCBGrant.find_or_create_by!(name: "$100 Ram/Storage Gr
   item.image.attach(io: downloaded_image, filename: "ram-grant-100.png")
 end
 ram_grant_100.update!(requires_achievement: [ "sidequest_optimization" ])
-
 Sidequest.find_or_create_by!(slug: "challenger") do |sq|
   sq.title = "Challenger Center"
   sq.description = "Build a space-themed project for the Challenger Center space challenge!"
@@ -108,6 +107,11 @@ end
 Sidequest.find_or_create_by!(slug: "converge") do |sq|
   sq.title = "Converge"
   sq.description = "Build a Slack or Discord bot that does something useful or creative. Ship it on Flavortown and submit it to unlock Converge prizes in the shop!"
+end
+
+Sidequest.find_or_create_by!(slug: "respawn") do |sq|
+  sq.title = "Respawn"
+  sq.description = "Build a retro arcade classic game and ship it on Flavortown to unlock exclusive game prizes in the shop."
 end
 
 Sidequest.find_or_create_by!(
