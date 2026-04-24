@@ -22,6 +22,9 @@ application.register("cookie-clicker", CookieClickerController);
 import CopyDebugController from "./copy_debug_controller";
 application.register("copy-debug", CopyDebugController);
 
+import CountdownController from "./countdown_controller";
+application.register("countdown", CountdownController);
+
 import CustomsWarningController from "./customs_warning_controller";
 application.register("customs-warning", CustomsWarningController);
 
@@ -198,6 +201,3 @@ application.register("word-count", WordCountController);
 
 import XpWindowController from "./xp_window_controller";
 application.register("xp-window", XpWindowController);
-
-import CountdownController from "./countdown_controller";
-application.register("countdown", CountdownController);
