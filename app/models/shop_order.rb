@@ -356,7 +356,7 @@ class ShopOrder < ApplicationRecord
   end
 
   USPS_SUSPENDED_COUNTRIES = %w[
-    AM AE BH DJ DZ ER IL IQ IR KW LY MG OM PK QA SC SY TZ
+    AF BH BY BT BR CU ER HT IR IQ IL KW NU RU SA SC SS SD SY TM UA VE YE
   ].freeze
 
   USPS_SUSPENSION_EXEMPT_TYPES = %w[
@@ -365,6 +365,7 @@ class ShopOrder < ApplicationRecord
     ShopItem::ThirdPartyDigital
     ShopItem::SillyItemType
     ShopItem::SpecialFulfillmentItem
+    ShopItem::FreeStickers
   ].freeze
 
   def check_regional_availability
