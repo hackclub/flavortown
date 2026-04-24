@@ -198,3 +198,6 @@ application.register("word-count", WordCountController);
 
 import XpWindowController from "./xp_window_controller";
 application.register("xp-window", XpWindowController);
+
+import CountdownController from "./countdown_controller";
+application.register("countdown", CountdownController);
