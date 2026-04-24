@@ -86,6 +86,26 @@
             </div>
           </div>
 
+          <div class="shop-item-form__row">
+            <div class="shop-item-form__field">
+              <%= f.label :achievement_sale_percentage, "Achievement Sale (%)", class: "shop-item-form__label" %>
+              <%= f.number_field :achievement_sale_percentage, min: 0, max: 100, class: "form-control", placeholder: "0" %>
+              <span class="shop-item-form__hint">Extra discount for users with a achievement</span>
+            </div>
+          </div>
+          <div class="shop-item-form__field">
+            <%= f.label :achievement_sale_slugs, "Achievement Sale Unlocked By", class: "shop-item-form__label" %>
+            <div class="shop-item-form__checkbox-list">
+              <%= f.collection_check_boxes :achievement_sale_slugs, Achievement.all.select { |a| !a.hidden? }, ->(a) { a.slug.to_s }, ->(a) { "#{a.name} (#{a.slug})" } do |b| %>
+                <label class="shop-item-form__checkbox">
+                  <%= b.check_box %>
+                  <span><%= b.text %></span>
+                </label>
+              <% end %>
+            </div>
+            <span class="shop-item-form__hint">Users must have one of the these achievements to get the discount.</span>
+          </div>
+
           <div class="shop-item-form__calculated">
             <div class="shop-item-form__calc-item">
               <span class="shop-item-form__calc-label">Suggested Tickets</span>
@@ -144,13 +164,15 @@
               </span>
             </label>
 
-            <label class="shop-item-form__toggle">
-              <%= f.check_box :requires_verification_call %>
-              <span class="shop-item-form__toggle-content">
-                <strong>Requires Call</strong>
-                <span class="shop-item-form__toggle-desc">Orders require a verification call before fulfillment</span>
-              </span>
-            </label>
+            <% unless current_user.shop_manager? && !current_user.admin? %>
+              <label class="shop-item-form__toggle">
+                <%= f.check_box :requires_verification_call %>
+                <span class="shop-item-form__toggle-content">
+                  <strong>Requires Call</strong>
+                  <span class="shop-item-form__toggle-desc">Orders require a verification call before fulfillment</span>
+                </span>
+              </label>
+            <% end %>
           </div>
 
           <div class="shop-item-form__field" id="stock_field_container">
@@ -173,11 +195,13 @@
             <span class="shop-item-form__hint">Maximum quantity a user can add to a single order</span>
           </div>
 
-          <div class="shop-item-form__field">
-            <%= f.label :past_purchases, "Past Purchases", class: "shop-item-form__label" %>
-            <%= f.number_field :past_purchases, min: 0, class: "form-control", placeholder: "0" %>
-            <span class="shop-item-form__hint">Historical purchase numbers (if we got em)</span>
-          </div>
+          <% unless current_user.shop_manager? && !current_user.admin? %>
+            <div class="shop-item-form__field">
+              <%= f.label :past_purchases, "Past Purchases", class: "shop-item-form__label" %>
+              <%= f.number_field :past_purchases, min: 0, class: "form-control", placeholder: "0" %>
+              <span class="shop-item-form__hint">Historical purchase numbers (if we got em)</span>
+            </div>
+          <% end %>
 
           <div class="shop-item-form__toggles" style="margin-top: 1rem;">
             <label class="shop-item-form__toggle">
@@ -226,67 +250,69 @@
 
         </div>
 
-        <div class="card" id="hack_clubber_settings" style="display: none;">
-          <h3>Hack Clubber Settings</h3>
-          <div class="shop-item-form__field">
-            <%= f.label :user_id, "Seller (User ID)", class: "shop-item-form__label" %>
-            <%= f.number_field :user_id, class: "form-control", placeholder: "User ID" %>
-            <span class="shop-item-form__hint">The ID of the Hack Clubber selling this item</span>
-          </div>
-          <div class="shop-item-form__field">
-            <%= f.label :payout_percentage, "Payout Percentage (%)", class: "shop-item-form__label" %>
-            <%= f.number_field :payout_percentage, min: 0, max: 100, class: "form-control" %>
-            <span class="shop-item-form__hint">Percentage of the sale price that goes to the seller</span>
-          </div>
-        </div>
-
-        <div class="card" id="hcb_locks_settings" style="display: none;">
-          <h3>HCB Locks</h3>
-          <div class="shop-item-form__field">
-            <%= f.label :hcb_merchant_lock, "HCB Merchant Lock", class: "shop-item-form__label" %>
-            <%= f.text_field :hcb_merchant_lock, class: "form-control" %>
-          </div>
-          <div class="shop-item-form__field">
-            <%= f.label :hcb_category_lock, "HCB Category Lock", class: "shop-item-form__label" %>
-            <%= f.text_field :hcb_category_lock, class: "form-control" %>
-          </div>
-          <div class="shop-item-form__field">
-            <%= f.label :hcb_keyword_lock, "HCB Keyword Lock", class: "shop-item-form__label" %>
-            <%= f.text_field :hcb_keyword_lock, class: "form-control" %>
-          </div>
-
-          <div class="shop-item-form__toggles" style="margin-top: 1rem;">
-            <label class="shop-item-form__toggle">
-              <%= f.check_box :hcb_one_time_use %>
-              <span class="shop-item-form__toggle-content">
-                <strong>One-Time Use</strong>
-                <span class="shop-item-form__toggle-desc">freeze card after one txn</span>
-              </span>
-            </label>
-          </div>
-        </div>
-
-        <div class="card" id="hcb_preauth_settings" style="display: none;">
-          <h3>HCB Preauthorization</h3>
-          <div class="shop-item-form__field">
-            <%= f.label :hcb_preauthorization_instructions, "Preauthorization Instructions", class: "shop-item-form__label" %>
-            <%= f.text_area :hcb_preauthorization_instructions, rows: 3, class: "form-control", placeholder: "Instructions for preauthorized HCB grants" %>
-            <span class="shop-item-form__hint">Used by HCB Preauth Grant items to provide spending instructions</span>
-          </div>
-        </div>
-
-        <div class="card" id="warehouse_settings" style="display: none;">
-          <h3>Warehouse Settings</h3>
-          <div class="shop-item-form__field">
-            <%= f.label :agh_contents, "AGH Contents (JSON)", class: "shop-item-form__label" %>
-            <%= f.text_area :agh_contents, rows: 4, id: "shop_item_agh_contents", class: "form-control shop-item-form__code", placeholder: '[{"sku": "ITEM-001", "quantity": 1}]', value: shop_item.agh_contents.present? ? JSON.pretty_generate(shop_item.agh_contents) : '' %>
-            <span class="shop-item-form__hint">List SKUs to include. Quantity selected by user will batch all SKUs together.</span>
-            <div class="alert alert-warning" style="margin-top: 0.5rem;">
-              <strong>Required:</strong> This field must contain valid JSON (not Ruby hash syntax).
-              Use double quotes for keys and strings. <a href="https://github.com/hackclub/flavortown/issues/1172" target="_blank" rel="noopener">See issue #1172 for more info</a>.
+        <% unless current_user.shop_manager? && !current_user.admin? %>
+          <div class="card" id="hack_clubber_settings" style="display: none;">
+            <h3>Hack Clubber Settings</h3>
+            <div class="shop-item-form__field">
+              <%= f.label :user_id, "Seller (User ID)", class: "shop-item-form__label" %>
+              <%= f.number_field :user_id, class: "form-control", placeholder: "User ID" %>
+              <span class="shop-item-form__hint">The ID of the Hack Clubber selling this item</span>
+            </div>
+            <div class="shop-item-form__field">
+              <%= f.label :payout_percentage, "Payout Percentage (%)", class: "shop-item-form__label" %>
+              <%= f.number_field :payout_percentage, min: 0, max: 100, class: "form-control" %>
+              <span class="shop-item-form__hint">Percentage of the sale price that goes to the seller</span>
             </div>
           </div>
-        </div>
+
+          <div class="card" id="hcb_locks_settings" style="display: none;">
+            <h3>HCB Locks</h3>
+            <div class="shop-item-form__field">
+              <%= f.label :hcb_merchant_lock, "HCB Merchant Lock", class: "shop-item-form__label" %>
+              <%= f.text_field :hcb_merchant_lock, class: "form-control" %>
+            </div>
+            <div class="shop-item-form__field">
+              <%= f.label :hcb_category_lock, "HCB Category Lock", class: "shop-item-form__label" %>
+              <%= f.text_field :hcb_category_lock, class: "form-control" %>
+            </div>
+            <div class="shop-item-form__field">
+              <%= f.label :hcb_keyword_lock, "HCB Keyword Lock", class: "shop-item-form__label" %>
+              <%= f.text_field :hcb_keyword_lock, class: "form-control" %>
+            </div>
+
+            <div class="shop-item-form__toggles" style="margin-top: 1rem;">
+              <label class="shop-item-form__toggle">
+                <%= f.check_box :hcb_one_time_use %>
+                <span class="shop-item-form__toggle-content">
+                  <strong>One-Time Use</strong>
+                  <span class="shop-item-form__toggle-desc">freeze card after one txn</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="card" id="hcb_preauth_settings" style="display: none;">
+            <h3>HCB Preauthorization</h3>
+            <div class="shop-item-form__field">
+              <%= f.label :hcb_preauthorization_instructions, "Preauthorization Instructions", class: "shop-item-form__label" %>
+              <%= f.text_area :hcb_preauthorization_instructions, rows: 3, class: "form-control", placeholder: "Instructions for preauthorized HCB grants" %>
+              <span class="shop-item-form__hint">Used by HCB Preauth Grant items to provide spending instructions</span>
+            </div>
+          </div>
+
+          <div class="card" id="warehouse_settings" style="display: none;">
+            <h3>Warehouse Settings</h3>
+            <div class="shop-item-form__field">
+              <%= f.label :agh_contents, "AGH Contents (JSON)", class: "shop-item-form__label" %>
+              <%= f.text_area :agh_contents, rows: 4, id: "shop_item_agh_contents", class: "form-control shop-item-form__code", placeholder: '[{"sku": "ITEM-001", "quantity": 1}]', value: shop_item.agh_contents.present? ? JSON.pretty_generate(shop_item.agh_contents) : '' %>
+              <span class="shop-item-form__hint">List SKUs to include. Quantity selected by user will batch all SKUs together.</span>
+              <div class="alert alert-warning" style="margin-top: 0.5rem;">
+                <strong>Required:</strong> This field must contain valid JSON (not Ruby hash syntax).
+                Use double quotes for keys and strings. <a href="https://github.com/hackclub/flavortown/issues/1172" target="_blank" rel="noopener">See issue #1172 for more info</a>.
+              </div>
+            </div>
+          </div>
+        <% end %>
 
         <div class="card" id="source_region_settings" style="display: none;">
           <h3>Source Region</h3>
@@ -332,18 +358,20 @@
           </label>
           <span class="shop-item-form__hint">Display this accessory's image on the order page</span>
 
-          <div class="shop-item-form__field">
-            <%= f.label :attached_shop_item_ids, "Attached To (Shop Items)", class: "shop-item-form__label" %>
-            <div class="shop-item-form__checkbox-list">
-              <%= f.collection_check_boxes :attached_shop_item_ids, ShopItem.where.not(type: "ShopItem::Accessory").order(:name), :id, :name do |b| %>
-                <label class="shop-item-form__checkbox">
-                  <%= b.check_box %>
-                  <span><%= b.text %></span>
-                </label>
-              <% end %>
+          <% unless current_user.shop_manager? && !current_user.admin? %>
+            <div class="shop-item-form__field">
+              <%= f.label :attached_shop_item_ids, "Attached To (Shop Items)", class: "shop-item-form__label" %>
+              <div class="shop-item-form__checkbox-list">
+                <%= f.collection_check_boxes :attached_shop_item_ids, ShopItem.where.not(type: "ShopItem::Accessory").order(:name), :id, :name do |b| %>
+                  <label class="shop-item-form__checkbox">
+                    <%= b.check_box %>
+                    <span><%= b.text %></span>
+                  </label>
+                <% end %>
+              </div>
+              <span class="shop-item-form__hint">Select items this accessory can be attached to</span>
             </div>
-            <span class="shop-item-form__hint">Select items this accessory can be attached to</span>
-          </div>
+          <% end %>
         </div>
       </div>
 

@@ -1,0 +1,15 @@
+<%= link_to sidequest_path(sidequest), id: "codextensions", class: "sidequest-card sidequest-card--blue sidequest-card--link" do %>
+  <div class="sidequest-card__content">
+    <h1 class="sidequest-card__title">Codextensions</h1>
+    <div class="sidequest-card__image-container">
+      <%= image_tag "sidequests/codextensions.svg",
+                    alt: "",
+                    aria: {hidden: true},
+                    class: "sidequest-card__image" %>
+    </div>
+    <h2>Build a VS Code extension of any kind. Submit to this sidequest and unlock exclusive prizes!</h2>
+    <% if sidequest.approved_count > 0 %>
+      <p class="sidequest-card__expires"><%= pluralize(sidequest.approved_count, "submission") %></p>
+    <% end %>
+  </div>
+<% end %>

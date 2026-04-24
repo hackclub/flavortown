@@ -61,7 +61,7 @@ class Admin::UsersController < Admin::ApplicationController
     end
 
     def show
-      @user = User.includes(:identities).find(params[:id])
+      @user = User.includes(:identities, :vote_verdict).find(params[:id])
 
       @all_projects = @user.projects.with_deleted.order(deleted_at: :desc)
     end
@@ -275,6 +275,40 @@ class Admin::UsersController < Admin::ApplicationController
     redirect_to admin_user_path(@user)
   end
 
+  def mark_sus
+    authorize :admin, :ban_users?
+    @user = User.find(params[:id])
+
+    if @user.marked_sus_by.include?(current_user.id.to_s)
+      flash[:notice] = "You've already marked #{@user.display_name} as sus."
+      return redirect_to admin_user_path(@user)
+    end
+
+    PaperTrail.request(whodunnit: current_user.id.to_s) do
+      @user.update!(marked_sus_by: @user.marked_sus_by + [ current_user.id.to_s ])
+    end
+
+    flash[:notice] = "#{@user.display_name} has been marked as sus."
+    redirect_to admin_user_path(@user)
+  end
+
+  def unmark_sus
+    authorize :admin, :ban_users?
+    @user = User.find(params[:id])
+
+    unless @user.marked_sus_by.include?(current_user.id.to_s)
+      flash[:alert] = "You haven't marked #{@user.display_name} as sus."
+      return redirect_to admin_user_path(@user)
+    end
+
+    PaperTrail.request(whodunnit: current_user.id.to_s) do
+      @user.update!(marked_sus_by: @user.marked_sus_by - [ current_user.id.to_s ])
+    end
+
+    flash[:notice] = "Sus flag removed from #{@user.display_name}."
+    redirect_to admin_user_path(@user)
+  end
+
   def ban
     authorize :admin, :ban_users?
     @user = User.find(params[:id])
@@ -320,20 +354,6 @@ class Admin::UsersController < Admin::ApplicationController
     )
 
     flash[:notice] = "#{@user.display_name} has been unbanned."
-    redirect_to admin_user_path(@user)
-  end
-
-  # DEPRECATED: Use project shadow banning instead
-  def shadow_ban
-    Rails.logger.warn("DEPRECATED: Admin user shadow_ban action is deprecated. Use project shadow banning instead.")
-    flash[:warning] = "User shadow banning is deprecated. Please use project shadow banning instead."
-    redirect_to admin_user_path(@user)
-  end
-
-  # DEPRECATED: Use project shadow banning instead
-  def unshadow_ban
-    Rails.logger.warn("DEPRECATED: Admin user unshadow_ban action is deprecated. Use project shadow banning instead.")
-    flash[:warning] = "User shadow banning is deprecated. Please use project shadow banning instead."
     redirect_to admin_user_path(@user)
   end
 

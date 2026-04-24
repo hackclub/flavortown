@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_10_042100) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_15_130341) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -540,6 +540,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_042100) do
 
   create_table "shop_items", force: :cascade do |t|
     t.string "accessory_tag"
+    t.integer "achievement_sale_percentage"
+    t.string "achievement_sale_slugs", default: [], array: true
     t.jsonb "agh_contents"
     t.bigint "attached_shop_item_ids", default: [], array: true
     t.string "blocked_countries", default: [], array: true
@@ -842,6 +844,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_042100) do
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
     t.boolean "manual_ysws_override"
+    t.string "marked_sus_by", default: [], null: false, array: true
     t.datetime "metrics_synced_at"
     t.integer "projects_count"
     t.integer "projects_shipped_count"
@@ -853,9 +856,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_042100) do
     t.boolean "send_notifications_for_new_followers", default: true, null: false
     t.boolean "send_votes_to_slack", default: false, null: false
     t.string "session_token"
-    t.boolean "shadow_banned", default: false, null: false
-    t.datetime "shadow_banned_at"
-    t.text "shadow_banned_reason"
     t.enum "shop_region", enum_type: "shop_region_type"
     t.boolean "slack_balance_notifications", default: false, null: false
     t.string "slack_id"

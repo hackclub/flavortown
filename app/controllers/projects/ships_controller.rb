@@ -9,19 +9,18 @@ class Projects::ShipsController < ApplicationController
     load_ship_data
   end
 
+  def pre_check
+    authorize @project, :submit_ship?
+    ai_result = AiShipReviewService.fetch(@project)
+    if ai_result["valid"] == false
+      @ai_review_result = ai_result
+      return render :precheck_failed, status: :unprocessable_entity, layout: false
+    end
+    head :no_content
+  end
+
   def create
     authorize @project, :submit_ship?
-
-    if params[:bypass_ai_review].blank?
-      ai_result = AiShipReviewService.fetch(@project)
-      if ai_result["valid"] == false
-        @ai_review_result = ai_result
-        @step = 4
-        load_ship_data
-        return render :new, status: :unprocessable_entity
-      end
-    end
-
     selected_sidequest = selected_sidequest_for_submission
 
     # Warn if readme URL is not a raw GitHub URL
@@ -40,13 +39,10 @@ class Projects::ShipsController < ApplicationController
       create_sidequest_entries!(selected_sidequest)
     end
 
-    if initial_ship?
-      ShipCertWebhookJob.perform_later(ship_event_id: @post.postable.id, type: "initial")
-      redirect_to @project, notice: "Congratulations! Your project has been submitted for review!"
-    else
-      @post.postable.update!(certification_status: "approved")
-      redirect_to @project, notice: "Ship submitted! Your project is now out for voting."
-    end
+    type = determine_ship_type
+    ShipCertWebhookJob.perform_later(ship_event_id: @post.postable.id, type: type)
+    notice = type == "initial" ? "Congratulations! Your project has been submitted for review!" : "Ship submitted! Your project has been submitted for certification review and will be available for voting after approval."
+    redirect_to @project, notice: notice
   rescue ActiveRecord::RecordInvalid => e
     redirect_back fallback_location: new_project_ships_path(@project), alert: e.record.errors.full_messages.to_sentence
   end
@@ -62,6 +58,10 @@ class Projects::ShipsController < ApplicationController
   end
 
   def initial_ship? = @project.posts.where(postable_type: "Post::ShipEvent").one?
+
+  def determine_ship_type
+    initial_ship? ? "initial" : "reship"
+  end
 
   def load_ship_data
     @last_ship = @project.last_ship_event

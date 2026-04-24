@@ -1,17 +1,19 @@
 import { Controller } from "@hotwired/stimulus";
-import { gsap } from "gsap";
-import { MotionPathPlugin } from "gsap/MotionPathPlugin";
-
-gsap.registerPlugin(MotionPathPlugin);
 
 export default class extends Controller {
-  connect() {
+  async connect() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
 
+    const [{ gsap }, { MotionPathPlugin }] = await Promise.all([
+      import("gsap"),
+      import("gsap/MotionPathPlugin"),
+    ]);
+    gsap.registerPlugin(MotionPathPlugin);
+    this.gsap = gsap;
+
     this.createShootingStar();
-    // Launch one immediately after a short delay
     setTimeout(() => this.launchShootingStar(), 2000);
     this.scheduleNext();
   }
@@ -79,7 +81,7 @@ export default class extends Controller {
     const angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
 
     // Reset position and make visible
-    gsap.set(this.shootingStar, {
+    this.gsap.set(this.shootingStar, {
       left: 0,
       top: 0,
       x: startX,
@@ -90,7 +92,7 @@ export default class extends Controller {
     });
 
     // Create timeline for coordinated animations
-    const tl = gsap.timeline();
+    const tl = this.gsap.timeline();
 
     // Animate along the curved path
     tl.to(

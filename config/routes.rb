@@ -77,6 +77,7 @@ Rails.application.routes.draw do
   # Report Reviews
   get "report-reviews/review/:token", to: "report_reviews#review", as: :review_report_token
   get "report-reviews/dismiss/:token", to: "report_reviews#dismiss", as: :dismiss_report_token
+  get "my-reports", to: "my_reports#index", as: :my_reports
 
   # Voting
   resources :votes, only: [ :new, :create, :index ] do
@@ -156,6 +157,8 @@ Rails.application.routes.draw do
   # API
   namespace :webhooks do
     post "ship_cert", to: "ship_cert#update_status"
+    post "mark_sus", to: "mark_sus#mark"
+    post "unmark_sus", to: "mark_sus#unmark"
   end
 
   namespace :api do
@@ -271,9 +274,9 @@ Rails.application.routes.draw do
          post :adjust_balance
          post :ban
          post :unban
+         post :mark_sus
+         post :unmark_sus
          post :cancel_all_hcb_grants
-         post :shadow_ban
-         post :unshadow_ban
          post :impersonate
          post :refresh_verification
          post :toggle_voting_lock
@@ -306,6 +309,7 @@ Rails.application.routes.draw do
       end
       member do
         post :request_approval
+        post :promote
       end
     end
     resources :shop_orders, only: [ :index, :show ] do
@@ -411,7 +415,11 @@ Rails.application.routes.draw do
     end
     resources :reports, only: [ :create ], module: :projects
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
-    resource :ships, only: [ :new, :create ], module: :projects
+    resource :ships, only: [ :new, :create ], module: :projects, shallow: false do
+      member do
+        get :pre_check
+      end
+    end
     member do
       get :readme
       get :lapse_timelapses

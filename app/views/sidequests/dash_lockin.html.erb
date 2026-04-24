@@ -1,7 +1,6 @@
 <%
   active_week = lockin_active_week
   display_week = lockin_display_week
-  status_text = lockin_status_text
 %>
 
 <% content_for :title, "Dashboard: #{@sidequest.title}" %>
@@ -150,7 +149,7 @@
                     </strong>
                     <span class="lockin-accomplishment__time"><%= time_ago_in_words(devlog.created_at) %> ago</span>
                   </div>
-                  <p class="lockin-accomplishment__body"><%= truncate(devlog.postable.body, length: 150) %></p>
+                  <p class="lockin-accomplishment__body"><%= truncate(devlog.postable&.body, length: 150) %></p>
                 </div>
               <% end %>
             </div>

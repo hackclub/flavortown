@@ -1,66 +1,20 @@
-<div class="super-mega-dashboard__dashboard super-mega-dashboard__dashboard--pyramid-flavortime">
+<% controller_data = { controller: "pyramid-flavortime" } %>
+
+<% unless @pyramid_scheme_stats[:error].present? %>
+  <% controller_data[:pyramid_flavortime_pyramid_activity_timeline_value] = @pyramid_scheme_stats[:activity_timeline].to_json %>
+<% end %>
+
+<% unless @flavortime_summary[:error].present? %>
+  <% controller_data[:pyramid_flavortime_flavortime_activity_chart_value] = @flavortime_summary[:activity_chart].to_json %>
+<% end %>
+
+<%= tag.div class: "super-mega-dashboard__dashboard super-mega-dashboard__dashboard--pyramid-flavortime", data: controller_data do %>
   <div class="super-mega-dashboard__header">
     <div class="super-mega-dashboard__section-heading">
       <h2>Pyramid + Flavortime</h2>
       <p class="super-mega-dashboard__section-subtitle">Pyramid Scheme and Flavortime data</p>
     </div>
     <%= link_to "View Full Flavortime Dashboard →", admin_flavortime_dashboard_path, class: "super-mega-link" %>
-  </div>
-
-  <div class="super-mega-dashboard__cards super-mega-dashboard__cards--analytics pyramid-flavortime-dashboard__summary-row">
-    <div class="super-mega-dashboard__card super-mega-dashboard__card--half">
-      <h3>Pyramid Scheme</h3>
-
-      <% if @pyramid_scheme_stats[:error].present? %>
-        <p class="fraud-stats-error"><%= @pyramid_scheme_stats[:error] %></p>
-      <% else %>
-        <% if @pyramid_scheme_stats[:partial_data] %>
-          <p class="super-mega-dashboard__section-note">Partial Pyramid data: unavailable API fields are shown as 0.</p>
-        <% end %>
-
-        <div class="super-mega-dashboard__total-numbers-grid super-mega-dashboard__total-numbers-grid--compact">
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value blue"><%= number_with_delimiter(@pyramid_scheme_stats[:total_referrals]) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">Total Referrals</span>
-          </div>
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value orange"><%= number_with_precision(@pyramid_scheme_stats[:total_hours_logged], precision: 1, strip_insignificant_zeros: true) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">Verified Hours</span>
-          </div>
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value green"><%= number_with_delimiter(@pyramid_scheme_stats[:completed_referrals]) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">Completed Referrals</span>
-          </div>
-        </div>
-      <% end %>
-    </div>
-
-    <div class="super-mega-dashboard__card super-mega-dashboard__card--half">
-      <h3>Flavortime</h3>
-
-      <% if @flavortime_summary[:error].present? %>
-        <p class="fraud-stats-error"><%= @flavortime_summary[:error] %></p>
-      <% else %>
-        <div class="super-mega-dashboard__total-numbers-grid super-mega-dashboard__total-numbers-grid--compact">
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value green"><%= number_with_delimiter(@flavortime_summary[:active_users]) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">Active Now</span>
-          </div>
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value blue"><%= number_with_delimiter(@flavortime_summary[:total_users]) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">All-Time Users</span>
-          </div>
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value red"><%= number_with_delimiter(@flavortime_summary[:total_sessions]) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">Recorded Sessions</span>
-          </div>
-          <div class="super-mega-dashboard__total-numbers-metric">
-            <span class="super-mega-dashboard__total-numbers-value yellow"><%= number_with_precision(@flavortime_summary[:status_hours], precision: 1, strip_insignificant_zeros: true) %></span>
-            <span class="super-mega-dashboard__total-numbers-label">Status Hours</span>
-          </div>
-        </div>
-      <% end %>
-    </div>
   </div>
 
   <div class="super-mega-dashboard__cards super-mega-dashboard__cards--analytics">
@@ -75,7 +29,7 @@
           <h3>Pyramid Weekly Growth & Verified Hours</h3>
           <label class="super-mega-dashboard__range-control" for="pyramidActivityRange">
             <span>Range</span>
-            <select id="pyramidActivityRange">
+            <select id="pyramidActivityRange" data-pyramid-flavortime-target="pyramidActivityRange" data-action="change->pyramid-flavortime#pyramidRangeChanged">
               <option value="1w">Last week</option>
               <option value="4w">Last 4 weeks</option>
               <option value="8w" selected>Last 8 weeks</option>
@@ -85,21 +39,7 @@
           </label>
         </div>
         <div class="super-mega-dashboard__chart-shell">
-          <canvas id="pyramidActivityChart"></canvas>
-        </div>
-      </div>
-
-      <div class="super-mega-dashboard__card super-mega-dashboard__card--half">
-        <h3>Referral Flow</h3>
-        <div class="super-mega-dashboard__chart-shell">
-          <canvas id="pyramidReferralChart"></canvas>
-        </div>
-      </div>
-
-      <div class="super-mega-dashboard__card super-mega-dashboard__card--half">
-        <h3>Poster Outcomes</h3>
-        <div class="super-mega-dashboard__chart-shell super-mega-dashboard__chart-shell--pie">
-          <canvas id="pyramidPosterChart"></canvas>
+          <canvas id="pyramidActivityChart" data-pyramid-flavortime-target="pyramidActivityChart"></canvas>
         </div>
       </div>
     <% end %>
@@ -113,302 +53,9 @@
       <div class="super-mega-dashboard__card super-mega-dashboard__card--full">
         <h3>Flavortime Activity Trend</h3>
         <div class="super-mega-dashboard__chart-shell">
-          <canvas id="flavortimeActivityChart"></canvas>
+          <canvas id="flavortimeActivityChart" data-pyramid-flavortime-target="flavortimeActivityChart"></canvas>
         </div>
       </div>
     <% end %>
   </div>
-</div>
-
-<% unless @pyramid_scheme_stats[:error].present? && @flavortime_summary[:error].present? %>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof Chart === 'undefined') return;
-
-      const pyramidActivityCtx = document.getElementById('pyramidActivityChart');
-      const pyramidRangeSelect = document.getElementById('pyramidActivityRange');
-      const pyramidReferralCtx = document.getElementById('pyramidReferralChart');
-      const pyramidPosterCtx = document.getElementById('pyramidPosterChart');
-      const flavortimeActivityCtx = document.getElementById('flavortimeActivityChart');
-
-      if (pyramidActivityCtx && pyramidRangeSelect && pyramidReferralCtx && pyramidPosterCtx) {
-        const activityTimeline = <%= raw @pyramid_scheme_stats[:activity_timeline].to_json %>;
-        const referralData = <%= raw @pyramid_scheme_stats[:referral_chart].to_json %>;
-        const posterData = <%= raw @pyramid_scheme_stats[:poster_chart].to_json %>;
-        const datalabelPlugins = typeof ChartDataLabels === 'undefined' ? [] : [ChartDataLabels];
-        const formatDate = (value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const formatWeekLabel = (value) => `Week of ${formatDate(value)}`;
-        const startOfWeek = (value) => {
-          const date = new Date(value);
-          const day = date.getDay();
-          const offset = (day + 6) % 7;
-          date.setDate(date.getDate() - offset);
-          date.setHours(0, 0, 0, 0);
-          return date;
-        };
-
-        const sliceTimeline = (timeline) => {
-          if (pyramidRangeSelect.value === 'all') return timeline;
-
-          const now = new Date();
-          const cutoffByRange = {
-            '1w': new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)),
-            '4w': new Date(now.getTime() - (28 * 24 * 60 * 60 * 1000)),
-            '8w': new Date(now.getTime() - (56 * 24 * 60 * 60 * 1000)),
-            '12w': new Date(now.getTime() - (84 * 24 * 60 * 60 * 1000))
-          };
-          const cutoff = cutoffByRange[pyramidRangeSelect.value];
-          if (!cutoff) return timeline;
-
-          return timeline.filter((entry) => new Date(entry.date) >= cutoff);
-        };
-
-        const bucketTimelineByWeek = (timeline) => {
-          const buckets = new Map();
-
-          timeline.forEach((entry) => {
-            const weekStart = startOfWeek(entry.date).toISOString();
-            if (!buckets.has(weekStart)) {
-              buckets.set(weekStart, {
-                date: weekStart,
-                users_added: 0,
-                referrals_completed: 0,
-                verified_hours: 0,
-                posters_approved: 0
-              });
-            }
-
-            const bucket = buckets.get(weekStart);
-            bucket.users_added += entry.users_added || 0;
-            bucket.referrals_completed += entry.referrals_completed || 0;
-            bucket.verified_hours += entry.verified_hours || 0;
-            bucket.posters_approved += entry.posters_approved || 0;
-          });
-
-          return Array.from(buckets.values()).sort((left, right) => new Date(left.date) - new Date(right.date));
-        };
-
-        const buildActivityChartData = (timeline) => {
-          const weeklyTimeline = bucketTimelineByWeek(timeline);
-
-          return {
-            labels: weeklyTimeline.map((entry) => formatWeekLabel(entry.date)),
-            datasets: [{
-              type: 'bar',
-              label: 'Users Added',
-              data: weeklyTimeline.map((entry) => entry.users_added),
-              backgroundColor: 'rgba(59, 130, 246, 0.78)',
-              borderColor: '#2563eb',
-              borderWidth: 1,
-              borderRadius: 10,
-              maxBarThickness: 34,
-              yAxisID: 'y'
-            }, {
-              type: 'bar',
-              label: 'Completed Referrals',
-              data: weeklyTimeline.map((entry) => entry.referrals_completed),
-              backgroundColor: 'rgba(16, 185, 129, 0.68)',
-              borderColor: '#059669',
-              borderWidth: 1,
-              borderRadius: 10,
-              maxBarThickness: 34,
-              yAxisID: 'y'
-            }, {
-              type: 'line',
-              label: 'Verified Hours',
-              data: weeklyTimeline.map((entry) => Number(entry.verified_hours.toFixed(1))),
-              borderColor: '#f59e0b',
-              backgroundColor: 'rgba(245, 158, 11, 0.16)',
-              borderWidth: 3,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-              tension: 0.28,
-              fill: true,
-              yAxisID: 'y1'
-            }]
-          };
-        };
-
-        const pyramidActivityChart = new Chart(pyramidActivityCtx, {
-          data: buildActivityChartData(sliceTimeline(activityTimeline)),
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-              mode: 'index',
-              intersect: false
-            },
-            plugins: {
-              legend: {
-                position: 'bottom'
-              },
-              tooltip: {
-                callbacks: {
-                  label(context) {
-                    if (context.dataset.label === 'Verified Hours') {
-                      return `${context.dataset.label}: ${context.parsed.y}h`;
-                    }
-
-                    return `${context.dataset.label}: ${context.parsed.y}`;
-                  }
-                }
-              }
-            },
-            scales: {
-              x: {
-                ticks: {
-                  font: { size: 11 },
-                  autoSkip: true,
-                  maxTicksLimit: 10,
-                  maxRotation: 0
-                }
-              },
-              y: {
-                beginAtZero: true,
-                ticks: {
-                  precision: 0
-                },
-                title: {
-                  display: true,
-                  text: 'Users / referrals'
-                }
-              },
-              y1: {
-                beginAtZero: true,
-                position: 'right',
-                grid: {
-                  drawOnChartArea: false
-                },
-                title: {
-                  display: true,
-                  text: 'Verified hours'
-                }
-              }
-            }
-          }
-        });
-
-        pyramidRangeSelect.addEventListener('change', () => {
-          pyramidActivityChart.data = buildActivityChartData(sliceTimeline(activityTimeline));
-          pyramidActivityChart.update();
-        });
-
-        new Chart(pyramidReferralCtx, {
-          type: 'doughnut',
-          data: {
-            labels: referralData.labels,
-            datasets: [{
-              data: referralData.values,
-              backgroundColor: ['#f59e0b', '#3b82f6', '#10b981']
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '58%',
-            plugins: {
-              legend: {
-                position: 'bottom'
-              }
-            }
-          }
-        });
-
-        new Chart(pyramidPosterCtx, {
-          type: 'pie',
-          data: {
-            labels: posterData.labels,
-            datasets: [{
-              data: posterData.values,
-              backgroundColor: ['#10b981', '#3b82f6', '#ef4444']
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'bottom'
-              },
-              datalabels: {
-                color: '#111827',
-                font: {
-                  weight: '600'
-                },
-                formatter(value) {
-                  return value > 0 ? value : '';
-                }
-              }
-            }
-          },
-          plugins: datalabelPlugins
-        });
-      }
-
-      if (flavortimeActivityCtx) {
-        const activityData = <%= raw @flavortime_summary[:activity_chart].to_json %>;
-
-        new Chart(flavortimeActivityCtx, {
-          data: {
-            labels: activityData.labels,
-            datasets: [{
-              type: 'bar',
-              label: 'Sessions',
-              data: activityData.sessions,
-              backgroundColor: 'rgba(59, 130, 246, 0.75)',
-              borderRadius: 8,
-              yAxisID: 'y'
-            }, {
-              type: 'line',
-              label: 'Status Hours',
-              data: activityData.status_hours,
-              borderColor: '#f59e0b',
-              backgroundColor: 'rgba(245, 158, 11, 0.2)',
-              tension: 0.35,
-              fill: false,
-              yAxisID: 'y1'
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-              mode: 'index',
-              intersect: false
-            },
-            plugins: {
-              legend: {
-                position: 'bottom'
-              }
-            },
-            scales: {
-              x: {
-                ticks: { font: { size: 11 } }
-              },
-              y: {
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: 'Sessions'
-                }
-              },
-              y1: {
-                beginAtZero: true,
-                position: 'right',
-                grid: {
-                  drawOnChartArea: false
-                },
-                title: {
-                  display: true,
-                  text: 'Status Hours'
-                }
-              }
-            }
-          }
-        });
-      }
-    });
-  </script>
 <% end %>

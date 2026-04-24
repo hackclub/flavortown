@@ -13,17 +13,6 @@ module Admin
 
       def load_payouts_stats
         cached_data = Rails.cache.fetch("super_mega_payouts", expires_in: 10.minutes) do
-          payouts_cap = LedgerEntry.sum(:amount)
-          yesterday = 24.hours.ago
-          recent = LedgerEntry.where(created_at: yesterday..)
-
-          recent_stats = recent.pluck(
-            Arel.sql("COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0)"),
-            Arel.sql("COALESCE(SUM(CASE WHEN amount < 0 THEN ABS(amount) ELSE 0 END), 0)"),
-            Arel.sql("COUNT(*)"),
-            Arel.sql("COALESCE(SUM(ABS(amount)), 0)")
-          ).first
-
           total_distributed_cookies = LedgerEntry.where("amount > 0").sum(:amount)
           used_cookies = LedgerEntry.where("amount < 0").sum(:amount).abs
           cookie_utilization_percentage = ((used_cookies.to_f / total_distributed_cookies) * 100).round(2)
@@ -32,7 +21,6 @@ module Admin
 
           transaction_data = build_transaction_data
           hcb_expenses = transaction_data[:total_expenses]
-          contractor_expenses = transaction_data[:contractor_expenses]
 
           if total_approved_ysws_db_hours > 0
             dollars_per_hour = (total_distributed_cookies / 5) / total_approved_ysws_db_hours
@@ -43,37 +31,23 @@ module Admin
           end
 
           {
-            payouts_cap: payouts_cap,
-            payouts: {
-              created: recent_stats[0],
-              destroyed: recent_stats[1],
-              txns: recent_stats[2],
-              volume: recent_stats[3]
-            },
             cookie_utilization_percentage: cookie_utilization_percentage,
             dollars_per_hour: dollars_per_hour,
-            expenses_dollars_per_hour: expenses_dollars_per_hour,
-            contractor_expenses: contractor_expenses
+            expenses_dollars_per_hour: expenses_dollars_per_hour
           }
         end
-        @payouts_cap = cached_data&.dig(:payouts_cap) || 0
-        @payouts = cached_data&.dig(:payouts) || { created: 0, destroyed: 0, txns: 0, volume: 0 }
 
         @dollars_per_hour = cached_data&.dig(:dollars_per_hour) || 0
         @expenses_dollars_per_hour = cached_data&.dig(:expenses_dollars_per_hour) || 0
         @cookie_utilization_percentage = cached_data&.dig(:cookie_utilization_percentage) || 0
-        @contractor_expenses = cached_data&.dig(:contractor_expenses) || 0
 
         time_period = params[:filter_period].presence || "all"
         load_top_projects(time_period: time_period)
       rescue StandardError => e
         Rails.logger.error("[SuperMegaDashboard] Error in load_payouts_stats: #{e.class} - #{e.message}")
-        @payouts_cap = 0
-        @payouts = { created: 0, destroyed: 0, txns: 0, volume: 0 }
         @dollars_per_hour = 0
         @expenses_dollars_per_hour = 0
         @cookie_utilization_percentage = 0
-        @contractor_expenses = 0
       end
 
       def load_voting_stats
@@ -117,14 +91,220 @@ module Admin
             vote_stats.send(:"avg_#{category}")&.to_f&.round(2)
           end
 
+          windows = {
+            "24h" => 1.day,
+            "1w" => 7.days,
+            "1m" => 30.days,
+            "all" => 6.months
+          }
+
+          quality_by_window = windows.transform_values do |duration|
+            relation = Vote.legitimate
+            relation = relation.where(created_at: duration.ago..Time.current) if duration
+            avg = relation.average(:reason_quality_score)
+            avg&.to_f&.round(3)
+          end
+
+          trend_window_days = 180
+          trend_start = (trend_window_days - 1).days.ago.beginning_of_day
+          trend_end = Time.current.end_of_day
+          daily_avgs = Vote.legitimate
+                           .where(created_at: trend_start..trend_end)
+                           .group(Arel.sql("DATE(created_at)"))
+                           .average(:reason_quality_score)
+          dates = (0..(trend_window_days - 1)).map { |d| (trend_start.to_date + d) }
+          labels = dates.map { |date| date.strftime("%b %-d") }
+          values = dates.map do |date|
+            v = daily_avgs[date]
+            v.nil? ? nil : v.to_f.round(3)
+          end
+          hourly_start = 23.hours.ago.beginning_of_hour
+          hourly_end = Time.current.end_of_hour
+          hourly_avgs = Vote.legitimate
+                             .where(created_at: hourly_start..hourly_end)
+                             .group(Arel.sql("DATE_TRUNC('hour', created_at)"))
+                             .average(:reason_quality_score)
+
+          hourly_hours = (0..23).map { |h| (hourly_start + h.hours) }
+          hourly_labels = hourly_hours.map { |ts| ts.strftime("%H:00") }
+          hourly_values = hourly_hours.map do |ts|
+            v = hourly_avgs[ts.beginning_of_hour]
+            v.nil? ? nil : v.to_f.round(3)
+          end
+
+          counts = User::VoteVerdict.group(:verdict).count
+          verdict_counts = {
+            blessed: counts["blessed"].to_i,
+            cursed: counts["cursed"].to_i,
+            neutral: counts["neutral"].to_i,
+            total: counts.values_at("blessed", "cursed", "neutral").compact.sum
+          }
+
+          recent_cursed = []
+          begin
+            versions = PaperTrail::Version
+                         .where(item_type: "User::VoteVerdict", event: "update")
+                         .where(created_at: 30.days.ago..Time.current)
+                         .order(created_at: :desc)
+                         .limit(300)
+
+            verdict_ids = versions.pluck(:item_id)
+            verdict_records = User::VoteVerdict.where(id: verdict_ids).includes(:user).index_by(&:id)
+
+            seen_user_ids = Set.new
+            versions.each do |v|
+              changes = parse_version_object_changes(v.object_changes)
+              verdict_change = changes["verdict"]
+              next unless verdict_change.is_a?(Array) && verdict_change.size >= 2 && verdict_change[1] == "cursed"
+              vr = verdict_records[v.item_id]
+              next unless vr && vr.user
+              user = vr.user
+              next if seen_user_ids.include?(user.id)
+              seen_user_ids << user.id
+
+              cursed_at = v.created_at
+
+              before_range = (cursed_at - 7.days)..(cursed_at - 1.second)
+              after_range = cursed_at..(cursed_at + 7.days)
+
+              before_avg = Vote.legitimate.where(user_id: user.id, created_at: before_range).average(:reason_quality_score)&.to_f&.round(3)
+              after_avg = Vote.legitimate.where(user_id: user.id, created_at: after_range).average(:reason_quality_score)&.to_f&.round(3)
+
+              before_count = Vote.legitimate.where(user_id: user.id, created_at: before_range).count
+              after_count = Vote.legitimate.where(user_id: user.id, created_at: after_range).count
+
+              recent_cursed << {
+                user: user,
+                cursed_at: cursed_at,
+                before_avg: before_avg,
+                before_count: before_count,
+                after_avg: after_avg,
+                after_count: after_count,
+                analyze_path: Rails.application.routes.url_helpers.admin_vote_quality_dashboard_user_path(user.id, window_days: 30),
+                votes_search_path: Rails.application.routes.url_helpers.admin_vote_quality_dashboard_user_path(user.id, window_days: 30)
+              }
+              break if recent_cursed.size >= 20
+            end
+          rescue StandardError => e
+            Rails.logger.error("[SuperMegaDashboard] Error fetching recent cursed users: #{e.class} - #{e.message}")
+            recent_cursed = []
+          end
+
           {
             overview: voting_overview,
-            category_avgs: voting_category_avgs
+            category_avgs: voting_category_avgs,
+            quality_by_window: quality_by_window,
+            quality_trend: { labels: labels, values: values },
+            quality_trend_hourly: { labels: hourly_labels, values: hourly_values },
+            verdict_counts: verdict_counts,
+            recent_cursed_users: recent_cursed
           }
         end
 
         @voting_overview = cached_data&.dig(:overview) || {}
         @voting_category_avgs = cached_data&.dig(:category_avgs) || {}
+        @vote_quality_by_window = cached_data&.dig(:quality_by_window) || {}
+        @vote_quality_trend = cached_data&.dig(:quality_trend) || { labels: [], values: [] }
+        @vote_quality_trend_hourly = cached_data&.dig(:quality_trend_hourly) || { labels: [], values: [] }
+        @vote_verdict_counts = cached_data&.dig(:verdict_counts) || { blessed: 0, cursed: 0, neutral: 0, total: 0 }
+        @recent_cursed_users = cached_data&.dig(:recent_cursed_users) || []
+
+        begin
+          @current_cursed_users = User::VoteVerdict.includes(:user).where(verdict: "cursed").order(updated_at: :desc)
+          @current_blessed_users = User::VoteVerdict.includes(:user).where(verdict: "blessed").order(updated_at: :desc)
+        rescue StandardError => e
+          Rails.logger.error("[SuperMegaDashboard] Error fetching current verdict users: #{e.class} - #{e.message}")
+          @current_cursed_users = []
+          @current_blessed_users = []
+        end
+
+        @verdict_user_drilldowns = { "cursed" => {}, "blessed" => {} }
+        build_verdict_drilldowns!(@current_cursed_users, type: "cursed")
+        build_verdict_drilldowns!(@current_blessed_users, type: "blessed")
+      end
+
+      def build_verdict_drilldowns!(verdict_rel, type:)
+        verdict_rel.each do |vr|
+          user = vr.user
+          next unless user
+
+          transition_time = nil
+          begin
+            versions = PaperTrail::Version
+              .where(item_type: "User::VoteVerdict", event: "update", item_id: vr.id)
+              .order(created_at: :desc)
+              .limit(50)
+            versions.each do |ver|
+              changes = parse_version_object_changes(ver.object_changes)
+              verdict_change = changes["verdict"]
+              if verdict_change.is_a?(Array) && verdict_change.size >= 2 && verdict_change[1] == type
+                transition_time = ver.created_at
+                break
+              end
+            end
+            transition_time ||= vr.assessed_at if vr.verdict == type
+          rescue StandardError => e
+            Rails.logger.warn("[SuperMegaDashboard] transition lookup failed for user ##{user.id}: #{e.message}")
+          end
+
+          next unless transition_time
+
+          before_rel = Vote.legitimate.where(user_id: user.id).where("created_at < ?", transition_time)
+          after_rel  = Vote.legitimate.where(user_id: user.id).where("created_at >= ?", transition_time)
+          before_avgs = before_rel.group(Arel.sql("DATE(created_at)")).average(:reason_quality_score)
+          after_avgs  = after_rel.group(Arel.sql("DATE(created_at)")).average(:reason_quality_score)
+          before_dates = before_avgs.keys.compact.sort
+          after_dates  = after_avgs.keys.compact.sort
+          label_dates = (before_dates.first(2) + after_dates.first(2)).compact.uniq.sort
+          labels = label_dates.map { |d| d.strftime("%b %-d") }
+          series_values = label_dates.map { |d| (before_avgs[d] || after_avgs[d])&.to_f&.round(3) }
+          votes_before = before_rel.order(created_at: :desc)
+          votes_after  = after_rel.order(created_at: :desc)
+
+          @verdict_user_drilldowns[type][user.id] = {
+            event_iso: transition_time.to_date.to_s,
+            event_ts_iso: transition_time.iso8601,
+            before_end_iso: before_dates.last&.to_s,
+            after_start_iso: after_dates.first&.to_s,
+            label_isos: label_dates.map(&:to_s),
+            labels: labels,
+            values: series_values,
+            votes_before: serialize_votes_for_modal(votes_before),
+            votes_after: serialize_votes_for_modal(votes_after)
+          }
+        end
+      end
+
+      def parse_version_object_changes(raw)
+        return {} if raw.nil?
+        return raw if raw.is_a?(Hash)
+        str = raw.to_s
+        begin
+          parsed = JSON.parse(str)
+          parsed.is_a?(Hash) ? parsed : {}
+        rescue JSON::ParserError
+          begin
+            parsed = YAML.safe_load(str, permitted_classes: [ Symbol, Time, Date ], aliases: true)
+            parsed.is_a?(Hash) ? parsed.transform_keys(&:to_s) : {}
+          rescue StandardError
+            {}
+          end
+        end
+      end
+
+      def serialize_votes_for_modal(votes)
+        votes.map do |v|
+          {
+            at: v.created_at.in_time_zone.strftime("%b %-d %Y %H:%M"),
+            at_iso: v.created_at.iso8601,
+            reason: v.reason.to_s,
+            rq_score: v.reason_quality_score&.round(3),
+            originality: v.originality_score,
+            technical: v.technical_score,
+            usability: v.usability_score,
+            storytelling: v.storytelling_score
+          }
+        end
       end
 
       def load_sidequest_stats
@@ -277,44 +457,44 @@ module Admin
         @hcb_spending_by_tag = fetch_hcb_spending_by_tag
       end
 
-      def fetch_hcb_spending_by_tag
-        Rails.cache.fetch("super_mega_hcb_stats_v2", expires_in: 1.hour) do
-          spending_by_tag = {}
+      def fetch_hcb_transactions
+        Rails.cache.fetch("super_mega_hcb_transactions", expires_in: 1.hour) do
+          transactions = []
           current_page = 1
-
           loop do
             response = Faraday.get("https://hcb.hackclub.com/api/v3/organizations/flavortown/transactions", { page: current_page, per_page: 50 })
             break unless response.success?
-
             data = JSON.parse(response.body)
             break if data.empty?
-
-            data.each do |txn|
-              amount = txn["amount_cents"].to_i
-              next unless amount < 0
-
-              tags = txn["tags"] || []
-              tag_names = tags.map { |tag| tag["label"] }
-
-              if tag_names.any?
-                tag_names.each do |tag_name|
-                  spending_by_tag[tag_name] ||= 0
-                  spending_by_tag[tag_name] += amount.abs
-                end
-              else
-                spending_by_tag["Untagged"] ||= 0
-                spending_by_tag["Untagged"] += amount.abs
-              end
-            end
-
+            transactions.concat(data)
             current_page += 1
           end
-
-          spending_by_tag.transform_values { |amount| amount / 100.0 }
+          transactions
         rescue StandardError => e
-          Rails.logger.error("[SuperMegaDashboard] Error fetching HCB spending by tag: #{e.class} - #{e.message}")
-          {}
+          Rails.logger.error("[SuperMegaDashboard] Error fetching HCB transactions: #{e.class} - #{e.message}")
+          []
         end
+      end
+
+      def fetch_hcb_spending_by_tag
+        transactions = fetch_hcb_transactions
+        spending_by_tag = {}
+        transactions.each do |txn|
+          amount = txn["amount_cents"].to_i
+          next unless amount < 0
+          tags = txn["tags"] || []
+          tag_names = tags.map { |tag| tag["label"] }
+          if tag_names.any?
+            tag_names.each do |tag_name|
+              spending_by_tag[tag_name] ||= 0
+              spending_by_tag[tag_name] += amount.abs
+            end
+          else
+            spending_by_tag["Untagged"] ||= 0
+            spending_by_tag["Untagged"] += amount.abs
+          end
+        end
+        spending_by_tag.transform_values { |amount| amount / 100.0 }
       end
 
       def load_flavortime_summary
@@ -352,39 +532,8 @@ module Admin
           return
         end
 
-        pending_referrals = payload.dig("referrals", "pending").to_i
-        id_verified_referrals = payload.dig("referrals", "id_verified").to_i
-        completed_referrals = payload.dig("referrals", "completed").to_i
-        total_referrals = payload.dig("referrals", "total")
-        total_referrals = pending_referrals + id_verified_referrals + completed_referrals if total_referrals.blank?
-
         @pyramid_scheme_stats = {
-          total_hours_logged: payload.dig("activity", "total_hours_logged") || 0,
-          total_referrals: total_referrals.to_i,
-          completed_referrals: completed_referrals,
-          verified_hours_last_week: payload.dig("activity", "verified_hours_last_week") || 0,
-          verified_hours_previous_week: payload.dig("activity", "verified_hours_previous_week") || 0,
-          referrals_gained_last_week: payload.dig("activity", "referrals_gained_last_week") || 0,
-          referrals_gained_previous_week: payload.dig("activity", "referrals_gained_previous_week") || 0,
-          partial_data: payload["partial_data"] == true,
-          data_source: payload["data_source"],
-          activity_timeline: payload.dig("activity", "timeline") || [],
-          referral_chart: {
-            labels: [ "Pending", "ID Verified", "Completed" ],
-            values: [
-              pending_referrals,
-              id_verified_referrals,
-              completed_referrals
-            ]
-          },
-          poster_chart: {
-            labels: [ "Completed Physical", "Digital", "Rejected" ],
-            values: [
-              payload.dig("posters", "completed_physical") || 0,
-              payload.dig("posters", "completed_digital") || 0,
-              payload.dig("posters", "rejected_physical") || 0
-            ]
-          }
+          activity_timeline: payload.dig("activity", "timeline") || []
         }
       rescue StandardError => e
         Rails.logger.warn("[SuperMegaDashboard] Pyramid section unavailable (#{e.class}): #{e.message}")
@@ -406,38 +555,18 @@ module Admin
       end
 
       def build_transaction_data
+        transactions = fetch_hcb_transactions
         total_expenses = 0
-        contractor_expenses = 0
-        current_page = 1
-
-        loop do
-          response = Faraday.get("https://hcb.hackclub.com/api/v3/organizations/flavortown/transactions", { page: current_page })
-          break unless response.success?
-
-          data = JSON.parse(response.body)
-          break if data.empty?
-
-          data.each do |txn|
-            amount = txn["amount_cents"].to_i
-            next unless amount < 0
-
-            has_contributor_tag = txn["tags"]&.any? do |tag|
-              tag["label"] == "Contributor"
-            end
-
-            if has_contributor_tag
-              contractor_expenses += amount.abs
-            else
-              total_expenses += amount.abs
-            end
+        transactions.each do |txn|
+          amount = txn["amount_cents"].to_i
+          next unless amount < 0
+          has_contributor_tag = txn["tags"]&.any? { |tag| tag["label"] == "Contributor" }
+          unless has_contributor_tag
+            total_expenses += amount.abs
           end
-
-          current_page += 1
         end
-
         {
-          total_expenses: total_expenses / 100,
-          contractor_expenses: contractor_expenses / 100
+          total_expenses: total_expenses / 100
         }
       end
 
