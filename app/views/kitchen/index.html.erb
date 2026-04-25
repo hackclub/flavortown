@@ -7,6 +7,10 @@
     <%= render HeadingComponent.new(title: "Kitchen", tone: :blue, size: :full) %>
   </div>
 
+  <div class="kitchen-countdown" data-controller="countdown" data-countdown-date-value="2026-04-30T00:00:00-05:00">
+    <h1>Time remaining: <span data-countdown-target="display">Calculating...</span></h1>
+  </div>
+
   <% if @show_and_tell_live %>
     <div class="show-and-tell-banner">
       <span class="show-and-tell-banner__live-dot"></span>
