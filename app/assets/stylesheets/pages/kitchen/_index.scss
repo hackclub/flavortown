@@ -141,9 +141,15 @@
   padding: 0.5em;
   border: 0.2em solid var(--color-brown-500);
   border-radius: 0.5em;
+  text-align: center;
 
   span {
     font-weight: normal;
+  }
+
+  span#countdown-info {
+    font-size: 1.5rem;
+    cursor: pointer;
   }
 }
 

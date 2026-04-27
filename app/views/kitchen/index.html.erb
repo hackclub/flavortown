@@ -7,8 +7,8 @@
     <%= render HeadingComponent.new(title: "Kitchen", tone: :blue, size: :full) %>
   </div>
 
-  <div class="kitchen-countdown" data-controller="countdown" data-countdown-date-value="2026-04-30T00:00:00-05:00">
-    <h1>Time remaining: <span data-countdown-target="display">Calculating...</span></h1>
+  <div class="kitchen-countdown" data-controller="countdown" data-countdown-date-value="2026-05-01T00:00:00-05:00">
+    <h1>Time remaining <span id="countdown-info">ⓘ</span>: <span data-countdown-target="display">Calculating...</span></h1>
   </div>
 
   <% if @show_and_tell_live %>
@@ -407,3 +407,7 @@
     <%= render KitchenHelpCardsComponent %>
   </div>
 </div>
+
+<%= render TooltipComponent.new(target_id: "countdown-info", position: :top) do %>
+  This is for the last day to ship projects — voting and payouts will continue, and the shop will also remain open for 1 week after the last payouts are given!
+<% end %>
