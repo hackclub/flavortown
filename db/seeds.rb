@@ -83,6 +83,12 @@ Sidequest.find_or_create_by!(slug: "physics_lab") do |sq|
   sq.title = "Physics Lab"
   sq.description = "Build an interactive physics project and ship it on Flavortown to unlock physics prizes in the shop."
 end
+
+Sidequest.find_or_create_by!(slug: "haunted") do |sq|
+  sq.title = "Haunted"
+  sq.description = "Build horror or mysterious projects and ship them on Flavortown to get a custom sticker and unlock a mystery box in the shop and start gambling your luck!"
+end
+
 Sidequest.find_or_create_by!(slug: "codextensions") do |sq|
   sq.title = "Codextensions"
   sq.description = "Build a VS Code extension and ship it on Flavortown to unlock exclusive prizes in the shop."
@@ -161,4 +167,9 @@ user.make_admin!
 if Rails.env.development? && ENV.fetch("USE_BIG_SEED", false)
   puts "Loading comprehensive development seed..."
   load Rails.root.join('db', 'seeds', 'dev_full_seed.rb')
+end
+
+Sidequest.find_or_create_by!(slug: "chesster") do |sq|
+  sq.title = "Chesster"
+  sq.description = "Build and ship a chess related project to unlock the Chesster prizes in the shop."
 end
