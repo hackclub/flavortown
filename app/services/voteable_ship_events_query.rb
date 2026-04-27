@@ -48,7 +48,7 @@ class VoteableShipEventsQuery
       scope = scope.where.not("? = ANY(projects.project_categories)", category)
     end
 
-    scope.distinct
+    scope
   end
 
   def unpaid_ship_events
