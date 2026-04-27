@@ -1,0 +1,23 @@
+header "Do your duty! :index_pointing_at_the_viewer:"
+
+section "You currently have a vote deficit of *#{pluralize(votes_needed, 'vote')}*.", markdown: true
+
+if held_ship_count.to_i.positive?
+  if held_ship_count == 1
+    section "Your approved unpaid ship has been removed from normal matchups until you clear this deficit.", markdown: true
+  else
+    section "Your *#{held_ship_count}* approved unpaid ships have been removed from normal matchups until you clear this deficit.", markdown: true
+  end
+elsif unpaid_ship_count == 1
+  section "You have an approved unpaid ship waiting on voting and payout. Once it starts receiving votes, it can be removed from normal matchups while your vote balance is negative.", markdown: true
+else
+  section "You have *#{unpaid_ship_count}* approved unpaid ships waiting on voting and payout. Once they start receiving votes, they can be removed from normal matchups while your vote balance is negative.", markdown: true
+end
+
+section "Vote on other projects to bring your vote balance back to zero or above. Once your deficit is cleared, your ships are added back to the matcher automatically.", markdown: true
+
+divider
+
+context [
+  mrkdwn_text("Start voting: <https://flavortown.hackclub.com/votes/new|Vote on projects>")
+]
