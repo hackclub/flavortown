@@ -179,6 +179,11 @@ Rails.application.routes.draw do
 
       get "docs", to: "docs#index", as: :docs
       resources :devlogs, only: [ :index, :show ]
+      # Votes API endpoints
+      get "votes/stats", to: "votes#stats"
+      get "votes/results", to: "votes#results"
+      get "votes/records", to: "votes#records"
+      get "votes/global", to: "votes#global"
       resources :store, only: [ :index, :show ] do
         collection do
           get :search

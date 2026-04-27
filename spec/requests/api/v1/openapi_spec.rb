@@ -184,6 +184,175 @@ RSpec.describe 'API V1 OpenAPI', openapi_spec: 'openapi.yml', type: :request do
     end
   end
 
+  path '/votes/' do
+    get 'Votes endpoints (stats/results/records/global)' do
+      tags 'Votes'
+      description 'Voting related read endpoints: stats, results, records and global recent votes.'
+      operationId 'votesRoot'
+      produces 'application/json'
+
+      response '200', 'OK' do
+        schema type: :object
+        run_test!
+      end
+
+      documented_ref_response '401', 'Missing or invalid API key', '#/components/responses/Unauthorized'
+    end
+
+    path '/votes/stats' do
+      get 'Get aggregated voting stats' do
+        tags 'Votes'
+        description 'Return total votes and a list of recent legitimate votes.'
+        operationId 'getVoteStats'
+        produces 'application/json'
+
+        parameter name: :limit,
+                  in: :query,
+                  required: false,
+                  schema: { type: :integer },
+                  description: 'Number of recent votes to return '
+
+        response '200', 'A stats object' do
+          schema type: :object,
+                 properties: {
+                   total_votes: { type: :integer },
+                   recent_votes: {
+                     type: :array,
+                     items: {
+                       type: :object,
+                       properties: {
+                         project_id: { type: :integer },
+                         project_title: { type: :string, nullable: true },
+                         vote_timestamp: { type: :string },
+                         time_spent: { type: :integer },
+                         ship_date: { type: :string, nullable: true },
+                         days_ago: { type: :integer, nullable: true }
+                       }
+                     }
+                   }
+                 }
+          run_test!
+        end
+
+        documented_ref_response '401', 'Missing or invalid API key', '#/components/responses/Unauthorized'
+      end
+    end
+
+    path '/votes/results' do
+      get 'Get aggregated final results for a project' do
+        tags 'Votes'
+        description 'Returns majority judgment and vote counts for the given project ship event.'
+        operationId 'getVoteResults'
+        produces 'application/json'
+
+        parameter name: :project_id,
+                  in: :query,
+                  required: true,
+                  schema: { type: :integer },
+                  description: 'Project id to fetch results for'
+
+        response '200', 'Results object' do
+          schema type: :object,
+                 properties: {
+                   ship_event_id: { type: :integer },
+                   project_id: { type: :integer },
+                   project_title: { type: :string },
+                   votes_count: { type: :integer },
+                   majority_judgment: { type: :object }
+                 }
+          run_test!
+        end
+
+        documented_ref_response '400', 'project_id required', '#/components/responses/BadRequest'
+        documented_ref_response '401', 'Missing or invalid API key', '#/components/responses/Unauthorized'
+        documented_ref_response '404', 'Resource not found', '#/components/responses/NotFound'
+      end
+    end
+
+    path '/votes/records' do
+      get 'List vote records for a project' do
+        tags 'Votes'
+        description 'Return vote records for a given project across ship events.'
+        operationId 'getVoteRecords'
+        produces 'application/json'
+
+        parameter name: :project_id,
+                  in: :query,
+                  required: true,
+                  schema: { type: :integer }
+
+        parameter name: :limit,
+                  in: :query,
+                  required: false,
+                  schema: { type: :integer },
+                  description: 'Number of records to return (default 100)'
+
+        response '200', 'A list of vote records' do
+          schema type: :object,
+                 properties: {
+                   votes: {
+                     type: :array,
+                     items: {
+                       type: :object,
+                       properties: {
+                         id: { type: :integer },
+                         user: { type: :object, nullable: true },
+                         project_id: { type: :integer },
+                         ship_event_id: { type: :integer, nullable: true },
+                         originality_score: { type: :integer, nullable: true },
+                         technical_score: { type: :integer, nullable: true },
+                         usability_score: { type: :integer, nullable: true },
+                         storytelling_score: { type: :integer, nullable: true },
+                         reason: { type: :string, nullable: true },
+                         time_taken_to_vote: { type: :integer, nullable: true },
+                         suspicious: { type: :boolean },
+                         created_at: { type: :string }
+                       }
+                     }
+                   }
+                 }
+          run_test!
+        end
+
+        documented_ref_response '400', 'project_id required', '#/components/responses/BadRequest'
+        documented_ref_response '401', 'Missing or invalid API key', '#/components/responses/Unauthorized'
+      end
+    end
+
+    path '/votes/global' do
+      get 'Get recent global votes' do
+        tags 'Votes'
+        description 'Return latest global legitimate votes (optionally filtered by project ids).'
+        operationId 'getGlobalVotes'
+        produces 'application/json'
+
+        parameter name: :limit,
+                  in: :query,
+                  required: false,
+                  schema: { type: :integer }
+
+        parameter name: :project_ids,
+                  in: :query,
+                  required: false,
+                  schema: { type: :string },
+                  description: 'Comma separated project ids to filter by'
+
+        response '200', 'A list of recent votes' do
+          schema type: :object,
+                 properties: {
+                   votes: {
+                     type: :array,
+                     items: { type: :object }
+                   }
+                 }
+          run_test!
+        end
+
+        documented_ref_response '401', 'Missing or invalid API key', '#/components/responses/Unauthorized'
+      end
+    end
+  end
+
   path '/devlogs' do
     get 'List devlogs' do
       tags 'Devlogs'
