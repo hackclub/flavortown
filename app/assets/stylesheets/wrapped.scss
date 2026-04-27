@@ -1,20 +1,34 @@
-// Full-screen wrapped experience — Spotify-Wrapped-style slide carousel
+// Full-screen wrapped experience
 
 $slide-themes: (
-  intro:   (from: hsl(214, 39%, 25%), to: hsl(218, 44%, 15%)),
-  cookies: (from: hsl(31, 63%, 46%), to: hsl(21, 52%, 30%)),
-  ships:   (from: hsl(105, 44%, 30%), to: hsl(90, 43%, 20%)),
-  votes:   (from: hsl(178, 46%, 35%), to: hsl(204, 44%, 22%)),
-  devlogs: (from: hsl(356, 47%, 45%), to: hsl(348, 28%, 20%)),
-  coding:  (from: hsl(218, 44%, 20%), to: hsl(204, 44%, 12%)),
-  rank:    (from: hsl(36, 70%, 45%), to: hsl(21, 52%, 28%)),
-  complete:(from: hsl(105, 44%, 30%), to: hsl(214, 39%, 20%)),
+  intro:    (from: hsl(218, 44%, 26%), to: hsl(348, 28%, 24%)),
+  cookies:  (from: hsl(31, 63%, 46%), to: hsl(8, 30%, 36%)),
+  ships:    (from: hsl(105, 44%, 35%), to: hsl(90, 43%, 46%)),
+  votes:    (from: hsl(204, 44%, 52%), to: hsl(218, 44%, 26%)),
+  devlogs:  (from: hsl(356, 49%, 43%), to: hsl(348, 28%, 24%)),
+  coding:   (from: hsl(214, 39%, 39%), to: hsl(218, 44%, 26%)),
+  rank:     (from: hsl(36, 70%, 56%), to: hsl(21, 52%, 35%)),
+  complete: (from: hsl(105, 44%, 35%), to: hsl(214, 39%, 39%)),
 );
 
+.wrapped-page {
+  max-width: 680px;
+  margin: var(--space-xl) auto;
+  padding: 0 var(--space-m);
+}
+
+.wrapped-page__title {
+  font-family: var(--font-family-jua);
+  font-size: var(--font-size-xxxl);
+  color: var(--color-text-header);
+  margin-bottom: var(--space-l);
+}
+
 .wrapped-container {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
+  position: relative;
+  min-height: 500px;
+  margin: 0 auto;
+  border-radius: var(--border-radius);
   background: #111;
   display: flex;
   flex-direction: column;
@@ -22,6 +36,7 @@ $slide-themes: (
   user-select: none;
   overflow: hidden;
   font-family: "Jua", sans-serif;
+  box-shadow: var(--shadow);
 }
 
 // Progress bar

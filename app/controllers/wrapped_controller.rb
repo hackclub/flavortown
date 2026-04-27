@@ -3,8 +3,6 @@ class WrappedController < ApplicationController
   before_action :check_wrapped_flag
 
   def show
-    @hide_sidebar = true
-    @hide_footer = true
     @wrapped = WrappedPresenter.new(current_user)
   end
 

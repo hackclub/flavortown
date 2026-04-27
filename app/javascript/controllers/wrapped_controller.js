@@ -24,6 +24,9 @@ export default class extends Controller {
   }
 
   click(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
     const rect = this.element.getBoundingClientRect();
     const x = event.clientX - rect.left;
     if (x < rect.width / 4) {
