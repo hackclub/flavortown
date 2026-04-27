@@ -28,6 +28,14 @@ class VoteDeficitHold
         .distinct
     end
 
+    def held_notification_recipients
+      User
+        .where(id: ship_events.select("users.id"))
+        .where.not(slack_id: nil)
+        .where.not(slack_id: "")
+        .distinct
+    end
+
     private
 
     def countable_ship_event_ids(min_votes)
