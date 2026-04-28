@@ -1,4 +1,8 @@
-<%= stylesheet_link_tag "sidequests/minequest/ui", "data-turbo-track": "reload" %>
+<% unless content_for?(:stylesheets) %>
+  <% content_for :stylesheets do %>
+    <%= stylesheet_link_tag "sidequests/minequest/ui", "data-turbo-track": "reload" %>
+  <% end %>
+<% end %>
 
 <%= link_to minequest_sidequest_path, class: "sidequest-card sidequest-card--link sidequest-card--minequest" do %>
   <div class="sidequest-card__content">
