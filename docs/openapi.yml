@@ -240,6 +240,42 @@ components:
           "$ref": "#/components/schemas/RegionEnabled"
         ticket_cost:
           "$ref": "#/components/schemas/TicketCost"
+    ReadmeLink:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        readme_url:
+          type: string
+    DemoLink:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        demo_url:
+          type: string
+    RepoLink:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        repo_url:
+          type: string
+    ProjectLink:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        link:
+          type: string
     Error:
       type: object
       properties:
@@ -308,6 +344,15 @@ components:
           example:
             error: rate_limited
             message: Too many requests. Please slow down.
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: Number of links to return (min 1)
+      required: false
+      schema:
+        type: integer
+        minimum: 1
 paths:
   "/projects":
     get:
@@ -766,3 +811,128 @@ paths:
           "$ref": "#/components/responses/NotFound"
         '429':
           "$ref": "#/components/responses/TooManyRequests"
+  "/links":
+    get:
+      summary: List grouped links
+      tags:
+      - Links
+      description: 'Fetch link collections (readme, demo, repo, project).'
+      operationId: listLinks
+      responses:
+        '200':
+          description: A grouped object of link arrays
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  readme_links:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/ReadmeLink"
+                  demo_links:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/DemoLink"
+                  repo_links:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/RepoLink"
+                  project_links:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/ProjectLink"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+  "/links/demos":
+    get:
+      summary: List demo links
+      tags:
+      - Links
+      description: 'Fetch demo URLs for projects.'
+      operationId: listDemoLinks
+      parameters:
+      - "$ref": "#/components/parameters/limit"
+      responses:
+        '200':
+          description: Demo links
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  demo_links:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/DemoLink"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+  "/links/repo":
+    get:
+      summary: List repository links
+      tags:
+      - Links
+      description: 'Fetch repo URLs for projects. Optional `limit` query param limits results.'
+      operationId: listRepoLinks
+      parameters:
+      - "$ref": "#/components/parameters/limit"
+      responses:
+        '200':
+          description: Repo links
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  repo_links:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/RepoLink"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+  "/links/readme":
+    get:
+      summary: List readme links
+      tags:
+      - Links
+      description: 'Fetch readme URLs for projects. Optional `limit` query param limits results.'
+      operationId: listReadmeLinks
+      parameters:
+      - "$ref": "#/components/parameters/limit"
+      responses:
+        '200':
+          description: Readme links
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  readme_links:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/ReadmeLink"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+  "/links/projects":
+    get:
+      summary: List internal project links
+      tags:
+      - Links
+      description: 'Fetch internal project paths for all projects. Optional `limit` query param limits results.'
+      operationId: listProjectLinks
+      parameters:
+      - "$ref": "#/components/parameters/limit"
+      responses:
+        '200':
+          description: Project links
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project_links:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/ProjectLink"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
