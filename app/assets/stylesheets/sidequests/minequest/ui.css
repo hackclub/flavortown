@@ -47,7 +47,7 @@
   image-rendering: auto;
 }
 
-/* Scale down only the animated GIF, not the static PNG */
+/* Scale down only the ezgif-generated title asset, not the static-title asset */
 .minecraft-title-image[src*="ezgif"] {
   max-width: 43%;
 }
