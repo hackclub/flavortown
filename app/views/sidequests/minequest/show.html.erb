@@ -1,4 +1,6 @@
-<%= stylesheet_link_tag "sidequests/minequest/ui", "data-turbo-track": "reload" %>
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "sidequests/minequest/ui", "data-turbo-track": "reload" %>
+<% end %>
 
 <div class="minecraft-home-screen" data-controller="sidequests--minequest--accessibility" data-sidequests--minequest--accessibility-gif-value="https://cdn.hackclub.com/019dac8b-f908-7ef1-ace6-01ff01204336/ezgif-25c447519ddbfd94.avif" data-sidequests--minequest--accessibility-png-value="<%= asset_path('sidequests/minequest/static-title.png') %>" style="background-image: url('https://cdn.hackclub.com/019dac22-419b-7229-ab3b-e0b80965614a/bg.avif'); background-size: cover; background-position: center;">
   <div class="minecraft-title-container">
