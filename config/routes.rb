@@ -134,6 +134,9 @@ Rails.application.routes.draw do
   # OAuth callback for HCA
   get "/oauth/callback", to: "sessions#create"
 
+  # Wrapped (gated by Flipper :wrapped per user)
+  get "wrapped", to: "wrapped#show"
+
   # Kitchen
   get "kitchen", to: "kitchen#index"
 

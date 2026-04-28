@@ -1,0 +1,238 @@
+// Full-screen wrapped experience
+
+$slide-themes: (
+  intro:    (from: hsl(218, 44%, 26%), to: hsl(348, 28%, 24%)),
+  cookies:  (from: hsl(31, 63%, 46%), to: hsl(8, 30%, 36%)),
+  ships:    (from: hsl(105, 44%, 35%), to: hsl(90, 43%, 46%)),
+  votes:    (from: hsl(204, 44%, 52%), to: hsl(218, 44%, 26%)),
+  devlogs:  (from: hsl(356, 49%, 43%), to: hsl(348, 28%, 24%)),
+  coding:   (from: hsl(214, 39%, 39%), to: hsl(218, 44%, 26%)),
+  rank:     (from: hsl(36, 70%, 56%), to: hsl(21, 52%, 35%)),
+  complete: (from: hsl(105, 44%, 35%), to: hsl(214, 39%, 39%)),
+);
+
+.wrapped-page {
+  max-width: 680px;
+  margin: var(--space-xl) auto;
+  padding: 0 var(--space-m);
+}
+
+.wrapped-page__title {
+  font-family: var(--font-family-jua);
+  font-size: var(--font-size-xxxl);
+  color: var(--color-text-header);
+  margin-bottom: var(--space-l);
+}
+
+.wrapped-container {
+  position: relative;
+  min-height: 500px;
+  margin: 0 auto;
+  border-radius: var(--border-radius);
+  background: #111;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  font-family: "Jua", sans-serif;
+  box-shadow: var(--shadow);
+}
+
+// Progress bar
+.wrapped-progress {
+  display: flex;
+  gap: 4px;
+  padding: 12px 12px 0;
+  z-index: 10;
+  position: relative;
+}
+
+.wrapped-progress-segment {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    display: block;
+    height: 100%;
+    background: white;
+    width: 0;
+    border-radius: 2px;
+  }
+
+  &.filled::after {
+    width: 100%;
+  }
+
+  &.current::after {
+    animation: segment-fill var(--segment-duration, 8000ms) linear forwards;
+  }
+}
+
+@keyframes segment-fill {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+// Individual slides
+.wrapped-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+
+  &.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+// Per-slide gradient backgrounds
+@each $name, $colors in $slide-themes {
+  .wrapped-slide--#{$name} {
+    background: linear-gradient(
+      160deg,
+      map-get($colors, from) 0%,
+      map-get($colors, to) 100%
+    );
+  }
+}
+
+// Slide content layout
+.wrapped-slide__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 2.5rem;
+  max-width: 520px;
+  gap: 0.5rem;
+  color: #fff;
+  animation: slide-in 0.4s ease both;
+  margin-top: 3rem; // account for progress bar
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wrapped-slide__eyebrow {
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.wrapped-slide__emoji {
+  font-size: 4rem;
+  line-height: 1;
+  margin: 0.5rem 0;
+}
+
+.wrapped-slide__stat {
+  font-size: clamp(3.5rem, 16vw, 7rem);
+  font-weight: 900;
+  line-height: 1;
+  margin: 0;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.wrapped-slide__headline {
+  font-size: clamp(1.4rem, 6vw, 2.2rem);
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.wrapped-slide__body {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0.5rem 0 0;
+  line-height: 1.5;
+}
+
+// Intro avatar
+.wrapped-avatar {
+  margin: 1rem 0;
+
+  &__img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    object-fit: cover;
+  }
+}
+
+// Complete slide actions
+.wrapped-complete-actions {
+  margin-top: 1.5rem;
+}
+
+.wrapped-btn {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 2rem;
+  padding: 0.65rem 1.5rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.8);
+    color: #fff;
+  }
+
+  &::after {
+    content: unset;
+  }
+}
+
+// Tap hint at bottom
+.wrapped-hint {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 10;
+  animation: hint-fade 3s ease 2s both;
+}
+
+@keyframes hint-fade {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+// Re-trigger content animation on each new active slide
+.wrapped-slide.active .wrapped-slide__content {
+  animation: slide-in 0.4s ease both;
+}
