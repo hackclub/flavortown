@@ -58,7 +58,6 @@ class SidequestsController < ApplicationController
       if params[:view] != "submissions"
         render "sidequests/minequest/show" and return
       end
-      @display_title = "Minequest"
     end
 
     if @sidequest.slug == "transcode"
