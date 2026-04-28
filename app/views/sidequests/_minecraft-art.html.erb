@@ -1,0 +1,19 @@
+<% unless content_for?(:stylesheets) %>
+  <% content_for :stylesheets do %>
+    <%= stylesheet_link_tag "sidequests/minequest/ui", "data-turbo-track": "reload" %>
+  <% end %>
+<% end %>
+
+<div class="minecraft-ui-container">
+  <%= image_tag "https://cdn.hackclub.com/019dac8f-d52a-7524-ab22-f001a4637895/art%20(2).avif", class: "minecraft-image" %>
+  <p><%= sidequest.description %></p>
+
+  <%= link_to "View Sidequest", minequest_sidequest_path, class: "minecraft-button" %>
+  <p class="minecraft-submissions-total">
+    <% if sidequest.approved_count.zero? %>
+      Be the first one to submit
+    <% else %>
+      Total projects submitted: <%= sidequest.approved_count %>
+    <% end %>
+  </p>
+</div>

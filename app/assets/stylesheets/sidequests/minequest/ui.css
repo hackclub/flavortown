@@ -1,0 +1,641 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+.minecraft-home-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background-color: #2e2e2e;
+  font-family: "Press Start 2P", cursive;
+  color: white;
+  text-align: center;
+  padding: clamp(0.9rem, 2vw, 2rem);
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.minecraft-title {
+  font-size: 4rem;
+  color: #ffffff;
+  text-shadow: 4px 4px 0px #3e3e3e;
+  margin-bottom: 2rem;
+}
+
+.minecraft-title-container {
+  width: min(88vw, 860px);
+  height: clamp(320px, 42vh, 560px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-top: -2rem;
+  margin-bottom: 2rem;
+}
+
+.minecraft-title-image {
+  height: 100%;
+  width: auto;
+  max-width: min(88vw, 860px);
+  max-height: 100%;
+  display: block;
+  image-rendering: auto;
+}
+
+/* Scale down only the ezgif-generated title asset, not the static-title asset */
+.minecraft-title-image[src*="ezgif"] {
+  max-width: 43%;
+}
+
+.minecraft-title-image[src*="static-title"] {
+  max-width: 100%;
+}
+
+.minecraft-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: clamp(320px, 42vw, 500px);
+  margin-bottom: 2rem;
+}
+
+.minecraft-menu-button {
+  display: block;
+  background-color: #707070;
+  color: #e0e0e0;
+  text-decoration: none;
+  padding: clamp(0.72rem, 1.25vw, 1rem) clamp(0.8rem, 1.6vw, 1.2rem);
+  min-height: clamp(44px, 5.8vh, 60px);
+  font-size: clamp(0.82rem, 1.15vw, 1.05rem);
+  line-height: 1.2;
+  box-sizing: border-box;
+  border: 2px solid;
+  border-color: #c6c6c6 #5a5a5a #5a5a5a #c6c6c6;
+  box-shadow: inset -2px -2px 0px #00000080;
+  image-rendering: pixelated;
+  cursor: pointer;
+}
+
+.minecraft-menu-button:hover {
+  background-color: #7f7f7f;
+  color: #ffffffa0;
+}
+
+.minecraft-footer-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(0.45rem, 0.9vw, 0.8rem);
+  width: 100%;
+  max-width: clamp(320px, 42vw, 500px);
+  position: relative;
+}
+
+.minecraft-menu-button.small {
+  flex: 1 1 0;
+  width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(44px, 5.8vh, 60px);
+  min-height: clamp(44px, 5.8vh, 60px);
+  padding: 0 0.75rem;
+  white-space: nowrap;
+}
+
+.minecraft-menu-button.icon {
+  width: clamp(44px, 5.8vh, 60px);
+  height: clamp(44px, 5.8vh, 60px);
+  min-width: clamp(44px, 5.8vh, 60px);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  text-transform: uppercase;
+  position: absolute;
+  left: clamp(-4rem, -4.8vw, -2.8rem);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.minecraft-menu-button.animation-toggle-button {
+  position: absolute;
+  left: auto;
+  right: clamp(-4rem, -4.8vw, -2.8rem);
+  width: clamp(44px, 5.8vh, 60px);
+  min-width: clamp(44px, 5.8vh, 60px);
+}
+
+.minecraft-icon-image {
+  width: clamp(22px, 2.8vh, 32px);
+  height: clamp(22px, 2.8vh, 32px);
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 980px) {
+  .minecraft-title-container {
+    width: min(92vw, 700px);
+    height: clamp(270px, 37vh, 430px);
+    margin-top: -1rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .minecraft-title-image {
+    max-width: min(92vw, 700px);
+  }
+
+  .minecraft-menu,
+  .minecraft-footer-buttons {
+    max-width: min(460px, 92vw);
+  }
+}
+
+@media (max-width: 640px) {
+  .minecraft-menu-button.icon,
+  .minecraft-menu-button.animation-toggle-button {
+    position: static;
+    transform: none;
+    left: auto;
+    right: auto;
+  }
+
+  .minecraft-footer-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .minecraft-menu-button.small {
+    flex: 1 1 140px;
+    width: auto;
+  }
+}
+
+/* Styles for the index card component */
+.minecraft-ui-container {
+  font-family: "Press Start 2P", cursive;
+  background-color: #373737;
+  color: #ffffff;
+  padding: 2rem;
+  border: 4px solid #1e1e1e;
+  box-shadow: inset 0 0 0 4px #5a5a5a;
+}
+
+.minecraft-ui-container p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.minecraft-button {
+  font-family: "Press Start 2P", cursive;
+  background-color: #787878;
+  color: #ffffff;
+  border: 2px solid #1e1e1e;
+  box-shadow:
+    inset -2px -4px #0006,
+    inset 2px 2px #fff7;
+  padding: 1rem 1.5rem;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 1rem;
+}
+
+.minecraft-button:hover {
+  background-color: #8a8a8a;
+}
+
+.minecraft-image {
+  width: calc(100% + 4rem);
+  max-width: none;
+  height: 260px;
+  object-fit: contain;
+  object-position: center top;
+  image-rendering: pixelated;
+  margin: -2rem -2rem 1rem -2rem;
+  display: block;
+}
+
+.minecraft-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  pointer-events: none;
+}
+
+.minecraft-footer-left,
+.minecraft-footer-right {
+  position: absolute;
+  bottom: 6px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 10px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.minecraft-footer-left {
+  left: 10px;
+}
+.minecraft-footer-right {
+  right: 10px;
+}
+
+/* Book Modal */
+.minecraft-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.minecraft-modal.hidden {
+  display: none !important;
+}
+
+.minecraft-book {
+  background-color: #d1b88b;
+  border: 4px solid #4a3a2d;
+  width: 320px;
+  height: 400px;
+  position: relative;
+  box-shadow:
+    inset 2px 2px 0px #ead7b0,
+    inset -2px -2px 0px #ac8f5b;
+  padding: 20px;
+  color: #000;
+  font-family: monospace; /* Books often use simpler fonts or minecraftia */
+}
+
+h3.minecraft-book-title {
+  text-align: center;
+  font-family: "Press Start 2P", cursive;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.minecraft-book-content p {
+  font-family: "Press Start 2P", cursive;
+  font-size: 0.6rem;
+  line-height: 1.5;
+}
+
+.minecraft-book-btn {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #707070;
+  color: #e0e0e0;
+  border: 2px solid;
+  border-color: #c6c6c6 #5a5a5a #5a5a5a #c6c6c6;
+  box-shadow: inset -2px -2px 0px #00000080;
+  padding: 0.5rem 1rem;
+  font-family: "Press Start 2P", cursive;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.minecraft-book-btn:hover {
+  background-color: #7f7f7f;
+  color: #ffffffa0;
+}
+
+.minecraft-book-large {
+  width: min(1200px, calc(100vw - 4rem));
+  min-height: 560px;
+  height: auto;
+  padding: 24px 28px 82px;
+  box-shadow:
+    inset 3px 3px 0 #ead7b0,
+    inset -3px -3px 0 #ac8f5b;
+}
+
+.minecraft-book-content-large {
+  max-height: none;
+  overflow-y: visible;
+  padding-right: 4px;
+}
+
+.minecraft-requirements-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.minecraft-requirements-subheading {
+  margin: 0;
+  color: #3f2b14;
+  font-family: "Press Start 2P", cursive;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.minecraft-requirements-point {
+  margin: 0;
+  padding-left: 1.25rem;
+  position: relative;
+  font-family: "Press Start 2P", cursive;
+  font-size: 1.15rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.minecraft-requirements-point::before {
+  content: "•";
+  position: absolute;
+  left: 0.2rem;
+  top: 0;
+}
+
+.minecraft-requirements-point-empty::before {
+  content: "";
+}
+
+.minecraft-requirements-help-text {
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  margin: 0;
+  color: #5e4321;
+  font-family: "Press Start 2P", cursive;
+  font-size: 0.62rem;
+  letter-spacing: 0.02em;
+}
+
+.minecraft-requirements-help-text a {
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.minecraft-book-summary {
+  font-size: 0.72rem;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.minecraft-prizes-heading-text {
+  margin: -1rem 0 0.95rem;
+  text-align: center;
+  color: #5e4321;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+
+.minecraft-steve-inline {
+  margin-top: 0.35rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.minecraft-steve-inline-image {
+  width: clamp(112px, 15vw, 168px);
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.minecraft-book-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.minecraft-book-list li {
+  display: block;
+  font-size: 0.68rem;
+}
+
+.minecraft-prize-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.85rem;
+}
+
+.minecraft-prize-card {
+  text-decoration: none;
+  color: inherit;
+  text-align: center;
+  background: #c8ad7e;
+  border: 3px solid;
+  border-color: #ead7b0 #7c5e34 #7c5e34 #ead7b0;
+  box-shadow:
+    inset -2px -2px 0 #00000035,
+    inset 1px 1px 0 #f5e6c8;
+  padding: 0.55rem;
+  display: grid;
+  justify-items: stretch;
+  gap: 0.5rem;
+}
+
+.minecraft-prize-card:hover {
+  background: #d4ba8a;
+}
+
+.minecraft-prize-card-placeholder {
+  background: #b9965f;
+  border-color: #e2c894 #6a4c27 #6a4c27 #e2c894;
+  box-shadow:
+    inset -2px -2px 0 #00000045,
+    inset 1px 1px 0 #f1dbb4;
+}
+
+.minecraft-prize-frame {
+  width: 100%;
+  border: 3px solid;
+  border-color: #7f7f7f #2f2f2f #2f2f2f #9a9a9a;
+  background: #525252;
+  box-shadow:
+    inset -2px -2px 0 #00000055,
+    inset 1px 1px 0 #bdbdbd;
+  padding: 0.5rem;
+}
+
+.minecraft-prize-frame-wood {
+  border-color: #d3b173 #7a5728 #7a5728 #e9cf97;
+  background: linear-gradient(135deg, #9a6f2f 0%, #7c5423 100%);
+  box-shadow:
+    inset -2px -2px 0 #00000050,
+    inset 1px 1px 0 #dcbf8d;
+}
+
+.minecraft-prize-image {
+  width: 100%;
+  aspect-ratio: 1 / 0.92;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #3c2a14;
+  background: #f1dfbf;
+  color: #6b4b22;
+  font-size: 0.5rem;
+}
+
+.minecraft-prize-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.minecraft-prize-image-empty {
+  letter-spacing: 0.03em;
+}
+
+.minecraft-prize-image-placeholder {
+  border-color: #5f3f1f;
+  background:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%) -6px
+      0/12px 12px,
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%) -6px
+      0/12px 12px,
+    linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.09) 75%) -6px 0/12px
+      12px,
+    linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.09) 75%) -6px
+      0/12px 12px,
+    #7a5a45;
+  color: #f4e6cc;
+  font-size: 0.48rem;
+  text-shadow: 1px 1px 0 #3f2a1b;
+}
+
+.minecraft-prize-meta {
+  display: grid;
+  width: 100%;
+  justify-items: center;
+  text-align: center;
+  gap: 0.22rem;
+}
+
+.minecraft-book-item-name {
+  color: #3b2411;
+  font-size: 0.6rem;
+  line-height: 1.35;
+}
+
+.minecraft-prize-card-placeholder .minecraft-book-item-name {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.minecraft-book-item-cost {
+  color: #6b4b22;
+  white-space: nowrap;
+  font-size: 0.52rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+}
+
+.minecraft-prize-card-placeholder .minecraft-book-item-cost {
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.minecraft-currency-icon {
+  width: 0.82rem;
+  height: 0.82rem;
+  object-fit: contain;
+  display: inline-block;
+  image-rendering: pixelated;
+}
+
+.minecraft-book-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.minecraft-book-link-btn {
+  position: static;
+  transform: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.minecraft-idea-tags {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.minecraft-idea-tag {
+  display: inline-block;
+  background: #c6b48e;
+  border: 2px solid #4a3a2d;
+  box-shadow: inset 1px 1px 0 #ead7b0;
+  color: #2d1b0b;
+  font-family: "Press Start 2P", cursive;
+  font-size: 0.58rem;
+  line-height: 1.4;
+  padding: 0.3rem 0.5rem;
+}
+
+.minecraft-submissions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.85rem;
+}
+
+.minecraft-submissions-item {
+  min-width: 0;
+}
+
+.minecraft-submissions-item .project-card,
+.minecraft-submissions-item .project-card-link {
+  font-family: inherit;
+}
+
+.minecraft-footer-buttons .minecraft-modal {
+  position: fixed;
+}
+
+.minecraft-ui-container--card {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 360px !important;
+  max-width: 360px !important;
+  padding: 1rem;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.minecraft-ui-container--card .minecraft-image {
+  width: 100%;
+  height: 120px;
+  margin: 0 0 0.8rem 0;
+}
+
+.minecraft-ui-container--card p {
+  margin: 0 0 0.8rem 0;
+}
+
+@media (max-width: 860px) {
+  .minecraft-requirements-columns {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+}
