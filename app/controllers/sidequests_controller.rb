@@ -1,5 +1,5 @@
 class SidequestsController < ApplicationController
-  before_action :require_login, only: [:generate_ideas]
+  before_action :require_login, only: [ :generate_ideas ]
 
   def index
     @active_sidequests = Sidequest.active.with_approved_count
