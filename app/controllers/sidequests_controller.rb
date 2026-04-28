@@ -1,4 +1,6 @@
 class SidequestsController < ApplicationController
+  before_action :require_login, only: [:generate_ideas]
+
   def index
     @active_sidequests = Sidequest.active.with_approved_count
     @expired_sidequests = ordered_sidequests(Sidequest.expired.with_approved_count)
@@ -75,6 +77,11 @@ class SidequestsController < ApplicationController
   end
 
   def generate_ideas
+    unless Flipper.enabled?(:sidequest_idea_generation, current_user)
+      render json: { error: "Feature not available" }, status: :forbidden
+      return
+    end
+
     unless ENV["OPENAI_API_KEY"].present?
       render json: { idea: "Could not generate ideas right now." }, status: :service_unavailable
       return
