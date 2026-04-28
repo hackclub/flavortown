@@ -88,9 +88,6 @@ application.register("load-more", LoadMoreController);
 import MarkdownPreviewController from "./markdown_preview_controller";
 application.register("markdown-preview", MarkdownPreviewController);
 
-import MinecraftTabsController from "./minecraft_tabs_controller";
-application.register("minecraft-tabs", MinecraftTabsController);
-
 import ModalController from "./modal_controller";
 application.register("modal", ModalController);
 
