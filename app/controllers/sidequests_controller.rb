@@ -77,7 +77,7 @@ class SidequestsController < ApplicationController
 
   def generate_ideas
     unless ENV["OPENAI_API_KEY"].present?
-      render json: { idea: "Missing OPENAI_API_KEY in .env file." }
+      render json: { idea: "Could not generate ideas right now." }, status: :service_unavailable
       return
     end
 
