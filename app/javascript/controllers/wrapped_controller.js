@@ -1,7 +1,8 @@
 import { Controller } from "@hotwired/stimulus";
+import * as d3 from "d3";
 
 export default class extends Controller {
-  static targets = ["slide", "segment"];
+  static targets = ["slide", "segment", "chart"];
   static values = {
     current: { type: Number, default: 0 },
     interval: { type: Number, default: 8000 },
@@ -72,6 +73,113 @@ export default class extends Controller {
     if (currentSeg) {
       currentSeg.style.setProperty("--segment-duration", `${this.intervalValue}ms`);
     }
+
+    const activeSlide = this.slideTargets[index];
+    if (activeSlide && activeSlide.classList.contains("wrapped-slide--chart")) {
+      this.renderChart();
+    }
+  }
+
+  renderChart() {
+    if (!this.hasChartTarget) return;
+    if (this.chartRendered) return;
+    this.chartRendered = true;
+
+    const metrics = [
+      { key: "cookies",  label: "cookies",  value: this.cookiesValue, color: "var(--color-yellow-500)" },
+      { key: "ships",    label: "ships",    value: this.shipsValue,   color: "var(--color-green-500)" },
+      { key: "votes",    label: "votes",    value: this.votesValue,   color: "var(--color-blue-400)" },
+      { key: "devlogs",  label: "devlogs",  value: this.devlogsValue, color: "var(--color-red-500)" },
+      { key: "hours",    label: "hours",    value: this.codingValue,  color: "var(--color-blue-500)" },
+      { key: "rank",     label: "rank",     value: this.rankValue >= 0 ? this.rankValue : 0, color: "var(--color-yellow-450)" },
+    ];
+
+    const size = 320;
+    const cx = size / 2;
+    const cy = size / 2;
+    const innerRadius = 28;
+    const outerRadius = size / 2 - 32;
+    const maxValue = Math.max(1, ...metrics.map((m) => m.value));
+
+    const radius = d3
+      .scaleRadial()
+      .domain([0, maxValue])
+      .range([innerRadius, outerRadius]);
+
+    const angle = d3
+      .scaleBand()
+      .domain(metrics.map((m) => m.key))
+      .range([0, Math.PI * 2])
+      .padding(0.08);
+
+    this.chartTarget.replaceChildren();
+
+    const svg = d3
+      .select(this.chartTarget)
+      .append("svg")
+      .attr("viewBox", `0 0 ${size} ${size}`);
+
+    const g = svg.append("g").attr("transform", `translate(${cx}, ${cy})`);
+
+    // Decorative dashed rings (slowly spinning)
+    const axis = g.append("g").attr("class", "wrapped-chart__axis");
+    [0.33, 0.66, 1].forEach((t) => {
+      axis
+        .append("circle")
+        .attr("class", "wrapped-chart__ring")
+        .attr("r", innerRadius + (outerRadius - innerRadius) * t);
+    });
+
+    const arc = d3
+      .arc()
+      .innerRadius(innerRadius)
+      .startAngle((d) => angle(d.key))
+      .endAngle((d) => angle(d.key) + angle.bandwidth())
+      .padAngle(0.02)
+      .padRadius(innerRadius);
+
+    const petals = g
+      .selectAll("path.wrapped-chart__petal")
+      .data(metrics)
+      .enter()
+      .append("path")
+      .attr("class", "wrapped-chart__petal")
+      .attr("style", (d) => `fill: ${d.color}`)
+      .attr("d", arc.outerRadius(innerRadius));
+
+    petals
+      .transition()
+      .delay((_, i) => i * 90)
+      .duration(900)
+      .ease(d3.easeBackOut.overshoot(1.4))
+      .attrTween("d", function (d) {
+        const interp = d3.interpolate(innerRadius, radius(d.value));
+        return (t) => arc.outerRadius(interp(t))(d);
+      });
+
+    // Labels around the outside
+    metrics.forEach((m) => {
+      const a = angle(m.key) + angle.bandwidth() / 2 - Math.PI / 2;
+      const lr = outerRadius + 16;
+      g.append("text")
+        .attr("class", "wrapped-chart__label")
+        .attr("x", Math.cos(a) * lr)
+        .attr("y", Math.sin(a) * lr)
+        .text(m.label);
+    });
+
+    // Center value badge
+    g.append("circle")
+      .attr("r", innerRadius - 4)
+      .attr("fill", "hsla(0, 0%, 0%, 0.35)");
+    g.append("text")
+      .attr("class", "wrapped-chart__value")
+      .attr("y", -2)
+      .text("you");
+    g.append("text")
+      .attr("class", "wrapped-chart__label")
+      .attr("y", 12)
+      .text("rule");
   }
 
   startTimer() {

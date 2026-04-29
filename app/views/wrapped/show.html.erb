@@ -21,7 +21,7 @@
        data-wrapped-username-value="<%= current_user.display_name %>">
 
     <div class="wrapped-progress">
-      <% 8.times do |i| %>
+      <% 9.times do |i| %>
         <div class="wrapped-progress-segment empty" data-wrapped-target="segment"></div>
       <% end %>
     </div>
@@ -32,6 +32,7 @@
     <%= render "wrapped/slides/votes", wrapped: @wrapped %>
     <%= render "wrapped/slides/devlogs", wrapped: @wrapped %>
     <%= render "wrapped/slides/coding", wrapped: @wrapped %>
+    <%= render "wrapped/slides/chart", wrapped: @wrapped %>
     <%= render "wrapped/slides/rank", wrapped: @wrapped %>
     <%= render "wrapped/slides/complete", user: current_user %>
 

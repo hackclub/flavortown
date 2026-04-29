@@ -1,67 +1,68 @@
-// Full-screen wrapped experience
+// Wrapped: full-screen, story-style season recap.
 
 $slide-themes: (
-  intro:    (from: hsl(218, 44%, 26%), to: hsl(348, 28%, 24%)),
-  cookies:  (from: hsl(31, 63%, 46%), to: hsl(8, 30%, 36%)),
-  ships:    (from: hsl(105, 44%, 35%), to: hsl(90, 43%, 46%)),
-  votes:    (from: hsl(204, 44%, 52%), to: hsl(218, 44%, 26%)),
-  devlogs:  (from: hsl(356, 49%, 43%), to: hsl(348, 28%, 24%)),
-  coding:   (from: hsl(214, 39%, 39%), to: hsl(218, 44%, 26%)),
-  rank:     (from: hsl(36, 70%, 56%), to: hsl(21, 52%, 35%)),
-  complete: (from: hsl(105, 44%, 35%), to: hsl(214, 39%, 39%)),
+  intro:    var(--color-blue-600),
+  cookies:  var(--color-yellow-500),
+  ships:    var(--color-green-500),
+  votes:    var(--color-blue-400),
+  devlogs:  var(--color-red-500),
+  coding:   var(--color-blue-500),
+  rank:     var(--color-yellow-450),
+  chart:    var(--color-brown-700),
+  complete: var(--color-green-400),
 );
 
 .wrapped-page {
   max-width: 680px;
   margin: var(--space-xl) auto;
   padding: 0 var(--space-m);
-}
 
-.wrapped-page__title {
-  font-family: var(--font-family-jua);
-  font-size: var(--font-size-xxxl);
-  color: var(--color-text-header);
-  margin-bottom: var(--space-l);
+  &__title {
+    font-family: var(--font-family-jua);
+    font-size: var(--font-size-xxxl);
+    color: var(--color-text-header);
+    margin-bottom: var(--space-l);
+  }
 }
 
 .wrapped-container {
+  // Vertical space reserved at the top of every slide for the progress bar.
+  --wrapped-progress-area: var(--space-xxl);
+
   position: relative;
-  min-height: 500px;
-  margin: 0 auto;
+  min-height: 32rem;
   border-radius: var(--border-radius);
-  background: #111;
-  display: flex;
-  flex-direction: column;
+  background: hsl(0, 0%, 7%);
+  box-shadow: var(--shadow);
+  overflow: hidden;
   cursor: pointer;
   user-select: none;
-  overflow: hidden;
-  font-family: "Jua", sans-serif;
-  box-shadow: var(--shadow);
+  font-family: var(--font-family-jua);
 }
 
-// Progress bar
 .wrapped-progress {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 2;
   display: flex;
-  gap: 4px;
-  padding: 12px 12px 0;
-  z-index: 10;
-  position: relative;
+  gap: var(--space-xxxs);
+  padding: var(--space-s) var(--space-s) 0;
 }
 
 .wrapped-progress-segment {
   flex: 1;
   height: 3px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.25);
+  background: hsla(0, 0%, 100%, 0.25);
   overflow: hidden;
 
   &::after {
     content: "";
     display: block;
-    height: 100%;
-    background: white;
     width: 0;
-    border-radius: 2px;
+    height: 100%;
+    background: hsl(0, 0%, 100%);
+    border-radius: inherit;
   }
 
   &.filled::after {
@@ -69,22 +70,22 @@ $slide-themes: (
   }
 
   &.current::after {
-    animation: segment-fill var(--segment-duration, 8000ms) linear forwards;
+    animation: wrapped-segment-fill var(--segment-duration, 8000ms) linear forwards;
   }
 }
 
-@keyframes segment-fill {
+@keyframes wrapped-segment-fill {
   from { width: 0; }
   to   { width: 100%; }
 }
 
-// Individual slides
 .wrapped-slide {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: var(--wrapped-progress-area);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.35s ease;
@@ -95,35 +96,31 @@ $slide-themes: (
   }
 }
 
-// Per-slide gradient backgrounds
-@each $name, $colors in $slide-themes {
+@each $name, $color in $slide-themes {
   .wrapped-slide--#{$name} {
-    background: linear-gradient(
-      160deg,
-      map-get($colors, from) 0%,
-      map-get($colors, to) 100%
-    );
+    background: $color;
   }
 }
 
-// Slide content layout
 .wrapped-slide__content {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: var(--space-xs);
+  max-width: 32rem;
+  padding: var(--space-xl) var(--space-l);
+  color: hsl(0, 0%, 100%);
   text-align: center;
-  padding: 2rem 2.5rem;
-  max-width: 520px;
-  gap: 0.5rem;
-  color: #fff;
-  animation: slide-in 0.4s ease both;
-  margin-top: 3rem; // account for progress bar
 }
 
-@keyframes slide-in {
+.wrapped-slide.active .wrapped-slide__content {
+  animation: wrapped-slide-in 0.4s ease both;
+}
+
+@keyframes wrapped-slide-in {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(var(--space-l));
   }
   to {
     opacity: 1;
@@ -132,79 +129,79 @@ $slide-themes: (
 }
 
 .wrapped-slide__eyebrow {
-  font-size: 0.85rem;
+  margin: 0;
+  font-size: var(--font-size-s);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
-  margin: 0;
+  color: hsla(0, 0%, 100%, 0.6);
 }
 
 .wrapped-slide__emoji {
+  margin: var(--space-xs) 0;
   font-size: 4rem;
   line-height: 1;
-  margin: 0.5rem 0;
 }
 
 .wrapped-slide__stat {
+  margin: 0;
   font-size: clamp(3.5rem, 16vw, 7rem);
   font-weight: 900;
   line-height: 1;
-  margin: 0;
   letter-spacing: -0.02em;
-  color: #fff;
 }
 
 .wrapped-slide__headline {
+  margin: 0;
   font-size: clamp(1.4rem, 6vw, 2.2rem);
   font-weight: 700;
-  margin: 0;
-  color: #fff;
   line-height: 1.2;
 }
 
 .wrapped-slide__body {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.75);
-  margin: 0.5rem 0 0;
+  margin: var(--space-xs) 0 0;
+  font-size: var(--font-size-m);
   line-height: 1.5;
+  color: hsla(0, 0%, 100%, 0.75);
 }
 
-// Intro avatar
 .wrapped-avatar {
-  margin: 1rem 0;
+  margin: var(--space-m) 0;
 
   &__img {
-    width: 80px;
-    height: 80px;
+    width: 5rem;
+    height: 5rem;
     border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.5);
+    border: 3px solid hsla(0, 0%, 100%, 0.5);
     object-fit: cover;
   }
 }
 
-// Complete slide actions
 .wrapped-complete-actions {
-  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-s);
+  margin-top: var(--space-l);
 }
 
 .wrapped-btn {
   display: inline-block;
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  padding: var(--space-xs) var(--space-l);
+  background: hsla(0, 0%, 100%, 0.2);
+  border: 2px solid hsla(0, 0%, 100%, 0.5);
   border-radius: 2rem;
-  padding: 0.65rem 1.5rem;
+  color: hsl(0, 0%, 100%);
   font-family: inherit;
-  font-size: 1rem;
+  font-size: var(--font-size-m);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.35);
-    border-color: rgba(255, 255, 255, 0.8);
-    color: #fff;
+    background: hsla(0, 0%, 100%, 0.35);
+    border-color: hsla(0, 0%, 100%, 0.8);
+    color: hsl(0, 0%, 100%);
   }
 
   &::after {
@@ -212,27 +209,80 @@ $slide-themes: (
   }
 }
 
-// Tap hint at bottom
 .wrapped-hint {
   position: absolute;
-  bottom: 1.25rem;
+  bottom: var(--space-m);
   left: 50%;
+  z-index: 2;
   transform: translateX(-50%);
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.35);
+  font-size: var(--font-size-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: hsla(0, 0%, 100%, 0.35);
   pointer-events: none;
-  z-index: 10;
-  animation: hint-fade 3s ease 2s both;
+  animation: wrapped-hint-fade 3s ease 2s both;
 }
 
-@keyframes hint-fade {
+@keyframes wrapped-hint-fade {
   from { opacity: 1; }
   to   { opacity: 0; }
 }
 
-// Re-trigger content animation on each new active slide
-.wrapped-slide.active .wrapped-slide__content {
-  animation: slide-in 0.4s ease both;
+.wrapped-chart {
+  width: 100%;
+  max-width: 22rem;
+  aspect-ratio: 1 / 1;
+  margin: var(--space-s) 0;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .wrapped-chart__petal {
+    transform-origin: center;
+    transform-box: fill-box;
+    transition: opacity 0.2s ease;
+  }
+
+  .wrapped-chart__ring {
+    fill: none;
+    stroke: hsla(0, 0%, 100%, 0.12);
+    stroke-dasharray: 2 4;
+  }
+
+  .wrapped-chart__label {
+    font-family: var(--font-family-jua);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    fill: hsla(0, 0%, 100%, 0.85);
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  .wrapped-chart__value {
+    font-family: var(--font-family-jua);
+    font-size: 0.85rem;
+    font-weight: 700;
+    fill: hsl(0, 0%, 100%);
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  .wrapped-chart__axis {
+    transform-origin: center;
+    animation: wrapped-chart-spin 60s linear infinite;
+  }
+}
+
+@keyframes wrapped-chart-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes wrapped-chart-grow {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
 }
