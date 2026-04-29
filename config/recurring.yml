@@ -159,3 +159,9 @@ production:
     schedule: every 12 hours
     concurrency: 1
     description: "Recompute vote quality scores and update blessed/cursed/neutral verdicts for all voters"
+
+  vote_deficit_reminders:
+    class: VoteDeficitReminderJob
+    schedule: every hour
+    concurrency: 1
+    description: "DM users with paused unpaid ships at most once every 24 hours"

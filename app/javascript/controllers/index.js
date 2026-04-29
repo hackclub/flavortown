@@ -88,6 +88,9 @@ application.register("load-more", LoadMoreController);
 import MarkdownPreviewController from "./markdown_preview_controller";
 application.register("markdown-preview", MarkdownPreviewController);
 
+import MinecraftTabsController from "./minecraft_tabs_controller";
+application.register("minecraft-tabs", MinecraftTabsController);
+
 import ModalController from "./modal_controller";
 application.register("modal", ModalController);
 
@@ -111,7 +114,6 @@ application.register("project-form", ProjectFormController);
 
 import ProjectIdeasController from "./project_ideas_controller";
 application.register("project-ideas", ProjectIdeasController);
-
 import PyramidFlavortimeController from "./pyramid_flavortime_controller";
 application.register("pyramid-flavortime", PyramidFlavortimeController);
 
@@ -150,6 +152,24 @@ application.register("sidequest-expand", SidequestExpandController);
 
 import SidequestSelectorController from "./sidequest_selector_controller";
 application.register("sidequest-selector", SidequestSelectorController);
+
+import Sidequests__Minequest__AccessibilityController from "./sidequests/minequest/accessibility_controller";
+application.register(
+  "sidequests--minequest--accessibility",
+  Sidequests__Minequest__AccessibilityController,
+);
+
+import Sidequests__Minequest__IdeasController from "./sidequests/minequest/ideas_controller";
+application.register(
+  "sidequests--minequest--ideas",
+  Sidequests__Minequest__IdeasController,
+);
+
+import Sidequests__Minequest__ModalController from "./sidequests/minequest/modal_controller";
+application.register(
+  "sidequests--minequest--modal",
+  Sidequests__Minequest__ModalController,
+);
 
 import SnowController from "./snow_controller";
 application.register("snow", SnowController);
