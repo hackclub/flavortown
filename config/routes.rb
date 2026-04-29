@@ -196,7 +196,7 @@ Rails.application.routes.draw do
       get "flavortime/active_users", to: "flavortime#active_users"
 
       namespace :admin do
-        resources :shop_orders, only: [] do
+        resources :shop_orders, only: [ :index ] do
           collection do
             get :stats
             get :leaderboard
