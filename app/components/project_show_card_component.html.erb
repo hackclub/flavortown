@@ -45,9 +45,9 @@
         </div>
       <% end %>
 
-      <% if helpers.current_user.present? && helpers.policy(:admin).manage_projects? %>
+      <% if helpers.current_user.present? && helpers.policy(:admin).manage_projects? && !project.fire? %>
         <%= render ButtonComponent.new(
-            text: project.fire? ? "Unmark as Well Cooked" : "Mark as Well Cooked",
+            text: "Mark as Well Cooked",
             color: :green,
             icon: "icons/fire.svg",
             class: "project-show-card__fire-btn",
