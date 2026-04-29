@@ -441,6 +441,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
      }
     ),
     new(
+      slug: :sidequest_minequest,
+      name: "Real Gamer",
+      description: "Shipped a Minecraft related project for Minequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "minequest" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
+    new(
       slug: :hundred_hours,
       name: "Chef who cooked",
       description: "100 hours of pure dedication - please, touch grass!",
