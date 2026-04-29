@@ -1463,6 +1463,33 @@
         line-height: 1.2;
       }
 
+      details {
+        summary {
+          cursor: pointer;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 0.5rem;
+
+          th,
+          td {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            text-align: left;
+          }
+        }
+
+        .status-open {
+          color: red;
+        }
+
+        .status-closed {
+          color: green;
+        }
+      }
+
       &__actions {
         .modal__actions-close {
           position: absolute;
@@ -1488,7 +1515,6 @@
       }
 
       .concern-message-item {
-        margin-left: 1rem;
         margin-bottom: 0.5rem;
 
         a {
