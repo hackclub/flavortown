@@ -54,6 +54,10 @@ class Api::V1::ProjectsController < Api::BaseController
   end
 
   def create
+    unless Flipper.enabled?(:create_projects, current_api_user)
+      return render json: { error: "Project creation is currently disabled" }, status: :forbidden
+    end
+
     @project = Project.new(project_params)
 
     ActiveRecord::Base.transaction do

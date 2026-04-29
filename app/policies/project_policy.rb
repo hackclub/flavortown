@@ -8,11 +8,11 @@ class ProjectPolicy < ApplicationPolicy
     end
 
     def new?
-        logged_in?
+        logged_in? && Flipper.enabled?(:create_projects, user)
     end
 
     def create?
-        logged_in?
+        logged_in? && Flipper.enabled?(:create_projects, user)
     end
 
     def edit?
@@ -57,7 +57,7 @@ class ProjectPolicy < ApplicationPolicy
 
     # well, we shoudn't be doing this. but i think i goofed up a lil and authorize @devlog won't work without passing @project and Post::Devlog does not have @project
     def create_devlog?
-        member?
+        member? && Flipper.enabled?(:create_devlogs, user)
     end
 
     private
