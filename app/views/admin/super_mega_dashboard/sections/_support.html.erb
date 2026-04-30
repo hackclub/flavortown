@@ -85,7 +85,7 @@
                           <div class="concern-message-item">
                             <% if msg["message_ts"].present? %>
                               <details>
-                                <summary><%= msg["content"].truncate(25) %></summary>
+                                <summary><%= msg["content"].gsub(/\(\d{10,}\.\d+\)\s*/, "").truncate(25) %></summary>
                                 <p>
                                   <table>
                                     <tr>
@@ -94,7 +94,7 @@
                                     </tr>
                                     <tr>
                                       <td>Content</td>
-                                      <td><%= msg["content"] %></td>
+                                      <td><%= msg["content"].gsub(/\(\d{10,}\.\d+\)\s*/, "") %></td>
                                     </tr>
                                     <tr>
                                       <td>Status</td>
