@@ -79,7 +79,7 @@ class VotesController < ApplicationController
     @vote.project = ship_event.post.project
 
     if @vote.save
-      share_vote_to_slack(@vote) if current_user.send_votes_to_slack
+      share_vote_to_slack(@vote) if current_user.send_votes_to_slack && !@vote.suspicious?
       redirect_to new_vote_path, notice: "Vote recorded! Most projects should be scored in the middle (4-6); reserve 1 or 9 for truly exceptional cases."
     else
       redirect_to new_vote_path, alert: @vote.errors.full_messages.to_sentence
