@@ -396,10 +396,6 @@ class ProjectsController < ApplicationController
     @project = Project.find(params[:id])
     authorize @project
 
-    unless Flipper.enabled?(:shipping)
-      redirect_to @project, alert: "Shipping is currently disabled." and return
-    end
-
     @project.with_lock do
       ship_event = ShipCertService.latest_ship_event(@project)
 
