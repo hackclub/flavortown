@@ -46,7 +46,7 @@ module HCBService
 
     def refresh_token!
       HCBCredential.transaction do
-        hcb_credentials = HCBCredential.first
+        hcb_credentials = HCBCredential.lock.first
         raise HCBError, "no HCB credentials found" unless hcb_credentials
         client_id = hcb_credentials.client_id
         client_secret = hcb_credentials.client_secret
