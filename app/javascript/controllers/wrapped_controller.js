@@ -139,17 +139,19 @@ export default class extends Controller {
     ctx.fillStyle = palette.cream;
     ctx.font = "bold 64px 'Jua', 'Arial Black', sans-serif";
     const nameY = headerY + 32;
-    // Lightning bolt glyph then username
-    ctx.fillStyle = palette.accent;
-    ctx.fillText("⚡", pad, nameY);
-    const boltWidth = ctx.measureText("⚡").width + 14;
+    let nameX = pad;
+    if (bento.is_admin) {
+      ctx.fillStyle = palette.accent;
+      ctx.fillText("⚡", pad, nameY);
+      nameX = pad + ctx.measureText("⚡").width + 14;
+    }
     ctx.fillStyle = palette.cream;
-    ctx.fillText(this.usernameValue, pad + boltWidth, nameY);
+    ctx.fillText(this.usernameValue, nameX, nameY);
     // Role badges after username
     const roleBadges = bento.role_badges || [];
     if (roleBadges.length > 0) {
       const nameWidth = ctx.measureText(this.usernameValue).width;
-      let badgeX = pad + boltWidth + nameWidth + 18;
+      let badgeX = nameX + nameWidth + 18;
       ctx.font = "52px sans-serif";
       for (const badge of roleBadges) {
         ctx.fillText(badge, badgeX, nameY);

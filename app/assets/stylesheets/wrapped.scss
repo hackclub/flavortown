@@ -452,3 +452,49 @@ $slide-themes: (
   border-radius: 3px;
   background: hsla(36, 70%, 56%, var(--cell-intensity, 0.08));
 }
+
+.wrapped-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  margin-top: var(--space-xs);
+  overflow-y: auto;
+  max-height: 60vh;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+    padding: 0.5em 0.75em;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+  }
+
+  &__img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  &__price {
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  &__status {
+    font-size: 0.75rem;
+    padding: 0.15em 0.5em;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+  }
+}
