@@ -2,16 +2,16 @@
 
 // Each slide gets its own warm Flavortown background tint.
 $slide-themes: (
-  intro: var(--color-brown-700),
-  shipping: var(--color-green-500),
-  payout: var(--color-yellow-500),
-  reports: var(--color-red-500),
-  shop-orders: var(--color-blue-500),
-  achievements: var(--color-yellow-450),
-  sidequests: var(--color-blue-400),
-  support: var(--color-purple-500),
-  shipwright: var(--color-red-400),
-  complete: var(--color-green-400),
+  intro: #f94144,
+  shipping: #f3722c,
+  payout: #f8961e,
+  reports: #f9844a,
+  shop-orders: #f9c74f,
+  achievements: #90be6d,
+  sidequests: #43aa8b,
+  support: #4d908e,
+  shipwright: #577590,
+  complete: #277da1,
 );
 
 .wrapped-page {
@@ -299,7 +299,7 @@ $slide-themes: (
 }
 
 .wrapped-bento__cell--secondary {
-  background: hsla(8, 30%, 8%, 0.35);
+  background: hsla(8, 30%, 8%, 0.55);
   align-items: center;
   justify-content: center;
   text-align: center;
