@@ -10,11 +10,11 @@
         <%= pluralize(wrapped.projects_count, "project") %> touched
       </p>
       <% if wrapped.ships_count >= 3 %>
-        <p class="wrapped-slide__body">YAY multiple ships >,<>
+        <p class="wrapped-slide__body">wow, that's a latta ships...</p>
       <% elsif wrapped.ships_count == 1 %>
-        <p class="wrapped-slide__body">first ship logged, nice.</p>
+        <p class="wrapped-slide__body">only one ship, let's keep cooking...</p>
       <% else %>
-        <p class="wrapped-slide__body">if you have zero ships why are you even here...</p>
+        <p class="wrapped-slide__body">you have gotta cook more next time!</p>
       <% end %>
     </div>
 

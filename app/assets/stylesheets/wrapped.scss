@@ -2,16 +2,16 @@
 
 // Each slide gets its own warm Flavortown background tint.
 $slide-themes: (
-  intro:        var(--color-brown-700),
-  shipping:     var(--color-green-500),
-  payout:       var(--color-yellow-500),
-  reports:      var(--color-red-500),
-  shop-orders:  var(--color-blue-500),
+  intro: var(--color-brown-700),
+  shipping: var(--color-green-500),
+  payout: var(--color-yellow-500),
+  reports: var(--color-red-500),
+  shop-orders: var(--color-blue-500),
   achievements: var(--color-yellow-450),
-  sidequests:   var(--color-blue-400),
-  support:      var(--color-purple-500),
-  shipwright:   var(--color-red-400),
-  complete:     var(--color-green-400),
+  sidequests: var(--color-blue-400),
+  support: var(--color-purple-500),
+  shipwright: var(--color-red-400),
+  complete: var(--color-green-400),
 );
 
 .wrapped-page {
@@ -72,13 +72,18 @@ $slide-themes: (
   }
 
   &.current::after {
-    animation: wrapped-segment-fill var(--segment-duration, 8000ms) linear forwards;
+    animation: wrapped-segment-fill var(--segment-duration, 8000ms) linear
+      forwards;
   }
 }
 
 @keyframes wrapped-segment-fill {
-  from { width: 0; }
-  to   { width: 100%; }
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 .wrapped-slide {
@@ -205,7 +210,9 @@ $slide-themes: (
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 
   &:hover {
     background: hsla(0, 0%, 100%, 0.35);
@@ -233,8 +240,12 @@ $slide-themes: (
 }
 
 @keyframes wrapped-hint-fade {
-  from { opacity: 1; }
-  to   { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 // Tiny caption used above inline visualisations like the activity pulse.
@@ -257,13 +268,17 @@ $slide-themes: (
 .wrapped-bento--2col {
   grid-template-columns: 1fr 1fr;
 
-  @media (max-width: 520px) { grid-template-columns: 1fr; }
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .wrapped-bento--wide-left {
   grid-template-columns: 3fr 2fr;
 
-  @media (max-width: 520px) { grid-template-columns: 1fr; }
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .wrapped-bento__cell {
@@ -311,7 +326,9 @@ $slide-themes: (
     padding: var(--space-xs) 0;
     border-bottom: 1px solid hsla(0, 0%, 100%, 0.08);
 
-    &:last-child { border-bottom: none; }
+    &:last-child {
+      border-bottom: none;
+    }
   }
 
   &__label {
@@ -375,7 +392,8 @@ $slide-themes: (
     justify-content: center;
     margin-bottom: 0.25rem;
 
-    img, svg {
+    img,
+    svg {
       width: 100%;
       height: 100%;
       object-fit: contain;
@@ -424,5 +442,3 @@ $slide-themes: (
   border-radius: 3px;
   background: hsla(36, 70%, 56%, var(--cell-intensity, 0.08));
 }
-
-

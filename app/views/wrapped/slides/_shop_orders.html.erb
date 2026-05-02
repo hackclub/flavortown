@@ -4,7 +4,7 @@
       <h2 class="wrapped-slide__stat"><%= wrapped.shop_orders_count %></h2>
       <h1 class="wrapped-slide__headline"><%= "order".pluralize(wrapped.shop_orders_count) %> placed</h1>
       <% if wrapped.shop_orders_count.zero? %>
-        <p class="wrapped-slide__body">you spent ZERO cookies, dang</p>
+        <p class="wrapped-slide__body">let's get ya more stuff next time!</p>
       <% else %>
         <p class="wrapped-slide__body">the shop missed you between visits.</p>
       <% end %>

@@ -71,7 +71,10 @@ export default class extends Controller {
 
     const currentSeg = this.segmentTargets[index];
     if (currentSeg) {
-      currentSeg.style.setProperty("--segment-duration", `${this.intervalValue}ms`);
+      currentSeg.style.setProperty(
+        "--segment-duration",
+        `${this.intervalValue}ms`,
+      );
     }
   }
 
@@ -95,23 +98,25 @@ export default class extends Controller {
 
     // Flavortown palette — warm dark backgrounds with gold/cream accents.
     const palette = {
-      bg: "#1a0f0d",                            // page background
-      card: "#2a1d1c",                          // primary card
-      subcard: "#1f1413",                       // nested card
-      accent: "hsl(36, 70%, 56%)",              // yellow-450 (primary highlight)
-      cream: "#f5e6d0",                         // headline text
-      muted: "rgba(245,230,208,0.55)",          // labels
-      donut: [                                  // donut slice palette
-        "hsl(36, 70%, 56%)",   // gold (top source)
-        "hsl(105, 44%, 46%)",  // green
-        "hsl(204, 44%, 52%)",  // blue
-        "hsl(356, 47%, 52%)",  // red
-        "hsl(30, 46%, 71%)",   // tan
-        "hsl(8, 30%, 36%)"     // brown
-      ]
+      bg: "#1a0f0d", // page background
+      card: "#2a1d1c", // primary card
+      subcard: "#1f1413", // nested card
+      accent: "hsl(36, 70%, 56%)", // yellow-450 (primary highlight)
+      cream: "#f5e6d0", // headline text
+      muted: "rgba(245,230,208,0.55)", // labels
+      donut: [
+        // donut slice palette
+        "hsl(36, 70%, 56%)", // gold (top source)
+        "hsl(105, 44%, 46%)", // green
+        "hsl(204, 44%, 52%)", // blue
+        "hsl(356, 47%, 52%)", // red
+        "hsl(30, 46%, 71%)", // tan
+        "hsl(8, 30%, 36%)", // brown
+      ],
     };
 
-    const W = 1800, H = 1080;
+    const W = 1800,
+      H = 1080;
     const canvas = document.createElement("canvas");
     canvas.width = W;
     canvas.height = H;
@@ -159,8 +164,18 @@ export default class extends Controller {
 
     // ── Total Earned (top, full width) ──────────────────────────────
     const topW = W - pad * 2;
-    this.#drawBentoCard(ctx, leftX, contentTop, topW, topRowH, radius, palette.card);
-    const totalNumber = (bento.total_cookies ?? this.cookiesValue).toLocaleString();
+    this.#drawBentoCard(
+      ctx,
+      leftX,
+      contentTop,
+      topW,
+      topRowH,
+      radius,
+      palette.card,
+    );
+    const totalNumber = (
+      bento.total_cookies ?? this.cookiesValue
+    ).toLocaleString();
     const cardPad = 36;
 
     ctx.fillStyle = palette.cream;
@@ -173,7 +188,11 @@ export default class extends Controller {
 
     ctx.font = "500 26px 'Jua', 'Arial Black', sans-serif";
     ctx.fillStyle = palette.muted;
-    ctx.fillText(bento.hours_label ?? `${this.codingValue}h built`, leftX + cardPad, contentTop + topRowH - cardPad - 30);
+    ctx.fillText(
+      bento.hours_label ?? `${this.codingValue}h built`,
+      leftX + cardPad,
+      contentTop + topRowH - cardPad - 30,
+    );
 
     // Donut chart parked on the right side of the Total Earned card.
     const donutCx = leftX + topW - cardPad - 150;
@@ -184,7 +203,11 @@ export default class extends Controller {
       ctx.fillStyle = palette.muted;
       ctx.font = "500 18px 'Jua', 'Arial Black', sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(`Top source: ${bento.top_source.label}`, donutCx, contentTop + topRowH - cardPad - 4);
+      ctx.fillText(
+        `Top source: ${bento.top_source.label}`,
+        donutCx,
+        contentTop + topRowH - cardPad - 4,
+      );
       ctx.textAlign = "left";
     }
 
@@ -197,7 +220,10 @@ export default class extends Controller {
       { label: "Devlogs", value: bento.devlogs ?? this.devlogsValue },
       { label: "Ships", value: bento.ships ?? this.shipsValue },
       { label: "Orders", value: bento.orders ?? 0 },
-      { label: "Cookies Spent", value: (bento.cookies_spent ?? 0).toLocaleString() }
+      {
+        label: "Cookies Spent",
+        value: (bento.cookies_spent ?? 0).toLocaleString(),
+      },
     ];
     smallStats.forEach((stat, i) => {
       const x = leftX + i * (smallW + smallGap);
@@ -213,7 +239,15 @@ export default class extends Controller {
 
     // ── Activity Pulse (bottom-left) ────────────────────────────────
     const pulseY = midY + midRowH + gap;
-    this.#drawBentoCard(ctx, leftX, pulseY, leftW, bottomRowH, radius, palette.card);
+    this.#drawBentoCard(
+      ctx,
+      leftX,
+      pulseY,
+      leftW,
+      bottomRowH,
+      radius,
+      palette.card,
+    );
     ctx.fillStyle = palette.cream;
     ctx.font = "500 22px 'Jua', 'Arial Black', sans-serif";
     ctx.fillText("Activity Pulse", leftX + cardPad, pulseY + cardPad);
@@ -225,7 +259,7 @@ export default class extends Controller {
       Math.floor(leftW * 0.45),
       bottomRowH - cardPad * 2 - 40,
       bento.activity_pulse ?? [],
-      palette
+      palette,
     );
 
     // Pulse summary text on the right side of the card
@@ -235,7 +269,7 @@ export default class extends Controller {
       `${bento.active_days ?? 0} active days`,
       `${(bento.tracked_hours ?? this.codingValue).toFixed?.(1) ?? bento.tracked_hours ?? this.codingValue} tracked hours`,
       `${bento.projects_touched ?? 0} projects touched`,
-      `${bento.orders ?? 0} orders`
+      `${bento.orders ?? 0} orders`,
     ];
     ctx.fillStyle = palette.cream;
     ctx.font = "500 28px 'Jua', 'Arial Black', sans-serif";
@@ -246,7 +280,15 @@ export default class extends Controller {
     // ── Highlights (right column, spans middle + bottom) ────────────
     const highlightsY = midY;
     const highlightsH = midRowH + gap + bottomRowH;
-    this.#drawBentoCard(ctx, rightX, highlightsY, rightW, highlightsH, radius, palette.card);
+    this.#drawBentoCard(
+      ctx,
+      rightX,
+      highlightsY,
+      rightW,
+      highlightsH,
+      radius,
+      palette.card,
+    );
     ctx.fillStyle = palette.cream;
     ctx.font = "500 22px 'Jua', 'Arial Black', sans-serif";
     ctx.fillText("Highlights", rightX + cardPad, highlightsY + cardPad);
@@ -256,10 +298,34 @@ export default class extends Controller {
     const subH = (highlightsH - cardPad * 2 - 40 - subGap) / 2;
     const subTop = highlightsY + cardPad + 50;
     const highlightCells = [
-      { label: "Biggest Gain", value: bento.biggest_gain ? `${bento.biggest_gain.amount.toLocaleString()} cookies` : "—", caption: bento.biggest_gain?.date ?? "" },
-      { label: "Biggest Spend", value: bento.biggest_spend ? `${bento.biggest_spend.amount.toLocaleString()} cookies` : "—", caption: bento.biggest_spend?.date ?? "" },
-      { label: "Peak Workday", value: bento.peak_workday ? `${bento.peak_workday.hours}h` : "—", caption: bento.peak_workday ? `${bento.peak_workday.date} — hours peak` : "" },
-      { label: "Strongest Weekday", value: bento.strongest_weekday?.label ?? "—", caption: bento.strongest_weekday ? `${bento.strongest_weekday.hours}h logged` : "" }
+      {
+        label: "Biggest Gain",
+        value: bento.biggest_gain
+          ? `${bento.biggest_gain.amount.toLocaleString()} cookies`
+          : "—",
+        caption: bento.biggest_gain?.date ?? "",
+      },
+      {
+        label: "Biggest Spend",
+        value: bento.biggest_spend
+          ? `${bento.biggest_spend.amount.toLocaleString()} cookies`
+          : "—",
+        caption: bento.biggest_spend?.date ?? "",
+      },
+      {
+        label: "Peak Workday",
+        value: bento.peak_workday ? `${bento.peak_workday.hours}h` : "—",
+        caption: bento.peak_workday
+          ? `${bento.peak_workday.date} — hours peak`
+          : "",
+      },
+      {
+        label: "Strongest Weekday",
+        value: bento.strongest_weekday?.label ?? "—",
+        caption: bento.strongest_weekday
+          ? `${bento.strongest_weekday.hours}h logged`
+          : "",
+      },
     ];
     highlightCells.forEach((cell, i) => {
       const col = i % 2;
@@ -346,7 +412,10 @@ export default class extends Controller {
     const cols = 14;
     const rows = Math.ceil(buckets.length / cols);
     const cellGap = 6;
-    const cellSize = Math.min((w - cellGap * (cols - 1)) / cols, (h - cellGap * (rows - 1)) / rows);
+    const cellSize = Math.min(
+      (w - cellGap * (cols - 1)) / cols,
+      (h - cellGap * (rows - 1)) / rows,
+    );
     const maxValue = Math.max(...buckets, 1);
 
     buckets.forEach((value, i) => {
