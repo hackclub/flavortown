@@ -1,0 +1,20 @@
+<div class="wrapped-slide wrapped-slide--achievements" data-wrapped-target="slide">
+  <div class="wrapped-bento wrapped-bento--2col">
+    <div class="wrapped-bento__cell">
+      <h2 class="wrapped-slide__stat"><%= wrapped.achievements_count %></h2>
+      <h1 class="wrapped-slide__headline"><%= "achievement".pluralize(wrapped.achievements_count) %> earned</h1>
+      <% if (slug = wrapped.latest_achievement_slug) %>
+        <p class="wrapped-slide__caption" style="margin-top: auto;">most recent</p>
+        <p class="wrapped-slide__body"><strong><%= slug.to_s.humanize %></strong></p>
+      <% end %>
+    </div>
+    <div class="wrapped-bento__cell wrapped-bento__cell--secondary">
+      <p class="wrapped-slide__caption">sidequests</p>
+      <h2 class="wrapped-slide__stat"><%= wrapped.sidequests_completed %></h2>
+      <p class="wrapped-slide__body"><%= "sidequest".pluralize(wrapped.sidequests_completed) %> completed</p>
+      <% if wrapped.achievements_count.zero? && wrapped.sidequests_completed.zero? %>
+        <p class="wrapped-slide__body" style="margin-top: var(--space-s);">a clean slate — go grab a quest.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

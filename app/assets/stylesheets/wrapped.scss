@@ -1,20 +1,19 @@
 // Wrapped: full-screen, story-style season recap.
 
+// Each slide gets its own warm Flavortown background tint.
 $slide-themes: (
-  intro:    var(--color-blue-600),
-  cookies:  var(--color-yellow-500),
-  ships:    var(--color-green-500),
-  votes:    var(--color-blue-400),
-  devlogs:  var(--color-red-500),
-  coding:   var(--color-blue-500),
-  rank:     var(--color-yellow-450),
-  chart:    var(--color-brown-700),
-  complete: var(--color-green-400),
+  intro:        var(--color-brown-700),
+  shipping:     var(--color-green-500),
+  payout:       var(--color-yellow-500),
+  reports:      var(--color-red-500),
+  shop-orders:  var(--color-blue-500),
+  achievements: var(--color-yellow-450),
+  complete:     var(--color-green-400),
 );
 
 .wrapped-page {
-  max-width: 680px;
-  margin: var(--space-xl) auto;
+  max-width: min(95vw, 1100px);
+  margin: var(--space-l) auto;
   padding: 0 var(--space-m);
 
   &__title {
@@ -30,7 +29,7 @@ $slide-themes: (
   --wrapped-progress-area: var(--space-xxl);
 
   position: relative;
-  min-height: 32rem;
+  min-height: max(32rem, 82vh);
   border-radius: var(--border-radius);
   background: hsl(0, 0%, 7%);
   box-shadow: var(--shadow);
@@ -107,8 +106,15 @@ $slide-themes: (
   flex-direction: column;
   align-items: center;
   gap: var(--space-xs);
-  max-width: 32rem;
+  max-width: 48rem;
+  // Bento-style rounded card: warm darken-tint over the colored slide
+  // background, with a soft cream-tinted edge to echo the export image.
   padding: var(--space-xl) var(--space-l);
+  margin: 0 var(--space-m);
+  background: hsla(8, 30%, 8%, 0.55);
+  border-radius: 1.4rem;
+  border: 1px solid hsla(35, 74%, 92%, 0.08);
+  box-shadow: 0 12px 40px hsla(0, 0%, 0%, 0.35);
   color: hsl(0, 0%, 100%);
   text-align: center;
 }
@@ -228,61 +234,80 @@ $slide-themes: (
   to   { opacity: 0; }
 }
 
-.wrapped-chart {
-  width: 100%;
-  max-width: 22rem;
+// Tiny caption used above inline visualisations like the activity pulse.
+.wrapped-slide__caption {
+  margin: var(--space-s) 0 var(--space-xxs);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsla(0, 0%, 100%, 0.55);
+}
+
+// Bento multi-box layout for slides that have more than one concept.
+.wrapped-bento {
+  display: grid;
+  gap: var(--space-m);
+  width: min(100%, 58rem);
+  padding: var(--space-m);
+}
+
+.wrapped-bento--2col {
+  grid-template-columns: 1fr 1fr;
+
+  @media (max-width: 520px) { grid-template-columns: 1fr; }
+}
+
+.wrapped-bento--wide-left {
+  grid-template-columns: 3fr 2fr;
+
+  @media (max-width: 520px) { grid-template-columns: 1fr; }
+}
+
+.wrapped-bento__cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-l);
+  background: hsla(8, 30%, 8%, 0.55);
+  border-radius: 1.4rem;
+  border: 1px solid hsla(35, 74%, 92%, 0.08);
+  box-shadow: 0 12px 40px hsla(0, 0%, 0%, 0.35);
+  color: hsl(0, 0%, 100%);
+
+  // Stat inside a bento cell doesn't need the full 7rem — rein it in.
+  .wrapped-slide__stat {
+    font-size: clamp(2.5rem, 10vw, 5rem);
+  }
+}
+
+.wrapped-bento__cell--secondary {
+  background: hsla(8, 30%, 8%, 0.35);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  .wrapped-slide__stat {
+    font-size: clamp(2rem, 8vw, 4rem);
+  }
+}
+
+.wrapped-bento__cell--full {
+  grid-column: 1 / -1;
+}
+
+// Activity pulse heatmap — 70-day grid that mirrors the bento export.
+.wrapped-pulse {
+  display: grid;
+  grid-template-columns: repeat(var(--pulse-cols, 14), 1fr);
+  gap: 4px;
+  width: min(100%, 18rem);
+  margin: var(--space-xs) 0 var(--space-s);
+}
+
+.wrapped-pulse__cell {
   aspect-ratio: 1 / 1;
-  margin: var(--space-s) 0;
-
-  svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-
-  .wrapped-chart__petal {
-    transform-origin: center;
-    transform-box: fill-box;
-    transition: opacity 0.2s ease;
-  }
-
-  .wrapped-chart__ring {
-    fill: none;
-    stroke: hsla(0, 0%, 100%, 0.12);
-    stroke-dasharray: 2 4;
-  }
-
-  .wrapped-chart__label {
-    font-family: var(--font-family-jua);
-    font-size: 0.7rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    fill: hsla(0, 0%, 100%, 0.85);
-    text-anchor: middle;
-    dominant-baseline: middle;
-  }
-
-  .wrapped-chart__value {
-    font-family: var(--font-family-jua);
-    font-size: 0.85rem;
-    font-weight: 700;
-    fill: hsl(0, 0%, 100%);
-    text-anchor: middle;
-    dominant-baseline: middle;
-  }
-
-  .wrapped-chart__axis {
-    transform-origin: center;
-    animation: wrapped-chart-spin 60s linear infinite;
-  }
+  border-radius: 3px;
+  background: hsla(36, 70%, 56%, var(--cell-intensity, 0.08));
 }
 
-@keyframes wrapped-chart-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
 
-@keyframes wrapped-chart-grow {
-  from { transform: scale(0); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}

@@ -18,23 +18,22 @@
        data-wrapped-devlogs-value="<%= @wrapped.devlogs_count %>"
        data-wrapped-coding-value="<%= @wrapped.coding_hours %>"
        data-wrapped-rank-value="<%= @wrapped.leaderboard_percentile || -1 %>"
-       data-wrapped-username-value="<%= current_user.display_name %>">
+       data-wrapped-username-value="<%= current_user.display_name %>"
+       data-wrapped-bento-value="<%= @wrapped.bento_payload.to_json %>">
 
     <div class="wrapped-progress">
-      <% 9.times do |i| %>
+      <% 7.times do %>
         <div class="wrapped-progress-segment empty" data-wrapped-target="segment"></div>
       <% end %>
     </div>
 
-    <%= render "wrapped/slides/intro", user: current_user %>
-    <%= render "wrapped/slides/cookies", wrapped: @wrapped %>
-    <%= render "wrapped/slides/ships", wrapped: @wrapped %>
-    <%= render "wrapped/slides/votes", wrapped: @wrapped %>
-    <%= render "wrapped/slides/devlogs", wrapped: @wrapped %>
-    <%= render "wrapped/slides/coding", wrapped: @wrapped %>
-    <%= render "wrapped/slides/chart", wrapped: @wrapped %>
-    <%= render "wrapped/slides/rank", wrapped: @wrapped %>
-    <%= render "wrapped/slides/complete", user: current_user %>
+    <%= render "wrapped/slides/intro",        user: current_user %>
+    <%= render "wrapped/slides/shipping",     wrapped: @wrapped %>
+    <%= render "wrapped/slides/payout",       wrapped: @wrapped %>
+    <%= render "wrapped/slides/reports",      wrapped: @wrapped %>
+    <%= render "wrapped/slides/shop_orders",  wrapped: @wrapped %>
+    <%= render "wrapped/slides/achievements", wrapped: @wrapped %>
+    <%= render "wrapped/slides/complete",     user: current_user %>
 
     <div class="wrapped-hint">tap to continue</div>
   </div>
