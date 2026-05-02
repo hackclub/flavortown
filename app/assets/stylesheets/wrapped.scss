@@ -11,6 +11,7 @@ $slide-themes: (
   sidequests: #43aa8b,
   support: #4d908e,
   shipwright: #577590,
+  voting: #a855f7,
   complete: #277da1,
 );
 
@@ -311,6 +312,21 @@ $slide-themes: (
 
 .wrapped-bento__cell--full {
   grid-column: 1 / -1;
+}
+
+.wrapped-post-embed {
+  zoom: 0.6;
+
+  details,
+  .post__admin-tools,
+  .post__admin-only-banner {
+    display: none !important;
+  }
+}
+
+.wrapped-bento__cell--staff {
+  border: 4px dotted #f9844a;
+  box-shadow: 0 0 10px rgba(249, 132, 74, 0.35);
 }
 
 .wrapped-payout-breakdown {

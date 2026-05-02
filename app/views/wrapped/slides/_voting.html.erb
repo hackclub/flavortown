@@ -1,0 +1,67 @@
+<div class="wrapped-slide wrapped-slide--voting" data-wrapped-target="slide">
+  <div class="wrapped-bento wrapped-bento--2col">
+    <div class="wrapped-bento__cell">
+      <p class="wrapped-slide__eyebrow">your votes</p>
+      <h2 class="wrapped-slide__stat"><%= number_with_delimiter(wrapped.votes_cast) %></h2>
+      <h1 class="wrapped-slide__headline"><%= "vote".pluralize(wrapped.votes_cast) %> cast</h1>
+      <% if wrapped.avg_vote_score %>
+        <p class="wrapped-slide__body">avg score <strong><%= wrapped.avg_vote_score %></strong> / 9</p>
+      <% end %>
+      <% if wrapped.avg_vote_words %>
+        <p class="wrapped-slide__body">avg <strong><%= wrapped.avg_vote_words %></strong> words per reason</p>
+      <% end %>
+    </div>
+
+    <div class="wrapped-bento__cell wrapped-bento__cell--secondary wrapped-voting-verdict wrapped-voting-verdict--<%= wrapped.vote_verdict %>">
+      <% if wrapped.vote_verdict == "blessed" %>
+        <p class="wrapped-slide__caption">verdict</p>
+        <div class="wrapped-voting-verdict__avatar <%= 'wrapped-voting-verdict__avatar--blessed' if wrapped.vote_verdict == 'blessed' %>">
+          <%= image_tag wrapped.instance_variable_get(:@user).avatar, class: "wrapped-avatar__img", alt: "" %>
+        </div>
+        <h2 class="wrapped-slide__stat" style="color: #fbbf24;">blessed</h2>
+        <p class="wrapped-slide__body">your reviews are carrying the kitchen. keep cooking. ✨</p>
+      <% elsif wrapped.vote_verdict == "cursed" %>
+        <p class="wrapped-slide__caption">verdict</p>
+        <div class="wrapped-voting-verdict__avatar">
+          <%= image_tag wrapped.instance_variable_get(:@user).avatar, class: "wrapped-avatar__img", alt: "" %>
+        </div>
+        <h2 class="wrapped-slide__stat" style="color: #ef4444;">cursed</h2>
+        <p class="wrapped-slide__body">your reviews need some work. put more thought into those reasons.</p>
+      <% else %>
+        <p class="wrapped-slide__caption">verdict</p>
+        <div class="wrapped-voting-verdict__avatar">
+          <%= image_tag wrapped.instance_variable_get(:@user).avatar, class: "wrapped-avatar__img", alt: "" %>
+        </div>
+        <h2 class="wrapped-slide__stat">neutral</h2>
+        <p class="wrapped-slide__body">solid voting — nothing outstanding, nothing cursed.</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .wrapped-voting-verdict__avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: var(--space-xs) auto;
+  }
+
+  .wrapped-voting-verdict__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .wrapped-voting-verdict__avatar--blessed {
+    box-shadow: 0 0 20px 6px rgba(251, 191, 36, 0.8), 0 0 40px 12px rgba(251, 191, 36, 0.4);
+    border: 2px solid #fbbf24;
+    animation: blessed-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes blessed-pulse {
+    0%, 100% { box-shadow: 0 0 20px 6px rgba(251, 191, 36, 0.8), 0 0 40px 12px rgba(251, 191, 36, 0.4); }
+    50%       { box-shadow: 0 0 30px 10px rgba(251, 191, 36, 1),   0 0 60px 20px rgba(251, 191, 36, 0.6); }
+  }
+</style>

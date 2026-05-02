@@ -65,7 +65,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
       @f = fulfilled_orders.average("EXTRACT(EPOCH FROM (shop_orders.fulfilled_at - shop_orders.created_at))").to_f
     end
 
-    # Sorting - always uses database ordering now
+# Sorting - always uses database ordering now
     orders = case params[:sort]
     when "id_asc" then orders.order(id: :asc)
     when "id_desc" then orders.order(id: :desc)

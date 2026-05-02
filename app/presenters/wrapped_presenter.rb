@@ -100,8 +100,38 @@ class WrappedPresenter
     @projects_count ||= @user.projects.count
   end
 
+  def best_ship_event
+    @best_ship_event ||= Post::ShipEvent
+      .joins(post: { project: :memberships })
+      .where(memberships: { user_id: @user.id })
+      .order(Arel.sql("post_ship_events.overall_score DESC NULLS LAST, post_ship_events.votes_count DESC"))
+      .includes(post: :project)
+      .first
+  end
+
   def ships_count
     @ships_count ||= @user.projects.where.not(ship_status: "draft").count
+  end
+
+  def vote_verdict
+    @vote_verdict ||= @user.vote_verdict&.verdict || "neutral"
+  end
+
+  def avg_vote_score
+    @avg_vote_score ||= begin
+      scores = @user.votes.where.not(originality_score: nil).pluck(
+        :originality_score, :technical_score, :usability_score, :storytelling_score
+      ).flatten.compact
+      scores.any? ? (scores.sum.to_f / scores.size).round(1) : nil
+    end
+  end
+
+  def avg_vote_words
+    @avg_vote_words ||= begin
+      reasons = @user.votes.where.not(reason: [nil, ""]).pluck(:reason)
+      return nil if reasons.empty?
+      (reasons.sum { |r| r.split.size }.to_f / reasons.size).round(1)
+    end
   end
 
   def votes_cast
@@ -133,6 +163,12 @@ class WrappedPresenter
 
   def shop_orders_count
     @shop_orders_count ||= @user.shop_orders.real.count
+  end
+
+  def shop_orders_list
+    @shop_orders_list ||= @user.shop_orders.real
+                              .includes(shop_item: { image_attachment: :blob })
+                              .order(frozen_item_price: :desc)
   end
 
   # Returns 0-100 percentile (what % of opt-in users the current user outranks)
@@ -169,18 +205,102 @@ class WrappedPresenter
 
   # Reports this user personally moved to reviewed or dismissed.
   def reports_personally_handled
-    @reports_personally_handled ||= PaperTrail::Version
+    @reports_personally_handled ||= reports_personally_reviewed + reports_personally_dismissed
+  end
+
+  def reports_personally_reviewed
+    @reports_personally_reviewed ||= PaperTrail::Version
       .where(item_type: "Project::Report")
       .where(whodunnit: @user.id.to_s)
-      .where("object_changes->'status'->>1 IN ('1', '2')")
+      .where("object_changes->'status'->>1 = '1'")
       .distinct
       .count(:item_id)
+  end
+
+  def reports_personally_dismissed
+    @reports_personally_dismissed ||= PaperTrail::Version
+      .where(item_type: "Project::Report")
+      .where(whodunnit: @user.id.to_s)
+      .where("object_changes->'status'->>1 = '2'")
+      .distinct
+      .count(:item_id)
+  end
+
+  # Rank of this user on the reports leaderboard (most handled = rank 1).
+  def reports_rank
+    @reports_rank ||= begin
+      counts = PaperTrail::Version
+        .where(item_type: "Project::Report")
+        .where("object_changes->'status'->>1 IN ('1', '2')")
+        .group(:whodunnit)
+        .distinct
+        .count(:item_id)
+      sorted = counts.sort_by { |_, v| -v }.map(&:first)
+      pos = sorted.index(@user.id.to_s)
+      pos ? pos + 1 : nil
+    end
   end
 
   # Org-wide shop orders the fulfilment team has shipped out this season.
   # Surfaced to fulfillment_person + fraud_dept (admins).
   def orders_team_fulfilled
     @orders_team_fulfilled ||= ShopOrder.where.not(fulfilled_at: nil).count
+  end
+
+  def orders_personally_approved
+    @orders_personally_approved ||= PaperTrail::Version
+      .where(item_type: "ShopOrder")
+      .where(whodunnit: @user.id.to_s)
+      .where("object_changes->'aasm_state'->>1 = 'awaiting_periodical_fulfillment'")
+      .distinct.count(:item_id)
+  end
+
+  def orders_personally_rejected
+    @orders_personally_rejected ||= PaperTrail::Version
+      .where(item_type: "ShopOrder")
+      .where(whodunnit: @user.id.to_s)
+      .where("object_changes->'aasm_state'->>1 = 'rejected'")
+      .distinct.count(:item_id)
+  end
+
+  def orders_personally_held
+    @orders_personally_held ||= PaperTrail::Version
+      .where(item_type: "ShopOrder")
+      .where(whodunnit: @user.id.to_s)
+      .where("object_changes->'aasm_state'->>1 = 'on_hold'")
+      .distinct.count(:item_id)
+  end
+
+  def orders_personally_fulfilled
+    @orders_personally_fulfilled ||= PaperTrail::Version
+      .where(item_type: "ShopOrder")
+      .where(whodunnit: @user.id.to_s)
+      .where("object_changes->'aasm_state'->>1 = 'fulfilled'")
+      .distinct.count(:item_id)
+  end
+
+  def orders_rank_fraud
+    @orders_rank_fraud ||= begin
+      counts = PaperTrail::Version
+        .where(item_type: "ShopOrder")
+        .where("object_changes->'aasm_state'->>1 IN ('awaiting_periodical_fulfillment', 'rejected', 'on_hold')")
+        .group(:whodunnit).distinct.count(:item_id)
+      sorted = counts.sort_by { |_, v| -v }.map(&:first)
+      pos = sorted.index(@user.id.to_s)
+      pos ? pos + 1 : nil
+    end
+  end
+
+  def orders_rank_fulfillment
+    @orders_rank_fulfillment ||= begin
+      counts = PaperTrail::Version
+        .where(item_type: "ShopOrder")
+        .where("object_changes->'aasm_state'->>1 = 'fulfilled'")
+        .group(:whodunnit).distinct.count(:item_id)
+      sorted = counts.sort_by { |_, v| -v }.map(&:first)
+      pos = sorted.index(@user.id.to_s)
+      pos ? pos + 1 : nil
+    end
   end
 
   def achievements_count
@@ -249,8 +369,18 @@ class WrappedPresenter
       biggest_gain: biggest_ledger_event(positive: true),
       biggest_spend: biggest_ledger_event(positive: false),
       peak_workday: peak_workday,
-      strongest_weekday: strongest_weekday
+      strongest_weekday: strongest_weekday,
+      role_badges: role_badges
     }
+  end
+
+  def role_badges
+    badges = []
+    badges << "🚀" if @user.has_role?(:project_certifier)
+    badges << "👋" if @user.has_role?(:helper)
+    badges << "👁"  if @user.has_role?(:fraud_dept)
+    badges << "🎁" if @user.has_role?(:fulfillment_person)
+    badges
   end
 
   def payout_breakdown
@@ -266,6 +396,8 @@ class WrappedPresenter
                 "Shipwright"
         elsif reason.include?("GOI payout")
                 "GOI"
+        elsif reason.start_with?("Ship event payout:") || reason.start_with?("Bridge payout:")
+                "Ship Events"
         else
                 "Bonus"
         end

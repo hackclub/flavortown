@@ -17,5 +17,25 @@
         <p class="wrapped-slide__body"><strong><%= number_with_delimiter(wrapped.orders_team_fulfilled) %></strong> orders</p>
       <% end %>
     </div>
+
+    <% if wrapped.fraud_dept? %>
+      <div class="wrapped-bento__cell wrapped-bento__cell--secondary wrapped-bento__cell--staff">
+        <p class="wrapped-slide__caption">your fraud verdicts</p>
+        <p class="wrapped-slide__body"><strong><%= wrapped.orders_personally_approved %></strong> approved, <strong><%= wrapped.orders_personally_rejected %></strong> rejected<% unless wrapped.fulfillment_team? %>, <strong><%= wrapped.orders_personally_held %></strong> held<% end %></p>
+        <% if wrapped.orders_rank_fraud %>
+          <p class="wrapped-slide__body"><strong>#<%= wrapped.orders_rank_fraud %></strong> on the fraud leaderboard</p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if wrapped.fulfillment_team? %>
+      <div class="wrapped-bento__cell wrapped-bento__cell--secondary wrapped-bento__cell--staff">
+        <p class="wrapped-slide__caption">your fulfillments</p>
+        <h2 class="wrapped-slide__stat"><%= number_with_delimiter(wrapped.orders_personally_fulfilled) %></h2>
+        <% if wrapped.orders_rank_fulfillment %>
+          <p class="wrapped-slide__body"><strong>#<%= wrapped.orders_rank_fulfillment %></strong> on the fulfillment leaderboard</p>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </div>

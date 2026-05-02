@@ -147,6 +147,18 @@ export default class extends Controller {
     const boltWidth = ctx.measureText("⚡").width + 14;
     ctx.fillStyle = palette.cream;
     ctx.fillText(this.usernameValue, pad + boltWidth, nameY);
+    // Role badges after username
+    const roleBadges = (this.bentoValue.role_badges || []);
+    if (roleBadges.length > 0) {
+      const nameWidth = ctx.measureText(this.usernameValue).width;
+      let badgeX = pad + boltWidth + nameWidth + 18;
+      ctx.font = "52px sans-serif";
+      for (const badge of roleBadges) {
+        ctx.fillText(badge, badgeX, nameY);
+        badgeX += ctx.measureText(badge).width + 10;
+      }
+      ctx.font = "bold 64px 'Jua', 'Arial Black', sans-serif";
+    }
 
     // ── Layout grid ─────────────────────────────────────────────────
     const contentTop = nameY + 110;

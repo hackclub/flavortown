@@ -18,6 +18,15 @@
       <% end %>
     </div>
 
+    <% if wrapped.best_ship_event %>
+      <div class="wrapped-bento__cell wrapped-bento__cell--secondary">
+        <p class="wrapped-slide__caption">best ship</p>
+        <div class="wrapped-post-embed">
+          <%= render PostComponent.new(post: wrapped.best_ship_event.post, current_user: current_user, compact: true) %>
+        </div>
+      </div>
+    <% end %>
+
     <% pulse = wrapped.bento_payload[:activity_pulse] || [] %>
     <div class="wrapped-bento__cell wrapped-bento__cell--secondary">
       <% if pulse.any? %>
