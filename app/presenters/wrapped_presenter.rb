@@ -128,7 +128,7 @@ class WrappedPresenter
 
   def avg_vote_words
     @avg_vote_words ||= begin
-      reasons = @user.votes.where.not(reason: [nil, ""]).pluck(:reason)
+      reasons = @user.votes.where.not(reason: [ nil, "" ]).pluck(:reason)
       return nil if reasons.empty?
       (reasons.sum { |r| r.split.size }.to_f / reasons.size).round(1)
     end
