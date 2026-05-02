@@ -46,7 +46,7 @@ module HCBService
 
     def refresh_token!
       HCBCredential.transaction do
-        hcb_credentials = HCBCredential.first
+        hcb_credentials = HCBCredential.lock.first
         raise HCBError, "no HCB credentials found" unless hcb_credentials
         client_id = hcb_credentials.client_id
         client_secret = hcb_credentials.client_secret
@@ -96,6 +96,7 @@ module HCBService
     end
 
     def create_card_grant(email:, amount_cents:, merchant_lock: nil, category_lock: nil, keyword_lock: nil, purpose: nil, pre_authorization_required: false, one_time_use: false, instructions: nil)
+      purpose = purpose&.slice(0, 30)
       with_retry do
         conn.post("organizations/#{@hcb_org_slug}/card_grants", email:, amount_cents:, category_lock:, merchant_lock:, keyword_lock:, purpose:, pre_authorization_required:, one_time_use:, instructions:).body
       end
