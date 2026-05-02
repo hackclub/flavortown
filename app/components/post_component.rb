@@ -5,7 +5,7 @@ class PostComponent < ViewComponent::Base
 
   attr_reader :post, :compact
 
-  def initialize(post:, current_user: nil, theme: nil, compact: false, lapse_badge: false, standalone: false, show_likes: true, show_comments: true, show_actions: true, show_avatar: true)
+  def initialize(post:, current_user: nil, theme: nil, compact: false, lapse_badge: false, standalone: false, show_likes: true, show_comments: true, show_actions: true)
     @post = post
     @current_user = current_user
     @theme = theme
@@ -15,11 +15,6 @@ class PostComponent < ViewComponent::Base
     @show_likes = show_likes
     @show_comments = show_comments
     @show_actions = show_actions
-    @show_avatar = show_avatar
-  end
-
-  def show_avatar?
-    @show_avatar
   end
 
   def compact?
