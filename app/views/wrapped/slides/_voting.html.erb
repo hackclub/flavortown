@@ -19,21 +19,21 @@
           <%= image_tag wrapped.instance_variable_get(:@user).avatar, class: "wrapped-avatar__img", alt: "" %>
         </div>
         <h2 class="wrapped-slide__stat" style="color: #fbbf24;">blessed</h2>
-        <p class="wrapped-slide__body">your reviews are carrying the kitchen. keep cooking. ✨</p>
+        <p class="wrapped-slide__body">We LOVE your votes, hope the bonus we put go to good use</p>
       <% elsif wrapped.vote_verdict == "cursed" %>
         <p class="wrapped-slide__caption">verdict</p>
         <div class="wrapped-voting-verdict__avatar">
           <%= image_tag wrapped.instance_variable_get(:@user).avatar, class: "wrapped-avatar__img", alt: "" %>
         </div>
         <h2 class="wrapped-slide__stat" style="color: #ef4444;">cursed</h2>
-        <p class="wrapped-slide__body">your reviews need some work. put more thought into those reasons.</p>
+        <p class="wrapped-slide__body">Lets not make sloppy votes now huh</p>
       <% else %>
         <p class="wrapped-slide__caption">verdict</p>
         <div class="wrapped-voting-verdict__avatar">
           <%= image_tag wrapped.instance_variable_get(:@user).avatar, class: "wrapped-avatar__img", alt: "" %>
         </div>
         <h2 class="wrapped-slide__stat">neutral</h2>
-        <p class="wrapped-slide__body">solid voting — nothing outstanding, nothing cursed.</p>
+        <p class="wrapped-slide__body">Staying safe!</p>
       <% end %>
     </div>
   </div>
