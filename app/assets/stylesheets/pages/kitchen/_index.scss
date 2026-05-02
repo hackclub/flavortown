@@ -968,7 +968,7 @@
       position: absolute;
       z-index: -1;
       border-radius: var(--border-radius);
-      content: attr(alt);
+      content: "";
       width: 15em;
       height: 2em;
       background-color: var(--color-bg);
