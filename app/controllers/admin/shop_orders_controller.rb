@@ -215,7 +215,7 @@ class Admin::ShopOrdersController < Admin::ApplicationController
     authorize :admin, :access_shop_orders?
     @order = ShopOrder.find(params[:id])
 
-    if @order.user_id == current_user.id && Rails.env.production?
+    if @order.user_id == current_user.id && !Rails.env.development?
       redirect_to admin_shop_order_path(@order), alert: "You cannot approve your own order." and return
     end
 
