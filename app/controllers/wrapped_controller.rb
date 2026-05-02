@@ -15,7 +15,10 @@ class WrappedController < ApplicationController
   private
 
   def require_login
-    redirect_to root_path, alert: "Please sign in to view your wrapped." unless current_user
+    return if current_user
+
+    redirect_to root_path, alert: "Please sign in to view your wrapped."
+    return
   end
 
   def check_wrapped_flag
