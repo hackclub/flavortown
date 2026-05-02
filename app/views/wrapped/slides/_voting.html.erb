@@ -18,50 +18,23 @@
         <div class="wrapped-voting-verdict__avatar <%= 'wrapped-voting-verdict__avatar--blessed' if wrapped.vote_verdict == 'blessed' %>">
           <%= image_tag wrapped.user.avatar, class: "wrapped-avatar__img", alt: "" %>
         </div>
-        <h2 class="wrapped-slide__stat" style="color: #fbbf24;">blessed</h2>
+        <h2 class="wrapped-slide__stat wrapped-voting-verdict__stat wrapped-voting-verdict__stat--blessed">blessed</h2>
         <p class="wrapped-slide__body">We LOVE your votes, hope the bonus we put go to good use</p>
       <% elsif wrapped.vote_verdict == "cursed" %>
         <p class="wrapped-slide__caption">verdict</p>
         <div class="wrapped-voting-verdict__avatar">
           <%= image_tag wrapped.user.avatar, class: "wrapped-avatar__img", alt: "" %>
         </div>
-        <h2 class="wrapped-slide__stat" style="color: #ef4444;">cursed</h2>
+        <h2 class="wrapped-slide__stat wrapped-voting-verdict__stat wrapped-voting-verdict__stat--cursed">cursed</h2>
         <p class="wrapped-slide__body">Lets not make sloppy votes now huh</p>
       <% else %>
         <p class="wrapped-slide__caption">verdict</p>
         <div class="wrapped-voting-verdict__avatar">
           <%= image_tag wrapped.user.avatar, class: "wrapped-avatar__img", alt: "" %>
         </div>
-        <h2 class="wrapped-slide__stat">neutral</h2>
+        <h2 class="wrapped-slide__stat wrapped-voting-verdict__stat wrapped-voting-verdict__stat--neutral">neutral</h2>
         <p class="wrapped-slide__body">Staying safe!</p>
       <% end %>
     </div>
   </div>
 </div>
-
-<style>
-  .wrapped-voting-verdict__avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin: var(--space-xs) auto;
-  }
-
-  .wrapped-voting-verdict__avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .wrapped-voting-verdict__avatar--blessed {
-    box-shadow: 0 0 20px 6px rgba(251, 191, 36, 0.8), 0 0 40px 12px rgba(251, 191, 36, 0.4);
-    border: 2px solid #fbbf24;
-    animation: blessed-pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes blessed-pulse {
-    0%, 100% { box-shadow: 0 0 20px 6px rgba(251, 191, 36, 0.8), 0 0 40px 12px rgba(251, 191, 36, 0.4); }
-    50%       { box-shadow: 0 0 30px 10px rgba(251, 191, 36, 1),   0 0 60px 20px rgba(251, 191, 36, 0.6); }
-  }
-</style>
