@@ -216,11 +216,11 @@ application.register("voting-dash", VotingDashController);
 import WelcomeOverlayController from "./welcome_overlay_controller";
 application.register("welcome-overlay", WelcomeOverlayController);
 
-import WrappedController from "./wrapped_controller";
-application.register("wrapped", WrappedController);
-
 import WordCountController from "./word_count_controller";
 application.register("word-count", WordCountController);
+
+import WrappedController from "./wrapped_controller";
+application.register("wrapped", WrappedController);
 
 import XpWindowController from "./xp_window_controller";
 application.register("xp-window", XpWindowController);

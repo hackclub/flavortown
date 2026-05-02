@@ -370,7 +370,8 @@ class WrappedPresenter
       biggest_spend: biggest_ledger_event(positive: false),
       peak_workday: peak_workday,
       strongest_weekday: strongest_weekday,
-      role_badges: role_badges
+      role_badges: role_badges,
+      is_admin: @user.admin?
     }
   end
 
