@@ -7,11 +7,13 @@
     <%= render HeadingComponent.new(title: "Kitchen", tone: :blue, size: :full) %>
   </div>
 
-  <div class="kitchen-wrapped-link">
-    <%= link_to wrapped_path, class: "kitchen-wrapped-link__button" do %>
-      See your Wrapped →
-    <% end %>
-  </div>
+  <% if Flipper.enabled?(:wrapped, current_user) %>
+    <div class="kitchen-wrapped-link">
+      <%= link_to wrapped_path, class: "kitchen-wrapped-link__button" do %>
+        See your Wrapped →
+      <% end %>
+    </div>
+  <% end %>
 
   <% if @show_and_tell_live %>
     <div class="show-and-tell-banner">
