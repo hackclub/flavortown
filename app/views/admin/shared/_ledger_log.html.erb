@@ -2,12 +2,11 @@
     Usage:
       render "admin/shared/ledger_log", entries: @user.ledger_entries
       render "admin/shared/ledger_log", entries: LedgerEntry.where(...), title: "Project Ledger"
-    Optional: limit (default 15), title (default "Ledger History") %>
+    Optional: title (default "Ledger History") %>
 <% entries = local_assigns[:entries] || LedgerEntry.none %>
-<% limit = local_assigns.fetch(:limit, 15) %>
 <% title = local_assigns.fetch(:title, "Ledger History") %>
 <% entries = entries.order(created_at: :desc) %>
-<% displayed_entries = entries.limit(limit).includes(:user) %>
+<% displayed_entries = entries.includes(:user) %>
 
 <div class="card" style="margin-top: 1.5rem;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">

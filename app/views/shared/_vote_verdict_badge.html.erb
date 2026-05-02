@@ -1,0 +1,6 @@
+<% if user.vote_verdict && !user.vote_verdict.neutral? %>
+  <div>
+    <b>Blessed/Cursed Status:</b>
+    <span class="badge <%= user.vote_verdict.blessed? ? "badge--success" : "badge--danger" %>"><%= user.vote_verdict.verdict.titleize %></span>
+  </div>
+<% end %>

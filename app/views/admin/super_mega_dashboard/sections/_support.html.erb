@@ -80,17 +80,48 @@
                   <%= render layout: "shared/modal", locals: { id: "concern-#{idx}", title: concern["title"], description: concern["description"] } do %>
                     <% if concern["messages"].present? %>
                       <span class="concern-count">(<%= concern["count"] %> total messages)</span>
-                      <ul class="concern-messages-list">
-                        <% concern["messages"].each do |msg| %>
-                          <li class="concern-message-item">
+                      <div class="concern-messages-list">
+                        <% concern["messages"].each_with_index do |msg, msg_idx| %>
+                          <div class="concern-message-item">
                             <% if msg["message_ts"].present? %>
-                              <a href="https://hackclub.slack.com/archives/C09MATKQM8C/p<%= msg["message_ts"].gsub('.', '') %>" target="_blank" rel="noopener" class="modal__link">
-                                <%= msg["content"] %>
-                              </a>
+                              <details>
+                                <summary><%= msg["content"].gsub(/\(\d{10,}\.\d+\)\s*/, "").truncate(25) %></summary>
+                                <p>
+                                  <table>
+                                    <tr>
+                                      <td>Slack</td>
+                                      <td><a href="https://hackclub.slack.com/archives/C09MATKQM8C/p<%= msg["message_ts"].gsub('.', '') %>" target="_blank" rel="noopener" class="modal__link">View -></a></td>
+                                    </tr>
+                                    <tr>
+                                      <td>Content</td>
+                                      <td><%= msg["content"].gsub(/\(\d{10,}\.\d+\)\s*/, "") %></td>
+                                    </tr>
+                                    <tr>
+                                      <td>Status</td>
+                                      <td>
+                                        <% status = @additional_concern_data.dig(idx, msg_idx, 0) %>
+                                        <span class="<%= status == "OPEN" ? "status-open" : status == "CLOSED" ? "status-closed" : "" %>"><%= status %></span>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td>Username</td>
+                                      <td>@<%= @additional_concern_data.dig(idx, msg_idx, 1) %></td>
+                                    </tr>
+                                    <tr>
+                                      <td>Created</td>
+                                      <td><%= Time.iso8601(@additional_concern_data.dig(idx, msg_idx, 2)).to_formatted_s(:long) if @additional_concern_data.dig(idx, msg_idx, 2).present? %></td>
+                                    </tr>
+                                    <tr>
+                                      <td>Resolved</td>
+                                      <td><%= Time.iso8601(@additional_concern_data.dig(idx, msg_idx, 3)).to_formatted_s(:long) if @additional_concern_data.dig(idx, msg_idx, 3).present? %></td>
+                                    </tr>
+                                  </table>
+                                </p>
+                              </details>
                             <% end %>
-                          </li>
+                          </div>
                         <% end %>
-                      </ul>
+                      </div>
                     <% end %>
                     <div class="modal__actions">
                       <button type="button" class="modal__actions-close" onclick="document.getElementById(<%= "concern-#{idx}".to_json %>).close()">X</button>

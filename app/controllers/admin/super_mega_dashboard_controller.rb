@@ -36,7 +36,7 @@ module Admin
       super_mega_nps_stats
       super_mega_nps_vibes
       super_mega_hcb_stats
-      super_mega_hcb_stats_v2
+      super_mega_hcb_transactions
       super_mega_top_projects_24h
       super_mega_top_projects_week
       super_mega_top_projects_month

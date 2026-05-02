@@ -1,6 +1,12 @@
 class Api::V1::Admin::ShopOrdersController < Api::V1::Admin::BaseController
   before_action :set_item, except: %i[order fulfill]
 
+  def index
+    orders = @item.shop_orders
+    orders = orders.where(aasm_state: params[:aasm_state]) if params[:aasm_state].present?
+    render json: orders.as_json(except: %i[frozen_address_ciphertext])
+  end
+
   def stats
     orders = @item.shop_orders.where.not(aasm_state: "rejected")
     render json: {

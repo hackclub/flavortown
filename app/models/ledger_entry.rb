@@ -28,6 +28,19 @@ class LedgerEntry < ApplicationRecord
 
   validates :user, presence: true
 
+  def source_type
+    case ledgerable_type
+    when "ShopOrder" then "shop_purchase"
+    when "Post::ShipEvent" then "ship_event_payout"
+    when "User" then "user_grant"
+    when "User::Achievement" then "achievement"
+    when "FulfillmentPayoutLine" then "fulfillment_payout"
+    when "SidequestEntry" then "sidequest_rejection_fee"
+    when "ShowAndTellAttendance" then "show_and_tell_payout"
+    else ledgerable_type.underscore.humanize.downcase
+    end
+  end
+
   before_validation :set_user_from_ledgerable
   before_update :prevent_update
   before_destroy :prevent_destruction
@@ -72,16 +85,8 @@ class LedgerEntry < ApplicationRecord
   def notify_balance_change
     return unless user.slack_balance_notifications?
 
-    source = case ledgerable_type
-    when "ShopOrder" then "shop purchase"
-    when "Post::ShipEvent" then "ship event payout"
-    when "User" then "user grant"
-    when "User::Achievement" then "achievement: #{ledgerable.achievement.name}"
-    when "FulfillmentPayoutLine" then "fulfillment payout"
-    when "SidequestEntry" then "sidequest rejection fee"
-    when "ShowAndTellAttendance" then "show and tell payout"
-    else ledgerable_type.underscore.humanize.downcase
-    end
+    source = source_type.tr("_", " ")
+    source = "#{source}: #{ledgerable.achievement.name}" if ledgerable_type == "User::Achievement"
     change_emoji = amount.positive? ? "📈" : "📉"
     message = "#{change_emoji} Balance #{amount.positive? ? '+' : ''}#{amount} 🍪 (#{source}) → #{user.balance} 🍪"
 

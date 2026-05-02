@@ -13,6 +13,9 @@
       <% if @order.fulfilled_at %>
         <div><b>Fulfilled:</b> <%= @order.fulfilled_at.strftime("%Y-%m-%d %H:%M") %></div>
       <% end %>
+      <% if @order.fulfilled_by.present? %>
+        <div><b>Fulfilled by:</b> <%= @order.fulfilled_by %></div>
+      <% end %>
       <% if @order.rejection_reason.present? %>
         <div><b>Rejection Reason:</b> <%= @order.rejection_reason %></div>
       <% end %>

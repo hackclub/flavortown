@@ -1,0 +1,16 @@
+<%= link_to sidequest_path(sidequest), id: "transcode", class: "sidequest-card sidequest-card--blue sidequest-card--link" do %>
+  <div class="sidequest-card__content">
+    <h1 class="sidequest-card__title">Transcode</h1>
+    <%= image_tag "launch/transcode.png",
+                  alt: "Transcode",
+                  aria: { hidden: true },
+                  class: "sidequest-card__image" %>
+    <h2>Submit a project that has a focus working with any form of media (video, art, music!). Make a music visualizer, your own obamify, or a video-to-ASCII converter!</h2>
+    <% if sidequest.approved_count > 0 %>
+      <p class="sidequest-card__expires"><%= pluralize(sidequest.approved_count, "submission") %></p>
+    <% end %>
+    <% if sidequest.expires_at.present? %>
+      <p class="sidequest-card__expires"><%= sidequest.expired? ? "Ended" : "Ends" %> <%= sidequest.expires_at.strftime("%B %d, %Y") %></p>
+    <% end %>
+  </div>
+<% end %>

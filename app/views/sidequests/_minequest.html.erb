@@ -1,0 +1,21 @@
+<% unless content_for?(:stylesheets) %>
+  <% content_for :stylesheets do %>
+    <%= stylesheet_link_tag "sidequests/minequest/ui", "data-turbo-track": "reload" %>
+  <% end %>
+<% end %>
+
+<%= link_to minequest_sidequest_path, class: "sidequest-card sidequest-card--link sidequest-card--minequest" do %>
+  <div class="sidequest-card__content">
+    <div class="sidequest-card__image-container">
+      <%= image_tag "https://cdn.hackclub.com/019dac8f-d52a-7524-ab22-f001a4637895/art%20(2).avif", class: "sidequest-card__image" %>
+    </div>
+    <h2><%= sidequest.description %></h2>
+    <p class="sidequest-card__expires">
+      <% if sidequest.approved_count.zero? %>
+        Be the first one to submit
+      <% else %>
+        Total projects submitted: <%= sidequest.approved_count %>
+      <% end %>
+    </p>
+  </div>
+<% end %>

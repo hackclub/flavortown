@@ -14,6 +14,7 @@
       <div><b>Name:</b> <%= @user.display_name %></div>
       <div><b>Slack ID:</b> <%= @user.slack_id || "N/A" %></div>
       <div><b>Verification:</b> <%= @user.verification_status.titleize %></div>
+      <%= render "shared/vote_verdict_badge", user: @user %>
       <div><b>YSWS Eligible:</b> <%= @user.ysws_eligible? ? "Yes" : "No" %></div>
       <div>
         <b>Cookie Balance:</b>

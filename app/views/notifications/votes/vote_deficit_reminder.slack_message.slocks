@@ -1,0 +1,23 @@
+header "Do your duty! :index_pointing_at_the_viewer:"
+
+section "You need to vote *#{pluralize(votes_needed, 'more time')}* to bring your vote balance back up.", markdown: true
+
+if held_ship_count.to_i.positive?
+  if held_ship_count == 1
+    section "Your unpaid ship is paused from receiving more votes until your vote balance is back to zero.", markdown: true
+  else
+    section "Your *#{held_ship_count}* unpaid ships are paused from receiving more votes until your vote balance is back to zero.", markdown: true
+  end
+elsif unpaid_ship_count == 1
+  section "You have an unpaid ship waiting on voting and payout. If it starts receiving votes while your balance is negative, it may be paused until you vote more.", markdown: true
+else
+  section "You have *#{unpaid_ship_count}* unpaid ships waiting on voting and payout. If they start receiving votes while your balance is negative, they may be paused until you vote more.", markdown: true
+end
+
+section "Once your vote balance is back to zero, your ships can receive votes again automatically.", markdown: true
+
+divider
+
+context [
+  mrkdwn_text("Start voting: <https://flavortown.hackclub.com/votes/new|Vote on projects>")
+]

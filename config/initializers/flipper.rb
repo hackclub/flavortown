@@ -33,6 +33,15 @@ Rails.application.config.after_initialize do
     Flipper.add(:shipping) unless Flipper.exist?(:shipping)
     Flipper.add(:user_profiles) unless Flipper.exist?(:user_profiles)
     Flipper.add(:show_and_tell_live) unless Flipper.exist?(:show_and_tell_live)
+
+    # Creation kill-switches: enabled by default so existing behavior is preserved.
+    # Disable via Flipper UI to prevent users from creating these resources.
+    [ :create_projects, :create_comments, :create_devlogs ].each do |feature|
+      unless Flipper.exist?(feature)
+        Flipper.add(feature)
+        Flipper.enable(feature)
+      end
+    end
   rescue StandardError => e
     Rails.logger.warn "Could not initialize flipper: #{e.message}"
   end

@@ -45,10 +45,6 @@ class KitchenController < ApplicationController
 
   private
 
-  def require_login
-    redirect_to root_path, alert: "Please log in first" and return unless current_user
-  end
-
   def load_current_user_with_identities
     current_user(:identities)
   end

@@ -1,0 +1,160 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "sidequests/minequest/ui", "data-turbo-track": "reload" %>
+<% end %>
+
+<div class="minecraft-home-screen" data-controller="sidequests--minequest--accessibility" data-sidequests--minequest--accessibility-gif-value="https://cdn.hackclub.com/019dac8b-f908-7ef1-ace6-01ff01204336/ezgif-25c447519ddbfd94.avif" data-sidequests--minequest--accessibility-png-value="<%= asset_path('sidequests/minequest/static-title.png') %>" style="background-image: url('https://cdn.hackclub.com/019dac22-419b-7229-ab3b-e0b80965614a/bg.avif'); background-size: cover; background-position: center;">
+  <div class="minecraft-title-container">
+    <%= image_tag "https://cdn.hackclub.com/019dac8b-f908-7ef1-ace6-01ff01204336/ezgif-25c447519ddbfd94.avif", class: "minecraft-title-image", data: { sidequests__minequest__accessibility_target: "image" } %>
+  </div>
+
+  <div class="minecraft-map-box">
+    <p class="minecraft-map-box__text"><%= @sidequest.description %></p>
+  </div>
+
+  <div class="minecraft-menu">
+    <div data-controller="sidequests--minequest--modal">
+      <a href="#" class="minecraft-menu-button" style="width: 100%; display: block;" data-action="click->sidequests--minequest--modal#open">Requirements</a>
+
+      <div class="minecraft-modal hidden" data-sidequests--minequest--modal-target="dialog">
+        <div class="minecraft-book minecraft-book-large">
+          <h3 class="minecraft-book-title">Requirements</h3>
+          <div class="minecraft-book-content minecraft-book-content-large">
+            <div class="minecraft-requirements-columns">
+              <h4 class="minecraft-requirements-subheading">Core Build Rules</h4>
+              <h4 class="minecraft-requirements-subheading">Allowed Project Types</h4>
+
+              <p class="minecraft-requirements-point">Ship a project for your beloved game Minecraft, it can be anything but not proper mods. Make something which other players will enjoy playing!</p>
+              <p class="minecraft-requirements-point">Customs Mobs with unique features</p>
+
+              <p class="minecraft-requirements-point">Must use less than 30% AI.</p>
+              <p class="minecraft-requirements-point">Shader Packs and Resource Packs</p>
+
+              <p class="minecraft-requirements-point">Your project must be published on CurseForge or Modrinth.</p>
+              <p class="minecraft-requirements-point">AI Companion in-game player.</p>
+
+              <p class="minecraft-requirements-point">Your must select MineQuest as a sidequest while shipping your project.</p>
+               <p class="minecraft-requirements-point">Minecraft mini games like a built-in story pack.</p>
+
+              <p class="minecraft-requirements-point">You should spend at least 3 hours on your MineQuest project!</p>
+              <p class="minecraft-requirements-point">Custom in-game commands which allow you to cheat easily.</p>
+
+              <p class="minecraft-requirements-point">Your project should be unique and have a proper README file mentioning all the info about your project.<br>ALSO YOU CANNOT SUBMIT ANY PREVIOUS MINECRAFT PROJECTS!</p>
+              <p class="minecraft-requirements-point">Note: You can get approval for more project types. Just specify it in #minequest and wait for approval.</p>
+            </div>
+          </div>
+          <p class="minecraft-requirements-help-text">Join <a href="https://hackclub.enterprise.slack.com/archives/C0ATTCPQ0R4" target="_blank" rel="noopener">#minequest</a> to get help</p>
+          <button type="button" data-action="click->sidequests--minequest--modal#close" class="minecraft-book-btn">Close</button>
+        </div>
+      </div>
+    </div>
+    <div data-controller="sidequests--minequest--ideas" data-sidequests--minequest--ideas-url-value="<%= generate_ideas_path %>">
+      <a href="#" class="minecraft-menu-button" style="width: 100%; display: block;" data-action="click->sidequests--minequest--ideas#open">Ideas</a>
+
+      <div class="minecraft-modal hidden" data-sidequests--minequest--ideas-target="dialog">
+        <div class="minecraft-book" style="height: auto; min-height: 400px; padding-bottom: 80px;">
+          <h3 class="minecraft-book-title">Idea Generator</h3>
+          <div class="minecraft-book-content" data-sidequests--minequest--ideas-target="content">
+            <p>
+              Need inspiration?
+            </p>
+          </div>
+
+          <div style="position: absolute; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px;">
+            <button type="button" data-action="click->sidequests--minequest--ideas#generate" data-sidequests--minequest--ideas-target="button" class="minecraft-book-btn" style="position: static; transform: none;">Generate Idea</button>
+            <button type="button" data-action="click->sidequests--minequest--ideas#close" class="minecraft-book-btn" style="position: static; transform: none;">Close</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div data-controller="sidequests--minequest--modal">
+      <button type="button" class="minecraft-menu-button" style="width: 100%; display: block;" data-action="click->sidequests--minequest--modal#open">Prizes</button>
+
+      <div class="minecraft-modal hidden" data-sidequests--minequest--modal-target="dialog">
+        <div class="minecraft-book minecraft-book-large">
+          <h3 class="minecraft-book-title">Prizes</h3>
+          <p class="minecraft-prizes-heading-text">Click any item frame to open its link.</p>
+          <div class="minecraft-book-content minecraft-book-content-large">
+            <% if @prizes.present? && @prizes.any? %>
+              <p class="minecraft-book-summary"><%= pluralize(@prizes.count, "prize") %> available for Minequest adventurers.</p>
+              <div class="minecraft-prize-cards">
+                <% @prizes.each do |prize| %>
+                  <%= link_to "/shop/order?shop_item_id=#{prize.id}", class: "minecraft-prize-card" do %>
+                    <div class="minecraft-prize-frame">
+                      <% if prize.image.attached? %>
+                        <span class="minecraft-prize-image">
+                          <%= image_tag prize.image.variant(:carousel_sm), alt: prize.name, loading: "lazy" %>
+                        </span>
+                      <% else %>
+                        <span class="minecraft-prize-image minecraft-prize-image-empty">No image</span>
+                      <% end %>
+                    </div>
+                    <div class="minecraft-prize-meta">
+                      <span class="minecraft-book-item-name"><%= prize.name %></span>
+                      <span class="minecraft-book-item-cost">
+                        <%= number_to_currency(prize.ticket_cost, precision: 0).delete('$') %>
+                        <%= image_tag "https://cdn.hackclub.com/019da68b-5f06-7380-a317-e9183c26ea1a/Cookie_JE1_BE1-removebg-preview.png", alt: "cookies", class: "minecraft-currency-icon" %>
+                      </span>
+                    </div>
+                  <% end %>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="minecraft-prize-cards minecraft-prize-cards-placeholder">
+                <% 4.times do |index| %>
+                  <% if index < 2 %>
+                    <%= link_to "/shop", class: "minecraft-prize-card minecraft-prize-card-placeholder", title: "Open shop" do %>
+                      <div class="minecraft-prize-frame minecraft-prize-frame-wood">
+                        <span class="minecraft-prize-image minecraft-prize-image-placeholder">Coming Soon</span>
+                      </div>
+                      <div class="minecraft-prize-meta">
+                        <span class="minecraft-book-item-name">Mystery Prize <%= index + 1 %></span>
+                        <span class="minecraft-book-item-cost">
+                          ???
+                          <%= image_tag "https://cdn.hackclub.com/019da68b-5f06-7380-a317-e9183c26ea1a/Cookie_JE1_BE1-removebg-preview.png", alt: "cookies", class: "minecraft-currency-icon" %>
+                        </span>
+                      </div>
+                    <% end %>
+                  <% else %>
+                    <div class="minecraft-prize-card minecraft-prize-card-placeholder">
+                      <div class="minecraft-prize-frame minecraft-prize-frame-wood">
+                        <span class="minecraft-prize-image minecraft-prize-image-placeholder">Coming Soon</span>
+                      </div>
+                      <div class="minecraft-prize-meta">
+                        <span class="minecraft-book-item-name">Mystery Prize <%= index + 1 %></span>
+                        <span class="minecraft-book-item-cost">
+                          ???
+                          <%= image_tag "https://cdn.hackclub.com/019da68b-5f06-7380-a317-e9183c26ea1a/Cookie_JE1_BE1-removebg-preview.png", alt: "cookies", class: "minecraft-currency-icon" %>
+                        </span>
+                      </div>
+                    </div>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+            <div class="minecraft-steve-inline" aria-label="Steve image">
+              <%= image_tag "https://cdn.hackclub.com/019da696-ea9f-7856-a2d2-7eaf2a50048b/x5h0hopstt261-removebg-preview.png", alt: "Steve character", class: "minecraft-steve-inline-image", loading: "lazy" %>
+            </div>
+          </div>
+          <button type="button" data-action="click->sidequests--minequest--modal#close" class="minecraft-book-btn">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="minecraft-footer-buttons">
+    <%= link_to "https://hackclub.enterprise.slack.com/archives/C0ATTCPQ0R4", class: "minecraft-menu-button icon", target: "_blank", rel: "noopener", title: "Join #minequest on Slack" do %>
+      <%= image_tag "icons/slack.svg", alt: "Slack", class: "minecraft-icon-image" %>
+    <% end %>
+    <%= link_to "Submissions", minequest_sidequest_path(view: "submissions"), class: "minecraft-menu-button small" %>
+    <%= link_to "← Back", sidequests_path, class: "minecraft-menu-button small" %>
+    <button type="button" class="minecraft-menu-button icon animation-toggle-button" data-action="click->sidequests--minequest--accessibility#toggle" data-sidequests--minequest--accessibility-target="button" aria-pressed="false" title="Turn On/Off Animation" aria-label="Turn On/Off Animation">
+      <img src="https://media.forgecdn.net/avatars/thumbnails/1053/312/256/256/638583850233176730.png" alt="Animation" class="minecraft-icon-image">
+    </button>
+  </div>
+  <div class="minecraft-footer">
+    <span class="minecraft-footer-left">Minequest 1.0.1/flavourtown</span>
+    <span class="minecraft-footer-right">Copyright Hack Club. Do distribute!</span>
+  </div>
+
+</div>

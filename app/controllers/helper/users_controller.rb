@@ -15,7 +15,7 @@ module Helper
 
     def show
       authorize :helper, :view_users?
-      @user = User.includes(:identities, :projects).find(params[:id])
+      @user = User.includes(:identities, :projects, :vote_verdict).find(params[:id])
     end
 
     def balance

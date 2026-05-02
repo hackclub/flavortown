@@ -77,6 +77,7 @@ Rails.application.routes.draw do
   # Report Reviews
   get "report-reviews/review/:token", to: "report_reviews#review", as: :review_report_token
   get "report-reviews/dismiss/:token", to: "report_reviews#dismiss", as: :dismiss_report_token
+  get "my-reports", to: "my_reports#index", as: :my_reports
 
   # Voting
   resources :votes, only: [ :new, :create, :index ] do
@@ -93,6 +94,8 @@ Rails.application.routes.draw do
 
   # Sidequests (formerly Nibbles)
   get "nibbles", to: redirect("/sidequests")
+  get "sidequests/minequest", to: "sidequests#show", defaults: { id: "minequest" }, as: :minequest_sidequest
+  get "sidequests/minequests", to: "sidequests#show", defaults: { id: "minequest" }
   resources :sidequests, only: [ :index, :show ]
   get "sidequests/:id/dash", to: "sidequests/lockin#dash", constraints: { id: "lockin" }, as: :dash_sidequest
 
@@ -190,13 +193,18 @@ Rails.application.routes.draw do
         resources :projects, only: [ :index ], controller: "user_projects"
       end
 
+      get "links", to: "links#index", as: :links
+      get "links/demos", to: "links#demos", as: :links_demos
+      get "links/repo", to: "links#repo", as: :links_repo
+      get "links/readme", to: "links#readme", as: :links_readme
+      get "links/projects", to: "links#projects", as: :links_projects
       post "flavortime/session", to: "flavortime#create_session"
       post "flavortime/heartbeat", to: "flavortime#heartbeat"
       post "flavortime/close", to: "flavortime#close"
       get "flavortime/active_users", to: "flavortime#active_users"
 
       namespace :admin do
-        resources :shop_orders, only: [] do
+        resources :shop_orders, only: [ :index ] do
           collection do
             get :stats
             get :leaderboard
@@ -306,6 +314,7 @@ Rails.application.routes.draw do
       end
       member do
         post :request_approval
+        post :promote
       end
     end
     resources :shop_orders, only: [ :index, :show ] do
@@ -411,7 +420,11 @@ Rails.application.routes.draw do
     end
     resources :reports, only: [ :create ], module: :projects
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
-    resource :ships, only: [ :new, :create ], module: :projects
+    resource :ships, only: [ :new, :create ], module: :projects, shallow: false do
+      member do
+        get :pre_check
+      end
+    end
     member do
       get :readme
       get :lapse_timelapses
@@ -442,4 +455,6 @@ Rails.application.routes.draw do
       get :stats
     end
   end
+
+  post "generate_ideas", to: "sidequests#generate_ideas"
 end

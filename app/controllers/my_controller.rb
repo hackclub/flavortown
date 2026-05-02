@@ -67,10 +67,4 @@ class MyController < ApplicationController
     Rails.logger.error("Error dismissing thing: #{e.message}")
     head :internal_server_error
   end
-
-  private
-
-  def require_login
-    redirect_to root_path, alert: "Please log in first" and return unless current_user
-  end
 end

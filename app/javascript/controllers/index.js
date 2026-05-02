@@ -22,6 +22,9 @@ application.register("cookie-clicker", CookieClickerController);
 import CopyDebugController from "./copy_debug_controller";
 application.register("copy-debug", CopyDebugController);
 
+import CountdownController from "./countdown_controller";
+application.register("countdown", CountdownController);
+
 import CustomsWarningController from "./customs_warning_controller";
 application.register("customs-warning", CustomsWarningController);
 
@@ -46,6 +49,9 @@ application.register("file-upload", FileUploadController);
 import FlashController from "./flash_controller";
 application.register("flash", FlashController);
 
+import FraudDashController from "./fraud_dash_controller";
+application.register("fraud-dash", FraudDashController);
+
 import HackatimeProjectSelectorController from "./hackatime_project_selector_controller";
 application.register(
   "hackatime-project-selector",
@@ -60,6 +66,9 @@ application.register("hello", HelloController);
 
 import JsonHighlightController from "./json_highlight_controller";
 application.register("json-highlight", JsonHighlightController);
+
+import KernelTerminalController from "./kernel_terminal_controller";
+application.register("kernel-terminal", KernelTerminalController);
 
 import KitchenDialogueController from "./kitchen_dialogue_controller";
 application.register("kitchen-dialogue", KitchenDialogueController);
@@ -78,6 +87,9 @@ application.register("load-more", LoadMoreController);
 
 import MarkdownPreviewController from "./markdown_preview_controller";
 application.register("markdown-preview", MarkdownPreviewController);
+
+import MinecraftTabsController from "./minecraft_tabs_controller";
+application.register("minecraft-tabs", MinecraftTabsController);
 
 import ModalController from "./modal_controller";
 application.register("modal", ModalController);
@@ -102,7 +114,6 @@ application.register("project-form", ProjectFormController);
 
 import ProjectIdeasController from "./project_ideas_controller";
 application.register("project-ideas", ProjectIdeasController);
-
 import PyramidFlavortimeController from "./pyramid_flavortime_controller";
 application.register("pyramid-flavortime", PyramidFlavortimeController);
 
@@ -118,8 +129,8 @@ application.register("responsive-image-map", ResponsiveImageMapController);
 import SearchableSelectController from "./searchable_select_controller";
 application.register("searchable-select", SearchableSelectController);
 
-import ShipAiReviewController from "./ship_ai_review_controller";
-application.register("ship-ai-review", ShipAiReviewController);
+import ShipCheckController from "./ship_check_controller";
+application.register("ship-check", ShipCheckController);
 
 import ShootingStarController from "./shooting_star_controller";
 application.register("shooting-star", ShootingStarController);
@@ -141,6 +152,24 @@ application.register("sidequest-expand", SidequestExpandController);
 
 import SidequestSelectorController from "./sidequest_selector_controller";
 application.register("sidequest-selector", SidequestSelectorController);
+
+import Sidequests__Minequest__AccessibilityController from "./sidequests/minequest/accessibility_controller";
+application.register(
+  "sidequests--minequest--accessibility",
+  Sidequests__Minequest__AccessibilityController,
+);
+
+import Sidequests__Minequest__IdeasController from "./sidequests/minequest/ideas_controller";
+application.register(
+  "sidequests--minequest--ideas",
+  Sidequests__Minequest__IdeasController,
+);
+
+import Sidequests__Minequest__ModalController from "./sidequests/minequest/modal_controller";
+application.register(
+  "sidequests--minequest--modal",
+  Sidequests__Minequest__ModalController,
+);
 
 import SnowController from "./snow_controller";
 application.register("snow", SnowController);
@@ -180,6 +209,9 @@ application.register("vote-category", VoteCategoryController);
 
 import VoteTrackerController from "./vote_tracker_controller";
 application.register("vote-tracker", VoteTrackerController);
+
+import VotingDashController from "./voting_dash_controller";
+application.register("voting-dash", VotingDashController);
 
 import WelcomeOverlayController from "./welcome_overlay_controller";
 application.register("welcome-overlay", WelcomeOverlayController);

@@ -1,0 +1,75 @@
+<% content_for :title, @sidequest.title %>
+<% content_for :og_description, truncate(@sidequest.description.to_s, length: 200) %>
+<% content_for :og_image, og_image_url('sidequests', format: :png) %>
+<% content_for :twitter_card, "summary_large_image" %>
+
+<%= render HeadingComponent.new(title: @sidequest.title, tone: :blue, size: :full) %>
+
+<div class="sidequest-show sidequest-show--roasted-apples">
+  <div class="sidequest-show__content">
+
+    <% if @sidequest.description.present? %>
+      <p class="sidequest-show__description"><%= @sidequest.description %></p>
+    <% end %>
+
+    <div class="sidequest-show__join-box">
+      <h3 class="sidequest-show__info-title">How to join Hack Club's Apple Developer account</h3>
+      <p>If you don't already have an Apple Developer account, fill out <a href="https://airtable.com/appInepaQHSu7cS6C/shrlByE1D4JgvUDbK">this form</a> and you'll be added. This gives you access to TestFlight and other Apple developer tools.</p>
+    </div>
+
+    <div class="sidequest-show__info-grid">
+      <section class="sidequest-show__info-card">
+        <h3 class="sidequest-show__info-title">Requirements</h3>
+        <ul class="sidequest-show__steps">
+          <li>Your project must be on TestFlight, the App Store, or have explicit approval for another platform.</li>
+          <li>Ship your project on Flavortown.</li>
+          <li>Submit to this sidequest from your project page.</li>
+          <li>Once approved, Apple prizes unlock in the shop.</li>
+        </ul>
+        <p class="sidequest-show__help-note">
+          If you have any other questions, feel free to DM
+          <%= link_to "@Elliott-entity", "https://hackclub.enterprise.slack.com/team/U096KJYT1PU", target: "_blank", rel: "noopener" %>
+          or ask in
+          <%= link_to "#roasted-apples-sidequest", "https://hackclub.enterprise.slack.com/archives/C0ALBKY8TEX", target: "_blank", rel: "noopener" %>.
+        </p>
+      </section>
+
+      <section class="sidequest-show__info-card">
+        <h3 class="sidequest-show__info-title">Starter guides</h3>
+        <ul class="sidequest-show__steps">
+          <li><a href="https://developer.apple.com/videos/play/meet-with-apple/237/">Basics of Swift</a></li>
+          <li><a href="https://developer.apple.com/videos/play/wwdc2024/10181/">Xcode Tour</a></li>
+          <li><a href="https://hackatime.hackclub.com/docs/editors/xcode">Track coding time in Xcode with Hackatime</a></li>
+        </ul>
+      </section>
+    </div>
+
+    <% if @approved_entries.any? %>
+      <div class="sidequest-show__gallery">
+        <h3 class="sidequest-show__gallery-title"><%= @approved_entries.size %> <%= "submission".pluralize(@approved_entries.size) %></h3>
+        <div class="sidequest-show__gallery-grid">
+          <% @approved_entries.each do |entry| %>
+            <% project = entry.project %>
+            <% next unless project.present? %>
+            <div class="sidequest-show__gallery-item">
+              <%= render partial: "projects/card", locals: { project: project } %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="sidequest-show__stats">
+        <p><strong>Be the first to submit</strong></p>
+      </div>
+    <% end %>
+
+    <div class="sidequest-show__actions">
+      <%= render ButtonComponent.new(
+            text: "\u2190 Back to Sidequests",
+            href: sidequests_path,
+            color: :brown,
+            variant: :borderless
+          ) %>
+    </div>
+  </div>
+</div>

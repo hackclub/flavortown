@@ -9,19 +9,18 @@ class Projects::ShipsController < ApplicationController
     load_ship_data
   end
 
+  def pre_check
+    authorize @project, :submit_ship?
+    ai_result = AiShipReviewService.fetch(@project)
+    if ai_result["valid"] == false
+      @ai_review_result = ai_result
+      return render :precheck_failed, status: :unprocessable_entity, layout: false
+    end
+    head :no_content
+  end
+
   def create
     authorize @project, :submit_ship?
-
-    if params[:bypass_ai_review].blank?
-      ai_result = AiShipReviewService.fetch(@project)
-      if ai_result["valid"] == false
-        @ai_review_result = ai_result
-        @step = 4
-        load_ship_data
-        return render :new, status: :unprocessable_entity
-      end
-    end
-
     selected_sidequest = selected_sidequest_for_submission
 
     # Warn if readme URL is not a raw GitHub URL
@@ -61,11 +60,7 @@ class Projects::ShipsController < ApplicationController
   def initial_ship? = @project.posts.where(postable_type: "Post::ShipEvent").one?
 
   def determine_ship_type
-    return "initial" if initial_ship?
-
-    # Check the previous ship event (offset by 1 since we just created the current one)
-    previous_ship_event = @project.ship_event_posts.offset(1).first&.postable
-    previous_ship_event&.certification_status == "rejected" ? "recertification" : "reship"
+    initial_ship? ? "initial" : "reship"
   end
 
   def load_ship_data

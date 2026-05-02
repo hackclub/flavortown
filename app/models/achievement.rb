@@ -248,6 +248,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       }
     ),
     new(
+      slug: :sidequest_chesster,
+      name: "Sidequest: Chesster",
+      description: "Shipped a chess project for the Chesster sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "chesster" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
+    new(
       slug: :sidequest_physics_lab,
       name: "Sidequest: Physics Lab",
       description: "Shipped a physics project for the Physics Lab sidequest!",
@@ -256,6 +269,32 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
         SidequestEntry.approved
           .joins(:sidequest, project: :memberships)
           .where(sidequests: { slug: "physics_lab" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
+    new(
+      slug: :sidequest_codextensions,
+      name: "Sidequest: Codextensions",
+      description: "Shipped a VS Code extension for the Codextensions sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "codextensions" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
+    new(
+      slug: :sidequest_kernel,
+      name: "Sidequest: Kernel",
+      description: "Shipped a project for the Kernel sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "kernel" })
           .where(project_memberships: { user_id: user.id, role: "owner" })
           .exists?
       }
@@ -273,6 +312,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
           .exists?
       }
     ),
+    new(
+      slug: :sidequest_roasted_apples,
+      name: "Sidequest: Roasted Apples",
+      description: "Created an app for an Apple device for the Roasted Apples sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "roasted_apples" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+     ),
      new(
       slug: :sidequest_lockin,
       name: "Sidequest: LockIn",
@@ -286,7 +338,20 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
           .exists?
       }
     ),
-      new(
+    new(
+      slug: :sidequest_transcode,
+      name: "Sidequest: Transcode",
+      description: "Shipped a media project for the Transcode sidequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "transcode" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
+    ),
+    new(
       slug: :show_and_tell,
       name: "Show and tell",
       description: "Showed up and presented at a show an tell",
@@ -361,6 +426,19 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       earned_check: ->(user) { user.devlog_seconds_total >= 50 * 3600 },
       progress: ->(user) { { current: (user.devlog_seconds_total / 3600.0).floor, target: 50 } },
       cookie_reward: 15
+    ),
+    new(
+      slug: :sidequest_minequest,
+      name: "Real Gamer",
+      description: "Shipped a Minecraft related project for Minequest!",
+      icon: "trophy",
+      earned_check: ->(user) {
+        SidequestEntry.approved
+          .joins(:sidequest, project: :memberships)
+          .where(sidequests: { slug: "minequest" })
+          .where(project_memberships: { user_id: user.id, role: "owner" })
+          .exists?
+      }
     ),
     new(
       slug: :hundred_hours,

@@ -7,6 +7,10 @@
     <%= render HeadingComponent.new(title: "Kitchen", tone: :blue, size: :full) %>
   </div>
 
+  <div class="kitchen-countdown" data-controller="countdown" data-countdown-date-value="2026-05-01T00:00:00-05:00">
+    <h1>Time remaining <span id="countdown-info">ⓘ</span>: <span data-countdown-target="display">Calculating...</span></h1>
+  </div>
+
   <% if @show_and_tell_live %>
     <div class="show-and-tell-banner">
       <span class="show-and-tell-banner__live-dot"></span>
@@ -240,9 +244,9 @@
 
   <div class="kitchen-announcement">
     <%= render AnnouncementComponent.new(
-      image: "flavortown_apr19_sticker.avif",
+      image: "flavortown_apr30_sticker.avif",
       title: "Get a free sticker!",
-      description: "Ship a project (or reship an existing one) before Sunday, April 19th (7:00 PM EST) and we'll send you an awesome sticker!"
+      description: "Ship a project (or reship an existing one) before Thursday, April 30th (23:59 PM EST) and we'll send you an awesome sticker!"
     ) %>
   </div>
 
@@ -403,3 +407,7 @@
     <%= render KitchenHelpCardsComponent %>
   </div>
 </div>
+
+<%= render TooltipComponent.new(target_id: "countdown-info", position: :top) do %>
+  This is for the last day to ship projects — voting and payouts will continue, and the shop will also remain open for 1 week after the last payouts are given!
+<% end %>

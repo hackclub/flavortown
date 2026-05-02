@@ -42,7 +42,7 @@ class ProjectShowCardComponent < ViewComponent::Base
   end
 
   def can_request_re_cert?
-    shipping_enabled? && project.last_ship_event&.certification_status == "rejected"
+    project.last_ship_event&.certification_status == "rejected"
   end
 
   def ship_btn_wrapper_id

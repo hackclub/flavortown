@@ -1,0 +1,16 @@
+<%= link_to sidequest_path(sidequest), id: "kernel", class: "sidequest-card sidequest-card--link sidequest-card--kernel" do %>
+  <div class="sidequest-card__content">
+    <%= image_tag "sidequests/kernel.png",
+                  alt: "",
+                  aria: { hidden: true },
+                  class: "sidequest-card__image" %>
+    <h1 class="sidequest-card__title">Kernel</h1>
+    <h2>Build a project that runs entirely in the terminal. Submit it to this sidequest to qualify for kernel prizes in the shop.</h2>
+    <% if sidequest.approved_count > 0 %>
+      <p class="sidequest-card__expires"><%= pluralize(sidequest.approved_count, "submission") %></p>
+    <% end %>
+    <% if sidequest.expires_at.present? %>
+      <p class="sidequest-card__expires"><%= sidequest.expired? ? "Ended" : "Ends" %> <%= sidequest.expires_at.strftime("%B %d, %Y") %></p>
+    <% end %>
+  </div>
+<% end %>
