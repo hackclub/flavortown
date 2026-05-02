@@ -18,7 +18,7 @@ class WrappedController < ApplicationController
     return if current_user
 
     redirect_to root_path, alert: "Please sign in to view your wrapped."
-    return
+    nil
   end
 
   def check_wrapped_flag
