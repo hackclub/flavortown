@@ -1,0 +1,48 @@
+<div class="wrapped-slide wrapped-slide--shipping" data-wrapped-target="slide">
+  <div class="wrapped-bento wrapped-bento--wide-left">
+    <div class="wrapped-bento__cell">
+      <p class="wrapped-slide__eyebrow">shipping the heat</p>
+      <h2 class="wrapped-slide__stat"><%= wrapped.ships_count %></h2>
+      <h1 class="wrapped-slide__headline"><%= "project".pluralize(wrapped.ships_count) %> shipped</h1>
+      <p class="wrapped-slide__body">
+        <%= pluralize(wrapped.devlogs_count, "devlog") %> ·
+        <%= pluralize(wrapped.coding_hours, "hour") %> tracked ·
+        <%= pluralize(wrapped.projects_count, "project") %> touched
+      </p>
+      <% if wrapped.ships_count >= 3 %>
+        <p class="wrapped-slide__body">wow, that's a latta ships...</p>
+      <% elsif wrapped.ships_count == 1 %>
+        <p class="wrapped-slide__body">only one ship, let's keep cooking...</p>
+      <% else %>
+        <p class="wrapped-slide__body">you have gotta cook more next time!</p>
+      <% end %>
+    </div>
+
+    <% if wrapped.best_ship_event %>
+      <div class="wrapped-bento__cell wrapped-bento__cell--secondary">
+        <p class="wrapped-slide__caption">best ship</p>
+        <div class="wrapped-post-embed">
+          <%= render PostComponent.new(post: wrapped.best_ship_event.post, current_user: current_user, compact: true) %>
+        </div>
+      </div>
+    <% end %>
+
+    <% pulse = wrapped.bento_payload[:activity_pulse] || [] %>
+    <div class="wrapped-bento__cell wrapped-bento__cell--secondary">
+      <% if pulse.any? %>
+        <% pulse_max = [ pulse.max, 1 ].max %>
+        <% cols = 14 %>
+        <% rows = (pulse.size.to_f / cols).ceil %>
+        <p class="wrapped-slide__caption">activity pulse · last <%= wrapped.bento_payload[:active_days] %> active days</p>
+        <div class="wrapped-pulse" style="--pulse-cols: <%= cols %>; --pulse-rows: <%= rows %>;">
+          <% pulse.each do |value| %>
+            <% intensity = value.zero? ? 0.08 : (0.25 + (value.to_f / pulse_max) * 0.75).round(3) %>
+            <span class="wrapped-pulse__cell" style="--cell-intensity: <%= intensity %>;"></span>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="wrapped-slide__body" style="opacity:0.5;">no pulse data yet</p>
+      <% end %>
+    </div>
+  </div>
+</div>

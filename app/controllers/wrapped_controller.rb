@@ -1,0 +1,27 @@
+class WrappedController < ApplicationController
+  before_action :require_login
+  before_action :check_wrapped_flag
+
+  def show
+    user = if params[:user_id].present? && current_user.admin?
+             User.find(params[:user_id])
+    else
+             current_user
+    end
+
+    @wrapped = WrappedPresenter.new(user)
+  end
+
+  private
+
+  def require_login
+    return if current_user
+
+    redirect_to root_path, alert: "Please sign in to view your wrapped."
+    nil
+  end
+
+  def check_wrapped_flag
+    render_not_found unless Flipper.enabled?(:wrapped, current_user)
+  end
+end

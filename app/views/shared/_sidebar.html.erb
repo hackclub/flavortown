@@ -58,6 +58,22 @@
           </li>
         <% end %>
       </ul>
+
+      <% if Flipper.enabled?(:wrapped, current_user) %>
+        <% wrapped_preview = !Flipper.enabled?(:wrapped) %>
+        <ul class="sidebar__nav-list" style="margin-top: var(--space-xs);">
+          <li class="sidebar__nav-item">
+            <%= link_to wrapped_path,
+                  class: "sidebar__nav-link #{'sidebar__nav-link--active' if current_page?(wrapped_path)}",
+                  style: (wrapped_preview ? "border: 2px dashed #22c55e; border-radius: 0.5rem;" : nil) do %>
+              <span class="sidebar__nav-icon-wrapper" aria-hidden="true">
+                <%= inline_svg_tag "icons/star_fill.svg", class: "sidebar__nav-icon" %>
+              </span>
+              <span class="sidebar__nav-label">Wrapped</span>
+            <% end %>
+          </li>
+        </ul>
+      <% end %>
     </nav>
   </div>
 

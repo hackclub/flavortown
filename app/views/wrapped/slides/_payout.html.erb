@@ -1,0 +1,44 @@
+<div class="wrapped-slide wrapped-slide--payout" data-wrapped-target="slide">
+  <div class="wrapped-bento wrapped-bento--wide-left">
+    <div class="wrapped-bento__cell">
+      <p class="wrapped-slide__eyebrow">payouts in the bank</p>
+      <h2 class="wrapped-slide__stat"><%= number_with_delimiter(wrapped.total_cookies_earned) %></h2>
+      <h1 class="wrapped-slide__headline">cookies earned</h1>
+      <% if wrapped.total_cookies_earned > 0 %>
+        <p class="wrapped-slide__body">that dough is yours. spend it well.</p>
+      <% else %>
+        <p class="wrapped-slide__body">there is always next time!</p>
+      <% end %>
+    </div>
+
+    <% biggest = wrapped.bento_payload[:biggest_gain] %>
+    <% top_source = wrapped.bento_payload[:top_source] %>
+    <div class="wrapped-bento__cell wrapped-bento__cell--secondary">
+      <% if biggest %>
+        <p class="wrapped-slide__caption">biggest haul</p>
+        <p class="wrapped-slide__body"><strong><%= number_with_delimiter(biggest[:amount]) %></strong><br><%= biggest[:date] %></p>
+      <% end %>
+      <% if top_source %>
+        <p class="wrapped-slide__caption" style="margin-top: var(--space-s);">top source</p>
+        <p class="wrapped-slide__body"><strong><%= top_source[:label] %></strong><br><%= top_source[:percent] %>%</p>
+      <% end %>
+      <% if !biggest && !top_source %>
+        <p class="wrapped-slide__body" style="opacity:0.5;">no breakdown available</p>
+      <% end %>
+    </div>
+
+    <% if wrapped.payout_breakdown.any? %>
+      <div class="wrapped-bento__cell wrapped-bento__cell--full">
+        <p class="wrapped-slide__eyebrow">breakdown by source</p>
+        <div class="wrapped-payout-breakdown">
+          <% wrapped.payout_breakdown.each do |label, amount| %>
+            <div class="wrapped-payout-breakdown__row">
+              <span class="wrapped-payout-breakdown__label"><%= label %></span>
+              <span class="wrapped-payout-breakdown__amount"><%= number_with_delimiter(amount) %> cookies</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

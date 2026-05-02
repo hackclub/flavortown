@@ -1,0 +1,27 @@
+<div class="wrapped-slide wrapped-slide--support" data-wrapped-target="slide">
+  <% stats = wrapped.support_stats %>
+  <% if wrapped.support_helper? %>
+    <div class="wrapped-bento wrapped-bento--2col">
+      <div class="wrapped-bento__cell">
+        <p class="wrapped-slide__eyebrow">support desk</p>
+        <h2 class="wrapped-slide__stat"><%= stats[:tickets_closed] || 0 %></h2>
+        <h1 class="wrapped-slide__headline">tickets closed</h1>
+        <p class="wrapped-slide__body">the kitchen appreciates you.</p>
+      </div>
+      <div class="wrapped-bento__cell wrapped-bento__cell--secondary">
+        <p class="wrapped-slide__caption">tickets opened</p>
+        <h2 class="wrapped-slide__stat"><%= stats[:tickets_opened] || 0 %></h2>
+        <p class="wrapped-slide__body">new cases you brought in</p>
+      </div>
+    </div>
+  <% else %>
+    <div class="wrapped-bento wrapped-bento--2col">
+      <div class="wrapped-bento__cell wrapped-bento__cell--full">
+        <p class="wrapped-slide__eyebrow">support desk</p>
+        <h2 class="wrapped-slide__stat"><%= stats[:tickets_opened] || 0 %></h2>
+        <h1 class="wrapped-slide__headline">tickets opened</h1>
+        <p class="wrapped-slide__body">when you needed help</p>
+      </div>
+    </div>
+  <% end %>
+</div>

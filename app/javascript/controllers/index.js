@@ -219,5 +219,8 @@ application.register("welcome-overlay", WelcomeOverlayController);
 import WordCountController from "./word_count_controller";
 application.register("word-count", WordCountController);
 
+import WrappedController from "./wrapped_controller";
+application.register("wrapped", WrappedController);
+
 import XpWindowController from "./xp_window_controller";
 application.register("xp-window", XpWindowController);

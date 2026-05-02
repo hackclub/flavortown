@@ -1,0 +1,33 @@
+<div class="wrapped-slide wrapped-slide--reports" data-wrapped-target="slide">
+  <div class="wrapped-bento wrapped-bento--2col">
+    <% if wrapped.fraud_dept? %>
+      <div class="wrapped-bento__cell">
+        <p class="wrapped-slide__eyebrow">cases closed</p>
+        <h2 class="wrapped-slide__stat"><%= number_with_delimiter(wrapped.reports_team_handled) %></h2>
+        <h1 class="wrapped-slide__headline">kitchen-wide</h1>
+      </div>
+      <div class="wrapped-bento__cell wrapped-bento__cell--secondary">
+        <p class="wrapped-slide__caption">your verdicts</p>
+        <h2 class="wrapped-slide__stat"><%= wrapped.reports_personally_handled %></h2>
+        <p class="wrapped-slide__body"><strong><%= wrapped.reports_personally_reviewed %></strong> reviewed &amp; <strong><%= wrapped.reports_personally_dismissed %></strong> dismissed</p>
+        <% if wrapped.reports_rank %>
+          <p class="wrapped-slide__body"><strong>#<%= wrapped.reports_rank %></strong> on the report leaderboard</p>
+        <% end %>
+        <p class="wrapped-slide__body" style="margin-top: auto;">you also filed <strong><%= wrapped.reports_filed %></strong> of your own.</p>
+      </div>
+    <% else %>
+      <div class="wrapped-bento__cell">
+        <p class="wrapped-slide__eyebrow">community watch</p>
+        <h2 class="wrapped-slide__stat"><%= wrapped.reports_filed %></h2>
+        <h1 class="wrapped-slide__headline"><%= "report".pluralize(wrapped.reports_filed) %> filed</h1>
+      </div>
+      <div class="wrapped-bento__cell wrapped-bento__cell--secondary">
+        <% if wrapped.reports_filed.zero? %>
+          <p class="wrapped-slide__body">a quiet season — no flags raised.</p>
+        <% else %>
+          <p class="wrapped-slide__body">ty for flagging the funky stuff so we can focus on the cooking.</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

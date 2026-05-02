@@ -1,0 +1,23 @@
+<div class="wrapped-slide wrapped-slide--shop-orders" data-wrapped-target="slide">
+  <div class="wrapped-bento wrapped-bento--2col">
+    <div class="wrapped-bento__cell wrapped-bento__cell--full">
+      <p class="wrapped-slide__eyebrow">everything you ordered</p>
+      <div class="wrapped-orders-list">
+        <% wrapped.shop_orders_list.each do |order| %>
+          <div class="wrapped-orders-list__item">
+            <% if order.shop_item&.image&.attached? %>
+              <%= image_tag order.shop_item.image.representation(resize_to_fill: [40, 40]), class: "wrapped-orders-list__img", alt: "" %>
+            <% end %>
+            <span class="wrapped-orders-list__name"><%= order.shop_item&.name || "Unknown item" %></span>
+            <span class="wrapped-orders-list__price"><%= number_with_delimiter(order.frozen_item_price) %> 🍪</span>
+            <% display_state = order.on_hold? ? "pending" : order.aasm_state %>
+            <span class="wrapped-orders-list__status badge-<%= display_state %>"><%= display_state.humanize %></span>
+          </div>
+        <% end %>
+        <% if wrapped.shop_orders_list.empty? %>
+          <p class="wrapped-slide__body">Apparently, you ordered nothing. This shouldn't be possible, but oh well.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

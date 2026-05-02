@@ -1,0 +1,40 @@
+<div class="wrapped-slide wrapped-slide--voting" data-wrapped-target="slide">
+  <div class="wrapped-bento wrapped-bento--2col">
+    <div class="wrapped-bento__cell">
+      <p class="wrapped-slide__eyebrow">your votes</p>
+      <h2 class="wrapped-slide__stat"><%= number_with_delimiter(wrapped.votes_cast) %></h2>
+      <h1 class="wrapped-slide__headline"><%= "vote".pluralize(wrapped.votes_cast) %> cast</h1>
+      <% if wrapped.avg_vote_score %>
+        <p class="wrapped-slide__body">avg score <strong><%= wrapped.avg_vote_score %></strong> / 9</p>
+      <% end %>
+      <% if wrapped.avg_vote_words %>
+        <p class="wrapped-slide__body">avg <strong><%= wrapped.avg_vote_words %></strong> words per reason</p>
+      <% end %>
+    </div>
+
+    <div class="wrapped-bento__cell wrapped-bento__cell--secondary wrapped-voting-verdict wrapped-voting-verdict--<%= wrapped.vote_verdict %>">
+      <% if wrapped.vote_verdict == "blessed" %>
+        <p class="wrapped-slide__caption">verdict</p>
+        <div class="wrapped-voting-verdict__avatar <%= 'wrapped-voting-verdict__avatar--blessed' if wrapped.vote_verdict == 'blessed' %>">
+          <%= image_tag wrapped.user.avatar, class: "wrapped-avatar__img", alt: "" %>
+        </div>
+        <h2 class="wrapped-slide__stat wrapped-voting-verdict__stat wrapped-voting-verdict__stat--blessed">blessed</h2>
+        <p class="wrapped-slide__body">We LOVE your votes, hope the bonus we put go to good use</p>
+      <% elsif wrapped.vote_verdict == "cursed" %>
+        <p class="wrapped-slide__caption">verdict</p>
+        <div class="wrapped-voting-verdict__avatar">
+          <%= image_tag wrapped.user.avatar, class: "wrapped-avatar__img", alt: "" %>
+        </div>
+        <h2 class="wrapped-slide__stat wrapped-voting-verdict__stat wrapped-voting-verdict__stat--cursed">cursed</h2>
+        <p class="wrapped-slide__body">Lets not make sloppy votes now huh</p>
+      <% else %>
+        <p class="wrapped-slide__caption">verdict</p>
+        <div class="wrapped-voting-verdict__avatar">
+          <%= image_tag wrapped.user.avatar, class: "wrapped-avatar__img", alt: "" %>
+        </div>
+        <h2 class="wrapped-slide__stat wrapped-voting-verdict__stat wrapped-voting-verdict__stat--neutral">neutral</h2>
+        <p class="wrapped-slide__body">Staying safe!</p>
+      <% end %>
+    </div>
+  </div>
+</div>
