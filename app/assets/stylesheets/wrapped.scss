@@ -151,12 +151,6 @@ $slide-themes: (
   color: hsla(0, 0%, 100%, 0.6);
 }
 
-.wrapped-slide__emoji {
-  margin: var(--space-xs) 0;
-  font-size: 4rem;
-  line-height: 1;
-}
-
 .wrapped-slide__stat {
   margin: 0;
   font-size: clamp(3.5rem, 16vw, 7rem);

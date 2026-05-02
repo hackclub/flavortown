@@ -7,10 +7,8 @@ export default class extends Controller {
     interval: { type: Number, default: 8000 },
     cookies: { type: Number, default: 0 },
     ships: { type: Number, default: 0 },
-    votes: { type: Number, default: 0 },
     devlogs: { type: Number, default: 0 },
     coding: { type: Number, default: 0 },
-    rank: { type: Number, default: -1 },
     username: { type: String, default: "" },
     bento: { type: Object, default: {} },
   };
@@ -148,7 +146,7 @@ export default class extends Controller {
     ctx.fillStyle = palette.cream;
     ctx.fillText(this.usernameValue, pad + boltWidth, nameY);
     // Role badges after username
-    const roleBadges = (this.bentoValue.role_badges || []);
+    const roleBadges = bento.role_badges || [];
     if (roleBadges.length > 0) {
       const nameWidth = ctx.measureText(this.usernameValue).width;
       let badgeX = pad + boltWidth + nameWidth + 18;
