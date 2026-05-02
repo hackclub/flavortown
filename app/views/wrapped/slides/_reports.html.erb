@@ -2,14 +2,15 @@
   <div class="wrapped-bento wrapped-bento--2col">
     <% if wrapped.fraud_dept? %>
       <div class="wrapped-bento__cell">
-        <p class="wrapped-slide__eyebrow">team handled</p>
+        <p class="wrapped-slide__eyebrow">cases closed</p>
         <h2 class="wrapped-slide__stat"><%= number_with_delimiter(wrapped.reports_team_handled) %></h2>
-        <h1 class="wrapped-slide__headline"><%= "report".pluralize(wrapped.reports_team_handled) %></h1>
+        <h1 class="wrapped-slide__headline">kitchen-wide</h1>
       </div>
       <div class="wrapped-bento__cell wrapped-bento__cell--secondary">
-        <p class="wrapped-slide__caption">your filings</p>
-        <h2 class="wrapped-slide__stat"><%= wrapped.reports_filed %></h2>
-        <p class="wrapped-slide__body">thanks for keeping the kitchen clean.</p>
+        <p class="wrapped-slide__caption">your verdicts</p>
+        <h2 class="wrapped-slide__stat"><%= wrapped.reports_personally_handled %></h2>
+        <p class="wrapped-slide__body">reviewed or dismissed by you</p>
+        <p class="wrapped-slide__body" style="margin-top: auto;">you also filed <strong><%= wrapped.reports_filed %></strong> of your own.</p>
       </div>
     <% else %>
       <div class="wrapped-bento__cell">

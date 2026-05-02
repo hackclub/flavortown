@@ -8,6 +8,9 @@ $slide-themes: (
   reports:      var(--color-red-500),
   shop-orders:  var(--color-blue-500),
   achievements: var(--color-yellow-450),
+  sidequests:   var(--color-blue-400),
+  support:      var(--color-purple-500),
+  shipwright:   var(--color-red-400),
   complete:     var(--color-green-400),
 );
 
@@ -293,6 +296,118 @@ $slide-themes: (
 
 .wrapped-bento__cell--full {
   grid-column: 1 / -1;
+}
+
+.wrapped-payout-breakdown {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: var(--space-xs);
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-xs) 0;
+    border-bottom: 1px solid hsla(0, 0%, 100%, 0.08);
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__label {
+    font-size: var(--font-size-s);
+    color: hsla(0, 0%, 100%, 0.7);
+  }
+
+  &__amount {
+    font-size: var(--font-size-s);
+    font-weight: 700;
+    color: hsl(0, 0%, 100%);
+  }
+}
+
+.wrapped-achievements-visibility {
+  font-size: var(--font-size-s);
+  color: hsla(0, 0%, 100%, 0.45);
+  margin-top: var(--space-xxs);
+}
+
+// Achievements + sidequests slides — scrollable column of stats + boxes.
+.wrapped-slide--achievements,
+.wrapped-slide--sidequests {
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+
+.wrapped-achievements-layout {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 58rem);
+  margin: 0 auto;
+  padding-bottom: var(--space-l);
+}
+
+.wrapped-achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--space-xs);
+  padding: 0 var(--space-m) var(--space-m);
+}
+
+.wrapped-achievement-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-s) var(--space-xs);
+  background: hsla(8, 30%, 8%, 0.55);
+  border: 1px solid hsla(35, 74%, 92%, 0.08);
+  border-radius: 1rem;
+  gap: 0.25rem;
+
+  &__icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.25rem;
+
+    img, svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  &__icon--crop {
+    width: 100%;
+    height: 3.5rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  &__name {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: hsl(0, 0%, 100%);
+    line-height: 1.3;
+  }
+
+  &__date {
+    font-size: 0.7rem;
+    color: hsla(0, 0%, 100%, 0.45);
+    letter-spacing: 0.05em;
+  }
 }
 
 // Activity pulse heatmap — 70-day grid that mirrors the bento export.

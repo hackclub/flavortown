@@ -10,6 +10,36 @@ class WrappedPresenter
     @user
   end
 
+  SUPPORT_API       = "https://flavortown.nephthys.hackclub.com/api/user"
+  SHIPWRIGHT_API    = "https://review.hackclub.com/api/admin/ship-certs-log"
+  SHIPWRIGHT_TOKEN  = ENV.fetch("SW_ADMIN_KEY", nil)
+
+  SHIPWRIGHT_REVIEWER_IDS = {
+    "U091PP9SN02" => 1,  "U092F9A8VMY" => 2,  "U093H5LJHGC" => 3,
+    "U08B60DCYG2" => 4,  "U07A0D5K3T2" => 5,  "U090JSHV8QJ" => 6,
+    "U07H3E1CW7J" => 7,  "U091HBJLQS2" => 8,  "U091R9Y6HFE" => 9,
+    "U08SKE8JU5S" => 10, "U080V8UG5BR" => 11, "U081C6XT885" => 12,
+    "U08RWM5U4L9" => 13, "U096KJYT1PU" => 14, "U07LK6JJ9DE" => 15,
+    "U079EQY9X1D" => 16, "U091HG1TP6K" => 17, "U07EB2Y76DP" => 18,
+    "U092CSW4FGQ" => 19, "U091DE0M4NB" => 20, "U096UJ1L3L2" => 21,
+    "U07FHT3BNTT" => 22,  "U09UQ385LSG" => 24,
+    "U0829HRSQ76" => 25, "U082GTRTR5X" => 26, "U054VC2KM9P" => 27,
+    "U0823F39GV8" => 28, "U07ES48RES3" => 29, "U091G6M9AB0" => 30,
+    "U09UE480JHH" => 31, "U072PTA5BNG" => 32, "U0826R42R98" => 33,
+    "U05F4B48GBF" => 34, "UDK5M9Y13"   => 35, "U07960MD940" => 36,
+    "U078VEX14CB" => 37, "U094P415ZE3" => 38, "U080A3QP42C" => 40,
+    "U0828FYS2UC" => 41, "U091KE59H5H" => 42, "U08GCDHM0QZ" => 43,
+    "U07LKN2HXT3" => 44, "U07UK4S94KC" => 45, "U08NXJL86KT" => 46,
+    "U090LAT6QKB" => 47, "U084UQFF0LC" => 48, "U091M21518T" => 49,
+    "U07950S3GMC" => 50, "U0C7B14Q3"   => 51, "U020X4GCWSF" => 52,
+    "U08R49H9VRV" => 53, "U09PHG7RLGG" => 54, "U078VEJRBR7" => 55,
+    "U078DFX40A2" => 56, "U07AGEVSTD2" => 57, "U0A1NME3EJD" => 58,
+    "U08AT086H8E" => 59, "U07UBCSSQH3" => 60, "U078WRWQPGF" => 61,
+    "U0A6A0J7UE6" => 62, "U081ZC7ES30" => 63, "U07E8H9A24A" => 64,
+    "U07BN55GN3D" => 65, "U0A4UTULSLE" => 66, "U09H4M0523Z" => 67,
+    "U096RMRG03G" => 68, "U09192704Q7" => 69,
+  }.freeze
+
   # ─── Role helpers (drive optional slide content) ────────────────
   def fraud_dept?
     @user.has_role?(:fraud_dept) || @user.admin?
@@ -17,6 +47,45 @@ class WrappedPresenter
 
   def fulfillment_team?
     @user.has_role?(:fulfillment_person) || @user.admin?
+  end
+
+  def support_helper?
+    support_stats[:helper] == true
+  end
+
+  def shipwright_reviewer?
+    SHIPWRIGHT_TOKEN.present? && SHIPWRIGHT_REVIEWER_IDS.key?(@user.slack_id) && shipwright_stats.present?
+  end
+
+  def shipwright_stats
+    @shipwright_stats ||= Rails.cache.fetch("wrapped_shipwright_#{@user.slack_id}", expires_in: 15.minutes) do
+      reviewer_id = SHIPWRIGHT_REVIEWER_IDS[@user.slack_id]
+      next nil unless reviewer_id
+
+      response = shipwright_connection.get("/api/admin/ship-certs-log") { |r| r.params['reviewerId'] = reviewer_id }
+      next nil unless response.success?
+
+      certs = JSON.parse(response.body, symbolize_names: true)
+      next nil unless certs.is_a?(Array) && certs.any?
+
+      {
+        total:    certs.length,
+        approved: certs.count { |c| c[:status] == 'approved' },
+        rejected: certs.count { |c| c[:status] == 'rejected' },
+        pending:  certs.count { |c| c[:status] == 'pending' }
+      }
+    rescue StandardError
+      nil
+    end
+  end
+
+  def support_stats
+    @support_stats ||= Rails.cache.fetch("wrapped_support_#{@user.slack_id}", expires_in: 15.minutes) do
+      response = Faraday.get(SUPPORT_API, { id: @user.slack_id })
+      JSON.parse(response.body, symbolize_names: true)
+    rescue StandardError
+      {}
+    end
   end
 
   def total_cookies_earned
@@ -98,6 +167,16 @@ class WrappedPresenter
     @reports_team_handled ||= Project::Report.where.not(status: :pending).count
   end
 
+  # Reports this user personally moved to reviewed or dismissed.
+  def reports_personally_handled
+    @reports_personally_handled ||= PaperTrail::Version
+      .where(item_type: "Project::Report")
+      .where(whodunnit: @user.id.to_s)
+      .where("object_changes->'status'->>1 IN ('1', '2')")
+      .distinct
+      .count(:item_id)
+  end
+
   # Org-wide shop orders the fulfilment team has shipped out this season.
   # Surfaced to fulfillment_person + fraud_dept (admins).
   def orders_team_fulfilled
@@ -112,14 +191,42 @@ class WrappedPresenter
     @latest_achievement_slug ||= @user.achievements.order(earned_at: :desc).limit(1).pluck(:achievement_slug).first
   end
 
+  def achievements_list
+    @achievements_list ||= @user.achievements.order(earned_at: :desc).map do |ua|
+      definition = Achievement.all.find { |a| a.slug.to_s == ua.achievement_slug.to_s }
+      { name: definition&.name || ua.achievement_slug.to_s.humanize, icon: definition&.icon, earned_at: ua.earned_at&.strftime("%b %-d") }
+    end
+  end
+
+  def achievements_by_visibility
+    @achievements_by_visibility ||= begin
+      slugs = @user.achievements.pluck(:achievement_slug).map(&:to_s)
+      definitions = Achievement.all.select { |a| slugs.include?(a.slug.to_s) }
+      {
+        public: definitions.count { |a| a.visibility == :visible },
+        secret: definitions.count { |a| a.visibility == :secret },
+        hidden: definitions.count { |a| a.visibility == :hidden }
+      }
+    end
+  end
+
   # SidequestEntry is project-scoped; pull approved entries through the
   # user's project memberships so each user sees only their own quests.
   def sidequests_completed
-    @sidequests_completed ||= SidequestEntry.where(aasm_state: "approved")
-                                            .joins(project: :memberships)
-                                            .where(memberships: { user_id: @user.id })
-                                            .distinct
-                                            .count
+    @sidequests_completed ||= sidequests_list.length
+  end
+
+  def sidequests_list
+    @sidequests_list ||= SidequestEntry.where(aasm_state: "approved")
+                                       .joins(project: :memberships)
+                                       .joins(:sidequest)
+                                       .where(memberships: { user_id: @user.id })
+                                       .distinct
+                                       .includes(:sidequest)
+                                       .map do |entry|
+                                         sq = entry.sidequest
+                                         { title: sq.title, icon_path: find_sidequest_icon(sq.slug) }
+                                       end
   end
 
   # ─────────────────────────────────────────────────────────────────
@@ -146,7 +253,46 @@ class WrappedPresenter
     }
   end
 
+  def payout_breakdown
+    @payout_breakdown ||= begin
+      totals = Hash.new(0)
+      positive_entries.each do |entry|
+        reason = entry.reason.to_s
+        key = if reason.include?("Show and Tell")
+                "Show & Tell"
+              elsif reason == "fraud payout uwu" || reason.include?("Fraud dept payout for first 2 months")
+                "Fraud Dept"
+              elsif reason.include?("Ship Reviews payout")
+                "Shipwright"
+              elsif reason.include?("GOI payout")
+                "GOI"
+              else
+                "Bonus"
+              end
+        totals[key] += entry.amount
+      end
+      totals.reject { |_, v| v.zero? }
+             .sort_by { |_, v| -v }
+             .to_h
+    end
+  end
+
   private
+
+  def shipwright_connection
+    Faraday.new("https://review.hackclub.com") do |f|
+      f.headers['Authorization'] = "Bearer #{SHIPWRIGHT_TOKEN}"
+    end
+  end
+
+  def find_sidequest_icon(slug)
+    [slug.to_s, slug.to_s.tr("_", "-")].each do |name|
+      %w[png svg avif jpg].each do |ext|
+        return "sidequests/#{name}.#{ext}" if Rails.root.join("app/assets/images/sidequests/#{name}.#{ext}").exist?
+      end
+    end
+    nil
+  end
 
   def positive_entries
     @user.ledger_entries.where("amount > 0")

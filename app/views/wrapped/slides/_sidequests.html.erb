@@ -1,0 +1,27 @@
+<div class="wrapped-slide wrapped-slide--sidequests" data-wrapped-target="slide">
+  <div class="wrapped-achievements-layout">
+    <div class="wrapped-bento wrapped-bento--2col">
+      <div class="wrapped-bento__cell wrapped-bento__cell--full">
+        <h2 class="wrapped-slide__stat"><%= wrapped.sidequests_completed %></h2>
+        <h1 class="wrapped-slide__headline"><%= "sidequest".pluralize(wrapped.sidequests_completed) %> completed</h1>
+      </div>
+    </div>
+
+    <% if wrapped.sidequests_list.any? %>
+      <div class="wrapped-achievement-grid">
+        <% wrapped.sidequests_list.each do |quest| %>
+          <div class="wrapped-achievement-box">
+            <% if quest[:icon_path] %>
+              <div class="wrapped-achievement-box__icon wrapped-achievement-box__icon--crop">
+                <%= image_tag quest[:icon_path], alt: "" %>
+              </div>
+            <% end %>
+            <span class="wrapped-achievement-box__name"><%= quest[:title] %></span>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="wrapped-slide__body" style="text-align:center; padding: var(--space-m);">no quests completed — the board is waiting.</p>
+    <% end %>
+  </div>
+</div>

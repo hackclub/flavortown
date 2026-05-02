@@ -1,0 +1,21 @@
+<div class="wrapped-slide wrapped-slide--shipwright" data-wrapped-target="slide">
+  <% stats = wrapped.shipwright_stats %>
+  <div class="wrapped-bento wrapped-bento--wide-left">
+    <div class="wrapped-bento__cell">
+      <p class="wrapped-slide__eyebrow">ship reviews</p>
+      <h2 class="wrapped-slide__stat"><%= stats[:total] %></h2>
+      <h1 class="wrapped-slide__headline"><%= "cert".pluralize(stats[:total]) %> reviewed</h1>
+      <p class="wrapped-slide__body">keeping the fleet seaworthy.</p>
+    </div>
+    <div class="wrapped-bento__cell wrapped-bento__cell--secondary">
+      <p class="wrapped-slide__caption">approved</p>
+      <h2 class="wrapped-slide__stat"><%= stats[:approved] %></h2>
+      <p class="wrapped-slide__caption" style="margin-top: var(--space-s);">rejected</p>
+      <h2 class="wrapped-slide__stat"><%= stats[:rejected] %></h2>
+      <% if stats[:pending] > 0 %>
+        <p class="wrapped-slide__caption" style="margin-top: var(--space-s);">pending</p>
+        <h2 class="wrapped-slide__stat"><%= stats[:pending] %></h2>
+      <% end %>
+    </div>
+  </div>
+</div>

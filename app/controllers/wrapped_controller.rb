@@ -3,7 +3,13 @@ class WrappedController < ApplicationController
   before_action :check_wrapped_flag
 
   def show
-    @wrapped = WrappedPresenter.new(current_user)
+    user = if params[:user_id].present? && current_user.admin?
+             User.find(params[:user_id])
+           else
+             current_user
+           end
+
+    @wrapped = WrappedPresenter.new(user)
   end
 
   private

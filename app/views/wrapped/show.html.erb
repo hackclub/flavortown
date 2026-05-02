@@ -21,8 +21,13 @@
        data-wrapped-username-value="<%= current_user.display_name %>"
        data-wrapped-bento-value="<%= @wrapped.bento_payload.to_json %>">
 
+    <% show_sidequests = @wrapped.sidequests_completed > 0 %>
+    <% show_support    = @wrapped.support_helper? || (@wrapped.support_stats[:tickets_opened] || 0) > 0 %>
+    <% show_shipwright = @wrapped.shipwright_reviewer? %>
+    <% slide_count     = 7 + (show_sidequests ? 1 : 0) + (show_support ? 1 : 0) + (show_shipwright ? 1 : 0) %>
+
     <div class="wrapped-progress">
-      <% 7.times do %>
+      <% slide_count.times do %>
         <div class="wrapped-progress-segment empty" data-wrapped-target="segment"></div>
       <% end %>
     </div>
@@ -33,7 +38,16 @@
     <%= render "wrapped/slides/reports",      wrapped: @wrapped %>
     <%= render "wrapped/slides/shop_orders",  wrapped: @wrapped %>
     <%= render "wrapped/slides/achievements", wrapped: @wrapped %>
-    <%= render "wrapped/slides/complete",     user: current_user %>
+    <% if show_sidequests %>
+      <%= render "wrapped/slides/sidequests", wrapped: @wrapped %>
+    <% end %>
+    <% if show_support %>
+      <%= render "wrapped/slides/support",      wrapped: @wrapped %>
+    <% end %>
+    <% if show_shipwright %>
+      <%= render "wrapped/slides/shipwright",   wrapped: @wrapped %>
+    <% end %>
+    <%= render "wrapped/slides/complete",       user: current_user %>
 
     <div class="wrapped-hint">tap to continue</div>
   </div>

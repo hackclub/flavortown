@@ -26,5 +26,19 @@
         <p class="wrapped-slide__body" style="opacity:0.5;">no breakdown available</p>
       <% end %>
     </div>
+
+    <% if wrapped.payout_breakdown.any? %>
+      <div class="wrapped-bento__cell wrapped-bento__cell--full">
+        <p class="wrapped-slide__eyebrow">breakdown by source</p>
+        <div class="wrapped-payout-breakdown">
+          <% wrapped.payout_breakdown.each do |label, amount| %>
+            <div class="wrapped-payout-breakdown__row">
+              <span class="wrapped-payout-breakdown__label"><%= label %></span>
+              <span class="wrapped-payout-breakdown__amount"><%= number_with_delimiter(amount) %> cookies</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
   </div>
 </div>

@@ -1,20 +1,38 @@
 <div class="wrapped-slide wrapped-slide--achievements" data-wrapped-target="slide">
-  <div class="wrapped-bento wrapped-bento--2col">
-    <div class="wrapped-bento__cell">
-      <h2 class="wrapped-slide__stat"><%= wrapped.achievements_count %></h2>
-      <h1 class="wrapped-slide__headline"><%= "achievement".pluralize(wrapped.achievements_count) %> earned</h1>
-      <% if (slug = wrapped.latest_achievement_slug) %>
-        <p class="wrapped-slide__caption" style="margin-top: auto;">most recent</p>
-        <p class="wrapped-slide__body"><strong><%= slug.to_s.humanize %></strong></p>
-      <% end %>
+  <div class="wrapped-achievements-layout">
+    <div class="wrapped-bento wrapped-bento--2col">
+      <div class="wrapped-bento__cell wrapped-bento__cell--full">
+        <h2 class="wrapped-slide__stat"><%= wrapped.achievements_count %></h2>
+        <h1 class="wrapped-slide__headline"><%= "achievement".pluralize(wrapped.achievements_count) %> earned</h1>
+        <% v = wrapped.achievements_by_visibility %>
+        <p class="wrapped-slide__body wrapped-achievements-visibility">
+          <% parts = [] %>
+          <% parts << "#{v[:public]} public"  if v[:public] > 0 %>
+          <% parts << "#{v[:secret]} secret"  if v[:secret] > 0 %>
+          <% parts << "#{v[:hidden]} hidden"  if v[:hidden] > 0 %>
+          <%= parts.join(" · ") %>
+        </p>
+      </div>
     </div>
-    <div class="wrapped-bento__cell wrapped-bento__cell--secondary">
-      <p class="wrapped-slide__caption">sidequests</p>
-      <h2 class="wrapped-slide__stat"><%= wrapped.sidequests_completed %></h2>
-      <p class="wrapped-slide__body"><%= "sidequest".pluralize(wrapped.sidequests_completed) %> completed</p>
-      <% if wrapped.achievements_count.zero? && wrapped.sidequests_completed.zero? %>
-        <p class="wrapped-slide__body" style="margin-top: var(--space-s);">a clean slate — go grab a quest.</p>
-      <% end %>
-    </div>
+
+    <% if wrapped.achievements_list.any? %>
+      <div class="wrapped-achievement-grid">
+        <% wrapped.achievements_list.each do |achievement| %>
+          <div class="wrapped-achievement-box">
+            <% if achievement[:icon] %>
+              <div class="wrapped-achievement-box__icon">
+                <%= achievement_icon(achievement[:icon], earned: true) %>
+              </div>
+            <% end %>
+            <span class="wrapped-achievement-box__name"><%= achievement[:name] %></span>
+            <% if achievement[:earned_at] %>
+              <span class="wrapped-achievement-box__date"><%= achievement[:earned_at] %></span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="wrapped-slide__body" style="text-align:center; padding: var(--space-m);">no achievements yet — go earn some.</p>
+    <% end %>
   </div>
 </div>
