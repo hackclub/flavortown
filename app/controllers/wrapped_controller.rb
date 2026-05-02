@@ -5,9 +5,9 @@ class WrappedController < ApplicationController
   def show
     user = if params[:user_id].present? && current_user.admin?
              User.find(params[:user_id])
-           else
+    else
              current_user
-           end
+    end
 
     @wrapped = WrappedPresenter.new(user)
   end

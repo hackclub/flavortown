@@ -37,7 +37,7 @@ class WrappedPresenter
     "U08AT086H8E" => 59, "U07UBCSSQH3" => 60, "U078WRWQPGF" => 61,
     "U0A6A0J7UE6" => 62, "U081ZC7ES30" => 63, "U07E8H9A24A" => 64,
     "U07BN55GN3D" => 65, "U0A4UTULSLE" => 66, "U09H4M0523Z" => 67,
-    "U096RMRG03G" => 68, "U09192704Q7" => 69,
+    "U096RMRG03G" => 68, "U09192704Q7" => 69
   }.freeze
 
   # ─── Role helpers (drive optional slide content) ────────────────
@@ -62,7 +62,7 @@ class WrappedPresenter
       reviewer_id = SHIPWRIGHT_REVIEWER_IDS[@user.slack_id]
       next nil unless reviewer_id
 
-      response = shipwright_connection.get("/api/admin/ship-certs-log") { |r| r.params['reviewerId'] = reviewer_id }
+      response = shipwright_connection.get("/api/admin/ship-certs-log") { |r| r.params["reviewerId"] = reviewer_id }
       next nil unless response.success?
 
       certs = JSON.parse(response.body, symbolize_names: true)
@@ -70,9 +70,9 @@ class WrappedPresenter
 
       {
         total:    certs.length,
-        approved: certs.count { |c| c[:status] == 'approved' },
-        rejected: certs.count { |c| c[:status] == 'rejected' },
-        pending:  certs.count { |c| c[:status] == 'pending' }
+        approved: certs.count { |c| c[:status] == "approved" },
+        rejected: certs.count { |c| c[:status] == "rejected" },
+        pending:  certs.count { |c| c[:status] == "pending" }
       }
     rescue StandardError
       nil
@@ -260,15 +260,15 @@ class WrappedPresenter
         reason = entry.reason.to_s
         key = if reason.include?("Show and Tell")
                 "Show & Tell"
-              elsif reason == "fraud payout uwu" || reason.include?("Fraud dept payout for first 2 months")
+        elsif reason == "fraud payout uwu" || reason.include?("Fraud dept payout for first 2 months")
                 "Fraud Dept"
-              elsif reason.include?("Ship Reviews payout")
+        elsif reason.include?("Ship Reviews payout")
                 "Shipwright"
-              elsif reason.include?("GOI payout")
+        elsif reason.include?("GOI payout")
                 "GOI"
-              else
+        else
                 "Bonus"
-              end
+        end
         totals[key] += entry.amount
       end
       totals.reject { |_, v| v.zero? }
@@ -281,12 +281,12 @@ class WrappedPresenter
 
   def shipwright_connection
     Faraday.new("https://review.hackclub.com") do |f|
-      f.headers['Authorization'] = "Bearer #{SHIPWRIGHT_TOKEN}"
+      f.headers["Authorization"] = "Bearer #{SHIPWRIGHT_TOKEN}"
     end
   end
 
   def find_sidequest_icon(slug)
-    [slug.to_s, slug.to_s.tr("_", "-")].each do |name|
+    [ slug.to_s, slug.to_s.tr("_", "-") ].each do |name|
       %w[png svg avif jpg].each do |ext|
         return "sidequests/#{name}.#{ext}" if Rails.root.join("app/assets/images/sidequests/#{name}.#{ext}").exist?
       end
