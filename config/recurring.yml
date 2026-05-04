@@ -124,11 +124,11 @@ production:
     concurrency: 1
     description: "Send daily shop order summary to Slack with backlog, assignments, and hang times"
 
-  # ysws_review_sync:
-  #   class: YswsReviewSyncJob
-  #   schedule: every day at 9am America/New_York
-  #   concurrency: 1
-  #   description: "Sync completed YSWS reviews to Airtable with user PII"
+  ysws_review_sync:
+    class: YswsReviewSyncJob
+    schedule: every day at 9am America/New_York
+    concurrency: 1
+    description: "Sync completed YSWS reviews to Airtable with user PII"
 
   shop_calculate_fulfillment_payouts:
     class: Shop::CalculateFulfillmentPayoutsJob
