@@ -172,6 +172,17 @@
 .region-marquee:hover .region-marquee__track { animation-play-state: paused; }
 .region-marquee__item { padding: 0 1rem; }
 .region-marquee__sep { color: var(--color-text-muted); }
+@media (prefers-reduced-motion: reduce) {
+  .region-marquee { overflow: visible; }
+  .region-marquee__track {
+    display: flex;
+    flex-wrap: wrap;
+    white-space: normal;
+    animation: none;
+    padding: 0.5rem 0.5rem;
+  }
+  .region-marquee__sep { display: none; }
+}
 .backlog-banner {
   background: #fef3c7;
   border: 1px solid #f59e0b;
