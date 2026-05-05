@@ -54,7 +54,7 @@ Rails.application.routes.draw do
   get "login", to: redirect("/?login=1")
 
   # Start Flow
- # get  "/start",               to: redirect("https://stardance.hackclub.com/flavortown-start")
+  get  "/start",               to: redirect("https://stardance.hackclub.com/flavortown-start")
 #  post "/start/display_name",  to: "start#update_display_name"
   # post "/start/experience",    to: "start#update_experience"
 #  post "/start/project",       to: "start#update_project"
