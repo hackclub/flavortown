@@ -80,7 +80,7 @@
     <% if @featured_item && current_user %>
       <%= render partial: "shop/banner", locals: { featured_item: @featured_item, user_region: @user_region } %>
     <% end %>
-    <%= render partial: "shop/recently_added", locals: { recently_added_items: @recently_added_items, user_region: @user_region, user_balance: @user_balance, logged_in: current_user.present? } %>
+    <%= render partial: "shop/recently_added", locals: { recently_added_items: @recently_added_items, user_region: @user_region, user_balance: @user_balance, logged_in: current_user.present?, orders_enabled: @orders_enabled } %>
     <div class="shop__nav">
       <div class="shop__searchbar">
         <%= form_with url: shop_path, method: :get, local: true do |f| %>
@@ -170,7 +170,8 @@
               enabled_until: item.enabled_until,
               locked_by_achievement: item_achievement_locked,
               required_achievement_names: item_achievement_infos.map(&:name),
-              required_achievement_hints: item_achievement_infos.map(&:description)
+              required_achievement_hints: item_achievement_infos.map(&:description),
+              orders_enabled: @orders_enabled
             ) %>
           <% end %>
         <% end %>

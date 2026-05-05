@@ -19,6 +19,7 @@ Rails.application.config.after_initialize do
 
     # Feature flags used throughout the codebase
     Flipper.add(:shop_open) unless Flipper.exist?(:shop_open)
+    Flipper.add(:shop_orders) unless Flipper.exist?(:shop_orders)
     Flipper.add(:"git_commit_2025-12-25") unless Flipper.exist?(:"git_commit_2025-12-25")
     Flipper.add(:shop_suggestion_box) unless Flipper.exist?(:shop_suggestion_box)
     Flipper.add(:voting) unless Flipper.exist?(:voting)

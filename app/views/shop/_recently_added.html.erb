@@ -31,7 +31,8 @@
           enabled_until: item.enabled_until,
           locked_by_achievement: item_achievement_locked,
           required_achievement_names: item_achievement_infos.map(&:name),
-          required_achievement_hints: item_achievement_infos.map(&:description)
+          required_achievement_hints: item_achievement_infos.map(&:description),
+          orders_enabled: orders_enabled
         ) %>
       <% end %>
       </div>
