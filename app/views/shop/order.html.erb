@@ -245,7 +245,7 @@
                 <p style="margin: 0; color: #92400e; font-size: 0.875rem;">You need a phone number on file to place an order. Please update your profile on the <a href="https://auth.hackclub.com/identity/edit">address portal</a>.</p>
               </div>
             <% end %>
-            <button type="submit" form="order-form" class="btn btn-order" style="width: 100%;" data-order-form-target="submitButton" <%= 'disabled' if @locked_by_achievement || !has_phone %>>
+            <button type="submit" form="order-form" class="btn btn-order" style="width: 100%;" data-order-form-target="submitButton" <%= 'disabled' if @locked_by_achievement || !has_phone || !@orders_enabled %>>
                 <%= inline_svg_tag "icons/tick.svg", class: "shop-order__summary-btn-icon", aria: { hidden: true } %>
                 <%= @locked_by_achievement ? 'Locked' : 'Get!' %>
             </button>

@@ -4,6 +4,7 @@ class ShopController < ApplicationController
 
   def index
     @shop_open = Flipper.enabled?(:shop_open, current_user)
+    @orders_enabled = Flipper.enabled?(:shop_orders, current_user)
     @user_region = user_region
     @body_class = "shop-page"
     @region_options = Shop::Regionalizable::REGIONS.map do |code, config|
@@ -63,6 +64,7 @@ class ShopController < ApplicationController
       @required_achievements = @shop_item.requires_achievement.map { |slug| Achievement.find(slug) }
       @locked_by_achievement = !@shop_item.meet_achievement_require?(current_user)
     end
+    @orders_enabled = Flipper.enabled?(:shop_orders, current_user)
     @achievement_sale_active = @shop_item.achievement_sale? && @shop_item.achievement_sale_for?(current_user)
     @achievement_sale_percentage = @shop_item.achievement_sale_percentage if @achievement_sale_active
     ahoy.track "Viewed shop item", shop_item_id: @shop_item.id
@@ -90,6 +92,11 @@ class ShopController < ApplicationController
   end
 
   def create_order
+    unless Flipper.enabled?(:shop_orders, current_user)
+      redirect_to shop_path, alert: "Orders are currently closed."
+      return
+    end
+
     if current_user.should_reject_orders?
       redirect_to shop_path, alert: "You're not eligible to place orders."
       return
