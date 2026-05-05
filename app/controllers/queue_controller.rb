@@ -75,12 +75,11 @@ class QueueController < ApplicationController
                                  .count
 
     avg_time_by_region = ShopOrder.where(aasm_state: "fulfilled")
-                                  .where("updated_at > ?", 30.days.ago)
-                                  .select(:region, :created_at, :updated_at)
-                                  .group_by(&:region)
-                                  .transform_values do |orders|
-                                    (orders.sum { |o| (o.updated_at - o.created_at) / 1.hour } / orders.size).round(1)
-                                  end
+                                  .where.not(fulfilled_at: nil)
+                                  .where("fulfilled_at > ?", 30.days.ago)
+                                  .group(:region)
+                                  .average(Arel.sql("EXTRACT(EPOCH FROM (fulfilled_at - created_at)) / 3600.0"))
+                                  .transform_values { |avg| avg&.to_f&.round(1) }
 
     Shop::Regionalizable::REGIONS.map do |code, config|
       {
