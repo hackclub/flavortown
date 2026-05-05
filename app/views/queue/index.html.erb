@@ -28,6 +28,28 @@
 
     Thanks for your patience! 🙏 🙏 🙏
   </div>
+
+  <div class="backlog-modal-overlay" id="backlogModalOverlay">
+    <div class="backlog-modal">
+      <h2>⚠️ Heads up!</h2>
+      <p>We're currently a bit backlogged on shop orders. Our fraud and fulfilment team are volunteers with school, work, and lives outside of this — please be patient with us :3</p>
+      <p>If you see an old pending order, don't worry — we haven't forgotten about it! You don't need to post in #flavortown-help, we promise.</p>
+      <p><strong>Please don't DM anyone to get your order reviewed or fulfilled faster.</strong></p>
+      <button class="backlog-modal__btn" id="backlogModalConfirm">Got it, I won't do any of that 🙏</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      if (!sessionStorage.getItem('backlog_notice_confirmed')) {
+        document.getElementById('backlogModalOverlay').style.display = 'flex';
+      }
+      document.getElementById('backlogModalConfirm').addEventListener('click', function() {
+        sessionStorage.setItem('backlog_notice_confirmed', '1');
+        document.getElementById('backlogModalOverlay').style.display = 'none';
+      });
+    })();
+  </script>
 <% end %>
 
 <div class="fraud-grid">
@@ -183,6 +205,41 @@
   }
   .region-marquee__sep { display: none; }
 }
+.backlog-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.backlog-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 480px;
+  width: calc(100% - 2rem);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.backlog-modal h2 { margin: 0; font-size: 1.25rem; }
+.backlog-modal p { margin: 0; font-size: 0.9rem; line-height: 1.5; }
+.backlog-modal__btn {
+  margin-top: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  background: #f59e0b;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  align-self: flex-end;
+}
+.backlog-modal__btn:hover { background: #d97706; }
 .backlog-banner {
   background: #fef3c7;
   border: 1px solid #f59e0b;
