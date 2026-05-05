@@ -1,9 +1,32 @@
 <% content_for :title, "Order Review Queue" %>
 <h1>Order Review Queue</h1>
 
+<% if @region_stats.any? %>
+  <div class="region-marquee">
+    <div class="region-marquee__track">
+      <% 2.times do %>
+        <% @region_stats.each do |r| %>
+          <span class="region-marquee__item">
+            <strong><%= r[:name] %></strong>
+            &nbsp;|&nbsp;
+            Backlog: <strong><%= r[:backlog] %></strong>
+            &nbsp;·&nbsp;
+            Avg fulfil: <strong><%= r[:avg_fulfillment_hours] ? "#{r[:avg_fulfillment_hours]}h" : "n/a" %></strong>
+          </span>
+          <span class="region-marquee__sep">&#8195;&#9642;&#8195;</span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
 <% if Flipper.enabled?(:shop_backlogged) %>
   <div class="backlog-banner">
-    ⚠️ There is many shop orders and we are currently a bit backlogged! Please be patient with us fraud dept + fulfilment team is volunteers who have a life, school and other things as well :3
+    ⚠️ We're currently a bit backlogged on shop orders! Please bear with us — our fraud and fulfilment team are volunteers with school, work, and lives outside of this :3
+    If you see an old pending order, don't worry — we haven't forgotten about it! You don't need to post in #flavortown-help, we promise.
+    Please don't DM anyone to try to get your order reviewed or fulfilled faster.
+
+    Thanks for your patience! 🙏 🙏 🙏 
   </div>
 <% end %>
 
@@ -12,12 +35,16 @@
     <h2>Queue Status</h2>
     <div class="fraud-stats">
       <div class="fraud-stat fraud-stat--warning">
-        <span class="fraud-stat__value"><%= @pending_count %></span>
+        <span class="fraud-stat__value"><%= @pending_only_count %></span>
         <span class="fraud-stat__label">Pending</span>
       </div>
       <div class="fraud-stat fraud-stat--warning">
         <span class="fraud-stat__value"><%= @pending_count %></span>
-        <span class="fraud-stat__label">Total Backlog</span>
+        <span class="fraud-stat__label">Fraud Backlog</span>
+      </div>
+      <div class="fraud-stat fraud-stat--warning">
+        <span class="fraud-stat__value"><%= @fulfilment_count %></span>
+        <span class="fraud-stat__label">Fulfilment Backlog</span>
       </div>
     </div>
     <% if @avg_response_hours %>
@@ -35,10 +62,6 @@
       <div class="fraud-stat fraud-stat--success">
         <span class="fraud-stat__value"><%= @newest_waiting ? distance_of_time_in_words_to_now(@newest_waiting) : "—" %></span>
         <span class="fraud-stat__label">Newest Waiting</span>
-      </div>
-      <div class="fraud-stat fraud-stat--info">
-        <span class="fraud-stat__value"><%= @avg_wait ? "#{@avg_wait}h" : "—" %></span>
-        <span class="fraud-stat__label">Avg Wait</span>
       </div>
     </div>
   </div>
@@ -80,6 +103,28 @@
       <p class="fraud-note">No pending orders 🎉</p>
     <% end %>
   </div>
+
+  <div class="card fraud-card">
+    <h2>Awaiting Periodical Fulfilment</h2>
+    <% if @periodic_orders.any? %>
+      <table class="fraud-table">
+        <thead>
+          <tr><th>#</th><th>Moved to Awaiting Fulfilment</th></tr>
+        </thead>
+        <tbody>
+          <% @periodic_orders.each do |order| %>
+            <% transitioned_at = @periodic_transitioned_at[order.id] %>
+            <tr>
+              <td><%= order.id %></td>
+              <td><%= transitioned_at ? "#{time_ago_in_words(transitioned_at)} ago" : "—" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="fraud-note">No orders awaiting periodical fulfilment 🎉</p>
+    <% end %>
+  </div>
 </div>
 
 <style>
@@ -106,6 +151,27 @@
 .fraud-table th { font-weight: 600 }
 .fraud-table td:last-child { text-align: right; }
 .fraud-note { margin: 0; font-size: 0.8rem; color: var(--color-text-muted); }
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.region-marquee {
+  background: var(--color-tan-200, #f5f0e8);
+  border: 1px solid var(--color-tan-400);
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+  overflow: hidden;
+}
+.region-marquee__track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee-scroll 30s linear infinite;
+  padding: 0.5rem 0;
+}
+.region-marquee:hover .region-marquee__track { animation-play-state: paused; }
+.region-marquee__item { padding: 0 1rem; }
+.region-marquee__sep { color: var(--color-text-muted); }
 .backlog-banner {
   background: #fef3c7;
   border: 1px solid #f59e0b;
