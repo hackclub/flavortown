@@ -29,18 +29,12 @@ class QueueController < ApplicationController
                        .load
 
     periodic = ShopOrder.where(aasm_state: "awaiting_periodical_fulfillment")
-                        .includes(:shop_item, :versions)
+                        .includes(:shop_item)
                         .order(created_at: :asc)
                         .load
 
     periodic_transitioned_at = periodic.each_with_object({}) do |order, hash|
-      v = order.versions.find do |ver|
-        changes = ver.object_changes
-        next if changes.is_a?(String) && changes.start_with?("---")
-        changes = JSON.parse(changes) if changes.is_a?(String)
-        changes&.dig("aasm_state")&.last == "awaiting_periodical_fulfillment"
-      end
-      hash[order.id] = v&.created_at
+      hash[order.id] = order.awaiting_periodical_fulfillment_at
     end
 
     pending_only_count = backlog.count { |o| o.aasm_state == "pending" }
