@@ -5,7 +5,7 @@ export default class extends Controller {
   static values = { date: String };
 
   connect() {
-    this.targetDate = new Date(this.dateValue).getTime();
+    this.target = new Date(this.dateValue).getTime();
     this.renderLocalTime();
     this.updateTimer();
     this.timer = setInterval(() => this.updateTimer(), 1000);
@@ -16,9 +16,9 @@ export default class extends Controller {
   }
 
   renderLocalTime() {
-    if (!this.hasLocalTimeTarget || Number.isNaN(this.targetDate)) return;
+    if (!this.hasLocalTimeTarget || Number.isNaN(this.target)) return;
 
-    const formatter = new Intl.DateTimeFormat(undefined, {
+    const fmt = new Intl.DateTimeFormat("en-US", {
       weekday: "long",
       month: "long",
       day: "numeric",
@@ -26,29 +26,38 @@ export default class extends Controller {
       minute: "2-digit",
       timeZoneName: "short",
     });
-
-    this.localTimeTarget.textContent = formatter.format(
-      new Date(this.targetDate),
+    const d = new Date(this.target);
+    const p = Object.fromEntries(
+      fmt.formatToParts(d).map((x) => [x.type, x.value]),
     );
+
+    if (
+      ["weekday", "month", "day", "hour", "minute", "timeZoneName"].some(
+        (k) => !p[k],
+      )
+    ) {
+      this.localTimeTarget.textContent = fmt.format(d);
+      return;
+    }
+
+    const suffix = p.dayPeriod ? ` ${p.dayPeriod}` : "";
+    this.localTimeTarget.textContent = `${p.weekday}, ${p.month} ${p.day} at ${p.hour}:${p.minute}${suffix} ${p.timeZoneName}`;
   }
 
   updateTimer() {
-    const now = new Date().getTime();
-    const distance = this.targetDate - now;
+    const dist = this.target - Date.now();
 
-    if (distance < 0) {
+    if (dist < 0) {
       this.displayTarget.textContent = "Ended";
       clearInterval(this.timer);
       return;
     }
 
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-    );
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    const d = Math.floor(dist / 86400000);
+    const h = Math.floor((dist % 86400000) / 3600000);
+    const m = Math.floor((dist % 3600000) / 60000);
+    const s = Math.floor((dist % 60000) / 1000);
 
-    this.displayTarget.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    this.displayTarget.textContent = `${d}d ${h}h ${m}m ${s}s`;
   }
 }
