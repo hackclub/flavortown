@@ -255,7 +255,7 @@
             <% end %>
             <button type="submit" form="order-form" class="btn btn-order" style="width: 100%;" data-order-form-target="submitButton" <%= 'disabled' if @locked_by_achievement || !has_phone || !@orders_enabled %>>
                 <%= inline_svg_tag "icons/tick.svg", class: "shop-order__summary-btn-icon", aria: { hidden: true } %>
-                <%= @locked_by_achievement ? 'Locked' : (@orders_enabled ? 'Get!' %>
+                <%= @locked_by_achievement ? 'Locked' : (@orders_enabled ? 'Get!' : 'Closed') %>
             </button>
         </div>
     </div>
