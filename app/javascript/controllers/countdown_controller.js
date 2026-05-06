@@ -1,17 +1,35 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["display"];
+  static targets = ["display", "localTime"];
   static values = { date: String };
 
   connect() {
     this.targetDate = new Date(this.dateValue).getTime();
+    this.renderLocalTime();
     this.updateTimer();
     this.timer = setInterval(() => this.updateTimer(), 1000);
   }
 
   disconnect() {
     clearInterval(this.timer);
+  }
+
+  renderLocalTime() {
+    if (!this.hasLocalTimeTarget || Number.isNaN(this.targetDate)) return;
+
+    const formatter = new Intl.DateTimeFormat(undefined, {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
+    });
+
+    this.localTimeTarget.textContent = formatter.format(
+      new Date(this.targetDate),
+    );
   }
 
   updateTimer() {

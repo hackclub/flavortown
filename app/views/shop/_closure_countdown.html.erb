@@ -1,0 +1,16 @@
+<div class="shop-closure-banner" data-controller="countdown" data-countdown-date-value="<%= closes_at.iso8601 %>">
+  <p class="shop-closure-banner__eyebrow">Heads up</p>
+  <div class="shop-closure-banner__content">
+    <div>
+      <h2 class="shop-closure-banner__title">
+        The shop closes
+        <span data-countdown-target="localTime"><%= deadline_label %></span>.
+      </h2>
+      <p class="shop-closure-banner__subtitle">Shown in your local time. Get your orders in before it closes!</p>
+    </div>
+    <div class="shop-closure-banner__timer">
+      <span class="shop-closure-banner__timer-label">Closing in</span>
+      <span class="shop-closure-banner__timer-value" data-countdown-target="display">Loading...</span>
+    </div>
+  </div>
+</div>

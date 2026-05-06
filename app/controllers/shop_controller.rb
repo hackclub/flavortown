@@ -1,9 +1,10 @@
 class ShopController < ApplicationController
   skip_before_action :refresh_identity_on_portal_return, only: [ :index ]
   before_action :require_login, except: [ :index, :update_region ]
+  before_action :set_shop_availability_state, only: [ :index, :order, :create_order ]
+  before_action :ensure_shop_open!, only: [ :order, :create_order ]
 
   def index
-    @shop_open = Flipper.enabled?(:shop_open, current_user)
     @orders_enabled = Flipper.enabled?(:shop_orders, current_user)
     @user_region = user_region
     @body_class = "shop-page"
@@ -283,5 +284,18 @@ class ShopController < ApplicationController
     return tz_region if tz_region.present? && tz_region != "XX"
 
     "US"
+  end
+
+  def set_shop_availability_state
+    @shop_open = Flipper.enabled?(:shop_open, current_user)
+    @shop_closes_at = Shop::ClosureSchedule.closes_at
+    @shop_close_deadline_label = Shop::ClosureSchedule.deadline_label
+    @shop_countdown_active = @shop_open && Shop::ClosureSchedule.countdown_active?
+  end
+
+  def ensure_shop_open!
+    return if @shop_open
+
+    redirect_to shop_path, alert: "The shop is currently closed."
   end
 end
