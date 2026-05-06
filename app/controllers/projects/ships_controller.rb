@@ -52,8 +52,8 @@ class Projects::ShipsController < ApplicationController
   def set_project = @project = Project.find(params[:project_id])
 
   def require_shipping_enabled
-    unless Flipper.enabled?(:shipping)
-      redirect_to @project, alert: "Shipping is currently disabled."
+    unless Flipper.enabled?(:shipping, current_user)
+      redirect_to @project, alert: "Shipping is currently disabled." and return
     end
   end
 

@@ -34,7 +34,7 @@ class ProjectShowCardComponent < ViewComponent::Base
   end
 
   def shipping_enabled?
-    Flipper.enabled?(:shipping)
+    Flipper.enabled?(:shipping, current_user)
   end
 
   def can_ship?
