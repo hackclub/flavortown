@@ -19,20 +19,29 @@ export default class extends Controller {
     if (!this.hasLocalTimeTarget || Number.isNaN(this.target)) return;
 
     const fmt = new Intl.DateTimeFormat("en-US", {
-      weekday: "long", month: "long", day: "numeric",
-      hour: "numeric", minute: "2-digit", timeZoneName: "short",
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
     });
     const d = new Date(this.target);
-    const p = Object.fromEntries(fmt.formatToParts(d).map((x) => [x.type, x.value]));
+    const p = Object.fromEntries(
+      fmt.formatToParts(d).map((x) => [x.type, x.value]),
+    );
 
-    if (["weekday", "month", "day", "hour", "minute", "timeZoneName"].some((k) => !p[k])) {
+    if (
+      ["weekday", "month", "day", "hour", "minute", "timeZoneName"].some(
+        (k) => !p[k],
+      )
+    ) {
       this.localTimeTarget.textContent = fmt.format(d);
       return;
     }
 
     const suffix = p.dayPeriod ? ` ${p.dayPeriod}` : "";
-    this.localTimeTarget.textContent =
-      `${p.weekday}, ${p.month} ${p.day} at ${p.hour}:${p.minute}${suffix} ${p.timeZoneName}`;
+    this.localTimeTarget.textContent = `${p.weekday}, ${p.month} ${p.day} at ${p.hour}:${p.minute}${suffix} ${p.timeZoneName}`;
   }
 
   updateTimer() {
