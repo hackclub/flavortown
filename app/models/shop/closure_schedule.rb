@@ -1,8 +1,8 @@
 module Shop
   module ClosureSchedule
-    TIMEZONE = ActiveSupport::TimeZone["Eastern Time (US & Canada)"]
+    TIMEZONE = ActiveSupport::TimeZone["London"]
     CLOSES_AT = TIMEZONE.local(2026, 5, 9, 0, 0, 0)
-    DEADLINE_LABEL = "Saturday, May 9 at 12:00 AM ET".freeze
+    DEADLINE_LABEL = "Saturday, May 9 at 12:00 AM BST".freeze
 
     module_function
 
