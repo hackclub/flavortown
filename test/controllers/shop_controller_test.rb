@@ -5,6 +5,17 @@ class ShopControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     @user = users(:one)
+    @shop_item = ShopItem.new(
+      name: "Test item",
+      description: "Test description",
+      ticket_cost: 100,
+      type: "ShopItem::ThirdPartyDigital",
+      enabled: true,
+      buyable_by_self: true,
+      draft: false,
+      unlisted: false
+    )
+    @shop_item.save!(validate: false)
   end
 
   teardown do
@@ -26,24 +37,34 @@ class ShopControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "shop order page redirects when the global shop flag is off" do
+  test "shop index stays visible when the global shop flag is off" do
+    Flipper.disable(:shop_open)
+
+    get shop_path
+
+    assert_response :success
+    assert_includes response.body, "The shop has closed."
+    assert_includes response.body, "You can still browse items, but new orders are closed."
+  end
+
+  test "shop order page stays visible when the global shop flag is off" do
     sign_in(@user)
     Flipper.disable(:shop_open)
 
-    get shop_order_path(shop_item_id: 999_999)
+    get shop_order_path(shop_item_id: @shop_item.id)
 
-    assert_redirected_to shop_path
-    follow_redirect!
-    assert_includes response.body, "The shop is closed right now."
+    assert_response :success
+    assert_includes response.body, "You can still browse this item, but new orders are closed."
+    assert_includes response.body, "Orders closed"
   end
 
   test "shop order creation redirects when the global shop flag is off" do
     sign_in(@user)
     Flipper.disable(:shop_open)
 
-    post shop_order_path, params: { shop_item_id: 999_999, quantity: 1 }
+    post shop_order_path, params: { shop_item_id: @shop_item.id, quantity: 1 }
 
     assert_redirected_to shop_path
-    assert_equal "The shop is currently closed.", flash[:alert]
+    assert_equal "Orders are currently closed.", flash[:alert]
   end
 end

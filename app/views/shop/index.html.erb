@@ -24,6 +24,11 @@
 
   <% if @shop_countdown_active %>
     <%= render "shop/closure_countdown", closes_at: @shop_closes_at, deadline_label: @shop_close_deadline_label %>
+  <% elsif !@shop_open %>
+    <div class="shop-closed-state">
+      <h2 class="shop-closed-state__title">The shop has closed.</h2>
+      <p class="shop-closed-state__copy">You can still browse items, but new orders are closed.</p>
+    </div>
   <% end %>
 
   <div class="shop-goals" data-controller="shop-goals" data-shop-goals-balance-value="<%= @user_balance %>">
@@ -39,159 +44,144 @@
     </script>
   </div>
 
-  <% if @shop_open %>
-    <% if current_user&.admin? %>
-      <div class="admin-banner">
-        <div class="admin-banner__content">
-          <span class="admin-banner__count"><%= @shop_items.count %> items</span>
-          <%= link_to "Edit items →", admin_manage_shop_path, class: "admin-banner__link" %>
-        </div>
+  <% if current_user&.admin? %>
+    <div class="admin-banner">
+      <div class="admin-banner__content">
+        <span class="admin-banner__count"><%= @shop_items.count %> items</span>
+        <%= link_to "Edit items →", admin_manage_shop_path, class: "admin-banner__link" %>
       </div>
-    <% end %>
+    </div>
+  <% end %>
 
-    <% unless current_user %>
-      <div class="shop__signup-cta">
-        <div class="shop__signup-cta-content">
-          <h3>🍪 Want to order something?</h3>
-          <p>Join <%= link_to "Hack Club Flavortown", "/" %> to start earning cookies by building personal projects!</p>
-        </div>
-        <div class="shop__signup-cta-buttons">
-          <%= link_to "Get building!", "/start", class: "btn btn-cta" %>
-          <%= form_tag "/auth/hack_club", method: :post, data: { turbo: false }, class: "shop__signin-form" do %>
-            <button type="submit" class="shop__signin-link">Already a member? Sign in</button>
-          <% end %>
-        </div>
+  <% unless current_user %>
+    <div class="shop__signup-cta">
+      <div class="shop__signup-cta-content">
+        <h3>🍪 Want to order something?</h3>
+        <p>Join <%= link_to "Hack Club Flavortown", "/" %> to start earning cookies by building personal projects!</p>
       </div>
-    <% end %>
+      <div class="shop__signup-cta-buttons">
+        <%= link_to "Get building!", "/start", class: "btn btn-cta" %>
+        <%= form_tag "/auth/hack_club", method: :post, data: { turbo: false }, class: "shop__signin-form" do %>
+          <button type="submit" class="shop__signin-link">Already a member? Sign in</button>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
-    <div class="shop__buttons">
-      <% if current_user %>
-        <%= render ButtonComponent.new(
-          text: "View My Orders",
-          href: "/shop/my_orders",
-          color: :brown,
-          variant: :borderless
+  <div class="shop__buttons">
+    <% if current_user %>
+      <%= render ButtonComponent.new(
+        text: "View My Orders",
+        href: "/shop/my_orders",
+        color: :brown,
+        variant: :borderless
+      ) %>
+    <% end %>
+    <%= render DropdownComponent.new(
+      label: "Region",
+      options: @region_options,
+      selected_option: Shop::Regionalizable::REGIONS.dig(@user_region, :name),
+      longest_option_string: "Rest of World",
+      color: :brown
+    ) %>
+  </div>
+  <% if @featured_item && current_user %>
+    <%= render partial: "shop/banner", locals: { featured_item: @featured_item, user_region: @user_region } %>
+  <% end %>
+  <%= render partial: "shop/recently_added", locals: { recently_added_items: @recently_added_items, user_region: @user_region, user_balance: @user_balance, logged_in: current_user.present?, orders_enabled: @orders_enabled } %>
+  <div class="shop__nav">
+    <div class="shop__searchbar">
+      <%= form_with url: shop_path, method: :get, local: true do |f| %>
+        <%= render InputComponent.new(
+          label: nil,
+          icon: "icons/search.svg",
+          placeholder: "Search item",
+          form: f,
+          attribute: :q,
+          color: :yellow,
+          input_html: {
+            value: params[:q],
+            data: { action: "input->shop#search" }
+          }
         ) %>
       <% end %>
-      <%= render DropdownComponent.new(
-        label: "Region",
-        options: @region_options,
-        selected_option: Shop::Regionalizable::REGIONS.dig(@user_region, :name),
-        longest_option_string: "Rest of World",
-        color: :brown
-      ) %>
     </div>
-    <% if @featured_item && current_user %>
-      <%= render partial: "shop/banner", locals: { featured_item: @featured_item, user_region: @user_region } %>
-    <% end %>
-    <%= render partial: "shop/recently_added", locals: { recently_added_items: @recently_added_items, user_region: @user_region, user_balance: @user_balance, logged_in: current_user.present?, orders_enabled: @orders_enabled } %>
-    <div class="shop__nav">
-      <div class="shop__searchbar">
-        <%= form_with url: shop_path, method: :get, local: true do |f| %>
-          <%= render InputComponent.new(
-            label: nil,
-            icon: "icons/search.svg",
-            placeholder: "Search item",
-            form: f,
-            attribute: :q,
-            color: :yellow,
-            input_html: {
-              value: params[:q],
-              data: { action: "input->shop#search" }
-            }
+    <div class="shop__filters">
+      <%= render DropdownComponent.new(
+        label: "Category",
+        options: ["All", "Grants", "HQ", "Digital", "Locally Fulfilled", "Made by Hack Clubbers"],
+        selected_option: "All",
+        longest_option_string: "Made by Hack Clubbers",
+        color: :blue
+      ) %>
+      <%= render DropdownComponent.new(
+        label: "Price Range",
+        options: [
+          { label: "None", value: "none" },
+          { label: "🍪0 - 🍪100", value: "0-100" },
+          { label: "🍪100 - 🍪500", value: "100-500" },
+          { label: "🍪500 - 🍪1000", value: "500-1000" },
+          { label: ">🍪1000", value: "1000+" }
+        ],
+        selected_option: "None",
+        longest_option_string: "🍪100 - 🍪500",
+        color: :pink
+      ) %>
+      <%= render DropdownComponent.new(
+        label: "Sort by",
+        options: ["Prices", "Alphabetical"],
+        selected_option: "Prices",
+        longest_option_string: "Alphabetical",
+        color: :green
+      ) %>
+      <%= render DropdownComponent.new(
+        label: "Access",
+        options: ["All", "Available", "Locked"],
+        selected_option: "All",
+        longest_option_string: "Available",
+        color: :red
+      ) %>
+      <button id="sort-btn">
+        <span>
+          <%= inline_svg_tag "icons/sort.svg", title: "Sort Icon" %>
+        </span>
+        <%= inline_svg_tag "icons/sort-btn-icon.svg", title: "Sort Arrow" %>
+      </button>
+    </div>
+  </div>
+  <%= turbo_frame_tag "shop_items" do %>
+    <div class="shop__items">
+      <% @shop_items.each do |item| %>
+        <% if item.image.present? && item.enabled_in_region?(@user_region) %>
+          <% sale_price = item.price_for_region_and_user(@user_region, current_user) %>
+          <% item_achievement_infos = item.required_achievement_objects %>
+          <% item_achievement_locked = item.achievement_locked_for?(current_user) %>
+          <%= render ShopItemCardComponent.new(
+            item_id: item.id,
+            name: item.name,
+            description: item.description,
+            hours: item.fixed_estimate(sale_price).to_i,
+            price: item.ticket_cost,
+            image_url: item.image.variant(:carousel_lg),
+            item_type: item.type,
+            balance: @user_balance,
+            enabled_regions: item.enabled_region_codes,
+            regional_price: sale_price,
+            logged_in: current_user.present?,
+            remaining_stock: item.remaining_stock,
+            limited: item.limited?,
+            on_sale: item.on_sale? || (current_user && item.achievement_sale_for?(current_user)),
+            sale_percentage: current_user ? item.effective_sale_percentage_for(current_user) : item.sale_percentage,
+            original_price: item.base_price_for_region(@user_region),
+            purchase_count: item.display_purchase_count,
+            is_new: item.new_item?,
+            enabled_until: item.enabled_until,
+            locked_by_achievement: item_achievement_locked,
+            required_achievement_names: item_achievement_infos.map(&:name),
+            required_achievement_hints: item_achievement_infos.map(&:description),
+            orders_enabled: @orders_enabled
           ) %>
         <% end %>
-      </div>
-      <div class="shop__filters">
-        <%= render DropdownComponent.new(
-          label: "Category",
-          options: ["All", "Grants", "HQ", "Digital", "Locally Fulfilled", "Made by Hack Clubbers"],
-          selected_option: "All",
-          longest_option_string: "Made by Hack Clubbers",
-          color: :blue
-        ) %>
-        <%= render DropdownComponent.new(
-          label: "Price Range",
-          options: [
-            { label: "None", value: "none" },
-            { label: "🍪0 - 🍪100", value: "0-100" },
-            { label: "🍪100 - 🍪500", value: "100-500" },
-            { label: "🍪500 - 🍪1000", value: "500-1000" },
-            { label: ">🍪1000", value: "1000+" }
-          ],
-          selected_option: "None",
-          longest_option_string: "🍪100 - 🍪500",
-          color: :pink
-        ) %>
-        <%= render DropdownComponent.new(
-          label: "Sort by",
-          options: ["Prices", "Alphabetical"],
-          selected_option: "Prices",
-          longest_option_string: "Alphabetical",
-          color: :green
-        ) %>
-        <%= render DropdownComponent.new(
-          label: "Access",
-          options: ["All", "Available", "Locked"],
-          selected_option: "All",
-          longest_option_string: "Available",
-          color: :red
-        ) %>
-        <button id="sort-btn">
-          <span>
-            <%= inline_svg_tag "icons/sort.svg", title: "Sort Icon" %>
-          </span>
-          <%= inline_svg_tag "icons/sort-btn-icon.svg", title: "Sort Arrow" %>
-        </button>
-      </div>
-    </div>
-    <%= turbo_frame_tag "shop_items" do %>
-      <div class="shop__items">
-        <% @shop_items.each do |item| %>
-          <% if item.image.present? && item.enabled_in_region?(@user_region) %>
-            <% sale_price = item.price_for_region_and_user(@user_region, current_user) %>
-            <% item_achievement_infos = item.required_achievement_objects %>
-            <% item_achievement_locked = item.achievement_locked_for?(current_user) %>
-            <%= render ShopItemCardComponent.new(
-              item_id: item.id,
-              name: item.name,
-              description: item.description,
-              hours: item.fixed_estimate(sale_price).to_i,
-              price: item.ticket_cost,
-              image_url: item.image.variant(:carousel_lg),
-              item_type: item.type,
-              balance: @user_balance,
-              enabled_regions: item.enabled_region_codes,
-              regional_price: sale_price,
-              logged_in: current_user.present?,
-              remaining_stock: item.remaining_stock,
-              limited: item.limited?,
-              on_sale: item.on_sale? || (current_user && item.achievement_sale_for?(current_user)),
-              sale_percentage: current_user ? item.effective_sale_percentage_for(current_user) : item.sale_percentage,
-              original_price: item.base_price_for_region(@user_region),
-              purchase_count: item.display_purchase_count,
-              is_new: item.new_item?,
-              enabled_until: item.enabled_until,
-              locked_by_achievement: item_achievement_locked,
-              required_achievement_names: item_achievement_infos.map(&:name),
-              required_achievement_hints: item_achievement_infos.map(&:description),
-              orders_enabled: @orders_enabled
-            ) %>
-          <% end %>
-        <% end %>
-      </div>
-    <% end %>
-  <% else %>
-    <div class="shop-closed-state">
-      <h2 class="shop-closed-state__title">The shop has closed.</h2>
-      <p class="shop-closed-state__copy">Thank you for being part of Flavortown and see you next time :)</p>
-      <% if current_user %>
-        <%= render ButtonComponent.new(
-          text: "View My Orders",
-          href: "/shop/my_orders",
-          color: :brown,
-          variant: :borderless
-        ) %>
       <% end %>
     </div>
   <% end %>

@@ -1,8 +1,6 @@
 class Api::V1::StoreController < Api::BaseController
   include ApiAuthenticatable
 
-  before_action :open!
-
   def index
     @items = ShopItem.enabled.listed.includes(image_attachment: :blob)
   end
@@ -20,13 +18,5 @@ class Api::V1::StoreController < Api::BaseController
 
   def show
     @item = ShopItem.enabled.listed.find_by!(id: params[:id])
-  end
-
-  private
-
-  def open!
-    unless Flipper.enabled?(:shop_open)
-      render json: { error: "Shop is currently closed" }, status: :service_unavailable
-    end
   end
 end
