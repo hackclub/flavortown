@@ -27,7 +27,9 @@ export default class extends Controller {
       timeZoneName: "short",
     });
 
-    this.localTimeTarget.textContent = formatter.format(new Date(this.targetDate));
+    this.localTimeTarget.textContent = formatter.format(
+      new Date(this.targetDate),
+    );
   }
 
   updateTimer() {
