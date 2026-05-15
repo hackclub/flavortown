@@ -8,6 +8,7 @@ require "flipper/adapters/active_record"
 Rails.application.configure do
   config.flipper.preload = false
   config.flipper.memoize = false
+  config.flipper.actor_limit = false
 end
 
 # Ensure access flipper feature exists and is enabled globally by default
@@ -34,6 +35,7 @@ Rails.application.config.after_initialize do
     Flipper.add(:shipping) unless Flipper.exist?(:shipping)
     Flipper.add(:user_profiles) unless Flipper.exist?(:user_profiles)
     Flipper.add(:show_and_tell_live) unless Flipper.exist?(:show_and_tell_live)
+    
 
     # Creation kill-switches: enabled by default so existing behavior is preserved.
     # Disable via Flipper UI to prevent users from creating these resources.
