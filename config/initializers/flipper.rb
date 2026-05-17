@@ -34,7 +34,7 @@ Rails.application.config.after_initialize do
     Flipper.add(:shop_order_daily_summary) unless Flipper.exist?(:shop_order_daily_summary)
     Flipper.add(:shipping) unless Flipper.exist?(:shipping)
     Flipper.add(:user_profiles) unless Flipper.exist?(:user_profiles)
-    Flipper.add(:show_and_tell_live) unless Flipper.exist?(:show_and_tell_live) 
+    Flipper.add(:show_and_tell_live) unless Flipper.exist?(:show_and_tell_live)
 
     # Creation kill-switches: enabled by default so existing behavior is preserved.
     # Disable via Flipper UI to prevent users from creating these resources.

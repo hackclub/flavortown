@@ -71,7 +71,9 @@ module Admin
         backlog: os["pending_count"].to_i + os["awaiting_count"].to_i,
         new_today: os["new_today"].to_i,
         top_reviewers: all_time_performers(order_states),
-        avg_response_hours: avg_response("shop_orders", "ShopOrder", "aasm_state", %w[awaiting_periodical_fulfillment rejected fulfilled])
+        avg_response_hours: avg_response("shop_orders", "ShopOrder", "aasm_state", %w[awaiting_periodical_fulfillment rejected fulfilled]),
+        # 14-day leaderboard of folks who handled orders out of pending/on_hold (cookies = handled * 3.5)
+        handlers_14d: handlers_within(14.days.ago, %w[pending on_hold])
       }
 
       # Fetch Joe fraud case stats with timeline
