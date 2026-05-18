@@ -8,6 +8,7 @@ require "flipper/adapters/active_record"
 Rails.application.configure do
   config.flipper.preload = false
   config.flipper.memoize = false
+  config.flipper.actor_limit = false
 end
 
 # Ensure access flipper feature exists and is enabled globally by default
