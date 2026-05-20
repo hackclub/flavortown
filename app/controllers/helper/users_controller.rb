@@ -40,6 +40,9 @@ module Helper
         return redirect_to helper_user_path(@user), alert: "Unknown feature."
       end
 
+      if @user.helper? || @user.admin? || @user.fraud_dept? || @user == current_user
+        return redirect_to helper_user_path(@user), alert: "Cannot modify flags for staff users."
+      end
       if Flipper.enabled?(feature, @user)
         Flipper.disable(feature, @user)
         PaperTrail::Version.create!(
