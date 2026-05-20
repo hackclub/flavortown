@@ -40,5 +40,4 @@ class VoteSuggestionToken
     Rails.application.message_verifier(PURPOSE)
   end
   private_class_method :verifier
-
 end
