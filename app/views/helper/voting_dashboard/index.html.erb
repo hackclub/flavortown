@@ -26,7 +26,7 @@
 </div>
 
 <div class="card">
-  <h2>Voter Leaderboard <span style="font-size: 0.85rem; font-weight: normal; color: #6b7280;">(since May 8, 2026)</span></h2>
+  <h2>Voter Leaderboard <span style="font-size: 0.85rem; font-weight: normal; color: #6b7280;">(since <%= @leaderboard_start_date.strftime("%B %-d, %Y") %>)</span></h2>
   <% if @leaderboard.any? %>
     <table style="width: 100%; border-collapse: collapse; margin-top: 0.75rem;">
       <thead>

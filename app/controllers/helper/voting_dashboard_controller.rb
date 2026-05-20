@@ -33,9 +33,12 @@ module Helper
         votes_remaining:    votes_remaining
       }
 
+      @leaderboard_start_date = Date.parse(LEADERBOARD_START_DATE)
+
       @leaderboard = ActiveRecord::Base.connection.select_all(<<~SQL)
         SELECT
           ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) AS rank,
+          u.id AS user_id,
           u.display_name AS name,
           COUNT(*) AS vote_count
         FROM votes v
@@ -45,7 +48,7 @@ module Helper
           AND fg.key = 'actors'
           AND fg.value = CONCAT('User;', u.id)
         WHERE v.created_at >= DATE '#{LEADERBOARD_START_DATE}'
-        GROUP BY u.display_name
+        GROUP BY u.id, u.display_name
         ORDER BY vote_count DESC
       SQL
     end

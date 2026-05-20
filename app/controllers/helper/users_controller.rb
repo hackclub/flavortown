@@ -34,9 +34,9 @@ module Helper
       authorize :helper, :toggle_flipper?
 
       @user = User.find(params[:id])
-      feature = params[:feature].to_sym
+      feature = params[:feature].to_s.presence&.to_sym
 
-      unless ALLOWED_FLIPPER_FEATURES.include?(feature)
+      unless feature && ALLOWED_FLIPPER_FEATURES.include?(feature)
         return redirect_to helper_user_path(@user), alert: "Unknown feature."
       end
 
