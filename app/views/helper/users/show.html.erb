@@ -41,6 +41,30 @@
   </div>
 
   <div class="card">
+    <h2>Features</h2>
+    <div class="info-rows">
+      <%
+        features = [
+          { key: :vote_balance_override, label: "Allow Voting (override)" },
+          { key: :shop_orders, label: "Shop Order Access" }
+        ]
+      %>
+      <% features.each do |f| %>
+        <% enabled = Flipper.enabled?(f[:key], @user) %>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+          <b><%= f[:label] %>:</b>
+          <%= button_to toggle_flipper_helper_user_path(@user),
+                method: :post,
+                params: { feature: f[:key].to_s },
+                class: "#{enabled ? 'btn-primary' : 'btn-secondary'} slim" do %>
+            <%= enabled ? "Enabled ✓" : "Disabled" %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
     <h2>Projects (<%= @user.projects.size %>)</h2>
     <% if @user.projects.any? %>
       <ul style="margin: 0; padding-left: 1.25rem;">

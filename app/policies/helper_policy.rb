@@ -26,4 +26,8 @@ class HelperPolicy < ApplicationPolicy
   def view_support_vibes?
     access?
   end
+
+  def toggle_flipper?
+    access?
+  end
 end

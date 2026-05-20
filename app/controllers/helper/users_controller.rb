@@ -1,5 +1,7 @@
 module Helper
   class UsersController < ApplicationController
+    ALLOWED_FLIPPER_FEATURES = %i[vote_balance_override shop_orders].freeze
+
     def index
       authorize :helper, :view_users?
       @q = params[:query]
@@ -26,6 +28,41 @@ module Helper
       @balance = @user.ledger_entries.includes(:ledgerable).order(created_at: :desc)
 
       render "helper/users/balance"
+    end
+
+    def toggle_flipper
+      authorize :helper, :toggle_flipper?
+
+      @user = User.find(params[:id])
+      feature = params[:feature].to_sym
+
+      unless ALLOWED_FLIPPER_FEATURES.include?(feature)
+        return redirect_to helper_user_path(@user), alert: "Unknown feature."
+      end
+
+      if Flipper.enabled?(feature, @user)
+        Flipper.disable(feature, @user)
+        PaperTrail::Version.create!(
+          item_type: "User",
+          item_id: @user.id,
+          event: "flipper_disable",
+          whodunnit: current_user.id,
+          object_changes: { feature: [ feature.to_s, nil ], status: [ "enabled", "disabled" ] }.to_json
+        )
+        flash[:notice] = "Disabled #{feature} for #{@user.display_name}."
+      else
+        Flipper.enable(feature, @user)
+        PaperTrail::Version.create!(
+          item_type: "User",
+          item_id: @user.id,
+          event: "flipper_enable",
+          whodunnit: current_user.id,
+          object_changes: { feature: [ nil, feature.to_s ], status: [ "disabled", "enabled" ] }.to_json
+        )
+        flash[:notice] = "Enabled #{feature} for #{@user.display_name}."
+      end
+
+      redirect_to helper_user_path(@user)
     end
   end
 end

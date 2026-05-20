@@ -241,6 +241,7 @@ Rails.application.routes.draw do
     resources :users, only: [ :index, :show ] do
       member do
         get :balance
+        post :toggle_flipper
       end
     end
     resources :projects, only: [ :index, :show ] do
