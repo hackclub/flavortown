@@ -30,4 +30,8 @@ class HelperPolicy < ApplicationPolicy
   def toggle_flipper?
     access?
   end
+
+  def access_voting_dashboard?
+    access?
+  end
 end

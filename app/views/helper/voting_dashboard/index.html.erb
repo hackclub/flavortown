@@ -1,0 +1,47 @@
+<% content_for :title, "Voting Dashboard" %>
+<h1>Voting Dashboard</h1>
+
+<div class="flex" style="gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+  <div class="card">
+    <h2>Total Votes</h2>
+    <p style="font-size: 2rem; font-weight: bold; margin: 0.5rem 0 0;"><%= number_with_delimiter(@overview[:total]) %></p>
+  </div>
+  <div class="card">
+    <h2>Today</h2>
+    <p style="font-size: 2rem; font-weight: bold; margin: 0.5rem 0 0;"><%= number_with_delimiter(@overview[:today]) %></p>
+  </div>
+  <div class="card">
+    <h2>This Week</h2>
+    <p style="font-size: 2rem; font-weight: bold; margin: 0.5rem 0 0;"><%= number_with_delimiter(@overview[:this_week]) %></p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Voter Leaderboard <span style="font-size: 0.85rem; font-weight: normal; color: #6b7280;">(since May 8, 2026)</span></h2>
+  <% if @leaderboard.any? %>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 0.75rem;">
+      <thead>
+        <tr>
+          <th style="text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid #e5e7eb;">#</th>
+          <th style="text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid #e5e7eb;">Name</th>
+          <th style="text-align: right; padding: 0.5rem 0.75rem; border-bottom: 2px solid #e5e7eb;">Votes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @leaderboard.each do |row| %>
+          <tr>
+            <td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #f3f4f6; color: #6b7280;"><%= row["rank"] %></td>
+            <td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #f3f4f6;"><%= row["name"] %></td>
+            <td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #f3f4f6; text-align: right; font-weight: bold;"><%= number_with_delimiter(row["vote_count"]) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>No voters yet.</p>
+  <% end %>
+</div>
+
+<div style="margin-top: 1rem;">
+  <%= link_to "← Back", helper_root_path, class: "btn-secondary" %>
+</div>

@@ -251,6 +251,7 @@ Rails.application.routes.draw do
     end
     resources :shop_orders, only: [ :index, :show ]
     resources :support_vibes, only: [ :index ]
+    get "voting_dashboard", to: "voting_dashboard#index", as: :voting_dashboard
   end
 
   # admin shallow routing
