@@ -2,7 +2,7 @@ require "digest"
 
 class VoteSuggestionToken
   PURPOSE = "vote_suggestion_v1"
-  TTL = 30.minutes
+  TTL = 2.hours
 
   def self.issue(user:, ship_event:, user_agent: nil)
     payload = {
