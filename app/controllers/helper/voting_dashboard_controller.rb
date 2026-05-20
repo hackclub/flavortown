@@ -5,8 +5,9 @@ module Helper
     def index
       authorize :helper, :access_voting_dashboard?
 
-      today     = Time.current.beginning_of_day..Time.current.end_of_day
-      this_week = 7.days.ago.beginning_of_day..Time.current
+      now       = Time.current
+      today     = now.beginning_of_day..now.end_of_day
+      this_week = now.beginning_of_week..now
 
       threshold = Post::ShipEvent::VOTES_TO_LEAVE_POOL
 
