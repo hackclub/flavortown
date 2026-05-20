@@ -8,10 +8,28 @@ module Helper
       today     = Time.current.beginning_of_day..Time.current.end_of_day
       this_week = 7.days.ago.beginning_of_day..Time.current
 
+      threshold = Post::ShipEvent::VOTES_TO_LEAVE_POOL
+
+      full_ship_ids = Vote.payout_countable
+        .group(:ship_event_id)
+        .having("COUNT(*) >= ?", threshold)
+        .select(:ship_event_id)
+
+      ships_in_pool = Post::ShipEvent
+        .current_voting_scale
+        .where(certification_status: "approved", payout: nil)
+        .where.not(id: full_ship_ids)
+
+      ships_in_pool_count = ships_in_pool.count
+      votes_cast_on_pool  = Vote.payout_countable.where(ship_event_id: ships_in_pool.select(:id)).count
+      votes_remaining     = (ships_in_pool_count * threshold) - votes_cast_on_pool
+
       @overview = {
-        total:      Vote.count,
-        today:      Vote.where(created_at: today).count,
-        this_week:  Vote.where(created_at: this_week).count
+        total:              Vote.count,
+        today:              Vote.where(created_at: today).count,
+        this_week:          Vote.where(created_at: this_week).count,
+        ships_in_pool:      ships_in_pool_count,
+        votes_remaining:    votes_remaining
       }
 
       @leaderboard = ActiveRecord::Base.connection.select_all(<<~SQL)

@@ -14,6 +14,15 @@
     <h2>This Week</h2>
     <p style="font-size: 2rem; font-weight: bold; margin: 0.5rem 0 0;"><%= number_with_delimiter(@overview[:this_week]) %></p>
   </div>
+  <div class="card">
+    <h2>Ships in Pool</h2>
+    <p style="font-size: 2rem; font-weight: bold; margin: 0.5rem 0 0;"><%= number_with_delimiter(@overview[:ships_in_pool]) %></p>
+  </div>
+  <div class="card">
+    <h2>Votes Remaining</h2>
+    <p style="font-size: 2rem; font-weight: bold; margin: 0.5rem 0 0;"><%= number_with_delimiter(@overview[:votes_remaining]) %></p>
+    <p style="font-size: 0.8rem; color: #6b7280; margin: 0.25rem 0 0;">to clear the pool</p>
+  </div>
 </div>
 
 <div class="card">
