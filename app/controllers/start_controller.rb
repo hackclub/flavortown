@@ -2,11 +2,10 @@
 
 class StartController < ApplicationController
   STEPS = %w[name project devlog signin].freeze
-
+  before_action :is_onboarding_enabled
   before_action :redirect_signed_in_user
   before_action :set_step, only: :index
   before_action :enforce_step_order, only: :index
-
   def index
     authorize :start, :index?
     set_step
@@ -181,5 +180,10 @@ class StartController < ApplicationController
 
   def valid_email?(email)
     email.present? && email.match?(URI::MailTo::EMAIL_REGEXP)
+  end
+  def is_onboarding_enabled
+    return if Flipper.enabled?(:flavortown_onboarding)
+
+    redirect_to "https://stardance.hackclub.com/flavortown-start"
   end
 end
