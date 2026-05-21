@@ -4,18 +4,17 @@ class VoteSuggestionToken
   PURPOSE = "vote_suggestion_v1"
   TTL = 30.minutes
 
-  def self.issue(user:, ship_event:, user_agent: nil)
+  def self.issue(user:, ship_event:)
     payload = {
       "user_id" => user.id,
       "ship_event_id" => ship_event.id,
-      "ua" => ua_fingerprint(user_agent),
       "expires_at" => Time.current.to_i + TTL.to_i
     }
 
     verifier.generate(payload)
   end
 
-  def self.verify(token, user:, user_agent: nil)
+  def self.verify(token, user:)
     return nil if token.blank?
 
     payload = verifier.verify(token)
@@ -28,7 +27,6 @@ class VoteSuggestionToken
 
     return nil unless payload["user_id"].to_i == user.id
 
-    return nil unless payload["ua"].to_s == ua_fingerprint(user_agent)
 
     payload["ship_event_id"].to_i
   rescue ActiveSupport::MessageVerifier::InvalidSignature, ActiveSupport::MessageVerifier::InvalidMessage
@@ -42,9 +40,4 @@ class VoteSuggestionToken
     Rails.application.message_verifier(PURPOSE)
   end
   private_class_method :verifier
-
-  def self.ua_fingerprint(user_agent)
-    Digest::SHA256.hexdigest(user_agent.to_s)[0, 16]
-  end
-  private_class_method :ua_fingerprint
 end

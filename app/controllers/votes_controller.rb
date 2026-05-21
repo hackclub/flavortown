@@ -7,14 +7,12 @@ class VotesController < ApplicationController
   def new
     authorize :vote
     @fullstory_org_id = Rails.application.credentials.dig(:fullstory, :org_id).presence
-    @ship_event = VoteMatchmaker.new(current_user, user_agent: request.user_agent).next_ship_event
+    @ship_event = VoteMatchmaker.new(current_user).next_ship_event
     return redirect_to root_path, notice: "No more projects to vote on!" unless @ship_event
 
     @suggestion_token = VoteSuggestionToken.issue(
       user: current_user,
-      ship_event: @ship_event,
-      user_agent: request.user_agent
-    )
+      ship_event: @ship_event)
 
     @vote = Vote.new(ship_event: @ship_event, project: @ship_event.post.project)
     @project = @ship_event.post.project
@@ -33,9 +31,7 @@ class VotesController < ApplicationController
 
     ship_event_id = VoteSuggestionToken.verify(
       params[:suggestion_token],
-      user: current_user,
-      user_agent: request.user_agent
-    )
+      user: current_user)
 
     unless ship_event_id
       return redirect_to(new_vote_path, alert: "Invalid or expired session. Please try again.")
@@ -58,15 +54,14 @@ class VotesController < ApplicationController
 
     ship_event_id = VoteSuggestionToken.verify(
       params[:suggestion_token],
-      user: current_user,
-      user_agent: request.user_agent
-    )
+      user: current_user
+          )
 
     unless ship_event_id
       return redirect_to(new_vote_path, alert: "Invalid or expired vote session. Please try again.")
     end
 
-    ship_event = VoteableShipEventsQuery.call(user: current_user, user_agent: request.user_agent)
+    ship_event = VoteableShipEventsQuery.call(user: current_user)
       .includes(post: :project)
       .find_by(id: ship_event_id)
 

@@ -2,9 +2,8 @@ class VoteMatchmaker
   EARLIEST_WEIGHT = 60
   NEAR_PAYOUT_WEIGHT = 40
 
-  def initialize(user, user_agent: nil)
+  def initialize(user)
     @user = user
-    @user_agent = user_agent
   end
 
   def next_ship_event
@@ -28,7 +27,7 @@ class VoteMatchmaker
   end
 
   def voteable_ship_events
-    VoteableShipEventsQuery.call(user: @user, user_agent: @user_agent, include_held: false, include_paid: false)
+    VoteableShipEventsQuery.call(user: @user, include_held: false, include_paid: false)
   end
 
   def find_held_unpaid_fallback_ship_event
@@ -37,13 +36,13 @@ class VoteMatchmaker
 
   def held_unpaid_ship_events
     VoteableShipEventsQuery
-      .call(user: @user, user_agent: @user_agent, include_held: true, include_paid: false)
+      .call(user: @user, include_held: true, include_paid: false)
       .where(id: VoteDeficitHold.ship_event_ids)
   end
 
   def find_paid_fallback_ship_event
     VoteableShipEventsQuery
-      .call(user: @user, user_agent: @user_agent, include_held: false, include_paid: true)
+      .call(user: @user, include_held: false, include_paid: true)
       .where.not(payout: nil)
       .order(created_at: :desc)
       .limit(50)
