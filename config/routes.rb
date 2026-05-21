@@ -241,6 +241,7 @@ Rails.application.routes.draw do
     resources :users, only: [ :index, :show ] do
       member do
         get :balance
+        post :toggle_flipper
       end
     end
     resources :projects, only: [ :index, :show ] do
@@ -250,6 +251,7 @@ Rails.application.routes.draw do
     end
     resources :shop_orders, only: [ :index, :show ]
     resources :support_vibes, only: [ :index ]
+    get "voting_dashboard", to: "voting_dashboard#index", as: :voting_dashboard
   end
 
   # admin shallow routing
