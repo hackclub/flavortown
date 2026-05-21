@@ -278,9 +278,7 @@ GEM
       logger
     i18n (1.14.8)
       concurrent-ruby (~> 1.0)
-    image_processing (1.14.0)
-      mini_magick (>= 4.9.5, < 6)
-      ruby-vips (>= 2.0.17, < 3)
+    image_processing (2.0.0)
     importmap-rails (2.2.3)
       actionpack (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -355,8 +353,6 @@ GEM
       net-smtp
     marcel (1.2.1)
     matrix (0.4.3)
-    mini_magick (5.3.1)
-      logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
     minitest (6.0.6)
@@ -629,9 +625,6 @@ GEM
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
     ruby-progressbar (1.13.0)
-    ruby-vips (2.3.0)
-      ffi (~> 1.12)
-      logger
     rubyzip (3.3.0)
     safely_block (1.0.0)
     sanitize (7.0.0)
@@ -803,7 +796,7 @@ DEPENDENCIES
   flipper-active_record
   flipper-active_support_cache_store
   flipper-ui
-  image_processing (~> 1.2)
+  image_processing (~> 2.0)
   inline_svg
   jbuilder
   jsbundling-rails (~> 1.3)
