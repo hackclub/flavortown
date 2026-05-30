@@ -1,6 +1,4 @@
 # syntax=docker/dockerfile:1
-# Worker process — same build as web, different CMD
-# check=error=true;skip=SecretsUsedInArgOrEnv
 
 ARG RUBY_VERSION=3.4.3
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
@@ -10,11 +8,6 @@ WORKDIR /rails
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     curl \
-    wget \
-    procps \
-    lsof \
-    strace \
-    less \
     libjemalloc2 \
     libvips \
     imagemagick \
@@ -43,24 +36,14 @@ RUN apt-get update -qq && \
     liblapack-dev && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y nodejs npm && \
-    npm install -g yarn && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
 COPY Gemfile Gemfile.lock ./
 RUN bundle install && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
 
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile && yarn cache clean
-
 COPY . .
 
 RUN bundle exec bootsnap precompile app/ lib/
-
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 FROM base
 
