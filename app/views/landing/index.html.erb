@@ -6,6 +6,12 @@
   <%= stylesheet_link_tag "landing", "data-turbo-track": "reload" %>
 <% end %>
 
+<aside class="closed-banner" role="alert" style="background: var(--color-red-500); color: var(--color-bg); padding: var(--space-m) var(--space-l); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-xs) var(--space-m); text-align: center; font-family: var(--font-family-text, sans-serif); font-size: var(--font-size-l); line-height: var(--line-height-body);">
+  <span style="font-family: var(--font-family-subtitle, sans-serif);">Hack Club Flavortown has ended.</span>
+  <span>Join our latest event, Hack Club Stardance!</span>
+  <a href="https://stardance.hackclub.com/som" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: var(--space-xxs); background: var(--color-bg); color: var(--color-red-500); font-weight: 700; text-decoration: none; padding: var(--space-xxs) var(--space-m); border-radius: calc(0.6 * var(--border-radius));">Go to Stardance &rarr;</a>
+</aside>
+
 <%= render "landing/sections/hero" %>
 
 <%= render "landing/sections/how_this_works" %>
