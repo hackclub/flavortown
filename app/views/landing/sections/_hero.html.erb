@@ -68,24 +68,12 @@
       <% if @landing_variant == "challenger" %>
         Ship a space-related project by April 30th! Submit it to this sidequest to qualify for space-themed prizes in the shop.
       <% else %>
-        Code personal projects. Win free prizes.
+        Flavortown has ended.
       <% end %>
     </h3>
 
     <div class="rsvp-form">
-      <%= form_with url: submit_email_path, method: :post, local: true do |form| %>
-        <div class="input-red">
-          <div>
-            <%= inline_svg_tag "icons/mail.svg" %>
-            <%= form.email_field :email, placeholder: "Enter your email...", autocomplete: "off", required: true %>
-          </div>
-        </div>
-
-        <%= form.button type: "submit", class: "btn btn--red btn--striped" do %>
-          <div>Get Started</div>
-        <% end %>
-      <% end %>
-      <%= button_to "or, sign back in", "/auth/hack_club", method: :post, form_class: "sign-back-in-link", class: "link-btn" %>
+      <%= button_to "Sign in", "/auth/hack_club", method: :post, form_class: "sign-back-in-link", class: "link-btn" %>
       <% if Rails.env.development? && current_user.blank? %>
         <%= button_to "dev login",
                       "/dev_login",
@@ -100,8 +88,6 @@
     <% else %>
       <h4>Ages 13-18. <u>Dec 22</u> to <u>April 30</u>.</h4>
     <% end %>
-    <h5>19 or older? Get the same prizes by <a href="https://docs.google.com/document/d/e/2PACX-1vRxWWFVm0pr4042oYljyPAdwb5pH7sdRiwfPw4i01PVs436MfiAFJnKtGoyWwRkXIlB6PlIaVyTQbvO/pub" target="_blank">referring teens</a>.</h5>
-
     <%= image_tag image_url("icons/chevrons-red-down.svg"), class: "carat", size: 48, alt: "" %>
   </div>
 
