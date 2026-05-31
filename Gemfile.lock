@@ -156,7 +156,7 @@ GEM
     blind_index (2.8.0)
       activesupport (>= 7.2)
       argon2-kdf (>= 1)
-    bootsnap (1.24.4)
+    bootsnap (1.24.5)
       msgpack (~> 1.2)
     brakeman (8.0.4)
       racc
