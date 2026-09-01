@@ -379,7 +379,7 @@ class User < ApplicationRecord
     nil
   end
   def avatar
-    "https://cachet.dunkirk.sh/users/#{slack_id}/r"
+    "https://cachet.hackclub.com/users/#{slack_id}/r"
   end
 
   def grant_email
