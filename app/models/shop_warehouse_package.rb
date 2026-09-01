@@ -20,7 +20,6 @@
 #
 #  fk_rails_...  (user_id => users.id)
 #
-#  fk_rails_...  (user_id => users.id)
 
 class ShopWarehousePackage < ApplicationRecord
   has_encrypted :frozen_address, type: :json
