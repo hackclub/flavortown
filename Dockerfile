@@ -37,12 +37,16 @@ RUN apt-get update -qq && \
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
+    BUNDLE_WITHOUT="development" \
+    LD_LIBRARY_PATH="/usr/local/lib"
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
-# Install packages needed to build gems
+ARG LIBHEIF_VERSION=1.23.2
+ARG LIBHEIF_SHA256=1405ed070421459b569ff49deab109b7f1a30a447e72a9b20a4154f774634a44
+
+# Install packages needed to build gems and libheif
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     build-essential \
@@ -51,7 +55,21 @@ RUN apt-get update -qq && \
     pkg-config \
     libffi-dev \
     libopenblas-dev \
-    liblapack-dev && \
+    liblapack-dev \
+    cmake \
+    libaom-dev \
+    libde265-dev && \
+    cd /tmp && \
+    curl -sL "https://github.com/strukturag/libheif/archive/refs/tags/v${LIBHEIF_VERSION}.tar.gz" -o /tmp/libheif.tar.gz && \
+    echo "${LIBHEIF_SHA256} /tmp/libheif.tar.gz" | sha256sum -c - && \
+    tar xz -C /tmp/ -f /tmp/libheif.tar.gz && \
+    cd /tmp/libheif-${LIBHEIF_VERSION} && \
+    mkdir build && cd build && \
+    cmake --preset=release -DWITH_EXAMPLES=ON -DENABLE_PLUGIN_LOADING=NO .. && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig && \
+    cd / && rm -rf /tmp/libheif* && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install Node.js, npm, and Yarn for jsbundling (esbuild)
@@ -88,6 +106,11 @@ FROM base
 # Copy built artifacts: gems, application
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --from=build /rails /rails
+# Copy libheif libraries from build stage
+COPY --from=build /usr/local/lib/libheif* /usr/local/lib/
+COPY --from=build /usr/local/bin/heif-* /usr/local/bin/
+COPY --from=build /usr/local/include/libheif /usr/local/include/libheif
+RUN ldconfig
 
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \
