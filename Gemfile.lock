@@ -159,7 +159,7 @@ GEM
       argon2-kdf (>= 1)
     bootsnap (1.24.6)
       msgpack (~> 1.2)
-    brakeman (8.0.5)
+    brakeman (8.0.6)
       racc
     browser (6.2.0)
     builder (3.3.0)
@@ -845,6 +845,7 @@ DEPENDENCIES
   solid_cable
   solid_cache
   solid_queue
+  sqlite3 (~> 2.0)!
   stackprof
   stimulus-rails
   strong_migrations
