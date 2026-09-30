@@ -41,4 +41,8 @@ class User::Identity < ApplicationRecord
     validates :provider, uniqueness: { scope: :user_id }
 
     after_create_commit -> { user&.try_sync_hackatime_data! }, if: -> { provider == "hackatime" }
+
+    def clear_access_token!
+        update_columns(access_token_ciphertext: nil, access_token_bidx: nil)
+    end
 end
