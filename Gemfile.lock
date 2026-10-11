@@ -159,7 +159,7 @@ GEM
       argon2-kdf (>= 1)
     bootsnap (1.24.6)
       msgpack (~> 1.2)
-    brakeman (8.0.6)
+    brakeman (8.1.0)
       racc
     browser (6.2.0)
     builder (3.3.0)
@@ -857,4 +857,4 @@ DEPENDENCIES
   with_advisory_lock
 
 BUNDLED WITH
-  4.0.4
+  4.0.22
