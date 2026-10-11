@@ -168,6 +168,10 @@ Rails.application.routes.draw do
   namespace :api do
     get "/", to: "root#index"
 
+    # GDPR requests from the Hack Club privacy hub (docs/privacy.md)
+    post "privacy/delete", to: "privacy#delete"
+    post "privacy/export", to: "privacy#export"
+
     namespace :v1 do
       resources :projects, only: [ :index, :show, :create, :update ] do
         member do
