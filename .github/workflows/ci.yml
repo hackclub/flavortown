@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version-file: package.json
           cache: yarn
@@ -66,7 +66,7 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         if: matrix.needs_node
         with:
           node-version-file: package.json
