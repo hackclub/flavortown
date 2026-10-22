@@ -113,8 +113,8 @@ gem "faraday-retry"
 gem "faker", "~> 3.8"
 gem "jsbundling-rails", "~> 1.3"
 gem "stackprof"
-gem "sentry-ruby", "~> 6.4"
-gem "sentry-rails", "~> 6.5"
+gem "sentry-ruby", "~> 7.1"
+gem "sentry-rails", "~> 7.1"
 
 # for pagination
 gem "pagy", "~> 43.5"
