@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.1.3"
+gem "rails", "~> 8.1"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use postgresql as the database for Active Record
@@ -101,7 +101,7 @@ gem "rails_performance"
 gem "commonmarker"
 gem "inline_svg"
 
-gem "dartsass-rails", "~> 0.5.1"
+gem "dartsass-rails", "~> 0.5"
 gem "slocks"
 gem "mission_control-jobs"
 gem "view_component"

@@ -30,8 +30,9 @@ export default class extends Controller {
     fetch(this.orchestraUrlValue)
       .then((response) => response.arrayBuffer())
       .then((arrayBuffer) => {
-        this.audioContext = new (window.AudioContext ||
-          window.webkitAudioContext)();
+        this.audioContext = new (
+          window.AudioContext || window.webkitAudioContext
+        )();
         return this.audioContext.decodeAudioData(arrayBuffer);
       })
       .then((buffer) => {
