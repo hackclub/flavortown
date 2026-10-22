@@ -15,7 +15,7 @@ jobs:
     name: JS/CSS Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version-file: package.json
@@ -56,7 +56,7 @@ jobs:
 
     name: ${{ matrix.name }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install system dependencies
         run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends ${{ matrix.system_packages }}
@@ -109,7 +109,7 @@ jobs:
       DATABASE_URL: postgresql://postgres:password@localhost:5432/flavortown_test
       EMBEDDINGS_DATABASE_URL: postgresql://postgres:password@localhost:5433/flavortown_test_embed
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install system dependencies
         run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends libblas-dev liblapack-dev
