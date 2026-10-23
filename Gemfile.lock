@@ -566,9 +566,9 @@ GEM
       prism (>= 1.6.0)
       rbs (>= 4.0.0)
       tsort
-    redis (5.4.1)
-      redis-client (>= 0.22.0)
-    redis-client (0.31.0)
+    redis (6.0.0)
+      redis-client (= 0.30.1)
+    redis-client (0.30.1)
       connection_pool
     refract (1.1.0)
       prism
@@ -828,7 +828,7 @@ DEPENDENCIES
   rails (~> 8.1)
   rails_performance
   rbtrace
-  redis (~> 5.4)
+  redis (~> 6.0)
   rspec-rails
   rswag-specs
   rubocop
