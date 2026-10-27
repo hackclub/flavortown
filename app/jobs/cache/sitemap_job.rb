@@ -2,16 +2,15 @@ class Cache::SitemapJob < ApplicationJob
   queue_as :literally_whenever
 
   CACHE_KEY = "sitemap_xml"
-  CACHE_DURATION = 1.hour
 
   def self.fetch(force: false)
-    Rails.cache.fetch(CACHE_KEY, expires_in: CACHE_DURATION, force: force) do
+    Rails.cache.fetch(CACHE_KEY, force: force) do
       new.send(:build_sitemap)
     end
   end
 
   def perform(force: false)
-    Rails.cache.fetch(CACHE_KEY, expires_in: CACHE_DURATION, force: force) do
+    Rails.cache.fetch(CACHE_KEY, force: force) do
       build_sitemap
     end
   end
