@@ -7,11 +7,8 @@ if [ -z "${LD_PRELOAD+x}" ]; then
 fi
 
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  # If running the rails server then create or migrate existing database...
+  # If running the rails server then create or migrate existing database
   ./bin/rails db:prepare
-
-  # ...and background the slow avif conversion task.
-  nohup ./bin/rake assets:avif >> log/avif_conversion.log 2>&1 &
 
   # Warm up Ferret search index in the background so the server can start accepting healthchecks.
   # Only heavy on first run — subsequent boots skip unchanged records.

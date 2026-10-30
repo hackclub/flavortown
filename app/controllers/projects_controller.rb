@@ -66,8 +66,6 @@ class ProjectsController < ApplicationController
       @devlog_lapse_badges = build_devlog_lapse_badges(devlog_posts, timelapses)
     end
 
-    ahoy.track "Viewed project", project_id: @project.id
-
     latest_ship_post = @posts.find { |post| post.postable_type == "Post::ShipEvent" }
     latest_ship_event = latest_ship_post&.postable
 
