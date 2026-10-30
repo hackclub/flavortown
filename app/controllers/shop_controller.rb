@@ -65,7 +65,6 @@ class ShopController < ApplicationController
     end
     @achievement_sale_active = @shop_item.achievement_sale? && @shop_item.achievement_sale_for?(current_user)
     @achievement_sale_percentage = @shop_item.achievement_sale_percentage if @achievement_sale_active
-    ahoy.track "Viewed shop item", shop_item_id: @shop_item.id
   end
 
   def update_region
