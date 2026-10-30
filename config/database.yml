@@ -67,6 +67,13 @@ production:
     <<: *default
     url: <%= ENV['DATABASE_URL'] %>
     database: flavortown_production
+    # Orchard only manages memory/connection settings; tune the planner for SSD
+    # storage and short OLTP queries per connection instead.
+    variables:
+      random_page_cost: 1.1
+      effective_io_concurrency: 200
+      jit: "off"
+      max_parallel_workers_per_gather: 1
 
   cache:
     <<: *default
