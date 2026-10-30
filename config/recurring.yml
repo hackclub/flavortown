@@ -19,6 +19,12 @@ production:
     schedule: every day at 4:20am
     description: "Discard failed jobs older than 14 days so the queue db doesn't grow forever"
 
+  prune_active_insights:
+    class: PruneActiveInsightsJob
+    schedule: every day at 4:40am
+    concurrency: 1
+    description: "Keep 30 days of ActiveInsights request/job history"
+
   # sync_user_to_airtable:
   #   class: Airtable::UserSyncJob
   #   schedule: every minute
