@@ -165,8 +165,8 @@ class ApplicationController < ActionController::Base
   end
 
   def handle_error(exception)
-    event_id = Sentry.last_event_id || Sentry.capture_exception(exception)&.event_id
-    @trace_id = event_id || request.request_id
+    @trace_id = request.request_id
+    Rails.logger.error("[#{@trace_id}] #{exception.full_message}")
     @exception = exception if current_user&.admin?
 
     raise exception if Rails.env.development? && !params[:show_error_page]

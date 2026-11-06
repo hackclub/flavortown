@@ -284,11 +284,6 @@ module Admin
 
       if unpermitted.any?
         Rails.logger.warn("[Admin::ShopItemsController] Filtered unpermitted draft shop item params: #{unpermitted.join(', ')} for user_id=#{current_user.id} shop_item_id=#{@shop_item&.id || 'new'}")
-        Sentry.capture_message(
-          "not allowed draft shop item params submitted",
-          level: :warning,
-          extra: { unpermitted: unpermitted, user_id: current_user.id, shop_item_id: @shop_item&.id }
-        ) if defined?(Sentry)
       end
 
       p.permit(*DRAFT_SHOP_ITEM_ATTR, **DRAFT_SHOP_ITEM_PERM)

@@ -28,6 +28,5 @@ class RefreshAllUsersVerificationJob < ApplicationJob
     Rails.logger.info "Cleared revoked HCA token for user #{user.id}"
   rescue StandardError => e
     Rails.logger.error "Failed to refresh verification status for user #{user.id}: #{e.message}"
-    Sentry.capture_exception(e, extra: { user_id: user.id })
   end
 end

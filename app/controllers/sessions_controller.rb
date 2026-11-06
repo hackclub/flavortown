@@ -6,14 +6,14 @@ class SessionsController < ApplicationController
 
     # provider is a symbol. do not change it to string... equality will fail otherwise
     unless provider == :hack_club && current_user.blank?
-      Sentry.capture_message("Authentication failed: invalid provider or user already signed in", level: :warning, extra: { provider:, user_signed_in: current_user.present? })
+      Rails.logger.warn("Authentication failed: invalid provider or user already signed in")
       return redirect_to(root_path, alert: "Authentication failed or user already signed in")
     end
 
     access_token = cred&.token.to_s
     identity_data = fetch_hack_club_identity(access_token)
     if identity_data.blank?
-      Sentry.capture_message("Authentication failed: unable to fetch identity data", level: :warning)
+      Rails.logger.warn("Authentication failed: unable to fetch identity data")
       return redirect_to(root_path, alert: "Authentication failed")
     end
 
@@ -34,11 +34,7 @@ class SessionsController < ApplicationController
     if identity.new_record? && user.persisted?
       existing_identity = user.identities.find_by(provider: "hack_club")
       if existing_identity
-        Sentry.capture_message(
-          "User UID changed on HCA side",
-          level: :info,
-          extra: { user_id: user.id, old_uid: existing_identity.uid, new_uid: uid, slack_id: slack_id }
-        )
+        Rails.logger.info("User #{user.id} UID changed on HCA side")
         identity = existing_identity
         identity.uid = uid
       end
@@ -59,13 +55,7 @@ class SessionsController < ApplicationController
     begin
       user.save!
     rescue ActiveRecord::RecordInvalid => e
-      Sentry.capture_exception(e, extra: {
-        user_id: user.id,
-        user_errors: user.errors.full_messages,
-        slack_id: slack_id,
-        uid: uid,
-        is_new_user: is_new_user
-      })
+      Rails.logger.error("Unable to save account: #{e.class}: #{e.message}")
       return redirect_to(root_path, alert: "Unable to save your account. Please contact support.")
     end
 
@@ -73,14 +63,7 @@ class SessionsController < ApplicationController
     begin
       identity.save!
     rescue ActiveRecord::RecordInvalid => e
-      Sentry.capture_exception(e, extra: {
-        identity_id: identity.id,
-        identity_errors: identity.errors.full_messages,
-        user_id: user.id,
-        provider: identity.provider,
-        uid: identity.uid,
-        existing_identity_for_user: user.identities.find_by(provider: "hack_club")&.attributes&.except("access_token_ciphertext", "refresh_token_ciphertext")
-      })
+      Rails.logger.error("Unable to link Hack Club account: #{e.class}: #{e.message}")
       return redirect_to(root_path, alert: "Unable to link your Hack Club account. Please contact support.")
     end
 

@@ -103,7 +103,7 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Test error page for Sentry
+  # Test error page
   get "test_error" => "debug#error" unless Rails.env.production?
 
   # Letter opener web for development email preview
