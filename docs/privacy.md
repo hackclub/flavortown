@@ -86,7 +86,7 @@ A dry run performs the real erasure inside a transaction, reads the per-table de
 
 ## Not covered
 
-- Sentry, which runs with `send_default_pii`, and Skylight or `rails_performance` data.
+- Skylight or `rails_performance` data.
 - Slack messages already sent, and copies held by HCB, Theseus or the ship-cert dashboard.
 - Extension usage still buffered in Redis when the erasure runs is flushed to the placeholder afterwards.
 

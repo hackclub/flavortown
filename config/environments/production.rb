@@ -54,8 +54,7 @@ Rails.application.configure do
                                              reconnect_attempts: 2,
                                              read_timeout: 0.3,
                                              error_handler: ->(method:, returning:, exception:) {
-                                               Sentry.capture_exception exception, level: "warning",
-                                                                        tags: { method: method, returning: returning }
+                                               Rails.logger.warn("Redis cache #{method} failed: #{exception.class}: #{exception.message}")
                                              }
   }
 

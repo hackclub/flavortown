@@ -8,21 +8,7 @@ class Api::BaseController < ApplicationController
   private
 
   def handle_err(exception)
-    # this will help with debugging
-    Sentry.capture_exception(
-      exception,
-      extra: {
-        request_id: request.request_id,
-        user_id: respond_to?(:current_api_user) ? current_api_user&.id : nil,
-        endpoint: "#{request.method} #{request.path}",
-        params: request.filtered_parameters,
-        action: action_name
-      },
-      tags: {
-        controller: controller_name,
-        action: action_name
-      }
-    )
+    Rails.logger.error("[#{request.request_id}] #{request.method} #{request.path}: #{exception.full_message}")
 
     render json: { error: "An unexpected error occurred" }, status: :internal_server_error
   end

@@ -164,7 +164,6 @@ module Admin
           [suggestion1, suggestion2, ...]
         PROMPT
 
-        llm_response = nil
         llm_response = Faraday.post("https://openrouter.ai/api/v1/chat/completions") do |req|
           req.headers["Authorization"] = "Bearer #{ENV['OPENROUTER_API_KEY']}"
           req.headers["Content-Type"] = "application/json"
@@ -187,7 +186,8 @@ module Admin
 
         data
       rescue JSON::ParserError => e
-        Sentry.capture_exception(e, extra: { response_body: llm_response&.body })
+        Rails.logger.error("[FulfillmentStats] Failed to parse suggestions: #{e.message}")
+        nil
       end
     end
   end

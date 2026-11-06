@@ -18,7 +18,6 @@ class Shop::ProcessVerifiedOrdersJob < ApplicationJob
         end
       rescue StandardError => e
         Rails.logger.error "Failed to process order #{order.id} for user #{user_id}: #{e.message}"
-        Sentry.capture_exception(e, extra: { order_id: order.id, user_id: user_id })
         next
       end
     end

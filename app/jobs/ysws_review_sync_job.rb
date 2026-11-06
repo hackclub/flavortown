@@ -111,7 +111,6 @@ class YswsReviewSyncJob < ApplicationJob
       process_review(review_summary["id"])
     rescue StandardError => e
       Rails.logger.error "[YswsReviewSyncJob] Error processing review #{review_summary['id']}: #{e.message}"
-      Sentry.capture_exception(e, extra: { review_id: review_summary["id"] })
     end
 
     YswsReviewService.update_last_synced_at!
@@ -500,8 +499,7 @@ class YswsReviewSyncJob < ApplicationJob
     # Rails.logger.info("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: success url=#{url}")
     url
   rescue StandardError => e
-    Sentry.capture_exception(e, extra: { proof_video_url: proof_video_url, ship_cert_id: ship_cert_id })
-    # Rails.logger.error("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: #{e.class}: #{e.message}")
+    Rails.logger.error("[YswsReviewSyncJob] video_thumbnail_url_for_proof_video: #{e.class}: #{e.message}")
     nil
   ensure
     video_tmp&.close
@@ -559,8 +557,7 @@ class YswsReviewSyncJob < ApplicationJob
 
     table.all(filter: "{ship_cert_id} = '#{ship_cert_id}'").first
   rescue StandardError => e
-    Sentry.capture_exception(e, extra: { ship_cert_id: ship_cert_id })
-    # Rails.logger.error("[YswsReviewSyncJob] fetch_existing_airtable_record: #{e.class}: #{e.message}")
+    Rails.logger.error("[YswsReviewSyncJob] fetch_existing_airtable_record: #{e.class}: #{e.message}")
     nil
   end
 end
