@@ -14,17 +14,28 @@ production:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
 
-  sync_user_to_airtable:
-    class: Airtable::UserSyncJob
-    schedule: every minute
-    concurrency: 1
-    description: "Sync user data to Airtable every minute with single execution limit"
+  clear_solid_queue_failed_jobs:
+    command: "SolidQueue::FailedExecution.where(created_at: ...14.days.ago).discard_all_in_batches"
+    schedule: every day at 4:20am
+    description: "Discard failed jobs older than 14 days so the queue db doesn't grow forever"
 
-  sync_pre_signup_leads_to_airtable:
-    class: Airtable::PreSignupLeadSyncJob
-    schedule: every hour
+  prune_active_insights:
+    class: PruneActiveInsightsJob
+    schedule: every day at 4:40am
     concurrency: 1
-    description: "Full sync of pre-signup leads to Airtable"
+    description: "Keep 30 days of ActiveInsights request/job history"
+
+  # sync_user_to_airtable:
+  #   class: Airtable::UserSyncJob
+  #   schedule: every minute
+  #   concurrency: 1
+  #   description: "Sync user data to Airtable every minute with single execution limit"
+
+  # sync_pre_signup_leads_to_airtable:
+  #   class: Airtable::PreSignupLeadSyncJob
+  #   schedule: every hour
+  #   concurrency: 1
+  #   description: "Full sync of pre-signup leads to Airtable"
 
   # sync_rsvp_to_airtable:
   #   class: Airtable::RsvpSyncJob
@@ -32,23 +43,23 @@ production:
   #   concurrency: 1
   #   description: "Sync RSVPs to Airtable every minute with single execution limit"
 
-  sync_devlog_to_airtable:
-    class: Airtable::DevlogSyncJob
-    schedule: every minute
-    concurrency: 1
-    description: "Sync devlogs to Airtable every minute with single execution limit"
+  # sync_devlog_to_airtable:
+  #   class: Airtable::DevlogSyncJob
+  #   schedule: every minute
+  #   concurrency: 1
+  #   description: "Sync devlogs to Airtable every minute with single execution limit"
 
-  sync_project_to_airtable:
-    class: Airtable::ProjectSyncJob
-    schedule: every minute
-    concurrency: 1
-    description: "Sync projects to Airtable every minute with single execution limit"
+  # sync_project_to_airtable:
+  #   class: Airtable::ProjectSyncJob
+  #   schedule: every minute
+  #   concurrency: 1
+  #   description: "Sync projects to Airtable every minute with single execution limit"
 
-  sync_ship_event_to_airtable:
-    class: Airtable::ShipEventSyncJob
-    schedule: every minute
-    concurrency: 1
-    description: "Sync ship events to Airtable every minute with single execution limit"
+  # sync_ship_event_to_airtable:
+  #   class: Airtable::ShipEventSyncJob
+  #   schedule: every minute
+  #   concurrency: 1
+  #   description: "Sync ship events to Airtable every minute with single execution limit"
 
   shop_process_warehouse_orders:
     class: Shop::ProcessWarehouseOrdersJob
@@ -68,37 +79,17 @@ production:
     concurrency: 1
     description: "Weekly refresh of verification status for all users with linked identities"
 
-  cache_carousel_prizes:
-    class: Cache::CarouselPrizesJob
-    args: [{ force: true }]
-    schedule: every hour
-    concurrency: 1
-    description: "Refresh carousel prizes cache for landing page"
-
-  cache_sitemap:
-    class: Cache::SitemapJob
-    args: [{ force: true }]
-    schedule: every hour
-    concurrency: 1
-    description: "Refresh sitemap XML cache"
-
   # sync_git_commits:
   #   class: GitCommitSyncJob
   #   schedule: every hour
   #   concurrency: 1
   #   description: "Sync git commits from project repos to timeline"
 
-  flush_extension_usage:
-    class: FlushExtensionUsageJob
-    schedule: every 2 minutes
-    concurrency: 1
-    description: "Flush extension usage from Redis buffer to database"
-
-  recalculate_project_durations:
-    class: RecalculateProjectDurationsJob
-    schedule: every hour
-    concurrency: 1
-    description: "Recalculate duration_seconds for all projects"
+  # recalculate_project_durations:
+  #   class: RecalculateProjectDurationsJob
+  #   schedule: every hour
+  #   concurrency: 1
+  #   description: "Recalculate duration_seconds for all projects"
 
   sync_pyramid_enriched_refs:
     class: SyncPyramidEnrichedRefsJob
@@ -106,11 +97,11 @@ production:
     concurrency: 1
     description: "Get valid referral codes from Pyramid Scheme and update records"
 
-  process_demo_broken_reports:
-    class: ProcessDemoBrokenReportsJob
-    schedule: every 30 minutes
-    concurrency: 1
-    description: "Process demo_broken reports: auto-review and re-certify projects with 5+ pending, notify Slack for 15+ total"
+  # process_demo_broken_reports:
+  #   class: ProcessDemoBrokenReportsJob
+  #   schedule: every 30 minutes
+  #   concurrency: 1
+  #   description: "Process demo_broken reports: auto-review and re-certify projects with 5+ pending, notify Slack for 15+ total"
 
   fraud_daily_summary:
     class: FraudDailySummaryJob
@@ -136,23 +127,11 @@ production:
     concurrency: 1
     description: "Calculate weekly fulfillment payouts (3 tickets per fulfilled order)"
 
-  ysws_check_duplicates:
-    class: YswsReview::CheckDuplicatesJob
-    schedule: every day
-    concurrency: 1
-    description: "Check YSWS submissions for duplicates in unified database"
-
   support_vibecheck_est:
     class: SupportVibecheckJob
     schedule: every day at 12pm America/New_York
     concurrency: 1
     description: "Run support vibecheck at 12pm EST"
-
-  pull_user_club_data:
-    class: Airtable::UserClubPullJob
-    schedule: every day at 3am America/New_York
-    concurrency: 1
-    description: "Pull Airtable record IDs and club names from Airtable to local DB (daily off-peak sync)"
 
   refresh_user_verdicts:
     class: User::RefreshVerdictsJob

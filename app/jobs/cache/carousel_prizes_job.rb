@@ -2,16 +2,15 @@ class Cache::CarouselPrizesJob < ApplicationJob
   queue_as :literally_whenever
 
   CACHE_KEY = "landing_carousel_prizes"
-  CACHE_DURATION = 1.hour
 
   def self.fetch(force: false)
-    Rails.cache.fetch(CACHE_KEY, expires_in: CACHE_DURATION, force: force) do
+    Rails.cache.fetch(CACHE_KEY, force: force) do
       new.send(:build_prizes_data)
     end
   end
 
   def perform(force: false)
-    Rails.cache.fetch(CACHE_KEY, expires_in: CACHE_DURATION, force: force) do
+    Rails.cache.fetch(CACHE_KEY, force: force) do
       build_prizes_data
     end
   end
@@ -39,21 +38,15 @@ class Cache::CarouselPrizesJob < ApplicationJob
   end
 
   def generate_image_urls(prize)
-    url_options = { expires_in: CACHE_DURATION + 1.hour }
-
     [
-      url_for_variant(prize.image.variant(:carousel_sm), url_options),
-      url_for_variant(prize.image.variant(:carousel_md), url_options),
-      url_for_variant(prize.image.variant(:carousel_lg), url_options)
+      url_for_variant(prize.image.variant(:carousel_sm)),
+      url_for_variant(prize.image.variant(:carousel_md)),
+      url_for_variant(prize.image.variant(:carousel_lg))
     ]
   end
 
-  def url_for_variant(variant, options)
-    Rails.application.routes.url_helpers.rails_representation_path(
-      variant.processed,
-      only_path: true,
-      **options
-    )
+  def url_for_variant(variant)
+    Rails.application.routes.url_helpers.rails_representation_path(variant.processed, only_path: true)
   end
 
   def build_srcset(sm, md, lg)
