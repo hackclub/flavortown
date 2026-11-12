@@ -115,7 +115,7 @@ gem "jsbundling-rails", "~> 1.3"
 gem "stackprof"
 
 # for pagination
-gem "pagy", "~> 43.5"
+gem "pagy", "~> 43.8"
 gem "norairrecord"
 
 gem "awesome_print"
