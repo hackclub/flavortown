@@ -1,5 +1,5 @@
 # Build libheif from source
-FROM ruby:3.4.3-slim AS libheif-build
+FROM ruby:3.4.13-slim-bookworm AS libheif-build
 ARG LIBHEIF_VERSION=1.23.2
 ARG LIBHEIF_SHA256=1405ed070421459b569ff49deab109b7f1a30a447e72a9b20a4154f774634a44
 RUN apt-get update -qq && \
@@ -18,7 +18,7 @@ RUN apt-get update -qq && \
     make install && \
     ldconfig
 
-FROM ruby:3.4.3
+FROM ruby:3.4.13-bookworm
 
 # Install system dependencies
 RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
